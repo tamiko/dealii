@@ -116,11 +116,9 @@ public:
    * @note we test real_type here to get the underlying scalar type when using
    * std::complex.
    */
-  static_assert(
-    std::is_arithmetic<
-      typename numbers::NumberTraits<Number>::real_type>::value,
-    "The Vector class only supports basic numeric types. In particular, it "
-    "does not support automatically differentiated numbers.");
+  static_assert(std::is_arithmetic<typename numbers::NumberTraits<Number>::real_type>::value,
+                "The Vector class only supports basic numeric types. In particular, it "
+                "does not support automatically differentiated numbers.");
 
   /**
    * Declare standard types used in all containers. These types parallel those
@@ -326,9 +324,7 @@ public:
    * to the vector in the plane spanned by the @p i'th and @p k'th unit vectors.
    */
   void
-  apply_givens_rotation(const std::array<Number, 3> &csr,
-                        const size_type              i,
-                        const size_type              k);
+  apply_givens_rotation(const std::array<Number, 3> &csr, const size_type i, const size_type k);
 
   /**
    * Change the dimension to that of the vector @p V. The same applies as for
@@ -660,15 +656,14 @@ public:
    */
   template <typename OtherNumber>
   void
-  extract_subvector_to(const std::vector<size_type> &indices,
-                       std::vector<OtherNumber> &    values) const;
+  extract_subvector_to(const std::vector<size_type> &indices, std::vector<OtherNumber> &values) const;
 
   /**
    * Extract a range of elements all at once.
    */
   virtual void
   extract_subvector_to(const ArrayView<const types::global_dof_index> &indices,
-                       ArrayView<Number> &elements) const override;
+                       ArrayView<Number>                              &elements) const override;
 
   /**
    * Instead of getting individual elements of a vector via operator(),
@@ -732,8 +727,7 @@ public:
    */
   template <typename OtherNumber>
   void
-  add(const std::vector<size_type> &  indices,
-      const std::vector<OtherNumber> &values);
+  add(const std::vector<size_type> &indices, const std::vector<OtherNumber> &values);
 
   /**
    * This is a second collective add operation. As a difference, this function
@@ -750,9 +744,7 @@ public:
    */
   template <typename OtherNumber>
   void
-  add(const size_type    n_elements,
-      const size_type *  indices,
-      const OtherNumber *values);
+  add(const size_type n_elements, const size_type *indices, const OtherNumber *values);
 
   /**
    * Addition of @p s to all components. Note that @p s is a scalar and not a
@@ -769,10 +761,7 @@ public:
    * @dealiiOperationIsMultithreaded
    */
   void
-  add(const Number          a,
-      const Vector<Number> &V,
-      const Number          b,
-      const Vector<Number> &W);
+  add(const Number a, const Vector<Number> &V, const Number b, const Vector<Number> &W);
 
   /**
    * Simple addition of a multiple of a vector, i.e. <tt>*this += a*V</tt>.
@@ -868,7 +857,7 @@ public:
    * while if @p false then the elements are printed on a separate line each.
    */
   void
-  print(std::ostream &     out,
+  print(std::ostream      &out,
         const unsigned int precision  = 3,
         const bool         scientific = true,
         const bool         across     = true) const;
@@ -1041,16 +1030,13 @@ private:
    * Actual implementation of the reinit functions.
    */
   void
-  do_reinit(const size_type new_size,
-            const bool      omit_zeroing_entries,
-            const bool      reset_partitioner);
+  do_reinit(const size_type new_size, const bool omit_zeroing_entries, const bool reset_partitioner);
 
   /**
    * For parallel loops with TBB, this member variable stores the affinity
    * information of loops.
    */
-  mutable std::shared_ptr<parallel::internal::TBBPartitioner>
-    thread_loop_partitioner;
+  mutable std::shared_ptr<parallel::internal::TBBPartitioner> thread_loop_partitioner;
 
   // Make all other vector types friends.
   template <typename Number2>
@@ -1236,8 +1222,7 @@ Vector<Number>::operator[](const size_type i)
 template <typename Number>
 template <typename OtherNumber>
 inline void
-Vector<Number>::extract_subvector_to(const std::vector<size_type> &indices,
-                                     std::vector<OtherNumber> &    values) const
+Vector<Number>::extract_subvector_to(const std::vector<size_type> &indices, std::vector<OtherNumber> &values) const
 {
   for (size_type i = 0; i < indices.size(); ++i)
     values[i] = operator()(indices[i]);
@@ -1278,11 +1263,9 @@ Vector<Number>::operator/=(const Number factor)
 template <typename Number>
 template <typename OtherNumber>
 inline void
-Vector<Number>::add(const std::vector<size_type> &  indices,
-                    const std::vector<OtherNumber> &values)
+Vector<Number>::add(const std::vector<size_type> &indices, const std::vector<OtherNumber> &values)
 {
-  Assert(indices.size() == values.size(),
-         ExcDimensionMismatch(indices.size(), values.size()));
+  Assert(indices.size() == values.size(), ExcDimensionMismatch(indices.size(), values.size()));
   add(indices.size(), indices.data(), values.data());
 }
 
@@ -1291,11 +1274,9 @@ Vector<Number>::add(const std::vector<size_type> &  indices,
 template <typename Number>
 template <typename OtherNumber>
 inline void
-Vector<Number>::add(const std::vector<size_type> &indices,
-                    const Vector<OtherNumber> &   values)
+Vector<Number>::add(const std::vector<size_type> &indices, const Vector<OtherNumber> &values)
 {
-  Assert(indices.size() == values.size(),
-         ExcDimensionMismatch(indices.size(), values.size()));
+  Assert(indices.size() == values.size(), ExcDimensionMismatch(indices.size(), values.size()));
   add(indices.size(), indices.data(), values.values.begin());
 }
 
@@ -1304,17 +1285,13 @@ Vector<Number>::add(const std::vector<size_type> &indices,
 template <typename Number>
 template <typename OtherNumber>
 inline void
-Vector<Number>::add(const size_type    n_indices,
-                    const size_type *  indices,
-                    const OtherNumber *values)
+Vector<Number>::add(const size_type n_indices, const size_type *indices, const OtherNumber *values)
 {
   for (size_type i = 0; i < n_indices; ++i)
     {
       AssertIndexRange(indices[i], size());
-      Assert(
-        numbers::is_finite(values[i]),
-        ExcMessage(
-          "The given value is not finite but either infinite or Not A Number (NaN)"));
+      Assert(numbers::is_finite(values[i]),
+             ExcMessage("The given value is not finite but either infinite or Not A Number (NaN)"));
 
       this->values[indices[i]] += values[i];
     }
@@ -1333,7 +1310,8 @@ Vector<Number>::operator!=(const Vector<Number2> &v) const
 
 
 template <typename Number>
-inline void Vector<Number>::compress(VectorOperation::values) const
+inline void
+Vector<Number>::compress(VectorOperation::values) const
 {}
 
 
@@ -1364,8 +1342,7 @@ Vector<Number>::update_ghost_values() const
 template <typename Number>
 template <typename Number2>
 inline void
-Vector<Number>::reinit(const Vector<Number2> &v,
-                       const bool             omit_zeroing_entries)
+Vector<Number>::reinit(const Vector<Number2> &v, const bool omit_zeroing_entries)
 {
   // go to actual reinit functions in case we need to change something with
   // the vector, else there is nothing to be done

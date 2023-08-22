@@ -73,12 +73,9 @@ test_real_to_unit_cell()
           for (unsigned int y = 0; y < n_points; ++y)
             for (unsigned int z = 0; z < n_points; ++z)
               {
-                unit_points[z * n_points * n_points + y * n_points + x][0] =
-                  double(x) / double(n_points);
-                unit_points[z * n_points * n_points + y * n_points + x][1] =
-                  double(y) / double(n_points);
-                unit_points[z * n_points * n_points + y * n_points + x][2] =
-                  double(z) / double(n_points);
+                unit_points[z * n_points * n_points + y * n_points + x][0] = double(x) / double(n_points);
+                unit_points[z * n_points * n_points + y * n_points + x][1] = double(y) / double(n_points);
+                unit_points[z * n_points * n_points + y * n_points + x][2] = double(z) / double(n_points);
               }
         break;
     }
@@ -94,8 +91,7 @@ test_real_to_unit_cell()
   MappingFEField<dim, spacedim> map(dhb, eulerq, mask);
 
 
-  typename Triangulation<dim, spacedim>::active_cell_iterator cell =
-    triangulation.begin_active();
+  typename Triangulation<dim, spacedim>::active_cell_iterator cell = triangulation.begin_active();
 
   // Move a vertex a little bit
   const unsigned int n_dx = 5;
@@ -119,9 +115,8 @@ test_real_to_unit_cell()
           // pull back that we get
           // the same point again
 
-          const Point<spacedim> p =
-            map.transform_unit_to_real_cell(cell, unit_points[i]);
-          const Point<dim> p_unit = map.transform_real_to_unit_cell(cell, p);
+          const Point<spacedim> p      = map.transform_unit_to_real_cell(cell, unit_points[i]);
+          const Point<dim>      p_unit = map.transform_real_to_unit_cell(cell, p);
 
           Assert(unit_points[i].distance(p_unit) < 1e-10, ExcInternalError());
         }

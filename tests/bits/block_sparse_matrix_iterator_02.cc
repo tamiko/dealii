@@ -68,20 +68,17 @@ test()
   BlockSparsityPattern sparsity(2, 2);
   for (unsigned int i = 0; i < 2; ++i)
     for (unsigned int j = 0; j < 2; ++j)
-      sparsity.block(i, j).reinit(block_sizes[i],
-                                  block_sizes[j],
-                                  dof_handler.max_couplings_between_dofs());
+      sparsity.block(i, j).reinit(block_sizes[i], block_sizes[j], dof_handler.max_couplings_between_dofs());
   sparsity.collect_sizes();
 
   DoFTools::make_sparsity_pattern(dof_handler, sparsity);
   sparsity.compress();
   BlockSparseMatrix<double> A(sparsity);
 
-  const BlockSparseMatrix<double>::const_iterator begin = A.begin(),
-                                                  end   = A.end();
+  const BlockSparseMatrix<double>::const_iterator begin = A.begin(), end = A.end();
 
-  deallog << begin->row() << ' ' << begin->column() << ' ' << begin->block_row()
-          << ' ' << begin->block_column() << std::endl;
+  deallog << begin->row() << ' ' << begin->column() << ' ' << begin->block_row() << ' ' << begin->block_column()
+          << std::endl;
 
   // this matrix certainly has entries
   Assert(begin != end, ExcInternalError());
@@ -101,28 +98,20 @@ main()
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

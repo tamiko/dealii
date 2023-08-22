@@ -67,8 +67,7 @@
 
 template <int dim, typename number, int spacedim>
 void
-reinit_vector(const dealii::DoFHandler<dim, spacedim> &mg_dof,
-              MGLevelObject<dealii::Vector<number>> &  v)
+reinit_vector(const dealii::DoFHandler<dim, spacedim> &mg_dof, MGLevelObject<dealii::Vector<number>> &v)
 {
   for (unsigned int level = v.min_level(); level <= v.max_level(); ++level)
     {
@@ -81,18 +80,15 @@ template <int dim>
 void
 initialize(const DoFHandler<dim> &dof, Vector<double> &u)
 {
-  const unsigned int dofs_per_cell = dof.get_fe().dofs_per_cell;
+  const unsigned int                   dofs_per_cell = dof.get_fe().dofs_per_cell;
   std::vector<types::global_dof_index> dof_indices(dofs_per_cell);
-  for (typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active();
-       cell != dof.end();
-       ++cell)
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(); cell != dof.end(); ++cell)
     {
       cell->get_dof_indices(dof_indices);
       for (unsigned int i = 0; i < dofs_per_cell; ++i)
         {
-          const unsigned int comp =
-            dof.get_fe().system_to_component_index(i).first;
-          u(dof_indices[i]) = comp + 1;
+          const unsigned int comp = dof.get_fe().system_to_component_index(i).first;
+          u(dof_indices[i])       = comp + 1;
         }
     }
 }
@@ -102,8 +98,8 @@ template <int dim>
 void
 initialize(const DoFHandler<dim> &dof, MGLevelObject<Vector<double>> &u)
 {
-  unsigned int       counter       = 0;
-  const unsigned int dofs_per_cell = dof.get_fe().dofs_per_cell;
+  unsigned int                            counter       = 0;
+  const unsigned int                      dofs_per_cell = dof.get_fe().dofs_per_cell;
   std::vector<types::global_dof_index>    dof_indices(dofs_per_cell);
   typename DoFHandler<dim>::cell_iterator cell = dof.begin(0);
   cell->get_mg_dof_indices(dof_indices);
@@ -114,18 +110,13 @@ initialize(const DoFHandler<dim> &dof, MGLevelObject<Vector<double>> &u)
 
 template <int dim>
 void
-diff(Vector<double> &       diff,
-     const DoFHandler<dim> &dof,
-     const Vector<double> & v,
-     const unsigned int     level)
+diff(Vector<double> &diff, const DoFHandler<dim> &dof, const Vector<double> &v, const unsigned int level)
 {
   diff.reinit(v);
-  const unsigned int dofs_per_cell = dof.get_fe().dofs_per_cell;
+  const unsigned int                   dofs_per_cell = dof.get_fe().dofs_per_cell;
   std::vector<types::global_dof_index> mg_dof_indices(dofs_per_cell);
   const unsigned int                   n_comp = dof.get_fe().n_components();
-  for (typename DoFHandler<dim>::cell_iterator cell = dof.begin(level);
-       cell != dof.end(level);
-       ++cell)
+  for (typename DoFHandler<dim>::cell_iterator cell = dof.begin(level); cell != dof.end(level); ++cell)
     {
       cell->get_mg_dof_indices(mg_dof_indices);
       for (unsigned int i = 0; i < dofs_per_cell / n_comp; ++i)
@@ -152,24 +143,20 @@ public:
 
 template <int dim>
 void
-OutputCreator<dim>::cell(MeshWorker::DoFInfo<dim> &        dinfo,
-                         MeshWorker::IntegrationInfo<dim> &info)
+OutputCreator<dim>::cell(MeshWorker::DoFInfo<dim> &dinfo, MeshWorker::IntegrationInfo<dim> &info)
 {
-  const FEValuesBase<dim> &               fe = info.fe_values();
+  const FEValuesBase<dim>                &fe = info.fe_values();
   const std::vector<std::vector<double>> &uh = info.values[0];
 
-  const unsigned int square_root =
-    static_cast<unsigned int>(std::pow(fe.n_quadrature_points, 1. / dim) + .5);
+  const unsigned int square_root = static_cast<unsigned int>(std::pow(fe.n_quadrature_points, 1. / dim) + .5);
   for (unsigned int k1 = 0; k1 < square_root; ++k1)
     {
       for (unsigned int k2 = 0; k2 < square_root; ++k2)
         {
           for (unsigned int d = 0; d < dim; ++d)
-            dinfo.quadrature_value(k1 * square_root + k2, d) =
-              fe.quadrature_point(k1 * square_root + k2)[d];
+            dinfo.quadrature_value(k1 * square_root + k2, d) = fe.quadrature_point(k1 * square_root + k2)[d];
           for (unsigned int i = 0; i < uh.size(); ++i)
-            dinfo.quadrature_value(k1 * square_root + k2, i + dim) =
-              uh[i][k1 * square_root + k2];
+            dinfo.quadrature_value(k1 * square_root + k2, i + dim) = uh[i][k1 * square_root + k2];
         }
     }
 }
@@ -233,8 +220,7 @@ LaplaceProblem<dim>::setup_system()
   for (unsigned int l = 0; l < nlevels; ++l)
     boundary_indices_renumbered[l].clear();
 
-  deallog << "Number of degrees of freedom: "
-          << mg_dof_handler_renumbered.n_dofs();
+  deallog << "Number of degrees of freedom: " << mg_dof_handler_renumbered.n_dofs();
 
   for (unsigned int l = 0; l < triangulation.n_levels(); ++l)
     deallog << "   " << 'L' << l << ": " << mg_dof_handler_renumbered.n_dofs(l);
@@ -243,17 +229,15 @@ LaplaceProblem<dim>::setup_system()
 
 template <int dim>
 void
-LaplaceProblem<dim>::output_gpl(const DoFHandler<dim> &        dof,
-                                MGLevelObject<Vector<double>> &v)
+LaplaceProblem<dim>::output_gpl(const DoFHandler<dim> &dof, MGLevelObject<Vector<double>> &v)
 {
   MeshWorker::IntegrationInfoBox<dim> info_box;
-  const unsigned int n_gauss_points = dof.get_fe().tensor_degree();
-  QTrapezoid<1>      trapez;
-  QIterated<dim>     quadrature(trapez, n_gauss_points);
+  const unsigned int                  n_gauss_points = dof.get_fe().tensor_degree();
+  QTrapezoid<1>                       trapez;
+  QIterated<dim>                      quadrature(trapez, n_gauss_points);
   info_box.cell_quadrature = quadrature;
   info_box.initialize_update_flags();
-  UpdateFlags update_flags =
-    update_quadrature_points | update_values | update_gradients;
+  UpdateFlags update_flags = update_quadrature_points | update_values | update_gradients;
   info_box.add_update_flags(update_flags, true, true, true, true);
 
   AnyData data;
@@ -269,18 +253,12 @@ LaplaceProblem<dim>::output_gpl(const DoFHandler<dim> &        dof,
   for (unsigned int l = 0; l < triangulation.n_levels(); ++l)
     {
       OutputCreator<dim> matrix_integrator;
-      MeshWorker::loop<dim,
-                       dim,
-                       MeshWorker::DoFInfo<dim>,
-                       MeshWorker::IntegrationInfoBox<dim>>(
+      MeshWorker::loop<dim, dim, MeshWorker::DoFInfo<dim>, MeshWorker::IntegrationInfoBox<dim>>(
         dof.begin_mg(l),
         dof.end_mg(l),
         dof_info,
         info_box,
-        std::bind(&OutputCreator<dim>::cell,
-                  &matrix_integrator,
-                  std::placeholders::_1,
-                  std::placeholders::_2),
+        std::bind(&OutputCreator<dim>::cell, &matrix_integrator, std::placeholders::_1, std::placeholders::_2),
         nullptr,
         nullptr,
         assembler);
@@ -292,11 +270,9 @@ void
 LaplaceProblem<dim>::test_boundary()
 {
   std::map<types::boundary_id, const Function<dim> *> dirichlet_boundary;
-  Functions::ZeroFunction<dim> dirichlet_bc(fe.n_components());
+  Functions::ZeroFunction<dim>                        dirichlet_bc(fe.n_components());
   dirichlet_boundary[0] = &dirichlet_bc;
-  MGTools::make_boundary_list(mg_dof_handler_renumbered,
-                              dirichlet_boundary,
-                              boundary_indices_renumbered);
+  MGTools::make_boundary_list(mg_dof_handler_renumbered, dirichlet_boundary, boundary_indices_renumbered);
 
   MGLevelObject<Vector<double>> u(0, triangulation.n_levels() - 1);
   MGLevelObject<Vector<double>> d(0, triangulation.n_levels() - 1);
@@ -306,8 +282,7 @@ LaplaceProblem<dim>::test_boundary()
       u[l].reinit(mg_dof_handler_renumbered.n_dofs(l));
       u[l] = 1.;
 
-      for (std::set<types::global_dof_index>::const_iterator i =
-             boundary_indices_renumbered[l].begin();
+      for (std::set<types::global_dof_index>::const_iterator i = boundary_indices_renumbered[l].begin();
            i != boundary_indices_renumbered[l].end();
            ++i)
         {
@@ -324,17 +299,15 @@ void
 LaplaceProblem<dim>::refine_local()
 {
   bool cell_refined = false;
-  for (typename Triangulation<dim>::active_cell_iterator cell =
-         triangulation.begin_active();
+  for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
        cell != triangulation.end();
        ++cell)
     {
       for (const unsigned int vertex : GeometryInfo<dim>::vertex_indices())
         {
-          const Point<dim> p = cell->vertex(vertex);
-          const Point<dim> origin =
-            (dim == 2 ? Point<dim>(0, 0) : Point<dim>(0, 0, 0));
-          const double dist = p.distance(origin);
+          const Point<dim> p      = cell->vertex(vertex);
+          const Point<dim> origin = (dim == 2 ? Point<dim>(0, 0) : Point<dim>(0, 0, 0));
+          const double     dist   = p.distance(origin);
           if (dist < 0.25 / numbers::PI)
             {
               cell->set_refine_flag();
@@ -345,8 +318,7 @@ LaplaceProblem<dim>::refine_local()
     }
   // Wenn nichts verfeinert wurde bisher, global verfeinern!
   if (!cell_refined)
-    for (typename Triangulation<dim>::active_cell_iterator cell =
-           triangulation.begin_active();
+    for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
          cell != triangulation.end();
          ++cell)
       cell->set_refine_flag();

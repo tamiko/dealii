@@ -45,22 +45,17 @@ test()
       if (cell->is_locally_owned_on_level())
         {
           deallog << cell << ": locally owned" << std::endl;
-          Assert(!cell->is_ghost_on_level() && !cell->is_artificial_on_level(),
-                 ExcInternalError());
+          Assert(!cell->is_ghost_on_level() && !cell->is_artificial_on_level(), ExcInternalError());
         }
       if (cell->is_ghost_on_level())
         {
           deallog << cell << ": ghost" << std::endl;
-          Assert(!cell->is_locally_owned_on_level() &&
-                   !cell->is_artificial_on_level(),
-                 ExcInternalError());
+          Assert(!cell->is_locally_owned_on_level() && !cell->is_artificial_on_level(), ExcInternalError());
         }
       if (cell->is_artificial_on_level())
         {
           deallog << cell << ": artificial" << std::endl;
-          Assert(!cell->is_locally_owned_on_level() &&
-                   !cell->is_ghost_on_level(),
-                 ExcInternalError());
+          Assert(!cell->is_locally_owned_on_level() && !cell->is_ghost_on_level(), ExcInternalError());
         }
     }
 }

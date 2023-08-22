@@ -40,12 +40,9 @@ test(MPI_Comm comm)
   GridGenerator::hyper_cube(basetria);
   basetria.refine_global(1);
 
-  GridTools::partition_triangulation_zorder(
-    Utilities::MPI::n_mpi_processes(comm), basetria);
+  GridTools::partition_triangulation_zorder(Utilities::MPI::n_mpi_processes(comm), basetria);
 
-  auto t1 =
-    TriangulationDescription::Utilities::create_description_from_triangulation(
-      basetria, comm);
+  auto t1 = TriangulationDescription::Utilities::create_description_from_triangulation(basetria, comm);
 
   // compare equal TriangulationDescription::Descriptions
   auto t2 = t1;
@@ -53,12 +50,9 @@ test(MPI_Comm comm)
 
   basetria.refine_global(1);
 
-  GridTools::partition_triangulation_zorder(
-    Utilities::MPI::n_mpi_processes(comm), basetria);
+  GridTools::partition_triangulation_zorder(Utilities::MPI::n_mpi_processes(comm), basetria);
 
-  auto t3 =
-    TriangulationDescription::Utilities::create_description_from_triangulation(
-      basetria, comm);
+  auto t3 = TriangulationDescription::Utilities::create_description_from_triangulation(basetria, comm);
 
   // compare different TriangulationDescription::Descriptions
   verify(t1, t3);

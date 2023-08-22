@@ -41,9 +41,7 @@ test()
   DoFHandler<dim>   dof_handler(triangulation);
 
   GridGenerator::hyper_cube(triangulation, 0., 1., true);
-  std::vector<
-    GridTools::PeriodicFacePair<typename Triangulation<dim>::cell_iterator>>
-    periodicity_vector;
+  std::vector<GridTools::PeriodicFacePair<typename Triangulation<dim>::cell_iterator>> periodicity_vector;
   GridTools::collect_periodic_faces(triangulation, 0, 1, 0, periodicity_vector);
   triangulation.add_periodicity(periodicity_vector);
 
@@ -51,9 +49,8 @@ test()
   dof_handler.distribute_dofs(fe);
   using Iterator = typename DoFHandler<dim>::active_cell_iterator;
 
-  const auto cell_worker = [&](const Iterator & /*cell*/,
-                               ScratchData<dim> & /*scratch_data*/,
-                               CopyData & /*copy_data*/) {};
+  const auto cell_worker =
+    [&](const Iterator & /*cell*/, ScratchData<dim> & /*scratch_data*/, CopyData & /*copy_data*/) {};
 
   const auto boundary_worker = [&](const Iterator & /*cell*/,
                                    const unsigned int & /*face_no*/,
@@ -80,8 +77,7 @@ test()
                         copier,
                         scratch_data,
                         copy_data,
-                        MeshWorker::assemble_own_cells |
-                          MeshWorker::assemble_boundary_faces |
+                        MeshWorker::assemble_own_cells | MeshWorker::assemble_boundary_faces |
                           MeshWorker::assemble_own_interior_faces_once,
                         boundary_worker,
                         face_worker);

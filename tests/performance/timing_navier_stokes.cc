@@ -100,9 +100,8 @@ namespace NavierStokes_DG
   public:
     LowStorageRungeKuttaIntegrator()
     {
-      TimeStepping::LowStorageRungeKutta<
-        LinearAlgebra::distributed::Vector<Number>>
-        rk_integrator(TimeStepping::LOW_STORAGE_RK_STAGE3_ORDER3);
+      TimeStepping::LowStorageRungeKutta<LinearAlgebra::distributed::Vector<Number>> rk_integrator(
+        TimeStepping::LOW_STORAGE_RK_STAGE3_ORDER3);
       std::vector<double> ci; // not used
       rk_integrator.get_coefficients(ai, bi, ci);
     }
@@ -118,9 +117,9 @@ namespace NavierStokes_DG
     perform_time_step(const Operator &pde_operator,
                       const double    current_time,
                       const double    time_step,
-                      VectorType &    solution,
-                      VectorType &    vec_ri,
-                      VectorType &    vec_ki) const
+                      VectorType     &solution,
+                      VectorType     &vec_ri,
+                      VectorType     &vec_ki) const
     {
       AssertDimension(ai.size() + 1, bi.size());
 
@@ -134,9 +133,7 @@ namespace NavierStokes_DG
           pde_operator.perform_stage(stage,
                                      current_time + c_i * time_step,
                                      bi[stage] * time_step,
-                                     (stage == bi.size() - 1 ?
-                                        0 :
-                                        ai[stage] * time_step),
+                                     (stage == bi.size() - 1 ? 0 : ai[stage] * time_step),
                                      (stage % 2 == 0 ? vec_ki : vec_ri),
                                      (stage % 2 == 0 ? vec_ri : vec_ki),
                                      solution);
@@ -169,25 +166,19 @@ namespace NavierStokes_DG
 
   template <int dim>
   double
-  ExactSolution<dim>::value(const Point<dim> & x,
-                            const unsigned int component) const
+  ExactSolution<dim>::value(const Point<dim> &x, const unsigned int component) const
   {
     const double c0 = 1. / Ma;
     const double T0 = c0 * c0 / (gamma * R);
     if (component == 0)
-      return 1 + 1. / (R * T0) * 1. / 16. *
-                   (std::cos(2 * x[0]) + std::cos(2 * x[1])) *
-                   (std::cos(2 * x[2]) + 2.);
+      return 1 + 1. / (R * T0) * 1. / 16. * (std::cos(2 * x[0]) + std::cos(2 * x[1])) * (std::cos(2 * x[2]) + 2.);
     else if (component == 1)
       return std::sin(x[0]) * std::cos(x[1]) * std::cos(x[2]);
     else if (component == 2)
       return -std::cos(x[0]) * std::sin(x[1]) * std::cos(x[2]);
     else if (component == dim + 1)
-      return c_v * T0 +
-             0.5 * (Utilities::fixed_power<2>(std::sin(x[0]) * std::cos(x[1]) *
-                                              std::cos(x[2])) +
-                    Utilities::fixed_power<2>(std::cos(x[0]) * std::sin(x[1]) *
-                                              std::cos(x[2])));
+      return c_v * T0 + 0.5 * (Utilities::fixed_power<2>(std::sin(x[0]) * std::cos(x[1]) * std::cos(x[2])) +
+                               Utilities::fixed_power<2>(std::cos(x[0]) * std::sin(x[1]) * std::cos(x[2])));
     else
       return 0.;
   }
@@ -213,8 +204,7 @@ namespace NavierStokes_DG
     Number
     fluid_pressure(const Tensor<1, dim + 2, Number> &conserved_variables)
   {
-    const Tensor<1, dim, Number> velocity =
-      fluid_velocity<dim>(conserved_variables);
+    const Tensor<1, dim, Number> velocity = fluid_velocity<dim>(conserved_variables);
 
     Number rho_u_dot_u = conserved_variables[1] * velocity[0];
     for (unsigned int d = 1; d < dim; ++d)
@@ -228,9 +218,8 @@ namespace NavierStokes_DG
     Tensor<1, dim + 2, Tensor<1, dim, Number>>
     euler_flux(const Tensor<1, dim + 2, Number> &conserved_variables)
   {
-    const Tensor<1, dim, Number> velocity =
-      fluid_velocity<dim>(conserved_variables);
-    const Number pressure = fluid_pressure<dim>(conserved_variables);
+    const Tensor<1, dim, Number> velocity = fluid_velocity<dim>(conserved_variables);
+    const Number                 pressure = fluid_pressure<dim>(conserved_variables);
 
     Tensor<1, dim + 2, Tensor<1, dim, Number>> flux;
     for (unsigned int d = 0; d < dim; ++d)
@@ -239,8 +228,7 @@ namespace NavierStokes_DG
         for (unsigned int e = 0; e < dim; ++e)
           flux[e + 1][d] = conserved_variables[e + 1] * velocity[d];
         flux[d + 1][d] += pressure;
-        flux[dim + 1][d] =
-          velocity[d] * (conserved_variables[dim + 1] + pressure);
+        flux[dim + 1][d] = velocity[d] * (conserved_variables[dim + 1] + pressure);
       }
 
     return flux;
@@ -249,8 +237,7 @@ namespace NavierStokes_DG
   template <int n_components, int dim, typename Number>
   inline DEAL_II_ALWAYS_INLINE //
     Tensor<1, n_components, Number>
-    operator*(const Tensor<1, n_components, Tensor<1, dim, Number>> &matrix,
-              const Tensor<1, dim, Number> &                         vector)
+    operator*(const Tensor<1, n_components, Tensor<1, dim, Number>> &matrix, const Tensor<1, dim, Number> &vector)
   {
     Tensor<1, n_components, Number> result;
     for (unsigned int d = 0; d < n_components; ++d)
@@ -263,7 +250,7 @@ namespace NavierStokes_DG
     Tensor<1, dim + 2, Number>
     euler_numerical_flux(const Tensor<1, dim + 2, Number> &u_m,
                          const Tensor<1, dim + 2, Number> &u_p,
-                         const Tensor<1, dim, Number> &    normal)
+                         const Tensor<1, dim, Number>     &normal)
   {
     const auto velocity_m = fluid_velocity<dim>(u_m);
     const auto velocity_p = fluid_velocity<dim>(u_p);
@@ -274,34 +261,28 @@ namespace NavierStokes_DG
     const auto flux_m = euler_flux<dim>(u_m);
     const auto flux_p = euler_flux<dim>(u_p);
 
-    const auto avg_velocity_normal = 0.5 * ((velocity_m + velocity_p) * normal);
-    const auto avg_c               = std::sqrt(std::abs(
-      0.5 * gamma * (pressure_p * (1. / u_p[0]) + pressure_m * (1. / u_m[0]))));
-    const Number s_pos     = std::max(Number(), avg_velocity_normal + avg_c);
-    const Number s_neg     = std::min(Number(), avg_velocity_normal - avg_c);
+    const auto   avg_velocity_normal = 0.5 * ((velocity_m + velocity_p) * normal);
+    const auto   avg_c = std::sqrt(std::abs(0.5 * gamma * (pressure_p * (1. / u_p[0]) + pressure_m * (1. / u_m[0]))));
+    const Number s_pos = std::max(Number(), avg_velocity_normal + avg_c);
+    const Number s_neg = std::min(Number(), avg_velocity_normal - avg_c);
     const Number inverse_s = Number(1.) / (s_pos - s_neg);
 
-    return inverse_s *
-           ((s_pos * (flux_m * normal) - s_neg * (flux_p * normal)) -
-            s_pos * s_neg * (u_m - u_p));
+    return inverse_s * ((s_pos * (flux_m * normal) - s_neg * (flux_p * normal)) - s_pos * s_neg * (u_m - u_p));
   }
 
   template <int dim, typename Number>
   inline DEAL_II_ALWAYS_INLINE //
     Tensor<2, dim, Number>
-    fluid_velocity_gradient(
-      const Tensor<1, dim + 2, Number> &                conserved_variables,
-      const Tensor<1, dim + 2, Tensor<1, dim, Number>> &gradients)
+    fluid_velocity_gradient(const Tensor<1, dim + 2, Number>                 &conserved_variables,
+                            const Tensor<1, dim + 2, Tensor<1, dim, Number>> &gradients)
   {
-    const Number inverse_density = Number(1.) / conserved_variables[0];
-    const Tensor<1, dim, Number> velocity =
-      fluid_velocity<dim>(conserved_variables);
+    const Number                 inverse_density = Number(1.) / conserved_variables[0];
+    const Tensor<1, dim, Number> velocity        = fluid_velocity<dim>(conserved_variables);
 
     Tensor<2, dim, Number> gradient;
     for (unsigned int d = 0; d < dim; ++d)
       for (unsigned int e = 0; e < dim; ++e)
-        gradient[d][e] = inverse_density *
-                         (gradients[d + 1][e] - velocity[d] * gradients[0][e]);
+        gradient[d][e] = inverse_density * (gradients[d + 1][e] - velocity[d] * gradients[0][e]);
 
     return gradient;
   }
@@ -319,28 +300,24 @@ namespace NavierStokes_DG
   template <int dim, typename Number>
   inline DEAL_II_ALWAYS_INLINE //
     Tensor<1, dim, Number>
-    fluid_temperature_gradient(
-      const Tensor<1, dim + 2, Number> &                conserved_variables,
-      const Tensor<1, dim + 2, Tensor<1, dim, Number>> &gradients)
+    fluid_temperature_gradient(const Tensor<1, dim + 2, Number>                 &conserved_variables,
+                               const Tensor<1, dim + 2, Tensor<1, dim, Number>> &gradients)
   {
     const Number inverse_R = 1. / R;
     return (gamma - 1.) * inverse_R *
            (gradients[dim + 1] -
-            fluid_velocity<dim>(conserved_variables) *
-              fluid_velocity_gradient(conserved_variables, gradients));
+            fluid_velocity<dim>(conserved_variables) * fluid_velocity_gradient(conserved_variables, gradients));
   }
 
   template <int dim, typename Number>
   inline DEAL_II_ALWAYS_INLINE //
     Tensor<1, dim + 2, Tensor<1, dim, Number>>
-    viscous_flux(const Tensor<1, dim + 2, Number> &conserved_variables,
+    viscous_flux(const Tensor<1, dim + 2, Number>                 &conserved_variables,
                  const Tensor<1, dim + 2, Tensor<1, dim, Number>> &gradients)
   {
-    const Tensor<1, dim, Number> velocity =
-      fluid_velocity<dim>(conserved_variables);
-    const Tensor<2, dim, Number> grad_u =
-      fluid_velocity_gradient(conserved_variables, gradients);
-    const Number scaled_div_u = viscosity * (2. / 3.) * trace(grad_u);
+    const Tensor<1, dim, Number> velocity     = fluid_velocity<dim>(conserved_variables);
+    const Tensor<2, dim, Number> grad_u       = fluid_velocity_gradient(conserved_variables, gradients);
+    const Number                 scaled_div_u = viscosity * (2. / 3.) * trace(grad_u);
 
     Tensor<1, dim + 2, Tensor<1, dim, Number>> result;
     for (unsigned int d = 0; d < dim; ++d)
@@ -353,8 +330,7 @@ namespace NavierStokes_DG
         result[d + 1][d] -= scaled_div_u;
       }
 
-    result[dim + 1] =
-      lambda * fluid_temperature_gradient(conserved_variables, gradients);
+    result[dim + 1] = lambda * fluid_temperature_gradient(conserved_variables, gradients);
     for (unsigned int d = 0; d < dim; ++d)
       result[dim + 1][d] += result[d + 1] * velocity;
 
@@ -365,7 +341,7 @@ namespace NavierStokes_DG
 
   template <int dim, typename VectorizedArrayType>
   VectorizedArrayType
-  evaluate_function(const Function<dim> &                  function,
+  evaluate_function(const Function<dim>                   &function,
                     const Point<dim, VectorizedArrayType> &p_vectorized,
                     const unsigned int                     component)
   {
@@ -384,8 +360,7 @@ namespace NavierStokes_DG
 
   template <int dim, typename VectorizedArrayType, int n_components = dim + 2>
   Tensor<1, n_components, VectorizedArrayType>
-  evaluate_function(const Function<dim> &                  function,
-                    const Point<dim, VectorizedArrayType> &p_vectorized)
+  evaluate_function(const Function<dim> &function, const Point<dim, VectorizedArrayType> &p_vectorized)
   {
     AssertDimension(function.n_components, n_components);
     Tensor<1, n_components, VectorizedArrayType> result;
@@ -416,13 +391,10 @@ namespace NavierStokes_DG
     reinit(const Mapping<dim> &mapping, const DoFHandler<dim> &dof_handler);
 
     void
-    set_inflow_boundary(const types::boundary_id       boundary_id,
-                        std::unique_ptr<Function<dim>> inflow_function);
+    set_inflow_boundary(const types::boundary_id boundary_id, std::unique_ptr<Function<dim>> inflow_function);
 
     void
-    set_subsonic_outflow_boundary(
-      const types::boundary_id       boundary_id,
-      std::unique_ptr<Function<dim>> outflow_energy);
+    set_subsonic_outflow_boundary(const types::boundary_id boundary_id, std::unique_ptr<Function<dim>> outflow_energy);
 
     void
     set_wall_boundary(const types::boundary_id boundary_id);
@@ -436,35 +408,29 @@ namespace NavierStokes_DG
                   const Number                                      bi,
                   const Number                                      ai,
                   const LinearAlgebra::distributed::Vector<Number> &current_ri,
-                  LinearAlgebra::distributed::Vector<Number> &      vec_ki,
-                  LinearAlgebra::distributed::Vector<Number> &solution) const;
+                  LinearAlgebra::distributed::Vector<Number>       &vec_ki,
+                  LinearAlgebra::distributed::Vector<Number>       &solution) const;
 
     void
-    perform_stage_face(
-      const unsigned int                                stage,
-      const Number                                      cur_time,
-      const Number                                      bi,
-      const Number                                      ai,
-      const LinearAlgebra::distributed::Vector<Number> &current_ri,
-      LinearAlgebra::distributed::Vector<Number> &      vec_ki,
-      LinearAlgebra::distributed::Vector<Number> &      solution) const;
+    perform_stage_face(const unsigned int                                stage,
+                       const Number                                      cur_time,
+                       const Number                                      bi,
+                       const Number                                      ai,
+                       const LinearAlgebra::distributed::Vector<Number> &current_ri,
+                       LinearAlgebra::distributed::Vector<Number>       &vec_ki,
+                       LinearAlgebra::distributed::Vector<Number>       &solution) const;
 
     void
-    project(const Function<dim> &                       function,
-            LinearAlgebra::distributed::Vector<Number> &solution) const;
+    project(const Function<dim> &function, LinearAlgebra::distributed::Vector<Number> &solution) const;
 
     std::array<double, 3>
-    compute_errors(
-      const Function<dim> &                             function,
-      const LinearAlgebra::distributed::Vector<Number> &solution) const;
+    compute_errors(const Function<dim> &function, const LinearAlgebra::distributed::Vector<Number> &solution) const;
 
     std::array<double, 2>
-    compute_kinetic_energy(
-      const LinearAlgebra::distributed::Vector<Number> &solution) const;
+    compute_kinetic_energy(const LinearAlgebra::distributed::Vector<Number> &solution) const;
 
     double
-    compute_cell_transport_speed(
-      const LinearAlgebra::distributed::Vector<Number> &solution) const;
+    compute_cell_transport_speed(const LinearAlgebra::distributed::Vector<Number> &solution) const;
 
     void
     initialize_vector(LinearAlgebra::distributed::Vector<Number> &vector) const;
@@ -477,44 +443,40 @@ namespace NavierStokes_DG
 
     MatrixFree<dim, Number, VectorizedArrayType> data;
 
-    std::map<types::boundary_id, std::unique_ptr<Function<dim>>>
-      inflow_boundaries;
-    std::map<types::boundary_id, std::unique_ptr<Function<dim>>>
-                                   subsonic_outflow_boundaries;
-    std::set<types::boundary_id>   wall_boundaries;
-    std::unique_ptr<Function<dim>> body_force;
+    std::map<types::boundary_id, std::unique_ptr<Function<dim>>> inflow_boundaries;
+    std::map<types::boundary_id, std::unique_ptr<Function<dim>>> subsonic_outflow_boundaries;
+    std::set<types::boundary_id>                                 wall_boundaries;
+    std::unique_ptr<Function<dim>>                               body_force;
 
     void
     operation_on_cell(const MatrixFree<dim, Number, VectorizedArrayType> &mf,
-                      LinearAlgebra::distributed::Vector<Number> &        dst,
-                      const LinearAlgebra::distributed::Vector<Number> &  src,
-                      const std::pair<unsigned int, unsigned int> &range) const;
+                      LinearAlgebra::distributed::Vector<Number>         &dst,
+                      const LinearAlgebra::distributed::Vector<Number>   &src,
+                      const std::pair<unsigned int, unsigned int>        &range) const;
 
     void
     operation_cell(const MatrixFree<dim, Number, VectorizedArrayType> &mf,
-                   LinearAlgebra::distributed::Vector<Number> &        dst,
-                   const LinearAlgebra::distributed::Vector<Number> &  src,
-                   const std::pair<unsigned int, unsigned int> &range) const;
+                   LinearAlgebra::distributed::Vector<Number>         &dst,
+                   const LinearAlgebra::distributed::Vector<Number>   &src,
+                   const std::pair<unsigned int, unsigned int>        &range) const;
 
     void
     operation_face(const MatrixFree<dim, Number, VectorizedArrayType> &mf,
-                   LinearAlgebra::distributed::Vector<Number> &        dst,
-                   const LinearAlgebra::distributed::Vector<Number> &  src,
-                   const std::pair<unsigned int, unsigned int> &range) const;
+                   LinearAlgebra::distributed::Vector<Number>         &dst,
+                   const LinearAlgebra::distributed::Vector<Number>   &src,
+                   const std::pair<unsigned int, unsigned int>        &range) const;
 
     void
-    operation_boundary(
-      const MatrixFree<dim, Number, VectorizedArrayType> &mf,
-      LinearAlgebra::distributed::Vector<Number> &        dst,
-      const LinearAlgebra::distributed::Vector<Number> &  src,
-      const std::pair<unsigned int, unsigned int> &       range) const;
+    operation_boundary(const MatrixFree<dim, Number, VectorizedArrayType> &mf,
+                       LinearAlgebra::distributed::Vector<Number>         &dst,
+                       const LinearAlgebra::distributed::Vector<Number>   &src,
+                       const std::pair<unsigned int, unsigned int>        &range) const;
 
     void
-    local_apply_inverse_mass_matrix(
-      const MatrixFree<dim, Number> &,
-      LinearAlgebra::distributed::Vector<Number> &      dst,
-      const LinearAlgebra::distributed::Vector<Number> &src,
-      const std::pair<unsigned int, unsigned int> &     cell_range) const;
+    local_apply_inverse_mass_matrix(const MatrixFree<dim, Number> &,
+                                    LinearAlgebra::distributed::Vector<Number>       &dst,
+                                    const LinearAlgebra::distributed::Vector<Number> &src,
+                                    const std::pair<unsigned int, unsigned int>      &cell_range) const;
 
     mutable double                                      ai;
     mutable double                                      bi;
@@ -536,11 +498,7 @@ namespace NavierStokes_DG
       {
         const auto rank = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
 
-        MPI_Comm_split_type(MPI_COMM_WORLD,
-                            MPI_COMM_TYPE_SHARED,
-                            rank,
-                            MPI_INFO_NULL,
-                            &subcommunicator);
+        MPI_Comm_split_type(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, rank, MPI_INFO_NULL, &subcommunicator);
       }
     else
       {
@@ -569,37 +527,28 @@ namespace NavierStokes_DG
 
   template <int dim, int degree, int n_points_1d>
   void
-  NavierStokesOperator<dim, degree, n_points_1d>::reinit(
-    const Mapping<dim> &   mapping,
-    const DoFHandler<dim> &dof_handler)
+  NavierStokesOperator<dim, degree, n_points_1d>::reinit(const Mapping<dim>    &mapping,
+                                                         const DoFHandler<dim> &dof_handler)
   {
-    const std::vector<const DoFHandler<dim> *> dof_handlers = {&dof_handler};
-    const AffineConstraints<double>            dummy;
+    const std::vector<const DoFHandler<dim> *>           dof_handlers = {&dof_handler};
+    const AffineConstraints<double>                      dummy;
     const std::vector<const AffineConstraints<double> *> constraints = {&dummy};
-    const std::vector<Quadrature<1>> quadratures = {QGauss<1>(n_q_points_1d),
-                                                    QGauss<1>(fe_degree + 1)};
+    const std::vector<Quadrature<1>> quadratures = {QGauss<1>(n_q_points_1d), QGauss<1>(fe_degree + 1)};
 
-    typename MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData
-      additional_data;
+    typename MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData additional_data;
     additional_data.mapping_update_flags =
-      (update_gradients | update_JxW_values | update_quadrature_points |
-       update_values);
+      (update_gradients | update_JxW_values | update_quadrature_points | update_values);
     additional_data.mapping_update_flags_inner_faces =
-      (update_JxW_values | update_quadrature_points | update_normal_vectors |
-       update_values);
+      (update_JxW_values | update_quadrature_points | update_normal_vectors | update_values);
     additional_data.mapping_update_flags_boundary_faces =
-      (update_JxW_values | update_quadrature_points | update_normal_vectors |
-       update_values);
-    additional_data.tasks_parallel_scheme =
-      MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData::none;
+      (update_JxW_values | update_quadrature_points | update_normal_vectors | update_values);
+    additional_data.tasks_parallel_scheme = MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData::none;
 
-    MatrixFreeTools::categorize_by_boundary_ids(dof_handler.get_triangulation(),
-                                                additional_data);
+    MatrixFreeTools::categorize_by_boundary_ids(dof_handler.get_triangulation(), additional_data);
 
     additional_data.communicator_sm = subcommunicator;
 
-    data.reinit(
-      mapping, dof_handlers, constraints, quadratures, additional_data);
+    data.reinit(mapping, dof_handlers, constraints, quadratures, additional_data);
   }
 
 
@@ -612,8 +561,8 @@ namespace NavierStokes_DG
     const Number                                      bi,
     const Number                                      ai,
     const LinearAlgebra::distributed::Vector<Number> &current_ri,
-    LinearAlgebra::distributed::Vector<Number> &      vec_ki,
-    LinearAlgebra::distributed::Vector<Number> &      solution) const
+    LinearAlgebra::distributed::Vector<Number>       &vec_ki,
+    LinearAlgebra::distributed::Vector<Number>       &solution) const
   {
     for (auto &i : inflow_boundaries)
       i.second->set_time(current_time);
@@ -625,13 +574,12 @@ namespace NavierStokes_DG
     this->solution = &solution;
     this->stage    = stage;
 
-    data.loop_cell_centric(
-      &NavierStokesOperator::operation_on_cell,
-      this,
-      vec_ki,
-      current_ri,
-      true,
-      MatrixFree<dim, Number, VectorizedArrayType>::DataAccessOnFaces::values);
+    data.loop_cell_centric(&NavierStokesOperator::operation_on_cell,
+                           this,
+                           vec_ki,
+                           current_ri,
+                           true,
+                           MatrixFree<dim, Number, VectorizedArrayType>::DataAccessOnFaces::values);
   }
 
 
@@ -640,22 +588,12 @@ namespace NavierStokes_DG
   void
   NavierStokesOperator<dim, degree, n_points_1d>::operation_on_cell(
     const MatrixFree<dim, Number, VectorizedArrayType> &data,
-    LinearAlgebra::distributed::Vector<Number> &        vec_ki,
-    const LinearAlgebra::distributed::Vector<Number> &  current_ri,
-    const std::pair<unsigned int, unsigned int> &       cell_range) const
+    LinearAlgebra::distributed::Vector<Number>         &vec_ki,
+    const LinearAlgebra::distributed::Vector<Number>   &current_ri,
+    const std::pair<unsigned int, unsigned int>        &cell_range) const
   {
-    using FECellIntegral = FEEvaluation<dim,
-                                        degree,
-                                        n_points_1d,
-                                        dim + 2,
-                                        Number,
-                                        VectorizedArrayType>;
-    using FEFaceIntegral = FEFaceEvaluation<dim,
-                                            degree,
-                                            n_points_1d,
-                                            dim + 2,
-                                            Number,
-                                            VectorizedArrayType>;
+    using FECellIntegral = FEEvaluation<dim, degree, n_points_1d, dim + 2, Number, VectorizedArrayType>;
+    using FEFaceIntegral = FEFaceEvaluation<dim, degree, n_points_1d, dim + 2, Number, VectorizedArrayType>;
 
     FECellIntegral phi(data);
     FECellIntegral phi_temp(data);
@@ -667,28 +605,24 @@ namespace NavierStokes_DG
       dynamic_cast<Functions::ConstantFunction<dim> *>(body_force.get());
 
     if (constant_function)
-      constant_body_force = evaluate_function<dim, VectorizedArrayType, dim>(
-        *constant_function, Point<dim, VectorizedArrayType>());
+      constant_body_force =
+        evaluate_function<dim, VectorizedArrayType, dim>(*constant_function, Point<dim, VectorizedArrayType>());
 
-    const dealii::internal::EvaluatorTensorProduct<
-      dealii::internal::EvaluatorVariant::evaluate_evenodd,
-      dim,
-      n_points_1d,
-      n_points_1d,
-      VectorizedArrayType>
+    const dealii::internal::EvaluatorTensorProduct<dealii::internal::EvaluatorVariant::evaluate_evenodd,
+                                                   dim,
+                                                   n_points_1d,
+                                                   n_points_1d,
+                                                   VectorizedArrayType>
       eval(AlignedVector<VectorizedArrayType>(),
            data.get_shape_info().data[0].shape_gradients_collocation_eo,
            AlignedVector<VectorizedArrayType>());
 
-    internal::EvaluatorTensorProduct<
-      internal::EvaluatorVariant::evaluate_evenodd,
-      dim - 1,
-      n_q_points_1d,
-      n_q_points_1d,
-      VectorizedArrayType>
-      eval_face({},
-                data.get_shape_info().data[0].shape_gradients_collocation_eo,
-                {});
+    internal::EvaluatorTensorProduct<internal::EvaluatorVariant::evaluate_evenodd,
+                                     dim - 1,
+                                     n_q_points_1d,
+                                     n_q_points_1d,
+                                     VectorizedArrayType>
+      eval_face({}, data.get_shape_info().data[0].shape_gradients_collocation_eo, {});
 
     AlignedVector<VectorizedArrayType> buffer;
     buffer.resize_fast(phi.static_n_q_points * phi.n_components);
@@ -706,18 +640,14 @@ namespace NavierStokes_DG
           {
             phi.read_dof_values(current_ri);
 
-            for (unsigned int i = 0;
-                 i < phi.static_dofs_per_component * (dim + 2);
-                 ++i)
+            for (unsigned int i = 0; i < phi.static_dofs_per_component * (dim + 2); ++i)
               phi_temp.begin_dof_values()[i] = phi.begin_dof_values()[i];
 
             phi.evaluate(EvaluationFlags::values | EvaluationFlags::gradients);
           }
         else
           {
-            phi.gather_evaluate(current_ri,
-                                EvaluationFlags::values |
-                                  EvaluationFlags::gradients);
+            phi.gather_evaluate(current_ri, EvaluationFlags::values | EvaluationFlags::gradients);
           }
 
         for (unsigned int i = 0; i < phi.static_n_q_points * (dim + 2); ++i)
@@ -737,8 +667,7 @@ namespace NavierStokes_DG
                 const Tensor<1, dim, VectorizedArrayType> force =
                   constant_function ?
                     constant_body_force :
-                    evaluate_function<dim, VectorizedArrayType, dim>(
-                      *body_force, phi.quadrature_point(q));
+                    evaluate_function<dim, VectorizedArrayType, dim>(*body_force, phi.quadrature_point(q));
 
                 Tensor<1, dim + 2, VectorizedArrayType> forcing;
                 for (unsigned int d = 0; d < dim; ++d)
@@ -757,32 +686,25 @@ namespace NavierStokes_DG
           for (unsigned int c = 0; c < dim + 2; ++c)
             {
               if (dim >= 1 && body_force.get() == nullptr)
-                eval.template gradients<0, false, false>(
-                  gradient_ptr + phi.static_n_q_points * 0, values_ptr);
+                eval.template gradients<0, false, false>(gradient_ptr + phi.static_n_q_points * 0, values_ptr);
               else if (dim >= 1)
-                eval.template gradients<0, false, true>(
-                  gradient_ptr + phi.static_n_q_points * 0, values_ptr);
+                eval.template gradients<0, false, true>(gradient_ptr + phi.static_n_q_points * 0, values_ptr);
               if (dim >= 2)
-                eval.template gradients<1, false, true>(
-                  gradient_ptr + phi.static_n_q_points * 1, values_ptr);
+                eval.template gradients<1, false, true>(gradient_ptr + phi.static_n_q_points * 1, values_ptr);
               if (dim >= 3)
-                eval.template gradients<2, false, true>(
-                  gradient_ptr + phi.static_n_q_points * 2, values_ptr);
+                eval.template gradients<2, false, true>(gradient_ptr + phi.static_n_q_points * 2, values_ptr);
 
               values_ptr += phi.static_n_q_points;
               gradient_ptr += phi.static_n_q_points * dim;
             }
         }
 
-        for (unsigned int face = 0; face < GeometryInfo<dim>::faces_per_cell;
-             ++face)
+        for (unsigned int face = 0; face < GeometryInfo<dim>::faces_per_cell; ++face)
           {
-            const auto boundary_ids =
-              data.get_faces_by_cells_boundary_id(cell, face);
+            const auto boundary_ids = data.get_faces_by_cells_boundary_id(cell, face);
 
             Assert(std::equal(boundary_ids.begin(),
-                              boundary_ids.begin() +
-                                data.n_active_entries_per_cell_batch(cell),
+                              boundary_ids.begin() + data.n_active_entries_per_cell_batch(cell),
                               boundary_ids.begin()),
                    ExcMessage("Boundary IDs of lanes differ."));
 
@@ -790,79 +712,60 @@ namespace NavierStokes_DG
 
             phi_m.reinit(cell, face);
 
-            internal::EvaluatorTensorProduct<
-              internal::EvaluatorVariant::evaluate_general,
-              dim,
-              n_points_1d,
-              0,
-              VectorizedArrayType>
-              evalf(data.get_shape_info()
-                      .data.front()
-                      .quadrature_data_on_face[face % 2],
-                    {},
-                    {},
-                    n_points_1d,
-                    0);
+            internal::EvaluatorTensorProduct<internal::EvaluatorVariant::evaluate_general,
+                                             dim,
+                                             n_points_1d,
+                                             0,
+                                             VectorizedArrayType>
+              evalf(data.get_shape_info().data.front().quadrature_data_on_face[face % 2], {}, {}, n_points_1d, 0);
 
             for (unsigned int d = 0; d < dim + 2; ++d)
               {
                 const unsigned int n_q_points_face = phi_m.static_n_q_points;
                 if (face / 2 == 0)
-                  evalf.template apply_face<0, true, false, 1>(
-                    buffer.data() + d * phi.static_n_q_points,
-                    buffer_face.data());
+                  evalf.template apply_face<0, true, false, 1>(buffer.data() + d * phi.static_n_q_points,
+                                                               buffer_face.data());
                 else if (face / 2 == 1)
-                  evalf.template apply_face<1, true, false, 1>(
-                    buffer.data() + d * phi.static_n_q_points,
-                    buffer_face.data());
+                  evalf.template apply_face<1, true, false, 1>(buffer.data() + d * phi.static_n_q_points,
+                                                               buffer_face.data());
                 else if (face / 2 == 2)
-                  evalf.template apply_face<2, true, false, 1>(
-                    buffer.data() + d * phi.static_n_q_points,
-                    buffer_face.data());
+                  evalf.template apply_face<2, true, false, 1>(buffer.data() + d * phi.static_n_q_points,
+                                                               buffer_face.data());
 
                 if (dim > 1)
-                  eval_face.template gradients<0, true, false>(
-                    buffer_face.data(),
-                    phi_m.begin_gradients() + (d * dim) * n_q_points_face);
+                  eval_face.template gradients<0, true, false>(buffer_face.data(),
+                                                               phi_m.begin_gradients() + (d * dim) * n_q_points_face);
                 if (dim > 2)
-                  eval_face.template gradients<1, true, false>(
-                    buffer_face.data(),
-                    phi_m.begin_gradients() + (d * dim + 1) * n_q_points_face);
+                  eval_face.template gradients<1, true, false>(buffer_face.data(),
+                                                               phi_m.begin_gradients() +
+                                                                 (d * dim + 1) * n_q_points_face);
 
                 for (unsigned int i = 0; i < n_q_points_face; ++i)
                   {
-                    phi_m.begin_values()[d * n_q_points_face + i] =
-                      buffer_face[i];
+                    phi_m.begin_values()[d * n_q_points_face + i] = buffer_face[i];
 
-                    phi_m
-                      .begin_gradients()[(d * dim + dim - 1) * n_q_points_face +
-                                         i] = buffer_face[n_q_points_face + i];
+                    phi_m.begin_gradients()[(d * dim + dim - 1) * n_q_points_face + i] =
+                      buffer_face[n_q_points_face + i];
                   }
               }
 
             if (boundary_id == numbers::internal_face_boundary_id)
               {
                 phi_p.reinit(cell, face);
-                phi_p.gather_evaluate(current_ri,
-                                      EvaluationFlags::values |
-                                        EvaluationFlags::gradients);
+                phi_p.gather_evaluate(current_ri, EvaluationFlags::values | EvaluationFlags::gradients);
 
-                const auto tau_ip =
-                  (std::abs((phi_m.normal_vector(0) *
-                             phi_m.inverse_jacobian(0))[dim - 1]) +
-                   std::abs((phi_p.normal_vector(0) *
-                             phi_p.inverse_jacobian(0))[dim - 1])) *
-                  Number(viscosity * (degree + 1) * (degree + 1));
+                const auto tau_ip = (std::abs((phi_m.normal_vector(0) * phi_m.inverse_jacobian(0))[dim - 1]) +
+                                     std::abs((phi_p.normal_vector(0) * phi_p.inverse_jacobian(0))[dim - 1])) *
+                                    Number(viscosity * (degree + 1) * (degree + 1));
 
                 for (unsigned int q = 0; q < phi_m.n_q_points; ++q)
                   {
-                    const auto w_m    = phi_m.get_value(q);
-                    const auto w_p    = phi_p.get_value(q);
-                    const auto normal = phi_m.normal_vector(q);
-                    auto       numerical_flux =
-                      -euler_numerical_flux<dim>(w_m, w_p, normal);
-                    const auto grad_w_m = phi_m.get_gradient(q);
-                    const auto grad_w_p = phi_p.get_gradient(q);
+                    const auto w_m            = phi_m.get_value(q);
+                    const auto w_p            = phi_p.get_value(q);
+                    const auto normal         = phi_m.normal_vector(q);
+                    auto       numerical_flux = -euler_numerical_flux<dim>(w_m, w_p, normal);
+                    const auto grad_w_m       = phi_m.get_gradient(q);
+                    const auto grad_w_p       = phi_p.get_gradient(q);
 
                     const auto flux_q1 = viscous_flux(w_m, grad_w_m);
                     for (unsigned int d = 0; d < dim + 2; ++d)
@@ -873,21 +776,17 @@ namespace NavierStokes_DG
                     numerical_flux -= tau_ip * (w_m - w_p);
                     phi_m.submit_value(numerical_flux, q);
 
-                    Tensor<1, dim + 2, Tensor<1, dim, VectorizedArrayType>>
-                      w_jump;
+                    Tensor<1, dim + 2, Tensor<1, dim, VectorizedArrayType>> w_jump;
                     for (unsigned int d = 0; d < dim + 2; ++d)
                       for (unsigned int e = 0; e < dim; ++e)
-                        w_jump[d][e] =
-                          (w_m[d] - w_p[d]) * (Number(0.5) * normal[e]);
+                        w_jump[d][e] = (w_m[d] - w_p[d]) * (Number(0.5) * normal[e]);
                     phi_m.submit_gradient(viscous_flux(w_m, w_jump), q);
                   }
               }
             else
               {
-                const auto tau_ip =
-                  std::abs((phi_m.normal_vector(0) *
-                            phi_m.inverse_jacobian(0))[dim - 1]) *
-                  Number(2. * viscosity * (degree + 1) * (degree + 1));
+                const auto tau_ip = std::abs((phi_m.normal_vector(0) * phi_m.inverse_jacobian(0))[dim - 1]) *
+                                    Number(2. * viscosity * (degree + 1) * (degree + 1));
 
                 for (unsigned int q = 0; q < phi_m.n_q_points; ++q)
                   {
@@ -904,44 +803,33 @@ namespace NavierStokes_DG
 
                     Tensor<1, dim + 2, VectorizedArrayType> w_p;
 
-                    if (wall_boundaries.find(boundary_id) !=
-                        wall_boundaries.end())
+                    if (wall_boundaries.find(boundary_id) != wall_boundaries.end())
                       {
                         w_p[0] = w_m[0];
                         for (unsigned int d = 0; d < dim; ++d)
-                          w_p[d + 1] =
-                            w_m[d + 1] - 2. * rho_u_dot_n * normal[d];
+                          w_p[d + 1] = w_m[d + 1] - 2. * rho_u_dot_n * normal[d];
                         w_p[dim + 1] = w_m[dim + 1];
                       }
-                    else if (inflow_boundaries.find(boundary_id) !=
-                             inflow_boundaries.end())
-                      w_p = evaluate_function(
-                        *inflow_boundaries.find(boundary_id)->second,
-                        phi_m.quadrature_point(q));
-                    else if (subsonic_outflow_boundaries.find(boundary_id) !=
-                             subsonic_outflow_boundaries.end())
+                    else if (inflow_boundaries.find(boundary_id) != inflow_boundaries.end())
+                      w_p = evaluate_function(*inflow_boundaries.find(boundary_id)->second, phi_m.quadrature_point(q));
+                    else if (subsonic_outflow_boundaries.find(boundary_id) != subsonic_outflow_boundaries.end())
                       {
-                        w_p = w_m;
-                        w_p[dim + 1] =
-                          evaluate_function(*subsonic_outflow_boundaries
-                                               .find(boundary_id)
-                                               ->second,
-                                            phi_m.quadrature_point(q),
-                                            dim + 1);
-                        at_outflow = true;
+                        w_p          = w_m;
+                        w_p[dim + 1] = evaluate_function(*subsonic_outflow_boundaries.find(boundary_id)->second,
+                                                         phi_m.quadrature_point(q),
+                                                         dim + 1);
+                        at_outflow   = true;
                       }
                     else
                       AssertThrow(false,
-                                  ExcMessage(
-                                    "Unknown boundary id, did "
-                                    "you set a boundary condition for "
-                                    "this part of the domain boundary?"));
+                                  ExcMessage("Unknown boundary id, did "
+                                             "you set a boundary condition for "
+                                             "this part of the domain boundary?"));
 
                     auto flux = -euler_numerical_flux<dim>(w_m, w_p, normal);
 
                     if (at_outflow)
-                      for (unsigned int v = 0; v < VectorizedArrayType::size();
-                           ++v)
+                      for (unsigned int v = 0; v < VectorizedArrayType::size(); ++v)
                         {
                           if (rho_u_dot_n[v] < -1e-12)
                             for (unsigned int d = 0; d < dim; ++d)
@@ -957,12 +845,10 @@ namespace NavierStokes_DG
                     flux -= tau_ip * (w_m - w_p);
                     phi_m.submit_value(flux, q);
 
-                    Tensor<1, dim + 2, Tensor<1, dim, VectorizedArrayType>>
-                      w_jump;
+                    Tensor<1, dim + 2, Tensor<1, dim, VectorizedArrayType>> w_jump;
                     for (unsigned int d = 0; d < dim + 2; ++d)
                       for (unsigned int e = 0; e < dim; ++e)
-                        w_jump[d][e] =
-                          (w_m[d] - w_p[d]) * (Number(0.5) * normal[e]);
+                        w_jump[d][e] = (w_m[d] - w_p[d]) * (Number(0.5) * normal[e]);
                     phi_m.submit_gradient(viscous_flux(w_m, w_jump), q);
                   }
               }
@@ -972,35 +858,28 @@ namespace NavierStokes_DG
                 const unsigned int n_q_points_face = phi_m.static_n_q_points;
                 for (unsigned int i = 0; i < n_q_points_face; ++i)
                   {
-                    buffer_face[i] =
-                      phi_m.begin_values()[d * n_q_points_face + i];
+                    buffer_face[i] = phi_m.begin_values()[d * n_q_points_face + i];
                     buffer_face[n_q_points_face + i] =
-                      phi_m.begin_gradients()[(d * dim + dim - 1) *
-                                                n_q_points_face +
-                                              i];
+                      phi_m.begin_gradients()[(d * dim + dim - 1) * n_q_points_face + i];
                   }
 
                 if (dim > 2)
-                  eval_face.template gradients<1, false, true>(
-                    phi_m.begin_gradients() + (d * dim + 1) * n_q_points_face,
-                    buffer_face.data());
+                  eval_face.template gradients<1, false, true>(phi_m.begin_gradients() +
+                                                                 (d * dim + 1) * n_q_points_face,
+                                                               buffer_face.data());
                 if (dim > 1)
-                  eval_face.template gradients<0, false, true>(
-                    phi_m.begin_gradients() + (d * dim) * n_q_points_face,
-                    buffer_face.data());
+                  eval_face.template gradients<0, false, true>(phi_m.begin_gradients() + (d * dim) * n_q_points_face,
+                                                               buffer_face.data());
 
                 if (face / 2 == 0)
-                  evalf.template apply_face<0, false, true, 1>(
-                    buffer_face.data(),
-                    phi.begin_values() + d * phi.static_n_q_points);
+                  evalf.template apply_face<0, false, true, 1>(buffer_face.data(),
+                                                               phi.begin_values() + d * phi.static_n_q_points);
                 else if (face / 2 == 1)
-                  evalf.template apply_face<1, false, true, 1>(
-                    buffer_face.data(),
-                    phi.begin_values() + d * phi.static_n_q_points);
+                  evalf.template apply_face<1, false, true, 1>(buffer_face.data(),
+                                                               phi.begin_values() + d * phi.static_n_q_points);
                 else if (face / 2 == 2)
-                  evalf.template apply_face<2, false, true, 1>(
-                    buffer_face.data(),
-                    phi.begin_values() + d * phi.static_n_q_points);
+                  evalf.template apply_face<2, false, true, 1>(buffer_face.data(),
+                                                               phi.begin_values() + d * phi.static_n_q_points);
               }
           }
 
@@ -1012,18 +891,17 @@ namespace NavierStokes_DG
                 phi.begin_values()[c * phi.static_n_q_points + q] * factor;
           }
 
-        internal::FEEvaluationImplBasisChange<
-          dealii::internal::EvaluatorVariant::evaluate_evenodd,
-          internal::EvaluatorQuantity::hessian,
-          dim,
-          degree + 1,
-          n_points_1d>::do_backward(dim + 2,
-                                    data.get_shape_info()
-                                      .data[0]
-                                      .inverse_shape_values_eo,
-                                    false,
-                                    phi.begin_values(),
-                                    phi.begin_dof_values());
+        internal::FEEvaluationImplBasisChange<dealii::internal::EvaluatorVariant::evaluate_evenodd,
+                                              internal::EvaluatorQuantity::hessian,
+                                              dim,
+                                              degree + 1,
+                                              n_points_1d>::do_backward(dim + 2,
+                                                                        data.get_shape_info()
+                                                                          .data[0]
+                                                                          .inverse_shape_values_eo,
+                                                                        false,
+                                                                        phi.begin_values(),
+                                                                        phi.begin_dof_values());
 
         if (ai == Number())
           {
@@ -1040,8 +918,7 @@ namespace NavierStokes_DG
               {
                 const auto K_i = phi.begin_dof_values()[q];
 
-                phi.begin_dof_values()[q] =
-                  phi_temp.begin_dof_values()[q] + (ai * K_i);
+                phi.begin_dof_values()[q] = phi_temp.begin_dof_values()[q] + (ai * K_i);
 
                 phi_temp.begin_dof_values()[q] += bi * K_i;
               }
@@ -1061,8 +938,8 @@ namespace NavierStokes_DG
     const Number                                      bi,
     const Number                                      ai,
     const LinearAlgebra::distributed::Vector<Number> &current_ri,
-    LinearAlgebra::distributed::Vector<Number> &      vec_ki,
-    LinearAlgebra::distributed::Vector<Number> &      solution) const
+    LinearAlgebra::distributed::Vector<Number>       &vec_ki,
+    LinearAlgebra::distributed::Vector<Number>       &solution) const
   {
     for (auto &i : inflow_boundaries)
       i.second->set_time(current_time);
@@ -1078,53 +955,50 @@ namespace NavierStokes_DG
                 vec_ki,
                 current_ri,
                 true,
-                MatrixFree<dim, Number, VectorizedArrayType>::
-                  DataAccessOnFaces::gradients,
-                MatrixFree<dim, Number, VectorizedArrayType>::
-                  DataAccessOnFaces::gradients);
+                MatrixFree<dim, Number, VectorizedArrayType>::DataAccessOnFaces::gradients,
+                MatrixFree<dim, Number, VectorizedArrayType>::DataAccessOnFaces::gradients);
       time_loop += timer.wall_time();
     }
 
     {
       Timer timer;
-      data.cell_loop(
-        &NavierStokesOperator::local_apply_inverse_mass_matrix,
-        this,
-        vec_ki,
-        vec_ki,
-        std::function<void(const unsigned int, const unsigned int)>(),
-        [&](const unsigned int start_range, const unsigned int end_range) {
-          if (ai == Number())
-            {
-              /* DEAL_II_OPENMP_SIMD_PRAGMA */
-              for (unsigned int i = start_range; i < end_range; ++i)
-                {
-                  const Number k_i          = vec_ki.local_element(i);
-                  const Number sol_i        = solution.local_element(i);
-                  solution.local_element(i) = sol_i + bi * k_i;
-                }
-            }
-          else
-            {
-              /* DEAL_II_OPENMP_SIMD_PRAGMA */
-              if (stage == 0)
-                for (unsigned int i = start_range; i < end_range; ++i)
-                  {
-                    const Number k_i          = vec_ki.local_element(i);
-                    const Number sol_i        = current_ri.local_element(i);
-                    solution.local_element(i) = sol_i + bi * k_i;
-                    vec_ki.local_element(i)   = sol_i + ai * k_i;
-                  }
-              else
-                for (unsigned int i = start_range; i < end_range; ++i)
-                  {
-                    const Number k_i          = vec_ki.local_element(i);
-                    const Number sol_i        = solution.local_element(i);
-                    solution.local_element(i) = sol_i + bi * k_i;
-                    vec_ki.local_element(i)   = sol_i + ai * k_i;
-                  }
-            }
-        });
+      data.cell_loop(&NavierStokesOperator::local_apply_inverse_mass_matrix,
+                     this,
+                     vec_ki,
+                     vec_ki,
+                     std::function<void(const unsigned int, const unsigned int)>(),
+                     [&](const unsigned int start_range, const unsigned int end_range) {
+                       if (ai == Number())
+                         {
+                           /* DEAL_II_OPENMP_SIMD_PRAGMA */
+                           for (unsigned int i = start_range; i < end_range; ++i)
+                             {
+                               const Number k_i          = vec_ki.local_element(i);
+                               const Number sol_i        = solution.local_element(i);
+                               solution.local_element(i) = sol_i + bi * k_i;
+                             }
+                         }
+                       else
+                         {
+                           /* DEAL_II_OPENMP_SIMD_PRAGMA */
+                           if (stage == 0)
+                             for (unsigned int i = start_range; i < end_range; ++i)
+                               {
+                                 const Number k_i          = vec_ki.local_element(i);
+                                 const Number sol_i        = current_ri.local_element(i);
+                                 solution.local_element(i) = sol_i + bi * k_i;
+                                 vec_ki.local_element(i)   = sol_i + ai * k_i;
+                               }
+                           else
+                             for (unsigned int i = start_range; i < end_range; ++i)
+                               {
+                                 const Number k_i          = vec_ki.local_element(i);
+                                 const Number sol_i        = solution.local_element(i);
+                                 solution.local_element(i) = sol_i + bi * k_i;
+                                 vec_ki.local_element(i)   = sol_i + ai * k_i;
+                               }
+                         }
+                     });
       time_rk_update += timer.wall_time();
     }
   }
@@ -1135,16 +1009,11 @@ namespace NavierStokes_DG
   void
   NavierStokesOperator<dim, degree, n_points_1d>::operation_cell(
     const MatrixFree<dim, Number, VectorizedArrayType> &data,
-    LinearAlgebra::distributed::Vector<Number> &        dst,
-    const LinearAlgebra::distributed::Vector<Number> &  src,
-    const std::pair<unsigned int, unsigned int> &       cell_range) const
+    LinearAlgebra::distributed::Vector<Number>         &dst,
+    const LinearAlgebra::distributed::Vector<Number>   &src,
+    const std::pair<unsigned int, unsigned int>        &cell_range) const
   {
-    using FECellIntegral = FEEvaluation<dim,
-                                        degree,
-                                        n_points_1d,
-                                        dim + 2,
-                                        Number,
-                                        VectorizedArrayType>;
+    using FECellIntegral = FEEvaluation<dim, degree, n_points_1d, dim + 2, Number, VectorizedArrayType>;
 
     FECellIntegral phi(data);
 
@@ -1153,15 +1022,13 @@ namespace NavierStokes_DG
       dynamic_cast<Functions::ConstantFunction<dim> *>(body_force.get());
 
     if (constant_function)
-      constant_body_force = evaluate_function<dim, VectorizedArrayType, dim>(
-        *constant_function, Point<dim, VectorizedArrayType>());
+      constant_body_force =
+        evaluate_function<dim, VectorizedArrayType, dim>(*constant_function, Point<dim, VectorizedArrayType>());
 
     for (unsigned int cell = cell_range.first; cell < cell_range.second; ++cell)
       {
         phi.reinit(cell);
-        phi.gather_evaluate(src,
-                            EvaluationFlags::values |
-                              EvaluationFlags::gradients);
+        phi.gather_evaluate(src, EvaluationFlags::values | EvaluationFlags::gradients);
 
         for (unsigned int q = 0; q < phi.n_q_points; ++q)
           {
@@ -1177,8 +1044,7 @@ namespace NavierStokes_DG
                 const Tensor<1, dim, VectorizedArrayType> force =
                   constant_function ?
                     constant_body_force :
-                    evaluate_function<dim, VectorizedArrayType, dim>(
-                      *body_force, phi.quadrature_point(q));
+                    evaluate_function<dim, VectorizedArrayType, dim>(*body_force, phi.quadrature_point(q));
 
                 Tensor<1, dim + 2, VectorizedArrayType> forcing;
                 for (unsigned int d = 0; d < dim; ++d)
@@ -1190,9 +1056,7 @@ namespace NavierStokes_DG
               }
           }
 
-        phi.integrate_scatter(((body_force.get() != nullptr) ?
-                                 EvaluationFlags::values :
-                                 EvaluationFlags::nothing) |
+        phi.integrate_scatter(((body_force.get() != nullptr) ? EvaluationFlags::values : EvaluationFlags::nothing) |
                                 EvaluationFlags::gradients,
                               dst);
       }
@@ -1204,44 +1068,33 @@ namespace NavierStokes_DG
   void
   NavierStokesOperator<dim, degree, n_points_1d>::operation_face(
     const MatrixFree<dim, Number, VectorizedArrayType> &data,
-    LinearAlgebra::distributed::Vector<Number> &        dst,
-    const LinearAlgebra::distributed::Vector<Number> &  src,
-    const std::pair<unsigned int, unsigned int> &       face_range) const
+    LinearAlgebra::distributed::Vector<Number>         &dst,
+    const LinearAlgebra::distributed::Vector<Number>   &src,
+    const std::pair<unsigned int, unsigned int>        &face_range) const
   {
-    using FEFaceIntegral = FEFaceEvaluation<dim,
-                                            degree,
-                                            n_points_1d,
-                                            dim + 2,
-                                            Number,
-                                            VectorizedArrayType>;
+    using FEFaceIntegral = FEFaceEvaluation<dim, degree, n_points_1d, dim + 2, Number, VectorizedArrayType>;
     FEFaceIntegral phi_m(data, true);
     FEFaceIntegral phi_p(data, false);
     for (unsigned int face = face_range.first; face < face_range.second; ++face)
       {
         phi_p.reinit(face);
-        phi_p.gather_evaluate(src,
-                              EvaluationFlags::values |
-                                EvaluationFlags::gradients);
+        phi_p.gather_evaluate(src, EvaluationFlags::values | EvaluationFlags::gradients);
 
         phi_m.reinit(face);
-        phi_m.gather_evaluate(src,
-                              EvaluationFlags::values |
-                                EvaluationFlags::gradients);
+        phi_m.gather_evaluate(src, EvaluationFlags::values | EvaluationFlags::gradients);
 
-        const auto tau_ip = (std::abs((phi_m.normal_vector(0) *
-                                       phi_m.inverse_jacobian(0))[dim - 1]) +
-                             std::abs((phi_p.normal_vector(0) *
-                                       phi_p.inverse_jacobian(0))[dim - 1])) *
+        const auto tau_ip = (std::abs((phi_m.normal_vector(0) * phi_m.inverse_jacobian(0))[dim - 1]) +
+                             std::abs((phi_p.normal_vector(0) * phi_p.inverse_jacobian(0))[dim - 1])) *
                             Number(viscosity * (degree + 1) * (degree + 1));
 
         for (unsigned int q = 0; q < phi_m.n_q_points; ++q)
           {
-            const auto w_m      = phi_m.get_value(q);
-            const auto w_p      = phi_p.get_value(q);
-            const auto normal   = phi_m.normal_vector(q);
-            auto numerical_flux = -euler_numerical_flux<dim>(w_m, w_p, normal);
-            const auto grad_w_m = phi_m.get_gradient(q);
-            const auto grad_w_p = phi_p.get_gradient(q);
+            const auto w_m            = phi_m.get_value(q);
+            const auto w_p            = phi_p.get_value(q);
+            const auto normal         = phi_m.normal_vector(q);
+            auto       numerical_flux = -euler_numerical_flux<dim>(w_m, w_p, normal);
+            const auto grad_w_m       = phi_m.get_gradient(q);
+            const auto grad_w_p       = phi_p.get_gradient(q);
 
             const auto flux_q1 = viscous_flux(w_m, grad_w_m);
             for (unsigned int d = 0; d < dim + 2; ++d)
@@ -1261,12 +1114,8 @@ namespace NavierStokes_DG
             phi_p.submit_gradient(viscous_flux(w_p, w_jump), q);
           }
 
-        phi_m.integrate_scatter(EvaluationFlags::values |
-                                  EvaluationFlags::gradients,
-                                dst);
-        phi_p.integrate_scatter(EvaluationFlags::values |
-                                  EvaluationFlags::gradients,
-                                dst);
+        phi_m.integrate_scatter(EvaluationFlags::values | EvaluationFlags::gradients, dst);
+        phi_p.integrate_scatter(EvaluationFlags::values | EvaluationFlags::gradients, dst);
       }
   }
 
@@ -1276,29 +1125,19 @@ namespace NavierStokes_DG
   void
   NavierStokesOperator<dim, degree, n_points_1d>::operation_boundary(
     const MatrixFree<dim, Number, VectorizedArrayType> &data,
-    LinearAlgebra::distributed::Vector<Number> &        dst,
-    const LinearAlgebra::distributed::Vector<Number> &  src,
-    const std::pair<unsigned int, unsigned int> &       face_range) const
+    LinearAlgebra::distributed::Vector<Number>         &dst,
+    const LinearAlgebra::distributed::Vector<Number>   &src,
+    const std::pair<unsigned int, unsigned int>        &face_range) const
   {
     AssertThrow(false, ExcNotImplemented());
-    FEFaceEvaluation<dim,
-                     degree,
-                     n_points_1d,
-                     dim + 2,
-                     Number,
-                     VectorizedArrayType>
-      phi_m(data, true);
+    FEFaceEvaluation<dim, degree, n_points_1d, dim + 2, Number, VectorizedArrayType> phi_m(data, true);
     for (unsigned int face = face_range.first; face < face_range.second; ++face)
       {
         phi_m.reinit(face);
-        phi_m.gather_evaluate(src,
-                              EvaluationFlags::values |
-                                EvaluationFlags::gradients);
+        phi_m.gather_evaluate(src, EvaluationFlags::values | EvaluationFlags::gradients);
 
-        const auto tau_ip =
-          std::abs(
-            (phi_m.normal_vector(0) * phi_m.inverse_jacobian(0))[dim - 1]) *
-          Number(2. * viscosity * (degree + 1) * (degree + 1));
+        const auto tau_ip = std::abs((phi_m.normal_vector(0) * phi_m.inverse_jacobian(0))[dim - 1]) *
+                            Number(2. * viscosity * (degree + 1) * (degree + 1));
 
         const auto boundary_id = data.get_boundary_id(face);
 
@@ -1324,20 +1163,15 @@ namespace NavierStokes_DG
                   w_p[d + 1] = w_m[d + 1] - 2. * rho_u_dot_n * normal[d];
                 w_p[dim + 1] = w_m[dim + 1];
               }
-            else if (inflow_boundaries.find(boundary_id) !=
-                     inflow_boundaries.end())
-              w_p =
-                evaluate_function(*inflow_boundaries.find(boundary_id)->second,
-                                  phi_m.quadrature_point(q));
-            else if (subsonic_outflow_boundaries.find(boundary_id) !=
-                     subsonic_outflow_boundaries.end())
+            else if (inflow_boundaries.find(boundary_id) != inflow_boundaries.end())
+              w_p = evaluate_function(*inflow_boundaries.find(boundary_id)->second, phi_m.quadrature_point(q));
+            else if (subsonic_outflow_boundaries.find(boundary_id) != subsonic_outflow_boundaries.end())
               {
                 w_p          = w_m;
-                w_p[dim + 1] = evaluate_function(
-                  *subsonic_outflow_boundaries.find(boundary_id)->second,
-                  phi_m.quadrature_point(q),
-                  dim + 1);
-                at_outflow = true;
+                w_p[dim + 1] = evaluate_function(*subsonic_outflow_boundaries.find(boundary_id)->second,
+                                                 phi_m.quadrature_point(q),
+                                                 dim + 1);
+                at_outflow   = true;
               }
             else
               AssertThrow(false,
@@ -1372,9 +1206,7 @@ namespace NavierStokes_DG
             phi_m.submit_gradient(viscous_flux(w_m, w_jump), q);
           }
 
-        phi_m.integrate_scatter(EvaluationFlags::values |
-                                  EvaluationFlags::gradients,
-                                dst);
+        phi_m.integrate_scatter(EvaluationFlags::values | EvaluationFlags::gradients, dst);
       }
   }
 
@@ -1382,16 +1214,14 @@ namespace NavierStokes_DG
 
   template <int dim, int degree, int n_points_1d>
   void
-  NavierStokesOperator<dim, degree, n_points_1d>::
-    local_apply_inverse_mass_matrix(
-      const MatrixFree<dim, Number> &,
-      LinearAlgebra::distributed::Vector<Number> &      dst,
-      const LinearAlgebra::distributed::Vector<Number> &src,
-      const std::pair<unsigned int, unsigned int> &     cell_range) const
+  NavierStokesOperator<dim, degree, n_points_1d>::local_apply_inverse_mass_matrix(
+    const MatrixFree<dim, Number> &,
+    LinearAlgebra::distributed::Vector<Number>       &dst,
+    const LinearAlgebra::distributed::Vector<Number> &src,
+    const std::pair<unsigned int, unsigned int>      &cell_range) const
   {
-    FEEvaluation<dim, degree, degree + 1, dim + 2, Number> phi(data, 0, 1);
-    MatrixFreeOperators::CellwiseInverseMassMatrix<dim, degree, dim + 2, Number>
-      inverse(phi);
+    FEEvaluation<dim, degree, degree + 1, dim + 2, Number>                       phi(data, 0, 1);
+    MatrixFreeOperators::CellwiseInverseMassMatrix<dim, degree, dim + 2, Number> inverse(phi);
 
     for (unsigned int cell = cell_range.first; cell < cell_range.second; ++cell)
       {
@@ -1418,19 +1248,14 @@ namespace NavierStokes_DG
 
   template <int dim, int degree, int n_points_1d>
   void
-  NavierStokesOperator<dim, degree, n_points_1d>::set_inflow_boundary(
-    const types::boundary_id       boundary_id,
-    std::unique_ptr<Function<dim>> inflow_function)
+  NavierStokesOperator<dim, degree, n_points_1d>::set_inflow_boundary(const types::boundary_id       boundary_id,
+                                                                      std::unique_ptr<Function<dim>> inflow_function)
   {
-    AssertThrow(subsonic_outflow_boundaries.find(boundary_id) ==
-                    subsonic_outflow_boundaries.end() &&
+    AssertThrow(subsonic_outflow_boundaries.find(boundary_id) == subsonic_outflow_boundaries.end() &&
                   wall_boundaries.find(boundary_id) == wall_boundaries.end(),
-                ExcMessage("You already set the boundary with id " +
-                           std::to_string(static_cast<int>(boundary_id)) +
-                           " to another type of boundary before now setting " +
-                           "it as inflow"));
-    AssertThrow(inflow_function->n_components == dim + 2,
-                ExcMessage("Expected function with dim+2 components"));
+                ExcMessage("You already set the boundary with id " + std::to_string(static_cast<int>(boundary_id)) +
+                           " to another type of boundary before now setting " + "it as inflow"));
+    AssertThrow(inflow_function->n_components == dim + 2, ExcMessage("Expected function with dim+2 components"));
 
     inflow_boundaries[boundary_id] = std::move(inflow_function);
   }
@@ -1443,15 +1268,11 @@ namespace NavierStokes_DG
     const types::boundary_id       boundary_id,
     std::unique_ptr<Function<dim>> outflow_function)
   {
-    AssertThrow(inflow_boundaries.find(boundary_id) ==
-                    inflow_boundaries.end() &&
+    AssertThrow(inflow_boundaries.find(boundary_id) == inflow_boundaries.end() &&
                   wall_boundaries.find(boundary_id) == wall_boundaries.end(),
-                ExcMessage("You already set the boundary with id " +
-                           std::to_string(static_cast<int>(boundary_id)) +
-                           " to another type of boundary before now setting " +
-                           "it as subsonic outflow"));
-    AssertThrow(outflow_function->n_components == dim + 2,
-                ExcMessage("Expected function with dim+2 components"));
+                ExcMessage("You already set the boundary with id " + std::to_string(static_cast<int>(boundary_id)) +
+                           " to another type of boundary before now setting " + "it as subsonic outflow"));
+    AssertThrow(outflow_function->n_components == dim + 2, ExcMessage("Expected function with dim+2 components"));
 
     subsonic_outflow_boundaries[boundary_id] = std::move(outflow_function);
   }
@@ -1460,17 +1281,12 @@ namespace NavierStokes_DG
 
   template <int dim, int degree, int n_points_1d>
   void
-  NavierStokesOperator<dim, degree, n_points_1d>::set_wall_boundary(
-    const types::boundary_id boundary_id)
+  NavierStokesOperator<dim, degree, n_points_1d>::set_wall_boundary(const types::boundary_id boundary_id)
   {
-    AssertThrow(inflow_boundaries.find(boundary_id) ==
-                    inflow_boundaries.end() &&
-                  subsonic_outflow_boundaries.find(boundary_id) ==
-                    subsonic_outflow_boundaries.end(),
-                ExcMessage("You already set the boundary with id " +
-                           std::to_string(static_cast<int>(boundary_id)) +
-                           " to another type of boundary before now setting " +
-                           "it as wall boundary"));
+    AssertThrow(inflow_boundaries.find(boundary_id) == inflow_boundaries.end() &&
+                  subsonic_outflow_boundaries.find(boundary_id) == subsonic_outflow_boundaries.end(),
+                ExcMessage("You already set the boundary with id " + std::to_string(static_cast<int>(boundary_id)) +
+                           " to another type of boundary before now setting " + "it as wall boundary"));
 
     wall_boundaries.insert(boundary_id);
   }
@@ -1479,8 +1295,7 @@ namespace NavierStokes_DG
 
   template <int dim, int degree, int n_points_1d>
   void
-  NavierStokesOperator<dim, degree, n_points_1d>::set_body_force(
-    std::unique_ptr<Function<dim>> body_force)
+  NavierStokesOperator<dim, degree, n_points_1d>::set_body_force(std::unique_ptr<Function<dim>> body_force)
   {
     AssertDimension(body_force->n_components, dim);
 
@@ -1491,29 +1306,18 @@ namespace NavierStokes_DG
 
   template <int dim, int degree, int n_points_1d>
   void
-  NavierStokesOperator<dim, degree, n_points_1d>::project(
-    const Function<dim> &                       function,
-    LinearAlgebra::distributed::Vector<Number> &solution) const
+  NavierStokesOperator<dim, degree, n_points_1d>::project(const Function<dim>                        &function,
+                                                          LinearAlgebra::distributed::Vector<Number> &solution) const
   {
-    FEEvaluation<dim, degree, degree + 1, dim + 2, Number, VectorizedArrayType>
-      phi(data, 0, 1);
-    MatrixFreeOperators::CellwiseInverseMassMatrix<dim,
-                                                   degree,
-                                                   dim + 2,
-                                                   Number,
-                                                   VectorizedArrayType>
-      inverse(phi);
+    FEEvaluation<dim, degree, degree + 1, dim + 2, Number, VectorizedArrayType>                       phi(data, 0, 1);
+    MatrixFreeOperators::CellwiseInverseMassMatrix<dim, degree, dim + 2, Number, VectorizedArrayType> inverse(phi);
     solution.zero_out_ghost_values();
     for (unsigned int cell = 0; cell < data.n_cell_batches(); ++cell)
       {
         phi.reinit(cell);
         for (unsigned int q = 0; q < phi.n_q_points; ++q)
-          phi.submit_dof_value(evaluate_function(function,
-                                                 phi.quadrature_point(q)),
-                               q);
-        inverse.transform_from_q_points_to_basis(dim + 2,
-                                                 phi.begin_dof_values(),
-                                                 phi.begin_dof_values());
+          phi.submit_dof_value(evaluate_function(function, phi.quadrature_point(q)), q);
+        inverse.transform_from_q_points_to_basis(dim + 2, phi.begin_dof_values(), phi.begin_dof_values());
         phi.set_dof_values(solution);
       }
   }
@@ -1523,12 +1327,11 @@ namespace NavierStokes_DG
   template <int dim, int degree, int n_points_1d>
   std::array<double, 3>
   NavierStokesOperator<dim, degree, n_points_1d>::compute_errors(
-    const Function<dim> &                             function,
+    const Function<dim>                              &function,
     const LinearAlgebra::distributed::Vector<Number> &solution) const
   {
-    double errors_squared[3] = {};
-    FEEvaluation<dim, degree, n_points_1d, dim + 2, Number, VectorizedArrayType>
-      phi(data, 0, 0);
+    double                                                                       errors_squared[3] = {};
+    FEEvaluation<dim, degree, n_points_1d, dim + 2, Number, VectorizedArrayType> phi(data, 0, 0);
 
     for (unsigned int cell = 0; cell < data.n_cell_batches(); ++cell)
       {
@@ -1537,18 +1340,15 @@ namespace NavierStokes_DG
         VectorizedArrayType local_errors_squared[3] = {};
         for (unsigned int q = 0; q < phi.n_q_points; ++q)
           {
-            const auto error =
-              evaluate_function(function, phi.quadrature_point(q)) -
-              phi.get_value(q);
-            const auto JxW = phi.JxW(q);
+            const auto error = evaluate_function(function, phi.quadrature_point(q)) - phi.get_value(q);
+            const auto JxW   = phi.JxW(q);
 
             local_errors_squared[0] += error[0] * error[0] * JxW;
             for (unsigned int d = 0; d < dim; ++d)
               local_errors_squared[1] += (error[d + 1] * error[d + 1]) * JxW;
             local_errors_squared[2] += (error[dim + 1] * error[dim + 1]) * JxW;
           }
-        for (unsigned int v = 0; v < data.n_active_entries_per_cell_batch(cell);
-             ++v)
+        for (unsigned int v = 0; v < data.n_active_entries_per_cell_batch(cell); ++v)
           for (unsigned int d = 0; d < 3; ++d)
             errors_squared[d] += local_errors_squared[d][v];
       }
@@ -1569,39 +1369,32 @@ namespace NavierStokes_DG
   NavierStokesOperator<dim, degree, n_points_1d>::compute_kinetic_energy(
     const LinearAlgebra::distributed::Vector<Number> &solution) const
   {
-    double squared[2] = {};
-    FEEvaluation<dim, degree, n_points_1d, dim + 2, Number, VectorizedArrayType>
-      phi(data, 0, 0);
+    double                                                                       squared[2] = {};
+    FEEvaluation<dim, degree, n_points_1d, dim + 2, Number, VectorizedArrayType> phi(data, 0, 0);
 
     for (unsigned int cell = 0; cell < data.n_cell_batches(); ++cell)
       {
         phi.reinit(cell);
-        phi.gather_evaluate(solution,
-                            EvaluationFlags::values |
-                              EvaluationFlags::gradients);
+        phi.gather_evaluate(solution, EvaluationFlags::values | EvaluationFlags::gradients);
         VectorizedArrayType local_squared[2] = {};
         for (unsigned int q = 0; q < phi.n_q_points; ++q)
           {
-            const auto JxW      = phi.JxW(q);
-            const auto w_q      = phi.get_value(q);
-            const auto velocity = fluid_velocity<dim>(w_q);
-            const auto velocity_grad =
-              fluid_velocity_gradient(w_q, phi.get_gradient(q));
+            const auto JxW           = phi.JxW(q);
+            const auto w_q           = phi.get_value(q);
+            const auto velocity      = fluid_velocity<dim>(w_q);
+            const auto velocity_grad = fluid_velocity_gradient(w_q, phi.get_gradient(q));
             local_squared[0] += velocity.norm_square() * JxW;
-            local_squared[1] +=
-              scalar_product(velocity_grad, velocity_grad) * JxW;
+            local_squared[1] += scalar_product(velocity_grad, velocity_grad) * JxW;
           }
-        for (unsigned int v = 0; v < data.n_active_entries_per_cell_batch(cell);
-             ++v)
+        for (unsigned int v = 0; v < data.n_active_entries_per_cell_batch(cell); ++v)
           for (unsigned int d = 0; d < 2; ++d)
             squared[d] += local_squared[d][v];
       }
 
     Utilities::MPI::sum(squared, MPI_COMM_WORLD, squared);
 
-    std::array<double, 2> result{
-      {0.5 * squared[0] / Utilities::fixed_power<dim>(2. * numbers::PI),
-       viscosity * squared[1] / Utilities::fixed_power<dim>(2. * numbers::PI)}};
+    std::array<double, 2> result{{0.5 * squared[0] / Utilities::fixed_power<dim>(2. * numbers::PI),
+                                  viscosity * squared[1] / Utilities::fixed_power<dim>(2. * numbers::PI)}};
 
     return result;
   }
@@ -1613,9 +1406,8 @@ namespace NavierStokes_DG
   NavierStokesOperator<dim, degree, n_points_1d>::compute_cell_transport_speed(
     const LinearAlgebra::distributed::Vector<Number> &solution) const
   {
-    Number max_transport = 0;
-    FEEvaluation<dim, degree, degree + 1, dim + 2, Number, VectorizedArrayType>
-      phi(data, 0, 1);
+    Number                                                                      max_transport = 0;
+    FEEvaluation<dim, degree, degree + 1, dim + 2, Number, VectorizedArrayType> phi(data, 0, 1);
 
     for (unsigned int cell = 0; cell < data.n_cell_batches(); ++cell)
       {
@@ -1632,35 +1424,27 @@ namespace NavierStokes_DG
             const auto          convective_speed = inverse_jacobian * velocity;
             VectorizedArrayType convective_limit = 0.;
             for (unsigned int d = 0; d < dim; ++d)
-              convective_limit =
-                std::max(convective_limit, std::abs(convective_speed[d]));
+              convective_limit = std::max(convective_limit, std::abs(convective_speed[d]));
 
-            const auto speed_of_sound =
-              std::sqrt(gamma * pressure * (1. / solution[0]));
+            const auto speed_of_sound = std::sqrt(gamma * pressure * (1. / solution[0]));
 
             Tensor<1, dim, VectorizedArrayType> eigenvector;
             for (unsigned int d = 0; d < dim; ++d)
               eigenvector[d] = 1.;
             for (unsigned int i = 0; i < 5; ++i)
               {
-                eigenvector = transpose(inverse_jacobian) *
-                              (inverse_jacobian * eigenvector);
+                eigenvector                          = transpose(inverse_jacobian) * (inverse_jacobian * eigenvector);
                 VectorizedArrayType eigenvector_norm = 0.;
                 for (unsigned int d = 0; d < dim; ++d)
-                  eigenvector_norm =
-                    std::max(eigenvector_norm, std::abs(eigenvector[d]));
+                  eigenvector_norm = std::max(eigenvector_norm, std::abs(eigenvector[d]));
                 eigenvector /= eigenvector_norm;
               }
             const auto jac_times_ev   = inverse_jacobian * eigenvector;
-            const auto max_eigenvalue = std::sqrt(
-              (jac_times_ev * jac_times_ev) / (eigenvector * eigenvector));
-            local_max =
-              std::max(local_max,
-                       max_eigenvalue * speed_of_sound + convective_limit);
+            const auto max_eigenvalue = std::sqrt((jac_times_ev * jac_times_ev) / (eigenvector * eigenvector));
+            local_max                 = std::max(local_max, max_eigenvalue * speed_of_sound + convective_limit);
           }
 
-        for (unsigned int v = 0; v < data.n_active_entries_per_cell_batch(cell);
-             ++v)
+        for (unsigned int v = 0; v < data.n_active_entries_per_cell_batch(cell); ++v)
           for (unsigned int d = 0; d < 3; ++d)
             max_transport = std::max(max_transport, local_max[v]);
       }
@@ -1676,22 +1460,20 @@ namespace NavierStokes_DG
   class NavierStokesOperatorFaceCentric
   {
   public:
-    NavierStokesOperatorFaceCentric(
-      const NavierStokesOperator<dim, degree, n_points_1d> &ns_operator)
+    NavierStokesOperatorFaceCentric(const NavierStokesOperator<dim, degree, n_points_1d> &ns_operator)
       : ns_operator(ns_operator)
     {}
 
     void
-    perform_stage(const unsigned int stage,
-                  const Number       current_time,
-                  const Number       bi,
-                  const Number       ai,
+    perform_stage(const unsigned int                                stage,
+                  const Number                                      current_time,
+                  const Number                                      bi,
+                  const Number                                      ai,
                   const LinearAlgebra::distributed::Vector<Number> &current_ri,
-                  LinearAlgebra::distributed::Vector<Number> &      vec_ki,
-                  LinearAlgebra::distributed::Vector<Number> &solution) const
+                  LinearAlgebra::distributed::Vector<Number>       &vec_ki,
+                  LinearAlgebra::distributed::Vector<Number>       &solution) const
     {
-      ns_operator.perform_stage_face(
-        stage, current_time, bi, ai, current_ri, vec_ki, solution);
+      ns_operator.perform_stage_face(stage, current_time, bi, ai, current_ri, vec_ki, solution);
     }
 
   private:
@@ -1738,15 +1520,13 @@ namespace NavierStokes_DG
       Postprocessor();
 
       virtual void
-      evaluate_vector_field(
-        const DataPostprocessorInputs::Vector<dim> &inputs,
-        std::vector<Vector<double>> &computed_quantities) const override;
+      evaluate_vector_field(const DataPostprocessorInputs::Vector<dim> &inputs,
+                            std::vector<Vector<double>>                &computed_quantities) const override;
 
       virtual std::vector<std::string>
       get_names() const override;
 
-      virtual std::vector<
-        DataComponentInterpretation::DataComponentInterpretation>
+      virtual std::vector<DataComponentInterpretation::DataComponentInterpretation>
       get_data_component_interpretation() const override;
 
       virtual UpdateFlags
@@ -1768,22 +1548,17 @@ namespace NavierStokes_DG
 
   template <int dim>
   void
-  FlowProblem<dim>::Postprocessor::evaluate_vector_field(
-    const DataPostprocessorInputs::Vector<dim> &inputs,
-    std::vector<Vector<double>> &               computed_quantities) const
+  FlowProblem<dim>::Postprocessor::evaluate_vector_field(const DataPostprocessorInputs::Vector<dim> &inputs,
+                                                         std::vector<Vector<double>> &computed_quantities) const
   {
     const unsigned int n_evaluation_points = inputs.solution_values.size();
 
     if (do_schlieren_plot == true)
-      Assert(inputs.solution_gradients.size() == n_evaluation_points,
-             ExcInternalError());
+      Assert(inputs.solution_gradients.size() == n_evaluation_points, ExcInternalError());
 
-    Assert(computed_quantities.size() == n_evaluation_points,
-           ExcInternalError());
+    Assert(computed_quantities.size() == n_evaluation_points, ExcInternalError());
     Assert(inputs.solution_values[0].size() == dim + 2, ExcInternalError());
-    Assert(computed_quantities[0].size() ==
-             dim + 2 + (do_schlieren_plot == true ? 1 : 0),
-           ExcInternalError());
+    Assert(computed_quantities[0].size() == dim + 2 + (do_schlieren_plot == true ? 1 : 0), ExcInternalError());
 
     for (unsigned int q = 0; q < n_evaluation_points; ++q)
       {
@@ -1801,8 +1576,7 @@ namespace NavierStokes_DG
         computed_quantities[q](dim + 1) = std::sqrt(gamma * pressure / density);
 
         if (do_schlieren_plot == true)
-          computed_quantities[q](dim + 2) =
-            inputs.solution_gradients[q][0] * inputs.solution_gradients[q][0];
+          computed_quantities[q](dim + 2) = inputs.solution_gradients[q][0] * inputs.solution_gradients[q][0];
       }
   }
 
@@ -1830,17 +1604,14 @@ namespace NavierStokes_DG
   std::vector<DataComponentInterpretation::DataComponentInterpretation>
   FlowProblem<dim>::Postprocessor::get_data_component_interpretation() const
   {
-    std::vector<DataComponentInterpretation::DataComponentInterpretation>
-      interpretation;
+    std::vector<DataComponentInterpretation::DataComponentInterpretation> interpretation;
     for (unsigned int d = 0; d < dim; ++d)
-      interpretation.push_back(
-        DataComponentInterpretation::component_is_part_of_vector);
+      interpretation.push_back(DataComponentInterpretation::component_is_part_of_vector);
     interpretation.push_back(DataComponentInterpretation::component_is_scalar);
     interpretation.push_back(DataComponentInterpretation::component_is_scalar);
 
     if (do_schlieren_plot == true)
-      interpretation.push_back(
-        DataComponentInterpretation::component_is_scalar);
+      interpretation.push_back(DataComponentInterpretation::component_is_scalar);
 
     return interpretation;
   }
@@ -1891,12 +1662,9 @@ namespace NavierStokes_DG
       for (const unsigned int face : cell->face_indices())
         if (cell->at_boundary(face))
           cell->face(face)->set_boundary_id(face);
-    std::vector<
-      GridTools::PeriodicFacePair<typename Triangulation<dim>::cell_iterator>>
-      periodic_faces;
+    std::vector<GridTools::PeriodicFacePair<typename Triangulation<dim>::cell_iterator>> periodic_faces;
     for (unsigned int d = 0; d < dim; ++d)
-      GridTools::collect_periodic_faces(
-        triangulation, 2 * d, 2 * d + 1, d, periodic_faces);
+      GridTools::collect_periodic_faces(triangulation, 2 * d, 2 * d + 1, d, periodic_faces);
     triangulation.add_periodicity(periodic_faces);
 
     triangulation.refine_global(2);
@@ -1936,15 +1704,11 @@ namespace NavierStokes_DG
         names.emplace_back("momentum");
       names.emplace_back("energy");
 
-      std::vector<DataComponentInterpretation::DataComponentInterpretation>
-        interpretation;
-      interpretation.push_back(
-        DataComponentInterpretation::component_is_scalar);
+      std::vector<DataComponentInterpretation::DataComponentInterpretation> interpretation;
+      interpretation.push_back(DataComponentInterpretation::component_is_scalar);
       for (unsigned int d = 0; d < dim; ++d)
-        interpretation.push_back(
-          DataComponentInterpretation::component_is_part_of_vector);
-      interpretation.push_back(
-        DataComponentInterpretation::component_is_scalar);
+        interpretation.push_back(DataComponentInterpretation::component_is_part_of_vector);
+      interpretation.push_back(DataComponentInterpretation::component_is_scalar);
 
       data_out.add_data_vector(dof_handler, solution, names, interpretation);
     }
@@ -1954,9 +1718,7 @@ namespace NavierStokes_DG
     mpi_owner = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
     data_out.add_data_vector(mpi_owner, "owner");
 
-    data_out.build_patches(mapping,
-                           fe.degree,
-                           DataOut<dim>::curved_inner_cells);
+    data_out.build_patches(mapping, fe.degree, DataOut<dim>::curved_inner_cells);
 
     // Do not write a file here to be independent of file system
   }
@@ -1994,13 +1756,10 @@ namespace NavierStokes_DG
     double min_vertex_distance = std::numeric_limits<double>::max();
     for (const auto &cell : triangulation.active_cell_iterators())
       if (cell->is_locally_owned())
-        min_vertex_distance =
-          std::min(min_vertex_distance, cell->minimum_vertex_distance());
-    min_vertex_distance =
-      Utilities::MPI::min(min_vertex_distance, MPI_COMM_WORLD);
+        min_vertex_distance = std::min(min_vertex_distance, cell->minimum_vertex_distance());
+    min_vertex_distance = Utilities::MPI::min(min_vertex_distance, MPI_COMM_WORLD);
 
-    time_step = courant_number * integrator.n_stages() /
-                flow_operator.compute_cell_transport_speed(solution);
+    time_step = courant_number * integrator.n_stages() / flow_operator.compute_cell_transport_speed(solution);
     timer["project_initial"].stop();
 
     time = 0;
@@ -2013,17 +1772,11 @@ namespace NavierStokes_DG
     while (timestep_number < 20)
       {
         timer["rk_timestep_cellbased"].start();
-        integrator.perform_time_step(flow_operator,
-                                     time,
-                                     time_step,
-                                     solution,
-                                     rk_register_1,
-                                     rk_register_2);
+        integrator.perform_time_step(flow_operator, time, time_step, solution, rk_register_1, rk_register_2);
         timer["rk_timestep_cellbased"].stop();
 
         timer["analyze_solution"].start();
-        const std::array<double, 2> energy =
-          flow_operator.compute_kinetic_energy(solution);
+        const std::array<double, 2> energy = flow_operator.compute_kinetic_energy(solution);
         AssertThrow(energy[0] > 0 && energy[1] > 0, ExcInternalError());
         timer["analyze_solution"].stop();
 
@@ -2034,19 +1787,12 @@ namespace NavierStokes_DG
     while (timestep_number < 40)
       {
         timer["rk_timestep_facebased"].start();
-        NavierStokesOperatorFaceCentric<dim, fe_degree, n_q_points_1d>
-          flow_operator_face(flow_operator);
-        integrator.perform_time_step(flow_operator_face,
-                                     time,
-                                     time_step,
-                                     solution,
-                                     rk_register_1,
-                                     rk_register_2);
+        NavierStokesOperatorFaceCentric<dim, fe_degree, n_q_points_1d> flow_operator_face(flow_operator);
+        integrator.perform_time_step(flow_operator_face, time, time_step, solution, rk_register_1, rk_register_2);
         timer["rk_timestep_facebased"].stop();
 
         timer["analyze_solution"].start();
-        const std::array<double, 2> energy =
-          flow_operator.compute_kinetic_energy(solution);
+        const std::array<double, 2> energy = flow_operator.compute_kinetic_energy(solution);
         AssertThrow(energy[0] > 0 && energy[1] > 0, ExcInternalError());
         timer["analyze_solution"].stop();
 

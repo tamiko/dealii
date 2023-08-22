@@ -62,15 +62,9 @@ test()
   dof.distribute_dofs(fe);
   AffineConstraints<Number> constraints;
   DoFTools::make_hanging_node_constraints(dof, constraints);
-  VectorTools::interpolate_boundary_values(dof,
-                                           0,
-                                           Functions::ZeroFunction<dim>(),
-                                           constraints);
+  VectorTools::interpolate_boundary_values(dof, 0, Functions::ZeroFunction<dim>(), constraints);
   constraints.close();
 
-  do_test<dim,
-          fe_degree,
-          Number,
-          LinearAlgebra::distributed::Vector<Number, MemorySpace::Default>,
-          fe_degree + 1>(dof, constraints, tria.n_active_cells());
+  do_test<dim, fe_degree, Number, LinearAlgebra::distributed::Vector<Number, MemorySpace::Default>, fe_degree + 1>(
+    dof, constraints, tria.n_active_cells());
 }

@@ -70,10 +70,7 @@ public:
 };
 
 
-template <int dim,
-          int fe_degree       = 2,
-          int n_q_points      = fe_degree + 1,
-          typename NumberType = double>
+template <int dim, int fe_degree = 2, int n_q_points = fe_degree + 1, typename NumberType = double>
 void
 test()
 {
@@ -100,11 +97,9 @@ test()
   dof_handler_euler.distribute_mg_dofs();
 
   // IndexSets and constraints
-  const IndexSet &locally_owned_dofs_euler =
-    dof_handler_euler.locally_owned_dofs();
-  IndexSet locally_relevant_dofs_euler;
-  DoFTools::extract_locally_relevant_dofs(dof_handler_euler,
-                                          locally_relevant_dofs_euler);
+  const IndexSet &locally_owned_dofs_euler = dof_handler_euler.locally_owned_dofs();
+  IndexSet        locally_relevant_dofs_euler;
+  DoFTools::extract_locally_relevant_dofs(dof_handler_euler, locally_relevant_dofs_euler);
 
   const IndexSet &locally_owned_dofs = dof_handler.locally_owned_dofs();
   IndexSet        locally_relevant_dofs;
@@ -123,35 +118,28 @@ test()
 
   // Displacement vector
   LinearAlgebra::distributed::Vector<NumberType> displacement;
-  displacement.reinit(locally_owned_dofs_euler,
-                      locally_relevant_dofs_euler,
-                      mpi_communicator);
+  displacement.reinit(locally_owned_dofs_euler, locally_relevant_dofs_euler, mpi_communicator);
   displacement = 0.;
 
   Displacement<dim> displacement_function;
 
   // first, move via mapping:
-  VectorTools::interpolate(dof_handler_euler,
-                           displacement_function,
-                           displacement);
+  VectorTools::interpolate(dof_handler_euler, displacement_function, displacement);
   displacement.compress(VectorOperation::insert);
   displacement.update_ghost_values();
 
   // The core : compute matrix-vector products with mass and laplace operators
   QGauss<1> quadrature_formula(n_q_points);
 
-  MappingQEulerian<dim, LinearAlgebra::distributed::Vector<NumberType>>
-    euler_mapping(euler_fe_degree, dof_handler_euler, displacement);
+  MappingQEulerian<dim, LinearAlgebra::distributed::Vector<NumberType>> euler_mapping(euler_fe_degree,
+                                                                                      dof_handler_euler,
+                                                                                      displacement);
 
-  std::shared_ptr<MatrixFree<dim, NumberType>> matrix_free(
-    new MatrixFree<dim, NumberType>());
+  std::shared_ptr<MatrixFree<dim, NumberType>>         matrix_free(new MatrixFree<dim, NumberType>());
   typename MatrixFree<dim, NumberType>::AdditionalData data;
-  data.tasks_parallel_scheme =
-    MatrixFree<dim, NumberType>::AdditionalData::partition_color;
-  data.mapping_update_flags =
-    update_values | update_gradients | update_JxW_values;
-  matrix_free->reinit(
-    euler_mapping, dof_handler, constraints, quadrature_formula, data);
+  data.tasks_parallel_scheme = MatrixFree<dim, NumberType>::AdditionalData::partition_color;
+  data.mapping_update_flags  = update_values | update_gradients | update_JxW_values;
+  matrix_free->reinit(euler_mapping, dof_handler, constraints, quadrature_formula, data);
 
   LinearAlgebra::distributed::Vector<NumberType> src, dst1, dst2, dst3, dst4;
   matrix_free->initialize_dof_vector(src);
@@ -163,19 +151,9 @@ test()
   for (unsigned int i = 0; i < src.locally_owned_size(); ++i)
     src.local_element(i) = random_value<NumberType>();
 
-  MatrixFreeOperators::MassOperator<
-    dim,
-    fe_degree,
-    n_q_points,
-    1,
-    LinearAlgebra::distributed::Vector<NumberType>>
+  MatrixFreeOperators::MassOperator<dim, fe_degree, n_q_points, 1, LinearAlgebra::distributed::Vector<NumberType>>
     mf_mass;
-  MatrixFreeOperators::LaplaceOperator<
-    dim,
-    fe_degree,
-    n_q_points,
-    1,
-    LinearAlgebra::distributed::Vector<NumberType>>
+  MatrixFreeOperators::LaplaceOperator<dim, fe_degree, n_q_points, 1, LinearAlgebra::distributed::Vector<NumberType>>
     mf_laplace;
   mf_mass.initialize(matrix_free);
   mf_laplace.initialize(matrix_free);
@@ -187,14 +165,13 @@ test()
   displacement = 0.;
   displacement.update_ghost_values();
   {
-    typename DoFHandler<dim>::cell_iterator cell = dof_handler.begin_active(),
-                                            endc = dof_handler.end();
-    std::vector<bool> vertex_touched(triangulation.n_vertices(), false);
+    typename DoFHandler<dim>::cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
+    std::vector<bool>                       vertex_touched(triangulation.n_vertices(), false);
     for (cell = dof_handler.begin_active(); cell != endc; ++cell)
       for (const unsigned int vertex_no : GeometryInfo<dim>::vertex_indices())
         if (vertex_touched[cell->vertex_index(vertex_no)] == false)
           {
-            Point<dim> &   v = cell->vertex(vertex_no);
+            Point<dim>    &v = cell->vertex(vertex_no);
             Tensor<1, dim> d;
             for (unsigned int i = 0; i < dim; ++i)
               d[i] = displacement_function.value(v, i);
@@ -205,33 +182,25 @@ test()
   }
   // minimize the data that is re-computed
   data.initialize_indices = false;
-  matrix_free->reinit(
-    euler_mapping, dof_handler, constraints, quadrature_formula, data);
+  matrix_free->reinit(euler_mapping, dof_handler, constraints, quadrature_formula, data);
 
   mf_mass.vmult(dst2, src);
   mf_laplace.vmult(dst4, src);
 
   deallog << "Mass operator: " << std::endl
-          << "l2_norm:       " << std::abs(dst1.l2_norm() - dst2.l2_norm())
-          << std::endl
-          << "l1_norm:       " << std::abs(dst1.l1_norm() - dst2.l1_norm())
-          << std::endl
-          << "linfty_norm:   "
-          << std::abs(dst1.linfty_norm() - dst2.linfty_norm()) << std::endl
+          << "l2_norm:       " << std::abs(dst1.l2_norm() - dst2.l2_norm()) << std::endl
+          << "l1_norm:       " << std::abs(dst1.l1_norm() - dst2.l1_norm()) << std::endl
+          << "linfty_norm:   " << std::abs(dst1.linfty_norm() - dst2.linfty_norm()) << std::endl
           << "Laplace operator: " << std::endl
-          << "l2_norm:       " << std::abs(dst3.l2_norm() - dst4.l2_norm())
-          << std::endl
-          << "l1_norm:       " << std::abs(dst3.l1_norm() - dst4.l1_norm())
-          << std::endl
-          << "linfty_norm:   "
-          << std::abs(dst3.linfty_norm() - dst4.linfty_norm()) << std::endl;
+          << "l2_norm:       " << std::abs(dst3.l2_norm() - dst4.l2_norm()) << std::endl
+          << "l1_norm:       " << std::abs(dst3.l1_norm() - dst4.l1_norm()) << std::endl
+          << "linfty_norm:   " << std::abs(dst3.linfty_norm() - dst4.linfty_norm()) << std::endl;
 }
 
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   mpi_initlog();
 

@@ -97,8 +97,7 @@ do_test(const FiniteElement<dim> &fe_fine, const FiniteElement<dim> &fe_coarse)
 
   // setup constraint matrix
   AffineConstraints<Number> constraint_coarse;
-  DoFTools::make_hanging_node_constraints(dof_handler_coarse,
-                                          constraint_coarse);
+  DoFTools::make_hanging_node_constraints(dof_handler_coarse, constraint_coarse);
   constraint_coarse.close();
 
   AffineConstraints<Number> constraint_fine;
@@ -107,10 +106,7 @@ do_test(const FiniteElement<dim> &fe_fine, const FiniteElement<dim> &fe_coarse)
 
   // setup transfer operator
   MGTwoLevelTransfer<dim, LinearAlgebra::distributed::Vector<Number>> transfer;
-  transfer.reinit(dof_handler_fine,
-                  dof_handler_coarse,
-                  constraint_fine,
-                  constraint_coarse);
+  transfer.reinit(dof_handler_fine, dof_handler_coarse, constraint_fine, constraint_coarse);
 
   deallog << "test first time" << std::endl;
   test_transfer_operator(transfer, dof_handler_fine, dof_handler_coarse);

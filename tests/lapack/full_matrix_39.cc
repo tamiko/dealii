@@ -66,22 +66,21 @@ check_matrix(const double *matrix_pointer, const bool make_imaginary)
   // LAPACK might produce different signs in the eigenvectors depending on the
   // implementation. To avoid these problems, print eigenvectors normalized by
   // the sign of the first non-zero real part of the eigenvectors
-  const auto print_eigenvectors =
-    [](const FullMatrix<std::complex<double>> &eigenvectors) {
-      for (unsigned int col = 0; col < eigenvectors.n(); ++col)
-        {
-          double sign = 1.;
-          for (unsigned int row = 0; row < eigenvectors.n(); ++row)
-            if (std::abs(eigenvectors(row, col).real()) > 1e-12)
-              {
-                sign = (eigenvectors(row, col).real() > 0.) ? 1.0 : -1.0;
-                break;
-              }
-          for (unsigned int row = 0; row < eigenvectors.n(); ++row)
-            deallog << sign * eigenvectors(row, col) << "  ";
-          deallog << std::endl;
-        }
-    };
+  const auto print_eigenvectors = [](const FullMatrix<std::complex<double>> &eigenvectors) {
+    for (unsigned int col = 0; col < eigenvectors.n(); ++col)
+      {
+        double sign = 1.;
+        for (unsigned int row = 0; row < eigenvectors.n(); ++row)
+          if (std::abs(eigenvectors(row, col).real()) > 1e-12)
+            {
+              sign = (eigenvectors(row, col).real() > 0.) ? 1.0 : -1.0;
+              break;
+            }
+        for (unsigned int row = 0; row < eigenvectors.n(); ++row)
+          deallog << sign * eigenvectors(row, col) << "  ";
+        deallog << std::endl;
+      }
+  };
   deallog << "Right eigenvectors" << std::endl;
   print_eigenvectors(LA.get_right_eigenvectors());
   deallog << "Left eigenvectors" << std::endl;

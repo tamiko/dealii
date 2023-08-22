@@ -60,13 +60,11 @@ main(int argc, char **argv)
       PreconditionChebyshev<TrilinosWrappers::SparseMatrix,
                             TrilinosWrappers::MPI::Vector,
                             TrilinosWrappers::PreconditionJacobi>
-        cheby;
-      PreconditionChebyshev<
-        TrilinosWrappers::SparseMatrix,
-        TrilinosWrappers::MPI::Vector,
-        TrilinosWrappers::PreconditionJacobi>::AdditionalData cheby_data;
-      cheby_data.preconditioner.reset(
-        new TrilinosWrappers::PreconditionJacobi());
+                                                                                  cheby;
+      PreconditionChebyshev<TrilinosWrappers::SparseMatrix,
+                            TrilinosWrappers::MPI::Vector,
+                            TrilinosWrappers::PreconditionJacobi>::AdditionalData cheby_data;
+      cheby_data.preconditioner.reset(new TrilinosWrappers::PreconditionJacobi());
       cheby_data.preconditioner->initialize(AA);
       cheby_data.degree          = 11;
       cheby_data.smoothing_range = 40;
@@ -94,8 +92,7 @@ main(int argc, char **argv)
           const double cheby_residual = tmp2.l2_norm();
 
           deallog << "Residual step i=" << i << ":  "
-                  << " jacobi=" << ilu_residual << ", cheby=" << cheby_residual
-                  << std::endl;
+                  << " jacobi=" << ilu_residual << ", cheby=" << cheby_residual << std::endl;
         }
     }
 

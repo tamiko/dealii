@@ -53,16 +53,16 @@
 
 void
 colorize_sixty_deg_hyper_shell(Triangulation<3> &tria,
-                               const Point<3> &  center,
+                               const Point<3>   &center,
                                const double      inner_radius,
                                const double      outer_radius)
 {
   //    if (tria.n_cells() != 4)
   //      AssertThrow (false, ExcNotImplemented());
 
-  double middle = (outer_radius - inner_radius) / 2e0 + inner_radius;
-  double eps    = 1e-3 * middle;
-  Triangulation<3>::cell_iterator cell = tria.begin();
+  double                          middle = (outer_radius - inner_radius) / 2e0 + inner_radius;
+  double                          eps    = 1e-3 * middle;
+  Triangulation<3>::cell_iterator cell   = tria.begin();
 
   for (; cell != tria.end(); ++cell)
     for (const unsigned int f : GeometryInfo<3>::face_indices())
@@ -71,48 +71,44 @@ colorize_sixty_deg_hyper_shell(Triangulation<3> &tria,
           continue;
 
         double radius = cell->face(f)->center().norm() - center.norm();
-        if (std::fabs(cell->face(f)->center()(2) -
-                      sqrt(3.) * cell->face(f)->center()(0)) <
+        if (std::fabs(cell->face(f)->center()(2) - sqrt(3.) * cell->face(f)->center()(0)) <
             eps) // z = sqrt(3)x set boundary 2
           {
             cell->face(f)->set_boundary_id(2);
             for (unsigned int j = 0; j < GeometryInfo<3>::lines_per_face; ++j)
               if (cell->face(f)->line(j)->at_boundary())
-                if (std::fabs(cell->face(f)->line(j)->vertex(0).norm() -
-                              cell->face(f)->line(j)->vertex(1).norm()) > eps)
+                if (std::fabs(cell->face(f)->line(j)->vertex(0).norm() - cell->face(f)->line(j)->vertex(1).norm()) >
+                    eps)
                   cell->face(f)->line(j)->set_boundary_id(2);
           }
-        else if (std::fabs(cell->face(f)->center()(2) +
-                           sqrt(3.) * cell->face(f)->center()(0)) <
+        else if (std::fabs(cell->face(f)->center()(2) + sqrt(3.) * cell->face(f)->center()(0)) <
                  eps) // z = -sqrt(3)x set boundary 3
           {
             cell->face(f)->set_boundary_id(3);
             for (unsigned int j = 0; j < GeometryInfo<3>::lines_per_face; ++j)
               if (cell->face(f)->line(j)->at_boundary())
-                if (std::fabs(cell->face(f)->line(j)->vertex(0).norm() -
-                              cell->face(f)->line(j)->vertex(1).norm()) > eps)
+                if (std::fabs(cell->face(f)->line(j)->vertex(0).norm() - cell->face(f)->line(j)->vertex(1).norm()) >
+                    eps)
                   cell->face(f)->line(j)->set_boundary_id(3);
           }
-        else if (std::fabs(cell->face(f)->center()(2) -
-                           sqrt(3.) * cell->face(f)->center()(1)) <
+        else if (std::fabs(cell->face(f)->center()(2) - sqrt(3.) * cell->face(f)->center()(1)) <
                  eps) // z = sqrt(3)y set boundary 4
           {
             cell->face(f)->set_boundary_id(4);
             for (unsigned int j = 0; j < GeometryInfo<3>::lines_per_face; ++j)
               if (cell->face(f)->line(j)->at_boundary())
-                if (std::fabs(cell->face(f)->line(j)->vertex(0).norm() -
-                              cell->face(f)->line(j)->vertex(1).norm()) > eps)
+                if (std::fabs(cell->face(f)->line(j)->vertex(0).norm() - cell->face(f)->line(j)->vertex(1).norm()) >
+                    eps)
                   cell->face(f)->line(j)->set_boundary_id(4);
           }
-        else if (std::fabs(cell->face(f)->center()(2) +
-                           sqrt(3.) * cell->face(f)->center()(1)) <
+        else if (std::fabs(cell->face(f)->center()(2) + sqrt(3.) * cell->face(f)->center()(1)) <
                  eps) // z = -sqrt(3)y set boundary 5
           {
             cell->face(f)->set_boundary_id(5);
             for (unsigned int j = 0; j < GeometryInfo<3>::lines_per_face; ++j)
               if (cell->face(f)->line(j)->at_boundary())
-                if (std::fabs(cell->face(f)->line(j)->vertex(0).norm() -
-                              cell->face(f)->line(j)->vertex(1).norm()) > eps)
+                if (std::fabs(cell->face(f)->line(j)->vertex(0).norm() - cell->face(f)->line(j)->vertex(1).norm()) >
+                    eps)
                   cell->face(f)->line(j)->set_boundary_id(5);
           }
         else if (radius < middle) // inner radius set boundary 0
@@ -120,8 +116,8 @@ colorize_sixty_deg_hyper_shell(Triangulation<3> &tria,
             cell->face(f)->set_boundary_id(0);
             for (unsigned int j = 0; j < GeometryInfo<3>::lines_per_face; ++j)
               if (cell->face(f)->line(j)->at_boundary())
-                if (std::fabs(cell->face(f)->line(j)->vertex(0).norm() -
-                              cell->face(f)->line(j)->vertex(1).norm()) < eps)
+                if (std::fabs(cell->face(f)->line(j)->vertex(0).norm() - cell->face(f)->line(j)->vertex(1).norm()) <
+                    eps)
                   cell->face(f)->line(j)->set_boundary_id(0);
           }
         else if (radius > middle) // outer radius set boundary 1
@@ -129,8 +125,8 @@ colorize_sixty_deg_hyper_shell(Triangulation<3> &tria,
             cell->face(f)->set_boundary_id(1);
             for (unsigned int j = 0; j < GeometryInfo<3>::lines_per_face; ++j)
               if (cell->face(f)->line(j)->at_boundary())
-                if (std::fabs(cell->face(f)->line(j)->vertex(0).norm() -
-                              cell->face(f)->line(j)->vertex(1).norm()) < eps)
+                if (std::fabs(cell->face(f)->line(j)->vertex(0).norm() - cell->face(f)->line(j)->vertex(1).norm()) <
+                    eps)
                   cell->face(f)->line(j)->set_boundary_id(1);
           }
         else
@@ -140,7 +136,7 @@ colorize_sixty_deg_hyper_shell(Triangulation<3> &tria,
 
 void
 sixty_deg_hyper_shell(Triangulation<3> &tria,
-                      const Point<3> &  center,
+                      const Point<3>   &center,
                       const double      inner_radius,
                       const double      outer_radius)
 {
@@ -149,29 +145,21 @@ sixty_deg_hyper_shell(Triangulation<3> &tria,
 
   std::vector<Point<3>> vertices;
 
-  vertices.push_back(center + Point<3>(1.0 / sqrt(5.) * r0,
-                                       1.0 / sqrt(5.) * r0,
+  vertices.push_back(center + Point<3>(1.0 / sqrt(5.) * r0, 1.0 / sqrt(5.) * r0,
                                        sqrt(3. / 5.) * r0)); // 8 -> 0
-  vertices.push_back(center + Point<3>(1.0 / sqrt(5.) * r1,
-                                       1.0 / sqrt(5.) * r1,
+  vertices.push_back(center + Point<3>(1.0 / sqrt(5.) * r1, 1.0 / sqrt(5.) * r1,
                                        sqrt(3. / 5.) * r1)); // 9 -> 1
-  vertices.push_back(center + Point<3>(1.0 / sqrt(5.) * r0,
-                                       -1.0 / sqrt(5.) * r0,
+  vertices.push_back(center + Point<3>(1.0 / sqrt(5.) * r0, -1.0 / sqrt(5.) * r0,
                                        sqrt(3. / 5.) * r0)); // 10 -> 2
-  vertices.push_back(center + Point<3>(1.0 / sqrt(5.) * r1,
-                                       -1.0 / sqrt(5.) * r1,
+  vertices.push_back(center + Point<3>(1.0 / sqrt(5.) * r1, -1.0 / sqrt(5.) * r1,
                                        sqrt(3. / 5.) * r1)); // 11 -> 3
-  vertices.push_back(center + Point<3>(-1.0 / sqrt(5.) * r0,
-                                       1.0 / sqrt(5.) * r0,
+  vertices.push_back(center + Point<3>(-1.0 / sqrt(5.) * r0, 1.0 / sqrt(5.) * r0,
                                        sqrt(3. / 5.) * r0)); // 14 -> 4
-  vertices.push_back(center + Point<3>(-1.0 / sqrt(5.) * r1,
-                                       1.0 / sqrt(5.) * r1,
+  vertices.push_back(center + Point<3>(-1.0 / sqrt(5.) * r1, 1.0 / sqrt(5.) * r1,
                                        sqrt(3. / 5.) * r1)); // 15 -> 5
-  vertices.push_back(center + Point<3>(-1.0 / sqrt(5.) * r0,
-                                       -1.0 / sqrt(5.) * r0,
+  vertices.push_back(center + Point<3>(-1.0 / sqrt(5.) * r0, -1.0 / sqrt(5.) * r0,
                                        sqrt(3. / 5.) * r0)); // 16 -> 6
-  vertices.push_back(center + Point<3>(-1.0 / sqrt(5.) * r1,
-                                       -1.0 / sqrt(5.) * r1,
+  vertices.push_back(center + Point<3>(-1.0 / sqrt(5.) * r1, -1.0 / sqrt(5.) * r1,
                                        sqrt(3. / 5.) * r1)); // 17 -> 7
 
   const int cell_vertices[1][8] = {
@@ -187,8 +175,7 @@ sixty_deg_hyper_shell(Triangulation<3> &tria,
       cells[i].material_id = 0;
     }
 
-  tria.create_triangulation(vertices,
-                            cells,
+  tria.create_triangulation(vertices, cells,
                             SubCellData()); // no boundary information
 
   colorize_sixty_deg_hyper_shell(tria, center, inner_radius, outer_radius);
@@ -225,15 +212,11 @@ run()
   dof_handler.distribute_dofs(fe);
 
   for (unsigned int f = 0; f < 6; ++f)
-    deallog << "Face=" << f << ", boundary_id="
-            << (int)triangulation.begin_active()->face(f)->boundary_id()
+    deallog << "Face=" << f << ", boundary_id=" << (int)triangulation.begin_active()->face(f)->boundary_id()
             << std::endl;
 
   const std::set<types::boundary_id> no_normal_flux_boundaries = {0, 2};
-  VectorTools::compute_no_normal_flux_constraints(dof_handler,
-                                                  0,
-                                                  no_normal_flux_boundaries,
-                                                  constraints);
+  VectorTools::compute_no_normal_flux_constraints(dof_handler, 0, no_normal_flux_boundaries, constraints);
 
   constraints.print(deallog.get_file_stream());
 

@@ -42,29 +42,22 @@ main()
     st[st.unrolled_to_component_indices(i)] = i;
 
   deallog << "Construct symbol map" << std::endl;
-  const SD::types::substitution_map symbol_map_1 =
-    SD::make_symbol_map(SD::make_tensor_of_symbols<2, dim>("t1"));
+  const SD::types::substitution_map symbol_map_1 = SD::make_symbol_map(SD::make_tensor_of_symbols<2, dim>("t1"));
   const SD::types::substitution_map symbol_map_2 =
     SD::make_symbol_map(SD::make_symmetric_tensor_of_symbols<2, dim>("st1"));
   const SD::types::substitution_map symbol_map_3 =
-    SD::make_symbol_map(SD::make_tensor_of_symbols<2, dim>("t2"),
-                        SD::make_symmetric_tensor_of_symbols<2, dim>("st2"));
+    SD::make_symbol_map(SD::make_tensor_of_symbols<2, dim>("t2"), SD::make_symmetric_tensor_of_symbols<2, dim>("st2"));
 
-  SD::types::substitution_map symbol_map =
-    merge_substitution_maps(symbol_map_1, symbol_map_2, symbol_map_3);
+  SD::types::substitution_map symbol_map = merge_substitution_maps(symbol_map_1, symbol_map_2, symbol_map_3);
   SD::Utilities::print_substitution_map(deallog, symbol_map);
 
 
   deallog << "Set values in symbol map" << std::endl;
+  SD::set_value_in_symbol_map(symbol_map, SD::make_tensor_of_symbols<2, dim>("t1"), t);
+  SD::set_value_in_symbol_map(symbol_map, SD::make_symmetric_tensor_of_symbols<2, dim>("st1"), st);
   SD::set_value_in_symbol_map(symbol_map,
-                              SD::make_tensor_of_symbols<2, dim>("t1"),
-                              t);
-  SD::set_value_in_symbol_map(
-    symbol_map, SD::make_symmetric_tensor_of_symbols<2, dim>("st1"), st);
-  SD::set_value_in_symbol_map(
-    symbol_map,
-    std::make_pair(SD::make_tensor_of_symbols<2, dim>("t2"), t),
-    std::make_pair(SD::make_symmetric_tensor_of_symbols<2, dim>("st2"), st));
+                              std::make_pair(SD::make_tensor_of_symbols<2, dim>("t2"), t),
+                              std::make_pair(SD::make_symmetric_tensor_of_symbols<2, dim>("st2"), st));
 
   SD::Utilities::print_substitution_map(deallog, symbol_map);
 

@@ -41,10 +41,7 @@ main()
 
     std::vector<Number> values(Utilities::pow(fe_degree + 1, dim), 1.0);
 
-    internal::weight_fe_q_dofs_by_entity<dim, -1, Number>(weights.data(),
-                                                          1,
-                                                          fe_degree + 1,
-                                                          values.data());
+    internal::weight_fe_q_dofs_by_entity<dim, -1, Number>(weights.data(), 1, fe_degree + 1, values.data());
 
     for (unsigned int i_1 = 0, c = 0; i_1 < fe_degree + 1; ++i_1)
       {
@@ -57,8 +54,7 @@ main()
     for (auto &i : weights)
       i = 0.0;
 
-    internal::compute_weights_fe_q_dofs_by_entity<dim, -1, Number>(
-      values.data(), 1, fe_degree + 1, weights.data());
+    internal::compute_weights_fe_q_dofs_by_entity<dim, -1, Number>(values.data(), 1, fe_degree + 1, weights.data());
 
     for (const auto i : weights)
       deallog << i << " ";
@@ -78,8 +74,7 @@ main()
 
     std::vector<Number> values(Utilities::pow((2 * fe_degree - 1), dim), 1.0);
 
-    internal::weight_fe_q_dofs_by_entity_shifted<dim, -1, Number>(
-      weights.data(), 1, 2 * fe_degree - 1, values.data());
+    internal::weight_fe_q_dofs_by_entity_shifted<dim, -1, Number>(weights.data(), 1, 2 * fe_degree - 1, values.data());
 
     for (unsigned int i_1 = 0, c = 0; i_1 < (2 * fe_degree - 1); ++i_1)
       {
@@ -92,8 +87,10 @@ main()
     for (auto &i : weights)
       i = 0.0;
 
-    internal::compute_weights_fe_q_dofs_by_entity_shifted<dim, -1, Number>(
-      values.data(), 1, 2 * fe_degree - 1, weights.data());
+    internal::compute_weights_fe_q_dofs_by_entity_shifted<dim, -1, Number>(values.data(),
+                                                                           1,
+                                                                           2 * fe_degree - 1,
+                                                                           weights.data());
 
     for (const auto i : weights)
       deallog << i << " ";

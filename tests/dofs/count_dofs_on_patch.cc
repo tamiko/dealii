@@ -38,8 +38,7 @@ template <int dim>
 void
 test()
 {
-  Triangulation<dim> triangulation(
-    Triangulation<dim>::limit_level_difference_at_vertices);
+  Triangulation<dim> triangulation(Triangulation<dim>::limit_level_difference_at_vertices);
 
   GridGenerator::hyper_cube(triangulation);
   triangulation.refine_global(2);
@@ -57,8 +56,7 @@ test()
 
       // refine triangulation
       unsigned int index = 0;
-      for (typename Triangulation<dim>::active_cell_iterator cell =
-             triangulation.begin_active();
+      for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
            cell != triangulation.end();
            ++cell, ++index)
         if (flags[index])
@@ -70,8 +68,7 @@ test()
       // some of them will actually be
       // coarsened)
       index = 0;
-      for (typename Triangulation<dim>::active_cell_iterator cell =
-             triangulation.begin_active();
+      for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
            cell != triangulation.end();
            ++cell, ++index)
         if (!flags[index])
@@ -85,13 +82,10 @@ test()
   dof_handler.distribute_dofs(fe);
 
   // now extract patches and print the number of dofs on each
-  for (typename DoFHandler<dim>::active_cell_iterator cell =
-         dof_handler.begin_active();
-       cell != dof_handler.end();
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(); cell != dof_handler.end();
        ++cell)
     deallog << cell << ": "
-            << DoFTools::count_dofs_on_patch<dim, dim>(
-                 GridTools::get_patch_around_cell<DoFHandler<dim>>(cell))
+            << DoFTools::count_dofs_on_patch<dim, dim>(GridTools::get_patch_around_cell<DoFHandler<dim>>(cell))
             << std::endl;
 }
 

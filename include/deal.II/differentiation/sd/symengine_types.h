@@ -45,8 +45,7 @@ namespace Differentiation
         struct ExpressionKeyLess
         {
           bool
-          operator()(const SD::Expression &lhs,
-                     const SD::Expression &rhs) const;
+          operator()(const SD::Expression &lhs, const SD::Expression &rhs) const;
         };
       } // namespace internal
 
@@ -57,8 +56,7 @@ namespace Differentiation
        * is equivalent to a `std::map<SymEngine::RCP<const SymEngine::Basic>,
        * SymEngine::RCP<const SymEngine::Basic>>`.
        */
-      using substitution_map =
-        std::map<SD::Expression, SD::Expression, internal::ExpressionKeyLess>;
+      using substitution_map = std::map<SD::Expression, SD::Expression, internal::ExpressionKeyLess>;
 
       /**
        * Type definition for a vector of symbols.
@@ -90,9 +88,7 @@ namespace boost
 
     template <typename Archive>
     void
-    serialize(Archive & /*ar*/,
-              SD::types::internal::ExpressionKeyLess & /*cmp*/,
-              unsigned int /*version*/)
+    serialize(Archive & /*ar*/, SD::types::internal::ExpressionKeyLess & /*cmp*/, unsigned int /*version*/)
     {
       // Nothing to do.
     }

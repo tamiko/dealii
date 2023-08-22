@@ -43,9 +43,8 @@ constexpr unsigned int n_data_points_per_cell = 4;
 
 
 void
-setup_history(Triangulation<2> &             tria,
-              CellDataStorage<typename Triangulation<2>::active_cell_iterator,
-                              MaterialBase> &storage)
+setup_history(Triangulation<2>                                                               &tria,
+              CellDataStorage<typename Triangulation<2>::active_cell_iterator, MaterialBase> &storage)
 {
   deallog << "initializing history" << std::endl;
   for (auto cell : tria.active_cell_iterators())
@@ -59,9 +58,8 @@ setup_history(Triangulation<2> &             tria,
 }
 
 void
-read_history(Triangulation<2> &             tria,
-             CellDataStorage<typename Triangulation<2>::active_cell_iterator,
-                             MaterialBase> &storage)
+read_history(Triangulation<2>                                                               &tria,
+             CellDataStorage<typename Triangulation<2>::active_cell_iterator, MaterialBase> &storage)
 {
   deallog << "reading history" << std::endl;
   for (auto cell : tria.active_cell_iterators())
@@ -69,14 +67,12 @@ read_history(Triangulation<2> &             tria,
       if (cell->material_id() == 0)
         {
           auto data_vec = storage.template get_data<Mat0>(cell);
-          deallog << "Cell with material id = 0 contains the data "
-                  << data_vec[0]->x << std::endl;
+          deallog << "Cell with material id = 0 contains the data " << data_vec[0]->x << std::endl;
         }
       else if (cell->material_id() == 1)
         {
           auto data_vec = storage.template get_data<Mat1>(cell);
-          deallog << "Cell with material id = 1 contains the data "
-                  << data_vec[0]->y << std::endl;
+          deallog << "Cell with material id = 1 contains the data " << data_vec[0]->y << std::endl;
         }
     }
 }
@@ -106,8 +102,7 @@ main()
   deallog << "first refinement done" << std::endl;
 
   // create a history structure and populate it
-  CellDataStorage<typename Triangulation<2>::active_cell_iterator, MaterialBase>
-    storage;
+  CellDataStorage<typename Triangulation<2>::active_cell_iterator, MaterialBase> storage;
   setup_history(tria, storage);
   read_history(tria, storage);
 

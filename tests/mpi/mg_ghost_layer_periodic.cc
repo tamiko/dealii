@@ -41,20 +41,13 @@ test()
       {
         if (std::abs(cell->face(face_index)->center()(face_index / 2)) < 1e-12)
           cell->face(face_index)->set_all_boundary_ids(face_index);
-        if (std::abs(cell->face(face_index)->center()(face_index / 2) - 1.) <
-            1e-12)
+        if (std::abs(cell->face(face_index)->center()(face_index / 2) - 1.) < 1e-12)
           cell->face(face_index)->set_all_boundary_ids(face_index);
       }
 
-  std::vector<
-    GridTools::PeriodicFacePair<typename Triangulation<dim>::cell_iterator>>
-    periodic_faces;
+  std::vector<GridTools::PeriodicFacePair<typename Triangulation<dim>::cell_iterator>> periodic_faces;
   for (unsigned int d = 0; d < dim; ++d)
-    GridTools::collect_periodic_faces(static_cast<Triangulation<dim> &>(tria),
-                                      2 * d,
-                                      2 * d + 1,
-                                      d,
-                                      periodic_faces);
+    GridTools::collect_periodic_faces(static_cast<Triangulation<dim> &>(tria), 2 * d, 2 * d + 1, d, periodic_faces);
 
   tria.add_periodicity(periodic_faces);
 
@@ -63,18 +56,14 @@ test()
       for (const auto &cell : tria.cell_iterators())
         if (cell->level_subdomain_id() == tria.locally_owned_subdomain())
           {
-            deallog << Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) << ' '
-                    << cell->id() << " neighbor subdomain ids: ";
+            deallog << Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) << ' ' << cell->id()
+                    << " neighbor subdomain ids: ";
             for (const unsigned int f : GeometryInfo<dim>::face_indices())
               {
                 deallog << cell->neighbor_or_periodic_neighbor(f)->id() << ' ';
                 if (cell->is_active())
-                  deallog
-                    << cell->neighbor_or_periodic_neighbor(f)->subdomain_id()
-                    << ' ';
-                deallog << cell->neighbor_or_periodic_neighbor(f)
-                             ->level_subdomain_id()
-                        << "  ";
+                  deallog << cell->neighbor_or_periodic_neighbor(f)->subdomain_id() << ' ';
+                deallog << cell->neighbor_or_periodic_neighbor(f)->level_subdomain_id() << "  ";
               }
             deallog << std::endl;
           }
@@ -97,27 +86,19 @@ main(int argc, char *argv[])
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
 

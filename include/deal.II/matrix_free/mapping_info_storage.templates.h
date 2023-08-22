@@ -38,8 +38,7 @@ namespace internal
   namespace MatrixFreeFunctions
   {
     template <int structdim, int spacedim, typename Number>
-    MappingInfoStorage<structdim, spacedim, Number>::QuadratureDescriptor::
-      QuadratureDescriptor()
+    MappingInfoStorage<structdim, spacedim, Number>::QuadratureDescriptor::QuadratureDescriptor()
       : n_q_points(numbers::invalid_unsigned_int)
     {}
 
@@ -48,8 +47,8 @@ namespace internal
     template <int structdim, int spacedim, typename Number>
     template <int dim_q>
     void
-    MappingInfoStorage<structdim, spacedim, Number>::QuadratureDescriptor::
-      initialize(const Quadrature<dim_q> &quadrature)
+    MappingInfoStorage<structdim, spacedim, Number>::QuadratureDescriptor::initialize(
+      const Quadrature<dim_q> &quadrature)
     {
       this->quadrature = quadrature;
       n_q_points       = quadrature.size();
@@ -64,8 +63,8 @@ namespace internal
 
     template <int structdim, int spacedim, typename Number>
     void
-    MappingInfoStorage<structdim, spacedim, Number>::QuadratureDescriptor::
-      initialize(const Quadrature<1> &quadrature_1d)
+    MappingInfoStorage<structdim, spacedim, Number>::QuadratureDescriptor::initialize(
+      const Quadrature<1> &quadrature_1d)
     {
       this->quadrature_1d = quadrature_1d;
       quadrature          = Quadrature<structdim>(quadrature_1d);
@@ -86,11 +85,9 @@ namespace internal
 
     template <int structdim, int spacedim, typename Number>
     std::size_t
-    MappingInfoStorage<structdim, spacedim, Number>::QuadratureDescriptor::
-      memory_consumption() const
+    MappingInfoStorage<structdim, spacedim, Number>::QuadratureDescriptor::memory_consumption() const
     {
-      std::size_t memory = sizeof(this) + quadrature.memory_consumption() +
-                           quadrature_weights.memory_consumption();
+      std::size_t memory = sizeof(this) + quadrature.memory_consumption() + quadrature_weights.memory_consumption();
       for (int d = 0; d < structdim; ++d)
         memory += tensor_quadrature_weights[d].memory_consumption();
       return memory;
@@ -133,11 +130,8 @@ namespace internal
       // for Hessian information, need inverse Jacobians and the derivative of
       // Jacobians (these two together will give use the gradients of the
       // inverse Jacobians, which is what we need)
-      if ((update_flags & update_hessians) != 0u ||
-          (update_flags & update_jacobian_grads) != 0u ||
-          (piola_transform &&
-           ((update_flags &
-             (update_gradients | update_contravariant_transformation)) != 0u)))
+      if ((update_flags & update_hessians) != 0u || (update_flags & update_jacobian_grads) != 0u ||
+          (piola_transform && ((update_flags & (update_gradients | update_contravariant_transformation)) != 0u)))
         new_flags |= update_jacobian_grads;
 
       if ((update_flags & update_quadrature_points) != 0u)
@@ -175,16 +169,12 @@ namespace internal
     {
       return MemoryConsumption::memory_consumption(descriptor) +
              MemoryConsumption::memory_consumption(data_index_offsets) +
-             MemoryConsumption::memory_consumption(JxW_values) +
-             MemoryConsumption::memory_consumption(normal_vectors) +
-             MemoryConsumption::memory_consumption(jacobians[0]) +
-             MemoryConsumption::memory_consumption(jacobians[1]) +
+             MemoryConsumption::memory_consumption(JxW_values) + MemoryConsumption::memory_consumption(normal_vectors) +
+             MemoryConsumption::memory_consumption(jacobians[0]) + MemoryConsumption::memory_consumption(jacobians[1]) +
              MemoryConsumption::memory_consumption(jacobian_gradients[0]) +
              MemoryConsumption::memory_consumption(jacobian_gradients[1]) +
-             MemoryConsumption::memory_consumption(
-               jacobian_gradients_non_inverse[0]) +
-             MemoryConsumption::memory_consumption(
-               jacobian_gradients_non_inverse[1]) +
+             MemoryConsumption::memory_consumption(jacobian_gradients_non_inverse[0]) +
+             MemoryConsumption::memory_consumption(jacobian_gradients_non_inverse[1]) +
              MemoryConsumption::memory_consumption(normals_times_jacobians[0]) +
              MemoryConsumption::memory_consumption(normals_times_jacobians[1]) +
              MemoryConsumption::memory_consumption(quadrature_point_offsets) +
@@ -196,59 +186,46 @@ namespace internal
     template <int structdim, int spacedim, typename Number>
     template <typename StreamType>
     void
-    MappingInfoStorage<structdim, spacedim, Number>::print_memory_consumption(
-      StreamType &    out,
-      const TaskInfo &task_info) const
+    MappingInfoStorage<structdim, spacedim, Number>::print_memory_consumption(StreamType     &out,
+                                                                              const TaskInfo &task_info) const
     {
       // print_memory_statistics involves global communication, so we can
       // disable the check here only if no processor has any such data
-      const std::size_t size =
-        Utilities::MPI::sum(jacobians[0].size(), task_info.communicator);
+      const std::size_t size = Utilities::MPI::sum(jacobians[0].size(), task_info.communicator);
       if (size > 0)
         {
           out << "      Memory JxW data:               ";
-          task_info.print_memory_statistics(
-            out,
-            MemoryConsumption::memory_consumption(data_index_offsets) +
-              MemoryConsumption::memory_consumption(JxW_values));
+          task_info.print_memory_statistics(out,
+                                            MemoryConsumption::memory_consumption(data_index_offsets) +
+                                              MemoryConsumption::memory_consumption(JxW_values));
           out << "      Memory Jacobian data:          ";
-          task_info.print_memory_statistics(
-            out,
-            MemoryConsumption::memory_consumption(jacobians[0]) +
-              MemoryConsumption::memory_consumption(jacobians[1]));
+          task_info.print_memory_statistics(out,
+                                            MemoryConsumption::memory_consumption(jacobians[0]) +
+                                              MemoryConsumption::memory_consumption(jacobians[1]));
           out << "      Memory second derivative data: ";
-          task_info.print_memory_statistics(
-            out,
-            MemoryConsumption::memory_consumption(jacobian_gradients[0]) +
-              MemoryConsumption::memory_consumption(jacobian_gradients[1]) +
-              MemoryConsumption::memory_consumption(
-                jacobian_gradients_non_inverse[0]) +
-              MemoryConsumption::memory_consumption(
-                jacobian_gradients_non_inverse[1]));
+          task_info.print_memory_statistics(out,
+                                            MemoryConsumption::memory_consumption(jacobian_gradients[0]) +
+                                              MemoryConsumption::memory_consumption(jacobian_gradients[1]) +
+                                              MemoryConsumption::memory_consumption(jacobian_gradients_non_inverse[0]) +
+                                              MemoryConsumption::memory_consumption(jacobian_gradients_non_inverse[1]));
         }
-      const std::size_t normal_size =
-        Utilities::MPI::sum(normal_vectors.size(), task_info.communicator);
+      const std::size_t normal_size = Utilities::MPI::sum(normal_vectors.size(), task_info.communicator);
       if (normal_size > 0)
         {
           out << "      Memory normal vectors data:    ";
-          task_info.print_memory_statistics(
-            out,
-            MemoryConsumption::memory_consumption(normal_vectors) +
-              MemoryConsumption::memory_consumption(
-                normals_times_jacobians[0]) +
-              MemoryConsumption::memory_consumption(
-                normals_times_jacobians[1]));
+          task_info.print_memory_statistics(out,
+                                            MemoryConsumption::memory_consumption(normal_vectors) +
+                                              MemoryConsumption::memory_consumption(normals_times_jacobians[0]) +
+                                              MemoryConsumption::memory_consumption(normals_times_jacobians[1]));
         }
 
-      const std::size_t quad_size =
-        Utilities::MPI::sum(quadrature_points.size(), task_info.communicator);
+      const std::size_t quad_size = Utilities::MPI::sum(quadrature_points.size(), task_info.communicator);
       if (quad_size > 0)
         {
           out << "      Memory quadrature points:      ";
-          task_info.print_memory_statistics(
-            out,
-            MemoryConsumption::memory_consumption(quadrature_point_offsets) +
-              MemoryConsumption::memory_consumption(quadrature_points));
+          task_info.print_memory_statistics(out,
+                                            MemoryConsumption::memory_consumption(quadrature_point_offsets) +
+                                              MemoryConsumption::memory_consumption(quadrature_points));
         }
     }
 

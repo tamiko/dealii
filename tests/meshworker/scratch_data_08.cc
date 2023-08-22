@@ -88,11 +88,9 @@ test()
   QGauss<dim>     quad(3);
   QGauss<dim - 1> face_quad(3);
 
-  UpdateFlags cell_flags = update_values | update_gradients |
-                           update_quadrature_points | update_JxW_values;
-  UpdateFlags face_flags = update_values | update_gradients |
-                           update_quadrature_points | update_normal_vectors |
-                           update_JxW_values;
+  UpdateFlags cell_flags = update_values | update_gradients | update_quadrature_points | update_JxW_values;
+  UpdateFlags face_flags =
+    update_values | update_gradients | update_quadrature_points | update_normal_vectors | update_JxW_values;
 
   // Stabilization for SIPG
   double gamma = 100;
@@ -131,64 +129,56 @@ test()
   ScratchData scratch(fe, quad, cell_flags, face_quad, face_flags);
   CopyData    copy;
 
-  auto cell_worker =
-    [&rhs_function](const Iterator &cell, ScratchData &s, CopyData &c) {
-      const auto &fev = s.reinit(cell);
-      const auto &JxW = s.get_JxW_values();
-      const auto &p   = s.get_quadrature_points();
-
-      c.reinit(cell, s.get_local_dof_indices().size());
-
-      for (unsigned int q = 0; q < p.size(); ++q)
-        for (unsigned int i = 0; i < fev.dofs_per_cell; ++i)
-          {
-            for (unsigned int j = 0; j < fev.dofs_per_cell; ++j)
-              {
-                c.cell_matrix(i, j) +=
-                  fev.shape_grad(i, q) * fev.shape_grad(j, q) * JxW[q];
-              }
-            c.cell_rhs(i) +=
-              fev.shape_value(i, q) * rhs_function.value(p[q]) * JxW[q];
-          }
-    };
-
-  auto boundary_worker = [gamma, &boundary_function](const Iterator &    cell,
-                                                     const unsigned int &f,
-                                                     ScratchData &       s,
-                                                     CopyData &          c) {
-    const auto &fev = s.reinit(cell, f);
+  auto cell_worker = [&rhs_function](const Iterator &cell, ScratchData &s, CopyData &c) {
+    const auto &fev = s.reinit(cell);
     const auto &JxW = s.get_JxW_values();
     const auto &p   = s.get_quadrature_points();
-    const auto &n   = s.get_normal_vectors();
 
-    const double gh = gamma / cell->diameter();
+    c.reinit(cell, s.get_local_dof_indices().size());
 
     for (unsigned int q = 0; q < p.size(); ++q)
       for (unsigned int i = 0; i < fev.dofs_per_cell; ++i)
         {
           for (unsigned int j = 0; j < fev.dofs_per_cell; ++j)
             {
-              c.cell_matrix(i, j) +=
-                (-fev.shape_grad(i, q) * n[q] * fev.shape_value(j, q) +
-                 -fev.shape_grad(j, q) * n[q] * fev.shape_value(i, q) +
-                 gh * fev.shape_value(i, q) * fev.shape_value(j, q)) *
-                JxW[q];
+              c.cell_matrix(i, j) += fev.shape_grad(i, q) * fev.shape_grad(j, q) * JxW[q];
             }
-          c.cell_rhs(i) +=
-            ((gh * fev.shape_value(i, q) - fev.shape_grad(i, q) * n[q]) *
-             boundary_function.value(p[q])) *
-            JxW[q];
+          c.cell_rhs(i) += fev.shape_value(i, q) * rhs_function.value(p[q]) * JxW[q];
         }
   };
 
-  auto face_worker = [gamma](const Iterator &    cell,
+  auto boundary_worker =
+    [gamma, &boundary_function](const Iterator &cell, const unsigned int &f, ScratchData &s, CopyData &c) {
+      const auto &fev = s.reinit(cell, f);
+      const auto &JxW = s.get_JxW_values();
+      const auto &p   = s.get_quadrature_points();
+      const auto &n   = s.get_normal_vectors();
+
+      const double gh = gamma / cell->diameter();
+
+      for (unsigned int q = 0; q < p.size(); ++q)
+        for (unsigned int i = 0; i < fev.dofs_per_cell; ++i)
+          {
+            for (unsigned int j = 0; j < fev.dofs_per_cell; ++j)
+              {
+                c.cell_matrix(i, j) += (-fev.shape_grad(i, q) * n[q] * fev.shape_value(j, q) +
+                                        -fev.shape_grad(j, q) * n[q] * fev.shape_value(i, q) +
+                                        gh * fev.shape_value(i, q) * fev.shape_value(j, q)) *
+                                       JxW[q];
+              }
+            c.cell_rhs(i) +=
+              ((gh * fev.shape_value(i, q) - fev.shape_grad(i, q) * n[q]) * boundary_function.value(p[q])) * JxW[q];
+          }
+    };
+
+  auto face_worker = [gamma](const Iterator     &cell,
                              const unsigned int &f,
                              const unsigned int &sf,
-                             const Iterator &    ncell,
+                             const Iterator     &ncell,
                              const unsigned int &nf,
                              const unsigned int &nsf,
-                             ScratchData &       s,
-                             CopyData &          c) {
+                             ScratchData        &s,
+                             CopyData           &c) {
     const auto &fev = s.reinit(cell, f, sf, ncell, nf, nsf);
     const auto &JxW = s.get_JxW_values();
 
@@ -209,24 +199,18 @@ test()
       for (unsigned int i = 0; i < n_dofs; ++i)
         for (unsigned int j = 0; j < n_dofs; ++j)
           {
-            face_matrix(i, j) += (-fev.jump_in_shape_gradients(i, q) * n[q] *
-                                    fev.average_of_shape_values(j, q) -
-                                  fev.average_of_shape_values(i, q) *
-                                    fev.jump_in_shape_gradients(j, q) * n[q] +
-                                  gh * fev.jump_in_shape_values(i, q) *
-                                    fev.jump_in_shape_values(j, q)) *
+            face_matrix(i, j) += (-fev.jump_in_shape_gradients(i, q) * n[q] * fev.average_of_shape_values(j, q) -
+                                  fev.average_of_shape_values(i, q) * fev.jump_in_shape_gradients(j, q) * n[q] +
+                                  gh * fev.jump_in_shape_values(i, q) * fev.jump_in_shape_values(j, q)) *
                                  JxW[q];
           }
   };
 
   auto copier = [&constraints, &matrix, &rhs](const CopyData &c) {
-    constraints.distribute_local_to_global(
-      c.cell_matrix, c.cell_rhs, c.local_dof_indices, matrix, rhs);
+    constraints.distribute_local_to_global(c.cell_matrix, c.cell_rhs, c.local_dof_indices, matrix, rhs);
 
     for (auto &cdf : c.face_data)
-      constraints.distribute_local_to_global(cdf.cell_matrix,
-                                             cdf.joint_dof_indices,
-                                             matrix);
+      constraints.distribute_local_to_global(cdf.cell_matrix, cdf.joint_dof_indices, matrix);
   };
 
 
@@ -237,8 +221,7 @@ test()
             copier,
             scratch,
             copy,
-            assemble_own_cells | assemble_boundary_faces |
-              assemble_own_interior_faces_once,
+            assemble_own_cells | assemble_boundary_faces | assemble_own_interior_faces_once,
             boundary_worker,
             face_worker);
 

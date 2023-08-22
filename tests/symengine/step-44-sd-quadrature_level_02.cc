@@ -62,29 +62,22 @@ namespace Step44
         // const SDNumberType det_F_SD = sqrt(determinant(C_SD));
         // const SymmetricTensor<2,dim,SDNumberType> C_bar_SD (pow(det_F_SD,
         // -2.0/dim) * C_SD);
-        const SDNumberType det_C_SD = determinant(C_SD);
-        const SymmetricTensor<2, dim, SDNumberType> C_bar_SD(
-          pow(det_C_SD, -1.0 / dim) * C_SD);
+        const SDNumberType                          det_C_SD = determinant(C_SD);
+        const SymmetricTensor<2, dim, SDNumberType> C_bar_SD(pow(det_C_SD, -1.0 / dim) * C_SD);
         // Compute energy
         const SDNumberType det_F_SD     = sqrt(det_C_SD);
-        const SDNumberType symbolic_psi = material->get_Psi_iso(C_bar_SD) +
-                                          p_tilde_SD * (det_F_SD - J_tilde_SD);
+        const SDNumberType symbolic_psi = material->get_Psi_iso(C_bar_SD) + p_tilde_SD * (det_F_SD - J_tilde_SD);
         // Compute partial derivatives of energy function
-        symbolic_S =
-          2.0 * SD::differentiate(symbolic_psi, C_SD); // S = 2*dpsi_dC
-        symbolic_H =
-          2.0 *
-          SD::differentiate(symbolic_S, C_SD); // H = 2*dS_dC = 4*d2psi_dC_dC
+        symbolic_S = 2.0 * SD::differentiate(symbolic_psi, C_SD); // S = 2*dpsi_dC
+        symbolic_H = 2.0 * SD::differentiate(symbolic_S, C_SD);   // H = 2*dS_dC = 4*d2psi_dC_dC
 
         if (debug)
           {
             std::cout << "symbolic_psi: " << symbolic_psi << std::endl;
             // std::cout << "symbolic_S: " << symbolic_S << std::endl;
             // std::cout << "symbolic_H: " << symbolic_H << std::endl;
-            for (unsigned int i = 0; i < symbolic_S.n_independent_components;
-                 ++i)
-              std::cout << "symbolic_S [" << i
-                        << "]: " << symbolic_S.access_raw_entry(i) << std::endl;
+            for (unsigned int i = 0; i < symbolic_S.n_independent_components; ++i)
+              std::cout << "symbolic_S [" << i << "]: " << symbolic_S.access_raw_entry(i) << std::endl;
           }
       }
 
@@ -94,14 +87,12 @@ namespace Step44
         // Compute energy
         const SDNumberType symbolic_psi_vol = material->get_Psi_vol(J_tilde_SD);
         // Compute partial derivatives of energy function
-        symbolic_dPsi_vol_dJ = SD::differentiate(symbolic_psi_vol, J_tilde_SD);
-        symbolic_d2Psi_vol_dJ2 =
-          SD::differentiate(symbolic_dPsi_vol_dJ, J_tilde_SD);
+        symbolic_dPsi_vol_dJ   = SD::differentiate(symbolic_psi_vol, J_tilde_SD);
+        symbolic_d2Psi_vol_dJ2 = SD::differentiate(symbolic_dPsi_vol_dJ, J_tilde_SD);
 
         if (debug)
           {
-            std::cout << "symbolic_dPsi_vol_dJ: " << symbolic_dPsi_vol_dJ
-                      << std::endl;
+            std::cout << "symbolic_dPsi_vol_dJ: " << symbolic_dPsi_vol_dJ << std::endl;
             // std::cout << "symbolic_d2Psi_vol_dJ2: " << symbolic_d2Psi_vol_dJ2
             // << std::endl;
             throw;
@@ -111,19 +102,14 @@ namespace Step44
     void
     setup_lqp(const Parameters::AllParameters &parameters)
     {
-      material.reset(
-        new Material_Compressible_Neo_Hook_Three_Field<dim>(parameters.mu,
-                                                            parameters.nu));
+      material.reset(new Material_Compressible_Neo_Hook_Three_Field<dim>(parameters.mu, parameters.nu));
       setup_symbol_differentiation();
       update_values(Tensor<2, dim>(), 0.0, 1.0);
     }
     void
-    update_values(const Tensor<2, dim> &Grad_u_n,
-                  const double          p_tilde,
-                  const double          J_tilde)
+    update_values(const Tensor<2, dim> &Grad_u_n, const double p_tilde, const double J_tilde)
     {
-      const Tensor<2, dim> F =
-        (Tensor<2, dim>(StandardTensors<dim>::I) + Grad_u_n);
+      const Tensor<2, dim> F = (Tensor<2, dim>(StandardTensors<dim>::I) + Grad_u_n);
       material->update_material_data(F, p_tilde, J_tilde);
       F_inv = invert(F);
 
@@ -133,19 +119,13 @@ namespace Step44
       // Build the symbol substitution map
       const SymmetricTensor<2, dim> C = symmetrize(transpose(F) * F);
       SD::types::substitution_map   sub_vals_unresolved;
-      SD::add_to_substitution_map(sub_vals_unresolved,
-                                  SD::make_substitution_map(C_SD, C));
-      SD::add_to_substitution_map(sub_vals_unresolved,
-                                  SD::make_substitution_map(p_tilde_SD,
-                                                            p_tilde));
-      SD::add_to_substitution_map(sub_vals_unresolved,
-                                  SD::make_substitution_map(J_tilde_SD,
-                                                            J_tilde));
+      SD::add_to_substitution_map(sub_vals_unresolved, SD::make_substitution_map(C_SD, C));
+      SD::add_to_substitution_map(sub_vals_unresolved, SD::make_substitution_map(p_tilde_SD, p_tilde));
+      SD::add_to_substitution_map(sub_vals_unresolved, SD::make_substitution_map(J_tilde_SD, J_tilde));
       // NOTE: The recursive substitution is not really required in this case,
       // but good to use in practise in case a more complex energy function is
       // employed later
-      const SD::types::substitution_map sub_vals =
-        SD::resolve_explicit_dependencies(sub_vals_unresolved);
+      const SD::types::substitution_map sub_vals = SD::resolve_explicit_dependencies(sub_vals_unresolved);
 
       if (debug)
         {
@@ -155,10 +135,8 @@ namespace Step44
       // Step 1: Update stress and material tangent
       {
         // 1b: Perform substitution of symbols
-        const SymmetricTensor<2, dim, SDNumberType> substitution_S =
-          SD::substitute(symbolic_S, sub_vals);
-        const SymmetricTensor<4, dim, SDNumberType> substitution_H =
-          SD::substitute(symbolic_H, sub_vals);
+        const SymmetricTensor<2, dim, SDNumberType> substitution_S = SD::substitute(symbolic_S, sub_vals);
+        const SymmetricTensor<4, dim, SDNumberType> substitution_H = SD::substitute(symbolic_H, sub_vals);
 
         if (debug)
           {
@@ -167,10 +145,8 @@ namespace Step44
           }
 
         // Compute real-valued deal.II tensors
-        const SymmetricTensor<2, dim> S =
-          static_cast<SymmetricTensor<2, dim>>(substitution_S);
-        const SymmetricTensor<4, dim> H =
-          static_cast<SymmetricTensor<4, dim>>(substitution_H);
+        const SymmetricTensor<2, dim> S = static_cast<SymmetricTensor<2, dim>>(substitution_S);
+        const SymmetricTensor<4, dim> H = static_cast<SymmetricTensor<4, dim>>(substitution_H);
 
         // Push-forward
         tau = Physics::Transformations::Contravariant::push_forward(S, F);
@@ -180,17 +156,13 @@ namespace Step44
       // Step 2: Update volumetric penalty terms
       {
         // 1b: Perform substitution of symbols
-        const SDNumberType substitution_dPsi_vol_dJ =
-          SD::substitute(symbolic_dPsi_vol_dJ, sub_vals);
-        const SDNumberType substitution_d2Psi_vol_dJ2 =
-          SD::substitute(symbolic_d2Psi_vol_dJ2, sub_vals);
+        const SDNumberType substitution_dPsi_vol_dJ   = SD::substitute(symbolic_dPsi_vol_dJ, sub_vals);
+        const SDNumberType substitution_d2Psi_vol_dJ2 = SD::substitute(symbolic_d2Psi_vol_dJ2, sub_vals);
 
         if (debug)
           {
-            std::cout << "substitution_dPsi_vol_dJ: "
-                      << substitution_dPsi_vol_dJ << std::endl;
-            std::cout << "substitution_d2Psi_vol_dJ2: "
-                      << substitution_d2Psi_vol_dJ2 << std::endl;
+            std::cout << "substitution_dPsi_vol_dJ: " << substitution_dPsi_vol_dJ << std::endl;
+            std::cout << "substitution_d2Psi_vol_dJ2: " << substitution_d2Psi_vol_dJ2 << std::endl;
           }
 
         // Compute real values
@@ -200,26 +172,19 @@ namespace Step44
 
       if (debug)
         {
-          std::cout << "dPsi_vol_dJ:                   " << dPsi_vol_dJ
-                    << std::endl;
-          std::cout << "material->get_dPsi_vol_dJ():   "
-                    << material->get_dPsi_vol_dJ() << std::endl;
-          std::cout << "d2Psi_vol_dJ2:                 " << d2Psi_vol_dJ2
-                    << std::endl;
-          std::cout << "material->get_d2Psi_vol_dJ2(): "
-                    << material->get_d2Psi_vol_dJ2() << std::endl;
+          std::cout << "dPsi_vol_dJ:                   " << dPsi_vol_dJ << std::endl;
+          std::cout << "material->get_dPsi_vol_dJ():   " << material->get_dPsi_vol_dJ() << std::endl;
+          std::cout << "d2Psi_vol_dJ2:                 " << d2Psi_vol_dJ2 << std::endl;
+          std::cout << "material->get_d2Psi_vol_dJ2(): " << material->get_d2Psi_vol_dJ2() << std::endl;
 
           std::cout << "tau:                 " << tau << std::endl;
-          std::cout << "material->get_tau(): " << material->get_tau()
-                    << std::endl;
+          std::cout << "material->get_tau(): " << material->get_tau() << std::endl;
           std::cout << "Jc:                  " << Jc << std::endl;
-          std::cout << "material->get_Jc():  " << material->get_Jc()
-                    << std::endl;
+          std::cout << "material->get_Jc():  " << material->get_Jc() << std::endl;
         }
 
       {
-        static const double tol =
-          1e-6; // Minor computation error due to order of operations
+        static const double tol = 1e-6; // Minor computation error due to order of operations
 
         // Zero strain --> zero stress
         if (std::abs(determinant(F) - 1.0) > 1e-9)
@@ -227,27 +192,20 @@ namespace Step44
             const SymmetricTensor<2, dim> tau_ref = material->get_tau();
             const SymmetricTensor<4, dim> Jc_ref  = material->get_Jc();
 
-            Assert((tau - tau_ref).norm() / tau_ref.norm() < tol,
-                   ExcMessage("SD computed stress is incorrect."));
-            Assert((Jc - Jc_ref).norm() / Jc_ref.norm() < tol,
-                   ExcMessage("SD computed tangent is incorrect."));
-            Assert(std::abs((dPsi_vol_dJ - material->get_dPsi_vol_dJ()) /
-                            material->get_dPsi_vol_dJ()) < tol,
+            Assert((tau - tau_ref).norm() / tau_ref.norm() < tol, ExcMessage("SD computed stress is incorrect."));
+            Assert((Jc - Jc_ref).norm() / Jc_ref.norm() < tol, ExcMessage("SD computed tangent is incorrect."));
+            Assert(std::abs((dPsi_vol_dJ - material->get_dPsi_vol_dJ()) / material->get_dPsi_vol_dJ()) < tol,
                    ExcMessage("SD computed dPsi_vol_dJ is incorrect."));
-            Assert(std::abs((d2Psi_vol_dJ2 - material->get_d2Psi_vol_dJ2()) /
-                            material->get_d2Psi_vol_dJ2()) < tol,
+            Assert(std::abs((d2Psi_vol_dJ2 - material->get_d2Psi_vol_dJ2()) / material->get_d2Psi_vol_dJ2()) < tol,
                    ExcMessage("SD computed d2Psi_vol_dJ2 is incorrect."));
           }
         else
           {
-            Assert((tau - material->get_tau()).norm() < tol,
-                   ExcMessage("SD computed stress is incorrect."));
-            Assert((Jc - material->get_Jc()).norm() < tol,
-                   ExcMessage("SD computed tangent is incorrect."));
+            Assert((tau - material->get_tau()).norm() < tol, ExcMessage("SD computed stress is incorrect."));
+            Assert((Jc - material->get_Jc()).norm() < tol, ExcMessage("SD computed tangent is incorrect."));
             Assert(std::abs(dPsi_vol_dJ - material->get_dPsi_vol_dJ()) < tol,
                    ExcMessage("SD computed dPsi_vol_dJ is incorrect."));
-            Assert(std::abs(d2Psi_vol_dJ2 - material->get_d2Psi_vol_dJ2()) <
-                     tol,
+            Assert(std::abs(d2Psi_vol_dJ2 - material->get_d2Psi_vol_dJ2()) < tol,
                    ExcMessage("SD computed d2Psi_vol_dJ2 is incorrect."));
           }
       }
@@ -316,8 +274,7 @@ main(int argc, char **argv)
 {
   initlog();
 
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   using namespace dealii;
   using namespace Step44;
@@ -329,27 +286,19 @@ main(int argc, char **argv)
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
   return 0;

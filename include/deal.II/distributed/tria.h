@@ -245,8 +245,7 @@ namespace parallel
      */
     template <int dim, int spacedim = dim>
     DEAL_II_CXX20_REQUIRES((concepts::is_valid_dim_spacedim<dim, spacedim>))
-    class Triangulation
-      : public dealii::parallel::DistributedTriangulationBase<dim, spacedim>
+    class Triangulation : public dealii::parallel::DistributedTriangulationBase<dim, spacedim>
     {
     public:
       /**
@@ -266,8 +265,7 @@ namespace parallel
        *
        * @ingroup Iterators
        */
-      using cell_iterator =
-        typename dealii::Triangulation<dim, spacedim>::cell_iterator;
+      using cell_iterator = typename dealii::Triangulation<dim, spacedim>::cell_iterator;
 
       /**
        * An alias that is used to identify
@@ -287,8 +285,7 @@ namespace parallel
        *
        * @ingroup Iterators
        */
-      using active_cell_iterator =
-        typename dealii::Triangulation<dim, spacedim>::active_cell_iterator;
+      using active_cell_iterator = typename dealii::Triangulation<dim, spacedim>::active_cell_iterator;
 
       /**
        * Configuration flags for distributed Triangulations to be set in the
@@ -363,11 +360,10 @@ namespace parallel
        * mesh independent of the number of processors into which the
        * triangulation is partitioned.
        */
-      explicit Triangulation(
-        const MPI_Comm mpi_communicator,
-        const typename dealii::Triangulation<dim, spacedim>::MeshSmoothing
-          smooth_grid           = (dealii::Triangulation<dim, spacedim>::none),
-        const Settings settings = default_setting);
+      explicit Triangulation(const MPI_Comm                                                     mpi_communicator,
+                             const typename dealii::Triangulation<dim, spacedim>::MeshSmoothing smooth_grid =
+                               (dealii::Triangulation<dim, spacedim>::none),
+                             const Settings settings = default_setting);
 
       /**
        * Destructor.
@@ -409,11 +405,8 @@ namespace parallel
        * DistributedTriangulationBase::DataTransfer::pack_data().
        */
       void
-      execute_transfer(
-        const typename dealii::internal::p4est::types<dim>::forest
-          *parallel_forest,
-        const typename dealii::internal::p4est::types<dim>::gloidx
-          *previous_global_first_quadrant);
+      execute_transfer(const typename dealii::internal::p4est::types<dim>::forest *parallel_forest,
+                       const typename dealii::internal::p4est::types<dim>::gloidx *previous_global_first_quadrant);
 
       /**
        * Implementation of the same function as in the base class.
@@ -423,8 +416,7 @@ namespace parallel
        * Triangulation has never been refined.
        */
       virtual void
-      copy_triangulation(
-        const dealii::Triangulation<dim, spacedim> &other_tria) override;
+      copy_triangulation(const dealii::Triangulation<dim, spacedim> &other_tria) override;
 
       /**
        * Create a triangulation as documented in the base class.
@@ -437,8 +429,8 @@ namespace parallel
        */
       virtual void
       create_triangulation(const std::vector<Point<spacedim>> &vertices,
-                           const std::vector<CellData<dim>> &  cells,
-                           const SubCellData &subcelldata) override;
+                           const std::vector<CellData<dim>>   &cells,
+                           const SubCellData                  &subcelldata) override;
 
       /**
        * @copydoc Triangulation::create_triangulation()
@@ -446,9 +438,7 @@ namespace parallel
        * @note Not implemented yet.
        */
       virtual void
-      create_triangulation(
-        const TriangulationDescription::Description<dim, spacedim>
-          &construction_data) override;
+      create_triangulation(const TriangulationDescription::Description<dim, spacedim> &construction_data) override;
 
       /**
        * Find the MPI rank of the cell that contains this point in a distributed
@@ -695,9 +685,7 @@ namespace parallel
        * rebuilds the p4est forest each time it is called.
        */
       virtual void
-      add_periodicity(
-        const std::vector<dealii::GridTools::PeriodicFacePair<cell_iterator>> &)
-        override;
+      add_periodicity(const std::vector<dealii::GridTools::PeriodicFacePair<cell_iterator>> &) override;
 
 
     private:
@@ -767,10 +755,8 @@ namespace parallel
        * forest stored by p4est is located on geometrically close coarse grid
        * cells.
        */
-      std::vector<types::global_dof_index>
-        coarse_cell_to_p4est_tree_permutation;
-      std::vector<types::global_dof_index>
-        p4est_tree_to_coarse_cell_permutation;
+      std::vector<types::global_dof_index> coarse_cell_to_p4est_tree_permutation;
+      std::vector<types::global_dof_index> p4est_tree_to_coarse_cell_permutation;
 
       /**
        * Return a pointer to the p4est tree that belongs to the given
@@ -831,12 +817,10 @@ namespace parallel
       mark_locally_active_vertices_on_level(const int level) const;
 
       virtual unsigned int
-      coarse_cell_id_to_coarse_cell_index(
-        const types::coarse_cell_id coarse_cell_id) const override;
+      coarse_cell_id_to_coarse_cell_index(const types::coarse_cell_id coarse_cell_id) const override;
 
       virtual types::coarse_cell_id
-      coarse_cell_index_to_coarse_cell_id(
-        const unsigned int coarse_cell_index) const override;
+      coarse_cell_index_to_coarse_cell_id(const unsigned int coarse_cell_index) const override;
 
       template <int, int, class>
       friend class dealii::FETools::internal::ExtrapolateImplementation;
@@ -855,8 +839,7 @@ namespace parallel
      */
     template <int spacedim>
     DEAL_II_CXX20_REQUIRES((concepts::is_valid_dim_spacedim<1, spacedim>))
-    class Triangulation<1, spacedim>
-      : public dealii::parallel::DistributedTriangulationBase<1, spacedim>
+    class Triangulation<1, spacedim> : public dealii::parallel::DistributedTriangulationBase<1, spacedim>
     {
     public:
       /**
@@ -875,11 +858,10 @@ namespace parallel
        * Constructor. The argument denotes the MPI communicator to be used for
        * the triangulation.
        */
-      Triangulation(
-        const MPI_Comm mpi_communicator,
-        const typename dealii::Triangulation<1, spacedim>::MeshSmoothing
-                       smooth_grid = (dealii::Triangulation<1, spacedim>::none),
-        const Settings settings    = default_setting);
+      Triangulation(const MPI_Comm                                                   mpi_communicator,
+                    const typename dealii::Triangulation<1, spacedim>::MeshSmoothing smooth_grid =
+                      (dealii::Triangulation<1, spacedim>::none),
+                    const Settings settings = default_setting);
 
       /**
        * Destructor.
@@ -942,18 +924,15 @@ namespace parallel
        * Dummy arrays. This class isn't usable but the compiler wants to see
        * these variables at a couple places anyway.
        */
-      std::vector<types::global_dof_index>
-        coarse_cell_to_p4est_tree_permutation;
-      std::vector<types::global_dof_index>
-        p4est_tree_to_coarse_cell_permutation;
+      std::vector<types::global_dof_index> coarse_cell_to_p4est_tree_permutation;
+      std::vector<types::global_dof_index> p4est_tree_to_coarse_cell_permutation;
 
       /**
        * This method, which is only implemented for dim = 2 or 3,
        * needs a stub because it is used in dof_handler_policy.cc
        */
       virtual std::map<unsigned int, std::set<dealii::types::subdomain_id>>
-      compute_level_vertices_with_ghost_neighbors(
-        const unsigned int level) const;
+      compute_level_vertices_with_ghost_neighbors(const unsigned int level) const;
 
       /**
        * Like above, this method, which is only implemented for dim = 2 or 3,
@@ -963,12 +942,10 @@ namespace parallel
       mark_locally_active_vertices_on_level(const unsigned int level) const;
 
       virtual unsigned int
-      coarse_cell_id_to_coarse_cell_index(
-        const types::coarse_cell_id coarse_cell_id) const override;
+      coarse_cell_id_to_coarse_cell_index(const types::coarse_cell_id coarse_cell_id) const override;
 
       virtual types::coarse_cell_id
-      coarse_cell_index_to_coarse_cell_id(
-        const unsigned int coarse_cell_index) const override;
+      coarse_cell_index_to_coarse_cell_id(const unsigned int coarse_cell_index) const override;
 
       template <int, int>
       friend class TemporarilyMatchRefineFlags;
@@ -998,8 +975,7 @@ namespace parallel
      */
     template <int dim, int spacedim = dim>
     DEAL_II_CXX20_REQUIRES((concepts::is_valid_dim_spacedim<dim, spacedim>))
-    class Triangulation
-      : public dealii::parallel::DistributedTriangulationBase<dim, spacedim>
+    class Triangulation : public dealii::parallel::DistributedTriangulationBase<dim, spacedim>
     {
     public:
       /**
@@ -1018,12 +994,11 @@ namespace parallel
        * Constructor. Deleted to make sure that objects of this type cannot be
        * constructed (see also the class documentation).
        */
-      explicit Triangulation(
-        const MPI_Comm /*mpi_communicator*/,
-        const typename dealii::Triangulation<dim, spacedim>::MeshSmoothing
-        /*smooth_grid*/
-        = (dealii::Triangulation<dim, spacedim>::none),
-        const Settings /*settings*/ = default_setting) = delete;
+      explicit Triangulation(const MPI_Comm /*mpi_communicator*/,
+                             const typename dealii::Triangulation<dim, spacedim>::MeshSmoothing
+                             /*smooth_grid*/
+                             = (dealii::Triangulation<dim, spacedim>::none),
+                             const Settings /*settings*/ = default_setting) = delete;
 
       /**
        * Dummy replacement to allow for better error messages when compiling
@@ -1067,8 +1042,7 @@ namespace parallel
        */
       DEAL_II_DEPRECATED
       virtual void
-      load(const std::string & /*filename*/,
-           const bool /*autopartition*/) override
+      load(const std::string & /*filename*/, const bool /*autopartition*/) override
       {}
 
       /**
@@ -1134,9 +1108,7 @@ namespace parallel
       /**
        * The modified parallel::distributed::Triangulation.
        */
-      const SmartPointer<
-        dealii::parallel::distributed::Triangulation<dim, spacedim>>
-        distributed_tria;
+      const SmartPointer<dealii::parallel::distributed::Triangulation<dim, spacedim>> distributed_tria;
 
       /**
        * A vector that temporarily stores the refine flags before they have

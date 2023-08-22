@@ -140,9 +140,7 @@ namespace internal
 
 // forward declarations to support abs or sqrt operations on VectorizedArray
 #ifndef DOXYGEN
-template <typename Number,
-          std::size_t width =
-            internal::VectorizedArrayWidthSpecifier<Number>::max_width>
+template <typename Number, std::size_t width = internal::VectorizedArrayWidthSpecifier<Number>::max_width>
 class VectorizedArray;
 template <typename T>
 struct EnableIfScalar;
@@ -182,12 +180,10 @@ namespace std
   abs(const ::dealii::VectorizedArray<Number, width> &);
   template <typename Number, std::size_t width>
   DEAL_II_ALWAYS_INLINE ::dealii::VectorizedArray<Number, width>
-  max(const ::dealii::VectorizedArray<Number, width> &,
-      const ::dealii::VectorizedArray<Number, width> &);
+  max(const ::dealii::VectorizedArray<Number, width> &, const ::dealii::VectorizedArray<Number, width> &);
   template <typename Number, std::size_t width>
   DEAL_II_ALWAYS_INLINE ::dealii::VectorizedArray<Number, width>
-  min(const ::dealii::VectorizedArray<Number, width> &,
-      const ::dealii::VectorizedArray<Number, width> &);
+  min(const ::dealii::VectorizedArray<Number, width> &, const ::dealii::VectorizedArray<Number, width> &);
   template <typename Number, size_t width>
   ::dealii::VectorizedArray<Number, width>
   pow(const ::dealii::VectorizedArray<Number, width> &, const Number p);
@@ -379,8 +375,7 @@ namespace numbers
    */
   template <typename Number1, typename Number2>
   bool
-  value_is_less_than_or_equal_to(const Number1 &value_1,
-                                 const Number2 &value_2);
+  value_is_less_than_or_equal_to(const Number1 &value_1, const Number2 &value_2);
 
 
 
@@ -410,8 +405,7 @@ namespace numbers
    */
   template <typename Number1, typename Number2>
   bool
-  value_is_greater_than_or_equal_to(const Number1 &value_1,
-                                    const Number2 &value_2);
+  value_is_greater_than_or_equal_to(const Number1 &value_1, const Number2 &value_2);
 
   /**
    * A structure that, together with its partial specializations
@@ -452,7 +446,7 @@ namespace numbers
      * @note This function can also be used in @ref GlossDevice "device" code.
      */
     static constexpr DEAL_II_HOST_DEVICE const number &
-                                               conjugate(const number &x);
+    conjugate(const number &x);
 
     /**
      * Return the square of the absolute value of the given number. Since the
@@ -687,7 +681,7 @@ namespace internal
     }
 
   public:
-    static bool const value = test<From, To>(0);
+    static const bool value = test<From, To>(0);
   };
 
   /*
@@ -698,7 +692,7 @@ namespace internal
   struct NumberType
   {
     static constexpr DEAL_II_HOST_DEVICE_ALWAYS_INLINE const T &
-                                                             value(const T &t)
+    value(const T &t)
     {
       return t;
     }
@@ -713,9 +707,9 @@ namespace internal
     // Type T is constructible from F.
     template <typename F>
     static constexpr DEAL_II_HOST_DEVICE_ALWAYS_INLINE T
-    value(const F &f,
-          std::enable_if_t<!std::is_same_v<std::decay_t<T>, std::decay_t<F>> &&
-                           std::is_constructible_v<T, F>> * = nullptr)
+    value(
+      const F &f,
+      std::enable_if_t<!std::is_same_v<std::decay_t<T>, std::decay_t<F>> && std::is_constructible_v<T, F>> * = nullptr)
     {
       return T(f);
     }
@@ -724,10 +718,8 @@ namespace internal
     template <typename F>
     static constexpr DEAL_II_HOST_DEVICE_ALWAYS_INLINE T
     value(const F &f,
-          std::enable_if_t<!std::is_same_v<std::decay_t<T>, std::decay_t<F>> &&
-                           !std::is_constructible_v<T, F> &&
-                           is_explicitly_convertible<const F, T>::value> * =
-            nullptr)
+          std::enable_if_t<!std::is_same_v<std::decay_t<T>, std::decay_t<F>> && !std::is_constructible_v<T, F> &&
+                           is_explicitly_convertible<const F, T>::value> * = nullptr)
     {
       return static_cast<T>(f);
     }
@@ -738,12 +730,10 @@ namespace internal
     // might fall into the same category.
     template <typename F>
     static T
-    value(
-      const F &f,
-      std::enable_if_t<!std::is_same_v<std::decay_t<T>, std::decay_t<F>> &&
-                       !std::is_constructible_v<T, F> &&
-                       !is_explicitly_convertible<const F, T>::value &&
-                       Differentiation::AD::is_ad_number<F>::value> * = nullptr)
+    value(const F &f,
+          std::enable_if_t<!std::is_same_v<std::decay_t<T>, std::decay_t<F>> && !std::is_constructible_v<T, F> &&
+                           !is_explicitly_convertible<const F, T>::value && Differentiation::AD::is_ad_number<F>::value>
+            * = nullptr)
     {
       return Differentiation::AD::internal::NumberType<T>::value(f);
     }
@@ -769,8 +759,7 @@ namespace internal
     static constexpr std::complex<T>
     value(const std::complex<U> &t)
     {
-      return std::complex<T>(NumberType<T>::value(t.real()),
-                             NumberType<T>::value(t.imag()));
+      return std::complex<T>(NumberType<T>::value(t.real()), NumberType<T>::value(t.imag()));
     }
   };
 
@@ -831,8 +820,7 @@ namespace numbers
   values_are_equal(const adouble &value_1, const Number &value_2)
   {
     // Use the specialized definition for two ADOL-C taped types
-    return values_are_equal(
-      value_1, dealii::internal::NumberType<adouble>::value(value_2));
+    return values_are_equal(value_1, dealii::internal::NumberType<adouble>::value(value_2));
   }
 
 
@@ -886,8 +874,7 @@ namespace numbers
   value_is_less_than(const adouble &value_1, const Number &value_2)
   {
     // Use the specialized definition for two ADOL-C taped types
-    return value_is_less_than(
-      value_1, dealii::internal::NumberType<adouble>::value(value_2));
+    return value_is_less_than(value_1, dealii::internal::NumberType<adouble>::value(value_2));
   }
 
 
@@ -907,8 +894,7 @@ namespace numbers
   value_is_less_than(const Number &value_1, const adouble &value_2)
   {
     // Use the specialized definition for two ADOL-C taped types
-    return value_is_less_than(
-      dealii::internal::NumberType<adouble>::value(value_1), value_2);
+    return value_is_less_than(dealii::internal::NumberType<adouble>::value(value_1), value_2);
   }
 
 #endif
@@ -950,8 +936,7 @@ namespace numbers
   inline bool
   value_is_less_than_or_equal_to(const Number1 &value_1, const Number2 &value_2)
   {
-    return (value_is_less_than(value_1, value_2) ||
-            values_are_equal(value_1, value_2));
+    return (value_is_less_than(value_1, value_2) || values_are_equal(value_1, value_2));
   }
 
 
@@ -965,8 +950,7 @@ namespace numbers
 
   template <typename Number1, typename Number2>
   inline bool
-  value_is_greater_than_or_equal_to(const Number1 &value_1,
-                                    const Number2 &value_2)
+  value_is_greater_than_or_equal_to(const Number1 &value_1, const Number2 &value_2)
   {
     return !(value_is_less_than(value_1, value_2));
   }

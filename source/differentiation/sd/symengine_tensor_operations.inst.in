@@ -25,9 +25,8 @@ for (deal_II_dimension : DIMENSIONS)
         make_vector_of_symbols<deal_II_dimension>(const std::string &symbol);
 
         template Tensor<1, deal_II_dimension, Expression>
-        make_vector_of_symbolic_functions<deal_II_dimension>(
-          const std::string &            symbol,
-          const types::substitution_map &arguments);
+        make_vector_of_symbolic_functions<deal_II_dimension>(const std::string             &symbol,
+                                                             const types::substitution_map &arguments);
 
         /*--- Rank-0 definitions ---*/
 
@@ -35,9 +34,8 @@ for (deal_II_dimension : DIMENSIONS)
         make_tensor_of_symbols<0, deal_II_dimension>(const std::string &symbol);
 
         template Tensor<0, deal_II_dimension, Expression>
-        make_tensor_of_symbolic_functions<0, deal_II_dimension>(
-          const std::string &            symbol,
-          const types::substitution_map &arguments);
+        make_tensor_of_symbolic_functions<0, deal_II_dimension>(const std::string             &symbol,
+                                                                const types::substitution_map &arguments);
       \}
     \}
   }
@@ -51,13 +49,11 @@ for (rank : RANKS; deal_II_dimension : DIMENSIONS)
       \{
 
         template Tensor<rank, deal_II_dimension, Expression>
-        make_tensor_of_symbols<rank, deal_II_dimension>(
-          const std::string &symbol);
+        make_tensor_of_symbols<rank, deal_II_dimension>(const std::string &symbol);
 
         template Tensor<rank, deal_II_dimension, Expression>
-        make_tensor_of_symbolic_functions<rank, deal_II_dimension>(
-          const std::string &            symbol,
-          const types::substitution_map &arguments);
+        make_tensor_of_symbolic_functions<rank, deal_II_dimension>(const std::string             &symbol,
+                                                                   const types::substitution_map &arguments);
 
       \}
     \}
@@ -72,13 +68,11 @@ for (rank : SYM_RANKS; deal_II_dimension : DIMENSIONS)
       \{
 
         template SymmetricTensor<rank, deal_II_dimension, Expression>
-        make_symmetric_tensor_of_symbols<rank, deal_II_dimension>(
-          const std::string &symbol);
+        make_symmetric_tensor_of_symbols<rank, deal_II_dimension>(const std::string &symbol);
 
         template SymmetricTensor<rank, deal_II_dimension, Expression>
-        make_symmetric_tensor_of_symbolic_functions<rank, deal_II_dimension>(
-          const std::string &            symbol,
-          const types::substitution_map &arguments);
+        make_symmetric_tensor_of_symbolic_functions<rank, deal_II_dimension>(const std::string             &symbol,
+                                                                             const types::substitution_map &arguments);
 
       \}
     \}

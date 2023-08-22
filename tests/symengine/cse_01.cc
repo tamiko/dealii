@@ -48,10 +48,7 @@ main(int argc, char *argv[])
   //      SE::parse("a+b"),
   //      SE::parse("(a+b)*c")
   //  };
-  SE::vec_basic dependents = {SE::parse("a+b"),
-                              SE::parse("a+b+c"),
-                              SE::parse("(a+b)*c"),
-                              SE::parse("(a+b+c)*c")};
+  SE::vec_basic dependents = {SE::parse("a+b"), SE::parse("a+b+c"), SE::parse("(a+b)*c"), SE::parse("(a+b+c)*c")};
 
   deallog.push("Independents");
   for (unsigned int i = 0; i < independents.size(); ++i)
@@ -69,10 +66,8 @@ main(int argc, char *argv[])
   deallog.push("Intermediate reduced expressions");
   for (unsigned i = 0; i < intermediate_symbols_exprs.size(); ++i)
     {
-      const SE::RCP<const SE::Basic> &cse_symbol =
-        intermediate_symbols_exprs[i].first;
-      const SE::RCP<const SE::Basic> &cse_expr =
-        intermediate_symbols_exprs[i].second;
+      const SE::RCP<const SE::Basic> &cse_symbol = intermediate_symbols_exprs[i].first;
+      const SE::RCP<const SE::Basic> &cse_expr   = intermediate_symbols_exprs[i].second;
       deallog << i << ": " << *cse_symbol << " = " << *cse_expr << std::endl;
     }
   deallog.pop();

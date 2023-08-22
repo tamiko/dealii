@@ -75,17 +75,14 @@ test()
 {
   parallel::distributed::Triangulation<dim> tr(MPI_COMM_WORLD);
 
-  GridGenerator::hyper_cube_with_cylindrical_hole(tr,
-                                                  0.05 /* cylinder radius */,
-                                                  0.4 / 2.0 /* box radius */);
+  GridGenerator::hyper_cube_with_cylindrical_hole(tr, 0.05 /* cylinder radius */, 0.4 / 2.0 /* box radius */);
   tr.refine_global(1);
 
   const FE_Q<dim> fe(1);
   DoFHandler<dim> dofh(tr);
   dofh.distribute_dofs(fe);
 
-  TrilinosWrappers::MPI::Vector interpolated(dofh.locally_owned_dofs(),
-                                             MPI_COMM_WORLD);
+  TrilinosWrappers::MPI::Vector interpolated(dofh.locally_owned_dofs(), MPI_COMM_WORLD);
   VectorTools::interpolate(dofh, LinearFunction<dim>(), interpolated);
 
   IndexSet relevant_set;
@@ -148,8 +145,7 @@ test()
           else if (i == 6)
             {
               deallog << "vector_gradient_list:" << std::endl;
-              std::vector<std::vector<Tensor<1, 2>>> out(
-                1, std::vector<Tensor<1, 2>>(1, Tensor<1, 2>()));
+              std::vector<std::vector<Tensor<1, 2>>> out(1, std::vector<Tensor<1, 2>>(1, Tensor<1, 2>()));
               field_func.vector_gradient_list(points, out);
               deallog << "  OK: " << out[0][0] << std::endl;
             }

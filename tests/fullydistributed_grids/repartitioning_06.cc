@@ -44,9 +44,7 @@ namespace dealii
   namespace parallel
   {
     template <int dim, int spacedim = dim>
-    std::function<
-      unsigned int(const typename Triangulation<dim, spacedim>::cell_iterator &,
-                   const CellStatus)>
+    std::function<unsigned int(const typename Triangulation<dim, spacedim>::cell_iterator &, const CellStatus)>
     hanging_nodes_weighting(const double weight)
     {
       return [weight](const auto &cell, const auto &) -> unsigned int {
@@ -57,8 +55,7 @@ namespace dealii
 
         for (const auto f : cell->face_indices())
           if (!cell->at_boundary(f) &&
-              (cell->neighbor(f)->has_children() ||
-               cell->level() != cell->neighbor(f)->level()))
+              (cell->neighbor(f)->has_children() || cell->level() != cell->neighbor(f)->level()))
             flag = true;
 
         if (flag)
@@ -102,9 +99,7 @@ void
 test(const MPI_Comm comm)
 {
   parallel::distributed::Triangulation<dim> tria(
-    comm,
-    Triangulation<dim>::none,
-    parallel::distributed::Triangulation<dim>::construct_multigrid_hierarchy);
+    comm, Triangulation<dim>::none, parallel::distributed::Triangulation<dim>::construct_multigrid_hierarchy);
   create_triangulation(tria);
 
   const RepartitioningPolicyTools::FirstChildPolicy<dim> policy(tria);
@@ -112,11 +107,8 @@ test(const MPI_Comm comm)
   // const RepartitioningPolicyTools::CellWeightPolicy<dim>
   // policy(parallel::hanging_nodes_weighting<dim>(2.0));
 
-  const auto construction_data =
-    TriangulationDescription::Utilities::create_description_from_triangulation(
-      tria,
-      policy.partition(tria),
-      TriangulationDescription::Settings::construct_multigrid_hierarchy);
+  const auto construction_data = TriangulationDescription::Utilities::create_description_from_triangulation(
+    tria, policy.partition(tria), TriangulationDescription::Settings::construct_multigrid_hierarchy);
 
   parallel::fullydistributed::Triangulation<dim> tria_pft(comm);
   tria_pft.create_triangulation(construction_data);

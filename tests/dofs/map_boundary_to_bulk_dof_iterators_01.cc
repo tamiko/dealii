@@ -42,30 +42,21 @@ test()
   triangulation.refine_global(4 - dim);
 
   surface_triangulation.set_manifold(0, SphericalManifold<dim - 1, dim>());
-  const auto surface_to_bulk_map =
-    GridGenerator::extract_boundary_mesh(triangulation,
-                                         surface_triangulation,
-                                         {0});
+  const auto surface_to_bulk_map = GridGenerator::extract_boundary_mesh(triangulation, surface_triangulation, {0});
 
-  deallog << "Bulk mesh active cells:" << triangulation.n_active_cells()
-          << std::endl
-          << "Surface mesh active cells:"
-          << surface_triangulation.n_active_cells() << std::endl;
+  deallog << "Bulk mesh active cells:" << triangulation.n_active_cells() << std::endl
+          << "Surface mesh active cells:" << surface_triangulation.n_active_cells() << std::endl;
 
   dof_handler.distribute_dofs(fe);
   surface_dof_handler.distribute_dofs(surface_fe);
 
   // Log degrees of freedom:
-  deallog << "Bulk mesh degrees of freedom:" << dof_handler.n_dofs()
-          << std::endl
-          << "Surface mesh degrees of freedom:" << surface_dof_handler.n_dofs()
-          << std::endl;
+  deallog << "Bulk mesh degrees of freedom:" << dof_handler.n_dofs() << std::endl
+          << "Surface mesh degrees of freedom:" << surface_dof_handler.n_dofs() << std::endl;
 
   // Extract the mapping between surface and bulk degrees of freedom:
   const auto surface_to_bulk_dof_iterator_map =
-    DoFTools::map_boundary_to_bulk_dof_iterators(surface_to_bulk_map,
-                                                 dof_handler,
-                                                 surface_dof_handler);
+    DoFTools::map_boundary_to_bulk_dof_iterators(surface_to_bulk_map, dof_handler, surface_dof_handler);
 
   // Loop over the map, and print some information:
   for (const auto &p : surface_to_bulk_dof_iterator_map)
@@ -73,8 +64,8 @@ test()
       const auto &surface_cell = p.first;
       const auto &bulk_cell    = p.second.first;
       const auto &bulk_face    = p.second.second;
-      deallog << "Surface cell " << surface_cell << " coincides with face "
-              << bulk_face << " of bulk cell " << bulk_cell << std::endl;
+      deallog << "Surface cell " << surface_cell << " coincides with face " << bulk_face << " of bulk cell "
+              << bulk_cell << std::endl;
     }
 }
 

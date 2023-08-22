@@ -31,31 +31,24 @@ main()
   // "1.2,1.3,1.4,1.6 1.2,1.3,1.0,1.5,6.5,5.1 7.6,13.5,1.5" is not valid
 
   // Parse the description in deal.ii
-  std::unique_ptr<dealii::Patterns::PatternBase> pattern =
-    dealii::Patterns::pattern_factory(description);
+  std::unique_ptr<dealii::Patterns::PatternBase> pattern = dealii::Patterns::pattern_factory(description);
 
   // Write the original and parsed description
   deallog << "Original description: " << std::endl
           << description << std::endl
           << std::endl
           << "Parsed description: " << std::endl
-          << pattern->description(dealii::Patterns::PatternBase::Machine)
-          << std::endl;
+          << pattern->description(dealii::Patterns::PatternBase::Machine) << std::endl;
 
   // First check, should be a match
-  deallog << "First check: \"\" is "
-          << (pattern->match("") ? "a match" : "not a match") << std::endl;
+  deallog << "First check: \"\" is " << (pattern->match("") ? "a match" : "not a match") << std::endl;
 
   // Second check, should be a match
   deallog << "Second check: \"1 2 3,1.2 3.2 1.2\" is "
-          << (pattern->match("1 2 3,1.2 3.2 1.2") ? "a match" : "not a match")
-          << std::endl;
+          << (pattern->match("1 2 3,1.2 3.2 1.2") ? "a match" : "not a match") << std::endl;
 
   // Third check, should not be a match
-  deallog
-    << "Third check: \"1.2,1.3,1.4,1.6 1.2,1.3,1.0,1.5,6.5,5.1 7.6,13.5,1.5\" is "
-    << (pattern->match("1.2,1.3,1.4,1.6 1.2,1.3,1.0,1.5,6.5,5.1 7.6,13.5,1.5") ?
-          "a match" :
-          "not a match")
-    << std::endl;
+  deallog << "Third check: \"1.2,1.3,1.4,1.6 1.2,1.3,1.0,1.5,6.5,5.1 7.6,13.5,1.5\" is "
+          << (pattern->match("1.2,1.3,1.4,1.6 1.2,1.3,1.0,1.5,6.5,5.1 7.6,13.5,1.5") ? "a match" : "not a match")
+          << std::endl;
 }

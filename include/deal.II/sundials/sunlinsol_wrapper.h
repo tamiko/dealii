@@ -125,10 +125,7 @@ namespace SUNDIALS
      * 6.0.0. If you are using an earlier version of SUNDIALS then you need to
      * use the other constructor.
      */
-    SundialsPreconditioner(void *     P_data,
-                           PSolveFn   p_solve_fn,
-                           SUNContext linsol_ctx,
-                           double     tol);
+    SundialsPreconditioner(void *P_data, PSolveFn p_solve_fn, SUNContext linsol_ctx, double tol);
 #  else
     /**
      * Constructor.
@@ -198,12 +195,11 @@ namespace SUNDIALS
    * can throw exceptions of type RecoverableUserCallbackError.
    */
   template <typename VectorType>
-  using LinearSolveFunction =
-    std::function<void(SundialsOperator<VectorType> &      op,
-                       SundialsPreconditioner<VectorType> &prec,
-                       VectorType &                        x,
-                       const VectorType &                  b,
-                       double                              tol)>;
+  using LinearSolveFunction = std::function<void(SundialsOperator<VectorType>       &op,
+                                                 SundialsPreconditioner<VectorType> &prec,
+                                                 VectorType                         &x,
+                                                 const VectorType                   &b,
+                                                 double                              tol)>;
 
   namespace internal
   {
@@ -217,12 +213,11 @@ namespace SUNDIALS
     class LinearSolverWrapper
     {
     public:
-      explicit LinearSolverWrapper(
-        const LinearSolveFunction<VectorType> &lsolve,
-        std::exception_ptr &                   pending_exception
+      explicit LinearSolverWrapper(const LinearSolveFunction<VectorType> &lsolve,
+                                   std::exception_ptr                    &pending_exception
 #  if DEAL_II_SUNDIALS_VERSION_GTE(6, 0, 0)
-        ,
-        SUNContext linsol_ctx
+                                   ,
+                                   SUNContext linsol_ctx
 #  endif
       );
 

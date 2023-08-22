@@ -71,9 +71,7 @@ namespace Utilities
        * number of cores
        * in the @p mpi_communicator.
        */
-      ProcessGrid(const MPI_Comm     mpi_communicator,
-                  const unsigned int n_rows,
-                  const unsigned int n_columns);
+      ProcessGrid(const MPI_Comm mpi_communicator, const unsigned int n_rows, const unsigned int n_columns);
 
       /**
        * Constructor for a process grid for a given @p mpi_communicator.
@@ -151,8 +149,7 @@ namespace Utilities
        * A private constructor which takes grid dimensions as an
        * <code>std::pair</code>.
        */
-      ProcessGrid(const MPI_Comm                               mpi_communicator,
-                  const std::pair<unsigned int, unsigned int> &grid_dimensions);
+      ProcessGrid(const MPI_Comm mpi_communicator, const std::pair<unsigned int, unsigned int> &grid_dimensions);
 
       /**
        * An MPI communicator with all processes (active and inactive).

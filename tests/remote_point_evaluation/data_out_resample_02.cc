@@ -61,10 +61,9 @@ create_partitioner(const DoFHandler<dim, spacedim> &dof_handler)
 
   DoFTools::extract_locally_relevant_dofs(dof_handler, locally_relevant_dofs);
 
-  return std::make_shared<const Utilities::MPI::Partitioner>(
-    dof_handler.locally_owned_dofs(),
-    locally_relevant_dofs,
-    dof_handler.get_communicator());
+  return std::make_shared<const Utilities::MPI::Partitioner>(dof_handler.locally_owned_dofs(),
+                                                             locally_relevant_dofs,
+                                                             dof_handler.get_communicator());
 }
 
 
@@ -95,18 +94,13 @@ main(int argc, char **argv)
   tria_backround.refine_global(n_refinements_1);
 
   DoFHandler<dim, spacedim> dof_handler(tria_backround);
-  dof_handler.distribute_dofs(
-    FESystem<dim, spacedim>(FE_Q<dim, spacedim>{1}, n_components));
+  dof_handler.distribute_dofs(FESystem<dim, spacedim>(FE_Q<dim, spacedim>{1}, n_components));
 
   MappingQ1<dim, spacedim> mapping;
 
-  LinearAlgebra::distributed::Vector<double> vector(
-    create_partitioner(dof_handler));
+  LinearAlgebra::distributed::Vector<double> vector(create_partitioner(dof_handler));
 
-  VectorTools::interpolate(mapping,
-                           dof_handler,
-                           AnalyticalFunction<dim>(n_components),
-                           vector);
+  VectorTools::interpolate(mapping, dof_handler, AnalyticalFunction<dim>(n_components), vector);
 
   vector.update_ghost_values();
 

@@ -25,9 +25,5 @@ main()
 {
   initlog();
 
-  CHECK_SYS2(FE_DGQArbitraryNodes<2>(QIterated<1>(QTrapezoid<1>(), 3)),
-             1,
-             FE_Nedelec<2>(1),
-             2,
-             2);
+  CHECK_SYS2(FE_DGQArbitraryNodes<2>(QIterated<1>(QTrapezoid<1>(), 3)), 1, FE_Nedelec<2>(1), 2, 2);
 }

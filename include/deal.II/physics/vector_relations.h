@@ -44,8 +44,7 @@ namespace Physics
      */
     template <int spacedim, typename Number>
     Number
-    angle(const Tensor<1, spacedim, Number> &a,
-          const Tensor<1, spacedim, Number> &b);
+    angle(const Tensor<1, spacedim, Number> &a, const Tensor<1, spacedim, Number> &b);
 
     /**
      * Calculate the angle $\theta$ between two vectors @p a and @p b, where both
@@ -90,13 +89,11 @@ namespace Physics
 
 template <int spacedim, typename Number>
 inline Number
-Physics::VectorRelations::angle(const Tensor<1, spacedim, Number> &a,
-                                const Tensor<1, spacedim, Number> &b)
+Physics::VectorRelations::angle(const Tensor<1, spacedim, Number> &a, const Tensor<1, spacedim, Number> &b)
 {
   const Number a_norm = a.norm();
   const Number b_norm = b.norm();
-  Assert(a_norm > 1.e-12 * b_norm && a_norm > 1.e-12 * b_norm,
-         ExcMessage("Both vectors need to be non-zero!"));
+  Assert(a_norm > 1.e-12 * b_norm && a_norm > 1.e-12 * b_norm, ExcMessage("Both vectors need to be non-zero!"));
 
   Number argument = (a * b) / a_norm / b_norm;
 
@@ -117,13 +114,10 @@ Physics::VectorRelations::signed_angle(const Tensor<1, spacedim, Number> &a,
                                        const Tensor<1, spacedim, Number> &b,
                                        const Tensor<1, spacedim, Number> &axis)
 {
-  Assert(spacedim == 3,
-         ExcMessage("This function can only be used with spacedim==3!"));
+  Assert(spacedim == 3, ExcMessage("This function can only be used with spacedim==3!"));
 
-  Assert(std::abs(axis.norm() - 1.) < 1.e-12,
-         ExcMessage("The axial vector is not a unit vector."));
-  Assert(std::abs(axis * a) < 1.e-12 * a.norm() &&
-           std::abs(axis * b) < 1.e-12 * b.norm(),
+  Assert(std::abs(axis.norm() - 1.) < 1.e-12, ExcMessage("The axial vector is not a unit vector."));
+  Assert(std::abs(axis * a) < 1.e-12 * a.norm() && std::abs(axis * b) < 1.e-12 * b.norm(),
          ExcMessage("The vectors are not perpendicular to the axial vector."));
 
   const Number dot = a * b;

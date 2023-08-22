@@ -71,11 +71,10 @@ namespace PETScWrappers
    */
   template <typename F, typename... Args>
   int
-  call_and_possibly_capture_ts_exception(
-    const F &                    f,
-    std::exception_ptr &         eptr,
-    const std::function<void()> &recoverable_action,
-    Args &&...args)
+  call_and_possibly_capture_ts_exception(const F                     &f,
+                                         std::exception_ptr          &eptr,
+                                         const std::function<void()> &recoverable_action,
+                                         Args &&...args)
   {
     // See whether there is already something in the exception pointer
     // variable. There is no reason why this should be so, and
@@ -120,17 +119,11 @@ namespace PETScWrappers
 
   template <typename VectorType, typename PMatrixType, typename AMatrixType>
   DEAL_II_CXX20_REQUIRES(
-    (concepts::is_dealii_petsc_vector_type<VectorType> ||
-     std::constructible_from<
-       VectorType,
-       Vec>)&&(concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
-               std::constructible_from<
-                 PMatrixType,
-                 Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
-                         std::constructible_from<AMatrixType, Mat>))
-  TimeStepper<VectorType, PMatrixType, AMatrixType>::TimeStepper(
-    const TimeStepperData &data,
-    const MPI_Comm         mpi_comm)
+    (concepts::is_dealii_petsc_vector_type<VectorType> || std::constructible_from<VectorType, Vec>)&&(
+      concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
+      std::constructible_from<PMatrixType, Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
+                                                   std::constructible_from<AMatrixType, Mat>))
+  TimeStepper<VectorType, PMatrixType, AMatrixType>::TimeStepper(const TimeStepperData &data, const MPI_Comm mpi_comm)
     : solve_with_jacobian_pc(mpi_comm)
     , pending_exception(nullptr)
   {
@@ -143,22 +136,14 @@ namespace PETScWrappers
 
   template <typename VectorType, typename PMatrixType, typename AMatrixType>
   DEAL_II_CXX20_REQUIRES(
-    (concepts::is_dealii_petsc_vector_type<VectorType> ||
-     std::constructible_from<
-       VectorType,
-       Vec>)&&(concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
-               std::constructible_from<
-                 PMatrixType,
-                 Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
-                         std::constructible_from<AMatrixType, Mat>))
+    (concepts::is_dealii_petsc_vector_type<VectorType> || std::constructible_from<VectorType, Vec>)&&(
+      concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
+      std::constructible_from<PMatrixType, Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
+                                                   std::constructible_from<AMatrixType, Mat>))
   TimeStepper<VectorType, PMatrixType, AMatrixType>::~TimeStepper()
   {
-    AssertPETSc(PetscObjectComposeFunction((PetscObject)ts,
-                                           "__dealii_ts_resize_setup__",
-                                           nullptr));
-    AssertPETSc(PetscObjectComposeFunction((PetscObject)ts,
-                                           "__dealii_ts_resize_transfer__",
-                                           nullptr));
+    AssertPETSc(PetscObjectComposeFunction((PetscObject)ts, "__dealii_ts_resize_setup__", nullptr));
+    AssertPETSc(PetscObjectComposeFunction((PetscObject)ts, "__dealii_ts_resize_transfer__", nullptr));
     AssertPETSc(TSDestroy(&ts));
 
     Assert(pending_exception == nullptr, ExcInternalError());
@@ -168,14 +153,10 @@ namespace PETScWrappers
 
   template <typename VectorType, typename PMatrixType, typename AMatrixType>
   DEAL_II_CXX20_REQUIRES(
-    (concepts::is_dealii_petsc_vector_type<VectorType> ||
-     std::constructible_from<
-       VectorType,
-       Vec>)&&(concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
-               std::constructible_from<
-                 PMatrixType,
-                 Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
-                         std::constructible_from<AMatrixType, Mat>))
+    (concepts::is_dealii_petsc_vector_type<VectorType> || std::constructible_from<VectorType, Vec>)&&(
+      concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
+      std::constructible_from<PMatrixType, Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
+                                                   std::constructible_from<AMatrixType, Mat>))
   TimeStepper<VectorType, PMatrixType, AMatrixType>::operator TS() const
   {
     return ts;
@@ -185,14 +166,10 @@ namespace PETScWrappers
 
   template <typename VectorType, typename PMatrixType, typename AMatrixType>
   DEAL_II_CXX20_REQUIRES(
-    (concepts::is_dealii_petsc_vector_type<VectorType> ||
-     std::constructible_from<
-       VectorType,
-       Vec>)&&(concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
-               std::constructible_from<
-                 PMatrixType,
-                 Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
-                         std::constructible_from<AMatrixType, Mat>))
+    (concepts::is_dealii_petsc_vector_type<VectorType> || std::constructible_from<VectorType, Vec>)&&(
+      concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
+      std::constructible_from<PMatrixType, Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
+                                                   std::constructible_from<AMatrixType, Mat>))
   TS TimeStepper<VectorType, PMatrixType, AMatrixType>::petsc_ts()
   {
     return ts;
@@ -202,17 +179,11 @@ namespace PETScWrappers
 
   template <typename VectorType, typename PMatrixType, typename AMatrixType>
   DEAL_II_CXX20_REQUIRES(
-    (concepts::is_dealii_petsc_vector_type<VectorType> ||
-     std::constructible_from<
-       VectorType,
-       Vec>)&&(concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
-               std::constructible_from<
-                 PMatrixType,
-                 Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
-                         std::constructible_from<AMatrixType, Mat>))
-  inline MPI_Comm
-    TimeStepper<VectorType, PMatrixType, AMatrixType>::get_mpi_communicator()
-      const
+    (concepts::is_dealii_petsc_vector_type<VectorType> || std::constructible_from<VectorType, Vec>)&&(
+      concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
+      std::constructible_from<PMatrixType, Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
+                                                   std::constructible_from<AMatrixType, Mat>))
+  inline MPI_Comm TimeStepper<VectorType, PMatrixType, AMatrixType>::get_mpi_communicator() const
   {
     return PetscObjectComm(reinterpret_cast<PetscObject>(ts));
   }
@@ -221,14 +192,10 @@ namespace PETScWrappers
 
   template <typename VectorType, typename PMatrixType, typename AMatrixType>
   DEAL_II_CXX20_REQUIRES(
-    (concepts::is_dealii_petsc_vector_type<VectorType> ||
-     std::constructible_from<
-       VectorType,
-       Vec>)&&(concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
-               std::constructible_from<
-                 PMatrixType,
-                 Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
-                         std::constructible_from<AMatrixType, Mat>))
+    (concepts::is_dealii_petsc_vector_type<VectorType> || std::constructible_from<VectorType, Vec>)&&(
+      concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
+      std::constructible_from<PMatrixType, Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
+                                                   std::constructible_from<AMatrixType, Mat>))
   typename TimeStepper<VectorType, PMatrixType, AMatrixType>::real_type
     TimeStepper<VectorType, PMatrixType, AMatrixType>::get_time()
   {
@@ -241,16 +208,11 @@ namespace PETScWrappers
 
   template <typename VectorType, typename PMatrixType, typename AMatrixType>
   DEAL_II_CXX20_REQUIRES(
-    (concepts::is_dealii_petsc_vector_type<VectorType> ||
-     std::constructible_from<
-       VectorType,
-       Vec>)&&(concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
-               std::constructible_from<
-                 PMatrixType,
-                 Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
-                         std::constructible_from<AMatrixType, Mat>))
-  unsigned int TimeStepper<VectorType, PMatrixType, AMatrixType>::
-    get_step_number()
+    (concepts::is_dealii_petsc_vector_type<VectorType> || std::constructible_from<VectorType, Vec>)&&(
+      concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
+      std::constructible_from<PMatrixType, Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
+                                                   std::constructible_from<AMatrixType, Mat>))
+  unsigned int TimeStepper<VectorType, PMatrixType, AMatrixType>::get_step_number()
   {
     return ts_get_step_number(ts);
   }
@@ -259,14 +221,10 @@ namespace PETScWrappers
 
   template <typename VectorType, typename PMatrixType, typename AMatrixType>
   DEAL_II_CXX20_REQUIRES(
-    (concepts::is_dealii_petsc_vector_type<VectorType> ||
-     std::constructible_from<
-       VectorType,
-       Vec>)&&(concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
-               std::constructible_from<
-                 PMatrixType,
-                 Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
-                         std::constructible_from<AMatrixType, Mat>))
+    (concepts::is_dealii_petsc_vector_type<VectorType> || std::constructible_from<VectorType, Vec>)&&(
+      concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
+      std::constructible_from<PMatrixType, Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
+                                                   std::constructible_from<AMatrixType, Mat>))
   typename TimeStepper<VectorType, PMatrixType, AMatrixType>::real_type
     TimeStepper<VectorType, PMatrixType, AMatrixType>::get_time_step()
   {
@@ -280,14 +238,10 @@ namespace PETScWrappers
 
   template <typename VectorType, typename PMatrixType, typename AMatrixType>
   DEAL_II_CXX20_REQUIRES(
-    (concepts::is_dealii_petsc_vector_type<VectorType> ||
-     std::constructible_from<
-       VectorType,
-       Vec>)&&(concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
-               std::constructible_from<
-                 PMatrixType,
-                 Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
-                         std::constructible_from<AMatrixType, Mat>))
+    (concepts::is_dealii_petsc_vector_type<VectorType> || std::constructible_from<VectorType, Vec>)&&(
+      concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
+      std::constructible_from<PMatrixType, Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
+                                                   std::constructible_from<AMatrixType, Mat>))
   void TimeStepper<VectorType, PMatrixType, AMatrixType>::reinit()
   {
     AssertPETSc(TSReset(ts));
@@ -304,16 +258,11 @@ namespace PETScWrappers
 
   template <typename VectorType, typename PMatrixType, typename AMatrixType>
   DEAL_II_CXX20_REQUIRES(
-    (concepts::is_dealii_petsc_vector_type<VectorType> ||
-     std::constructible_from<
-       VectorType,
-       Vec>)&&(concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
-               std::constructible_from<
-                 PMatrixType,
-                 Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
-                         std::constructible_from<AMatrixType, Mat>))
-  void TimeStepper<VectorType, PMatrixType, AMatrixType>::reinit(
-    const TimeStepperData &data)
+    (concepts::is_dealii_petsc_vector_type<VectorType> || std::constructible_from<VectorType, Vec>)&&(
+      concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
+      std::constructible_from<PMatrixType, Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
+                                                   std::constructible_from<AMatrixType, Mat>))
+  void TimeStepper<VectorType, PMatrixType, AMatrixType>::reinit(const TimeStepperData &data)
   {
     reinit();
 
@@ -336,18 +285,13 @@ namespace PETScWrappers
 
     // Decide how to end the integration. Either stepover the final time or
     // match it.
-    AssertPETSc(TSSetExactFinalTime(ts,
-                                    data.match_step ?
-                                      TS_EXACTFINALTIME_MATCHSTEP :
-                                      TS_EXACTFINALTIME_STEPOVER));
+    AssertPETSc(TSSetExactFinalTime(ts, data.match_step ? TS_EXACTFINALTIME_MATCHSTEP : TS_EXACTFINALTIME_STEPOVER));
 
     // Adaptive tolerances
-    const PetscReal atol = data.absolute_tolerance > 0.0 ?
-                             data.absolute_tolerance :
-                             static_cast<PetscReal>(PETSC_DEFAULT);
-    const PetscReal rtol = data.relative_tolerance > 0.0 ?
-                             data.relative_tolerance :
-                             static_cast<PetscReal>(PETSC_DEFAULT);
+    const PetscReal atol =
+      data.absolute_tolerance > 0.0 ? data.absolute_tolerance : static_cast<PetscReal>(PETSC_DEFAULT);
+    const PetscReal rtol =
+      data.relative_tolerance > 0.0 ? data.relative_tolerance : static_cast<PetscReal>(PETSC_DEFAULT);
     AssertPETSc(TSSetTolerances(ts, atol, nullptr, rtol, nullptr));
 
     // At this point we do not know the problem size so we cannot
@@ -363,16 +307,13 @@ namespace PETScWrappers
     // As of 3.19, PETSc does not propagate options prefixes to the
     // adaptors.
     if (data.options_prefix.size())
-      AssertPETSc(
-        TSAdaptSetOptionsPrefix(tsadapt, data.options_prefix.c_str()));
+      AssertPETSc(TSAdaptSetOptionsPrefix(tsadapt, data.options_prefix.c_str()));
 
     // Time step limits
-    const PetscReal hmin = data.minimum_step_size > 0.0 ?
-                             data.minimum_step_size :
-                             static_cast<PetscReal>(PETSC_DEFAULT);
-    const PetscReal hmax = data.maximum_step_size > 0.0 ?
-                             data.maximum_step_size :
-                             static_cast<PetscReal>(PETSC_DEFAULT);
+    const PetscReal hmin =
+      data.minimum_step_size > 0.0 ? data.minimum_step_size : static_cast<PetscReal>(PETSC_DEFAULT);
+    const PetscReal hmax =
+      data.maximum_step_size > 0.0 ? data.maximum_step_size : static_cast<PetscReal>(PETSC_DEFAULT);
     AssertPETSc(TSAdaptSetStepLimits(tsadapt, hmin, hmax));
   }
 
@@ -380,16 +321,11 @@ namespace PETScWrappers
 
   template <typename VectorType, typename PMatrixType, typename AMatrixType>
   DEAL_II_CXX20_REQUIRES(
-    (concepts::is_dealii_petsc_vector_type<VectorType> ||
-     std::constructible_from<
-       VectorType,
-       Vec>)&&(concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
-               std::constructible_from<
-                 PMatrixType,
-                 Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
-                         std::constructible_from<AMatrixType, Mat>))
-  void TimeStepper<VectorType, PMatrixType, AMatrixType>::set_matrix(
-    PMatrixType &P)
+    (concepts::is_dealii_petsc_vector_type<VectorType> || std::constructible_from<VectorType, Vec>)&&(
+      concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
+      std::constructible_from<PMatrixType, Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
+                                                   std::constructible_from<AMatrixType, Mat>))
+  void TimeStepper<VectorType, PMatrixType, AMatrixType>::set_matrix(PMatrixType &P)
   {
     this->A = nullptr;
     this->P = &P;
@@ -399,17 +335,11 @@ namespace PETScWrappers
 
   template <typename VectorType, typename PMatrixType, typename AMatrixType>
   DEAL_II_CXX20_REQUIRES(
-    (concepts::is_dealii_petsc_vector_type<VectorType> ||
-     std::constructible_from<
-       VectorType,
-       Vec>)&&(concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
-               std::constructible_from<
-                 PMatrixType,
-                 Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
-                         std::constructible_from<AMatrixType, Mat>))
-  void TimeStepper<VectorType, PMatrixType, AMatrixType>::set_matrices(
-    AMatrixType &A,
-    PMatrixType &P)
+    (concepts::is_dealii_petsc_vector_type<VectorType> || std::constructible_from<VectorType, Vec>)&&(
+      concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
+      std::constructible_from<PMatrixType, Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
+                                                   std::constructible_from<AMatrixType, Mat>))
+  void TimeStepper<VectorType, PMatrixType, AMatrixType>::set_matrices(AMatrixType &A, PMatrixType &P)
   {
     this->A = &A;
     this->P = &P;
@@ -419,19 +349,14 @@ namespace PETScWrappers
 
   template <typename VectorType, typename PMatrixType, typename AMatrixType>
   DEAL_II_CXX20_REQUIRES(
-    (concepts::is_dealii_petsc_vector_type<VectorType> ||
-     std::constructible_from<
-       VectorType,
-       Vec>)&&(concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
-               std::constructible_from<
-                 PMatrixType,
-                 Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
-                         std::constructible_from<AMatrixType, Mat>))
+    (concepts::is_dealii_petsc_vector_type<VectorType> || std::constructible_from<VectorType, Vec>)&&(
+      concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
+      std::constructible_from<PMatrixType, Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
+                                                   std::constructible_from<AMatrixType, Mat>))
   void TimeStepper<VectorType, PMatrixType, AMatrixType>::setup_callbacks()
   {
     const auto ts_resize_setup =
-      [](TS ts, PetscInt it, PetscReal t, Vec x, PetscBool *flg, void *ctx)
-      -> PetscErrorCode {
+      [](TS ts, PetscInt it, PetscReal t, Vec x, PetscBool *flg, void *ctx) -> PetscErrorCode {
       PetscFunctionBeginUser;
       auto user = static_cast<TimeStepper *>(ctx);
 
@@ -440,32 +365,21 @@ namespace PETScWrappers
 
       const int lineno = __LINE__;
       const int err    = call_and_possibly_capture_ts_exception(
-        user->decide_for_coarsening_and_refinement,
-        user->pending_exception,
-        {},
-        t,
-        it,
-        xdealii,
-        resize);
+        user->decide_for_coarsening_and_refinement, user->pending_exception, {}, t, it, xdealii, resize);
       *flg = resize ? PETSC_TRUE : PETSC_FALSE;
       if (err)
-        return PetscError(
-          PetscObjectComm((PetscObject)ts),
-          lineno + 1,
-          "decide_for_coarsening_and_refinement",
-          __FILE__,
-          PETSC_ERR_LIB,
-          PETSC_ERROR_INITIAL,
-          "Failure in ts_resize_setup from dealii::PETScWrappers::TimeStepper");
+        return PetscError(PetscObjectComm((PetscObject)ts),
+                          lineno + 1,
+                          "decide_for_coarsening_and_refinement",
+                          __FILE__,
+                          PETSC_ERR_LIB,
+                          PETSC_ERROR_INITIAL,
+                          "Failure in ts_resize_setup from dealii::PETScWrappers::TimeStepper");
 
       PetscFunctionReturn(PETSC_SUCCESS);
     };
 
-    const auto ts_resize_transfer = [](TS       ts,
-                                       PetscInt nv,
-                                       Vec      vin[],
-                                       Vec      vout[],
-                                       void *   ctx) -> PetscErrorCode {
+    const auto ts_resize_transfer = [](TS ts, PetscInt nv, Vec vin[], Vec vout[], void *ctx) -> PetscErrorCode {
       PetscFunctionBeginUser;
       auto user = static_cast<TimeStepper *>(ctx);
 
@@ -476,22 +390,19 @@ namespace PETScWrappers
         }
 
       const int lineno = __LINE__;
-      const int err    = call_and_possibly_capture_ts_exception(
-        user->interpolate, user->pending_exception, {}, all_in, all_out);
+      const int err =
+        call_and_possibly_capture_ts_exception(user->interpolate, user->pending_exception, {}, all_in, all_out);
       if (err)
-        return PetscError(
-          PetscObjectComm((PetscObject)ts),
-          lineno + 1,
-          "interpolate",
-          __FILE__,
-          PETSC_ERR_LIB,
-          PETSC_ERROR_INITIAL,
-          "Failure in ts_resize_transfer from dealii::PETScWrappers::TimeStepper");
+        return PetscError(PetscObjectComm((PetscObject)ts),
+                          lineno + 1,
+                          "interpolate",
+                          __FILE__,
+                          PETSC_ERR_LIB,
+                          PETSC_ERROR_INITIAL,
+                          "Failure in ts_resize_transfer from dealii::PETScWrappers::TimeStepper");
 
       if (all_out.size() != all_in.size())
-        SETERRQ(PetscObjectComm((PetscObject)ts),
-                PETSC_ERR_LIB,
-                "Broken all_out");
+        SETERRQ(PetscObjectComm((PetscObject)ts), PETSC_ERR_LIB, "Broken all_out");
 
       for (PetscInt i = 0; i < nv; i++)
         {
@@ -505,9 +416,7 @@ namespace PETScWrappers
         }
       catch (...)
         {
-          SETERRQ(PetscObjectComm((PetscObject)ts),
-                  PETSC_ERR_LIB,
-                  "Exception in setup_callbacks");
+          SETERRQ(PetscObjectComm((PetscObject)ts), PETSC_ERR_LIB, "Exception in setup_callbacks");
         }
 
       try
@@ -516,9 +425,7 @@ namespace PETScWrappers
         }
       catch (...)
         {
-          SETERRQ(PetscObjectComm((PetscObject)ts),
-                  PETSC_ERR_LIB,
-                  "Exception in setup_algebraic_constraints");
+          SETERRQ(PetscObjectComm((PetscObject)ts), PETSC_ERR_LIB, "Exception in setup_algebraic_constraints");
         }
       PetscFunctionReturn(PETSC_SUCCESS);
     };
@@ -529,26 +436,19 @@ namespace PETScWrappers
       PetscCall(TSGetApplicationContext(ts, &ctx));
       auto user = static_cast<TimeStepper *>(ctx);
 
-      using transfer_setup_fn =
-        PetscErrorCode (*)(TS, PetscInt, PetscReal, Vec, PetscBool *, void *);
-      using transfer_fn =
-        PetscErrorCode (*)(TS, PetscInt, Vec[], Vec[], void *);
+      using transfer_setup_fn = PetscErrorCode (*)(TS, PetscInt, PetscReal, Vec, PetscBool *, void *);
+      using transfer_fn       = PetscErrorCode (*)(TS, PetscInt, Vec[], Vec[], void *);
       transfer_setup_fn transfer_setup;
       transfer_fn       transfer;
 
-      AssertPETSc(PetscObjectQueryFunction((PetscObject)ts,
-                                           "__dealii_ts_resize_setup__",
-                                           &transfer_setup));
-      AssertPETSc(PetscObjectQueryFunction((PetscObject)ts,
-                                           "__dealii_ts_resize_transfer__",
-                                           &transfer));
+      AssertPETSc(PetscObjectQueryFunction((PetscObject)ts, "__dealii_ts_resize_setup__", &transfer_setup));
+      AssertPETSc(PetscObjectQueryFunction((PetscObject)ts, "__dealii_ts_resize_transfer__", &transfer));
 
       PetscBool resize = PETSC_FALSE;
       Vec       x;
       PetscCall(TSGetSolution(ts, &x));
       PetscCall(PetscObjectReference((PetscObject)x));
-      PetscCall(transfer_setup(
-        ts, user->get_step_number(), user->get_time(), x, &resize, user));
+      PetscCall(transfer_setup(ts, user->get_step_number(), user->get_time(), x, &resize, user));
 
       if (resize)
         {
@@ -569,9 +469,7 @@ namespace PETScWrappers
       // We "fix" it by taking a reference to the object and
       // increment its state so that the time stepper is restarted
       // properly.
-      AssertPETSc(PetscObjectCompose((PetscObject)ts,
-                                     "__dealii_ts_resize_bug__",
-                                     (PetscObject)x));
+      AssertPETSc(PetscObjectCompose((PetscObject)ts, "__dealii_ts_resize_bug__", (PetscObject)x));
       petsc_increment_state_counter(x);
 #  endif
       PetscCall(VecDestroy(&x));
@@ -595,8 +493,7 @@ namespace PETScWrappers
       PetscFunctionReturn(PETSC_SUCCESS);
     };
 
-    const auto ts_poststage =
-      [](TS ts, PetscReal t, PetscInt i, Vec *xx) -> PetscErrorCode {
+    const auto ts_poststage = [](TS ts, PetscReal t, PetscInt i, Vec *xx) -> PetscErrorCode {
       PetscFunctionBeginUser;
       void *ctx;
       PetscCall(TSGetApplicationContext(ts, &ctx));
@@ -618,20 +515,18 @@ namespace PETScWrappers
         t,
         xdealii);
       if (err)
-        return PetscError(
-          PetscObjectComm((PetscObject)ts),
-          lineno + 1,
-          "distribute",
-          __FILE__,
-          PETSC_ERR_LIB,
-          PETSC_ERROR_INITIAL,
-          "Failure in ts_poststage from dealii::PETScWrappers::TimeStepper");
+        return PetscError(PetscObjectComm((PetscObject)ts),
+                          lineno + 1,
+                          "distribute",
+                          __FILE__,
+                          PETSC_ERR_LIB,
+                          PETSC_ERROR_INITIAL,
+                          "Failure in ts_poststage from dealii::PETScWrappers::TimeStepper");
       petsc_increment_state_counter(xx[i]);
       PetscFunctionReturn(PETSC_SUCCESS);
     };
 
-    const auto ts_functiondomainerror =
-      [](TS ts, PetscReal, Vec, PetscBool *accept) -> PetscErrorCode {
+    const auto ts_functiondomainerror = [](TS ts, PetscReal, Vec, PetscBool *accept) -> PetscErrorCode {
       PetscFunctionBeginUser;
       void *ctx;
       AssertPETSc(TSGetApplicationContext(ts, &ctx));
@@ -640,9 +535,7 @@ namespace PETScWrappers
       PetscFunctionReturn(PETSC_SUCCESS);
     };
 
-    const auto ts_ifunction =
-      [](TS ts, PetscReal t, Vec x, Vec xdot, Vec f, void *ctx)
-      -> PetscErrorCode {
+    const auto ts_ifunction = [](TS ts, PetscReal t, Vec x, Vec xdot, Vec f, void *ctx) -> PetscErrorCode {
       PetscFunctionBeginUser;
       auto user = static_cast<TimeStepper *>(ctx);
 
@@ -666,26 +559,19 @@ namespace PETScWrappers
         xdotdealii,
         fdealii);
       if (err)
-        return PetscError(
-          PetscObjectComm((PetscObject)ts),
-          lineno + 1,
-          "implicit_function",
-          __FILE__,
-          PETSC_ERR_LIB,
-          PETSC_ERROR_INITIAL,
-          "Failure in ts_ifunction from dealii::PETScWrappers::TimeStepper");
+        return PetscError(PetscObjectComm((PetscObject)ts),
+                          lineno + 1,
+                          "implicit_function",
+                          __FILE__,
+                          PETSC_ERR_LIB,
+                          PETSC_ERROR_INITIAL,
+                          "Failure in ts_ifunction from dealii::PETScWrappers::TimeStepper");
       petsc_increment_state_counter(f);
       PetscFunctionReturn(PETSC_SUCCESS);
     };
 
-    const auto ts_ijacobian = [](TS        ts,
-                                 PetscReal t,
-                                 Vec       x,
-                                 Vec       xdot,
-                                 PetscReal s,
-                                 Mat       A,
-                                 Mat       P,
-                                 void *    ctx) -> PetscErrorCode {
+    const auto ts_ijacobian =
+      [](TS ts, PetscReal t, Vec x, Vec xdot, PetscReal s, Mat A, Mat P, void *ctx) -> PetscErrorCode {
       PetscFunctionBeginUser;
       auto user = static_cast<TimeStepper *>(ctx);
 
@@ -710,14 +596,13 @@ namespace PETScWrappers
         Adealii,
         Pdealii);
       if (err)
-        return PetscError(
-          PetscObjectComm((PetscObject)ts),
-          lineno + 1,
-          "implicit_jacobian",
-          __FILE__,
-          PETSC_ERR_LIB,
-          PETSC_ERROR_INITIAL,
-          "Failure in ts_ijacobian from dealii::PETScWrappers::TimeStepper");
+        return PetscError(PetscObjectComm((PetscObject)ts),
+                          lineno + 1,
+                          "implicit_jacobian",
+                          __FILE__,
+                          PETSC_ERR_LIB,
+                          PETSC_ERROR_INITIAL,
+                          "Failure in ts_ijacobian from dealii::PETScWrappers::TimeStepper");
       petsc_increment_state_counter(P);
 
       // Handle the Jacobian-free case
@@ -736,14 +621,8 @@ namespace PETScWrappers
       PetscFunctionReturn(PETSC_SUCCESS);
     };
 
-    const auto ts_ijacobian_with_setup = [](TS        ts,
-                                            PetscReal t,
-                                            Vec       x,
-                                            Vec       xdot,
-                                            PetscReal s,
-                                            Mat       A,
-                                            Mat       P,
-                                            void *    ctx) -> PetscErrorCode {
+    const auto ts_ijacobian_with_setup =
+      [](TS ts, PetscReal t, Vec x, Vec xdot, PetscReal s, Mat A, Mat P, void *ctx) -> PetscErrorCode {
       PetscFunctionBeginUser;
       auto user = static_cast<TimeStepper *>(ctx);
 
@@ -764,14 +643,13 @@ namespace PETScWrappers
         xdotdealii,
         s);
       if (err)
-        return PetscError(
-          PetscObjectComm((PetscObject)ts),
-          lineno + 1,
-          "setup_jacobian",
-          __FILE__,
-          PETSC_ERR_LIB,
-          PETSC_ERROR_INITIAL,
-          "Failure in ts_ijacobian_with_setup from dealii::PETScWrappers::TimeStepper");
+        return PetscError(PetscObjectComm((PetscObject)ts),
+                          lineno + 1,
+                          "setup_jacobian",
+                          __FILE__,
+                          PETSC_ERR_LIB,
+                          PETSC_ERROR_INITIAL,
+                          "Failure in ts_ijacobian_with_setup from dealii::PETScWrappers::TimeStepper");
       // The MatCopy calls below are 99% of the times dummy calls.
       // They are only used in case we get different Mats then the one we passed
       // to TSSetIJacobian.
@@ -812,8 +690,7 @@ namespace PETScWrappers
       PetscFunctionReturn(PETSC_SUCCESS);
     };
 
-    const auto ts_rhsfunction =
-      [](TS ts, PetscReal t, Vec x, Vec f, void *ctx) -> PetscErrorCode {
+    const auto ts_rhsfunction = [](TS ts, PetscReal t, Vec x, Vec f, void *ctx) -> PetscErrorCode {
       PetscFunctionBeginUser;
       auto user = static_cast<TimeStepper *>(ctx);
 
@@ -838,20 +715,18 @@ namespace PETScWrappers
         xdealii,
         fdealii);
       if (err)
-        return PetscError(
-          PetscObjectComm((PetscObject)ts),
-          lineno + 1,
-          "explicit_function",
-          __FILE__,
-          PETSC_ERR_LIB,
-          PETSC_ERROR_INITIAL,
-          "Failure in ts_rhsfunction from dealii::PETScWrappers::TimeStepper");
+        return PetscError(PetscObjectComm((PetscObject)ts),
+                          lineno + 1,
+                          "explicit_function",
+                          __FILE__,
+                          PETSC_ERR_LIB,
+                          PETSC_ERROR_INITIAL,
+                          "Failure in ts_rhsfunction from dealii::PETScWrappers::TimeStepper");
       petsc_increment_state_counter(f);
       PetscFunctionReturn(PETSC_SUCCESS);
     };
 
-    const auto ts_rhsjacobian =
-      [](TS ts, PetscReal t, Vec x, Mat A, Mat P, void *ctx) -> PetscErrorCode {
+    const auto ts_rhsjacobian = [](TS ts, PetscReal t, Vec x, Mat A, Mat P, void *ctx) -> PetscErrorCode {
       PetscFunctionBeginUser;
       auto user = static_cast<TimeStepper *>(ctx);
 
@@ -873,14 +748,13 @@ namespace PETScWrappers
         Adealii,
         Pdealii);
       if (err)
-        return PetscError(
-          PetscObjectComm((PetscObject)ts),
-          lineno + 1,
-          "explicit_jacobian",
-          __FILE__,
-          PETSC_ERR_LIB,
-          PETSC_ERROR_INITIAL,
-          "Failure in ts_rhsjacobian from dealii::PETScWrappers::TimeStepper");
+        return PetscError(PetscObjectComm((PetscObject)ts),
+                          lineno + 1,
+                          "explicit_jacobian",
+                          __FILE__,
+                          PETSC_ERR_LIB,
+                          PETSC_ERROR_INITIAL,
+                          "Failure in ts_rhsjacobian from dealii::PETScWrappers::TimeStepper");
       petsc_increment_state_counter(P);
 
       // Handle the Jacobian-free case
@@ -899,31 +773,28 @@ namespace PETScWrappers
       PetscFunctionReturn(PETSC_SUCCESS);
     };
 
-    const auto ts_monitor =
-      [](TS ts, PetscInt it, PetscReal t, Vec x, void *ctx) -> PetscErrorCode {
+    const auto ts_monitor = [](TS ts, PetscInt it, PetscReal t, Vec x, void *ctx) -> PetscErrorCode {
       PetscFunctionBeginUser;
       auto user = static_cast<TimeStepper *>(ctx);
 
       VectorType xdealii(x);
 
       const int lineno = __LINE__;
-      const int err    = call_and_possibly_capture_ts_exception(
-        user->monitor, user->pending_exception, {}, t, xdealii, it);
+      const int err =
+        call_and_possibly_capture_ts_exception(user->monitor, user->pending_exception, {}, t, xdealii, it);
       if (err)
-        return PetscError(
-          PetscObjectComm((PetscObject)ts),
-          lineno + 1,
-          "monitor",
-          __FILE__,
-          PETSC_ERR_LIB,
-          PETSC_ERROR_INITIAL,
-          "Failure in ts_monitor from dealii::PETScWrappers::TimeStepper");
+        return PetscError(PetscObjectComm((PetscObject)ts),
+                          lineno + 1,
+                          "monitor",
+                          __FILE__,
+                          PETSC_ERR_LIB,
+                          PETSC_ERROR_INITIAL,
+                          "Failure in ts_monitor from dealii::PETScWrappers::TimeStepper");
       PetscFunctionReturn(PETSC_SUCCESS);
     };
 
     AssertThrow(explicit_function || implicit_function,
-                StandardExceptions::ExcFunctionNotProvided(
-                  "explicit_function || implicit_function"));
+                StandardExceptions::ExcFunctionNotProvided("explicit_function || implicit_function"));
 
     // Handle recoverable errors.
     this->error_in_function = false;
@@ -940,11 +811,8 @@ namespace PETScWrappers
     this->need_dummy_assemble = false;
     if (setup_jacobian)
       {
-        AssertPETSc(TSSetIJacobian(ts,
-                                   A ? A->petsc_matrix() : nullptr,
-                                   P ? P->petsc_matrix() : nullptr,
-                                   ts_ijacobian_with_setup,
-                                   this));
+        AssertPETSc(TSSetIJacobian(
+          ts, A ? A->petsc_matrix() : nullptr, P ? P->petsc_matrix() : nullptr, ts_ijacobian_with_setup, this));
 
         // Tell PETSc to set up a MFFD operator for the linear system matrix
         if (!A)
@@ -969,8 +837,7 @@ namespace PETScWrappers
         if (explicit_jacobian)
           {
             AssertPETSc(TSSetRHSJacobian(ts,
-                                         A ? A->petsc_matrix() :
-                                             (P ? P->petsc_matrix() : nullptr),
+                                         A ? A->petsc_matrix() : (P ? P->petsc_matrix() : nullptr),
                                          P ? P->petsc_matrix() : nullptr,
                                          ts_rhsjacobian,
                                          this));
@@ -979,8 +846,7 @@ namespace PETScWrappers
         if (implicit_jacobian)
           {
             AssertPETSc(TSSetIJacobian(ts,
-                                       A ? A->petsc_matrix() :
-                                           (P ? P->petsc_matrix() : nullptr),
+                                       A ? A->petsc_matrix() : (P ? P->petsc_matrix() : nullptr),
                                        P ? P->petsc_matrix() : nullptr,
                                        ts_ijacobian,
                                        this));
@@ -1007,8 +873,7 @@ namespace PETScWrappers
     // approximation of the tangent operator.
     if (solve_with_jacobian)
       {
-        solve_with_jacobian_pc.vmult = [&](VectorBase &      indst,
-                                           const VectorBase &insrc) -> void {
+        solve_with_jacobian_pc.vmult = [&](VectorBase &indst, const VectorBase &insrc) -> void {
           VectorType       dst(static_cast<const Vec &>(indst));
           const VectorType src(static_cast<const Vec &>(insrc));
           solve_with_jacobian(src, dst);
@@ -1033,8 +898,7 @@ namespace PETScWrappers
     // Handle AMR.
     if (decide_for_coarsening_and_refinement)
       {
-        AssertThrow(interpolate,
-                    StandardExceptions::ExcFunctionNotProvided("interpolate"));
+        AssertThrow(interpolate, StandardExceptions::ExcFunctionNotProvided("interpolate"));
 #  if DEAL_II_PETSC_VERSION_GTE(3, 20, 0)
         (void)ts_poststep_amr;
         AssertPETSc(TSSetResize(ts, ts_resize_setup, ts_resize_transfer, this));
@@ -1042,14 +906,11 @@ namespace PETScWrappers
         AssertPETSc(PetscObjectComposeFunction(
           (PetscObject)ts,
           "__dealii_ts_resize_setup__",
-          static_cast<PetscErrorCode (*)(
-            TS, PetscInt, PetscReal, Vec, PetscBool *, void *)>(
-            ts_resize_setup)));
-        AssertPETSc(PetscObjectComposeFunction(
-          (PetscObject)ts,
-          "__dealii_ts_resize_transfer__",
-          static_cast<PetscErrorCode (*)(TS, PetscInt, Vec[], Vec[], void *)>(
-            ts_resize_transfer)));
+          static_cast<PetscErrorCode (*)(TS, PetscInt, PetscReal, Vec, PetscBool *, void *)>(ts_resize_setup)));
+        AssertPETSc(PetscObjectComposeFunction((PetscObject)ts,
+                                               "__dealii_ts_resize_transfer__",
+                                               static_cast<PetscErrorCode (*)(TS, PetscInt, Vec[], Vec[], void *)>(
+                                                 ts_resize_transfer)));
         AssertPETSc(TSSetPostStep(ts, ts_poststep_amr));
 #  endif
       }
@@ -1072,16 +933,11 @@ namespace PETScWrappers
 
   template <typename VectorType, typename PMatrixType, typename AMatrixType>
   DEAL_II_CXX20_REQUIRES(
-    (concepts::is_dealii_petsc_vector_type<VectorType> ||
-     std::constructible_from<
-       VectorType,
-       Vec>)&&(concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
-               std::constructible_from<
-                 PMatrixType,
-                 Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
-                         std::constructible_from<AMatrixType, Mat>))
-  void TimeStepper<VectorType, PMatrixType, AMatrixType>::
-    setup_algebraic_constraints(const VectorType &y)
+    (concepts::is_dealii_petsc_vector_type<VectorType> || std::constructible_from<VectorType, Vec>)&&(
+      concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
+      std::constructible_from<PMatrixType, Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
+                                                   std::constructible_from<AMatrixType, Mat>))
+  void TimeStepper<VectorType, PMatrixType, AMatrixType>::setup_algebraic_constraints(const VectorType &y)
   {
     if (algebraic_components && need_dae_tolerances)
       {
@@ -1114,16 +970,11 @@ namespace PETScWrappers
 
   template <typename VectorType, typename PMatrixType, typename AMatrixType>
   DEAL_II_CXX20_REQUIRES(
-    (concepts::is_dealii_petsc_vector_type<VectorType> ||
-     std::constructible_from<
-       VectorType,
-       Vec>)&&(concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
-               std::constructible_from<
-                 PMatrixType,
-                 Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
-                         std::constructible_from<AMatrixType, Mat>))
-  unsigned int TimeStepper<VectorType, PMatrixType, AMatrixType>::solve(
-    VectorType &y)
+    (concepts::is_dealii_petsc_vector_type<VectorType> || std::constructible_from<VectorType, Vec>)&&(
+      concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
+      std::constructible_from<PMatrixType, Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
+                                                   std::constructible_from<AMatrixType, Mat>))
+  unsigned int TimeStepper<VectorType, PMatrixType, AMatrixType>::solve(VectorType &y)
   {
     // Set up PETSc data structure.
     setup_callbacks();
@@ -1173,8 +1024,7 @@ namespace PETScWrappers
     TSConvergedReason reason;
     AssertPETSc(TSGetConvergedReason(ts, &reason));
     AssertThrow(reason > 0,
-                ExcMessage("TS solver did not converge after " +
-                           std::to_string(nt) + " iterations with reason " +
+                ExcMessage("TS solver did not converge after " + std::to_string(nt) + " iterations with reason " +
                            TSConvergedReasons[reason]));
 
     // Finally return
@@ -1185,17 +1035,11 @@ namespace PETScWrappers
 
   template <typename VectorType, typename PMatrixType, typename AMatrixType>
   DEAL_II_CXX20_REQUIRES(
-    (concepts::is_dealii_petsc_vector_type<VectorType> ||
-     std::constructible_from<
-       VectorType,
-       Vec>)&&(concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
-               std::constructible_from<
-                 PMatrixType,
-                 Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
-                         std::constructible_from<AMatrixType, Mat>))
-  unsigned int TimeStepper<VectorType, PMatrixType, AMatrixType>::solve(
-    VectorType & y,
-    PMatrixType &P)
+    (concepts::is_dealii_petsc_vector_type<VectorType> || std::constructible_from<VectorType, Vec>)&&(
+      concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
+      std::constructible_from<PMatrixType, Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
+                                                   std::constructible_from<AMatrixType, Mat>))
+  unsigned int TimeStepper<VectorType, PMatrixType, AMatrixType>::solve(VectorType &y, PMatrixType &P)
   {
     set_matrix(P);
     return solve(y);
@@ -1205,18 +1049,11 @@ namespace PETScWrappers
 
   template <typename VectorType, typename PMatrixType, typename AMatrixType>
   DEAL_II_CXX20_REQUIRES(
-    (concepts::is_dealii_petsc_vector_type<VectorType> ||
-     std::constructible_from<
-       VectorType,
-       Vec>)&&(concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
-               std::constructible_from<
-                 PMatrixType,
-                 Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
-                         std::constructible_from<AMatrixType, Mat>))
-  unsigned int TimeStepper<VectorType, PMatrixType, AMatrixType>::solve(
-    VectorType & y,
-    AMatrixType &A,
-    PMatrixType &P)
+    (concepts::is_dealii_petsc_vector_type<VectorType> || std::constructible_from<VectorType, Vec>)&&(
+      concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
+      std::constructible_from<PMatrixType, Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
+                                                   std::constructible_from<AMatrixType, Mat>))
+  unsigned int TimeStepper<VectorType, PMatrixType, AMatrixType>::solve(VectorType &y, AMatrixType &A, PMatrixType &P)
   {
     set_matrices(A, P);
     return solve(y);

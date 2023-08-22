@@ -123,9 +123,8 @@ Test_Solver_Output::Test_Solver_Output()
   , n_mpi_proc(Utilities::MPI::n_mpi_processes(mpi_comm))
   , this_mpi_proc(Utilities::MPI::this_mpi_process(mpi_comm))
   , triangulation(mpi_comm,
-                  typename Triangulation<2>::MeshSmoothing(
-                    Triangulation<2>::smoothing_on_refinement |
-                    Triangulation<2>::smoothing_on_coarsening))
+                  typename Triangulation<2>::MeshSmoothing(Triangulation<2>::smoothing_on_refinement |
+                                                           Triangulation<2>::smoothing_on_coarsening))
   , dof_handler(triangulation)
   , fe(1)
   , pcout(std::cout, (Utilities::MPI::this_mpi_process(mpi_comm) == 0))
@@ -158,10 +157,8 @@ Test_Solver_Output::run()
 
       setup_system();
 
-      pcout << "   Number of active cells:       "
-            << triangulation.n_global_active_cells() << std::endl
-            << "   Number of degrees of freedom: " << dof_handler.n_dofs()
-            << std::endl;
+      pcout << "   Number of active cells:       " << triangulation.n_global_active_cells() << std::endl
+            << "   Number of degrees of freedom: " << dof_handler.n_dofs() << std::endl;
 
       assemble_system();
       solve_base();
@@ -199,28 +196,20 @@ Test_Solver_Output::setup_system()
   locally_owned_dofs = dof_handler.locally_owned_dofs();
   DoFTools::extract_locally_relevant_dofs(dof_handler, locally_relevant_dofs);
 
-  locally_relevant_solution.reinit(locally_owned_dofs,
-                                   locally_relevant_dofs,
-                                   mpi_comm);
+  locally_relevant_solution.reinit(locally_owned_dofs, locally_relevant_dofs, mpi_comm);
   system_rhs.reinit(locally_owned_dofs, mpi_comm);
 
   constraints.clear();
   constraints.reinit(locally_relevant_dofs);
   DoFTools::make_hanging_node_constraints(dof_handler, constraints);
-  VectorTools::interpolate_boundary_values(dof_handler,
-                                           0,
-                                           Functions::ZeroFunction<2>(),
-                                           constraints);
+  VectorTools::interpolate_boundary_values(dof_handler, 0, Functions::ZeroFunction<2>(), constraints);
   constraints.close();
 
   DynamicSparsityPattern dsp(locally_relevant_dofs);
 
   DoFTools::make_sparsity_pattern(dof_handler, dsp, constraints, false);
 
-  SparsityTools::distribute_sparsity_pattern(dsp,
-                                             locally_owned_dofs,
-                                             mpi_comm,
-                                             locally_relevant_dofs);
+  SparsityTools::distribute_sparsity_pattern(dsp, locally_owned_dofs, mpi_comm, locally_relevant_dofs);
 
   system_matrix.reinit(locally_owned_dofs, locally_owned_dofs, dsp, mpi_comm);
 }
@@ -234,8 +223,7 @@ Test_Solver_Output::assemble_system()
 
   FEValues<2> fe_values(fe,
                         quadrature_formula,
-                        update_values | update_gradients |
-                          update_quadrature_points | update_JxW_values);
+                        update_values | update_gradients | update_quadrature_points | update_JxW_values);
 
   const unsigned int dofs_per_cell = fe.dofs_per_cell;
   const unsigned int n_q_points    = quadrature_formula.size();
@@ -258,8 +246,7 @@ Test_Solver_Output::assemble_system()
             {
               const double rhs_value =
                 (fe_values.quadrature_point(qp)[1] >
-                     0.5 + 0.25 * std::sin(4.0 * numbers::PI *
-                                           fe_values.quadrature_point(qp)[0]) ?
+                     0.5 + 0.25 * std::sin(4.0 * numbers::PI * fe_values.quadrature_point(qp)[0]) ?
                    1 :
                    -1);
               for (unsigned int i = 0; i < dofs_per_cell; ++i)
@@ -267,19 +254,13 @@ Test_Solver_Output::assemble_system()
                   for (unsigned int j = 0; j < dofs_per_cell; ++j)
                     {
                       cell_matrix(i, j) +=
-                        (fe_values.shape_grad(i, qp) *
-                         fe_values.shape_grad(j, qp) * fe_values.JxW(qp));
+                        (fe_values.shape_grad(i, qp) * fe_values.shape_grad(j, qp) * fe_values.JxW(qp));
                     }
-                  cell_rhs(i) += (rhs_value * fe_values.shape_value(i, qp) *
-                                  fe_values.JxW(qp));
+                  cell_rhs(i) += (rhs_value * fe_values.shape_value(i, qp) * fe_values.JxW(qp));
                 }
             }
           cell->get_dof_indices(local_dof_indices);
-          constraints.distribute_local_to_global(cell_matrix,
-                                                 cell_rhs,
-                                                 local_dof_indices,
-                                                 system_matrix,
-                                                 system_rhs);
+          constraints.distribute_local_to_global(cell_matrix, cell_rhs, local_dof_indices, system_matrix, system_rhs);
         }
     }
   system_matrix.compress(VectorOperation::add);
@@ -300,16 +281,10 @@ Test_Solver_Output::solve_base()
 
   SolverControl                                solver_control(100, 1e-12);
   TrilinosWrappers::SolverBase::AdditionalData solver_data(true);
-  TrilinosWrappers::SolverBase solver(TrilinosWrappers::SolverBase::cg,
-                                      solver_control,
-                                      solver_data);
-  solver.solve(system_matrix,
-               completely_distributed_solution,
-               system_rhs,
-               prec);
+  TrilinosWrappers::SolverBase                 solver(TrilinosWrappers::SolverBase::cg, solver_control, solver_data);
+  solver.solve(system_matrix, completely_distributed_solution, system_rhs, prec);
 
-  pcout << "   Solved in " << solver_control.last_step() << " iterations."
-        << std::endl;
+  pcout << "   Solved in " << solver_control.last_step() << " iterations." << std::endl;
 
   constraints.distribute(completely_distributed_solution);
   locally_relevant_solution = completely_distributed_solution;
@@ -330,13 +305,9 @@ Test_Solver_Output::solve_cg()
   SolverControl                solver_control(100, 1e-12);
   LA::SolverCG::AdditionalData solver_data(true);
   LA::SolverCG                 solver(solver_control, solver_data);
-  solver.solve(system_matrix,
-               completely_distributed_solution,
-               system_rhs,
-               prec);
+  solver.solve(system_matrix, completely_distributed_solution, system_rhs, prec);
 
-  pcout << "   Solved in " << solver_control.last_step() << " iterations."
-        << std::endl;
+  pcout << "   Solved in " << solver_control.last_step() << " iterations." << std::endl;
 
   constraints.distribute(completely_distributed_solution);
   locally_relevant_solution = completely_distributed_solution;
@@ -356,14 +327,10 @@ Test_Solver_Output::solve_cgs()
 
   SolverControl                               solver_control(100, 1e-12);
   TrilinosWrappers::SolverCGS::AdditionalData solver_data(true);
-  TrilinosWrappers::SolverCGS solver(solver_control, solver_data);
-  solver.solve(system_matrix,
-               completely_distributed_solution,
-               system_rhs,
-               prec);
+  TrilinosWrappers::SolverCGS                 solver(solver_control, solver_data);
+  solver.solve(system_matrix, completely_distributed_solution, system_rhs, prec);
 
-  pcout << "   Solved in " << solver_control.last_step() << " iterations."
-        << std::endl;
+  pcout << "   Solved in " << solver_control.last_step() << " iterations." << std::endl;
 
   constraints.distribute(completely_distributed_solution);
   locally_relevant_solution = completely_distributed_solution;
@@ -384,13 +351,9 @@ Test_Solver_Output::solve_gmres()
   SolverControl                   solver_control(100, 1e-12);
   LA::SolverGMRES::AdditionalData solver_data(true, 25);
   LA::SolverGMRES                 solver(solver_control, solver_data);
-  solver.solve(system_matrix,
-               completely_distributed_solution,
-               system_rhs,
-               prec);
+  solver.solve(system_matrix, completely_distributed_solution, system_rhs, prec);
 
-  pcout << "   Solved in " << solver_control.last_step() << " iterations."
-        << std::endl;
+  pcout << "   Solved in " << solver_control.last_step() << " iterations." << std::endl;
 
   constraints.distribute(completely_distributed_solution);
   locally_relevant_solution = completely_distributed_solution;
@@ -410,14 +373,10 @@ Test_Solver_Output::solve_bicgstab()
 
   SolverControl                                    solver_control(100, 1e-12);
   TrilinosWrappers::SolverBicgstab::AdditionalData solver_data(true);
-  TrilinosWrappers::SolverBicgstab solver(solver_control, solver_data);
-  solver.solve(system_matrix,
-               completely_distributed_solution,
-               system_rhs,
-               prec);
+  TrilinosWrappers::SolverBicgstab                 solver(solver_control, solver_data);
+  solver.solve(system_matrix, completely_distributed_solution, system_rhs, prec);
 
-  pcout << "   Solved in " << solver_control.last_step() << " iterations."
-        << std::endl;
+  pcout << "   Solved in " << solver_control.last_step() << " iterations." << std::endl;
 
   constraints.distribute(completely_distributed_solution);
   locally_relevant_solution = completely_distributed_solution;
@@ -437,14 +396,10 @@ Test_Solver_Output::solve_tfqmr()
 
   SolverControl                                 solver_control(100, 1e-12);
   TrilinosWrappers::SolverTFQMR::AdditionalData solver_data(true);
-  TrilinosWrappers::SolverTFQMR solver(solver_control, solver_data);
-  solver.solve(system_matrix,
-               completely_distributed_solution,
-               system_rhs,
-               prec);
+  TrilinosWrappers::SolverTFQMR                 solver(solver_control, solver_data);
+  solver.solve(system_matrix, completely_distributed_solution, system_rhs, prec);
 
-  pcout << "   Solved in " << solver_control.last_step() << " iterations."
-        << std::endl;
+  pcout << "   Solved in " << solver_control.last_step() << " iterations." << std::endl;
 
   constraints.distribute(completely_distributed_solution);
   locally_relevant_solution = completely_distributed_solution;
@@ -464,21 +419,18 @@ Test_Solver_Output::output(unsigned int cycle)
   data_out.add_data_vector(subdomain, "subdomain");
   data_out.build_patches();
 
-  const std::string filename =
-    ("solution-" + Utilities::int_to_string(cycle, 2) + "." +
-     Utilities::int_to_string(triangulation.locally_owned_subdomain(), 4));
-  std::ofstream output(filename + ".vtu");
+  const std::string filename = ("solution-" + Utilities::int_to_string(cycle, 2) + "." +
+                                Utilities::int_to_string(triangulation.locally_owned_subdomain(), 4));
+  std::ofstream     output(filename + ".vtu");
   data_out.write_vtu(output);
 
   if (Utilities::MPI::this_mpi_process(mpi_comm) == 0)
     {
       std::vector<std::string> filenames;
-      for (unsigned int i = 0; i < Utilities::MPI::n_mpi_processes(mpi_comm);
-           ++i)
-        filenames.push_back("solution-" + Utilities::int_to_string(cycle, 2) +
-                            "." + Utilities::int_to_string(i, 4) + ".vtu");
-      std::ofstream pvtu_output(
-        ("solution-" + Utilities::int_to_string(cycle, 2) + ".pvtu").c_str());
+      for (unsigned int i = 0; i < Utilities::MPI::n_mpi_processes(mpi_comm); ++i)
+        filenames.push_back("solution-" + Utilities::int_to_string(cycle, 2) + "." + Utilities::int_to_string(i, 4) +
+                            ".vtu");
+      std::ofstream pvtu_output(("solution-" + Utilities::int_to_string(cycle, 2) + ".pvtu").c_str());
       data_out.write_pvtu_record(pvtu_output, filenames);
     }
 }
@@ -489,14 +441,15 @@ Test_Solver_Output::refine_grid()
   TimerOutput::Scope t(timer, "refine");
 
   Vector<float> estimated_error_per_cell(triangulation.n_active_cells());
-  KellyErrorEstimator<2>::estimate(
-    dof_handler,
-    QGauss<2 - 1>(3),
-    std::map<types::boundary_id, const Function<2> *>(),
-    locally_relevant_solution,
-    estimated_error_per_cell);
-  parallel::distributed::GridRefinement::refine_and_coarsen_fixed_number(
-    triangulation, estimated_error_per_cell, 0.3, 0.03);
+  KellyErrorEstimator<2>::estimate(dof_handler,
+                                   QGauss<2 - 1>(3),
+                                   std::map<types::boundary_id, const Function<2> *>(),
+                                   locally_relevant_solution,
+                                   estimated_error_per_cell);
+  parallel::distributed::GridRefinement::refine_and_coarsen_fixed_number(triangulation,
+                                                                         estimated_error_per_cell,
+                                                                         0.3,
+                                                                         0.03);
   triangulation.execute_coarsening_and_refinement();
 }
 
@@ -504,8 +457,7 @@ Test_Solver_Output::refine_grid()
 int
 main(int argc, char *argv[])
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
   mpi_initlog();
   deallog.depth_console(0);
 

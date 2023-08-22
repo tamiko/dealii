@@ -45,8 +45,7 @@ test()
 
   // prepare FECollection with arbitrary number of entries
   hp::FECollection<dim> fe_collection;
-  for (unsigned int i = 0; i < Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
-       ++i)
+  for (unsigned int i = 0; i < Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD); ++i)
     fe_collection.push_back(FE_Q<dim>(i + 1));
 
   DoFHandler<dim> dh(tria);
@@ -58,15 +57,13 @@ test()
         if (!(cell->is_artificial()))
           cell->set_active_fe_index(myid);
 
-        deallog << "cellid=" << cell->id()
-                << " fe_index=" << cell->active_fe_index() << std::endl;
+        deallog << "cellid=" << cell->id() << " fe_index=" << cell->active_fe_index() << std::endl;
       }
 
   dh.distribute_dofs(fe_collection);
 
   // ----- transfer -----
-  const parallel::CellWeights<dim> cell_weights(
-    dh, parallel::CellWeights<dim>::ndofs_weighting({100000, 1}));
+  const parallel::CellWeights<dim> cell_weights(dh, parallel::CellWeights<dim>::ndofs_weighting({100000, 1}));
 
   tria.repartition();
 
@@ -77,8 +74,7 @@ test()
   for (auto &cell : dh.active_cell_iterators())
     if (!cell->is_artificial())
       {
-        deallog << "cellid=" << cell->id()
-                << " fe_index=" << cell->active_fe_index();
+        deallog << "cellid=" << cell->id() << " fe_index=" << cell->active_fe_index();
         if (cell->is_ghost())
           deallog << " ghost";
         deallog << std::endl;

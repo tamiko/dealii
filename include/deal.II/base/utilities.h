@@ -88,18 +88,15 @@ namespace Utilities
    */
   template <int dim, typename Number>
   std::vector<std::array<std::uint64_t, dim>>
-  inverse_Hilbert_space_filling_curve(
-    const std::vector<Point<dim, Number>> &points,
-    const int                              bits_per_dim = 64);
+  inverse_Hilbert_space_filling_curve(const std::vector<Point<dim, Number>> &points, const int bits_per_dim = 64);
 
   /**
    * Same as above, but for points in integer coordinates.
    */
   template <int dim>
   std::vector<std::array<std::uint64_t, dim>>
-  inverse_Hilbert_space_filling_curve(
-    const std::vector<std::array<std::uint64_t, dim>> &points,
-    const int                                          bits_per_dim = 64);
+  inverse_Hilbert_space_filling_curve(const std::vector<std::array<std::uint64_t, dim>> &points,
+                                      const int                                          bits_per_dim = 64);
 
   /**
    * Pack the least significant @p bits_per_dim bits from each element of @p index
@@ -118,8 +115,7 @@ namespace Utilities
    */
   template <int dim>
   std::uint64_t
-  pack_integers(const std::array<std::uint64_t, dim> &index,
-                const int                             bits_per_dim);
+  pack_integers(const std::array<std::uint64_t, dim> &index, const int bits_per_dim);
 
   /**
    * If the library is configured with ZLIB, then this function compresses the
@@ -201,8 +197,7 @@ namespace Utilities
    * int@>()</code>.
    */
   std::string
-  int_to_string(const unsigned int value,
-                const unsigned int digits = numbers::invalid_unsigned_int);
+  int_to_string(const unsigned int value, const unsigned int digits = numbers::invalid_unsigned_int);
 
   /**
    * Convert a number @p value to a string, with @p digits characters. The
@@ -217,8 +212,7 @@ namespace Utilities
    */
   template <typename number>
   std::string
-  to_string(const number       value,
-            const unsigned int digits = numbers::invalid_unsigned_int);
+  to_string(const number value, const unsigned int digits = numbers::invalid_unsigned_int);
 
   /**
    * Determine how many digits are needed to represent numbers at most as
@@ -347,9 +341,7 @@ namespace Utilities
    * too.
    */
   std::vector<std::string>
-  break_text_into_lines(const std::string &original_text,
-                        const unsigned int width,
-                        const char         delimiter = ' ');
+  break_text_into_lines(const std::string &original_text, const unsigned int width, const char delimiter = ' ');
 
   /**
    * Return true if the given pattern string appears in the first position of
@@ -374,9 +366,7 @@ namespace Utilities
    * @p to.
    */
   std::string
-  replace_in_string(const std::string &input,
-                    const std::string &from,
-                    const std::string &to);
+  replace_in_string(const std::string &input, const std::string &from, const std::string &to);
 
   /**
    * Return a string with all standard whitespace characters (including
@@ -453,8 +443,7 @@ namespace Utilities
     KOKKOS_IF_ON_HOST(({
       if (!(iexp >= 0))
         ::dealii::deal_II_exceptions::internals::issue_error_noreturn(
-          ::dealii::deal_II_exceptions::internals::ExceptionHandling::
-            abort_or_throw_on_exception,
+          ::dealii::deal_II_exceptions::internals::ExceptionHandling::abort_or_throw_on_exception,
           __FILE__,
           __LINE__,
           __PRETTY_FUNCTION__,
@@ -466,8 +455,7 @@ namespace Utilities
 #    ifdef KOKKOS_ACTIVE_EXECUTION_MEMORY_SPACE_HOST
     if (!(iexp >= 0))
       ::dealii::deal_II_exceptions::internals::issue_error_noreturn(
-        ::dealii::deal_II_exceptions::internals::ExceptionHandling::
-          abort_or_throw_on_exception,
+        ::dealii::deal_II_exceptions::internals::ExceptionHandling::abort_or_throw_on_exception,
         __FILE__,
         __LINE__,
         __PRETTY_FUNCTION__,
@@ -608,9 +596,7 @@ namespace Utilities
    */
   template <typename T>
   size_t
-  pack(const T &          object,
-       std::vector<char> &dest_buffer,
-       const bool         allow_compression = true);
+  pack(const T &object, std::vector<char> &dest_buffer, const bool allow_compression = true);
 
   /**
    * Creates and returns a buffer solely for the given object, using the
@@ -707,9 +693,7 @@ namespace Utilities
    */
   template <typename T, int N>
   void
-  unpack(const std::vector<char> &buffer,
-         T (&unpacked_object)[N],
-         const bool allow_compression = true);
+  unpack(const std::vector<char> &buffer, T (&unpacked_object)[N], const bool allow_compression = true);
 
   /**
    * Same unpack function as above, but takes constant iterators on
@@ -974,8 +958,7 @@ namespace Utilities
   inline T
   fixed_power(const T x)
   {
-    Assert(((std::is_integral_v<T> == true) && (N >= 0)) ||
-             (std::is_integral_v<T> == false),
+    Assert(((std::is_integral_v<T> == true) && (N >= 0)) || (std::is_integral_v<T> == false),
            ExcMessage("If the type of the argument, T, is an integer type, "
                       "then the exponent N must be a non-negative integer "
                       "because the result would otherwise not be an integer."));
@@ -988,8 +971,7 @@ namespace Utilities
     else
       // If we get here, we have a positive exponent. Compute the result
       // by repeated squaring:
-      return ((N % 2 == 1) ? x * fixed_power<N / 2>(x * x) :
-                             fixed_power<N / 2>(x * x));
+      return ((N % 2 == 1) ? x * fixed_power<N / 2>(x * x) : fixed_power<N / 2>(x * x));
   }
 
 
@@ -1019,9 +1001,7 @@ namespace Utilities
     // verify that the two iterators are properly ordered. since
     // we need operator- for the iterator type anyway, do the
     // test as follows, rather than via 'last >= first'
-    Assert(last - first >= 0,
-           ExcMessage(
-             "The given iterators do not satisfy the proper ordering."));
+    Assert(last - first >= 0, ExcMessage("The given iterators do not satisfy the proper ordering."));
 
     unsigned int len = static_cast<unsigned int>(last - first);
 
@@ -1128,8 +1108,7 @@ namespace Utilities
     template <typename T>
     struct IsVectorOfTriviallyCopyable<std::vector<T>>
     {
-      static constexpr bool value =
-        std::is_trivially_copyable_v<T> && !std::is_same_v<T, bool>;
+      static constexpr bool value = std::is_trivially_copyable_v<T> && !std::is_same_v<T, bool>;
     };
 
 
@@ -1137,8 +1116,7 @@ namespace Utilities
     template <typename T>
     struct IsVectorOfTriviallyCopyable<std::vector<std::vector<T>>>
     {
-      static constexpr bool value =
-        std::is_trivially_copyable_v<T> && !std::is_same_v<T, bool>;
+      static constexpr bool value = std::is_trivially_copyable_v<T> && !std::is_same_v<T, bool>;
     };
 
 
@@ -1153,8 +1131,7 @@ namespace Utilities
      */
     template <typename T>
     inline void
-    append_vector_of_trivially_copyable_to_buffer(const T &,
-                                                  std::vector<char> &)
+    append_vector_of_trivially_copyable_to_buffer(const T &, std::vector<char> &)
     {
       // We shouldn't get here:
       Assert(false, ExcInternalError());
@@ -1162,20 +1139,15 @@ namespace Utilities
 
 
 
-    template <typename T,
-              typename = std::enable_if_t<!std::is_same_v<T, bool> &&
-                                          std::is_trivially_copyable_v<T>>>
+    template <typename T, typename = std::enable_if_t<!std::is_same_v<T, bool> && std::is_trivially_copyable_v<T>>>
     inline void
-    append_vector_of_trivially_copyable_to_buffer(
-      const std::vector<T> &object,
-      std::vector<char> &   dest_buffer)
+    append_vector_of_trivially_copyable_to_buffer(const std::vector<T> &object, std::vector<char> &dest_buffer)
     {
       const typename std::vector<T>::size_type vector_size = object.size();
 
       // Reserve for the buffer so that it can store the size of 'object' as
       // well as all of its elements.
-      dest_buffer.reserve(dest_buffer.size() + sizeof(vector_size) +
-                          vector_size * sizeof(T));
+      dest_buffer.reserve(dest_buffer.size() + sizeof(vector_size) + vector_size * sizeof(T));
 
       // Copy the size into the vector
       dest_buffer.insert(dest_buffer.end(),
@@ -1186,19 +1158,15 @@ namespace Utilities
       if (vector_size > 0)
         dest_buffer.insert(dest_buffer.end(),
                            reinterpret_cast<const char *>(object.data()),
-                           reinterpret_cast<const char *>(object.data() +
-                                                          vector_size));
+                           reinterpret_cast<const char *>(object.data() + vector_size));
     }
 
 
 
-    template <typename T,
-              typename = std::enable_if_t<!std::is_same_v<T, bool> &&
-                                          std::is_trivially_copyable_v<T>>>
+    template <typename T, typename = std::enable_if_t<!std::is_same_v<T, bool> && std::is_trivially_copyable_v<T>>>
     inline void
-    append_vector_of_trivially_copyable_to_buffer(
-      const std::vector<std::vector<T>> &object,
-      std::vector<char> &                dest_buffer)
+    append_vector_of_trivially_copyable_to_buffer(const std::vector<std::vector<T>> &object,
+                                                  std::vector<char>                 &dest_buffer)
     {
       using size_type             = typename std::vector<T>::size_type;
       const size_type vector_size = object.size();
@@ -1214,9 +1182,7 @@ namespace Utilities
 
       // Reserve for the buffer so that it can store the size of 'object' as
       // well as all of its elements.
-      dest_buffer.reserve(dest_buffer.size() +
-                          sizeof(vector_size) * (1 + vector_size) +
-                          aggregated_size * sizeof(T));
+      dest_buffer.reserve(dest_buffer.size() + sizeof(vector_size) * (1 + vector_size) + aggregated_size * sizeof(T));
 
       // Copy the size into the vector
       dest_buffer.insert(dest_buffer.end(),
@@ -1227,8 +1193,7 @@ namespace Utilities
       if (vector_size > 0)
         dest_buffer.insert(dest_buffer.end(),
                            reinterpret_cast<const char *>(sizes.data()),
-                           reinterpret_cast<const char *>(sizes.data() +
-                                                          vector_size));
+                           reinterpret_cast<const char *>(sizes.data() + vector_size));
 
       // Insert the elements at the end of the vector:
       for (const auto &a : object)
@@ -1241,10 +1206,9 @@ namespace Utilities
 
     template <typename T>
     inline void
-    create_vector_of_trivially_copyable_from_buffer(
-      const std::vector<char>::const_iterator &,
-      const std::vector<char>::const_iterator &,
-      T &)
+    create_vector_of_trivially_copyable_from_buffer(const std::vector<char>::const_iterator &,
+                                                    const std::vector<char>::const_iterator &,
+                                                    T &)
     {
       // We shouldn't get here:
       Assert(false, ExcInternalError());
@@ -1252,14 +1216,11 @@ namespace Utilities
 
 
 
-    template <typename T,
-              typename = std::enable_if_t<!std::is_same_v<T, bool> &&
-                                          std::is_trivially_copyable_v<T>>>
+    template <typename T, typename = std::enable_if_t<!std::is_same_v<T, bool> && std::is_trivially_copyable_v<T>>>
     inline void
-    create_vector_of_trivially_copyable_from_buffer(
-      const std::vector<char>::const_iterator &cbegin,
-      const std::vector<char>::const_iterator &cend,
-      std::vector<T> &                         object)
+    create_vector_of_trivially_copyable_from_buffer(const std::vector<char>::const_iterator &cbegin,
+                                                    const std::vector<char>::const_iterator &cend,
+                                                    std::vector<T>                          &object)
     {
       // The size of the object vector can be found in cbegin of the buffer.
       // The data starts at cbegin + sizeof(vector_size).
@@ -1269,8 +1230,7 @@ namespace Utilities
       memcpy(&vector_size, &*cbegin, sizeof(vector_size));
 
       Assert(static_cast<std::ptrdiff_t>(cend - cbegin) ==
-               static_cast<std::ptrdiff_t>(sizeof(vector_size) +
-                                           vector_size * sizeof(T)),
+               static_cast<std::ptrdiff_t>(sizeof(vector_size) + vector_size * sizeof(T)),
              ExcMessage("The given buffer has the wrong size."));
       (void)cend;
 
@@ -1278,26 +1238,22 @@ namespace Utilities
       object.clear();
       if (vector_size > 0)
         {
-          const T *const buffer_data_begin =
-            reinterpret_cast<const T *>(&*cbegin + sizeof(vector_size));
-          const T *const buffer_data_end = buffer_data_begin + vector_size;
+          const T *const buffer_data_begin = reinterpret_cast<const T *>(&*cbegin + sizeof(vector_size));
+          const T *const buffer_data_end   = buffer_data_begin + vector_size;
           object.insert(object.end(), buffer_data_begin, buffer_data_end);
         }
     }
 
 
 
-    template <typename T,
-              typename = std::enable_if_t<!std::is_same_v<T, bool> &&
-                                          std::is_trivially_copyable_v<T>>>
+    template <typename T, typename = std::enable_if_t<!std::is_same_v<T, bool> && std::is_trivially_copyable_v<T>>>
     inline void
-    create_vector_of_trivially_copyable_from_buffer(
-      const std::vector<char>::const_iterator &cbegin,
-      const std::vector<char>::const_iterator &cend,
-      std::vector<std::vector<T>> &            object)
+    create_vector_of_trivially_copyable_from_buffer(const std::vector<char>::const_iterator &cbegin,
+                                                    const std::vector<char>::const_iterator &cend,
+                                                    std::vector<std::vector<T>>             &object)
     {
       // First get the size of the vector, and resize the output object
-      using size_type = typename std::vector<T>::size_type;
+      using size_type                            = typename std::vector<T>::size_type;
       std::vector<char>::const_iterator iterator = cbegin;
       size_type                         vector_size;
       memcpy(&vector_size, &*iterator, sizeof(vector_size));
@@ -1305,17 +1261,14 @@ namespace Utilities
       object.resize(vector_size);
       std::vector<size_type> sizes(vector_size);
       if (vector_size > 0)
-        memcpy(sizes.data(),
-               &*iterator + sizeof(vector_size),
-               vector_size * sizeof(size_type));
+        memcpy(sizes.data(), &*iterator + sizeof(vector_size), vector_size * sizeof(size_type));
 
       iterator += sizeof(vector_size) * (1 + vector_size);
       size_type aggregated_size = 0;
       for (const auto a : sizes)
         aggregated_size += a;
 
-      Assert(static_cast<std::ptrdiff_t>(cend - iterator) ==
-               static_cast<std::ptrdiff_t>(aggregated_size * sizeof(T)),
+      Assert(static_cast<std::ptrdiff_t>(cend - iterator) == static_cast<std::ptrdiff_t>(aggregated_size * sizeof(T)),
              ExcMessage("The given buffer has the wrong size."));
       (void)cend;
 
@@ -1325,13 +1278,11 @@ namespace Utilities
           {
             object[i].insert(object[i].end(),
                              reinterpret_cast<const T *>(&*iterator),
-                             reinterpret_cast<const T *>(&*iterator +
-                                                         sizeof(T) * sizes[i]));
+                             reinterpret_cast<const T *>(&*iterator + sizeof(T) * sizes[i]));
             iterator += sizeof(T) * sizes[i];
           }
 
-      Assert(iterator == cend,
-             ExcMessage("The given buffer has the wrong size."));
+      Assert(iterator == cend, ExcMessage("The given buffer has the wrong size."));
     }
 
   } // namespace internal
@@ -1340,9 +1291,7 @@ namespace Utilities
 
   template <typename T>
   size_t
-  pack(const T &          object,
-       std::vector<char> &dest_buffer,
-       const bool         allow_compression)
+  pack(const T &object, std::vector<char> &dest_buffer, const bool allow_compression)
   {
     std::size_t size = 0;
 
@@ -1372,8 +1321,7 @@ namespace Utilities
     // machinery and just copy the content of the vector bit for bit
     // into the output buffer, assuming that we are not asked to compress
     // the data.
-    else if (internal::IsVectorOfTriviallyCopyable<T>::value &&
-             (allow_compression == false))
+    else if (internal::IsVectorOfTriviallyCopyable<T>::value && (allow_compression == false))
       {
         const std::size_t previous_size = dest_buffer.size();
 
@@ -1381,8 +1329,7 @@ namespace Utilities
         // inline the code of the following function here and make the 'if'
         // above a 'if constexpr'. Without the 'constexpr', we need to keep
         // the general template of the function that throws an exception.
-        internal::append_vector_of_trivially_copyable_to_buffer(object,
-                                                                dest_buffer);
+        internal::append_vector_of_trivially_copyable_to_buffer(object, dest_buffer);
 
         size = dest_buffer.size() - previous_size;
       }
@@ -1441,8 +1388,7 @@ namespace Utilities
         // sizeof(...) because that is the minimum possible for objects --
         // objects need to have distinct addresses, so they need to have a size
         // of at least one. But we can special case this situation.
-        const std::size_t size =
-          (std::is_same_v<T, std::tuple<>> ? 0 : sizeof(T));
+        const std::size_t size = (std::is_same_v<T, std::tuple<>> ? 0 : sizeof(T));
 
         T object;
 
@@ -1459,17 +1405,14 @@ namespace Utilities
     // machinery and just copy the content of the buffer bit for bit
     // into an appropriately sized output vector, assuming that we
     // are not asked to compress the data.
-    else if (internal::IsVectorOfTriviallyCopyable<T>::value &&
-             (allow_compression == false))
+    else if (internal::IsVectorOfTriviallyCopyable<T>::value && (allow_compression == false))
       {
         // When we have DEAL_II_HAVE_CXX17 set by default, we can just
         // inline the code of the following function here and make the 'if'
         // above a 'if constexpr'. Without the 'constexpr', we need to keep
         // the general template of the function that throws an exception.
         T object;
-        internal::create_vector_of_trivially_copyable_from_buffer(cbegin,
-                                                                  cend,
-                                                                  object);
+        internal::create_vector_of_trivially_copyable_from_buffer(cbegin, cend, object);
         return object;
       }
     else
@@ -1515,8 +1458,7 @@ namespace Utilities
     // serialization machinery
     if constexpr (std::is_trivially_copyable<T>() && sizeof(T) * N < 256)
       {
-        Assert(std::distance(cbegin, cend) == sizeof(T) * N,
-               ExcInternalError());
+        Assert(std::distance(cbegin, cend) == sizeof(T) * N, ExcInternalError());
         std::memcpy(unpacked_object, &*cbegin, sizeof(T) * N);
       }
     else
@@ -1539,14 +1481,9 @@ namespace Utilities
 
   template <typename T, int N>
   void
-  unpack(const std::vector<char> &buffer,
-         T (&unpacked_object)[N],
-         const bool allow_compression)
+  unpack(const std::vector<char> &buffer, T (&unpacked_object)[N], const bool allow_compression)
   {
-    unpack<T, N>(buffer.cbegin(),
-                 buffer.cend(),
-                 unpacked_object,
-                 allow_compression);
+    unpack<T, N>(buffer.cbegin(), buffer.cend(), unpacked_object, allow_compression);
   }
 
 
@@ -1673,8 +1610,7 @@ namespace Utilities
     // check that we have actually reached
     // all indices
     for (std::size_t i = 0; i < n; ++i)
-      Assert(out[i] != numbers::invalid_unsigned_int,
-             ExcMessage("The given input permutation had duplicate entries!"));
+      Assert(out[i] != numbers::invalid_unsigned_int, ExcMessage("The given input permutation had duplicate entries!"));
 
     return out;
   }

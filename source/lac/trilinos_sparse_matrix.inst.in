@@ -20,10 +20,7 @@ for (S : REAL_SCALARS)
     namespace TrilinosWrappers
     \{
       template void
-      SparseMatrix::reinit(const dealii::SparseMatrix<S> &,
-                           const double,
-                           const bool,
-                           const dealii::SparsityPattern *);
+      SparseMatrix::reinit(const dealii::SparseMatrix<S> &, const double, const bool, const dealii::SparsityPattern *);
       template void
       SparseMatrix::reinit(const IndexSet &,
                            const IndexSet &,

@@ -54,8 +54,7 @@ public:
    * array @p elements.
    */
   virtual void
-  extract_subvector_to(const ArrayView<const types::global_dof_index> &indices,
-                       ArrayView<Number> &elements) const = 0;
+  extract_subvector_to(const ArrayView<const types::global_dof_index> &indices, ArrayView<Number> &elements) const = 0;
 };
 
 /** @} */

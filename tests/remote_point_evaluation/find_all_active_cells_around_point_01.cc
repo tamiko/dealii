@@ -30,8 +30,7 @@ void
 test()
 {
   const auto  reference_cell = ReferenceCells::get_simplex<dim>();
-  const auto &mapping =
-    reference_cell.template get_default_linear_mapping<dim>();
+  const auto &mapping        = reference_cell.template get_default_linear_mapping<dim>();
 
   Triangulation<dim> tria;
   if (false)
@@ -48,8 +47,7 @@ test()
       {
         Point<dim> p(1.0 * i / n_subdivisions, 1.0 * j / n_subdivisions);
 
-        const auto first_point =
-          GridTools::find_active_cell_around_point(mapping, tria, p, {}, 1e-6);
+        const auto first_point = GridTools::find_active_cell_around_point(mapping, tria, p, {}, 1e-6);
 
         const auto result = GridTools::find_all_active_cells_around_point(
           mapping, tria, p, 1e-6, {first_point.first, first_point.second});

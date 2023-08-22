@@ -40,10 +40,7 @@ test(const int degree, const std::array<Point<spacedim>, spacedim> &vertices)
 
   deallog << std::endl
           << "# Area: " << std::setprecision(15)
-          << std::accumulate(quad2.get_weights().begin(),
-                             quad2.get_weights().end(),
-                             0.0)
-          << std::endl
+          << std::accumulate(quad2.get_weights().begin(), quad2.get_weights().end(), 0.0) << std::endl
           << std::endl;
 }
 
@@ -54,6 +51,5 @@ main()
   initlog();
 
   test<1, 2>(1, {{Point<2>(0., 2.), Point<2>(1., 0.)}});
-  test<2, 3>(
-    1, {{Point<3>(0., 2., 0.), Point<3>(1., 2., 4.), Point<3>(1., 1., 1.)}});
+  test<2, 3>(1, {{Point<3>(0., 2., 0.), Point<3>(1., 2., 4.), Point<3>(1., 1., 1.)}});
 }

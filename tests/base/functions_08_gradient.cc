@@ -63,8 +63,7 @@ check1()
           }
         else
           {
-            AssertThrow(object.gradient(p, c) == (c - 1) * p,
-                        ExcInternalError());
+            AssertThrow(object.gradient(p, c) == (c - 1) * p, ExcInternalError());
           }
 
       std::vector<Tensor<1, dim>> v(dim + 2);

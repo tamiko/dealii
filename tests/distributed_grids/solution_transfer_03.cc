@@ -77,21 +77,14 @@ test(std::ostream & /*out*/)
 
   for (int i = 0; i < 4; ++i)
     {
-      for (typename Triangulation<dim>::cell_iterator cell = tr.begin();
-           cell != tr.end();
-           ++cell)
+      for (typename Triangulation<dim>::cell_iterator cell = tr.begin(); cell != tr.end(); ++cell)
         {
           if (cell->has_children() && !(Testing::rand() % 3))
-            for (unsigned int c = 0;
-                 c < GeometryInfo<dim>::max_children_per_cell;
-                 ++c)
+            for (unsigned int c = 0; c < GeometryInfo<dim>::max_children_per_cell; ++c)
               if (!cell->child(c)->has_children())
                 cell->child(c)->set_coarsen_flag();
         }
-      for (typename Triangulation<dim>::active_cell_iterator cell =
-             tr.begin_active();
-           cell != tr.end();
-           ++cell)
+      for (typename Triangulation<dim>::active_cell_iterator cell = tr.begin_active(); cell != tr.end(); ++cell)
         {
           if (!(Testing::rand() % 3))
             {
@@ -123,13 +116,8 @@ test(std::ostream & /*out*/)
       deallog << "norm: " << interpolated_solution.l2_norm() << std::endl;
       Vector<double> difference(tr.n_global_active_cells());
 
-      VectorTools::integrate_difference(mapping,
-                                        dofh,
-                                        interpolated_solution,
-                                        func,
-                                        difference,
-                                        QGauss<dim>(2),
-                                        VectorTools::L2_norm);
+      VectorTools::integrate_difference(
+        mapping, dofh, interpolated_solution, func, difference, QGauss<dim>(2), VectorTools::L2_norm);
       deallog << "error: " << difference.l2_norm() << std::endl;
     }
 }

@@ -54,8 +54,7 @@ template <int dim>
 class diffusionMechanics
 {
 public:
-  diffusionMechanics(const unsigned int mech_degree,
-                     const unsigned int diff_degree);
+  diffusionMechanics(const unsigned int mech_degree, const unsigned int diff_degree);
   ~diffusionMechanics();
   void
   run();
@@ -102,8 +101,7 @@ private:
 
 // Constructor
 template <int dim>
-diffusionMechanics<dim>::diffusionMechanics(const unsigned int mech_degree,
-                                            const unsigned int diff_degree)
+diffusionMechanics<dim>::diffusionMechanics(const unsigned int mech_degree, const unsigned int diff_degree)
   : mech_degree(mech_degree)
   , diff_degree(diff_degree)
   , omega1_fe(FE_Q<dim>(mech_degree), dim, FE_Q<dim>(diff_degree), 1)
@@ -142,8 +140,7 @@ public:
   void
   vector_value(const Point<dim> &p, Vector<double> &values) const
   {
-    Assert(values.size() == totalDOF,
-           ExcDimensionMismatch(values.size(), totalDOF));
+    Assert(values.size() == totalDOF, ExcDimensionMismatch(values.size(), totalDOF));
     values(totalDOF - 4) = 0; // u=0
     values(totalDOF - 3) = 0;
     values(totalDOF - 2) = 0;
@@ -153,15 +150,13 @@ public:
 // Boolean functions for specifying sub-domains
 template <int dim>
 bool
-diffusionMechanics<dim>::cell_is_in_omega1_domain(
-  const typename DoFHandler<dim>::cell_iterator &cell)
+diffusionMechanics<dim>::cell_is_in_omega1_domain(const typename DoFHandler<dim>::cell_iterator &cell)
 {
   return (cell->material_id() == omega1_domain_id);
 }
 template <int dim>
 bool
-diffusionMechanics<dim>::cell_is_in_omega2_domain(
-  const typename DoFHandler<dim>::cell_iterator &cell)
+diffusionMechanics<dim>::cell_is_in_omega2_domain(const typename DoFHandler<dim>::cell_iterator &cell)
 {
   return (cell->material_id() == omega2_domain_id);
 }
@@ -171,9 +166,7 @@ template <int dim>
 void
 diffusionMechanics<dim>::set_active_fe_indices()
 {
-  for (typename DoFHandler<dim>::active_cell_iterator cell =
-         dof_handler.begin_active();
-       cell != dof_handler.end();
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(); cell != dof_handler.end();
        ++cell)
     {
       if (cell_is_in_omega1_domain(cell))
@@ -202,9 +195,7 @@ void
 diffusionMechanics<dim>::setup_system()
 {
   dof_handler.distribute_dofs(fe_collection);
-  sparsity_pattern.reinit(dof_handler.n_dofs(),
-                          dof_handler.n_dofs(),
-                          dof_handler.max_couplings_between_dofs());
+  sparsity_pattern.reinit(dof_handler.n_dofs(), dof_handler.n_dofs(), dof_handler.max_couplings_between_dofs());
   DoFTools::make_sparsity_pattern(dof_handler, sparsity_pattern);
   sparsity_pattern.compress();
   U.reinit(dof_handler.n_dofs());
@@ -212,10 +203,8 @@ diffusionMechanics<dim>::setup_system()
   dU.reinit(dof_handler.n_dofs());
   system_rhs.reinit(dof_handler.n_dofs());
   U0.reinit(dof_handler.n_dofs());
-  deallog << "   Number of active cells:       "
-          << triangulation.n_active_cells() << std::endl;
-  deallog << "   Number of degrees of freedom: " << dof_handler.n_dofs()
-          << std::endl;
+  deallog << "   Number of active cells:       " << triangulation.n_active_cells() << std::endl;
+  deallog << "   Number of degrees of freedom: " << dof_handler.n_dofs() << std::endl;
 }
 
 
@@ -235,9 +224,7 @@ diffusionMechanics<dim>::run()
                                             Point<3>(alen, blen, clen));
 
   // Mark cells by sub-domain
-  for (typename Triangulation<dim>::active_cell_iterator cell =
-         dof_handler.begin_active();
-       cell != dof_handler.end();
+  for (typename Triangulation<dim>::active_cell_iterator cell = dof_handler.begin_active(); cell != dof_handler.end();
        ++cell)
     if (cell->center()[dim - 1] >= 0.75 * clen)
       cell->set_material_id(omega1_domain_id);

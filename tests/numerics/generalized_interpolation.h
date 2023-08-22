@@ -56,7 +56,7 @@ private:
 template <int dim, typename T>
 void
 test(const FiniteElement<dim> &fe,
-     const T &                 f,
+     const T                  &f,
      const unsigned int        order_mapping,
      bool                      distort_mesh,
      bool                      print_function_values = false)
@@ -97,6 +97,5 @@ test(const FiniteElement<dim> &fe,
   VectorTools::interpolate(mapping, dof_handler, f2, interpolant2);
 
   interpolant2 -= interpolant;
-  deallog << "Check projection property: " << interpolant2.linfty_norm()
-          << std::endl;
+  deallog << "Check projection property: " << interpolant2.linfty_norm() << std::endl;
 }

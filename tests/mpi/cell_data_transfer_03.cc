@@ -31,9 +31,8 @@
 
 template <int dim, int spacedim>
 std::vector<int>
-get_data_of_first_child(
-  const typename dealii::Triangulation<dim, spacedim>::cell_iterator &,
-  const std::vector<std::vector<int>> &children_values)
+get_data_of_first_child(const typename dealii::Triangulation<dim, spacedim>::cell_iterator &,
+                        const std::vector<std::vector<int>> &children_values)
 {
   return children_values[0];
 }
@@ -57,8 +56,7 @@ test()
       {
         if (cell->id().to_string() == "0_1:0")
           cell->set_refine_flag();
-        else if (cell->parent()->id().to_string() ==
-                 ((dim == 2) ? "3_0:" : "7_0:"))
+        else if (cell->parent()->id().to_string() == ((dim == 2) ? "3_0:" : "7_0:"))
           cell->set_coarsen_flag();
       }
 
@@ -72,11 +70,8 @@ test()
         std::vector<int> this_cell_data(i++);
         std::iota(this_cell_data.begin(), this_cell_data.end(), 0);
 
-        deallog << "cellid=" << cell->id()
-                << " vector_size=" << this_cell_data.size() << " vector_sum="
-                << std::accumulate(this_cell_data.begin(),
-                                   this_cell_data.end(),
-                                   0);
+        deallog << "cellid=" << cell->id() << " vector_size=" << this_cell_data.size()
+                << " vector_sum=" << std::accumulate(this_cell_data.begin(), this_cell_data.end(), 0);
         if (cell->coarsen_flag_set())
           deallog << " coarsening";
         else if (cell->refine_flag_set())
@@ -87,15 +82,12 @@ test()
       }
 
   // ----- transfer -----
-  parallel::distributed::
-    CellDataTransfer<dim, spacedim, std::vector<std::vector<int>>>
-      cell_data_transfer(
-        tria,
-        /*transfer_variable_size_data=*/true,
-        /*refinement_strategy=*/
-        &dealii::AdaptationStrategies::Refinement::
-          preserve<dim, spacedim, std::vector<int>>,
-        /*coarsening_strategy=*/&get_data_of_first_child<dim, spacedim>);
+  parallel::distributed::CellDataTransfer<dim, spacedim, std::vector<std::vector<int>>> cell_data_transfer(
+    tria,
+    /*transfer_variable_size_data=*/true,
+    /*refinement_strategy=*/
+    &dealii::AdaptationStrategies::Refinement::preserve<dim, spacedim, std::vector<int>>,
+    /*coarsening_strategy=*/&get_data_of_first_child<dim, spacedim>);
 
   cell_data_transfer.prepare_for_coarsening_and_refinement(cell_data);
   tria.execute_coarsening_and_refinement();
@@ -109,15 +101,10 @@ test()
   for (auto &cell : tria.active_cell_iterators())
     if (cell->is_locally_owned())
       {
-        const std::vector<int> &this_cell_data =
-          cell_data[(cell->active_cell_index())];
+        const std::vector<int> &this_cell_data = cell_data[(cell->active_cell_index())];
 
-        deallog << "cellid=" << cell->id()
-                << " vector_size=" << this_cell_data.size() << " vector_sum="
-                << std::accumulate(this_cell_data.begin(),
-                                   this_cell_data.end(),
-                                   0)
-                << std::endl;
+        deallog << "cellid=" << cell->id() << " vector_size=" << this_cell_data.size()
+                << " vector_sum=" << std::accumulate(this_cell_data.begin(), this_cell_data.end(), 0) << std::endl;
       }
 
   // make sure no processor is hanging

@@ -30,17 +30,13 @@ main()
 
   using SD_number_t = SD::Expression;
 
-  const SD::types::substitution_map sub_map{
-    {SD_number_t("c"), SD_number_t(1.0)},
-    {SD_number_t("b"), SD_number_t(2)},
-    {SD_number_t("a"), SD_number_t(3.0f)}};
+  const SD::types::substitution_map sub_map{{SD_number_t("c"), SD_number_t(1.0)},
+                                            {SD_number_t("b"), SD_number_t(2)},
+                                            {SD_number_t("a"), SD_number_t(3.0f)}};
 
-  const SD::types::symbol_vector symbols =
-    SD::Utilities::extract_symbols(sub_map);
-  const std::vector<double> values =
-    SD::Utilities::extract_values<double>(sub_map);
-  Assert(values.size() == symbols.size(),
-         ExcDimensionMismatch(values.size(), symbols.size()));
+  const SD::types::symbol_vector symbols = SD::Utilities::extract_symbols(sub_map);
+  const std::vector<double>      values  = SD::Utilities::extract_values<double>(sub_map);
+  Assert(values.size() == symbols.size(), ExcDimensionMismatch(values.size(), symbols.size()));
 
   // Print the map itself (this should be dictionary ordered)
   deallog << "Print substitution map" << std::endl;

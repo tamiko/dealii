@@ -44,11 +44,10 @@ test(unsigned int n_points)
   deallog << "Testing for dim = " << dim << std::endl;
 
   // Creating a grid in the square [0,1]x[0,1]
-  parallel::shared::Triangulation<dim> tria(
-    MPI_COMM_WORLD,
-    Triangulation<dim>::none,
-    false,
-    parallel::shared::Triangulation<dim>::Settings::partition_zoltan);
+  parallel::shared::Triangulation<dim> tria(MPI_COMM_WORLD,
+                                            Triangulation<dim>::none,
+                                            false,
+                                            parallel::shared::Triangulation<dim>::Settings::partition_zoltan);
   GridGenerator::hyper_cube(tria);
   tria.refine_global(std::max(8 - dim, 3));
 
@@ -65,11 +64,10 @@ test(unsigned int n_points)
 
 
 
-  const auto cell_qpoint_map =
-    GridTools::compute_point_locations(cache, points);
-  const auto & cells   = std::get<0>(cell_qpoint_map);
-  const auto & maps    = std::get<2>(cell_qpoint_map);
-  unsigned int n_cells = cells.size();
+  const auto   cell_qpoint_map = GridTools::compute_point_locations(cache, points);
+  const auto  &cells           = std::get<0>(cell_qpoint_map);
+  const auto  &maps            = std::get<2>(cell_qpoint_map);
+  unsigned int n_cells         = cells.size();
 
   for (unsigned int c = 0; c < n_cells; ++c)
     {
@@ -78,25 +76,22 @@ test(unsigned int n_points)
       for (const unsigned int idx : maps[c])
         {
           std::vector<std::pair<BoundingBox<dim>, unsigned int>> test_results;
-          global_description.query(bgi::intersects(points[idx]),
-                                   std::back_inserter(test_results));
+          global_description.query(bgi::intersects(points[idx]), std::back_inserter(test_results));
           bool found = false;
 
           // Printing and checking function output
           for (const auto &ans : test_results)
             {
               const auto &bd_points = ans.first.get_boundary_points();
-              deallog << "Bounding box: p1 " << bd_points.first << " p2 "
-                      << bd_points.second << " rank owner: " << ans.second
-                      << std::endl;
+              deallog << "Bounding box: p1 " << bd_points.first << " p2 " << bd_points.second
+                      << " rank owner: " << ans.second << std::endl;
               // Check if the guess made from the tree contains the answer
               if (ans.second == cell_owner)
                 found = true;
             }
 
           if (!found)
-            deallog << "Error point " << points[idx] << " was not found."
-                    << std::endl;
+            deallog << "Error point " << points[idx] << " was not found." << std::endl;
         }
     }
   deallog << "Test for dim " << dim << " finished." << std::endl;

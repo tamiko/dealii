@@ -41,9 +41,7 @@ void
 test(const Triangulation<dim> &tr, const hp::FECollection<dim> &fe)
 {
   DoFHandler<dim> dof(tr);
-  for (typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active();
-       cell != dof.end();
-       ++cell)
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(); cell != dof.end(); ++cell)
     cell->set_active_fe_index(cell->index() % 2);
   dof.distribute_dofs(fe);
 

@@ -39,14 +39,12 @@ test1()
         {
           tria.refine_global(2);
           deallog << dim << "d, "
-                  << "hypercube volume, " << i * 2
-                  << " refinements: " << GridTools::volume(tria) << std::endl;
+                  << "hypercube volume, " << i * 2 << " refinements: " << GridTools::volume(tria) << std::endl;
         }
 
       Triangulation<dim> simplex_tria;
       GridGenerator::convert_hypercube_to_simplex_mesh(tria, simplex_tria);
-      deallog << dim << "d, simplex hypercube volume: "
-              << GridTools::volume(simplex_tria) << std::endl;
+      deallog << dim << "d, simplex hypercube volume: " << GridTools::volume(simplex_tria) << std::endl;
     }
 
   // test 2: hyperball
@@ -59,18 +57,15 @@ test1()
         {
           tria.refine_global(1);
           deallog << dim << "d, "
-                  << "hyperball volume, " << i
-                  << " refinements: " << GridTools::volume(tria) << std::endl;
+                  << "hyperball volume, " << i << " refinements: " << GridTools::volume(tria) << std::endl;
         }
 
       Triangulation<dim> simplex_tria;
       GridGenerator::convert_hypercube_to_simplex_mesh(tria, simplex_tria);
       simplex_tria.set_all_manifold_ids(numbers::flat_manifold_id);
-      deallog << dim << "d, simplex hyperball volume: "
-              << GridTools::volume(simplex_tria) << std::endl;
+      deallog << dim << "d, simplex hyperball volume: " << GridTools::volume(simplex_tria) << std::endl;
 
-      deallog << "exact value="
-              << (dim == 2 ? numbers::PI : 4. / 3. * numbers::PI) << std::endl;
+      deallog << "exact value=" << (dim == 2 ? numbers::PI : 4. / 3. * numbers::PI) << std::endl;
     }
 }
 

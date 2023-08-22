@@ -26,48 +26,31 @@ template <int dim>
 void
 test()
 {
-  deallog << "max_children_per_cell "
-          << GeometryInfo<dim>::max_children_per_cell << std::endl;
-  deallog << "faces_per_cell    " << GeometryInfo<dim>::faces_per_cell
-          << std::endl;
-  deallog << "max_children_per_face "
-          << GeometryInfo<dim>::max_children_per_face << std::endl;
-  deallog << "vertices_per_cell " << GeometryInfo<dim>::vertices_per_cell
-          << std::endl;
-  deallog << "lines_per_cell    " << GeometryInfo<dim>::lines_per_cell
-          << std::endl;
-  deallog << "quads_per_cell    " << GeometryInfo<dim>::quads_per_cell
-          << std::endl;
-  deallog << "hexes_per_cell    " << GeometryInfo<dim>::hexes_per_cell
-          << std::endl;
+  deallog << "max_children_per_cell " << GeometryInfo<dim>::max_children_per_cell << std::endl;
+  deallog << "faces_per_cell    " << GeometryInfo<dim>::faces_per_cell << std::endl;
+  deallog << "max_children_per_face " << GeometryInfo<dim>::max_children_per_face << std::endl;
+  deallog << "vertices_per_cell " << GeometryInfo<dim>::vertices_per_cell << std::endl;
+  deallog << "lines_per_cell    " << GeometryInfo<dim>::lines_per_cell << std::endl;
+  deallog << "quads_per_cell    " << GeometryInfo<dim>::quads_per_cell << std::endl;
+  deallog << "hexes_per_cell    " << GeometryInfo<dim>::hexes_per_cell << std::endl;
 
-  deallog << "vertices_per_face " << GeometryInfo<dim>::vertices_per_face
-          << std::endl;
-  deallog << "lines_per_face    " << GeometryInfo<dim>::lines_per_face
-          << std::endl;
-  deallog << "quads_per_face    " << GeometryInfo<dim>::quads_per_face
-          << std::endl;
+  deallog << "vertices_per_face " << GeometryInfo<dim>::vertices_per_face << std::endl;
+  deallog << "lines_per_face    " << GeometryInfo<dim>::lines_per_face << std::endl;
+  deallog << "quads_per_face    " << GeometryInfo<dim>::quads_per_face << std::endl;
 
   for (const unsigned int f : GeometryInfo<dim>::face_indices())
-    deallog << "face normal" << f << ' '
-            << (GeometryInfo<dim>::unit_normal_orientation[f] > 0. ? '+' : '-')
-            << 'x' << GeometryInfo<dim>::unit_normal_direction[f] << std::endl;
+    deallog << "face normal" << f << ' ' << (GeometryInfo<dim>::unit_normal_orientation[f] > 0. ? '+' : '-') << 'x'
+            << GeometryInfo<dim>::unit_normal_direction[f] << std::endl;
 
   for (const unsigned int f : GeometryInfo<dim>::face_indices())
     {
       deallog << "face_children" << f << "[true ]";
-      for (unsigned int v = 0; v < GeometryInfo<dim>::max_children_per_face;
-           ++v)
-        deallog << ' '
-                << GeometryInfo<dim>::child_cell_on_face(
-                     RefinementCase<dim>::isotropic_refinement, f, v, true);
+      for (unsigned int v = 0; v < GeometryInfo<dim>::max_children_per_face; ++v)
+        deallog << ' ' << GeometryInfo<dim>::child_cell_on_face(RefinementCase<dim>::isotropic_refinement, f, v, true);
       deallog << std::endl;
       deallog << "face_children" << f << "[false]";
-      for (unsigned int v = 0; v < GeometryInfo<dim>::max_children_per_face;
-           ++v)
-        deallog << ' '
-                << GeometryInfo<dim>::child_cell_on_face(
-                     RefinementCase<dim>::isotropic_refinement, f, v, false);
+      for (unsigned int v = 0; v < GeometryInfo<dim>::max_children_per_face; ++v)
+        deallog << ' ' << GeometryInfo<dim>::child_cell_on_face(RefinementCase<dim>::isotropic_refinement, f, v, false);
       deallog << std::endl;
     }
 
@@ -91,8 +74,7 @@ test()
       deallog << std::endl;
       deallog << "face_lines" << f << "[false]";
       for (unsigned int v = 1; v <= GeometryInfo<dim>::lines_per_face; ++v)
-        deallog << ' '
-                << GeometryInfo<dim>::face_to_cell_lines(f, v - 1, false);
+        deallog << ' ' << GeometryInfo<dim>::face_to_cell_lines(f, v - 1, false);
       deallog << std::endl;
     }
 

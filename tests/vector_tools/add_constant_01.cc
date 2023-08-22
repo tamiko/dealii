@@ -77,14 +77,7 @@ test()
   GridGenerator::hyper_cube(tria);
   tria.refine_global(2);
 
-  FESystem<dim>   fe(FE_RaviartThomas<dim>(1),
-                   1,
-                   FE_Q<dim>(2),
-                   1,
-                   FE_DGQ<dim>(2),
-                   1,
-                   FE_DGP<dim>(1),
-                   1);
+  FESystem<dim>   fe(FE_RaviartThomas<dim>(1), 1, FE_Q<dim>(2), 1, FE_DGQ<dim>(2), 1, FE_DGP<dim>(1), 1);
   DoFHandler<dim> dofhandler(tria);
   dofhandler.distribute_dofs(fe);
 
@@ -97,16 +90,10 @@ test()
   QIterated<dim> quadrature(QTrapezoid<1>(), 5);
 
   const dealii::Function<dim, double> *w = nullptr;
-  VectorTools::integrate_difference(dofhandler,
-                                    vec,
-                                    Reference<dim>(),
-                                    cellwise_errors,
-                                    quadrature,
-                                    VectorTools::L2_norm);
+  VectorTools::integrate_difference(
+    dofhandler, vec, Reference<dim>(), cellwise_errors, quadrature, VectorTools::L2_norm);
 
-  const double error = VectorTools::compute_global_error(tria,
-                                                         cellwise_errors,
-                                                         VectorTools::L2_norm);
+  const double error = VectorTools::compute_global_error(tria, cellwise_errors, VectorTools::L2_norm);
 
   AssertThrow(error < 1e-10, ExcMessage("Error in integrate_difference"));
 }
@@ -118,14 +105,7 @@ test_simplex()
   Triangulation<dim> tria;
   GridGenerator::subdivided_hyper_cube_with_simplices(tria, 4);
 
-  FESystem<dim>   fe(FE_SimplexP<dim>(1),
-                   dim,
-                   FE_SimplexP<dim>(2),
-                   1,
-                   FE_SimplexP<dim>(1),
-                   1,
-                   FE_SimplexDGP<dim>(1),
-                   1);
+  FESystem<dim> fe(FE_SimplexP<dim>(1), dim, FE_SimplexP<dim>(2), 1, FE_SimplexP<dim>(1), 1, FE_SimplexDGP<dim>(1), 1);
   DoFHandler<dim> dofhandler(tria);
   dofhandler.distribute_dofs(fe);
 
@@ -139,17 +119,10 @@ test_simplex()
 
   const dealii::Function<dim, double> *w = nullptr;
   MappingFE<dim>                       mapping(FE_SimplexP<dim>(1));
-  VectorTools::integrate_difference(mapping,
-                                    dofhandler,
-                                    vec,
-                                    Reference<dim>(),
-                                    cellwise_errors,
-                                    quadrature,
-                                    VectorTools::L2_norm);
+  VectorTools::integrate_difference(
+    mapping, dofhandler, vec, Reference<dim>(), cellwise_errors, quadrature, VectorTools::L2_norm);
 
-  const double error = VectorTools::compute_global_error(tria,
-                                                         cellwise_errors,
-                                                         VectorTools::L2_norm);
+  const double error = VectorTools::compute_global_error(tria, cellwise_errors, VectorTools::L2_norm);
 
   AssertThrow(error < 1e-10, ExcMessage("Error in integrate_difference"));
 }

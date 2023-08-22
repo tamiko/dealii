@@ -59,8 +59,7 @@ test()
   AffineConstraints<PetscScalar> constraints(locally_relevant_dofs);
   constraints.clear();
   {
-    const IndexSet boundary_dofs =
-      DoFTools::extract_boundary_dofs(dof_handler, ComponentMask(1, true));
+    const IndexSet boundary_dofs = DoFTools::extract_boundary_dofs(dof_handler, ComponentMask(1, true));
 
     unsigned int first_nboundary_dof = 0;
     while (boundary_dofs.is_element(first_nboundary_dof))

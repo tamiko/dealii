@@ -69,19 +69,16 @@ test(const FiniteElement<dim> &fe)
 
 
   Vector<double> vector(dof_handler.n_dofs());
-  VectorTools::interpolate(mapping,
-                           dof_handler,
-                           AnalyticalFunction<dim>(n_components),
-                           vector);
+  VectorTools::interpolate(mapping, dof_handler, AnalyticalFunction<dim>(n_components), vector);
 
   // setup FEPointEvaluation which uses the face path
   std::vector<std::vector<Quadrature<dim - 1>>> quad_vec;
-  quad_vec.emplace_back(
-    std::vector<Quadrature<dim - 1>>(4, QGauss<dim - 1>(7)));
+  quad_vec.emplace_back(std::vector<Quadrature<dim - 1>>(4, QGauss<dim - 1>(7)));
   dealii::NonMatching::MappingInfo<dim> mapping_info(mapping, update_values);
   mapping_info.reinit_faces(tria.active_cell_iterators(), quad_vec);
-  FEPointEvaluation<dim - first_selected_component, dim, dim, Number>
-    fe_point_eval(mapping_info, fe, first_selected_component);
+  FEPointEvaluation<dim - first_selected_component, dim, dim, Number> fe_point_eval(mapping_info,
+                                                                                    fe,
+                                                                                    first_selected_component);
 
   std::vector<Number> buffer(fe.dofs_per_cell);
 
@@ -95,8 +92,7 @@ test(const FiniteElement<dim> &fe)
 
   for (unsigned int q : fe_point_eval.quadrature_point_indices())
     {
-      deallog << "Value at q " << q << ": " << fe_point_eval.get_value(q)
-              << std::endl;
+      deallog << "Value at q " << q << ": " << fe_point_eval.get_value(q) << std::endl;
     }
   fe_point_eval.submit_value(fe_point_eval.get_value(0), 0);
 

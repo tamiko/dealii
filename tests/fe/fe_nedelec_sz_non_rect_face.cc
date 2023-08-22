@@ -85,13 +85,11 @@ namespace Maxwell
     ExactSolution();
 
     virtual void
-    vector_value_list(const std::vector<Point<dim>> &points,
-                      std::vector<Vector<double>> &  values) const;
+    vector_value_list(const std::vector<Point<dim>> &points, std::vector<Vector<double>> &values) const;
 
 
     void
-    curl_value_list(const std::vector<Point<dim>> &points,
-                    std::vector<Vector<double>> &  value_list);
+    curl_value_list(const std::vector<Point<dim>> &points, std::vector<Vector<double>> &value_list);
   };
 
   template <int dim>
@@ -100,12 +98,10 @@ namespace Maxwell
   {}
   template <int dim>
   void
-  ExactSolution<dim>::vector_value_list(
-    const std::vector<Point<dim>> &points,
-    std::vector<Vector<double>> &  value_list) const
+  ExactSolution<dim>::vector_value_list(const std::vector<Point<dim>> &points,
+                                        std::vector<Vector<double>>   &value_list) const
   {
-    Assert(value_list.size() == points.size(),
-           ExcDimensionMismatch(value_list.size(), points.size()));
+    Assert(value_list.size() == points.size(), ExcDimensionMismatch(value_list.size(), points.size()));
     const unsigned int n_points = points.size();
 
     for (unsigned int i = 0; i < n_points; ++i)
@@ -121,11 +117,9 @@ namespace Maxwell
   // Additional functions to create Neumann conditions, zero in this case.
   template <int dim>
   void
-  ExactSolution<dim>::curl_value_list(const std::vector<Point<dim>> &points,
-                                      std::vector<Vector<double>> &  value_list)
+  ExactSolution<dim>::curl_value_list(const std::vector<Point<dim>> &points, std::vector<Vector<double>> &value_list)
   {
-    Assert(value_list.size() == points.size(),
-           ExcDimensionMismatch(value_list.size(), points.size()));
+    Assert(value_list.size() == points.size(), ExcDimensionMismatch(value_list.size(), points.size()));
     const unsigned int n_points = points.size();
 
 
@@ -208,8 +202,7 @@ namespace Maxwell
     FEValues<dim> fe_values(mapping,
                             fe,
                             quadrature_formula,
-                            update_values | update_gradients |
-                              update_quadrature_points | update_JxW_values);
+                            update_values | update_gradients | update_quadrature_points | update_JxW_values);
 
     // Extractor
     const FEValuesExtractors::Vector E_re(0);
@@ -219,12 +212,10 @@ namespace Maxwell
     std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
 
     // storage for exact sol:
-    std::vector<Vector<double>> exactsol_list(
-      n_q_points, Vector<double>(fe.n_components()));
-    std::vector<Vector<double>> exactcurlsol_list(
-      n_q_points, Vector<double>(fe.n_components()));
-    Tensor<1, dim> exactsol;
-    Tensor<1, dim> exactcurlsol;
+    std::vector<Vector<double>> exactsol_list(n_q_points, Vector<double>(fe.n_components()));
+    std::vector<Vector<double>> exactcurlsol_list(n_q_points, Vector<double>(fe.n_components()));
+    Tensor<1, dim>              exactsol;
+    Tensor<1, dim>              exactcurlsol;
 
     // storage for computed sol:
     std::vector<Tensor<1, dim>> sol(n_q_points);
@@ -234,18 +225,14 @@ namespace Maxwell
 
     unsigned int block_index_i;
 
-    typename DoFHandler<dim>::active_cell_iterator cell =
-                                                     dof_handler.begin_active(),
-                                                   endc = dof_handler.end();
+    typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
     for (; cell != endc; ++cell)
       {
         fe_values.reinit(cell);
 
         // Store exact values of E and curlE:
-        exact_solution.vector_value_list(fe_values.get_quadrature_points(),
-                                         exactsol_list);
-        exact_solution.curl_value_list(fe_values.get_quadrature_points(),
-                                       exactcurlsol_list);
+        exact_solution.vector_value_list(fe_values.get_quadrature_points(), exactsol_list);
+        exact_solution.curl_value_list(fe_values.get_quadrature_points(), exactcurlsol_list);
 
 
         // Store computed values at quad points:
@@ -267,14 +254,12 @@ namespace Maxwell
             for (unsigned int i = 0; i < dofs_per_cell; ++i)
               {
                 // Construct local curl value @ quad point
-                curlsol += solution(local_dof_indices[i]) *
-                           fe_values[E_re].curl(i, q_point);
+                curlsol += solution(local_dof_indices[i]) * fe_values[E_re].curl(i, q_point);
               }
             // Integrate difference at each point:
-            h_curl_norm +=
-              ((exactsol - sol[q_point]) * (exactsol - sol[q_point]) +
-               (exactcurlsol - curlsol) * (exactcurlsol - curlsol)) *
-              fe_values.JxW(q_point);
+            h_curl_norm += ((exactsol - sol[q_point]) * (exactsol - sol[q_point]) +
+                            (exactcurlsol - curlsol) * (exactcurlsol - curlsol)) *
+                           fe_values.JxW(q_point);
           }
       }
     return sqrt(h_curl_norm);
@@ -295,21 +280,13 @@ namespace Maxwell
 
     // FE_Nedelec boundary condition.
     VectorTools::project_boundary_values_curl_conforming_l2(
-      dof_handler,
-      0,
-      exact_solution,
-      0,
-      constraints,
-      StaticMappingQ1<dim>::mapping);
+      dof_handler, 0, exact_solution, 0, constraints, StaticMappingQ1<dim>::mapping);
 
 
     constraints.close();
 
     DynamicSparsityPattern c_sparsity(dof_handler.n_dofs());
-    DoFTools::make_sparsity_pattern(dof_handler,
-                                    c_sparsity,
-                                    constraints,
-                                    false);
+    DoFTools::make_sparsity_pattern(dof_handler, c_sparsity, constraints, false);
 
     sparsity_pattern.copy_from(c_sparsity);
     system_matrix.reinit(sparsity_pattern);
@@ -329,42 +306,35 @@ namespace Maxwell
     FEValues<dim> fe_values(mapping,
                             fe,
                             quadrature_formula,
-                            update_values | update_gradients |
-                              update_quadrature_points | update_JxW_values);
+                            update_values | update_gradients | update_quadrature_points | update_JxW_values);
 
     FEFaceValues<dim> fe_face_values(mapping,
                                      fe,
                                      face_quadrature_formula,
-                                     update_values | update_quadrature_points |
-                                       update_normal_vectors |
+                                     update_values | update_quadrature_points | update_normal_vectors |
                                        update_JxW_values);
 
     // Extractor
     const FEValuesExtractors::Vector E_re(0);
 
     // Local cell storage:
-    FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
-    Vector<double>     cell_rhs(dofs_per_cell);
+    FullMatrix<double>                   cell_matrix(dofs_per_cell, dofs_per_cell);
+    Vector<double>                       cell_rhs(dofs_per_cell);
     std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
 
     // RHS storage:
-    std::vector<Vector<double>> rhs_value_list(
-      n_q_points, Vector<double>(fe.n_components()));
-    Tensor<1, dim> rhs_value_vector;
+    std::vector<Vector<double>> rhs_value_list(n_q_points, Vector<double>(fe.n_components()));
+    Tensor<1, dim>              rhs_value_vector;
 
     // Neumann storage
-    std::vector<Vector<double>> neumann_value_list(
-      n_face_q_points, Vector<double>(fe.n_components()));
-    std::vector<Tensor<1, dim>> normal_vector_list(
-      fe_face_values.get_normal_vectors());
-    Tensor<1, dim> neumann_value_vector;
-    Tensor<1, dim> neumann_value;
-    Tensor<1, dim> normal_vector;
+    std::vector<Vector<double>> neumann_value_list(n_face_q_points, Vector<double>(fe.n_components()));
+    std::vector<Tensor<1, dim>> normal_vector_list(fe_face_values.get_normal_vectors());
+    Tensor<1, dim>              neumann_value_vector;
+    Tensor<1, dim>              neumann_value;
+    Tensor<1, dim>              normal_vector;
 
     // loop over all cells:
-    typename DoFHandler<dim>::active_cell_iterator cell =
-                                                     dof_handler.begin_active(),
-                                                   endc = dof_handler.end();
+    typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
     for (; cell != endc; ++cell)
       {
         fe_values.reinit(cell);
@@ -372,8 +342,7 @@ namespace Maxwell
         cell_rhs    = 0;
 
         // Calc RHS values:
-        exact_solution.vector_value_list(fe_values.get_quadrature_points(),
-                                         rhs_value_list);
+        exact_solution.vector_value_list(fe_values.get_quadrature_points(), rhs_value_list);
 
         // Loop over all element quad points:
         for (const auto q_point : fe_values.quadrature_point_indices())
@@ -381,8 +350,7 @@ namespace Maxwell
             // store rhs value at this q point & turn into tensor
             for (unsigned int component = 0; component < dim; ++component)
               {
-                rhs_value_vector[component] =
-                  rhs_value_list[q_point](component);
+                rhs_value_vector[component] = rhs_value_list[q_point](component);
               }
 
             for (unsigned int i = 0; i < dofs_per_cell; ++i)
@@ -390,22 +358,17 @@ namespace Maxwell
                 // Construct local matrix:
                 for (unsigned int j = 0; j < dofs_per_cell; ++j)
                   {
-                    cell_matrix(i, j) += ((fe_values[E_re].curl(i, q_point) *
-                                           fe_values[E_re].curl(j, q_point)) +
-                                          fe_values[E_re].value(i, q_point) *
-                                            fe_values[E_re].value(j, q_point)) *
+                    cell_matrix(i, j) += ((fe_values[E_re].curl(i, q_point) * fe_values[E_re].curl(j, q_point)) +
+                                          fe_values[E_re].value(i, q_point) * fe_values[E_re].value(j, q_point)) *
                                          fe_values.JxW(q_point);
                   }
                 // construct local RHS:
-                cell_rhs(i) += rhs_value_vector *
-                               fe_values[E_re].value(i, q_point) *
-                               fe_values.JxW(q_point);
+                cell_rhs(i) += rhs_value_vector * fe_values[E_re].value(i, q_point) * fe_values.JxW(q_point);
               }
           }
 
         cell->get_dof_indices(local_dof_indices);
-        constraints.distribute_local_to_global(
-          cell_matrix, cell_rhs, local_dof_indices, system_matrix, system_rhs);
+        constraints.distribute_local_to_global(cell_matrix, cell_rhs, local_dof_indices, system_matrix, system_rhs);
       }
   }
   template <int dim>
@@ -426,13 +389,8 @@ namespace Maxwell
     Vector<double> diff_per_cell(triangulation.n_active_cells());
 
 
-    VectorTools::integrate_difference(mapping,
-                                      dof_handler,
-                                      solution,
-                                      exact_solution,
-                                      diff_per_cell,
-                                      QGauss<dim>(quad_order + 2),
-                                      VectorTools::L2_norm);
+    VectorTools::integrate_difference(
+      mapping, dof_handler, solution, exact_solution, diff_per_cell, QGauss<dim>(quad_order + 2), VectorTools::L2_norm);
 
 
     const double L2_error = diff_per_cell.l2_norm();

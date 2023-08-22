@@ -66,9 +66,8 @@ transfer(const MPI_Comm comm)
   IndexSet locally_relevant_dofs;
   DoFTools::extract_locally_relevant_dofs(dof_handler, locally_relevant_dofs);
 
-  LinearAlgebra::distributed::Vector<double> solution(
-    dof_handler.locally_owned_dofs(), locally_relevant_dofs, comm);
-  AffineConstraints<double> cm;
+  LinearAlgebra::distributed::Vector<double> solution(dof_handler.locally_owned_dofs(), locally_relevant_dofs, comm);
+  AffineConstraints<double>                  cm;
   cm.close();
 
   dof_handler.distribute_dofs(fe);
@@ -77,9 +76,7 @@ transfer(const MPI_Comm comm)
   for (unsigned int i = 0; i < solution.size(); ++i)
     solution(i) = i;
 
-  parallel::distributed::
-    SolutionTransfer<dim, LinearAlgebra::distributed::Vector<double>>
-      soltrans(dof_handler);
+  parallel::distributed::SolutionTransfer<dim, LinearAlgebra::distributed::Vector<double>> soltrans(dof_handler);
 
   for (const auto &cell : tria.active_cell_iterators())
     cell->set_refine_flag();

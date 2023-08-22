@@ -92,20 +92,15 @@ test()
 
   // use the implicit Q1 mapping. this will yield a zero solution
   {
-    VectorTools::project(
-      dh, cm, hp::QCollection<dim>(QGauss<dim>(3)), F<dim>(), v);
+    VectorTools::project(dh, cm, hp::QCollection<dim>(QGauss<dim>(3)), F<dim>(), v);
     deallog << v.l2_norm() << std::endl;
     Assert(v.l2_norm() == 0, ExcInternalError());
   }
 
   // use an explicit Q1 mapping. this will yield a zero solution
   {
-    VectorTools::project(hp::MappingCollection<dim>(MappingQ<dim>(1)),
-                         dh,
-                         cm,
-                         hp::QCollection<dim>(QGauss<dim>(3)),
-                         F<dim>(),
-                         v);
+    VectorTools::project(
+      hp::MappingCollection<dim>(MappingQ<dim>(1)), dh, cm, hp::QCollection<dim>(QGauss<dim>(3)), F<dim>(), v);
     deallog << v.l2_norm() << std::endl;
     Assert(v.l2_norm() == 0, ExcInternalError());
   }
@@ -114,12 +109,8 @@ test()
   // straight projection since some of the quadrature points are lying outside
   // the area where the function is zero
   {
-    VectorTools::project(hp::MappingCollection<dim>(MappingQ<dim>(2)),
-                         dh,
-                         cm,
-                         hp::QCollection<dim>(QGauss<dim>(3)),
-                         F<dim>(),
-                         v);
+    VectorTools::project(
+      hp::MappingCollection<dim>(MappingQ<dim>(2)), dh, cm, hp::QCollection<dim>(QGauss<dim>(3)), F<dim>(), v);
     deallog << v.l2_norm() << std::endl;
     Assert(v.l2_norm() != 0, ExcInternalError());
   }
@@ -130,13 +121,8 @@ test()
   // the DoFs at the boundary are in fact zero (they are interpolated only at
   // points where the function is zero)
   {
-    VectorTools::project(hp::MappingCollection<dim>(MappingQ<dim>(2)),
-                         dh,
-                         cm,
-                         hp::QCollection<dim>(QGauss<dim>(3)),
-                         F<dim>(),
-                         v,
-                         true);
+    VectorTools::project(
+      hp::MappingCollection<dim>(MappingQ<dim>(2)), dh, cm, hp::QCollection<dim>(QGauss<dim>(3)), F<dim>(), v, true);
     deallog << v.l2_norm() << std::endl;
     Assert(v.l2_norm() != 0, ExcInternalError());
   }
@@ -158,14 +144,9 @@ test()
                          true);
     deallog << v.l2_norm() << std::endl;
     Assert(v.l2_norm() != 0, ExcInternalError());
-    for (typename DoFHandler<dim>::active_cell_iterator cell =
-           dh.begin_active();
-         cell != dh.end();
-         ++cell)
+    for (typename DoFHandler<dim>::active_cell_iterator cell = dh.begin_active(); cell != dh.end(); ++cell)
       for (const unsigned int i : GeometryInfo<dim>::vertex_indices())
-        deallog << cell->vertex(i) << ' '
-                << v(cell->vertex_dof_index(i, 0, cell->active_fe_index()))
-                << std::endl;
+        deallog << cell->vertex(i) << ' ' << v(cell->vertex_dof_index(i, 0, cell->active_fe_index())) << std::endl;
   }
 
 
@@ -184,14 +165,9 @@ test()
                          true);
     deallog << v.l2_norm() << std::endl;
     Assert(v.l2_norm() != 0, ExcInternalError());
-    for (typename DoFHandler<dim>::active_cell_iterator cell =
-           dh.begin_active();
-         cell != dh.end();
-         ++cell)
+    for (typename DoFHandler<dim>::active_cell_iterator cell = dh.begin_active(); cell != dh.end(); ++cell)
       for (const unsigned int i : GeometryInfo<dim>::vertex_indices())
-        deallog << cell->vertex(i) << ' '
-                << v(cell->vertex_dof_index(i, 0, cell->active_fe_index()))
-                << std::endl;
+        deallog << cell->vertex(i) << ' ' << v(cell->vertex_dof_index(i, 0, cell->active_fe_index())) << std::endl;
   }
 }
 

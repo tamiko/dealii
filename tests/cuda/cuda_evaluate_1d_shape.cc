@@ -34,25 +34,18 @@
 
 namespace CUDA = LinearAlgebra::CUDAWrappers;
 
-using TeamHandle = Kokkos::TeamPolicy<
-  MemorySpace::Default::kokkos_space::execution_space>::member_type;
+using TeamHandle = Kokkos::TeamPolicy<MemorySpace::Default::kokkos_space::execution_space>::member_type;
 
 template <int M, int N, int type, bool add, bool dof_to_quad>
 DEAL_II_HOST_DEVICE void
-evaluate_tensor_product(
-  const TeamHandle &                                         team_member,
-  Kokkos::View<double *, MemorySpace::Default::kokkos_space> shape_values,
-  Kokkos::View<double *, MemorySpace::Default::kokkos_space> shape_gradients,
-  Kokkos::View<double *, MemorySpace::Default::kokkos_space> co_shape_gradients,
-  Kokkos::View<double *, MemorySpace::Default::kokkos_space> dst,
-  Kokkos::View<double *, MemorySpace::Default::kokkos_space> src)
+evaluate_tensor_product(const TeamHandle                                          &team_member,
+                        Kokkos::View<double *, MemorySpace::Default::kokkos_space> shape_values,
+                        Kokkos::View<double *, MemorySpace::Default::kokkos_space> shape_gradients,
+                        Kokkos::View<double *, MemorySpace::Default::kokkos_space> co_shape_gradients,
+                        Kokkos::View<double *, MemorySpace::Default::kokkos_space> dst,
+                        Kokkos::View<double *, MemorySpace::Default::kokkos_space> src)
 {
-  CUDAWrappers::internal::EvaluatorTensorProduct<
-    CUDAWrappers::internal::evaluate_general,
-    1,
-    M - 1,
-    N,
-    double>
+  CUDAWrappers::internal::EvaluatorTensorProduct<CUDAWrappers::internal::evaluate_general, 1, M - 1, N, double>
     evaluator(team_member, shape_values, shape_gradients, co_shape_gradients);
 
   if (type == 0)
@@ -71,8 +64,7 @@ test()
   for (unsigned int i = 0; i < (M + 1) / 2; ++i)
     for (unsigned int j = 0; j < N; ++j)
       {
-        shape_host[i * N + j] =
-          -1. + 2. * static_cast<double>(Testing::rand()) / RAND_MAX;
+        shape_host[i * N + j] = -1. + 2. * static_cast<double>(Testing::rand()) / RAND_MAX;
         if (type == 1)
           shape_host[(M - 1 - i) * N + N - 1 - j] = -shape_host[i * N + j];
         else
@@ -87,7 +79,7 @@ test()
   if (type == 1 && M % 2 == 1 && N % 2 == 1)
     shape_host[M / 2 * N + N / 2] = 0.;
 
-  LinearAlgebra::ReadWriteVector<double> x_ref(N), y_ref(M);
+  LinearAlgebra::ReadWriteVector<double>                      x_ref(N), y_ref(M);
   Kokkos::View<double[N], MemorySpace::Default::kokkos_space> x_dev(
     Kokkos::view_alloc("x_dev", Kokkos::WithoutInitializing));
   Kokkos::View<double[M], MemorySpace::Default::kokkos_space> y_dev(
@@ -112,37 +104,27 @@ test()
   Kokkos::deep_copy(y_dev, y_host);
 
   Kokkos::View<double *, MemorySpace::Default::kokkos_space> shape_values(
-    Kokkos::view_alloc("shape_values", Kokkos::WithoutInitializing),
-    size_shape_values);
-  Kokkos::View<double *,
-               MemorySpace::Host::kokkos_space,
-               Kokkos::MemoryTraits<Kokkos::Unmanaged>>
-    shape_host_view(shape_host.begin(), size_shape_values);
+    Kokkos::view_alloc("shape_values", Kokkos::WithoutInitializing), size_shape_values);
+  Kokkos::View<double *, MemorySpace::Host::kokkos_space, Kokkos::MemoryTraits<Kokkos::Unmanaged>> shape_host_view(
+    shape_host.begin(), size_shape_values);
   Kokkos::deep_copy(shape_values, shape_host_view);
 
   Kokkos::View<double *, MemorySpace::Default::kokkos_space> shape_gradients(
-    Kokkos::view_alloc("shape_gradients", Kokkos::WithoutInitializing),
-    size_shape_values);
+    Kokkos::view_alloc("shape_gradients", Kokkos::WithoutInitializing), size_shape_values);
   Kokkos::deep_copy(shape_gradients, shape_host_view);
 
   Kokkos::View<double *, MemorySpace::Default::kokkos_space> co_shape_gradients(
-    Kokkos::view_alloc("co_shape_gradients", Kokkos::WithoutInitializing),
-    size_shape_values);
+    Kokkos::view_alloc("co_shape_gradients", Kokkos::WithoutInitializing), size_shape_values);
   Kokkos::deep_copy(co_shape_gradients, shape_host_view);
 
 
   // Launch the kernel
-  MemorySpace::Default::kokkos_space::execution_space exec;
-  Kokkos::TeamPolicy<MemorySpace::Default::kokkos_space::execution_space>
-    team_policy(exec, 1, Kokkos::AUTO);
+  MemorySpace::Default::kokkos_space::execution_space                     exec;
+  Kokkos::TeamPolicy<MemorySpace::Default::kokkos_space::execution_space> team_policy(exec, 1, Kokkos::AUTO);
   Kokkos::parallel_for(
     team_policy, KOKKOS_LAMBDA(const TeamHandle &team_member) {
-      evaluate_tensor_product<M, N, type, add, false>(team_member,
-                                                      shape_values,
-                                                      shape_gradients,
-                                                      co_shape_gradients,
-                                                      y_dev,
-                                                      x_dev);
+      evaluate_tensor_product<M, N, type, add, false>(
+        team_member, shape_values, shape_gradients, co_shape_gradients, y_dev, x_dev);
     });
 
   // Check the results on the host
@@ -173,12 +155,8 @@ test()
   // Launch the kernel
   Kokkos::parallel_for(
     team_policy, KOKKOS_LAMBDA(const TeamHandle &team_member) {
-      evaluate_tensor_product<M, N, type, add, true>(team_member,
-                                                     shape_values,
-                                                     shape_gradients,
-                                                     co_shape_gradients,
-                                                     x_dev,
-                                                     y_dev);
+      evaluate_tensor_product<M, N, type, add, true>(
+        team_member, shape_values, shape_gradients, co_shape_gradients, x_dev, y_dev);
     });
 
   // Check the results on the host

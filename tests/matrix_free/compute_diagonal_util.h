@@ -48,25 +48,15 @@
 using namespace dealii;
 
 
-template <int dim,
-          int fe_degree,
-          int n_points,
-          int n_components,
-          typename Number,
-          typename VectorizedArrayType>
+template <int dim, int fe_degree, int n_points, int n_components, typename Number, typename VectorizedArrayType>
 class Test
 {
   using VectorType = LinearAlgebra::distributed::Vector<Number>;
 
 public:
   Test(const MatrixFree<dim, Number, VectorizedArrayType> &matrix_free,
-       const AffineConstraints<Number> &                   constraints,
-       const std::function<void(FEEvaluation<dim,
-                                             fe_degree,
-                                             n_points,
-                                             n_components,
-                                             Number,
-                                             VectorizedArrayType> &)>
+       const AffineConstraints<Number>                    &constraints,
+       const std::function<void(FEEvaluation<dim, fe_degree, n_points, n_components, Number, VectorizedArrayType> &)>
          &cell_operation)
     : matrix_free(matrix_free)
     , constraints(constraints)
@@ -83,15 +73,12 @@ public:
     SparsityPattern      sparsity_pattern;
 
     const bool test_matrix = (Utilities::MPI::job_supports_mpi() == false) ||
-                             (Utilities::MPI::n_mpi_processes(
-                                matrix_free.get_task_info().communicator) == 1);
+                             (Utilities::MPI::n_mpi_processes(matrix_free.get_task_info().communicator) == 1);
 
     if (test_matrix)
       {
         DynamicSparsityPattern dsp(matrix_free.get_dof_handler().n_dofs());
-        DoFTools::make_sparsity_pattern(matrix_free.get_dof_handler(),
-                                        dsp,
-                                        constraints);
+        DoFTools::make_sparsity_pattern(matrix_free.get_dof_handler(), dsp, constraints);
         sparsity_pattern.copy_from(dsp);
         A1.reinit(sparsity_pattern);
         A2.reinit(sparsity_pattern);
@@ -102,15 +89,8 @@ public:
 
     {
       matrix_free.initialize_dof_vector(diagonal_global);
-      MatrixFreeTools::compute_diagonal<dim,
-                                        fe_degree,
-                                        n_points,
-                                        n_components,
-                                        Number,
-                                        VectorizedArrayType>(
-        matrix_free, diagonal_global, [&](auto &phi) {
-          this->cell_operation(phi);
-        });
+      MatrixFreeTools::compute_diagonal<dim, fe_degree, n_points, n_components, Number, VectorizedArrayType>(
+        matrix_free, diagonal_global, [&](auto &phi) { this->cell_operation(phi); });
 
       diagonal_global.print(deallog.get_file_stream());
       error_local_1 = diagonal_global.l2_norm();
@@ -120,10 +100,7 @@ public:
     {
       VectorType diagonal_global;
       matrix_free.initialize_dof_vector(diagonal_global);
-      MatrixFreeTools::compute_diagonal(matrix_free,
-                                        diagonal_global,
-                                        &Test::cell_function,
-                                        this);
+      MatrixFreeTools::compute_diagonal(matrix_free, diagonal_global, &Test::cell_function, this);
 
       diagonal_global.print(deallog.get_file_stream());
       error_local_2 = diagonal_global.l2_norm();
@@ -134,22 +111,14 @@ public:
 
     if (test_matrix)
       {
-        MatrixFreeTools::compute_matrix<dim,
-                                        fe_degree,
-                                        n_points,
-                                        n_components,
-                                        Number,
-                                        VectorizedArrayType,
-                                        SparseMatrix<Number>>(
-          matrix_free, constraints, A1, [&](auto &phi) {
-            this->cell_operation(phi);
-          });
+        MatrixFreeTools::
+          compute_matrix<dim, fe_degree, n_points, n_components, Number, VectorizedArrayType, SparseMatrix<Number>>(
+            matrix_free, constraints, A1, [&](auto &phi) { this->cell_operation(phi); });
       }
 
     if (test_matrix)
       {
-        MatrixFreeTools::compute_matrix(
-          matrix_free, constraints, A2, &Test::cell_function, this);
+        MatrixFreeTools::compute_matrix(matrix_free, constraints, A2, &Test::cell_function, this);
       }
 
     // compute diagonal globally
@@ -201,31 +170,22 @@ public:
 
         for (; a1 != A1.end(); ++a1, ++a2, ++a_ref)
           {
-            if (a1->row() == a1->column() &&
-                constraints.is_constrained(a1->row()))
+            if (a1->row() == a1->column() && constraints.is_constrained(a1->row()))
               continue;
 
-            Assert(std::abs(a1->value() - a_ref->value()) < 1e-6,
-                   ExcNotImplemented());
-            Assert(std::abs(a2->value() - a_ref->value()) < 1e-6,
-                   ExcNotImplemented());
+            Assert(std::abs(a1->value() - a_ref->value()) < 1e-6, ExcNotImplemented());
+            Assert(std::abs(a2->value() - a_ref->value()) < 1e-6, ExcNotImplemented());
           }
       }
   }
 
   void
   cell_operation_range(const MatrixFree<dim, Number, VectorizedArrayType> &data,
-                       VectorType &                                        dst,
-                       const VectorType &                                  src,
-                       const std::pair<unsigned int, unsigned int> &pair) const
+                       VectorType                                         &dst,
+                       const VectorType                                   &src,
+                       const std::pair<unsigned int, unsigned int>        &pair) const
   {
-    FEEvaluation<dim,
-                 fe_degree,
-                 n_points,
-                 n_components,
-                 Number,
-                 VectorizedArrayType>
-      phi(data, pair);
+    FEEvaluation<dim, fe_degree, n_points, n_components, Number, VectorizedArrayType> phi(data, pair);
     for (auto cell = pair.first; cell < pair.second; ++cell)
       {
         phi.reinit(cell);
@@ -236,23 +196,13 @@ public:
   }
 
   void
-  cell_function(FEEvaluation<dim,
-                             fe_degree,
-                             n_points,
-                             n_components,
-                             Number,
-                             VectorizedArrayType> &phi) const
+  cell_function(FEEvaluation<dim, fe_degree, n_points, n_components, Number, VectorizedArrayType> &phi) const
   {
     this->cell_operation(phi);
   }
 
   const MatrixFree<dim, Number, VectorizedArrayType> &matrix_free;
-  const AffineConstraints<Number> &                   constraints;
-  const std::function<void(FEEvaluation<dim,
-                                        fe_degree,
-                                        n_points,
-                                        n_components,
-                                        Number,
-                                        VectorizedArrayType> &)>
+  const AffineConstraints<Number>                    &constraints;
+  const std::function<void(FEEvaluation<dim, fe_degree, n_points, n_components, Number, VectorizedArrayType> &)>
     cell_operation;
 };

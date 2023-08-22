@@ -92,31 +92,24 @@ public:
   {}
 
   void
-  initialize(const Point<dim> & center,
-             const double &     sigma,
-             const std::string &func_expr);
+  initialize(const Point<dim> &center, const double &sigma, const std::string &func_expr);
   double
   value(const Point<dim> &p, const unsigned int component = 0) const;
   Tensor<1, dim>
   gradient(const Point<dim> &p, const unsigned int component = 0) const;
   virtual void
-  value_list(const std::vector<Point<dim>> &points,
-             std::vector<double> &          value_list) const;
+  value_list(const std::vector<Point<dim>> &points, std::vector<double> &value_list) const;
 };
 
 template <int dim>
 void
-SigmaFunction<dim>::initialize(const Point<dim> & _center,
-                               const double &     sigma,
-                               const std::string &func_expr)
+SigmaFunction<dim>::initialize(const Point<dim> &_center, const double &sigma, const std::string &func_expr)
 {
   center = _center;
   std::string                   variables;
-  std::map<std::string, double> constants = {{"sigma", sigma},
-                                             {"pi", numbers::PI}};
+  std::map<std::string, double> constants = {{"sigma", sigma}, {"pi", numbers::PI}};
 
-  AssertThrow(dim == 1 || dim == 2 || dim == 3,
-              ExcMessage("Dimension not implemented"));
+  AssertThrow(dim == 1 || dim == 2 || dim == 3, ExcMessage("Dimension not implemented"));
   switch (dim)
     {
       case 1:
@@ -135,8 +128,7 @@ SigmaFunction<dim>::initialize(const Point<dim> & _center,
 
 template <int dim>
 inline double
-SigmaFunction<dim>::value(const Point<dim> & p,
-                          const unsigned int component) const
+SigmaFunction<dim>::value(const Point<dim> &p, const unsigned int component) const
 {
   const Point<dim> d(p - center);
   return func.value(d, component);
@@ -145,8 +137,7 @@ SigmaFunction<dim>::value(const Point<dim> & p,
 
 template <int dim>
 inline Tensor<1, dim>
-SigmaFunction<dim>::gradient(const Point<dim> & p,
-                             const unsigned int component) const
+SigmaFunction<dim>::gradient(const Point<dim> &p, const unsigned int component) const
 {
   const Point<dim> d(p - center);
   return func.gradient(d, component);
@@ -154,8 +145,7 @@ SigmaFunction<dim>::gradient(const Point<dim> & p,
 
 template <int dim>
 void
-SigmaFunction<dim>::value_list(const std::vector<Point<dim>> &points,
-                               std::vector<double> &          value_list) const
+SigmaFunction<dim>::value_list(const std::vector<Point<dim>> &points, std::vector<double> &value_list) const
 {
   const unsigned int n_points = points.size();
 
@@ -203,7 +193,7 @@ template <int dim>
 class SplineEnrichmentFunction : public Function<dim>
 {
 public:
-  SplineEnrichmentFunction(const Point<dim> &         origin,
+  SplineEnrichmentFunction(const Point<dim>          &origin,
                            const std::vector<double> &interpolation_points_1d,
                            const std::vector<double> &interpolation_values_1d)
     : Function<dim>(1)
@@ -267,23 +257,23 @@ struct ParameterCollection
 {
   ParameterCollection(const std::string &file_name);
 
-  ParameterCollection(const int &                dim,
-                      const double &             size,
-                      const unsigned int &       shape,
-                      const unsigned int &       global_refinement,
-                      const unsigned int &       cycles,
-                      const unsigned int &       fe_base_degree,
-                      const unsigned int &       fe_enriched_degree,
-                      const unsigned int &       max_iterations,
-                      const double &             tolerance,
-                      const std::string &        rhs_value_expr,
-                      const std::string &        boundary_value_expr,
-                      const std::string &        rhs_radial_problem,
-                      const std::string &        boundary_radial_problem,
-                      const std::string &        exact_soln_expr,
-                      const unsigned int &       patches,
-                      const unsigned int &       debug_level,
-                      const unsigned int &       n_enrichments,
+  ParameterCollection(const int                 &dim,
+                      const double              &size,
+                      const unsigned int        &shape,
+                      const unsigned int        &global_refinement,
+                      const unsigned int        &cycles,
+                      const unsigned int        &fe_base_degree,
+                      const unsigned int        &fe_enriched_degree,
+                      const unsigned int        &max_iterations,
+                      const double              &tolerance,
+                      const std::string         &rhs_value_expr,
+                      const std::string         &boundary_value_expr,
+                      const std::string         &rhs_radial_problem,
+                      const std::string         &boundary_radial_problem,
+                      const std::string         &exact_soln_expr,
+                      const unsigned int        &patches,
+                      const unsigned int        &debug_level,
+                      const unsigned int        &n_enrichments,
                       const std::vector<double> &points_enrichments,
                       const std::vector<double> &radii_predicates,
                       const std::vector<double> &sigmas);
@@ -426,8 +416,7 @@ ParameterCollection::ParameterCollection(const std::string &file_name)
       break;
 
   AssertThrow(line == "#end-of-dealii parser",
-              ExcMessage(
-                "line missing in parameter file = \'#end-of-dealii parser\' "));
+              ExcMessage("line missing in parameter file = \'#end-of-dealii parser\' "));
 
   // function to read next line not starting with # or empty
   auto read_next_proper_line = [&](std::string &line) {
@@ -502,27 +491,26 @@ ParameterCollection::ParameterCollection(const std::string &file_name)
 
 
 
-ParameterCollection::ParameterCollection(
-  const int &                dim,
-  const double &             size,
-  const unsigned int &       shape,
-  const unsigned int &       global_refinement,
-  const unsigned int &       cycles,
-  const unsigned int &       fe_base_degree,
-  const unsigned int &       fe_enriched_degree,
-  const unsigned int &       max_iterations,
-  const double &             tolerance,
-  const std::string &        rhs_value_expr,
-  const std::string &        boundary_value_expr,
-  const std::string &        rhs_radial_problem,
-  const std::string &        boundary_radial_problem,
-  const std::string &        exact_soln_expr,
-  const unsigned int &       patches,
-  const unsigned int &       debug_level,
-  const unsigned int &       n_enrichments,
-  const std::vector<double> &points_enrichments,
-  const std::vector<double> &radii_predicates,
-  const std::vector<double> &sigmas)
+ParameterCollection::ParameterCollection(const int                 &dim,
+                                         const double              &size,
+                                         const unsigned int        &shape,
+                                         const unsigned int        &global_refinement,
+                                         const unsigned int        &cycles,
+                                         const unsigned int        &fe_base_degree,
+                                         const unsigned int        &fe_enriched_degree,
+                                         const unsigned int        &max_iterations,
+                                         const double              &tolerance,
+                                         const std::string         &rhs_value_expr,
+                                         const std::string         &boundary_value_expr,
+                                         const std::string         &rhs_radial_problem,
+                                         const std::string         &boundary_radial_problem,
+                                         const std::string         &exact_soln_expr,
+                                         const unsigned int        &patches,
+                                         const unsigned int        &debug_level,
+                                         const unsigned int        &n_enrichments,
+                                         const std::vector<double> &points_enrichments,
+                                         const std::vector<double> &radii_predicates,
+                                         const std::vector<double> &sigmas)
   : dim(dim)
   , size(size)
   , shape(shape)
@@ -560,11 +548,9 @@ ParameterCollection::print()
             << "Max Iterations : " << max_iterations << std::endl
             << "Tolerance : " << tolerance << std::endl
             << "rhs - main problem : " << rhs_value_expr << std::endl
-            << "boundary value - main problem : " << boundary_value_expr
-            << std::endl
+            << "boundary value - main problem : " << boundary_value_expr << std::endl
             << "rhs of radial problem : " << rhs_radial_problem << std::endl
-            << "boundary value of radial problem : " << boundary_radial_problem
-            << std::endl
+            << "boundary value of radial problem : " << boundary_radial_problem << std::endl
             << "exact solution expr : " << exact_soln_expr << std::endl
             << "estimate exact solution using radial problem : "
             << "Patches used for output: " << patches << std::endl
@@ -609,16 +595,16 @@ ParameterCollection::print()
 class EstimateEnrichmentFunction
 {
 public:
-  EstimateEnrichmentFunction(const Point<1> &   center,
-                             const double &     domain_size,
-                             const double &     sigma,
+  EstimateEnrichmentFunction(const Point<1>    &center,
+                             const double      &domain_size,
+                             const double      &sigma,
                              const std::string &rhs_expr,
                              const std::string &boundary_expr,
                              const unsigned int refinement = 11);
-  EstimateEnrichmentFunction(const Point<1> &   center,
-                             const double &     left_bound,
-                             const double &     right_bound,
-                             const double &     sigma,
+  EstimateEnrichmentFunction(const Point<1>    &center,
+                             const double      &left_bound,
+                             const double      &right_bound,
+                             const double      &sigma,
                              const std::string &rhs_expr,
                              const std::string &boundary_expr,
                              const unsigned int refinement = 11);
@@ -626,8 +612,7 @@ public:
   void
   run();
   void
-  evaluate_at_x_values(std::vector<double> &interpolation_points,
-                       std::vector<double> &interpolation_values);
+  evaluate_at_x_values(std::vector<double> &interpolation_points, std::vector<double> &interpolation_values);
   double
   value(const Point<1> &p, const unsigned int &component = 0);
 
@@ -666,13 +651,12 @@ private:
   Vector<double>       system_rhs;
 };
 
-EstimateEnrichmentFunction::EstimateEnrichmentFunction(
-  const Point<1> &   center,
-  const double &     domain_size,
-  const double &     sigma,
-  const std::string &rhs_expr,
-  const std::string &boundary_expr,
-  const unsigned int refinement)
+EstimateEnrichmentFunction::EstimateEnrichmentFunction(const Point<1>    &center,
+                                                       const double      &domain_size,
+                                                       const double      &sigma,
+                                                       const std::string &rhs_expr,
+                                                       const std::string &boundary_expr,
+                                                       const unsigned int refinement)
   : center(center)
   , domain_size(domain_size)
   , sigma(sigma)
@@ -688,14 +672,13 @@ EstimateEnrichmentFunction::EstimateEnrichmentFunction(
 }
 
 
-EstimateEnrichmentFunction::EstimateEnrichmentFunction(
-  const Point<1> &   center,
-  const double &     left_bound,
-  const double &     right_bound,
-  const double &     sigma,
-  const std::string &rhs_expr,
-  const std::string &boundary_expr,
-  const unsigned int refinement)
+EstimateEnrichmentFunction::EstimateEnrichmentFunction(const Point<1>    &center,
+                                                       const double      &left_bound,
+                                                       const double      &right_bound,
+                                                       const double      &sigma,
+                                                       const std::string &rhs_expr,
+                                                       const std::string &boundary_expr,
+                                                       const unsigned int refinement)
   : center(center)
   , left_bound(left_bound)
   , right_bound(right_bound)
@@ -738,14 +721,13 @@ EstimateEnrichmentFunction::assemble_system()
   QGauss<1>        quadrature_formula(2);
   SigmaFunction<1> rhs;
   rhs.initialize(center, sigma, rhs_expr);
-  FEValues<1>        fe_values(fe,
+  FEValues<1>                          fe_values(fe,
                         quadrature_formula,
-                        update_values | update_gradients |
-                          update_quadrature_points | update_JxW_values);
-  const unsigned int dofs_per_cell = fe.dofs_per_cell;
-  const unsigned int n_q_points    = quadrature_formula.size();
-  FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
-  Vector<double>     cell_rhs(dofs_per_cell);
+                        update_values | update_gradients | update_quadrature_points | update_JxW_values);
+  const unsigned int                   dofs_per_cell = fe.dofs_per_cell;
+  const unsigned int                   n_q_points    = quadrature_formula.size();
+  FullMatrix<double>                   cell_matrix(dofs_per_cell, dofs_per_cell);
+  Vector<double>                       cell_rhs(dofs_per_cell);
   std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
   for (const auto &cell : dof_handler.active_cell_iterators())
     {
@@ -764,22 +746,17 @@ EstimateEnrichmentFunction::assemble_system()
           for (unsigned int i = 0; i < dofs_per_cell; ++i)
             {
               for (unsigned int j = 0; j < dofs_per_cell; ++j)
-                cell_matrix(i, j) +=
-                  (radius * fe_values.shape_grad(i, q_index) *
-                   fe_values.shape_grad(j, q_index)) *
-                  fe_values.JxW(q_index);
+                cell_matrix(i, j) += (radius * fe_values.shape_grad(i, q_index) * fe_values.shape_grad(j, q_index)) *
+                                     fe_values.JxW(q_index);
               cell_rhs(i) +=
-                radius * (fe_values.shape_value(i, q_index) *
-                          rhs_values[q_index] * fe_values.JxW(q_index));
+                radius * (fe_values.shape_value(i, q_index) * rhs_values[q_index] * fe_values.JxW(q_index));
             }
         }
       cell->get_dof_indices(local_dof_indices);
       for (unsigned int i = 0; i < dofs_per_cell; ++i)
         {
           for (unsigned int j = 0; j < dofs_per_cell; ++j)
-            system_matrix.add(local_dof_indices[i],
-                              local_dof_indices[j],
-                              cell_matrix(i, j));
+            system_matrix.add(local_dof_indices[i], local_dof_indices[j], cell_matrix(i, j));
           system_rhs(local_dof_indices[i]) += cell_rhs(i);
         }
     }
@@ -787,19 +764,10 @@ EstimateEnrichmentFunction::assemble_system()
   SigmaFunction<1>                          boundary_func;
   boundary_func.initialize(center, sigma, boundary_expr);
 
-  VectorTools::interpolate_boundary_values(dof_handler,
-                                           0,
-                                           boundary_func,
-                                           boundary_values);
-  VectorTools::interpolate_boundary_values(dof_handler,
-                                           1,
-                                           boundary_func,
-                                           boundary_values);
+  VectorTools::interpolate_boundary_values(dof_handler, 0, boundary_func, boundary_values);
+  VectorTools::interpolate_boundary_values(dof_handler, 1, boundary_func, boundary_values);
 
-  MatrixTools::apply_boundary_values(boundary_values,
-                                     system_matrix,
-                                     solution,
-                                     system_rhs);
+  MatrixTools::apply_boundary_values(boundary_values, system_matrix, solution, system_rhs);
 }
 
 
@@ -816,16 +784,12 @@ void
 EstimateEnrichmentFunction::refine_grid()
 {
   Vector<float> estimated_error_per_cell(triangulation.n_active_cells());
-  KellyErrorEstimator<1>::estimate(
-    dof_handler,
-    QGauss<1 - 1>(3),
-    std::map<types::boundary_id, const Function<1> *>{},
-    solution,
-    estimated_error_per_cell);
-  GridRefinement::refine_and_coarsen_fixed_number(triangulation,
-                                                  estimated_error_per_cell,
-                                                  0.2,
-                                                  0.01);
+  KellyErrorEstimator<1>::estimate(dof_handler,
+                                   QGauss<1 - 1>(3),
+                                   std::map<types::boundary_id, const Function<1> *>{},
+                                   solution,
+                                   estimated_error_per_cell);
+  GridRefinement::refine_and_coarsen_fixed_number(triangulation, estimated_error_per_cell, 0.2, 0.01);
   triangulation.execute_coarsening_and_refinement();
 }
 
@@ -846,8 +810,8 @@ void
 EstimateEnrichmentFunction::run()
 {
   if (debug_level >= 1)
-    std::cout << "Solving problem in 1.: " << 1 << " with center: " << center
-              << ", size: " << domain_size << ", sigma: " << sigma << std::endl;
+    std::cout << "Solving problem in 1.: " << 1 << " with center: " << center << ", size: " << domain_size
+              << ", sigma: " << sigma << std::endl;
 
   make_grid();
 
@@ -879,8 +843,7 @@ EstimateEnrichmentFunction::run()
   while (relative_change > 0.005);
 
   if (debug_level >= 1)
-    std::cout << "Radial solution at origin = " << value
-              << " after global refinement " << refinement << std::endl;
+    std::cout << "Radial solution at origin = " << value << " after global refinement " << refinement << std::endl;
 
   if (debug_level >= 1)
     output_results();
@@ -888,9 +851,8 @@ EstimateEnrichmentFunction::run()
 
 
 void
-EstimateEnrichmentFunction::evaluate_at_x_values(
-  std::vector<double> &interpolation_points,
-  std::vector<double> &interpolation_values)
+EstimateEnrichmentFunction::evaluate_at_x_values(std::vector<double> &interpolation_points,
+                                                 std::vector<double> &interpolation_values)
 {
   if (interpolation_values.size() != interpolation_points.size())
     interpolation_values.resize(interpolation_points.size());
@@ -900,18 +862,14 @@ EstimateEnrichmentFunction::evaluate_at_x_values(
   // its quadrature points can cause x to be twice!
   for (unsigned int i = 0; i != interpolation_values.size(); ++i)
     {
-      double value =
-        VectorTools::point_value(dof_handler,
-                                 solution,
-                                 Point<1>(interpolation_points[i]));
+      double value            = VectorTools::point_value(dof_handler, solution, Point<1>(interpolation_points[i]));
       interpolation_values[i] = value;
     }
 }
 
 
 double
-EstimateEnrichmentFunction::value(const Point<1> &    p,
-                                  const unsigned int &component)
+EstimateEnrichmentFunction::value(const Point<1> &p, const unsigned int &component)
 {
   return VectorTools::point_value(dof_handler, solution, p);
 }
@@ -941,11 +899,10 @@ plot_shape_function(DoFHandler<dim> &dof_handler, unsigned int patches = 5)
   for (auto &cell : dof_handler.active_cell_iterators())
     if (cell->active_fe_index() != 0)
       {
-        unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
+        unsigned int                         dofs_per_cell = cell->get_fe().dofs_per_cell;
         std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
         cell->get_dof_indices(local_dof_indices);
-        enriched_cell_dofs.insert(local_dof_indices.begin(),
-                                  local_dof_indices.end());
+        enriched_cell_dofs.insert(local_dof_indices.begin(), local_dof_indices.end());
       }
 
   // output to check if all is good:
@@ -958,8 +915,7 @@ plot_shape_function(DoFHandler<dim> &dof_handler, unsigned int patches = 5)
       shape_function[dof] = 1.0;
 
       // if the dof is constrained, first output unconstrained vector
-      names.push_back(std::string("C_") +
-                      dealii::Utilities::int_to_string(dof, 2));
+      names.push_back(std::string("C_") + dealii::Utilities::int_to_string(dof, 2));
       shape_functions.push_back(shape_function);
 
       //      names.push_back(std::string("UC_") +
@@ -979,29 +935,23 @@ plot_shape_function(DoFHandler<dim> &dof_handler, unsigned int patches = 5)
       hp::MappingCollection<dim>                    hp_mapping;
       for (unsigned int i = 0; i < dof_handler.get_fe_collection().size(); ++i)
         hp_mapping.push_back(mapping);
-      DoFTools::map_dofs_to_support_points(hp_mapping,
-                                           dof_handler,
-                                           support_points);
+      DoFTools::map_dofs_to_support_points(hp_mapping, dof_handler, support_points);
 
       const std::string base_filename =
-        "DOFs" + dealii::Utilities::int_to_string(dim) + "_p" +
-        dealii::Utilities::int_to_string(0);
+        "DOFs" + dealii::Utilities::int_to_string(dim) + "_p" + dealii::Utilities::int_to_string(0);
 
       const std::string filename = base_filename + ".gp";
       std::ofstream     f(filename);
 
-      f << "set terminal png size 400,410 enhanced font \"Helvetica,8\""
-        << std::endl
+      f << "set terminal png size 400,410 enhanced font \"Helvetica,8\"" << std::endl
         << "set output \"" << base_filename << ".png\"" << std::endl
         << "set size square" << std::endl
         << "set view equal xy" << std::endl
-        << "unset xtics                                                                                   "
-        << std::endl
+        << "unset xtics                                                                                   " << std::endl
         << "unset ytics" << std::endl
         << "unset grid" << std::endl
         << "unset border" << std::endl
-        << "plot '-' using 1:2 with lines notitle, '-' with labels point pt 2 offset 1,1 notitle"
-        << std::endl;
+        << "plot '-' using 1:2 with lines notitle, '-' with labels point pt 2 offset 1,1 notitle" << std::endl;
       GridOut grid_out;
       grid_out.write_gnuplot(dof_handler.get_triangulation(), f);
       f << 'e' << std::endl;
@@ -1039,8 +989,7 @@ plot_shape_function(DoFHandler<dim> &dof_handler, unsigned int patches = 5)
 
 
 template <int dim>
-using predicate_function =
-  std::function<bool(const typename Triangulation<dim>::cell_iterator &)>;
+using predicate_function = std::function<bool(const typename Triangulation<dim>::cell_iterator &)>;
 
 
 
@@ -1112,8 +1061,7 @@ protected:
 
   std::vector<SigmaFunction<dim>> vec_rhs;
 
-  using cell_iterator_function = std::function<Function<dim> *(
-    const typename DoFHandler<dim>::active_cell_iterator &)>;
+  using cell_iterator_function = std::function<Function<dim> *(const typename DoFHandler<dim>::active_cell_iterator &)>;
 
   std::vector<std::shared_ptr<Function<dim>>> vec_enrichments;
   std::vector<predicate_function<dim>>        vec_predicates;
@@ -1183,12 +1131,9 @@ LaplaceProblem<dim>::initialize()
    * enrichment domains are stored as vector of numbers, the dimension of
    * points_enrichments is dim times the n_enrichments in prm file.
    */
-  Assert(
-    prm.points_enrichments.size() / dim == prm.n_enrichments &&
-      prm.radii_predicates.size() == prm.n_enrichments &&
-      prm.sigmas.size() == prm.n_enrichments,
-    ExcMessage(
-      "Number of enrichment points, predicate radii and sigmas should be equal"));
+  Assert(prm.points_enrichments.size() / dim == prm.n_enrichments && prm.radii_predicates.size() == prm.n_enrichments &&
+           prm.sigmas.size() == prm.n_enrichments,
+         ExcMessage("Number of enrichment points, predicate radii and sigmas should be equal"));
 
   /*
    * Construct vector of predicate functions, where a function at index i
@@ -1200,8 +1145,7 @@ LaplaceProblem<dim>::initialize()
     {
       Point<dim> p;
       prm.set_enrichment_point(p, i);
-      vec_predicates.push_back(
-        EnrichmentPredicate<dim>(p, prm.radii_predicates[i]));
+      vec_predicates.push_back(EnrichmentPredicate<dim>(p, prm.radii_predicates[i]));
     }
 
   /*
@@ -1268,11 +1212,7 @@ LaplaceProblem<dim>::make_enrichment_functions()
       if (prm.radii_predicates[i] != 0)
         {
           EstimateEnrichmentFunction radial_problem(
-            Point<1>(center),
-            size,
-            sigma,
-            prm.rhs_radial_problem,
-            prm.boundary_radial_problem);
+            Point<1>(center), size, sigma, prm.rhs_radial_problem, prm.boundary_radial_problem);
           radial_problem.debug_level = prm.debug_level; // print output
           radial_problem.run();
           pcout << "solved problem with "
@@ -1284,7 +1224,7 @@ LaplaceProblem<dim>::make_enrichment_functions()
           unsigned int        n1 = 15, n2 = 15;
           double              radius      = size / 2;
           double              right_bound = center + radius;
-          double h1 = cut_point / n1, h2 = (radius - cut_point) / n2;
+          double              h1 = cut_point / n1, h2 = (radius - cut_point) / n2;
           for (double p = center; p < center + cut_point; p += h1)
             interpolation_points.push_back(p);
           for (double p = center + cut_point; p < right_bound; p += h2)
@@ -1292,25 +1232,20 @@ LaplaceProblem<dim>::make_enrichment_functions()
           interpolation_points.push_back(right_bound);
 
           // add enrichment function only when predicate radius is non-zero
-          radial_problem.evaluate_at_x_values(interpolation_points,
-                                              interpolation_values);
+          radial_problem.evaluate_at_x_values(interpolation_points, interpolation_values);
 
 
           // construct enrichment function and push
           Point<dim> p;
           prm.set_enrichment_point(p, i);
-          SplineEnrichmentFunction<dim> func(p,
-                                             interpolation_points,
-                                             interpolation_values);
-          vec_enrichments.push_back(
-            std::make_shared<SplineEnrichmentFunction<dim>>(func));
+          SplineEnrichmentFunction<dim> func(p, interpolation_points, interpolation_values);
+          vec_enrichments.push_back(std::make_shared<SplineEnrichmentFunction<dim>>(func));
         }
       else
         {
           pcout << "Dummy function added at " << i << std::endl;
           Functions::ConstantFunction<dim> func(0);
-          vec_enrichments.push_back(
-            std::make_shared<Functions::ConstantFunction<dim>>(func));
+          vec_enrichments.push_back(std::make_shared<Functions::ConstantFunction<dim>>(func));
         }
     }
 }
@@ -1341,13 +1276,9 @@ LaplaceProblem<dim>::build_fe_space()
   make_enrichment_functions();
 
   static std::unique_ptr<ColorEnriched::Helper<dim>> fe_space;
-  fe_space = std::make_unique<ColorEnriched::Helper<dim>>(fe_base,
-                                                          fe_enriched,
-                                                          vec_predicates,
-                                                          vec_enrichments);
+  fe_space = std::make_unique<ColorEnriched::Helper<dim>>(fe_base, fe_enriched, vec_predicates, vec_enrichments);
 
-  fe_collection = std::make_shared<const hp::FECollection<dim>>(
-    fe_space->build_fe_collection(dof_handler));
+  fe_collection = std::make_shared<const hp::FECollection<dim>>(fe_space->build_fe_collection(dof_handler));
   pcout << "size of fe collection: " << fe_collection->size() << std::endl;
 
   if (prm.debug_level == 9)
@@ -1358,20 +1289,17 @@ LaplaceProblem<dim>::build_fe_space()
 
           // print FE index
           const std::string base_filename =
-            "fe_indices" + dealii::Utilities::int_to_string(dim) + "_p" +
-            dealii::Utilities::int_to_string(0);
+            "fe_indices" + dealii::Utilities::int_to_string(dim) + "_p" + dealii::Utilities::int_to_string(0);
           const std::string filename = base_filename + ".gp";
           std::ofstream     f(filename);
 
-          f << "set terminal png size 400,410 enhanced font \"Helvetica,8\""
-            << std::endl
+          f << "set terminal png size 400,410 enhanced font \"Helvetica,8\"" << std::endl
             << "set output \"" << base_filename << ".png\"" << std::endl
             << "set size square" << std::endl
             << "set view equal xy" << std::endl
             << "unset xtics" << std::endl
             << "unset ytics" << std::endl
-            << "plot '-' using 1:2 with lines notitle, '-' with labels point pt 2 offset 1,1 notitle"
-            << std::endl;
+            << "plot '-' using 1:2 with lines notitle, '-' with labels point pt 2 offset 1,1 notitle" << std::endl;
           GridOut().write_gnuplot(triangulation, f);
           f << 'e' << std::endl;
 
@@ -1388,20 +1316,17 @@ LaplaceProblem<dim>::build_fe_space()
 
           // print cell ids
           const std::string base_filename =
-            "cell_id" + dealii::Utilities::int_to_string(dim) + "_p" +
-            dealii::Utilities::int_to_string(0);
+            "cell_id" + dealii::Utilities::int_to_string(dim) + "_p" + dealii::Utilities::int_to_string(0);
           const std::string filename = base_filename + ".gp";
           std::ofstream     f(filename);
 
-          f << "set terminal png size 400,410 enhanced font \"Helvetica,8\""
-            << std::endl
+          f << "set terminal png size 400,410 enhanced font \"Helvetica,8\"" << std::endl
             << "set output \"" << base_filename << ".png\"" << std::endl
             << "set size square" << std::endl
             << "set view equal xy" << std::endl
             << "unset xtics" << std::endl
             << "unset ytics" << std::endl
-            << "plot '-' using 1:2 with lines notitle, '-' with labels point pt 2 offset 1,1 notitle"
-            << std::endl;
+            << "plot '-' using 1:2 with lines notitle, '-' with labels point pt 2 offset 1,1 notitle" << std::endl;
           GridOut().write_gnuplot(triangulation, f);
           f << 'e' << std::endl;
 
@@ -1430,16 +1355,13 @@ LaplaceProblem<dim>::setup_system()
 {
   pcout << "...start setup system" << std::endl;
 
-  GridTools::partition_triangulation(n_mpi_processes,
-                                     triangulation,
-                                     SparsityTools::Partitioner::zoltan);
+  GridTools::partition_triangulation(n_mpi_processes, triangulation, SparsityTools::Partitioner::zoltan);
 
   dof_handler.distribute_dofs(*fe_collection);
 
   DoFRenumbering::subdomain_wise(dof_handler);
-  std::vector<IndexSet> locally_owned_dofs_per_proc =
-    DoFTools::locally_owned_dofs_per_subdomain(dof_handler);
-  locally_owned_dofs = locally_owned_dofs_per_proc[this_mpi_process];
+  std::vector<IndexSet> locally_owned_dofs_per_proc = DoFTools::locally_owned_dofs_per_subdomain(dof_handler);
+  locally_owned_dofs                                = locally_owned_dofs_per_proc[this_mpi_process];
   locally_relevant_dofs.clear();
   DoFTools::extract_locally_relevant_dofs(dof_handler, locally_relevant_dofs);
 
@@ -1453,10 +1375,7 @@ LaplaceProblem<dim>::setup_system()
   boundary_value_func.initialize(p, prm.sigmas[0], prm.boundary_value_expr);
 
 
-  VectorTools::interpolate_boundary_values(dof_handler,
-                                           0,
-                                           boundary_value_func,
-                                           constraints);
+  VectorTools::interpolate_boundary_values(dof_handler, 0, boundary_value_func, constraints);
   constraints.close();
 
   // Initialise the stiffness and mass matrices
@@ -1466,15 +1385,9 @@ LaplaceProblem<dim>::setup_system()
   for (unsigned int i = 0; i < n_mpi_processes; ++i)
     n_locally_owned_dofs[i] = locally_owned_dofs_per_proc[i].n_elements();
 
-  SparsityTools::distribute_sparsity_pattern(dsp,
-                                             n_locally_owned_dofs,
-                                             mpi_communicator,
-                                             locally_relevant_dofs);
+  SparsityTools::distribute_sparsity_pattern(dsp, n_locally_owned_dofs, mpi_communicator, locally_relevant_dofs);
 
-  system_matrix.reinit(locally_owned_dofs,
-                       locally_owned_dofs,
-                       dsp,
-                       mpi_communicator);
+  system_matrix.reinit(locally_owned_dofs, locally_owned_dofs, dsp, mpi_communicator);
 
   solution.reinit(locally_owned_dofs, mpi_communicator);
   system_rhs.reinit(locally_owned_dofs, mpi_communicator);
@@ -1501,9 +1414,7 @@ LaplaceProblem<dim>::assemble_system()
 
   hp::FEValues<dim> fe_values_hp(*fe_collection,
                                  q_collection,
-                                 update_values | update_gradients |
-                                   update_quadrature_points |
-                                   update_JxW_values);
+                                 update_values | update_gradients | update_quadrature_points | update_JxW_values);
 
 
   for (auto &cell : dof_handler.active_cell_iterators())
@@ -1523,8 +1434,7 @@ LaplaceProblem<dim>::assemble_system()
         tmp_rhs_value.assign(n_q_points, 0);
         for (unsigned int i = 0; i < vec_rhs.size(); ++i)
           {
-            vec_rhs[i].value_list(fe_values.get_quadrature_points(),
-                                  tmp_rhs_value);
+            vec_rhs[i].value_list(fe_values.get_quadrature_points(), tmp_rhs_value);
 
             // add tmp to the total one at quadrature points
             for (const auto q_point : fe_values.quadrature_point_indices())
@@ -1545,12 +1455,9 @@ LaplaceProblem<dim>::assemble_system()
             {
               for (unsigned int j = i; j < dofs_per_cell; ++j)
                 cell_system_matrix(i, j) +=
-                  (fe_values.shape_grad(i, q_point) *
-                   fe_values.shape_grad(j, q_point) * fe_values.JxW(q_point));
+                  (fe_values.shape_grad(i, q_point) * fe_values.shape_grad(j, q_point) * fe_values.JxW(q_point));
 
-              cell_rhs(i) +=
-                (rhs_value[q_point] * fe_values.shape_value(i, q_point) *
-                 fe_values.JxW(q_point));
+              cell_rhs(i) += (rhs_value[q_point] * fe_values.shape_value(i, q_point) * fe_values.JxW(q_point));
             }
 
         // exploit symmetry
@@ -1560,11 +1467,8 @@ LaplaceProblem<dim>::assemble_system()
 
         cell->get_dof_indices(local_dof_indices);
 
-        constraints.distribute_local_to_global(cell_system_matrix,
-                                               cell_rhs,
-                                               local_dof_indices,
-                                               system_matrix,
-                                               system_rhs);
+        constraints.distribute_local_to_global(
+          cell_system_matrix, cell_rhs, local_dof_indices, system_matrix, system_rhs);
       }
 
   system_matrix.compress(VectorOperation::add);
@@ -1578,7 +1482,7 @@ unsigned int
 LaplaceProblem<dim>::solve()
 {
   pcout << "...solving" << std::endl;
-  SolverControl solver_control(prm.max_iterations, prm.tolerance, false, false);
+  SolverControl           solver_control(prm.max_iterations, prm.tolerance, false, false);
   PETScWrappers::SolverCG cg(solver_control);
 
   PETScWrappers::PreconditionSOR preconditioner(system_matrix);
@@ -1606,30 +1510,23 @@ LaplaceProblem<dim>::refine_grid()
   for (unsigned int i = 0; i < q_collection.size(); ++i)
     q_collection_face.push_back(QGauss<dim - 1>(1));
 
-  KellyErrorEstimator<dim>::estimate(
-    dof_handler,
-    q_collection_face,
-    std::map<types::boundary_id, const Function<dim> *>{},
-    localized_solution,
-    local_error_per_cell,
-    ComponentMask(),
-    nullptr,
-    n_mpi_processes,
-    this_mpi_process);
-  const unsigned int n_local_cells =
-    GridTools::count_cells_with_subdomain_association(triangulation,
-                                                      this_mpi_process);
-  PETScWrappers::MPI::Vector distributed_all_errors(
-    mpi_communicator, triangulation.n_active_cells(), n_local_cells);
+  KellyErrorEstimator<dim>::estimate(dof_handler,
+                                     q_collection_face,
+                                     std::map<types::boundary_id, const Function<dim> *>{},
+                                     localized_solution,
+                                     local_error_per_cell,
+                                     ComponentMask(),
+                                     nullptr,
+                                     n_mpi_processes,
+                                     this_mpi_process);
+  const unsigned int n_local_cells = GridTools::count_cells_with_subdomain_association(triangulation, this_mpi_process);
+  PETScWrappers::MPI::Vector distributed_all_errors(mpi_communicator, triangulation.n_active_cells(), n_local_cells);
   for (unsigned int i = 0; i < local_error_per_cell.size(); ++i)
     if (local_error_per_cell(i) != 0)
       distributed_all_errors(i) = local_error_per_cell(i);
   distributed_all_errors.compress(VectorOperation::insert);
   const Vector<float> localized_all_errors(distributed_all_errors);
-  GridRefinement::refine_and_coarsen_fixed_fraction(triangulation,
-                                                    localized_all_errors,
-                                                    0.85,
-                                                    0);
+  GridRefinement::refine_and_coarsen_fixed_fraction(triangulation, localized_all_errors, 0.85, 0);
   triangulation.execute_coarsening_and_refinement();
   ++prm.global_refinement;
 }
@@ -1650,14 +1547,8 @@ LaplaceProblem<dim>::output_results(const unsigned int cycle)
     {
       // create exact solution vector
       exact_soln_vector.reinit(dof_handler.n_dofs());
-      exact_solution.initialize(Point<dim>(),
-                                prm.sigmas[0],
-                                prm.exact_soln_expr);
-      VectorTools::project(dof_handler,
-                           constraints,
-                           q_collection,
-                           exact_solution,
-                           exact_soln_vector);
+      exact_solution.initialize(Point<dim>(), prm.sigmas[0], prm.exact_soln_expr);
+      VectorTools::project(dof_handler, constraints, q_collection, exact_solution, exact_soln_vector);
 
       // create error vector
       error_vector.reinit(dof_handler.n_dofs());
@@ -1704,36 +1595,20 @@ LaplaceProblem<dim>::process_solution()
       pcout << "...using exact solution for error calculation" << std::endl;
 
       SigmaFunction<dim> exact_solution;
-      exact_solution.initialize(Point<dim>(),
-                                prm.sigmas[0],
-                                prm.exact_soln_expr);
+      exact_solution.initialize(Point<dim>(), prm.sigmas[0], prm.exact_soln_expr);
 
-      VectorTools::integrate_difference(dof_handler,
-                                        localized_solution,
-                                        exact_solution,
-                                        difference_per_cell,
-                                        q_collection,
-                                        VectorTools::L2_norm);
-      L2_error = VectorTools::compute_global_error(triangulation,
-                                                   difference_per_cell,
-                                                   VectorTools::L2_norm);
+      VectorTools::integrate_difference(
+        dof_handler, localized_solution, exact_solution, difference_per_cell, q_collection, VectorTools::L2_norm);
+      L2_error = VectorTools::compute_global_error(triangulation, difference_per_cell, VectorTools::L2_norm);
 
-      VectorTools::integrate_difference(dof_handler,
-                                        localized_solution,
-                                        exact_solution,
-                                        difference_per_cell,
-                                        q_collection,
-                                        VectorTools::H1_norm);
-      H1_error = VectorTools::compute_global_error(triangulation,
-                                                   difference_per_cell,
-                                                   VectorTools::H1_norm);
+      VectorTools::integrate_difference(
+        dof_handler, localized_solution, exact_solution, difference_per_cell, q_collection, VectorTools::H1_norm);
+      H1_error = VectorTools::compute_global_error(triangulation, difference_per_cell, VectorTools::H1_norm);
     }
 
   pcout << "refinement h_smallest Dofs L2_norm H1_norm" << std::endl;
-  pcout << prm.global_refinement << ' '
-        << prm.size / std::pow(2.0, prm.global_refinement) << ' '
-        << dof_handler.n_dofs() << ' ' << L2_error << ' ' << H1_error
-        << std::endl;
+  pcout << prm.global_refinement << ' ' << prm.size / std::pow(2.0, prm.global_refinement) << ' '
+        << dof_handler.n_dofs() << ' ' << L2_error << ' ' << H1_error << std::endl;
 }
 
 
@@ -1751,8 +1626,7 @@ LaplaceProblem<dim>::run()
 
 
   if (this_mpi_process == 0)
-    deallog << "Solving problem with number of sources: " << prm.n_enrichments
-            << std::endl;
+    deallog << "Solving problem with number of sources: " << prm.n_enrichments << std::endl;
 
   for (unsigned int cycle = 0; cycle <= prm.cycles; ++cycle)
     {
@@ -1760,10 +1634,8 @@ LaplaceProblem<dim>::run()
 
       setup_system();
 
-      pcout << "Number of active cells:       "
-            << triangulation.n_active_cells() << std::endl
-            << "Number of degrees of freedom: " << dof_handler.n_dofs()
-            << std::endl;
+      pcout << "Number of active cells:       " << triangulation.n_active_cells() << std::endl
+            << "Number of degrees of freedom: " << dof_handler.n_dofs() << std::endl;
 
       if (prm.debug_level == 9 && this_mpi_process == 0)
         plot_shape_function<dim>(dof_handler);
@@ -1773,8 +1645,7 @@ LaplaceProblem<dim>::run()
       pcout << "Number of iterations: " << n_iterations << std::endl;
       localized_solution.reinit(dof_handler.n_dofs());
       localized_solution = solution;
-      double value =
-        VectorTools::point_value(dof_handler, localized_solution, Point<dim>());
+      double value       = VectorTools::point_value(dof_handler, localized_solution, Point<dim>());
       pcout << "Solution at origin:   " << value << std::endl;
 
 
@@ -1790,24 +1661,18 @@ LaplaceProblem<dim>::run()
                                             difference_per_cell,
                                             q_collection,
                                             VectorTools::H1_norm);
-          norm_soln_new =
-            VectorTools::compute_global_error(triangulation,
-                                              difference_per_cell,
-                                              VectorTools::H1_norm);
+          norm_soln_new = VectorTools::compute_global_error(triangulation, difference_per_cell, VectorTools::H1_norm);
           // relative change can only be calculated for cycle > 0
           if (cycle > 0)
             {
-              norm_rel_change_new =
-                std::abs((norm_soln_new - norm_soln_old) / norm_soln_old);
-              pcout << "relative change of solution norm "
-                    << norm_rel_change_new << std::endl;
+              norm_rel_change_new = std::abs((norm_soln_new - norm_soln_old) / norm_soln_old);
+              pcout << "relative change of solution norm " << norm_rel_change_new << std::endl;
             }
 
           // monitor relative change of norm in later stages
           if (cycle > 1)
             {
-              deallog << (norm_rel_change_new < norm_rel_change_old)
-                      << std::endl;
+              deallog << (norm_rel_change_new < norm_rel_change_old) << std::endl;
             }
 
           norm_soln_old = norm_soln_new;
@@ -1889,35 +1754,34 @@ main(int argc, char **argv)
    * Case 2: 3 sources
    */
   {
-    ParameterCollection prm(
-      2,     // dimension
-      4,     // domain size
-      1,     // cube shape
-      3,     // global refinement
-      1,     // num of cycles grid is refined and solved again
-      1,     // fe base degree
-      1,     // fe enriched degree
-      50000, // max iterations
-      1e-9,  // tolerance
-      // rhs value
-      "1.0/(2*pi*sigma*sigma)*exp(-(x*x + y*y)/(2*sigma*sigma))",
-      // boundary value
-      "0",
-      // rhs value for radial problem solved to find enrichment function
-      "1.0/(2*pi*sigma*sigma)*exp(-(x*x)/(2*sigma*sigma))",
-      // boundary value for radial problem
-      "0",
-      // exact solution expression. If null nothing is done
-      "",
-      1, // patches
-      1, // debug level
-      3, // num enrichments
-      // enrichment points interpreted 2 at a time if dimension is 2
-      {0.5, 0.5, 0, 0, -1, -1},
-      // radii defining different predicates
-      {0.4, 0.4, 0.4},
-      // sigmas defining different predicates
-      {0.1, 0.1, 0.1});
+    ParameterCollection prm(2,     // dimension
+                            4,     // domain size
+                            1,     // cube shape
+                            3,     // global refinement
+                            1,     // num of cycles grid is refined and solved again
+                            1,     // fe base degree
+                            1,     // fe enriched degree
+                            50000, // max iterations
+                            1e-9,  // tolerance
+                            // rhs value
+                            "1.0/(2*pi*sigma*sigma)*exp(-(x*x + y*y)/(2*sigma*sigma))",
+                            // boundary value
+                            "0",
+                            // rhs value for radial problem solved to find enrichment function
+                            "1.0/(2*pi*sigma*sigma)*exp(-(x*x)/(2*sigma*sigma))",
+                            // boundary value for radial problem
+                            "0",
+                            // exact solution expression. If null nothing is done
+                            "",
+                            1, // patches
+                            1, // debug level
+                            3, // num enrichments
+                            // enrichment points interpreted 2 at a time if dimension is 2
+                            {0.5, 0.5, 0, 0, -1, -1},
+                            // radii defining different predicates
+                            {0.4, 0.4, 0.4},
+                            // sigmas defining different predicates
+                            {0.1, 0.1, 0.1});
 
 
     LaplaceProblem<2> problem(prm);
@@ -1928,35 +1792,34 @@ main(int argc, char **argv)
    * Case 3: five sources 3d
    */
   {
-    ParameterCollection prm(
-      3,     // dimension
-      8,     // domain size
-      1,     // cube shape
-      4,     // global refinement
-      0,     // num of cycles grid is refined and solved again
-      1,     // fe base degree
-      1,     // fe enriched degree
-      50000, // max iterations
-      1e-9,  // tolerance
-      // rhs value
-      "1.0/(2*pi*sigma*sigma)*exp(-(x*x + y*y + z*z)/(2*sigma*sigma))",
-      // boundary value
-      "0",
-      // rhs value for radial problem solved to find enrichment function
-      "1.0/(2*pi*sigma*sigma)*exp(-(x*x)/(2*sigma*sigma))",
-      // boundary value for radial problem
-      "0",
-      // exact solution expression. If null nothing is done
-      "",
-      1, // patches
-      1, // debug level
-      5, // num enrichments
-      // enrichment points interpreted 3 at a time if dimension is 3
-      {1.5, 1.5, 1.5, 1, 1, 1, 0, 0, 0, -1, -1, -1, 1, -1, -1},
-      // radii defining different predicates
-      {0.45, 0.45, 0.45, 0.45, 0.45},
-      // sigmas defining different predicates
-      {0.1, 0.1, 0.1, 0.1, 0.1});
+    ParameterCollection prm(3,     // dimension
+                            8,     // domain size
+                            1,     // cube shape
+                            4,     // global refinement
+                            0,     // num of cycles grid is refined and solved again
+                            1,     // fe base degree
+                            1,     // fe enriched degree
+                            50000, // max iterations
+                            1e-9,  // tolerance
+                            // rhs value
+                            "1.0/(2*pi*sigma*sigma)*exp(-(x*x + y*y + z*z)/(2*sigma*sigma))",
+                            // boundary value
+                            "0",
+                            // rhs value for radial problem solved to find enrichment function
+                            "1.0/(2*pi*sigma*sigma)*exp(-(x*x)/(2*sigma*sigma))",
+                            // boundary value for radial problem
+                            "0",
+                            // exact solution expression. If null nothing is done
+                            "",
+                            1, // patches
+                            1, // debug level
+                            5, // num enrichments
+                            // enrichment points interpreted 3 at a time if dimension is 3
+                            {1.5, 1.5, 1.5, 1, 1, 1, 0, 0, 0, -1, -1, -1, 1, -1, -1},
+                            // radii defining different predicates
+                            {0.45, 0.45, 0.45, 0.45, 0.45},
+                            // sigmas defining different predicates
+                            {0.1, 0.1, 0.1, 0.1, 0.1});
 
     LaplaceProblem<3> problem(prm);
     problem.run();

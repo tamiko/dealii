@@ -67,12 +67,9 @@ test_gpu()
 {
   const double tolerance = 1.e-8;
 
-  Kokkos::View<Tensor<rank, dim, Number>, MemorySpace::Default::kokkos_space>
-    t_dev("t_dev");
-  Kokkos::View<Tensor<rank, dim, Number>, MemorySpace::Default::kokkos_space>
-    t1_dev("t1_dev");
-  Kokkos::View<Tensor<rank, dim, Number>, MemorySpace::Default::kokkos_space>
-    t2_dev("t2_dev");
+  Kokkos::View<Tensor<rank, dim, Number>, MemorySpace::Default::kokkos_space> t_dev("t_dev");
+  Kokkos::View<Tensor<rank, dim, Number>, MemorySpace::Default::kokkos_space> t1_dev("t1_dev");
+  Kokkos::View<Tensor<rank, dim, Number>, MemorySpace::Default::kokkos_space> t2_dev("t2_dev");
 
   Tensor<rank, dim, Number> t_host;
   Tensor<rank, dim, Number> t1_host;
@@ -84,8 +81,7 @@ test_gpu()
   ExecutionSpace exec;
 
   // Initialize
-  Kokkos::parallel_for(Kokkos::RangePolicy<ExecutionSpace>(
-                         exec, 0, Utilities::fixed_power<dim>(rank)),
+  Kokkos::parallel_for(Kokkos::RangePolicy<ExecutionSpace>(exec, 0, Utilities::fixed_power<dim>(rank)),
                        InitFunctor<rank, dim, Number>{t_dev});
   Kokkos::deep_copy(reference_host, t_dev);
 
@@ -102,10 +98,8 @@ test_gpu()
 
   reference_host *= 2;
   AssertThrow((t_host - reference_host).norm() < tolerance, ExcInternalError());
-  AssertThrow((t1_host - reference_host).norm() < tolerance,
-              ExcInternalError());
-  AssertThrow((t2_host - reference_host).norm() < tolerance,
-              ExcInternalError());
+  AssertThrow((t1_host - reference_host).norm() < tolerance, ExcInternalError());
+  AssertThrow((t2_host - reference_host).norm() < tolerance, ExcInternalError());
 
   deallog << "multiplication OK" << std::endl;
 
@@ -121,8 +115,7 @@ test_gpu()
 
   reference_host /= 2.;
   AssertThrow((t_host - reference_host).norm() < tolerance, ExcInternalError());
-  AssertThrow((t1_host - reference_host).norm() < tolerance,
-              ExcInternalError());
+  AssertThrow((t1_host - reference_host).norm() < tolerance, ExcInternalError());
 
   deallog << "division OK" << std::endl;
 
@@ -136,10 +129,8 @@ test_gpu()
   Kokkos::deep_copy(t2_host, t2_dev);
 
   reference_host *= 2.;
-  AssertThrow((t1_host - reference_host).norm() < tolerance,
-              ExcInternalError());
-  AssertThrow((t2_host - reference_host).norm() < tolerance,
-              ExcInternalError());
+  AssertThrow((t1_host - reference_host).norm() < tolerance, ExcInternalError());
+  AssertThrow((t2_host - reference_host).norm() < tolerance, ExcInternalError());
 
 
   // Test subtraction
@@ -152,10 +143,8 @@ test_gpu()
   Kokkos::deep_copy(t2_host, t2_dev);
 
   reference_host /= 2.;
-  AssertThrow((t1_host - reference_host).norm() < tolerance,
-              ExcInternalError());
-  AssertThrow((t2_host - reference_host).norm() < tolerance,
-              ExcInternalError());
+  AssertThrow((t1_host - reference_host).norm() < tolerance, ExcInternalError());
+  AssertThrow((t2_host - reference_host).norm() < tolerance, ExcInternalError());
 
   // Miscellaneous
   {

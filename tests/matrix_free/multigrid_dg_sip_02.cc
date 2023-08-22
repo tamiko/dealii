@@ -64,7 +64,7 @@ public:
   LaplaceOperator(){};
 
   void
-  initialize(const Mapping<dim> &   mapping,
+  initialize(const Mapping<dim>    &mapping,
              const DoFHandler<dim> &dof_handler,
              const unsigned int     n_q_points_1d,
              const unsigned int     level = numbers::invalid_unsigned_int)
@@ -73,16 +73,12 @@ public:
 
     const QGauss<1>                                  quad(n_q_points_1d);
     typename MatrixFree<dim, number>::AdditionalData addit_data;
-    addit_data.tasks_parallel_scheme =
-      MatrixFree<dim, number>::AdditionalData::none;
-    addit_data.tasks_block_size = 3;
-    addit_data.mg_level         = level;
-    addit_data.mapping_update_flags_inner_faces =
-      update_JxW_values | update_normal_vectors | update_jacobians;
-    addit_data.mapping_update_flags_boundary_faces =
-      update_JxW_values | update_normal_vectors | update_jacobians;
-    addit_data.mapping_update_flags_faces_by_cells =
-      update_JxW_values | update_normal_vectors | update_jacobians;
+    addit_data.tasks_parallel_scheme               = MatrixFree<dim, number>::AdditionalData::none;
+    addit_data.tasks_block_size                    = 3;
+    addit_data.mg_level                            = level;
+    addit_data.mapping_update_flags_inner_faces    = update_JxW_values | update_normal_vectors | update_jacobians;
+    addit_data.mapping_update_flags_boundary_faces = update_JxW_values | update_normal_vectors | update_jacobians;
+    addit_data.mapping_update_flags_faces_by_cells = update_JxW_values | update_normal_vectors | update_jacobians;
     AffineConstraints<double> constraints;
     constraints.close();
 
@@ -92,43 +88,38 @@ public:
   }
 
   void
-  vmult(LinearAlgebra::distributed::Vector<number> &      dst,
-        const LinearAlgebra::distributed::Vector<number> &src) const
+  vmult(LinearAlgebra::distributed::Vector<number> &dst, const LinearAlgebra::distributed::Vector<number> &src) const
   {
     dst = 0;
     vmult_add(dst, src);
   }
 
   void
-  Tvmult(LinearAlgebra::distributed::Vector<number> &      dst,
-         const LinearAlgebra::distributed::Vector<number> &src) const
+  Tvmult(LinearAlgebra::distributed::Vector<number> &dst, const LinearAlgebra::distributed::Vector<number> &src) const
   {
     dst = 0;
     vmult_add(dst, src);
   }
 
   void
-  Tvmult_add(LinearAlgebra::distributed::Vector<number> &      dst,
+  Tvmult_add(LinearAlgebra::distributed::Vector<number>       &dst,
              const LinearAlgebra::distributed::Vector<number> &src) const
   {
     vmult_add(dst, src);
   }
 
   void
-  vmult_add(LinearAlgebra::distributed::Vector<number> &      dst,
+  vmult_add(LinearAlgebra::distributed::Vector<number>       &dst,
             const LinearAlgebra::distributed::Vector<number> &src) const
   {
-    if (!src.partitioners_are_globally_compatible(
-          *data.get_dof_info(0).vector_partitioner))
+    if (!src.partitioners_are_globally_compatible(*data.get_dof_info(0).vector_partitioner))
       {
         LinearAlgebra::distributed::Vector<number> src_copy;
         src_copy.reinit(data.get_dof_info().vector_partitioner);
         src_copy = src;
-        const_cast<LinearAlgebra::distributed::Vector<number> &>(src).swap(
-          src_copy);
+        const_cast<LinearAlgebra::distributed::Vector<number> &>(src).swap(src_copy);
       }
-    if (!dst.partitioners_are_globally_compatible(
-          *data.get_dof_info(0).vector_partitioner))
+    if (!dst.partitioners_are_globally_compatible(*data.get_dof_info(0).vector_partitioner))
       {
         LinearAlgebra::distributed::Vector<number> dst_copy;
         dst_copy.reinit(data.get_dof_info().vector_partitioner);
@@ -159,14 +150,12 @@ public:
   number
   el(const unsigned int row, const unsigned int col) const
   {
-    AssertThrow(false,
-                ExcMessage("Matrix-free does not allow for entry access"));
+    AssertThrow(false, ExcMessage("Matrix-free does not allow for entry access"));
     return number();
   }
 
   void
-  initialize_dof_vector(
-    LinearAlgebra::distributed::Vector<number> &vector) const
+  initialize_dof_vector(LinearAlgebra::distributed::Vector<number> &vector) const
   {
     data.initialize_dof_vector(vector);
   }
@@ -186,10 +175,10 @@ public:
 
 private:
   void
-  local_apply(const MatrixFree<dim, number> &                   data,
-              LinearAlgebra::distributed::Vector<number> &      dst,
+  local_apply(const MatrixFree<dim, number>                    &data,
+              LinearAlgebra::distributed::Vector<number>       &dst,
               const LinearAlgebra::distributed::Vector<number> &src,
-              const std::pair<unsigned int, unsigned int> &cell_range) const
+              const std::pair<unsigned int, unsigned int>      &cell_range) const
   {
     FEEvaluation<dim, -1, 0, 1, number> phi(data);
 
@@ -206,11 +195,10 @@ private:
   }
 
   void
-  local_apply_face(
-    const MatrixFree<dim, number> &                   data,
-    LinearAlgebra::distributed::Vector<number> &      dst,
-    const LinearAlgebra::distributed::Vector<number> &src,
-    const std::pair<unsigned int, unsigned int> &     face_range) const
+  local_apply_face(const MatrixFree<dim, number>                    &data,
+                   LinearAlgebra::distributed::Vector<number>       &dst,
+                   const LinearAlgebra::distributed::Vector<number> &src,
+                   const std::pair<unsigned int, unsigned int>      &face_range) const
   {
     FEFaceEvaluation<dim, -1, 0, 1, number> fe_eval(data, true);
     FEFaceEvaluation<dim, -1, 0, 1, number> fe_eval_neighbor(data, false);
@@ -223,24 +211,18 @@ private:
         fe_eval.read_dof_values(src);
         fe_eval.evaluate(EvaluationFlags::values | EvaluationFlags::gradients);
         fe_eval_neighbor.read_dof_values(src);
-        fe_eval_neighbor.evaluate(EvaluationFlags::values |
-                                  EvaluationFlags::gradients);
+        fe_eval_neighbor.evaluate(EvaluationFlags::values | EvaluationFlags::gradients);
         VectorizedArray<number> sigmaF =
-          (std::abs((fe_eval.normal_vector(0) *
-                     fe_eval.inverse_jacobian(0))[dim - 1]) +
-           std::abs((fe_eval.normal_vector(0) *
-                     fe_eval_neighbor.inverse_jacobian(0))[dim - 1])) *
+          (std::abs((fe_eval.normal_vector(0) * fe_eval.inverse_jacobian(0))[dim - 1]) +
+           std::abs((fe_eval.normal_vector(0) * fe_eval_neighbor.inverse_jacobian(0))[dim - 1])) *
           (number)(std::max(fe_degree, 1) * (fe_degree + 1.0));
 
         for (unsigned int q = 0; q < fe_eval.n_q_points; ++q)
           {
-            VectorizedArray<number> average_value =
-              (fe_eval.get_value(q) - fe_eval_neighbor.get_value(q)) * 0.5;
+            VectorizedArray<number> average_value = (fe_eval.get_value(q) - fe_eval_neighbor.get_value(q)) * 0.5;
             VectorizedArray<number> average_valgrad =
-              fe_eval.get_normal_derivative(q) +
-              fe_eval_neighbor.get_normal_derivative(q);
-            average_valgrad =
-              average_value * 2. * sigmaF - average_valgrad * 0.5;
+              fe_eval.get_normal_derivative(q) + fe_eval_neighbor.get_normal_derivative(q);
+            average_valgrad = average_value * 2. * sigmaF - average_valgrad * 0.5;
             fe_eval.submit_normal_derivative(-average_value, q);
             fe_eval_neighbor.submit_normal_derivative(-average_value, q);
             fe_eval.submit_value(average_valgrad, q);
@@ -248,18 +230,16 @@ private:
           }
         fe_eval.integrate(EvaluationFlags::values | EvaluationFlags::gradients);
         fe_eval.distribute_local_to_global(dst);
-        fe_eval_neighbor.integrate(EvaluationFlags::values |
-                                   EvaluationFlags::gradients);
+        fe_eval_neighbor.integrate(EvaluationFlags::values | EvaluationFlags::gradients);
         fe_eval_neighbor.distribute_local_to_global(dst);
       }
   }
 
   void
-  local_apply_boundary(
-    const MatrixFree<dim, number> &                   data,
-    LinearAlgebra::distributed::Vector<number> &      dst,
-    const LinearAlgebra::distributed::Vector<number> &src,
-    const std::pair<unsigned int, unsigned int> &     face_range) const
+  local_apply_boundary(const MatrixFree<dim, number>                    &data,
+                       LinearAlgebra::distributed::Vector<number>       &dst,
+                       const LinearAlgebra::distributed::Vector<number> &src,
+                       const std::pair<unsigned int, unsigned int>      &face_range) const
   {
     FEFaceEvaluation<dim, -1, 0, 1, number> fe_eval(data, true);
     for (unsigned int face = face_range.first; face < face_range.second; ++face)
@@ -267,16 +247,13 @@ private:
         fe_eval.reinit(face);
         fe_eval.read_dof_values(src);
         fe_eval.evaluate(EvaluationFlags::values | EvaluationFlags::gradients);
-        VectorizedArray<number> sigmaF =
-          std::abs(
-            (fe_eval.normal_vector(0) * fe_eval.inverse_jacobian(0))[dim - 1]) *
-          (number)(std::max(1, fe_degree) * (fe_degree + 1.0)) * 2.;
+        VectorizedArray<number> sigmaF = std::abs((fe_eval.normal_vector(0) * fe_eval.inverse_jacobian(0))[dim - 1]) *
+                                         (number)(std::max(1, fe_degree) * (fe_degree + 1.0)) * 2.;
 
         for (unsigned int q = 0; q < fe_eval.n_q_points; ++q)
           {
-            VectorizedArray<number> average_value = fe_eval.get_value(q);
-            VectorizedArray<number> average_valgrad =
-              -fe_eval.get_normal_derivative(q);
+            VectorizedArray<number> average_value   = fe_eval.get_value(q);
+            VectorizedArray<number> average_valgrad = -fe_eval.get_normal_derivative(q);
             average_valgrad += average_value * sigmaF * 2.0;
             fe_eval.submit_normal_derivative(-average_value, q);
             fe_eval.submit_value(average_valgrad, q);
@@ -292,29 +269,22 @@ private:
   {
     data.initialize_dof_vector(inverse_diagonal_entries);
     unsigned int dummy = 0;
-    data.cell_loop(&LaplaceOperator::local_diagonal_cell,
-                   this,
-                   inverse_diagonal_entries,
-                   dummy);
+    data.cell_loop(&LaplaceOperator::local_diagonal_cell, this, inverse_diagonal_entries, dummy);
 
-    for (unsigned int i = 0; i < inverse_diagonal_entries.locally_owned_size();
-         ++i)
+    for (unsigned int i = 0; i < inverse_diagonal_entries.locally_owned_size(); ++i)
       if (std::abs(inverse_diagonal_entries.local_element(i)) > 1e-10)
-        inverse_diagonal_entries.local_element(i) =
-          1. / inverse_diagonal_entries.local_element(i);
+        inverse_diagonal_entries.local_element(i) = 1. / inverse_diagonal_entries.local_element(i);
   }
 
   void
-  local_diagonal_cell(
-    const MatrixFree<dim, number> &             data,
-    LinearAlgebra::distributed::Vector<number> &dst,
-    const unsigned int &,
-    const std::pair<unsigned int, unsigned int> &cell_range) const
+  local_diagonal_cell(const MatrixFree<dim, number>              &data,
+                      LinearAlgebra::distributed::Vector<number> &dst,
+                      const unsigned int &,
+                      const std::pair<unsigned int, unsigned int> &cell_range) const
   {
     FEEvaluation<dim, -1, 0, 1, number>     phi(data);
     FEFaceEvaluation<dim, -1, 0, 1, number> phif(data);
-    AlignedVector<VectorizedArray<number>>  local_diagonal_vector(
-      phi.dofs_per_cell);
+    AlignedVector<VectorizedArray<number>>  local_diagonal_vector(phi.dofs_per_cell);
 
     for (unsigned int cell = cell_range.first; cell < cell_range.second; ++cell)
       {
@@ -334,12 +304,10 @@ private:
         for (const unsigned int face : GeometryInfo<dim>::face_indices())
           {
             phif.reinit(cell, face);
-            VectorizedArray<number> sigmaF =
-              std::abs(
-                (phif.normal_vector(0) * phif.inverse_jacobian(0))[dim - 1]) *
-              (number)(std::max(1, fe_degree) * (fe_degree + 1.0)) * 2.;
-            std::array<types::boundary_id, VectorizedArray<number>::size()>
-              boundary_ids = data.get_faces_by_cells_boundary_id(cell, face);
+            VectorizedArray<number> sigmaF = std::abs((phif.normal_vector(0) * phif.inverse_jacobian(0))[dim - 1]) *
+                                             (number)(std::max(1, fe_degree) * (fe_degree + 1.0)) * 2.;
+            std::array<types::boundary_id, VectorizedArray<number>::size()> boundary_ids =
+              data.get_faces_by_cells_boundary_id(cell, face);
             VectorizedArray<number> factor_boundary;
             for (unsigned int v = 0; v < VectorizedArray<number>::size(); ++v)
               // interior face
@@ -353,21 +321,16 @@ private:
                 for (unsigned int j = 0; j < phif.dofs_per_cell; ++j)
                   phif.begin_dof_values()[j] = VectorizedArray<number>();
                 phif.begin_dof_values()[i] = 1.;
-                phif.evaluate(EvaluationFlags::values |
-                              EvaluationFlags::gradients);
+                phif.evaluate(EvaluationFlags::values | EvaluationFlags::gradients);
                 for (unsigned int q = 0; q < phif.n_q_points; ++q)
                   {
-                    VectorizedArray<number> average_value =
-                      phif.get_value(q) * factor_boundary;
-                    VectorizedArray<number> average_valgrad =
-                      phif.get_normal_derivative(q) * factor_boundary;
-                    average_valgrad =
-                      average_value * 2. * sigmaF - average_valgrad;
+                    VectorizedArray<number> average_value   = phif.get_value(q) * factor_boundary;
+                    VectorizedArray<number> average_valgrad = phif.get_normal_derivative(q) * factor_boundary;
+                    average_valgrad                         = average_value * 2. * sigmaF - average_valgrad;
                     phif.submit_normal_derivative(-average_value, q);
                     phif.submit_value(average_valgrad, q);
                   }
-                phif.integrate(EvaluationFlags::values |
-                               EvaluationFlags::gradients);
+                phif.integrate(EvaluationFlags::values | EvaluationFlags::gradients);
                 local_diagonal_vector[i] += phif.begin_dof_values()[i];
               }
           }
@@ -385,8 +348,7 @@ private:
 
 
 template <typename MATRIX, typename Number>
-class MGCoarseIterative
-  : public MGCoarseGridBase<LinearAlgebra::distributed::Vector<Number>>
+class MGCoarseIterative : public MGCoarseGridBase<LinearAlgebra::distributed::Vector<Number>>
 {
 public:
   MGCoarseIterative()
@@ -400,12 +362,11 @@ public:
 
   virtual void
   operator()(const unsigned int,
-             LinearAlgebra::distributed::Vector<double> &      dst,
+             LinearAlgebra::distributed::Vector<double>       &dst,
              const LinearAlgebra::distributed::Vector<double> &src) const
   {
-    ReductionControl solver_control(1e4, 1e-50, 1e-10, false, false);
-    SolverCG<LinearAlgebra::distributed::Vector<double>> solver_coarse(
-      solver_control);
+    ReductionControl                                     solver_control(1e4, 1e-50, 1e-10, false, false);
+    SolverCG<LinearAlgebra::distributed::Vector<double>> solver_coarse(solver_control);
     solver_coarse.solve(*coarse_matrix, dst, src, PreconditionIdentity());
   }
 
@@ -437,9 +398,7 @@ do_test(const DoFHandler<dim> &dof, const unsigned int n_q_points_1d)
 
   MGLevelObject<LevelMatrixType> mg_matrices;
   mg_matrices.resize(0, dof.get_triangulation().n_global_levels() - 1);
-  for (unsigned int level = 0;
-       level < dof.get_triangulation().n_global_levels();
-       ++level)
+  for (unsigned int level = 0; level < dof.get_triangulation().n_global_levels(); ++level)
     {
       mg_matrices[level].initialize(mapping, dof, n_q_points_1d, level);
     }
@@ -447,25 +406,17 @@ do_test(const DoFHandler<dim> &dof, const unsigned int n_q_points_1d)
   MGCoarseIterative<LevelMatrixType, number> mg_coarse;
   mg_coarse.initialize(mg_matrices[0]);
 
-  using SMOOTHER =
-    PreconditionChebyshev<LevelMatrixType,
-                          LinearAlgebra::distributed::Vector<number>>;
-  MGSmootherPrecondition<LevelMatrixType,
-                         SMOOTHER,
-                         LinearAlgebra::distributed::Vector<number>>
-    mg_smoother;
+  using SMOOTHER = PreconditionChebyshev<LevelMatrixType, LinearAlgebra::distributed::Vector<number>>;
+  MGSmootherPrecondition<LevelMatrixType, SMOOTHER, LinearAlgebra::distributed::Vector<number>> mg_smoother;
 
   MGLevelObject<typename SMOOTHER::AdditionalData> smoother_data;
   smoother_data.resize(0, dof.get_triangulation().n_global_levels() - 1);
-  for (unsigned int level = 0;
-       level < dof.get_triangulation().n_global_levels();
-       ++level)
+  for (unsigned int level = 0; level < dof.get_triangulation().n_global_levels(); ++level)
     {
       smoother_data[level].smoothing_range     = 20.;
       smoother_data[level].degree              = 5;
       smoother_data[level].eig_cg_n_iterations = 15;
-      auto preconditioner                      = std::make_shared<
-        DiagonalMatrix<LinearAlgebra::distributed::Vector<number>>>();
+      auto preconditioner = std::make_shared<DiagonalMatrix<LinearAlgebra::distributed::Vector<number>>>();
       preconditioner->reinit(mg_matrices[level].get_matrix_diagonal_inverse());
       smoother_data[level].preconditioner = std::move(preconditioner);
     }
@@ -476,9 +427,7 @@ do_test(const DoFHandler<dim> &dof, const unsigned int n_q_points_1d)
   mg_constrained_dofs.make_zero_boundary_constraints(dof, {0});
 
   std::vector<std::shared_ptr<const Utilities::MPI::Partitioner>> partitioners;
-  for (unsigned int level = mg_matrices.min_level();
-       level <= mg_matrices.max_level();
-       ++level)
+  for (unsigned int level = mg_matrices.min_level(); level <= mg_matrices.max_level(); ++level)
     partitioners.push_back(mg_matrices[level].get_vector_partitioner());
 
   MGTransferMatrixFree<dim, double> mg_transfer(mg_constrained_dofs);
@@ -486,15 +435,12 @@ do_test(const DoFHandler<dim> &dof, const unsigned int n_q_points_1d)
 
   mg::Matrix<LinearAlgebra::distributed::Vector<double>> mg_matrix(mg_matrices);
 
-  Multigrid<LinearAlgebra::distributed::Vector<double>> mg(
-    mg_matrix, mg_coarse, mg_transfer, mg_smoother, mg_smoother);
-  PreconditionMG<dim,
-                 LinearAlgebra::distributed::Vector<double>,
-                 MGTransferMatrixFree<dim, double>>
-    preconditioner(dof, mg, mg_transfer);
+  Multigrid<LinearAlgebra::distributed::Vector<double>> mg(mg_matrix, mg_coarse, mg_transfer, mg_smoother, mg_smoother);
+  PreconditionMG<dim, LinearAlgebra::distributed::Vector<double>, MGTransferMatrixFree<dim, double>> preconditioner(
+    dof, mg, mg_transfer);
 
   {
-    ReductionControl control(30, 1e-20, 1e-7);
+    ReductionControl                                     control(30, 1e-20, 1e-7);
     SolverCG<LinearAlgebra::distributed::Vector<double>> solver(control);
     solver.solve(fine_matrix, sol, in, preconditioner);
   }
@@ -511,8 +457,7 @@ test(const unsigned int fe_degree)
       parallel::distributed::Triangulation<dim> tria(
         MPI_COMM_WORLD,
         dealii::Triangulation<dim>::none,
-        parallel::distributed::Triangulation<
-          dim>::construct_multigrid_hierarchy);
+        parallel::distributed::Triangulation<dim>::construct_multigrid_hierarchy);
       GridGenerator::hyper_cube(tria);
       tria.refine_global(i - dim);
 

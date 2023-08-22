@@ -37,97 +37,97 @@ extern "C"
   // http://www.mathkeisan.com/usersguide/man/pdnaupd.html
   void
   pdnaupd_(MPI_Fint *comm,
-           int *     ido,
-           char *    bmat,
-           int *     n,
-           char *    which,
-           int *     nev,
-           double *  tol,
-           double *  resid,
-           int *     ncv,
-           double *  v,
-           int *     nloc,
-           int *     iparam,
-           int *     ipntr,
-           double *  workd,
-           double *  workl,
-           int *     lworkl,
-           int *     info);
+           int      *ido,
+           char     *bmat,
+           int      *n,
+           char     *which,
+           int      *nev,
+           double   *tol,
+           double   *resid,
+           int      *ncv,
+           double   *v,
+           int      *nloc,
+           int      *iparam,
+           int      *ipntr,
+           double   *workd,
+           double   *workl,
+           int      *lworkl,
+           int      *info);
 
   // http://www.mathkeisan.com/usersguide/man/pdsaupd.html
   void
   pdsaupd_(MPI_Fint *comm,
-           int *     ido,
-           char *    bmat,
-           int *     n,
-           char *    which,
-           int *     nev,
-           double *  tol,
-           double *  resid,
-           int *     ncv,
-           double *  v,
-           int *     nloc,
-           int *     iparam,
-           int *     ipntr,
-           double *  workd,
-           double *  workl,
-           int *     lworkl,
-           int *     info);
+           int      *ido,
+           char     *bmat,
+           int      *n,
+           char     *which,
+           int      *nev,
+           double   *tol,
+           double   *resid,
+           int      *ncv,
+           double   *v,
+           int      *nloc,
+           int      *iparam,
+           int      *ipntr,
+           double   *workd,
+           double   *workl,
+           int      *lworkl,
+           int      *info);
 
   // http://www.mathkeisan.com/usersguide/man/pdneupd.html
   void
   pdneupd_(MPI_Fint *comm,
-           int *     rvec,
-           char *    howmany,
-           int *     select,
-           double *  d,
-           double *  di,
-           double *  z,
-           int *     ldz,
-           double *  sigmar,
-           double *  sigmai,
-           double *  workev,
-           char *    bmat,
-           int *     n,
-           char *    which,
-           int *     nev,
-           double *  tol,
-           double *  resid,
-           int *     ncv,
-           double *  v,
-           int *     nloc,
-           int *     iparam,
-           int *     ipntr,
-           double *  workd,
-           double *  workl,
-           int *     lworkl,
-           int *     info);
+           int      *rvec,
+           char     *howmany,
+           int      *select,
+           double   *d,
+           double   *di,
+           double   *z,
+           int      *ldz,
+           double   *sigmar,
+           double   *sigmai,
+           double   *workev,
+           char     *bmat,
+           int      *n,
+           char     *which,
+           int      *nev,
+           double   *tol,
+           double   *resid,
+           int      *ncv,
+           double   *v,
+           int      *nloc,
+           int      *iparam,
+           int      *ipntr,
+           double   *workd,
+           double   *workl,
+           int      *lworkl,
+           int      *info);
 
   // http://www.mathkeisan.com/usersguide/man/pdseupd.html
   void
   pdseupd_(MPI_Fint *comm,
-           int *     rvec,
-           char *    howmany,
-           int *     select,
-           double *  d,
-           double *  z,
-           int *     ldz,
-           double *  sigmar,
-           char *    bmat,
-           int *     n,
-           char *    which,
-           int *     nev,
-           double *  tol,
-           double *  resid,
-           int *     ncv,
-           double *  v,
-           int *     nloc,
-           int *     iparam,
-           int *     ipntr,
-           double *  workd,
-           double *  workl,
-           int *     lworkl,
-           int *     info);
+           int      *rvec,
+           char     *howmany,
+           int      *select,
+           double   *d,
+           double   *z,
+           int      *ldz,
+           double   *sigmar,
+           char     *bmat,
+           int      *n,
+           char     *which,
+           int      *nev,
+           double   *tol,
+           double   *resid,
+           int      *ncv,
+           double   *v,
+           int      *nloc,
+           int      *iparam,
+           int      *ipntr,
+           double   *workd,
+           double   *workl,
+           int      *lworkl,
+           int      *info);
 
   // other resources:
   //    http://acts.nersc.gov/superlu/example5/pnslac.c.html
@@ -278,11 +278,10 @@ public:
     const WhichEigenvalues eigenvalue_of_interest;
     const bool             symmetric;
     const int              mode;
-    AdditionalData(
-      const unsigned int     number_of_arnoldi_vectors = 15,
-      const WhichEigenvalues eigenvalue_of_interest    = largest_magnitude,
-      const bool             symmetric                 = false,
-      const int              mode                      = 3);
+    AdditionalData(const unsigned int     number_of_arnoldi_vectors = 15,
+                   const WhichEigenvalues eigenvalue_of_interest    = largest_magnitude,
+                   const bool             symmetric                 = false,
+                   const int              mode                      = 3);
   };
 
   /**
@@ -294,9 +293,7 @@ public:
   /**
    * Constructor.
    */
-  PArpackSolver(SolverControl &       control,
-                const MPI_Comm        mpi_communicator,
-                const AdditionalData &data = AdditionalData());
+  PArpackSolver(SolverControl &control, const MPI_Comm mpi_communicator, const AdditionalData &data = AdditionalData());
 
   /**
    * Initialize internal variables.
@@ -311,8 +308,7 @@ public:
    * blockvectors used.
    */
   void
-  reinit(const IndexSet &             locally_owned_dofs,
-         const std::vector<IndexSet> &partitioning);
+  reinit(const IndexSet &locally_owned_dofs, const std::vector<IndexSet> &partitioning);
 
   /**
    * Initialize internal variables from the input @p distributed_vector.
@@ -348,11 +344,11 @@ public:
    */
   template <typename MatrixType1, typename MatrixType2, typename INVERSE>
   void
-  solve(const MatrixType1 &                A,
-        const MatrixType2 &                B,
-        const INVERSE &                    inverse,
+  solve(const MatrixType1                 &A,
+        const MatrixType2                 &B,
+        const INVERSE                     &inverse,
         std::vector<std::complex<double>> &eigenvalues,
-        std::vector<VectorType> &          eigenvectors,
+        std::vector<VectorType>           &eigenvectors,
         const unsigned int                 n_eigenvalues);
 
   /**
@@ -360,11 +356,11 @@ public:
    */
   template <typename MatrixType1, typename MatrixType2, typename INVERSE>
   void
-  solve(const MatrixType1 &                A,
-        const MatrixType2 &                B,
-        const INVERSE &                    inverse,
+  solve(const MatrixType1                 &A,
+        const MatrixType2                 &B,
+        const INVERSE                     &inverse,
         std::vector<std::complex<double>> &eigenvalues,
-        std::vector<VectorType *> &        eigenvectors,
+        std::vector<VectorType *>         &eigenvectors,
         const unsigned int                 n_eigenvalues);
 
   /**
@@ -510,70 +506,53 @@ private:
   DeclException2(PArpackExcConvergedEigenvectors,
                  int,
                  int,
-                 << arg1 << " eigenpairs were requested, but only " << arg2
-                 << " converged");
+                 << arg1 << " eigenpairs were requested, but only " << arg2 << " converged");
 
   DeclException2(PArpackExcInvalidNumberofEigenvalues,
                  int,
                  int,
-                 << "Number of wanted eigenvalues " << arg1
-                 << " is larger that the size of the matrix " << arg2);
+                 << "Number of wanted eigenvalues " << arg1 << " is larger that the size of the matrix " << arg2);
 
   DeclException2(PArpackExcInvalidEigenvectorSize,
                  int,
                  int,
-                 << "Number of wanted eigenvalues " << arg1
-                 << " is larger that the size of eigenvectors " << arg2);
+                 << "Number of wanted eigenvalues " << arg1 << " is larger that the size of eigenvectors " << arg2);
 
-  DeclException2(
-    PArpackExcInvalidEigenvectorSizeNonsymmetric,
-    int,
-    int,
-    << "To store the real and complex parts of " << arg1
-    << " eigenvectors in real-valued vectors, their size (currently set to "
-    << arg2 << ") should be greater than or equal to " << arg1 + 1);
+  DeclException2(PArpackExcInvalidEigenvectorSizeNonsymmetric,
+                 int,
+                 int,
+                 << "To store the real and complex parts of " << arg1
+                 << " eigenvectors in real-valued vectors, their size (currently set to " << arg2
+                 << ") should be greater than or equal to " << arg1 + 1);
 
   DeclException2(PArpackExcInvalidEigenvalueSize,
                  int,
                  int,
-                 << "Number of wanted eigenvalues " << arg1
-                 << " is larger that the size of eigenvalues " << arg2);
+                 << "Number of wanted eigenvalues " << arg1 << " is larger that the size of eigenvalues " << arg2);
 
   DeclException2(PArpackExcInvalidNumberofArnoldiVectors,
                  int,
                  int,
-                 << "Number of Arnoldi vectors " << arg1
-                 << " is larger that the size of the matrix " << arg2);
+                 << "Number of Arnoldi vectors " << arg1 << " is larger that the size of the matrix " << arg2);
 
   DeclException2(PArpackExcSmallNumberofArnoldiVectors,
                  int,
                  int,
-                 << "Number of Arnoldi vectors " << arg1
-                 << " is too small to obtain " << arg2 << " eigenvalues");
+                 << "Number of Arnoldi vectors " << arg1 << " is too small to obtain " << arg2 << " eigenvalues");
 
-  DeclException1(PArpackExcIdo,
-                 int,
-                 << "This ido " << arg1
-                 << " is not supported. Check documentation of ARPACK");
+  DeclException1(PArpackExcIdo, int, << "This ido " << arg1 << " is not supported. Check documentation of ARPACK");
 
-  DeclException1(PArpackExcMode,
-                 int,
-                 << "This mode " << arg1
-                 << " is not supported. Check documentation of ARPACK");
+  DeclException1(PArpackExcMode, int, << "This mode " << arg1 << " is not supported. Check documentation of ARPACK");
 
   DeclException1(PArpackExcInfoPdnaupd,
                  int,
-                 << "Error with Pdnaupd, info " << arg1
-                 << ". Check documentation of ARPACK");
+                 << "Error with Pdnaupd, info " << arg1 << ". Check documentation of ARPACK");
 
   DeclException1(PArpackExcInfoPdneupd,
                  int,
-                 << "Error with Pdneupd, info " << arg1
-                 << ". Check documentation of ARPACK");
+                 << "Error with Pdneupd, info " << arg1 << ". Check documentation of ARPACK");
 
-  DeclException1(PArpackExcInfoMaxIt,
-                 int,
-                 << "Maximum number " << arg1 << " of iterations reached.");
+  DeclException1(PArpackExcInfoMaxIt, int, << "Maximum number " << arg1 << " of iterations reached.");
 
   DeclException1(PArpackExcNoShifts,
                  int,
@@ -589,22 +568,18 @@ std::size_t
 PArpackSolver<VectorType>::memory_consumption() const
 {
   return MemoryConsumption::memory_consumption(double()) *
-           (workl.size() + workd.size() + v.size() + resid.size() + z.size() +
-            workev.size()) +
-         src.memory_consumption() + dst.memory_consumption() +
-         tmp.memory_consumption() +
-         MemoryConsumption::memory_consumption(types::global_dof_index()) *
-           local_indices.size();
+           (workl.size() + workd.size() + v.size() + resid.size() + z.size() + workev.size()) +
+         src.memory_consumption() + dst.memory_consumption() + tmp.memory_consumption() +
+         MemoryConsumption::memory_consumption(types::global_dof_index()) * local_indices.size();
 }
 
 
 
 template <typename VectorType>
-PArpackSolver<VectorType>::AdditionalData::AdditionalData(
-  const unsigned int     number_of_arnoldi_vectors,
-  const WhichEigenvalues eigenvalue_of_interest,
-  const bool             symmetric,
-  const int              mode)
+PArpackSolver<VectorType>::AdditionalData::AdditionalData(const unsigned int     number_of_arnoldi_vectors,
+                                                          const WhichEigenvalues eigenvalue_of_interest,
+                                                          const bool             symmetric,
+                                                          const int              mode)
   : number_of_arnoldi_vectors(number_of_arnoldi_vectors)
   , eigenvalue_of_interest(eigenvalue_of_interest)
   , symmetric(symmetric)
@@ -613,31 +588,22 @@ PArpackSolver<VectorType>::AdditionalData::AdditionalData(
   // Check for possible options for symmetric problems
   if (symmetric)
     {
-      Assert(
-        eigenvalue_of_interest != largest_real_part,
-        ExcMessage(
-          "'largest real part' can only be used for non-symmetric problems!"));
-      Assert(
-        eigenvalue_of_interest != smallest_real_part,
-        ExcMessage(
-          "'smallest real part' can only be used for non-symmetric problems!"));
-      Assert(
-        eigenvalue_of_interest != largest_imaginary_part,
-        ExcMessage(
-          "'largest imaginary part' can only be used for non-symmetric problems!"));
-      Assert(
-        eigenvalue_of_interest != smallest_imaginary_part,
-        ExcMessage(
-          "'smallest imaginary part' can only be used for non-symmetric problems!"));
+      Assert(eigenvalue_of_interest != largest_real_part,
+             ExcMessage("'largest real part' can only be used for non-symmetric problems!"));
+      Assert(eigenvalue_of_interest != smallest_real_part,
+             ExcMessage("'smallest real part' can only be used for non-symmetric problems!"));
+      Assert(eigenvalue_of_interest != largest_imaginary_part,
+             ExcMessage("'largest imaginary part' can only be used for non-symmetric problems!"));
+      Assert(eigenvalue_of_interest != smallest_imaginary_part,
+             ExcMessage("'smallest imaginary part' can only be used for non-symmetric problems!"));
     }
-  Assert(mode >= 1 && mode <= 3,
-         ExcMessage("Currently, only modes 1, 2 and 3 are supported."));
+  Assert(mode >= 1 && mode <= 3, ExcMessage("Currently, only modes 1, 2 and 3 are supported."));
 }
 
 
 
 template <typename VectorType>
-PArpackSolver<VectorType>::PArpackSolver(SolverControl &       control,
+PArpackSolver<VectorType>::PArpackSolver(SolverControl        &control,
                                          const MPI_Comm        mpi_communicator,
                                          const AdditionalData &data)
   : solver_control(control)
@@ -672,11 +638,8 @@ void
 PArpackSolver<VectorType>::set_initial_vector(const VectorType &vec)
 {
   initial_vector_provided = true;
-  Assert(resid.size() == local_indices.size(),
-         ExcDimensionMismatch(resid.size(), local_indices.size()));
-  vec.extract_subvector_to(local_indices.begin(),
-                           local_indices.end(),
-                           resid.data());
+  Assert(resid.size() == local_indices.size(), ExcDimensionMismatch(resid.size(), local_indices.size()));
+  vec.extract_subvector_to(local_indices.begin(), local_indices.end(), resid.data());
 }
 
 
@@ -703,8 +666,7 @@ PArpackSolver<VectorType>::internal_reinit(const IndexSet &locally_owned_dofs)
   // work arrays for ARPACK
   workd.resize(3 * nloc, 0.0);
 
-  lworkl =
-    additional_data.symmetric ? ncv * ncv + 8 * ncv : 3 * ncv * ncv + 6 * ncv;
+  lworkl = additional_data.symmetric ? ncv * ncv + 8 * ncv : 3 * ncv * ncv + 6 * ncv;
   workl.resize(lworkl, 0.);
 
   ldz = nloc;
@@ -751,8 +713,7 @@ PArpackSolver<VectorType>::reinit(const VectorType &distributed_vector)
 
 template <typename VectorType>
 void
-PArpackSolver<VectorType>::reinit(const IndexSet &locally_owned_dofs,
-                                  const std::vector<IndexSet> &partitioning)
+PArpackSolver<VectorType>::reinit(const IndexSet &locally_owned_dofs, const std::vector<IndexSet> &partitioning)
 {
   internal_reinit(locally_owned_dofs);
 
@@ -767,12 +728,12 @@ PArpackSolver<VectorType>::reinit(const IndexSet &locally_owned_dofs,
 template <typename VectorType>
 template <typename MatrixType1, typename MatrixType2, typename INVERSE>
 void
-PArpackSolver<VectorType>::solve(const MatrixType1 &                A,
-                                 const MatrixType2 &                B,
-                                 const INVERSE &                    inverse,
+PArpackSolver<VectorType>::solve(const MatrixType1                 &A,
+                                 const MatrixType2                 &B,
+                                 const INVERSE                     &inverse,
                                  std::vector<std::complex<double>> &eigenvalues,
-                                 std::vector<VectorType> &eigenvectors,
-                                 const unsigned int       n_eigenvalues)
+                                 std::vector<VectorType>           &eigenvectors,
+                                 const unsigned int                 n_eigenvalues)
 {
   std::vector<VectorType *> eigenvectors_ptr(eigenvectors.size());
   for (unsigned int i = 0; i < eigenvectors.size(); ++i)
@@ -785,41 +746,35 @@ PArpackSolver<VectorType>::solve(const MatrixType1 &                A,
 template <typename VectorType>
 template <typename MatrixType1, typename MatrixType2, typename INVERSE>
 void
-PArpackSolver<VectorType>::solve(const MatrixType1 &system_matrix,
-                                 const MatrixType2 &mass_matrix,
-                                 const INVERSE &    inverse,
+PArpackSolver<VectorType>::solve(const MatrixType1                 &system_matrix,
+                                 const MatrixType2                 &mass_matrix,
+                                 const INVERSE                     &inverse,
                                  std::vector<std::complex<double>> &eigenvalues,
-                                 std::vector<VectorType *> &eigenvectors,
-                                 const unsigned int         n_eigenvalues)
+                                 std::vector<VectorType *>         &eigenvectors,
+                                 const unsigned int                 n_eigenvalues)
 {
   if (additional_data.symmetric)
     {
       Assert(n_eigenvalues <= eigenvectors.size(),
-             PArpackExcInvalidEigenvectorSize(n_eigenvalues,
-                                              eigenvectors.size()));
+             PArpackExcInvalidEigenvectorSize(n_eigenvalues, eigenvectors.size()));
     }
   else
     Assert(n_eigenvalues + 1 <= eigenvectors.size(),
-           PArpackExcInvalidEigenvectorSizeNonsymmetric(n_eigenvalues,
-                                                        eigenvectors.size()));
+           PArpackExcInvalidEigenvectorSizeNonsymmetric(n_eigenvalues, eigenvectors.size()));
 
-  Assert(n_eigenvalues <= eigenvalues.size(),
-         PArpackExcInvalidEigenvalueSize(n_eigenvalues, eigenvalues.size()));
+  Assert(n_eigenvalues <= eigenvalues.size(), PArpackExcInvalidEigenvalueSize(n_eigenvalues, eigenvalues.size()));
 
 
   // use eigenvectors to get the problem size so that it is possible to
   // employ LinearOperator for mass_matrix.
   Assert(n_eigenvalues < eigenvectors[0]->size(),
-         PArpackExcInvalidNumberofEigenvalues(n_eigenvalues,
-                                              eigenvectors[0]->size()));
+         PArpackExcInvalidNumberofEigenvalues(n_eigenvalues, eigenvectors[0]->size()));
 
   Assert(additional_data.number_of_arnoldi_vectors < eigenvectors[0]->size(),
-         PArpackExcInvalidNumberofArnoldiVectors(
-           additional_data.number_of_arnoldi_vectors, eigenvectors[0]->size()));
+         PArpackExcInvalidNumberofArnoldiVectors(additional_data.number_of_arnoldi_vectors, eigenvectors[0]->size()));
 
   Assert(additional_data.number_of_arnoldi_vectors > 2 * n_eigenvalues + 1,
-         PArpackExcSmallNumberofArnoldiVectors(
-           additional_data.number_of_arnoldi_vectors, n_eigenvalues));
+         PArpackExcSmallNumberofArnoldiVectors(additional_data.number_of_arnoldi_vectors, n_eigenvalues));
 
   int mode = additional_data.mode;
 
@@ -965,11 +920,9 @@ PArpackSolver<VectorType>::solve(const MatrixType1 &system_matrix,
       const int shift_x = ipntr[0] - 1;
       const int shift_y = ipntr[1] - 1;
       Assert(shift_x >= 0, dealii::ExcInternalError());
-      Assert(shift_x + nloc <= static_cast<int>(workd.size()),
-             dealii::ExcInternalError());
+      Assert(shift_x + nloc <= static_cast<int>(workd.size()), dealii::ExcInternalError());
       Assert(shift_y >= 0, dealii::ExcInternalError());
-      Assert(shift_y + nloc <= static_cast<int>(workd.size()),
-             dealii::ExcInternalError());
+      Assert(shift_y + nloc <= static_cast<int>(workd.size()), dealii::ExcInternalError());
 
       src = 0.;
 
@@ -991,9 +944,7 @@ PArpackSolver<VectorType>::solve(const MatrixType1 &system_matrix,
             {
               system_matrix.vmult(tmp, src);
               // store M*X in X
-              tmp.extract_subvector_to(local_indices.begin(),
-                                       local_indices.end(),
-                                       workd.data() + shift_x);
+              tmp.extract_subvector_to(local_indices.begin(), local_indices.end(), workd.data() + shift_x);
               inverse.vmult(dst, tmp);
             }
           else if (mode == 1)
@@ -1009,8 +960,7 @@ PArpackSolver<VectorType>::solve(const MatrixType1 &system_matrix,
         {
           const int shift_b_x = ipntr[2] - 1;
           Assert(shift_b_x >= 0, dealii::ExcInternalError());
-          Assert(shift_b_x + nloc <= static_cast<int>(workd.size()),
-                 dealii::ExcInternalError());
+          Assert(shift_b_x + nloc <= static_cast<int>(workd.size()), dealii::ExcInternalError());
 
           // B*X
           src.add(nloc, local_indices.data(), workd.data() + shift_b_x);
@@ -1043,9 +993,7 @@ PArpackSolver<VectorType>::solve(const MatrixType1 &system_matrix,
       // implemented modes
 
       // store the result
-      dst.extract_subvector_to(local_indices.begin(),
-                               local_indices.end(),
-                               workd.data() + shift_y);
+      dst.extract_subvector_to(local_indices.begin(), local_indices.end(), workd.data() + shift_y);
     } // end of pd*aupd_ loop
 
   // 1 - compute eigenvectors,
@@ -1134,12 +1082,10 @@ PArpackSolver<VectorType>::solve(const MatrixType1 &system_matrix,
     }
 
   for (size_type i = 0; i < n_eigenvalues; ++i)
-    eigenvalues[i] =
-      std::complex<double>(eigenvalues_real[i], eigenvalues_im[i]);
+    eigenvalues[i] = std::complex<double>(eigenvalues_real[i], eigenvalues_im[i]);
 
   // Throw an error if the solver did not converge.
-  AssertThrow(iparam[4] >= static_cast<int>(n_eigenvalues),
-              PArpackExcConvergedEigenvectors(n_eigenvalues, iparam[4]));
+  AssertThrow(iparam[4] >= static_cast<int>(n_eigenvalues), PArpackExcConvergedEigenvectors(n_eigenvalues, iparam[4]));
 
   // both PDNAUPD and PDSAUPD compute eigenpairs of inv[A - sigma*M]*M
   // with respect to a semi-inner product defined by M.

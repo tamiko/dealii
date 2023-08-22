@@ -68,11 +68,9 @@ test()
     }
 
   // create partitioner
-  std::shared_ptr<Utilities::MPI::Partitioner> partitioner(
-    new Utilities::MPI::Partitioner(is1, MPI_COMM_WORLD));
+  std::shared_ptr<Utilities::MPI::Partitioner> partitioner(new Utilities::MPI::Partitioner(is1, MPI_COMM_WORLD));
   partitioner->set_ghost_indices(is3);
-  std::shared_ptr<Utilities::MPI::Partitioner> tight_partitioner(
-    new Utilities::MPI::Partitioner(is1, MPI_COMM_WORLD));
+  std::shared_ptr<Utilities::MPI::Partitioner> tight_partitioner(new Utilities::MPI::Partitioner(is1, MPI_COMM_WORLD));
   tight_partitioner->set_ghost_indices(is2, is3);
 
   // create vector
@@ -96,16 +94,15 @@ test()
   tmp_data.resize_fast(tight_partitioner->n_import_indices());
 
   // begin exchange, and ...
-  tight_partitioner->export_to_ghosted_array_start(
-    0,
-    ArrayView<const Number>(owned.begin(), owned.size()),
-    ArrayView<Number>(tmp_data.begin(), tight_partitioner->n_import_indices()),
-    ArrayView<Number>(ghost.begin(), ghost.size()),
-    requests);
+  tight_partitioner->export_to_ghosted_array_start(0,
+                                                   ArrayView<const Number>(owned.begin(), owned.size()),
+                                                   ArrayView<Number>(tmp_data.begin(),
+                                                                     tight_partitioner->n_import_indices()),
+                                                   ArrayView<Number>(ghost.begin(), ghost.size()),
+                                                   requests);
 
   // ... finish exchange
-  tight_partitioner->export_to_ghosted_array_finish(
-    ArrayView<Number>(ghost.begin(), ghost.size()), requests);
+  tight_partitioner->export_to_ghosted_array_finish(ArrayView<Number>(ghost.begin(), ghost.size()), requests);
 
   auto print = [&]() {
     deallog << "owned:" << std::endl;
@@ -126,21 +123,19 @@ test()
   // now do insert:
   auto compress = [&](VectorOperation::values operation) {
     const unsigned int counter = 0;
-    tight_partitioner->import_from_ghosted_array_start(
-      operation,
-      counter,
-      ArrayView<Number>(ghost.begin(), ghost.size()),
-      ArrayView<Number>(import_data.begin(),
-                        tight_partitioner->n_import_indices()),
-      compress_requests);
+    tight_partitioner->import_from_ghosted_array_start(operation,
+                                                       counter,
+                                                       ArrayView<Number>(ghost.begin(), ghost.size()),
+                                                       ArrayView<Number>(import_data.begin(),
+                                                                         tight_partitioner->n_import_indices()),
+                                                       compress_requests);
 
-    tight_partitioner->import_from_ghosted_array_finish(
-      operation,
-      ArrayView<const Number>(import_data.begin(),
-                              tight_partitioner->n_import_indices()),
-      ArrayView<Number>(owned.begin(), owned.size()),
-      ArrayView<Number>(ghost.begin(), ghost.size()),
-      compress_requests);
+    tight_partitioner->import_from_ghosted_array_finish(operation,
+                                                        ArrayView<const Number>(import_data.begin(),
+                                                                                tight_partitioner->n_import_indices()),
+                                                        ArrayView<Number>(owned.begin(), owned.size()),
+                                                        ArrayView<Number>(ghost.begin(), ghost.size()),
+                                                        compress_requests);
   };
 
   deallog << "compress(insert)" << std::endl;

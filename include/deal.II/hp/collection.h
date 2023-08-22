@@ -42,8 +42,7 @@ namespace hp
      * @param data The actual data of hp::Collection.
      * @param index The current index.
      */
-    CollectionIterator(const std::vector<std::shared_ptr<const T>> &data,
-                       const std::size_t                            index)
+    CollectionIterator(const std::vector<std::shared_ptr<const T>> &data, const std::size_t index)
       : data(&data)
       , index(index)
     {}
@@ -65,10 +64,8 @@ namespace hp
     bool
     operator==(const CollectionIterator<T> &other) const
     {
-      Assert(
-        this->data == other.data,
-        ExcMessage(
-          "You are trying to compare iterators into different hp::Collection objects."));
+      Assert(this->data == other.data,
+             ExcMessage("You are trying to compare iterators into different hp::Collection objects."));
       return this->index == other.index;
     }
 
@@ -78,10 +75,8 @@ namespace hp
     bool
     operator!=(const CollectionIterator<T> &other) const
     {
-      Assert(
-        this->data == other.data,
-        ExcMessage(
-          "You are trying to compare iterators into different hp::Collection objects."));
+      Assert(this->data == other.data,
+             ExcMessage("You are trying to compare iterators into different hp::Collection objects."));
       return this->index != other.index;
     }
 
@@ -128,10 +123,7 @@ namespace hp
     CollectionIterator<T> &
     operator--()
     {
-      Assert(
-        index > 0,
-        ExcMessage(
-          "You can't decrement an iterator that is already at the beginning of the range."));
+      Assert(index > 0, ExcMessage("You can't decrement an iterator that is already at the beginning of the range."));
       --index;
       return *this;
     }
@@ -152,8 +144,7 @@ namespace hp
     std::ptrdiff_t
     operator-(const CollectionIterator<T> &other) const
     {
-      return static_cast<std::ptrdiff_t>(index) -
-             static_cast<ptrdiff_t>(other.index);
+      return static_cast<std::ptrdiff_t>(index) - static_cast<ptrdiff_t>(other.index);
     }
 
   private:
@@ -307,8 +298,7 @@ namespace std
    */
   template <class T>
   struct iterator_traits<dealii::hp::CollectionIterator<T>>
-    : public iterator_traits<
-        typename std::vector<std::shared_ptr<const T>>::iterator>
+    : public iterator_traits<typename std::vector<std::shared_ptr<const T>>::iterator>
   {};
 } // namespace std
 

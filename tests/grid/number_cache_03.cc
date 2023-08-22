@@ -88,10 +88,7 @@ test()
 
   tria.refine_global(1);
 
-  for (typename Triangulation<dim>::active_cell_iterator cell =
-         tria.begin_active();
-       cell != tria.end();
-       ++cell)
+  for (typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(); cell != tria.end(); ++cell)
     cell->set_coarsen_flag();
   tria.execute_coarsening_and_refinement();
 

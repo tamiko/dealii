@@ -43,8 +43,7 @@ namespace Utilities
      * If you want to store only contiguous parts of these arrays on
      * each process, take a look at Utilities::MPI::Partitioner.
      */
-    class NoncontiguousPartitioner
-      : public Utilities::MPI::CommunicationPatternBase
+    class NoncontiguousPartitioner : public Utilities::MPI::CommunicationPatternBase
     {
     public:
       /**
@@ -71,10 +70,9 @@ namespace Utilities
        * value numbers::invalid_dof_index which do not take part of the index
        * exchange but are present in the data vectors as padding.
        */
-      NoncontiguousPartitioner(
-        const std::vector<types::global_dof_index> &indices_locally_owned,
-        const std::vector<types::global_dof_index> &indices_ghost,
-        const MPI_Comm                              communicator);
+      NoncontiguousPartitioner(const std::vector<types::global_dof_index> &indices_locally_owned,
+                               const std::vector<types::global_dof_index> &indices_ghost,
+                               const MPI_Comm                              communicator);
 
       /**
        * Fill the vector @p ghost_array according to the precomputed communication
@@ -94,9 +92,8 @@ namespace Utilities
        */
       template <typename Number>
       void
-      export_to_ghosted_array(
-        const ArrayView<const Number> &locally_owned_array,
-        const ArrayView<Number> &      ghost_array) const;
+      export_to_ghosted_array(const ArrayView<const Number> &locally_owned_array,
+                              const ArrayView<Number>       &ghost_array) const;
 
       /**
        * Same as above but with an interface similar to
@@ -114,12 +111,11 @@ namespace Utilities
        */
       template <typename Number>
       void
-      export_to_ghosted_array(
-        const unsigned int             communication_channel,
-        const ArrayView<const Number> &locally_owned_array,
-        const ArrayView<Number> &      temporary_storage,
-        const ArrayView<Number> &      ghost_array,
-        std::vector<MPI_Request> &     requests) const;
+      export_to_ghosted_array(const unsigned int             communication_channel,
+                              const ArrayView<const Number> &locally_owned_array,
+                              const ArrayView<Number>       &temporary_storage,
+                              const ArrayView<Number>       &ghost_array,
+                              std::vector<MPI_Request>      &requests) const;
 
       /**
        * Start update: Data is packed, non-blocking send and receives
@@ -139,11 +135,10 @@ namespace Utilities
        */
       template <typename Number>
       void
-      export_to_ghosted_array_start(
-        const unsigned int             communication_channel,
-        const ArrayView<const Number> &locally_owned_array,
-        const ArrayView<Number> &      temporary_storage,
-        std::vector<MPI_Request> &     requests) const;
+      export_to_ghosted_array_start(const unsigned int             communication_channel,
+                                    const ArrayView<const Number> &locally_owned_array,
+                                    const ArrayView<Number>       &temporary_storage,
+                                    std::vector<MPI_Request>      &requests) const;
 
       /**
        * Finish update. The method waits until all data has been sent and
@@ -161,10 +156,9 @@ namespace Utilities
        */
       template <typename Number>
       void
-      export_to_ghosted_array_finish(
-        const ArrayView<const Number> &temporary_storage,
-        const ArrayView<Number> &      ghost_array,
-        std::vector<MPI_Request> &     requests) const;
+      export_to_ghosted_array_finish(const ArrayView<const Number> &temporary_storage,
+                                     const ArrayView<Number>       &ghost_array,
+                                     std::vector<MPI_Request>      &requests) const;
 
       /**
        * Similar to the above functions but for importing vector entries
@@ -176,10 +170,9 @@ namespace Utilities
        */
       template <typename Number>
       void
-      import_from_ghosted_array(
-        const VectorOperation::values vector_operation,
-        const ArrayView<Number> &     ghost_array,
-        const ArrayView<Number> &     locally_owned_storage) const;
+      import_from_ghosted_array(const VectorOperation::values vector_operation,
+                                const ArrayView<Number>      &ghost_array,
+                                const ArrayView<Number>      &locally_owned_storage) const;
 
       /**
        * Similar to the above function with the difference that
@@ -190,11 +183,11 @@ namespace Utilities
       template <typename Number>
       void
       import_from_ghosted_array(const VectorOperation::values vector_operation,
-                                const unsigned int        communication_channel,
-                                const ArrayView<Number> & ghost_array,
-                                const ArrayView<Number> & temporary_storage,
-                                const ArrayView<Number> & locally_owned_storage,
-                                std::vector<MPI_Request> &requests) const;
+                                const unsigned int            communication_channel,
+                                const ArrayView<Number>      &ghost_array,
+                                const ArrayView<Number>      &temporary_storage,
+                                const ArrayView<Number>      &locally_owned_storage,
+                                std::vector<MPI_Request>     &requests) const;
 
       /**
        * Start update for importig values: Data is packed, non-blocking send
@@ -202,12 +195,11 @@ namespace Utilities
        */
       template <typename Number>
       void
-      import_from_ghosted_array_start(
-        const VectorOperation::values vector_operation,
-        const unsigned int            communication_channel,
-        const ArrayView<Number> &     ghost_array,
-        const ArrayView<Number> &     temporary_storage,
-        std::vector<MPI_Request> &    requests) const;
+      import_from_ghosted_array_start(const VectorOperation::values vector_operation,
+                                      const unsigned int            communication_channel,
+                                      const ArrayView<Number>      &ghost_array,
+                                      const ArrayView<Number>      &temporary_storage,
+                                      std::vector<MPI_Request>     &requests) const;
 
       /**
        * Finish update for importing values. The method waits until all data has
@@ -217,11 +209,10 @@ namespace Utilities
        */
       template <typename Number>
       void
-      import_from_ghosted_array_finish(
-        const VectorOperation::values  vector_operation,
-        const ArrayView<const Number> &temporary_storage,
-        const ArrayView<Number> &      locally_owned_storage,
-        std::vector<MPI_Request> &     requests) const;
+      import_from_ghosted_array_finish(const VectorOperation::values  vector_operation,
+                                       const ArrayView<const Number> &temporary_storage,
+                                       const ArrayView<Number>       &locally_owned_storage,
+                                       std::vector<MPI_Request>      &requests) const;
 
       /**
        * Returns the number of processes this process sends data to and the

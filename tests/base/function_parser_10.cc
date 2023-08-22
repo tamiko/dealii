@@ -45,9 +45,7 @@ satisfies_randomness(std::vector<double> &v)
     if (v[i - 1] == v[i])
       return false;
   // Check that the numbers are between 0 and 1
-  return std::all_of(v.begin(), v.end(), [](double n) {
-    return (n >= 0.) && (n <= 1.);
-  });
+  return std::all_of(v.begin(), v.end(), [](double n) { return (n >= 0.) && (n <= 1.); });
 }
 
 
@@ -56,10 +54,7 @@ main()
 {
   initlog();
 
-  std::vector<double> rands{eval("rand_seed(10)"),
-                            eval("rand()"),
-                            eval("rand_seed(10)"),
-                            eval("rand_seed(10)")};
+  std::vector<double> rands{eval("rand_seed(10)"), eval("rand()"), eval("rand_seed(10)"), eval("rand_seed(10)")};
 
   if (satisfies_randomness(rands))
     deallog << "OK" << std::endl;

@@ -37,43 +37,36 @@ test()
   constexpr unsigned int n_blocks                     = 3;
   constexpr unsigned int n_indices_per_proc_and_block = 2;
 
-  const unsigned int n_indices_per_block =
-    n_indices_per_proc_and_block * n_procs;
-  const unsigned int n_indices = n_blocks * n_indices_per_block;
+  const unsigned int n_indices_per_block = n_indices_per_proc_and_block * n_procs;
+  const unsigned int n_indices           = n_blocks * n_indices_per_block;
 
   // set up partitioning
-  std::vector<IndexSet> owned_indexsets;
-  std::vector<IndexSet> relevant_indexsets;
+  std::vector<IndexSet>                                           owned_indexsets;
+  std::vector<IndexSet>                                           relevant_indexsets;
   std::vector<std::shared_ptr<const Utilities::MPI::Partitioner>> partitioners;
   for (unsigned int b = 0; b < n_blocks; ++b)
     {
       const unsigned int begin = b * n_indices_per_block;
 
       IndexSet owned(n_indices);
-      owned.add_range(begin + n_indices_per_proc_and_block * myid,
-                      begin + n_indices_per_proc_and_block * (myid + 1));
+      owned.add_range(begin + n_indices_per_proc_and_block * myid, begin + n_indices_per_proc_and_block * (myid + 1));
 
       IndexSet relevant(n_indices);
       relevant.add_range(begin + 1, begin + 2);
 
-      partitioners.push_back(
-        std::make_shared<const Utilities::MPI::Partitioner>(owned,
-                                                            relevant,
-                                                            comm));
+      partitioners.push_back(std::make_shared<const Utilities::MPI::Partitioner>(owned, relevant, comm));
       owned_indexsets.push_back(std::move(owned));
       relevant_indexsets.push_back(std::move(relevant));
     }
 
   // create block vectors using different constructors
   {
-    LinearAlgebra::distributed::BlockVector<double> block_vector(
-      owned_indexsets, comm);
+    LinearAlgebra::distributed::BlockVector<double> block_vector(owned_indexsets, comm);
     deallog << "w/o ghost indices: OK" << std::endl;
   }
 
   {
-    LinearAlgebra::distributed::BlockVector<double> block_vector(
-      owned_indexsets, relevant_indexsets, comm);
+    LinearAlgebra::distributed::BlockVector<double> block_vector(owned_indexsets, relevant_indexsets, comm);
     deallog << "w/  ghost indices: OK" << std::endl;
   }
 

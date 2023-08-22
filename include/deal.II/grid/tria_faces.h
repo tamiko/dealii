@@ -124,20 +124,16 @@ namespace internal
     TriaFaces::get_quad_type(const std::size_t index) const
     {
       AssertIndexRange(index, quad_is_quadrilateral.size());
-      return quad_is_quadrilateral[index] ? ReferenceCells::Quadrilateral :
-                                            ReferenceCells::Triangle;
+      return quad_is_quadrilateral[index] ? ReferenceCells::Quadrilateral : ReferenceCells::Triangle;
     }
 
 
 
     inline void
-    TriaFaces::set_quad_type(const std::size_t   index,
-                             const ReferenceCell face_type)
+    TriaFaces::set_quad_type(const std::size_t index, const ReferenceCell face_type)
     {
       AssertIndexRange(index, quad_is_quadrilateral.size());
-      Assert(face_type == ReferenceCells::Quadrilateral ||
-               face_type == ReferenceCells::Triangle,
-             ExcInternalError());
+      Assert(face_type == ReferenceCells::Quadrilateral || face_type == ReferenceCells::Triangle, ExcInternalError());
       if (face_type == ReferenceCells::Quadrilateral)
         quad_is_quadrilateral[index] = true;
       else
@@ -150,7 +146,7 @@ namespace internal
     void
     TriaFaces::serialize(Archive &ar, const unsigned int)
     {
-      ar &dim;
+      ar                                        &dim;
       ar &quads &lines &quads_line_orientations &quad_is_quadrilateral;
     }
   } // namespace TriangulationImplementation

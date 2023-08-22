@@ -47,13 +47,12 @@ test_bounding_box(const double left_a,
   const auto bbox_b = generate_bbox(left_b, right_b);
 
   deallog << "Bounding box A: ";
-  deallog << "[" << bbox_a.get_boundary_points().first << ", "
-          << bbox_a.get_boundary_points().second << "]" << std::endl;
-  deallog << "Bounding box B: ";
-  deallog << "[" << bbox_b.get_boundary_points().first << ", "
-          << bbox_b.get_boundary_points().second << "]" << std::endl;
-  deallog << "Has overlap with: " << bbox_a.has_overlap_with(bbox_b, tolerance)
+  deallog << "[" << bbox_a.get_boundary_points().first << ", " << bbox_a.get_boundary_points().second << "]"
           << std::endl;
+  deallog << "Bounding box B: ";
+  deallog << "[" << bbox_b.get_boundary_points().first << ", " << bbox_b.get_boundary_points().second << "]"
+          << std::endl;
+  deallog << "Has overlap with: " << bbox_a.has_overlap_with(bbox_b, tolerance) << std::endl;
 }
 
 int

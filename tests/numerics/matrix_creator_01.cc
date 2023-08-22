@@ -62,10 +62,7 @@ test()
 
   DynamicSparsityPattern sparsity_pattern(relevant_dofs);
   DoFTools::make_sparsity_pattern(dof_handler, sparsity_pattern, constraints);
-  SparsityTools::distribute_sparsity_pattern(sparsity_pattern,
-                                             owned_dofs,
-                                             mpi_comm,
-                                             relevant_dofs);
+  SparsityTools::distribute_sparsity_pattern(sparsity_pattern, owned_dofs, mpi_comm, relevant_dofs);
 
   MatrixType matrix;
   matrix.reinit(owned_dofs, owned_dofs, sparsity_pattern, mpi_comm);

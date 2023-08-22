@@ -54,6 +54,5 @@ main()
 
   // produce output. hope that row 4 is
   // completely padded
-  table2.write_text(deallog.get_file_stream(),
-                    TableHandler::table_with_separate_column_description);
+  table2.write_text(deallog.get_file_stream(), TableHandler::table_with_separate_column_description);
 }

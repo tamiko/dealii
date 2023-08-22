@@ -50,9 +50,7 @@ test()
   point_2(0) = 2;
   GridGenerator::hyper_rectangle(triangulation_temp, point_1, point_2);
   /*glue squares together*/
-  GridGenerator::merge_triangulations(triangulation_temp,
-                                      triangulation,
-                                      triangulation);
+  GridGenerator::merge_triangulations(triangulation_temp, triangulation, triangulation);
 
   deallog << "OK" << std::endl;
 }

@@ -90,8 +90,7 @@ transfer(std::ostream &out)
   MappingQ<dim>   mapping(1);
 
   // refine a few cells
-  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(),
-                                                    endc = tria.end();
+  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
   ++cell;
   ++cell;
   for (; cell != endc; ++cell)
@@ -102,9 +101,7 @@ transfer(std::ostream &out)
   // randomly assign FE orders
   unsigned int counter = 0;
   {
-    typename DoFHandler<dim>::active_cell_iterator cell = q_dof_handler
-                                                            .begin_active(),
-                                                   endc = q_dof_handler.end();
+    typename DoFHandler<dim>::active_cell_iterator cell = q_dof_handler.begin_active(), endc = q_dof_handler.end();
 
     for (; cell != endc; ++cell, ++counter)
       {
@@ -130,13 +127,9 @@ transfer(std::ostream &out)
 
     hp::QCollection<dim> quad;
     quad.push_back(QTrapezoid<dim>());
-    hp::FEValues<dim>                              hp_fe_val(fe_q,
-                                quad,
-                                update_values | update_quadrature_points);
+    hp::FEValues<dim>                              hp_fe_val(fe_q, quad, update_values | update_quadrature_points);
     std::vector<types::global_dof_index>           local_dof_indices;
-    typename DoFHandler<dim>::active_cell_iterator cell = q_dof_handler
-                                                            .begin_active(),
-                                                   endc = q_dof_handler.end();
+    typename DoFHandler<dim>::active_cell_iterator cell = q_dof_handler.begin_active(), endc = q_dof_handler.end();
 
     for (; cell != endc; ++cell)
       {
@@ -146,13 +139,11 @@ transfer(std::ostream &out)
 
         cell->get_dof_indices(local_dof_indices);
 
-        Assert(local_dof_indices.size() >= fe_val.n_quadrature_points,
-               ExcInternalError());
+        Assert(local_dof_indices.size() >= fe_val.n_quadrature_points, ExcInternalError());
 
         for (unsigned int q = 0; q < fe_val.n_quadrature_points; ++q)
           {
-            q_solution[local_dof_indices[q]] =
-              func.value(fe_val.quadrature_point(q), 0);
+            q_solution[local_dof_indices[q]] = func.value(fe_val.quadrature_point(q), 0);
           }
       }
   }
@@ -185,9 +176,7 @@ transfer(std::ostream &out)
 
   counter = 0;
   {
-    typename DoFHandler<dim>::active_cell_iterator cell = q_dof_handler
-                                                            .begin_active(),
-                                                   endc = q_dof_handler.end();
+    typename DoFHandler<dim>::active_cell_iterator cell = q_dof_handler.begin_active(), endc = q_dof_handler.end();
 
     for (; cell != endc; ++cell, ++counter)
       {
@@ -207,13 +196,9 @@ transfer(std::ostream &out)
   {
     double                                         error = 0;
     const hp::QCollection<dim>                     quad(QGauss<dim>(2));
-    hp::FEValues<dim>                              hp_fe_val(fe_q,
-                                quad,
-                                update_values | update_quadrature_points);
+    hp::FEValues<dim>                              hp_fe_val(fe_q, quad, update_values | update_quadrature_points);
     std::vector<double>                            vals(quad[0].size());
-    typename DoFHandler<dim>::active_cell_iterator cell = q_dof_handler
-                                                            .begin_active(),
-                                                   endc = q_dof_handler.end();
+    typename DoFHandler<dim>::active_cell_iterator cell = q_dof_handler.begin_active(), endc = q_dof_handler.end();
 
     for (; cell != endc; ++cell)
       {
@@ -222,12 +207,10 @@ transfer(std::ostream &out)
         fe_val.get_function_values(q_solution, vals);
         for (unsigned int q = 0; q < fe_val.n_quadrature_points; ++q)
           {
-            error +=
-              std::fabs(func.value(fe_val.quadrature_point(q), 0) - vals[q]);
+            error += std::fabs(func.value(fe_val.quadrature_point(q), 0) - vals[q]);
           }
       }
-    deallog << "Error in interpolating hp-FE_Q_Hierarchical: " << error
-            << std::endl;
+    deallog << "Error in interpolating hp-FE_Q_Hierarchical: " << error << std::endl;
   }
 }
 

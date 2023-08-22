@@ -108,16 +108,14 @@ namespace Differentiation
        * numbers.
        */
       template <typename ScalarType>
-      struct ADNumberInfoFromEnum<
-        ScalarType,
-        Differentiation::AD::NumberTypes::adolc_taped,
-        std::enable_if_t<std::is_floating_point_v<ScalarType>>>
+      struct ADNumberInfoFromEnum<ScalarType,
+                                  Differentiation::AD::NumberTypes::adolc_taped,
+                                  std::enable_if_t<std::is_floating_point_v<ScalarType>>>
       {
-        static const bool is_taped = true;
-        using real_type            = adouble;
-        using derivative_type      = double;
-        static const unsigned int n_supported_derivative_levels =
-          std::numeric_limits<unsigned int>::max();
+        static const bool is_taped                              = true;
+        using real_type                                         = adouble;
+        using derivative_type                                   = double;
+        static const unsigned int n_supported_derivative_levels = std::numeric_limits<unsigned int>::max();
       };
 
 
@@ -126,10 +124,9 @@ namespace Differentiation
        * numbers.
        */
       template <typename ScalarType>
-      struct ADNumberInfoFromEnum<
-        ScalarType,
-        Differentiation::AD::NumberTypes::adolc_tapeless,
-        std::enable_if_t<std::is_floating_point_v<ScalarType>>>
+      struct ADNumberInfoFromEnum<ScalarType,
+                                  Differentiation::AD::NumberTypes::adolc_tapeless,
+                                  std::enable_if_t<std::is_floating_point_v<ScalarType>>>
       {
         static const bool is_taped                              = false;
         using real_type                                         = adtl::adouble;
@@ -139,11 +136,9 @@ namespace Differentiation
 
 
       template <typename ADNumberType>
-      struct Marking<
-        ADNumberType,
-        std::enable_if_t<ADNumberTraits<ADNumberType>::type_code ==
-                           NumberTypes::adolc_taped &&
-                         ADNumberTraits<ADNumberType>::is_real_valued>>
+      struct Marking<ADNumberType,
+                     std::enable_if_t<ADNumberTraits<ADNumberType>::type_code == NumberTypes::adolc_taped &&
+                                      ADNumberTraits<ADNumberType>::is_real_valued>>
       {
         using scalar_type = typename ADNumberTraits<ADNumberType>::scalar_type;
 
@@ -151,10 +146,7 @@ namespace Differentiation
          * Initialize the state of an independent variable.
          */
         static void
-        independent_variable(const scalar_type &in,
-                             const unsigned int,
-                             const unsigned int,
-                             ADNumberType &out)
+        independent_variable(const scalar_type &in, const unsigned int, const unsigned int, ADNumberType &out)
         {
           out <<= in;
         }
@@ -177,11 +169,9 @@ namespace Differentiation
       };
 
       template <typename ADNumberType>
-      struct Marking<
-        ADNumberType,
-        std::enable_if_t<ADNumberTraits<ADNumberType>::type_code ==
-                           NumberTypes::adolc_tapeless &&
-                         ADNumberTraits<ADNumberType>::is_real_valued>>
+      struct Marking<ADNumberType,
+                     std::enable_if_t<ADNumberTraits<ADNumberType>::type_code == NumberTypes::adolc_tapeless &&
+                                      ADNumberTraits<ADNumberType>::is_real_valued>>
       {
         using scalar_type = typename ADNumberTraits<ADNumberType>::scalar_type;
 
@@ -189,10 +179,7 @@ namespace Differentiation
          * Initialize the state of an independent variable.
          */
         static void
-        independent_variable(const scalar_type &in,
-                             const unsigned int index,
-                             const unsigned int,
-                             ADNumberType &out)
+        independent_variable(const scalar_type &in, const unsigned int index, const unsigned int, ADNumberType &out)
         {
           // It is important that the tapeless variables have their values set
           // before defining their directional derivative index
@@ -202,10 +189,9 @@ namespace Differentiation
           // error. We could rather always throw here in order to provide a
           // less cryptic message.
           AssertThrow(index < adtl::getNumDir(),
-                      ExcMessage(
-                        "The index number of the independent variable being "
-                        "marked is greater than the number of independent "
-                        "variables that have been declared."));
+                      ExcMessage("The index number of the independent variable being "
+                                 "marked is greater than the number of independent "
+                                 "variables that have been declared."));
           out.setADValue(index, 1 /*seed value for first derivative*/);
         }
 
@@ -263,9 +249,8 @@ namespace Differentiation
         directional_derivative(const adouble &, const unsigned int)
         {
           AssertThrow(false,
-                      ExcMessage(
-                        "The derivative values for taped ADOL-C numbers must be"
-                        " computed through the ::gradient function."));
+                      ExcMessage("The derivative values for taped ADOL-C numbers must be"
+                                 " computed through the ::gradient function."));
           return 0.0;
         }
       };
@@ -303,14 +288,11 @@ namespace Differentiation
          * Extract the directional derivative in the specified @p direction.
          */
         static double
-        directional_derivative(const adtl::adouble &x,
-                               const unsigned int   direction)
+        directional_derivative(const adtl::adouble &x, const unsigned int direction)
         {
-          Assert(
-            direction < n_directional_derivatives(x),
-            ExcMessage(
-              "Requested directional derivative is greater than the number "
-              "registered by ADOL-C."));
+          Assert(direction < n_directional_derivatives(x),
+                 ExcMessage("Requested directional derivative is greater than the number "
+                            "registered by ADOL-C."));
           return x.getADValue(direction);
         }
       };
@@ -328,13 +310,10 @@ namespace Differentiation
      * @note In this case the number traits are the same as those for a taped double.
      */
     template <typename ADNumberType>
-    struct ADNumberTraits<
-      ADNumberType,
-      std::enable_if_t<std::is_same_v<ADNumberType, adouble>>>
+    struct ADNumberTraits<ADNumberType, std::enable_if_t<std::is_same_v<ADNumberType, adouble>>>
       : NumberTraits<double, NumberTypes::adolc_taped>
     {
-      static_assert(std::is_same_v<ad_type, adouble>,
-                    "Incorrect template type selected for taped ad_type");
+      static_assert(std::is_same_v<ad_type, adouble>, "Incorrect template type selected for taped ad_type");
       static_assert(is_taped == true, "Incorrect setting for taping");
     };
 
@@ -350,9 +329,7 @@ namespace Differentiation
      * double.
      */
     template <typename ADNumberType>
-    struct ADNumberTraits<
-      ADNumberType,
-      std::enable_if_t<std::is_same_v<ADNumberType, std::complex<adouble>>>>
+    struct ADNumberTraits<ADNumberType, std::enable_if_t<std::is_same_v<ADNumberType, std::complex<adouble>>>>
       : NumberTraits<std::complex<double>, NumberTypes::adolc_taped>
     {
       static_assert(std::is_same_v<ad_type, std::complex<adouble>>,
@@ -371,13 +348,10 @@ namespace Differentiation
      * @note In this case the number traits are the same as those for a tapeless double.
      */
     template <typename ADNumberType>
-    struct ADNumberTraits<
-      ADNumberType,
-      std::enable_if_t<std::is_same_v<ADNumberType, adtl::adouble>>>
+    struct ADNumberTraits<ADNumberType, std::enable_if_t<std::is_same_v<ADNumberType, adtl::adouble>>>
       : NumberTraits<double, NumberTypes::adolc_tapeless>
     {
-      static_assert(std::is_same_v<ad_type, adtl::adouble>,
-                    "Incorrect template type selected for tapeless ad_type");
+      static_assert(std::is_same_v<ad_type, adtl::adouble>, "Incorrect template type selected for tapeless ad_type");
       static_assert(is_tapeless == true, "Incorrect setting for taping");
     };
 
@@ -393,10 +367,7 @@ namespace Differentiation
      * complex double.
      */
     template <typename ADNumberType>
-    struct ADNumberTraits<
-      ADNumberType,
-      std::enable_if_t<
-        std::is_same_v<ADNumberType, std::complex<adtl::adouble>>>>
+    struct ADNumberTraits<ADNumberType, std::enable_if_t<std::is_same_v<ADNumberType, std::complex<adtl::adouble>>>>
       : NumberTraits<std::complex<double>, NumberTypes::adolc_tapeless>
     {
       static_assert(std::is_same_v<ad_type, std::complex<adtl::adouble>>,
@@ -412,8 +383,7 @@ namespace Differentiation
      */
     template <>
     struct NumberTraits<adouble, NumberTypes::adolc_taped>
-      : NumberTraits<typename ADNumberTraits<adouble>::scalar_type,
-                     NumberTypes::adolc_taped>
+      : NumberTraits<typename ADNumberTraits<adouble>::scalar_type, NumberTypes::adolc_taped>
     {};
 
 
@@ -423,9 +393,7 @@ namespace Differentiation
      */
     template <>
     struct NumberTraits<std::complex<adouble>, NumberTypes::adolc_taped>
-      : NumberTraits<
-          typename ADNumberTraits<std::complex<adouble>>::scalar_type,
-          NumberTypes::adolc_taped>
+      : NumberTraits<typename ADNumberTraits<std::complex<adouble>>::scalar_type, NumberTypes::adolc_taped>
     {};
 
 
@@ -435,8 +403,7 @@ namespace Differentiation
      */
     template <>
     struct NumberTraits<adtl::adouble, NumberTypes::adolc_tapeless>
-      : NumberTraits<typename ADNumberTraits<adtl::adouble>::scalar_type,
-                     NumberTypes::adolc_tapeless>
+      : NumberTraits<typename ADNumberTraits<adtl::adouble>::scalar_type, NumberTypes::adolc_tapeless>
     {};
 
 
@@ -445,11 +412,8 @@ namespace Differentiation
      * the (otherwise disabled) tapeless ADOL-C complex number type.
      */
     template <>
-    struct NumberTraits<std::complex<adtl::adouble>,
-                        NumberTypes::adolc_tapeless>
-      : NumberTraits<
-          typename ADNumberTraits<std::complex<adtl::adouble>>::scalar_type,
-          NumberTypes::adolc_tapeless>
+    struct NumberTraits<std::complex<adtl::adouble>, NumberTypes::adolc_tapeless>
+      : NumberTraits<typename ADNumberTraits<std::complex<adtl::adouble>>::scalar_type, NumberTypes::adolc_tapeless>
     {};
 
 
@@ -460,8 +424,8 @@ namespace Differentiation
     template <typename NumberType>
     struct is_adolc_taped_number<
       NumberType,
-      std::enable_if_t<ADNumberTraits<std::decay_t<NumberType>>::type_code ==
-                       NumberTypes::adolc_taped>> : std::true_type
+      std::enable_if_t<ADNumberTraits<std::decay_t<NumberType>>::type_code == NumberTypes::adolc_taped>>
+      : std::true_type
     {};
 
 
@@ -472,8 +436,8 @@ namespace Differentiation
     template <typename NumberType>
     struct is_adolc_tapeless_number<
       NumberType,
-      std::enable_if_t<ADNumberTraits<std::decay_t<NumberType>>::type_code ==
-                       NumberTypes::adolc_tapeless>> : std::true_type
+      std::enable_if_t<ADNumberTraits<std::decay_t<NumberType>>::type_code == NumberTypes::adolc_tapeless>>
+      : std::true_type
     {};
 
 
@@ -484,8 +448,7 @@ namespace Differentiation
     template <typename NumberType>
     struct is_adolc_number<
       NumberType,
-      std::enable_if_t<is_adolc_taped_number<NumberType>::value ||
-                       is_adolc_tapeless_number<NumberType>::value>>
+      std::enable_if_t<is_adolc_taped_number<NumberType>::value || is_adolc_tapeless_number<NumberType>::value>>
       : std::true_type
     {};
 

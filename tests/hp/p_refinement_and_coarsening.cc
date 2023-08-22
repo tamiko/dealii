@@ -65,8 +65,7 @@ test()
     {
       Assert(cell->future_fe_index_set() == false, ExcInternalError());
 
-      deallog << "cell:" << cell->id().to_string()
-              << ", fe_index:" << cell->active_fe_index() << std::endl;
+      deallog << "cell:" << cell->id().to_string() << ", fe_index:" << cell->active_fe_index() << std::endl;
     }
 }
 

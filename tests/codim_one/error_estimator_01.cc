@@ -86,8 +86,7 @@ make_mesh(Triangulation<dim, spacedim> &tria)
   const double steps[4] = {/*d=0*/ 0, 7, 3, 3};
   for (unsigned int i = 0; i < steps[dim]; ++i)
     {
-      typename Triangulation<dim, spacedim>::active_cell_iterator cell =
-        tria.begin_active();
+      typename Triangulation<dim, spacedim>::active_cell_iterator cell = tria.begin_active();
       for (unsigned int index = 0; cell != tria.end(); ++cell, ++index)
         if (index % (3 * dim) == 0)
           cell->set_refine_flag();
@@ -99,9 +98,7 @@ make_mesh(Triangulation<dim, spacedim> &tria)
   // ids based on their position, in
   // particular we take the quadrant
   // (octant)
-  typename Triangulation<dim, spacedim>::active_cell_iterator
-    cell = tria.begin_active(),
-    endc = tria.end();
+  typename Triangulation<dim, spacedim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
   for (; cell != endc; ++cell)
     {
       unsigned int subdomain = 0;
@@ -130,7 +127,7 @@ check()
   dof.distribute_dofs(element);
 
   MappingQ<dim, spacedim> mapping(3);
-  Quadrature<dim - 1> &   q_face = get_q_face<dim>();
+  Quadrature<dim - 1>    &q_face = get_q_face<dim>();
 
   std::map<types::boundary_id, const Function<spacedim> *> neumann_bc;
   neumann_bc[0] = &function;
@@ -146,8 +143,7 @@ check()
   // results. scale results so that they show
   // up in the output file as a reasonable
   // number
-  KellyErrorEstimator<dim, spacedim>::estimate(
-    mapping, dof, q_face, neumann_bc, v, error1);
+  KellyErrorEstimator<dim, spacedim>::estimate(mapping, dof, q_face, neumann_bc, v, error1);
   const double scaling_factor = 500000. / error1.linfty_norm();
   error1 *= scaling_factor;
 

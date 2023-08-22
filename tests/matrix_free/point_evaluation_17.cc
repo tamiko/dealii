@@ -85,16 +85,12 @@ test()
   Vector<double> vector(dof_handler.n_dofs());
 
   // mapping info object for precomputed mapping
-  NonMatching::MappingInfo<dim, dim> mapping_info(mapping,
-                                                  update_values |
-                                                    update_gradients);
+  NonMatching::MappingInfo<dim, dim> mapping_info(mapping, update_values | update_gradients);
   // The first evaluator will use the precomputed mapping
   FEPointEvaluation<dim, dim> evaluator1(mapping_info, fe);
 
   // The second evaluator will compute the mapping on the fly
-  FEPointEvaluation<dim, dim> evaluator2(mapping,
-                                         fe,
-                                         update_values | update_gradients);
+  FEPointEvaluation<dim, dim> evaluator2(mapping, fe, update_values | update_gradients);
 
   VectorTools::interpolate(mapping, dof_handler, MyFunction<dim>(), vector);
 
@@ -105,27 +101,19 @@ test()
 
   for (const auto &cell : dof_handler.active_cell_iterators())
     {
-      cell->get_dof_values(vector,
-                           solution_values.begin(),
-                           solution_values.end());
+      cell->get_dof_values(vector, solution_values.begin(), solution_values.end());
 
       mapping_info.reinit(cell, unit_points);
-      evaluator1.evaluate(solution_values,
-                          EvaluationFlags::values | EvaluationFlags::gradients);
+      evaluator1.evaluate(solution_values, EvaluationFlags::values | EvaluationFlags::gradients);
 
       evaluator2.reinit(cell, unit_points);
-      evaluator2.evaluate(solution_values,
-                          EvaluationFlags::values | EvaluationFlags::gradients);
+      evaluator2.evaluate(solution_values, EvaluationFlags::values | EvaluationFlags::gradients);
 
       deallog << "Cell with center " << cell->center(true) << std::endl;
       for (unsigned int i = 0; i < unit_points.size(); ++i)
-        deallog
-          << mapping.transform_unit_to_real_cell(cell, unit_points[i]) << ": "
-          << evaluator1.get_value(i) << " error value "
-          << (evaluator1.get_value(i) - evaluator2.get_value(i)).norm()
-          << " error grad "
-          << (evaluator1.get_gradient(i) - evaluator2.get_gradient(i)).norm()
-          << std::endl;
+        deallog << mapping.transform_unit_to_real_cell(cell, unit_points[i]) << ": " << evaluator1.get_value(i)
+                << " error value " << (evaluator1.get_value(i) - evaluator2.get_value(i)).norm() << " error grad "
+                << (evaluator1.get_gradient(i) - evaluator2.get_gradient(i)).norm() << std::endl;
       deallog << std::endl;
 
       for (unsigned int i = 0; i < unit_points.size(); ++i)
@@ -137,12 +125,8 @@ test()
           evaluator2.submit_gradient(evaluator2.get_gradient(i), i);
         }
 
-      evaluator1.test_and_sum(solution_values,
-                              EvaluationFlags::values |
-                                EvaluationFlags::gradients);
-      evaluator2.test_and_sum(solution_values2,
-                              EvaluationFlags::values |
-                                EvaluationFlags::gradients);
+      evaluator1.test_and_sum(solution_values, EvaluationFlags::values | EvaluationFlags::gradients);
+      evaluator2.test_and_sum(solution_values2, EvaluationFlags::values | EvaluationFlags::gradients);
 
       for (unsigned int i = 0; i < solution_values.size(); ++i)
         deallog << solution_values[i] - solution_values2[i] << ' ';

@@ -45,25 +45,21 @@ namespace Threads
       {
         std::lock_guard<std::mutex> lock(mutex);
 
-        std::cerr
-          << std::endl
-          << std::endl
-          << "---------------------------------------------------------"
-          << std::endl
-          << "In one of the sub-threads of this program, an exception\n"
-          << "was thrown and not caught. Since exceptions do not\n"
-          << "propagate to the main thread, the library has caught it.\n"
-          << "The information carried by this exception is given below.\n"
-          << std::endl
-          << "---------------------------------------------------------"
-          << std::endl;
+        std::cerr << std::endl
+                  << std::endl
+                  << "---------------------------------------------------------" << std::endl
+                  << "In one of the sub-threads of this program, an exception\n"
+                  << "was thrown and not caught. Since exceptions do not\n"
+                  << "propagate to the main thread, the library has caught it.\n"
+                  << "The information carried by this exception is given below.\n"
+                  << std::endl
+                  << "---------------------------------------------------------" << std::endl;
         std::cerr << "Exception message: " << std::endl
                   << "  " << exc.what() << std::endl
                   << "Exception type: " << std::endl
                   << "  " << typeid(exc).name() << std::endl;
         std::cerr << "Aborting!" << std::endl
-                  << "---------------------------------------------------------"
-                  << std::endl;
+                  << "---------------------------------------------------------" << std::endl;
       }
 
       std::abort();
@@ -85,21 +81,17 @@ namespace Threads
       {
         std::lock_guard<std::mutex> lock(mutex);
 
-        std::cerr
-          << std::endl
-          << std::endl
-          << "---------------------------------------------------------"
-          << std::endl
-          << "In one of the sub-threads of this program, an exception\n"
-          << "was thrown and not caught. Since exceptions do not\n"
-          << "propagate to the main thread, the library has caught it.\n"
-          << std::endl
-          << "---------------------------------------------------------"
-          << std::endl;
+        std::cerr << std::endl
+                  << std::endl
+                  << "---------------------------------------------------------" << std::endl
+                  << "In one of the sub-threads of this program, an exception\n"
+                  << "was thrown and not caught. Since exceptions do not\n"
+                  << "propagate to the main thread, the library has caught it.\n"
+                  << std::endl
+                  << "---------------------------------------------------------" << std::endl;
         std::cerr << "Type of exception is unknown, but not std::exception.\n"
                   << "No additional information is available.\n"
-                  << "---------------------------------------------------------"
-                  << std::endl;
+                  << "---------------------------------------------------------" << std::endl;
       }
       std::abort();
     }
@@ -108,9 +100,7 @@ namespace Threads
 
 
   std::vector<std::pair<unsigned int, unsigned int>>
-  split_interval(const unsigned int begin,
-                 const unsigned int end,
-                 const unsigned int n_intervals)
+  split_interval(const unsigned int begin, const unsigned int end, const unsigned int n_intervals)
   {
     Assert(end >= begin, ExcInternalError());
 
@@ -118,16 +108,14 @@ namespace Threads
     const unsigned int n_elements_per_interval = n_elements / n_intervals;
     const unsigned int residual                = n_elements % n_intervals;
 
-    std::vector<std::pair<unsigned int, unsigned int>> return_values(
-      n_intervals);
+    std::vector<std::pair<unsigned int, unsigned int>> return_values(n_intervals);
 
     return_values[0].first = begin;
     for (unsigned int i = 0; i < n_intervals; ++i)
       {
         if (i != n_intervals - 1)
           {
-            return_values[i].second =
-              (return_values[i].first + n_elements_per_interval);
+            return_values[i].second = (return_values[i].first + n_elements_per_interval);
             // distribute residual in
             // division equally among
             // the first few

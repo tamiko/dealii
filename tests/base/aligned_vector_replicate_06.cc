@@ -28,8 +28,7 @@ void
 test(const unsigned int root)
 {
   if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == root)
-    deallog << root << " of " << Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD)
-            << ": ";
+    deallog << root << " of " << Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD) << ": ";
 
   AlignedVector<int> avec(1000);
   if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == root)
@@ -68,7 +67,6 @@ main(int argc, char **argv)
   Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
   MPILogInitAll                    all;
 
-  for (unsigned int i = 0; i < Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
-       ++i)
+  for (unsigned int i = 0; i < Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD); ++i)
     test(i);
 }

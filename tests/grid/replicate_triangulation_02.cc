@@ -36,8 +36,7 @@ test()
     GridGenerator::replicate_triangulation(tr2, reps2, res2);
     for (const auto &face : res2.active_face_iterators())
       if (face->at_boundary())
-        deallog << "face: " << face->center()
-                << " boundary id: " << face->boundary_id() << std::endl;
+        deallog << "face: " << face->center() << " boundary id: " << face->boundary_id() << std::endl;
   }
 
   {
@@ -63,11 +62,9 @@ test()
     for (const auto &face : res3.active_face_iterators())
       if (face->at_boundary())
         {
-          deallog << "face: " << face->center()
-                  << " boundary id: " << face->boundary_id() << std::endl;
+          deallog << "face: " << face->center() << " boundary id: " << face->boundary_id() << std::endl;
           for (unsigned int l = 0; l < GeometryInfo<2>::lines_per_cell; ++l)
-            deallog << "line: " << face->line(l)->center()
-                    << " boundary id: " << face->line(l)->boundary_id()
+            deallog << "line: " << face->line(l)->center() << " boundary id: " << face->line(l)->boundary_id()
                     << std::endl;
         }
   }

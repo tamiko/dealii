@@ -77,14 +77,12 @@ namespace Differentiation
      * An exception to indicate that the string sent to the SymEngine
      * parser is not valid.
      */
-    DeclException1(
-      ExcSymEngineParserError,
-      std::string,
-      << "The string '" << arg1
-      << "' could not be parsed successfully. Are you sure that (1) it "
-      << "consists of legitimate operations and syntax, and (2) you've "
-      << "previously declared all symbolic variables that are present "
-      << "in the expression?");
+    DeclException1(ExcSymEngineParserError,
+                   std::string,
+                   << "The string '" << arg1 << "' could not be parsed successfully. Are you sure that (1) it "
+                   << "consists of legitimate operations and syntax, and (2) you've "
+                   << "previously declared all symbolic variables that are present "
+                   << "in the expression?");
 
     /** @} */
 
@@ -203,8 +201,7 @@ namespace Differentiation
        * potential ambiguities related to implicit conversions in either user
        * code or math functions that are loaded into the standard namespace.
        */
-      template <typename NumberType,
-                typename = std::enable_if_t<std::is_arithmetic_v<NumberType>>>
+      template <typename NumberType, typename = std::enable_if_t<std::is_arithmetic_v<NumberType>>>
       explicit Expression(const NumberType &value);
 
       /**
@@ -214,8 +211,7 @@ namespace Differentiation
        * potential ambiguities related to implicit conversions in either user
        * code or math functions that are loaded into the standard namespace.
        */
-      template <typename NumberType,
-                typename = std::enable_if_t<std::is_arithmetic_v<NumberType>>>
+      template <typename NumberType, typename = std::enable_if_t<std::is_arithmetic_v<NumberType>>>
       explicit Expression(const std::complex<NumberType> &value);
 
       /**
@@ -229,8 +225,7 @@ namespace Differentiation
        * It is expected that both the @p numerator and @p denominator
        * be integral types.
        */
-      template <typename NumberType,
-                typename = std::enable_if_t<std::is_integral_v<NumberType>>>
+      template <typename NumberType, typename = std::enable_if_t<std::is_integral_v<NumberType>>>
       Expression(const NumberType &numerator, const NumberType &denominator);
 
       /**
@@ -299,9 +294,8 @@ namespace Differentiation
        * as the first argument, and the default return value as the second
        * argument.
        */
-      Expression(const std::vector<std::pair<Expression, Expression>>
-                   &               condition_expression,
-                 const Expression &expression_otherwise);
+      Expression(const std::vector<std::pair<Expression, Expression>> &condition_expression,
+                 const Expression                                     &expression_otherwise);
 
       /**
        * Constructor for a piecewise defined function.
@@ -322,8 +316,7 @@ namespace Differentiation
        * results. If none of the conditions are met upon evaluation then the
        * returned result will be NaN.
        */
-      Expression(const std::vector<std::pair<Expression, Expression>>
-                   &condition_expression);
+      Expression(const std::vector<std::pair<Expression, Expression>> &condition_expression);
 
 
       /**
@@ -346,8 +339,7 @@ namespace Differentiation
        * @p symb_expr will be parsed as a symbolic expression (potentially
        * composed of multiple symbols, constants, etc.).
        */
-      Expression(const std::string &symb_expr,
-                 const bool         parse_as_expression = false);
+      Expression(const std::string &symb_expr, const bool parse_as_expression = false);
 
       /**
        * Constructor for function symbol types.
@@ -355,8 +347,7 @@ namespace Differentiation
        * This constructor initializes a function symbol with a string
        * representing its symbolic name.
        */
-      Expression(const std::string &         symbol_func,
-                 const types::symbol_vector &arguments);
+      Expression(const std::string &symbol_func, const types::symbol_vector &arguments);
 
       /**
        * Copy constructor.
@@ -675,8 +666,7 @@ namespace Differentiation
        * with respect to the given @p symbol.
        */
       Expression
-      differentiate(
-        const SymEngine::RCP<const SymEngine::Symbol> &symbol) const;
+      differentiate(const SymEngine::RCP<const SymEngine::Symbol> &symbol) const;
 
       /**
        * Return the derivative of this object's @p expression
@@ -760,8 +750,7 @@ namespace Differentiation
        */
       template <typename ReturnType>
       ReturnType
-      substitute_and_evaluate(
-        const types::substitution_map &substitution_values) const;
+      substitute_and_evaluate(const types::substitution_map &substitution_values) const;
 
       /**
        * Full substitution and evaluation. This creates a Expression by
@@ -776,8 +765,7 @@ namespace Differentiation
        */
       template <typename ReturnType>
       ReturnType
-      substitute_and_evaluate(
-        const SymEngine::map_basic_basic &substitution_values) const;
+      substitute_and_evaluate(const SymEngine::map_basic_basic &substitution_values) const;
 
       /** @} */
 
@@ -1080,9 +1068,7 @@ namespace Differentiation
      * is promoted to a Expression. The type conversion makes writing
      * scalar expressions using Expression more natural.
      */
-    template <typename NumberType,
-              typename = std::enable_if_t<
-                std::is_constructible_v<Expression, NumberType>>>
+    template <typename NumberType, typename = std::enable_if_t<std::is_constructible_v<Expression, NumberType>>>
     inline Expression
     operator+(const NumberType &lhs, const Expression &rhs)
     {
@@ -1097,9 +1083,7 @@ namespace Differentiation
      * is promoted to a Expression. The type conversion makes writing
      * scalar expressions using Expression more natural.
      */
-    template <typename NumberType,
-              typename = std::enable_if_t<
-                std::is_constructible_v<Expression, NumberType>>>
+    template <typename NumberType, typename = std::enable_if_t<std::is_constructible_v<Expression, NumberType>>>
     inline Expression
     operator+(const Expression &lhs, const NumberType &rhs)
     {
@@ -1114,9 +1098,7 @@ namespace Differentiation
      * is promoted to a Expression. The type conversion makes writing
      * scalar expressions using Expression more natural.
      */
-    template <typename NumberType,
-              typename = std::enable_if_t<
-                std::is_constructible_v<Expression, NumberType>>>
+    template <typename NumberType, typename = std::enable_if_t<std::is_constructible_v<Expression, NumberType>>>
     inline Expression
     operator-(const NumberType &lhs, const Expression &rhs)
     {
@@ -1131,9 +1113,7 @@ namespace Differentiation
      * is promoted to a Expression. The type conversion makes writing
      * scalar expressions using Expression more natural.
      */
-    template <typename NumberType,
-              typename = std::enable_if_t<
-                std::is_constructible_v<Expression, NumberType>>>
+    template <typename NumberType, typename = std::enable_if_t<std::is_constructible_v<Expression, NumberType>>>
     inline Expression
     operator-(const Expression &lhs, const NumberType &rhs)
     {
@@ -1148,9 +1128,7 @@ namespace Differentiation
      * is promoted to a Expression. The type conversion makes writing
      * scalar expressions using Expression more natural.
      */
-    template <typename NumberType,
-              typename = std::enable_if_t<
-                std::is_constructible_v<Expression, NumberType>>>
+    template <typename NumberType, typename = std::enable_if_t<std::is_constructible_v<Expression, NumberType>>>
     inline Expression
     operator*(const NumberType &lhs, const Expression &rhs)
     {
@@ -1165,9 +1143,7 @@ namespace Differentiation
      * is promoted to a Expression. The type conversion makes writing
      * scalar expressions using Expression more natural.
      */
-    template <typename NumberType,
-              typename = std::enable_if_t<
-                std::is_constructible_v<Expression, NumberType>>>
+    template <typename NumberType, typename = std::enable_if_t<std::is_constructible_v<Expression, NumberType>>>
     inline Expression
     operator*(const Expression &lhs, const NumberType &rhs)
     {
@@ -1182,9 +1158,7 @@ namespace Differentiation
      * is promoted to a Expression. The type conversion makes writing
      * scalar expressions using Expression more natural.
      */
-    template <typename NumberType,
-              typename = std::enable_if_t<
-                std::is_constructible_v<Expression, NumberType>>>
+    template <typename NumberType, typename = std::enable_if_t<std::is_constructible_v<Expression, NumberType>>>
     inline Expression
     operator/(const NumberType &lhs, const Expression &rhs)
     {
@@ -1199,9 +1173,7 @@ namespace Differentiation
      * is promoted to a Expression. The type conversion makes writing
      * scalar expressions using Expression more natural.
      */
-    template <typename NumberType,
-              typename = std::enable_if_t<
-                std::is_constructible_v<Expression, NumberType>>>
+    template <typename NumberType, typename = std::enable_if_t<std::is_constructible_v<Expression, NumberType>>>
     inline Expression
     operator/(const Expression &lhs, const NumberType &rhs)
     {
@@ -1237,11 +1209,8 @@ namespace Differentiation
 
 
     template <typename NumberType, typename>
-    Expression::Expression(const NumberType &numerator,
-                           const NumberType &denominator)
-      : expression(
-          SymEngine::Rational::from_two_ints(*SymEngine::integer(numerator),
-                                             *SymEngine::integer(denominator)))
+    Expression::Expression(const NumberType &numerator, const NumberType &denominator)
+      : expression(SymEngine::Rational::from_two_ints(*SymEngine::integer(numerator), *SymEngine::integer(denominator)))
     {}
 
 
@@ -1252,7 +1221,7 @@ namespace Differentiation
       std::stringstream sstream;
       sstream << *this;
       const std::string expr = sstream.str();
-      ar &              expr;
+      ar               &expr;
     }
 
 
@@ -1261,19 +1230,17 @@ namespace Differentiation
     Expression::load(Archive &ar, const unsigned int /*version*/)
     {
       std::string expr;
-      ar &        expr;
+      ar         &expr;
       parse(expr);
     }
 
 
     template <typename NumberType>
     Expression
-    Expression::substitute(const Expression &symbol,
-                           const NumberType &value) const
+    Expression::substitute(const Expression &symbol, const NumberType &value) const
     {
       Assert(SymEngine::is_a<SymEngine::Symbol>(symbol.get_value()),
-             ExcMessage(
-               "Substitution with a number that does not represent a symbol."));
+             ExcMessage("Substitution with a number that does not represent a symbol."));
 
       types::substitution_map sub_vals;
       sub_vals[symbol] = Expression(value);
@@ -1283,8 +1250,7 @@ namespace Differentiation
 
     template <typename ReturnType>
     ReturnType
-    Expression::substitute_and_evaluate(
-      const types::substitution_map &substitution_values) const
+    Expression::substitute_and_evaluate(const types::substitution_map &substitution_values) const
     {
       return static_cast<ReturnType>(substitute(substitution_values));
     }
@@ -1292,8 +1258,7 @@ namespace Differentiation
 
     template <typename ReturnType>
     ReturnType
-    Expression::substitute_and_evaluate(
-      const SymEngine::map_basic_basic &substitution_values) const
+    Expression::substitute_and_evaluate(const SymEngine::map_basic_basic &substitution_values) const
     {
       return static_cast<ReturnType>(substitute(substitution_values));
     }
@@ -1429,16 +1394,14 @@ namespace numbers
 
   template <>
   inline bool
-  values_are_equal(const Differentiation::SD::Expression &value_1,
-                   const Differentiation::SD::Expression &value_2)
+  values_are_equal(const Differentiation::SD::Expression &value_1, const Differentiation::SD::Expression &value_2)
   {
     return (value_1.get_value().__cmp__(value_2.get_value()) == 0);
   }
 
   template <>
   inline bool
-  value_is_less_than(const Differentiation::SD::Expression &value_1,
-                     const Differentiation::SD::Expression &value_2)
+  value_is_less_than(const Differentiation::SD::Expression &value_1, const Differentiation::SD::Expression &value_2)
   {
     return (value_1.get_value().__cmp__(value_2.get_value()) == -1);
   }

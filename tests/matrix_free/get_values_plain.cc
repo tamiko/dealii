@@ -46,10 +46,7 @@
 
 
 
-template <int dim,
-          int fe_degree,
-          int n_q_points_1d = fe_degree + 1,
-          typename Number   = double>
+template <int dim, int fe_degree, int n_q_points_1d = fe_degree + 1, typename Number = double>
 class MatrixFreeTest
 {
 public:
@@ -61,7 +58,7 @@ public:
   virtual void
   operator()(const MatrixFree<dim, Number> &data,
              Vector<Number> &,
-             const Vector<Number> &                       src,
+             const Vector<Number>                        &src,
              const std::pair<unsigned int, unsigned int> &cell_range) const
   {
     FEEvaluation<dim, fe_degree, n_q_points_1d, 1, Number> fe_eval(data);
@@ -77,8 +74,7 @@ public:
         for (unsigned int i = 0; i < fe_eval.dofs_per_cell; ++i)
           for (unsigned int j = 0; j < VectorizedArray<Number>::size(); ++j)
             {
-              error += std::fabs(fe_eval.get_dof_value(i)[j] -
-                                 fe_eval_plain.get_dof_value(i)[j]);
+              error += std::fabs(fe_eval.get_dof_value(i)[j] - fe_eval_plain.get_dof_value(i)[j]);
               total += std::fabs(fe_eval.get_dof_value(i)[j]);
             }
       }
@@ -92,15 +88,9 @@ public:
     error = 0;
     total = 0;
     Vector<Number> dst_dummy;
-    data.cell_loop(
-      &MatrixFreeTest<dim, fe_degree, n_q_points_1d, Number>::operator(),
-      this,
-      dst_dummy,
-      src);
+    data.cell_loop(&MatrixFreeTest<dim, fe_degree, n_q_points_1d, Number>::operator(), this, dst_dummy, src);
 
-    deallog << "Error read_dof_values vs read_dof_values_plain: "
-            << error / total << std::endl
-            << std::endl;
+    deallog << "Error read_dof_values vs read_dof_values_plain: " << error / total << std::endl << std::endl;
   };
 
 protected:
@@ -112,8 +102,7 @@ protected:
 
 template <int dim, int fe_degree, typename number>
 void
-do_test(const DoFHandler<dim> &          dof,
-        const AffineConstraints<double> &constraints)
+do_test(const DoFHandler<dim> &dof, const AffineConstraints<double> &constraints)
 {
   deallog << "Testing " << dof.get_fe().get_name() << std::endl;
   // std::cout << "Number of cells: " <<
@@ -161,10 +150,8 @@ test()
   // refine a few cells
   for (unsigned int i = 0; i < 11 - 3 * dim; ++i)
     {
-      typename Triangulation<dim>::active_cell_iterator cell =
-                                                          tria.begin_active(),
-                                                        endc = tria.end();
-      unsigned int counter                                   = 0;
+      typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
+      unsigned int                                      counter = 0;
       for (; cell != endc; ++cell, ++counter)
         if (counter % (7 - i) == 0)
           cell->set_refine_flag();
@@ -177,10 +164,7 @@ test()
 
   AffineConstraints<double> constraints;
   DoFTools::make_hanging_node_constraints(dof, constraints);
-  VectorTools::interpolate_boundary_values(dof,
-                                           1,
-                                           Functions::ZeroFunction<dim>(),
-                                           constraints);
+  VectorTools::interpolate_boundary_values(dof, 1, Functions::ZeroFunction<dim>(), constraints);
   constraints.close();
 
   do_test<dim, fe_degree, double>(dof, constraints);

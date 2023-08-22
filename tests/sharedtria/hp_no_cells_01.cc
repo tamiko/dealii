@@ -51,17 +51,15 @@ template <int dim>
 void
 test()
 {
-  parallel::shared::Triangulation<dim> triangulation(
-    MPI_COMM_WORLD,
-    typename Triangulation<dim>::MeshSmoothing(
-      Triangulation<dim>::limit_level_difference_at_vertices),
-    true,
-    parallel::shared::Triangulation<dim>::partition_custom_signal);
+  parallel::shared::Triangulation<dim> triangulation(MPI_COMM_WORLD,
+                                                     typename Triangulation<dim>::MeshSmoothing(
+                                                       Triangulation<dim>::limit_level_difference_at_vertices),
+                                                     true,
+                                                     parallel::shared::Triangulation<dim>::partition_custom_signal);
   triangulation.signals.post_refinement.connect([&triangulation]() {
     // partition the triangulation by hand
     for (auto &cell : triangulation.active_cell_iterators())
-      cell->set_subdomain_id(cell->active_cell_index() %
-                             Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD));
+      cell->set_subdomain_id(cell->active_cell_index() % Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD));
   });
 
   GridGenerator::hyper_cube(triangulation);
@@ -75,13 +73,11 @@ test()
   dof_handler.distribute_dofs(fe);
 
   deallog << "n_dofs: " << dof_handler.n_dofs() << std::endl;
-  deallog << "n_locally_owned_dofs: " << dof_handler.n_locally_owned_dofs()
-          << std::endl;
+  deallog << "n_locally_owned_dofs: " << dof_handler.n_locally_owned_dofs() << std::endl;
 
   deallog << "n_locally_owned_dofs_per_processor: ";
   std::vector<types::global_dof_index> v =
-    Utilities::MPI::all_gather(MPI_COMM_WORLD,
-                               dof_handler.n_locally_owned_dofs());
+    Utilities::MPI::all_gather(MPI_COMM_WORLD, dof_handler.n_locally_owned_dofs());
   unsigned int sum = 0;
   for (unsigned int i = 0; i < v.size(); ++i)
     {
@@ -93,12 +89,8 @@ test()
   dof_handler.locally_owned_dofs().write(deallog.get_file_stream());
   deallog << std::endl;
 
-  Assert(dof_handler.n_locally_owned_dofs() ==
-           v[triangulation.locally_owned_subdomain()],
-         ExcInternalError());
-  Assert(dof_handler.n_locally_owned_dofs() ==
-           dof_handler.locally_owned_dofs().n_elements(),
-         ExcInternalError());
+  Assert(dof_handler.n_locally_owned_dofs() == v[triangulation.locally_owned_subdomain()], ExcInternalError());
+  Assert(dof_handler.n_locally_owned_dofs() == dof_handler.locally_owned_dofs().n_elements(), ExcInternalError());
 
   const unsigned int N = dof_handler.n_dofs();
 
@@ -106,8 +98,7 @@ test()
   Assert(std::accumulate(v.begin(), v.end(), 0U) == N, ExcInternalError());
 
   std::vector<IndexSet> locally_owned_dofs_per_processor =
-    Utilities::MPI::all_gather(MPI_COMM_WORLD,
-                               dof_handler.locally_owned_dofs());
+    Utilities::MPI::all_gather(MPI_COMM_WORLD, dof_handler.locally_owned_dofs());
   IndexSet all(N);
   for (unsigned int i = 0; i < locally_owned_dofs_per_processor.size(); ++i)
     {

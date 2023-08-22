@@ -50,8 +50,7 @@ test()
       if ((i + 2 * j + 1) % 3 == 0)
         {
           AssertThrow(m(i, j) == (i * j * .5 + .5) * 1.25, ExcInternalError());
-          AssertThrow(m.el(i, j) == (i * j * .5 + .5) * 1.25,
-                      ExcInternalError());
+          AssertThrow(m.el(i, j) == (i * j * .5 + .5) * 1.25, ExcInternalError());
         }
       else
         {
@@ -74,28 +73,20 @@ main()
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

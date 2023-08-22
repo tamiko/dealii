@@ -49,23 +49,14 @@ namespace
                            int                      m,
                            int                      nnz,
                            const cusparseMatDescr_t descrA,
-                           float *                  csrValA_valM,
-                           const int *              csrRowPtrA,
-                           const int *              csrColIndA,
+                           float                   *csrValA_valM,
+                           const int               *csrRowPtrA,
+                           const int               *csrColIndA,
                            csrilu02Info_t           info,
                            cusparseSolvePolicy_t    policy,
-                           void *                   pBuffer)
+                           void                    *pBuffer)
   {
-    return cusparseScsrilu02(handle,
-                             m,
-                             nnz,
-                             descrA,
-                             csrValA_valM,
-                             csrRowPtrA,
-                             csrColIndA,
-                             info,
-                             policy,
-                             pBuffer);
+    return cusparseScsrilu02(handle, m, nnz, descrA, csrValA_valM, csrRowPtrA, csrColIndA, info, policy, pBuffer);
   }
 
   template <>
@@ -74,23 +65,14 @@ namespace
                             int                      m,
                             int                      nnz,
                             const cusparseMatDescr_t descrA,
-                            double *                 csrValA_valM,
-                            const int *              csrRowPtrA,
-                            const int *              csrColIndA,
+                            double                  *csrValA_valM,
+                            const int               *csrRowPtrA,
+                            const int               *csrColIndA,
                             csrilu02Info_t           info,
                             cusparseSolvePolicy_t    policy,
-                            void *                   pBuffer)
+                            void                    *pBuffer)
   {
-    return cusparseDcsrilu02(handle,
-                             m,
-                             nnz,
-                             descrA,
-                             csrValA_valM,
-                             csrRowPtrA,
-                             csrColIndA,
-                             info,
-                             policy,
-                             pBuffer);
+    return cusparseDcsrilu02(handle, m, nnz, descrA, csrValA_valM, csrRowPtrA, csrColIndA, info, policy, pBuffer);
   }
 
   /*
@@ -176,23 +158,14 @@ namespace
                                     int                      m,
                                     int                      nnz,
                                     const cusparseMatDescr_t descrA,
-                                    const float *            csrValA,
-                                    const int *              csrRowPtrA,
-                                    const int *              csrColIndA,
+                                    const float             *csrValA,
+                                    const int               *csrRowPtrA,
+                                    const int               *csrColIndA,
                                     csrilu02Info_t           info,
                                     cusparseSolvePolicy_t    policy,
-                                    void *                   pBuffer)
+                                    void                    *pBuffer)
   {
-    return cusparseScsrilu02_analysis(handle,
-                                      m,
-                                      nnz,
-                                      descrA,
-                                      csrValA,
-                                      csrRowPtrA,
-                                      csrColIndA,
-                                      info,
-                                      policy,
-                                      pBuffer);
+    return cusparseScsrilu02_analysis(handle, m, nnz, descrA, csrValA, csrRowPtrA, csrColIndA, info, policy, pBuffer);
   }
 
   template <>
@@ -201,23 +174,14 @@ namespace
                                      int                      m,
                                      int                      nnz,
                                      const cusparseMatDescr_t descrA,
-                                     const double *           csrValA,
-                                     const int *              csrRowPtrA,
-                                     const int *              csrColIndA,
+                                     const double            *csrValA,
+                                     const int               *csrRowPtrA,
+                                     const int               *csrColIndA,
                                      csrilu02Info_t           info,
                                      cusparseSolvePolicy_t    policy,
-                                     void *                   pBuffer)
+                                     void                    *pBuffer)
   {
-    return cusparseDcsrilu02_analysis(handle,
-                                      m,
-                                      nnz,
-                                      descrA,
-                                      csrValA,
-                                      csrRowPtrA,
-                                      csrColIndA,
-                                      info,
-                                      policy,
-                                      pBuffer);
+    return cusparseDcsrilu02_analysis(handle, m, nnz, descrA, csrValA, csrRowPtrA, csrColIndA, info, policy, pBuffer);
   }
 
   /*
@@ -302,21 +266,14 @@ namespace
                                       int                      m,
                                       int                      nnz,
                                       const cusparseMatDescr_t descrA,
-                                      float *                  csrValA,
-                                      const int *              csrRowPtrA,
-                                      const int *              csrColIndA,
+                                      float                   *csrValA,
+                                      const int               *csrRowPtrA,
+                                      const int               *csrColIndA,
                                       csrilu02Info_t           info,
-                                      int *pBufferSizeInBytes)
+                                      int                     *pBufferSizeInBytes)
   {
-    return cusparseScsrilu02_bufferSize(handle,
-                                        m,
-                                        nnz,
-                                        descrA,
-                                        csrValA,
-                                        csrRowPtrA,
-                                        csrColIndA,
-                                        info,
-                                        pBufferSizeInBytes);
+    return cusparseScsrilu02_bufferSize(
+      handle, m, nnz, descrA, csrValA, csrRowPtrA, csrColIndA, info, pBufferSizeInBytes);
   }
 
   template <>
@@ -325,21 +282,14 @@ namespace
                                        int                      m,
                                        int                      nnz,
                                        const cusparseMatDescr_t descrA,
-                                       double *                 csrValA,
-                                       const int *              csrRowPtrA,
-                                       const int *              csrColIndA,
+                                       double                  *csrValA,
+                                       const int               *csrRowPtrA,
+                                       const int               *csrColIndA,
                                        csrilu02Info_t           info,
-                                       int *pBufferSizeInBytes)
+                                       int                     *pBufferSizeInBytes)
   {
-    return cusparseDcsrilu02_bufferSize(handle,
-                                        m,
-                                        nnz,
-                                        descrA,
-                                        csrValA,
-                                        csrRowPtrA,
-                                        csrColIndA,
-                                        info,
-                                        pBufferSizeInBytes);
+    return cusparseDcsrilu02_bufferSize(
+      handle, m, nnz, descrA, csrValA, csrRowPtrA, csrColIndA, info, pBufferSizeInBytes);
   }
 
   /*
@@ -419,23 +369,14 @@ namespace
                           int                      m,
                           int                      nnz,
                           const cusparseMatDescr_t descrA,
-                          float *                  csrValA_valM,
-                          const int *              csrRowPtrA,
-                          const int *              csrColIndA,
+                          float                   *csrValA_valM,
+                          const int               *csrRowPtrA,
+                          const int               *csrColIndA,
                           csric02Info_t            info,
                           cusparseSolvePolicy_t    policy,
-                          void *                   pBuffer)
+                          void                    *pBuffer)
   {
-    return cusparseScsric02(handle,
-                            m,
-                            nnz,
-                            descrA,
-                            csrValA_valM,
-                            csrRowPtrA,
-                            csrColIndA,
-                            info,
-                            policy,
-                            pBuffer);
+    return cusparseScsric02(handle, m, nnz, descrA, csrValA_valM, csrRowPtrA, csrColIndA, info, policy, pBuffer);
   }
 
   template <>
@@ -444,23 +385,14 @@ namespace
                            int                      m,
                            int                      nnz,
                            const cusparseMatDescr_t descrA,
-                           double *                 csrValA_valM,
-                           const int *              csrRowPtrA,
-                           const int *              csrColIndA,
+                           double                  *csrValA_valM,
+                           const int               *csrRowPtrA,
+                           const int               *csrColIndA,
                            csric02Info_t            info,
                            cusparseSolvePolicy_t    policy,
-                           void *                   pBuffer)
+                           void                    *pBuffer)
   {
-    return cusparseDcsric02(handle,
-                            m,
-                            nnz,
-                            descrA,
-                            csrValA_valM,
-                            csrRowPtrA,
-                            csrColIndA,
-                            info,
-                            policy,
-                            pBuffer);
+    return cusparseDcsric02(handle, m, nnz, descrA, csrValA_valM, csrRowPtrA, csrColIndA, info, policy, pBuffer);
   }
 
   /*
@@ -550,31 +482,19 @@ namespace
                                cusparseOperation_t      transA,
                                int                      m,
                                int                      nnz,
-                               const float *            alpha,
+                               const float             *alpha,
                                const cusparseMatDescr_t descra,
-                               const float *            csrValA,
-                               const int *              csrRowPtrA,
-                               const int *              csrColIndA,
+                               const float             *csrValA,
+                               const int               *csrRowPtrA,
+                               const int               *csrColIndA,
                                csrsv2Info_t             info,
-                               const float *            x,
-                               float *                  y,
+                               const float             *x,
+                               float                   *y,
                                cusparseSolvePolicy_t    policy,
-                               void *                   pBuffer)
+                               void                    *pBuffer)
   {
-    return cusparseScsrsv2_solve(handle,
-                                 transA,
-                                 m,
-                                 nnz,
-                                 alpha,
-                                 descra,
-                                 csrValA,
-                                 csrRowPtrA,
-                                 csrColIndA,
-                                 info,
-                                 x,
-                                 y,
-                                 policy,
-                                 pBuffer);
+    return cusparseScsrsv2_solve(
+      handle, transA, m, nnz, alpha, descra, csrValA, csrRowPtrA, csrColIndA, info, x, y, policy, pBuffer);
   }
 
   template <>
@@ -583,31 +503,19 @@ namespace
                                 cusparseOperation_t      transA,
                                 int                      m,
                                 int                      nnz,
-                                const double *           alpha,
+                                const double            *alpha,
                                 const cusparseMatDescr_t descra,
-                                const double *           csrValA,
-                                const int *              csrRowPtrA,
-                                const int *              csrColIndA,
+                                const double            *csrValA,
+                                const int               *csrRowPtrA,
+                                const int               *csrColIndA,
                                 csrsv2Info_t             info,
-                                const double *           x,
-                                double *                 y,
+                                const double            *x,
+                                double                  *y,
                                 cusparseSolvePolicy_t    policy,
-                                void *                   pBuffer)
+                                void                    *pBuffer)
   {
-    return cusparseDcsrsv2_solve(handle,
-                                 transA,
-                                 m,
-                                 nnz,
-                                 alpha,
-                                 descra,
-                                 csrValA,
-                                 csrRowPtrA,
-                                 csrColIndA,
-                                 info,
-                                 x,
-                                 y,
-                                 policy,
-                                 pBuffer);
+    return cusparseDcsrsv2_solve(
+      handle, transA, m, nnz, alpha, descra, csrValA, csrRowPtrA, csrColIndA, info, x, y, policy, pBuffer);
   }
 
   /*
@@ -711,24 +619,15 @@ namespace
                                   int                      m,
                                   int                      nnz,
                                   const cusparseMatDescr_t descrA,
-                                  const float *            csrValA,
-                                  const int *              csrRowPtrA,
-                                  const int *              csrColIndA,
+                                  const float             *csrValA,
+                                  const int               *csrRowPtrA,
+                                  const int               *csrColIndA,
                                   csrsv2Info_t             info,
                                   cusparseSolvePolicy_t    policy,
-                                  void *                   pBuffer)
+                                  void                    *pBuffer)
   {
-    return cusparseScsrsv2_analysis(handle,
-                                    transA,
-                                    m,
-                                    nnz,
-                                    descrA,
-                                    csrValA,
-                                    csrRowPtrA,
-                                    csrColIndA,
-                                    info,
-                                    policy,
-                                    pBuffer);
+    return cusparseScsrsv2_analysis(
+      handle, transA, m, nnz, descrA, csrValA, csrRowPtrA, csrColIndA, info, policy, pBuffer);
   }
 
   template <>
@@ -738,24 +637,15 @@ namespace
                                    int                      m,
                                    int                      nnz,
                                    const cusparseMatDescr_t descrA,
-                                   const double *           csrValA,
-                                   const int *              csrRowPtrA,
-                                   const int *              csrColIndA,
+                                   const double            *csrValA,
+                                   const int               *csrRowPtrA,
+                                   const int               *csrColIndA,
                                    csrsv2Info_t             info,
                                    cusparseSolvePolicy_t    policy,
-                                   void *                   pBuffer)
+                                   void                    *pBuffer)
   {
-    return cusparseDcsrsv2_analysis(handle,
-                                    transA,
-                                    m,
-                                    nnz,
-                                    descrA,
-                                    csrValA,
-                                    csrRowPtrA,
-                                    csrColIndA,
-                                    info,
-                                    policy,
-                                    pBuffer);
+    return cusparseDcsrsv2_analysis(
+      handle, transA, m, nnz, descrA, csrValA, csrRowPtrA, csrColIndA, info, policy, pBuffer);
   }
 
   /*
@@ -844,23 +734,14 @@ namespace
                                    int                      m,
                                    int                      nnz,
                                    const cusparseMatDescr_t descrA,
-                                   const float *            csrValA,
-                                   const int *              csrRowPtrA,
-                                   const int *              csrColIndA,
+                                   const float             *csrValA,
+                                   const int               *csrRowPtrA,
+                                   const int               *csrColIndA,
                                    csric02Info_t            info,
                                    cusparseSolvePolicy_t    policy,
-                                   void *                   pBuffer)
+                                   void                    *pBuffer)
   {
-    return cusparseScsric02_analysis(handle,
-                                     m,
-                                     nnz,
-                                     descrA,
-                                     csrValA,
-                                     csrRowPtrA,
-                                     csrColIndA,
-                                     info,
-                                     policy,
-                                     pBuffer);
+    return cusparseScsric02_analysis(handle, m, nnz, descrA, csrValA, csrRowPtrA, csrColIndA, info, policy, pBuffer);
   }
 
   template <>
@@ -869,23 +750,14 @@ namespace
                                     int                      m,
                                     int                      nnz,
                                     const cusparseMatDescr_t descrA,
-                                    const double *           csrValA,
-                                    const int *              csrRowPtrA,
-                                    const int *              csrColIndA,
+                                    const double            *csrValA,
+                                    const int               *csrRowPtrA,
+                                    const int               *csrColIndA,
                                     csric02Info_t            info,
                                     cusparseSolvePolicy_t    policy,
-                                    void *                   pBuffer)
+                                    void                    *pBuffer)
   {
-    return cusparseDcsric02_analysis(handle,
-                                     m,
-                                     nnz,
-                                     descrA,
-                                     csrValA,
-                                     csrRowPtrA,
-                                     csrColIndA,
-                                     info,
-                                     policy,
-                                     pBuffer);
+    return cusparseDcsric02_analysis(handle, m, nnz, descrA, csrValA, csrRowPtrA, csrColIndA, info, policy, pBuffer);
   }
 
   /*
@@ -972,22 +844,14 @@ namespace
                                     int                      m,
                                     int                      nnz,
                                     const cusparseMatDescr_t descrA,
-                                    float *                  csrValA,
-                                    const int *              csrRowPtrA,
-                                    const int *              csrColIndA,
+                                    float                   *csrValA,
+                                    const int               *csrRowPtrA,
+                                    const int               *csrColIndA,
                                     csrsv2Info_t             info,
-                                    int *                    pBufferSizeInBytes)
+                                    int                     *pBufferSizeInBytes)
   {
-    return cusparseScsrsv2_bufferSize(handle,
-                                      transA,
-                                      m,
-                                      nnz,
-                                      descrA,
-                                      csrValA,
-                                      csrRowPtrA,
-                                      csrColIndA,
-                                      info,
-                                      pBufferSizeInBytes);
+    return cusparseScsrsv2_bufferSize(
+      handle, transA, m, nnz, descrA, csrValA, csrRowPtrA, csrColIndA, info, pBufferSizeInBytes);
   }
 
   template <>
@@ -997,22 +861,14 @@ namespace
                                      int                      m,
                                      int                      nnz,
                                      const cusparseMatDescr_t descrA,
-                                     double *                 csrValA,
-                                     const int *              csrRowPtrA,
-                                     const int *              csrColIndA,
+                                     double                  *csrValA,
+                                     const int               *csrRowPtrA,
+                                     const int               *csrColIndA,
                                      csrsv2Info_t             info,
-                                     int *pBufferSizeInBytes)
+                                     int                     *pBufferSizeInBytes)
   {
-    return cusparseDcsrsv2_bufferSize(handle,
-                                      transA,
-                                      m,
-                                      nnz,
-                                      descrA,
-                                      csrValA,
-                                      csrRowPtrA,
-                                      csrColIndA,
-                                      info,
-                                      pBufferSizeInBytes);
+    return cusparseDcsrsv2_bufferSize(
+      handle, transA, m, nnz, descrA, csrValA, csrRowPtrA, csrColIndA, info, pBufferSizeInBytes);
   }
 
   /*
@@ -1097,21 +953,14 @@ namespace
                                      int                      m,
                                      int                      nnz,
                                      const cusparseMatDescr_t descrA,
-                                     float *                  csrValA,
-                                     const int *              csrRowPtrA,
-                                     const int *              csrColIndA,
+                                     float                   *csrValA,
+                                     const int               *csrRowPtrA,
+                                     const int               *csrColIndA,
                                      csric02Info_t            info,
-                                     int *pBufferSizeInBytes)
+                                     int                     *pBufferSizeInBytes)
   {
-    return cusparseScsric02_bufferSize(handle,
-                                       m,
-                                       nnz,
-                                       descrA,
-                                       csrValA,
-                                       csrRowPtrA,
-                                       csrColIndA,
-                                       info,
-                                       pBufferSizeInBytes);
+    return cusparseScsric02_bufferSize(
+      handle, m, nnz, descrA, csrValA, csrRowPtrA, csrColIndA, info, pBufferSizeInBytes);
   }
 
   template <>
@@ -1120,21 +969,14 @@ namespace
                                       int                      m,
                                       int                      nnz,
                                       const cusparseMatDescr_t descrA,
-                                      double *                 csrValA,
-                                      const int *              csrRowPtrA,
-                                      const int *              csrColIndA,
+                                      double                  *csrValA,
+                                      const int               *csrRowPtrA,
+                                      const int               *csrColIndA,
                                       csric02Info_t            info,
-                                      int *pBufferSizeInBytes)
+                                      int                     *pBufferSizeInBytes)
   {
-    return cusparseDcsric02_bufferSize(handle,
-                                       m,
-                                       nnz,
-                                       descrA,
-                                       csrValA,
-                                       csrRowPtrA,
-                                       csrColIndA,
-                                       info,
-                                       pBufferSizeInBytes);
+    return cusparseDcsric02_bufferSize(
+      handle, m, nnz, descrA, csrValA, csrRowPtrA, csrColIndA, info, pBufferSizeInBytes);
   }
 
   /*
@@ -1189,8 +1031,7 @@ namespace
 namespace CUDAWrappers
 {
   template <typename Number>
-  PreconditionIC<Number>::AdditionalData::AdditionalData(
-    bool use_level_analysis_)
+  PreconditionIC<Number>::AdditionalData::AdditionalData(bool use_level_analysis_)
     : use_level_analysis(use_level_analysis_)
   {}
 
@@ -1269,8 +1110,7 @@ namespace CUDAWrappers
 
   template <typename Number>
   void
-  PreconditionIC<Number>::initialize(const SparseMatrix<Number> &A,
-                                     const AdditionalData &additional_data)
+  PreconditionIC<Number>::initialize(const SparseMatrix<Number> &A, const AdditionalData &additional_data)
   {
     if (additional_data.use_level_analysis)
       {
@@ -1291,19 +1131,12 @@ namespace CUDAWrappers
 
     matrix_pointer = &A;
     const Number *A_val_dev;
-    std::tie(A_val_dev,
-             P_column_index_dev,
-             P_row_ptr_dev,
-             std::ignore,
-             std::ignore) = A.get_cusparse_matrix();
+    std::tie(A_val_dev, P_column_index_dev, P_row_ptr_dev, std::ignore, std::ignore) = A.get_cusparse_matrix();
 
     // create a copy of the matrix entries since the algorithm works in-place.
-    P_val_dev.reset(
-      Utilities::CUDA::allocate_device_data<Number>(n_nonzero_elements));
-    cudaError_t cuda_status = cudaMemcpy(P_val_dev.get(),
-                                         A_val_dev,
-                                         n_nonzero_elements * sizeof(Number),
-                                         cudaMemcpyDeviceToDevice);
+    P_val_dev.reset(Utilities::CUDA::allocate_device_data<Number>(n_nonzero_elements));
+    cudaError_t cuda_status =
+      cudaMemcpy(P_val_dev.get(), A_val_dev, n_nonzero_elements * sizeof(Number), cudaMemcpyDeviceToDevice);
     AssertCuda(cuda_status);
 
     // initialize an internal buffer we need later on
@@ -1349,12 +1182,10 @@ namespace CUDAWrappers
                                         &BufferSize_Lt);
     AssertCusparse(status);
 
-    const int BufferSize =
-      std::max(BufferSize_M, std::max(BufferSize_L, BufferSize_Lt));
+    const int BufferSize = std::max(BufferSize_M, std::max(BufferSize_L, BufferSize_Lt));
     // workaround: since allocate_device_data needs a type, we pass char
     // which is required to have size 1.
-    buffer_dev.reset(static_cast<void *>(
-      Utilities::CUDA::allocate_device_data<char>(BufferSize / sizeof(char))));
+    buffer_dev.reset(static_cast<void *>(Utilities::CUDA::allocate_device_data<char>(BufferSize / sizeof(char))));
 
     // step 4: perform analysis of incomplete Cholesky on M
     //         perform analysis of triangular solve on L
@@ -1375,8 +1206,7 @@ namespace CUDAWrappers
     AssertCusparse(status);
 
     int structural_zero;
-    status =
-      cusparseXcsric02_zeroPivot(cusparse_handle, info_M, &structural_zero);
+    status = cusparseXcsric02_zeroPivot(cusparse_handle, info_M, &structural_zero);
     AssertCusparse(status);
 
     status = cusparseXcsrsv2_analysis(cusparse_handle,
@@ -1419,8 +1249,7 @@ namespace CUDAWrappers
     AssertCusparse(status);
 
     int numerical_zero;
-    status =
-      cusparseXcsric02_zeroPivot(cusparse_handle, info_M, &numerical_zero);
+    status = cusparseXcsric02_zeroPivot(cusparse_handle, info_M, &numerical_zero);
     AssertCusparse(status);
   }
 
@@ -1428,9 +1257,8 @@ namespace CUDAWrappers
 
   template <typename Number>
   void
-  PreconditionIC<Number>::vmult(
-    LinearAlgebra::CUDAWrappers::Vector<Number> &      dst,
-    const LinearAlgebra::CUDAWrappers::Vector<Number> &src) const
+  PreconditionIC<Number>::vmult(LinearAlgebra::CUDAWrappers::Vector<Number>       &dst,
+                                const LinearAlgebra::CUDAWrappers::Vector<Number> &src) const
   {
     Assert(P_val_dev != nullptr, ExcNotInitialized());
     Assert(P_row_ptr_dev != nullptr, ExcNotInitialized());
@@ -1442,22 +1270,21 @@ namespace CUDAWrappers
     const Number *const src_dev = src.get_values();
     Number *const       dst_dev = dst.get_values();
     // step 6: solve L*z = alpha*x
-    const Number     alpha = internal::NumberType<Number>::value(1.);
-    cusparseStatus_t status =
-      cusparseXcsrsv2_solve(cusparse_handle,
-                            CUSPARSE_OPERATION_NON_TRANSPOSE,
-                            n_rows,
-                            n_nonzero_elements,
-                            &alpha,
-                            descr_L,
-                            P_val_dev.get(),
-                            P_row_ptr_dev,
-                            P_column_index_dev,
-                            info_L,
-                            src_dev,
-                            tmp_dev.get(),
-                            policy_L,
-                            buffer_dev.get());
+    const Number     alpha  = internal::NumberType<Number>::value(1.);
+    cusparseStatus_t status = cusparseXcsrsv2_solve(cusparse_handle,
+                                                    CUSPARSE_OPERATION_NON_TRANSPOSE,
+                                                    n_rows,
+                                                    n_nonzero_elements,
+                                                    &alpha,
+                                                    descr_L,
+                                                    P_val_dev.get(),
+                                                    P_row_ptr_dev,
+                                                    P_column_index_dev,
+                                                    info_L,
+                                                    src_dev,
+                                                    tmp_dev.get(),
+                                                    policy_L,
+                                                    buffer_dev.get());
     AssertCusparse(status);
 
     // step 7: solve L'*y = alpha*z
@@ -1482,9 +1309,8 @@ namespace CUDAWrappers
 
   template <typename Number>
   void
-  PreconditionIC<Number>::Tvmult(
-    LinearAlgebra::CUDAWrappers::Vector<Number> &      dst,
-    const LinearAlgebra::CUDAWrappers::Vector<Number> &src) const
+  PreconditionIC<Number>::Tvmult(LinearAlgebra::CUDAWrappers::Vector<Number>       &dst,
+                                 const LinearAlgebra::CUDAWrappers::Vector<Number> &src) const
   {
     // the constructed preconditioner is symmetric
     vmult(dst, src);
@@ -1493,16 +1319,14 @@ namespace CUDAWrappers
 
 
   template <typename Number>
-  PreconditionILU<Number>::AdditionalData::AdditionalData(
-    bool use_level_analysis_)
+  PreconditionILU<Number>::AdditionalData::AdditionalData(bool use_level_analysis_)
     : use_level_analysis(use_level_analysis_)
   {}
 
 
 
   template <typename Number>
-  PreconditionILU<Number>::PreconditionILU(
-    const Utilities::CUDA::Handle &handle)
+  PreconditionILU<Number>::PreconditionILU(const Utilities::CUDA::Handle &handle)
     : cusparse_handle(handle.cusparse_handle)
     , P_val_dev(nullptr, Utilities::CUDA::delete_device_data<Number>)
     , P_row_ptr_dev(nullptr)
@@ -1591,8 +1415,7 @@ namespace CUDAWrappers
 
   template <typename Number>
   void
-  PreconditionILU<Number>::initialize(const SparseMatrix<Number> &A,
-                                      const AdditionalData &additional_data)
+  PreconditionILU<Number>::initialize(const SparseMatrix<Number> &A, const AdditionalData &additional_data)
   {
     if (additional_data.use_level_analysis)
       {
@@ -1613,19 +1436,12 @@ namespace CUDAWrappers
     AssertDimension(A.m(), A.n());
 
     const Number *A_val_dev;
-    std::tie(A_val_dev,
-             P_column_index_dev,
-             P_row_ptr_dev,
-             std::ignore,
-             std::ignore) = A.get_cusparse_matrix();
+    std::tie(A_val_dev, P_column_index_dev, P_row_ptr_dev, std::ignore, std::ignore) = A.get_cusparse_matrix();
 
     // create a copy of the matrix entries since the algorithm works in-place.
-    P_val_dev.reset(
-      Utilities::CUDA::allocate_device_data<Number>(n_nonzero_elements));
-    cudaError_t cuda_status = cudaMemcpy(P_val_dev.get(),
-                                         A_val_dev,
-                                         n_nonzero_elements * sizeof(Number),
-                                         cudaMemcpyDeviceToDevice);
+    P_val_dev.reset(Utilities::CUDA::allocate_device_data<Number>(n_nonzero_elements));
+    cudaError_t cuda_status =
+      cudaMemcpy(P_val_dev.get(), A_val_dev, n_nonzero_elements * sizeof(Number), cudaMemcpyDeviceToDevice);
     AssertCuda(cuda_status);
 
     // initialize an internal buffer we need later on
@@ -1671,12 +1487,10 @@ namespace CUDAWrappers
                                         &BufferSize_U);
     AssertCusparse(status);
 
-    const int BufferSize =
-      std::max(BufferSize_M, std::max(BufferSize_L, BufferSize_U));
+    const int BufferSize = std::max(BufferSize_M, std::max(BufferSize_L, BufferSize_U));
     // workaround: since allocate_device_data needs a type, we pass char
     // which is required to have size 1.
-    buffer_dev.reset(static_cast<void *>(
-      Utilities::CUDA::allocate_device_data<char>(BufferSize / sizeof(char))));
+    buffer_dev.reset(static_cast<void *>(Utilities::CUDA::allocate_device_data<char>(BufferSize / sizeof(char))));
 
     // step 4: perform analysis of incomplete Cholesky on M
     //         perform analysis of triangular solve on L
@@ -1697,8 +1511,7 @@ namespace CUDAWrappers
     AssertCusparse(status);
 
     int structural_zero;
-    status =
-      cusparseXcsrilu02_zeroPivot(cusparse_handle, info_M, &structural_zero);
+    status = cusparseXcsrilu02_zeroPivot(cusparse_handle, info_M, &structural_zero);
     AssertCusparse(status);
 
     status = cusparseXcsrsv2_analysis(cusparse_handle,
@@ -1740,8 +1553,7 @@ namespace CUDAWrappers
     AssertCusparse(status);
 
     int numerical_zero;
-    status =
-      cusparseXcsrilu02_zeroPivot(cusparse_handle, info_M, &numerical_zero);
+    status = cusparseXcsrilu02_zeroPivot(cusparse_handle, info_M, &numerical_zero);
     AssertCusparse(status);
   }
 
@@ -1749,9 +1561,8 @@ namespace CUDAWrappers
 
   template <typename Number>
   void
-  PreconditionILU<Number>::vmult(
-    LinearAlgebra::CUDAWrappers::Vector<Number> &      dst,
-    const LinearAlgebra::CUDAWrappers::Vector<Number> &src) const
+  PreconditionILU<Number>::vmult(LinearAlgebra::CUDAWrappers::Vector<Number>       &dst,
+                                 const LinearAlgebra::CUDAWrappers::Vector<Number> &src) const
   {
     Assert(P_val_dev != nullptr, ExcNotInitialized());
     Assert(P_row_ptr_dev != nullptr, ExcNotInitialized());
@@ -1764,22 +1575,21 @@ namespace CUDAWrappers
     Number *const       dst_dev = dst.get_values();
 
     // step 6: solve L*z = alpha*x
-    const Number     alpha = internal::NumberType<Number>::value(1.);
-    cusparseStatus_t status =
-      cusparseXcsrsv2_solve(cusparse_handle,
-                            CUSPARSE_OPERATION_NON_TRANSPOSE,
-                            n_rows,
-                            n_nonzero_elements,
-                            &alpha,
-                            descr_L,
-                            P_val_dev.get(),
-                            P_row_ptr_dev,
-                            P_column_index_dev,
-                            info_L,
-                            src_dev,
-                            tmp_dev.get(),
-                            policy_L,
-                            buffer_dev.get());
+    const Number     alpha  = internal::NumberType<Number>::value(1.);
+    cusparseStatus_t status = cusparseXcsrsv2_solve(cusparse_handle,
+                                                    CUSPARSE_OPERATION_NON_TRANSPOSE,
+                                                    n_rows,
+                                                    n_nonzero_elements,
+                                                    &alpha,
+                                                    descr_L,
+                                                    P_val_dev.get(),
+                                                    P_row_ptr_dev,
+                                                    P_column_index_dev,
+                                                    info_L,
+                                                    src_dev,
+                                                    tmp_dev.get(),
+                                                    policy_L,
+                                                    buffer_dev.get());
     AssertCusparse(status);
 
     // step 7: solve U*y = alpha*z
@@ -1804,9 +1614,8 @@ namespace CUDAWrappers
 
   template <typename Number>
   void
-  PreconditionILU<Number>::Tvmult(
-    LinearAlgebra::CUDAWrappers::Vector<Number> & /*dst*/,
-    const LinearAlgebra::CUDAWrappers::Vector<Number> & /*src*/) const
+  PreconditionILU<Number>::Tvmult(LinearAlgebra::CUDAWrappers::Vector<Number> & /*dst*/,
+                                  const LinearAlgebra::CUDAWrappers::Vector<Number> & /*src*/) const
   {
     Assert(false, ExcNotImplemented());
   }

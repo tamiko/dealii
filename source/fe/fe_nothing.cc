@@ -22,15 +22,9 @@ DEAL_II_NAMESPACE_OPEN
 
 
 template <int dim, int spacedim>
-FE_Nothing<dim, spacedim>::FE_Nothing(const ReferenceCell &type,
-                                      const unsigned int   n_components,
-                                      const bool           dominate)
+FE_Nothing<dim, spacedim>::FE_Nothing(const ReferenceCell &type, const unsigned int n_components, const bool dominate)
   : FiniteElement<dim, spacedim>(
-      FiniteElementData<dim>(std::vector<unsigned>(dim + 1, 0),
-                             type,
-                             n_components,
-                             0,
-                             FiniteElementData<dim>::unknown),
+      FiniteElementData<dim>(std::vector<unsigned>(dim + 1, 0), type, n_components, 0, FiniteElementData<dim>::unknown),
       std::vector<bool>(),
       std::vector<ComponentMask>())
   , dominate(dominate)
@@ -49,11 +43,8 @@ FE_Nothing<dim, spacedim>::FE_Nothing(const ReferenceCell &type,
 
 
 template <int dim, int spacedim>
-FE_Nothing<dim, spacedim>::FE_Nothing(const unsigned int n_components,
-                                      const bool         dominate)
-  : FE_Nothing<dim, spacedim>(ReferenceCells::get_hypercube<dim>(),
-                              n_components,
-                              dominate)
+FE_Nothing<dim, spacedim>::FE_Nothing(const unsigned int n_components, const bool dominate)
+  : FE_Nothing<dim, spacedim>(ReferenceCells::get_hypercube<dim>(), n_components, dominate)
 {}
 
 
@@ -106,8 +97,7 @@ FE_Nothing<dim, spacedim>::requires_update_flags(const UpdateFlags flags) const
 
 template <int dim, int spacedim>
 double
-FE_Nothing<dim, spacedim>::shape_value(const unsigned int /*i*/,
-                                       const Point<dim> & /*p*/) const
+FE_Nothing<dim, spacedim>::shape_value(const unsigned int /*i*/, const Point<dim> & /*p*/) const
 {
   Assert(false, ExcMessage("This element has no shape functions."));
   return 0;
@@ -121,15 +111,12 @@ FE_Nothing<dim, spacedim>::get_data(
   const UpdateFlags /*update_flags*/,
   const Mapping<dim, spacedim> & /*mapping*/,
   const Quadrature<dim> & /*quadrature*/,
-  dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim,
-                                                                     spacedim>
-    & /*output_data*/) const
+  dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> & /*output_data*/) const
 {
   // Create a default data object.  Normally we would then
   // need to resize things to hold the appropriate numbers
   // of dofs, but in this case all data fields are empty.
-  return std::make_unique<
-    typename FiniteElement<dim, spacedim>::InternalDataBase>();
+  return std::make_unique<typename FiniteElement<dim, spacedim>::InternalDataBase>();
 }
 
 
@@ -144,9 +131,7 @@ FE_Nothing<dim, spacedim>::fill_fe_values(
   const typename Mapping<dim, spacedim>::InternalDataBase &,
   const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim> &,
   const typename FiniteElement<dim, spacedim>::InternalDataBase &,
-  dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim,
-                                                                     spacedim>
-    &) const
+  dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> &) const
 {
   // leave data fields empty
 }
@@ -163,9 +148,7 @@ FE_Nothing<dim, spacedim>::fill_fe_face_values(
   const typename Mapping<dim, spacedim>::InternalDataBase &,
   const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim> &,
   const typename FiniteElement<dim, spacedim>::InternalDataBase &,
-  dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim,
-                                                                     spacedim>
-    &) const
+  dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> &) const
 {
   // leave data fields empty
 }
@@ -183,9 +166,7 @@ FE_Nothing<dim, spacedim>::fill_fe_subface_values(
   const typename Mapping<dim, spacedim>::InternalDataBase &,
   const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim> &,
   const typename FiniteElement<dim, spacedim>::InternalDataBase &,
-  dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim,
-                                                                     spacedim>
-    &) const
+  dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> &) const
 {
   // leave data fields empty
 }
@@ -203,9 +184,8 @@ FE_Nothing<dim, spacedim>::is_dominating() const
 
 template <int dim, int spacedim>
 FiniteElementDomination::Domination
-FE_Nothing<dim, spacedim>::compare_for_domination(
-  const FiniteElement<dim, spacedim> &fe,
-  const unsigned int                  codim) const
+FE_Nothing<dim, spacedim>::compare_for_domination(const FiniteElement<dim, spacedim> &fe,
+                                                  const unsigned int                  codim) const
 {
   Assert(codim <= dim, ExcImpossibleInDim(dim));
   (void)codim;
@@ -225,8 +205,7 @@ FE_Nothing<dim, spacedim>::compare_for_domination(
 
 template <int dim, int spacedim>
 std::vector<std::pair<unsigned int, unsigned int>>
-FE_Nothing<dim, spacedim>::hp_vertex_dof_identities(
-  const FiniteElement<dim, spacedim> & /*fe_other*/) const
+FE_Nothing<dim, spacedim>::hp_vertex_dof_identities(const FiniteElement<dim, spacedim> & /*fe_other*/) const
 {
   // the FE_Nothing has no
   // degrees of freedom, so there
@@ -238,8 +217,7 @@ FE_Nothing<dim, spacedim>::hp_vertex_dof_identities(
 
 template <int dim, int spacedim>
 std::vector<std::pair<unsigned int, unsigned int>>
-FE_Nothing<dim, spacedim>::hp_line_dof_identities(
-  const FiniteElement<dim, spacedim> & /*fe_other*/) const
+FE_Nothing<dim, spacedim>::hp_line_dof_identities(const FiniteElement<dim, spacedim> & /*fe_other*/) const
 {
   // the FE_Nothing has no
   // degrees of freedom, so there
@@ -251,9 +229,8 @@ FE_Nothing<dim, spacedim>::hp_line_dof_identities(
 
 template <int dim, int spacedim>
 std::vector<std::pair<unsigned int, unsigned int>>
-FE_Nothing<dim, spacedim>::hp_quad_dof_identities(
-  const FiniteElement<dim, spacedim> & /*fe_other*/,
-  const unsigned int) const
+FE_Nothing<dim, spacedim>::hp_quad_dof_identities(const FiniteElement<dim, spacedim> & /*fe_other*/,
+                                                  const unsigned int) const
 {
   // the FE_Nothing has no
   // degrees of freedom, so there
@@ -274,57 +251,48 @@ FE_Nothing<dim, spacedim>::hp_constraints_are_implemented() const
 
 template <int dim, int spacedim>
 void
-FE_Nothing<dim, spacedim>::get_interpolation_matrix(
-  const FiniteElement<dim, spacedim> & /*source_fe*/,
-  FullMatrix<double> &interpolation_matrix) const
+FE_Nothing<dim, spacedim>::get_interpolation_matrix(const FiniteElement<dim, spacedim> & /*source_fe*/,
+                                                    FullMatrix<double> &interpolation_matrix) const
 {
   // Since this element has no dofs,
   // the interpolation matrix is necessarily empty.
   (void)interpolation_matrix;
 
-  Assert(interpolation_matrix.m() == 0,
-         ExcDimensionMismatch(interpolation_matrix.m(), 0));
-  Assert(interpolation_matrix.n() == 0,
-         ExcDimensionMismatch(interpolation_matrix.n(), 0));
+  Assert(interpolation_matrix.m() == 0, ExcDimensionMismatch(interpolation_matrix.m(), 0));
+  Assert(interpolation_matrix.n() == 0, ExcDimensionMismatch(interpolation_matrix.n(), 0));
 }
 
 
 
 template <int dim, int spacedim>
 void
-FE_Nothing<dim, spacedim>::get_face_interpolation_matrix(
-  const FiniteElement<dim, spacedim> & /*source_fe*/,
-  FullMatrix<double> &interpolation_matrix,
-  const unsigned int) const
+FE_Nothing<dim, spacedim>::get_face_interpolation_matrix(const FiniteElement<dim, spacedim> & /*source_fe*/,
+                                                         FullMatrix<double> &interpolation_matrix,
+                                                         const unsigned int) const
 {
   // since this element has no face dofs, the
   // interpolation matrix is necessarily empty
   (void)interpolation_matrix;
 
-  Assert(interpolation_matrix.m() == 0,
-         ExcDimensionMismatch(interpolation_matrix.m(), 0));
-  Assert(interpolation_matrix.n() == 0,
-         ExcDimensionMismatch(interpolation_matrix.m(), 0));
+  Assert(interpolation_matrix.m() == 0, ExcDimensionMismatch(interpolation_matrix.m(), 0));
+  Assert(interpolation_matrix.n() == 0, ExcDimensionMismatch(interpolation_matrix.m(), 0));
 }
 
 
 
 template <int dim, int spacedim>
 void
-FE_Nothing<dim, spacedim>::get_subface_interpolation_matrix(
-  const FiniteElement<dim, spacedim> & /*source_fe*/,
-  const unsigned int /*index*/,
-  FullMatrix<double> &interpolation_matrix,
-  const unsigned int) const
+FE_Nothing<dim, spacedim>::get_subface_interpolation_matrix(const FiniteElement<dim, spacedim> & /*source_fe*/,
+                                                            const unsigned int /*index*/,
+                                                            FullMatrix<double> &interpolation_matrix,
+                                                            const unsigned int) const
 {
   // since this element has no face dofs, the
   // interpolation matrix is necessarily empty
 
   (void)interpolation_matrix;
-  Assert(interpolation_matrix.m() == 0,
-         ExcDimensionMismatch(interpolation_matrix.m(), 0));
-  Assert(interpolation_matrix.n() == 0,
-         ExcDimensionMismatch(interpolation_matrix.m(), 0));
+  Assert(interpolation_matrix.m() == 0, ExcDimensionMismatch(interpolation_matrix.m(), 0));
+  Assert(interpolation_matrix.n() == 0, ExcDimensionMismatch(interpolation_matrix.m(), 0));
 }
 
 

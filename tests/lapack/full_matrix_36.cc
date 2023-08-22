@@ -49,9 +49,8 @@ test(const unsigned int n = 3, const unsigned int k = 6)
         const auto at = At(j, i);
         const auto a  = numbers::NumberTraits<NumberType>::conjugate(A(i, j));
         AssertThrow(at == a,
-                    ExcMessage(to_string(a) + "!=" + to_string(at) + " for (" +
-                               std::to_string(i) + "," + std::to_string(j) +
-                               ")"));
+                    ExcMessage(to_string(a) + "!=" + to_string(at) + " for (" + std::to_string(i) + "," +
+                               std::to_string(j) + ")"));
       }
 
   deallog << "OK" << std::endl;

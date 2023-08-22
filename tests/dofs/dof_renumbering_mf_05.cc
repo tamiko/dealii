@@ -61,14 +61,12 @@ test(const unsigned int degree)
   AffineConstraints<double> constraints, constraints2;
   mf.reinit(dealii::MappingQ1<dim>(),
             {&dof2, &dof},
-            std::vector<const AffineConstraints<double> *>{&constraints2,
-                                                           &constraints},
+            std::vector<const AffineConstraints<double> *>{&constraints2, &constraints},
             dealii::QGauss<1>(2),
             mf_data);
 
   {
-    const auto renumber =
-      DoFRenumbering::compute_matrix_free_data_locality(dof, mf);
+    const auto renumber = DoFRenumbering::compute_matrix_free_data_locality(dof, mf);
 
     deallog << "Renumbering no constraints: " << std::endl;
     for (unsigned int i = 0; i < renumber.size(); ++i)
@@ -94,22 +92,17 @@ test(const unsigned int degree)
   deallog << std::endl;
 
   dof.distribute_dofs(fe);
-  VectorTools::interpolate_boundary_values(dof,
-                                           0,
-                                           Functions::ZeroFunction<dim>(dim),
-                                           constraints);
+  VectorTools::interpolate_boundary_values(dof, 0, Functions::ZeroFunction<dim>(dim), constraints);
   constraints.close();
 
   mf.reinit(dealii::MappingQ1<dim>(),
             {&dof2, &dof},
-            std::vector<const AffineConstraints<double> *>{&constraints2,
-                                                           &constraints},
+            std::vector<const AffineConstraints<double> *>{&constraints2, &constraints},
             dealii::QGauss<1>(2),
             mf_data);
 
   {
-    const auto renumber =
-      DoFRenumbering::compute_matrix_free_data_locality(dof, mf);
+    const auto renumber = DoFRenumbering::compute_matrix_free_data_locality(dof, mf);
 
     deallog << "Renumbering Dirichlet constraints: " << std::endl;
     for (unsigned int i = 0; i < renumber.size(); ++i)

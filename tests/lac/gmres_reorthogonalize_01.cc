@@ -68,22 +68,20 @@ test(unsigned int variant, unsigned int min_convergence_steps)
 
   deallog.push(Utilities::int_to_string(variant, 1));
 
-  SolverControl control(1000, 1e2 * std::numeric_limits<number>::epsilon());
+  SolverControl                                        control(1000, 1e2 * std::numeric_limits<number>::epsilon());
   typename SolverGMRES<Vector<number>>::AdditionalData data;
   data.max_n_tmp_vectors = 80;
 
   SolverGMRES<Vector<number>> solver(control, data);
-  auto print_re_orthogonalization = [](int accumulated_iterations) {
-    deallog.get_file_stream() << "Re-orthogonalization enabled at step "
-                              << accumulated_iterations << std::endl;
+  auto                        print_re_orthogonalization = [](int accumulated_iterations) {
+    deallog.get_file_stream() << "Re-orthogonalization enabled at step " << accumulated_iterations << std::endl;
   };
   solver.connect_re_orthogonalization_slot(print_re_orthogonalization);
 
-  check_solver_within_range(
-    solver.solve(matrix, sol, rhs, PreconditionIdentity()),
-    control.last_step(),
-    min_convergence_steps,
-    min_convergence_steps + 2);
+  check_solver_within_range(solver.solve(matrix, sol, rhs, PreconditionIdentity()),
+                            control.last_step(),
+                            min_convergence_steps,
+                            min_convergence_steps + 2);
 
   deallog.pop();
 }

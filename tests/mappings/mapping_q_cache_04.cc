@@ -44,14 +44,9 @@ do_test(const unsigned int degree)
 
   FE_Q<dim> fe_q(degree);
 
-  const auto position_lambda =
-    [&](const typename Triangulation<dim>::cell_iterator &cell)
-    -> std::vector<Point<dim>> {
+  const auto position_lambda = [&](const typename Triangulation<dim>::cell_iterator &cell) -> std::vector<Point<dim>> {
     FE_Nothing<dim> fe;
-    FEValues<dim>   fe_values(mapping,
-                            fe,
-                            Quadrature<dim>(fe_q.get_unit_support_points()),
-                            update_quadrature_points);
+    FEValues<dim>   fe_values(mapping, fe, Quadrature<dim>(fe_q.get_unit_support_points()), update_quadrature_points);
 
     std::vector<Point<dim>> support_points_moved(fe_q.dofs_per_cell);
     fe_values.reinit(cell);
@@ -76,18 +71,12 @@ do_test(const unsigned int degree)
   deallog << "Testing degree " << degree << " in " << dim << 'D' << std::endl;
   for (const auto &cell : tria.cell_iterators())
     {
-      deallog << "cell " << cell->id() << ": "
-              << mapping_cache.transform_unit_to_real_cell(cell, p1)
-              << " vs reference "
-              << mapping.transform_unit_to_real_cell(cell, p1) + shift
-              << std::endl;
-      deallog << "cell " << cell->id() << ": "
-              << mapping_cache.transform_unit_to_real_cell(cell, p2)
-              << " vs reference "
-              << mapping.transform_unit_to_real_cell(cell, p2) + shift
-              << std::endl;
-      const Point<dim> p_back = mapping_cache.transform_real_to_unit_cell(
-        cell, mapping_cache.transform_unit_to_real_cell(cell, p2));
+      deallog << "cell " << cell->id() << ": " << mapping_cache.transform_unit_to_real_cell(cell, p1)
+              << " vs reference " << mapping.transform_unit_to_real_cell(cell, p1) + shift << std::endl;
+      deallog << "cell " << cell->id() << ": " << mapping_cache.transform_unit_to_real_cell(cell, p2)
+              << " vs reference " << mapping.transform_unit_to_real_cell(cell, p2) + shift << std::endl;
+      const Point<dim> p_back =
+        mapping_cache.transform_real_to_unit_cell(cell, mapping_cache.transform_unit_to_real_cell(cell, p2));
       deallog << "cell " << cell->id() << " pull-back: " << p_back << std::endl;
       AssertThrow((p2 - p_back).norm() < 1e-13, ExcInternalError());
     }
@@ -99,18 +88,12 @@ do_test(const unsigned int degree)
   deallog << "Testing degree " << degree << " in " << dim << 'D' << std::endl;
   for (const auto &cell : tria.active_cell_iterators())
     {
-      deallog << "cell " << cell->id() << ": "
-              << mapping_cache.transform_unit_to_real_cell(cell, p1)
-              << " vs reference "
-              << mapping.transform_unit_to_real_cell(cell, p1) + shift
-              << std::endl;
-      deallog << "cell " << cell->id() << ": "
-              << mapping_cache.transform_unit_to_real_cell(cell, p2)
-              << " vs reference "
-              << mapping.transform_unit_to_real_cell(cell, p2) + shift
-              << std::endl;
-      const Point<dim> p_back = mapping_cache.transform_real_to_unit_cell(
-        cell, mapping_cache.transform_unit_to_real_cell(cell, p2));
+      deallog << "cell " << cell->id() << ": " << mapping_cache.transform_unit_to_real_cell(cell, p1)
+              << " vs reference " << mapping.transform_unit_to_real_cell(cell, p1) + shift << std::endl;
+      deallog << "cell " << cell->id() << ": " << mapping_cache.transform_unit_to_real_cell(cell, p2)
+              << " vs reference " << mapping.transform_unit_to_real_cell(cell, p2) + shift << std::endl;
+      const Point<dim> p_back =
+        mapping_cache.transform_real_to_unit_cell(cell, mapping_cache.transform_unit_to_real_cell(cell, p2));
       deallog << "cell " << cell->id() << " pull-back: " << p_back << std::endl;
       AssertThrow((p2 - p_back).norm() < 1e-13, ExcInternalError());
     }

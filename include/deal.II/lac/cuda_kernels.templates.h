@@ -34,8 +34,7 @@ namespace LinearAlgebra
       __global__ void
       vec_scale(Number *val, const Number a, const size_type N)
       {
-        const size_type idx_base =
-          threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
+        const size_type idx_base = threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
         for (unsigned int i = 0; i < chunk_size; ++i)
           {
             const size_type idx = idx_base + i * block_size;
@@ -50,8 +49,7 @@ namespace LinearAlgebra
       __global__ void
       vector_bin_op(Number *v1, const Number *v2, const size_type N)
       {
-        const size_type idx_base =
-          threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
+        const size_type idx_base = threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
         for (unsigned int i = 0; i < chunk_size; ++i)
           {
             const size_type idx = idx_base + i * block_size;
@@ -64,13 +62,9 @@ namespace LinearAlgebra
 
       template <typename Number, template <typename> class Binop>
       __global__ void
-      masked_vector_bin_op(const unsigned int *mask,
-                           Number *            v1,
-                           const Number *      v2,
-                           const size_type     N)
+      masked_vector_bin_op(const unsigned int *mask, Number *v1, const Number *v2, const size_type N)
       {
-        const size_type idx_base =
-          threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
+        const size_type idx_base = threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
         for (unsigned int i = 0; i < chunk_size; ++i)
           {
             const size_type idx = idx_base + i * block_size;
@@ -193,7 +187,7 @@ namespace LinearAlgebra
 
       template <typename Number, typename Operation>
       __device__ void
-      reduce(Number *         result,
+      reduce(Number          *result,
              volatile Number *result_buffer,
              const size_type  local_idx,
              const size_type /*global_idx*/,
@@ -203,8 +197,7 @@ namespace LinearAlgebra
           {
             if (local_idx < s)
               result_buffer[local_idx] =
-                Operation::reduction_op(result_buffer[local_idx],
-                                        result_buffer[local_idx + s]);
+                Operation::reduction_op(result_buffer[local_idx], result_buffer[local_idx + s]);
             __syncthreads();
           }
 
@@ -213,8 +206,7 @@ namespace LinearAlgebra
             for (size_type s = warp_size; s > 0; s = s >> 1)
               {
                 result_buffer[local_idx] =
-                  Operation::reduction_op(result_buffer[local_idx],
-                                          result_buffer[local_idx + s]);
+                  Operation::reduction_op(result_buffer[local_idx], result_buffer[local_idx + s]);
               }
           }
 
@@ -230,9 +222,8 @@ namespace LinearAlgebra
       {
         __shared__ Number result_buffer[block_size];
 
-        const size_type global_idx =
-          threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
-        const size_type local_idx = threadIdx.x;
+        const size_type global_idx = threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
+        const size_type local_idx  = threadIdx.x;
 
         if (global_idx < N)
           result_buffer[local_idx] = Operation::element_wise_op(v[global_idx]);
@@ -241,8 +232,7 @@ namespace LinearAlgebra
 
         __syncthreads();
 
-        reduce<Number, Operation>(
-          result, result_buffer, local_idx, global_idx, N);
+        reduce<Number, Operation>(result, result_buffer, local_idx, global_idx, N);
       }
 
 
@@ -285,20 +275,15 @@ namespace LinearAlgebra
 
       template <typename Number, typename Operation>
       __global__ void
-      double_vector_reduction(Number *        result,
-                              const Number *  v1,
-                              const Number *  v2,
-                              const size_type N)
+      double_vector_reduction(Number *result, const Number *v1, const Number *v2, const size_type N)
       {
         __shared__ Number result_buffer[block_size];
 
-        const size_type global_idx =
-          threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
-        const size_type local_idx = threadIdx.x;
+        const size_type global_idx = threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
+        const size_type local_idx  = threadIdx.x;
 
         if (global_idx < N)
-          result_buffer[local_idx] =
-            Operation::binary_op(v1[global_idx], v2[global_idx]);
+          result_buffer[local_idx] = Operation::binary_op(v1[global_idx], v2[global_idx]);
         else
           result_buffer[local_idx] = Operation::null_value();
 
@@ -307,14 +292,12 @@ namespace LinearAlgebra
             const size_type idx = global_idx + i * block_size;
             if (idx < N)
               result_buffer[local_idx] =
-                Operation::reduction_op(result_buffer[local_idx],
-                                        Operation::binary_op(v1[idx], v2[idx]));
+                Operation::reduction_op(result_buffer[local_idx], Operation::binary_op(v1[idx], v2[idx]));
           }
 
         __syncthreads();
 
-        reduce<Number, Operation>(
-          result, result_buffer, local_idx, global_idx, N);
+        reduce<Number, Operation>(result, result_buffer, local_idx, global_idx, N);
       }
 
 
@@ -323,8 +306,7 @@ namespace LinearAlgebra
       __global__ void
       vec_add(Number *val, const Number a, const size_type N)
       {
-        const size_type idx_base =
-          threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
+        const size_type idx_base = threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
         for (unsigned int i = 0; i < chunk_size; ++i)
           {
             const size_type idx = idx_base + i * block_size;
@@ -337,13 +319,9 @@ namespace LinearAlgebra
 
       template <typename Number>
       __global__ void
-      add_aV(Number *        val,
-             const Number    a,
-             const Number *  V_val,
-             const size_type N)
+      add_aV(Number *val, const Number a, const Number *V_val, const size_type N)
       {
-        const size_type idx_base =
-          threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
+        const size_type idx_base = threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
         for (unsigned int i = 0; i < chunk_size; ++i)
           {
             const size_type idx = idx_base + i * block_size;
@@ -356,15 +334,9 @@ namespace LinearAlgebra
 
       template <typename Number>
       __global__ void
-      add_aVbW(Number *        val,
-               const Number    a,
-               const Number *  V_val,
-               const Number    b,
-               const Number *  W_val,
-               const size_type N)
+      add_aVbW(Number *val, const Number a, const Number *V_val, const Number b, const Number *W_val, const size_type N)
       {
-        const size_type idx_base =
-          threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
+        const size_type idx_base = threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
         for (unsigned int i = 0; i < chunk_size; ++i)
           {
             const size_type idx = idx_base + i * block_size;
@@ -377,14 +349,9 @@ namespace LinearAlgebra
 
       template <typename Number>
       __global__ void
-      sadd(const Number    s,
-           Number *        val,
-           const Number    a,
-           const Number *  V_val,
-           const size_type N)
+      sadd(const Number s, Number *val, const Number a, const Number *V_val, const size_type N)
       {
-        const size_type idx_base =
-          threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
+        const size_type idx_base = threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
         for (unsigned int i = 0; i < chunk_size; ++i)
           {
             const size_type idx = idx_base + i * block_size;
@@ -398,15 +365,14 @@ namespace LinearAlgebra
       template <typename Number>
       __global__ void
       sadd(const Number    s,
-           Number *        val,
+           Number         *val,
            const Number    a,
-           const Number *  V_val,
+           const Number   *V_val,
            const Number    b,
-           const Number *  W_val,
+           const Number   *W_val,
            const size_type N)
       {
-        const size_type idx_base =
-          threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
+        const size_type idx_base = threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
         for (unsigned int i = 0; i < chunk_size; ++i)
           {
             const size_type idx = idx_base + i * block_size;
@@ -421,8 +387,7 @@ namespace LinearAlgebra
       __global__ void
       scale(Number *val, const Number *V_val, const size_type N)
       {
-        const size_type idx_base =
-          threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
+        const size_type idx_base = threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
         for (unsigned int i = 0; i < chunk_size; ++i)
           {
             const size_type idx = idx_base + i * block_size;
@@ -437,8 +402,7 @@ namespace LinearAlgebra
       __global__ void
       equ(Number *val, const Number a, const Number *V_val, const size_type N)
       {
-        const size_type idx_base =
-          threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
+        const size_type idx_base = threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
         for (unsigned int i = 0; i < chunk_size; ++i)
           {
             const size_type idx = idx_base + i * block_size;
@@ -451,15 +415,9 @@ namespace LinearAlgebra
 
       template <typename Number>
       __global__ void
-      equ(Number *        val,
-          const Number    a,
-          const Number *  V_val,
-          const Number    b,
-          const Number *  W_val,
-          const size_type N)
+      equ(Number *val, const Number a, const Number *V_val, const Number b, const Number *W_val, const size_type N)
       {
-        const size_type idx_base =
-          threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
+        const size_type idx_base = threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
         for (unsigned int i = 0; i < chunk_size; ++i)
           {
             const size_type idx = idx_base + i * block_size;
@@ -472,24 +430,16 @@ namespace LinearAlgebra
 
       template <typename Number>
       __global__ void
-      add_and_dot(Number *        res,
-                  Number *        v1,
-                  const Number *  v2,
-                  const Number *  v3,
-                  const Number    a,
-                  const size_type N)
+      add_and_dot(Number *res, Number *v1, const Number *v2, const Number *v3, const Number a, const size_type N)
       {
         __shared__ Number res_buf[block_size];
 
-        const unsigned int global_idx =
-          threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
-        const unsigned int local_idx = threadIdx.x;
+        const unsigned int global_idx = threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
+        const unsigned int local_idx  = threadIdx.x;
         if (global_idx < N)
           {
             v1[global_idx] += a * v2[global_idx];
-            res_buf[local_idx] =
-              v1[global_idx] *
-              Number(numbers::NumberTraits<Number>::conjugate(v3[global_idx]));
+            res_buf[local_idx] = v1[global_idx] * Number(numbers::NumberTraits<Number>::conjugate(v3[global_idx]));
           }
         else
           res_buf[local_idx] = 0.;
@@ -506,8 +456,7 @@ namespace LinearAlgebra
 
         __syncthreads();
 
-        reduce<Number, DotProduct<Number>>(
-          res, res_buf, local_idx, global_idx, N);
+        reduce<Number, DotProduct<Number>>(res, res_buf, local_idx, global_idx, N);
       }
 
 
@@ -516,8 +465,7 @@ namespace LinearAlgebra
       __global__ void
       set(Number *val, const Number s, const size_type N)
       {
-        const size_type idx_base =
-          threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
+        const size_type idx_base = threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
         for (unsigned int i = 0; i < chunk_size; ++i)
           {
             const size_type idx = idx_base + i * block_size;
@@ -530,13 +478,9 @@ namespace LinearAlgebra
 
       template <typename Number, typename IndexType>
       __global__ void
-      set_permutated(const IndexType *indices,
-                     Number *         val,
-                     const Number *   v,
-                     const IndexType  N)
+      set_permutated(const IndexType *indices, Number *val, const Number *v, const IndexType N)
       {
-        const size_type idx_base =
-          threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
+        const size_type idx_base = threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
         for (unsigned int i = 0; i < chunk_size; ++i)
           {
             const size_type idx = idx_base + i * block_size;
@@ -549,13 +493,9 @@ namespace LinearAlgebra
 
       template <typename Number, typename IndexType>
       __global__ void
-      gather(Number *         val,
-             const IndexType *indices,
-             const Number *   v,
-             const IndexType  N)
+      gather(Number *val, const IndexType *indices, const Number *v, const IndexType N)
       {
-        const IndexType idx_base =
-          threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
+        const IndexType idx_base = threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
         for (unsigned int i = 0; i < chunk_size; ++i)
           {
             const IndexType idx = idx_base + i * block_size;
@@ -568,13 +508,9 @@ namespace LinearAlgebra
 
       template <typename Number>
       __global__ void
-      add_permutated(const size_type *indices,
-                     Number *         val,
-                     const Number *   v,
-                     const size_type  N)
+      add_permutated(const size_type *indices, Number *val, const Number *v, const size_type N)
       {
-        const size_type idx_base =
-          threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
+        const size_type idx_base = threadIdx.x + blockIdx.x * (blockDim.x * chunk_size);
         for (unsigned int i = 0; i < chunk_size; ++i)
           {
             const size_type idx = idx_base + i * block_size;

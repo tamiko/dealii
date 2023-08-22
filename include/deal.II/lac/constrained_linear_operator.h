@@ -62,9 +62,8 @@ DEAL_II_NAMESPACE_OPEN
  */
 template <typename Range, typename Domain, typename Payload>
 LinearOperator<Range, Domain, Payload>
-distribute_constraints_linear_operator(
-  const AffineConstraints<typename Range::value_type> &constraints,
-  const LinearOperator<Range, Domain, Payload> &       exemplar)
+distribute_constraints_linear_operator(const AffineConstraints<typename Range::value_type> &constraints,
+                                       const LinearOperator<Range, Domain, Payload>        &exemplar)
 {
   LinearOperator<Range, Domain, Payload> return_op = exemplar;
 
@@ -127,14 +126,12 @@ distribute_constraints_linear_operator(
     v.compress(VectorOperation::add);
   };
 
-  return_op.vmult = [vmult_add = return_op.vmult_add](Range &       v,
-                                                      const Domain &u) {
+  return_op.vmult = [vmult_add = return_op.vmult_add](Range &v, const Domain &u) {
     v = 0.;
     vmult_add(v, u);
   };
 
-  return_op.Tvmult = [Tvmult_add = return_op.Tvmult_add](Domain &     v,
-                                                         const Range &u) {
+  return_op.Tvmult = [Tvmult_add = return_op.Tvmult_add](Domain &v, const Range &u) {
     v = 0.;
     Tvmult_add(v, u);
   };
@@ -155,9 +152,8 @@ distribute_constraints_linear_operator(
  */
 template <typename Range, typename Domain, typename Payload>
 LinearOperator<Range, Domain, Payload>
-project_to_constrained_linear_operator(
-  const AffineConstraints<typename Range::value_type> &constraints,
-  const LinearOperator<Range, Domain, Payload> &       exemplar)
+project_to_constrained_linear_operator(const AffineConstraints<typename Range::value_type> &constraints,
+                                       const LinearOperator<Range, Domain, Payload>        &exemplar)
 {
   LinearOperator<Range, Domain, Payload> return_op = exemplar;
 
@@ -189,14 +185,12 @@ project_to_constrained_linear_operator(
     v.compress(VectorOperation::add);
   };
 
-  return_op.vmult = [vmult_add = return_op.vmult_add](Range &       v,
-                                                      const Domain &u) {
+  return_op.vmult = [vmult_add = return_op.vmult_add](Range &v, const Domain &u) {
     v = 0.;
     vmult_add(v, u);
   };
 
-  return_op.Tvmult = [Tvmult_add = return_op.Tvmult_add](Domain &     v,
-                                                         const Range &u) {
+  return_op.Tvmult = [Tvmult_add = return_op.Tvmult_add](Domain &v, const Range &u) {
     v = 0.;
     Tvmult_add(v, u);
   };
@@ -243,9 +237,8 @@ project_to_constrained_linear_operator(
  */
 template <typename Range, typename Domain, typename Payload>
 LinearOperator<Range, Domain, Payload>
-constrained_linear_operator(
-  const AffineConstraints<typename Range::value_type> &constraints,
-  const LinearOperator<Range, Domain, Payload> &       linop)
+constrained_linear_operator(const AffineConstraints<typename Range::value_type> &constraints,
+                            const LinearOperator<Range, Domain, Payload>        &linop)
 {
   const auto C    = distribute_constraints_linear_operator(constraints, linop);
   const auto Ct   = transpose_operator(C);
@@ -289,10 +282,9 @@ constrained_linear_operator(
  */
 template <typename Range, typename Domain, typename Payload>
 PackagedOperation<Range>
-constrained_right_hand_side(
-  const AffineConstraints<typename Range::value_type> &constraints,
-  const LinearOperator<Range, Domain, Payload> &       linop,
-  const Range &                                        right_hand_side)
+constrained_right_hand_side(const AffineConstraints<typename Range::value_type> &constraints,
+                            const LinearOperator<Range, Domain, Payload>        &linop,
+                            const Range                                         &right_hand_side)
 {
   PackagedOperation<Range> return_comp;
 

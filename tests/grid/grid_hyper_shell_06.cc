@@ -41,15 +41,11 @@ check(double r1, double r2, unsigned int n)
   static const SphericalManifold<dim> boundary(center);
   tria.set_manifold(0, boundary);
 
-  for (typename Triangulation<dim>::cell_iterator cell = tria.begin();
-       cell != tria.end();
-       ++cell)
+  for (typename Triangulation<dim>::cell_iterator cell = tria.begin(); cell != tria.end(); ++cell)
     for (const unsigned int f : GeometryInfo<dim>::face_indices())
       if (cell->face(f)->at_boundary())
         for (unsigned int l = 0; l < GeometryInfo<dim>::lines_per_face; ++l)
-          AssertThrow(cell->face(f)->line(l)->boundary_id() ==
-                        cell->face(f)->boundary_id(),
-                      ExcInternalError());
+          AssertThrow(cell->face(f)->line(l)->boundary_id() == cell->face(f)->boundary_id(), ExcInternalError());
 
   deallog << "OK" << std::endl;
 }

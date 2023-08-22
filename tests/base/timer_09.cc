@@ -50,11 +50,9 @@ test()
 
   t.print_wall_time_statistics(MPI_COMM_WORLD);
 
-  t.enter_subsection(
-    "this is a very long section name that previously did not work");
+  t.enter_subsection("this is a very long section name that previously did not work");
   burn(50);
-  t.leave_subsection(
-    "this is a very long section name that previously did not work");
+  t.leave_subsection("this is a very long section name that previously did not work");
 
   t.print_wall_time_statistics(MPI_COMM_WORLD);
 

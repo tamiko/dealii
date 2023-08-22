@@ -38,9 +38,8 @@ DEAL_II_NAMESPACE_OPEN
 
 
 template <int dim, typename VectorType, int spacedim>
-MappingQ1Eulerian<dim, VectorType, spacedim>::MappingQ1Eulerian(
-  const DoFHandler<dim, spacedim> &shiftmap_dof_handler,
-  const VectorType &               euler_transform_vectors)
+MappingQ1Eulerian<dim, VectorType, spacedim>::MappingQ1Eulerian(const DoFHandler<dim, spacedim> &shiftmap_dof_handler,
+                                                                const VectorType &euler_transform_vectors)
   : MappingQ<dim, spacedim>(1)
   , euler_transform_vectors(&euler_transform_vectors)
   , shiftmap_dof_handler(&shiftmap_dof_handler)
@@ -49,14 +48,12 @@ MappingQ1Eulerian<dim, VectorType, spacedim>::MappingQ1Eulerian(
 
 
 template <int dim, typename VectorType, int spacedim>
-boost::container::small_vector<Point<spacedim>,
-                               GeometryInfo<dim>::vertices_per_cell>
+boost::container::small_vector<Point<spacedim>, GeometryInfo<dim>::vertices_per_cell>
 MappingQ1Eulerian<dim, VectorType, spacedim>::get_vertices(
   const typename Triangulation<dim, spacedim>::cell_iterator &cell) const
 {
-  boost::container::small_vector<Point<spacedim>,
-                                 GeometryInfo<dim>::vertices_per_cell>
-    vertices(GeometryInfo<dim>::vertices_per_cell);
+  boost::container::small_vector<Point<spacedim>, GeometryInfo<dim>::vertices_per_cell> vertices(
+    GeometryInfo<dim>::vertices_per_cell);
   // The assertions can not be in the constructor, since this would
   // require to call dof_handler.distribute_dofs(fe) *before* the mapping
   // object is constructed, which is not necessarily what we want.
@@ -65,22 +62,19 @@ MappingQ1Eulerian<dim, VectorType, spacedim>::get_vertices(
   AssertDimension(spacedim, shiftmap_dof_handler->get_fe().n_dofs_per_vertex());
   AssertDimension(shiftmap_dof_handler->get_fe(0).n_components(), spacedim);
 
-  AssertDimension(shiftmap_dof_handler->n_dofs(),
-                  euler_transform_vectors->size());
+  AssertDimension(shiftmap_dof_handler->n_dofs(), euler_transform_vectors->size());
 
   // cast the Triangulation<dim>::cell_iterator into a
   // DoFHandler<dim>::cell_iterator which is necessary for access to
   // DoFCellAccessor::get_dof_values()
-  typename DoFHandler<dim, spacedim>::cell_iterator dof_cell(
-    *cell, shiftmap_dof_handler);
+  typename DoFHandler<dim, spacedim>::cell_iterator dof_cell(*cell, shiftmap_dof_handler);
 
   // We require the cell to be active since we can only then get nodal
   // values for the shifts
   Assert(dof_cell->is_active() == true, ExcInactiveCell());
 
   // now get the values of the shift vectors at the vertices
-  Vector<typename VectorType::value_type> mapping_values(
-    shiftmap_dof_handler->get_fe().n_dofs_per_cell());
+  Vector<typename VectorType::value_type> mapping_values(shiftmap_dof_handler->get_fe().n_dofs_per_cell());
   dof_cell->get_dof_values(*euler_transform_vectors, mapping_values);
 
   for (const unsigned int i : GeometryInfo<dim>::vertex_indices())
@@ -132,19 +126,15 @@ CellSimilarity::Similarity
 MappingQ1Eulerian<dim, VectorType, spacedim>::fill_fe_values(
   const typename Triangulation<dim, spacedim>::cell_iterator &cell,
   const CellSimilarity::Similarity,
-  const Quadrature<dim> &                                  quadrature,
-  const typename Mapping<dim, spacedim>::InternalDataBase &internal_data,
-  internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-    &output_data) const
+  const Quadrature<dim>                                               &quadrature,
+  const typename Mapping<dim, spacedim>::InternalDataBase             &internal_data,
+  internal::FEValuesImplementation::MappingRelatedData<dim, spacedim> &output_data) const
 {
   // call the function of the base class, but ignoring
   // any potentially detected cell similarity between
   // the current and the previous cell
-  MappingQ<dim, spacedim>::fill_fe_values(cell,
-                                          CellSimilarity::invalid_next_cell,
-                                          quadrature,
-                                          internal_data,
-                                          output_data);
+  MappingQ<dim, spacedim>::fill_fe_values(
+    cell, CellSimilarity::invalid_next_cell, quadrature, internal_data, output_data);
   // also return the updated flag since any detected
   // similarity wasn't based on the mapped field, but
   // the original vertices which are meaningless

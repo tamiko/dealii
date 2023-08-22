@@ -41,13 +41,12 @@ namespace python
 
 DEAL_II_NAMESPACE_CLOSE
 
-char const *pydealii_docstring =
-  "                                                             \n"
-  "PyDealII                                                     \n"
-  "========                                                     \n"
-  "This module contains the python bindings to deal.II.         \n"
-  "The Debug module uses deal.II compiled in Debug mode while   \n"
-  "the Release module uses deal.II compiled in Release mode.    \n";
+const char *pydealii_docstring = "                                                             \n"
+                                 "PyDealII                                                     \n"
+                                 "========                                                     \n"
+                                 "This module contains the python bindings to deal.II.         \n"
+                                 "The Debug module uses deal.II compiled in Debug mode while   \n"
+                                 "the Release module uses deal.II compiled in Release mode.    \n";
 
 #ifdef DEBUG
 

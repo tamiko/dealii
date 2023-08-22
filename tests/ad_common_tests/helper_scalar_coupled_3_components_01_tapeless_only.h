@@ -68,8 +68,7 @@ struct FunctionsTestTensorVectorScalarCoupled
           for (unsigned int l = 0; l < dim; ++l)
             dt_inv_trans_dt[i][j][k][l] = -t_inv[l][i] * t_inv[j][k];
 
-    return det_t(t) * outer_product(transpose(t_inv), transpose(t_inv)) +
-           det_t(t) * dt_inv_trans_dt;
+    return det_t(t) * outer_product(transpose(t_inv), transpose(t_inv)) + det_t(t) * dt_inv_trans_dt;
   }
 
   static NumberType
@@ -87,8 +86,7 @@ struct FunctionsTestTensorVectorScalarCoupled
   static Tensor<2, dim, NumberType>
   d2v_squ_dv_dv(const Tensor<1, dim, NumberType> &v)
   {
-    static const Tensor<2, dim, NumberType> I(
-      unit_symmetric_tensor<dim, NumberType>());
+    static const Tensor<2, dim, NumberType> I(unit_symmetric_tensor<dim, NumberType>());
     return 2.0 * I;
   }
 
@@ -97,122 +95,85 @@ struct FunctionsTestTensorVectorScalarCoupled
   static const double sf;
 
   static NumberType
-  psi(const Tensor<2, dim, NumberType> &t,
-      const Tensor<1, dim, NumberType> &v,
-      const NumberType &                s)
+  psi(const Tensor<2, dim, NumberType> &t, const Tensor<1, dim, NumberType> &v, const NumberType &s)
   {
     return pow(det_t(t), 2) * pow(v_squ(v), 3) * pow(s, sf);
   };
 
   static Tensor<2, dim, NumberType>
-  dpsi_dt(const Tensor<2, dim, NumberType> &t,
-          const Tensor<1, dim, NumberType> &v,
-          const NumberType &                s)
+  dpsi_dt(const Tensor<2, dim, NumberType> &t, const Tensor<1, dim, NumberType> &v, const NumberType &s)
   {
-    return 2.0 * pow(det_t(t), 1) * ddet_t_dt(t) * pow(v_squ(v), 3) *
-           pow(s, sf);
+    return 2.0 * pow(det_t(t), 1) * ddet_t_dt(t) * pow(v_squ(v), 3) * pow(s, sf);
   };
 
   static Tensor<1, dim, NumberType>
-  dpsi_dv(const Tensor<2, dim, NumberType> &t,
-          const Tensor<1, dim, NumberType> &v,
-          const NumberType &                s)
+  dpsi_dv(const Tensor<2, dim, NumberType> &t, const Tensor<1, dim, NumberType> &v, const NumberType &s)
   {
-    return pow(det_t(t), 2) * 3.0 * pow(v_squ(v), 2) * dv_squ_dv(v) *
-           pow(s, sf);
+    return pow(det_t(t), 2) * 3.0 * pow(v_squ(v), 2) * dv_squ_dv(v) * pow(s, sf);
   };
 
   static NumberType
-  dpsi_ds(const Tensor<2, dim, NumberType> &t,
-          const Tensor<1, dim, NumberType> &v,
-          const NumberType &                s)
+  dpsi_ds(const Tensor<2, dim, NumberType> &t, const Tensor<1, dim, NumberType> &v, const NumberType &s)
   {
     return pow(det_t(t), 2) * pow(v_squ(v), 3) * sf * pow(s, sf - 1.0);
   };
 
   static Tensor<4, dim, NumberType>
-  d2psi_dt_dt(const Tensor<2, dim, NumberType> &t,
-              const Tensor<1, dim, NumberType> &v,
-              const NumberType &                s)
+  d2psi_dt_dt(const Tensor<2, dim, NumberType> &t, const Tensor<1, dim, NumberType> &v, const NumberType &s)
   {
     return 2.0 * pow(v_squ(v), 3) *
-           (pow(det_t(t), 0) * outer_product(ddet_t_dt(t), ddet_t_dt(t)) +
-            pow(det_t(t), 1) * d2det_t_dt_dt(t)) *
+           (pow(det_t(t), 0) * outer_product(ddet_t_dt(t), ddet_t_dt(t)) + pow(det_t(t), 1) * d2det_t_dt_dt(t)) *
            pow(s, sf);
   };
 
   static Tensor<3, dim, NumberType>
-  d2psi_dv_dt(const Tensor<2, dim, NumberType> &t,
-              const Tensor<1, dim, NumberType> &v,
-              const NumberType &                s)
+  d2psi_dv_dt(const Tensor<2, dim, NumberType> &t, const Tensor<1, dim, NumberType> &v, const NumberType &s)
   {
-    return 2.0 * pow(det_t(t), 1) * 3.0 * pow(v_squ(v), 2) *
-           outer_product(ddet_t_dt(t), dv_squ_dv(v)) * pow(s, sf);
+    return 2.0 * pow(det_t(t), 1) * 3.0 * pow(v_squ(v), 2) * outer_product(ddet_t_dt(t), dv_squ_dv(v)) * pow(s, sf);
   };
 
   static Tensor<2, dim, NumberType>
-  d2psi_ds_dt(const Tensor<2, dim, NumberType> &t,
-              const Tensor<1, dim, NumberType> &v,
-              const NumberType &                s)
+  d2psi_ds_dt(const Tensor<2, dim, NumberType> &t, const Tensor<1, dim, NumberType> &v, const NumberType &s)
   {
-    return 2.0 * pow(det_t(t), 1) * ddet_t_dt(t) * pow(v_squ(v), 3) * sf *
-           pow(s, sf - 1.0);
+    return 2.0 * pow(det_t(t), 1) * ddet_t_dt(t) * pow(v_squ(v), 3) * sf * pow(s, sf - 1.0);
   };
 
   static Tensor<3, dim, NumberType>
-  d2psi_dt_dv(const Tensor<2, dim, NumberType> &t,
-              const Tensor<1, dim, NumberType> &v,
-              const NumberType &                s)
+  d2psi_dt_dv(const Tensor<2, dim, NumberType> &t, const Tensor<1, dim, NumberType> &v, const NumberType &s)
   {
-    return 2.0 * pow(det_t(t), 1) * 3.0 * pow(v_squ(v), 2) *
-           outer_product(dv_squ_dv(v), ddet_t_dt(t)) * pow(s, sf);
+    return 2.0 * pow(det_t(t), 1) * 3.0 * pow(v_squ(v), 2) * outer_product(dv_squ_dv(v), ddet_t_dt(t)) * pow(s, sf);
   };
 
   static Tensor<2, dim, NumberType>
-  d2psi_dv_dv(const Tensor<2, dim, NumberType> &t,
-              const Tensor<1, dim, NumberType> &v,
-              const NumberType &                s)
+  d2psi_dv_dv(const Tensor<2, dim, NumberType> &t, const Tensor<1, dim, NumberType> &v, const NumberType &s)
   {
     return pow(det_t(t), 2) * 3.0 *
-           (2.0 * pow(v_squ(v), 1) * outer_product(dv_squ_dv(v), dv_squ_dv(v)) +
-            pow(v_squ(v), 2) * d2v_squ_dv_dv(v)) *
+           (2.0 * pow(v_squ(v), 1) * outer_product(dv_squ_dv(v), dv_squ_dv(v)) + pow(v_squ(v), 2) * d2v_squ_dv_dv(v)) *
            pow(s, sf);
   };
 
   static Tensor<1, dim, NumberType>
-  d2psi_ds_dv(const Tensor<2, dim, NumberType> &t,
-              const Tensor<1, dim, NumberType> &v,
-              const NumberType &                s)
+  d2psi_ds_dv(const Tensor<2, dim, NumberType> &t, const Tensor<1, dim, NumberType> &v, const NumberType &s)
   {
-    return pow(det_t(t), 2) * 3.0 * pow(v_squ(v), 2) * dv_squ_dv(v) * sf *
-           pow(s, sf - 1.0);
+    return pow(det_t(t), 2) * 3.0 * pow(v_squ(v), 2) * dv_squ_dv(v) * sf * pow(s, sf - 1.0);
   };
 
   static Tensor<2, dim, NumberType>
-  d2psi_dt_ds(const Tensor<2, dim, NumberType> &t,
-              const Tensor<1, dim, NumberType> &v,
-              const NumberType &                s)
+  d2psi_dt_ds(const Tensor<2, dim, NumberType> &t, const Tensor<1, dim, NumberType> &v, const NumberType &s)
   {
-    return 2.0 * pow(det_t(t), 1) * ddet_t_dt(t) * pow(v_squ(v), 3) * sf *
-           pow(s, sf - 1.0);
+    return 2.0 * pow(det_t(t), 1) * ddet_t_dt(t) * pow(v_squ(v), 3) * sf * pow(s, sf - 1.0);
   };
 
   static Tensor<1, dim, NumberType>
-  d2psi_dv_ds(const Tensor<2, dim, NumberType> &t,
-              const Tensor<1, dim, NumberType> &v,
-              const NumberType &                s)
+  d2psi_dv_ds(const Tensor<2, dim, NumberType> &t, const Tensor<1, dim, NumberType> &v, const NumberType &s)
   {
-    return pow(det_t(t), 2) * 3.0 * pow(v_squ(v), 2) * dv_squ_dv(v) * sf *
-           pow(s, sf - 1.0);
+    return pow(det_t(t), 2) * 3.0 * pow(v_squ(v), 2) * dv_squ_dv(v) * sf * pow(s, sf - 1.0);
   };
 
   static NumberType
-  d2psi_ds_ds(const Tensor<2, dim, NumberType> &t,
-              const Tensor<1, dim, NumberType> &v,
-              const NumberType &                s)
+  d2psi_ds_ds(const Tensor<2, dim, NumberType> &t, const Tensor<1, dim, NumberType> &v, const NumberType &s)
   {
-    return pow(det_t(t), 2) * pow(v_squ(v), 3) * sf * (sf - 1.0) *
-           pow(s, sf - 2.0);
+    return pow(det_t(t), 2) * pow(v_squ(v), 3) * sf * (sf - 1.0) * pow(s, sf - 2.0);
   };
 };
 
@@ -227,8 +188,7 @@ test_tensor_vector_scalar_coupled()
   using ADNumberType     = typename ADHelper::ad_type;
   using ScalarNumberType = typename ADHelper::scalar_type;
 
-  const unsigned int this_mpi_process =
-    Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  const unsigned int this_mpi_process = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
   ConditionalOStream pcout(deallog.get_console(), this_mpi_process == 0);
 
   pcout << "*** Test variables: Tensor + Vector + Scalar (coupled), "
@@ -246,20 +206,16 @@ test_tensor_vector_scalar_coupled()
   // Setup the variable components and choose a value at which to
   // evaluate the tape
   const FEValuesExtractors::Tensor<2> t_dof(0);
-  const FEValuesExtractors::Vector    v_dof(
-    Tensor<2, dim>::n_independent_components);
-  const FEValuesExtractors::Scalar s_dof(
-    Tensor<2, dim>::n_independent_components +
-    Tensor<1, dim>::n_independent_components);
-  const unsigned int n_AD_components =
-    Tensor<2, dim>::n_independent_components +
-    Tensor<1, dim>::n_independent_components + 1;
+  const FEValuesExtractors::Vector    v_dof(Tensor<2, dim>::n_independent_components);
+  const FEValuesExtractors::Scalar    s_dof(Tensor<2, dim>::n_independent_components +
+                                         Tensor<1, dim>::n_independent_components);
+  const unsigned int                  n_AD_components =
+    Tensor<2, dim>::n_independent_components + Tensor<1, dim>::n_independent_components + 1;
   ADHelper ad_helper(n_AD_components);
   ad_helper.set_tape_buffer_sizes(); // Increase the buffer size from the
                                      // default values
 
-  Tensor<2, dim, ScalarNumberType> t =
-    unit_symmetric_tensor<dim, ScalarNumberType>();
+  Tensor<2, dim, ScalarNumberType> t = unit_symmetric_tensor<dim, ScalarNumberType>();
   for (unsigned int i = 0; i < t.n_independent_components; ++i)
     t[t.unrolled_to_component_indices(i)] += 0.11 * (i + 0.125);
   Tensor<1, dim, ScalarNumberType> v;
@@ -273,11 +229,9 @@ test_tensor_vector_scalar_coupled()
     ad_helper.register_independent_variable(v, v_dof);
     ad_helper.register_independent_variable(s, s_dof);
 
-    const Tensor<2, dim, ADNumberType> t_ad =
-      ad_helper.get_sensitive_variables(t_dof);
-    const Tensor<1, dim, ADNumberType> v_ad =
-      ad_helper.get_sensitive_variables(v_dof);
-    ADNumberType s_ad = ad_helper.get_sensitive_variables(s_dof);
+    const Tensor<2, dim, ADNumberType> t_ad = ad_helper.get_sensitive_variables(t_dof);
+    const Tensor<1, dim, ADNumberType> v_ad = ad_helper.get_sensitive_variables(v_dof);
+    ADNumberType                       s_ad = ad_helper.get_sensitive_variables(s_dof);
 
     const ADNumberType psi(func_ad::psi(t_ad, v_ad, s_ad));
 
@@ -320,48 +274,31 @@ test_tensor_vector_scalar_coupled()
     }
 
   // Extract components of the solution
-  const Tensor<2, dim, ScalarNumberType> dpsi_dt =
-    ad_helper.extract_gradient_component(Dpsi, t_dof);
-  const Tensor<1, dim, ScalarNumberType> dpsi_dv =
-    ad_helper.extract_gradient_component(Dpsi, v_dof);
-  const Tensor<0, dim, ScalarNumberType> dpsi_ds =
-    ad_helper.extract_gradient_component(Dpsi, s_dof);
+  const Tensor<2, dim, ScalarNumberType> dpsi_dt = ad_helper.extract_gradient_component(Dpsi, t_dof);
+  const Tensor<1, dim, ScalarNumberType> dpsi_dv = ad_helper.extract_gradient_component(Dpsi, v_dof);
+  const Tensor<0, dim, ScalarNumberType> dpsi_ds = ad_helper.extract_gradient_component(Dpsi, s_dof);
   pcout << "extracted Dpsi (t): " << dpsi_dt << "\n"
         << "extracted Dpsi (v): " << dpsi_dv << "\n"
         << "extracted Dpsi (s): " << dpsi_ds << "\n";
 
   // Verify the result
-  using func = FunctionsTestTensorVectorScalarCoupled<dim, ScalarNumberType>;
-  static const ScalarNumberType tol =
-    1e5 * std::numeric_limits<ScalarNumberType>::epsilon();
-  Assert(std::abs(psi - func::psi(t, v, s)) < tol,
-         ExcMessage("No match for function value."));
-  Assert(std::abs((dpsi_dt - func::dpsi_dt(t, v, s)).norm()) < tol,
-         ExcMessage("No match for first derivative."));
-  Assert(std::abs((dpsi_dv - func::dpsi_dv(t, v, s)).norm()) < tol,
-         ExcMessage("No match for first derivative."));
-  Assert(std::abs(dpsi_ds - func::dpsi_ds(t, v, s)) < tol,
-         ExcMessage("No match for first derivative."));
+  using func                        = FunctionsTestTensorVectorScalarCoupled<dim, ScalarNumberType>;
+  static const ScalarNumberType tol = 1e5 * std::numeric_limits<ScalarNumberType>::epsilon();
+  Assert(std::abs(psi - func::psi(t, v, s)) < tol, ExcMessage("No match for function value."));
+  Assert(std::abs((dpsi_dt - func::dpsi_dt(t, v, s)).norm()) < tol, ExcMessage("No match for first derivative."));
+  Assert(std::abs((dpsi_dv - func::dpsi_dv(t, v, s)).norm()) < tol, ExcMessage("No match for first derivative."));
+  Assert(std::abs(dpsi_ds - func::dpsi_ds(t, v, s)) < tol, ExcMessage("No match for first derivative."));
   if (AD::ADNumberTraits<ADNumberType>::n_supported_derivative_levels >= 2)
     {
-      const Tensor<4, dim, ScalarNumberType> d2psi_dt_dt =
-        ad_helper.extract_hessian_component(D2psi, t_dof, t_dof);
-      const Tensor<3, dim, ScalarNumberType> d2psi_dv_dt =
-        ad_helper.extract_hessian_component(D2psi, t_dof, v_dof);
-      const Tensor<2, dim, ScalarNumberType> d2psi_ds_dt =
-        ad_helper.extract_hessian_component(D2psi, t_dof, s_dof);
-      const Tensor<3, dim, ScalarNumberType> d2psi_dt_dv =
-        ad_helper.extract_hessian_component(D2psi, v_dof, t_dof);
-      const Tensor<2, dim, ScalarNumberType> d2psi_dv_dv =
-        ad_helper.extract_hessian_component(D2psi, v_dof, v_dof);
-      const Tensor<1, dim, ScalarNumberType> d2psi_ds_dv =
-        ad_helper.extract_hessian_component(D2psi, v_dof, s_dof);
-      const Tensor<2, dim, ScalarNumberType> d2psi_dt_ds =
-        ad_helper.extract_hessian_component(D2psi, s_dof, t_dof);
-      const Tensor<1, dim, ScalarNumberType> d2psi_dv_ds =
-        ad_helper.extract_hessian_component(D2psi, s_dof, v_dof);
-      const Tensor<0, dim, ScalarNumberType> d2psi_ds_ds =
-        ad_helper.extract_hessian_component(D2psi, s_dof, s_dof);
+      const Tensor<4, dim, ScalarNumberType> d2psi_dt_dt = ad_helper.extract_hessian_component(D2psi, t_dof, t_dof);
+      const Tensor<3, dim, ScalarNumberType> d2psi_dv_dt = ad_helper.extract_hessian_component(D2psi, t_dof, v_dof);
+      const Tensor<2, dim, ScalarNumberType> d2psi_ds_dt = ad_helper.extract_hessian_component(D2psi, t_dof, s_dof);
+      const Tensor<3, dim, ScalarNumberType> d2psi_dt_dv = ad_helper.extract_hessian_component(D2psi, v_dof, t_dof);
+      const Tensor<2, dim, ScalarNumberType> d2psi_dv_dv = ad_helper.extract_hessian_component(D2psi, v_dof, v_dof);
+      const Tensor<1, dim, ScalarNumberType> d2psi_ds_dv = ad_helper.extract_hessian_component(D2psi, v_dof, s_dof);
+      const Tensor<2, dim, ScalarNumberType> d2psi_dt_ds = ad_helper.extract_hessian_component(D2psi, s_dof, t_dof);
+      const Tensor<1, dim, ScalarNumberType> d2psi_dv_ds = ad_helper.extract_hessian_component(D2psi, s_dof, v_dof);
+      const Tensor<0, dim, ScalarNumberType> d2psi_ds_ds = ad_helper.extract_hessian_component(D2psi, s_dof, s_dof);
       pcout << "extracted Dpsi (t): " << dpsi_dt << "\n"
             << "extracted Dpsi (v): " << dpsi_dv << "\n"
             << "extracted Dpsi (s): " << dpsi_ds << "\n"
@@ -391,7 +328,6 @@ test_tensor_vector_scalar_coupled()
              ExcMessage("No match for second derivative."));
       Assert(std::abs((d2psi_dv_ds - func::d2psi_dv_ds(t, v, s)).norm()) < tol,
              ExcMessage("No match for second derivative."));
-      Assert(std::abs(d2psi_ds_ds - func::d2psi_ds_ds(t, v, s)) < tol,
-             ExcMessage("No match for second derivative."));
+      Assert(std::abs(d2psi_ds_ds - func::d2psi_ds_ds(t, v, s)) < tol, ExcMessage("No match for second derivative."));
     }
 }

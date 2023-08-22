@@ -56,18 +56,15 @@ check()
   Triangulation<dim> triangulation;
   GridGenerator::cylinder(triangulation);
 
-  GridTools::transform((Point<dim>(*)(const Point<dim> &)) &
-                         rotate_by_xy_angle<dim>,
-                       triangulation);
+  GridTools::transform((Point<dim>(*)(const Point<dim> &)) & rotate_by_xy_angle<dim>, triangulation);
 
-  const Tensor<1, dim> direction{{std::cos(xy_angle), std::sin(xy_angle), 0}};
+  const Tensor<1, dim>                  direction{{std::cos(xy_angle), std::sin(xy_angle), 0}};
   static const CylindricalManifold<dim> boundary(direction,
                                                  /*center=*/Point<dim>());
   triangulation.set_manifold(0, boundary);
   triangulation.refine_global(2);
 
-  for (typename Triangulation<dim>::active_cell_iterator cell =
-         triangulation.begin_active();
+  for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
        cell != triangulation.end();
        ++cell)
     for (const unsigned int i : GeometryInfo<dim>::vertex_indices())

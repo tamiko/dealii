@@ -37,8 +37,7 @@ check()
         {
           v1(i) = std::complex<number>(0.1 + 0.005 * i, 1.234 + 12 * i);
           v2(i) = std::complex<number>(-5.2 + 0.18 * i, 42.4242 + 42 * i);
-          v3(i) =
-            std::complex<number>(numbers::PI + numbers::E / (1. + i), 13.);
+          v3(i) = std::complex<number>(numbers::PI + numbers::E / (1. + i), 13.);
         }
       check                             = v1;
       const std::complex<number> factor = std::complex<number>(0.01432);
@@ -61,16 +60,13 @@ check()
       deallog << "Add and dot is ";
       // check tolerance with respect to the expected size of result which is
       // ~ size^2 including the roundoff error ~ sqrt(size) we expect
-      const number tolerance = 4. * std::numeric_limits<number>::epsilon() *
-                               std::sqrt(static_cast<number>(size)) * size *
-                               size;
+      const number tolerance =
+        4. * std::numeric_limits<number>::epsilon() * std::sqrt(static_cast<number>(size)) * size * size;
       if (std::abs(prod - prod_check) < tolerance)
         deallog << "correct" << std::endl;
       else
-        deallog << "wrong by " << std::abs(prod - prod_check)
-                << " with tolerance " << tolerance << "; should be "
-                << prod / static_cast<number>(size) << ", is "
-                << prod_check / static_cast<number>(size) << std::endl;
+        deallog << "wrong by " << std::abs(prod - prod_check) << " with tolerance " << tolerance << "; should be "
+                << prod / static_cast<number>(size) << ", is " << prod_check / static_cast<number>(size) << std::endl;
     }
 }
 

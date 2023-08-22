@@ -55,8 +55,7 @@ main(int argc, char **argv)
 
       if (std::abs(X(0) - last_residual_eval) > 1)
         {
-          deallog << "Too large a step. Throwing a recoverable exception."
-                  << std::endl;
+          deallog << "Too large a step. Throwing a recoverable exception." << std::endl;
           throw RecoverableUserCallbackError();
         }
 
@@ -68,8 +67,7 @@ main(int argc, char **argv)
 
     // This test triggers false positives in FPE trapping for some versions of
     // PETSc
-#if DEAL_II_PETSC_VERSION_LT(3, 19, 2) && defined(DEBUG) && \
-  defined(DEAL_II_HAVE_FP_EXCEPTIONS)
+#if DEAL_II_PETSC_VERSION_LT(3, 19, 2) && defined(DEBUG) && defined(DEAL_II_HAVE_FP_EXCEPTIONS)
     PetscErrorCode ierr = PetscFPTrapPush(PETSC_FP_TRAP_OFF);
     (void)ierr;
 #endif
@@ -77,8 +75,7 @@ main(int argc, char **argv)
     for (int setjac = 0; setjac < 2; setjac++)
       {
         if (setjac)
-          solver.jacobian =
-            [&](const VectorType &X, MatrixType &A, MatrixType &P) -> void {
+          solver.jacobian = [&](const VectorType &X, MatrixType &A, MatrixType &P) -> void {
             deallog << "Evaluating the Jacobian at x=" << X(0) << std::endl;
 
             P.set(0, 0, std::cos(X(0)));
@@ -99,8 +96,7 @@ main(int argc, char **argv)
             solver.reinit(data);
             const auto nit = solver.solve(x);
 
-            deallog << "Found the solution x=" << x(0) << " after " << nit
-                    << " iterations." << std::endl;
+            deallog << "Found the solution x=" << x(0) << " after " << nit << " iterations." << std::endl;
           }
         catch (const std::exception &exc)
           {

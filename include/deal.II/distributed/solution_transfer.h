@@ -237,8 +237,7 @@ namespace parallel
        * additional communication step, since the valence of the DoF has to be
        * determined.
        */
-      SolutionTransfer(const DoFHandler<dim, spacedim> &dof_handler,
-                       const bool                       average_values = false);
+      SolutionTransfer(const DoFHandler<dim, spacedim> &dof_handler, const bool average_values = false);
 
       /**
        * Destructor.
@@ -253,8 +252,7 @@ namespace parallel
        * (refined and/or coarsened) grid.
        */
       void
-      prepare_for_coarsening_and_refinement(
-        const std::vector<const VectorType *> &all_in);
+      prepare_for_coarsening_and_refinement(const std::vector<const VectorType *> &all_in);
 
       /**
        * Same as the previous function but for only one discrete function to be
@@ -320,9 +318,7 @@ namespace parallel
       /**
        * Pointer to the degree of freedom handler to work with.
        */
-      SmartPointer<const DoFHandler<dim, spacedim>,
-                   SolutionTransfer<dim, VectorType, spacedim>>
-        dof_handler;
+      SmartPointer<const DoFHandler<dim, spacedim>, SolutionTransfer<dim, VectorType, spacedim>> dof_handler;
 
       /**
        * Flag indicating if averaging should be performed.
@@ -347,9 +343,7 @@ namespace parallel
        * repartitioning.
        */
       std::vector<char>
-      pack_callback(
-        const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-        const CellStatus                                            status);
+      pack_callback(const typename Triangulation<dim, spacedim>::cell_iterator &cell, const CellStatus status);
 
       /**
        * A callback function used to unpack the data on the current mesh that
@@ -357,13 +351,11 @@ namespace parallel
        * coarsening and repartitioning.
        */
       void
-      unpack_callback(
-        const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-        const CellStatus                                            status,
-        const boost::iterator_range<std::vector<char>::const_iterator>
-          &                        data_range,
-        std::vector<VectorType *> &all_out,
-        VectorType &               valence);
+      unpack_callback(const typename Triangulation<dim, spacedim>::cell_iterator     &cell,
+                      const CellStatus                                                status,
+                      const boost::iterator_range<std::vector<char>::const_iterator> &data_range,
+                      std::vector<VectorType *>                                      &all_out,
+                      VectorType                                                     &valence);
 
 
       /**

@@ -34,7 +34,7 @@ void
 test_leak()
 {
   GrowingVectorMemory<VectorType> mem;
-  VectorType *                    v = mem.alloc();
+  VectorType                     *v = mem.alloc();
   v->reinit(5);
 }
 
@@ -47,10 +47,8 @@ main(int argc, char *argv[])
 
   try
     {
-      test_leak<
-        LinearAlgebra::distributed::Vector<double, MemorySpace::Default>>();
-      test_leak<
-        LinearAlgebra::distributed::Vector<float, MemorySpace::Default>>();
+      test_leak<LinearAlgebra::distributed::Vector<double, MemorySpace::Default>>();
+      test_leak<LinearAlgebra::distributed::Vector<float, MemorySpace::Default>>();
     }
   catch (const StandardExceptions::ExcMemoryLeak &e)
     {

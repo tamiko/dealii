@@ -39,8 +39,7 @@ test(const unsigned int size, const unsigned int block_size)
   const std::string filename("scalapack_10_d_test.h5");
 
   MPI_Comm           mpi_communicator(MPI_COMM_WORLD);
-  const unsigned int this_mpi_process(
-    Utilities::MPI::this_mpi_process(mpi_communicator));
+  const unsigned int this_mpi_process(Utilities::MPI::this_mpi_process(mpi_communicator));
   ConditionalOStream pcout(std::cout, (this_mpi_process == 0));
 
   // create FullMatrix and fill it
@@ -52,23 +51,18 @@ test(const unsigned int size, const unsigned int block_size)
 
   // create 2d process grid
   std::shared_ptr<Utilities::MPI::ProcessGrid> grid =
-    std::make_shared<Utilities::MPI::ProcessGrid>(
-      mpi_communicator, size, size, block_size, block_size);
+    std::make_shared<Utilities::MPI::ProcessGrid>(mpi_communicator, size, size, block_size, block_size);
 
   // create process grid with only one process
   std::shared_ptr<Utilities::MPI::ProcessGrid> grid_1 =
     std::make_shared<Utilities::MPI::ProcessGrid>(mpi_communicator, 1, 1);
 
-  ScaLAPACKMatrix<NumberType> scalapack_matrix_1(
-    size, size, grid_1, block_size, block_size);
+  ScaLAPACKMatrix<NumberType> scalapack_matrix_1(size, size, grid_1, block_size, block_size);
 
   scalapack_matrix_1 = full;
   scalapack_matrix_1.save(filename);
 
-  ScaLAPACKMatrix<NumberType> scalapack_matrix(filename,
-                                               grid,
-                                               block_size,
-                                               block_size);
+  ScaLAPACKMatrix<NumberType> scalapack_matrix(filename, grid, block_size, block_size);
 
   FullMatrix<NumberType> copy(size);
   scalapack_matrix.copy_to(copy);
@@ -98,8 +92,7 @@ main(int argc, char **argv)
   }
 #endif
 
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, numbers::invalid_unsigned_int);
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, numbers::invalid_unsigned_int);
 
   const std::vector<unsigned int> sizes       = {{100, 200, 300}};
   const std::vector<unsigned int> block_sizes = {{16, 32}};

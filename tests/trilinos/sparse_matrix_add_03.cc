@@ -54,9 +54,7 @@ test()
   // with reordered dofs by its components, such that the rows in the
   // final matrix are locally not in a contiguous set.
 
-  dealii::TrilinosWrappers::SparsityPattern sp_M(parallel_partitioning,
-                                                 MPI_COMM_WORLD,
-                                                 2);
+  dealii::TrilinosWrappers::SparsityPattern sp_M(parallel_partitioning, MPI_COMM_WORLD, 2);
 
   sp_M.add(MyPID, MyPID);
   sp_M.add(MyPID, NumProc + MyPID);
@@ -90,8 +88,7 @@ test()
       const auto &el = M1.el(i, i);
 
       if (MyPID == 0)
-        deallog << "i = " << i << " , j = " << i << " , el = " << el
-                << std::endl;
+        deallog << "i = " << i << " , j = " << i << " , el = " << el << std::endl;
 
       AssertThrow(el == dealii::numbers::PI, dealii::ExcInternalError());
     }
@@ -107,8 +104,7 @@ main(int argc, char **argv)
 {
   initlog();
 
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   test();
 }

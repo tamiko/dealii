@@ -48,17 +48,12 @@ do_test(const unsigned int degree)
   deallog << "Testing degree " << degree << " in " << dim << 'D' << std::endl;
   for (const auto &cell : tria.active_cell_iterators())
     {
-      deallog << "cell " << cell->id() << ": "
-              << mapping_cache.transform_unit_to_real_cell(cell, p1)
-              << " vs reference "
-              << mapping.transform_unit_to_real_cell(cell, p1) << std::endl;
-      deallog << "cell " << cell->id() << ": "
-              << mapping_cache.transform_unit_to_real_cell(cell, p2)
-              << " vs reference "
-              << mapping.transform_unit_to_real_cell(cell, p2) << std::endl;
+      deallog << "cell " << cell->id() << ": " << mapping_cache.transform_unit_to_real_cell(cell, p1)
+              << " vs reference " << mapping.transform_unit_to_real_cell(cell, p1) << std::endl;
+      deallog << "cell " << cell->id() << ": " << mapping_cache.transform_unit_to_real_cell(cell, p2)
+              << " vs reference " << mapping.transform_unit_to_real_cell(cell, p2) << std::endl;
       AssertThrow((p2 -
-                   mapping_cache.transform_real_to_unit_cell(
-                     cell, mapping_cache.transform_unit_to_real_cell(cell, p2)))
+                   mapping_cache.transform_real_to_unit_cell(cell, mapping_cache.transform_unit_to_real_cell(cell, p2)))
                       .norm() < 1e-13,
                   ExcInternalError());
     }
@@ -70,17 +65,12 @@ do_test(const unsigned int degree)
   deallog << "Testing degree " << degree << " in " << dim << 'D' << std::endl;
   for (const auto &cell : tria.active_cell_iterators())
     {
-      deallog << "cell " << cell->id() << ": "
-              << mapping_cache.transform_unit_to_real_cell(cell, p1)
-              << " vs reference "
-              << mapping.transform_unit_to_real_cell(cell, p1) << std::endl;
-      deallog << "cell " << cell->id() << ": "
-              << mapping_cache.transform_unit_to_real_cell(cell, p2)
-              << " vs reference "
-              << mapping.transform_unit_to_real_cell(cell, p2) << std::endl;
+      deallog << "cell " << cell->id() << ": " << mapping_cache.transform_unit_to_real_cell(cell, p1)
+              << " vs reference " << mapping.transform_unit_to_real_cell(cell, p1) << std::endl;
+      deallog << "cell " << cell->id() << ": " << mapping_cache.transform_unit_to_real_cell(cell, p2)
+              << " vs reference " << mapping.transform_unit_to_real_cell(cell, p2) << std::endl;
       AssertThrow((p2 -
-                   mapping_cache.transform_real_to_unit_cell(
-                     cell, mapping_cache.transform_unit_to_real_cell(cell, p2)))
+                   mapping_cache.transform_real_to_unit_cell(cell, mapping_cache.transform_unit_to_real_cell(cell, p2)))
                       .norm() < 1e-13,
                   ExcInternalError());
     }

@@ -38,30 +38,24 @@ void
 test()
 {
   Triangulation<3>   tria;
-  unsigned int const n_cells_toroidal = 9;
-  double const       angle            = 2.0 * numbers::PI;
-  double const       R = 3., r = 1.;
+  const unsigned int n_cells_toroidal = 9;
+  const double       angle            = 2.0 * numbers::PI;
+  const double       R = 3., r = 1.;
   GridGenerator::torus(tria, R, r, n_cells_toroidal, angle);
 
   Triangulation<3>   tria_open;
-  unsigned int const factor = 3;
-  GridGenerator::torus(
-    tria_open, R, r, n_cells_toroidal / factor, angle / (double)factor);
+  const unsigned int factor = 3;
+  GridGenerator::torus(tria_open, R, r, n_cells_toroidal / factor, angle / (double)factor);
 
-  MappingQ<3> const mapping(3);
-  QGauss<3> const   gauss(4);
+  const MappingQ<3> mapping(3);
+  const QGauss<3>   gauss(4);
 
-  double const ar_full_torus =
-    GridTools::compute_maximum_aspect_ratio(mapping, tria, gauss);
-  double const ar_open_torus =
-    GridTools::compute_maximum_aspect_ratio(mapping, tria_open, gauss);
+  const double ar_full_torus = GridTools::compute_maximum_aspect_ratio(mapping, tria, gauss);
+  const double ar_open_torus = GridTools::compute_maximum_aspect_ratio(mapping, tria_open, gauss);
 
-  deallog << "N_active_cells_full = " << tria.n_global_active_cells()
-          << std::endl;
-  deallog << "N_active_cells_open = " << tria_open.n_global_active_cells()
-          << std::endl;
-  deallog << "| AR_full - AR_open | = "
-          << std::abs(ar_full_torus - ar_open_torus) << std::endl;
+  deallog << "N_active_cells_full = " << tria.n_global_active_cells() << std::endl;
+  deallog << "N_active_cells_open = " << tria_open.n_global_active_cells() << std::endl;
+  deallog << "| AR_full - AR_open | = " << std::abs(ar_full_torus - ar_open_torus) << std::endl;
 }
 
 int
@@ -78,27 +72,19 @@ main(int argc, char **argv)
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
 

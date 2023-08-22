@@ -41,8 +41,7 @@ test()
       points[2][2] = 0.4123;
     }
   GridGenerator::parallelepiped(tria, points);
-  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(),
-                                                    endc = tria.end();
+  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
   for (; cell != endc; ++cell)
     if (cell->center().norm() < 1e-8)
       cell->set_refine_flag();
@@ -74,9 +73,6 @@ test()
   DoFTools::make_hanging_node_constraints(dof, constraints);
   constraints.close();
 
-  do_test<dim,
-          fe_degree,
-          Number,
-          LinearAlgebra::distributed::Vector<Number, MemorySpace::Default>,
-          fe_degree + 1>(dof, constraints, tria.n_active_cells());
+  do_test<dim, fe_degree, Number, LinearAlgebra::distributed::Vector<Number, MemorySpace::Default>, fe_degree + 1>(
+    dof, constraints, tria.n_active_cells());
 }

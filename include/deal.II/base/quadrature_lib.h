@@ -244,7 +244,7 @@ public:
    * formula or it is factored out, to be included in the integrand.
    */
   QGaussLogR(const unsigned int n,
-             const Point<dim> & x0                         = Point<dim>(),
+             const Point<dim>  &x0                         = Point<dim>(),
              const double       alpha                      = 1,
              const bool         factor_out_singular_weight = false);
 
@@ -323,9 +323,7 @@ public:
    * }
    * @endcode
    */
-  QGaussOneOverR(const unsigned int n,
-                 const Point<dim> & singularity,
-                 const bool         factor_out_singular_weight = false);
+  QGaussOneOverR(const unsigned int n, const Point<dim> &singularity, const bool factor_out_singular_weight = false);
   /**
    * The constructor takes three arguments: the order of the Gauss formula,
    * the index of the vertex where the singularity is located, and whether we
@@ -360,9 +358,7 @@ public:
    * }
    * @endcode
    */
-  QGaussOneOverR(const unsigned int n,
-                 const unsigned int vertex_index,
-                 const bool         factor_out_singular_weight = false);
+  QGaussOneOverR(const unsigned int n, const unsigned int vertex_index, const bool factor_out_singular_weight = false);
 
 private:
   /**
@@ -531,8 +527,7 @@ public:
     right
   };
   /// Generate a formula with <tt>n</tt> quadrature points
-  QGaussRadauChebyshev(const unsigned int n,
-                       EndPoint           ep = QGaussRadauChebyshev::left);
+  QGaussRadauChebyshev(const unsigned int n, EndPoint ep = QGaussRadauChebyshev::left);
 
   /**
    * Move constructor. We cannot rely on the move constructor for `Quadrature`,
@@ -640,8 +635,7 @@ public:
    */
   template <int spacedim = dim>
   Quadrature<spacedim>
-  compute_affine_transformation(
-    const std::array<Point<spacedim>, dim + 1> &vertices) const;
+  compute_affine_transformation(const std::array<Point<spacedim>, dim + 1> &vertices) const;
 
   /**
    * Given a collection of simplices, this function creates a global
@@ -657,8 +651,7 @@ public:
    */
   template <int spacedim = dim>
   Quadrature<spacedim>
-  mapped_quadrature(
-    const std::vector<std::array<Point<spacedim>, dim + 1>> &simplices) const;
+  mapped_quadrature(const std::vector<std::array<Point<spacedim>, dim + 1>> &simplices) const;
 };
 
 /**
@@ -689,8 +682,7 @@ public:
    * @param radial_quadrature Radial quadrature
    * @param angular_quadrature Angular quadrature
    */
-  QTrianglePolar(const Quadrature<1> &radial_quadrature,
-                 const Quadrature<1> &angular_quadrature);
+  QTrianglePolar(const Quadrature<1> &radial_quadrature, const Quadrature<1> &angular_quadrature);
 
   /**
    * Call the other constructor, with QGauss<1>(n) for both radial and
@@ -750,9 +742,7 @@ public:
    * @param angular_quadrature Base quadrature to use in the angular direction
    * @param beta Exponent used in the transformation
    */
-  QDuffy(const Quadrature<1> &radial_quadrature,
-         const Quadrature<1> &angular_quadrature,
-         const double         beta = 1.0);
+  QDuffy(const Quadrature<1> &radial_quadrature, const Quadrature<1> &angular_quadrature, const double beta = 1.0);
 
   /**
    * Call the above constructor with QGauss<1>(n) quadrature formulas for
@@ -886,8 +876,7 @@ public:
    * $2 n - 1$ or $2 n$: see the general documentation of this class for more
    * information.
    */
-  explicit QWitherdenVincentSimplex(const unsigned int n_points_1D,
-                                    const bool         use_odd_order = true);
+  explicit QWitherdenVincentSimplex(const unsigned int n_points_1D, const bool use_odd_order = true);
 };
 
 /**
@@ -901,8 +890,7 @@ template <int dim>
 class QIteratedSimplex : public Quadrature<dim>
 {
 public:
-  QIteratedSimplex(const Quadrature<dim> &base_quadrature,
-                   const unsigned int     n_copies);
+  QIteratedSimplex(const Quadrature<dim> &base_quadrature, const unsigned int n_copies);
 };
 
 /**
@@ -965,17 +953,11 @@ QWeddle<1>::QWeddle();
 template <>
 QGaussLog<1>::QGaussLog(const unsigned int n, const bool revert);
 template <>
-QGaussLogR<1>::QGaussLogR(const unsigned int n,
-                          const Point<1> &   x0,
-                          const double       alpha,
-                          const bool         flag);
+QGaussLogR<1>::QGaussLogR(const unsigned int n, const Point<1> &x0, const double alpha, const bool flag);
 template <>
-QGaussOneOverR<2>::QGaussOneOverR(const unsigned int n,
-                                  const unsigned int index,
-                                  const bool         flag);
+QGaussOneOverR<2>::QGaussOneOverR(const unsigned int n, const unsigned int index, const bool flag);
 template <>
-QTelles<1>::QTelles(const Quadrature<1> &base_quad,
-                    const Point<1> &     singularity);
+QTelles<1>::QTelles(const Quadrature<1> &base_quad, const Point<1> &singularity);
 #endif // DOXYGEN
 
 

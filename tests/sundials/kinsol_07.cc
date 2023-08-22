@@ -66,8 +66,7 @@ main()
 
   double J_inverse;
 
-  kinsol.setup_jacobian = [&J_inverse](const VectorType &u,
-                                       const VectorType &F) {
+  kinsol.setup_jacobian = [&J_inverse](const VectorType &u, const VectorType &F) {
     deallog << "Setting up Jacobian system at u=" << u[0] << std::endl;
 
     const double J = 1. / (1 + u[0] * u[0]);
@@ -75,9 +74,7 @@ main()
   };
 
 
-  kinsol.solve_with_jacobian = [&](const VectorType &rhs,
-                                   VectorType &      dst,
-                                   double) { dst[0] = J_inverse * rhs[0]; };
+  kinsol.solve_with_jacobian = [&](const VectorType &rhs, VectorType &dst, double) { dst[0] = J_inverse * rhs[0]; };
 
   VectorType v(N);
   v[0] = 10;
@@ -93,7 +90,6 @@ main()
 
   catch (const std::exception &exc)
     {
-      deallog << "Caught an irrecoverable exception in a callback:" << std::endl
-              << exc.what() << std::endl;
+      deallog << "Caught an irrecoverable exception in a callback:" << std::endl << exc.what() << std::endl;
     }
 }

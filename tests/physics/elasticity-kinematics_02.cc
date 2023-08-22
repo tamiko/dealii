@@ -75,13 +75,10 @@ main()
           deallog << "Not OK" << std::endl;
 
   SymmetricTensor<2, dim, VectorizedArray<double>> E_solution;
-  E_solution =
-    0.5 * (symmetrize(transpose(F_solution) * F_solution) -
-           static_cast<SymmetricTensor<2, dim, VectorizedArray<double>>>(
-             StandardTensors<dim>::I));
+  E_solution = 0.5 * (symmetrize(transpose(F_solution) * F_solution) -
+                      static_cast<SymmetricTensor<2, dim, VectorizedArray<double>>>(StandardTensors<dim>::I));
 
-  SymmetricTensor<2, dim, VectorizedArray<double>> E_test =
-    Kinematics::E(F_test);
+  SymmetricTensor<2, dim, VectorizedArray<double>> E_test = Kinematics::E(F_test);
 
   for (unsigned int v = 0; v < VectorizedArray<double>::size(); ++v)
     for (unsigned int i = 0; i < dim; ++i)

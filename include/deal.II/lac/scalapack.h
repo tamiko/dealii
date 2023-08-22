@@ -89,13 +89,12 @@ public:
    * for the block-cyclic distribution of the matrix.
    * In general, it is recommended to use powers of $2$, e.g. $16,32,64, \dots$.
    */
-  ScaLAPACKMatrix(
-    const size_type                                           n_rows,
-    const size_type                                           n_columns,
-    const std::shared_ptr<const Utilities::MPI::ProcessGrid> &process_grid,
-    const size_type               row_block_size    = 32,
-    const size_type               column_block_size = 32,
-    const LAPACKSupport::Property property = LAPACKSupport::Property::general);
+  ScaLAPACKMatrix(const size_type                                           n_rows,
+                  const size_type                                           n_columns,
+                  const std::shared_ptr<const Utilities::MPI::ProcessGrid> &process_grid,
+                  const size_type                                           row_block_size    = 32,
+                  const size_type                                           column_block_size = 32,
+                  const LAPACKSupport::Property property = LAPACKSupport::Property::general);
 
   /**
    * Constructor for a square matrix of size @p size, and distributed
@@ -105,12 +104,10 @@ public:
    * An identical block size is used for the rows and columns of the matrix.
    * In general, it is recommended to use powers of $2$, e.g. $16,32,64, \dots$.
    */
-  ScaLAPACKMatrix(
-    const size_type                                           size,
-    const std::shared_ptr<const Utilities::MPI::ProcessGrid> &process_grid,
-    const size_type                                           block_size = 32,
-    const LAPACKSupport::Property                             property =
-      LAPACKSupport::Property::symmetric);
+  ScaLAPACKMatrix(const size_type                                           size,
+                  const std::shared_ptr<const Utilities::MPI::ProcessGrid> &process_grid,
+                  const size_type                                           block_size = 32,
+                  const LAPACKSupport::Property property = LAPACKSupport::Property::symmetric);
 
   /**
    * Constructor for a general rectangular matrix that is read from
@@ -124,11 +121,10 @@ public:
    * for the block-cyclic distribution of the matrix.
    * In general, it is recommended to use powers of $2$, e.g. $16,32,64, \dots$.
    */
-  ScaLAPACKMatrix(
-    const std::string &                                       filename,
-    const std::shared_ptr<const Utilities::MPI::ProcessGrid> &process_grid,
-    const size_type row_block_size    = 32,
-    const size_type column_block_size = 32);
+  ScaLAPACKMatrix(const std::string                                        &filename,
+                  const std::shared_ptr<const Utilities::MPI::ProcessGrid> &process_grid,
+                  const size_type                                           row_block_size    = 32,
+                  const size_type                                           column_block_size = 32);
 
   /**
    * Destructor
@@ -144,13 +140,12 @@ public:
    * In general, it is recommended to use powers of $2$, e.g. $16,32,64, \dots$.
    */
   void
-  reinit(
-    const size_type                                           n_rows,
-    const size_type                                           n_columns,
-    const std::shared_ptr<const Utilities::MPI::ProcessGrid> &process_grid,
-    const size_type               row_block_size    = 32,
-    const size_type               column_block_size = 32,
-    const LAPACKSupport::Property property = LAPACKSupport::Property::general);
+  reinit(const size_type                                           n_rows,
+         const size_type                                           n_columns,
+         const std::shared_ptr<const Utilities::MPI::ProcessGrid> &process_grid,
+         const size_type                                           row_block_size    = 32,
+         const size_type                                           column_block_size = 32,
+         const LAPACKSupport::Property                             property = LAPACKSupport::Property::general);
 
   /**
    * Initialize the square matrix of size @p size and distributed using the grid @p process_grid.
@@ -162,9 +157,8 @@ public:
   void
   reinit(const size_type                                           size,
          const std::shared_ptr<const Utilities::MPI::ProcessGrid> &process_grid,
-         const size_type               block_size = 32,
-         const LAPACKSupport::Property property =
-           LAPACKSupport::Property::symmetric);
+         const size_type                                           block_size = 32,
+         const LAPACKSupport::Property                             property   = LAPACKSupport::Property::symmetric);
 
   /**
    * Assign @p property to this matrix.
@@ -203,8 +197,7 @@ public:
    * of the distributed matrix.
    */
   void
-  copy_from(const LAPACKFullMatrix<NumberType> &matrix,
-            const unsigned int                  rank);
+  copy_from(const LAPACKFullMatrix<NumberType> &matrix, const unsigned int rank);
 
   /**
    * Copy the contents of the distributed matrix into @p matrix.
@@ -260,7 +253,7 @@ public:
    * with the same MPI communicator.
    */
   void
-  copy_to(ScaLAPACKMatrix<NumberType> &                B,
+  copy_to(ScaLAPACKMatrix<NumberType>                 &B,
           const std::pair<unsigned int, unsigned int> &offset_A,
           const std::pair<unsigned int, unsigned int> &offset_B,
           const std::pair<unsigned int, unsigned int> &submatrix_size) const;
@@ -341,7 +334,7 @@ public:
   mult(const NumberType                   b,
        const ScaLAPACKMatrix<NumberType> &B,
        const NumberType                   c,
-       ScaLAPACKMatrix<NumberType> &      C,
+       ScaLAPACKMatrix<NumberType>       &C,
        const bool                         transpose_A = false,
        const bool                         transpose_B = false) const;
 
@@ -363,9 +356,7 @@ public:
    * $NB_A=MB_B$ and $NB_B=NB_C$.
    */
   void
-  mmult(ScaLAPACKMatrix<NumberType> &      C,
-        const ScaLAPACKMatrix<NumberType> &B,
-        const bool                         adding = false) const;
+  mmult(ScaLAPACKMatrix<NumberType> &C, const ScaLAPACKMatrix<NumberType> &B, const bool adding = false) const;
 
   /**
    * Matrix-matrix-multiplication using transpose of $\mathbf{A}$.
@@ -385,9 +376,7 @@ public:
    * $NB_A=MB_C$ and $NB_B=NB_C$.
    */
   void
-  Tmmult(ScaLAPACKMatrix<NumberType> &      C,
-         const ScaLAPACKMatrix<NumberType> &B,
-         const bool                         adding = false) const;
+  Tmmult(ScaLAPACKMatrix<NumberType> &C, const ScaLAPACKMatrix<NumberType> &B, const bool adding = false) const;
 
   /**
    * Matrix-matrix-multiplication using the transpose of $\mathbf{B}$.
@@ -407,9 +396,7 @@ public:
    * $NB_A=NB_B$ and $MB_B=NB_C$.
    */
   void
-  mTmult(ScaLAPACKMatrix<NumberType> &      C,
-         const ScaLAPACKMatrix<NumberType> &B,
-         const bool                         adding = false) const;
+  mTmult(ScaLAPACKMatrix<NumberType> &C, const ScaLAPACKMatrix<NumberType> &B, const bool adding = false) const;
 
   /**
    * Matrix-matrix-multiplication using transpose of $\mathbf{A}$ and
@@ -430,9 +417,7 @@ public:
    * $NB_A=MB_C$ and $MB_B=NB_C$.
    */
   void
-  TmTmult(ScaLAPACKMatrix<NumberType> &      C,
-          const ScaLAPACKMatrix<NumberType> &B,
-          const bool                         adding = false) const;
+  TmTmult(ScaLAPACKMatrix<NumberType> &C, const ScaLAPACKMatrix<NumberType> &B, const bool adding = false) const;
 
   /**
    * Stores the distributed matrix in @p filename using HDF5.
@@ -455,10 +440,9 @@ public:
    * and <tt>chunk_size.second</tt> the number of columns.
    */
   void
-  save(const std::string &                          filename,
-       const std::pair<unsigned int, unsigned int> &chunk_size =
-         std::make_pair(numbers::invalid_unsigned_int,
-                        numbers::invalid_unsigned_int)) const;
+  save(const std::string                           &filename,
+       const std::pair<unsigned int, unsigned int> &chunk_size = std::make_pair(numbers::invalid_unsigned_int,
+                                                                                numbers::invalid_unsigned_int)) const;
 
   /**
    * Loads the distributed matrix from file @p filename using HDF5.
@@ -521,9 +505,8 @@ public:
    * eigenvalues/eigenvectors are desired.
    */
   std::vector<NumberType>
-  eigenpairs_symmetric_by_index(
-    const std::pair<unsigned int, unsigned int> &index_limits,
-    const bool                                   compute_eigenvectors);
+  eigenpairs_symmetric_by_index(const std::pair<unsigned int, unsigned int> &index_limits,
+                                const bool                                   compute_eigenvectors);
 
   /**
    * Computing selected eigenvalues and, optionally, the eigenvectors.
@@ -534,9 +517,7 @@ public:
    * overwriting the original content of the matrix.
    */
   std::vector<NumberType>
-  eigenpairs_symmetric_by_value(
-    const std::pair<NumberType, NumberType> &value_limits,
-    const bool                               compute_eigenvectors);
+  eigenpairs_symmetric_by_value(const std::pair<NumberType, NumberType> &value_limits, const bool compute_eigenvectors);
 
   /**
    * Computing selected eigenvalues and, optionally, the eigenvectors of the
@@ -555,9 +536,8 @@ public:
    * eigenvalues/eigenvectors are desired.
    */
   std::vector<NumberType>
-  eigenpairs_symmetric_by_index_MRRR(
-    const std::pair<unsigned int, unsigned int> &index_limits,
-    const bool                                   compute_eigenvectors);
+  eigenpairs_symmetric_by_index_MRRR(const std::pair<unsigned int, unsigned int> &index_limits,
+                                     const bool                                   compute_eigenvectors);
 
   /**
    * Computing selected eigenvalues and, optionally, the eigenvectors of the
@@ -570,9 +550,8 @@ public:
    * overwriting the original content of the matrix.
    */
   std::vector<NumberType>
-  eigenpairs_symmetric_by_value_MRRR(
-    const std::pair<NumberType, NumberType> &value_limits,
-    const bool                               compute_eigenvectors);
+  eigenpairs_symmetric_by_value_MRRR(const std::pair<NumberType, NumberType> &value_limits,
+                                     const bool                               compute_eigenvectors);
 
   /**
    * Computing the singular value decomposition (SVD) of a
@@ -603,8 +582,7 @@ public:
    * for @p U and/or @p VT.
    */
   std::vector<NumberType>
-  compute_SVD(ScaLAPACKMatrix<NumberType> *U  = nullptr,
-              ScaLAPACKMatrix<NumberType> *VT = nullptr);
+  compute_SVD(ScaLAPACKMatrix<NumberType> *U = nullptr, ScaLAPACKMatrix<NumberType> *VT = nullptr);
 
   /**
    * Solving overdetermined or underdetermined real linear
@@ -814,12 +792,10 @@ private:
   std::vector<NumberType>
   eigenpairs_symmetric(
     const bool                                   compute_eigenvectors,
-    const std::pair<unsigned int, unsigned int> &index_limits =
-      std::make_pair(numbers::invalid_unsigned_int,
-                     numbers::invalid_unsigned_int),
-    const std::pair<NumberType, NumberType> &value_limits =
-      std::make_pair(std::numeric_limits<NumberType>::quiet_NaN(),
-                     std::numeric_limits<NumberType>::quiet_NaN()));
+    const std::pair<unsigned int, unsigned int> &index_limits = std::make_pair(numbers::invalid_unsigned_int,
+                                                                               numbers::invalid_unsigned_int),
+    const std::pair<NumberType, NumberType>     &value_limits =
+      std::make_pair(std::numeric_limits<NumberType>::quiet_NaN(), std::numeric_limits<NumberType>::quiet_NaN()));
 
   /**
    * Computing selected eigenvalues and, optionally, the eigenvectors of the
@@ -843,20 +819,17 @@ private:
   std::vector<NumberType>
   eigenpairs_symmetric_MRRR(
     const bool                                   compute_eigenvectors,
-    const std::pair<unsigned int, unsigned int> &index_limits =
-      std::make_pair(numbers::invalid_unsigned_int,
-                     numbers::invalid_unsigned_int),
-    const std::pair<NumberType, NumberType> &value_limits =
-      std::make_pair(std::numeric_limits<NumberType>::quiet_NaN(),
-                     std::numeric_limits<NumberType>::quiet_NaN()));
+    const std::pair<unsigned int, unsigned int> &index_limits = std::make_pair(numbers::invalid_unsigned_int,
+                                                                               numbers::invalid_unsigned_int),
+    const std::pair<NumberType, NumberType>     &value_limits =
+      std::make_pair(std::numeric_limits<NumberType>::quiet_NaN(), std::numeric_limits<NumberType>::quiet_NaN()));
 
   /*
    * Stores the distributed matrix in @p filename
    * using serial routines
    */
   void
-  save_serial(const std::string &                          filename,
-              const std::pair<unsigned int, unsigned int> &chunk_size) const;
+  save_serial(const std::string &filename, const std::pair<unsigned int, unsigned int> &chunk_size) const;
 
   /*
    * Loads the distributed matrix from file @p filename
@@ -870,8 +843,7 @@ private:
    * using parallel routines
    */
   void
-  save_parallel(const std::string &                          filename,
-                const std::pair<unsigned int, unsigned int> &chunk_size) const;
+  save_parallel(const std::string &filename, const std::pair<unsigned int, unsigned int> &chunk_size) const;
 
   /*
    * Loads the distributed matrix from file @p filename
@@ -992,8 +964,7 @@ private:
 
 template <typename NumberType>
 inline NumberType
-ScaLAPACKMatrix<NumberType>::local_el(const unsigned int loc_row,
-                                      const unsigned int loc_column) const
+ScaLAPACKMatrix<NumberType>::local_el(const unsigned int loc_row, const unsigned int loc_column) const
 {
   return (*this)(loc_row, loc_column);
 }
@@ -1002,8 +973,7 @@ ScaLAPACKMatrix<NumberType>::local_el(const unsigned int loc_row,
 
 template <typename NumberType>
 inline NumberType &
-ScaLAPACKMatrix<NumberType>::local_el(const unsigned int loc_row,
-                                      const unsigned int loc_column)
+ScaLAPACKMatrix<NumberType>::local_el(const unsigned int loc_row, const unsigned int loc_column)
 {
   return (*this)(loc_row, loc_column);
 }

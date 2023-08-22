@@ -106,15 +106,12 @@ const Point<3> RightHandSide<3>::center_point = Point<3>(-0.75, -0.75, -0.75);
 // C++ standard library):
 template <int dim>
 double
-RightHandSide<dim>::value(const Point<dim> & p,
-                          const unsigned int component) const
+RightHandSide<dim>::value(const Point<dim> &p, const unsigned int component) const
 {
   (void)component;
   Assert(component == 0, ExcIndexRange(component, 0, 1));
   const double diameter = 0.1;
-  return ((p - center_point).norm_square() < diameter * diameter ?
-            0.1 / std::pow(diameter, dim) :
-            0.0);
+  return ((p - center_point).norm_square() < diameter * diameter ? 0.1 / std::pow(diameter, dim) : 0.0);
 }
 template <int dim>
 class BoundaryValues : public Function<dim>
@@ -127,8 +124,7 @@ public:
 
 template <int dim>
 double
-BoundaryValues<dim>::value(const Point<dim> & p,
-                           const unsigned int component) const
+BoundaryValues<dim>::value(const Point<dim> &p, const unsigned int component) const
 {
   (void)component;
   Assert(component == 0, ExcIndexRange(component, 0, 1));
@@ -170,12 +166,10 @@ template <int dim>
 AssemblyScratchData<dim>::AssemblyScratchData(const FiniteElement<dim> &fe)
   : fe_values(fe,
               QGauss<dim>(fe.degree + 1),
-              update_values | update_gradients | update_quadrature_points |
-                update_JxW_values)
+              update_values | update_gradients | update_quadrature_points | update_JxW_values)
   , fe_face_values(fe,
                    QGauss<dim - 1>(fe.degree + 1),
-                   update_values | update_quadrature_points |
-                     update_JxW_values | update_normal_vectors)
+                   update_values | update_quadrature_points | update_JxW_values | update_normal_vectors)
   , rhs_values(fe_values.get_quadrature().size())
   , advection_directions(fe_values.get_quadrature().size())
   , face_boundary_values(fe_face_values.get_quadrature().size())
@@ -185,16 +179,13 @@ AssemblyScratchData<dim>::AssemblyScratchData(const FiniteElement<dim> &fe)
 
 
 template <int dim>
-AssemblyScratchData<dim>::AssemblyScratchData(
-  const AssemblyScratchData &scratch_data)
+AssemblyScratchData<dim>::AssemblyScratchData(const AssemblyScratchData &scratch_data)
   : fe_values(scratch_data.fe_values.get_fe(),
               scratch_data.fe_values.get_quadrature(),
-              update_values | update_gradients | update_quadrature_points |
-                update_JxW_values)
+              update_values | update_gradients | update_quadrature_points | update_JxW_values)
   , fe_face_values(scratch_data.fe_face_values.get_fe(),
                    scratch_data.fe_face_values.get_quadrature(),
-                   update_values | update_quadrature_points |
-                     update_JxW_values | update_normal_vectors)
+                   update_values | update_quadrature_points | update_JxW_values | update_normal_vectors)
   , rhs_values(scratch_data.rhs_values.size())
   , advection_directions(scratch_data.advection_directions.size())
   , face_boundary_values(scratch_data.face_boundary_values.size())
@@ -210,18 +201,14 @@ struct AssemblyCopyData
 
 template <int dim>
 void
-local_assemble_system(
-  const typename DoFHandler<dim>::active_cell_iterator &cell,
-  AssemblyScratchData<dim> &                            scratch_data,
-  AssemblyCopyData &                                    copy_data)
+local_assemble_system(const typename DoFHandler<dim>::active_cell_iterator &cell,
+                      AssemblyScratchData<dim>                             &scratch_data,
+                      AssemblyCopyData                                     &copy_data)
 {
   // We define some abbreviations to avoid unnecessarily long lines:
-  const unsigned int dofs_per_cell =
-    scratch_data.fe_values.get_fe().dofs_per_cell;
-  const unsigned int n_q_points =
-    scratch_data.fe_values.get_quadrature().size();
-  const unsigned int n_face_q_points =
-    scratch_data.fe_face_values.get_quadrature().size();
+  const unsigned int dofs_per_cell   = scratch_data.fe_values.get_fe().dofs_per_cell;
+  const unsigned int n_q_points      = scratch_data.fe_values.get_quadrature().size();
+  const unsigned int n_face_q_points = scratch_data.fe_face_values.get_quadrature().size();
 
   // We declare cell matrix and cell right hand side...
   copy_data.cell_matrix.reinit(dofs_per_cell, dofs_per_cell);
@@ -236,11 +223,9 @@ local_assemble_system(
 
   // ... obtain the values of right hand side and advection directions
   // at the quadrature points...
-  scratch_data.advection_field.value_list(
-    scratch_data.fe_values.get_quadrature_points(),
-    scratch_data.advection_directions);
-  scratch_data.right_hand_side.value_list(
-    scratch_data.fe_values.get_quadrature_points(), scratch_data.rhs_values);
+  scratch_data.advection_field.value_list(scratch_data.fe_values.get_quadrature_points(),
+                                          scratch_data.advection_directions);
+  scratch_data.right_hand_side.value_list(scratch_data.fe_values.get_quadrature_points(), scratch_data.rhs_values);
 
   // ... set the value of the streamline diffusion parameter as
   // described in the introduction...
@@ -255,20 +240,18 @@ local_assemble_system(
         // getting too long:
         const auto &sd = scratch_data;
         for (unsigned int j = 0; j < dofs_per_cell; ++j)
-          copy_data.cell_matrix(i, j) +=
-            ((sd.fe_values.shape_value(i, q_point) +           // (phi_i +
-              delta * (sd.advection_directions[q_point] *      // delta beta
-                       sd.fe_values.shape_grad(i, q_point))) * // grad phi_i)
-             sd.advection_directions[q_point] *                // beta
-             sd.fe_values.shape_grad(j, q_point)) *            // grad phi_j
-            sd.fe_values.JxW(q_point);                         // dx
+          copy_data.cell_matrix(i, j) += ((sd.fe_values.shape_value(i, q_point) +           // (phi_i +
+                                           delta * (sd.advection_directions[q_point] *      // delta beta
+                                                    sd.fe_values.shape_grad(i, q_point))) * // grad phi_i)
+                                          sd.advection_directions[q_point] *                // beta
+                                          sd.fe_values.shape_grad(j, q_point)) *            // grad phi_j
+                                         sd.fe_values.JxW(q_point);                         // dx
 
-        copy_data.cell_rhs(i) +=
-          (sd.fe_values.shape_value(i, q_point) +           // (phi_i +
-           delta * (sd.advection_directions[q_point] *      // delta beta
-                    sd.fe_values.shape_grad(i, q_point))) * // grad phi_i)
-          sd.rhs_values[q_point] *                          // f
-          sd.fe_values.JxW(q_point);                        // dx
+        copy_data.cell_rhs(i) += (sd.fe_values.shape_value(i, q_point) +           // (phi_i +
+                                  delta * (sd.advection_directions[q_point] *      // delta beta
+                                           sd.fe_values.shape_grad(i, q_point))) * // grad phi_i)
+                                 sd.rhs_values[q_point] *                          // f
+                                 sd.fe_values.JxW(q_point);                        // dx
       }
 
   // Besides the cell terms which we have built up now, the bilinear
@@ -294,12 +277,10 @@ local_assemble_system(
 
         // For the quadrature points at hand, we ask for the values of
         // the inflow function and for the direction of flow:
-        scratch_data.boundary_values.value_list(
-          scratch_data.fe_face_values.get_quadrature_points(),
-          scratch_data.face_boundary_values);
-        scratch_data.advection_field.value_list(
-          scratch_data.fe_face_values.get_quadrature_points(),
-          scratch_data.face_advection_directions);
+        scratch_data.boundary_values.value_list(scratch_data.fe_face_values.get_quadrature_points(),
+                                                scratch_data.face_boundary_values);
+        scratch_data.advection_field.value_list(scratch_data.fe_face_values.get_quadrature_points(),
+                                                scratch_data.face_advection_directions);
 
         // Now loop over all quadrature points and see whether this face is on
         // the inflow or outflow part of the boundary. The normal
@@ -310,9 +291,7 @@ local_assemble_system(
         // this is true, consider the scalar product definition that uses a
         // cosine):
         for (unsigned int q_point = 0; q_point < n_face_q_points; ++q_point)
-          if (scratch_data.fe_face_values.normal_vector(q_point) *
-                scratch_data.face_advection_directions[q_point] <
-              0.)
+          if (scratch_data.fe_face_values.normal_vector(q_point) * scratch_data.face_advection_directions[q_point] < 0.)
             // If the face is part of the inflow boundary, then compute the
             // contributions of this face to the global matrix and right
             // hand side, using the values obtained from the
@@ -325,15 +304,12 @@ local_assemble_system(
                     (scratch_data.face_advection_directions[q_point] *
                      scratch_data.fe_face_values.normal_vector(q_point) *
                      scratch_data.fe_face_values.shape_value(i, q_point) *
-                     scratch_data.fe_face_values.shape_value(j, q_point) *
-                     scratch_data.fe_face_values.JxW(q_point));
+                     scratch_data.fe_face_values.shape_value(j, q_point) * scratch_data.fe_face_values.JxW(q_point));
 
                 copy_data.cell_rhs(i) -=
                   (scratch_data.face_advection_directions[q_point] *
-                   scratch_data.fe_face_values.normal_vector(q_point) *
-                   scratch_data.face_boundary_values[q_point] *
-                   scratch_data.fe_face_values.shape_value(i, q_point) *
-                   scratch_data.fe_face_values.JxW(q_point));
+                   scratch_data.fe_face_values.normal_vector(q_point) * scratch_data.face_boundary_values[q_point] *
+                   scratch_data.fe_face_values.shape_value(i, q_point) * scratch_data.fe_face_values.JxW(q_point));
               }
       }
 
@@ -352,8 +328,7 @@ assemble()
   Triangulation<dim> triangulation;
   GridGenerator::hyper_cube(triangulation, -1, 1);
   triangulation.refine_global(n_refinements);
-  std::cout << "   Number of active cells:              "
-            << triangulation.n_active_cells() << std::endl;
+  std::cout << "   Number of active cells:              " << triangulation.n_active_cells() << std::endl;
 
   DoFHandler<dim> dof_handler(triangulation);
   FE_Q<dim>       fe(5);
@@ -376,35 +351,25 @@ assemble()
 
     system_matrix.reinit(sparsity_pattern);
     system_rhs.reinit(dof_handler.n_dofs());
-    std::cout << "   Number of degrees of freedom:        "
-              << dof_handler.n_dofs() << std::endl;
+    std::cout << "   Number of degrees of freedom:        " << dof_handler.n_dofs() << std::endl;
   }
 
-  const unsigned int n_phys_cores =
-    std::min(n_max_threads, MultithreadInfo::n_cores());
-  std::cout << "MultithreadInfo::n_cores()=" << n_phys_cores
-            << " (limited from " << MultithreadInfo::n_cores() << ')'
+  const unsigned int n_phys_cores = std::min(n_max_threads, MultithreadInfo::n_cores());
+  std::cout << "MultithreadInfo::n_cores()=" << n_phys_cores << " (limited from " << MultithreadInfo::n_cores() << ')'
             << std::endl;
-  std::cout << "MultithreadInfo::n_threads()=" << MultithreadInfo::n_threads()
-            << std::endl;
+  std::cout << "MultithreadInfo::n_threads()=" << MultithreadInfo::n_threads() << std::endl;
 
 
 
   Timer timer;
 
   auto worker = [&](const typename DoFHandler<dim>::active_cell_iterator &cell,
-                    AssemblyScratchData<dim> &scratch_data,
-                    AssemblyCopyData &        copy_data) {
-    local_assemble_system(cell, scratch_data, copy_data);
-  };
+                    AssemblyScratchData<dim>                             &scratch_data,
+                    AssemblyCopyData &copy_data) { local_assemble_system(cell, scratch_data, copy_data); };
 
   auto copier = [&](const AssemblyCopyData &copy_data) {
     hanging_node_constraints.distribute_local_to_global(
-      copy_data.cell_matrix,
-      copy_data.cell_rhs,
-      copy_data.local_dof_indices,
-      system_matrix,
-      system_rhs);
+      copy_data.cell_matrix, copy_data.cell_rhs, copy_data.local_dof_indices, system_matrix, system_rhs);
   };
 
 
@@ -443,15 +408,14 @@ assemble()
     timer.reset();
     timer.start();
 
-    graph = GraphColoring::make_graph_coloring(
-      dof_handler.begin_active(),
-      dof_handler.end(),
-      [&](const Iterator &cell) -> std::vector<types::global_dof_index> {
-        std::vector<types::global_dof_index> local_dof_indices(
-          fe.dofs_per_cell);
-        cell->get_dof_indices(local_dof_indices);
-        return local_dof_indices;
-      });
+    graph =
+      GraphColoring::make_graph_coloring(dof_handler.begin_active(),
+                                         dof_handler.end(),
+                                         [&](const Iterator &cell) -> std::vector<types::global_dof_index> {
+                                           std::vector<types::global_dof_index> local_dof_indices(fe.dofs_per_cell);
+                                           cell->get_dof_indices(local_dof_indices);
+                                           return local_dof_indices;
+                                         });
     timer.stop();
     const double time = timer.last_wall_time();
     std::cout << "build graph coloring time: " << time << std::endl;
@@ -487,8 +451,7 @@ assemble()
             const double time = timer.last_wall_time();
             avg += time;
             std::cout << time << ' ' << std::flush;
-            Assert(abs(reference_l2 - system_rhs.l2_norm()) < 1e-10,
-                   ExcInternalError());
+            Assert(abs(reference_l2 - system_rhs.l2_norm()) < 1e-10, ExcInternalError());
           }
         avg /= n_runs;
         std::cout << " avg: " << avg << std::endl;
@@ -513,23 +476,21 @@ assemble()
             system_rhs = 0.;
             timer.reset();
             timer.start();
-            WorkStream::internal::tbb_no_coloring::run(
-              dof_handler.begin_active(),
-              dof_handler.end(),
-              worker,
-              copier,
-              AssemblyScratchData<dim>(fe),
-              AssemblyCopyData(),
-              2 * MultithreadInfo::n_threads(),
-              8);
+            WorkStream::internal::tbb_no_coloring::run(dof_handler.begin_active(),
+                                                       dof_handler.end(),
+                                                       worker,
+                                                       copier,
+                                                       AssemblyScratchData<dim>(fe),
+                                                       AssemblyCopyData(),
+                                                       2 * MultithreadInfo::n_threads(),
+                                                       8);
 
 
             timer.stop();
             const double time = timer.last_wall_time();
             avg += time;
             std::cout << time << ' ' << std::flush;
-            Assert(abs(reference_l2 - system_rhs.l2_norm()) < 1e-10,
-                   ExcInternalError());
+            Assert(abs(reference_l2 - system_rhs.l2_norm()) < 1e-10, ExcInternalError());
           }
         avg /= n_runs;
         std::cout << " avg: " << avg << std::endl;
@@ -551,19 +512,14 @@ assemble()
             system_rhs = 0.;
             timer.reset();
             timer.start();
-            WorkStream::internal::tbb_colored::run(graph,
-                                                   worker,
-                                                   copier,
-                                                   AssemblyScratchData<dim>(fe),
-                                                   AssemblyCopyData(),
-                                                   8);
+            WorkStream::internal::tbb_colored::run(
+              graph, worker, copier, AssemblyScratchData<dim>(fe), AssemblyCopyData(), 8);
 
             timer.stop();
             const double time = timer.last_wall_time();
             avg += time;
             std::cout << time << ' ' << std::flush;
-            Assert(abs(reference_l2 - system_rhs.l2_norm()) < 1e-10,
-                   ExcInternalError());
+            Assert(abs(reference_l2 - system_rhs.l2_norm()) < 1e-10, ExcInternalError());
           }
         avg /= n_runs;
         std::cout << " avg: " << avg << std::endl;
@@ -598,8 +554,7 @@ assemble()
             const double time = timer.last_wall_time();
             avg += time;
             std::cout << time << ' ' << std::flush;
-            Assert(abs(reference_l2 - system_rhs.l2_norm()) < 1e-10,
-                   ExcInternalError());
+            Assert(abs(reference_l2 - system_rhs.l2_norm()) < 1e-10, ExcInternalError());
           }
         avg /= n_runs;
         std::cout << " avg: " << avg << std::endl;
@@ -621,18 +576,13 @@ assemble()
             system_rhs = 0.;
             timer.reset();
             timer.start();
-            WorkStream::run(graph,
-                            worker,
-                            copier,
-                            AssemblyScratchData<dim>(fe),
-                            AssemblyCopyData());
+            WorkStream::run(graph, worker, copier, AssemblyScratchData<dim>(fe), AssemblyCopyData());
 
             timer.stop();
             const double time = timer.last_wall_time();
             avg += time;
             std::cout << time << ' ' << std::flush;
-            Assert(abs(reference_l2 - system_rhs.l2_norm()) < 1e-10,
-                   ExcInternalError());
+            Assert(abs(reference_l2 - system_rhs.l2_norm()) < 1e-10, ExcInternalError());
           }
         avg /= n_runs;
         std::cout << " avg: " << avg << std::endl;

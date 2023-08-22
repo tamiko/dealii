@@ -71,9 +71,7 @@ test()
   deallog << "block(0).size: " << v.block(0).size() << std::endl;
   deallog << "block(1).size: " << v.block(1).size() << std::endl;
   if (block1.n_elements() > 0)
-    deallog << "my first entry: "
-            << get_real_assert_zero_imag(v(block1.nth_index_in_set(0)))
-            << std::endl;
+    deallog << "my first entry: " << get_real_assert_zero_imag(v(block1.nth_index_in_set(0))) << std::endl;
 
 
   using scalar_type = typename LA::MPI::BlockVector::value_type;

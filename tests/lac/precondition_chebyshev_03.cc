@@ -51,13 +51,8 @@ main()
       SparseMatrix<double> A(structure);
       testproblem.five_point(A);
 
-      PreconditionChebyshev<SparseMatrix<double>,
-                            Vector<double>,
-                            SparseILU<double>>
-                                                               cheby;
-      PreconditionChebyshev<SparseMatrix<double>,
-                            Vector<double>,
-                            SparseILU<double>>::AdditionalData cheby_data;
+      PreconditionChebyshev<SparseMatrix<double>, Vector<double>, SparseILU<double>>                 cheby;
+      PreconditionChebyshev<SparseMatrix<double>, Vector<double>, SparseILU<double>>::AdditionalData cheby_data;
       cheby_data.preconditioner.reset(new SparseILU<double>());
       cheby_data.preconditioner->initialize(A);
       cheby_data.degree          = 11;
@@ -82,8 +77,7 @@ main()
           const double cheby_residual = tmp2.l2_norm();
 
           deallog << "Residual step i=" << i << ":  "
-                  << " ilu=" << ilu_residual << ", cheby=" << cheby_residual
-                  << std::endl;
+                  << " ilu=" << ilu_residual << ", cheby=" << cheby_residual << std::endl;
         }
     }
 

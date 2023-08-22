@@ -49,11 +49,8 @@ create_grid(Triangulation<2> &tria)
 {
   const unsigned int n_points = 5;
 
-  const Point<2>        points[n_points] = {Point<2>(0.0, 0.0),
-                                     Point<2>(1.0, 1.0),
-                                     Point<2>(2.0, 2.0),
-                                     Point<2>(0.0, 2.0),
-                                     Point<2>(2.0, 0.0)};
+  const Point<2> points[n_points] = {
+    Point<2>(0.0, 0.0), Point<2>(1.0, 1.0), Point<2>(2.0, 2.0), Point<2>(0.0, 2.0), Point<2>(2.0, 0.0)};
   std::vector<Point<2>> vertices(n_points);
   vertices.assign(points, points + n_points);
 
@@ -89,8 +86,7 @@ check_neighbors(const Triangulation<2> &tria)
     if (cell->neighbor(f).state() == IteratorState::valid)
       {
         const unsigned int neighbor_neighbor = cell->neighbor_of_neighbor(f);
-        deallog << "At face " << f
-                << ": neighbor_of_neighbor=" << neighbor_neighbor << std::endl;
+        deallog << "At face " << f << ": neighbor_of_neighbor=" << neighbor_neighbor << std::endl;
         Assert(cell->face(f) == cell->neighbor(f)->face(neighbor_neighbor),
                ExcMessage("Error in neighbor_of_neighbor() function!"));
       }

@@ -46,9 +46,7 @@ divide_and_ceil(unsigned int x, unsigned int y)
 
 template <int dim>
 void
-test(const unsigned int fes_size,
-     const unsigned int max_difference,
-     const bool         allow_artificial_cells)
+test(const unsigned int fes_size, const unsigned int max_difference, const bool allow_artificial_cells)
 {
   Assert(max_difference > 0, ExcInternalError());
   Assert(fes_size > 1, ExcInternalError());
@@ -59,7 +57,7 @@ test(const unsigned int fes_size,
     fes.push_back(FE_Q<dim>(1));
 
   const unsigned int contains_fe_index = 0;
-  const auto         sequence = fes.get_hierarchy_sequence(contains_fe_index);
+  const auto         sequence          = fes.get_hierarchy_sequence(contains_fe_index);
 
   // set up line grid
   // - refine leftmost column of cells consecutively
@@ -74,12 +72,9 @@ test(const unsigned int fes_size,
   // after prepare_coarsening_and_refinement(), each p-level will correspond to
   // a unique column of cells and thus h-level
 
-  parallel::shared::Triangulation<dim> tria(MPI_COMM_WORLD,
-                                            Triangulation<dim>::none,
-                                            allow_artificial_cells);
+  parallel::shared::Triangulation<dim> tria(MPI_COMM_WORLD, Triangulation<dim>::none, allow_artificial_cells);
   TestGrids::hyper_line(tria, 2);
-  const unsigned int n_refinements =
-    divide_and_ceil(sequence.size() - 1, max_difference);
+  const unsigned int n_refinements = divide_and_ceil(sequence.size() - 1, max_difference);
   for (unsigned int i = 0; i < n_refinements; ++i)
     {
       for (const auto &cell : tria.active_cell_iterators())
@@ -96,10 +91,7 @@ test(const unsigned int fes_size,
       cell->set_active_fe_index(sequence.back());
   dofh.distribute_dofs(fes);
 
-  const bool fe_indices_changed =
-    hp::Refinement::limit_p_level_difference(dofh,
-                                             max_difference,
-                                             contains_fe_index);
+  const bool fe_indices_changed = hp::Refinement::limit_p_level_difference(dofh, max_difference, contains_fe_index);
   tria.execute_coarsening_and_refinement();
 
   (void)fe_indices_changed;
@@ -111,10 +103,8 @@ test(const unsigned int fes_size,
     for (const auto &cell : dofh.cell_iterators_on_level(l))
       if (cell->is_active() && cell->is_locally_owned())
         {
-          const unsigned int expected_level = std::max(
-            0, static_cast<int>(sequence.size() - 1 - l * max_difference));
-          Assert(cell->active_fe_index() == sequence[expected_level],
-                 ExcInternalError());
+          const unsigned int expected_level = std::max(0, static_cast<int>(sequence.size() - 1 - l * max_difference));
+          Assert(cell->active_fe_index() == sequence[expected_level], ExcInternalError());
         }
 #endif
 

@@ -44,9 +44,9 @@ test_1d()
 
   ArborXWrappers::BVH                    bvh(points);
   ArborXWrappers::SphereNearestPredicate sph_nearest(query_spheres, 1);
-  auto             indices_offsets = bvh.query(sph_nearest);
-  std::vector<int> indices         = indices_offsets.first;
-  std::vector<int> offsets         = indices_offsets.second;
+  auto                                   indices_offsets = bvh.query(sph_nearest);
+  std::vector<int>                       indices         = indices_offsets.first;
+  std::vector<int>                       offsets         = indices_offsets.second;
 
   std::vector<int> indices_ref = {0, 1, 2, 3};
   std::vector<int> offsets_ref = {0, 1, 2, 3, 4};
@@ -101,9 +101,9 @@ test_2d()
 
   ArborXWrappers::BVH                    bvh(points);
   ArborXWrappers::SphereNearestPredicate sph_nearest(query_spheres, 1);
-  auto             indices_offsets = bvh.query(sph_nearest);
-  std::vector<int> indices         = indices_offsets.first;
-  std::vector<int> offsets         = indices_offsets.second;
+  auto                                   indices_offsets = bvh.query(sph_nearest);
+  std::vector<int>                       indices         = indices_offsets.first;
+  std::vector<int>                       offsets         = indices_offsets.second;
 
   std::vector<int> indices_ref = {0, 6, 12, 18};
   std::vector<int> offsets_ref = {0, 1, 2, 3, 4};
@@ -160,9 +160,9 @@ test_3d()
 
   ArborXWrappers::BVH                    bvh(points);
   ArborXWrappers::SphereNearestPredicate sph_nearest(query_spheres, 1);
-  auto             indices_offsets = bvh.query(sph_nearest);
-  std::vector<int> indices         = indices_offsets.first;
-  std::vector<int> offsets         = indices_offsets.second;
+  auto                                   indices_offsets = bvh.query(sph_nearest);
+  std::vector<int>                       indices         = indices_offsets.first;
+  std::vector<int>                       offsets         = indices_offsets.second;
 
   std::vector<int> indices_ref = {0, 31, 62, 93};
   std::vector<int> offsets_ref = {0, 1, 2, 3, 4};

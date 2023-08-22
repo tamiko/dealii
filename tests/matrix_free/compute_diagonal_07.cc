@@ -51,37 +51,26 @@ test()
   constraints_q.close();
 
   AffineConstraints<Number> constraints_system;
-  DoFTools::make_hanging_node_constraints(dof_handler_system,
-                                          constraints_system);
-  DoFTools::make_zero_boundary_constraints(dof_handler_system,
-                                           constraints_system);
+  DoFTools::make_hanging_node_constraints(dof_handler_system, constraints_system);
+  DoFTools::make_zero_boundary_constraints(dof_handler_system, constraints_system);
   constraints_system.close();
 
-  typename MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData
-    additional_data;
+  typename MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData additional_data;
   additional_data.mapping_update_flags = update_values | update_gradients;
   additional_data.tasks_parallel_scheme =
-    MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData::
-      TasksParallelScheme::none;
+    MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData::TasksParallelScheme::none;
 
   MappingQ<dim> mapping(1);
   QGauss<1>     quad(fe_degree + 1);
 
   MatrixFree<dim, Number, VectorizedArrayType> matrix_free;
-  matrix_free.reinit(
-    mapping,
-    std::vector<const DoFHandler<dim> *>{&dof_handler_system, &dof_handler_q},
-    std::vector<const AffineConstraints<Number> *>{&constraints_system,
-                                                   &constraints_q},
-    quad,
-    additional_data);
+  matrix_free.reinit(mapping,
+                     std::vector<const DoFHandler<dim> *>{&dof_handler_system, &dof_handler_q},
+                     std::vector<const AffineConstraints<Number> *>{&constraints_system, &constraints_q},
+                     quad,
+                     additional_data);
 
-  const auto kernel = [](FEEvaluation<dim,
-                                      fe_degree,
-                                      n_points,
-                                      n_components,
-                                      Number,
-                                      VectorizedArrayType> &phi) {
+  const auto kernel = [](FEEvaluation<dim, fe_degree, n_points, n_components, Number, VectorizedArrayType> &phi) {
     phi.evaluate(EvaluationFlags::gradients);
     for (unsigned int q = 0; q < phi.n_q_points; ++q)
       {
@@ -93,15 +82,8 @@ test()
   LinearAlgebra::distributed::Vector<Number> diagonal_global;
   matrix_free.initialize_dof_vector(diagonal_global, 0);
 
-  MatrixFreeTools::compute_diagonal<dim,
-                                    fe_degree,
-                                    n_points,
-                                    n_components,
-                                    Number,
-                                    VectorizedArrayType>(matrix_free,
-                                                         diagonal_global,
-                                                         kernel,
-                                                         0);
+  MatrixFreeTools::compute_diagonal<dim, fe_degree, n_points, n_components, Number, VectorizedArrayType>(
+    matrix_free, diagonal_global, kernel, 0);
 
   diagonal_global.print(deallog.get_file_stream());
 
@@ -110,15 +92,8 @@ test()
   for (unsigned int comp = 0; comp < dim; ++comp)
     matrix_free.initialize_dof_vector(diagonal_global_block.block(comp), 1);
 
-  MatrixFreeTools::compute_diagonal<dim,
-                                    fe_degree,
-                                    n_points,
-                                    n_components,
-                                    Number,
-                                    VectorizedArrayType>(matrix_free,
-                                                         diagonal_global_block,
-                                                         kernel,
-                                                         1);
+  MatrixFreeTools::compute_diagonal<dim, fe_degree, n_points, n_components, Number, VectorizedArrayType>(
+    matrix_free, diagonal_global_block, kernel, 1);
 
   diagonal_global_block.print(deallog.get_file_stream());
 }

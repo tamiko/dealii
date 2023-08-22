@@ -70,10 +70,8 @@ test()
             for (unsigned int l = 0; l < face->n_lines(); ++l)
               {
                 deallog << "  Edge " << face->line(l) << std::endl;
-                deallog << "    boundary id = " << face->line(l)->boundary_id()
-                        << std::endl;
-                deallog << "    manifold id = " << face->line(l)->manifold_id()
-                        << std::endl;
+                deallog << "    boundary id = " << face->line(l)->boundary_id() << std::endl;
+                deallog << "    manifold id = " << face->line(l)->manifold_id() << std::endl;
               }
         }
 

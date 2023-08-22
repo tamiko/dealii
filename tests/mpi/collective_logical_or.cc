@@ -26,14 +26,11 @@ test()
 {
   const unsigned int myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
 
-  bool collective_false = Utilities::MPI::logical_or(false, MPI_COMM_WORLD);
-  bool collective_alternating =
-    Utilities::MPI::logical_or(((myid % 2) == 0) ? true : false,
-                               MPI_COMM_WORLD);
+  bool collective_false       = Utilities::MPI::logical_or(false, MPI_COMM_WORLD);
+  bool collective_alternating = Utilities::MPI::logical_or(((myid % 2) == 0) ? true : false, MPI_COMM_WORLD);
 
   if (myid == 0)
-    deallog << std::boolalpha << collective_false << ' '
-            << collective_alternating << std::endl;
+    deallog << std::boolalpha << collective_false << ' ' << collective_alternating << std::endl;
 }
 
 
@@ -41,8 +38,7 @@ int
 main(int argc, char *argv[])
 {
 #ifdef DEAL_II_WITH_MPI
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 #else
   (void)argc;
   (void)argv;

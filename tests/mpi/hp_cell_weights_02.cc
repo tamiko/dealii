@@ -70,8 +70,7 @@ test()
 
   dh.distribute_dofs(fe_collection);
 
-  deallog << "Number of cells before repartitioning: "
-          << tria.n_locally_owned_active_cells() << std::endl;
+  deallog << "Number of cells before repartitioning: " << tria.n_locally_owned_active_cells() << std::endl;
   {
     unsigned int dof_counter = 0;
     for (auto &cell : dh.active_cell_iterators())
@@ -81,14 +80,12 @@ test()
   }
 
 
-  const parallel::CellWeights<dim> cell_weights(
-    dh, parallel::CellWeights<dim>::ndofs_weighting({1, 1}));
+  const parallel::CellWeights<dim> cell_weights(dh, parallel::CellWeights<dim>::ndofs_weighting({1, 1}));
 
   tria.repartition();
 
 
-  deallog << "Number of cells after repartitioning: "
-          << tria.n_locally_owned_active_cells() << std::endl;
+  deallog << "Number of cells after repartitioning: " << tria.n_locally_owned_active_cells() << std::endl;
   {
     unsigned int dof_counter = 0;
     for (auto &cell : dh.active_cell_iterators())
@@ -114,9 +111,7 @@ test()
       deallog << e.get_exc_name() << std::endl;
     }
 #else
-  deallog
-    << "ExcMessage(\"Triangulation associated with the DoFHandler has changed!\")"
-    << std::endl;
+  deallog << "ExcMessage(\"Triangulation associated with the DoFHandler has changed!\")" << std::endl;
 #endif
 
   // make sure no processor is hanging

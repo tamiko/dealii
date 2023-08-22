@@ -30,9 +30,7 @@ test()
   // put nothing into the sparsity pattern
   sp.compress();
 
-  std::vector<std::pair<DynamicSparsityPattern::const_iterator,
-                        DynamicSparsityPattern::const_iterator>>
-    iterators(1);
+  std::vector<std::pair<DynamicSparsityPattern::const_iterator, DynamicSparsityPattern::const_iterator>> iterators(1);
   iterators[0].first  = sp.begin();
   iterators[0].second = sp.end();
 

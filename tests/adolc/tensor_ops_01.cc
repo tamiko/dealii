@@ -29,15 +29,11 @@
 #include "../tests.h"
 
 
-template <int dim,
-          typename number_t,
-          enum Differentiation::AD::NumberTypes ad_number_enum>
+template <int dim, typename number_t, enum Differentiation::AD::NumberTypes ad_number_enum>
 void
 test_tensor()
 {
-  using ad_number_t =
-    typename Differentiation::AD::NumberTraits<number_t,
-                                               ad_number_enum>::ad_type;
+  using ad_number_t  = typename Differentiation::AD::NumberTraits<number_t, ad_number_enum>::ad_type;
   using AD_Tensor    = Tensor<2, dim, ad_number_t>;
   using NonAD_Tensor = Tensor<2, dim, number_t>;
 
@@ -106,15 +102,11 @@ test_tensor()
   const AD_Tensor trans = transpose(adt1);
 }
 
-template <int dim,
-          typename number_t,
-          enum Differentiation::AD::NumberTypes ad_number_enum>
+template <int dim, typename number_t, enum Differentiation::AD::NumberTypes ad_number_enum>
 void
 test_symmetric_tensor()
 {
-  using ad_number_t =
-    typename Differentiation::AD::NumberTraits<number_t,
-                                               ad_number_enum>::ad_type;
+  using ad_number_t    = typename Differentiation::AD::NumberTraits<number_t, ad_number_enum>::ad_type;
   using AD_STensor     = SymmetricTensor<2, dim, ad_number_t>;
   using AD_STensor4    = SymmetricTensor<4, dim, ad_number_t>;
   using NonAD_STensor  = SymmetricTensor<2, dim, number_t>;
@@ -193,10 +185,8 @@ test_symmetric_tensor()
   const AD_STensor dev   = deviator(adt1);
 
   // Special tensors
-  const SymmetricTensor<2, dim, ad_number_t> ust =
-    unit_symmetric_tensor<dim, ad_number_t>();
-  const SymmetricTensor<4, dim, ad_number_t> dt =
-    deviator_tensor<dim, ad_number_t>();
+  const SymmetricTensor<2, dim, ad_number_t> ust = unit_symmetric_tensor<dim, ad_number_t>();
+  const SymmetricTensor<4, dim, ad_number_t> dt  = deviator_tensor<dim, ad_number_t>();
   //  SymmetricTensor<4,dim,ad_number_t> idt =
   //  identity_tensor<4,dim,ad_number_t> (); // TODO: No number type
   const SymmetricTensor<4, dim, ad_number_t> op = outer_product(adt1, adt2);
@@ -215,9 +205,7 @@ main()
   // --- Taped ---
   // double type
   test_tensor<3, double, Differentiation::AD::NumberTypes::adolc_taped>();
-  test_symmetric_tensor<3,
-                        double,
-                        Differentiation::AD::NumberTypes::adolc_taped>();
+  test_symmetric_tensor<3, double, Differentiation::AD::NumberTypes::adolc_taped>();
   // complex double
   //  test_tensor<3,std::complex<double>,Differentiation::AD::NumberTypes::adolc_taped>();
   //  test_symmetric_tensor<3,std::complex<double>,Differentiation::AD::NumberTypes::adolc_taped>();
@@ -225,9 +213,7 @@ main()
   // --- Tapeless ---
   // double type
   test_tensor<3, double, Differentiation::AD::NumberTypes::adolc_tapeless>();
-  test_symmetric_tensor<3,
-                        double,
-                        Differentiation::AD::NumberTypes::adolc_tapeless>();
+  test_symmetric_tensor<3, double, Differentiation::AD::NumberTypes::adolc_tapeless>();
   // complex double
   //  test_tensor<3,std::complex<double>,Differentiation::AD::NumberTypes::adolc_tapeless>();
   //  test_symmetric_tensor<3,std::complex<double>,Differentiation::AD::NumberTypes::adolc_tapeless>();

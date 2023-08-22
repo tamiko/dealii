@@ -95,11 +95,9 @@ test(const double x, const double y)
   // changes out of packages/rol/example/rosenbrock/example_01.cpp found in
   // the Trilinos git repository - the package documentation might be
   // outdated.
-  ROL::Ptr<ROL::Step<RealT>> step =
-    ROL::makePtr<ROL::LineSearchStep<RealT>>(parlist);
-  ROL::Ptr<ROL::StatusTest<RealT>> status =
-    ROL::makePtr<ROL::StatusTest<RealT>>(parlist);
-  ROL::Algorithm<RealT> algo(step, status, false);
+  ROL::Ptr<ROL::Step<RealT>>       step   = ROL::makePtr<ROL::LineSearchStep<RealT>>(parlist);
+  ROL::Ptr<ROL::StatusTest<RealT>> status = ROL::makePtr<ROL::StatusTest<RealT>>(parlist);
+  ROL::Algorithm<RealT>            algo(step, status, false);
 #else
   // Define algorithm.
   ROL::Algorithm<RealT> algo("Line Search", parlist);
@@ -127,27 +125,19 @@ main()
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       throw;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       throw;
     }
 

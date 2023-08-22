@@ -100,11 +100,9 @@ namespace Step22
 
       relevant_partitioning.clear();
       IndexSet locally_relevant_dofs;
-      DoFTools::extract_locally_relevant_dofs(dof_handler,
-                                              locally_relevant_dofs);
+      DoFTools::extract_locally_relevant_dofs(dof_handler, locally_relevant_dofs);
       relevant_partitioning.push_back(locally_relevant_dofs.get_view(0, n_u));
-      relevant_partitioning.push_back(
-        locally_relevant_dofs.get_view(n_u, n_u + n_p));
+      relevant_partitioning.push_back(locally_relevant_dofs.get_view(n_u, n_u + n_p));
     }
 
     AffineConstraints<double> new_constraints;
@@ -114,12 +112,8 @@ namespace Step22
                                                  owned_partitioning,
                                                  relevant_partitioning,
                                                  mpi_communicator);
-      DoFTools::make_sparsity_pattern(dof_handler,
-                                      bsp,
-                                      new_constraints,
-                                      false,
-                                      Utilities::MPI::this_mpi_process(
-                                        mpi_communicator));
+      DoFTools::make_sparsity_pattern(
+        dof_handler, bsp, new_constraints, false, Utilities::MPI::this_mpi_process(mpi_communicator));
 
       bsp.compress();
     }
@@ -135,8 +129,7 @@ namespace Step22
     const double inner_radius = .5;
     const double outer_radius = 1.;
 
-    GridGenerator::quarter_hyper_shell(
-      triangulation, center, inner_radius, outer_radius, 0, true);
+    GridGenerator::quarter_hyper_shell(triangulation, center, inner_radius, outer_radius, 0, true);
 
     triangulation.set_manifold(0, boundary);
     triangulation.set_manifold(1, boundary);
@@ -175,28 +168,20 @@ main(int argc, char *argv[])
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
 

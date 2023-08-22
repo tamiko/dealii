@@ -72,8 +72,7 @@ public:
 
 template <int dim>
 void
-VelocityField<dim>::vector_value(const Point<dim> & /*point*/,
-                                 Vector<double> &values) const
+VelocityField<dim>::vector_value(const Point<dim> & /*point*/, Vector<double> &values) const
 {
   values[0] = 0;
   values[1] = -1;
@@ -125,9 +124,7 @@ ParticleTracking<dim>::generate_particles()
   if (dim == 3)
     center_of_triangulation[2] = 0.;
 
-  GridGenerator::hyper_ball(background_triangulation,
-                            center_of_triangulation,
-                            1);
+  GridGenerator::hyper_ball(background_triangulation, center_of_triangulation, 1);
   background_triangulation.refine_global(3);
 
   // This initializes the background triangulation where the particles are
@@ -149,39 +146,30 @@ ParticleTracking<dim>::generate_particles()
   const double outer_radius = 0.2;
   const double inner_radius = 0.01;
 
-  parallel::distributed::Triangulation<dim> particle_triangulation(
-    mpi_communicator);
+  parallel::distributed::Triangulation<dim> particle_triangulation(mpi_communicator);
 
-  GridGenerator::hyper_shell(
-    particle_triangulation, center_of_particles, inner_radius, outer_radius, 6);
+  GridGenerator::hyper_shell(particle_triangulation, center_of_particles, inner_radius, outer_radius, 6);
   particle_triangulation.refine_global(1);
 
   // We generate the necessary bounding boxes for the particles generator.
   // These bounding boxes are required to quickly identify in which
   // process's subdomain the inserted particle lies, and which cell owns it.
-  const auto my_bounding_box = GridTools::compute_mesh_predicate_bounding_box(
-    background_triangulation, IteratorFilters::LocallyOwnedCell());
-  const auto global_bounding_boxes =
-    Utilities::MPI::all_gather(mpi_communicator, my_bounding_box);
+  const auto my_bounding_box =
+    GridTools::compute_mesh_predicate_bounding_box(background_triangulation, IteratorFilters::LocallyOwnedCell());
+  const auto global_bounding_boxes = Utilities::MPI::all_gather(mpi_communicator, my_bounding_box);
 
   // We generate an empty vector of properties. We will attribute the
   // properties to the particles once they are generated.
-  std::vector<std::vector<double>> properties(
-    particle_triangulation.n_locally_owned_active_cells(),
-    std::vector<double>(dim + 1, 0.));
+  std::vector<std::vector<double>> properties(particle_triangulation.n_locally_owned_active_cells(),
+                                              std::vector<double>(dim + 1, 0.));
 
   // We generate the particles at the position of a single
   // point quadrature. Consequently, one particle will be generated
   // at the centroid of each cell.
-  Particles::Generators::quadrature_points(particle_triangulation,
-                                           QMidpoint<dim>(),
-                                           global_bounding_boxes,
-                                           particle_handler,
-                                           mapping,
-                                           properties);
+  Particles::Generators::quadrature_points(
+    particle_triangulation, QMidpoint<dim>(), global_bounding_boxes, particle_handler, mapping, properties);
 
-  deallog << "Number of particles inserted: "
-          << particle_handler.n_global_particles() << std::endl;
+  deallog << "Number of particles inserted: " << particle_handler.n_global_particles() << std::endl;
 }
 
 // We integrate the particle trajectories using a first order explicit Euler
@@ -190,9 +178,8 @@ template <int dim>
 void
 ParticleTracking<dim>::euler_step_analytical(const double dt)
 {
-  const unsigned int this_mpi_rank =
-    Utilities::MPI::this_mpi_process(mpi_communicator);
-  Vector<double> particle_velocity(dim);
+  const unsigned int this_mpi_rank = Utilities::MPI::this_mpi_process(mpi_communicator);
+  Vector<double>     particle_velocity(dim);
 
   // Looping over all particles in the domain using a
   // particle iterator
@@ -240,8 +227,8 @@ ParticleTracking<dim>::run()
       particle_handler.sort_particles_into_subdomains_and_cells();
       unsigned int n_part_after_sort = particle_handler.n_global_particles();
 
-      deallog << "Number of particles before sort : " << n_part_before_sort
-              << " After : " << n_part_after_sort << std::endl;
+      deallog << "Number of particles before sort : " << n_part_before_sort << " After : " << n_part_after_sort
+              << std::endl;
     }
 }
 

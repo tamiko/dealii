@@ -62,9 +62,7 @@ using namespace dealii;
 
 template <int dim, typename Number>
 void
-do_test(const FiniteElement<dim> &   fe_fine,
-        const FiniteElement<dim> &   fe_coarse,
-        const Function<dim, Number> &function)
+do_test(const FiniteElement<dim> &fe_fine, const FiniteElement<dim> &fe_coarse, const Function<dim, Number> &function)
 {
   // create coarse grid
   parallel::distributed::Triangulation<dim> tria_coarse(MPI_COMM_WORLD);
@@ -92,20 +90,12 @@ do_test(const FiniteElement<dim> &   fe_fine,
   constraint_fine.close();
 
   // setup transfer operator
-  MGTwoLevelTransferNonNested<dim, LinearAlgebra::distributed::Vector<Number>>
-                 transfer;
-  MappingQ1<dim> mapping_fine, mapping_coarse;
-  transfer.reinit(dof_handler_fine,
-                  dof_handler_coarse,
-                  mapping_fine,
-                  mapping_coarse,
-                  constraint_fine,
-                  constraint_coarse);
+  MGTwoLevelTransferNonNested<dim, LinearAlgebra::distributed::Vector<Number>> transfer;
+  MappingQ1<dim>                                                               mapping_fine, mapping_coarse;
+  transfer.reinit(
+    dof_handler_fine, dof_handler_coarse, mapping_fine, mapping_coarse, constraint_fine, constraint_coarse);
 
-  test_non_nested_transfer(transfer,
-                           dof_handler_fine,
-                           dof_handler_coarse,
-                           function);
+  test_non_nested_transfer(transfer, dof_handler_fine, dof_handler_coarse, function);
 }
 
 template <int dim, typename Number>
@@ -118,25 +108,19 @@ test(int fe_degree, const Function<dim, Number> &function)
   if (fe_degree > 0)
     {
       deallog.push("CG<2>(" + str_fine + ")<->CG<2>(" + str_coarse + ")");
-      do_test<dim, double>(FE_Q<dim>(fe_degree),
-                           FE_Q<dim>(fe_degree),
-                           function);
+      do_test<dim, double>(FE_Q<dim>(fe_degree), FE_Q<dim>(fe_degree), function);
       deallog.pop();
     }
 
   if (fe_degree > 0)
     {
       deallog.push("DG<2>(" + str_fine + ")<->CG<2>(" + str_coarse + ")");
-      do_test<dim, double>(FE_DGQ<dim>(fe_degree),
-                           FE_Q<dim>(fe_degree),
-                           function);
+      do_test<dim, double>(FE_DGQ<dim>(fe_degree), FE_Q<dim>(fe_degree), function);
       deallog.pop();
     }
 
   deallog.push("DG<2>(" + str_fine + ")<->DG<2>(" + str_coarse + ")");
-  do_test<dim, double>(FE_DGQ<dim>(fe_degree),
-                       FE_DGQ<dim>(fe_degree),
-                       function);
+  do_test<dim, double>(FE_DGQ<dim>(fe_degree), FE_DGQ<dim>(fe_degree), function);
   deallog.pop();
 }
 

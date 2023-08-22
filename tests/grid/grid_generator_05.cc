@@ -67,8 +67,7 @@ test(std::ostream &out)
   // loop with quarter rotation (1 * pi/2)
   if (true)
     {
-      deallog << "---------------------------" << std::endl
-              << "moebius, quarter rotation (1* Pi/2)" << std::endl;
+      deallog << "---------------------------" << std::endl << "moebius, quarter rotation (1* Pi/2)" << std::endl;
       Triangulation<dim> tr;
       GridGenerator::moebius(tr, 20, 1, 10.0, 2.0);
       GridOut go;
@@ -79,8 +78,7 @@ test(std::ostream &out)
   // loop with half rotation (2 * pi/2)
   if (true)
     {
-      deallog << "---------------------------" << std::endl
-              << "moebius, half rotation (2* Pi/2)" << std::endl;
+      deallog << "---------------------------" << std::endl << "moebius, half rotation (2* Pi/2)" << std::endl;
       Triangulation<dim> tr;
       GridGenerator::moebius(tr, 20, 2, 10.0, 2.0);
       GridOut go;
@@ -91,8 +89,7 @@ test(std::ostream &out)
   // loop with three quarter rotation (3 * pi/2)
   if (true)
     {
-      deallog << "---------------------------" << std::endl
-              << "moebius, three quarter rotation (3* Pi/2)" << std::endl;
+      deallog << "---------------------------" << std::endl << "moebius, three quarter rotation (3* Pi/2)" << std::endl;
       Triangulation<dim> tr;
       GridGenerator::moebius(tr, 20, 3, 10.0, 2.0);
       GridOut go;
@@ -103,8 +100,7 @@ test(std::ostream &out)
   // loop with full rotation (1 * pi/2)
   if (true)
     {
-      deallog << "---------------------------" << std::endl
-              << "moebius, full rotation (2* Pi)" << std::endl;
+      deallog << "---------------------------" << std::endl << "moebius, full rotation (2* Pi)" << std::endl;
       Triangulation<dim> tr;
       GridGenerator::moebius(tr, 20, 4, 10.0, 2.0);
       GridOut go;

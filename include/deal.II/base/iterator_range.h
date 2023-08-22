@@ -290,8 +290,7 @@ private:
  */
 template <typename BaseIterator>
 IteratorRange<BaseIterator>
-make_iterator_range(const BaseIterator &                            begin,
-                    const std_cxx20::type_identity_t<BaseIterator> &end)
+make_iterator_range(const BaseIterator &begin, const std_cxx20::type_identity_t<BaseIterator> &end)
 {
   IteratorRange<BaseIterator> ir(begin, end);
   return ir;
@@ -302,8 +301,7 @@ make_iterator_range(const BaseIterator &                            begin,
 
 
 template <typename Iterator>
-inline IteratorOverIterators<Iterator>::IteratorOverIterators(
-  const BaseIterator &iterator)
+inline IteratorOverIterators<Iterator>::IteratorOverIterators(const BaseIterator &iterator)
   : element_of_iterator_collection(iterator)
 {}
 
@@ -350,8 +348,7 @@ IteratorOverIterators<Iterator>::operator++(int)
 
 template <typename Iterator>
 inline bool
-IteratorOverIterators<Iterator>::operator!=(
-  const IteratorOverIterators &i_o_i) const
+IteratorOverIterators<Iterator>::operator!=(const IteratorOverIterators &i_o_i) const
 {
   return element_of_iterator_collection != i_o_i.element_of_iterator_collection;
 }
@@ -375,8 +372,7 @@ inline IteratorRange<Iterator>::IteratorRange()
 
 
 template <typename Iterator>
-inline IteratorRange<Iterator>::IteratorRange(const iterator b,
-                                              const iterator e)
+inline IteratorRange<Iterator>::IteratorRange(const iterator b, const iterator e)
   : it_begin(b)
   , it_end(e)
 {}

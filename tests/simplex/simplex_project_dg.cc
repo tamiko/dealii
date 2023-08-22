@@ -60,23 +60,19 @@ test(const unsigned int degree)
       Vector<double>                 solution(dof_handler.n_dofs());
       Functions::CosineFunction<dim> function;
       AffineConstraints<double>      dummy;
-      const auto &                   mapping =
-        reference_cell.template get_default_linear_mapping<dim>();
+      const auto                    &mapping = reference_cell.template get_default_linear_mapping<dim>();
       dummy.close();
-      VectorTools::project(
-        mapping, dof_handler, dummy, quadrature, function, solution);
+      VectorTools::project(mapping, dof_handler, dummy, quadrature, function, solution);
 
       VectorTools::integrate_difference(mapping,
                                         dof_handler,
                                         solution,
                                         function,
                                         cell_errors,
-                                        Quadrature<dim>(
-                                          fe.get_unit_support_points()),
+                                        Quadrature<dim>(fe.get_unit_support_points()),
                                         VectorTools::Linfty_norm);
 
-      const double max_error =
-        *std::max_element(cell_errors.begin(), cell_errors.end());
+      const double max_error = *std::max_element(cell_errors.begin(), cell_errors.end());
       deallog << "max error = " << max_error << std::endl;
       if (max_error != 0.0)
         deallog << "ratio = " << previous_error / max_error << std::endl;

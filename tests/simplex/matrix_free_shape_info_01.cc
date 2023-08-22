@@ -57,8 +57,7 @@ template <int dim, typename Number>
 class FEEvaluationDummy
 {
 public:
-  FEEvaluationDummy(
-    const internal::MatrixFreeFunctions::ShapeInfo<Number> &shape_info)
+  FEEvaluationDummy(const internal::MatrixFreeFunctions::ShapeInfo<Number> &shape_info)
     : shape_info(shape_info)
   {
     values.resize(shape_info.n_q_points);
@@ -84,9 +83,7 @@ public:
           gradients[n_q_points * d + q] = 0.0;
           for (unsigned int i = 0; i < n_dofs; ++i)
             gradients[n_q_points * d + q] +=
-              shape_info.data[0]
-                .shape_gradients[d * n_dofs * n_q_points + i * n_q_points + q] *
-              dof_values[i];
+              shape_info.data[0].shape_gradients[d * n_dofs * n_q_points + i * n_q_points + q] * dof_values[i];
         }
   }
 
@@ -130,11 +127,7 @@ test(const FiniteElement<dim, spacedim> &fe)
 
   internal::MatrixFreeFunctions::ShapeInfo<Number> shape_info(quadrature, fe);
 
-  FEValues<dim> fe_values(mapping,
-                          fe,
-                          quadrature,
-                          update_values | update_gradients |
-                            update_inverse_jacobians);
+  FEValues<dim> fe_values(mapping, fe, quadrature, update_values | update_gradients | update_inverse_jacobians);
 
   Vector<Number> src(dof_handler.n_dofs());
   VectorTools::interpolate(mapping, dof_handler, ExactSolution<dim>(), src);
@@ -156,15 +149,13 @@ test(const FiniteElement<dim, spacedim> &fe)
 
         for (const auto q : fe_values.quadrature_point_indices())
           {
-            Assert(std::abs(values[q] - fe_eval.get_value(q)) < 1e-10,
-                   ExcMessage("Entries do not match!"));
+            Assert(std::abs(values[q] - fe_eval.get_value(q)) < 1e-10, ExcMessage("Entries do not match!"));
           }
       }
 
       // check gradients
       {
-        std::vector<Tensor<1, dim, Number>> gradients(
-          fe_values.n_quadrature_points);
+        std::vector<Tensor<1, dim, Number>> gradients(fe_values.n_quadrature_points);
         fe_values.get_function_gradients(src, gradients);
 
         for (const auto q : fe_values.quadrature_point_indices())
@@ -181,8 +172,7 @@ test(const FiniteElement<dim, spacedim> &fe)
               }
 
             for (int i = 0; i < dim; ++i)
-              Assert(std::abs(gradients[q][i] - temp_transformed[i]) < 1e-10,
-                     ExcMessage("Entries do not match!"));
+              Assert(std::abs(gradients[q][i] - temp_transformed[i]) < 1e-10, ExcMessage("Entries do not match!"));
           }
       }
     }

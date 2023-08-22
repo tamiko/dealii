@@ -58,12 +58,11 @@ namespace FunctionTools
    */
   template <int dim>
   void
-  taylor_estimate_function_bounds(
-    const Function<dim> &                       function,
-    const BoundingBox<dim> &                    box,
-    std::pair<double, double> &                 value_bounds,
-    std::array<std::pair<double, double>, dim> &gradient_bounds,
-    const unsigned int                          component = 0);
+  taylor_estimate_function_bounds(const Function<dim>                        &function,
+                                  const BoundingBox<dim>                     &box,
+                                  std::pair<double, double>                  &value_bounds,
+                                  std::array<std::pair<double, double>, dim> &gradient_bounds,
+                                  const unsigned int                          component = 0);
 
 } // namespace FunctionTools
 DEAL_II_NAMESPACE_CLOSE

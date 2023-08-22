@@ -54,9 +54,9 @@ main()
 
     NormalProjectionManifold<2, 3>  manifold_m(edge);
     std::unique_ptr<Manifold<2, 3>> clone_m       = manifold_m.clone();
-    const auto &                    deref_clone_m = *clone_m;
-    deallog << "typeid of NormalProjectionManifold<2, 3> is "
-            << boost::core::demangle(typeid(deref_clone_m).name()) << std::endl;
+    const auto                     &deref_clone_m = *clone_m;
+    deallog << "typeid of NormalProjectionManifold<2, 3> is " << boost::core::demangle(typeid(deref_clone_m).name())
+            << std::endl;
   }
 
   {
@@ -76,7 +76,7 @@ main()
 
     DirectionalProjectionManifold<2, 3> manifold_m(face, Point<3>(0, 0, 1));
     std::unique_ptr<Manifold<2, 3>>     clone_m       = manifold_m.clone();
-    const auto &                        deref_clone_m = *clone_m;
+    const auto                         &deref_clone_m = *clone_m;
     deallog << "typeid of DirectionalProjectionManifold<2, 3> is "
             << boost::core::demangle(typeid(deref_clone_m).name()) << std::endl;
   }
@@ -98,9 +98,9 @@ main()
 
     NormalToMeshProjectionManifold<1, 3> manifold_m(face);
     std::unique_ptr<Manifold<1, 3>>      clone_m       = manifold_m.clone();
-    const auto &                         deref_clone_m = *clone_m;
-    deallog << "typeid of NormalProjectionManifold<2, 3> is "
-            << boost::core::demangle(typeid(deref_clone_m).name()) << std::endl;
+    const auto                          &deref_clone_m = *clone_m;
+    deallog << "typeid of NormalProjectionManifold<2, 3> is " << boost::core::demangle(typeid(deref_clone_m).name())
+            << std::endl;
   }
 
   deallog << "OK" << std::endl;

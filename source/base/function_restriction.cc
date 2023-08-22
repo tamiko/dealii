@@ -21,7 +21,7 @@ namespace internal
 {
   template <int dim>
   Point<dim + 1>
-  create_higher_dim_point(const Point<dim> & point,
+  create_higher_dim_point(const Point<dim>  &point,
                           const unsigned int component_in_dim_plus_1,
                           const double       coordinate_value)
   {
@@ -32,8 +32,7 @@ namespace internal
     for (int d = 0; d < dim; ++d)
       {
         const unsigned int component_to_write_to =
-          dealii::internal::coordinate_to_one_dim_higher<dim>(
-            component_in_dim_plus_1, d);
+          dealii::internal::coordinate_to_one_dim_higher<dim>(component_in_dim_plus_1, d);
         output(component_to_write_to) = point(d);
       }
 
@@ -46,10 +45,9 @@ namespace internal
 namespace Functions
 {
   template <int dim>
-  CoordinateRestriction<dim>::CoordinateRestriction(
-    const Function<dim + 1> &function,
-    const unsigned int       direction,
-    const double             coordinate_value)
+  CoordinateRestriction<dim>::CoordinateRestriction(const Function<dim + 1> &function,
+                                                    const unsigned int       direction,
+                                                    const double             coordinate_value)
     : function(&function)
     , restricted_direction(direction)
     , coordinate_value(coordinate_value)
@@ -61,13 +59,9 @@ namespace Functions
 
   template <int dim>
   double
-  CoordinateRestriction<dim>::value(const Point<dim> & point,
-                                    const unsigned int component) const
+  CoordinateRestriction<dim>::value(const Point<dim> &point, const unsigned int component) const
   {
-    const Point<dim + 1> full_point =
-      internal::create_higher_dim_point(point,
-                                        restricted_direction,
-                                        coordinate_value);
+    const Point<dim + 1> full_point = internal::create_higher_dim_point(point, restricted_direction, coordinate_value);
 
     return function->value(full_point, component);
   }
@@ -76,16 +70,11 @@ namespace Functions
 
   template <int dim>
   Tensor<1, dim>
-  CoordinateRestriction<dim>::gradient(const Point<dim> & point,
-                                       const unsigned int component) const
+  CoordinateRestriction<dim>::gradient(const Point<dim> &point, const unsigned int component) const
   {
-    const Point<dim + 1> full_point =
-      internal::create_higher_dim_point(point,
-                                        restricted_direction,
-                                        coordinate_value);
+    const Point<dim + 1> full_point = internal::create_higher_dim_point(point, restricted_direction, coordinate_value);
 
-    const Tensor<1, dim + 1> full_gradient =
-      function->gradient(full_point, component);
+    const Tensor<1, dim + 1> full_gradient = function->gradient(full_point, component);
 
     // CoordinateRestriction is constant in restricted direction. Through away
     // the derivatives with respect to this direction and copy the other
@@ -93,9 +82,8 @@ namespace Functions
     Tensor<1, dim> grad;
     for (unsigned int d = 0; d < dim; ++d)
       {
-        const unsigned int index_to_write_from =
-          internal::coordinate_to_one_dim_higher<dim>(restricted_direction, d);
-        grad[d] = full_gradient[index_to_write_from];
+        const unsigned int index_to_write_from = internal::coordinate_to_one_dim_higher<dim>(restricted_direction, d);
+        grad[d]                                = full_gradient[index_to_write_from];
       }
     return grad;
   }
@@ -104,16 +92,11 @@ namespace Functions
 
   template <int dim>
   SymmetricTensor<2, dim>
-  CoordinateRestriction<dim>::hessian(const Point<dim> & point,
-                                      const unsigned int component) const
+  CoordinateRestriction<dim>::hessian(const Point<dim> &point, const unsigned int component) const
   {
-    const Point<dim + 1> full_point =
-      internal::create_higher_dim_point(point,
-                                        restricted_direction,
-                                        coordinate_value);
+    const Point<dim + 1> full_point = internal::create_higher_dim_point(point, restricted_direction, coordinate_value);
 
-    const Tensor<2, dim + 1> full_hessian =
-      function->hessian(full_point, component);
+    const Tensor<2, dim + 1> full_hessian = function->hessian(full_point, component);
 
     // CoordinateRestriction is constant in restricted direction. Through away
     // the derivatives with respect to this direction and copy the other
@@ -121,14 +104,11 @@ namespace Functions
     SymmetricTensor<2, dim> hess;
     for (unsigned int i = 0; i < dim; ++i)
       {
-        const unsigned int i_to_write_from =
-          internal::coordinate_to_one_dim_higher<dim>(restricted_direction, i);
+        const unsigned int i_to_write_from = internal::coordinate_to_one_dim_higher<dim>(restricted_direction, i);
         for (unsigned int j = 0; j < dim; ++j)
           {
-            const unsigned int j_to_write_from =
-              internal::coordinate_to_one_dim_higher<dim>(restricted_direction,
-                                                          j);
-            hess[i][j] = full_hessian[i_to_write_from][j_to_write_from];
+            const unsigned int j_to_write_from = internal::coordinate_to_one_dim_higher<dim>(restricted_direction, j);
+            hess[i][j]                         = full_hessian[i_to_write_from][j_to_write_from];
           }
       }
     return hess;
@@ -138,8 +118,8 @@ namespace Functions
 
   template <int dim>
   PointRestriction<dim>::PointRestriction(const Function<dim + 1> &function,
-                                          const unsigned int open_direction,
-                                          const Point<dim> & point)
+                                          const unsigned int       open_direction,
+                                          const Point<dim>        &point)
     : function(&function)
     , open_direction(open_direction)
     , point(point)
@@ -151,11 +131,9 @@ namespace Functions
 
   template <int dim>
   double
-  PointRestriction<dim>::value(const Point<1> &   point_1D,
-                               const unsigned int component) const
+  PointRestriction<dim>::value(const Point<1> &point_1D, const unsigned int component) const
   {
-    const Point<dim + 1> full_point =
-      internal::create_higher_dim_point(point, open_direction, point_1D(0));
+    const Point<dim + 1> full_point = internal::create_higher_dim_point(point, open_direction, point_1D(0));
     return function->value(full_point, component);
   }
 
@@ -163,13 +141,10 @@ namespace Functions
 
   template <int dim>
   Tensor<1, 1>
-  PointRestriction<dim>::gradient(const Point<1> &   point_1D,
-                                  const unsigned int component) const
+  PointRestriction<dim>::gradient(const Point<1> &point_1D, const unsigned int component) const
   {
-    const Point<dim + 1> full_point =
-      internal::create_higher_dim_point(point, open_direction, point_1D(0));
-    const Tensor<1, dim + 1> full_gradient =
-      function->gradient(full_point, component);
+    const Point<dim + 1>     full_point    = internal::create_higher_dim_point(point, open_direction, point_1D(0));
+    const Tensor<1, dim + 1> full_gradient = function->gradient(full_point, component);
 
     // The PointRestrictions is constant in all but the open direction. Throw
     // away the derivatives in all but this direction.
@@ -182,13 +157,10 @@ namespace Functions
 
   template <int dim>
   SymmetricTensor<2, 1>
-  PointRestriction<dim>::hessian(const Point<1> &   point_1D,
-                                 const unsigned int component) const
+  PointRestriction<dim>::hessian(const Point<1> &point_1D, const unsigned int component) const
   {
-    const Point<dim + 1> full_point =
-      internal::create_higher_dim_point(point, open_direction, point_1D(0));
-    const Tensor<2, dim + 1> full_hessian =
-      function->hessian(full_point, component);
+    const Point<dim + 1>     full_point   = internal::create_higher_dim_point(point, open_direction, point_1D(0));
+    const Tensor<2, dim + 1> full_hessian = function->hessian(full_point, component);
 
     // The PointRestrictions is constant in all but the open direction. Throw
     // away the derivatives in all but this direction.

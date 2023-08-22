@@ -57,9 +57,7 @@ test()
     fe.push_back(FE_Q<dim>(i));
 
   DoFHandler<dim> dof_handler(tr);
-  for (typename DoFHandler<dim>::cell_iterator cell = dof_handler.begin();
-       cell != dof_handler.end();
-       ++cell)
+  for (typename DoFHandler<dim>::cell_iterator cell = dof_handler.begin(); cell != dof_handler.end(); ++cell)
     if (cell->has_children() == false)
       cell->set_active_fe_index(cell->index() % fe.size());
 

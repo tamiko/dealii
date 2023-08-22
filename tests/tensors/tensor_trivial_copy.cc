@@ -32,31 +32,31 @@ template <typename Number>
 void
 test()
 {
-  deallog << "Tensor<0, 1> is trivially copyable: "
-          << boost::has_trivial_copy<Tensor<0, 1, Number>>::value << std::endl;
-  deallog << "Tensor<0, 2> is trivially copyable: "
-          << boost::has_trivial_copy<Tensor<0, 2, Number>>::value << std::endl;
+  deallog << "Tensor<0, 1> is trivially copyable: " << boost::has_trivial_copy<Tensor<0, 1, Number>>::value
+          << std::endl;
+  deallog << "Tensor<0, 2> is trivially copyable: " << boost::has_trivial_copy<Tensor<0, 2, Number>>::value
+          << std::endl;
 
-  deallog << "Tensor<1, 1> is trivially copyable: "
-          << boost::has_trivial_copy<Tensor<1, 1, Number>>::value << std::endl;
-  deallog << "Tensor<1, 2> is trivially copyable: "
-          << boost::has_trivial_copy<Tensor<1, 2, Number>>::value << std::endl;
-  deallog << "Tensor<1, 3> is trivially copyable: "
-          << boost::has_trivial_copy<Tensor<1, 3, Number>>::value << std::endl;
+  deallog << "Tensor<1, 1> is trivially copyable: " << boost::has_trivial_copy<Tensor<1, 1, Number>>::value
+          << std::endl;
+  deallog << "Tensor<1, 2> is trivially copyable: " << boost::has_trivial_copy<Tensor<1, 2, Number>>::value
+          << std::endl;
+  deallog << "Tensor<1, 3> is trivially copyable: " << boost::has_trivial_copy<Tensor<1, 3, Number>>::value
+          << std::endl;
 
-  deallog << "Tensor<2, 1> is trivially copyable: "
-          << boost::has_trivial_copy<Tensor<2, 1, Number>>::value << std::endl;
-  deallog << "Tensor<2, 2> is trivially copyable: "
-          << boost::has_trivial_copy<Tensor<2, 2, Number>>::value << std::endl;
-  deallog << "Tensor<2, 3> is trivially copyable: "
-          << boost::has_trivial_copy<Tensor<2, 3, Number>>::value << std::endl;
+  deallog << "Tensor<2, 1> is trivially copyable: " << boost::has_trivial_copy<Tensor<2, 1, Number>>::value
+          << std::endl;
+  deallog << "Tensor<2, 2> is trivially copyable: " << boost::has_trivial_copy<Tensor<2, 2, Number>>::value
+          << std::endl;
+  deallog << "Tensor<2, 3> is trivially copyable: " << boost::has_trivial_copy<Tensor<2, 3, Number>>::value
+          << std::endl;
 
-  deallog << "Tensor<3, 1> is trivially copyable: "
-          << boost::has_trivial_copy<Tensor<3, 1, Number>>::value << std::endl;
-  deallog << "Tensor<3, 2> is trivially copyable: "
-          << boost::has_trivial_copy<Tensor<3, 2, Number>>::value << std::endl;
-  deallog << "Tensor<3, 3> is trivially copyable: "
-          << boost::has_trivial_copy<Tensor<3, 3, Number>>::value << std::endl;
+  deallog << "Tensor<3, 1> is trivially copyable: " << boost::has_trivial_copy<Tensor<3, 1, Number>>::value
+          << std::endl;
+  deallog << "Tensor<3, 2> is trivially copyable: " << boost::has_trivial_copy<Tensor<3, 2, Number>>::value
+          << std::endl;
+  deallog << "Tensor<3, 3> is trivially copyable: " << boost::has_trivial_copy<Tensor<3, 3, Number>>::value
+          << std::endl;
 }
 
 int

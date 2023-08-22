@@ -81,8 +81,7 @@ namespace internal
     /**
      * Value of compressed_constraint_kind for the unconstrained case.
      */
-    constexpr compressed_constraint_kind
-      unconstrained_compressed_constraint_kind = 0;
+    constexpr compressed_constraint_kind unconstrained_compressed_constraint_kind = 0;
 
 
 
@@ -147,8 +146,7 @@ namespace internal
       const std::uint16_t face    = (kind >> 3) & 7;
       const std::uint16_t edge    = (kind >> 6) & 7;
 
-      return subcell + ((face > 0) << 3) + ((edge > 0) << 4) +
-             (std::max(face, edge) << 5);
+      return subcell + ((face > 0) << 3) + ((edge > 0) << 4) + (std::max(face, edge) << 5);
     }
 
 
@@ -170,9 +168,8 @@ namespace internal
       const std::uint16_t flag_0  = (kind_in >> 3) & 3;
       const std::uint16_t flag_1  = (kind_in >> 5) & 7;
 
-      const auto result = static_cast<ConstraintKinds>(
-        subcell + (((flag_0 & 0b01) ? flag_1 : 0) << 3) +
-        (((flag_0 & 0b10) ? flag_1 : 0) << 6));
+      const auto result = static_cast<ConstraintKinds>(subcell + (((flag_0 & 0b01) ? flag_1 : 0) << 3) +
+                                                       (((flag_0 & 0b10) ? flag_1 : 0) << 6));
 
       Assert(check(result, dim), ExcInternalError());
 
@@ -202,8 +199,7 @@ namespace internal
     DEAL_II_HOST_DEVICE inline ConstraintKinds
     operator|(const ConstraintKinds f1, const ConstraintKinds f2)
     {
-      return static_cast<ConstraintKinds>(static_cast<std::uint16_t>(f1) |
-                                          static_cast<std::uint16_t>(f2));
+      return static_cast<ConstraintKinds>(static_cast<std::uint16_t>(f1) | static_cast<std::uint16_t>(f2));
     }
 
 
@@ -250,8 +246,7 @@ namespace internal
     DEAL_II_HOST_DEVICE inline ConstraintKinds
     operator&(const ConstraintKinds f1, const ConstraintKinds f2)
     {
-      return static_cast<ConstraintKinds>(static_cast<std::uint16_t>(f1) &
-                                          static_cast<std::uint16_t>(f2));
+      return static_cast<ConstraintKinds>(static_cast<std::uint16_t>(f1) & static_cast<std::uint16_t>(f2));
     }
 
 
@@ -282,12 +277,11 @@ namespace internal
        */
       template <typename CellIterator>
       bool
-      setup_constraints(
-        const CellIterator &                                      cell,
-        const std::shared_ptr<const Utilities::MPI::Partitioner> &partitioner,
-        const std::vector<std::vector<unsigned int>> &lexicographic_mapping,
-        std::vector<types::global_dof_index> &        dof_indices,
-        const ArrayView<ConstraintKinds> &            mask) const;
+      setup_constraints(const CellIterator                                       &cell,
+                        const std::shared_ptr<const Utilities::MPI::Partitioner> &partitioner,
+                        const std::vector<std::vector<unsigned int>>             &lexicographic_mapping,
+                        std::vector<types::global_dof_index>                     &dof_indices,
+                        const ArrayView<ConstraintKinds>                         &mask) const;
 
       /**
        * Compute the supported components of all entries of the given
@@ -309,13 +303,12 @@ namespace internal
        */
       template <typename CellIterator>
       void
-      update_dof_indices(
-        const CellIterator &                                      cell,
-        const std::shared_ptr<const Utilities::MPI::Partitioner> &partitioner,
-        const std::vector<std::vector<unsigned int>> &lexicographic_mapping,
-        const std::vector<std::vector<bool>> &        component_mask,
-        const ConstraintKinds &                       refinement_configuration,
-        std::vector<types::global_dof_index> &        dof_indices) const;
+      update_dof_indices(const CellIterator                                       &cell,
+                         const std::shared_ptr<const Utilities::MPI::Partitioner> &partitioner,
+                         const std::vector<std::vector<unsigned int>>             &lexicographic_mapping,
+                         const std::vector<std::vector<bool>>                     &component_mask,
+                         const ConstraintKinds                                    &refinement_configuration,
+                         std::vector<types::global_dof_index>                     &dof_indices) const;
 
     private:
       /**
@@ -328,37 +321,27 @@ namespace internal
       rotate_subface_index(int times, unsigned int &subface_index) const;
 
       void
-      rotate_face(int                                   times,
-                  unsigned int                          n_dofs_1d,
-                  std::vector<types::global_dof_index> &dofs) const;
+      rotate_face(int times, unsigned int n_dofs_1d, std::vector<types::global_dof_index> &dofs) const;
 
       unsigned int
-      line_dof_idx(int          local_line,
-                   unsigned int dof,
-                   unsigned int n_dofs_1d) const;
+      line_dof_idx(int local_line, unsigned int dof, unsigned int n_dofs_1d) const;
 
       void
-      transpose_face(const unsigned int                    fe_degree,
-                     std::vector<types::global_dof_index> &dofs) const;
+      transpose_face(const unsigned int fe_degree, std::vector<types::global_dof_index> &dofs) const;
 
       void
       transpose_subface_index(unsigned int &subface) const;
 
-      std::vector<
-        boost::container::small_vector<std::array<unsigned int, 3>, 6>>
-        line_to_cells;
+      std::vector<boost::container::small_vector<std::array<unsigned int, 3>, 6>> line_to_cells;
 
       const dealii::ndarray<unsigned int, 3, 2, 2> local_lines = {
-        {{{{{7, 3}}, {{6, 2}}}},
-         {{{{5, 1}}, {{4, 0}}}},
-         {{{{11, 9}}, {{10, 8}}}}}};
+        {{{{{7, 3}}, {{6, 2}}}}, {{{{5, 1}}, {{4, 0}}}}, {{{{11, 9}}, {{10, 8}}}}}};
     };
 
 
 
     template <int dim>
-    inline HangingNodes<dim>::HangingNodes(
-      const Triangulation<dim> &triangulation)
+    inline HangingNodes<dim>::HangingNodes(const Triangulation<dim> &triangulation)
     {
       // Set up line-to-cell mapping for edge constraints (only if dim = 3 and
       // for pure hex meshes)
@@ -374,8 +357,7 @@ namespace internal
     {
       std::size_t size = 0;
       for (const auto &a : line_to_cells)
-        size +=
-          (a.capacity() > 6 ? a.capacity() : 0) * sizeof(a[0]) + sizeof(a);
+        size += (a.capacity() > 6 ? a.capacity() : 0) * sizeof(a[0]) + sizeof(a);
       return size;
     }
 
@@ -383,8 +365,7 @@ namespace internal
 
     template <int dim>
     inline void
-    HangingNodes<dim>::setup_line_to_cell(
-      const Triangulation<dim> &triangulation)
+    HangingNodes<dim>::setup_line_to_cell(const Triangulation<dim> &triangulation)
     {
       (void)triangulation;
     }
@@ -401,9 +382,7 @@ namespace internal
       if (triangulation.n_levels() <= 1 ||
           std::none_of(triangulation.begin_active(triangulation.n_levels() - 2),
                        triangulation.end_active(triangulation.n_levels() - 2),
-                       [](const CellAccessor<3, 3> &cell) {
-                         return !cell.is_artificial();
-                       }))
+                       [](const CellAccessor<3, 3> &cell) { return !cell.is_artificial(); }))
         return;
 
       const unsigned int n_raw_lines = triangulation.n_raw_lines();
@@ -415,38 +394,23 @@ namespace internal
       // edges (i.e. lines) to neighboring cells.
 
       // Mapping from an edge to which children that share that edge.
-      const unsigned int line_to_children[12][2] = {{0, 2},
-                                                    {1, 3},
-                                                    {0, 1},
-                                                    {2, 3},
-                                                    {4, 6},
-                                                    {5, 7},
-                                                    {4, 5},
-                                                    {6, 7},
-                                                    {0, 4},
-                                                    {1, 5},
-                                                    {2, 6},
-                                                    {3, 7}};
+      const unsigned int line_to_children[12][2] = {
+        {0, 2}, {1, 3}, {0, 1}, {2, 3}, {4, 6}, {5, 7}, {4, 5}, {6, 7}, {0, 4}, {1, 5}, {2, 6}, {3, 7}};
 
-      std::vector<
-        boost::container::small_vector<std::array<unsigned int, 3>, 6>>
-        line_to_inactive_cells(n_raw_lines);
+      std::vector<boost::container::small_vector<std::array<unsigned int, 3>, 6>> line_to_inactive_cells(n_raw_lines);
 
       // First add active and inactive cells to their lines:
       for (const auto &cell : triangulation.cell_iterators())
         {
           const unsigned int cell_level = cell->level();
           const unsigned int cell_index = cell->index();
-          for (unsigned int line = 0; line < GeometryInfo<3>::lines_per_cell;
-               ++line)
+          for (unsigned int line = 0; line < GeometryInfo<3>::lines_per_cell; ++line)
             {
               const unsigned int line_idx = cell->line_index(line);
               if (cell->is_active())
-                line_to_cells[line_idx].push_back(
-                  {{cell_level, cell_index, line}});
+                line_to_cells[line_idx].push_back({{cell_level, cell_index, line}});
               else
-                line_to_inactive_cells[line_idx].push_back(
-                  {{cell_level, cell_index, line}});
+                line_to_inactive_cells[line_idx].push_back({{cell_level, cell_index, line}});
             }
         }
 
@@ -455,24 +419,19 @@ namespace internal
       // at the corresponding edge of children of inactive edge neighbors.
       for (unsigned int line_idx = 0; line_idx < n_raw_lines; ++line_idx)
         {
-          if ((line_to_cells[line_idx].size() > 0) &&
-              line_to_inactive_cells[line_idx].size() > 0)
+          if ((line_to_cells[line_idx].size() > 0) && line_to_inactive_cells[line_idx].size() > 0)
             {
               // We now have cells to add (active ones) and edges to which they
               // should be added (inactive cells).
-              const Triangulation<3>::cell_iterator inactive_cell(
-                &triangulation,
-                line_to_inactive_cells[line_idx][0][0],
-                line_to_inactive_cells[line_idx][0][1]);
-              const unsigned int neighbor_line =
-                line_to_inactive_cells[line_idx][0][2];
+              const Triangulation<3>::cell_iterator inactive_cell(&triangulation,
+                                                                  line_to_inactive_cells[line_idx][0][0],
+                                                                  line_to_inactive_cells[line_idx][0][1]);
+              const unsigned int                    neighbor_line = line_to_inactive_cells[line_idx][0][2];
 
               for (unsigned int c = 0; c < 2; ++c)
                 {
-                  const auto &child =
-                    inactive_cell->child(line_to_children[neighbor_line][c]);
-                  const unsigned int child_line_idx =
-                    child->line_index(neighbor_line);
+                  const auto        &child          = inactive_cell->child(line_to_children[neighbor_line][c]);
+                  const unsigned int child_line_idx = child->line_index(neighbor_line);
 
                   // Now add all active cells
                   for (const auto &cl : line_to_cells[line_idx])
@@ -486,27 +445,19 @@ namespace internal
 
     template <int dim>
     inline std::vector<std::vector<bool>>
-    HangingNodes<dim>::compute_supported_components(
-      const dealii::hp::FECollection<dim> &fe_collection)
+    HangingNodes<dim>::compute_supported_components(const dealii::hp::FECollection<dim> &fe_collection)
     {
-      std::vector<std::vector<bool>> supported_components(
-        fe_collection.size(),
-        std::vector<bool>(fe_collection.n_components(), false));
+      std::vector<std::vector<bool>> supported_components(fe_collection.size(),
+                                                          std::vector<bool>(fe_collection.n_components(), false));
 
       for (unsigned int i = 0; i < fe_collection.size(); ++i)
         {
-          for (unsigned int base_element_index = 0, comp = 0;
-               base_element_index < fe_collection[i].n_base_elements();
+          for (unsigned int base_element_index = 0, comp = 0; base_element_index < fe_collection[i].n_base_elements();
                ++base_element_index)
-            for (unsigned int c = 0;
-                 c < fe_collection[i].element_multiplicity(base_element_index);
-                 ++c, ++comp)
+            for (unsigned int c = 0; c < fe_collection[i].element_multiplicity(base_element_index); ++c, ++comp)
               if (dim == 1 ||
-                  (dynamic_cast<const FE_Q<dim> *>(
-                     &fe_collection[i].base_element(base_element_index)) ==
-                     nullptr &&
-                   dynamic_cast<const FE_Q_iso_Q1<dim> *>(
-                     &fe_collection[i].base_element(base_element_index)) ==
+                  (dynamic_cast<const FE_Q<dim> *>(&fe_collection[i].base_element(base_element_index)) == nullptr &&
+                   dynamic_cast<const FE_Q_iso_Q1<dim> *>(&fe_collection[i].base_element(base_element_index)) ==
                      nullptr))
                 supported_components[i][comp] = false;
               else
@@ -521,19 +472,16 @@ namespace internal
     template <int dim>
     template <typename CellIterator>
     inline ConstraintKinds
-    HangingNodes<dim>::compute_refinement_configuration(
-      const CellIterator &cell) const
+    HangingNodes<dim>::compute_refinement_configuration(const CellIterator &cell) const
     {
       // TODO: for simplex or mixed meshes: nothing to do
-      if ((dim == 3 && line_to_cells.empty()) ||
-          (cell->reference_cell().is_hyper_cube() == false))
+      if ((dim == 3 && line_to_cells.empty()) || (cell->reference_cell().is_hyper_cube() == false))
         return ConstraintKinds::unconstrained;
 
       if (cell->level() == 0)
         return ConstraintKinds::unconstrained;
 
-      const std::uint16_t subcell =
-        cell->parent()->child_iterator_to_index(cell);
+      const std::uint16_t subcell   = cell->parent()->child_iterator_to_index(cell);
       const std::uint16_t subcell_x = (subcell >> 0) & 1;
       const std::uint16_t subcell_y = (subcell >> 1) & 1;
       const std::uint16_t subcell_z = (subcell >> 2) & 1;
@@ -554,8 +502,7 @@ namespace internal
 
           // ignore neighbors that are artificial or have the same level or
           // have children
-          if (neighbor->has_children() || neighbor->is_artificial() ||
-              neighbor->level() == cell->level())
+          if (neighbor->has_children() || neighbor->is_artificial() || neighbor->level() == cell->level())
             continue;
 
           // Ignore if the neighbors are FE_Nothing
@@ -569,12 +516,10 @@ namespace internal
         for (unsigned int direction = 0; direction < dim; ++direction)
           if (face == 0 || face == (1 << direction))
             {
-              const unsigned int line_no =
-                direction == 0 ?
-                  (local_lines[0][subcell_y == 0][subcell_z == 0]) :
-                  (direction == 1 ?
-                     (local_lines[1][subcell_x == 0][subcell_z == 0]) :
-                     (local_lines[2][subcell_x == 0][subcell_y == 0]));
+              const unsigned int line_no = direction == 0 ?
+                                             (local_lines[0][subcell_y == 0][subcell_z == 0]) :
+                                             (direction == 1 ? (local_lines[1][subcell_x == 0][subcell_z == 0]) :
+                                                               (local_lines[2][subcell_x == 0][subcell_y == 0]));
 
               const unsigned int line_index = cell->line_index(line_no);
 
@@ -582,13 +527,11 @@ namespace internal
                 std::find_if(line_to_cells[line_index].begin(),
                              line_to_cells[line_index].end(),
                              [&cell](const auto &edge_neighbor) {
-                               DoFCellAccessor<dim, dim, false> dof_cell(
-                                 &cell->get_triangulation(),
-                                 edge_neighbor[0],
-                                 edge_neighbor[1],
-                                 &cell->get_dof_handler());
-                               return dof_cell.is_artificial() == false &&
-                                      dof_cell.level() < cell->level() &&
+                               DoFCellAccessor<dim, dim, false> dof_cell(&cell->get_triangulation(),
+                                                                         edge_neighbor[0],
+                                                                         edge_neighbor[1],
+                                                                         &cell->get_dof_handler());
+                               return dof_cell.is_artificial() == false && dof_cell.level() < cell->level() &&
                                       dof_cell.get_fe().n_dofs_per_cell() > 0;
                              });
 
@@ -603,8 +546,7 @@ namespace internal
 
       const std::uint16_t inverted_subcell = (subcell ^ (dim == 2 ? 3 : 7));
 
-      const auto refinement_configuration = static_cast<ConstraintKinds>(
-        inverted_subcell + (face << 3) + (edge << 6));
+      const auto refinement_configuration = static_cast<ConstraintKinds>(inverted_subcell + (face << 3) + (edge << 6));
       Assert(check(refinement_configuration, dim), ExcInternalError());
       return refinement_configuration;
     }
@@ -614,62 +556,47 @@ namespace internal
     template <int dim>
     template <typename CellIterator>
     inline void
-    HangingNodes<dim>::update_dof_indices(
-      const CellIterator &                                      cell,
-      const std::shared_ptr<const Utilities::MPI::Partitioner> &partitioner,
-      const std::vector<std::vector<unsigned int>> &lexicographic_mapping,
-      const std::vector<std::vector<bool>> &        supported_components,
-      const ConstraintKinds &                       refinement_configuration,
-      std::vector<types::global_dof_index> &        dof_indices) const
+    HangingNodes<dim>::update_dof_indices(const CellIterator                                       &cell,
+                                          const std::shared_ptr<const Utilities::MPI::Partitioner> &partitioner,
+                                          const std::vector<std::vector<unsigned int>> &lexicographic_mapping,
+                                          const std::vector<std::vector<bool>>         &supported_components,
+                                          const ConstraintKinds                        &refinement_configuration,
+                                          std::vector<types::global_dof_index>         &dof_indices) const
     {
       if (std::find(supported_components[cell->active_fe_index()].begin(),
                     supported_components[cell->active_fe_index()].end(),
-                    true) ==
-          supported_components[cell->active_fe_index()].end())
+                    true) == supported_components[cell->active_fe_index()].end())
         return;
 
       const auto &fe = cell->get_fe();
 
       AssertDimension(fe.n_unique_faces(), 1);
 
-      std::vector<std::vector<unsigned int>>
-        component_to_system_index_face_array(fe.n_components());
+      std::vector<std::vector<unsigned int>> component_to_system_index_face_array(fe.n_components());
 
       for (unsigned int i = 0; i < fe.n_dofs_per_face(0); ++i)
-        component_to_system_index_face_array
-          [fe.face_system_to_component_index(i, /*face_no=*/0).first]
-            .push_back(i);
+        component_to_system_index_face_array[fe.face_system_to_component_index(i, /*face_no=*/0).first].push_back(i);
 
       std::vector<unsigned int> idx_offset = {0};
 
-      for (unsigned int base_element_index = 0;
-           base_element_index < cell->get_fe().n_base_elements();
+      for (unsigned int base_element_index = 0; base_element_index < cell->get_fe().n_base_elements();
            ++base_element_index)
-        for (unsigned int c = 0;
-             c < cell->get_fe().element_multiplicity(base_element_index);
-             ++c)
-          idx_offset.push_back(
-            idx_offset.back() +
-            cell->get_fe().base_element(base_element_index).n_dofs_per_cell());
+        for (unsigned int c = 0; c < cell->get_fe().element_multiplicity(base_element_index); ++c)
+          idx_offset.push_back(idx_offset.back() + cell->get_fe().base_element(base_element_index).n_dofs_per_cell());
 
       std::vector<types::global_dof_index> neighbor_dofs_all(idx_offset.back());
-      std::vector<types::global_dof_index> neighbor_dofs_all_temp(
-        idx_offset.back());
-      std::vector<types::global_dof_index> neighbor_dofs_face(
-        fe.n_dofs_per_face(/*face_no=*/0));
+      std::vector<types::global_dof_index> neighbor_dofs_all_temp(idx_offset.back());
+      std::vector<types::global_dof_index> neighbor_dofs_face(fe.n_dofs_per_face(/*face_no=*/0));
 
 
-      const auto get_face_idx = [](const auto n_dofs_1d,
-                                   const auto face_no,
-                                   const auto i,
-                                   const auto j) -> unsigned int {
+      const auto get_face_idx =
+        [](const auto n_dofs_1d, const auto face_no, const auto i, const auto j) -> unsigned int {
         const auto direction = face_no / 2;
         const auto side      = face_no % 2;
         const auto offset    = (side == 1) ? (n_dofs_1d - 1) : 0;
 
         if (dim == 2)
-          return (direction == 0) ? (n_dofs_1d * i + offset) :
-                                    (n_dofs_1d * offset + i);
+          return (direction == 0) ? (n_dofs_1d * i + offset) : (n_dofs_1d * offset + i);
         else if (dim == 3)
           switch (direction)
             {
@@ -688,8 +615,7 @@ namespace internal
         return 0;
       };
 
-      const std::uint16_t kind =
-        static_cast<std::uint16_t>(refinement_configuration);
+      const std::uint16_t kind      = static_cast<std::uint16_t>(refinement_configuration);
       const std::uint16_t subcell   = (kind >> 0) & 7;
       const std::uint16_t subcell_x = (subcell >> 0) & 1;
       const std::uint16_t subcell_y = (subcell >> 1) & 1;
@@ -706,50 +632,35 @@ namespace internal
             // read DoFs of parent of face, ...
             cell->neighbor(face_no)
               ->face(cell->neighbor_face_no(face_no))
-              ->get_dof_indices(neighbor_dofs_face,
-                                cell->neighbor(face_no)->active_fe_index());
+              ->get_dof_indices(neighbor_dofs_face, cell->neighbor(face_no)->active_fe_index());
 
             // ... convert the global DoFs to serial ones, and ...
             if (partitioner)
               for (auto &index : neighbor_dofs_face)
                 index = partitioner->global_to_local(index);
 
-            for (unsigned int base_element_index = 0, comp = 0;
-                 base_element_index < cell->get_fe().n_base_elements();
+            for (unsigned int base_element_index = 0, comp = 0; base_element_index < cell->get_fe().n_base_elements();
                  ++base_element_index)
-              for (unsigned int c = 0;
-                   c < cell->get_fe().element_multiplicity(base_element_index);
-                   ++c, ++comp)
+              for (unsigned int c = 0; c < cell->get_fe().element_multiplicity(base_element_index); ++c, ++comp)
                 {
-                  if (supported_components[cell->active_fe_index()][comp] ==
-                      false)
+                  if (supported_components[cell->active_fe_index()][comp] == false)
                     continue;
 
-                  const unsigned int n_dofs_1d =
-                    cell->get_fe()
-                      .base_element(base_element_index)
-                      .tensor_degree() +
-                    1;
-                  const unsigned int dofs_per_face =
-                    Utilities::pow(n_dofs_1d, dim - 1);
-                  std::vector<types::global_dof_index> neighbor_dofs(
-                    dofs_per_face);
-                  const auto lex_face_mapping =
-                    FETools::lexicographic_to_hierarchic_numbering<dim - 1>(
-                      n_dofs_1d - 1);
+                  const unsigned int n_dofs_1d = cell->get_fe().base_element(base_element_index).tensor_degree() + 1;
+                  const unsigned int dofs_per_face = Utilities::pow(n_dofs_1d, dim - 1);
+                  std::vector<types::global_dof_index> neighbor_dofs(dofs_per_face);
+                  const auto lex_face_mapping = FETools::lexicographic_to_hierarchic_numbering<dim - 1>(n_dofs_1d - 1);
 
                   // ... extract the DoFs of the current component
                   for (unsigned int i = 0; i < dofs_per_face; ++i)
-                    neighbor_dofs[i] = neighbor_dofs_face
-                      [component_to_system_index_face_array[comp][i]];
+                    neighbor_dofs[i] = neighbor_dofs_face[component_to_system_index_face_array[comp][i]];
 
                   // fix DoFs depending on orientation, flip, and rotation
                   if (dim == 2)
                     {
                       // TODO: for mixed meshes we need to take care of
                       // orientation here
-                      Assert(cell->face_orientation(face_no),
-                             ExcNotImplemented());
+                      Assert(cell->face_orientation(face_no), ExcNotImplemented());
                     }
                   else if (dim == 3)
                     {
@@ -771,10 +682,8 @@ namespace internal
 
                   // update DoF map
                   for (unsigned int i = 0, k = 0; i < n_dofs_1d; ++i)
-                    for (unsigned int j = 0; j < (dim == 2 ? 1 : n_dofs_1d);
-                         ++j, ++k)
-                      dof_indices[get_face_idx(n_dofs_1d, face_no, i, j) +
-                                  idx_offset[comp]] =
+                    for (unsigned int j = 0; j < (dim == 2 ? 1 : n_dofs_1d); ++j, ++k)
+                      dof_indices[get_face_idx(n_dofs_1d, face_no, i, j) + idx_offset[comp]] =
                         neighbor_dofs[lex_face_mapping[k]];
                 }
           }
@@ -783,35 +692,28 @@ namespace internal
         for (unsigned int direction = 0; direction < dim; ++direction)
           if ((edge >> direction) & 1U)
             {
-              const unsigned int line_no =
-                direction == 0 ?
-                  (local_lines[0][subcell_y][subcell_z]) :
-                  (direction == 1 ? (local_lines[1][subcell_x][subcell_z]) :
-                                    (local_lines[2][subcell_x][subcell_y]));
+              const unsigned int line_no = direction == 0 ? (local_lines[0][subcell_y][subcell_z]) :
+                                                            (direction == 1 ? (local_lines[1][subcell_x][subcell_z]) :
+                                                                              (local_lines[2][subcell_x][subcell_y]));
 
               const unsigned int line_index = cell->line(line_no)->index();
 
-              const auto edge_neighbor =
-                std::find_if(line_to_cells[line_index].begin(),
-                             line_to_cells[line_index].end(),
-                             [&cell](const auto &edge_array) {
-                               const typename Triangulation<dim>::cell_iterator
-                                 edge_neighbor(&cell->get_triangulation(),
-                                               edge_array[0],
-                                               edge_array[1]);
-                               return edge_neighbor->is_artificial() == false &&
-                                      edge_neighbor->level() < cell->level();
-                             });
+              const auto edge_neighbor = std::find_if(
+                line_to_cells[line_index].begin(), line_to_cells[line_index].end(), [&cell](const auto &edge_array) {
+                  const typename Triangulation<dim>::cell_iterator edge_neighbor(&cell->get_triangulation(),
+                                                                                 edge_array[0],
+                                                                                 edge_array[1]);
+                  return edge_neighbor->is_artificial() == false && edge_neighbor->level() < cell->level();
+                });
 
               if (edge_neighbor == line_to_cells[line_index].end())
                 continue;
 
-              const DoFCellAccessor<dim, dim, false> neighbor_cell(
-                &cell->get_triangulation(),
-                (*edge_neighbor)[0],
-                (*edge_neighbor)[1],
-                &cell->get_dof_handler());
-              const auto local_line_neighbor = (*edge_neighbor)[2];
+              const DoFCellAccessor<dim, dim, false> neighbor_cell(&cell->get_triangulation(),
+                                                                   (*edge_neighbor)[0],
+                                                                   (*edge_neighbor)[1],
+                                                                   &cell->get_dof_handler());
+              const auto                             local_line_neighbor = (*edge_neighbor)[2];
 
               neighbor_cell.get_dof_indices(neighbor_dofs_all);
 
@@ -820,38 +722,25 @@ namespace internal
                   index = partitioner->global_to_local(index);
 
               for (unsigned int i = 0; i < neighbor_dofs_all_temp.size(); ++i)
-                neighbor_dofs_all_temp[i] = neighbor_dofs_all
-                  [lexicographic_mapping[cell->active_fe_index()][i]];
+                neighbor_dofs_all_temp[i] = neighbor_dofs_all[lexicographic_mapping[cell->active_fe_index()][i]];
 
               const bool flipped =
-                cell->line_orientation(line_no) !=
-                neighbor_cell.line_orientation(local_line_neighbor);
+                cell->line_orientation(line_no) != neighbor_cell.line_orientation(local_line_neighbor);
 
-              for (unsigned int base_element_index = 0, comp = 0;
-                   base_element_index < cell->get_fe().n_base_elements();
+              for (unsigned int base_element_index = 0, comp = 0; base_element_index < cell->get_fe().n_base_elements();
                    ++base_element_index)
-                for (unsigned int c = 0;
-                     c <
-                     cell->get_fe().element_multiplicity(base_element_index);
-                     ++c, ++comp)
+                for (unsigned int c = 0; c < cell->get_fe().element_multiplicity(base_element_index); ++c, ++comp)
                   {
-                    if (supported_components[cell->active_fe_index()][comp] ==
-                        false)
+                    if (supported_components[cell->active_fe_index()][comp] == false)
                       continue;
 
-                    const unsigned int n_dofs_1d =
-                      cell->get_fe()
-                        .base_element(base_element_index)
-                        .tensor_degree() +
-                      1;
+                    const unsigned int n_dofs_1d = cell->get_fe().base_element(base_element_index).tensor_degree() + 1;
 
                     for (unsigned int i = 0; i < n_dofs_1d; ++i)
-                      dof_indices[line_dof_idx(line_no, i, n_dofs_1d) +
-                                  idx_offset[comp]] = neighbor_dofs_all_temp
-                        [line_dof_idx(local_line_neighbor,
-                                      flipped ? (n_dofs_1d - 1 - i) : i,
-                                      n_dofs_1d) +
-                         idx_offset[comp]];
+                      dof_indices[line_dof_idx(line_no, i, n_dofs_1d) + idx_offset[comp]] =
+                        neighbor_dofs_all_temp[line_dof_idx(
+                                                 local_line_neighbor, flipped ? (n_dofs_1d - 1 - i) : i, n_dofs_1d) +
+                                               idx_offset[comp]];
                   }
             }
     }
@@ -861,38 +750,29 @@ namespace internal
     template <int dim>
     template <typename CellIterator>
     inline bool
-    HangingNodes<dim>::setup_constraints(
-      const CellIterator &                                      cell,
-      const std::shared_ptr<const Utilities::MPI::Partitioner> &partitioner,
-      const std::vector<std::vector<unsigned int>> &lexicographic_mapping,
-      std::vector<types::global_dof_index> &        dof_indices,
-      const ArrayView<ConstraintKinds> &            masks) const
+    HangingNodes<dim>::setup_constraints(const CellIterator                                       &cell,
+                                         const std::shared_ptr<const Utilities::MPI::Partitioner> &partitioner,
+                                         const std::vector<std::vector<unsigned int>> &lexicographic_mapping,
+                                         std::vector<types::global_dof_index>         &dof_indices,
+                                         const ArrayView<ConstraintKinds>             &masks) const
     {
       // 1) check if finite elements support fast hanging-node algorithm
-      const auto supported_components = compute_supported_components(
-        cell->get_dof_handler().get_fe_collection());
+      const auto supported_components = compute_supported_components(cell->get_dof_handler().get_fe_collection());
 
-      if (std::none_of(supported_components.begin(),
-                       supported_components.end(),
-                       [](const auto &a) {
-                         return *std::max_element(a.begin(), a.end());
-                       }))
+      if (std::none_of(supported_components.begin(), supported_components.end(), [](const auto &a) {
+            return *std::max_element(a.begin(), a.end());
+          }))
         return false;
 
       // 2) determine the refinement configuration of the cell
-      const auto refinement_configuration =
-        compute_refinement_configuration(cell);
+      const auto refinement_configuration = compute_refinement_configuration(cell);
 
       if (refinement_configuration == ConstraintKinds::unconstrained)
         return false;
 
       // 3) update DoF indices of cell for specified components
-      update_dof_indices(cell,
-                         partitioner,
-                         lexicographic_mapping,
-                         supported_components,
-                         refinement_configuration,
-                         dof_indices);
+      update_dof_indices(
+        cell, partitioner, lexicographic_mapping, supported_components, refinement_configuration, dof_indices);
 
       // 4)  TODO: copy refinement configuration to all components
       for (unsigned int c = 0; c < supported_components[0].size(); ++c)
@@ -906,8 +786,7 @@ namespace internal
 
     template <int dim>
     inline void
-    HangingNodes<dim>::rotate_subface_index(int           times,
-                                            unsigned int &subface_index) const
+    HangingNodes<dim>::rotate_subface_index(int times, unsigned int &subface_index) const
     {
       const unsigned int rot_mapping[4] = {2, 0, 3, 1};
 
@@ -921,10 +800,7 @@ namespace internal
 
     template <int dim>
     inline void
-    HangingNodes<dim>::rotate_face(
-      int                                   times,
-      unsigned int                          n_dofs_1d,
-      std::vector<types::global_dof_index> &dofs) const
+    HangingNodes<dim>::rotate_face(int times, unsigned int n_dofs_1d, std::vector<types::global_dof_index> &dofs) const
     {
       const unsigned int rot_mapping[4] = {2, 0, 3, 1};
 
@@ -948,8 +824,7 @@ namespace internal
               // Left edge
               dofs[offset + i] = copy[offset + 2 * n_int + (n_int - 1 - i)];
               // Right edge
-              dofs[offset + n_int + i] =
-                copy[offset + 3 * n_int + (n_int - 1 - i)];
+              dofs[offset + n_int + i] = copy[offset + 3 * n_int + (n_int - 1 - i)];
               // Bottom edge
               dofs[offset + 2 * n_int + i] = copy[offset + n_int + i];
               // Top edge
@@ -961,8 +836,7 @@ namespace internal
 
           for (unsigned int i = 0; i < n_int; ++i)
             for (unsigned int j = 0; j < n_int; ++j)
-              dofs[offset + i * n_int + j] =
-                copy[offset + j * n_int + (n_int - 1 - i)];
+              dofs[offset + i * n_int + j] = copy[offset + j * n_int + (n_int - 1 - i)];
         }
     }
 
@@ -970,9 +844,7 @@ namespace internal
 
     template <int dim>
     inline unsigned int
-    HangingNodes<dim>::line_dof_idx(int          local_line,
-                                    unsigned int dof,
-                                    unsigned int n_dofs_1d) const
+    HangingNodes<dim>::line_dof_idx(int local_line, unsigned int dof, unsigned int n_dofs_1d) const
     {
       unsigned int x, y, z;
 
@@ -980,12 +852,8 @@ namespace internal
 
       if (local_line < 8)
         {
-          x = (local_line % 4 == 0) ? 0 :
-              (local_line % 4 == 1) ? fe_degree :
-                                      dof;
-          y = (local_line % 4 == 2) ? 0 :
-              (local_line % 4 == 3) ? fe_degree :
-                                      dof;
+          x = (local_line % 4 == 0) ? 0 : (local_line % 4 == 1) ? fe_degree : dof;
+          y = (local_line % 4 == 2) ? 0 : (local_line % 4 == 3) ? fe_degree : dof;
           z = (local_line / 4) * fe_degree;
         }
       else
@@ -1002,9 +870,7 @@ namespace internal
 
     template <int dim>
     inline void
-    HangingNodes<dim>::transpose_face(
-      const unsigned int                    fe_degree,
-      std::vector<types::global_dof_index> &dofs) const
+    HangingNodes<dim>::transpose_face(const unsigned int fe_degree, std::vector<types::global_dof_index> &dofs) const
     {
       const std::vector<types::global_dof_index> copy(dofs);
 

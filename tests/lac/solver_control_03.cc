@@ -36,10 +36,10 @@
 
 template <typename MatrixType, typename VectorType, class PRECONDITION>
 void
-check_solve(SolverControl &     solver_control,
-            const MatrixType &  A,
-            VectorType &        u,
-            VectorType &        f,
+check_solve(SolverControl      &solver_control,
+            const MatrixType   &A,
+            VectorType         &u,
+            VectorType         &f,
             const PRECONDITION &P,
             const bool          expected_result)
 {
@@ -59,8 +59,7 @@ check_solve(SolverControl &     solver_control,
       deallog << "Failure. ";
     }
 
-  deallog << "Solver stopped after " << solver_control.last_step()
-          << " iterations" << std::endl;
+  deallog << "Solver stopped after " << solver_control.last_step() << " iterations" << std::endl;
   Assert(success == expected_result, ExcMessage("Incorrect result."));
 }
 

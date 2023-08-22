@@ -57,22 +57,17 @@ test()
   std::map<CellId, DT> map;
   short                counter = 0;
 
-  std::map<unsigned int, std::set<dealii::types::subdomain_id>>
-    vertices_with_ghost_neighbors =
-      GridTools::compute_vertices_with_ghost_neighbors(tria);
+  std::map<unsigned int, std::set<dealii::types::subdomain_id>> vertices_with_ghost_neighbors =
+    GridTools::compute_vertices_with_ghost_neighbors(tria);
 
-  for (const auto &cell :
-       tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     {
       for (const unsigned int v : GeometryInfo<dim>::vertex_indices())
         {
-          const std::map<unsigned int,
-                         std::set<dealii::types::subdomain_id>>::const_iterator
-            neighbor_subdomains_of_vertex =
-              vertices_with_ghost_neighbors.find(cell->vertex_index(v));
+          const std::map<unsigned int, std::set<dealii::types::subdomain_id>>::const_iterator
+            neighbor_subdomains_of_vertex = vertices_with_ghost_neighbors.find(cell->vertex_index(v));
 
-          if (neighbor_subdomains_of_vertex !=
-              vertices_with_ghost_neighbors.end())
+          if (neighbor_subdomains_of_vertex != vertices_with_ghost_neighbors.end())
             {
               map[cell->id()] = ++counter;
               break;
@@ -92,8 +87,7 @@ test()
     },
     [&](const cell_iterator &cell, const DT &data) {
       std::ostringstream oss;
-      oss << "unpack " << cell->id() << ' ' << data << " from "
-          << cell->subdomain_id();
+      oss << "unpack " << cell->id() << ' ' << data << " from " << cell->subdomain_id();
 
       output.insert(oss.str());
     });

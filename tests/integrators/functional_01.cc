@@ -54,10 +54,7 @@ public:
   void
   bdry(MeshWorker::DoFInfo<dim> &dinfo, CellInfo &info) const;
   void
-  face(MeshWorker::DoFInfo<dim> &dinfo1,
-       MeshWorker::DoFInfo<dim> &dinfo2,
-       CellInfo &                info1,
-       CellInfo &                info2) const;
+  face(MeshWorker::DoFInfo<dim> &dinfo1, MeshWorker::DoFInfo<dim> &dinfo2, CellInfo &info1, CellInfo &info2) const;
 };
 
 
@@ -79,10 +76,7 @@ Local<dim>::bdry(MeshWorker::DoFInfo<dim> &info, CellInfo &) const
 
 template <int dim>
 void
-Local<dim>::face(MeshWorker::DoFInfo<dim> &info1,
-                 MeshWorker::DoFInfo<dim> &info2,
-                 CellInfo &,
-                 CellInfo &) const
+Local<dim>::face(MeshWorker::DoFInfo<dim> &info1, MeshWorker::DoFInfo<dim> &info2, CellInfo &, CellInfo &) const
 {
   info1.value(1) = 1. / 2.;
   info2.value(1) = 1. / 2.;
@@ -111,10 +105,8 @@ test_mesh(DoFHandler<dim> &mgdofs)
     dofs.end(),
     dof_info,
     info_box,
-    std::bind(
-      &Local<dim>::cell, local, std::placeholders::_1, std::placeholders::_2),
-    std::bind(
-      &Local<dim>::bdry, local, std::placeholders::_1, std::placeholders::_2),
+    std::bind(&Local<dim>::cell, local, std::placeholders::_1, std::placeholders::_2),
+    std::bind(&Local<dim>::bdry, local, std::placeholders::_1, std::placeholders::_2),
     std::bind(&Local<dim>::face,
               local,
               std::placeholders::_1,
@@ -136,10 +128,8 @@ test_mesh(DoFHandler<dim> &mgdofs)
     mgdofs.end_mg(),
     mg_dof_info,
     info_box,
-    std::bind(
-      &Local<dim>::cell, local, std::placeholders::_1, std::placeholders::_2),
-    std::bind(
-      &Local<dim>::bdry, local, std::placeholders::_1, std::placeholders::_2),
+    std::bind(&Local<dim>::cell, local, std::placeholders::_1, std::placeholders::_2),
+    std::bind(&Local<dim>::bdry, local, std::placeholders::_1, std::placeholders::_2),
     std::bind(&Local<dim>::face,
               local,
               std::placeholders::_1,

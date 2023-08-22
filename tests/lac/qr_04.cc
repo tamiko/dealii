@@ -104,11 +104,9 @@ test()
   using VectorType = Vector<number>;
   ImplicitQR<VectorType> qr;
 
-  auto print_givens = [](const unsigned int           i,
-                         const unsigned int           j,
-                         const std::array<number, 3> &csr) {
-    deallog.get_file_stream() << "Givens " << i << ' ' << j << ": " << csr[0]
-                              << ' ' << csr[1] << ' ' << csr[2] << std::endl;
+  auto print_givens = [](const unsigned int i, const unsigned int j, const std::array<number, 3> &csr) {
+    deallog.get_file_stream() << "Givens " << i << ' ' << j << ": " << csr[0] << ' ' << csr[1] << ' ' << csr[2]
+                              << std::endl;
   };
   qr.connect_givens_slot(print_givens);
 

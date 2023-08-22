@@ -79,8 +79,8 @@ test<2>()
     MappingFE<dim> mapping(FE_SimplexP<dim>(1));
     FESystem<dim>  fe(FE_SimplexP<dim>{2}, dim);
 
-    const UpdateFlags flags = mapping.requires_update_flags(
-      update_values | update_quadrature_points | update_JxW_values);
+    const UpdateFlags flags =
+      mapping.requires_update_flags(update_values | update_quadrature_points | update_JxW_values);
 
     FEFaceValues<dim> fe_face_values(mapping, fe, quad_ref, flags);
 
@@ -100,15 +100,13 @@ test<2>()
           {
             fe_face_values.reinit(cell, face_no);
 
-            std::vector<Vector<double>> values_0(quad_ref[face_no].size(),
-                                                 Vector<double>(dim));
+            std::vector<Vector<double>> values_0(quad_ref[face_no].size(), Vector<double>(dim));
             fe_face_values.get_function_values(vector_0, values_0);
 
             deallog << "face_no=" << face_no << ':' << std::endl;
 
             for (unsigned int q = 0; q < values_0.size(); ++q)
-              deallog << values_0[q][0] << ' ' << values_0[q][1] << ' '
-                      << std::endl;
+              deallog << values_0[q][0] << ' ' << values_0[q][1] << ' ' << std::endl;
 
             deallog << std::endl;
           }
@@ -133,8 +131,8 @@ test<3>()
     MappingFE<dim> mapping(FE_SimplexP<dim>(1));
     FESystem<dim>  fe(FE_SimplexP<dim>{2}, dim);
 
-    const UpdateFlags flags = mapping.requires_update_flags(
-      update_values | update_quadrature_points | update_JxW_values);
+    const UpdateFlags flags =
+      mapping.requires_update_flags(update_values | update_quadrature_points | update_JxW_values);
 
     FEFaceValues<dim> fe_face_values(mapping, fe, quad_ref, flags);
 
@@ -154,15 +152,13 @@ test<3>()
           {
             fe_face_values.reinit(cell, face_no);
 
-            std::vector<Vector<double>> values_0(quad_ref[face_no].size(),
-                                                 Vector<double>(dim));
+            std::vector<Vector<double>> values_0(quad_ref[face_no].size(), Vector<double>(dim));
             fe_face_values.get_function_values(vector_0, values_0);
 
             deallog << "face_no=" << face_no << ':' << std::endl;
 
             for (unsigned int q = 0; q < values_0.size(); ++q)
-              deallog << values_0[q][0] << ' ' << values_0[q][1] << ' ' << ' '
-                      << values_0[q][2] << ' ' << std::endl;
+              deallog << values_0[q][0] << ' ' << values_0[q][1] << ' ' << ' ' << values_0[q][2] << ' ' << std::endl;
 
             deallog << std::endl;
           }

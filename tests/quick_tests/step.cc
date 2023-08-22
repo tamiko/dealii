@@ -108,9 +108,7 @@ LaplaceProblem<dim>::setup_system()
   solution.reinit(dof_handler.n_dofs());
   system_rhs.reinit(dof_handler.n_dofs());
 
-  IndexSet boundary_dofs =
-    DoFTools::extract_boundary_dofs(dof_handler,
-                                    ComponentMask(std::vector<bool>(1, true)));
+  IndexSet boundary_dofs = DoFTools::extract_boundary_dofs(dof_handler, ComponentMask(std::vector<bool>(1, true)));
 
   const types::global_dof_index first_boundary_dof = *boundary_dofs.begin();
 
@@ -136,25 +134,13 @@ void
 LaplaceProblem<dim>::assemble_and_solve()
 {
   const unsigned int gauss_degree =
-    std::max(static_cast<unsigned int>(
-               std::ceil(1. * (mapping.get_degree() + 1) / 2)),
-             2U);
-  MatrixTools::create_laplace_matrix(mapping,
-                                     dof_handler,
-                                     QGauss<dim>(gauss_degree),
-                                     system_matrix);
-  VectorTools::create_right_hand_side(mapping,
-                                      dof_handler,
-                                      QGauss<dim>(gauss_degree),
-                                      Functions::ConstantFunction<dim>(-2),
-                                      system_rhs);
+    std::max(static_cast<unsigned int>(std::ceil(1. * (mapping.get_degree() + 1) / 2)), 2U);
+  MatrixTools::create_laplace_matrix(mapping, dof_handler, QGauss<dim>(gauss_degree), system_matrix);
+  VectorTools::create_right_hand_side(
+    mapping, dof_handler, QGauss<dim>(gauss_degree), Functions::ConstantFunction<dim>(-2), system_rhs);
   Vector<double> tmp(system_rhs.size());
-  VectorTools::create_boundary_right_hand_side(mapping,
-                                               dof_handler,
-                                               QGauss<dim - 1>(gauss_degree),
-                                               Functions::ConstantFunction<dim>(
-                                                 1),
-                                               tmp);
+  VectorTools::create_boundary_right_hand_side(
+    mapping, dof_handler, QGauss<dim - 1>(gauss_degree), Functions::ConstantFunction<dim>(1), tmp);
   system_rhs += tmp;
 
   mean_value_constraints.condense(system_matrix);
@@ -205,8 +191,7 @@ LaplaceProblem<dim>::run()
   static const SphericalManifold<dim> boundary;
   triangulation.set_manifold(0, boundary);
 
-  for (unsigned int cycle = 0; cycle < 6;
-       ++cycle, triangulation.refine_global(1))
+  for (unsigned int cycle = 0; cycle < 6; ++cycle, triangulation.refine_global(1))
     {
       setup_system();
       assemble_and_solve();
@@ -233,27 +218,19 @@ main()
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return -1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return -1;
     };
 

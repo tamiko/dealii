@@ -46,8 +46,7 @@ check_this(const DoFHandler<dim> &dof_handler)
   // create sparsity pattern
   std::map<types::boundary_id, const Function<dim> *> boundary_ids;
   boundary_ids[0] = nullptr;
-  SparsityPattern sp(dof_handler.n_boundary_dofs(boundary_ids),
-                     dof_handler.max_couplings_between_dofs());
+  SparsityPattern sp(dof_handler.n_boundary_dofs(boundary_ids), dof_handler.max_couplings_between_dofs());
   DoFTools::make_boundary_sparsity_pattern(dof_handler, boundary_ids, map, sp);
   sp.compress();
 
@@ -70,9 +69,7 @@ check_this(const DoFHandler<dim> &dof_handler)
 
   unsigned int hash = 0;
   for (unsigned int l = 0; l < sp.n_rows(); ++l)
-    hash +=
-      l *
-      (sp.row_length(l) + (sp.begin(l) - sp.begin()) +
-       (sp.row_length(l) > 1 ? std::next(sp.begin(l)) : sp.begin(l))->column());
+    hash += l * (sp.row_length(l) + (sp.begin(l) - sp.begin()) +
+                 (sp.row_length(l) > 1 ? std::next(sp.begin(l)) : sp.begin(l))->column());
   deallog << hash << std::endl;
 }

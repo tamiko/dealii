@@ -52,10 +52,7 @@ public:
 };
 
 
-template <int dim,
-          int spacedim        = dim,
-          typename NumberType = double,
-          typename ExtractorType>
+template <int dim, int spacedim = dim, typename NumberType = double, typename ExtractorType>
 void
 run(const ExtractorType &extractor)
 {
@@ -84,10 +81,8 @@ run(const ExtractorType &extractor)
                        DiscontinuousFunction<spacedim>(fe.n_components()),
                        solution);
 
-  const UpdateFlags update_flags =
-    update_values | update_gradients | update_hessians | update_3rd_derivatives;
-  MeshWorker::ScratchData<dim, spacedim> scratch_data(
-    fe, qf_cell, update_flags, qf_face, update_flags);
+  const UpdateFlags update_flags = update_values | update_gradients | update_hessians | update_3rd_derivatives;
+  MeshWorker::ScratchData<dim, spacedim> scratch_data(fe, qf_cell, update_flags, qf_face, update_flags);
 
   const auto   cell = dof_handler.begin_active();
   unsigned int face = 0;
@@ -102,29 +97,15 @@ run(const ExtractorType &extractor)
                       numbers::invalid_unsigned_int);
   scratch_data.extract_local_dof_values("solution", solution);
 
-  deallog << "Jumps in values: "
-          << scratch_data.get_jumps_in_values("solution", extractor)[0]
-          << std::endl;
-  deallog << "Jumps in gradients: "
-          << scratch_data.get_jumps_in_gradients("solution", extractor)[0]
-          << std::endl;
-  deallog << "Jumps in Hessians: "
-          << scratch_data.get_jumps_in_hessians("solution", extractor)[0]
-          << std::endl;
-  deallog << "Jumps in third derivatives: "
-          << scratch_data.get_jumps_in_third_derivatives("solution",
-                                                         extractor)[0]
+  deallog << "Jumps in values: " << scratch_data.get_jumps_in_values("solution", extractor)[0] << std::endl;
+  deallog << "Jumps in gradients: " << scratch_data.get_jumps_in_gradients("solution", extractor)[0] << std::endl;
+  deallog << "Jumps in Hessians: " << scratch_data.get_jumps_in_hessians("solution", extractor)[0] << std::endl;
+  deallog << "Jumps in third derivatives: " << scratch_data.get_jumps_in_third_derivatives("solution", extractor)[0]
           << std::endl;
 
-  deallog << "Averages of values: "
-          << scratch_data.get_averages_of_values("solution", extractor)[0]
-          << std::endl;
-  deallog << "Averages of gradients: "
-          << scratch_data.get_averages_of_gradients("solution", extractor)[0]
-          << std::endl;
-  deallog << "Averages of Hessians: "
-          << scratch_data.get_averages_of_hessians("solution", extractor)[0]
-          << std::endl;
+  deallog << "Averages of values: " << scratch_data.get_averages_of_values("solution", extractor)[0] << std::endl;
+  deallog << "Averages of gradients: " << scratch_data.get_averages_of_gradients("solution", extractor)[0] << std::endl;
+  deallog << "Averages of Hessians: " << scratch_data.get_averages_of_hessians("solution", extractor)[0] << std::endl;
 
   deallog << "OK" << std::endl;
 }
@@ -134,8 +115,7 @@ int
 main(int argc, char *argv[])
 {
   initlog();
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   FEValuesExtractors::Vector extractor(0);
 

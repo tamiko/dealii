@@ -33,15 +33,14 @@ struct MyDiagonalMatrix
   {}
 
   void
-  vmult(LinearAlgebra::distributed::Vector<double> &      dst,
-        const LinearAlgebra::distributed::Vector<double> &src) const
+  vmult(LinearAlgebra::distributed::Vector<double> &dst, const LinearAlgebra::distributed::Vector<double> &src) const
   {
     dst = src;
     dst.scale(diagonal);
   }
 
   void
-  vmult(LinearAlgebra::distributed::BlockVector<double> &      dst,
+  vmult(LinearAlgebra::distributed::BlockVector<double>       &dst,
         const LinearAlgebra::distributed::BlockVector<double> &src) const
   {
     dst = src;
@@ -61,12 +60,9 @@ struct MyDiagonalMatrix
 
 
 SolverControl::State
-monitor_norm(const unsigned int iteration,
-             const double       check_value,
-             const LinearAlgebra::distributed::Vector<double> &)
+monitor_norm(const unsigned int iteration, const double check_value, const LinearAlgebra::distributed::Vector<double> &)
 {
-  deallog << "   estimated residual at iteration " << iteration << ": "
-          << check_value << std::endl;
+  deallog << "   estimated residual at iteration " << iteration << ": " << check_value << std::endl;
   return SolverControl::success;
 }
 
@@ -77,8 +73,7 @@ monitor_norm_block(const unsigned int iteration,
                    const double       check_value,
                    const LinearAlgebra::distributed::BlockVector<double> &)
 {
-  deallog << "   estimated residual at iteration " << iteration << ": "
-          << check_value << std::endl;
+  deallog << "   estimated residual at iteration " << iteration << ": " << check_value << std::endl;
   return SolverControl::success;
 }
 
@@ -104,13 +99,10 @@ main()
 
   {
     deallog << "Solve with PreconditionIdentity: " << std::endl;
-    SolverControl control(40, 1e-4);
-    SolverGMRES<LinearAlgebra::distributed::Vector<double>>::AdditionalData
-      data3(8);
-    data3.orthogonalization_strategy =
-      LinearAlgebra::OrthogonalizationStrategy::classical_gram_schmidt;
-    SolverGMRES<LinearAlgebra::distributed::Vector<double>> solver(control,
-                                                                   data3);
+    SolverControl                                                           control(40, 1e-4);
+    SolverGMRES<LinearAlgebra::distributed::Vector<double>>::AdditionalData data3(8);
+    data3.orthogonalization_strategy = LinearAlgebra::OrthogonalizationStrategy::classical_gram_schmidt;
+    SolverGMRES<LinearAlgebra::distributed::Vector<double>> solver(control, data3);
     solver.connect(&monitor_norm);
     solver.solve(matrix, sol, rhs, PreconditionIdentity());
 
@@ -126,13 +118,10 @@ main()
     sol_.block(0) = sol;
 
     deallog << "Solve with PreconditionIdentity: " << std::endl;
-    SolverControl control(40, 1e-4);
-    SolverGMRES<LinearAlgebra::distributed::BlockVector<double>>::AdditionalData
-      data3(8);
-    data3.orthogonalization_strategy =
-      LinearAlgebra::OrthogonalizationStrategy::classical_gram_schmidt;
-    SolverGMRES<LinearAlgebra::distributed::BlockVector<double>> solver(control,
-                                                                        data3);
+    SolverControl                                                                control(40, 1e-4);
+    SolverGMRES<LinearAlgebra::distributed::BlockVector<double>>::AdditionalData data3(8);
+    data3.orthogonalization_strategy = LinearAlgebra::OrthogonalizationStrategy::classical_gram_schmidt;
+    SolverGMRES<LinearAlgebra::distributed::BlockVector<double>> solver(control, data3);
     solver.connect(&monitor_norm_block);
     solver.solve(matrix, sol_, rhs_, PreconditionIdentity());
 

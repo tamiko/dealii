@@ -53,9 +53,7 @@ check()
   GridGenerator::hyper_cube(tr, -1., 1., true);
 
   // create periodicity constraints
-  std::vector<
-    GridTools::PeriodicFacePair<typename Triangulation<dim>::cell_iterator>>
-    periodicity_vector;
+  std::vector<GridTools::PeriodicFacePair<typename Triangulation<dim>::cell_iterator>> periodicity_vector;
 
   GridTools::collect_periodic_faces(tr,
                                     /*b_id1*/ 0,
@@ -89,14 +87,12 @@ check()
       // second way: via direct elimination of constraints
       SparsityPattern        sparsity_2;
       DynamicSparsityPattern dsp_2(dof.locally_owned_mg_dofs(l));
-      MGTools::make_flux_sparsity_pattern(
-        dof, dsp_2, l, mg_constrained_dofs.get_level_constraints(l));
+      MGTools::make_flux_sparsity_pattern(dof, dsp_2, l, mg_constrained_dofs.get_level_constraints(l));
       sparsity_2.copy_from(dsp_2);
 
       // tests if sparsity_[12] are equal
       deallog << "Check 1:"
-              << " -- " << (sparsity_1 == sparsity_2 ? "ok" : "failed")
-              << std::endl;
+              << " -- " << (sparsity_1 == sparsity_2 ? "ok" : "failed") << std::endl;
     }
 }
 

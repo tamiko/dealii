@@ -29,12 +29,9 @@ main()
 
   // set up the bulk triangulation
   Triangulation<2> bulk_triangulation;
-  GridGenerator::subdivided_hyper_rectangle(bulk_triangulation,
-                                            {22u, 4u},
-                                            Point<2>(0.0, 0.0),
-                                            Point<2>(2.2, 0.41));
+  GridGenerator::subdivided_hyper_rectangle(bulk_triangulation, {22u, 4u}, Point<2>(0.0, 0.0), Point<2>(2.2, 0.41));
   std::set<Triangulation<2>::active_cell_iterator> cells_to_remove;
-  Tensor<1, 2> cylinder_triangulation_offset;
+  Tensor<1, 2>                                     cylinder_triangulation_offset;
   for (const auto &cell : bulk_triangulation.active_cell_iterators())
     {
       if ((cell->center() - Point<2>(0.2, 0.2)).norm() < 0.15)
@@ -46,22 +43,17 @@ main()
             if (cell->vertex(vertex_n) == Point<2>())
               {
                 // skip two cells in the bottom left corner
-                cylinder_triangulation_offset =
-                  2.0 * (cell->vertex(3) - Point<2>());
+                cylinder_triangulation_offset = 2.0 * (cell->vertex(3) - Point<2>());
                 break;
               }
         }
     }
   Triangulation<2> result_1;
-  GridGenerator::create_triangulation_with_removed_cells(bulk_triangulation,
-                                                         cells_to_remove,
-                                                         result_1);
+  GridGenerator::create_triangulation_with_removed_cells(bulk_triangulation, cells_to_remove, result_1);
 
   // set up the cylinder triangulation
   Triangulation<2> cylinder_triangulation;
-  GridGenerator::hyper_cube_with_cylindrical_hole(cylinder_triangulation,
-                                                  0.05,
-                                                  0.41 / 4.0);
+  GridGenerator::hyper_cube_with_cylindrical_hole(cylinder_triangulation, 0.05, 0.41 / 4.0);
   GridTools::shift(cylinder_triangulation_offset, cylinder_triangulation);
   // dumb hack
   for (const auto &cell : cylinder_triangulation.active_cell_iterators())
@@ -71,29 +63,20 @@ main()
   auto minimal_line_length = [](const Triangulation<2> &tria) -> double {
     double min_line_length = std::numeric_limits<double>::max();
     for (const auto &cell : tria.active_cell_iterators())
-      for (unsigned int line_n = 0; line_n < GeometryInfo<2>::lines_per_cell;
-           ++line_n)
-        min_line_length = std::min(min_line_length,
-                                   (cell->line(line_n)->vertex(0) -
-                                    cell->line(line_n)->vertex(1))
-                                     .norm());
+      for (unsigned int line_n = 0; line_n < GeometryInfo<2>::lines_per_cell; ++line_n)
+        min_line_length =
+          std::min(min_line_length, (cell->line(line_n)->vertex(0) - cell->line(line_n)->vertex(1)).norm());
     return min_line_length;
   };
 
   // the cylindrical triangulation might not match the Cartesian grid: as a
   // result the vertices might not be lined up. Get around this by deleting
   // duplicated vertices with a very low numerical tolerance.
-  const double tolerance =
-    std::min(minimal_line_length(result_1),
-             minimal_line_length(cylinder_triangulation)) /
-    2.0;
+  const double tolerance = std::min(minimal_line_length(result_1), minimal_line_length(cylinder_triangulation)) / 2.0;
 
 
   Triangulation<2> result_2;
-  GridGenerator::merge_triangulations(result_1,
-                                      cylinder_triangulation,
-                                      result_2,
-                                      tolerance);
+  GridGenerator::merge_triangulations(result_1, cylinder_triangulation, result_2, tolerance);
 
   const types::manifold_id tfi_id   = 1;
   const types::manifold_id polar_id = 0;
@@ -133,9 +116,7 @@ main()
     }
   // de-duplicate
   std::sort(inner_pointers.begin(), inner_pointers.end());
-  inner_pointers.erase(std::unique(inner_pointers.begin(),
-                                   inner_pointers.end()),
-                       inner_pointers.end());
+  inner_pointers.erase(std::unique(inner_pointers.begin(), inner_pointers.end()), inner_pointers.end());
 
   // find the current center...
   Point<2> center;
@@ -156,8 +137,7 @@ main()
               auto face = cell->face(face_n);
               if (face->at_boundary())
                 {
-                  deallog << "boundary face with center " << face->center()
-                          << std::endl;
+                  deallog << "boundary face with center " << face->center() << std::endl;
                 }
             }
         }

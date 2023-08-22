@@ -87,8 +87,7 @@ test()
 
     // or let other functions do that after
     // removing boundary values
-    MatrixTools::local_apply_boundary_values(
-      boundary_values, local_dofs, local_matrix, local_vector, false);
+    MatrixTools::local_apply_boundary_values(boundary_values, local_dofs, local_matrix, local_vector, false);
     for (unsigned int i = 0; i < N; ++i)
       for (unsigned int j = 0; j < N; ++j)
         B.add(local_dofs[i], local_dofs[j], local_matrix(i, j));
@@ -137,28 +136,20 @@ main()
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

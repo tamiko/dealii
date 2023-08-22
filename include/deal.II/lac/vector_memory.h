@@ -159,10 +159,9 @@ public:
   /**
    * Vector was not allocated from this memory pool.
    */
-  DeclExceptionMsg(
-    ExcNotAllocatedHere,
-    "You are trying to deallocate a vector from a memory pool, but this "
-    "vector has not actually been allocated by the same pool before.");
+  DeclExceptionMsg(ExcNotAllocatedHere,
+                   "You are trying to deallocate a vector from a memory pool, but this "
+                   "vector has not actually been allocated by the same pool before.");
 
   /** @} */
 
@@ -186,8 +185,7 @@ public:
    * memory is not destroyed using `operator delete` but returned to the
    * VectorMemory pool.
    */
-  class Pointer
-    : public std::unique_ptr<VectorType, std::function<void(VectorType *)>>
+  class Pointer : public std::unique_ptr<VectorType, std::function<void(VectorType *)>>
   {
   public:
     /**
@@ -324,8 +322,7 @@ public:
    * Constructor.  The argument allows to preallocate a certain number of
    * vectors. The default is not to do this.
    */
-  GrowingVectorMemory(const size_type initial_size   = 0,
-                      const bool      log_statistics = false);
+  GrowingVectorMemory(const size_type initial_size = 0, const bool log_statistics = false);
 
   /**
    * Destructor. The destructor also checks that all vectors that have been
@@ -477,9 +474,7 @@ namespace internal
 
 template <typename VectorType>
 inline VectorMemory<VectorType>::Pointer::Pointer(VectorMemory<VectorType> &mem)
-  : std::unique_ptr<VectorType, std::function<void(VectorType *)>>(
-      mem.alloc(),
-      [&mem](VectorType *v) { mem.free(v); })
+  : std::unique_ptr<VectorType, std::function<void(VectorType *)>>(mem.alloc(), [&mem](VectorType *v) { mem.free(v); })
 {}
 
 

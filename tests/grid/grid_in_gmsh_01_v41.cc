@@ -50,8 +50,7 @@ gmsh_grid(const char *name_v2, const char *name_v41)
 
   // The vertex index is different between the meshes parsed from the GMSH-2 and
   // the GMSH-4 fil but all other information should match.
-  AssertThrow(tria_v2.n_active_cells() == tria_v41.n_active_cells(),
-              ExcInternalError());
+  AssertThrow(tria_v2.n_active_cells() == tria_v41.n_active_cells(), ExcInternalError());
   deallog << "  " << tria_v2.n_active_cells() << " active cells" << std::endl;
 
   auto       cell_v2  = tria_v2.begin_active();
@@ -59,25 +58,18 @@ gmsh_grid(const char *name_v2, const char *name_v41)
   const auto end_v2   = tria_v2.end();
   for (; cell_v2 != end_v2; ++cell_v2, ++cell_v41)
     {
-      AssertThrow(cell_v2->material_id() == cell_v41->material_id(),
-                  ExcInternalError());
+      AssertThrow(cell_v2->material_id() == cell_v41->material_id(), ExcInternalError());
       for (const unsigned int i : cell_v2->vertex_indices())
         {
-          AssertThrow((cell_v2->vertex(i) - cell_v41->vertex(i)).norm() <
-                        1.e-10,
-                      ExcInternalError());
+          AssertThrow((cell_v2->vertex(i) - cell_v41->vertex(i)).norm() < 1.e-10, ExcInternalError());
         }
       for (const unsigned int i : GeometryInfo<dim>::face_indices())
         {
-          AssertThrow(cell_v2->face(i)->boundary_id() ==
-                        cell_v41->face(i)->boundary_id(),
-                      ExcInternalError());
+          AssertThrow(cell_v2->face(i)->boundary_id() == cell_v41->face(i)->boundary_id(), ExcInternalError());
         }
       for (unsigned int i = 0; i < GeometryInfo<dim>::lines_per_cell; ++i)
         {
-          AssertThrow(cell_v2->line(i)->boundary_id() ==
-                        cell_v41->line(i)->boundary_id(),
-                      ExcInternalError());
+          AssertThrow(cell_v2->line(i)->boundary_id() == cell_v41->line(i)->boundary_id(), ExcInternalError());
         }
     }
   deallog << "  OK" << std::endl;
@@ -92,44 +84,31 @@ main()
   try
     {
       deallog << "/grid_in_msh_01.2d.v41.msh" << std::endl;
-      gmsh_grid<2>(SOURCE_DIR "/grids/grid_in_msh_01.2d.msh",
-                   SOURCE_DIR "/grids/grid_in_msh_01.2d.v41.msh");
+      gmsh_grid<2>(SOURCE_DIR "/grids/grid_in_msh_01.2d.msh", SOURCE_DIR "/grids/grid_in_msh_01.2d.v41.msh");
       deallog << "/grid_in_msh_01.2da.v41.msh" << std::endl;
-      gmsh_grid<2>(SOURCE_DIR "/grids/grid_in_msh_01.2da.msh",
-                   SOURCE_DIR "/grids/grid_in_msh_01.2da.v41.msh");
+      gmsh_grid<2>(SOURCE_DIR "/grids/grid_in_msh_01.2da.msh", SOURCE_DIR "/grids/grid_in_msh_01.2da.v41.msh");
       deallog << "/grid_in_msh_01.3d.v41.msh" << std::endl;
-      gmsh_grid<3>(SOURCE_DIR "/grids/grid_in_msh_01.3d.msh",
-                   SOURCE_DIR "/grids/grid_in_msh_01.3d.v41.msh");
+      gmsh_grid<3>(SOURCE_DIR "/grids/grid_in_msh_01.3d.msh", SOURCE_DIR "/grids/grid_in_msh_01.3d.v41.msh");
       deallog << "/grid_in_msh_01.3da.v41.msh" << std::endl;
-      gmsh_grid<3>(SOURCE_DIR "/grids/grid_in_msh_01.3da.msh",
-                   SOURCE_DIR "/grids/grid_in_msh_01.3da.v41.msh");
+      gmsh_grid<3>(SOURCE_DIR "/grids/grid_in_msh_01.3da.msh", SOURCE_DIR "/grids/grid_in_msh_01.3da.v41.msh");
       deallog << "/grid_in_msh_01.3d_neg.v41.msh" << std::endl;
-      gmsh_grid<3>(SOURCE_DIR "/grids/grid_in_msh_01.3d_neg.msh",
-                   SOURCE_DIR "/grids/grid_in_msh_01.3d_neg.v41.msh");
+      gmsh_grid<3>(SOURCE_DIR "/grids/grid_in_msh_01.3d_neg.msh", SOURCE_DIR "/grids/grid_in_msh_01.3d_neg.v41.msh");
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 

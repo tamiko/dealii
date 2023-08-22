@@ -43,8 +43,7 @@
 
 template <int dim>
 void
-compare_meshes(DoFHandler<dim> &shared_dof_handler,
-               DoFHandler<dim> &distributed_dof_handler)
+compare_meshes(DoFHandler<dim> &shared_dof_handler, DoFHandler<dim> &distributed_dof_handler)
 {
   FE_Q<dim> fe(2);
 
@@ -54,44 +53,33 @@ compare_meshes(DoFHandler<dim> &shared_dof_handler,
   distributed_dof_handler.distribute_dofs(fe);
   distributed_dof_handler.distribute_mg_dofs();
 
-  unsigned int n_levels =
-    distributed_dof_handler.get_triangulation().n_global_levels();
+  unsigned int n_levels = distributed_dof_handler.get_triangulation().n_global_levels();
   for (unsigned int lvl = 0; lvl < n_levels; ++lvl)
     {
-      IndexSet shared_dofs = shared_dof_handler.locally_owned_mg_dofs(lvl);
-      IndexSet distributed_dofs =
-        distributed_dof_handler.locally_owned_mg_dofs(lvl);
+      IndexSet shared_dofs      = shared_dof_handler.locally_owned_mg_dofs(lvl);
+      IndexSet distributed_dofs = distributed_dof_handler.locally_owned_mg_dofs(lvl);
       Assert(shared_dofs == distributed_dofs, ExcInternalError());
 
-      typename DoFHandler<dim>::cell_iterator cell =
-                                                distributed_dof_handler.begin(
-                                                  lvl),
-                                              endc =
-                                                distributed_dof_handler.end(
-                                                  lvl);
+      typename DoFHandler<dim>::cell_iterator cell = distributed_dof_handler.begin(lvl),
+                                              endc = distributed_dof_handler.end(lvl);
       for (; cell != endc; ++cell)
         {
           if (cell->level_subdomain_id() == numbers::artificial_subdomain_id)
             continue;
 
           typename Triangulation<dim>::cell_iterator tria_shared_cell =
-            shared_dof_handler.get_triangulation().create_cell_iterator(
-              cell->id());
-          typename DoFHandler<dim>::cell_iterator dof_shared_cell(
-            &shared_dof_handler.get_triangulation(),
-            tria_shared_cell->level(),
-            tria_shared_cell->index(),
-            &shared_dof_handler);
+            shared_dof_handler.get_triangulation().create_cell_iterator(cell->id());
+          typename DoFHandler<dim>::cell_iterator dof_shared_cell(&shared_dof_handler.get_triangulation(),
+                                                                  tria_shared_cell->level(),
+                                                                  tria_shared_cell->index(),
+                                                                  &shared_dof_handler);
 
-          std::vector<types::global_dof_index> distributed_cell_dofs(
-            fe.dofs_per_cell);
-          std::vector<types::global_dof_index> shared_cell_dofs(
-            fe.dofs_per_cell);
+          std::vector<types::global_dof_index> distributed_cell_dofs(fe.dofs_per_cell);
+          std::vector<types::global_dof_index> shared_cell_dofs(fe.dofs_per_cell);
           cell->get_mg_dof_indices(distributed_cell_dofs);
           dof_shared_cell->get_mg_dof_indices(shared_cell_dofs);
           for (unsigned int i = 0; i < fe.dofs_per_cell; ++i)
-            Assert(distributed_cell_dofs[i] == shared_cell_dofs[i],
-                   ExcInternalError());
+            Assert(distributed_cell_dofs[i] == shared_cell_dofs[i], ExcInternalError());
         }
     }
 }
@@ -104,8 +92,7 @@ test()
 {
   parallel::shared::Triangulation<dim> shared_tria(
     MPI_COMM_WORLD,
-    typename Triangulation<dim>::MeshSmoothing(
-      Triangulation<dim>::limit_level_difference_at_vertices),
+    typename Triangulation<dim>::MeshSmoothing(Triangulation<dim>::limit_level_difference_at_vertices),
     true,
     typename parallel::shared::Triangulation<dim>::Settings(
       parallel::shared::Triangulation<dim>::partition_zorder |
@@ -120,9 +107,7 @@ test()
 
   GridGenerator::hyper_cube(shared_tria);
   shared_tria.refine_global(2);
-  for (typename Triangulation<dim>::active_cell_iterator cell =
-         shared_tria.begin_active();
-       cell != shared_tria.end();
+  for (typename Triangulation<dim>::active_cell_iterator cell = shared_tria.begin_active(); cell != shared_tria.end();
        ++cell)
     {
       if (dim == 1)
@@ -132,16 +117,14 @@ test()
         if (cell->center()[0] < 0.5 && cell->center()[1] < 0.5)
           cell->set_refine_flag();
       if (dim == 3)
-        if (cell->center()[0] < 0.5 && cell->center()[1] < 0.5 &&
-            cell->center()[2] < 0.5)
+        if (cell->center()[0] < 0.5 && cell->center()[1] < 0.5 && cell->center()[2] < 0.5)
           cell->set_refine_flag();
     }
   shared_tria.execute_coarsening_and_refinement();
 
   GridGenerator::hyper_cube(distributed_tria);
   distributed_tria.refine_global(2);
-  for (typename Triangulation<dim>::active_cell_iterator cell =
-         distributed_tria.begin_active();
+  for (typename Triangulation<dim>::active_cell_iterator cell = distributed_tria.begin_active();
        cell != distributed_tria.end();
        ++cell)
     {
@@ -149,12 +132,10 @@ test()
         if (cell->is_locally_owned() && cell->center()[0] < 0.5)
           cell->set_refine_flag();
       if (dim == 2)
-        if (cell->is_locally_owned() && cell->center()[0] < 0.5 &&
-            cell->center()[1] < 0.5)
+        if (cell->is_locally_owned() && cell->center()[0] < 0.5 && cell->center()[1] < 0.5)
           cell->set_refine_flag();
       if (dim == 3)
-        if (cell->is_locally_owned() && cell->center()[0] < 0.5 &&
-            cell->center()[1] < 0.5 && cell->center()[2] < 0.5)
+        if (cell->is_locally_owned() && cell->center()[0] < 0.5 && cell->center()[1] < 0.5 && cell->center()[2] < 0.5)
           cell->set_refine_flag();
     }
   distributed_tria.execute_coarsening_and_refinement();

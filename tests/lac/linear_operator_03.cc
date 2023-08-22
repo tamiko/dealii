@@ -43,9 +43,8 @@
 
 #include "../tests.h"
 
-#define PRINTME(name, var)                                            \
-  deallog << name << ": [block 0] " << var.block(0) << "  [block 1] " \
-          << var.block(1) << std::endl;
+#define PRINTME(name, var) \
+  deallog << name << ": [block 0] " << var.block(0) << "  [block 1] " << var.block(1) << std::endl;
 
 
 
@@ -67,9 +66,8 @@ main()
 
   dof_handler.distribute_dofs(fe);
 
-  const std::vector<types::global_dof_index> dofs_per_component =
-    DoFTools::count_dofs_per_fe_component(dof_handler);
-  const unsigned int n_u = dofs_per_component[0], n_p = dofs_per_component[1];
+  const std::vector<types::global_dof_index> dofs_per_component = DoFTools::count_dofs_per_fe_component(dof_handler);
+  const unsigned int                         n_u = dofs_per_component[0], n_p = dofs_per_component[1];
 
   BlockDynamicSparsityPattern dsp(2, 2);
   dsp.block(0, 0).reinit(n_u, n_u);
@@ -201,10 +199,7 @@ main()
   SolverCG<BlockVector<double>> inner_solver(solver_control);
 
   deallog.depth_file(0);
-  solver.solve(inverse_operator(op_b, inner_solver, PreconditionIdentity()),
-               v,
-               u,
-               PreconditionIdentity());
+  solver.solve(inverse_operator(op_b, inner_solver, PreconditionIdentity()), v, u, PreconditionIdentity());
   deallog.depth_file(3);
   PRINTME("solve(inverse_operator(B), v, u) == Bu", v);
 

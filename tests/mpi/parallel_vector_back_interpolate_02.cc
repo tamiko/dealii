@@ -71,16 +71,14 @@ test()
   std::vector<IndexSet> owned_partitioning1;
   std::vector<IndexSet> relevant_partitioning1;
   {
-    const std::vector<types::global_dof_index> dofs_per_block =
-      DoFTools::count_dofs_per_fe_block(dof1);
-    const unsigned int n1 = dofs_per_block[0], n2 = dofs_per_block[1];
+    const std::vector<types::global_dof_index> dofs_per_block = DoFTools::count_dofs_per_fe_block(dof1);
+    const unsigned int                         n1 = dofs_per_block[0], n2 = dofs_per_block[1];
 
     owned_partitioning1.push_back(locally_owned_dofs1.get_view(0, n1));
     owned_partitioning1.push_back(locally_owned_dofs1.get_view(n1, n1 + n2));
 
     relevant_partitioning1.push_back(locally_relevant_dofs1.get_view(0, n1));
-    relevant_partitioning1.push_back(
-      locally_relevant_dofs1.get_view(n1, n1 + n2));
+    relevant_partitioning1.push_back(locally_relevant_dofs1.get_view(n1, n1 + n2));
   }
 
   AffineConstraints<double> c1, c2;
@@ -90,11 +88,8 @@ test()
   c2.close();
 
   {
-    TrilinosWrappers::MPI::Vector v1_distributed(locally_owned_dofs1,
-                                                 MPI_COMM_WORLD);
-    TrilinosWrappers::MPI::Vector v1(locally_owned_dofs1,
-                                     locally_relevant_dofs1,
-                                     MPI_COMM_WORLD);
+    TrilinosWrappers::MPI::Vector v1_distributed(locally_owned_dofs1, MPI_COMM_WORLD);
+    TrilinosWrappers::MPI::Vector v1(locally_owned_dofs1, locally_relevant_dofs1, MPI_COMM_WORLD);
     TrilinosWrappers::MPI::Vector v1_interpolated(v1_distributed);
 
     for (const auto &el : locally_owned_dofs1)
@@ -107,19 +102,15 @@ test()
       {
         if (std::abs(v1_interpolated(el) - v1(el)) > 1.e-10)
           {
-            std::cout << v1_interpolated(el) << " should be " << v1(el)
-                      << std::endl;
+            std::cout << v1_interpolated(el) << " should be " << v1(el) << std::endl;
             AssertThrow(false, ExcInternalError());
           }
       }
     deallog << "TrilinosWrappers::MPI::Vector: OK" << std::endl;
   }
   {
-    TrilinosWrappers::MPI::BlockVector v1_distributed(owned_partitioning1,
-                                                      MPI_COMM_WORLD);
-    TrilinosWrappers::MPI::BlockVector v1(owned_partitioning1,
-                                          relevant_partitioning1,
-                                          MPI_COMM_WORLD);
+    TrilinosWrappers::MPI::BlockVector v1_distributed(owned_partitioning1, MPI_COMM_WORLD);
+    TrilinosWrappers::MPI::BlockVector v1(owned_partitioning1, relevant_partitioning1, MPI_COMM_WORLD);
     TrilinosWrappers::MPI::BlockVector v1_interpolated(v1_distributed);
 
     for (const auto &el : locally_owned_dofs1)
@@ -132,8 +123,7 @@ test()
       {
         if (std::abs(v1_interpolated(el) - v1(el)) > 1.e-10)
           {
-            std::cout << v1_interpolated(el) << " should be " << v1(el)
-                      << std::endl;
+            std::cout << v1_interpolated(el) << " should be " << v1(el) << std::endl;
             AssertThrow(false, ExcInternalError());
           }
       }
@@ -146,8 +136,7 @@ test()
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   unsigned int myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
   deallog.push(Utilities::int_to_string(myid));

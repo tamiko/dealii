@@ -87,19 +87,15 @@ test(const unsigned int degree)
   dof_handler.distribute_dofs(fe);
   Vector<double> vector(dof_handler.n_dofs());
 
-  NonMatching::MappingInfo<dim, dim> mapping_info(mapping,
-                                                  update_values |
-                                                    update_gradients);
+  NonMatching::MappingInfo<dim, dim> mapping_info(mapping, update_values | update_gradients);
 
-  std::vector<std::vector<Quadrature<dim - 1>>> quad_vec_faces(
-    tria.n_active_cells());
+  std::vector<std::vector<Quadrature<dim - 1>>> quad_vec_faces(tria.n_active_cells());
 
   for (const auto &cell : tria.active_cell_iterators())
     {
       for (const auto f : cell->face_indices())
         {
-          quad_vec_faces[cell->active_cell_index()].push_back(
-            Quadrature<dim - 1>(unit_points));
+          quad_vec_faces[cell->active_cell_index()].push_back(Quadrature<dim - 1>(unit_points));
         }
     }
 
@@ -114,22 +110,17 @@ test(const unsigned int degree)
 
   for (const auto &cell : dof_handler.active_cell_iterators())
     {
-      cell->get_dof_values(vector,
-                           solution_values_in.begin(),
-                           solution_values_in.end());
+      cell->get_dof_values(vector, solution_values_in.begin(), solution_values_in.end());
 
       deallog << "Cell with center " << cell->center(true) << std::endl;
       for (const auto f : cell->face_indices())
         {
           evaluator.reinit(cell->active_cell_index(), f);
 
-          evaluator.evaluate(solution_values_in,
-                             EvaluationFlags::values |
-                               EvaluationFlags::gradients);
+          evaluator.evaluate(solution_values_in, EvaluationFlags::values | EvaluationFlags::gradients);
           deallog << "face number " << f << std::endl;
           for (unsigned int i = 0; i < unit_points.size(); ++i)
-            deallog << "value " << evaluator.get_value(i) << " gradient "
-                    << evaluator.get_gradient(i) << std::endl;
+            deallog << "value " << evaluator.get_value(i) << " gradient " << evaluator.get_gradient(i) << std::endl;
           deallog << std::endl;
 
           for (unsigned int i = 0; i < unit_points.size(); ++i)
@@ -138,9 +129,7 @@ test(const unsigned int degree)
               evaluator.submit_gradient(evaluator.get_gradient(i), i);
             }
 
-          evaluator.test_and_sum(solution_values_out,
-                                 EvaluationFlags::values |
-                                   EvaluationFlags::gradients);
+          evaluator.test_and_sum(solution_values_out, EvaluationFlags::values | EvaluationFlags::gradients);
 
           for (double i : solution_values_out)
             deallog << i << ' ';

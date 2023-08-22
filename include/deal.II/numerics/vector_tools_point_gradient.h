@@ -90,11 +90,10 @@ namespace VectorTools
    */
   template <int dim, typename VectorType, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_dealii_vector_type<VectorType>)
-  void point_gradient(
-    const DoFHandler<dim, spacedim> &dof,
-    const VectorType &               fe_function,
-    const Point<spacedim, double> &  point,
-    std::vector<Tensor<1, spacedim, typename VectorType::value_type>> &value);
+  void point_gradient(const DoFHandler<dim, spacedim>                                   &dof,
+                      const VectorType                                                  &fe_function,
+                      const Point<spacedim, double>                                     &point,
+                      std::vector<Tensor<1, spacedim, typename VectorType::value_type>> &value);
 
   /**
    * Same as above for hp.
@@ -116,11 +115,10 @@ namespace VectorTools
    */
   template <int dim, typename VectorType, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_dealii_vector_type<VectorType>)
-  void point_gradient(
-    const DoFHandler<dim, spacedim> &dof,
-    const VectorType &               fe_function,
-    const Point<spacedim, double> &  point,
-    std::vector<Tensor<1, spacedim, typename VectorType::value_type>> &value);
+  void point_gradient(const DoFHandler<dim, spacedim>                                   &dof,
+                      const VectorType                                                  &fe_function,
+                      const Point<spacedim, double>                                     &point,
+                      std::vector<Tensor<1, spacedim, typename VectorType::value_type>> &value);
 
   /**
    * Evaluate a scalar finite element function defined by the given DoFHandler
@@ -158,10 +156,9 @@ namespace VectorTools
    */
   template <int dim, typename VectorType, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_dealii_vector_type<VectorType>)
-  Tensor<1, spacedim, typename VectorType::value_type> point_gradient(
-    const DoFHandler<dim, spacedim> &dof,
-    const VectorType &               fe_function,
-    const Point<spacedim, double> &  point);
+  Tensor<1, spacedim, typename VectorType::value_type> point_gradient(const DoFHandler<dim, spacedim> &dof,
+                                                                      const VectorType                &fe_function,
+                                                                      const Point<spacedim, double>   &point);
 
   /**
    * Same as above for hp.
@@ -183,10 +180,9 @@ namespace VectorTools
    */
   template <int dim, typename VectorType, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_dealii_vector_type<VectorType>)
-  Tensor<1, spacedim, typename VectorType::value_type> point_gradient(
-    const DoFHandler<dim, spacedim> &dof,
-    const VectorType &               fe_function,
-    const Point<spacedim, double> &  point);
+  Tensor<1, spacedim, typename VectorType::value_type> point_gradient(const DoFHandler<dim, spacedim> &dof,
+                                                                      const VectorType                &fe_function,
+                                                                      const Point<spacedim, double>   &point);
 
   /**
    * Evaluate a possibly vector-valued finite element function defined by the
@@ -224,12 +220,11 @@ namespace VectorTools
    */
   template <int dim, typename VectorType, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_dealii_vector_type<VectorType>)
-  void point_gradient(
-    const Mapping<dim, spacedim> &   mapping,
-    const DoFHandler<dim, spacedim> &dof,
-    const VectorType &               fe_function,
-    const Point<spacedim, double> &  point,
-    std::vector<Tensor<1, spacedim, typename VectorType::value_type>> &value);
+  void point_gradient(const Mapping<dim, spacedim>                                      &mapping,
+                      const DoFHandler<dim, spacedim>                                   &dof,
+                      const VectorType                                                  &fe_function,
+                      const Point<spacedim, double>                                     &point,
+                      std::vector<Tensor<1, spacedim, typename VectorType::value_type>> &value);
 
   /**
    * Same as above for hp.
@@ -251,12 +246,11 @@ namespace VectorTools
    */
   template <int dim, typename VectorType, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_dealii_vector_type<VectorType>)
-  void point_gradient(
-    const hp::MappingCollection<dim, spacedim> &mapping,
-    const DoFHandler<dim, spacedim> &           dof,
-    const VectorType &                          fe_function,
-    const Point<spacedim, double> &             point,
-    std::vector<Tensor<1, spacedim, typename VectorType::value_type>> &value);
+  void point_gradient(const hp::MappingCollection<dim, spacedim>                        &mapping,
+                      const DoFHandler<dim, spacedim>                                   &dof,
+                      const VectorType                                                  &fe_function,
+                      const Point<spacedim, double>                                     &point,
+                      std::vector<Tensor<1, spacedim, typename VectorType::value_type>> &value);
 
   /**
    * Evaluate a scalar finite element function defined by the given DoFHandler
@@ -294,11 +288,10 @@ namespace VectorTools
    */
   template <int dim, typename VectorType, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_dealii_vector_type<VectorType>)
-  Tensor<1, spacedim, typename VectorType::value_type> point_gradient(
-    const Mapping<dim, spacedim> &   mapping,
-    const DoFHandler<dim, spacedim> &dof,
-    const VectorType &               fe_function,
-    const Point<spacedim, double> &  point);
+  Tensor<1, spacedim, typename VectorType::value_type> point_gradient(const Mapping<dim, spacedim>    &mapping,
+                                                                      const DoFHandler<dim, spacedim> &dof,
+                                                                      const VectorType                &fe_function,
+                                                                      const Point<spacedim, double>   &point);
 
   /**
    * Same as above for hp.
@@ -322,9 +315,9 @@ namespace VectorTools
   DEAL_II_CXX20_REQUIRES(concepts::is_dealii_vector_type<VectorType>)
   Tensor<1, spacedim, typename VectorType::value_type> point_gradient(
     const hp::MappingCollection<dim, spacedim> &mapping,
-    const DoFHandler<dim, spacedim> &           dof,
-    const VectorType &                          fe_function,
-    const Point<spacedim, double> &             point);
+    const DoFHandler<dim, spacedim>            &dof,
+    const VectorType                           &fe_function,
+    const Point<spacedim, double>              &point);
 
   /** @} */
 } // namespace VectorTools

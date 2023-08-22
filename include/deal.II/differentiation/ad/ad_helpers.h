@@ -164,8 +164,7 @@ namespace Differentiation
      * @todo Make this class thread safe for Sacado number and ADOL-C tapeless
      * numbers (if supported).
      */
-    template <enum AD::NumberTypes ADNumberTypeCode,
-              typename ScalarType = double>
+    template <enum AD::NumberTypes ADNumberTypeCode, typename ScalarType = double>
     class HelperBase
     {
     public:
@@ -173,15 +172,13 @@ namespace Differentiation
        * Type definition for the floating point number type that is used in,
        * and results from, all computations.
        */
-      using scalar_type =
-        typename AD::NumberTraits<ScalarType, ADNumberTypeCode>::scalar_type;
+      using scalar_type = typename AD::NumberTraits<ScalarType, ADNumberTypeCode>::scalar_type;
 
       /**
        * Type definition for the auto-differentiation number type that is used
        * in all computations.
        */
-      using ad_type =
-        typename AD::NumberTraits<ScalarType, ADNumberTypeCode>::ad_type;
+      using ad_type = typename AD::NumberTraits<ScalarType, ADNumberTypeCode>::ad_type;
 
       /**
        * @name Constructor / destructor
@@ -202,8 +199,7 @@ namespace Differentiation
        * be the number of outputs $\mathbf{f}$, i.e., the dimension of the
        * image space.
        */
-      HelperBase(const unsigned int n_independent_variables,
-                 const unsigned int n_dependent_variables);
+      HelperBase(const unsigned int n_independent_variables, const unsigned int n_dependent_variables);
 
       /**
        * Destructor
@@ -262,8 +258,7 @@ namespace Differentiation
        * is a taped auto-differentiable number.
        */
       void
-      print_tape_stats(const typename Types<ad_type>::tape_index tape_index,
-                       std::ostream &                            stream) const;
+      print_tape_stats(const typename Types<ad_type>::tape_index tape_index, std::ostream &stream) const;
 
       /** @} */
 
@@ -291,8 +286,7 @@ namespace Differentiation
        * during course of the program's execution.
        */
       static void
-      configure_tapeless_mode(const unsigned int n_independent_variables,
-                              const bool ensure_persistent_setting = true);
+      configure_tapeless_mode(const unsigned int n_independent_variables, const bool ensure_persistent_setting = true);
 
       /** @} */
 
@@ -337,11 +331,9 @@ namespace Differentiation
        * deactivates the recording mode for taped variables.
        */
       virtual void
-      reset(const unsigned int n_independent_variables =
-              dealii::numbers::invalid_unsigned_int,
-            const unsigned int n_dependent_variables =
-              dealii::numbers::invalid_unsigned_int,
-            const bool clear_registered_tapes = true);
+      reset(const unsigned int n_independent_variables = dealii::numbers::invalid_unsigned_int,
+            const unsigned int n_dependent_variables   = dealii::numbers::invalid_unsigned_int,
+            const bool         clear_registered_tapes  = true);
 
       /**
        * Return whether or not this class is tracking calculations performed
@@ -362,8 +354,7 @@ namespace Differentiation
        * or registered.
        */
       bool
-      is_registered_tape(
-        const typename Types<ad_type>::tape_index tape_index) const;
+      is_registered_tape(const typename Types<ad_type>::tape_index tape_index) const;
 
       /**
        * Set the buffer sizes for the next active tape.
@@ -391,15 +382,10 @@ namespace Differentiation
        * @param[in] tbufsize ADOL-C Taylor buffer size
        */
       void
-      set_tape_buffer_sizes(
-        const typename Types<ad_type>::tape_buffer_sizes obufsize = 64 * 1024 *
-                                                                    1024,
-        const typename Types<ad_type>::tape_buffer_sizes lbufsize = 64 * 1024 *
-                                                                    1024,
-        const typename Types<ad_type>::tape_buffer_sizes vbufsize = 64 * 1024 *
-                                                                    1024,
-        const typename Types<ad_type>::tape_buffer_sizes tbufsize = 64 * 1024 *
-                                                                    1024);
+      set_tape_buffer_sizes(const typename Types<ad_type>::tape_buffer_sizes obufsize = 64 * 1024 * 1024,
+                            const typename Types<ad_type>::tape_buffer_sizes lbufsize = 64 * 1024 * 1024,
+                            const typename Types<ad_type>::tape_buffer_sizes vbufsize = 64 * 1024 * 1024,
+                            const typename Types<ad_type>::tape_buffer_sizes tbufsize = 64 * 1024 * 1024);
 
       /**
        * Enable recording mode for a given tape. The use of this function is
@@ -447,10 +433,9 @@ namespace Differentiation
        * Numbers<ad_type>::max_tape_index.
        */
       bool
-      start_recording_operations(
-        const typename Types<ad_type>::tape_index tape_index,
-        const bool                                overwrite_tape = false,
-        const bool keep_independent_values                       = true);
+      start_recording_operations(const typename Types<ad_type>::tape_index tape_index,
+                                 const bool                                overwrite_tape          = false,
+                                 const bool                                keep_independent_values = true);
 
       /**
        * Disable recording mode for a given tape. The use of this function is
@@ -476,8 +461,7 @@ namespace Differentiation
        * Numbers<ad_type>::max_tape_index.
        */
       void
-      activate_recorded_tape(
-        const typename Types<ad_type>::tape_index tape_index);
+      activate_recorded_tape(const typename Types<ad_type>::tape_index tape_index);
 
       /**
        * Return a flag that, when <code>true</code>, indicates that the
@@ -519,8 +503,7 @@ namespace Differentiation
        * or derivatives of the dependent variables).
        */
       bool
-      recorded_tape_requires_retaping(
-        const typename Types<ad_type>::tape_index tape_index) const;
+      recorded_tape_requires_retaping(const typename Types<ad_type>::tape_index tape_index) const;
 
       /**
        * Return a flag that, when <code>true</code>, indicates that the
@@ -615,8 +598,7 @@ namespace Differentiation
        * Numbers<ad_type>::max_tape_index.
        */
       void
-      activate_tape(const typename Types<ad_type>::tape_index tape_index,
-                    const bool                                read_mode);
+      activate_tape(const typename Types<ad_type>::tape_index tape_index, const bool read_mode);
 
       /** @} */
 
@@ -717,8 +699,7 @@ namespace Differentiation
        * @param[in] index The index in the vector of independent variables.
        */
       void
-      initialize_non_sensitive_independent_variable(const unsigned int index,
-                                                    ad_type &out) const;
+      initialize_non_sensitive_independent_variable(const unsigned int index, ad_type &out) const;
 
       /**
        * The number of independent variables that have been manipulated within a
@@ -780,8 +761,7 @@ namespace Differentiation
        * @note Each dependent variable must only be registered once.
        */
       void
-      register_dependent_variable(const unsigned int index,
-                                  const ad_type &    func);
+      register_dependent_variable(const unsigned int index, const ad_type &func);
 
       /** @} */
 
@@ -830,8 +810,7 @@ namespace Differentiation
      * function when using ADOL-C number types. It is, however, suitable for use
      * in both serial and MPI routines.
      */
-    template <enum AD::NumberTypes ADNumberTypeCode,
-              typename ScalarType = double>
+    template <enum AD::NumberTypes ADNumberTypeCode, typename ScalarType = double>
     class CellLevelBase : public HelperBase<ADNumberTypeCode, ScalarType>
     {
     public:
@@ -839,15 +818,13 @@ namespace Differentiation
        * Type definition for the floating point number type that is used in,
        * and results from, all computations.
        */
-      using scalar_type =
-        typename HelperBase<ADNumberTypeCode, ScalarType>::scalar_type;
+      using scalar_type = typename HelperBase<ADNumberTypeCode, ScalarType>::scalar_type;
 
       /**
        * Type definition for the auto-differentiation number type that is used
        * in all computations.
        */
-      using ad_type =
-        typename HelperBase<ADNumberTypeCode, ScalarType>::ad_type;
+      using ad_type = typename HelperBase<ADNumberTypeCode, ScalarType>::ad_type;
 
       /**
        * @name Constructor / destructor
@@ -868,8 +845,7 @@ namespace Differentiation
        * be the number of outputs $\mathbf{f}$, i.e., the dimension of the
        * image space.
        */
-      CellLevelBase(const unsigned int n_independent_variables,
-                    const unsigned int n_dependent_variables);
+      CellLevelBase(const unsigned int n_independent_variables, const unsigned int n_dependent_variables);
 
       /**
        * Destructor
@@ -923,9 +899,8 @@ namespace Differentiation
        */
       template <typename VectorType>
       void
-      register_dof_values(
-        const VectorType &                                  values,
-        const std::vector<dealii::types::global_dof_index> &local_dof_indices);
+      register_dof_values(const VectorType                                   &values,
+                          const std::vector<dealii::types::global_dof_index> &local_dof_indices);
 
       /**
        * Return the complete set of degree of freedom values as represented by
@@ -998,9 +973,7 @@ namespace Differentiation
        */
       template <typename VectorType>
       void
-      set_dof_values(
-        const VectorType &                                  values,
-        const std::vector<dealii::types::global_dof_index> &local_dof_indices);
+      set_dof_values(const VectorType &values, const std::vector<dealii::types::global_dof_index> &local_dof_indices);
 
       /** @} */
 
@@ -1212,8 +1185,7 @@ namespace Differentiation
      * function when using ADOL-C number types. It is, however, suitable for use
      * in both serial and MPI routines.
      */
-    template <enum AD::NumberTypes ADNumberTypeCode,
-              typename ScalarType = double>
+    template <enum AD::NumberTypes ADNumberTypeCode, typename ScalarType = double>
     class EnergyFunctional : public CellLevelBase<ADNumberTypeCode, ScalarType>
     {
     public:
@@ -1221,15 +1193,13 @@ namespace Differentiation
        * Type definition for the floating point number type that is used in,
        * and results from, all computations.
        */
-      using scalar_type =
-        typename HelperBase<ADNumberTypeCode, ScalarType>::scalar_type;
+      using scalar_type = typename HelperBase<ADNumberTypeCode, ScalarType>::scalar_type;
 
       /**
        * Type definition for the auto-differentiation number type that is used
        * in all computations.
        */
-      using ad_type =
-        typename HelperBase<ADNumberTypeCode, ScalarType>::ad_type;
+      using ad_type = typename HelperBase<ADNumberTypeCode, ScalarType>::ad_type;
 
       /**
        * @name Constructor / destructor
@@ -1340,8 +1310,7 @@ namespace Differentiation
        * <code>n_independent_variables</code>$\times$<code>n_independent_variables</code>.
        */
       virtual void
-      compute_linearization(
-        FullMatrix<scalar_type> &linearization) const override;
+      compute_linearization(FullMatrix<scalar_type> &linearization) const override;
 
       /** @} */
 
@@ -1523,25 +1492,21 @@ namespace Differentiation
      * function when using ADOL-C number types. It is, however, suitable for use
      * in both serial and MPI routines.
      */
-    template <enum AD::NumberTypes ADNumberTypeCode,
-              typename ScalarType = double>
-    class ResidualLinearization
-      : public CellLevelBase<ADNumberTypeCode, ScalarType>
+    template <enum AD::NumberTypes ADNumberTypeCode, typename ScalarType = double>
+    class ResidualLinearization : public CellLevelBase<ADNumberTypeCode, ScalarType>
     {
     public:
       /**
        * Type definition for the floating point number type that is used in,
        * and results from, all computations.
        */
-      using scalar_type =
-        typename HelperBase<ADNumberTypeCode, ScalarType>::scalar_type;
+      using scalar_type = typename HelperBase<ADNumberTypeCode, ScalarType>::scalar_type;
 
       /**
        * Type definition for the auto-differentiation number type that is used
        * in all computations.
        */
-      using ad_type =
-        typename HelperBase<ADNumberTypeCode, ScalarType>::ad_type;
+      using ad_type = typename HelperBase<ADNumberTypeCode, ScalarType>::ad_type;
 
       /**
        * @name Constructor / destructor
@@ -1562,8 +1527,7 @@ namespace Differentiation
        * be the number of outputs $\mathbf{r}$, i.e., the dimension of the
        * image space.
        */
-      ResidualLinearization(const unsigned int n_independent_variables,
-                            const unsigned int n_dependent_variables);
+      ResidualLinearization(const unsigned int n_independent_variables, const unsigned int n_dependent_variables);
 
       /**
        * Destructor
@@ -1630,8 +1594,7 @@ namespace Differentiation
        * <code>n_dependent_variables</code>$\times$<code>n_independent_variables</code>.
        */
       virtual void
-      compute_linearization(
-        FullMatrix<scalar_type> &linearization) const override;
+      compute_linearization(FullMatrix<scalar_type> &linearization) const override;
 
       /** @} */
 
@@ -1673,12 +1636,10 @@ namespace Differentiation
         template <typename NumberType>
         using tensor_type = Tensor<rank, dim, NumberType>;
 
-        static_assert(
-          n_components == tensor_type<double>::n_independent_components,
-          "The number of components doesn't match that of the corresponding tensor type.");
-        static_assert(
-          rank == tensor_type<double>::rank,
-          "The rank doesn't match that of the corresponding tensor type.");
+        static_assert(n_components == tensor_type<double>::n_independent_components,
+                      "The number of components doesn't match that of the corresponding tensor type.");
+        static_assert(rank == tensor_type<double>::rank,
+                      "The rank doesn't match that of the corresponding tensor type.");
 
         /**
          * The value type associated with this field.
@@ -1728,8 +1689,7 @@ namespace Differentiation
          */
         template <typename IndexType = unsigned int, int rank_in>
         static IndexType
-        local_component(const TableIndices<rank_in> &table_indices,
-                        const unsigned int           column_offset)
+        local_component(const TableIndices<rank_in> &table_indices, const unsigned int column_offset)
         {
           Assert(column_offset <= rank_in, ExcInternalError());
           (void)table_indices;
@@ -1763,12 +1723,10 @@ namespace Differentiation
         template <typename NumberType>
         using tensor_type = Tensor<rank, dim, NumberType>;
 
-        static_assert(
-          n_components == tensor_type<double>::n_independent_components,
-          "The number of components doesn't match that of the corresponding tensor type.");
-        static_assert(
-          rank == tensor_type<double>::rank,
-          "The rank doesn't match that of the corresponding tensor type.");
+        static_assert(n_components == tensor_type<double>::n_independent_components,
+                      "The number of components doesn't match that of the corresponding tensor type.");
+        static_assert(rank == tensor_type<double>::rank,
+                      "The rank doesn't match that of the corresponding tensor type.");
 
         /**
          * The value type associated with this field.
@@ -1812,8 +1770,7 @@ namespace Differentiation
          */
         template <int rank_in>
         static TableIndices<rank>
-        table_index_view(const TableIndices<rank_in> &table_indices,
-                         const unsigned int           column_offset)
+        table_index_view(const TableIndices<rank_in> &table_indices, const unsigned int column_offset)
         {
           Assert(0 + column_offset < rank_in, ExcInternalError());
           return TableIndices<rank>(table_indices[column_offset]);
@@ -1836,15 +1793,11 @@ namespace Differentiation
          */
         template <typename IndexType = unsigned int, int rank_in>
         static IndexType
-        local_component(const TableIndices<rank_in> &table_indices,
-                        const unsigned int           column_offset)
+        local_component(const TableIndices<rank_in> &table_indices, const unsigned int column_offset)
         {
-          static_assert(
-            rank_in >= rank,
-            "Cannot extract more table indices than the input table has!");
+          static_assert(rank_in >= rank, "Cannot extract more table indices than the input table has!");
           using TensorType = tensor_type<double>;
-          return TensorType::component_to_unrolled_index(
-            table_index_view(table_indices, column_offset));
+          return TensorType::component_to_unrolled_index(table_index_view(table_indices, column_offset));
         }
       };
 
@@ -1860,8 +1813,7 @@ namespace Differentiation
         /**
          * The number of components of the field.
          */
-        static const unsigned int n_components =
-          Tensor<1, dim>::n_independent_components;
+        static const unsigned int n_components = Tensor<1, dim>::n_independent_components;
 
         /**
          * The tensor rank of the field.
@@ -1915,8 +1867,7 @@ namespace Differentiation
          */
         template <int rank_in>
         static TableIndices<rank>
-        table_index_view(const TableIndices<rank_in> &table_indices,
-                         const unsigned int           column_offset)
+        table_index_view(const TableIndices<rank_in> &table_indices, const unsigned int column_offset)
         {
           Assert(column_offset < rank_in, ExcInternalError());
           return TableIndices<rank>(table_indices[column_offset]);
@@ -1939,15 +1890,11 @@ namespace Differentiation
          */
         template <typename IndexType = unsigned int, int rank_in>
         static IndexType
-        local_component(const TableIndices<rank_in> &table_indices,
-                        const unsigned int           column_offset)
+        local_component(const TableIndices<rank_in> &table_indices, const unsigned int column_offset)
         {
-          static_assert(
-            rank_in >= rank,
-            "Cannot extract more table indices than the input table has!");
+          static_assert(rank_in >= rank, "Cannot extract more table indices than the input table has!");
           using TensorType = tensor_type<double>;
-          return TensorType::component_to_unrolled_index(
-            table_index_view(table_indices, column_offset));
+          return TensorType::component_to_unrolled_index(table_index_view(table_indices, column_offset));
         }
       };
 
@@ -1963,8 +1910,7 @@ namespace Differentiation
         /**
          * The number of components of the field.
          */
-        static const unsigned int n_components =
-          Tensor<2, dim>::n_independent_components;
+        static const unsigned int n_components = Tensor<2, dim>::n_independent_components;
 
         /**
          * The tensor rank of the field.
@@ -2018,13 +1964,11 @@ namespace Differentiation
          */
         template <int rank_in>
         static TableIndices<rank>
-        table_index_view(const TableIndices<rank_in> &table_indices,
-                         const unsigned int           column_offset)
+        table_index_view(const TableIndices<rank_in> &table_indices, const unsigned int column_offset)
         {
           Assert(column_offset < rank_in, ExcInternalError());
           Assert(column_offset + 1 < rank_in, ExcInternalError());
-          return TableIndices<rank>(table_indices[column_offset],
-                                    table_indices[column_offset + 1]);
+          return TableIndices<rank>(table_indices[column_offset], table_indices[column_offset + 1]);
         }
 
         /**
@@ -2044,15 +1988,11 @@ namespace Differentiation
          */
         template <typename IndexType = unsigned int, int rank_in>
         static IndexType
-        local_component(const TableIndices<rank_in> &table_indices,
-                        const unsigned int           column_offset)
+        local_component(const TableIndices<rank_in> &table_indices, const unsigned int column_offset)
         {
-          static_assert(
-            rank_in >= rank,
-            "Cannot extract more table indices than the input table has!");
+          static_assert(rank_in >= rank, "Cannot extract more table indices than the input table has!");
           using TensorType = tensor_type<double>;
-          return TensorType::component_to_unrolled_index(
-            table_index_view(table_indices, column_offset));
+          return TensorType::component_to_unrolled_index(table_index_view(table_indices, column_offset));
         }
       };
 
@@ -2068,8 +2008,7 @@ namespace Differentiation
         /**
          * The number of components of the field.
          */
-        static const unsigned int n_components =
-          SymmetricTensor<2, dim>::n_independent_components;
+        static const unsigned int n_components = SymmetricTensor<2, dim>::n_independent_components;
 
         /**
          * The tensor rank of the field.
@@ -2114,8 +2053,7 @@ namespace Differentiation
         static bool
         symmetric_component(const unsigned int unrolled_index)
         {
-          const TableIndices<2> table_indices =
-            tensor_type<double>::unrolled_to_component_indices(unrolled_index);
+          const TableIndices<2> table_indices = tensor_type<double>::unrolled_to_component_indices(unrolled_index);
           return table_indices[0] != table_indices[1];
         }
 
@@ -2125,13 +2063,11 @@ namespace Differentiation
          */
         template <int rank_in>
         static TableIndices<rank>
-        table_index_view(const TableIndices<rank_in> &table_indices,
-                         const unsigned int           column_offset)
+        table_index_view(const TableIndices<rank_in> &table_indices, const unsigned int column_offset)
         {
           Assert(column_offset < rank_in, ExcInternalError());
           Assert(column_offset + 1 < rank_in, ExcInternalError());
-          return TableIndices<rank>(table_indices[column_offset],
-                                    table_indices[column_offset + 1]);
+          return TableIndices<rank>(table_indices[column_offset], table_indices[column_offset + 1]);
         }
 
         /**
@@ -2151,15 +2087,11 @@ namespace Differentiation
          */
         template <typename IndexType = unsigned int, int rank_in>
         static IndexType
-        local_component(const TableIndices<rank_in> &table_indices,
-                        const unsigned int           column_offset)
+        local_component(const TableIndices<rank_in> &table_indices, const unsigned int column_offset)
         {
-          static_assert(
-            rank_in >= rank,
-            "Cannot extract more table indices than the input table has!");
+          static_assert(rank_in >= rank, "Cannot extract more table indices than the input table has!");
           using TensorType = tensor_type<double>;
-          return TensorType::component_to_unrolled_index(
-            table_index_view(table_indices, column_offset));
+          return TensorType::component_to_unrolled_index(table_index_view(table_indices, column_offset));
         }
       };
 
@@ -2176,9 +2108,7 @@ namespace Differentiation
          * The type associated with computing the gradient of a scalar
          * field with respect to the given @p ExtractorType.
          */
-        using type =
-          typename Extractor<dim,
-                             ExtractorType>::template tensor_type<NumberType>;
+        using type = typename Extractor<dim, ExtractorType>::template tensor_type<NumberType>;
       };
 
 
@@ -2219,8 +2149,7 @@ namespace Differentiation
        * scalar field.
        */
       template <>
-      struct HessianType<FEValuesExtractors::SymmetricTensor<2>,
-                         FEValuesExtractors::Scalar>
+      struct HessianType<FEValuesExtractors::SymmetricTensor<2>, FEValuesExtractors::Scalar>
       {
         /**
          * The type associated with computing the gradient of a scalar
@@ -2243,8 +2172,7 @@ namespace Differentiation
        * tensor field.
        */
       template <>
-      struct HessianType<FEValuesExtractors::Scalar,
-                         FEValuesExtractors::SymmetricTensor<2>>
+      struct HessianType<FEValuesExtractors::Scalar, FEValuesExtractors::SymmetricTensor<2>>
       {
         /**
          * The type associated with computing the gradient of a scalar
@@ -2267,8 +2195,7 @@ namespace Differentiation
        * derivatives with respect to symmetric tensor fields.
        */
       template <>
-      struct HessianType<FEValuesExtractors::SymmetricTensor<2>,
-                         FEValuesExtractors::SymmetricTensor<2>>
+      struct HessianType<FEValuesExtractors::SymmetricTensor<2>, FEValuesExtractors::SymmetricTensor<2>>
       {
         /**
          * The type associated with computing the gradient of a scalar
@@ -2292,17 +2219,13 @@ namespace Differentiation
        * @p ExtractorType_Col, defines the field that the second derivatives
        * are taken with respect to.
        */
-      template <int dim,
-                typename NumberType,
-                typename ExtractorType_Row,
-                typename ExtractorType_Col>
+      template <int dim, typename NumberType, typename ExtractorType_Row, typename ExtractorType_Col>
       struct ScalarFieldHessian
       {
         /**
          * The tensor rank of the resulting derivative computation.
          */
-        static const int rank = Extractor<dim, ExtractorType_Row>::rank +
-                                Extractor<dim, ExtractorType_Col>::rank;
+        static const int rank = Extractor<dim, ExtractorType_Row>::rank + Extractor<dim, ExtractorType_Col>::rank;
 
         /**
          * The type associated with computing the Hessian of a scalar
@@ -2310,9 +2233,7 @@ namespace Differentiation
          * @p ExtractorType_Row and then with respect to the field defined by
          * the @p ExtractorType_Col.
          */
-        using type =
-          typename HessianType<ExtractorType_Row, ExtractorType_Col>::
-            template type<rank, dim, NumberType>;
+        using type = typename HessianType<ExtractorType_Row, ExtractorType_Col>::template type<rank, dim, NumberType>;
       };
 
 
@@ -2321,8 +2242,7 @@ namespace Differentiation
        * of vector fields the @p ExtractorType_Field template parameter.
        */
       template <int dim, typename NumberType, typename ExtractorType_Field>
-      using VectorFieldValue =
-        ScalarFieldGradient<dim, NumberType, ExtractorType_Field>;
+      using VectorFieldValue = ScalarFieldGradient<dim, NumberType, ExtractorType_Field>;
 
 
       /**
@@ -2334,14 +2254,8 @@ namespace Differentiation
        * @p ExtractorType_Derivative, defines the field that the derivatives
        * are taken with respect to.
        */
-      template <int dim,
-                typename NumberType,
-                typename ExtractorType_Field,
-                typename ExtractorType_Derivative>
-      using VectorFieldJacobian = ScalarFieldHessian<dim,
-                                                     NumberType,
-                                                     ExtractorType_Field,
-                                                     ExtractorType_Derivative>;
+      template <int dim, typename NumberType, typename ExtractorType_Field, typename ExtractorType_Derivative>
+      using VectorFieldJacobian = ScalarFieldHessian<dim, NumberType, ExtractorType_Field, ExtractorType_Derivative>;
 
 
       /**
@@ -2349,18 +2263,13 @@ namespace Differentiation
        * the input @p extractor. For this general function the
        * @p ignore_symmetries flag has no effect.
        */
-      template <int dim,
-                typename IndexType = unsigned int,
-                typename ExtractorType>
+      template <int dim, typename IndexType = unsigned int, typename ExtractorType>
       std::vector<IndexType>
-      extract_field_component_indices(const ExtractorType &extractor,
-                                      const bool ignore_symmetries = true)
+      extract_field_component_indices(const ExtractorType &extractor, const bool ignore_symmetries = true)
       {
         (void)ignore_symmetries;
-        const IndexType n_components =
-          internal::Extractor<dim, ExtractorType>::n_components;
-        const IndexType comp_first =
-          internal::Extractor<dim, ExtractorType>::first_component(extractor);
+        const IndexType        n_components = internal::Extractor<dim, ExtractorType>::n_components;
+        const IndexType        comp_first   = internal::Extractor<dim, ExtractorType>::first_component(extractor);
         std::vector<IndexType> indices(n_components);
         std::iota(indices.begin(), indices.end(), comp_first);
         return indices;
@@ -2377,16 +2286,12 @@ namespace Differentiation
        */
       template <int dim, typename IndexType = unsigned int>
       std::vector<IndexType>
-      extract_field_component_indices(
-        const FEValuesExtractors::SymmetricTensor<2> &extractor_symm_tensor,
-        const bool                                    ignore_symmetries = true)
+      extract_field_component_indices(const FEValuesExtractors::SymmetricTensor<2> &extractor_symm_tensor,
+                                      const bool                                    ignore_symmetries = true)
       {
-        using ExtractorType = FEValuesExtractors::SymmetricTensor<2>;
-        const IndexType n_components =
-          internal::Extractor<dim, ExtractorType>::n_components;
-        const IndexType comp_first =
-          internal::Extractor<dim, ExtractorType>::first_component(
-            extractor_symm_tensor);
+        using ExtractorType          = FEValuesExtractors::SymmetricTensor<2>;
+        const IndexType n_components = internal::Extractor<dim, ExtractorType>::n_components;
+        const IndexType comp_first   = internal::Extractor<dim, ExtractorType>::first_component(extractor_symm_tensor);
 
         if (ignore_symmetries == true)
           {
@@ -2397,10 +2302,8 @@ namespace Differentiation
         else
           {
             // First get all of the indices of the non-symmetric tensor
-            const FEValuesExtractors::Tensor<2> extractor_tensor(
-              extractor_symm_tensor.first_tensor_component);
-            std::vector<IndexType> indices =
-              extract_field_component_indices<dim>(extractor_tensor, true);
+            const FEValuesExtractors::Tensor<2> extractor_tensor(extractor_symm_tensor.first_tensor_component);
+            std::vector<IndexType>              indices = extract_field_component_indices<dim>(extractor_tensor, true);
 
             // Then we overwrite any illegal entries with the equivalent indices
             // from the symmetric tensor
@@ -2412,13 +2315,9 @@ namespace Differentiation
                 const IndexType local_index_i = indices[i] - comp_first;
                 if (local_index_i >= n_components)
                   {
-                    const TableIndices<2> ti_tensor =
-                      Tensor<2, dim>::unrolled_to_component_indices(
-                        local_index_i);
-                    const IndexType sti_new_index =
-                      SymmetricTensor<2, dim>::component_to_unrolled_index(
-                        ti_tensor);
-                    indices[i] = comp_first + sti_new_index;
+                    const TableIndices<2> ti_tensor = Tensor<2, dim>::unrolled_to_component_indices(local_index_i);
+                    const IndexType sti_new_index   = SymmetricTensor<2, dim>::component_to_unrolled_index(ti_tensor);
+                    indices[i]                      = comp_first + sti_new_index;
                   }
               }
 
@@ -2433,9 +2332,7 @@ namespace Differentiation
        */
       template <typename TensorType, typename NumberType>
       inline void
-      set_tensor_entry(TensorType &       t,
-                       const unsigned int unrolled_index,
-                       const NumberType & value)
+      set_tensor_entry(TensorType &t, const unsigned int unrolled_index, const NumberType &value)
       {
         // Where possible, set values using TableIndices
         AssertIndexRange(unrolled_index, t.n_independent_components);
@@ -2449,9 +2346,7 @@ namespace Differentiation
        */
       template <int dim, typename NumberType>
       inline void
-      set_tensor_entry(Tensor<0, dim, NumberType> &t,
-                       const unsigned int          unrolled_index,
-                       const NumberType &          value)
+      set_tensor_entry(Tensor<0, dim, NumberType> &t, const unsigned int unrolled_index, const NumberType &value)
       {
         AssertIndexRange(unrolled_index, 1);
         (void)unrolled_index;
@@ -2466,9 +2361,7 @@ namespace Differentiation
        */
       template <typename NumberType>
       inline void
-      set_tensor_entry(NumberType &       t,
-                       const unsigned int unrolled_index,
-                       const NumberType & value)
+      set_tensor_entry(NumberType &t, const unsigned int unrolled_index, const NumberType &value)
       {
         AssertIndexRange(unrolled_index, 1);
         (void)unrolled_index;
@@ -2486,21 +2379,16 @@ namespace Differentiation
       set_tensor_entry(SymmetricTensor<4, dim, NumberType> &t,
                        const unsigned int                   unrolled_index_row,
                        const unsigned int                   unrolled_index_col,
-                       const NumberType &                   value)
+                       const NumberType                    &value)
       {
         // Fourth order symmetric tensors require a specialized interface
         // to extract values.
         using SubTensorType = SymmetricTensor<2, dim, NumberType>;
-        AssertIndexRange(unrolled_index_row,
-                         SubTensorType::n_independent_components);
-        AssertIndexRange(unrolled_index_col,
-                         SubTensorType::n_independent_components);
-        const TableIndices<2> indices_row =
-          SubTensorType::unrolled_to_component_indices(unrolled_index_row);
-        const TableIndices<2> indices_col =
-          SubTensorType::unrolled_to_component_indices(unrolled_index_col);
-        t[indices_row[0]][indices_row[1]][indices_col[0]][indices_col[1]] =
-          value;
+        AssertIndexRange(unrolled_index_row, SubTensorType::n_independent_components);
+        AssertIndexRange(unrolled_index_col, SubTensorType::n_independent_components);
+        const TableIndices<2> indices_row = SubTensorType::unrolled_to_component_indices(unrolled_index_row);
+        const TableIndices<2> indices_col = SubTensorType::unrolled_to_component_indices(unrolled_index_col);
+        t[indices_row[0]][indices_row[1]][indices_col[0]][indices_col[1]] = value;
       }
 
 
@@ -2508,19 +2396,13 @@ namespace Differentiation
        * Return the value of the @p index'th unrolled component of the
        * generic tensor @p t.
        */
-      template <int rank,
-                int dim,
-                typename NumberType,
-                template <int, int, typename>
-                class TensorType>
+      template <int rank, int dim, typename NumberType, template <int, int, typename> class TensorType>
       inline NumberType
-      get_tensor_entry(const TensorType<rank, dim, NumberType> &t,
-                       const unsigned int                       unrolled_index)
+      get_tensor_entry(const TensorType<rank, dim, NumberType> &t, const unsigned int unrolled_index)
       {
         // Where possible, get values using TableIndices
         AssertIndexRange(unrolled_index, t.n_independent_components);
-        return t[TensorType<rank, dim, NumberType>::
-                   unrolled_to_component_indices(unrolled_index)];
+        return t[TensorType<rank, dim, NumberType>::unrolled_to_component_indices(unrolled_index)];
       }
 
 
@@ -2528,13 +2410,9 @@ namespace Differentiation
        * Return the value of the @p index'th unrolled component of the
        * rank-0 tensor @p t.
        */
-      template <int dim,
-                typename NumberType,
-                template <int, int, typename>
-                class TensorType>
+      template <int dim, typename NumberType, template <int, int, typename> class TensorType>
       inline NumberType
-      get_tensor_entry(const TensorType<0, dim, NumberType> &t,
-                       const unsigned int                    unrolled_index)
+      get_tensor_entry(const TensorType<0, dim, NumberType> &t, const unsigned int unrolled_index)
       {
         AssertIndexRange(unrolled_index, 1);
         (void)unrolled_index;
@@ -2561,19 +2439,13 @@ namespace Differentiation
        * Return a reference to the entry stored in the @p index'th unrolled
        * component of the generic tensor @p t.
        */
-      template <int rank,
-                int dim,
-                typename NumberType,
-                template <int, int, typename>
-                class TensorType>
+      template <int rank, int dim, typename NumberType, template <int, int, typename> class TensorType>
       inline NumberType &
-      get_tensor_entry(TensorType<rank, dim, NumberType> &t,
-                       const unsigned int                 unrolled_index)
+      get_tensor_entry(TensorType<rank, dim, NumberType> &t, const unsigned int unrolled_index)
       {
         // Where possible, get values using TableIndices
         AssertIndexRange(unrolled_index, t.n_independent_components);
-        return t[TensorType<rank, dim, NumberType>::
-                   unrolled_to_component_indices(unrolled_index)];
+        return t[TensorType<rank, dim, NumberType>::unrolled_to_component_indices(unrolled_index)];
       }
 
 
@@ -2581,13 +2453,9 @@ namespace Differentiation
        * Return a reference to the entry stored in the @p index'th unrolled
        * component of the rank-0 tensor @p t.
        */
-      template <int dim,
-                typename NumberType,
-                template <int, int, typename>
-                class TensorType>
+      template <int dim, typename NumberType, template <int, int, typename> class TensorType>
       NumberType &
-      get_tensor_entry(TensorType<0, dim, NumberType> &t,
-                       const unsigned int              index)
+      get_tensor_entry(TensorType<0, dim, NumberType> &t, const unsigned int index)
       {
         AssertIndexRange(index, 1);
         (void)index;
@@ -2634,11 +2502,8 @@ namespace Differentiation
      * function when using ADOL-C number types. It is, however, suitable for use
      * in both serial and MPI routines.
      */
-    template <int                  dim,
-              enum AD::NumberTypes ADNumberTypeCode,
-              typename ScalarType = double>
-    class PointLevelFunctionsBase
-      : public HelperBase<ADNumberTypeCode, ScalarType>
+    template <int dim, enum AD::NumberTypes ADNumberTypeCode, typename ScalarType = double>
+    class PointLevelFunctionsBase : public HelperBase<ADNumberTypeCode, ScalarType>
     {
     public:
       /**
@@ -2651,15 +2516,13 @@ namespace Differentiation
        * Type definition for the floating point number type that is used in,
        * and results from, all computations.
        */
-      using scalar_type =
-        typename HelperBase<ADNumberTypeCode, ScalarType>::scalar_type;
+      using scalar_type = typename HelperBase<ADNumberTypeCode, ScalarType>::scalar_type;
 
       /**
        * Type definition for the auto-differentiation number type that is used
        * in all computations.
        */
-      using ad_type =
-        typename HelperBase<ADNumberTypeCode, ScalarType>::ad_type;
+      using ad_type = typename HelperBase<ADNumberTypeCode, ScalarType>::ad_type;
 
       /**
        * @name Constructor / destructor
@@ -2680,8 +2543,7 @@ namespace Differentiation
        * be the number of outputs $\mathbf{f}$, i.e., the dimension of the
        * image space.
        */
-      PointLevelFunctionsBase(const unsigned int n_independent_variables,
-                              const unsigned int n_dependent_variables);
+      PointLevelFunctionsBase(const unsigned int n_independent_variables, const unsigned int n_dependent_variables);
 
       /**
        * Destructor
@@ -2731,11 +2593,9 @@ namespace Differentiation
        * deactivates the recording mode for taped variables.
        */
       virtual void
-      reset(const unsigned int n_independent_variables =
-              dealii::numbers::invalid_unsigned_int,
-            const unsigned int n_dependent_variables =
-              dealii::numbers::invalid_unsigned_int,
-            const bool clear_registered_tapes = true) override;
+      reset(const unsigned int n_independent_variables = dealii::numbers::invalid_unsigned_int,
+            const unsigned int n_dependent_variables   = dealii::numbers::invalid_unsigned_int,
+            const bool         clear_registered_tapes  = true) override;
 
       /**
        * Register the complete set of independent variables $\mathbf{X}$.
@@ -2785,8 +2645,7 @@ namespace Differentiation
        */
       template <typename ValueType, typename ExtractorType>
       void
-      register_independent_variable(const ValueType &    value,
-                                    const ExtractorType &extractor);
+      register_independent_variable(const ValueType &value, const ExtractorType &extractor);
 
       /**
        * Return the complete set of independent variables as represented by
@@ -2896,8 +2755,7 @@ namespace Differentiation
        */
       template <typename ValueType, typename ExtractorType>
       void
-      set_independent_variable(const ValueType &    value,
-                               const ExtractorType &extractor);
+      set_independent_variable(const ValueType &value, const ExtractorType &extractor);
 
       /** @} */
 
@@ -2918,9 +2776,7 @@ namespace Differentiation
        * @param[in] value The value to set the index'd independent variable to.
        */
       void
-      set_sensitivity_value(const unsigned int index,
-                            const bool         symmetric_component,
-                            const scalar_type &value);
+      set_sensitivity_value(const unsigned int index, const bool symmetric_component, const scalar_type &value);
 
       /**
        * Return whether the @p index'th independent variables is one for which
@@ -3111,26 +2967,21 @@ namespace Differentiation
      * function when using ADOL-C number types. It is, however, suitable for use
      * in both serial and MPI routines.
      */
-    template <int                  dim,
-              enum AD::NumberTypes ADNumberTypeCode,
-              typename ScalarType = double>
-    class ScalarFunction
-      : public PointLevelFunctionsBase<dim, ADNumberTypeCode, ScalarType>
+    template <int dim, enum AD::NumberTypes ADNumberTypeCode, typename ScalarType = double>
+    class ScalarFunction : public PointLevelFunctionsBase<dim, ADNumberTypeCode, ScalarType>
     {
     public:
       /**
        * Type definition for the floating point number type that is used in,
        * and results from, all computations.
        */
-      using scalar_type =
-        typename HelperBase<ADNumberTypeCode, ScalarType>::scalar_type;
+      using scalar_type = typename HelperBase<ADNumberTypeCode, ScalarType>::scalar_type;
 
       /**
        * Type definition for the auto-differentiation number type that is used
        * in all computations.
        */
-      using ad_type =
-        typename HelperBase<ADNumberTypeCode, ScalarType>::ad_type;
+      using ad_type = typename HelperBase<ADNumberTypeCode, ScalarType>::ad_type;
 
       /**
        * @name Constructor / destructor
@@ -3251,10 +3102,8 @@ namespace Differentiation
        * corresponding to the column extractor.
        */
       template <typename ExtractorType_Row>
-      static typename internal::
-        ScalarFieldGradient<dim, scalar_type, ExtractorType_Row>::type
-        extract_gradient_component(const Vector<scalar_type> &gradient,
-                                   const ExtractorType_Row &  extractor_row);
+      static typename internal::ScalarFieldGradient<dim, scalar_type, ExtractorType_Row>::type
+      extract_gradient_component(const Vector<scalar_type> &gradient, const ExtractorType_Row &extractor_row);
 
       /**
        * Extract the function Hessian for a subset of independent variables
@@ -3295,13 +3144,10 @@ namespace Differentiation
        * corresponding to the column extractor.
        */
       template <typename ExtractorType_Row, typename ExtractorType_Col>
-      static typename internal::ScalarFieldHessian<dim,
-                                                   scalar_type,
-                                                   ExtractorType_Row,
-                                                   ExtractorType_Col>::type
+      static typename internal::ScalarFieldHessian<dim, scalar_type, ExtractorType_Row, ExtractorType_Col>::type
       extract_hessian_component(const FullMatrix<scalar_type> &hessian,
-                                const ExtractorType_Row &      extractor_row,
-                                const ExtractorType_Col &      extractor_col);
+                                const ExtractorType_Row       &extractor_row,
+                                const ExtractorType_Col       &extractor_col);
 
       /**
        * Extract the function Hessian for a subset of independent variables
@@ -3317,10 +3163,9 @@ namespace Differentiation
        * single row or column of the matrix.
        */
       static Tensor<0, dim, scalar_type>
-      extract_hessian_component(
-        const FullMatrix<scalar_type> &   hessian,
-        const FEValuesExtractors::Scalar &extractor_row,
-        const FEValuesExtractors::Scalar &extractor_col);
+      extract_hessian_component(const FullMatrix<scalar_type>    &hessian,
+                                const FEValuesExtractors::Scalar &extractor_row,
+                                const FEValuesExtractors::Scalar &extractor_col);
 
       /**
        * Extract the function Hessian for a subset of independent variables
@@ -3334,10 +3179,9 @@ namespace Differentiation
        * tensors.
        */
       static SymmetricTensor<4, dim, scalar_type>
-      extract_hessian_component(
-        const FullMatrix<scalar_type> &               hessian,
-        const FEValuesExtractors::SymmetricTensor<2> &extractor_row,
-        const FEValuesExtractors::SymmetricTensor<2> &extractor_col);
+      extract_hessian_component(const FullMatrix<scalar_type>                &hessian,
+                                const FEValuesExtractors::SymmetricTensor<2> &extractor_row,
+                                const FEValuesExtractors::SymmetricTensor<2> &extractor_col);
 
       /** @} */
 
@@ -3502,26 +3346,21 @@ namespace Differentiation
      * function when using ADOL-C number types. It is, however, suitable for use
      * in both serial and MPI routines.
      */
-    template <int                  dim,
-              enum AD::NumberTypes ADNumberTypeCode,
-              typename ScalarType = double>
-    class VectorFunction
-      : public PointLevelFunctionsBase<dim, ADNumberTypeCode, ScalarType>
+    template <int dim, enum AD::NumberTypes ADNumberTypeCode, typename ScalarType = double>
+    class VectorFunction : public PointLevelFunctionsBase<dim, ADNumberTypeCode, ScalarType>
     {
     public:
       /**
        * Type definition for the floating point number type that is used in,
        * and results from, all computations.
        */
-      using scalar_type =
-        typename HelperBase<ADNumberTypeCode, ScalarType>::scalar_type;
+      using scalar_type = typename HelperBase<ADNumberTypeCode, ScalarType>::scalar_type;
 
       /**
        * Type definition for the auto-differentiation number type that is used
        * in all computations.
        */
-      using ad_type =
-        typename HelperBase<ADNumberTypeCode, ScalarType>::ad_type;
+      using ad_type = typename HelperBase<ADNumberTypeCode, ScalarType>::ad_type;
 
       /**
        * @name Constructor / destructor
@@ -3542,8 +3381,7 @@ namespace Differentiation
        * be the number of outputs $\mathbf{f}$, i.e., the dimension of the
        * image space.
        */
-      VectorFunction(const unsigned int n_independent_variables,
-                     const unsigned int n_dependent_variables);
+      VectorFunction(const unsigned int n_independent_variables, const unsigned int n_dependent_variables);
 
       /**
        * Destructor.
@@ -3592,8 +3430,7 @@ namespace Differentiation
        */
       template <typename ValueType, typename ExtractorType>
       void
-      register_dependent_variable(const ValueType &    funcs,
-                                  const ExtractorType &extractor);
+      register_dependent_variable(const ValueType &funcs, const ExtractorType &extractor);
 
       /**
        * Compute the value of the vector field $\boldsymbol{\Psi}(\mathbf{X})$.
@@ -3637,10 +3474,8 @@ namespace Differentiation
        * of dependent variables this field is associated with.
        */
       template <typename ExtractorType_Row>
-      static typename internal::
-        VectorFieldValue<dim, scalar_type, ExtractorType_Row>::type
-        extract_value_component(const Vector<scalar_type> &values,
-                                const ExtractorType_Row &  extractor_row);
+      static typename internal::VectorFieldValue<dim, scalar_type, ExtractorType_Row>::type
+      extract_value_component(const Vector<scalar_type> &values, const ExtractorType_Row &extractor_row);
 
       /**
        * Extract the Jacobian of the subset of dependent functions
@@ -3690,13 +3525,10 @@ namespace Differentiation
        * corresponding to the column extractor.
        */
       template <typename ExtractorType_Row, typename ExtractorType_Col>
-      static typename internal::VectorFieldJacobian<dim,
-                                                    scalar_type,
-                                                    ExtractorType_Row,
-                                                    ExtractorType_Col>::type
+      static typename internal::VectorFieldJacobian<dim, scalar_type, ExtractorType_Row, ExtractorType_Col>::type
       extract_jacobian_component(const FullMatrix<scalar_type> &jacobian,
-                                 const ExtractorType_Row &      extractor_row,
-                                 const ExtractorType_Col &      extractor_col);
+                                 const ExtractorType_Row       &extractor_row,
+                                 const ExtractorType_Col       &extractor_col);
 
       /**
        * Extract the Jacobian of the subset of dependent functions
@@ -3714,10 +3546,9 @@ namespace Differentiation
        * single row or column of the matrix.
        */
       static Tensor<0, dim, scalar_type>
-      extract_jacobian_component(
-        const FullMatrix<scalar_type> &   jacobian,
-        const FEValuesExtractors::Scalar &extractor_row,
-        const FEValuesExtractors::Scalar &extractor_col);
+      extract_jacobian_component(const FullMatrix<scalar_type>    &jacobian,
+                                 const FEValuesExtractors::Scalar &extractor_row,
+                                 const FEValuesExtractors::Scalar &extractor_col);
 
       /**
        * Extract the Jacobian of the subset of dependent functions
@@ -3733,10 +3564,9 @@ namespace Differentiation
        * tensors.
        */
       static SymmetricTensor<4, dim, scalar_type>
-      extract_jacobian_component(
-        const FullMatrix<scalar_type> &               jacobian,
-        const FEValuesExtractors::SymmetricTensor<2> &extractor_row,
-        const FEValuesExtractors::SymmetricTensor<2> &extractor_col);
+      extract_jacobian_component(const FullMatrix<scalar_type>                &jacobian,
+                                 const FEValuesExtractors::SymmetricTensor<2> &extractor_row,
+                                 const FEValuesExtractors::SymmetricTensor<2> &extractor_col);
 
       /** @} */
 
@@ -3764,17 +3594,15 @@ namespace Differentiation
     template <typename VectorType>
     void
     CellLevelBase<ADNumberTypeCode, ScalarType>::register_dof_values(
-      const VectorType &                                  values,
+      const VectorType                                   &values,
       const std::vector<dealii::types::global_dof_index> &local_dof_indices)
     {
       // This is actually the same thing the set_dof_values() function,
       // in the sense that we simply populate our array of independent values
       // with a meaningful number. However, in this case we need to double check
       // that we're not registering these variables twice
-      Assert(
-        local_dof_indices.size() == this->n_independent_variables(),
-        ExcMessage(
-          "Degree of freedom index vector size does not match number of independent variables"));
+      Assert(local_dof_indices.size() == this->n_independent_variables(),
+             ExcMessage("Degree of freedom index vector size does not match number of independent variables"));
       for (unsigned int i = 0; i < this->n_independent_variables(); ++i)
         {
           Assert(this->registered_independent_variable_values[i] == false,
@@ -3789,15 +3617,13 @@ namespace Differentiation
     template <typename VectorType>
     void
     CellLevelBase<ADNumberTypeCode, ScalarType>::set_dof_values(
-      const VectorType &                                  values,
+      const VectorType                                   &values,
       const std::vector<dealii::types::global_dof_index> &local_dof_indices)
     {
       Assert(local_dof_indices.size() == this->n_independent_variables(),
-             ExcMessage(
-               "Vector size does not match number of independent variables"));
+             ExcMessage("Vector size does not match number of independent variables"));
       for (unsigned int i = 0; i < this->n_independent_variables(); ++i)
-        HelperBase<ADNumberTypeCode, ScalarType>::set_sensitivity_value(
-          i, values[local_dof_indices[i]]);
+        HelperBase<ADNumberTypeCode, ScalarType>::set_sensitivity_value(i, values[local_dof_indices[i]]);
     }
 
 
@@ -3806,35 +3632,30 @@ namespace Differentiation
 
 
 
-    template <int                  dim,
-              enum AD::NumberTypes ADNumberTypeCode,
-              typename ScalarType>
+    template <int dim, enum AD::NumberTypes ADNumberTypeCode, typename ScalarType>
     template <typename ValueType, typename ExtractorType>
     void
-    PointLevelFunctionsBase<dim, ADNumberTypeCode, ScalarType>::
-      register_independent_variable(const ValueType &    value,
-                                    const ExtractorType &extractor)
+    PointLevelFunctionsBase<dim, ADNumberTypeCode, ScalarType>::register_independent_variable(
+      const ValueType     &value,
+      const ExtractorType &extractor)
     {
       // This is actually the same thing as the set_independent_variable
       // function, in the sense that we simply populate our array of independent
       // values with a meaningful number. However, in this case we need to
       // double check that we're not registering these variables twice
 #    ifdef DEBUG
-      const std::vector<unsigned int> index_set(
-        internal::extract_field_component_indices<dim>(extractor));
+      const std::vector<unsigned int> index_set(internal::extract_field_component_indices<dim>(extractor));
       for (const unsigned int index : index_set)
         {
-          Assert(
-            this->registered_independent_variable_values[index] == false,
-            ExcMessage(
-              "Overlapping indices for independent variables. "
-              "One or more indices associated with the field that "
-              "is being registered as an independent variable have "
-              "already been associated with another field. This suggests "
-              "that the component offsets used to construct their counterpart "
-              "extractors are incompatible with one another. Make sure that "
-              "the first component for each extractor properly takes into "
-              "account the dimensionality of the preceding fields."));
+          Assert(this->registered_independent_variable_values[index] == false,
+                 ExcMessage("Overlapping indices for independent variables. "
+                            "One or more indices associated with the field that "
+                            "is being registered as an independent variable have "
+                            "already been associated with another field. This suggests "
+                            "that the component offsets used to construct their counterpart "
+                            "extractors are incompatible with one another. Make sure that "
+                            "the first component for each extractor properly takes into "
+                            "account the dimensionality of the preceding fields."));
         }
 #    endif
       set_independent_variable(value, extractor);
@@ -3842,66 +3663,50 @@ namespace Differentiation
 
 
 
-    template <int                  dim,
-              enum AD::NumberTypes ADNumberTypeCode,
-              typename ScalarType>
+    template <int dim, enum AD::NumberTypes ADNumberTypeCode, typename ScalarType>
     template <typename ValueType, typename ExtractorType>
     void
-    PointLevelFunctionsBase<dim, ADNumberTypeCode, ScalarType>::
-      set_independent_variable(const ValueType &    value,
-                               const ExtractorType &extractor)
+    PointLevelFunctionsBase<dim, ADNumberTypeCode, ScalarType>::set_independent_variable(const ValueType     &value,
+                                                                                         const ExtractorType &extractor)
     {
-      const std::vector<unsigned int> index_set(
-        internal::extract_field_component_indices<dim>(extractor));
+      const std::vector<unsigned int> index_set(internal::extract_field_component_indices<dim>(extractor));
       for (unsigned int i = 0; i < index_set.size(); ++i)
         {
-          set_sensitivity_value(
-            index_set[i],
-            internal::Extractor<dim, ExtractorType>::symmetric_component(i),
-            internal::get_tensor_entry(value, i));
+          set_sensitivity_value(index_set[i],
+                                internal::Extractor<dim, ExtractorType>::symmetric_component(i),
+                                internal::get_tensor_entry(value, i));
         }
     }
 
 
 
-    template <int                  dim,
-              enum AD::NumberTypes ADNumberTypeCode,
-              typename ScalarType>
+    template <int dim, enum AD::NumberTypes ADNumberTypeCode, typename ScalarType>
     template <typename ExtractorType>
     typename internal::Extractor<dim, ExtractorType>::template tensor_type<
       typename HelperBase<ADNumberTypeCode, ScalarType>::ad_type>
-    PointLevelFunctionsBase<dim, ADNumberTypeCode, ScalarType>::
-      get_sensitive_variables(const ExtractorType &extractor) const
+    PointLevelFunctionsBase<dim, ADNumberTypeCode, ScalarType>::get_sensitive_variables(
+      const ExtractorType &extractor) const
     {
       if (ADNumberTraits<ad_type>::is_taped == true)
         {
-          Assert(this->active_tape_index() !=
-                   Numbers<ad_type>::invalid_tape_index,
-                 ExcMessage("Invalid tape index"));
+          Assert(this->active_tape_index() != Numbers<ad_type>::invalid_tape_index, ExcMessage("Invalid tape index"));
         }
 
       // If necessary, finalize the internally stored vector of
       // AD numbers that represents the independent variables
       this->finalize_sensitive_independent_variables();
-      Assert(this->independent_variables.size() ==
-               this->n_independent_variables(),
-             ExcDimensionMismatch(this->independent_variables.size(),
-                                  this->n_independent_variables()));
+      Assert(this->independent_variables.size() == this->n_independent_variables(),
+             ExcDimensionMismatch(this->independent_variables.size(), this->n_independent_variables()));
 
-      const std::vector<unsigned int> index_set(
-        internal::extract_field_component_indices<dim>(extractor));
-      typename internal::Extractor<dim,
-                                   ExtractorType>::template tensor_type<ad_type>
-        out;
+      const std::vector<unsigned int> index_set(internal::extract_field_component_indices<dim>(extractor));
+      typename internal::Extractor<dim, ExtractorType>::template tensor_type<ad_type> out;
 
       for (unsigned int i = 0; i < index_set.size(); ++i)
         {
           const unsigned int index = index_set[i];
           Assert(index < this->n_independent_variables(), ExcInternalError());
-          Assert(this->registered_independent_variable_values[index] == true,
-                 ExcInternalError());
-          internal::get_tensor_entry(out, i) =
-            this->independent_variables[index];
+          Assert(this->registered_independent_variable_values[index] == true, ExcInternalError());
+          internal::get_tensor_entry(out, i) = this->independent_variables[index];
         }
 
       return out;
@@ -3913,27 +3718,22 @@ namespace Differentiation
 
 
 
-    template <int                  dim,
-              enum AD::NumberTypes ADNumberTypeCode,
-              typename ScalarType>
+    template <int dim, enum AD::NumberTypes ADNumberTypeCode, typename ScalarType>
     template <typename ExtractorType_Row>
-    typename internal::ScalarFieldGradient<
-      dim,
-      typename ScalarFunction<dim, ADNumberTypeCode, ScalarType>::scalar_type,
-      ExtractorType_Row>::type
-    ScalarFunction<dim, ADNumberTypeCode, ScalarType>::
-      extract_gradient_component(const Vector<scalar_type> &gradient,
-                                 const ExtractorType_Row &  extractor_row)
+    typename internal::ScalarFieldGradient<dim,
+                                           typename ScalarFunction<dim, ADNumberTypeCode, ScalarType>::scalar_type,
+                                           ExtractorType_Row>::type
+    ScalarFunction<dim, ADNumberTypeCode, ScalarType>::extract_gradient_component(
+      const Vector<scalar_type> &gradient,
+      const ExtractorType_Row   &extractor_row)
     {
       // NOTE: The order of components must be consistently defined throughout
       // this class.
-      typename internal::
-        ScalarFieldGradient<dim, scalar_type, ExtractorType_Row>::type out;
+      typename internal::ScalarFieldGradient<dim, scalar_type, ExtractorType_Row>::type out;
 
       // Get indexsets for the subblock from which we wish to extract the
       // gradient values
-      const std::vector<unsigned int> row_index_set(
-        internal::extract_field_component_indices<dim>(extractor_row));
+      const std::vector<unsigned int> row_index_set(internal::extract_field_component_indices<dim>(extractor_row));
       Assert(out.n_independent_components == row_index_set.size(),
              ExcMessage("Not all tensor components have been extracted!"));
       for (unsigned int r = 0; r < row_index_set.size(); ++r)
@@ -3944,24 +3744,17 @@ namespace Differentiation
 
 
 
-    template <int                  dim,
-              enum AD::NumberTypes ADNumberTypeCode,
-              typename ScalarType>
+    template <int dim, enum AD::NumberTypes ADNumberTypeCode, typename ScalarType>
     template <typename ExtractorType_Row, typename ExtractorType_Col>
-    typename internal::ScalarFieldHessian<
-      dim,
-      typename ScalarFunction<dim, ADNumberTypeCode, ScalarType>::scalar_type,
-      ExtractorType_Row,
-      ExtractorType_Col>::type
-    ScalarFunction<dim, ADNumberTypeCode, ScalarType>::
-      extract_hessian_component(const FullMatrix<scalar_type> &hessian,
-                                const ExtractorType_Row &      extractor_row,
-                                const ExtractorType_Col &      extractor_col)
+    typename internal::ScalarFieldHessian<dim,
+                                          typename ScalarFunction<dim, ADNumberTypeCode, ScalarType>::scalar_type,
+                                          ExtractorType_Row,
+                                          ExtractorType_Col>::type
+    ScalarFunction<dim, ADNumberTypeCode, ScalarType>::extract_hessian_component(const FullMatrix<scalar_type> &hessian,
+                                                                                 const ExtractorType_Row &extractor_row,
+                                                                                 const ExtractorType_Col &extractor_col)
     {
-      using InternalHessian      = internal::ScalarFieldHessian<dim,
-                                                           scalar_type,
-                                                           ExtractorType_Row,
-                                                           ExtractorType_Col>;
+      using InternalHessian      = internal::ScalarFieldHessian<dim, scalar_type, ExtractorType_Row, ExtractorType_Col>;
       using InternalExtractorRow = internal::Extractor<dim, ExtractorType_Row>;
       using InternalExtractorCol = internal::Extractor<dim, ExtractorType_Col>;
       using HessianType          = typename InternalHessian::type;
@@ -3981,26 +3774,17 @@ namespace Differentiation
       // indexset to fetch off-diagonal components that are otherwise
       // non-existent in a SymmTensor.
       const std::vector<unsigned int> row_index_set(
-        internal::extract_field_component_indices<dim>(
-          extractor_row, false /*ignore_symmetries*/));
+        internal::extract_field_component_indices<dim>(extractor_row, false /*ignore_symmetries*/));
       const std::vector<unsigned int> col_index_set(
-        internal::extract_field_component_indices<dim>(
-          extractor_col, false /*ignore_symmetries*/));
+        internal::extract_field_component_indices<dim>(extractor_col, false /*ignore_symmetries*/));
 
-      for (unsigned int index = 0;
-           index < HessianType::n_independent_components;
-           ++index)
+      for (unsigned int index = 0; index < HessianType::n_independent_components; ++index)
         {
-          const TableIndices<HessianType::rank> ti_out =
-            HessianType::unrolled_to_component_indices(index);
-          const unsigned int r =
-            InternalExtractorRow::local_component(ti_out, 0);
-          const unsigned int c =
-            InternalExtractorCol::local_component(ti_out,
-                                                  InternalExtractorRow::rank);
+          const TableIndices<HessianType::rank> ti_out = HessianType::unrolled_to_component_indices(index);
+          const unsigned int                    r      = InternalExtractorRow::local_component(ti_out, 0);
+          const unsigned int c = InternalExtractorCol::local_component(ti_out, InternalExtractorRow::rank);
 
-          internal::set_tensor_entry(
-            out, index, hessian[row_index_set[r]][col_index_set[c]]);
+          internal::set_tensor_entry(out, index, hessian[row_index_set[r]][col_index_set[c]]);
         }
 
       return out;
@@ -4012,50 +3796,39 @@ namespace Differentiation
 
 
 
-    template <int                  dim,
-              enum AD::NumberTypes ADNumberTypeCode,
-              typename ScalarType>
+    template <int dim, enum AD::NumberTypes ADNumberTypeCode, typename ScalarType>
     template <typename ValueType, typename ExtractorType>
     void
-    VectorFunction<dim, ADNumberTypeCode, ScalarType>::
-      register_dependent_variable(const ValueType &    funcs,
-                                  const ExtractorType &extractor)
+    VectorFunction<dim, ADNumberTypeCode, ScalarType>::register_dependent_variable(const ValueType     &funcs,
+                                                                                   const ExtractorType &extractor)
     {
-      const std::vector<unsigned int> index_set(
-        internal::extract_field_component_indices<dim>(extractor));
+      const std::vector<unsigned int> index_set(internal::extract_field_component_indices<dim>(extractor));
       for (unsigned int i = 0; i < index_set.size(); ++i)
         {
-          Assert(this->registered_marked_dependent_variables[index_set[i]] ==
-                   false,
+          Assert(this->registered_marked_dependent_variables[index_set[i]] == false,
                  ExcMessage("Overlapping indices for dependent variables."));
-          HelperBase<ADNumberTypeCode, ScalarType>::register_dependent_variable(
-            index_set[i], internal::get_tensor_entry(funcs, i));
+          HelperBase<ADNumberTypeCode, ScalarType>::register_dependent_variable(index_set[i],
+                                                                                internal::get_tensor_entry(funcs, i));
         }
     }
 
 
 
-    template <int                  dim,
-              enum AD::NumberTypes ADNumberTypeCode,
-              typename ScalarType>
+    template <int dim, enum AD::NumberTypes ADNumberTypeCode, typename ScalarType>
     template <typename ExtractorType_Row>
-    typename internal::VectorFieldValue<
-      dim,
-      typename VectorFunction<dim, ADNumberTypeCode, ScalarType>::scalar_type,
-      ExtractorType_Row>::type
-    VectorFunction<dim, ADNumberTypeCode, ScalarType>::extract_value_component(
-      const Vector<scalar_type> &values,
-      const ExtractorType_Row &  extractor_row)
+    typename internal::VectorFieldValue<dim,
+                                        typename VectorFunction<dim, ADNumberTypeCode, ScalarType>::scalar_type,
+                                        ExtractorType_Row>::type
+    VectorFunction<dim, ADNumberTypeCode, ScalarType>::extract_value_component(const Vector<scalar_type> &values,
+                                                                               const ExtractorType_Row   &extractor_row)
     {
       // NOTE: The order of components must be consistently defined throughout
       // this class.
-      typename internal::VectorFieldValue<dim, scalar_type, ExtractorType_Row>::
-        type out;
+      typename internal::VectorFieldValue<dim, scalar_type, ExtractorType_Row>::type out;
 
       // Get indexsets for the subblock from which we wish to extract the
       // gradient values
-      const std::vector<unsigned int> row_index_set(
-        internal::extract_field_component_indices<dim>(extractor_row));
+      const std::vector<unsigned int> row_index_set(internal::extract_field_component_indices<dim>(extractor_row));
       Assert(out.n_independent_components == row_index_set.size(),
              ExcMessage("Not all tensor components have been extracted!"));
       for (unsigned int r = 0; r < row_index_set.size(); ++r)
@@ -4066,24 +3839,18 @@ namespace Differentiation
 
 
 
-    template <int                  dim,
-              enum AD::NumberTypes ADNumberTypeCode,
-              typename ScalarType>
+    template <int dim, enum AD::NumberTypes ADNumberTypeCode, typename ScalarType>
     template <typename ExtractorType_Row, typename ExtractorType_Col>
-    typename internal::VectorFieldJacobian<
-      dim,
-      typename VectorFunction<dim, ADNumberTypeCode, ScalarType>::scalar_type,
-      ExtractorType_Row,
-      ExtractorType_Col>::type
-    VectorFunction<dim, ADNumberTypeCode, ScalarType>::
-      extract_jacobian_component(const FullMatrix<scalar_type> &jacobian,
-                                 const ExtractorType_Row &      extractor_row,
-                                 const ExtractorType_Col &      extractor_col)
+    typename internal::VectorFieldJacobian<dim,
+                                           typename VectorFunction<dim, ADNumberTypeCode, ScalarType>::scalar_type,
+                                           ExtractorType_Row,
+                                           ExtractorType_Col>::type
+    VectorFunction<dim, ADNumberTypeCode, ScalarType>::extract_jacobian_component(
+      const FullMatrix<scalar_type> &jacobian,
+      const ExtractorType_Row       &extractor_row,
+      const ExtractorType_Col       &extractor_col)
     {
-      using InternalJacobian     = internal::VectorFieldJacobian<dim,
-                                                             scalar_type,
-                                                             ExtractorType_Row,
-                                                             ExtractorType_Col>;
+      using InternalJacobian = internal::VectorFieldJacobian<dim, scalar_type, ExtractorType_Row, ExtractorType_Col>;
       using InternalExtractorRow = internal::Extractor<dim, ExtractorType_Row>;
       using InternalExtractorCol = internal::Extractor<dim, ExtractorType_Col>;
       using JacobianType         = typename InternalJacobian::type;
@@ -4103,26 +3870,17 @@ namespace Differentiation
       // indexset to fetch off-diagonal components that are otherwise
       // non-existent in a SymmTensor.
       const std::vector<unsigned int> row_index_set(
-        internal::extract_field_component_indices<dim>(
-          extractor_row, false /*ignore_symmetries*/));
+        internal::extract_field_component_indices<dim>(extractor_row, false /*ignore_symmetries*/));
       const std::vector<unsigned int> col_index_set(
-        internal::extract_field_component_indices<dim>(
-          extractor_col, false /*ignore_symmetries*/));
+        internal::extract_field_component_indices<dim>(extractor_col, false /*ignore_symmetries*/));
 
-      for (unsigned int index = 0;
-           index < JacobianType::n_independent_components;
-           ++index)
+      for (unsigned int index = 0; index < JacobianType::n_independent_components; ++index)
         {
-          const TableIndices<JacobianType::rank> ti_out =
-            JacobianType::unrolled_to_component_indices(index);
-          const unsigned int r =
-            InternalExtractorRow::local_component(ti_out, 0);
-          const unsigned int c =
-            InternalExtractorCol::local_component(ti_out,
-                                                  InternalExtractorRow::rank);
+          const TableIndices<JacobianType::rank> ti_out = JacobianType::unrolled_to_component_indices(index);
+          const unsigned int                     r      = InternalExtractorRow::local_component(ti_out, 0);
+          const unsigned int c = InternalExtractorCol::local_component(ti_out, InternalExtractorRow::rank);
 
-          internal::set_tensor_entry(
-            out, index, jacobian[row_index_set[r]][col_index_set[c]]);
+          internal::set_tensor_entry(out, index, jacobian[row_index_set[r]][col_index_set[c]]);
         }
 
       return out;

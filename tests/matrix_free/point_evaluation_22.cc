@@ -42,9 +42,7 @@
 
 using namespace dealii;
 
-template <int dim,
-          typename Number              = double,
-          typename VectorizedArrayType = VectorizedArray<Number>>
+template <int dim, typename Number = double, typename VectorizedArrayType = VectorizedArray<Number>>
 void
 test(const unsigned int degree, const bool is_mapping_q = true)
 {
@@ -73,24 +71,17 @@ test(const unsigned int degree, const bool is_mapping_q = true)
     }
 
   FE_Q<dim>     fe(degree);
-  FEValues<dim> fe_values(*mapping,
-                          fe,
-                          Quadrature<dim>(unit_points),
-                          update_values | update_gradients);
+  FEValues<dim> fe_values(*mapping, fe, Quadrature<dim>(unit_points), update_values | update_gradients);
 
   DoFHandler<dim> dof_handler(tria);
   dof_handler.distribute_dofs(fe);
   Vector<Number> vector(dof_handler.n_dofs());
 
-  FEPointEvaluation<1, dim, dim, VectorizedArrayType> evaluator(
-    *mapping, fe, update_values | update_gradients);
+  FEPointEvaluation<1, dim, dim, VectorizedArrayType> evaluator(*mapping, fe, update_values | update_gradients);
 
   Tensor<1, dim, Number> exponents;
   exponents[0] = 1.;
-  VectorTools::interpolate(*mapping,
-                           dof_handler,
-                           Functions::Monomial<dim, Number>(exponents),
-                           vector);
+  VectorTools::interpolate(*mapping, dof_handler, Functions::Monomial<dim, Number>(exponents), vector);
 
   std::vector<Number>                 solution_values(fe.dofs_per_cell);
   std::vector<Number>                 function_values(unit_points.size());
@@ -107,13 +98,10 @@ test(const unsigned int degree, const bool is_mapping_q = true)
       fe_values.get_function_values(vector, function_values);
       fe_values.get_function_gradients(vector, function_gradients);
 
-      cell->get_dof_values(vector,
-                           solution_values.begin(),
-                           solution_values.end());
+      cell->get_dof_values(vector, solution_values.begin(), solution_values.end());
 
       evaluator.reinit(cell, unit_points);
-      evaluator.evaluate(solution_values,
-                         EvaluationFlags::values | EvaluationFlags::gradients);
+      evaluator.evaluate(solution_values, EvaluationFlags::values | EvaluationFlags::gradients);
 
       deallog << "Cell with center " << cell->center(true) << std::endl;
 
@@ -128,16 +116,10 @@ test(const unsigned int degree, const bool is_mapping_q = true)
             for (unsigned int d = 0; d < dim; ++d)
               gradient_current_lane[d] = gradient[d][v];
 
-            deallog
-              << mapping->transform_unit_to_real_cell(cell, unit_points[q + v])
-              << ": " << factor_float * evaluator.get_value(q / n_lanes)[v]
-              << " error value "
-              << factor_float * (function_values[q + v] -
-                                 evaluator.get_value(q / n_lanes)[v])
-              << " error grad "
-              << factor_float *
-                   (gradient_current_lane - function_gradients[q + v]).norm()
-              << std::endl;
+            deallog << mapping->transform_unit_to_real_cell(cell, unit_points[q + v]) << ": "
+                    << factor_float * evaluator.get_value(q / n_lanes)[v] << " error value "
+                    << factor_float * (function_values[q + v] - evaluator.get_value(q / n_lanes)[v]) << " error grad "
+                    << factor_float * (gradient_current_lane - function_gradients[q + v]).norm() << std::endl;
           }
       deallog << std::endl;
 
@@ -147,9 +129,7 @@ test(const unsigned int degree, const bool is_mapping_q = true)
           evaluator.submit_gradient(evaluator.get_gradient(i), i);
         }
 
-      evaluator.test_and_sum(solution_values,
-                             EvaluationFlags::values |
-                               EvaluationFlags::gradients);
+      evaluator.test_and_sum(solution_values, EvaluationFlags::values | EvaluationFlags::gradients);
 
       for (const auto i : solution_values)
         deallog << factor_float * i << ' ';

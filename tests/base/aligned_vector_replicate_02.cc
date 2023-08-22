@@ -32,12 +32,10 @@ test()
 {
   const MPI_Comm     communicator = MPI_COMM_WORLD;
   const unsigned int root         = 1;
-  Assert(root < Utilities::MPI::n_mpi_processes(communicator),
-         ExcInternalError());
+  Assert(root < Utilities::MPI::n_mpi_processes(communicator), ExcInternalError());
 
   // Same as for the _01 test:
-  AlignedVector<int> avec(
-    Utilities::MPI::this_mpi_process(communicator) == root ? 10 : 5);
+  AlignedVector<int> avec(Utilities::MPI::this_mpi_process(communicator) == root ? 10 : 5);
   if (Utilities::MPI::this_mpi_process(communicator) == root)
     {
       avec[2] = 2;
@@ -68,8 +66,7 @@ test()
   // Final step, let every process output what it now has. Every
   // process should be able to see the changed element, even though
   // only one changed it.
-  deallog << "On process " << Utilities::MPI::this_mpi_process(communicator)
-          << ": " << std::endl;
+  deallog << "On process " << Utilities::MPI::this_mpi_process(communicator) << ": " << std::endl;
   for (const auto i : avec)
     deallog << i << ' ';
   deallog << std::endl;

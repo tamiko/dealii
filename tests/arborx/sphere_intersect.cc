@@ -43,9 +43,9 @@ test_1d()
 
   ArborXWrappers::BVH                      bvh(points);
   ArborXWrappers::SphereIntersectPredicate sph_intersect(query_spheres);
-  auto             indices_offsets = bvh.query(sph_intersect);
-  std::vector<int> indices         = indices_offsets.first;
-  std::vector<int> offsets         = indices_offsets.second;
+  auto                                     indices_offsets = bvh.query(sph_intersect);
+  std::vector<int>                         indices         = indices_offsets.first;
+  std::vector<int>                         offsets         = indices_offsets.second;
 
   std::vector<int> indices_ref = {0, 1, 1, 2, 1, 2, 3, 2, 3};
   std::vector<int> offsets_ref = {0, 2, 4, 7, 9};
@@ -98,12 +98,11 @@ test_2d()
 
   ArborXWrappers::BVH                      bvh(points);
   ArborXWrappers::SphereIntersectPredicate sph_intersect(query_spheres);
-  auto             indices_offsets = bvh.query(sph_intersect);
-  std::vector<int> indices         = indices_offsets.first;
-  std::vector<int> offsets         = indices_offsets.second;
+  auto                                     indices_offsets = bvh.query(sph_intersect);
+  std::vector<int>                         indices         = indices_offsets.first;
+  std::vector<int>                         offsets         = indices_offsets.second;
 
-  std::vector<int> indices_ref = {
-    0, 5, 1, 6, 6, 11, 7, 12, 12, 17, 13, 18, 12, 17, 13, 18};
+  std::vector<int> indices_ref = {0, 5, 1, 6, 6, 11, 7, 12, 12, 17, 13, 18, 12, 17, 13, 18};
   std::vector<int> offsets_ref = {0, 4, 8, 12, 16};
 
   AssertThrow(indices.size() == indices_ref.size(), ExcInternalError());
@@ -157,14 +156,12 @@ test_3d()
 
   ArborXWrappers::BVH                      bvh(points);
   ArborXWrappers::SphereIntersectPredicate sph_intersect(query_spheres);
-  auto             indices_offsets = bvh.query(sph_intersect);
-  std::vector<int> indices         = indices_offsets.first;
-  std::vector<int> offsets         = indices_offsets.second;
+  auto                                     indices_offsets = bvh.query(sph_intersect);
+  std::vector<int>                         indices         = indices_offsets.first;
+  std::vector<int>                         offsets         = indices_offsets.second;
 
-  std::vector<int> indices_ref = {0,  25, 5,  30, 1,  26, 6,  31, 31,
-                                  56, 36, 61, 32, 57, 37, 62, 61, 57,
-                                  37, 62, 87, 67, 92, 63, 88, 68, 93,
-                                  62, 87, 67, 92, 63, 88, 68, 93};
+  std::vector<int> indices_ref = {0,  25, 5,  30, 1,  26, 6,  31, 31, 56, 36, 61, 32, 57, 37, 62, 61, 57,
+                                  37, 62, 87, 67, 92, 63, 88, 68, 93, 62, 87, 67, 92, 63, 88, 68, 93};
   std::vector<int> offsets_ref = {0, 8, 16, 27, 35};
 
   AssertThrow(indices.size() == indices_ref.size(), ExcInternalError());

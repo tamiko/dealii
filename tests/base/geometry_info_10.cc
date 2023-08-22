@@ -26,8 +26,7 @@ test()
 {
   for (const unsigned int i : GeometryInfo<dim>::face_indices())
     {
-      const Tensor<1, dim> unit_normal_vector =
-        GeometryInfo<dim>::unit_normal_vector[i];
+      const Tensor<1, dim> unit_normal_vector = GeometryInfo<dim>::unit_normal_vector[i];
       deallog << "Direction " << i << " = " << unit_normal_vector << std::endl;
 
       deallog << "Tangential vectors: ";

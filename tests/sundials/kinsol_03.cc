@@ -66,8 +66,7 @@ main()
   kinsol.reinit_vector = [N](VectorType &v) { v.reinit(N); };
 
   kinsol.residual = [](const VectorType &u, VectorType &F) {
-    deallog << "Evaluating the solution at u=(" << u[0] << ',' << u[1] << ')'
-            << std::endl;
+    deallog << "Evaluating the solution at u=(" << u[0] << ',' << u[1] << ')' << std::endl;
 
     F(0) = std::cos(u[0] + u[1]) - 1 + 2 * u[0];
     F(1) = std::sin(u[0] - u[1]) + 2 * u[1];
@@ -88,34 +87,31 @@ main()
   kinsol.setup_jacobian = [](const VectorType &u, const VectorType &F) {
     // We don't do any kind of set-up in this program, but we can at least
     // say that we're here
-    deallog << "Setting up Jacobian system at u=(" << u[0] << ',' << u[1] << ')'
-            << std::endl;
+    deallog << "Setting up Jacobian system at u=(" << u[0] << ',' << u[1] << ')' << std::endl;
   };
 
 
-  kinsol.solve_with_jacobian =
-    [](const VectorType &rhs, VectorType &dst, double) {
-      deallog << "Solving Jacobian system with rhs=(" << rhs[0] << ',' << rhs[1]
-              << ')' << std::endl;
+  kinsol.solve_with_jacobian = [](const VectorType &rhs, VectorType &dst, double) {
+    deallog << "Solving Jacobian system with rhs=(" << rhs[0] << ',' << rhs[1] << ')' << std::endl;
 
-      // This isn't right for SUNDIALS >4.0: We don't actually get a valid
-      // 'u' vector, and so do the linearization of the problem around
-      // the zero vector. This *happens* to converge, but it isn't the
-      // right approach. Check the _04 test for a better approach.
-      VectorType u(2);
-      u[0] = u[1] = 0;
+    // This isn't right for SUNDIALS >4.0: We don't actually get a valid
+    // 'u' vector, and so do the linearization of the problem around
+    // the zero vector. This *happens* to converge, but it isn't the
+    // right approach. Check the _04 test for a better approach.
+    VectorType u(2);
+    u[0] = u[1] = 0;
 
-      FullMatrix<double> J(2, 2);
-      J(0, 0) = -std::sin(u[0] + u[1]) + 2;
-      J(0, 1) = -std::sin(u[0] + u[1]);
-      J(1, 0) = std::cos(u[0] - u[1]);
-      J(1, 1) = -std::cos(u[0] - u[1]) + 2;
+    FullMatrix<double> J(2, 2);
+    J(0, 0) = -std::sin(u[0] + u[1]) + 2;
+    J(0, 1) = -std::sin(u[0] + u[1]);
+    J(1, 0) = std::cos(u[0] - u[1]);
+    J(1, 1) = -std::cos(u[0] - u[1]) + 2;
 
-      FullMatrix<double> J_inverse(2, 2);
-      J_inverse.invert(J);
+    FullMatrix<double> J_inverse(2, 2);
+    J_inverse.invert(J);
 
-      J_inverse.vmult(dst, rhs);
-    };
+    J_inverse.vmult(dst, rhs);
+  };
 
   VectorType v(N);
   v(0) = 0.5;

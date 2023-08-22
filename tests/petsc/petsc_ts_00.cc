@@ -73,7 +73,7 @@ public:
                      bool                                           setjac,
                      bool                                           implicit,
                      bool                                           user,
-                     std::ostream &                                 _out)
+                     std::ostream                                  &_out)
     : time_stepper(data)
     , out(_out)
     , kappa(_kappa)
@@ -81,10 +81,8 @@ public:
     // In this case we use the implicit form
     if (implicit)
       {
-        time_stepper.implicit_function = [&](const real_type   t,
-                                             const VectorType &y,
-                                             const VectorType &y_dot,
-                                             VectorType &      res) -> void {
+        time_stepper.implicit_function =
+          [&](const real_type t, const VectorType &y, const VectorType &y_dot, VectorType &res) -> void {
           res(0) = y_dot(0) - y(1);
           res(1) = y_dot(1) + kappa * kappa * y(0);
           res.compress(VectorOperation::insert);
@@ -107,8 +105,8 @@ public:
                                                  const VectorType &y,
                                                  const VectorType &y_dot,
                                                  const real_type   shift,
-                                                 MatrixType &      A,
-                                                 MatrixType &      P) -> void {
+                                                 MatrixType       &A,
+                                                 MatrixType       &P) -> void {
               P.set(0, 0, shift);
               P.set(0, 1, -1);
               P.set(1, 0, kappa * kappa);
@@ -122,17 +120,14 @@ public:
             // setting up the Jacobian system and solve for it.
             // In this example we only store the solver shift
             // during setup.
-            time_stepper.setup_jacobian = [&](const real_type   t,
-                                              const VectorType &y,
-                                              const VectorType &y_dot,
-                                              const real_type   shift) -> void {
+            time_stepper.setup_jacobian =
+              [&](const real_type t, const VectorType &y, const VectorType &y_dot, const real_type shift) -> void {
               myshift = shift;
             };
 
             // In the solve phase we se the stored shift to solve
             // for the implicit Jacobian system
-            time_stepper.solve_with_jacobian = [&](const VectorType &src,
-                                                   VectorType &dst) -> void {
+            time_stepper.solve_with_jacobian = [&](const VectorType &src, VectorType &dst) -> void {
               auto sf = 1. / (kappa * kappa + myshift * myshift);
               dst(0)  = sf * (myshift * src(0) + src(1));
               dst(1)  = sf * (-kappa * kappa * src(0) + myshift * src(1));
@@ -144,8 +139,7 @@ public:
       { // Here we instead use the explicit form
         // This is the only function one would populate in case an explicit
         // solver is used.
-        time_stepper.explicit_function =
-          [&](const real_type t, const VectorType &y, VectorType &res) -> void {
+        time_stepper.explicit_function = [&](const real_type t, const VectorType &y, VectorType &res) -> void {
           res(0) = y(1);
           res(1) = -kappa * kappa * y(0);
           res.compress(VectorOperation::insert);
@@ -157,10 +151,8 @@ public:
         // this test
         if (setjac)
           {
-            time_stepper.explicit_jacobian = [&](const real_type   t,
-                                                 const VectorType &y,
-                                                 MatrixType &      A,
-                                                 MatrixType &      P) -> void {
+            time_stepper.explicit_jacobian =
+              [&](const real_type t, const VectorType &y, MatrixType &A, MatrixType &P) -> void {
               P.set(0, 0, 0);
               P.set(0, 1, 1);
               P.set(1, 0, -kappa * kappa);
@@ -172,9 +164,7 @@ public:
 
     // Monitoring routine. Here we print diagnostic for the exact
     // solution to the log file.
-    time_stepper.monitor = [&](const real_type    t,
-                               const VectorType & y,
-                               const unsigned int step_number) -> void {
+    time_stepper.monitor = [&](const real_type t, const VectorType &y, const unsigned int step_number) -> void {
       std::vector<real_type> exact(2);
       exact[0] = std::sin(kappa * t);
       exact[1] = kappa * std::cos(kappa * t);

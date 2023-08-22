@@ -110,15 +110,12 @@ namespace parallel
      */
     template <int dim, int spacedim = dim>
     DEAL_II_CXX20_REQUIRES((concepts::is_valid_dim_spacedim<dim, spacedim>))
-    class Triangulation
-      : public parallel::DistributedTriangulationBase<dim, spacedim>
+    class Triangulation : public parallel::DistributedTriangulationBase<dim, spacedim>
     {
     public:
-      using cell_iterator =
-        typename dealii::Triangulation<dim, spacedim>::cell_iterator;
+      using cell_iterator = typename dealii::Triangulation<dim, spacedim>::cell_iterator;
 
-      using active_cell_iterator =
-        typename dealii::Triangulation<dim, spacedim>::active_cell_iterator;
+      using active_cell_iterator = typename dealii::Triangulation<dim, spacedim>::active_cell_iterator;
 
       /**
        * Constructor.
@@ -141,9 +138,7 @@ namespace parallel
        * triangulations of deal.II.
        */
       void
-      create_triangulation(
-        const TriangulationDescription::Description<dim, spacedim>
-          &construction_data) override;
+      create_triangulation(const TriangulationDescription::Description<dim, spacedim> &construction_data) override;
 
       /**
        * @note This function is not implemented for this class  and throws
@@ -152,9 +147,9 @@ namespace parallel
        *       triangulation.
        */
       virtual void
-      create_triangulation(const std::vector<Point<spacedim>> &      vertices,
+      create_triangulation(const std::vector<Point<spacedim>>       &vertices,
                            const std::vector<dealii::CellData<dim>> &cells,
-                           const SubCellData &subcelldata) override;
+                           const SubCellData                        &subcelldata) override;
 
       /**
        * Implementation of the same function as in the base class.
@@ -167,8 +162,7 @@ namespace parallel
        *       set_partitioner().
        */
       void
-      copy_triangulation(
-        const dealii::Triangulation<dim, spacedim> &other_tria) override;
+      copy_triangulation(const dealii::Triangulation<dim, spacedim> &other_tria) override;
 
       /**
        * Register a partitioner, which is used within the method
@@ -189,18 +183,16 @@ namespace parallel
        */
       void
       set_partitioner(
-        const std::function<void(dealii::Triangulation<dim, spacedim> &,
-                                 const unsigned int)> &partitioner,
-        const TriangulationDescription::Settings &     settings);
+        const std::function<void(dealii::Triangulation<dim, spacedim> &, const unsigned int)> &partitioner,
+        const TriangulationDescription::Settings                                              &settings);
 
       /**
        * Register a partitioner, which is used within the method
        * repartition().
        */
       void
-      set_partitioner(
-        const RepartitioningPolicyTools::Base<dim, spacedim> &partitioner,
-        const TriangulationDescription::Settings &            settings);
+      set_partitioner(const RepartitioningPolicyTools::Base<dim, spacedim> &partitioner,
+                      const TriangulationDescription::Settings             &settings);
 
       /**
        * Execute repartitioning and use the partitioner attached by the
@@ -270,12 +262,10 @@ namespace parallel
 
     private:
       virtual unsigned int
-      coarse_cell_id_to_coarse_cell_index(
-        const types::coarse_cell_id coarse_cell_id) const override;
+      coarse_cell_id_to_coarse_cell_index(const types::coarse_cell_id coarse_cell_id) const override;
 
       virtual types::coarse_cell_id
-      coarse_cell_index_to_coarse_cell_id(
-        const unsigned int coarse_cell_index) const override;
+      coarse_cell_index_to_coarse_cell_id(const unsigned int coarse_cell_index) const override;
 
       /**
        * Go through all active cells that are locally owned and record how they
@@ -302,28 +292,23 @@ namespace parallel
       /**
        * Partitioner used in copy_triangulation().
        */
-      std::function<void(dealii::Triangulation<dim, spacedim> &,
-                         const unsigned int)>
-        partitioner;
+      std::function<void(dealii::Triangulation<dim, spacedim> &, const unsigned int)> partitioner;
 
       /**
        * Partitioner used during repartition().
        */
-      SmartPointer<const RepartitioningPolicyTools::Base<dim, spacedim>>
-        partitioner_distributed;
+      SmartPointer<const RepartitioningPolicyTools::Base<dim, spacedim>> partitioner_distributed;
 
       /**
        * Sorted list of pairs of coarse-cell ids and their indices.
        */
-      std::vector<std::pair<types::coarse_cell_id, unsigned int>>
-        coarse_cell_id_to_coarse_cell_index_vector;
+      std::vector<std::pair<types::coarse_cell_id, unsigned int>> coarse_cell_id_to_coarse_cell_index_vector;
 
       /**
        * List of the coarse-cell id for each coarse cell (stored at
        * cell->index()).
        */
-      std::vector<types::coarse_cell_id>
-        coarse_cell_index_to_coarse_cell_id_vector;
+      std::vector<types::coarse_cell_id> coarse_cell_index_to_coarse_cell_id_vector;
 
       /**
        * Boolean indicating that the function create_triangulation() was called
@@ -335,8 +320,7 @@ namespace parallel
        * Boolean indicating that the function
        * prepare_coarsening_and_refinement() was called for internal usage.
        */
-      bool
-        currently_processing_prepare_coarsening_and_refinement_for_internal_usage;
+      bool currently_processing_prepare_coarsening_and_refinement_for_internal_usage;
     };
 
   } // namespace fullydistributed

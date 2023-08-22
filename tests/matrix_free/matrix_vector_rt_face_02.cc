@@ -42,10 +42,8 @@ test()
   constraints.close();
 
   deallog << "Using " << dof.get_fe().get_name() << std::endl;
-  deallog << "Number of cells: " << dof.get_triangulation().n_active_cells()
-          << std::endl;
-  deallog << "Number of degrees of freedom: " << dof.n_dofs() << std::endl
-          << std::endl;
+  deallog << "Number of cells: " << dof.get_triangulation().n_active_cells() << std::endl;
+  deallog << "Number of degrees of freedom: " << dof.n_dofs() << std::endl << std::endl;
   do_test<dim, fe_degree, double>(dof, constraints, TestType::values_gradients);
   do_test<dim, fe_degree, double>(dof, constraints, TestType::divergence);
 }

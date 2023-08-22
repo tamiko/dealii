@@ -45,14 +45,11 @@ fill(const std::array<std::vector<double>, 2> &coordinates)
 Table<3, double>
 fill(const std::array<std::vector<double>, 3> &coordinates)
 {
-  Table<3, double> data(coordinates[0].size(),
-                        coordinates[1].size(),
-                        coordinates[2].size());
+  Table<3, double> data(coordinates[0].size(), coordinates[1].size(), coordinates[2].size());
   for (unsigned int i = 0; i < coordinates[0].size(); ++i)
     for (unsigned int j = 0; j < coordinates[1].size(); ++j)
       for (unsigned int k = 0; k < coordinates[2].size(); ++k)
-        data[i][j][k] =
-          coordinates[0][i] * coordinates[1][j] * coordinates[2][k];
+        data[i][j][k] = coordinates[0][i] * coordinates[1][j] * coordinates[2][k];
   return data;
 }
 
@@ -74,9 +71,8 @@ check()
   std::array<std::vector<double>, dim> coordinates;
   for (unsigned int d = 0; d < dim; ++d)
     {
-      const double x = intervals[d].first;
-      const double dx =
-        (intervals[d].second - intervals[d].first) / n_subintervals[d];
+      const double x  = intervals[d].first;
+      const double dx = (intervals[d].second - intervals[d].first) / n_subintervals[d];
 
       for (unsigned int i = 0; i < n_subintervals[d] + 1; ++i)
         coordinates[d].push_back(x + dx * i);
@@ -84,9 +80,7 @@ check()
 
   const Table<dim, double> data = fill(coordinates);
 
-  Functions::InterpolatedUniformGridData<dim> f(intervals,
-                                                n_subintervals,
-                                                data);
+  Functions::InterpolatedUniformGridData<dim> f(intervals, n_subintervals, data);
 
   // now choose a number of randomly chosen points inside the box and
   // verify that the functions returned are correct
@@ -94,9 +88,7 @@ check()
     {
       Point<dim> p;
       for (unsigned int d = 0; d < dim; ++d)
-        p[d] =
-          coordinates[d][0] + (random_value<double>()) *
-                                (coordinates[d].back() - coordinates[d][0]);
+        p[d] = coordinates[d][0] + (random_value<double>()) * (coordinates[d].back() - coordinates[d][0]);
 
       // The function is x*y*z, so we can compute the gradient pretty easily
       Tensor<1, dim> exact_gradient;
@@ -108,8 +100,7 @@ check()
               exact_gradient[d] *= p[e];
         }
 
-      AssertThrow((exact_gradient - f.gradient(p)).norm() < 1e-12,
-                  ExcInternalError());
+      AssertThrow((exact_gradient - f.gradient(p)).norm() < 1e-12, ExcInternalError());
     }
 
   deallog << "OK" << std::endl;

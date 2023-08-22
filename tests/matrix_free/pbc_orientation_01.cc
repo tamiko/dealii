@@ -58,35 +58,33 @@ void
 generate_grid(Triangulation<3> &triangulation, int orientation)
 {
   Point<3>              vertices_1[] = {Point<3>(-0., -0., -0.),
-                           Point<3>(+1., -0., -0.),
-                           Point<3>(-0., +1., -0.),
-                           Point<3>(+1., +1., -0.),
-                           Point<3>(-0., -0., +0.5),
-                           Point<3>(+1., -0., +0.5),
-                           Point<3>(-0., +1., +0.5),
-                           Point<3>(+1., +1., +0.5),
-                           Point<3>(-0., -0., +1.),
-                           Point<3>(+1., -0., +1.),
-                           Point<3>(-0., +1., +1.),
-                           Point<3>(+1., +1., +1.)};
+                                        Point<3>(+1., -0., -0.),
+                                        Point<3>(-0., +1., -0.),
+                                        Point<3>(+1., +1., -0.),
+                                        Point<3>(-0., -0., +0.5),
+                                        Point<3>(+1., -0., +0.5),
+                                        Point<3>(-0., +1., +0.5),
+                                        Point<3>(+1., +1., +0.5),
+                                        Point<3>(-0., -0., +1.),
+                                        Point<3>(+1., -0., +1.),
+                                        Point<3>(-0., +1., +1.),
+                                        Point<3>(+1., +1., +1.)};
   std::vector<Point<3>> vertices(&vertices_1[0], &vertices_1[12]);
 
   std::vector<CellData<3>> cells(2, CellData<3>());
 
   /* cell 0 */
-  int cell_vertices_0[GeometryInfo<3>::vertices_per_cell] = {
-    0, 1, 2, 3, 4, 5, 6, 7};
+  int cell_vertices_0[GeometryInfo<3>::vertices_per_cell] = {0, 1, 2, 3, 4, 5, 6, 7};
 
   /* cell 1 */
-  int cell_vertices_1[8][GeometryInfo<3>::vertices_per_cell] = {
-    {4, 5, 6, 7, 8, 9, 10, 11},
-    {5, 7, 4, 6, 9, 11, 8, 10},
-    {7, 6, 5, 4, 11, 10, 9, 8},
-    {6, 4, 7, 5, 10, 8, 11, 9},
-    {9, 8, 11, 10, 5, 4, 7, 6},
-    {8, 10, 9, 11, 4, 6, 5, 7},
-    {10, 11, 8, 9, 6, 7, 4, 5},
-    {11, 9, 10, 8, 7, 5, 6, 4}};
+  int cell_vertices_1[8][GeometryInfo<3>::vertices_per_cell] = {{4, 5, 6, 7, 8, 9, 10, 11},
+                                                                {5, 7, 4, 6, 9, 11, 8, 10},
+                                                                {7, 6, 5, 4, 11, 10, 9, 8},
+                                                                {6, 4, 7, 5, 10, 8, 11, 9},
+                                                                {9, 8, 11, 10, 5, 4, 7, 6},
+                                                                {8, 10, 9, 11, 4, 6, 5, 7},
+                                                                {10, 11, 8, 9, 6, 7, 4, 5},
+                                                                {11, 9, 10, 8, 7, 5, 6, 4}};
 
   for (const unsigned int j : GeometryInfo<3>::vertex_indices())
     {
@@ -129,33 +127,28 @@ test()
               face->set_boundary_id(5);
           }
 
-      std::vector<dealii::GridTools::PeriodicFacePair<
-        typename dealii::Triangulation<dim>::cell_iterator>>
+      std::vector<dealii::GridTools::PeriodicFacePair<typename dealii::Triangulation<dim>::cell_iterator>>
         periodic_faces;
 
       dealii::GridTools::collect_periodic_faces(tria, 4, 5, 2, periodic_faces);
 
       tria.add_periodicity(periodic_faces);
 
-      QGauss<1> quadrature(fe_degree + 1);
+      QGauss<1>                                        quadrature(fe_degree + 1);
       typename MatrixFree<dim, double>::AdditionalData additional_data;
       additional_data.overlap_communication_computation = false;
       additional_data.mapping_update_flags =
-        (update_gradients | update_JxW_values | update_quadrature_points |
-         update_values);
+        (update_gradients | update_JxW_values | update_quadrature_points | update_values);
       additional_data.mapping_update_flags_inner_faces =
-        (update_JxW_values | update_normal_vectors | update_quadrature_points |
-         update_values);
+        (update_JxW_values | update_normal_vectors | update_quadrature_points | update_values);
       additional_data.mapping_update_flags_boundary_faces =
-        (update_JxW_values | update_normal_vectors | update_quadrature_points |
-         update_values);
+        (update_JxW_values | update_normal_vectors | update_quadrature_points | update_values);
 
       MatrixFree<dim, double> data;
 
       AffineConstraints<double> dummy;
       dummy.close();
-      data.reinit(
-        MappingQ1<dim>{}, dof_handler, dummy, quadrature, additional_data);
+      data.reinit(MappingQ1<dim>{}, dof_handler, dummy, quadrature, additional_data);
 
       using VectorType = LinearAlgebra::distributed::Vector<double>;
 
@@ -165,16 +158,13 @@ test()
       VectorTools::interpolate(dof_handler, ExactSolution<dim>(), vec);
 
 
-      FEFaceEvaluation<dim, fe_degree, fe_degree + 1, 1, double> eval_minus(
-        data, true);
-      FEFaceEvaluation<dim, fe_degree, fe_degree + 1, 1, double> eval_plus(
-        data, false);
+      FEFaceEvaluation<dim, fe_degree, fe_degree + 1, 1, double> eval_minus(data, true);
+      FEFaceEvaluation<dim, fe_degree, fe_degree + 1, 1, double> eval_plus(data, false);
 
       data.template loop<VectorType, VectorType>(
         [](const auto &, auto &, const auto &, const auto) {},
         [&](const auto &, auto &, const auto &src, const auto face_range) {
-          for (unsigned int face = face_range.first; face < face_range.second;
-               face++)
+          for (unsigned int face = face_range.first; face < face_range.second; face++)
             {
               eval_minus.reinit(face);
               eval_minus.gather_evaluate(src, EvaluationFlags::values);
@@ -186,11 +176,9 @@ test()
                   const auto u_minus = eval_minus.get_value(q);
                   const auto u_plus  = eval_plus.get_value(q);
 
-                  for (unsigned int v = 0; v < VectorizedArray<double>::size();
-                       ++v)
+                  for (unsigned int v = 0; v < VectorizedArray<double>::size(); ++v)
                     {
-                      Assert(std::abs(u_minus[v] - u_plus[v]) < 1e-10,
-                             ExcMessage("Entries do not match!"));
+                      Assert(std::abs(u_minus[v] - u_plus[v]) < 1e-10, ExcMessage("Entries do not match!"));
                     }
                 }
             }

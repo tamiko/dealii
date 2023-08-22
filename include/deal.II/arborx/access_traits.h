@@ -75,8 +75,7 @@ namespace ArborXWrappers
      * knowing if they intersect ArborXWrappers::BVH bounding boxes.
      */
     template <int dim, typename Number>
-    PointIntersectPredicate(
-      const std::vector<dealii::Point<dim, Number>> &points);
+    PointIntersectPredicate(const std::vector<dealii::Point<dim, Number>> &points);
 
     // We need these since we inherit privately to avoid polymorphic use.
     using PointPredicate::get;
@@ -101,7 +100,7 @@ namespace ArborXWrappers
      */
     template <int dim, typename Number>
     PointNearestPredicate(const std::vector<dealii::Point<dim, Number>> &points,
-                          const unsigned int n_nearest_neighbors);
+                          const unsigned int                             n_nearest_neighbors);
 
     /**
      * Return the number of nearest neighbors we are looking for.
@@ -131,8 +130,7 @@ namespace ArborXWrappers
      * predicate.
      */
     template <int dim, typename Number>
-    BoundingBoxPredicate(
-      const std::vector<dealii::BoundingBox<dim, Number>> &bounding_boxes);
+    BoundingBoxPredicate(const std::vector<dealii::BoundingBox<dim, Number>> &bounding_boxes);
 
     /**
      * The number of bounding boxes stored in the structure.
@@ -166,8 +164,7 @@ namespace ArborXWrappers
      * knowing if they intersect ArborXWrappers::BVH bounding boxes.
      */
     template <int dim, typename Number>
-    BoundingBoxIntersectPredicate(
-      const std::vector<dealii::BoundingBox<dim, Number>> &bounding_boxes);
+    BoundingBoxIntersectPredicate(const std::vector<dealii::BoundingBox<dim, Number>> &bounding_boxes);
 
     // We need these since we inherit privately to avoid polymorphic use.
     using BoundingBoxPredicate::get;
@@ -190,9 +187,8 @@ namespace ArborXWrappers
      * ArborXWrappers::BVH.
      */
     template <int dim, typename Number>
-    BoundingBoxNearestPredicate(
-      const std::vector<dealii::BoundingBox<dim, Number>> &bounding_boxes,
-      const unsigned int                                   n_nearest_neighbors);
+    BoundingBoxNearestPredicate(const std::vector<dealii::BoundingBox<dim, Number>> &bounding_boxes,
+                                const unsigned int                                   n_nearest_neighbors);
 
     /**
      * Return the number of nearest neighbors we are looking for.
@@ -222,9 +218,7 @@ namespace ArborXWrappers
      * pair, used by the predicate.
      */
     template <int dim, typename Number>
-    SpherePredicate(
-      const std::vector<std::pair<dealii::Point<dim, Number>, Number>>
-        &spheres);
+    SpherePredicate(const std::vector<std::pair<dealii::Point<dim, Number>, Number>> &spheres);
 
     /**
      * The number of spheres stored in the structure.
@@ -258,9 +252,7 @@ namespace ArborXWrappers
      * knowing if they intersect ArborXWrappers::BVH bounding boxes.
      */
     template <int dim, typename Number>
-    SphereIntersectPredicate(
-      const std::vector<std::pair<dealii::Point<dim, Number>, Number>>
-        &spheres);
+    SphereIntersectPredicate(const std::vector<std::pair<dealii::Point<dim, Number>, Number>> &spheres);
 
     // We need these since we inherit privately to avoid polymorphic use.
     using SpherePredicate::get;
@@ -284,9 +276,8 @@ namespace ArborXWrappers
      * bounding boxes/points.
      */
     template <int dim, typename Number>
-    SphereNearestPredicate(
-      const std::vector<std::pair<dealii::Point<dim, Number>, Number>> &spheres,
-      const unsigned int n_nearest_neighbors);
+    SphereNearestPredicate(const std::vector<std::pair<dealii::Point<dim, Number>, Number>> &spheres,
+                           const unsigned int                                                n_nearest_neighbors);
 
     /**
      * Return the number of nearest neighbors we are looking for.
@@ -339,8 +330,7 @@ namespace ArborX
    * primitive.
    */
   template <int dim, typename Number>
-  struct AccessTraits<std::vector<dealii::BoundingBox<dim, Number>>,
-                      PrimitivesTag>
+  struct AccessTraits<std::vector<dealii::BoundingBox<dim, Number>>, PrimitivesTag>
   {
     using memory_space = Kokkos::HostSpace;
 
@@ -364,9 +354,7 @@ namespace ArborX
    * std::vector<std::pair<dealii::Point, Number> as primitive.
    */
   template <int dim, typename Number>
-  struct AccessTraits<
-    std::vector<std::pair<dealii::Point<dim, Number>, Number>>,
-    PrimitivesTag>
+  struct AccessTraits<std::vector<std::pair<dealii::Point<dim, Number>, Number>>, PrimitivesTag>
   {
     using memory_space = Kokkos::HostSpace;
 
@@ -381,8 +369,7 @@ namespace ArborX
      * `v[i]`.
      */
     static Sphere
-    get(const std::vector<std::pair<dealii::Point<dim, Number>, Number>> &v,
-        std::size_t                                                       i);
+    get(const std::vector<std::pair<dealii::Point<dim, Number>, Number>> &v, std::size_t i);
   };
 
 
@@ -391,8 +378,7 @@ namespace ArborX
    * This struct allows ArborX to use PointIntersectPredicate as a predicate.
    */
   template <>
-  struct AccessTraits<dealii::ArborXWrappers::PointIntersectPredicate,
-                      PredicatesTag>
+  struct AccessTraits<dealii::ArborXWrappers::PointIntersectPredicate, PredicatesTag>
   {
     using memory_space = Kokkos::HostSpace;
 
@@ -407,8 +393,7 @@ namespace ArborX
      * `i`th dealii::Point stored in @p pt_intersect.
      */
     static auto
-    get(const dealii::ArborXWrappers::PointIntersectPredicate &pt_intersect,
-        std::size_t                                            i);
+    get(const dealii::ArborXWrappers::PointIntersectPredicate &pt_intersect, std::size_t i);
   };
 
 
@@ -417,8 +402,7 @@ namespace ArborX
    * This struct allows ArborX to use PointNearestPredicate as a predicate.
    */
   template <>
-  struct AccessTraits<dealii::ArborXWrappers::PointNearestPredicate,
-                      PredicatesTag>
+  struct AccessTraits<dealii::ArborXWrappers::PointNearestPredicate, PredicatesTag>
   {
     using memory_space = Kokkos::HostSpace;
 
@@ -434,8 +418,7 @@ namespace ArborX
      * the `i`th dealii::Point stored in @p pt_nearest.
      */
     static auto
-    get(const dealii::ArborXWrappers::PointNearestPredicate &pt_nearest,
-        std::size_t                                          i);
+    get(const dealii::ArborXWrappers::PointNearestPredicate &pt_nearest, std::size_t i);
   };
 
 
@@ -445,8 +428,7 @@ namespace ArborX
    * predicate.
    */
   template <>
-  struct AccessTraits<dealii::ArborXWrappers::BoundingBoxIntersectPredicate,
-                      PredicatesTag>
+  struct AccessTraits<dealii::ArborXWrappers::BoundingBoxIntersectPredicate, PredicatesTag>
   {
     using memory_space = Kokkos::HostSpace;
 
@@ -454,17 +436,14 @@ namespace ArborX
      * The number of bounding boxes stored in @p bb_intersect.
      */
     static std::size_t
-    size(const dealii::ArborXWrappers::BoundingBoxIntersectPredicate
-           &bb_intersect);
+    size(const dealii::ArborXWrappers::BoundingBoxIntersectPredicate &bb_intersect);
 
     /**
      * Return an Arbox::intersects(ArborX::Box) object constructed from the
      * `i`th dealii::BoundingBox stored in @p bb_intersect.
      */
     static auto
-    get(
-      const dealii::ArborXWrappers::BoundingBoxIntersectPredicate &bb_intersect,
-      std::size_t                                                  i);
+    get(const dealii::ArborXWrappers::BoundingBoxIntersectPredicate &bb_intersect, std::size_t i);
   };
 
 
@@ -474,8 +453,7 @@ namespace ArborX
    * predicate.
    */
   template <>
-  struct AccessTraits<dealii::ArborXWrappers::BoundingBoxNearestPredicate,
-                      PredicatesTag>
+  struct AccessTraits<dealii::ArborXWrappers::BoundingBoxNearestPredicate, PredicatesTag>
   {
     using memory_space = Kokkos::HostSpace;
 
@@ -493,8 +471,7 @@ namespace ArborX
      * `i`th dealii::BoundingBox stored in @p bb_nearest.
      */
     static auto
-    get(const dealii::ArborXWrappers::BoundingBoxNearestPredicate &bb_nearest,
-        std::size_t                                                i);
+    get(const dealii::ArborXWrappers::BoundingBoxNearestPredicate &bb_nearest, std::size_t i);
   };
 
 
@@ -503,8 +480,7 @@ namespace ArborX
    * This struct allows ArborX to use SphereIntersectPredicate as a predicate.
    */
   template <>
-  struct AccessTraits<dealii::ArborXWrappers::SphereIntersectPredicate,
-                      PredicatesTag>
+  struct AccessTraits<dealii::ArborXWrappers::SphereIntersectPredicate, PredicatesTag>
   {
     using memory_space = Kokkos::HostSpace;
 
@@ -519,8 +495,7 @@ namespace ArborX
      * `i`th sphere stored in @p sph_intersect.
      */
     static auto
-    get(const dealii::ArborXWrappers::SphereIntersectPredicate &sph_intersect,
-        std::size_t                                             i);
+    get(const dealii::ArborXWrappers::SphereIntersectPredicate &sph_intersect, std::size_t i);
   };
 
 
@@ -529,8 +504,7 @@ namespace ArborX
    * This struct allows ArborX to use SphereNearestPredicate as a predicate.
    */
   template <>
-  struct AccessTraits<dealii::ArborXWrappers::SphereNearestPredicate,
-                      PredicatesTag>
+  struct AccessTraits<dealii::ArborXWrappers::SphereNearestPredicate, PredicatesTag>
   {
     using memory_space = Kokkos::HostSpace;
 
@@ -546,8 +520,7 @@ namespace ArborX
      * the `i`th sphere stored in @p sph_nearest.
      */
     static auto
-    get(const dealii::ArborXWrappers::SphereNearestPredicate &sph_nearest,
-        std::size_t                                           i);
+    get(const dealii::ArborXWrappers::SphereNearestPredicate &sph_nearest, std::size_t i);
   };
 
   // ------------------------------- Inline ----------------------------------//
@@ -557,8 +530,8 @@ namespace ArborX
   // We use auto because ArborX does not expose the type of intersects
 
   inline std::size_t
-  AccessTraits<dealii::ArborXWrappers::PointIntersectPredicate, PredicatesTag>::
-    size(const dealii::ArborXWrappers::PointIntersectPredicate &pt_intersect)
+  AccessTraits<dealii::ArborXWrappers::PointIntersectPredicate, PredicatesTag>::size(
+    const dealii::ArborXWrappers::PointIntersectPredicate &pt_intersect)
   {
     return pt_intersect.size();
   }
@@ -566,9 +539,9 @@ namespace ArborX
 
 
   inline auto
-  AccessTraits<dealii::ArborXWrappers::PointIntersectPredicate, PredicatesTag>::
-    get(const dealii::ArborXWrappers::PointIntersectPredicate &pt_intersect,
-        std::size_t                                            i)
+  AccessTraits<dealii::ArborXWrappers::PointIntersectPredicate, PredicatesTag>::get(
+    const dealii::ArborXWrappers::PointIntersectPredicate &pt_intersect,
+    std::size_t                                            i)
   {
     const auto dealii_point = pt_intersect.get(i);
     return intersects(Point{dealii_point[0], dealii_point[1], dealii_point[2]});
@@ -577,8 +550,8 @@ namespace ArborX
 
 
   inline std::size_t
-  AccessTraits<dealii::ArborXWrappers::PointNearestPredicate, PredicatesTag>::
-    size(const dealii::ArborXWrappers::PointNearestPredicate &pt_nearest)
+  AccessTraits<dealii::ArborXWrappers::PointNearestPredicate, PredicatesTag>::size(
+    const dealii::ArborXWrappers::PointNearestPredicate &pt_nearest)
   {
     return pt_nearest.size();
   }
@@ -586,22 +559,19 @@ namespace ArborX
 
 
   inline auto
-  AccessTraits<dealii::ArborXWrappers::PointNearestPredicate, PredicatesTag>::
-    get(const dealii::ArborXWrappers::PointNearestPredicate &pt_nearest,
-        std::size_t                                          i)
+  AccessTraits<dealii::ArborXWrappers::PointNearestPredicate, PredicatesTag>::get(
+    const dealii::ArborXWrappers::PointNearestPredicate &pt_nearest,
+    std::size_t                                          i)
   {
     const auto dealii_point = pt_nearest.get(i);
-    return nearest(Point{dealii_point[0], dealii_point[1], dealii_point[2]},
-                   pt_nearest.get_n_nearest_neighbors());
+    return nearest(Point{dealii_point[0], dealii_point[1], dealii_point[2]}, pt_nearest.get_n_nearest_neighbors());
   }
 
 
 
   inline std::size_t
-  AccessTraits<dealii::ArborXWrappers::BoundingBoxIntersectPredicate,
-               PredicatesTag>::
-    size(
-      const dealii::ArborXWrappers::BoundingBoxIntersectPredicate &bb_intersect)
+  AccessTraits<dealii::ArborXWrappers::BoundingBoxIntersectPredicate, PredicatesTag>::size(
+    const dealii::ArborXWrappers::BoundingBoxIntersectPredicate &bb_intersect)
   {
     return bb_intersect.size();
   }
@@ -609,26 +579,23 @@ namespace ArborX
 
 
   inline auto
-  AccessTraits<dealii::ArborXWrappers::BoundingBoxIntersectPredicate,
-               PredicatesTag>::
-    get(
-      const dealii::ArborXWrappers::BoundingBoxIntersectPredicate &bb_intersect,
-      std::size_t                                                  i)
+  AccessTraits<dealii::ArborXWrappers::BoundingBoxIntersectPredicate, PredicatesTag>::get(
+    const dealii::ArborXWrappers::BoundingBoxIntersectPredicate &bb_intersect,
+    std::size_t                                                  i)
   {
-    const auto boundary_points = bb_intersect.get(i).get_boundary_points();
-    const dealii::Point<3, float> min_corner = boundary_points.first;
-    const dealii::Point<3, float> max_corner = boundary_points.second;
+    const auto                    boundary_points = bb_intersect.get(i).get_boundary_points();
+    const dealii::Point<3, float> min_corner      = boundary_points.first;
+    const dealii::Point<3, float> max_corner      = boundary_points.second;
 
-    return intersects(Box{{min_corner[0], min_corner[1], min_corner[2]},
-                          {max_corner[0], max_corner[1], max_corner[2]}});
+    return intersects(
+      Box{{min_corner[0], min_corner[1], min_corner[2]}, {max_corner[0], max_corner[1], max_corner[2]}});
   }
 
 
 
   inline std::size_t
-  AccessTraits<dealii::ArborXWrappers::BoundingBoxNearestPredicate,
-               PredicatesTag>::
-    size(const dealii::ArborXWrappers::BoundingBoxNearestPredicate &bb_nearest)
+  AccessTraits<dealii::ArborXWrappers::BoundingBoxNearestPredicate, PredicatesTag>::size(
+    const dealii::ArborXWrappers::BoundingBoxNearestPredicate &bb_nearest)
   {
     return bb_nearest.size();
   }
@@ -636,26 +603,23 @@ namespace ArborX
 
 
   inline auto
-  AccessTraits<dealii::ArborXWrappers::BoundingBoxNearestPredicate,
-               PredicatesTag>::
-    get(const dealii::ArborXWrappers::BoundingBoxNearestPredicate &bb_nearest,
-        std::size_t                                                i)
+  AccessTraits<dealii::ArborXWrappers::BoundingBoxNearestPredicate, PredicatesTag>::get(
+    const dealii::ArborXWrappers::BoundingBoxNearestPredicate &bb_nearest,
+    std::size_t                                                i)
   {
-    const auto boundary_points = bb_nearest.get(i).get_boundary_points();
-    const dealii::Point<3, float> min_corner = boundary_points.first;
-    const dealii::Point<3, float> max_corner = boundary_points.second;
+    const auto                    boundary_points = bb_nearest.get(i).get_boundary_points();
+    const dealii::Point<3, float> min_corner      = boundary_points.first;
+    const dealii::Point<3, float> max_corner      = boundary_points.second;
 
-    return nearest(Box{{min_corner[0], min_corner[1], min_corner[2]},
-                       {max_corner[0], max_corner[1], max_corner[2]}},
+    return nearest(Box{{min_corner[0], min_corner[1], min_corner[2]}, {max_corner[0], max_corner[1], max_corner[2]}},
                    bb_nearest.get_n_nearest_neighbors());
   }
 
 
 
   inline std::size_t
-  AccessTraits<dealii::ArborXWrappers::SphereIntersectPredicate,
-               PredicatesTag>::
-    size(const dealii::ArborXWrappers::SphereIntersectPredicate &sph_intersect)
+  AccessTraits<dealii::ArborXWrappers::SphereIntersectPredicate, PredicatesTag>::size(
+    const dealii::ArborXWrappers::SphereIntersectPredicate &sph_intersect)
   {
     return sph_intersect.size();
   }
@@ -663,22 +627,19 @@ namespace ArborX
 
 
   inline auto
-  AccessTraits<dealii::ArborXWrappers::SphereIntersectPredicate,
-               PredicatesTag>::
-    get(const dealii::ArborXWrappers::SphereIntersectPredicate &sph_intersect,
-        std::size_t                                             i)
+  AccessTraits<dealii::ArborXWrappers::SphereIntersectPredicate, PredicatesTag>::get(
+    const dealii::ArborXWrappers::SphereIntersectPredicate &sph_intersect,
+    std::size_t                                             i)
   {
     const auto sphere = sph_intersect.get(i);
-    return intersects(
-      Sphere{{sphere.first[0], sphere.first[1], sphere.first[2]},
-             sphere.second});
+    return intersects(Sphere{{sphere.first[0], sphere.first[1], sphere.first[2]}, sphere.second});
   }
 
 
 
   inline std::size_t
-  AccessTraits<dealii::ArborXWrappers::SphereNearestPredicate, PredicatesTag>::
-    size(const dealii::ArborXWrappers::SphereNearestPredicate &sph_nearest)
+  AccessTraits<dealii::ArborXWrappers::SphereNearestPredicate, PredicatesTag>::size(
+    const dealii::ArborXWrappers::SphereNearestPredicate &sph_nearest)
   {
     return sph_nearest.size();
   }
@@ -686,13 +647,12 @@ namespace ArborX
 
 
   inline auto
-  AccessTraits<dealii::ArborXWrappers::SphereNearestPredicate, PredicatesTag>::
-    get(const dealii::ArborXWrappers::SphereNearestPredicate &sph_nearest,
-        std::size_t                                           i)
+  AccessTraits<dealii::ArborXWrappers::SphereNearestPredicate, PredicatesTag>::get(
+    const dealii::ArborXWrappers::SphereNearestPredicate &sph_nearest,
+    std::size_t                                           i)
   {
     const auto sphere = sph_nearest.get(i);
-    return nearest(Sphere{{sphere.first[0], sphere.first[1], sphere.first[2]},
-                          sphere.second},
+    return nearest(Sphere{{sphere.first[0], sphere.first[1], sphere.first[2]}, sphere.second},
                    sph_nearest.get_n_nearest_neighbors());
   }
 } // namespace ArborX

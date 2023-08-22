@@ -23,8 +23,7 @@ DEAL_II_NAMESPACE_OPEN
 namespace Functions
 {
   template <int dim, typename RangeNumberType>
-  IncrementalFunction<dim, RangeNumberType>::IncrementalFunction(
-    Function<dim, RangeNumberType> &base)
+  IncrementalFunction<dim, RangeNumberType>::IncrementalFunction(Function<dim, RangeNumberType> &base)
     : Function<dim, RangeNumberType>(base.n_components)
     , base(base)
     , delta_t(numbers::signaling_nan<time_type>())
@@ -35,11 +34,9 @@ namespace Functions
 
   template <int dim, typename RangeNumberType>
   void
-  IncrementalFunction<dim, RangeNumberType>::set_decrement(
-    const time_type delta)
+  IncrementalFunction<dim, RangeNumberType>::set_decrement(const time_type delta)
   {
-    Assert(delta >= 0.0,
-           ExcMessage("The decrement must be set to a non-negative value."));
+    Assert(delta >= 0.0, ExcMessage("The decrement must be set to a non-negative value."));
     delta_t = delta;
   }
 
@@ -47,9 +44,7 @@ namespace Functions
 
   template <int dim, typename RangeNumberType>
   RangeNumberType
-  IncrementalFunction<dim, RangeNumberType>::value(
-    const Point<dim> & p,
-    const unsigned int comp) const
+  IncrementalFunction<dim, RangeNumberType>::value(const Point<dim> &p, const unsigned int comp) const
   {
     // since we modify a mutable member variable, lock the
     // the data via a mutex
@@ -76,9 +71,7 @@ namespace Functions
 
   template <int dim, typename RangeNumberType>
   void
-  IncrementalFunction<dim, RangeNumberType>::vector_value(
-    const Point<dim> &       p,
-    Vector<RangeNumberType> &values) const
+  IncrementalFunction<dim, RangeNumberType>::vector_value(const Point<dim> &p, Vector<RangeNumberType> &values) const
   {
     // since we modify a mutable member variable, lock the
     // the data via a mutex

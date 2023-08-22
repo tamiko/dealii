@@ -80,16 +80,12 @@ test()
 #endif
 
   using CellList =
-    std::list<std::pair<typename Triangulation<dim>::cell_iterator,
-                        typename Triangulation<dim>::cell_iterator>>;
+    std::list<std::pair<typename Triangulation<dim>::cell_iterator, typename Triangulation<dim>::cell_iterator>>;
 
-  deallog << "number of locally owned cells in tria 0 and tria 1: "
-          << tria_0.n_active_cells() << ' ' << tria_1.n_active_cells()
-          << std::endl;
+  deallog << "number of locally owned cells in tria 0 and tria 1: " << tria_0.n_active_cells() << ' '
+          << tria_1.n_active_cells() << std::endl;
   const CellList cell_list = GridTools::get_finest_common_cells(tria_0, tria_1);
-  for (typename CellList::const_iterator cell_pair = cell_list.begin();
-       cell_pair != cell_list.end();
-       ++cell_pair)
+  for (typename CellList::const_iterator cell_pair = cell_list.begin(); cell_pair != cell_list.end(); ++cell_pair)
     deallog << cell_pair->first << ' ' << cell_pair->second << std::endl;
 }
 

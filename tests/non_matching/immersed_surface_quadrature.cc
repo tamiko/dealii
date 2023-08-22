@@ -28,15 +28,13 @@
 
 template <int dim, int spacedim>
 void
-print_quadrature(
-  const NonMatching::ImmersedSurfaceQuadrature<dim, spacedim> &quadrature)
+print_quadrature(const NonMatching::ImmersedSurfaceQuadrature<dim, spacedim> &quadrature)
 {
   for (unsigned int i = 0; i < quadrature.size(); ++i)
     {
       if (dim > 0) // Can't print 0-dim points.
         deallog << quadrature.point(i);
-      deallog << ", " << quadrature.weight(i) << ", "
-              << quadrature.normal_vector(i) << std::endl;
+      deallog << ", " << quadrature.weight(i) << ", " << quadrature.normal_vector(i) << std::endl;
     }
 }
 
@@ -46,10 +44,9 @@ print_quadrature(
 // points and weights.
 template <int dim, int spacedim>
 void
-check_get_normals(
-  const NonMatching::ImmersedSurfaceQuadrature<dim, spacedim> &quadrature)
+check_get_normals(const NonMatching::ImmersedSurfaceQuadrature<dim, spacedim> &quadrature)
 {
-  const std::vector<Point<dim>> &    points  = quadrature.get_points();
+  const std::vector<Point<dim>>     &points  = quadrature.get_points();
   const std::vector<Tensor<1, dim>> &normals = quadrature.get_normal_vectors();
   AssertThrow(points.size() == normals.size(), ExcInternalError())
 }
@@ -65,9 +62,7 @@ test_non_default_constructor()
   std::vector<double>              weights(1, 1);
   std::vector<Tensor<1, spacedim>> normals;
   normals.push_back(Point<spacedim>::unit_vector(spacedim - 1));
-  NonMatching::ImmersedSurfaceQuadrature<dim, spacedim> quadrature(points,
-                                                                   weights,
-                                                                   normals);
+  NonMatching::ImmersedSurfaceQuadrature<dim, spacedim> quadrature(points, weights, normals);
 
   print_quadrature(quadrature);
 }

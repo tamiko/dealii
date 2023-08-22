@@ -41,8 +41,7 @@ count_flags(const Triangulation<dim> &tria)
         ++n_coarsen;
     }
 
-  deallog << "n_refine_flags: " << n_refine
-          << ", n_coarsen_flags: " << n_coarsen;
+  deallog << "n_refine_flags: " << n_refine << ", n_coarsen_flags: " << n_coarsen;
 }
 
 
@@ -59,21 +58,15 @@ test()
   // assign each cell a globally unique cellid
   for (const auto &cell : tria.active_cell_iterators())
     {
-      const std::string  cellid = cell->id().to_string();
-      const unsigned int fine_cellid =
-        std::stoul(cellid.substr(cellid.find(':') + 1, std::string::npos));
+      const std::string  cellid      = cell->id().to_string();
+      const unsigned int fine_cellid = std::stoul(cellid.substr(cellid.find(':') + 1, std::string::npos));
 
       indicator[cell->active_cell_index()] = fine_cellid + 1;
     }
 
   deallog << "l1-norm: ";
   GridRefinement::refine_and_coarsen_fixed_fraction(
-    tria,
-    indicator,
-    0.3,
-    0.3,
-    std::numeric_limits<unsigned int>::max(),
-    VectorTools::NormType::L1_norm);
+    tria, indicator, 0.3, 0.3, std::numeric_limits<unsigned int>::max(), VectorTools::NormType::L1_norm);
   count_flags(tria);
   deallog << std::endl;
 
@@ -86,12 +79,7 @@ test()
 
   deallog << "l2-norm: ";
   GridRefinement::refine_and_coarsen_fixed_fraction(
-    tria,
-    indicator,
-    0.3,
-    0.3,
-    std::numeric_limits<unsigned int>::max(),
-    VectorTools::NormType::L2_norm);
+    tria, indicator, 0.3, 0.3, std::numeric_limits<unsigned int>::max(), VectorTools::NormType::L2_norm);
   count_flags(tria);
   deallog << std::endl;
 }

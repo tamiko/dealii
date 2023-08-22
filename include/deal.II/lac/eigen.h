@@ -82,9 +82,7 @@ public:
   /**
    * Constructor.
    */
-  EigenPower(SolverControl &           cn,
-             VectorMemory<VectorType> &mem,
-             const AdditionalData &    data = AdditionalData());
+  EigenPower(SolverControl &cn, VectorMemory<VectorType> &mem, const AdditionalData &data = AdditionalData());
 
 
   /**
@@ -155,9 +153,7 @@ public:
     /**
      * Constructor.
      */
-    AdditionalData(double       relaxation     = 1.,
-                   unsigned int start_adaption = 6,
-                   bool         use_residual   = true)
+    AdditionalData(double relaxation = 1., unsigned int start_adaption = 6, bool use_residual = true)
       : relaxation(relaxation)
       , start_adaption(start_adaption)
       , use_residual(use_residual)
@@ -167,9 +163,7 @@ public:
   /**
    * Constructor.
    */
-  EigenInverse(SolverControl &           cn,
-               VectorMemory<VectorType> &mem,
-               const AdditionalData &    data = AdditionalData());
+  EigenInverse(SolverControl &cn, VectorMemory<VectorType> &mem, const AdditionalData &data = AdditionalData());
 
   /**
    * Inverse method. @p value is the start guess for the eigenvalue and @p x
@@ -194,9 +188,7 @@ protected:
 
 
 template <typename VectorType>
-EigenPower<VectorType>::EigenPower(SolverControl &           cn,
-                                   VectorMemory<VectorType> &mem,
-                                   const AdditionalData &    data)
+EigenPower<VectorType>::EigenPower(SolverControl &cn, VectorMemory<VectorType> &mem, const AdditionalData &data)
   : SolverBase<VectorType>(cn, mem)
   , additional_data(data)
 {}
@@ -213,10 +205,10 @@ EigenPower<VectorType>::solve(double &value, const MatrixType &A, VectorType &x)
   LogStream::Prefix prefix("Power method");
 
   typename VectorMemory<VectorType>::Pointer Vy(this->memory);
-  VectorType &                               y = *Vy;
+  VectorType                                &y = *Vy;
   y.reinit(x);
   typename VectorMemory<VectorType>::Pointer Vr(this->memory);
-  VectorType &                               r = *Vr;
+  VectorType                                &r = *Vr;
   r.reinit(x);
 
   double length     = x.l2_norm();
@@ -261,15 +253,12 @@ EigenPower<VectorType>::solve(double &value, const MatrixType &A, VectorType &x)
 
       // Check the change of the eigenvalue
       // Brrr, this is not really a good criterion
-      conv = this->iteration_status(iter,
-                                    std::fabs(1. / length - 1. / old_length),
-                                    x);
+      conv = this->iteration_status(iter, std::fabs(1. / length - 1. / old_length), x);
     }
 
   // in case of failure: throw exception
   AssertThrow(conv == SolverControl::success,
-              SolverControl::NoConvergence(
-                iter, std::fabs(1. / length - 1. / old_length)));
+              SolverControl::NoConvergence(iter, std::fabs(1. / length - 1. / old_length)));
 
   // otherwise exit as normal
 }
@@ -277,9 +266,7 @@ EigenPower<VectorType>::solve(double &value, const MatrixType &A, VectorType &x)
 //---------------------------------------------------------------------------
 
 template <typename VectorType>
-EigenInverse<VectorType>::EigenInverse(SolverControl &           cn,
-                                       VectorMemory<VectorType> &mem,
-                                       const AdditionalData &    data)
+EigenInverse<VectorType>::EigenInverse(SolverControl &cn, VectorMemory<VectorType> &mem, const AdditionalData &data)
   : SolverBase<VectorType>(cn, mem)
   , additional_data(data)
 {}
@@ -289,9 +276,7 @@ EigenInverse<VectorType>::EigenInverse(SolverControl &           cn,
 template <typename VectorType>
 template <typename MatrixType>
 void
-EigenInverse<VectorType>::solve(double &          value,
-                                const MatrixType &A,
-                                VectorType &      x)
+EigenInverse<VectorType>::solve(double &value, const MatrixType &A, VectorType &x)
 {
   LogStream::Prefix prefix("Wielandt");
 
@@ -312,10 +297,10 @@ EigenInverse<VectorType>::solve(double &          value,
 
   // Auxiliary vector
   typename VectorMemory<VectorType>::Pointer Vy(this->memory);
-  VectorType &                               y = *Vy;
+  VectorType                                &y = *Vy;
   y.reinit(x);
   typename VectorMemory<VectorType>::Pointer Vr(this->memory);
-  VectorType &                               r = *Vr;
+  VectorType                                &r = *Vr;
   r.reinit(x);
 
   double length    = x.l2_norm();
@@ -352,9 +337,8 @@ EigenInverse<VectorType>::solve(double &          value,
 
       if (iter == goal)
         {
-          const auto & relaxation = additional_data.relaxation;
-          const double new_shift =
-            relaxation * (-value) + (1. - relaxation) * current_shift;
+          const auto  &relaxation = additional_data.relaxation;
+          const double new_shift  = relaxation * (-value) + (1. - relaxation) * current_shift;
 
           A_s           = A_op + new_shift * identity_operator(A_op);
           current_shift = new_shift;
@@ -384,8 +368,7 @@ EigenInverse<VectorType>::solve(double &          value,
 
   // in case of failure: throw
   // exception
-  AssertThrow(conv == SolverControl::success,
-              SolverControl::NoConvergence(iter, res));
+  AssertThrow(conv == SolverControl::success, SolverControl::NoConvergence(iter, res));
   // otherwise exit as normal
 }
 

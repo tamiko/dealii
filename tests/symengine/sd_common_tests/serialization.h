@@ -26,27 +26,23 @@ namespace SD = Differentiation::SD;
 // Overload the comparison function in serialization.h
 template <typename ReturnType>
 bool
-compare_optimizers(const SD::BatchOptimizer<ReturnType> &t1,
-                   const SD::BatchOptimizer<ReturnType> &t2)
+compare_optimizers(const SD::BatchOptimizer<ReturnType> &t1, const SD::BatchOptimizer<ReturnType> &t2)
 {
   return (t1.n_independent_variables() == t2.n_independent_variables()) &&
          (t1.n_dependent_variables() == t2.n_dependent_variables()) &&
-         (t1.optimization_method() == t2.optimization_method()) &&
-         (t1.optimization_flags() == t2.optimization_flags());
+         (t1.optimization_method() == t2.optimization_method()) && (t1.optimization_flags() == t2.optimization_flags());
 }
 
 template <>
 bool
-compare(const SD::BatchOptimizer<float> &t1,
-        const SD::BatchOptimizer<float> &t2)
+compare(const SD::BatchOptimizer<float> &t1, const SD::BatchOptimizer<float> &t2)
 {
   return compare_optimizers(t1, t2);
 }
 
 template <>
 bool
-compare(const SD::BatchOptimizer<double> &t1,
-        const SD::BatchOptimizer<double> &t2)
+compare(const SD::BatchOptimizer<double> &t1, const SD::BatchOptimizer<double> &t2)
 {
   return compare_optimizers(t1, t2);
 }
@@ -54,16 +50,14 @@ compare(const SD::BatchOptimizer<double> &t1,
 
 template <>
 bool
-compare(const SD::BatchOptimizer<std::complex<float>> &t1,
-        const SD::BatchOptimizer<std::complex<float>> &t2)
+compare(const SD::BatchOptimizer<std::complex<float>> &t1, const SD::BatchOptimizer<std::complex<float>> &t2)
 {
   return compare_optimizers(t1, t2);
 }
 
 template <>
 bool
-compare(const SD::BatchOptimizer<std::complex<double>> &t1,
-        const SD::BatchOptimizer<std::complex<double>> &t2)
+compare(const SD::BatchOptimizer<std::complex<double>> &t1, const SD::BatchOptimizer<std::complex<double>> &t2)
 {
   return compare_optimizers(t1, t2);
 }

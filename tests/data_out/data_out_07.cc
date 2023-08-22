@@ -28,9 +28,7 @@
 
 template <int dim>
 void
-check_this(const DoFHandler<dim> &dof_handler,
-           const Vector<double> & v_node,
-           const Vector<double> & v_cell)
+check_this(const DoFHandler<dim> &dof_handler, const Vector<double> &v_node, const Vector<double> &v_cell)
 {
   DataOut<dim> data_out;
   data_out.attach_triangulation(dof_handler.get_triangulation());

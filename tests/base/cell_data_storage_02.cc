@@ -66,11 +66,7 @@ public:
   double value;
 };
 
-DeclException3(ExcWrongValue,
-               double,
-               double,
-               double,
-               << arg1 << " != " << arg2 << " with delta = " << arg3);
+DeclException3(ExcWrongValue, double, double, double, << arg1 << " != " << arg2 << " with delta = " << arg3);
 
 
 template <int dim>
@@ -86,9 +82,8 @@ test()
   typename Triangulation<dim, dim>::active_cell_iterator cell;
 
   // pppulate quadrature point data
-  QGauss<dim> rhs(4);
-  CellDataStorage<typename Triangulation<dim, dim>::cell_iterator, MyQData>
-    data_storage;
+  QGauss<dim>                                                               rhs(4);
+  CellDataStorage<typename Triangulation<dim, dim>::cell_iterator, MyQData> data_storage;
   {
     DoFHandler<dim> dof_handler(tr);
     FE_Q<dim>       dummy_fe(1);
@@ -99,16 +94,14 @@ test()
         {
           const auto dof_cell = cell->as_dof_handler_iterator(dof_handler);
           fe_values.reinit(dof_cell);
-          const std::vector<Point<dim>> &q_points =
-            fe_values.get_quadrature_points();
+          const std::vector<Point<dim>> &q_points = fe_values.get_quadrature_points();
           // before initialization, you can erase it without any consequences
           const bool erased_nonexisting_data = data_storage.erase(cell);
           AssertThrow(!erased_nonexisting_data, ExcInternalError());
           // initialize
           data_storage.initialize(cell, rhs.size());
           {
-            std::vector<std::shared_ptr<MyQData>> qpd =
-              data_storage.get_data(cell);
+            std::vector<std::shared_ptr<MyQData>> qpd = data_storage.get_data(cell);
             for (unsigned int q = 0; q < rhs.size(); ++q)
               qpd[q]->value = my_func.value(q_points[q]);
           }
@@ -120,13 +113,10 @@ test()
           data_storage.initialize(cell, rhs.size());
           // check that values are now zero (see default constructor)
           {
-            std::vector<std::shared_ptr<MyQData>> qpd =
-              data_storage.get_data(cell);
+            std::vector<std::shared_ptr<MyQData>> qpd = data_storage.get_data(cell);
             for (unsigned int q = 0; q < rhs.size(); ++q)
               AssertThrow(qpd[q]->value == default_value,
-                          ExcWrongValue(qpd[q]->value,
-                                        default_value,
-                                        (qpd[q]->value - default_value)));
+                          ExcWrongValue(qpd[q]->value, default_value, (qpd[q]->value - default_value)));
           }
         }
     dof_handler.clear();

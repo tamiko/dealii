@@ -174,8 +174,7 @@ namespace Particles
      * `handle`.
      */
     void
-    set_reference_location(const Handle      handle,
-                           const Point<dim> &new_reference_location);
+    set_reference_location(const Handle handle, const Point<dim> &new_reference_location);
 
     /**
      * Return the ID number of this particle identified by the given
@@ -287,8 +286,7 @@ namespace Particles
   inline const Point<spacedim> &
   PropertyPool<dim, spacedim>::get_location(const Handle handle) const
   {
-    const std::vector<double>::size_type data_index =
-      (handle != invalid_handle) ? handle : 0;
+    const std::vector<double>::size_type data_index = (handle != invalid_handle) ? handle : 0;
 
     // Ideally we would need to assert that 'handle' has not been deallocated
     // by searching through 'currently_available_handles'. However, this
@@ -308,11 +306,9 @@ namespace Particles
 
   template <int dim, int spacedim>
   inline void
-  PropertyPool<dim, spacedim>::set_location(const Handle           handle,
-                                            const Point<spacedim> &new_location)
+  PropertyPool<dim, spacedim>::set_location(const Handle handle, const Point<spacedim> &new_location)
   {
-    const std::vector<double>::size_type data_index =
-      (handle != invalid_handle) ? handle : 0;
+    const std::vector<double>::size_type data_index = (handle != invalid_handle) ? handle : 0;
 
     // Ideally we would need to assert that 'handle' has not been deallocated
     // by searching through 'currently_available_handles'. However, this
@@ -334,8 +330,7 @@ namespace Particles
   inline const Point<dim> &
   PropertyPool<dim, spacedim>::get_reference_location(const Handle handle) const
   {
-    const std::vector<double>::size_type data_index =
-      (handle != invalid_handle) ? handle : 0;
+    const std::vector<double>::size_type data_index = (handle != invalid_handle) ? handle : 0;
 
     // Ideally we would need to assert that 'handle' has not been deallocated
     // by searching through 'currently_available_handles'. However, this
@@ -355,12 +350,9 @@ namespace Particles
 
   template <int dim, int spacedim>
   inline void
-  PropertyPool<dim, spacedim>::set_reference_location(
-    const Handle      handle,
-    const Point<dim> &new_reference_location)
+  PropertyPool<dim, spacedim>::set_reference_location(const Handle handle, const Point<dim> &new_reference_location)
   {
-    const std::vector<double>::size_type data_index =
-      (handle != invalid_handle) ? handle : 0;
+    const std::vector<double>::size_type data_index = (handle != invalid_handle) ? handle : 0;
 
     // Ideally we would need to assert that 'handle' has not been deallocated
     // by searching through 'currently_available_handles'. However, this
@@ -382,8 +374,7 @@ namespace Particles
   inline types::particle_index
   PropertyPool<dim, spacedim>::get_id(const Handle handle) const
   {
-    const std::vector<double>::size_type data_index =
-      (handle != invalid_handle) ? handle : 0;
+    const std::vector<double>::size_type data_index = (handle != invalid_handle) ? handle : 0;
 
     // Ideally we would need to assert that 'handle' has not been deallocated
     // by searching through 'currently_available_handles'. However, this
@@ -403,11 +394,9 @@ namespace Particles
 
   template <int dim, int spacedim>
   inline void
-  PropertyPool<dim, spacedim>::set_id(const Handle                 handle,
-                                      const types::particle_index &new_id)
+  PropertyPool<dim, spacedim>::set_id(const Handle handle, const types::particle_index &new_id)
   {
-    const std::vector<double>::size_type data_index =
-      (handle != invalid_handle) ? handle : 0;
+    const std::vector<double>::size_type data_index = (handle != invalid_handle) ? handle : 0;
 
     // Ideally we would need to assert that 'handle' has not been deallocated
     // by searching through 'currently_available_handles'. However, this
@@ -429,8 +418,7 @@ namespace Particles
   inline ArrayView<double>
   PropertyPool<dim, spacedim>::get_properties(const Handle handle)
   {
-    const std::vector<double>::size_type data_index =
-      (handle != invalid_handle) ? handle * n_properties : 0;
+    const std::vector<double>::size_type data_index = (handle != invalid_handle) ? handle * n_properties : 0;
 
     // Ideally we would need to assert that 'handle' has not been deallocated
     // by searching through 'currently_available_handles'. However, this

@@ -46,8 +46,7 @@ test()
   GridGenerator::hyper_cube(cube_triangulation);
 
   Triangulation<dim> merged_triangulation;
-  GridGenerator::merge_triangulations(
-    ball_triangulation, cube_triangulation, merged_triangulation, 1.e-12, true);
+  GridGenerator::merge_triangulations(ball_triangulation, cube_triangulation, merged_triangulation, 1.e-12, true);
   TransfiniteInterpolationManifold<dim> inner_manifold_copied;
   merged_triangulation.set_manifold(0, spherical_manifold);
   inner_manifold_copied.initialize(merged_triangulation);

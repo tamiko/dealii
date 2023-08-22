@@ -73,10 +73,9 @@ template <int dim>
 void
 check()
 {
-  dealii::parallel::distributed::Triangulation<dim> tria(
-    MPI_COMM_WORLD,
-    decltype(tria)::limit_level_difference_at_vertices,
-    decltype(tria)::construct_multigrid_hierarchy);
+  dealii::parallel::distributed::Triangulation<dim> tria(MPI_COMM_WORLD,
+                                                         decltype(tria)::limit_level_difference_at_vertices,
+                                                         decltype(tria)::construct_multigrid_hierarchy);
   dealii::GridGenerator::hyper_cube(tria);
   tria.refine_global(3);
   /*

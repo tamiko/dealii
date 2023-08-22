@@ -138,8 +138,7 @@ public:
    * FiniteElement<dim>::ExcInterpolationNotImplemented is thrown.
    */
   virtual void
-  get_interpolation_matrix(const FiniteElement<dim, spacedim> &source,
-                           FullMatrix<double> &matrix) const override;
+  get_interpolation_matrix(const FiniteElement<dim, spacedim> &source, FullMatrix<double> &matrix) const override;
 
   /**
    * Return the matrix interpolating from a face of one element to the face
@@ -154,8 +153,8 @@ public:
    */
   virtual void
   get_face_interpolation_matrix(const FiniteElement<dim, spacedim> &source,
-                                FullMatrix<double> &                matrix,
-                                const unsigned int face_no = 0) const override;
+                                FullMatrix<double>                 &matrix,
+                                const unsigned int                  face_no = 0) const override;
 
   /**
    * Return the matrix interpolating from a face of one element to the face
@@ -169,11 +168,10 @@ public:
    * FiniteElement<dim>::ExcInterpolationNotImplemented.
    */
   virtual void
-  get_subface_interpolation_matrix(
-    const FiniteElement<dim, spacedim> &source,
-    const unsigned int                  subface,
-    FullMatrix<double> &                matrix,
-    const unsigned int                  face_no = 0) const override;
+  get_subface_interpolation_matrix(const FiniteElement<dim, spacedim> &source,
+                                   const unsigned int                  subface,
+                                   FullMatrix<double>                 &matrix,
+                                   const unsigned int                  face_no = 0) const override;
 
   /**
    * Projection from a fine grid space onto a coarse grid space. Overrides the
@@ -195,8 +193,7 @@ public:
   virtual const FullMatrix<double> &
   get_restriction_matrix(
     const unsigned int         child,
-    const RefinementCase<dim> &refinement_case =
-      RefinementCase<dim>::isotropic_refinement) const override;
+    const RefinementCase<dim> &refinement_case = RefinementCase<dim>::isotropic_refinement) const override;
 
   /**
    * Embedding matrix between grids. Overrides the respective method in
@@ -222,8 +219,7 @@ public:
   virtual const FullMatrix<double> &
   get_prolongation_matrix(
     const unsigned int         child,
-    const RefinementCase<dim> &refinement_case =
-      RefinementCase<dim>::isotropic_refinement) const override;
+    const RefinementCase<dim> &refinement_case = RefinementCase<dim>::isotropic_refinement) const override;
 
   /**
    * @name Functions to support hp
@@ -249,8 +245,7 @@ public:
    * course empty.
    */
   virtual std::vector<std::pair<unsigned int, unsigned int>>
-  hp_vertex_dof_identities(
-    const FiniteElement<dim, spacedim> &fe_other) const override;
+  hp_vertex_dof_identities(const FiniteElement<dim, spacedim> &fe_other) const override;
 
   /**
    * Same as hp_vertex_dof_indices(), except that the function treats degrees
@@ -260,8 +255,7 @@ public:
    * course empty.
    */
   virtual std::vector<std::pair<unsigned int, unsigned int>>
-  hp_line_dof_identities(
-    const FiniteElement<dim, spacedim> &fe_other) const override;
+  hp_line_dof_identities(const FiniteElement<dim, spacedim> &fe_other) const override;
 
   /**
    * Same as hp_vertex_dof_indices(), except that the function treats degrees
@@ -271,8 +265,7 @@ public:
    * course empty.
    */
   virtual std::vector<std::pair<unsigned int, unsigned int>>
-  hp_quad_dof_identities(const FiniteElement<dim, spacedim> &fe_other,
-                         const unsigned int face_no = 0) const override;
+  hp_quad_dof_identities(const FiniteElement<dim, spacedim> &fe_other, const unsigned int face_no = 0) const override;
 
   /**
    * Return whether this element implements its hanging node constraints in
@@ -290,7 +283,7 @@ public:
    */
   virtual FiniteElementDomination::Domination
   compare_for_domination(const FiniteElement<dim, spacedim> &fe_other,
-                         const unsigned int codim = 0) const override final;
+                         const unsigned int                  codim = 0) const override final;
 
   /**
    * @}
@@ -301,8 +294,7 @@ public:
    * non-zero function values somewhere on the face @p face_index.
    */
   virtual bool
-  has_support_on_face(const unsigned int shape_index,
-                      const unsigned int face_index) const override;
+  has_support_on_face(const unsigned int shape_index, const unsigned int face_index) const override;
 
   /**
    * Return a list of constant modes of the element. For this element, it
@@ -319,9 +311,8 @@ public:
    * be vectors of length 1.
    */
   virtual void
-  convert_generalized_support_point_values_to_dof_values(
-    const std::vector<Vector<double>> &support_point_values,
-    std::vector<double> &              nodal_values) const override;
+  convert_generalized_support_point_values_to_dof_values(const std::vector<Vector<double>> &support_point_values,
+                                                         std::vector<double> &nodal_values) const override;
 
   virtual std::unique_ptr<FiniteElement<dim, spacedim>>
   clone() const override;
@@ -364,8 +355,7 @@ private:
    * either.
    */
   void
-  rotate_indices(std::vector<unsigned int> &indices,
-                 const char                 direction) const;
+  rotate_indices(std::vector<unsigned int> &indices, const char direction) const;
 
   /*
    * Mutex for protecting initialization of restriction and embedding matrix.
@@ -425,9 +415,8 @@ public:
    * be vectors of length 1.
    */
   virtual void
-  convert_generalized_support_point_values_to_dof_values(
-    const std::vector<Vector<double>> &support_point_values,
-    std::vector<double> &              nodal_values) const override;
+  convert_generalized_support_point_values_to_dof_values(const std::vector<Vector<double>> &support_point_values,
+                                                         std::vector<double> &nodal_values) const override;
   virtual std::unique_ptr<FiniteElement<dim, spacedim>>
   clone() const override;
 };

@@ -46,8 +46,8 @@ template <int dim>
 void
 test()
 {
-  parallel::distributed::Triangulation<dim> triangulation(
-    MPI_COMM_WORLD, Triangulation<dim>::limit_level_difference_at_vertices);
+  parallel::distributed::Triangulation<dim> triangulation(MPI_COMM_WORLD,
+                                                          Triangulation<dim>::limit_level_difference_at_vertices);
 
   FESystem<dim> fe(FE_Q<dim>(3), 2, FE_DGQ<dim>(1), 1);
 
@@ -69,8 +69,7 @@ test()
 
       // refine triangulation
       unsigned int index = 0;
-      for (typename Triangulation<dim>::active_cell_iterator cell =
-             triangulation.begin_active();
+      for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
            cell != triangulation.end();
            ++cell)
         if (!cell->is_ghost() && !cell->is_artificial())
@@ -87,8 +86,7 @@ test()
       // some of them will actually be
       // coarsened)
       index = 0;
-      for (typename Triangulation<dim>::active_cell_iterator cell =
-             triangulation.begin_active();
+      for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
            cell != triangulation.end();
            ++cell)
         if (!cell->is_ghost() && !cell->is_artificial())
@@ -106,26 +104,20 @@ test()
         deallog << N << std::endl;
 
       Assert(dof_handler.n_locally_owned_dofs() <= N, ExcInternalError());
-      const std::vector<types::global_dof_index>
-        n_locally_owned_dofs_per_processor =
-          Utilities::MPI::all_gather(MPI_COMM_WORLD,
-                                     dof_handler.n_locally_owned_dofs());
-      for (unsigned int i = 0; i < n_locally_owned_dofs_per_processor.size();
-           ++i)
-        AssertThrow(n_locally_owned_dofs_per_processor[i] <= N,
-                    ExcInternalError());
+      const std::vector<types::global_dof_index> n_locally_owned_dofs_per_processor =
+        Utilities::MPI::all_gather(MPI_COMM_WORLD, dof_handler.n_locally_owned_dofs());
+      for (unsigned int i = 0; i < n_locally_owned_dofs_per_processor.size(); ++i)
+        AssertThrow(n_locally_owned_dofs_per_processor[i] <= N, ExcInternalError());
       AssertThrow(std::accumulate(n_locally_owned_dofs_per_processor.begin(),
                                   n_locally_owned_dofs_per_processor.end(),
                                   0U) == N,
                   ExcInternalError());
 
       const std::vector<IndexSet> locally_owned_dofs_per_processor =
-        Utilities::MPI::all_gather(MPI_COMM_WORLD,
-                                   dof_handler.locally_owned_dofs());
+        Utilities::MPI::all_gather(MPI_COMM_WORLD, dof_handler.locally_owned_dofs());
       IndexSet all(N), really_all(N);
       // poor man's union operation
-      for (unsigned int i = 0; i < n_locally_owned_dofs_per_processor.size();
-           ++i)
+      for (unsigned int i = 0; i < n_locally_owned_dofs_per_processor.size(); ++i)
         for (unsigned int j = 0; j < N; ++j)
           if (locally_owned_dofs_per_processor[i].is_element(j))
             {

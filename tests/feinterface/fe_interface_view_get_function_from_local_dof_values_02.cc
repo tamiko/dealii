@@ -48,158 +48,120 @@
 
 template <typename NumberType, int dim, typename ExtractorType>
 void
-test_feiv_view(const Vector<double> &         solution,
-               const FEValues<dim> &          fe_values,
-               const unsigned int &           n_q_points,
-               const ExtractorType &          extractor,
+test_feiv_view(const Vector<double>          &solution,
+               const FEValues<dim>           &fe_values,
+               const unsigned int            &n_q_points,
+               const ExtractorType           &extractor,
                const std::vector<NumberType> &local_dof_values);
 
 // Scalar view
 template <typename NumberType, int dim>
 void
-test_feiv_view(const Vector<double> &            solution,
-               const FEInterfaceValues<dim> &    fe_iv,
-               const unsigned int &              n_q_points,
+test_feiv_view(const Vector<double>             &solution,
+               const FEInterfaceValues<dim>     &fe_iv,
+               const unsigned int               &n_q_points,
                const FEValuesExtractors::Scalar &extractor,
-               const std::vector<NumberType> &   local_dof_values)
+               const std::vector<NumberType>    &local_dof_values)
 {
-  using View =
-    std::remove_reference_t<std::remove_const_t<decltype(fe_iv[extractor])>>;
+  using View             = std::remove_reference_t<std::remove_const_t<decltype(fe_iv[extractor])>>;
   const View &fe_iv_view = fe_iv[extractor];
 
   // Typedefs
-  using value_type =
-    typename ProductType<typename View::value_type, NumberType>::type;
-  using gradient_type =
-    typename ProductType<typename View::gradient_type, NumberType>::type;
-  using hessian_type =
-    typename ProductType<typename View::hessian_type, NumberType>::type;
-  using third_derivative_type =
-    typename ProductType<typename View::third_derivative_type,
-                         NumberType>::type;
+  using value_type            = typename ProductType<typename View::value_type, NumberType>::type;
+  using gradient_type         = typename ProductType<typename View::gradient_type, NumberType>::type;
+  using hessian_type          = typename ProductType<typename View::hessian_type, NumberType>::type;
+  using third_derivative_type = typename ProductType<typename View::third_derivative_type, NumberType>::type;
 
   // Values
-  std::vector<typename View::template solution_value_type<NumberType>>
-    qp_jumps_local(n_q_points), qp_averages_local(n_q_points),
-    qp_interface_values_local(n_q_points);
-  std::vector<value_type> qp_jumps_global(n_q_points),
-    qp_averages_global(n_q_points), qp_interface_values_global(n_q_points);
+  std::vector<typename View::template solution_value_type<NumberType>> qp_jumps_local(n_q_points),
+    qp_averages_local(n_q_points), qp_interface_values_local(n_q_points);
+  std::vector<value_type> qp_jumps_global(n_q_points), qp_averages_global(n_q_points),
+    qp_interface_values_global(n_q_points);
 
-  fe_iv_view.get_jump_in_function_values_from_local_dof_values(local_dof_values,
-                                                               qp_jumps_local);
+  fe_iv_view.get_jump_in_function_values_from_local_dof_values(local_dof_values, qp_jumps_local);
 
-  fe_iv_view.get_average_of_function_values_from_local_dof_values(
-    local_dof_values, qp_averages_local);
+  fe_iv_view.get_average_of_function_values_from_local_dof_values(local_dof_values, qp_averages_local);
 
-  fe_iv_view.get_function_values_from_local_dof_values(
-    true, local_dof_values, qp_interface_values_local);
+  fe_iv_view.get_function_values_from_local_dof_values(true, local_dof_values, qp_interface_values_local);
 
   // Gradients
-  std::vector<typename View::template solution_gradient_type<NumberType>>
-    qp_jump_grads_local(n_q_points), qp_average_grads_local(n_q_points);
-  std::vector<gradient_type> qp_jump_grads_global(n_q_points),
-    qp_average_grads_global(n_q_points);
+  std::vector<typename View::template solution_gradient_type<NumberType>> qp_jump_grads_local(n_q_points),
+    qp_average_grads_local(n_q_points);
+  std::vector<gradient_type> qp_jump_grads_global(n_q_points), qp_average_grads_global(n_q_points);
 
-  fe_iv_view.get_jump_in_function_gradients_from_local_dof_values(
-    local_dof_values, qp_jump_grads_local);
+  fe_iv_view.get_jump_in_function_gradients_from_local_dof_values(local_dof_values, qp_jump_grads_local);
 
-  fe_iv_view.get_average_of_function_gradients_from_local_dof_values(
-    local_dof_values, qp_average_grads_local);
+  fe_iv_view.get_average_of_function_gradients_from_local_dof_values(local_dof_values, qp_average_grads_local);
 
   // Hessians
-  std::vector<typename View::template solution_hessian_type<NumberType>>
-    qp_jump_hess_local(n_q_points), qp_average_hess_local(n_q_points);
-  std::vector<hessian_type> qp_jump_hess_global(n_q_points),
-    qp_average_hess_global(n_q_points);
+  std::vector<typename View::template solution_hessian_type<NumberType>> qp_jump_hess_local(n_q_points),
+    qp_average_hess_local(n_q_points);
+  std::vector<hessian_type> qp_jump_hess_global(n_q_points), qp_average_hess_global(n_q_points);
 
-  fe_iv_view.get_jump_in_function_hessians_from_local_dof_values(
-    local_dof_values, qp_jump_hess_local);
+  fe_iv_view.get_jump_in_function_hessians_from_local_dof_values(local_dof_values, qp_jump_hess_local);
 
-  fe_iv_view.get_average_of_function_hessians_from_local_dof_values(
-    local_dof_values, qp_average_hess_local);
+  fe_iv_view.get_average_of_function_hessians_from_local_dof_values(local_dof_values, qp_average_hess_local);
 
   // Third derivatives
-  std::vector<
-    typename View::template solution_third_derivative_type<NumberType>>
-                                     qp_jump_third_deriv_local(n_q_points);
+  std::vector<typename View::template solution_third_derivative_type<NumberType>> qp_jump_third_deriv_local(n_q_points);
   std::vector<third_derivative_type> qp_jump_third_deriv_global(n_q_points);
 
-  fe_iv_view.get_jump_in_function_third_derivatives_from_local_dof_values(
-    local_dof_values, qp_jump_third_deriv_local);
+  fe_iv_view.get_jump_in_function_third_derivatives_from_local_dof_values(local_dof_values, qp_jump_third_deriv_local);
 }
 
 // Vector view
 template <typename NumberType, int dim>
 void
-test_feiv_view(const Vector<double> &            solution,
-               const FEInterfaceValues<dim> &    fe_iv,
-               const unsigned int &              n_q_points,
+test_feiv_view(const Vector<double>             &solution,
+               const FEInterfaceValues<dim>     &fe_iv,
+               const unsigned int               &n_q_points,
                const FEValuesExtractors::Vector &extractor,
-               const std::vector<NumberType> &   local_dof_values)
+               const std::vector<NumberType>    &local_dof_values)
 {
-  using View =
-    std::remove_reference_t<std::remove_const_t<decltype(fe_iv[extractor])>>;
+  using View             = std::remove_reference_t<std::remove_const_t<decltype(fe_iv[extractor])>>;
   const View &fe_iv_view = fe_iv[extractor];
 
   // Typedefs
-  using value_type =
-    typename ProductType<typename View::value_type, NumberType>::type;
-  using gradient_type =
-    typename ProductType<typename View::gradient_type, NumberType>::type;
-  using hessian_type =
-    typename ProductType<typename View::hessian_type, NumberType>::type;
-  using third_derivative_type =
-    typename ProductType<typename View::third_derivative_type,
-                         NumberType>::type;
+  using value_type            = typename ProductType<typename View::value_type, NumberType>::type;
+  using gradient_type         = typename ProductType<typename View::gradient_type, NumberType>::type;
+  using hessian_type          = typename ProductType<typename View::hessian_type, NumberType>::type;
+  using third_derivative_type = typename ProductType<typename View::third_derivative_type, NumberType>::type;
 
   // Values
-  std::vector<typename View::template solution_value_type<NumberType>>
-    qp_jumps_local(n_q_points), qp_averages_local(n_q_points),
-    qp_interface_values_local(n_q_points);
-  std::vector<value_type> qp_jumps_global(n_q_points),
-    qp_averages_global(n_q_points), qp_interface_values_global(n_q_points);
+  std::vector<typename View::template solution_value_type<NumberType>> qp_jumps_local(n_q_points),
+    qp_averages_local(n_q_points), qp_interface_values_local(n_q_points);
+  std::vector<value_type> qp_jumps_global(n_q_points), qp_averages_global(n_q_points),
+    qp_interface_values_global(n_q_points);
 
-  fe_iv_view.get_jump_in_function_values_from_local_dof_values(local_dof_values,
-                                                               qp_jumps_local);
+  fe_iv_view.get_jump_in_function_values_from_local_dof_values(local_dof_values, qp_jumps_local);
 
-  fe_iv_view.get_average_of_function_values_from_local_dof_values(
-    local_dof_values, qp_averages_local);
+  fe_iv_view.get_average_of_function_values_from_local_dof_values(local_dof_values, qp_averages_local);
 
-  fe_iv_view.get_function_values_from_local_dof_values(
-    true, local_dof_values, qp_interface_values_local);
+  fe_iv_view.get_function_values_from_local_dof_values(true, local_dof_values, qp_interface_values_local);
 
   // Gradients
-  std::vector<typename View::template solution_gradient_type<NumberType>>
-    qp_jump_grads_local(n_q_points), qp_average_grads_local(n_q_points);
-  std::vector<gradient_type> qp_jump_grads_global(n_q_points),
-    qp_average_grads_global(n_q_points);
+  std::vector<typename View::template solution_gradient_type<NumberType>> qp_jump_grads_local(n_q_points),
+    qp_average_grads_local(n_q_points);
+  std::vector<gradient_type> qp_jump_grads_global(n_q_points), qp_average_grads_global(n_q_points);
 
-  fe_iv_view.get_jump_in_function_gradients_from_local_dof_values(
-    local_dof_values, qp_jump_grads_local);
+  fe_iv_view.get_jump_in_function_gradients_from_local_dof_values(local_dof_values, qp_jump_grads_local);
 
-  fe_iv_view.get_average_of_function_gradients_from_local_dof_values(
-    local_dof_values, qp_average_grads_local);
+  fe_iv_view.get_average_of_function_gradients_from_local_dof_values(local_dof_values, qp_average_grads_local);
 
   // Hessians
-  std::vector<typename View::template solution_hessian_type<NumberType>>
-    qp_jump_hess_local(n_q_points), qp_average_hess_local(n_q_points);
-  std::vector<hessian_type> qp_jump_hess_global(n_q_points),
-    qp_average_hess_global(n_q_points);
+  std::vector<typename View::template solution_hessian_type<NumberType>> qp_jump_hess_local(n_q_points),
+    qp_average_hess_local(n_q_points);
+  std::vector<hessian_type> qp_jump_hess_global(n_q_points), qp_average_hess_global(n_q_points);
 
-  fe_iv_view.get_jump_in_function_hessians_from_local_dof_values(
-    local_dof_values, qp_jump_hess_local);
+  fe_iv_view.get_jump_in_function_hessians_from_local_dof_values(local_dof_values, qp_jump_hess_local);
 
-  fe_iv_view.get_average_of_function_hessians_from_local_dof_values(
-    local_dof_values, qp_average_hess_local);
+  fe_iv_view.get_average_of_function_hessians_from_local_dof_values(local_dof_values, qp_average_hess_local);
 
   // Third derivatives
-  std::vector<
-    typename View::template solution_third_derivative_type<NumberType>>
-                                     qp_jump_third_deriv_local(n_q_points);
+  std::vector<typename View::template solution_third_derivative_type<NumberType>> qp_jump_third_deriv_local(n_q_points);
   std::vector<third_derivative_type> qp_jump_third_deriv_global(n_q_points);
 
-  fe_iv_view.get_jump_in_function_third_derivatives_from_local_dof_values(
-    local_dof_values, qp_jump_third_deriv_local);
+  fe_iv_view.get_jump_in_function_third_derivatives_from_local_dof_values(local_dof_values, qp_jump_third_deriv_local);
 }
 
 template <typename NumberType, int dim, typename FEType, typename ExtractorType>
@@ -225,12 +187,9 @@ test_feiv_extractor(const FEType &fe, const ExtractorType &extractor)
   const QGauss<dim - 1>  face_quadrature(2);
   FEInterfaceValues<dim> fe_iv(fe,
                                face_quadrature,
-                               update_values | update_gradients |
-                                 update_quadrature_points |
-                                 update_3rd_derivatives);
+                               update_values | update_gradients | update_quadrature_points | update_3rd_derivatives);
 
-  typename DoFHandler<dim>::active_cell_iterator cell =
-    dof_handler.begin_active();
+  typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active();
   for (const auto f : cell->face_indices())
     if (!cell->face(f)->at_boundary())
       {
@@ -241,21 +200,15 @@ test_feiv_extractor(const FEType &fe, const ExtractorType &extractor)
                        cell->neighbor(f),
                        cell->neighbor_of_neighbor(f),
                        numbers::invalid_unsigned_int);
-          const std::vector<types::global_dof_index> &interface_dof_indices =
-            fe_iv.get_interface_dof_indices();
+          const std::vector<types::global_dof_index> &interface_dof_indices = fe_iv.get_interface_dof_indices();
 
           // Convert the DoF values so that they are potentially of
           // a different number type
-          std::vector<NumberType> interface_dof_values_other(
-            fe_iv.n_current_interface_dofs());
+          std::vector<NumberType> interface_dof_values_other(fe_iv.n_current_interface_dofs());
           for (unsigned int i = 0; i < fe_iv.n_current_interface_dofs(); ++i)
             interface_dof_values_other[i] = solution(interface_dof_indices[i]);
 
-          test_feiv_view(solution,
-                         fe_iv,
-                         face_quadrature.size(),
-                         extractor,
-                         interface_dof_values_other);
+          test_feiv_view(solution, fe_iv, face_quadrature.size(), extractor, interface_dof_values_other);
         }
       }
 
@@ -290,8 +243,7 @@ main(int argc, char **argv)
 {
   initlog();
 
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   deallog.push("Sacado::Fad::DFad<float>");
   {

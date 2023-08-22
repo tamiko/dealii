@@ -94,8 +94,7 @@ public:
    */
   template <typename somenumber>
   void
-  initialize(const SparseMatrix<somenumber> &matrix,
-             const AdditionalData &          parameters = AdditionalData());
+  initialize(const SparseMatrix<somenumber> &matrix, const AdditionalData &parameters = AdditionalData());
 
   /**
    * Apply the incomplete decomposition, i.e. do one forward-backward step
@@ -140,16 +139,14 @@ public:
    */
   DeclException1(ExcInvalidStrengthening,
                  double,
-                 << "The strengthening parameter " << arg1
-                 << " is not greater or equal than zero!");
+                 << "The strengthening parameter " << arg1 << " is not greater or equal than zero!");
   /**
    * Exception
    */
   DeclException2(ExcDecompositionNotStable,
                  int,
                  double,
-                 << "The diagonal element (" << arg1 << ',' << arg1 << ") is "
-                 << arg2 << ", but must be positive");
+                 << "The diagonal element (" << arg1 << ',' << arg1 << ") is " << arg2 << ", but must be positive");
 
   /** @} */
 private:

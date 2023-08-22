@@ -60,26 +60,19 @@ template <int dim>
 std::vector<dealii::IndexSet>
 locally_owned_dofs_per_subdomain(const DoFHandler<dim> &dof_handler)
 {
-  std::vector<dealii::types::subdomain_id> subdomain_association(
-    dof_handler.n_dofs());
-  dealii::DoFTools::get_subdomain_association(dof_handler,
-                                              subdomain_association);
+  std::vector<dealii::types::subdomain_id> subdomain_association(dof_handler.n_dofs());
+  dealii::DoFTools::get_subdomain_association(dof_handler, subdomain_association);
 
-  const unsigned int n_subdomains =
-    1 +
-    (*max_element(subdomain_association.begin(), subdomain_association.end()));
+  const unsigned int n_subdomains = 1 + (*max_element(subdomain_association.begin(), subdomain_association.end()));
 
-  std::vector<dealii::IndexSet> index_sets(
-    n_subdomains, dealii::IndexSet(dof_handler.n_dofs()));
+  std::vector<dealii::IndexSet> index_sets(n_subdomains, dealii::IndexSet(dof_handler.n_dofs()));
 
   // loop over subdomain_association and populate IndexSet when a
   // change in subdomain ID is found
   dealii::types::global_dof_index i_min          = 0;
   dealii::types::global_dof_index this_subdomain = subdomain_association[0];
 
-  for (dealii::types::global_dof_index index = 1;
-       index < subdomain_association.size();
-       ++index)
+  for (dealii::types::global_dof_index index = 1; index < subdomain_association.size(); ++index)
     {
       // found index different from the current one
       if (subdomain_association[index] != this_subdomain)
@@ -112,16 +105,15 @@ class PETScInverse
 {
 public:
   PETScInverse(const dealii::PETScWrappers::MatrixBase &A,
-               dealii::SolverControl &                  cn,
-               const MPI_Comm mpi_communicator = PETSC_COMM_SELF)
+               dealii::SolverControl                   &cn,
+               const MPI_Comm                           mpi_communicator = PETSC_COMM_SELF)
     : solver(cn)
     , matrix(A)
     , preconditioner(matrix)
   {}
 
   void
-  vmult(dealii::PETScWrappers::MPI::Vector &      dst,
-        const dealii::PETScWrappers::MPI::Vector &src) const
+  vmult(dealii::PETScWrappers::MPI::Vector &dst, const dealii::PETScWrappers::MPI::Vector &src) const
   {
     ;
     solver.solve(matrix, dst, src, preconditioner);
@@ -130,7 +122,7 @@ public:
 
 private:
   mutable dealii::PETScWrappers::SolverGMRES solver;
-  const dealii::PETScWrappers::MatrixBase &  matrix;
+  const dealii::PETScWrappers::MatrixBase   &matrix;
   PETScWrappers::PreconditionBlockJacobi     preconditioner;
 };
 
@@ -141,10 +133,8 @@ test()
   const unsigned int number_of_eigenvalues        = 4;
 
   MPI_Comm           mpi_communicator = MPI_COMM_WORLD;
-  const unsigned int n_mpi_processes =
-    dealii::Utilities::MPI::n_mpi_processes(mpi_communicator);
-  const unsigned int this_mpi_process =
-    dealii::Utilities::MPI::this_mpi_process(mpi_communicator);
+  const unsigned int n_mpi_processes  = dealii::Utilities::MPI::n_mpi_processes(mpi_communicator);
+  const unsigned int this_mpi_process = dealii::Utilities::MPI::this_mpi_process(mpi_communicator);
 
 
   dealii::Triangulation<dim>        triangulation;
@@ -170,9 +160,7 @@ test()
     const double x1 = 1.0;
     const double dL = (x1 - x0) / n_mpi_processes;
 
-    dealii::Triangulation<dim>::active_cell_iterator cell = triangulation
-                                                              .begin_active(),
-                                                     endc = triangulation.end();
+    dealii::Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active(), endc = triangulation.end();
     for (; cell != endc; ++cell)
       {
         const dealii::Point<dim> &center = cell->center();
@@ -185,18 +173,15 @@ test()
 
   dof_handler.distribute_dofs(fe);
   dealii::DoFRenumbering::subdomain_wise(dof_handler);
-  std::vector<dealii::IndexSet> locally_owned_dofs_per_processor =
-    locally_owned_dofs_per_subdomain(dof_handler);
-  locally_owned_dofs = locally_owned_dofs_per_processor[this_mpi_process];
+  std::vector<dealii::IndexSet> locally_owned_dofs_per_processor = locally_owned_dofs_per_subdomain(dof_handler);
+  locally_owned_dofs                                             = locally_owned_dofs_per_processor[this_mpi_process];
   locally_relevant_dofs.clear();
-  dealii::DoFTools::extract_locally_relevant_dofs(dof_handler,
-                                                  locally_relevant_dofs);
+  dealii::DoFTools::extract_locally_relevant_dofs(dof_handler, locally_relevant_dofs);
 
   constraints.clear();
   constraints.reinit(locally_relevant_dofs);
   dealii::DoFTools::make_hanging_node_constraints(dof_handler, constraints);
-  dealii::VectorTools::interpolate_boundary_values(
-    dof_handler, 0, dealii::Functions::ZeroFunction<dim>(), constraints);
+  dealii::VectorTools::interpolate_boundary_values(dof_handler, 0, dealii::Functions::ZeroFunction<dim>(), constraints);
   constraints.close();
 
   dealii::DynamicSparsityPattern csp(locally_relevant_dofs);
@@ -205,8 +190,7 @@ test()
                                           csp,
                                           constraints,
                                           /* keep constrained dofs */ true);
-  std::vector<dealii::types::global_dof_index> n_locally_owned_dofs(
-    n_mpi_processes);
+  std::vector<dealii::types::global_dof_index> n_locally_owned_dofs(n_mpi_processes);
   for (unsigned int i = 0; i < n_mpi_processes; ++i)
     n_locally_owned_dofs[i] = locally_owned_dofs_per_processor[i].n_elements();
 
@@ -216,15 +200,9 @@ test()
                                                      locally_relevant_dofs);
 
   // Initialise the stiffness and mass matrices
-  stiffness_matrix.reinit(locally_owned_dofs,
-                          locally_owned_dofs,
-                          csp,
-                          mpi_communicator);
+  stiffness_matrix.reinit(locally_owned_dofs, locally_owned_dofs, csp, mpi_communicator);
 
-  mass_matrix.reinit(locally_owned_dofs,
-                     locally_owned_dofs,
-                     csp,
-                     mpi_communicator);
+  mass_matrix.reinit(locally_owned_dofs, locally_owned_dofs, csp, mpi_communicator);
 
   eigenvalues.resize(number_of_eigenvalues);
 
@@ -246,23 +224,18 @@ test()
   dealii::QGauss<dim>   quadrature_formula(2);
   dealii::FEValues<dim> fe_values(fe,
                                   quadrature_formula,
-                                  dealii::update_values |
-                                    dealii::update_gradients |
-                                    dealii::update_quadrature_points |
+                                  dealii::update_values | dealii::update_gradients | dealii::update_quadrature_points |
                                     dealii::update_JxW_values);
 
   const unsigned int dofs_per_cell = fe.dofs_per_cell;
   const unsigned int n_q_points    = quadrature_formula.size();
 
-  dealii::FullMatrix<double> cell_stiffness_matrix(dofs_per_cell,
-                                                   dofs_per_cell);
+  dealii::FullMatrix<double> cell_stiffness_matrix(dofs_per_cell, dofs_per_cell);
   dealii::FullMatrix<double> cell_mass_matrix(dofs_per_cell, dofs_per_cell);
 
   std::vector<dealii::types::global_dof_index> local_dof_indices(dofs_per_cell);
 
-  typename dealii::DoFHandler<dim>::active_cell_iterator
-    cell = dof_handler.begin_active(),
-    endc = dof_handler.end();
+  typename dealii::DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
   for (; cell != endc; ++cell)
     if (cell->subdomain_id() == this_mpi_process)
       {
@@ -280,26 +253,18 @@ test()
               for (unsigned int j = 0; j < dofs_per_cell; ++j)
                 {
                   cell_stiffness_matrix(i, j) +=
-                    (fe_values.shape_grad(i, q_point) *
-                       fe_values.shape_grad(j, q_point) +
-                     (advection * fe_values.shape_grad(i, q_point)) *
-                       fe_values.shape_value(j, q_point)) *
+                    (fe_values.shape_grad(i, q_point) * fe_values.shape_grad(j, q_point) +
+                     (advection * fe_values.shape_grad(i, q_point)) * fe_values.shape_value(j, q_point)) *
                     fe_values.JxW(q_point);
 
                   cell_mass_matrix(i, j) +=
-                    (fe_values.shape_value(i, q_point) *
-                     fe_values.shape_value(j, q_point)) *
-                    fe_values.JxW(q_point);
+                    (fe_values.shape_value(i, q_point) * fe_values.shape_value(j, q_point)) * fe_values.JxW(q_point);
                 }
 
             cell->get_dof_indices(local_dof_indices);
 
-            constraints.distribute_local_to_global(cell_stiffness_matrix,
-                                                   local_dof_indices,
-                                                   stiffness_matrix);
-            constraints.distribute_local_to_global(cell_mass_matrix,
-                                                   local_dof_indices,
-                                                   mass_matrix);
+            constraints.distribute_local_to_global(cell_stiffness_matrix, local_dof_indices, stiffness_matrix);
+            constraints.distribute_local_to_global(cell_mass_matrix, local_dof_indices, mass_matrix);
           }
       }
 
@@ -317,26 +282,19 @@ test()
                                          1e-10,
                                          /*log_history*/ false,
                                          /*log_results*/ false);
-    PETScInverse inverse(stiffness_matrix, solver_control, mpi_communicator);
-    const unsigned int num_arnoldi_vectors = 2 * eigenvalues.size() + 2;
+    PETScInverse          inverse(stiffness_matrix, solver_control, mpi_communicator);
+    const unsigned int    num_arnoldi_vectors = 2 * eigenvalues.size() + 2;
 
-    dealii::PArpackSolver<dealii::PETScWrappers::MPI::Vector>::AdditionalData
-      additional_data(num_arnoldi_vectors,
-                      dealii::PArpackSolver<
-                        dealii::PETScWrappers::MPI::Vector>::largest_real_part,
-                      false);
+    dealii::PArpackSolver<dealii::PETScWrappers::MPI::Vector>::AdditionalData additional_data(
+      num_arnoldi_vectors, dealii::PArpackSolver<dealii::PETScWrappers::MPI::Vector>::largest_real_part, false);
 
-    dealii::PArpackSolver<dealii::PETScWrappers::MPI::Vector> eigensolver(
-      solver_control, mpi_communicator, additional_data);
+    dealii::PArpackSolver<dealii::PETScWrappers::MPI::Vector> eigensolver(solver_control,
+                                                                          mpi_communicator,
+                                                                          additional_data);
     eigensolver.reinit(locally_owned_dofs);
     arpack_vectors[0] = 1.;
     eigensolver.set_initial_vector(arpack_vectors[0]);
-    eigensolver.solve(stiffness_matrix,
-                      mass_matrix,
-                      inverse,
-                      eigenvalues,
-                      arpack_vectors,
-                      eigenvalues.size());
+    eigensolver.solve(stiffness_matrix, mass_matrix, inverse, eigenvalues, arpack_vectors, eigenvalues.size());
 
     // extract real and complex components of eigenvectors
     for (unsigned int i = 0; i < eigenvalues.size(); ++i)
@@ -347,9 +305,8 @@ test()
             eigenfunctions[i + eigenvalues.size()] = arpack_vectors[i + 1];
             if (i + 1 < eigenvalues.size())
               {
-                eigenfunctions[i + 1] = arpack_vectors[i];
-                eigenfunctions[i + 1 + eigenvalues.size()] =
-                  arpack_vectors[i + 1];
+                eigenfunctions[i + 1]                      = arpack_vectors[i];
+                eigenfunctions[i + 1 + eigenvalues.size()] = arpack_vectors[i + 1];
                 eigenfunctions[i + 1 + eigenvalues.size()] *= -1;
                 ++i;
               }
@@ -383,17 +340,12 @@ test()
           tmpx += tmpy;
           if (std::sqrt(tmpx.l1_norm()) > precision)
             deallog << "Returned vector " << i << " is not an eigenvector!"
-                    << " L2 norm of the residual is "
-                    << std::sqrt(tmpx.l1_norm()) << std::endl;
+                    << " L2 norm of the residual is " << std::sqrt(tmpx.l1_norm()) << std::endl;
 
-          const double tmp =
-            std::abs(eigenfunctions[i] * Bx +
-                     eigenfunctions[i + eigenvalues.size()] * By - 1.) +
-            std::abs(eigenfunctions[i + eigenvalues.size()] * Bx -
-                     eigenfunctions[i] * By);
+          const double tmp = std::abs(eigenfunctions[i] * Bx + eigenfunctions[i + eigenvalues.size()] * By - 1.) +
+                             std::abs(eigenfunctions[i + eigenvalues.size()] * Bx - eigenfunctions[i] * By);
           if (tmp > precision)
-            deallog << "Eigenvector " << i << " is not normal! failing norm is "
-                    << tmp << std::endl;
+            deallog << "Eigenvector " << i << " is not normal! failing norm is " << tmp << std::endl;
         }
     }
   }
@@ -413,37 +365,27 @@ main(int argc, char **argv)
 
   try
     {
-      dealii::Utilities::MPI::MPI_InitFinalize mpi_initialization(argc,
-                                                                  argv,
-                                                                  1);
+      dealii::Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
       {
         test();
       }
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

@@ -32,13 +32,12 @@ test(const unsigned int n_refinements, const unsigned int fe_degree_fine)
   const unsigned int min_level = 0;
   const unsigned int max_level = n_refinements;
 
-  MGLevelObject<Triangulation<dim>>        triangulations(min_level, max_level);
-  MGLevelObject<DoFHandler<dim>>           dof_handlers(min_level, max_level);
-  MGLevelObject<AffineConstraints<Number>> constraints(min_level, max_level);
-  MGLevelObject<MappingQ1<dim>>            mappings(min_level, max_level);
-  MGLevelObject<std::shared_ptr<MGTwoLevelTransferNonNested<dim, VectorType>>>
-                                       transfers(min_level, max_level);
-  MGLevelObject<Operator<dim, Number>> operators(min_level, max_level);
+  MGLevelObject<Triangulation<dim>>                                            triangulations(min_level, max_level);
+  MGLevelObject<DoFHandler<dim>>                                               dof_handlers(min_level, max_level);
+  MGLevelObject<AffineConstraints<Number>>                                     constraints(min_level, max_level);
+  MGLevelObject<MappingQ1<dim>>                                                mappings(min_level, max_level);
+  MGLevelObject<std::shared_ptr<MGTwoLevelTransferNonNested<dim, VectorType>>> transfers(min_level, max_level);
+  MGLevelObject<Operator<dim, Number>>                                         operators(min_level, max_level);
 
 
   // set up levels
@@ -50,10 +49,8 @@ test(const unsigned int n_refinements, const unsigned int fe_degree_fine)
       auto &mapping     = mappings[l];
       auto &op          = operators[l];
 
-      std::unique_ptr<FiniteElement<dim>> fe =
-        std::make_unique<FE_Q<dim>>(fe_degree_fine);
-      std::unique_ptr<Quadrature<dim>> quad =
-        std::make_unique<QGauss<dim>>(fe_degree_fine + 1);
+      std::unique_ptr<FiniteElement<dim>> fe   = std::make_unique<FE_Q<dim>>(fe_degree_fine);
+      std::unique_ptr<Quadrature<dim>>    quad = std::make_unique<QGauss<dim>>(fe_degree_fine + 1);
 
       // set up triangulation
       GridGenerator::hyper_ball(tria, {}, 1.0);
@@ -65,11 +62,9 @@ test(const unsigned int n_refinements, const unsigned int fe_degree_fine)
 
       // set up constraints
       IndexSet locally_relevant_dofs;
-      DoFTools::extract_locally_relevant_dofs(dof_handler,
-                                              locally_relevant_dofs);
+      DoFTools::extract_locally_relevant_dofs(dof_handler, locally_relevant_dofs);
       constraint.reinit(locally_relevant_dofs);
-      VectorTools::interpolate_boundary_values(
-        mapping, dof_handler, 0, Functions::ZeroFunction<dim>(), constraint);
+      VectorTools::interpolate_boundary_values(mapping, dof_handler, 0, Functions::ZeroFunction<dim>(), constraint);
       constraint.close();
 
       // set up operator
@@ -79,19 +74,14 @@ test(const unsigned int n_refinements, const unsigned int fe_degree_fine)
   // set up transfer operator
   for (unsigned int l = min_level; l < max_level; ++l)
     {
-      transfers[l + 1] =
-        std::make_shared<MGTwoLevelTransferNonNested<dim, VectorType>>();
-      transfers[l + 1]->reinit(dof_handlers[l + 1],
-                               dof_handlers[l],
-                               mappings[l + 1],
-                               mappings[l],
-                               constraints[l + 1],
-                               constraints[l]);
+      transfers[l + 1] = std::make_shared<MGTwoLevelTransferNonNested<dim, VectorType>>();
+      transfers[l + 1]->reinit(
+        dof_handlers[l + 1], dof_handlers[l], mappings[l + 1], mappings[l], constraints[l + 1], constraints[l]);
     }
 
-  MGTransferGlobalCoarsening<dim, VectorType> transfer(
-    transfers,
-    [&](const auto l, auto &vec) { operators[l].initialize_dof_vector(vec); });
+  MGTransferGlobalCoarsening<dim, VectorType> transfer(transfers, [&](const auto l, auto &vec) {
+    operators[l].initialize_dof_vector(vec);
+  });
 
 
   GMGParameters mg_data; // TODO
@@ -102,20 +92,12 @@ test(const unsigned int n_refinements, const unsigned int fe_degree_fine)
 
   operators[max_level].rhs(src);
 
-  ReductionControl solver_control(
-    mg_data.maxiter, mg_data.abstol, mg_data.reltol, false, false);
+  ReductionControl solver_control(mg_data.maxiter, mg_data.abstol, mg_data.reltol, false, false);
 
-  mg_solve(solver_control,
-           dst,
-           src,
-           mg_data,
-           dof_handlers[max_level],
-           operators[max_level],
-           operators,
-           transfer);
+  mg_solve(solver_control, dst, src, mg_data, dof_handlers[max_level], operators[max_level], operators, transfer);
 
-  deallog << dim << ' ' << fe_degree_fine << ' ' << n_refinements << ' '
-          << "quad" << ' ' << solver_control.last_step() << std::endl;
+  deallog << dim << ' ' << fe_degree_fine << ' ' << n_refinements << ' ' << "quad" << ' ' << solver_control.last_step()
+          << std::endl;
 }
 
 int

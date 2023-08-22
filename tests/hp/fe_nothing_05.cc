@@ -72,10 +72,7 @@ test()
   triangulation.refine_global(1);
 
   {
-    typename Triangulation<dim>::active_cell_iterator cell = triangulation
-                                                               .begin_active(),
-                                                      endc =
-                                                        triangulation.end();
+    typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active(), endc = triangulation.end();
 
     for (; cell != endc; ++cell)
       {
@@ -112,9 +109,7 @@ test()
   // FE_Nothing, while outside the
   // circle to be of type FE_Q(1)
   {
-    typename DoFHandler<dim>::active_cell_iterator cell =
-                                                     dof_handler.begin_active(),
-                                                   endc = dof_handler.end();
+    typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
 
     for (; cell != endc; ++cell)
       {
@@ -128,10 +123,8 @@ test()
   }
 
 
-  deallog << "   Number of active cells:       "
-          << triangulation.n_active_cells() << std::endl
-          << "   Number of degrees of freedom: " << dof_handler.n_dofs()
-          << std::endl;
+  deallog << "   Number of active cells:       " << triangulation.n_active_cells() << std::endl
+          << "   Number of degrees of freedom: " << dof_handler.n_dofs() << std::endl;
 
 
   // .... test constraint handling
@@ -142,8 +135,7 @@ test()
 
   constraints.close();
 
-  deallog << "   Number of constraints:        " << constraints.n_constraints()
-          << std::endl;
+  deallog << "   Number of constraints:        " << constraints.n_constraints() << std::endl;
 }
 
 

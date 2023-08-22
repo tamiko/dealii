@@ -234,8 +234,7 @@ namespace Rol
      * the elements of the wrapped vector.
      */
     void
-    applyBinary(const ROL::Elementwise::BinaryFunction<value_type> &f,
-                const ROL::Vector<value_type> &                     rol_vector);
+    applyBinary(const ROL::Elementwise::BinaryFunction<value_type> &f, const ROL::Vector<value_type> &rol_vector);
 
     /**
      * Return the accumulated value on applying reduction operation @p r on
@@ -257,8 +256,7 @@ namespace Rol
 
 
   template <typename VectorType>
-  VectorAdaptor<VectorType>::VectorAdaptor(
-    const Teuchos::RCP<VectorType> &vector_ptr)
+  VectorAdaptor<VectorType>::VectorAdaptor(const Teuchos::RCP<VectorType> &vector_ptr)
     : vector_ptr(vector_ptr)
   {}
 
@@ -286,8 +284,7 @@ namespace Rol
   void
   VectorAdaptor<VectorType>::set(const ROL::Vector<value_type> &rol_vector)
   {
-    const VectorAdaptor &vector_adaptor =
-      Teuchos::dyn_cast<const VectorAdaptor>(rol_vector);
+    const VectorAdaptor &vector_adaptor = Teuchos::dyn_cast<const VectorAdaptor>(rol_vector);
 
     (*vector_ptr) = *(vector_adaptor.getVector());
   }
@@ -301,8 +298,7 @@ namespace Rol
     Assert(this->dimension() == rol_vector.dimension(),
            ExcDimensionMismatch(this->dimension(), rol_vector.dimension()));
 
-    const VectorAdaptor &vector_adaptor =
-      Teuchos::dyn_cast<const VectorAdaptor>(rol_vector);
+    const VectorAdaptor &vector_adaptor = Teuchos::dyn_cast<const VectorAdaptor>(rol_vector);
 
     *vector_ptr += *(vector_adaptor.getVector());
   }
@@ -311,14 +307,12 @@ namespace Rol
 
   template <typename VectorType>
   void
-  VectorAdaptor<VectorType>::axpy(const value_type               alpha,
-                                  const ROL::Vector<value_type> &rol_vector)
+  VectorAdaptor<VectorType>::axpy(const value_type alpha, const ROL::Vector<value_type> &rol_vector)
   {
     Assert(this->dimension() == rol_vector.dimension(),
            ExcDimensionMismatch(this->dimension(), rol_vector.dimension()));
 
-    const VectorAdaptor &vector_adaptor =
-      Teuchos::dyn_cast<const VectorAdaptor>(rol_vector);
+    const VectorAdaptor &vector_adaptor = Teuchos::dyn_cast<const VectorAdaptor>(rol_vector);
 
     vector_ptr->add(alpha, *(vector_adaptor.getVector()));
   }
@@ -348,14 +342,12 @@ namespace Rol
 
   template <typename VectorType>
   typename VectorType::value_type
-  VectorAdaptor<VectorType>::dot(
-    const ROL::Vector<value_type> &rol_vector) const
+  VectorAdaptor<VectorType>::dot(const ROL::Vector<value_type> &rol_vector) const
   {
     Assert(this->dimension() == rol_vector.dimension(),
            ExcDimensionMismatch(this->dimension(), rol_vector.dimension()));
 
-    const VectorAdaptor &vector_adaptor =
-      Teuchos::dyn_cast<const VectorAdaptor>(rol_vector);
+    const VectorAdaptor &vector_adaptor = Teuchos::dyn_cast<const VectorAdaptor>(rol_vector);
 
     return (*vector_ptr) * (*vector_adaptor.getVector());
   }
@@ -413,14 +405,11 @@ namespace Rol
 
   template <typename VectorType>
   void
-  VectorAdaptor<VectorType>::applyUnary(
-    const ROL::Elementwise::UnaryFunction<value_type> &f)
+  VectorAdaptor<VectorType>::applyUnary(const ROL::Elementwise::UnaryFunction<value_type> &f)
   {
     const typename VectorType::iterator vend = vector_ptr->end();
 
-    for (typename VectorType::iterator iterator = vector_ptr->begin();
-         iterator != vend;
-         iterator++)
+    for (typename VectorType::iterator iterator = vector_ptr->begin(); iterator != vend; iterator++)
       *iterator = f.apply(*iterator);
 
     if (vector_ptr->has_ghost_elements())
@@ -437,15 +426,13 @@ namespace Rol
 
   template <typename VectorType>
   void
-  VectorAdaptor<VectorType>::applyBinary(
-    const ROL::Elementwise::BinaryFunction<value_type> &f,
-    const ROL::Vector<value_type> &                     rol_vector)
+  VectorAdaptor<VectorType>::applyBinary(const ROL::Elementwise::BinaryFunction<value_type> &f,
+                                         const ROL::Vector<value_type>                      &rol_vector)
   {
     Assert(this->dimension() == rol_vector.dimension(),
            ExcDimensionMismatch(this->dimension(), rol_vector.dimension()));
 
-    const VectorAdaptor &vector_adaptor =
-      Teuchos::dyn_cast<const VectorAdaptor>(rol_vector);
+    const VectorAdaptor &vector_adaptor = Teuchos::dyn_cast<const VectorAdaptor>(rol_vector);
 
     const VectorType &given_rol_vector = *(vector_adaptor.getVector());
 
@@ -453,8 +440,7 @@ namespace Rol
     const typename VectorType::const_iterator rolend = given_rol_vector.end();
 
     typename VectorType::const_iterator r_iterator = given_rol_vector.begin();
-    for (typename VectorType::iterator l_iterator = vector_ptr->begin();
-         l_iterator != vend && r_iterator != rolend;
+    for (typename VectorType::iterator l_iterator = vector_ptr->begin(); l_iterator != vend && r_iterator != rolend;
          l_iterator++, r_iterator++)
       *l_iterator = f.apply(*l_iterator, *r_iterator);
 
@@ -472,16 +458,13 @@ namespace Rol
 
   template <typename VectorType>
   typename VectorType::value_type
-  VectorAdaptor<VectorType>::reduce(
-    const ROL::Elementwise::ReductionOp<value_type> &r) const
+  VectorAdaptor<VectorType>::reduce(const ROL::Elementwise::ReductionOp<value_type> &r) const
   {
     typename VectorType::value_type result = r.initialValue();
 
     const typename VectorType::iterator vend = vector_ptr->end();
 
-    for (typename VectorType::iterator iterator = vector_ptr->begin();
-         iterator != vend;
-         iterator++)
+    for (typename VectorType::iterator iterator = vector_ptr->begin(); iterator != vend; iterator++)
       r.reduce(*iterator, result);
     // Parallel reduction among processes is handled internally.
 

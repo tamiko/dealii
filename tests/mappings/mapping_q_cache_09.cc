@@ -38,8 +38,7 @@ do_test()
 
   MappingQ<dim>      mapping(1);
   MappingQCache<dim> mapping_cache(1);
-  const auto transform = [](const typename Triangulation<dim>::cell_iterator &,
-                            const Point<dim> &in) {
+  const auto         transform = [](const typename Triangulation<dim>::cell_iterator &, const Point<dim> &in) {
     Point<dim> out;
     // move points more densely near zero
     for (unsigned int d = 0; d < dim; ++d)
@@ -48,12 +47,9 @@ do_test()
   };
   mapping_cache.initialize(mapping, tria, transform, false);
 
-  const Vector<double> aspect_ratios =
-    GridTools::compute_aspect_ratio_of_cells(mapping, tria, QGauss<dim>(2));
+  const Vector<double> aspect_ratios = GridTools::compute_aspect_ratio_of_cells(mapping, tria, QGauss<dim>(2));
   const Vector<double> aspect_ratios_deformed =
-    GridTools::compute_aspect_ratio_of_cells(mapping_cache,
-                                             tria,
-                                             QGauss<dim>(2));
+    GridTools::compute_aspect_ratio_of_cells(mapping_cache, tria, QGauss<dim>(2));
 
   deallog.push(std::to_string(dim) + "d");
   deallog << "Aspect ratios undeformed mesh: " << std::endl;

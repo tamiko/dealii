@@ -49,8 +49,7 @@ test()
   const std::vector<types::global_dof_index> dofs_per_block =
     DoFTools::count_dofs_per_fe_block(dof_handler, block_component);
 
-  const std::vector<IndexSet> partition =
-    dof_handler.locally_owned_dofs().split_by_block(dofs_per_block);
+  const std::vector<IndexSet> partition = dof_handler.locally_owned_dofs().split_by_block(dofs_per_block);
   for (unsigned int i = 0; i < 2; ++i)
     {
       partition[i].print(deallog);

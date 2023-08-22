@@ -29,14 +29,12 @@
 DEAL_II_NAMESPACE_OPEN
 
 template <typename PolynomialType, int dim, int spacedim>
-FE_PolyFace<PolynomialType, dim, spacedim>::FE_PolyFace(
-  const PolynomialType &        poly_space,
-  const FiniteElementData<dim> &fe_data,
-  const std::vector<bool> &     restriction_is_additive_flags)
-  : FiniteElement<dim, spacedim>(
-      fe_data,
-      restriction_is_additive_flags,
-      std::vector<ComponentMask>(1, ComponentMask(1, true)))
+FE_PolyFace<PolynomialType, dim, spacedim>::FE_PolyFace(const PolynomialType         &poly_space,
+                                                        const FiniteElementData<dim> &fe_data,
+                                                        const std::vector<bool>      &restriction_is_additive_flags)
+  : FiniteElement<dim, spacedim>(fe_data,
+                                 restriction_is_additive_flags,
+                                 std::vector<ComponentMask>(1, ComponentMask(1, true)))
   , poly_space(poly_space)
 {
   AssertDimension(dim, PolynomialType::dimension + 1);
@@ -58,8 +56,7 @@ FE_PolyFace<PolynomialType, dim, spacedim>::get_degree() const
 
 template <typename PolynomialType, int dim, int spacedim>
 UpdateFlags
-FE_PolyFace<PolynomialType, dim, spacedim>::requires_update_flags(
-  const UpdateFlags flags) const
+FE_PolyFace<PolynomialType, dim, spacedim>::requires_update_flags(const UpdateFlags flags) const
 {
   UpdateFlags out = flags & update_values;
   if (flags & update_gradients)
@@ -86,9 +83,7 @@ FE_PolyFace<PolynomialType, dim, spacedim>::fill_fe_values(
   const typename Mapping<dim, spacedim>::InternalDataBase &,
   const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim> &,
   const typename FiniteElement<dim, spacedim>::InternalDataBase &,
-  dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim,
-                                                                     spacedim>
-    &) const
+  dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> &) const
 {
   // Do nothing, since we do not have values in the interior. Since
   // FEValues initializes the output variables for this function
@@ -114,17 +109,14 @@ FE_PolyFace<PolynomialType, dim, spacedim>::fill_fe_face_values(
   const Mapping<dim, spacedim> &,
   const typename Mapping<dim, spacedim>::InternalDataBase &,
   const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim> &,
-  const typename FiniteElement<dim, spacedim>::InternalDataBase &fe_internal,
-  dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim,
-                                                                     spacedim>
-    &output_data) const
+  const typename FiniteElement<dim, spacedim>::InternalDataBase                     &fe_internal,
+  dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> &output_data) const
 {
   // convert data object to internal
   // data for this class. fails with
   // an exception if that is not
   // possible
-  Assert(dynamic_cast<const InternalData *>(&fe_internal) != nullptr,
-         ExcInternalError());
+  Assert(dynamic_cast<const InternalData *>(&fe_internal) != nullptr, ExcInternalError());
   const InternalData &fe_data = static_cast<const InternalData &>(fe_internal);
 
   AssertDimension(quadrature.size(), 1);
@@ -141,14 +133,10 @@ FE_PolyFace<PolynomialType, dim, spacedim>::fill_fe_face_values(
                 // Fill data for quad shape functions
                 if (this->n_dofs_per_quad(face_no) != 0)
                   {
-                    const unsigned int foffset =
-                      this->get_first_quad_index(face_no);
-                    for (unsigned int k = 0; k < this->n_dofs_per_quad(face_no);
-                         ++k)
+                    const unsigned int foffset = this->get_first_quad_index(face_no);
+                    for (unsigned int k = 0; k < this->n_dofs_per_quad(face_no); ++k)
                       output_data.shape_values(foffset + k, i) =
-                        fe_data
-                          .shape_values[k + this->get_first_face_quad_index(
-                                              face_no)][i];
+                        fe_data.shape_values[k + this->get_first_face_quad_index(face_no)][i];
                   }
               }
               DEAL_II_FALLTHROUGH;
@@ -159,22 +147,14 @@ FE_PolyFace<PolynomialType, dim, spacedim>::fill_fe_face_values(
                 if (this->n_dofs_per_line() != 0)
                   {
                     const unsigned int foffset = this->get_first_line_index();
-                    for (unsigned int line = 0;
-                         line < GeometryInfo<dim>::lines_per_face;
-                         ++line)
+                    for (unsigned int line = 0; line < GeometryInfo<dim>::lines_per_face; ++line)
                       {
-                        for (unsigned int k = 0; k < this->n_dofs_per_line();
-                             ++k)
+                        for (unsigned int k = 0; k < this->n_dofs_per_line(); ++k)
                           output_data.shape_values(
-                            foffset +
-                              GeometryInfo<dim>::face_to_cell_lines(face_no,
-                                                                    line) *
-                                this->n_dofs_per_line() +
+                            foffset + GeometryInfo<dim>::face_to_cell_lines(face_no, line) * this->n_dofs_per_line() +
                               k,
-                            i) =
-                            fe_data.shape_values
-                              [k + (line * this->n_dofs_per_line()) +
-                               this->get_first_face_line_index(face_no)][i];
+                            i) = fe_data.shape_values[k + (line * this->n_dofs_per_line()) +
+                                                      this->get_first_face_line_index(face_no)][i];
                       }
                   }
               }
@@ -184,13 +164,9 @@ FE_PolyFace<PolynomialType, dim, spacedim>::fill_fe_face_values(
               {
                 // Fill data for vertex shape functions
                 if (this->n_dofs_per_vertex() != 0)
-                  for (unsigned int lvertex = 0;
-                       lvertex < GeometryInfo<dim>::vertices_per_face;
-                       ++lvertex)
-                    output_data.shape_values(
-                      GeometryInfo<dim>::face_to_cell_vertices(face_no,
-                                                               lvertex),
-                      i) = fe_data.shape_values[lvertex][i];
+                  for (unsigned int lvertex = 0; lvertex < GeometryInfo<dim>::vertices_per_face; ++lvertex)
+                    output_data.shape_values(GeometryInfo<dim>::face_to_cell_vertices(face_no, lvertex), i) =
+                      fe_data.shape_values[lvertex][i];
                 break;
               }
           }
@@ -208,17 +184,14 @@ FE_PolyFace<PolynomialType, dim, spacedim>::fill_fe_subface_values(
   const Mapping<dim, spacedim> &,
   const typename Mapping<dim, spacedim>::InternalDataBase &,
   const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim> &,
-  const typename FiniteElement<dim, spacedim>::InternalDataBase &fe_internal,
-  dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim,
-                                                                     spacedim>
-    &output_data) const
+  const typename FiniteElement<dim, spacedim>::InternalDataBase                     &fe_internal,
+  dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> &output_data) const
 {
   // convert data object to internal
   // data for this class. fails with
   // an exception if that is not
   // possible
-  Assert(dynamic_cast<const InternalData *>(&fe_internal) != nullptr,
-         ExcInternalError());
+  Assert(dynamic_cast<const InternalData *>(&fe_internal) != nullptr, ExcInternalError());
   const InternalData &fe_data = static_cast<const InternalData &>(fe_internal);
 
   const unsigned int foffset = fe_data.shape_values.size() * face_no;
@@ -231,8 +204,7 @@ FE_PolyFace<PolynomialType, dim, spacedim>::fill_fe_subface_values(
           output_data.shape_values(k, i) = 0.;
       for (unsigned int k = 0; k < fe_data.shape_values.size(); ++k)
         for (unsigned int i = 0; i < quadrature.size(); ++i)
-          output_data.shape_values(foffset + k, i) =
-            fe_data.shape_values[k][i + offset];
+          output_data.shape_values(foffset + k, i) = fe_data.shape_values[k][i + offset];
     }
 
   Assert(!(fe_data.update_each & update_gradients), ExcNotImplemented());

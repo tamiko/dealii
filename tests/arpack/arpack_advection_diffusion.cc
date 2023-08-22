@@ -124,9 +124,7 @@ EigenvalueProblem<dim>::make_grid_and_dofs()
   DoFTools::make_zero_boundary_constraints(dof_handler, constraints);
   constraints.close();
 
-  sparsity_pattern.reinit(dof_handler.n_dofs(),
-                          dof_handler.n_dofs(),
-                          dof_handler.max_couplings_between_dofs());
+  sparsity_pattern.reinit(dof_handler.n_dofs(), dof_handler.n_dofs(), dof_handler.max_couplings_between_dofs());
   DoFTools::make_sparsity_pattern(dof_handler, sparsity_pattern);
   constraints.condense(sparsity_pattern);
   sparsity_pattern.compress();
@@ -154,8 +152,7 @@ EigenvalueProblem<dim>::assemble_system()
 
   FEValues<dim> fe_values(fe,
                           quadrature_formula,
-                          update_values | update_gradients |
-                            update_quadrature_points | update_JxW_values);
+                          update_values | update_gradients | update_quadrature_points | update_JxW_values);
 
   const unsigned int dofs_per_cell = fe.dofs_per_cell;
   const unsigned int n_q_points    = quadrature_formula.size();
@@ -165,9 +162,7 @@ EigenvalueProblem<dim>::assemble_system()
 
   std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
 
-  typename DoFHandler<dim>::active_cell_iterator cell =
-                                                   dof_handler.begin_active(),
-                                                 endc = dof_handler.end();
+  typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
   for (; cell != endc; ++cell)
     {
       fe_values.reinit(cell);
@@ -184,26 +179,19 @@ EigenvalueProblem<dim>::assemble_system()
             for (unsigned int j = 0; j < dofs_per_cell; ++j)
               {
                 cell_stiffness_matrix(i, j) +=
-                  (fe_values.shape_grad(i, q_point) *
-                     fe_values.shape_grad(j, q_point) +
-                   (advection * fe_values.shape_grad(i, q_point)) *
-                     fe_values.shape_value(j, q_point)) *
+                  (fe_values.shape_grad(i, q_point) * fe_values.shape_grad(j, q_point) +
+                   (advection * fe_values.shape_grad(i, q_point)) * fe_values.shape_value(j, q_point)) *
                   fe_values.JxW(q_point);
 
-                cell_mass_matrix(i, j) += (fe_values.shape_value(i, q_point) *
-                                           fe_values.shape_value(j, q_point)) *
-                                          fe_values.JxW(q_point);
+                cell_mass_matrix(i, j) +=
+                  (fe_values.shape_value(i, q_point) * fe_values.shape_value(j, q_point)) * fe_values.JxW(q_point);
               }
         }
 
       cell->get_dof_indices(local_dof_indices);
 
-      constraints.distribute_local_to_global(cell_stiffness_matrix,
-                                             local_dof_indices,
-                                             stiffness_matrix);
-      constraints.distribute_local_to_global(cell_mass_matrix,
-                                             local_dof_indices,
-                                             mass_matrix);
+      constraints.distribute_local_to_global(cell_stiffness_matrix, local_dof_indices, stiffness_matrix);
+      constraints.distribute_local_to_global(cell_mass_matrix, local_dof_indices, mass_matrix);
     }
 
   stiffness_matrix.compress(VectorOperation::add);
@@ -220,17 +208,11 @@ EigenvalueProblem<dim>::solve()
   SparseDirectUMFPACK inverse;
   inverse.initialize(stiffness_matrix);
   const unsigned int           num_arnoldi_vectors = 2 * eigenvalues.size() + 2;
-  ArpackSolver::AdditionalData additional_data(num_arnoldi_vectors,
-                                               ArpackSolver::largest_real_part);
+  ArpackSolver::AdditionalData additional_data(num_arnoldi_vectors, ArpackSolver::largest_real_part);
   ArpackSolver                 eigensolver(solver_control, additional_data);
   arpack_vectors[0] = 1.;
   eigensolver.set_initial_vector(arpack_vectors[0]);
-  eigensolver.solve(stiffness_matrix,
-                    mass_matrix,
-                    inverse,
-                    eigenvalues,
-                    arpack_vectors,
-                    eigenvalues.size());
+  eigensolver.solve(stiffness_matrix, mass_matrix, inverse, eigenvalues, arpack_vectors, eigenvalues.size());
 
   // extract real and complex components of eigenvectors
   for (unsigned int i = 0; i < n_eigenvalues; ++i)
@@ -272,16 +254,12 @@ EigenvalueProblem<dim>::solve()
         tmpx += tmpy;
         if (std::sqrt(tmpx.l1_norm()) > 1e-8)
           deallog << "Returned vector " << i << " is not an eigenvector!"
-                  << " L2 norm of the residual is " << std::sqrt(tmpx.l1_norm())
-                  << std::endl;
+                  << " L2 norm of the residual is " << std::sqrt(tmpx.l1_norm()) << std::endl;
 
-        const double tmp =
-          std::abs(eigenvectors[i] * Bx + eigenvectors[i + n_eigenvalues] * By -
-                   1.) +
-          std::abs(eigenvectors[i + n_eigenvalues] * Bx - eigenvectors[i] * By);
+        const double tmp = std::abs(eigenvectors[i] * Bx + eigenvectors[i + n_eigenvalues] * By - 1.) +
+                           std::abs(eigenvectors[i + n_eigenvalues] * Bx - eigenvectors[i] * By);
         if (tmp > 1e-8)
-          deallog << "Eigenvector " << i << " is not normal! failing norm is"
-                  << tmp << std::endl;
+          deallog << "Eigenvector " << i << " is not normal! failing norm is" << tmp << std::endl;
       }
   }
 }
@@ -326,28 +304,20 @@ main(int argc, char **argv)
 
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
 

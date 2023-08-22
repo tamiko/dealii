@@ -37,8 +37,7 @@ namespace Functions
 
     template <int dim>
     double
-    Sphere<dim>::value(const Point<dim> & point,
-                       const unsigned int component) const
+    Sphere<dim>::value(const Point<dim> &point, const unsigned int component) const
     {
       AssertIndexRange(component, this->n_components);
       (void)component;
@@ -50,14 +49,13 @@ namespace Functions
 
     template <int dim>
     Tensor<1, dim>
-    Sphere<dim>::gradient(const Point<dim> & point,
-                          const unsigned int component) const
+    Sphere<dim>::gradient(const Point<dim> &point, const unsigned int component) const
     {
       AssertIndexRange(component, this->n_components);
       (void)component;
 
       const Tensor<1, dim> center_to_point = point - center;
-      const Tensor<1, dim> grad = center_to_point / center_to_point.norm();
+      const Tensor<1, dim> grad            = center_to_point / center_to_point.norm();
       return grad;
     }
 
@@ -65,8 +63,7 @@ namespace Functions
 
     template <int dim>
     SymmetricTensor<2, dim>
-    Sphere<dim>::hessian(const Point<dim> & point,
-                         const unsigned int component) const
+    Sphere<dim>::hessian(const Point<dim> &point, const unsigned int component) const
     {
       AssertIndexRange(component, this->n_components);
       (void)component;
@@ -76,8 +73,7 @@ namespace Functions
 
       const SymmetricTensor<2, dim> hess =
         unit_symmetric_tensor<dim>() / distance -
-        symmetrize(outer_product(center_to_point, center_to_point)) /
-          Utilities::fixed_power<3>(distance);
+        symmetrize(outer_product(center_to_point, center_to_point)) / Utilities::fixed_power<3>(distance);
 
       return hess;
     }
@@ -96,8 +92,7 @@ namespace Functions
 
     template <int dim>
     double
-    Plane<dim>::value(const Point<dim> & point,
-                      const unsigned int component) const
+    Plane<dim>::value(const Point<dim> &point, const unsigned int component) const
     {
       AssertIndexRange(component, this->n_components);
       (void)component;
@@ -132,7 +127,7 @@ namespace Functions
 
 
     template <int dim>
-    Ellipsoid<dim>::Ellipsoid(const Point<dim> &             center,
+    Ellipsoid<dim>::Ellipsoid(const Point<dim>              &center,
                               const std::array<double, dim> &radii,
                               const double                   tolerance,
                               const unsigned int             max_iter)
@@ -149,8 +144,7 @@ namespace Functions
 
     template <int dim>
     double
-    Ellipsoid<dim>::value(const Point<dim> & point,
-                          const unsigned int component) const
+    Ellipsoid<dim>::value(const Point<dim> &point, const unsigned int component) const
     {
       AssertIndexRange(component, this->n_components);
       (void)component;
@@ -169,8 +163,7 @@ namespace Functions
 
     template <int dim>
     Tensor<1, dim>
-    Ellipsoid<dim>::gradient(const Point<dim> & point,
-                             const unsigned int component) const
+    Ellipsoid<dim>::gradient(const Point<dim> &point, const unsigned int component) const
     {
       AssertIndexRange(component, this->n_components);
       (void)component;
@@ -182,8 +175,7 @@ namespace Functions
         {
           const Point<dim> point_in_centered_coordinate_system =
             Point<dim>(compute_closest_point_ellipse(point) - center);
-          grad = compute_analyical_normal_vector_on_ellipse(
-            point_in_centered_coordinate_system);
+          grad = compute_analyical_normal_vector_on_ellipse(point_in_centered_coordinate_system);
         }
       else
         AssertThrow(false, ExcNotImplemented());
@@ -246,10 +238,8 @@ namespace Functions
       do
         {
           // compute the ellipse evolute (center of curvature) for the current t
-          const double ex =
-            (a * a - b * b) * Utilities::fixed_power<3>(std::cos(t)) / a;
-          const double ey =
-            (b * b - a * a) * Utilities::fixed_power<3>(std::sin(t)) / b;
+          const double ex = (a * a - b * b) * Utilities::fixed_power<3>(std::cos(t)) / a;
+          const double ey = (b * b - a * a) * Utilities::fixed_power<3>(std::sin(t)) / b;
           // compute distances from current point on ellipse to its evolute
           const double rx = x - ex;
           const double ry = y - ey;
@@ -284,8 +274,7 @@ namespace Functions
 
     template <int dim>
     Tensor<1, dim, double>
-    Ellipsoid<dim>::compute_analyical_normal_vector_on_ellipse(
-      const Point<dim> &) const
+    Ellipsoid<dim>::compute_analyical_normal_vector_on_ellipse(const Point<dim> &) const
     {
       AssertThrow(false, ExcNotImplemented());
       return Tensor<1, dim, double>();
@@ -295,8 +284,7 @@ namespace Functions
 
     template <>
     Tensor<1, 2, double>
-    Ellipsoid<2>::compute_analyical_normal_vector_on_ellipse(
-      const Point<2> &point) const
+    Ellipsoid<2>::compute_analyical_normal_vector_on_ellipse(const Point<2> &point) const
     {
       const auto &a = radii[0];
       const auto &b = radii[1];
@@ -327,8 +315,7 @@ namespace Functions
 
       const Point<2> &closest_point = compute_closest_point_ellipse(point);
 
-      const double distance =
-        std::hypot(closest_point[0] - point[0], closest_point[1] - point[1]);
+      const double distance = std::hypot(closest_point[0] - point[0], closest_point[1] - point[1]);
 
       return evaluate_ellipsoid(point) < 0.0 ? -distance : distance;
     }
@@ -336,8 +323,7 @@ namespace Functions
 
 
     template <int dim>
-    Rectangle<dim>::Rectangle(const Point<dim> &bottom_left,
-                              const Point<dim> &top_right)
+    Rectangle<dim>::Rectangle(const Point<dim> &bottom_left, const Point<dim> &top_right)
       : bounding_box({bottom_left, top_right})
     {}
 
@@ -352,8 +338,7 @@ namespace Functions
 
     template <int dim>
     double
-    Rectangle<dim>::value(const Point<dim> & p,
-                          const unsigned int component) const
+    Rectangle<dim>::value(const Point<dim> &p, const unsigned int component) const
     {
       AssertDimension(component, 0);
       (void)component;
@@ -390,22 +375,15 @@ namespace Functions
                           double>::max() /* notch is open in y-direction*/,
                         center[2] + notch_height - radius))
     {
-      Assert(
-        notch_width <= 2 * radius,
-        ExcMessage(
-          "The width of the notch must be less than the circle diameter."));
-      Assert(
-        notch_height <= 2 * radius,
-        ExcMessage(
-          "The height of the notch must be less than the circle diameter."));
+      Assert(notch_width <= 2 * radius, ExcMessage("The width of the notch must be less than the circle diameter."));
+      Assert(notch_height <= 2 * radius, ExcMessage("The height of the notch must be less than the circle diameter."));
     }
 
 
 
     template <int dim>
     double
-    ZalesakDisk<dim>::value(const Point<dim> & p,
-                            const unsigned int component) const
+    ZalesakDisk<dim>::value(const Point<dim> &p, const unsigned int component) const
     {
       (void)component;
       AssertDimension(component, 0);

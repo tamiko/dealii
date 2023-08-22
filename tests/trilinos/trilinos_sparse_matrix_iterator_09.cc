@@ -40,9 +40,7 @@ test()
   TrilinosWrappers::SparseMatrix A(sparsity);
 
   // and loop over the elements of it
-  for (TrilinosWrappers::SparseMatrix::const_iterator k = A.begin();
-       k != A.end();
-       ++k)
+  for (TrilinosWrappers::SparseMatrix::const_iterator k = A.begin(); k != A.end(); ++k)
     deallog << k->row() << ' ' << k->column() << ' ' << k->value() << std::endl;
 }
 
@@ -53,8 +51,7 @@ main(int argc, char **argv)
 {
   initlog();
 
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   try
     {
@@ -62,28 +59,20 @@ main(int argc, char **argv)
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

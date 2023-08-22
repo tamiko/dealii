@@ -38,16 +38,13 @@ main()
   // position of auxiliary point to achieve an angle of 120 degrees in corner
   // of inner cell
   const double ycord =
-    0.55 * radius * std::cos(numbers::PI / 12) /
-    (std::sin(numbers::PI / 12) + std::cos(numbers::PI / 12));
+    0.55 * radius * std::cos(numbers::PI / 12) / (std::sin(numbers::PI / 12) + std::cos(numbers::PI / 12));
   // vertices for quarter of circle
   std::vector<Point<3>> vertices{{0, 0, 0},
                                  {0.55 * radius, 0, 0},
                                  {ycord, ycord, 0},
                                  {radius, 0, 0},
-                                 {radius * std::sqrt(0.5),
-                                  radius * std::sqrt(0.5),
-                                  0}};
+                                 {radius * std::sqrt(0.5), radius * std::sqrt(0.5), 0}};
 
   // create additional vertices for other three quarters of circle -> gives 17
   // vertices in total
@@ -68,8 +65,7 @@ main()
       Point<3> new_point;
       for (unsigned int d = 0; d < 2; ++d)
         new_point[d] = vertices[i][d];
-      new_point[2] =
-        length - std::tan(numbers::PI / 8) * std::abs(vertices[i][0]) / radius;
+      new_point[2] = length - std::tan(numbers::PI / 8) * std::abs(vertices[i][0]) / radius;
       vertices.push_back(new_point);
     }
 
@@ -124,9 +120,7 @@ main()
         cell->face(f)->set_all_manifold_ids(2);
 
   // attach 3 cylindrical manifolds to mesh
-  tria.set_manifold(2,
-                    CylindricalManifold<dim>(Point<dim>{0, 0, 1},
-                                             Point<dim>{0, 0, 0}));
+  tria.set_manifold(2, CylindricalManifold<dim>(Point<dim>{0, 0, 1}, Point<dim>{0, 0, 0}));
   TransfiniteInterpolationManifold<dim> transfinite;
   transfinite.initialize(tria);
   tria.set_manifold(1, transfinite);

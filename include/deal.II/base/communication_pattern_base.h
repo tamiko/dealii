@@ -86,9 +86,7 @@ namespace Utilities
        *   access to elements of the array.
        */
       virtual void
-      reinit(const IndexSet &locally_owned_indices,
-             const IndexSet &ghost_indices,
-             const MPI_Comm  communicator) = 0;
+      reinit(const IndexSet &locally_owned_indices, const IndexSet &ghost_indices, const MPI_Comm communicator) = 0;
 
       /**
        * Return the underlying MPI communicator.

@@ -50,10 +50,7 @@ test();
 
 
 
-template <int dim,
-          int fe_degree,
-          int n_q_points_1d = fe_degree + 1,
-          typename Number   = double>
+template <int dim, int fe_degree, int n_q_points_1d = fe_degree + 1, typename Number = double>
 class MatrixFreeTest
 {
 public:
@@ -66,7 +63,7 @@ public:
   void
   operator()(const MatrixFree<dim, Number> &data,
              Vector<Number> &,
-             const Vector<Number> &                       src,
+             const Vector<Number>                        &src,
              const std::pair<unsigned int, unsigned int> &cell_range) const
   {
     FEEvaluation<dim, fe_degree, n_q_points_1d, 1, Number> fe_eval(data);
@@ -81,8 +78,7 @@ public:
         else
           for (unsigned int e = 0; e < fe_eval.dofs_per_cell; ++e)
             fe_eval.submit_dof_value(make_vectorized_array<Number>(1.), e);
-        fe_eval.evaluate(EvaluationFlags::values | EvaluationFlags::gradients |
-                         EvaluationFlags::hessians);
+        fe_eval.evaluate(EvaluationFlags::values | EvaluationFlags::gradients | EvaluationFlags::hessians);
 
         // values should evaluate to one, derivatives to zero
         for (unsigned int q = 0; q < fe_eval.n_q_points; ++q)
@@ -114,8 +110,7 @@ protected:
 
 template <int dim, int fe_degree, typename number>
 void
-do_test(const DoFHandler<dim> &          dof,
-        const AffineConstraints<double> &constraints)
+do_test(const DoFHandler<dim> &dof, const AffineConstraints<double> &constraints)
 {
   // use this for info on problem
   // std::cout << "Number of cells: " <<
@@ -147,8 +142,7 @@ do_test(const DoFHandler<dim> &          dof,
     mf_data.reinit(MappingQ1<dim>{}, dof, constraints, quad, data);
   }
 
-  deallog << "Testing " << dof.get_fe().get_name() << " without read"
-          << std::endl;
+  deallog << "Testing " << dof.get_fe().get_name() << " without read" << std::endl;
   MatrixFreeTest<dim, fe_degree, fe_degree + 1, number> mf(mf_data);
   mf.test_functions(solution);
 
@@ -183,8 +177,7 @@ test()
   const SphericalManifold<dim> manifold;
   Triangulation<dim>           tria;
   GridGenerator::hyper_ball(tria);
-  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(),
-                                                    endc = tria.end();
+  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
   for (; cell != endc; ++cell)
     for (const unsigned int f : GeometryInfo<dim>::face_indices())
       if (cell->at_boundary(f))

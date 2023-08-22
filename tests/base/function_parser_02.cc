@@ -50,48 +50,36 @@ main()
   // initialized with units
   FunctionParser<2> fp;
   function[0] = "x * cm + y * m + PI";
-  fp.initialize(FunctionParser<2>::default_variable_names(),
-                function,
-                constants);
+  fp.initialize(FunctionParser<2>::default_variable_names(), function, constants);
 
-  deallog << "Function " << '[' << function[0] << ']' << " @point " << '['
-          << point << ']' << " is " << '[' << fp.value(point) << ']'
-          << std::endl;
+  deallog << "Function " << '[' << function[0] << ']' << " @point " << '[' << point << ']' << " is " << '['
+          << fp.value(point) << ']' << std::endl;
 
   // now initialize with a function
   // that's a string, not vector of
   // strings
   FunctionParser<2> fp4;
-  fp4.initialize(FunctionParser<2>::default_variable_names(),
-                 function[0],
-                 constants);
+  fp4.initialize(FunctionParser<2>::default_variable_names(), function[0], constants);
 
-  deallog << "Function " << '[' << function[0] << ']' << " @point " << '['
-          << point << ']' << " is " << '[' << fp4.value(point) << ']'
-          << std::endl;
+  deallog << "Function " << '[' << function[0] << ']' << " @point " << '[' << point << ']' << " is " << '['
+          << fp4.value(point) << ']' << std::endl;
 
   // now initialize a function without
   // units to check backwards
   // compatibility
   FunctionParser<2> fp2;
   function[0] = "x + y + PI";
-  fp2.initialize(FunctionParser<2>::default_variable_names(),
-                 function,
-                 constants);
-  deallog << "Function " << '[' << function[0] << ']' << " @point " << '['
-          << point << ']' << " is " << '[' << fp2.value(point) << ']'
-          << std::endl;
+  fp2.initialize(FunctionParser<2>::default_variable_names(), function, constants);
+  deallog << "Function " << '[' << function[0] << ']' << " @point " << '[' << point << ']' << " is " << '['
+          << fp2.value(point) << ']' << std::endl;
 
 
 
   // same as above but the function is
   // a string, not a vector
   FunctionParser<2> fp3;
-  fp3.initialize(FunctionParser<2>::default_variable_names(),
-                 function[0],
-                 constants);
+  fp3.initialize(FunctionParser<2>::default_variable_names(), function[0], constants);
 
-  deallog << "Function " << '[' << function[0] << ']' << " @point " << '['
-          << point << ']' << " is " << '[' << fp3.value(point) << ']'
-          << std::endl;
+  deallog << "Function " << '[' << function[0] << ']' << " @point " << '[' << point << ']' << " is " << '['
+          << fp3.value(point) << ']' << std::endl;
 }

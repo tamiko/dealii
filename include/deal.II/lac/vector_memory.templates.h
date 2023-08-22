@@ -44,8 +44,7 @@ GrowingVectorMemory<VectorType>::get_pool()
   static auto pool = []() {
     internal::ensure_kokkos_initialized();
     if (!internal::dealii_initialized_kokkos)
-      Kokkos::push_finalize_hook(
-        GrowingVectorMemory<VectorType>::release_unused_memory);
+      Kokkos::push_finalize_hook(GrowingVectorMemory<VectorType>::release_unused_memory);
     return GrowingVectorMemory<VectorType>::Pool{};
   }();
   return pool;
@@ -87,9 +86,7 @@ GrowingVectorMemory<VectorType>::Pool::initialize(const size_type size)
     {
       data = new std::vector<entry_type>(size);
 
-      for (typename std::vector<entry_type>::iterator i = data->begin();
-           i != data->end();
-           ++i)
+      for (typename std::vector<entry_type>::iterator i = data->begin(); i != data->end(); ++i)
         {
           i->first  = false;
           i->second = std::make_unique<VectorType>();
@@ -99,9 +96,7 @@ GrowingVectorMemory<VectorType>::Pool::initialize(const size_type size)
 
 
 template <typename VectorType>
-inline GrowingVectorMemory<VectorType>::GrowingVectorMemory(
-  const size_type initial_size,
-  const bool      log_statistics)
+inline GrowingVectorMemory<VectorType>::GrowingVectorMemory(const size_type initial_size, const bool log_statistics)
 
   : total_alloc(0)
   , current_alloc(0)
@@ -115,14 +110,11 @@ inline GrowingVectorMemory<VectorType>::GrowingVectorMemory(
 template <typename VectorType>
 inline GrowingVectorMemory<VectorType>::~GrowingVectorMemory()
 {
-  AssertNothrow(current_alloc == 0,
-                StandardExceptions::ExcMemoryLeak(current_alloc));
+  AssertNothrow(current_alloc == 0, StandardExceptions::ExcMemoryLeak(current_alloc));
   if (log_statistics)
     {
-      deallog << "GrowingVectorMemory:Overall allocated vectors: "
-              << total_alloc << std::endl;
-      deallog << "GrowingVectorMemory:Maximum allocated vectors: "
-              << get_pool().data->size() << std::endl;
+      deallog << "GrowingVectorMemory:Overall allocated vectors: " << total_alloc << std::endl;
+      deallog << "GrowingVectorMemory:Maximum allocated vectors: " << get_pool().data->size() << std::endl;
     }
 }
 
@@ -138,9 +130,7 @@ GrowingVectorMemory<VectorType>::alloc()
   ++current_alloc;
   // see if there is a free vector
   // available in our list
-  for (typename std::vector<entry_type>::iterator i = get_pool().data->begin();
-       i != get_pool().data->end();
-       ++i)
+  for (typename std::vector<entry_type>::iterator i = get_pool().data->begin(); i != get_pool().data->end(); ++i)
     {
       if (i->first == false)
         {
@@ -163,9 +153,7 @@ GrowingVectorMemory<VectorType>::free(const VectorType *const v)
 {
   std::lock_guard<std::mutex> lock(mutex);
 
-  for (typename std::vector<entry_type>::iterator i = get_pool().data->begin();
-       i != get_pool().data->end();
-       ++i)
+  for (typename std::vector<entry_type>::iterator i = get_pool().data->begin(); i != get_pool().data->end(); ++i)
     {
       if (v == i->second.get())
         {
@@ -198,12 +186,8 @@ GrowingVectorMemory<VectorType>::memory_consumption() const
   std::lock_guard<std::mutex> lock(mutex);
 
   std::size_t                                            result = sizeof(*this);
-  const typename std::vector<entry_type>::const_iterator end =
-    get_pool().data->end();
-  for (typename std::vector<entry_type>::const_iterator i =
-         get_pool().data->begin();
-       i != end;
-       ++i)
+  const typename std::vector<entry_type>::const_iterator end    = get_pool().data->end();
+  for (typename std::vector<entry_type>::const_iterator i = get_pool().data->begin(); i != end; ++i)
     result += sizeof(*i) + MemoryConsumption::memory_consumption(i->second);
 
   return result;

@@ -58,22 +58,16 @@ main(int argc, char **argv)
     PETScWrappers::SolverCG         solver(control);
     PETScWrappers::PreconditionNone preconditioner(A);
     deallog << "Solver type: " << typeid(solver).name() << std::endl;
-    check_solver_within_range(solver.solve(A, u, f, preconditioner),
-                              control.last_step(),
-                              42,
-                              44);
+    check_solver_within_range(solver.solve(A, u, f, preconditioner), control.last_step(), 42, 44);
 
     u = 0.;
     PETScWrappers::PreconditionShell preconditioner_user(A);
 
     // Identity preconditioner
-    preconditioner_user.vmult =
-      [](PETScWrappers::VectorBase &      dst,
-         const PETScWrappers::VectorBase &src) -> void { dst = src; };
+    preconditioner_user.vmult = [](PETScWrappers::VectorBase &dst, const PETScWrappers::VectorBase &src) -> void {
+      dst = src;
+    };
 
-    check_solver_within_range(solver.solve(A, u, f, preconditioner_user),
-                              control.last_step(),
-                              42,
-                              44);
+    check_solver_within_range(solver.solve(A, u, f, preconditioner_user), control.last_step(), 42, 44);
   }
 }

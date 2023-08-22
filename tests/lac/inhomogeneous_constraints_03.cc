@@ -100,10 +100,8 @@ test(bool use_inhomogeneity_for_rhs)
 
   local_vec = 1;
 
-  cm.distribute_local_to_global(
-    local_mat, local_vec, local_dofs1, mat, rhs, use_inhomogeneity_for_rhs);
-  cm.distribute_local_to_global(
-    local_mat, local_vec, local_dofs2, mat, rhs, use_inhomogeneity_for_rhs);
+  cm.distribute_local_to_global(local_mat, local_vec, local_dofs1, mat, rhs, use_inhomogeneity_for_rhs);
+  cm.distribute_local_to_global(local_mat, local_vec, local_dofs2, mat, rhs, use_inhomogeneity_for_rhs);
 
 
   mat.print(deallog.get_file_stream());

@@ -347,10 +347,8 @@ public:
    * information stored by the triangulation, i.e.,
    * <code>cell-@>vertex(v)</code>.
    */
-  virtual boost::container::small_vector<Point<spacedim>,
-                                         GeometryInfo<dim>::vertices_per_cell>
-  get_vertices(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell) const;
+  virtual boost::container::small_vector<Point<spacedim>, GeometryInfo<dim>::vertices_per_cell>
+  get_vertices(const typename Triangulation<dim, spacedim>::cell_iterator &cell) const;
 
   /**
    * Return the mapped vertices of a face.
@@ -360,10 +358,8 @@ public:
    * @param[in] cell The cell containing the face.
    * @param[in] face_no The number of the face within the cell.
    */
-  boost::container::small_vector<Point<spacedim>,
-                                 GeometryInfo<dim>::vertices_per_face>
-  get_vertices(const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-               const unsigned int face_no) const;
+  boost::container::small_vector<Point<spacedim>, GeometryInfo<dim>::vertices_per_face>
+  get_vertices(const typename Triangulation<dim, spacedim>::cell_iterator &cell, const unsigned int face_no) const;
 
   /**
    * Return one of two possible mapped centers of a cell.
@@ -390,7 +386,7 @@ public:
    */
   virtual Point<spacedim>
   get_center(const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-             const bool map_barycenter_of_reference_cell = true) const;
+             const bool                                                  map_barycenter_of_reference_cell = true) const;
 
   /**
    * Return the bounding box of a mapped cell.
@@ -410,8 +406,7 @@ public:
    * @param[in] cell The cell for which you want to compute the bounding box
    */
   virtual BoundingBox<spacedim>
-  get_bounding_box(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell) const;
+  get_bounding_box(const typename Triangulation<dim, spacedim>::cell_iterator &cell) const;
 
   /**
    * Return whether the mapping preserves vertex locations. In other words,
@@ -451,9 +446,8 @@ public:
    * first argument.
    */
   virtual Point<spacedim>
-  transform_unit_to_real_cell(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const Point<dim> &                                          p) const = 0;
+  transform_unit_to_real_cell(const typename Triangulation<dim, spacedim>::cell_iterator &cell,
+                              const Point<dim>                                           &p) const = 0;
 
   /**
    * Map the point @p p on the real @p cell to the corresponding point on the
@@ -484,9 +478,8 @@ public:
    * first argument.
    */
   virtual Point<dim>
-  transform_real_to_unit_cell(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const Point<spacedim> &                                     p) const = 0;
+  transform_real_to_unit_cell(const typename Triangulation<dim, spacedim>::cell_iterator &cell,
+                              const Point<spacedim>                                      &p) const = 0;
 
   /**
    * Map multiple points from the real point locations to points in reference
@@ -500,10 +493,9 @@ public:
    * contains std::numeric_limits<double>::infinity() as the first entry.
    */
   virtual void
-  transform_points_real_to_unit_cell(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const ArrayView<const Point<spacedim>> &                    real_points,
-    const ArrayView<Point<dim>> &unit_points) const;
+  transform_points_real_to_unit_cell(const typename Triangulation<dim, spacedim>::cell_iterator &cell,
+                                     const ArrayView<const Point<spacedim>>                     &real_points,
+                                     const ArrayView<Point<dim>>                                &unit_points) const;
 
   /**
    * Transform the point @p p on the real @p cell to the corresponding point
@@ -516,10 +508,9 @@ public:
    * exception in this case.
    */
   Point<dim - 1>
-  project_real_point_to_unit_point_on_face(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const unsigned int                                          face_no,
-    const Point<spacedim> &                                     p) const;
+  project_real_point_to_unit_point_on_face(const typename Triangulation<dim, spacedim>::cell_iterator &cell,
+                                           const unsigned int                                          face_no,
+                                           const Point<spacedim>                                      &p) const;
 
   /**
    * @}
@@ -544,11 +535,10 @@ public:
    *
    * @ingroup Exceptions
    */
-  DeclExceptionMsg(
-    ExcTransformationFailed,
-    "Computing the mapping between a real space point and a point in reference "
-    "space failed, typically because the given point lies outside the cell "
-    "where the inverse mapping is not unique.");
+  DeclExceptionMsg(ExcTransformationFailed,
+                   "Computing the mapping between a real space point and a point in reference "
+                   "space failed, typically because the given point lies outside the cell "
+                   "where the inverse mapping is not unique.");
 
   /**
    * deal.II assumes the Jacobian determinant to be positive. When the cell
@@ -561,11 +551,10 @@ public:
                  Point<spacedim>,
                  double,
                  int,
-                 << "The image of the mapping applied to cell with center ["
-                 << arg1 << "] is distorted. The cell geometry or the "
+                 << "The image of the mapping applied to cell with center [" << arg1
+                 << "] is distorted. The cell geometry or the "
                  << "mapping are invalid, giving a non-positive volume "
-                 << "fraction of " << arg2 << " in quadrature point " << arg3
-                 << '.');
+                 << "fraction of " << arg2 << " in quadrature point " << arg3 << '.');
 
   /**
    * @}
@@ -761,8 +750,7 @@ protected:
    * the returned object, knowing its real (derived) type.
    */
   virtual std::unique_ptr<InternalDataBase>
-  get_data(const UpdateFlags      update_flags,
-           const Quadrature<dim> &quadrature) const = 0;
+  get_data(const UpdateFlags update_flags, const Quadrature<dim> &quadrature) const = 0;
 
   /**
    * Like get_data(), but in preparation for later calls to transform() or
@@ -792,15 +780,13 @@ protected:
    * the returned object, knowing its real (derived) type.
    */
   virtual std::unique_ptr<InternalDataBase>
-  get_face_data(const UpdateFlags               update_flags,
-                const hp::QCollection<dim - 1> &quadrature) const;
+  get_face_data(const UpdateFlags update_flags, const hp::QCollection<dim - 1> &quadrature) const;
 
   /**
    * @deprecated Use the version taking a hp::QCollection argument.
    */
   virtual std::unique_ptr<InternalDataBase>
-  get_face_data(const UpdateFlags          update_flags,
-                const Quadrature<dim - 1> &quadrature) const;
+  get_face_data(const UpdateFlags update_flags, const Quadrature<dim - 1> &quadrature) const;
 
   /**
    * Like get_data() and get_face_data(), but in preparation for later calls
@@ -831,8 +817,7 @@ protected:
    * the returned object, knowing its real (derived) type.
    */
   virtual std::unique_ptr<InternalDataBase>
-  get_subface_data(const UpdateFlags          update_flags,
-                   const Quadrature<dim - 1> &quadrature) const = 0;
+  get_subface_data(const UpdateFlags update_flags, const Quadrature<dim - 1> &quadrature) const = 0;
 
   /**
    * Compute information about the mapping from the reference cell to the real
@@ -918,13 +903,11 @@ protected:
    * this is the same value.
    */
   virtual CellSimilarity::Similarity
-  fill_fe_values(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const CellSimilarity::Similarity                            cell_similarity,
-    const Quadrature<dim> &                                     quadrature,
-    const typename Mapping<dim, spacedim>::InternalDataBase &   internal_data,
-    internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &output_data) const = 0;
+  fill_fe_values(const typename Triangulation<dim, spacedim>::cell_iterator          &cell,
+                 const CellSimilarity::Similarity                                     cell_similarity,
+                 const Quadrature<dim>                                               &quadrature,
+                 const typename Mapping<dim, spacedim>::InternalDataBase             &internal_data,
+                 internal::FEValuesImplementation::MappingRelatedData<dim, spacedim> &output_data) const = 0;
 
   /**
    * This function is the equivalent to Mapping::fill_fe_values(), but for
@@ -951,25 +934,21 @@ protected:
    * stored inside the @p internal_data object.
    */
   virtual void
-  fill_fe_face_values(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const unsigned int                                          face_no,
-    const hp::QCollection<dim - 1> &                            quadrature,
-    const typename Mapping<dim, spacedim>::InternalDataBase &   internal_data,
-    internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &output_data) const;
+  fill_fe_face_values(const typename Triangulation<dim, spacedim>::cell_iterator          &cell,
+                      const unsigned int                                                   face_no,
+                      const hp::QCollection<dim - 1>                                      &quadrature,
+                      const typename Mapping<dim, spacedim>::InternalDataBase             &internal_data,
+                      internal::FEValuesImplementation::MappingRelatedData<dim, spacedim> &output_data) const;
 
   /**
    * @deprecated Use the version taking a hp::QCollection argument.
    */
   virtual void
-  fill_fe_face_values(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const unsigned int                                          face_no,
-    const Quadrature<dim - 1> &                                 quadrature,
-    const typename Mapping<dim, spacedim>::InternalDataBase &   internal_data,
-    internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &output_data) const;
+  fill_fe_face_values(const typename Triangulation<dim, spacedim>::cell_iterator          &cell,
+                      const unsigned int                                                   face_no,
+                      const Quadrature<dim - 1>                                           &quadrature,
+                      const typename Mapping<dim, spacedim>::InternalDataBase             &internal_data,
+                      internal::FEValuesImplementation::MappingRelatedData<dim, spacedim> &output_data) const;
 
   /**
    * This function is the equivalent to Mapping::fill_fe_values(), but for
@@ -998,14 +977,12 @@ protected:
    * stored inside the @p internal_data object.
    */
   virtual void
-  fill_fe_subface_values(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const unsigned int                                          face_no,
-    const unsigned int                                          subface_no,
-    const Quadrature<dim - 1> &                                 quadrature,
-    const typename Mapping<dim, spacedim>::InternalDataBase &   internal_data,
-    internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &output_data) const = 0;
+  fill_fe_subface_values(const typename Triangulation<dim, spacedim>::cell_iterator          &cell,
+                         const unsigned int                                                   face_no,
+                         const unsigned int                                                   subface_no,
+                         const Quadrature<dim - 1>                                           &quadrature,
+                         const typename Mapping<dim, spacedim>::InternalDataBase             &internal_data,
+                         internal::FEValuesImplementation::MappingRelatedData<dim, spacedim> &output_data) const = 0;
 
   /**
    * The equivalent of Mapping::fill_fe_values(), but for the case that the
@@ -1015,11 +992,10 @@ protected:
    */
   virtual void
   fill_fe_immersed_surface_values(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const NonMatching::ImmersedSurfaceQuadrature<dim> &         quadrature,
-    const typename Mapping<dim, spacedim>::InternalDataBase &   internal_data,
-    internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &output_data) const;
+    const typename Triangulation<dim, spacedim>::cell_iterator          &cell,
+    const NonMatching::ImmersedSurfaceQuadrature<dim>                   &quadrature,
+    const typename Mapping<dim, spacedim>::InternalDataBase             &internal_data,
+    internal::FEValuesImplementation::MappingRelatedData<dim, spacedim> &output_data) const;
 
   /**
    * @}
@@ -1095,10 +1071,10 @@ public:
    * const, but the tensors it points to are not.)
    */
   virtual void
-  transform(const ArrayView<const Tensor<1, dim>> &                  input,
+  transform(const ArrayView<const Tensor<1, dim>>                   &input,
             const MappingKind                                        kind,
             const typename Mapping<dim, spacedim>::InternalDataBase &internal,
-            const ArrayView<Tensor<1, spacedim>> &output) const = 0;
+            const ArrayView<Tensor<1, spacedim>>                    &output) const = 0;
 
   /**
    * Transform a field of differential forms from the reference cell to the
@@ -1151,7 +1127,7 @@ public:
   transform(const ArrayView<const DerivativeForm<1, dim, spacedim>> &input,
             const MappingKind                                        kind,
             const typename Mapping<dim, spacedim>::InternalDataBase &internal,
-            const ArrayView<Tensor<2, spacedim>> &output) const = 0;
+            const ArrayView<Tensor<2, spacedim>>                    &output) const = 0;
 
   /**
    * Transform a tensor field from the reference cell to the physical cell.
@@ -1206,10 +1182,10 @@ public:
    * const, but the tensors it points to are not.)
    */
   virtual void
-  transform(const ArrayView<const Tensor<2, dim>> &                  input,
+  transform(const ArrayView<const Tensor<2, dim>>                   &input,
             const MappingKind                                        kind,
             const typename Mapping<dim, spacedim>::InternalDataBase &internal,
-            const ArrayView<Tensor<2, spacedim>> &output) const = 0;
+            const ArrayView<Tensor<2, spacedim>>                    &output) const = 0;
 
   /**
    * Transform a tensor field from the reference cell to the physical cell.
@@ -1256,7 +1232,7 @@ public:
   transform(const ArrayView<const DerivativeForm<2, dim, spacedim>> &input,
             const MappingKind                                        kind,
             const typename Mapping<dim, spacedim>::InternalDataBase &internal,
-            const ArrayView<Tensor<3, spacedim>> &output) const = 0;
+            const ArrayView<Tensor<3, spacedim>>                    &output) const = 0;
 
   /**
    * Transform a field of 3-differential forms from the reference cell to the
@@ -1306,10 +1282,10 @@ public:
    * transformed objects should be placed.
    */
   virtual void
-  transform(const ArrayView<const Tensor<3, dim>> &                  input,
+  transform(const ArrayView<const Tensor<3, dim>>                   &input,
             const MappingKind                                        kind,
             const typename Mapping<dim, spacedim>::InternalDataBase &internal,
-            const ArrayView<Tensor<3, spacedim>> &output) const = 0;
+            const ArrayView<Tensor<3, spacedim>>                    &output) const = 0;
 
   /**
    * @}

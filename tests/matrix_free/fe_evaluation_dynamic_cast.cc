@@ -46,23 +46,17 @@ main()
 
   MatrixFree<dim, Number, VectorizedArrayType> dummy;
 
-  dummy.reinit(MappingQ1<dim>{},
-               dof,
-               AffineConstraints<double>(),
-               QGauss<1>(2));
+  dummy.reinit(MappingQ1<dim>{}, dof, AffineConstraints<double>(), QGauss<1>(2));
 
   std::unique_ptr<FEEvaluationData<dim, VectorizedArrayType, false>> phi_base =
-    std::make_unique<FEEvaluation<dim, -1, 0, 1, Number, VectorizedArrayType>>(
-      dummy);
+    std::make_unique<FEEvaluation<dim, -1, 0, 1, Number, VectorizedArrayType>>(dummy);
 
-  if (dynamic_cast<FEEvaluation<dim, -1, 0, 1, Number, VectorizedArrayType> *>(
-        phi_base.get()))
+  if (dynamic_cast<FEEvaluation<dim, -1, 0, 1, Number, VectorizedArrayType> *>(phi_base.get()))
     deallog << "OK!" << std::endl;
   else
     deallog << "Fail!" << std::endl;
 
-  if (dynamic_cast<FEEvaluation<dim, -1, 0, 2, Number, VectorizedArrayType> *>(
-        phi_base.get()))
+  if (dynamic_cast<FEEvaluation<dim, -1, 0, 2, Number, VectorizedArrayType> *>(phi_base.get()))
     deallog << "Fail!" << std::endl;
   else
     deallog << "OK!" << std::endl;

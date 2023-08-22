@@ -55,15 +55,12 @@ test(const Triangulation<dim> &tr, const FiniteElement<dim> &fe)
     fe_function(i) = i + 1;
 
   const QGauss<dim> quadrature(2);
-  FEValues<dim>     fe_values(fe,
-                          quadrature,
-                          update_values | update_gradients | update_hessians);
+  FEValues<dim>     fe_values(fe, quadrature, update_values | update_gradients | update_hessians);
   fe_values.reinit(dof.begin_active());
 
-  std::vector<SymmetricTensor<2, dim>> selected_vector_values(
-    quadrature.size());
-  std::vector<std::vector<Tensor<1, dim>>> vector_values(
-    quadrature.size(), std::vector<Tensor<1, dim>>(fe.n_components()));
+  std::vector<SymmetricTensor<2, dim>>     selected_vector_values(quadrature.size());
+  std::vector<std::vector<Tensor<1, dim>>> vector_values(quadrature.size(),
+                                                         std::vector<Tensor<1, dim>>(fe.n_components()));
 
   fe_values.get_function_gradients(fe_function, vector_values);
 
@@ -75,16 +72,14 @@ test(const Triangulation<dim> &tr, const FiniteElement<dim> &fe)
     if (c + dim <= fe.n_components())
       {
         FEValuesExtractors::Vector vector_components(c);
-        fe_values[vector_components].get_function_symmetric_gradients(
-          fe_function, selected_vector_values);
+        fe_values[vector_components].get_function_symmetric_gradients(fe_function, selected_vector_values);
         deallog << "component=" << c << std::endl;
 
         for (const auto q : fe_values.quadrature_point_indices())
           {
             for (unsigned int d = 0; d < dim; ++d)
               for (unsigned int e = 0; e < dim; ++e)
-                deallog << selected_vector_values[q][d][e]
-                        << (d < dim - 1 || e < dim - 1 ? " " : "");
+                deallog << selected_vector_values[q][d][e] << (d < dim - 1 || e < dim - 1 ? " " : "");
             deallog << std::endl;
 
             Tensor<2, dim> grad;
@@ -110,8 +105,7 @@ test_hyper_sphere()
   static const SphericalManifold<dim> boundary;
   tr.set_manifold(0, boundary);
 
-  FESystem<dim> fe(
-    FE_Q<dim>(1), 1, FE_RaviartThomas<dim>(1), 1, FE_Nedelec<dim>(0), 1);
+  FESystem<dim> fe(FE_Q<dim>(1), 1, FE_RaviartThomas<dim>(1), 1, FE_Nedelec<dim>(0), 1);
   test(tr, fe);
 }
 

@@ -61,9 +61,8 @@ struct FunctionsTestTensorScalarCoupled
   d2psi_dt_dt(const Tensor<2, dim, NumberType> &t, const NumberType &s)
   {
     // Non-symmetric fourth order identity tensor
-    static const SymmetricTensor<2, dim, NumberType> I(
-      unit_symmetric_tensor<dim, NumberType>());
-    Tensor<4, dim, NumberType> II;
+    static const SymmetricTensor<2, dim, NumberType> I(unit_symmetric_tensor<dim, NumberType>());
+    Tensor<4, dim, NumberType>                       II;
     for (unsigned int i = 0; i < dim; ++i)
       for (unsigned int j = 0; j < dim; ++j)
         for (unsigned int k = 0; k < dim; ++k)
@@ -113,33 +112,27 @@ test_tensor_scalar_coupled()
   using func_ad = FunctionsTestTensorScalarCoupled<dim, ADNumberType>;
 
   const FEValuesExtractors::Tensor<2> t_dof(0);
-  const FEValuesExtractors::Scalar    s_dof(
-    Tensor<2, dim>::n_independent_components);
-  const unsigned int n_AD_components =
-    Tensor<2, dim>::n_independent_components + 1;
-  ADHelper ad_helper(n_AD_components);
+  const FEValuesExtractors::Scalar    s_dof(Tensor<2, dim>::n_independent_components);
+  const unsigned int                  n_AD_components = Tensor<2, dim>::n_independent_components + 1;
+  ADHelper                            ad_helper(n_AD_components);
   ad_helper.set_tape_buffer_sizes(); // Increase the buffer size from the
                                      // default values
 
   ScalarNumberType                 s = 7.5;
-  Tensor<2, dim, ScalarNumberType> t =
-    unit_symmetric_tensor<dim, ScalarNumberType>();
+  Tensor<2, dim, ScalarNumberType> t = unit_symmetric_tensor<dim, ScalarNumberType>();
   for (unsigned int i = 0; i < t.n_independent_components; ++i)
     t[t.unrolled_to_component_indices(i)] += 0.18 * (i + 0.12);
 
   const int  tape_no = 1;
   const bool is_recording =
-    ad_helper.start_recording_operations(tape_no /*material_id*/,
-                                         true /*overwrite_tape*/,
-                                         true /*keep*/);
+    ad_helper.start_recording_operations(tape_no /*material_id*/, true /*overwrite_tape*/, true /*keep*/);
   if (is_recording == true)
     {
       ad_helper.register_independent_variable(t, t_dof);
       ad_helper.register_independent_variable(s, s_dof);
 
-      const Tensor<2, dim, ADNumberType> t_ad =
-        ad_helper.get_sensitive_variables(t_dof);
-      const ADNumberType s_ad = ad_helper.get_sensitive_variables(s_dof);
+      const Tensor<2, dim, ADNumberType> t_ad = ad_helper.get_sensitive_variables(t_dof);
+      const ADNumberType                 s_ad = ad_helper.get_sensitive_variables(s_dof);
 
       const ADNumberType psi(func_ad::psi(t_ad, s_ad));
 
@@ -164,9 +157,7 @@ test_tensor_scalar_coupled()
   // Set a new evaluation point
   if (AD::ADNumberTraits<ADNumberType>::is_taped == true)
     {
-      std::cout
-        << "Using tape with different values for independent variables..."
-        << std::endl;
+      std::cout << "Using tape with different values for independent variables..." << std::endl;
       ad_helper.activate_recorded_tape(tape_no);
       s = 1.2;
       t *= 1.75;
@@ -197,35 +188,25 @@ test_tensor_scalar_coupled()
     }
 
   // Extract components of the solution
-  const Tensor<2, dim, ScalarNumberType> dpsi_dt =
-    ad_helper.extract_gradient_component(Dpsi, t_dof);
-  const ScalarNumberType dpsi_ds =
-    ad_helper.extract_gradient_component(Dpsi, s_dof);
+  const Tensor<2, dim, ScalarNumberType> dpsi_dt = ad_helper.extract_gradient_component(Dpsi, t_dof);
+  const ScalarNumberType                 dpsi_ds = ad_helper.extract_gradient_component(Dpsi, s_dof);
   std::cout << "extracted Dpsi (t): " << dpsi_dt << "\n"
             << "extracted Dpsi (s): " << dpsi_ds << "\n";
   ;
 
   // Verify the result
-  using func = FunctionsTestTensorScalarCoupled<dim, ScalarNumberType>;
-  static const ScalarNumberType tol =
-    1e5 * std::numeric_limits<ScalarNumberType>::epsilon();
+  using func                        = FunctionsTestTensorScalarCoupled<dim, ScalarNumberType>;
+  static const ScalarNumberType tol = 1e5 * std::numeric_limits<ScalarNumberType>::epsilon();
 
-  Assert(std::abs(psi - func::psi(t, s)) < tol,
-         ExcMessage("No match for function value."));
-  Assert(std::abs((dpsi_dt - func::dpsi_dt(t, s)).norm()) < tol,
-         ExcMessage("No match for first derivative."));
-  Assert(std::abs(dpsi_ds - func::dpsi_ds(t, s)) < tol,
-         ExcMessage("No match for first derivative."));
+  Assert(std::abs(psi - func::psi(t, s)) < tol, ExcMessage("No match for function value."));
+  Assert(std::abs((dpsi_dt - func::dpsi_dt(t, s)).norm()) < tol, ExcMessage("No match for first derivative."));
+  Assert(std::abs(dpsi_ds - func::dpsi_ds(t, s)) < tol, ExcMessage("No match for first derivative."));
   if (AD::ADNumberTraits<ADNumberType>::n_supported_derivative_levels >= 2)
     {
-      const Tensor<4, dim, ScalarNumberType> d2psi_dt_dt =
-        ad_helper.extract_hessian_component(D2psi, t_dof, t_dof);
-      const Tensor<2, dim, ScalarNumberType> d2psi_ds_dt =
-        ad_helper.extract_hessian_component(D2psi, t_dof, s_dof);
-      const Tensor<2, dim, ScalarNumberType> d2psi_dt_ds =
-        ad_helper.extract_hessian_component(D2psi, t_dof, s_dof);
-      const ScalarNumberType d2psi_ds_ds =
-        ad_helper.extract_hessian_component(D2psi, s_dof, s_dof);
+      const Tensor<4, dim, ScalarNumberType> d2psi_dt_dt = ad_helper.extract_hessian_component(D2psi, t_dof, t_dof);
+      const Tensor<2, dim, ScalarNumberType> d2psi_ds_dt = ad_helper.extract_hessian_component(D2psi, t_dof, s_dof);
+      const Tensor<2, dim, ScalarNumberType> d2psi_dt_ds = ad_helper.extract_hessian_component(D2psi, t_dof, s_dof);
+      const ScalarNumberType                 d2psi_ds_ds = ad_helper.extract_hessian_component(D2psi, s_dof, s_dof);
       std::cout << "extracted D2psi (t,t): " << d2psi_dt_dt << "\n"
                 << "extracted D2psi (t,s): " << d2psi_ds_dt << "\n"
                 << "extracted D2psi (s,t): " << d2psi_dt_ds << "\n"
@@ -237,7 +218,6 @@ test_tensor_scalar_coupled()
              ExcMessage("No match for second derivative."));
       Assert(std::abs((d2psi_dt_ds - func::d2psi_dt_ds(t, s)).norm()) < tol,
              ExcMessage("No match for second derivative."));
-      Assert(std::abs(d2psi_ds_ds - func::d2psi_ds_ds(t, s)) < tol,
-             ExcMessage("No match for second derivative."));
+      Assert(std::abs(d2psi_ds_ds - func::d2psi_ds_ds(t, s)) < tol, ExcMessage("No match for second derivative."));
     }
 }

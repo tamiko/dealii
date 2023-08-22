@@ -71,8 +71,7 @@ private:
 
 template <int dim, typename Number = double>
 void
-do_test(const hp::FECollection<dim> &fe_fine,
-        const hp::FECollection<dim> &fe_coarse)
+do_test(const hp::FECollection<dim> &fe_fine, const hp::FECollection<dim> &fe_coarse)
 {
   parallel::distributed::Triangulation<dim> tria(MPI_COMM_WORLD);
 
@@ -111,22 +110,15 @@ do_test(const hp::FECollection<dim> &fe_fine,
 
   // setup transfer operator
   MGTwoLevelTransfer<dim, LinearAlgebra::distributed::Vector<Number>> transfer;
-  transfer.reinit_polynomial_transfer(dof_handler_fine,
-                                      dof_handler_coarse,
-                                      dummy,
-                                      dummy);
+  transfer.reinit_polynomial_transfer(dof_handler_fine, dof_handler_coarse, dummy, dummy);
 
-  LinearAlgebra::distributed::Vector<Number> vec_fine(
-    dof_handler_fine.n_dofs());
-  LinearAlgebra::distributed::Vector<Number> vec_coarse(
-    dof_handler_coarse.n_dofs());
+  LinearAlgebra::distributed::Vector<Number> vec_fine(dof_handler_fine.n_dofs());
+  LinearAlgebra::distributed::Vector<Number> vec_coarse(dof_handler_coarse.n_dofs());
 
   Tensor<1, dim, Number> exp;
   exp[0] = 1.0;
 
-  VectorTools::interpolate(dof_handler_fine,
-                           Functions::Monomial<dim>(exp),
-                           vec_fine);
+  VectorTools::interpolate(dof_handler_fine, Functions::Monomial<dim>(exp), vec_fine);
 
   transfer.interpolate(vec_coarse, vec_fine);
 
@@ -156,16 +148,13 @@ test(const FiniteElement<dim> &fe_fine, const FiniteElement<dim> &fe_coarse)
   do_test(hp::FECollection<dim>(fe_fine), hp::FECollection<dim>(fe_coarse));
   deallog.pop();
   deallog.push("1");
-  do_test(hp::FECollection<dim>(fe_fine, FE_Nothing<dim>()),
-          hp::FECollection<dim>(fe_coarse));
+  do_test(hp::FECollection<dim>(fe_fine, FE_Nothing<dim>()), hp::FECollection<dim>(fe_coarse));
   deallog.pop();
   deallog.push("2");
-  do_test(hp::FECollection<dim>(fe_fine),
-          hp::FECollection<dim>(fe_coarse, FE_Nothing<dim>()));
+  do_test(hp::FECollection<dim>(fe_fine), hp::FECollection<dim>(fe_coarse, FE_Nothing<dim>()));
   deallog.pop();
   deallog.push("3");
-  do_test(hp::FECollection<dim>(fe_fine, FE_Nothing<dim>()),
-          hp::FECollection<dim>(fe_coarse, FE_Nothing<dim>()));
+  do_test(hp::FECollection<dim>(fe_fine, FE_Nothing<dim>()), hp::FECollection<dim>(fe_coarse, FE_Nothing<dim>()));
   deallog.pop();
 }
 

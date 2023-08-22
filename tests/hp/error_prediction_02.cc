@@ -118,15 +118,12 @@ test()
                                 /*gamma_n=*/1.);
 
   // ----- verify ------
-  deallog << "pre_adaptation" << std::endl
-          << " ncells:" << tria.n_active_cells() << std::endl;
+  deallog << "pre_adaptation" << std::endl << " ncells:" << tria.n_active_cells() << std::endl;
   for (const auto &cell : dh.active_cell_iterators())
     {
-      deallog << " cell:" << cell->id().to_string()
-              << " fe_deg:" << cell->get_fe().degree
+      deallog << " cell:" << cell->id().to_string() << " fe_deg:" << cell->get_fe().degree
               << " error:" << error_indicators[cell->active_cell_index()]
-              << " predicted:"
-              << predicted_error_indicators[cell->active_cell_index()];
+              << " predicted:" << predicted_error_indicators[cell->active_cell_index()];
 
       if (cell->refine_flag_set())
         deallog << " refining";
@@ -152,12 +149,10 @@ test()
   cell_data_transfer.unpack(predicted_error_indicators, transferred_indicators);
 
   // ----- verify -----
-  deallog << "post_adaptation" << std::endl
-          << " ncells:" << tria.n_active_cells() << std::endl;
+  deallog << "post_adaptation" << std::endl << " ncells:" << tria.n_active_cells() << std::endl;
   for (const auto &cell : dh.active_cell_iterators())
-    deallog << " cell:" << cell->id().to_string()
-            << " fe_deg:" << cell->get_fe().degree << " transferred:"
-            << transferred_indicators[cell->active_cell_index()] << std::endl;
+    deallog << " cell:" << cell->id().to_string() << " fe_deg:" << cell->get_fe().degree
+            << " transferred:" << transferred_indicators[cell->active_cell_index()] << std::endl;
 
   // ----- verify norms -----
   const double predicted_error_pre  = predicted_error_indicators.l2_norm(),
@@ -167,8 +162,7 @@ test()
           << " pre_adaptation:" << predicted_error_pre << std::endl
           << " post_adaptation:" << predicted_error_post << std::endl;
 
-  Assert(predicted_error_pre == predicted_error_post,
-         ExcMessage("Transfer failed - Results not similar."));
+  Assert(predicted_error_pre == predicted_error_post, ExcMessage("Transfer failed - Results not similar."));
 
   deallog << "OK" << std::endl;
 }

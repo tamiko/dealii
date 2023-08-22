@@ -90,8 +90,7 @@ test_parallel_fullydistributed()
   GridGenerator::hyper_cube(tria_base);
 
   const auto description =
-    TriangulationDescription::Utilities::create_description_from_triangulation(
-      tria_base, MPI_COMM_WORLD);
+    TriangulationDescription::Utilities::create_description_from_triangulation(tria_base, MPI_COMM_WORLD);
 
   parallel::fullydistributed::Triangulation<dim> tria(MPI_COMM_WORLD);
   tria.create_triangulation(description);

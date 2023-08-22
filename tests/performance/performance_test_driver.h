@@ -135,8 +135,7 @@ main(int argc, char *argv[])
 
 #ifdef ENABLE_MPI
   dealii::Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv);
-  const auto                               this_mpi_process =
-    dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  const auto                               this_mpi_process = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
 #else
   const auto this_mpi_process = 0;
 #endif
@@ -153,13 +152,10 @@ main(int argc, char *argv[])
   const auto number_of_repetitions = std::get<1>(description);
   const auto names                 = std::get<2>(description);
 
-  AssertThrow(number_of_repetitions > 0,
-              dealii::ExcMessage(
-                "Test specified an invalid number of measurements."));
+  AssertThrow(number_of_repetitions > 0, dealii::ExcMessage("Test specified an invalid number of measurements."));
 
   AssertThrow(metric != Metric::instruction_count || number_of_repetitions == 1,
-              dealii::ExcMessage(
-                "Test specified an invalid number of measurements."));
+              dealii::ExcMessage("Test specified an invalid number of measurements."));
 
   // Print the measurement type:
 
@@ -187,9 +183,7 @@ main(int argc, char *argv[])
   // Perform measurements:
 
   std::vector<Measurement> measurements;
-  std::generate_n(std::back_inserter(measurements),
-                  number_of_repetitions,
-                  perform_single_measurement);
+  std::generate_n(std::back_inserter(measurements), number_of_repetitions, perform_single_measurement);
 
   for (std::size_t i = 0; i < names.size(); ++i)
     {
@@ -223,13 +217,10 @@ main(int argc, char *argv[])
                   }
 
                 const double std_dev =
-                  number_of_repetitions == 1 ?
-                    0. :
-                    std::sqrt(variance / (number_of_repetitions - 1));
+                  number_of_repetitions == 1 ? 0. : std::sqrt(variance / (number_of_repetitions - 1));
 
-                pout << names[i] << "\t" << min << "\t" << max << "\t" << mean
-                     << "\t" << std_dev << "\t" << number_of_repetitions
-                     << "\n";
+                pout << names[i] << "\t" << min << "\t" << max << "\t" << mean << "\t" << std_dev << "\t"
+                     << number_of_repetitions << "\n";
               }
             break;
 

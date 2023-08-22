@@ -153,10 +153,7 @@ namespace PETScWrappers
      * MPI_COMM_WORLD</tt>.
      */
     void
-    reinit(const unsigned int m,
-           const unsigned int n,
-           const unsigned int local_rows,
-           const unsigned int local_columns);
+    reinit(const unsigned int m, const unsigned int n, const unsigned int local_rows, const unsigned int local_columns);
 
     /**
      * Call the @p reinit() function above with <tt>communicator =

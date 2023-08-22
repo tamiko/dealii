@@ -82,8 +82,7 @@ public:
     if (std::abs(p(1) - 1.0) < 1e-5)
       val = 2.0;
 
-    deallog << "evaluate normal derivative at " << p << " with value " << val
-            << std::endl;
+    deallog << "evaluate normal derivative at " << p << " with value " << val << std::endl;
     return val;
   }
 
@@ -118,8 +117,7 @@ make_mesh(Triangulation<dim, spacedim> &tria)
   boundary_ids.insert(2);
   GridGenerator::extract_boundary_mesh(volume_mesh, tria, boundary_ids);
   tria.refine_global(2);
-  typename Triangulation<dim, spacedim>::active_cell_iterator cell =
-    tria.begin_active();
+  typename Triangulation<dim, spacedim>::active_cell_iterator cell = tria.begin_active();
   for (; cell != tria.end(); ++cell)
     if (cell->center()[1] < 1e-10 && (spacedim != 3 || cell->center()[2] < 0.5))
       cell->set_refine_flag();
@@ -142,7 +140,7 @@ check()
   dof.distribute_dofs(element);
 
   MappingQ<dim, spacedim> mapping(3);
-  Quadrature<dim - 1> &   q_face = get_q_face<dim>();
+  Quadrature<dim - 1>    &q_face = get_q_face<dim>();
 
   Vector<double> v(dof.n_dofs());
   VectorTools::interpolate(mapping, dof, function, v);
@@ -155,8 +153,7 @@ check()
   neumann_bc[1] = &function_normal;
 
   deallog << "estimating..." << std::endl;
-  KellyErrorEstimator<dim, spacedim>::estimate(
-    mapping, dof, q_face, neumann_bc, v, error);
+  KellyErrorEstimator<dim, spacedim>::estimate(mapping, dof, q_face, neumann_bc, v, error);
   deallog << "Estimated error indicators:" << std::endl;
   for (unsigned int i = 0; i < error.size(); ++i)
     deallog << error(i) << std::endl;
@@ -164,9 +161,7 @@ check()
   {
     DataOut<dim, spacedim> data_out;
     data_out.attach_dof_handler(dof);
-    data_out.add_data_vector(v,
-                             "solution",
-                             DataOut<dim, spacedim>::type_dof_data);
+    data_out.add_data_vector(v, "solution", DataOut<dim, spacedim>::type_dof_data);
     data_out.add_data_vector(error, "error");
     data_out.build_patches();
     std::string filename = spacedim == 2 ? "solution-2d-" : "solution-3d-";

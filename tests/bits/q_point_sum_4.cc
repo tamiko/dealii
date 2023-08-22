@@ -51,15 +51,11 @@ check(const Triangulation<dim> &tria)
 
   QGauss<dim - 1> q_face(3);
 
-  FEFaceValues<dim> fe_face_values(
-    mapping, fe, q_face, update_quadrature_points | update_JxW_values);
-  FESubfaceValues<dim> fe_subface_values(
-    mapping, fe, q_face, update_quadrature_points | update_JxW_values);
+  FEFaceValues<dim>    fe_face_values(mapping, fe, q_face, update_quadrature_points | update_JxW_values);
+  FESubfaceValues<dim> fe_subface_values(mapping, fe, q_face, update_quadrature_points | update_JxW_values);
 
   Point<dim> n1, n2;
-  for (typename DoFHandler<dim>::active_cell_iterator cell =
-         dof_handler.begin_active();
-       cell != dof_handler.end();
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(); cell != dof_handler.end();
        ++cell)
     {
       // first integrate over faces
@@ -78,14 +74,11 @@ check(const Triangulation<dim> &tria)
       // integration
       for (const unsigned int f : GeometryInfo<dim>::face_indices())
         if (cell->at_boundary(f))
-          for (unsigned int sf = 0;
-               sf < GeometryInfo<dim>::max_children_per_face;
-               ++sf)
+          for (unsigned int sf = 0; sf < GeometryInfo<dim>::max_children_per_face; ++sf)
             {
               fe_subface_values.reinit(cell, f, sf);
               for (unsigned int q = 0; q < q_face.size(); ++q)
-                n2 += fe_subface_values.quadrature_point(q) *
-                      fe_subface_values.JxW(q);
+                n2 += fe_subface_values.quadrature_point(q) * fe_subface_values.JxW(q);
             }
     }
 

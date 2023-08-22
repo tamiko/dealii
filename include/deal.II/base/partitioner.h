@@ -244,8 +244,7 @@ namespace Utilities
        * indices at a later time. Apart from this, it is similar to the other
        * constructor with two index sets.
        */
-      Partitioner(const IndexSet &locally_owned_indices,
-                  const MPI_Comm  communicator_in);
+      Partitioner(const IndexSet &locally_owned_indices, const MPI_Comm communicator_in);
 
       /**
        * Reinitialize the communication pattern.
@@ -282,8 +281,7 @@ namespace Utilities
        * @p ghost_indices.
        */
       void
-      set_ghost_indices(const IndexSet &ghost_indices,
-                        const IndexSet &larger_ghost_index_set = IndexSet());
+      set_ghost_indices(const IndexSet &ghost_indices, const IndexSet &larger_ghost_index_set = IndexSet());
 
       /**
        * Return the global size.
@@ -518,12 +516,11 @@ namespace Utilities
        */
       template <typename Number, typename MemorySpaceType = MemorySpace::Host>
       void
-      export_to_ghosted_array_start(
-        const unsigned int                              communication_channel,
-        const ArrayView<const Number, MemorySpaceType> &locally_owned_array,
-        const ArrayView<Number, MemorySpaceType> &      temporary_storage,
-        const ArrayView<Number, MemorySpaceType> &      ghost_array,
-        std::vector<MPI_Request> &                      requests) const;
+      export_to_ghosted_array_start(const unsigned int                              communication_channel,
+                                    const ArrayView<const Number, MemorySpaceType> &locally_owned_array,
+                                    const ArrayView<Number, MemorySpaceType>       &temporary_storage,
+                                    const ArrayView<Number, MemorySpaceType>       &ghost_array,
+                                    std::vector<MPI_Request>                       &requests) const;
 
       /**
        * Finish the exportation of the data in a locally owned array to the
@@ -544,9 +541,8 @@ namespace Utilities
        */
       template <typename Number, typename MemorySpaceType = MemorySpace::Host>
       void
-      export_to_ghosted_array_finish(
-        const ArrayView<Number, MemorySpaceType> &ghost_array,
-        std::vector<MPI_Request> &                requests) const;
+      export_to_ghosted_array_finish(const ArrayView<Number, MemorySpaceType> &ghost_array,
+                                     std::vector<MPI_Request>                 &requests) const;
 
       /**
        * Start importing the data on an array indexed by the ghost indices of
@@ -587,12 +583,11 @@ namespace Utilities
        */
       template <typename Number, typename MemorySpaceType = MemorySpace::Host>
       void
-      import_from_ghosted_array_start(
-        const VectorOperation::values             vector_operation,
-        const unsigned int                        communication_channel,
-        const ArrayView<Number, MemorySpaceType> &ghost_array,
-        const ArrayView<Number, MemorySpaceType> &temporary_storage,
-        std::vector<MPI_Request> &                requests) const;
+      import_from_ghosted_array_start(const VectorOperation::values             vector_operation,
+                                      const unsigned int                        communication_channel,
+                                      const ArrayView<Number, MemorySpaceType> &ghost_array,
+                                      const ArrayView<Number, MemorySpaceType> &temporary_storage,
+                                      std::vector<MPI_Request>                 &requests) const;
 
       /**
        * Finish importing the data from an array indexed by the ghost
@@ -630,12 +625,11 @@ namespace Utilities
        */
       template <typename Number, typename MemorySpaceType = MemorySpace::Host>
       void
-      import_from_ghosted_array_finish(
-        const VectorOperation::values                   vector_operation,
-        const ArrayView<const Number, MemorySpaceType> &temporary_storage,
-        const ArrayView<Number, MemorySpaceType> &      locally_owned_storage,
-        const ArrayView<Number, MemorySpaceType> &      ghost_array,
-        std::vector<MPI_Request> &                      requests) const;
+      import_from_ghosted_array_finish(const VectorOperation::values                   vector_operation,
+                                       const ArrayView<const Number, MemorySpaceType> &temporary_storage,
+                                       const ArrayView<Number, MemorySpaceType>       &locally_owned_storage,
+                                       const ArrayView<Number, MemorySpaceType>       &ghost_array,
+                                       std::vector<MPI_Request>                       &requests) const;
 #endif
 
       /**
@@ -650,8 +644,7 @@ namespace Utilities
       DeclException2(ExcIndexNotPresent,
                      types::global_dof_index,
                      unsigned int,
-                     << "Global index " << arg1
-                     << " neither owned nor ghost on proc " << arg2 << '.');
+                     << "Global index " << arg1 << " neither owned nor ghost on proc " << arg2 << '.');
 
       /**
        * Exception
@@ -662,10 +655,8 @@ namespace Utilities
                      unsigned int,
                      << "The size of the ghost index array (" << arg1
                      << ") must either equal the number of ghost in the "
-                     << "partitioner (" << arg2
-                     << ") or be equal in size to a more comprehensive index"
-                     << "set which contains " << arg3
-                     << " elements for this partitioner.");
+                     << "partitioner (" << arg2 << ") or be equal in size to a more comprehensive index"
+                     << "set which contains " << arg3 << " elements for this partitioner.");
 
     private:
       /**
@@ -689,8 +680,7 @@ namespace Utilities
        * The range of the vector that is stored locally. Extracted from
        * locally_owned_range for performance reasons.
        */
-      std::pair<types::global_dof_index, types::global_dof_index>
-        local_range_data;
+      std::pair<types::global_dof_index, types::global_dof_index> local_range_data;
 
       /**
        * The set of indices to which we need to have read access but that are
@@ -726,9 +716,7 @@ namespace Utilities
        */
       // The variable is mutable to enable lazy initialization in
       // export_to_ghosted_array_start().
-      mutable std::vector<
-        Kokkos::View<unsigned int *, MemorySpace::Default::kokkos_space>>
-        import_indices_plain_dev;
+      mutable std::vector<Kokkos::View<unsigned int *, MemorySpace::Default::kokkos_space>> import_indices_plain_dev;
 
       /**
        * A variable caching the number of ghost indices. It would be expensive
@@ -765,8 +753,7 @@ namespace Utilities
        * larger set. Similar structure as in an IndexSet within all ghost
        * indices, but tailored to be iterated over.
        */
-      std::vector<std::pair<unsigned int, unsigned int>>
-        ghost_indices_subset_data;
+      std::vector<std::pair<unsigned int, unsigned int>> ghost_indices_subset_data;
 
       /**
        * The ID of the current processor in the MPI network
@@ -822,28 +809,23 @@ namespace Utilities
     inline unsigned int
     Partitioner::locally_owned_size() const
     {
-      types::global_dof_index size =
-        local_range_data.second - local_range_data.first;
-      Assert(size <= std::numeric_limits<unsigned int>::max(),
-             ExcNotImplemented());
+      types::global_dof_index size = local_range_data.second - local_range_data.first;
+      Assert(size <= std::numeric_limits<unsigned int>::max(), ExcNotImplemented());
       return static_cast<unsigned int>(size);
     }
 
 
 
     inline bool
-    Partitioner::in_local_range(
-      const types::global_dof_index global_index) const
+    Partitioner::in_local_range(const types::global_dof_index global_index) const
     {
-      return (local_range_data.first <= global_index &&
-              global_index < local_range_data.second);
+      return (local_range_data.first <= global_index && global_index < local_range_data.second);
     }
 
 
 
     inline bool
-    Partitioner::is_ghost_entry(
-      const types::global_dof_index global_index) const
+    Partitioner::is_ghost_entry(const types::global_dof_index global_index) const
     {
       // if the index is in the global range, it is trivially not a ghost
       if (in_local_range(global_index) == true)
@@ -855,11 +837,9 @@ namespace Utilities
 
 
     inline unsigned int
-    Partitioner::global_to_local(
-      const types::global_dof_index global_index) const
+    Partitioner::global_to_local(const types::global_dof_index global_index) const
     {
-      Assert(in_local_range(global_index) || is_ghost_entry(global_index),
-             ExcIndexNotPresent(global_index, my_pid));
+      Assert(in_local_range(global_index) || is_ghost_entry(global_index), ExcIndexNotPresent(global_index, my_pid));
       if (in_local_range(global_index))
         return static_cast<unsigned int>(global_index - local_range_data.first);
       else
@@ -867,13 +847,11 @@ namespace Utilities
           // avoid checking the ghost index set via a binary search twice by
           // querying the index within set, which returns invalid_dof_index
           // for non-existent entries
-          const types::global_dof_index index_within_ghosts =
-            ghost_indices_data.index_within_set(global_index);
+          const types::global_dof_index index_within_ghosts = ghost_indices_data.index_within_set(global_index);
           if (index_within_ghosts == numbers::invalid_dof_index)
             return numbers::invalid_unsigned_int;
           else
-            return locally_owned_size() +
-                   static_cast<unsigned int>(index_within_ghosts);
+            return locally_owned_size() + static_cast<unsigned int>(index_within_ghosts);
         }
     }
 
@@ -882,13 +860,11 @@ namespace Utilities
     inline types::global_dof_index
     Partitioner::local_to_global(const unsigned int local_index) const
     {
-      AssertIndexRange(local_index,
-                       locally_owned_size() + n_ghost_indices_data);
+      AssertIndexRange(local_index, locally_owned_size() + n_ghost_indices_data);
       if (local_index < locally_owned_size())
         return local_range_data.first + types::global_dof_index(local_index);
       else
-        return ghost_indices_data.nth_index_in_set(local_index -
-                                                   locally_owned_size());
+        return ghost_indices_data.nth_index_in_set(local_index - locally_owned_size());
     }
 
 

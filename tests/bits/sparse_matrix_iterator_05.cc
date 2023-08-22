@@ -47,8 +47,7 @@ test()
       if (((i + 2 * j + 1) % 3 == 0) || (i == j))
         {
           deallog << i << ' ' << j << ' ' << m.el(i, j) << std::endl;
-          Assert(std::fabs(m.el(i, j) - (1. + i * j)) < 1e-14,
-                 ExcInternalError());
+          Assert(std::fabs(m.el(i, j) - (1. + i * j)) < 1e-14, ExcInternalError());
         }
 
   deallog << "OK" << std::endl;
@@ -67,28 +66,20 @@ main()
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

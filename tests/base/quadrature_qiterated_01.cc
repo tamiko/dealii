@@ -45,8 +45,7 @@ test()
   for (unsigned int i = 2; i <= 4; ++i)
     for (unsigned int j = 1; j <= 3; ++j)
       {
-        deallog.push("QGaussLobatto<1>(" + std::to_string(i) +
-                     ") + QGauss<1>(" + std::to_string(j) + ")");
+        deallog.push("QGaussLobatto<1>(" + std::to_string(i) + ") + QGauss<1>(" + std::to_string(j) + ")");
         test<dim>(QGaussLobatto<1>(i), QGauss<1>(j));
         deallog.pop();
       }
@@ -54,8 +53,7 @@ test()
   for (unsigned int i = 2; i <= 4; ++i)
     for (unsigned int j = 2; j <= 3; ++j)
       {
-        deallog.push("QGaussLobatto<1>(" + std::to_string(i) +
-                     ") + QGaussLobatto<1>(" + std::to_string(j) + ")");
+        deallog.push("QGaussLobatto<1>(" + std::to_string(i) + ") + QGaussLobatto<1>(" + std::to_string(j) + ")");
         test<dim>(QGaussLobatto<1>(i), QGaussLobatto<1>(j));
         deallog.pop();
       }

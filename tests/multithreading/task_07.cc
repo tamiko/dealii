@@ -44,8 +44,7 @@ main()
 
   deallog << "OK" << std::endl;
 
-  std::ofstream *out_stream =
-    dynamic_cast<std::ofstream *>(&deallog.get_file_stream());
+  std::ofstream *out_stream = dynamic_cast<std::ofstream *>(&deallog.get_file_stream());
   Assert(out_stream != nullptr, ExcInternalError());
   deallog.detach();
   out_stream->close();

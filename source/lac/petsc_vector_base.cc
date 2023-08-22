@@ -45,12 +45,11 @@ namespace PETScWrappers
       if (vector.ghosted)
         {
           PetscInt       begin, end;
-          PetscErrorCode ierr =
-            VecGetOwnershipRange(vector.vector, &begin, &end);
+          PetscErrorCode ierr = VecGetOwnershipRange(vector.vector, &begin, &end);
           AssertThrow(ierr == 0, ExcPETScError(ierr));
 
           Vec locally_stored_elements = nullptr;
-          ierr = VecGhostGetLocalForm(vector.vector, &locally_stored_elements);
+          ierr                        = VecGhostGetLocalForm(vector.vector, &locally_stored_elements);
           AssertThrow(ierr == 0, ExcPETScError(ierr));
 
           PetscInt lsize;
@@ -63,8 +62,7 @@ namespace PETScWrappers
 
           PetscScalar value;
 
-          if (index >= static_cast<size_type>(begin) &&
-              index < static_cast<size_type>(end))
+          if (index >= static_cast<size_type>(begin) && index < static_cast<size_type>(end))
             {
               // local entry
               value = *(ptr + index - begin);
@@ -73,12 +71,10 @@ namespace PETScWrappers
             {
               // ghost entry
               Assert(vector.ghost_indices.is_element(index),
-                     ExcMessage(
-                       "You are trying to access an element of a vector "
-                       "that is neither a locally owned element nor a "
-                       "ghost element of the vector."));
-              const size_type ghostidx =
-                vector.ghost_indices.index_within_set(index);
+                     ExcMessage("You are trying to access an element of a vector "
+                                "that is neither a locally owned element nor a "
+                                "ghost element of the vector."));
+              const size_type ghostidx = vector.ghost_indices.index_within_set(index);
 
               AssertIndexRange(ghostidx + end - begin, lsize);
               value = *(ptr + ghostidx + end - begin);
@@ -87,8 +83,7 @@ namespace PETScWrappers
           ierr = VecRestoreArrayRead(locally_stored_elements, &ptr);
           AssertThrow(ierr == 0, ExcPETScError(ierr));
 
-          ierr =
-            VecGhostRestoreLocalForm(vector.vector, &locally_stored_elements);
+          ierr = VecGhostRestoreLocalForm(vector.vector, &locally_stored_elements);
           AssertThrow(ierr == 0, ExcPETScError(ierr));
 
           return value;
@@ -103,8 +98,7 @@ namespace PETScWrappers
       PetscErrorCode ierr = VecGetOwnershipRange(vector.vector, &begin, &end);
       AssertThrow(ierr == 0, ExcPETScError(ierr));
 
-      AssertThrow((index >= static_cast<size_type>(begin)) &&
-                    (index < static_cast<size_type>(end)),
+      AssertThrow((index >= static_cast<size_type>(begin)) && (index < static_cast<size_type>(end)),
                   ExcAccessToNonlocalElement(index, begin, end - 1));
 
       const PetscScalar *ptr;
@@ -149,8 +143,7 @@ namespace PETScWrappers
     , ghosted(false)
     , last_action(VectorOperation::unknown)
   {
-    const PetscErrorCode ierr =
-      PetscObjectReference(reinterpret_cast<PetscObject>(vector));
+    const PetscErrorCode ierr = PetscObjectReference(reinterpret_cast<PetscObject>(vector));
     AssertNothrow(ierr == 0, ExcPETScError(ierr));
     (void)ierr;
     this->determine_ghost_indices();
@@ -170,10 +163,8 @@ namespace PETScWrappers
   void
   VectorBase::reinit(Vec v)
   {
-    AssertThrow(last_action == VectorOperation::unknown,
-                ExcMessage("Cannot assign a new Vec"));
-    PetscErrorCode ierr =
-      PetscObjectReference(reinterpret_cast<PetscObject>(v));
+    AssertThrow(last_action == VectorOperation::unknown, ExcMessage("Cannot assign a new Vec"));
+    PetscErrorCode ierr = PetscObjectReference(reinterpret_cast<PetscObject>(v));
     AssertThrow(ierr == 0, ExcPETScError(ierr));
     ierr = VecDestroy(&vector);
     AssertThrow(ierr == 0, ExcPETScError(ierr));
@@ -191,8 +182,7 @@ namespace PETScWrappers
       Iterator m_iterator;
 
     public:
-      using difference_type =
-        typename std::iterator_traits<Iterator>::difference_type;
+      using difference_type   = typename std::iterator_traits<Iterator>::difference_type;
       using value_type        = OutType;
       using pointer           = OutType *;
       using reference         = OutType &;
@@ -277,8 +267,8 @@ namespace PETScWrappers
         // numbers back as integers later on, we get the same thing.
         for (PetscInt i = 0; i < end_index - ghost_start_index; i++)
           {
-            Assert(static_cast<PetscInt>(std::real(static_cast<PetscScalar>(
-                     ghost_start_index + i))) == (ghost_start_index + i),
+            Assert(static_cast<PetscInt>(std::real(static_cast<PetscScalar>(ghost_start_index + i))) ==
+                     (ghost_start_index + i),
                    ExcInternalError());
             array[i] = ghost_start_index + i;
           }
@@ -305,15 +295,12 @@ namespace PETScWrappers
         ghosted = true;
         ghost_indices.set_size(this->size());
 
-        ConvertingIterator<PetscScalar *, types::global_dof_index> begin_ghosts(
-          &array[end_index - ghost_start_index]);
-        ConvertingIterator<PetscScalar *, types::global_dof_index> end_ghosts(
-          &array[n_elements_stored_locally]);
+        ConvertingIterator<PetscScalar *, types::global_dof_index> begin_ghosts(&array[end_index - ghost_start_index]);
+        ConvertingIterator<PetscScalar *, types::global_dof_index> end_ghosts(&array[n_elements_stored_locally]);
         if (std::is_sorted(&array[end_index - ghost_start_index],
                            &array[n_elements_stored_locally],
                            [](PetscScalar left, PetscScalar right) {
-                             return static_cast<PetscInt>(std::real(left)) <
-                                    static_cast<PetscInt>(std::real(right));
+                             return static_cast<PetscInt>(std::real(left)) < static_cast<PetscInt>(std::real(right));
                            }))
           {
             ghost_indices.add_indices(begin_ghosts, end_ghosts);
@@ -322,8 +309,7 @@ namespace PETScWrappers
           {
             std::vector<PetscInt> sorted_indices(begin_ghosts, end_ghosts);
             std::sort(sorted_indices.begin(), sorted_indices.end());
-            ghost_indices.add_indices(sorted_indices.begin(),
-                                      sorted_indices.end());
+            ghost_indices.add_indices(sorted_indices.begin(), sorted_indices.end());
           }
         ghost_indices.compress();
 
@@ -452,8 +438,7 @@ namespace PETScWrappers
   VectorBase::local_range() const
   {
     PetscInt             begin, end;
-    const PetscErrorCode ierr =
-      VecGetOwnershipRange(static_cast<const Vec &>(vector), &begin, &end);
+    const PetscErrorCode ierr = VecGetOwnershipRange(static_cast<const Vec &>(vector), &begin, &end);
     AssertThrow(ierr == 0, ExcPETScError(ierr));
 
     return std::make_pair(begin, end);
@@ -462,42 +447,34 @@ namespace PETScWrappers
 
 
   void
-  VectorBase::set(const std::vector<size_type> &  indices,
-                  const std::vector<PetscScalar> &values)
+  VectorBase::set(const std::vector<size_type> &indices, const std::vector<PetscScalar> &values)
   {
-    Assert(indices.size() == values.size(),
-           ExcMessage("Function called with arguments of different sizes"));
+    Assert(indices.size() == values.size(), ExcMessage("Function called with arguments of different sizes"));
     do_set_add_operation(indices.size(), indices.data(), values.data(), false);
   }
 
 
 
   void
-  VectorBase::add(const std::vector<size_type> &  indices,
-                  const std::vector<PetscScalar> &values)
+  VectorBase::add(const std::vector<size_type> &indices, const std::vector<PetscScalar> &values)
   {
-    Assert(indices.size() == values.size(),
-           ExcMessage("Function called with arguments of different sizes"));
+    Assert(indices.size() == values.size(), ExcMessage("Function called with arguments of different sizes"));
     do_set_add_operation(indices.size(), indices.data(), values.data(), true);
   }
 
 
 
   void
-  VectorBase::add(const std::vector<size_type> &       indices,
-                  const ::dealii::Vector<PetscScalar> &values)
+  VectorBase::add(const std::vector<size_type> &indices, const ::dealii::Vector<PetscScalar> &values)
   {
-    Assert(indices.size() == values.size(),
-           ExcMessage("Function called with arguments of different sizes"));
+    Assert(indices.size() == values.size(), ExcMessage("Function called with arguments of different sizes"));
     do_set_add_operation(indices.size(), indices.data(), values.begin(), true);
   }
 
 
 
   void
-  VectorBase::add(const size_type    n_elements,
-                  const size_type *  indices,
-                  const PetscScalar *values)
+  VectorBase::add(const size_type n_elements, const size_type *indices, const PetscScalar *values)
   {
     do_set_add_operation(n_elements, indices, values, true);
   }
@@ -527,9 +504,7 @@ namespace PETScWrappers
 
 
   PetscScalar
-  VectorBase::add_and_dot(const PetscScalar a,
-                          const VectorBase &V,
-                          const VectorBase &W)
+  VectorBase::add_and_dot(const PetscScalar a, const VectorBase &V, const VectorBase &W)
   {
     this->add(a, V);
     return *this * W;
@@ -547,25 +522,18 @@ namespace PETScWrappers
       int my_int_last_action = last_action;
       int all_int_last_action;
 
-      const int ierr = MPI_Allreduce(&my_int_last_action,
-                                     &all_int_last_action,
-                                     1,
-                                     MPI_INT,
-                                     MPI_BOR,
-                                     get_mpi_communicator());
+      const int ierr =
+        MPI_Allreduce(&my_int_last_action, &all_int_last_action, 1, MPI_INT, MPI_BOR, get_mpi_communicator());
       AssertThrowMPI(ierr);
 
-      AssertThrow(all_int_last_action !=
-                    (VectorOperation::add | VectorOperation::insert),
+      AssertThrow(all_int_last_action != (VectorOperation::add | VectorOperation::insert),
                   ExcMessage("Error: not all processors agree on the last "
                              "VectorOperation before this compress() call."));
 #  endif
     }
 
-    AssertThrow(
-      last_action == VectorOperation::unknown || last_action == operation,
-      ExcMessage(
-        "Missing compress() or calling with wrong VectorOperation argument."));
+    AssertThrow(last_action == VectorOperation::unknown || last_action == operation,
+                ExcMessage("Missing compress() or calling with wrong VectorOperation argument."));
 
     // note that one may think that
     // we only need to do something
@@ -744,9 +712,8 @@ namespace PETScWrappers
     PetscErrorCode     ierr = VecGetArrayRead(vector, &start_ptr);
     AssertThrow(ierr == 0, ExcPETScError(ierr));
 
-    const PetscScalar *ptr  = start_ptr,
-                      *eptr = start_ptr + locally_owned_size();
-    bool flag               = true;
+    const PetscScalar *ptr = start_ptr, *eptr = start_ptr + locally_owned_size();
+    bool               flag = true;
     while (ptr != eptr)
       {
         if (*ptr != value_type())
@@ -869,10 +836,7 @@ namespace PETScWrappers
 
 
   void
-  VectorBase::add(const PetscScalar a,
-                  const VectorBase &v,
-                  const PetscScalar b,
-                  const VectorBase &w)
+  VectorBase::add(const PetscScalar a, const VectorBase &v, const PetscScalar b, const VectorBase &w)
   {
     Assert(!has_ghost_elements(), ExcGhostsPresent());
     AssertIsFinite(a);
@@ -900,9 +864,7 @@ namespace PETScWrappers
 
 
   void
-  VectorBase::sadd(const PetscScalar s,
-                   const PetscScalar a,
-                   const VectorBase &v)
+  VectorBase::sadd(const PetscScalar s, const PetscScalar a, const VectorBase &v)
   {
     Assert(!has_ghost_elements(), ExcGhostsPresent());
     AssertIsFinite(s);
@@ -948,8 +910,7 @@ namespace PETScWrappers
     MPI_Comm comm = PetscObjectComm((PetscObject)vector);
 
     // Set options
-    PetscErrorCode ierr =
-      PetscViewerSetFormat(PETSC_VIEWER_STDOUT_(comm), format);
+    PetscErrorCode ierr = PetscViewerSetFormat(PETSC_VIEWER_STDOUT_(comm), format);
     AssertThrow(ierr == 0, ExcPETScError(ierr));
 
     // Write to screen
@@ -960,10 +921,7 @@ namespace PETScWrappers
 
 
   void
-  VectorBase::print(std::ostream &     out,
-                    const unsigned int precision,
-                    const bool         scientific,
-                    const bool         across) const
+  VectorBase::print(std::ostream &out, const unsigned int precision, const bool scientific, const bool across) const
   {
     AssertThrow(out.fail() == false, ExcIO());
 
@@ -1035,8 +993,7 @@ namespace PETScWrappers
   std::size_t
   VectorBase::memory_consumption() const
   {
-    std::size_t mem = sizeof(Vec) + sizeof(last_action) +
-                      MemoryConsumption::memory_consumption(ghosted) +
+    std::size_t mem = sizeof(Vec) + sizeof(last_action) + MemoryConsumption::memory_consumption(ghosted) +
                       MemoryConsumption::memory_consumption(ghost_indices);
 
     // TH: I am relatively sure that PETSc is
@@ -1056,12 +1013,11 @@ namespace PETScWrappers
 
   void
   VectorBase::do_set_add_operation(const size_type    n_elements,
-                                   const size_type *  indices,
+                                   const size_type   *indices,
                                    const PetscScalar *values,
                                    const bool         add_values)
   {
-    VectorOperation::values action =
-      (add_values ? VectorOperation::add : VectorOperation::insert);
+    VectorOperation::values action = (add_values ? VectorOperation::add : VectorOperation::insert);
     Assert((last_action == action) || (last_action == VectorOperation::unknown),
            internal::VectorReference::ExcWrongMode(action, last_action));
     Assert(!has_ghost_elements(), ExcGhostsPresent());
@@ -1073,12 +1029,10 @@ namespace PETScWrappers
     // (unlike the above calls)
     if (n_elements != 0)
       {
-        const PetscInt *petsc_indices =
-          reinterpret_cast<const PetscInt *>(indices);
+        const PetscInt *petsc_indices = reinterpret_cast<const PetscInt *>(indices);
 
         const InsertMode     mode = (add_values ? ADD_VALUES : INSERT_VALUES);
-        const PetscErrorCode ierr =
-          VecSetValues(vector, n_elements, petsc_indices, values, mode);
+        const PetscErrorCode ierr = VecSetValues(vector, n_elements, petsc_indices, values, mode);
         AssertThrow(ierr == 0, ExcPETScError(ierr));
       }
 

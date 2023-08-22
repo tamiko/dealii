@@ -59,19 +59,14 @@ main()
   const Point<2> chart_point_plusphi(chart_point[0], chart_point[1] + h);
   const Point<2> chart_point_minusphi(chart_point[0], chart_point[1] - h);
 
-  const Point<2> space_point_plusc  = ellipse.push_forward(chart_point_plusc);
-  const Point<2> space_point_minusc = ellipse.push_forward(chart_point_minusc);
-  const Point<2> space_point_plusphi =
-    ellipse.push_forward(chart_point_plusphi);
-  const Point<2> space_point_minusphi =
-    ellipse.push_forward(chart_point_minusphi);
+  const Point<2> space_point_plusc    = ellipse.push_forward(chart_point_plusc);
+  const Point<2> space_point_minusc   = ellipse.push_forward(chart_point_minusc);
+  const Point<2> space_point_plusphi  = ellipse.push_forward(chart_point_plusphi);
+  const Point<2> space_point_minusphi = ellipse.push_forward(chart_point_minusphi);
 
-  deallog << "Gradient by finite differences: "
-          << (space_point_plusc - space_point_minusc) / (2.0 * h) << ' '
-          << (space_point_plusphi - space_point_minusphi) / (2.0 * h)
-          << std::endl;
-  deallog << "Analytic gradient:              "
-          << transpose(Tensor<2, 2>(ellipse.push_forward_gradient(chart_point)))
+  deallog << "Gradient by finite differences: " << (space_point_plusc - space_point_minusc) / (2.0 * h) << ' '
+          << (space_point_plusphi - space_point_minusphi) / (2.0 * h) << std::endl;
+  deallog << "Analytic gradient:              " << transpose(Tensor<2, 2>(ellipse.push_forward_gradient(chart_point)))
           << std::endl;
 
   return 0;

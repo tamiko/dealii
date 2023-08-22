@@ -43,10 +43,7 @@ check(DataOutBase::VtkFlags flags, std::ostream &out)
   names[3] = "x4";
   names[4] = "i";
   std::vector<
-    std::tuple<unsigned int,
-               unsigned int,
-               std::string,
-               DataComponentInterpretation::DataComponentInterpretation>>
+    std::tuple<unsigned int, unsigned int, std::string, DataComponentInterpretation::DataComponentInterpretation>>
     vectors;
   DataOutBase::write_vtu(patches, names, vectors, flags, out);
 }
@@ -62,19 +59,16 @@ check_all(std::ostream &log)
       switch (i)
         {
           case (0):
-            flags.compression_level =
-              DataOutBase::CompressionLevel::no_compression;
+            flags.compression_level = DataOutBase::CompressionLevel::no_compression;
             break;
           case (1):
             flags.compression_level = DataOutBase::CompressionLevel::best_speed;
             break;
           case (2):
-            flags.compression_level =
-              DataOutBase::CompressionLevel::best_compression;
+            flags.compression_level = DataOutBase::CompressionLevel::best_compression;
             break;
           case (3):
-            flags.compression_level =
-              DataOutBase::CompressionLevel::default_compression;
+            flags.compression_level = DataOutBase::CompressionLevel::default_compression;
             break;
           case (4):
             flags.compression_level = DataOutBase::CompressionLevel::plain_text;

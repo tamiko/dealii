@@ -41,8 +41,7 @@ main()
   const unsigned int dim = 3;
 
   const auto check = [&](const auto subcell, const auto face, const auto edge) {
-    const auto kind =
-      static_cast<ConstraintKinds>(subcell + (face << 3) + (edge << 6));
+    const auto kind = static_cast<ConstraintKinds>(subcell + (face << 3) + (edge << 6));
 
     Assert(kind == decompress(compress(kind, dim), dim), ExcInternalError());
   };

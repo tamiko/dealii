@@ -55,14 +55,11 @@ public:
   value(const Point<dim> &p, const unsigned int c) const
   {
     if (c == 0)
-      return (p[0] + p[1] + ((dim == 3) ? p[2] : 0.0)) *
-             std::complex<double>(1. / std::sqrt(2.), 1. / std::sqrt(2.));
+      return (p[0] + p[1] + ((dim == 3) ? p[2] : 0.0)) * std::complex<double>(1. / std::sqrt(2.), 1. / std::sqrt(2.));
     if (c == 1)
-      return (p[0] * p[0] + p[1] * p[1]) *
-             std::complex<double>(1. / std::sqrt(2.), 1. / std::sqrt(2.));
+      return (p[0] * p[0] + p[1] * p[1]) * std::complex<double>(1. / std::sqrt(2.), 1. / std::sqrt(2.));
     if (c == 2)
-      return (p[2] + p[0] * p[1]) *
-             std::complex<double>(1. / std::sqrt(2.), 1. / std::sqrt(2.));
+      return (p[2] + p[0] * p[1]) * std::complex<double>(1. / std::sqrt(2.), 1. / std::sqrt(2.));
     else
       return numbers::signaling_nan<double>();
   }
@@ -87,18 +84,12 @@ test(VectorTools::NormType norm, double value)
 
   Vector<double> cellwise_errors(tria.n_active_cells());
   VectorTools::integrate_difference(
-    dofh,
-    solution,
-    Functions::ZeroFunction<dim, std::complex<double>>(dim),
-    cellwise_errors,
-    QGauss<dim>(5),
-    norm);
+    dofh, solution, Functions::ZeroFunction<dim, std::complex<double>>(dim), cellwise_errors, QGauss<dim>(5), norm);
 
   const double error = cellwise_errors.l2_norm();
 
   const double difference = std::abs(error - value);
-  deallog << "computed: " << error << " expected: " << value
-          << " difference: " << difference << std::endl;
+  deallog << "computed: " << error << " expected: " << value << " difference: " << difference << std::endl;
   Assert(difference < 1e-10, ExcMessage("Error in integrate_difference"));
 }
 

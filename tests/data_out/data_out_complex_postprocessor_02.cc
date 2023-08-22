@@ -56,9 +56,8 @@ public:
   get_needed_update_flags() const override;
 
   virtual void
-  evaluate_vector_field(
-    const DataPostprocessorInputs::Vector<dim> &inputs,
-    std::vector<Vector<double>> &computed_quantities) const override;
+  evaluate_vector_field(const DataPostprocessorInputs::Vector<dim> &inputs,
+                        std::vector<Vector<double>>                &computed_quantities) const override;
 };
 
 
@@ -81,25 +80,19 @@ ComputeMagnitudes<dim>::get_needed_update_flags() const
 
 template <int dim>
 void
-ComputeMagnitudes<dim>::evaluate_vector_field(
-  const DataPostprocessorInputs::Vector<dim> &inputs,
-  std::vector<Vector<double>> &               computed_quantities) const
+ComputeMagnitudes<dim>::evaluate_vector_field(const DataPostprocessorInputs::Vector<dim> &inputs,
+                                              std::vector<Vector<double>>                &computed_quantities) const
 {
   Assert(computed_quantities.size() == inputs.solution_values.size(),
-         ExcDimensionMismatch(computed_quantities.size(),
-                              inputs.solution_values.size()));
+         ExcDimensionMismatch(computed_quantities.size(), inputs.solution_values.size()));
 
   for (unsigned int i = 0; i < computed_quantities.size(); ++i)
     {
-      Assert(computed_quantities[i].size() == 2,
-             ExcDimensionMismatch(computed_quantities[i].size(), 2));
-      Assert(inputs.solution_values[i].size() == 4,
-             ExcDimensionMismatch(inputs.solution_values[i].size(), 4));
+      Assert(computed_quantities[i].size() == 2, ExcDimensionMismatch(computed_quantities[i].size(), 2));
+      Assert(inputs.solution_values[i].size() == 4, ExcDimensionMismatch(inputs.solution_values[i].size(), 4));
 
-      const std::complex<double> u(inputs.solution_values[i](0),
-                                   inputs.solution_values[i](1));
-      const std::complex<double> v(inputs.solution_values[i](2),
-                                   inputs.solution_values[i](3));
+      const std::complex<double> u(inputs.solution_values[i](0), inputs.solution_values[i](1));
+      const std::complex<double> v(inputs.solution_values[i](2), inputs.solution_values[i](3));
 
       computed_quantities[i](0) = std::abs(u);
       computed_quantities[i](1) = std::abs(v);
@@ -157,27 +150,19 @@ main()
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     }
 }

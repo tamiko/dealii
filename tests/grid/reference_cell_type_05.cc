@@ -32,16 +32,13 @@ test(const ReferenceCell &reference_cell)
 {
   deallog << "ReferenceCell: " << reference_cell.to_string() << std::endl;
   for (unsigned int f = 0; f < reference_cell.n_faces(); ++f)
-    for (unsigned int v = 0;
-         v < reference_cell.face_reference_cell(f).n_vertices();
-         ++v)
+    for (unsigned int v = 0; v < reference_cell.face_reference_cell(f).n_vertices(); ++v)
       {
-        deallog << "Face=" << f << ", vertex=" << v << ", location="
-                << reference_cell.face_vertex_location<dim>(f, v) << std::endl;
+        deallog << "Face=" << f << ", vertex=" << v << ", location=" << reference_cell.face_vertex_location<dim>(f, v)
+                << std::endl;
         Assert(reference_cell.face_vertex_location<dim>(f, v) ==
                  reference_cell.vertex<dim>(
-                   reference_cell.face_to_cell_vertices(
-                     f, v, ReferenceCell::default_combined_face_orientation())),
+                   reference_cell.face_to_cell_vertices(f, v, ReferenceCell::default_combined_face_orientation())),
                ExcInternalError());
       }
 }

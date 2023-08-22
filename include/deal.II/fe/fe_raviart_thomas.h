@@ -153,14 +153,12 @@ public:
    * always @p true.
    */
   virtual bool
-  has_support_on_face(const unsigned int shape_index,
-                      const unsigned int face_index) const override;
+  has_support_on_face(const unsigned int shape_index, const unsigned int face_index) const override;
 
   // documentation inherited from the base class
   virtual void
-  convert_generalized_support_point_values_to_dof_values(
-    const std::vector<Vector<double>> &support_point_values,
-    std::vector<double> &              nodal_values) const override;
+  convert_generalized_support_point_values_to_dof_values(const std::vector<Vector<double>> &support_point_values,
+                                                         std::vector<double> &nodal_values) const override;
 
   /**
    * Return a list of constant modes of the element. This method is currently
@@ -355,20 +353,18 @@ public:
 
   virtual void
   get_face_interpolation_matrix(const FiniteElement<dim> &source,
-                                FullMatrix<double> &      matrix,
-                                const unsigned int face_no = 0) const override;
+                                FullMatrix<double>       &matrix,
+                                const unsigned int        face_no = 0) const override;
 
   virtual void
-  get_subface_interpolation_matrix(
-    const FiniteElement<dim> &source,
-    const unsigned int        subface,
-    FullMatrix<double> &      matrix,
-    const unsigned int        face_no = 0) const override;
+  get_subface_interpolation_matrix(const FiniteElement<dim> &source,
+                                   const unsigned int        subface,
+                                   FullMatrix<double>       &matrix,
+                                   const unsigned int        face_no = 0) const override;
 
   virtual void
-  convert_generalized_support_point_values_to_dof_values(
-    const std::vector<Vector<double>> &support_point_values,
-    std::vector<double> &              nodal_values) const override;
+  convert_generalized_support_point_values_to_dof_values(const std::vector<Vector<double>> &support_point_values,
+                                                         std::vector<double> &nodal_values) const override;
 
   virtual bool
   hp_constraints_are_implemented() const override;
@@ -380,27 +376,23 @@ public:
   hp_line_dof_identities(const FiniteElement<dim> &fe_other) const override;
 
   virtual std::vector<std::pair<unsigned int, unsigned int>>
-  hp_quad_dof_identities(const FiniteElement<dim> &fe_other,
-                         const unsigned int        face_no = 0) const override;
+  hp_quad_dof_identities(const FiniteElement<dim> &fe_other, const unsigned int face_no = 0) const override;
 
   /**
    * @copydoc FiniteElement::compare_for_domination()
    */
   virtual FiniteElementDomination::Domination
-  compare_for_domination(const FiniteElement<dim> &fe_other,
-                         const unsigned int codim = 0) const override final;
+  compare_for_domination(const FiniteElement<dim> &fe_other, const unsigned int codim = 0) const override final;
 
   virtual const FullMatrix<double> &
   get_restriction_matrix(
     const unsigned int         child,
-    const RefinementCase<dim> &refinement_case =
-      RefinementCase<dim>::isotropic_refinement) const override;
+    const RefinementCase<dim> &refinement_case = RefinementCase<dim>::isotropic_refinement) const override;
 
   virtual const FullMatrix<double> &
   get_prolongation_matrix(
     const unsigned int         child,
-    const RefinementCase<dim> &refinement_case =
-      RefinementCase<dim>::isotropic_refinement) const override;
+    const RefinementCase<dim> &refinement_case = RefinementCase<dim>::isotropic_refinement) const override;
 
 private:
   /**
@@ -408,8 +400,7 @@ private:
    * non-zero function values somewhere on the face @p face_index.
    */
   virtual bool
-  has_support_on_face(const unsigned int shape_index,
-                      const unsigned int face_index) const override;
+  has_support_on_face(const unsigned int shape_index, const unsigned int face_index) const override;
 
   /**
    * Initialize the permutation pattern and the pattern of sign change.

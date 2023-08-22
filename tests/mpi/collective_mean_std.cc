@@ -52,8 +52,8 @@
 void
 test()
 {
-  unsigned int     myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
-  std::vector<int> values;
+  unsigned int                      myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  std::vector<int>                  values;
   std::vector<std::complex<double>> val_c;
   std::vector<int>                  same;
   std::vector<int>                  empty;
@@ -95,24 +95,16 @@ test()
       same[0] = 1;
     }
 
-  const auto pair = Utilities::MPI::mean_and_standard_deviation(values.begin(),
-                                                                values.end(),
-                                                                MPI_COMM_WORLD);
+  const auto pair = Utilities::MPI::mean_and_standard_deviation(values.begin(), values.end(), MPI_COMM_WORLD);
 
   const auto pair_c =
-    Utilities::MPI::mean_and_standard_deviation<decltype(val_c.begin()),
-                                                std::complex<double>>(
-      val_c.begin(), val_c.end(), MPI_COMM_WORLD);
+    Utilities::MPI::mean_and_standard_deviation<decltype(val_c.begin()), std::complex<double>>(val_c.begin(),
+                                                                                               val_c.end(),
+                                                                                               MPI_COMM_WORLD);
 
-  const auto pair_same =
-    Utilities::MPI::mean_and_standard_deviation(same.begin(),
-                                                same.end(),
-                                                MPI_COMM_WORLD);
+  const auto pair_same = Utilities::MPI::mean_and_standard_deviation(same.begin(), same.end(), MPI_COMM_WORLD);
 
-  const auto pair_empty =
-    Utilities::MPI::mean_and_standard_deviation(empty.begin(),
-                                                empty.end(),
-                                                MPI_COMM_WORLD);
+  const auto pair_empty = Utilities::MPI::mean_and_standard_deviation(empty.begin(), empty.end(), MPI_COMM_WORLD);
 
   if (myid == 0)
     deallog << pair.first << ' ' << pair.second << std::endl
@@ -126,8 +118,7 @@ int
 main(int argc, char *argv[])
 {
 #ifdef DEAL_II_WITH_MPI
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 #else
   (void)argc;
   (void)argv;

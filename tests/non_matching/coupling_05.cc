@@ -70,8 +70,7 @@ test()
   FE_Q<dim, spacedim>      fe(2);
   FE_Q<spacedim, spacedim> space_fe(2);
 
-  deallog << "FE      : " << fe.get_name() << std::endl
-          << "Space FE: " << space_fe.get_name() << std::endl;
+  deallog << "FE      : " << fe.get_name() << std::endl << "Space FE: " << space_fe.get_name() << std::endl;
 
   DoFHandler<dim, spacedim>      dh(tria);
   DoFHandler<spacedim, spacedim> space_dh(space_tria);
@@ -83,19 +82,14 @@ test()
   auto locally_owned_dofs       = dh.locally_owned_dofs();
 
 
-  deallog << "Dofs      : " << dh.n_dofs() << std::endl
-          << "Space dofs: " << space_dh.n_dofs() << std::endl;
+  deallog << "Dofs      : " << dh.n_dofs() << std::endl << "Space dofs: " << space_dh.n_dofs() << std::endl;
 
-  deallog << "Local dofs      : " << locally_owned_dofs.n_elements()
-          << std::endl;
-  deallog << "Local space dofs: " << space_locally_owned_dofs.n_elements()
-          << std::endl;
+  deallog << "Local dofs      : " << locally_owned_dofs.n_elements() << std::endl;
+  deallog << "Local space dofs: " << space_locally_owned_dofs.n_elements() << std::endl;
   QGauss<dim> quad(3); // Quadrature for coupling
 
 
-  TrilinosWrappers::SparsityPattern sparsity(space_locally_owned_dofs,
-                                             locally_owned_dofs,
-                                             comm);
+  TrilinosWrappers::SparsityPattern sparsity(space_locally_owned_dofs, locally_owned_dofs, comm);
   NonMatching::create_coupling_sparsity_pattern(space_dh, dh, quad, sparsity);
   sparsity.compress();
 
@@ -110,11 +104,11 @@ test()
   TrilinosWrappers::SparseMatrix mass_matrix(mass_sparsity);
 
   {
-    QGauss<dim>             quad(4);
-    FEValues<dim, spacedim> fev(fe, quad, update_values | update_JxW_values);
+    QGauss<dim>                          quad(4);
+    FEValues<dim, spacedim>              fev(fe, quad, update_values | update_JxW_values);
     std::vector<types::global_dof_index> dofs(fe.dofs_per_cell);
-    FullMatrix<double>        cell_matrix(fe.dofs_per_cell, fe.dofs_per_cell);
-    AffineConstraints<double> constraints;
+    FullMatrix<double>                   cell_matrix(fe.dofs_per_cell, fe.dofs_per_cell);
+    AffineConstraints<double>            constraints;
 
     for (auto &cell : dh.active_cell_iterators())
       if (cell->is_locally_owned())
@@ -125,11 +119,8 @@ test()
           for (unsigned int i = 0; i < fe.dofs_per_cell; ++i)
             for (unsigned int j = 0; j < fe.dofs_per_cell; ++j)
               for (unsigned int q = 0; q < quad.size(); ++q)
-                cell_matrix(i, j) +=
-                  fev.shape_value(i, q) * fev.shape_value(j, q) * fev.JxW(q);
-          constraints.distribute_local_to_global(cell_matrix,
-                                                 dofs,
-                                                 mass_matrix);
+                cell_matrix(i, j) += fev.shape_value(i, q) * fev.shape_value(j, q) * fev.JxW(q);
+          constraints.distribute_local_to_global(cell_matrix, dofs, mass_matrix);
         }
     mass_matrix.compress(VectorOperation::add);
   }
@@ -141,9 +132,7 @@ test()
   TrilinosWrappers::MPI::Vector Mprojected_squares(locally_owned_dofs, comm);
   TrilinosWrappers::MPI::Vector projected_squares(locally_owned_dofs, comm);
 
-  VectorTools::interpolate(space_dh,
-                           Functions::SquareFunction<spacedim>(),
-                           space_square);
+  VectorTools::interpolate(space_dh, Functions::SquareFunction<spacedim>(), space_square);
   VectorTools::interpolate(dh, Functions::SquareFunction<spacedim>(), squares);
 
   coupling.Tvmult(Mprojected_squares, space_square);

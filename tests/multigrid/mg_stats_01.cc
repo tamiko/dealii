@@ -65,25 +65,22 @@ template <typename T>
 void
 print_stats(const T &tria)
 {
-  deallog << "Workload efficiency:               "
-          << 1.0 / MGTools::workload_imbalance(tria) << std::endl;
+  deallog << "Workload efficiency:               " << 1.0 / MGTools::workload_imbalance(tria) << std::endl;
 
-  const auto local_workload = MGTools::local_workload(tria);
-  const auto local_vertical_communication_cost =
-    MGTools::local_vertical_communication_cost(tria);
+  const auto local_workload                    = MGTools::local_workload(tria);
+  const auto local_vertical_communication_cost = MGTools::local_vertical_communication_cost(tria);
 
   deallog << "Local workload:                    ";
   for (unsigned i = 0; i < local_workload.size(); ++i)
     deallog << local_workload[i] << " ";
   deallog << std::endl;
 
-  deallog << "Vertical communication efficiency: "
-          << MGTools::vertical_communication_efficiency(tria) << std::endl;
+  deallog << "Vertical communication efficiency: " << MGTools::vertical_communication_efficiency(tria) << std::endl;
 
   deallog << "Vertical communication costs:      ";
   for (unsigned i = 0; i < local_workload.size(); ++i)
-    deallog << "(" << local_vertical_communication_cost[i].first << ", "
-            << local_vertical_communication_cost[i].second << ") ";
+    deallog << "(" << local_vertical_communication_cost[i].first << ", " << local_vertical_communication_cost[i].second
+            << ") ";
   deallog << std::endl;
 }
 
@@ -102,9 +99,7 @@ test()
   print_stats(tria);
 
   const RepartitioningPolicyTools::FirstChildPolicy<dim> policy(tria);
-  const auto                                             trias =
-    MGTransferGlobalCoarseningTools::create_geometric_coarsening_sequence(
-      tria, policy);
+  const auto trias = MGTransferGlobalCoarseningTools::create_geometric_coarsening_sequence(tria, policy);
 
   print_stats(trias);
 }

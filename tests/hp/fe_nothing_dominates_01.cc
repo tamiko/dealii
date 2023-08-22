@@ -44,18 +44,14 @@ test(const bool fe_nothing_dominates)
 
   {
     deallog << "(FE_Nothing, FE_Q)" << std::endl;
-    hp::FECollection<dim> fe_collection(FE_Nothing<dim>(/*n_components=*/1,
-                                                        fe_nothing_dominates),
-                                        FE_Q<dim>(1));
+    hp::FECollection<dim> fe_collection(FE_Nothing<dim>(/*n_components=*/1, fe_nothing_dominates), FE_Q<dim>(1));
     hp::QCollection<dim>  q_collection(Quadrature<dim>(1), QGauss<dim>(2));
     project(fe_collection, q_collection, function);
   }
 
   {
     deallog << "(FE_Q, FE_Nothing)" << std::endl;
-    hp::FECollection<dim> fe_collection(FE_Q<dim>(1),
-                                        FE_Nothing<dim>(/*n_components=*/1,
-                                                        fe_nothing_dominates));
+    hp::FECollection<dim> fe_collection(FE_Q<dim>(1), FE_Nothing<dim>(/*n_components=*/1, fe_nothing_dominates));
     hp::QCollection<dim>  q_collection(QGauss<dim>(2), Quadrature<dim>(1));
     project(fe_collection, q_collection, function);
   }

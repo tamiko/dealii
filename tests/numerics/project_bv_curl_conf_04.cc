@@ -38,22 +38,17 @@
 const unsigned int dim = 3;
 
 void
-apply_boundary_values(DoFHandler<dim> &          dof_handler,
+apply_boundary_values(DoFHandler<dim>           &dof_handler,
                       AffineConstraints<double> &constraints,
                       unsigned int               n_comps,
                       unsigned int               start_comp,
-                      Mapping<dim> &             mapping,
-                      Vector<double> &           dst)
+                      Mapping<dim>              &mapping,
+                      Vector<double>            &dst)
 {
   constraints.clear();
   for (unsigned int i = 0; i < 6; ++i)
     VectorTools::project_boundary_values_curl_conforming_l2(
-      dof_handler,
-      start_comp,
-      Functions::ConstantFunction<dim>(1, n_comps),
-      i,
-      constraints,
-      mapping);
+      dof_handler, start_comp, Functions::ConstantFunction<dim>(1, n_comps), i, constraints, mapping);
   constraints.close();
 
   constraints.distribute(dst);
@@ -62,39 +57,33 @@ apply_boundary_values(DoFHandler<dim> &          dof_handler,
 
 
 bool
-test_boundary_values(DoFHandler<dim> &   dof_handler,
-                     Mapping<dim> &      mapping,
+test_boundary_values(DoFHandler<dim>    &dof_handler,
+                     Mapping<dim>       &mapping,
                      FiniteElement<dim> &fe,
                      unsigned int        n_comps,
                      unsigned int        start_comp,
-                     Vector<double> &    vec)
+                     Vector<double>     &vec)
 {
   // Initialize
   QGaussLobatto<dim - 1> quadrature(3);
   FEFaceValues<dim>      fe_values(mapping,
                               fe,
                               quadrature,
-                              update_values | update_normal_vectors |
-                                update_quadrature_points | update_JxW_values);
+                              update_values | update_normal_vectors | update_quadrature_points | update_JxW_values);
 
-  unsigned                    num_cells = 0;
-  std::vector<Vector<double>> local_averages(
-    6, Vector<double>(dof_handler.n_dofs()));
+  unsigned                         num_cells = 0;
+  std::vector<Vector<double>>      local_averages(6, Vector<double>(dof_handler.n_dofs()));
   const FEValuesExtractors::Vector nedelec(start_comp);
 
   // For testing we take only one cell!
-  Assert(dof_handler.n_dofs() ==
-           dof_handler.begin_active()->get_fe().dofs_per_cell,
-         ExcInternalError());
+  Assert(dof_handler.n_dofs() == dof_handler.begin_active()->get_fe().dofs_per_cell, ExcInternalError());
 
   for (const auto &cell : dof_handler.active_cell_iterators())
     {
       // For testing we take only one cell! Otherwise, local to global is
       // missing
       assert(num_cells == 0);
-      for (unsigned int face = 0;
-           face < dealii::GeometryInfo<dim>::faces_per_cell;
-           ++face)
+      for (unsigned int face = 0; face < dealii::GeometryInfo<dim>::faces_per_cell; ++face)
         {
           if (cell->face(face)->at_boundary())
             {
@@ -106,13 +95,10 @@ test_boundary_values(DoFHandler<dim> &   dof_handler,
               assert(boundary_number < 6);
               fe_values.reinit(cell, face);
 
-              std::vector<Vector<double>> local_values(
-                fe_values.n_quadrature_points, Vector<double>(n_comps));
+              std::vector<Vector<double>> local_values(fe_values.n_quadrature_points, Vector<double>(n_comps));
               fe_values.get_function_values(vec, local_values);
 
-              for (unsigned int q_point = 0;
-                   q_point < fe_values.n_quadrature_points;
-                   q_point++)
+              for (unsigned int q_point = 0; q_point < fe_values.n_quadrature_points; q_point++)
                 {
                   // Compare n x v values
                   Tensor<1, dim> nedelec_values;
@@ -121,14 +107,11 @@ test_boundary_values(DoFHandler<dim> &   dof_handler,
                   nedelec_values[2]     = local_values[q_point](start_comp + 2);
                   Tensor<1, dim> normal = fe_values.normal_vector(q_point);
 
-                  for (unsigned int i = 0; i < cell->get_fe().dofs_per_cell;
-                       i++)
+                  for (unsigned int i = 0; i < cell->get_fe().dofs_per_cell; i++)
                     {
                       local_averages[boundary_number](i) +=
-                        ((cross_product_3d(normal, nedelec_values) -
-                          cross_product_3d(normal, expected_value)) *
-                         cross_product_3d(
-                           normal, fe_values[nedelec].value(i, q_point))) *
+                        ((cross_product_3d(normal, nedelec_values) - cross_product_3d(normal, expected_value)) *
+                         cross_product_3d(normal, fe_values[nedelec].value(i, q_point))) *
                         fe_values.JxW(q_point);
                     }
                 }
@@ -144,8 +127,7 @@ test_boundary_values(DoFHandler<dim> &   dof_handler,
         {
           if (fabs(local_averages[bc](basis)) > 1.e-10)
             {
-              deallog << "Wrong values on boundary " << bc
-                      << " in basis function " << basis << " of size "
+              deallog << "Wrong values on boundary " << bc << " in basis function " << basis << " of size "
                       << fabs(local_averages[bc](basis)) << std::endl;
               ret = false;
             }

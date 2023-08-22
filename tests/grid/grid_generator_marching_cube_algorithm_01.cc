@@ -56,21 +56,22 @@ namespace dealii
   {
     template <int dim, typename VectorType>
     void
-    create_triangulation_with_marching_cube_algorithm(
-      Triangulation<dim - 1, dim> &tria,
-      const Mapping<dim> &         mapping,
-      const DoFHandler<dim> &      background_dof_handler,
-      const VectorType &           ls_vector,
-      const double                 iso_level,
-      const unsigned int           n_subdivisions,
-      const double                 tolerance = 1e-10)
+    create_triangulation_with_marching_cube_algorithm(Triangulation<dim - 1, dim> &tria,
+                                                      const Mapping<dim>          &mapping,
+                                                      const DoFHandler<dim>       &background_dof_handler,
+                                                      const VectorType            &ls_vector,
+                                                      const double                 iso_level,
+                                                      const unsigned int           n_subdivisions,
+                                                      const double                 tolerance = 1e-10)
     {
       std::vector<Point<dim>>        vertices;
       std::vector<CellData<dim - 1>> cells;
       SubCellData                    subcelldata;
 
-      const GridTools::MarchingCubeAlgorithm<dim, VectorType> mc(
-        mapping, background_dof_handler.get_fe(), n_subdivisions, tolerance);
+      const GridTools::MarchingCubeAlgorithm<dim, VectorType> mc(mapping,
+                                                                 background_dof_handler.get_fe(),
+                                                                 n_subdivisions,
+                                                                 tolerance);
 
       mc.process(background_dof_handler, ls_vector, iso_level, vertices, cells);
 
@@ -114,13 +115,11 @@ template <typename MeshType>
 MPI_Comm
 get_mpi_comm(const MeshType &mesh)
 {
-  const auto *tria_parallel = dynamic_cast<
-    const parallel::TriangulationBase<MeshType::dimension,
-                                      MeshType::space_dimension> *>(
-    &(mesh.get_triangulation()));
+  const auto *tria_parallel =
+    dynamic_cast<const parallel::TriangulationBase<MeshType::dimension, MeshType::space_dimension> *>(
+      &(mesh.get_triangulation()));
 
-  return tria_parallel != nullptr ? tria_parallel->get_communicator() :
-                                    MPI_COMM_SELF;
+  return tria_parallel != nullptr ? tria_parallel->get_communicator() : MPI_COMM_SELF;
 }
 
 
@@ -133,10 +132,9 @@ create_partitioner(const DoFHandler<dim, spacedim> &dof_handler)
 
   DoFTools::extract_locally_relevant_dofs(dof_handler, locally_relevant_dofs);
 
-  return std::make_shared<const Utilities::MPI::Partitioner>(
-    dof_handler.locally_owned_dofs(),
-    locally_relevant_dofs,
-    get_mpi_comm(dof_handler));
+  return std::make_shared<const Utilities::MPI::Partitioner>(dof_handler.locally_owned_dofs(),
+                                                             locally_relevant_dofs,
+                                                             get_mpi_comm(dof_handler));
 }
 
 
@@ -148,19 +146,12 @@ test(const unsigned int n_subdivisions, const double iso_level)
   const unsigned int spacedim             = dim + 1;
   const unsigned int background_fe_degree = 3;
 
-  parallel::shared::Triangulation<spacedim> background_tria(
-    MPI_COMM_WORLD, Triangulation<spacedim>::none, true);
+  parallel::shared::Triangulation<spacedim> background_tria(MPI_COMM_WORLD, Triangulation<spacedim>::none, true);
 
   if (spacedim == 2)
-    GridGenerator::subdivided_hyper_rectangle(background_tria,
-                                              {20, 20},
-                                              {-1.0, -1.0},
-                                              {+1.0, +1.0});
+    GridGenerator::subdivided_hyper_rectangle(background_tria, {20, 20}, {-1.0, -1.0}, {+1.0, +1.0});
   else
-    GridGenerator::subdivided_hyper_rectangle(background_tria,
-                                              {20, 20, 20},
-                                              {-1.0, -1.0, -1.0},
-                                              {+1.0, +1.0, +1.0});
+    GridGenerator::subdivided_hyper_rectangle(background_tria, {20, 20, 20}, {-1.0, -1.0, -1.0}, {+1.0, +1.0, +1.0});
 
   FE_Q<spacedim>       background_fe(background_fe_degree);
   DoFHandler<spacedim> background_dof_handler(background_tria);
@@ -170,23 +161,14 @@ test(const unsigned int n_subdivisions, const double iso_level)
 
   VectorType ls_vector(create_partitioner(background_dof_handler));
 
-  VectorTools::interpolate(background_mapping,
-                           background_dof_handler,
-                           LSFunction<spacedim>(),
-                           ls_vector);
+  VectorTools::interpolate(background_mapping, background_dof_handler, LSFunction<spacedim>(), ls_vector);
 
   ls_vector.update_ghost_values();
 
-  parallel::shared::Triangulation<dim, spacedim> tria(
-    MPI_COMM_WORLD, Triangulation<dim, spacedim>::none, true);
+  parallel::shared::Triangulation<dim, spacedim> tria(MPI_COMM_WORLD, Triangulation<dim, spacedim>::none, true);
 
   GridGenerator::create_triangulation_with_marching_cube_algorithm(
-    tria,
-    background_mapping,
-    background_dof_handler,
-    ls_vector,
-    iso_level,
-    n_subdivisions);
+    tria, background_mapping, background_dof_handler, ls_vector, iso_level, n_subdivisions);
 
   // write computed vectors to Paraview
   if (true /*write surface mesh*/)
@@ -205,8 +187,7 @@ test(const unsigned int n_subdivisions, const double iso_level)
       data_out.add_data_vector(background_dof_handler, ls_vector, "curvature");
 
       data_out.build_patches(background_mapping, background_fe_degree + 1);
-      data_out.write_vtu_with_pvtu_record(
-        "./", "data_background." + std::to_string(spacedim), 0, MPI_COMM_WORLD);
+      data_out.write_vtu_with_pvtu_record("./", "data_background." + std::to_string(spacedim), 0, MPI_COMM_WORLD);
     }
 }
 

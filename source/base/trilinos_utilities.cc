@@ -36,11 +36,9 @@ namespace Utilities
     comm_world()
     {
 #  ifdef DEAL_II_WITH_MPI
-      static Teuchos::RCP<Epetra_MpiComm> communicator =
-        Teuchos::rcp(new Epetra_MpiComm(MPI_COMM_WORLD), true);
+      static Teuchos::RCP<Epetra_MpiComm> communicator = Teuchos::rcp(new Epetra_MpiComm(MPI_COMM_WORLD), true);
 #  else
-      static Teuchos::RCP<Epetra_SerialComm> communicator =
-        Teuchos::rcp(new Epetra_SerialComm(), true);
+      static Teuchos::RCP<Epetra_SerialComm> communicator = Teuchos::rcp(new Epetra_SerialComm(), true);
 #  endif
 
       return *communicator;
@@ -52,11 +50,9 @@ namespace Utilities
     tpetra_comm_self()
     {
 #  ifdef DEAL_II_WITH_MPI
-      static auto communicator = Teuchos::RCP<const Teuchos::Comm<int>>(
-        new Teuchos::MpiComm<int>(MPI_COMM_SELF));
+      static auto communicator = Teuchos::RCP<const Teuchos::Comm<int>>(new Teuchos::MpiComm<int>(MPI_COMM_SELF));
 #  else
-      static auto communicator =
-        Teuchos::RCP<const Teuchos::Comm<int>>(new Teuchos::Comm<int>());
+      static auto communicator = Teuchos::RCP<const Teuchos::Comm<int>>(new Teuchos::Comm<int>());
 #  endif
 
       return communicator;
@@ -68,11 +64,9 @@ namespace Utilities
     comm_self()
     {
 #  ifdef DEAL_II_WITH_MPI
-      static Teuchos::RCP<Epetra_MpiComm> communicator =
-        Teuchos::rcp(new Epetra_MpiComm(MPI_COMM_SELF), true);
+      static Teuchos::RCP<Epetra_MpiComm> communicator = Teuchos::rcp(new Epetra_MpiComm(MPI_COMM_SELF), true);
 #  else
-      static Teuchos::RCP<Epetra_SerialComm> communicator =
-        Teuchos::rcp(new Epetra_SerialComm(), true);
+      static Teuchos::RCP<Epetra_SerialComm> communicator = Teuchos::rcp(new Epetra_SerialComm(), true);
 #  endif
 
       return *communicator;
@@ -88,21 +82,17 @@ namespace Utilities
       // see if the communicator is in fact a
       // parallel MPI communicator; if so,
       // return a duplicate of it
-      const Epetra_MpiComm *mpi_comm =
-        dynamic_cast<const Epetra_MpiComm *>(&communicator);
+      const Epetra_MpiComm *mpi_comm = dynamic_cast<const Epetra_MpiComm *>(&communicator);
       if (mpi_comm != nullptr)
-        return new Epetra_MpiComm(
-          Utilities::MPI::duplicate_communicator(mpi_comm->GetMpiComm()));
+        return new Epetra_MpiComm(Utilities::MPI::duplicate_communicator(mpi_comm->GetMpiComm()));
 #  endif
 
       // if we don't support MPI, or if the
       // communicator in question was in fact
       // not an MPI communicator, return a
       // copy of the same object again
-      Assert(dynamic_cast<const Epetra_SerialComm *>(&communicator) != nullptr,
-             ExcInternalError());
-      return new Epetra_SerialComm(
-        dynamic_cast<const Epetra_SerialComm &>(communicator));
+      Assert(dynamic_cast<const Epetra_SerialComm *>(&communicator) != nullptr, ExcInternalError());
+      return new Epetra_SerialComm(dynamic_cast<const Epetra_SerialComm &>(communicator));
     }
 
 
@@ -151,20 +141,13 @@ namespace Utilities
           // elements in the
           // following constructor
           // call
-          return Epetra_Map(map.NumGlobalElements(),
-                            map.NumMyElements(),
-                            map.IndexBase(),
-                            comm);
+          return Epetra_Map(map.NumGlobalElements(), map.NumMyElements(), map.IndexBase(), comm);
         }
       else
         {
           // the range is not
           // contiguous
-          return Epetra_Map(map.NumGlobalElements(),
-                            map.NumMyElements(),
-                            map.MyGlobalElements(),
-                            0,
-                            comm);
+          return Epetra_Map(map.NumGlobalElements(), map.NumMyElements(), map.MyGlobalElements(), 0, comm);
         }
     }
   } // namespace Trilinos

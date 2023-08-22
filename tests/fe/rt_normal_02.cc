@@ -58,30 +58,25 @@
  */
 
 void
-evaluate_normal_component(const DoFHandler<2> &dof_handler,
-                          Vector<double> &     solution)
+evaluate_normal_component(const DoFHandler<2> &dof_handler, Vector<double> &solution)
 {
   // This quadrature rule determines the points, where the
   // continuity will be tested.
   QGauss<1>     quad(6);
-  Quadrature<2> qproject =
-    QProjector<2>::project_to_all_faces(ReferenceCells::Quadrilateral, quad);
+  Quadrature<2> qproject = QProjector<2>::project_to_all_faces(ReferenceCells::Quadrilateral, quad);
 
-  FEFaceValues<2> fe_v_face(
-    dof_handler.get_fe(),
-    quad,
-    UpdateFlags(update_values | update_quadrature_points | update_gradients |
-                update_normal_vectors | update_JxW_values));
+  FEFaceValues<2> fe_v_face(dof_handler.get_fe(),
+                            quad,
+                            UpdateFlags(update_values | update_quadrature_points | update_gradients |
+                                        update_normal_vectors | update_JxW_values));
 
   FEValues<2> fe_v(dof_handler.get_fe(),
                    qproject,
-                   UpdateFlags(update_values | update_quadrature_points |
-                               update_gradients | update_JxW_values));
+                   UpdateFlags(update_values | update_quadrature_points | update_gradients | update_JxW_values));
 
   FEValues<2> fe_v_n(dof_handler.get_fe(),
                      qproject,
-                     UpdateFlags(update_values | update_quadrature_points |
-                                 update_gradients | update_JxW_values));
+                     UpdateFlags(update_values | update_quadrature_points | update_gradients | update_JxW_values));
 
   const unsigned int n_q_face      = quad.size();
   const unsigned int n_q_proj      = qproject.size();
@@ -102,40 +97,35 @@ evaluate_normal_component(const DoFHandler<2> &dof_handler,
         {
           if (!cell->face(f)->at_boundary())
             {
-              deallog << "Testing face with center at "
-                      << cell->face(f)->center() << std::endl;
+              deallog << "Testing face with center at " << cell->face(f)->center() << std::endl;
 
               const QProjector<2>::DataSetDescriptor offset =
-                (QProjector<2>::DataSetDescriptor::face(
-                  ReferenceCells::Quadrilateral,
-                  f,
-                  cell->face_orientation(f),
-                  cell->face_flip(f),
-                  cell->face_rotation(f),
-                  quad.size()));
+                (QProjector<2>::DataSetDescriptor::face(ReferenceCells::Quadrilateral,
+                                                        f,
+                                                        cell->face_orientation(f),
+                                                        cell->face_flip(f),
+                                                        cell->face_rotation(f),
+                                                        quad.size()));
               fe_v_face.reinit(cell, f);
 
-              DoFHandler<2>::active_cell_iterator cell_n = cell->neighbor(f);
-              const unsigned int neighbor = cell->neighbor_of_neighbor(f);
+              DoFHandler<2>::active_cell_iterator cell_n   = cell->neighbor(f);
+              const unsigned int                  neighbor = cell->neighbor_of_neighbor(f);
               fe_v_n.reinit(cell_n);
 
               const QProjector<2>::DataSetDescriptor offset_n =
-                (QProjector<2>::DataSetDescriptor::face(
-                  cell_n->reference_cell(),
-                  neighbor,
-                  cell_n->face_orientation(neighbor),
-                  cell_n->face_flip(neighbor),
-                  cell_n->face_rotation(neighbor),
-                  quad.size()));
+                (QProjector<2>::DataSetDescriptor::face(cell_n->reference_cell(),
+                                                        neighbor,
+                                                        cell_n->face_orientation(neighbor),
+                                                        cell_n->face_flip(neighbor),
+                                                        cell_n->face_rotation(neighbor),
+                                                        quad.size()));
 
               // Get values from solution vector (For Trap.Rule)
-              std::vector<Vector<double>> this_value(
-                n_q_proj, Vector<double>(n_components));
+              std::vector<Vector<double>> this_value(n_q_proj, Vector<double>(n_components));
               fe_v.get_function_values(solution, this_value);
 
               // Same for neighbor cell
-              std::vector<Vector<double>> this_value_n(
-                n_q_proj, Vector<double>(n_components));
+              std::vector<Vector<double>> this_value_n(n_q_proj, Vector<double>(n_components));
               fe_v_n.get_function_values(solution, this_value_n);
 
               for (const auto q_point : fe_v_face.quadrature_point_indices())
@@ -144,18 +134,15 @@ evaluate_normal_component(const DoFHandler<2> &dof_handler,
                   const double       nx = n[0];
                   const double       ny = n[1];
 
-                  const Tensor<1, 2> u({this_value[q_point + offset](0),
-                                        this_value[q_point + offset](1)});
+                  const Tensor<1, 2> u({this_value[q_point + offset](0), this_value[q_point + offset](1)});
 
-                  const Tensor<1, 2> u_n({this_value_n[q_point + offset_n](0),
-                                          this_value_n[q_point + offset_n](1)});
+                  const Tensor<1, 2> u_n({this_value_n[q_point + offset_n](0), this_value_n[q_point + offset_n](1)});
 
                   const double un1 = u * n;
                   const double un2 = u_n * n;
 
-                  deallog << "  QP=" << q_point << ", error=" << (u - u_n) * n
-                          << ", u.n=" << un1 << ", u_neighbor.n=" << un2
-                          << std::endl;
+                  deallog << "  QP=" << q_point << ", error=" << (u - u_n) * n << ", u.n=" << un1
+                          << ", u_neighbor.n=" << un2 << std::endl;
 
                   Assert(std::fabs((u - u_n) * n) < 1e-12, ExcInternalError());
                 }

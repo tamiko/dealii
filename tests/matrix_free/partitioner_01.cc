@@ -38,9 +38,7 @@
 #include "../tests.h"
 
 
-template <int dim,
-          typename Number              = double,
-          typename VectorizedArrayType = VectorizedArray<Number>>
+template <int dim, typename Number = double, typename VectorizedArrayType = VectorizedArray<Number>>
 class Test
 {
 public:
@@ -59,35 +57,19 @@ public:
   run(unsigned int fe_degree, const FiniteElement<dim> &fe)
   {
     // test different update flags
-    run(
-      fe_degree,
-      fe,
-      MatrixFree<dim, Number, VectorizedArrayType>::DataAccessOnFaces::values);
-    run(fe_degree,
-        fe,
-        MatrixFree<dim, Number, VectorizedArrayType>::DataAccessOnFaces::
-          values_all_faces);
-    run(fe_degree,
-        fe,
-        MatrixFree<dim, Number, VectorizedArrayType>::DataAccessOnFaces::
-          gradients);
-    run(fe_degree,
-        fe,
-        MatrixFree<dim, Number, VectorizedArrayType>::DataAccessOnFaces::
-          gradients_all_faces);
-    run(fe_degree,
-        fe,
-        MatrixFree<dim, Number, VectorizedArrayType>::DataAccessOnFaces::
-          unspecified);
+    run(fe_degree, fe, MatrixFree<dim, Number, VectorizedArrayType>::DataAccessOnFaces::values);
+    run(fe_degree, fe, MatrixFree<dim, Number, VectorizedArrayType>::DataAccessOnFaces::values_all_faces);
+    run(fe_degree, fe, MatrixFree<dim, Number, VectorizedArrayType>::DataAccessOnFaces::gradients);
+    run(fe_degree, fe, MatrixFree<dim, Number, VectorizedArrayType>::DataAccessOnFaces::gradients_all_faces);
+    run(fe_degree, fe, MatrixFree<dim, Number, VectorizedArrayType>::DataAccessOnFaces::unspecified);
   }
 
 
 private:
   void
-  run(unsigned int              fe_degree,
-      const FiniteElement<dim> &fe,
-      typename MatrixFree<dim, Number, VectorizedArrayType>::DataAccessOnFaces
-        update_flag)
+  run(unsigned int                                                             fe_degree,
+      const FiniteElement<dim>                                                &fe,
+      typename MatrixFree<dim, Number, VectorizedArrayType>::DataAccessOnFaces update_flag)
   {
     this->fe_degree = fe_degree;
 
@@ -115,14 +97,10 @@ private:
     AffineConstraints<Number> constraint;
     constraint.close();
 
-    typename MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData
-      additional_data;
-    additional_data.tasks_parallel_scheme =
-      MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData::none;
-    additional_data.mapping_update_flags =
-      update_gradients | update_JxW_values | update_quadrature_points;
-    additional_data.mapping_update_flags_inner_faces =
-      update_gradients | update_JxW_values | update_quadrature_points;
+    typename MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData additional_data;
+    additional_data.tasks_parallel_scheme = MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData::none;
+    additional_data.mapping_update_flags  = update_gradients | update_JxW_values | update_quadrature_points;
+    additional_data.mapping_update_flags_inner_faces = update_gradients | update_JxW_values | update_quadrature_points;
     additional_data.mapping_update_flags_boundary_faces =
       update_gradients | update_JxW_values | update_quadrature_points;
     additional_data.mapping_update_flags_faces_by_cells =
@@ -151,9 +129,7 @@ private:
                      update_flag);
 
     deallog << "dst:" << std::endl;
-    for (unsigned int i = Utilities::pow(fe_degree + 1, dim);
-         i < 2 * Utilities::pow(fe_degree + 1, dim);
-         i++)
+    for (unsigned int i = Utilities::pow(fe_degree + 1, dim); i < 2 * Utilities::pow(fe_degree + 1, dim); i++)
       dst.begin()[i] = 0;
     for (unsigned int i = 0; i < 2 * Utilities::pow(fe_degree + 1, dim); ++i)
       deallog << static_cast<int>(dst[i]) << ' ';
@@ -162,7 +138,7 @@ private:
 
   void
   dummy_operation_1(const MatrixFree<dim, Number, VectorizedArrayType> &,
-                    VectorType &      dst,
+                    VectorType       &dst,
                     const VectorType &src,
                     const std::pair<unsigned int, unsigned int> &) const
   {
@@ -171,9 +147,7 @@ private:
       deallog << static_cast<int>(src[i]) << ' ';
     deallog << std::endl;
 
-    for (unsigned int i = Utilities::pow(fe_degree + 1, dim);
-         i < 2 * Utilities::pow(fe_degree + 1, dim);
-         i++)
+    for (unsigned int i = Utilities::pow(fe_degree + 1, dim); i < 2 * Utilities::pow(fe_degree + 1, dim); i++)
       dst.begin()[i] = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) + 1;
   }
 

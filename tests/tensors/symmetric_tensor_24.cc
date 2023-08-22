@@ -31,11 +31,8 @@ check()
   using S = SymmetricTensor<2, dim>;
   for (unsigned int i = 0; i < S::n_independent_components; ++i)
     {
-      deallog << i << "  --  " << S::unrolled_to_component_indices(i)
-              << std::endl;
-      AssertThrow(S::component_to_unrolled_index(
-                    S::unrolled_to_component_indices(i)) == i,
-                  ExcInternalError());
+      deallog << i << "  --  " << S::unrolled_to_component_indices(i) << std::endl;
+      AssertThrow(S::component_to_unrolled_index(S::unrolled_to_component_indices(i)) == i, ExcInternalError());
     }
 }
 

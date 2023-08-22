@@ -44,9 +44,7 @@ main()
   AssertThrow(t == transpose(t), ExcInternalError());
 
   // check norm of tensor
-  AssertThrow(std::fabs(t.norm() -
-                        std::sqrt(1. * 1 + 2 * 2 + 3 * 3 + 2 * 4 * 4 +
-                                  2 * 5 * 5 + 2 * 6 * 6)) < 1e-14,
+  AssertThrow(std::fabs(t.norm() - std::sqrt(1. * 1 + 2 * 2 + 3 * 3 + 2 * 4 * 4 + 2 * 5 * 5 + 2 * 6 * 6)) < 1e-14,
               ExcInternalError());
 
   deallog << "OK" << std::endl;

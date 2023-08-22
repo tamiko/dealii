@@ -39,8 +39,7 @@ namespace ArborXWrappers
 
   // ------------------- PointPredicate ------------------- //
   template <int dim, typename Number>
-  PointPredicate::PointPredicate(
-    const std::vector<dealii::Point<dim, Number>> &dim_points)
+  PointPredicate::PointPredicate(const std::vector<dealii::Point<dim, Number>> &dim_points)
   {
     const unsigned int size = dim_points.size();
     points.reserve(size);
@@ -67,17 +66,15 @@ namespace ArborXWrappers
 
 
   template <int dim, typename Number>
-  PointIntersectPredicate::PointIntersectPredicate(
-    const std::vector<dealii::Point<dim, Number>> &points)
+  PointIntersectPredicate::PointIntersectPredicate(const std::vector<dealii::Point<dim, Number>> &points)
     : PointPredicate(points)
   {}
 
 
 
   template <int dim, typename Number>
-  PointNearestPredicate::PointNearestPredicate(
-    const std::vector<dealii::Point<dim, Number>> &points,
-    const unsigned int                             n_nearest_neighbors)
+  PointNearestPredicate::PointNearestPredicate(const std::vector<dealii::Point<dim, Number>> &points,
+                                               const unsigned int                             n_nearest_neighbors)
     : PointPredicate(points)
     , n_nearest_neighbors(n_nearest_neighbors)
   {}
@@ -92,8 +89,7 @@ namespace ArborXWrappers
 
   // ------------------- BoundingBoxPredicate ------------------- //
   template <int dim, typename Number>
-  BoundingBoxPredicate::BoundingBoxPredicate(
-    const std::vector<dealii::BoundingBox<dim, Number>> &bb)
+  BoundingBoxPredicate::BoundingBoxPredicate(const std::vector<dealii::BoundingBox<dim, Number>> &bb)
   {
     const unsigned int size = bb.size();
     bounding_boxes.reserve(size);
@@ -101,16 +97,15 @@ namespace ArborXWrappers
     dealii::Point<3, float> max_corner_arborx(0., 0., 0.);
     for (unsigned int i = 0; i < size; ++i)
       {
-        auto boundary_points                  = bb[i].get_boundary_points();
-        dealii::Point<dim, Number> min_corner = boundary_points.first;
-        dealii::Point<dim, Number> max_corner = boundary_points.second;
+        auto                       boundary_points = bb[i].get_boundary_points();
+        dealii::Point<dim, Number> min_corner      = boundary_points.first;
+        dealii::Point<dim, Number> max_corner      = boundary_points.second;
         for (unsigned int d = 0; d < dim; ++d)
           {
             min_corner_arborx[d] = static_cast<float>(min_corner[d]);
             max_corner_arborx[d] = static_cast<float>(max_corner[d]);
           }
-        bounding_boxes.emplace_back(
-          std::make_pair(min_corner_arborx, max_corner_arborx));
+        bounding_boxes.emplace_back(std::make_pair(min_corner_arborx, max_corner_arborx));
       }
   }
 
@@ -158,9 +153,7 @@ namespace ArborXWrappers
 
   // ------------------- SpherePredicate ------------------- //
   template <int dim, typename Number>
-  SpherePredicate::SpherePredicate(
-    const std::vector<std::pair<dealii::Point<dim, Number>, Number>>
-      &dim_spheres)
+  SpherePredicate::SpherePredicate(const std::vector<std::pair<dealii::Point<dim, Number>, Number>> &dim_spheres)
   {
     const unsigned int size = dim_spheres.size();
     spheres.reserve(size);
@@ -168,8 +161,7 @@ namespace ArborXWrappers
       {
         // ArborX assumes that the center coordinates and the radius use float
         // and the sphere is 3d
-        spheres.emplace_back(to_3d_float_point(dim_spheres[i].first),
-                             static_cast<float>(dim_spheres[i].second));
+        spheres.emplace_back(to_3d_float_point(dim_spheres[i].first), static_cast<float>(dim_spheres[i].second));
       }
   }
 
@@ -202,7 +194,7 @@ namespace ArborXWrappers
   template <int dim, typename Number>
   SphereNearestPredicate::SphereNearestPredicate(
     const std::vector<std::pair<dealii::Point<dim, Number>, Number>> &spheres,
-    const unsigned int n_nearest_neighbors)
+    const unsigned int                                                n_nearest_neighbors)
     : SpherePredicate(spheres)
     , n_nearest_neighbors(n_nearest_neighbors)
   {}
@@ -265,8 +257,8 @@ namespace ArborX
   // ----------------- BoundingBox Primitives AccessTraits ----------------- //
   template <int dim, typename Number>
   std::size_t
-  AccessTraits<std::vector<dealii::BoundingBox<dim, Number>>, PrimitivesTag>::
-    size(const std::vector<dealii::BoundingBox<dim, Number>> &v)
+  AccessTraits<std::vector<dealii::BoundingBox<dim, Number>>, PrimitivesTag>::size(
+    const std::vector<dealii::BoundingBox<dim, Number>> &v)
   {
     return v.size();
   }
@@ -275,12 +267,13 @@ namespace ArborX
 
   template <int dim, typename Number>
   Box
-  AccessTraits<std::vector<dealii::BoundingBox<dim, Number>>, PrimitivesTag>::
-    get(const std::vector<dealii::BoundingBox<dim, Number>> &v, std::size_t i)
+  AccessTraits<std::vector<dealii::BoundingBox<dim, Number>>, PrimitivesTag>::get(
+    const std::vector<dealii::BoundingBox<dim, Number>> &v,
+    std::size_t                                          i)
   {
-    const auto boundary_points                  = v[i].get_boundary_points();
-    const dealii::Point<dim, Number> min_corner = boundary_points.first;
-    const dealii::Point<dim, Number> max_corner = boundary_points.second;
+    const auto                       boundary_points = v[i].get_boundary_points();
+    const dealii::Point<dim, Number> min_corner      = boundary_points.first;
+    const dealii::Point<dim, Number> max_corner      = boundary_points.second;
     // ArborX assumes that the bounding box coordinates use float and that the
     // bounding box is 3d
     return {to_arborx_point(min_corner), to_arborx_point(max_corner)};
@@ -291,9 +284,8 @@ namespace ArborX
   // ---------------------- Sphere Primitives AccessTraits ----------------- //
   template <int dim, typename Number>
   std::size_t
-  AccessTraits<std::vector<std::pair<dealii::Point<dim, Number>, Number>>,
-               PrimitivesTag>::
-    size(const std::vector<std::pair<dealii::Point<dim, Number>, Number>> &v)
+  AccessTraits<std::vector<std::pair<dealii::Point<dim, Number>, Number>>, PrimitivesTag>::size(
+    const std::vector<std::pair<dealii::Point<dim, Number>, Number>> &v)
   {
     return v.size();
   }
@@ -302,10 +294,9 @@ namespace ArborX
 
   template <int dim, typename Number>
   Sphere
-  AccessTraits<std::vector<std::pair<dealii::Point<dim, Number>, Number>>,
-               PrimitivesTag>::
-    get(const std::vector<std::pair<dealii::Point<dim, Number>, Number>> &v,
-        std::size_t                                                       i)
+  AccessTraits<std::vector<std::pair<dealii::Point<dim, Number>, Number>>, PrimitivesTag>::get(
+    const std::vector<std::pair<dealii::Point<dim, Number>, Number>> &v,
+    std::size_t                                                       i)
   {
     // ArborX assumes that the center coordinates and the radius use float and
     // the sphere is 3d

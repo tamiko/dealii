@@ -26,8 +26,7 @@ DEAL_II_NAMESPACE_OPEN
 namespace hp
 {
   template <int dim, int spacedim>
-  MappingCollection<dim, spacedim>::MappingCollection(
-    const Mapping<dim, spacedim> &mapping)
+  MappingCollection<dim, spacedim>::MappingCollection(const Mapping<dim, spacedim> &mapping)
   {
     this->push_back(mapping);
   }
@@ -35,8 +34,7 @@ namespace hp
 
 
   template <int dim, int spacedim>
-  MappingCollection<dim, spacedim>::MappingCollection(
-    const MappingCollection<dim, spacedim> &other)
+  MappingCollection<dim, spacedim>::MappingCollection(const MappingCollection<dim, spacedim> &other)
   {
     for (unsigned int i = 0; i < other.size(); ++i)
       push_back(other[i]);
@@ -46,11 +44,9 @@ namespace hp
 
   template <int dim, int spacedim>
   void
-  MappingCollection<dim, spacedim>::push_back(
-    const Mapping<dim, spacedim> &new_mapping)
+  MappingCollection<dim, spacedim>::push_back(const Mapping<dim, spacedim> &new_mapping)
   {
-    Collection<Mapping<dim, spacedim>>::push_back(
-      std::shared_ptr<const Mapping<dim, spacedim>>(new_mapping.clone()));
+    Collection<Mapping<dim, spacedim>>::push_back(std::shared_ptr<const Mapping<dim, spacedim>>(new_mapping.clone()));
   }
 
 } // namespace hp

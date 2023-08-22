@@ -59,8 +59,7 @@ public:
 
 template <int dim, int spacedim = dim>
 void
-test(const FiniteElement<dim, spacedim> &                       fe,
-     const std::function<void(Triangulation<dim, spacedim> &)> &fu)
+test(const FiniteElement<dim, spacedim> &fe, const std::function<void(Triangulation<dim, spacedim> &)> &fu)
 {
   Triangulation<dim, spacedim> tria;
   fu(tria);
@@ -69,9 +68,7 @@ test(const FiniteElement<dim, spacedim> &                       fe,
   dof_handler.distribute_dofs(fe);
 
   Vector<double> solution(dof_handler.n_dofs());
-  VectorTools::interpolate(dof_handler,
-                           RightHandSideFunction<dim>(fe.n_components()),
-                           solution);
+  VectorTools::interpolate(dof_handler, RightHandSideFunction<dim>(fe.n_components()), solution);
 
   static unsigned int counter = 0;
 
@@ -107,12 +104,8 @@ main()
   initlog();
 
   // test wedges
-  test<3, 3>(FE_WedgeP<3>(1), [](auto &tria) {
-    GridGenerator::subdivided_hyper_cube_with_wedges(tria, 1);
-  });
+  test<3, 3>(FE_WedgeP<3>(1), [](auto &tria) { GridGenerator::subdivided_hyper_cube_with_wedges(tria, 1); });
 
   // test pyramids
-  test<3, 3>(FE_PyramidP<3>(1), [](auto &tria) {
-    GridGenerator::subdivided_hyper_cube_with_pyramids(tria, 1);
-  });
+  test<3, 3>(FE_PyramidP<3>(1), [](auto &tria) { GridGenerator::subdivided_hyper_cube_with_pyramids(tria, 1); });
 }

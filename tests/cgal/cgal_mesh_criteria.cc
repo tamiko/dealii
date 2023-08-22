@@ -29,15 +29,10 @@
 using K         = CGAL::Exact_predicates_inexact_constructions_kernel;
 using CGALPoint = CGAL::Point_3<K>;
 using namespace CGALWrappers;
-using Mesh_domain =
-  CGAL::Polyhedral_mesh_domain_with_features_3<K,
-                                               CGAL::Surface_mesh<CGALPoint>>;
-using Tr = typename CGAL::
-  Mesh_triangulation_3<Mesh_domain, CGAL::Default, ConcurrencyTag>::type;
+using Mesh_domain   = CGAL::Polyhedral_mesh_domain_with_features_3<K, CGAL::Surface_mesh<CGALPoint>>;
+using Tr            = typename CGAL::Mesh_triangulation_3<Mesh_domain, CGAL::Default, ConcurrencyTag>::type;
 using Mesh_criteria = CGAL::Mesh_criteria_3<Tr>;
-using C3t3          = CGAL::Mesh_complex_3_in_triangulation_3<Tr,
-                                                     Mesh_domain::Corner_index,
-                                                     Mesh_domain::Curve_index>;
+using C3t3          = CGAL::Mesh_complex_3_in_triangulation_3<Tr, Mesh_domain::Corner_index, Mesh_domain::Curve_index>;
 
 void
 test()
@@ -54,13 +49,10 @@ test()
   data.cell_size = .5;
   cgal_surface_mesh_to_cgal_triangulation(sm, tria, data);
 
-  Assert(
-    n_intial_facets > tria.number_of_facets_in_complex(),
-    ExcMessage(
-      "The number of facets in the finer mesh must be greater than the number of facets in the coarse mesh."));
-  deallog << std::boolalpha
-          << (n_intial_facets > tria.number_of_facets_in_complex())
-          << std::endl;
+  Assert(n_intial_facets > tria.number_of_facets_in_complex(),
+         ExcMessage(
+           "The number of facets in the finer mesh must be greater than the number of facets in the coarse mesh."));
+  deallog << std::boolalpha << (n_intial_facets > tria.number_of_facets_in_complex()) << std::endl;
 }
 
 int

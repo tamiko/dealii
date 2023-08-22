@@ -45,8 +45,7 @@ check(Triangulation<2> &tria)
 
   // find the closes vertex to (1.,1.)
   // (default call to find_closest_vertex() without passing marked_vertices)
-  unsigned int closest_vertex =
-    GridTools::find_closest_vertex(tria, Point<2>(1., 1.));
+  unsigned int closest_vertex = GridTools::find_closest_vertex(tria, Point<2>(1., 1.));
 
   // mark the vertex closest to (1.,1.)
   marked_vertices[closest_vertex] = true;
@@ -58,16 +57,13 @@ check(Triangulation<2> &tria)
 
   if (c.state() != IteratorState::valid)
     {
-      deallog
-        << "The first call to the function find_active_cell_around_point()"
-        << std::endl
-        << "has returned an invalid iterator. This is good." << std::endl;
+      deallog << "The first call to the function find_active_cell_around_point()" << std::endl
+              << "has returned an invalid iterator. This is good." << std::endl;
     }
 
   // The default function call doesn't throw exceptions
   // for this use case
-  Triangulation<2>::active_cell_iterator cell =
-    GridTools::find_active_cell_around_point(tria, p);
+  Triangulation<2>::active_cell_iterator cell = GridTools::find_active_cell_around_point(tria, p);
 
   // check if the below function call actually finds appropriate cell
   Assert(p.distance(cell->center()) < cell->diameter() / 2, ExcInternalError());

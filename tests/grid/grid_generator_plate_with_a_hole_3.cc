@@ -37,8 +37,7 @@ test()
     new_center[d] = 0.;
 
   Triangulation<dim> triangulation;
-  GridGenerator::plate_with_a_hole(
-    triangulation, 0.4, 1., 0.1, 0.2, 0, 0, new_center, 0, 1, 1., 2, true);
+  GridGenerator::plate_with_a_hole(triangulation, 0.4, 1., 0.1, 0.2, 0, 0, new_center, 0, 1, 1., 2, true);
 
   triangulation.refine_global(1);
 
@@ -48,33 +47,29 @@ test()
   for (const auto &cell : triangulation.active_cell_iterators())
     for (const unsigned int face_n : GeometryInfo<dim>::face_indices())
       if (cell->face(face_n)->at_boundary())
-        boundary_faces.push_back(
-          std::make_tuple(cell->face(face_n)->center(),
-                          cell->face(face_n)->boundary_id(),
-                          cell->face(face_n)->manifold_id()));
+        boundary_faces.push_back(std::make_tuple(cell->face(face_n)->center(),
+                                                 cell->face(face_n)->boundary_id(),
+                                                 cell->face(face_n)->manifold_id()));
 
   // see dof_tools.cc internal::ComparisonHelper
-  std::sort(begin(boundary_faces),
-            end(boundary_faces),
-            [](const Tuple &t1, const Tuple &t2) {
-              const auto &b1 = std::get<1>(t1);
-              const auto &b2 = std::get<1>(t2);
-              if (b1 != b2)
-                return b1 < b2;
+  std::sort(begin(boundary_faces), end(boundary_faces), [](const Tuple &t1, const Tuple &t2) {
+    const auto &b1 = std::get<1>(t1);
+    const auto &b2 = std::get<1>(t2);
+    if (b1 != b2)
+      return b1 < b2;
 
-              const auto &p1 = std::get<0>(t1);
-              const auto &p2 = std::get<0>(t2);
+    const auto &p1 = std::get<0>(t1);
+    const auto &p2 = std::get<0>(t2);
 
-              for (unsigned int d = 0; d < dim; ++d)
-                if (std::abs(p1[d] - p2[d]) > 1e-8)
-                  return p1[d] < p2[d];
+    for (unsigned int d = 0; d < dim; ++d)
+      if (std::abs(p1[d] - p2[d]) > 1e-8)
+        return p1[d] < p2[d];
 
-              return std::get<2>(t1) < std::get<2>(t2);
-            });
+    return std::get<2>(t1) < std::get<2>(t2);
+  });
 
   for (const auto el : boundary_faces)
-    deallog << "center: " << std::get<0>(el)
-            << " boundary id: " << std::get<1>(el)
+    deallog << "center: " << std::get<0>(el) << " boundary id: " << std::get<1>(el)
             << " manifold id: " << std::get<2>(el) << std::endl;
 
   deallog << std::endl << std::endl;
@@ -82,8 +77,7 @@ test()
   unsigned int  index = 0;
   for (const auto &cell : triangulation.active_cell_iterators())
     {
-      deallog << "center: " << cell->center()
-              << " manifold id: " << cell->manifold_id() << std::endl;
+      deallog << "center: " << cell->center() << " manifold id: " << cell->manifold_id() << std::endl;
       manifold_id[index] = cell->manifold_id();
       index++;
     }
@@ -101,9 +95,8 @@ test()
       data_out.add_data_vector(manifold_id, "manifold_id");
       data_out.build_patches();
 
-      const std::string filename =
-        "output_" + Utilities::int_to_string(dim) + ".vtu";
-      std::ofstream output(filename);
+      const std::string filename = "output_" + Utilities::int_to_string(dim) + ".vtu";
+      std::ofstream     output(filename);
       data_out.write_vtu(output);
     }
 }

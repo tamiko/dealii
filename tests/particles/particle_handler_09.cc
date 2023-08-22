@@ -46,24 +46,21 @@ test()
   Particles::ParticleHandler<dim, spacedim> particle_handler(tr, mapping);
 
   const unsigned int n_points = 10;
-  const unsigned int my_cpu = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
-  const unsigned int n_cpus = Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
+  const unsigned int my_cpu   = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  const unsigned int n_cpus   = Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
   Testing::srand(my_cpu + 1);
 
   // Distribute the local points to the processor that owns them
   // on the triangulation
-  auto my_bounding_box = GridTools::compute_mesh_predicate_bounding_box(
-    tr, IteratorFilters::LocallyOwnedCell());
+  auto my_bounding_box = GridTools::compute_mesh_predicate_bounding_box(tr, IteratorFilters::LocallyOwnedCell());
 
-  auto global_bounding_boxes =
-    Utilities::MPI::all_gather(MPI_COMM_WORLD, my_bounding_box);
+  auto global_bounding_boxes = Utilities::MPI::all_gather(MPI_COMM_WORLD, my_bounding_box);
 
   std::vector<Point<spacedim>> points(n_points);
   for (auto &p : points)
     p = random_point<spacedim>();
 
-  auto cpu_to_index =
-    particle_handler.insert_global_particles(points, global_bounding_boxes);
+  auto cpu_to_index = particle_handler.insert_global_particles(points, global_bounding_boxes);
 
   for (auto p : cpu_to_index)
     if (my_cpu == p.first)
@@ -73,8 +70,7 @@ test()
       }
     else
       {
-        deallog << "On CPU " << my_cpu << ", we received from " << p.first
-                << " : ";
+        deallog << "On CPU " << my_cpu << ", we received from " << p.first << " : ";
         p.second.print(deallog);
       }
 }

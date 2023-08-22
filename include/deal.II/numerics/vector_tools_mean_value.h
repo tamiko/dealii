@@ -103,8 +103,7 @@ namespace VectorTools
    */
   template <typename VectorType>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
-  void subtract_mean_value(VectorType &             v,
-                           const std::vector<bool> &p_select = {});
+  void subtract_mean_value(VectorType &v, const std::vector<bool> &p_select = {});
 
   /**
    * Add the constant @p constant_adjustment to the specified
@@ -136,8 +135,8 @@ namespace VectorTools
    */
   template <typename VectorType, int dim, int spacedim = dim>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
-  void add_constant(VectorType &                          solution,
-                    const DoFHandler<dim, spacedim> &     dof_handler,
+  void add_constant(VectorType                           &solution,
+                    const DoFHandler<dim, spacedim>      &dof_handler,
                     const unsigned int                    component,
                     const typename VectorType::value_type constant_adjustment);
 
@@ -166,12 +165,11 @@ namespace VectorTools
    */
   template <int dim, typename Number, int spacedim>
   Number
-  compute_mean_value(
-    const hp::MappingCollection<dim, spacedim> &mapping_collection,
-    const DoFHandler<dim, spacedim> &           dof,
-    const hp::QCollection<dim> &                q_collection,
-    const ReadVector<Number> &                  v,
-    const unsigned int                          component);
+  compute_mean_value(const hp::MappingCollection<dim, spacedim> &mapping_collection,
+                     const DoFHandler<dim, spacedim>            &dof,
+                     const hp::QCollection<dim>                 &q_collection,
+                     const ReadVector<Number>                   &v,
+                     const unsigned int                          component);
 
   /**
    * Calls the other compute_mean_value() function, see above, for the non-hp
@@ -180,10 +178,10 @@ namespace VectorTools
    */
   template <int dim, typename Number, int spacedim>
   Number
-  compute_mean_value(const Mapping<dim, spacedim> &   mapping,
+  compute_mean_value(const Mapping<dim, spacedim>    &mapping,
                      const DoFHandler<dim, spacedim> &dof,
-                     const Quadrature<dim> &          quadrature,
-                     const ReadVector<Number> &       v,
+                     const Quadrature<dim>           &quadrature,
+                     const ReadVector<Number>        &v,
                      const unsigned int               component);
 
   /**
@@ -193,8 +191,8 @@ namespace VectorTools
   template <int dim, typename Number, int spacedim>
   Number
   compute_mean_value(const DoFHandler<dim, spacedim> &dof,
-                     const Quadrature<dim> &          quadrature,
-                     const ReadVector<Number> &       v,
+                     const Quadrature<dim>           &quadrature,
+                     const ReadVector<Number>        &v,
                      const unsigned int               component);
   /** @} */
 } // namespace VectorTools

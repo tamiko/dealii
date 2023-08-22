@@ -30,8 +30,7 @@ namespace Utilities
   {
     Handle::Handle()
     {
-      cusolverStatus_t cusolver_error_code =
-        cusolverDnCreate(&cusolver_dn_handle);
+      cusolverStatus_t cusolver_error_code = cusolverDnCreate(&cusolver_dn_handle);
       AssertCusolver(cusolver_error_code);
 
       cusolver_error_code = cusolverSpCreate(&cusolver_sp_handle);
@@ -45,8 +44,7 @@ namespace Utilities
 
     Handle::~Handle()
     {
-      cusolverStatus_t cusolver_error_code =
-        cusolverDnDestroy(cusolver_dn_handle);
+      cusolverStatus_t cusolver_error_code = cusolverDnDestroy(cusolver_dn_handle);
       AssertCusolver(cusolver_error_code);
 
       cusolver_error_code = cusolverSpDestroy(cusolver_sp_handle);

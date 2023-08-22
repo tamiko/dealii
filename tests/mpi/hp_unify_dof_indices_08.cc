@@ -56,16 +56,15 @@ template <int dim>
 void
 test()
 {
-  parallel::distributed::Triangulation<dim> triangulation(
-    MPI_COMM_WORLD, Triangulation<dim>::limit_level_difference_at_vertices);
+  parallel::distributed::Triangulation<dim> triangulation(MPI_COMM_WORLD,
+                                                          Triangulation<dim>::limit_level_difference_at_vertices);
 
   // First, read a complicated mesh
   GridIn<dim> gi;
   gi.attach_triangulation(triangulation);
   if (dim == 2)
     {
-      std::ifstream in(SOURCE_DIR
-                       "/../grid/grid_in_02/2d.xda"); // ~29k 2d cells
+      std::ifstream in(SOURCE_DIR "/../grid/grid_in_02/2d.xda"); // ~29k 2d cells
       gi.read_xda(in);
     }
   else
@@ -90,18 +89,13 @@ test()
   // that to build a hash value from it that is then used to assign an
   // active_fe_index
   DoFHandler<dim> dof_handler(triangulation);
-  for (const auto &cell : dof_handler.active_cell_iterators() |
-                            IteratorFilters::LocallyOwnedCell())
-    cell->set_active_fe_index(
-      (cell->active_cell_index() +
-       13 * cell->active_cell_index() * cell->active_cell_index()) %
-      fe.size());
+  for (const auto &cell : dof_handler.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+    cell->set_active_fe_index((cell->active_cell_index() + 13 * cell->active_cell_index() * cell->active_cell_index()) %
+                              fe.size());
   dof_handler.distribute_dofs(fe);
 
-  deallog << "n_globally_active_cells: "
-          << triangulation.n_global_active_cells() << std::endl;
-  deallog << "n_locally_owned_dofs: " << dof_handler.n_locally_owned_dofs()
-          << std::endl;
+  deallog << "n_globally_active_cells: " << triangulation.n_global_active_cells() << std::endl;
+  deallog << "n_locally_owned_dofs: " << dof_handler.n_locally_owned_dofs() << std::endl;
   deallog << "n_global_dofs: " << dof_handler.n_dofs() << std::endl;
 }
 

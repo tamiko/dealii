@@ -50,19 +50,13 @@ remove_datetime_and_convert_to_base64(const std::string &in, std::ostream &out)
   AssertThrow(date_pos_back != std::string::npos, ExcInternalError());
 
   std::ostringstream output_no_date_stream;
-  std::copy(in.begin(),
-            in.begin() + date_pos_front,
-            std::ostream_iterator<char>(output_no_date_stream));
-  std::copy(in.begin() + date_pos_back + 1,
-            in.end(),
-            std::ostream_iterator<char>(output_no_date_stream));
+  std::copy(in.begin(), in.begin() + date_pos_front, std::ostream_iterator<char>(output_no_date_stream));
+  std::copy(in.begin() + date_pos_back + 1, in.end(), std::ostream_iterator<char>(output_no_date_stream));
   const std::string output_not_b64 = output_no_date_stream.str();
 
   using namespace boost::archive::iterators;
   // convert to base64 with lines of length 72
-  using base64_text =
-    insert_linebreaks<base64_from_binary<transform_width<const char *, 6, 8>>,
-                      72>;
+  using base64_text = insert_linebreaks<base64_from_binary<transform_width<const char *, 6, 8>>, 72>;
 
   std::copy(base64_text(output_not_b64.c_str()),
             base64_text(output_not_b64.c_str() + output_not_b64.size()),
@@ -89,10 +83,7 @@ check(DataOutBase::DXFlags flags, std::ostream &out)
   names[4] = "i";
 
   std::vector<
-    std::tuple<unsigned int,
-               unsigned int,
-               std::string,
-               DataComponentInterpretation::DataComponentInterpretation>>
+    std::tuple<unsigned int, unsigned int, std::string, DataComponentInterpretation::DataComponentInterpretation>>
     vectors;
 
   std::ostringstream binary_out;
@@ -104,10 +95,7 @@ check(DataOutBase::DXFlags flags, std::ostream &out)
 
 template <int dim>
 void
-check_cont(unsigned int         ncells,
-           unsigned int         nsub,
-           DataOutBase::DXFlags flags,
-           std::ostream &       out)
+check_cont(unsigned int ncells, unsigned int nsub, DataOutBase::DXFlags flags, std::ostream &out)
 {
   std::vector<DataOutBase::Patch<dim, dim>> patches;
 
@@ -117,10 +105,7 @@ check_cont(unsigned int         ncells,
   names[0] = "CutOff";
 
   std::vector<
-    std::tuple<unsigned int,
-               unsigned int,
-               std::string,
-               DataComponentInterpretation::DataComponentInterpretation>>
+    std::tuple<unsigned int, unsigned int, std::string, DataComponentInterpretation::DataComponentInterpretation>>
     vectors;
 
   std::ostringstream binary_out;
@@ -138,52 +123,46 @@ check_all(std::ostream &log)
   std::ostream &out = log;
 
   char                 name[100];
-  const char *         format = "%d%d%s.dx";
+  const char          *format = "%d%d%s.dx";
   DataOutBase::DXFlags flags(false, false, false, false);
   if (dim == 2 && spacedim == 2)
     {
       sprintf(name, format, dim, spacedim, "ffffcont");
-      out << "==============================\n"
-          << name << "\n==============================\n";
+      out << "==============================\n" << name << "\n==============================\n";
       check_cont<dim>(4, 4, flags, out);
     }
   if (true)
     {
       sprintf(name, format, dim, spacedim, "ffff");
-      out << "==============================\n"
-          << name << "\n==============================\n";
+      out << "==============================\n" << name << "\n==============================\n";
       check<dim, spacedim>(flags, out);
     }
   flags.int_binary = true;
   if (true)
     {
       sprintf(name, format, dim, spacedim, "tfff");
-      out << "==============================\n"
-          << name << "\n==============================\n";
+      out << "==============================\n" << name << "\n==============================\n";
       check<dim, spacedim>(flags, out);
     }
   flags.coordinates_binary = true;
   if (true)
     {
       sprintf(name, format, dim, spacedim, "ttff");
-      out << "==============================\n"
-          << name << "\n==============================\n";
+      out << "==============================\n" << name << "\n==============================\n";
       check<dim, spacedim>(flags, out);
     }
   flags.data_binary = true;
   if (true)
     {
       sprintf(name, format, dim, spacedim, "tttf");
-      out << "==============================\n"
-          << name << "\n==============================\n";
+      out << "==============================\n" << name << "\n==============================\n";
       check<dim, spacedim>(flags, out);
     }
   flags.data_double = true;
   if (true)
     {
       sprintf(name, format, dim, spacedim, "tttf");
-      out << "==============================\n"
-          << name << "\n==============================\n";
+      out << "==============================\n" << name << "\n==============================\n";
       check<dim, spacedim>(flags, out);
     }
 }

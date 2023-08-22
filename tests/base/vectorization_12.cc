@@ -44,8 +44,7 @@ test()
 
   if (reference_stream.str() != test_stream.str())
     {
-      deallog << "Error: " << test_stream.str() << " should be "
-              << reference_stream.str() << std::endl;
+      deallog << "Error: " << test_stream.str() << " should be " << reference_stream.str() << std::endl;
       AssertThrow(false, ExcInternalError());
     }
   deallog << "OK" << std::endl;

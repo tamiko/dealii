@@ -55,12 +55,10 @@ test()
                                         Point<2>(3, 0)};
 
   const int  bit_depth = 2;
-  const auto res =
-    Utilities::inverse_Hilbert_space_filling_curve(points, bit_depth);
+  const auto res       = Utilities::inverse_Hilbert_space_filling_curve(points, bit_depth);
 
   for (const auto &p : res)
-    deallog << p[0] << ' ' << p[1] << ' '
-            << Utilities::pack_integers<2>(p, bit_depth) << std::endl;
+    deallog << p[0] << ' ' << p[1] << ' ' << Utilities::pack_integers<2>(p, bit_depth) << std::endl;
 }
 
 int

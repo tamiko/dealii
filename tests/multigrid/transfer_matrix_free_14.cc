@@ -46,10 +46,8 @@ check()
     MPI_COMM_WORLD,
     Triangulation<dim>::limit_level_difference_at_vertices,
     typename parallel::distributed::Triangulation<dim>::Settings(
-      parallel::distributed::Triangulation<
-        dim>::mesh_reconstruction_after_repartitioning |
-      parallel::distributed::Triangulation<
-        dim>::construct_multigrid_hierarchy));
+      parallel::distributed::Triangulation<dim>::mesh_reconstruction_after_repartitioning |
+      parallel::distributed::Triangulation<dim>::construct_multigrid_hierarchy));
 
   GridGenerator::hyper_cube(tr);
 

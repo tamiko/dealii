@@ -43,9 +43,7 @@ main(int argc, char *argv[])
   {
     const unsigned int dim = 2;
 
-    const auto cube_and_pyramid = [](Triangulation<dim> &tria) {
-      GridGenerator::cube_and_pyramid(tria, 1);
-    };
+    const auto cube_and_pyramid = [](Triangulation<dim> &tria) { GridGenerator::cube_and_pyramid(tria, 1); };
 
     for (unsigned int q = 1; q <= 4; ++q)
       for (unsigned int p = 1; p <= 2; ++p)
@@ -54,22 +52,10 @@ main(int argc, char *argv[])
             continue;
 
           deallog << "q_degree: " << q << ", p_degree: " << p << std::endl;
-          test<dim>({0, 1},
-                    {0, 1},
-                    hp::FECollection<dim>(FE_Q<dim>(q), FE_SimplexP<dim>(p)),
-                    cube_and_pyramid);
-          test<dim>({1, 0},
-                    {0, 1},
-                    hp::FECollection<dim>(FE_Q<dim>(q), FE_SimplexP<dim>(p)),
-                    cube_and_pyramid);
-          test<dim>({0, 1},
-                    {1, 0},
-                    hp::FECollection<dim>(FE_SimplexP<dim>(p), FE_Q<dim>(q)),
-                    cube_and_pyramid);
-          test<dim>({1, 0},
-                    {1, 0},
-                    hp::FECollection<dim>(FE_SimplexP<dim>(p), FE_Q<dim>(q)),
-                    cube_and_pyramid);
+          test<dim>({0, 1}, {0, 1}, hp::FECollection<dim>(FE_Q<dim>(q), FE_SimplexP<dim>(p)), cube_and_pyramid);
+          test<dim>({1, 0}, {0, 1}, hp::FECollection<dim>(FE_Q<dim>(q), FE_SimplexP<dim>(p)), cube_and_pyramid);
+          test<dim>({0, 1}, {1, 0}, hp::FECollection<dim>(FE_SimplexP<dim>(p), FE_Q<dim>(q)), cube_and_pyramid);
+          test<dim>({1, 0}, {1, 0}, hp::FECollection<dim>(FE_SimplexP<dim>(p), FE_Q<dim>(q)), cube_and_pyramid);
         }
   }
   deallog.pop();

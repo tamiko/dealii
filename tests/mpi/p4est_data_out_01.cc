@@ -78,8 +78,7 @@ test()
     Utilities::MPI::all_gather(MPI_COMM_WORLD, dofh.n_locally_owned_dofs());
   if (myid == 0)
     {
-      for (unsigned int i = 0; i < n_locally_owned_dofs_per_processor.size();
-           ++i)
+      for (unsigned int i = 0; i < n_locally_owned_dofs_per_processor.size(); ++i)
         deallog << n_locally_owned_dofs_per_processor[i] << std::endl;
       data_out.write_vtu(deallog.get_file_stream());
     }

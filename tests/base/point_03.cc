@@ -51,8 +51,7 @@ check()
   for (unsigned int v = 0; v < VectorizedArray<number>::size(); ++v)
     diff += std::abs(distance_vec[v]);
 
-  AssertThrow(diff < 2 * std::numeric_limits<number>::epsilon() *
-                       VectorizedArray<number>::size() *
+  AssertThrow(diff < 2 * std::numeric_limits<number>::epsilon() * VectorizedArray<number>::size() *
                        VectorizedArray<number>::size(),
               ExcMessage("diff is " + std::to_string(diff)));
 

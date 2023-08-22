@@ -28,10 +28,8 @@ template <typename VectorType>
 void
 prepare_vector(VectorType &v)
 {
-  const unsigned int myid =
-                       dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD),
-                     numproc =
-                       dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
+  const unsigned int myid    = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD),
+                     numproc = dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
 
   const unsigned int set = 200;
   AssertIndexRange(numproc, set - 2);
@@ -123,28 +121,20 @@ main(int argc, char **argv)
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

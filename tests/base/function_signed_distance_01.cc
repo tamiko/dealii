@@ -29,8 +29,7 @@ namespace
 {
   template <int dim>
   void
-  print_derivatives_at_point(const Function<dim> &function,
-                             const Point<dim> &   point)
+  print_derivatives_at_point(const Function<dim> &function, const Point<dim> &point)
   {
     deallog << "point = " << point << std::endl;
     deallog << "value = " << function.value(point) << std::endl;
@@ -68,8 +67,7 @@ namespace
     const Point<dim>     point_in_plane;
     const Tensor<1, dim> normal = Point<dim>::unit_vector(0);
 
-    const Functions::SignedDistance::Plane<dim> level_set(point_in_plane,
-                                                          normal);
+    const Functions::SignedDistance::Plane<dim> level_set(point_in_plane, normal);
 
     Point<dim> point;
     for (unsigned int i = 0; i < dim; ++i)

@@ -88,9 +88,7 @@ test(const unsigned int degree)
   dof_handler.distribute_dofs(fe);
   Vector<double> vector(dof_handler.n_dofs());
 
-  NonMatching::MappingInfo<dim, dim> mapping_info(mapping,
-                                                  update_values |
-                                                    update_gradients);
+  NonMatching::MappingInfo<dim, dim> mapping_info(mapping, update_values | update_gradients);
 
   FEPointEvaluation<dim, dim> evaluator(mapping_info, fe);
   FEPointEvaluation<dim, dim> evaluator2(mapping_info, fe);
@@ -104,27 +102,19 @@ test(const unsigned int degree)
 
   for (const auto &cell : dof_handler.active_cell_iterators())
     {
-      cell->get_dof_values(vector,
-                           solution_values.begin(),
-                           solution_values.end());
+      cell->get_dof_values(vector, solution_values.begin(), solution_values.end());
 
       mapping_info.reinit(cell, unit_points);
 
-      evaluator.evaluate(solution_values,
-                         EvaluationFlags::values | EvaluationFlags::gradients);
+      evaluator.evaluate(solution_values, EvaluationFlags::values | EvaluationFlags::gradients);
 
-      evaluator2.evaluate(solution_values,
-                          EvaluationFlags::values | EvaluationFlags::gradients);
+      evaluator2.evaluate(solution_values, EvaluationFlags::values | EvaluationFlags::gradients);
 
       deallog << "Cell with center " << cell->center(true) << std::endl;
       for (unsigned int i = 0; i < unit_points.size(); ++i)
-        deallog
-          << mapping.transform_unit_to_real_cell(cell, unit_points[i]) << ": "
-          << evaluator.get_value(i) << " error value "
-          << (evaluator.get_value(i) - evaluator2.get_value(i)).norm()
-          << " error grad "
-          << (evaluator.get_gradient(i) - evaluator2.get_gradient(i)).norm()
-          << std::endl;
+        deallog << mapping.transform_unit_to_real_cell(cell, unit_points[i]) << ": " << evaluator.get_value(i)
+                << " error value " << (evaluator.get_value(i) - evaluator2.get_value(i)).norm() << " error grad "
+                << (evaluator.get_gradient(i) - evaluator2.get_gradient(i)).norm() << std::endl;
       deallog << std::endl;
 
       for (unsigned int i = 0; i < unit_points.size(); ++i)
@@ -136,12 +126,8 @@ test(const unsigned int degree)
           evaluator2.submit_gradient(evaluator2.get_gradient(i), i);
         }
 
-      evaluator.test_and_sum(solution_values,
-                             EvaluationFlags::values |
-                               EvaluationFlags::gradients);
-      evaluator2.test_and_sum(solution_values2,
-                              EvaluationFlags::values |
-                                EvaluationFlags::gradients);
+      evaluator.test_and_sum(solution_values, EvaluationFlags::values | EvaluationFlags::gradients);
+      evaluator2.test_and_sum(solution_values2, EvaluationFlags::values | EvaluationFlags::gradients);
 
       for (unsigned int i = 0; i < solution_values.size(); ++i)
         deallog << solution_values[i] - solution_values2[i] << ' ';

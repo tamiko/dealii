@@ -36,8 +36,7 @@ test1()
         {
           tria.refine_global(2);
           deallog << dim << "d, "
-                  << "min diameter: " << GridTools::minimal_cell_diameter(tria)
-                  << std::endl;
+                  << "min diameter: " << GridTools::minimal_cell_diameter(tria) << std::endl;
         };
     };
 
@@ -52,8 +51,7 @@ test1()
         {
           tria.refine_global(2);
           deallog << dim << "d, "
-                  << "min diameter: " << GridTools::minimal_cell_diameter(tria)
-                  << std::endl;
+                  << "min diameter: " << GridTools::minimal_cell_diameter(tria) << std::endl;
         };
     };
 }

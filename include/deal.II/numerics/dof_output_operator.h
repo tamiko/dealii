@@ -54,8 +54,7 @@ namespace Algorithms
      * last step command. Numbers with less digits are filled with
      * zeros from the left.
      */
-    DoFOutputOperator(const std::string &filename_base = std::string("output"),
-                      const unsigned int digits        = 3);
+    DoFOutputOperator(const std::string &filename_base = std::string("output"), const unsigned int digits = 3);
 
     void
     parse_parameters(ParameterHandler &param);
@@ -66,9 +65,7 @@ namespace Algorithms
     operator<<(const AnyData &vectors) override;
 
   private:
-    SmartPointer<const DoFHandler<dim, spacedim>,
-                 DoFOutputOperator<VectorType, dim, spacedim>>
-      dof;
+    SmartPointer<const DoFHandler<dim, spacedim>, DoFOutputOperator<VectorType, dim, spacedim>> dof;
 
     const std::string  filename_base;
     const unsigned int digits;
@@ -78,8 +75,7 @@ namespace Algorithms
 
   template <typename VectorType, int dim, int spacedim>
   inline void
-  DoFOutputOperator<VectorType, dim, spacedim>::initialize(
-    const DoFHandler<dim, spacedim> &dof_handler)
+  DoFOutputOperator<VectorType, dim, spacedim>::initialize(const DoFHandler<dim, spacedim> &dof_handler)
   {
     dof = &dof_handler;
   }

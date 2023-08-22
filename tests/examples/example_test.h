@@ -50,26 +50,23 @@ cat_file(const char *filename)
  * steps.
  */
 
-#define check_solver_within_range(                                        \
-  OSTREAM, SolverType_COMMAND, CONTROL_COMMAND, MIN_ALLOWED, MAX_ALLOWED) \
-  {                                                                       \
-    try                                                                   \
-      {                                                                   \
-        SolverType_COMMAND;                                               \
-      }                                                                   \
-    catch (SolverControl::NoConvergence & exc)                            \
-      {}                                                                  \
-    const unsigned int steps = CONTROL_COMMAND;                           \
-    if (steps >= MIN_ALLOWED && steps <= MAX_ALLOWED)                     \
-      {                                                                   \
-        OSTREAM << "Solver stopped within " << MIN_ALLOWED << " - "       \
-                << MAX_ALLOWED << " iterations" << std::endl;             \
-      }                                                                   \
-    else                                                                  \
-      {                                                                   \
-        OSTREAM << "Solver stopped after " << steps << " iterations"      \
-                << std::endl;                                             \
-      }                                                                   \
+#define check_solver_within_range(OSTREAM, SolverType_COMMAND, CONTROL_COMMAND, MIN_ALLOWED, MAX_ALLOWED)         \
+  {                                                                                                               \
+    try                                                                                                           \
+      {                                                                                                           \
+        SolverType_COMMAND;                                                                                       \
+      }                                                                                                           \
+    catch (SolverControl::NoConvergence & exc)                                                                    \
+      {}                                                                                                          \
+    const unsigned int steps = CONTROL_COMMAND;                                                                   \
+    if (steps >= MIN_ALLOWED && steps <= MAX_ALLOWED)                                                             \
+      {                                                                                                           \
+        OSTREAM << "Solver stopped within " << MIN_ALLOWED << " - " << MAX_ALLOWED << " iterations" << std::endl; \
+      }                                                                                                           \
+    else                                                                                                          \
+      {                                                                                                           \
+        OSTREAM << "Solver stopped after " << steps << " iterations" << std::endl;                                \
+      }                                                                                                           \
   }
 
 

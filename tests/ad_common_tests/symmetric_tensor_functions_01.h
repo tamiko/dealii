@@ -33,8 +33,7 @@ template <int dim, typename number_t, enum AD::NumberTypes ad_type_code>
 void
 test_symmetric_tensor()
 {
-  using ADNumberType =
-    typename AD::NumberTraits<number_t, ad_type_code>::ad_type;
+  using ADNumberType = typename AD::NumberTraits<number_t, ad_type_code>::ad_type;
 
   std::cout << "*** Test SymmetricTensor functions, "
             << "dim = " << Utilities::to_string(dim) << ", "
@@ -42,14 +41,10 @@ test_symmetric_tensor()
 
   const ADNumberType                          a = 1.0;
   const Tensor<1, dim, ADNumberType>          v{};
-  const SymmetricTensor<2, dim, ADNumberType> A(
-    unit_symmetric_tensor<dim, ADNumberType>());
-  const SymmetricTensor<2, dim, ADNumberType> B(
-    unit_symmetric_tensor<dim, ADNumberType>());
-  const Tensor<2, dim, ADNumberType> A_ns(
-    unit_symmetric_tensor<dim, ADNumberType>());
-  const SymmetricTensor<4, dim, ADNumberType> HH(
-    identity_tensor<dim, ADNumberType>());
+  const SymmetricTensor<2, dim, ADNumberType> A(unit_symmetric_tensor<dim, ADNumberType>());
+  const SymmetricTensor<2, dim, ADNumberType> B(unit_symmetric_tensor<dim, ADNumberType>());
+  const Tensor<2, dim, ADNumberType>          A_ns(unit_symmetric_tensor<dim, ADNumberType>());
+  const SymmetricTensor<4, dim, ADNumberType> HH(identity_tensor<dim, ADNumberType>());
 
   const SymmetricTensor<2, dim, ADNumberType> C1 = A + B;
   const SymmetricTensor<2, dim, ADNumberType> C2 = A - B;

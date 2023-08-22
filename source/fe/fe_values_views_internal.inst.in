@@ -15,8 +15,7 @@
 
 #ifndef DOXYGEN
 
-for (S : ALL_SCALAR_TYPES; deal_II_dimension : DIMENSIONS;
-     deal_II_space_dimension : SPACE_DIMENSIONS)
+for (S : ALL_SCALAR_TYPES; deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS)
   {
 #  if deal_II_dimension <= deal_II_space_dimension
     namespace FEValuesViews
@@ -29,9 +28,7 @@ for (S : ALL_SCALAR_TYPES; deal_II_dimension : DIMENSIONS;
         do_function_values<deal_II_dimension, deal_II_space_dimension, S>(
           const ArrayView<const S> &,
           const Table<2, double> &,
-          const std::vector<Scalar<deal_II_dimension,
-                                   deal_II_space_dimension>::ShapeFunctionData>
-            &,
+          const std::vector<Scalar<deal_II_dimension, deal_II_space_dimension>::ShapeFunctionData> &,
           std::vector<ProductType<S, double>::type> &);
 
 
@@ -39,120 +36,79 @@ for (S : ALL_SCALAR_TYPES; deal_II_dimension : DIMENSIONS;
         do_function_laplacians<deal_II_dimension, deal_II_space_dimension, S>(
           const ArrayView<const S> &,
           const Table<2, dealii::Tensor<2, deal_II_space_dimension>> &,
-          const std::vector<Scalar<deal_II_dimension,
-                                   deal_II_space_dimension>::ShapeFunctionData>
-            &,
-          std::vector<Scalar<deal_II_dimension, deal_II_space_dimension>::
-                        template solution_laplacian_type<S>> &);
+          const std::vector<Scalar<deal_II_dimension, deal_II_space_dimension>::ShapeFunctionData> &,
+          std::vector<Scalar<deal_II_dimension, deal_II_space_dimension>::template solution_laplacian_type<S>> &);
 
         template void
         do_function_values<deal_II_dimension, deal_II_space_dimension, S>(
           const ArrayView<const S> &,
           const Table<2, double> &,
-          const std::vector<Vector<deal_II_dimension,
-                                   deal_II_space_dimension>::ShapeFunctionData>
-            &,
-          std::vector<
-            ProductType<S, dealii::Tensor<1, deal_II_space_dimension>>::type>
-            &);
+          const std::vector<Vector<deal_II_dimension, deal_II_space_dimension>::ShapeFunctionData> &,
+          std::vector<ProductType<S, dealii::Tensor<1, deal_II_space_dimension>>::type> &);
 
         template void
-        do_function_symmetric_gradients<deal_II_dimension,
-                                        deal_II_space_dimension,
-                                        S>(
+        do_function_symmetric_gradients<deal_II_dimension, deal_II_space_dimension, S>(
           const ArrayView<const S> &,
           const Table<2, dealii::Tensor<1, deal_II_space_dimension>> &,
-          const std::vector<Vector<deal_II_dimension,
-                                   deal_II_space_dimension>::ShapeFunctionData>
-            &,
-          std::vector<ProductType<
-            S,
-            dealii::SymmetricTensor<2, deal_II_space_dimension>>::type> &);
+          const std::vector<Vector<deal_II_dimension, deal_II_space_dimension>::ShapeFunctionData> &,
+          std::vector<ProductType<S, dealii::SymmetricTensor<2, deal_II_space_dimension>>::type> &);
 
         template void
         do_function_divergences<deal_II_dimension, deal_II_space_dimension, S>(
           const ArrayView<const S> &,
           const Table<2, dealii::Tensor<1, deal_II_space_dimension>> &,
-          const std::vector<Vector<deal_II_dimension,
-                                   deal_II_space_dimension>::ShapeFunctionData>
-            &,
-          std::vector<Vector<deal_II_dimension, deal_II_space_dimension>::
-                        template solution_divergence_type<S>> &);
+          const std::vector<Vector<deal_II_dimension, deal_II_space_dimension>::ShapeFunctionData> &,
+          std::vector<Vector<deal_II_dimension, deal_II_space_dimension>::template solution_divergence_type<S>> &);
 
         template void
         do_function_curls<deal_II_dimension, deal_II_space_dimension, S>(
           const ArrayView<const S> &,
           const Table<2, dealii::Tensor<1, deal_II_space_dimension>> &,
-          const std::vector<Vector<deal_II_dimension,
-                                   deal_II_space_dimension>::ShapeFunctionData>
-            &,
-          std::vector<ProductType<
-            S,
-            dealii::internal::CurlType<deal_II_space_dimension>::type>::type>
-            &);
+          const std::vector<Vector<deal_II_dimension, deal_II_space_dimension>::ShapeFunctionData> &,
+          std::vector<ProductType<S, dealii::internal::CurlType<deal_II_space_dimension>::type>::type> &);
 
         template void
         do_function_laplacians<deal_II_dimension, deal_II_space_dimension, S>(
           const ArrayView<const S> &,
           const Table<2, dealii::Tensor<2, deal_II_space_dimension>> &,
-          const std::vector<Vector<deal_II_dimension,
-                                   deal_II_space_dimension>::ShapeFunctionData>
-            &,
-          std::vector<Vector<deal_II_dimension, deal_II_space_dimension>::
-                        template solution_laplacian_type<S>> &);
+          const std::vector<Vector<deal_II_dimension, deal_II_space_dimension>::ShapeFunctionData> &,
+          std::vector<Vector<deal_II_dimension, deal_II_space_dimension>::template solution_laplacian_type<S>> &);
 
         template void
         do_function_values<deal_II_dimension, deal_II_space_dimension, S>(
           const ArrayView<const S> &,
           const dealii::Table<2, double> &,
-          const std::vector<
-            SymmetricTensor<2, deal_II_dimension, deal_II_space_dimension>::
-              ShapeFunctionData> &,
-          std::vector<ProductType<
-            S,
-            dealii::SymmetricTensor<2, deal_II_space_dimension>>::type> &);
+          const std::vector<SymmetricTensor<2, deal_II_dimension, deal_II_space_dimension>::ShapeFunctionData> &,
+          std::vector<ProductType<S, dealii::SymmetricTensor<2, deal_II_space_dimension>>::type> &);
 
         template void
         do_function_divergences<deal_II_dimension, deal_II_space_dimension, S>(
           const ArrayView<const S> &,
           const Table<2, dealii::Tensor<1, deal_II_space_dimension>> &,
-          const std::vector<
-            SymmetricTensor<2, deal_II_dimension, deal_II_space_dimension>::
-              ShapeFunctionData> &,
+          const std::vector<SymmetricTensor<2, deal_II_dimension, deal_II_space_dimension>::ShapeFunctionData> &,
           std::vector<
-            SymmetricTensor<2, deal_II_dimension, deal_II_space_dimension>::
-              template solution_divergence_type<S>> &);
+            SymmetricTensor<2, deal_II_dimension, deal_II_space_dimension>::template solution_divergence_type<S>> &);
 
         template void
         do_function_values<deal_II_dimension, deal_II_space_dimension, S>(
           const ArrayView<const S> &,
           const dealii::Table<2, double> &,
-          const std::vector<
-            Tensor<2, deal_II_dimension, deal_II_space_dimension>::
-              ShapeFunctionData> &,
-          std::vector<
-            ProductType<S, dealii::Tensor<2, deal_II_space_dimension>>::type>
-            &);
+          const std::vector<Tensor<2, deal_II_dimension, deal_II_space_dimension>::ShapeFunctionData> &,
+          std::vector<ProductType<S, dealii::Tensor<2, deal_II_space_dimension>>::type> &);
 
         template void
         do_function_divergences<deal_II_dimension, deal_II_space_dimension, S>(
           const ArrayView<const S> &,
           const Table<2, dealii::Tensor<1, deal_II_space_dimension>> &,
-          const std::vector<
-            Tensor<2, deal_II_dimension, deal_II_space_dimension>::
-              ShapeFunctionData> &,
-          std::vector<Tensor<2, deal_II_dimension, deal_II_space_dimension>::
-                        template solution_divergence_type<S>> &);
+          const std::vector<Tensor<2, deal_II_dimension, deal_II_space_dimension>::ShapeFunctionData> &,
+          std::vector<Tensor<2, deal_II_dimension, deal_II_space_dimension>::template solution_divergence_type<S>> &);
 
         template void
         do_function_gradients<deal_II_dimension, deal_II_space_dimension, S>(
           const ArrayView<const S> &,
           const Table<2, dealii::Tensor<1, deal_II_space_dimension>> &,
-          const std::vector<
-            Tensor<2, deal_II_dimension, deal_II_space_dimension>::
-              ShapeFunctionData> &,
-          std::vector<Tensor<2, deal_II_dimension, deal_II_space_dimension>::
-                        template solution_gradient_type<S>> &);
+          const std::vector<Tensor<2, deal_II_dimension, deal_II_space_dimension>::ShapeFunctionData> &,
+          std::vector<Tensor<2, deal_II_dimension, deal_II_space_dimension>::template solution_gradient_type<S>> &);
 
       \}
     \}
@@ -168,33 +124,18 @@ for (S : ALL_SCALAR_TYPES; deal_II_dimension : DIMENSIONS; ORDER : DIMENSIONS;
       namespace internal
       \{
         template void
-        do_function_derivatives<ORDER,
-                                deal_II_dimension,
-                                deal_II_space_dimension,
-                                S>(
+        do_function_derivatives<ORDER, deal_II_dimension, deal_II_space_dimension, S>(
           const ArrayView<const S> &,
           const Table<2, dealii::Tensor<ORDER, deal_II_space_dimension>> &,
-          const std::vector<Scalar<deal_II_dimension,
-                                   deal_II_space_dimension>::ShapeFunctionData>
-            &,
-          std::vector<
-            ProductType<S,
-                        dealii::Tensor<ORDER, deal_II_space_dimension>>::type>
-            &);
+          const std::vector<Scalar<deal_II_dimension, deal_II_space_dimension>::ShapeFunctionData> &,
+          std::vector<ProductType<S, dealii::Tensor<ORDER, deal_II_space_dimension>>::type> &);
 
         template void
-        do_function_derivatives<ORDER,
-                                deal_II_dimension,
-                                deal_II_space_dimension,
-                                S>(
+        do_function_derivatives<ORDER, deal_II_dimension, deal_II_space_dimension, S>(
           const ArrayView<const S> &,
           const Table<2, dealii::Tensor<ORDER, deal_II_space_dimension>> &,
-          const std::vector<Vector<deal_II_dimension,
-                                   deal_II_space_dimension>::ShapeFunctionData>
-            &,
-          std::vector<ProductType<
-            S,
-            dealii::Tensor<ORDER + 1, deal_II_space_dimension>>::type> &);
+          const std::vector<Vector<deal_II_dimension, deal_II_space_dimension>::ShapeFunctionData> &,
+          std::vector<ProductType<S, dealii::Tensor<ORDER + 1, deal_II_space_dimension>>::type> &);
       \}
     \}
 #  endif

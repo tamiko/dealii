@@ -76,10 +76,9 @@ DEAL_II_NAMESPACE_OPEN
 namespace Utilities
 {
   IndexSet
-  create_evenly_distributed_partitioning(
-    const unsigned int            my_partition_id,
-    const unsigned int            n_partitions,
-    const types::global_dof_index total_size)
+  create_evenly_distributed_partitioning(const unsigned int            my_partition_id,
+                                         const unsigned int            n_partitions,
+                                         const types::global_dof_index total_size)
   {
     static_assert(std::is_same_v<types::global_dof_index, IndexSet::size_type>,
                   "IndexSet::size_type must match types::global_dof_index for "
@@ -88,11 +87,9 @@ namespace Utilities
 
     const IndexSet::size_type min_size = total_size / n_partitions;
 
-    const IndexSet::size_type begin =
-      min_size * my_partition_id + std::min(my_partition_id, remain);
-    const IndexSet::size_type end =
-      min_size * (my_partition_id + 1) + std::min(my_partition_id + 1, remain);
-    IndexSet result(total_size);
+    const IndexSet::size_type begin = min_size * my_partition_id + std::min(my_partition_id, remain);
+    const IndexSet::size_type end   = min_size * (my_partition_id + 1) + std::min(my_partition_id + 1, remain);
+    IndexSet                  result(total_size);
     result.add_range(begin, end);
     return result;
   }
@@ -123,9 +120,7 @@ namespace Utilities
     min_max_avg(const double my_value, const MPI_Comm mpi_communicator)
     {
       MinMaxAvg result;
-      min_max_avg(ArrayView<const double>(my_value),
-                  ArrayView<MinMaxAvg>(result),
-                  mpi_communicator);
+      min_max_avg(ArrayView<const double>(my_value), ArrayView<MinMaxAvg>(result), mpi_communicator);
 
       return result;
     }
@@ -133,8 +128,7 @@ namespace Utilities
 
 
     std::vector<MinMaxAvg>
-    min_max_avg(const std::vector<double> &my_values,
-                const MPI_Comm             mpi_communicator)
+    min_max_avg(const std::vector<double> &my_values, const MPI_Comm mpi_communicator)
     {
       std::vector<MinMaxAvg> results(my_values.size());
       min_max_avg(my_values, results, mpi_communicator);
@@ -177,8 +171,7 @@ namespace Utilities
 
 
     std::vector<unsigned int>
-    mpi_processes_within_communicator(const MPI_Comm comm_large,
-                                      const MPI_Comm comm_small)
+    mpi_processes_within_communicator(const MPI_Comm comm_large, const MPI_Comm comm_small)
     {
       if (Utilities::MPI::job_supports_mpi() == false)
         return std::vector<unsigned int>{0};
@@ -187,8 +180,7 @@ namespace Utilities
       const unsigned int size = Utilities::MPI::n_mpi_processes(comm_small);
 
       std::vector<unsigned int> ranks(size);
-      const int                 ierr = MPI_Allgather(
-        &rank, 1, MPI_UNSIGNED, ranks.data(), 1, MPI_UNSIGNED, comm_small);
+      const int                 ierr = MPI_Allgather(&rank, 1, MPI_UNSIGNED, ranks.data(), 1, MPI_UNSIGNED, comm_small);
       AssertThrowMPI(ierr);
 
       return ranks;
@@ -218,10 +210,7 @@ namespace Utilities
 
 
     int
-    create_group(const MPI_Comm   comm,
-                 const MPI_Group &group,
-                 const int        tag,
-                 MPI_Comm *       new_comm)
+    create_group(const MPI_Comm comm, const MPI_Group &group, const int tag, MPI_Comm *new_comm)
     {
       const int ierr = MPI_Comm_create_group(comm, group, tag, new_comm);
       AssertThrowMPI(ierr);
@@ -231,19 +220,14 @@ namespace Utilities
 
 
     std::vector<IndexSet>
-    create_ascending_partitioning(
-      const MPI_Comm                comm,
-      const types::global_dof_index locally_owned_size)
+    create_ascending_partitioning(const MPI_Comm comm, const types::global_dof_index locally_owned_size)
     {
-      static_assert(
-        std::is_same_v<types::global_dof_index, IndexSet::size_type>,
-        "IndexSet::size_type must match types::global_dof_index for "
-        "using this function");
+      static_assert(std::is_same_v<types::global_dof_index, IndexSet::size_type>,
+                    "IndexSet::size_type must match types::global_dof_index for "
+                    "using this function");
       const unsigned int                     n_proc = n_mpi_processes(comm);
-      const std::vector<IndexSet::size_type> sizes =
-        all_gather(comm, locally_owned_size);
-      const auto total_size =
-        std::accumulate(sizes.begin(), sizes.end(), IndexSet::size_type(0));
+      const std::vector<IndexSet::size_type> sizes  = all_gather(comm, locally_owned_size);
+      const auto total_size = std::accumulate(sizes.begin(), sizes.end(), IndexSet::size_type(0));
 
       std::vector<IndexSet> res(n_proc, IndexSet(total_size));
 
@@ -260,16 +244,12 @@ namespace Utilities
 
 
     IndexSet
-    create_evenly_distributed_partitioning(
-      const MPI_Comm                comm,
-      const types::global_dof_index total_size)
+    create_evenly_distributed_partitioning(const MPI_Comm comm, const types::global_dof_index total_size)
     {
       const unsigned int this_proc = this_mpi_process(comm);
       const unsigned int n_proc    = n_mpi_processes(comm);
 
-      return Utilities::create_evenly_distributed_partitioning(this_proc,
-                                                               n_proc,
-                                                               total_size);
+      return Utilities::create_evenly_distributed_partitioning(this_proc, n_proc, total_size);
     }
 
 
@@ -278,7 +258,7 @@ namespace Utilities
     create_mpi_data_type_n_bytes(const std::size_t n_bytes)
     {
       MPI_Datatype result;
-      int ierr = LargeCount::Type_contiguous_c(n_bytes, MPI_BYTE, &result);
+      int          ierr = LargeCount::Type_contiguous_c(n_bytes, MPI_BYTE, &result);
       AssertThrowMPI(ierr);
       ierr = MPI_Type_commit(&result);
       AssertThrowMPI(ierr);
@@ -311,16 +291,13 @@ namespace Utilities
           }
       };
 
-      return std::unique_ptr<MPI_Datatype, void (*)(MPI_Datatype *)>(
-        new MPI_Datatype(result), deleter);
+      return std::unique_ptr<MPI_Datatype, void (*)(MPI_Datatype *)>(new MPI_Datatype(result), deleter);
     }
 
 
 
     std::vector<unsigned int>
-    compute_point_to_point_communication_pattern(
-      const MPI_Comm                   mpi_comm,
-      const std::vector<unsigned int> &destinations)
+    compute_point_to_point_communication_pattern(const MPI_Comm mpi_comm, const std::vector<unsigned int> &destinations)
     {
       const unsigned int myid    = Utilities::MPI::this_mpi_process(mpi_comm);
       const unsigned int n_procs = Utilities::MPI::n_mpi_processes(mpi_comm);
@@ -347,20 +324,16 @@ namespace Utilities
           {
             std::vector<unsigned int> my_destinations = destinations;
             std::sort(my_destinations.begin(), my_destinations.end());
-            return (std::adjacent_find(my_destinations.begin(),
-                                       my_destinations.end()) ==
-                    my_destinations.end());
+            return (std::adjacent_find(my_destinations.begin(), my_destinations.end()) == my_destinations.end());
           }
       }();
 
       // If all processes report that they have unique destinations,
       // then we can short-cut the process using a consensus algorithm (which
       // is implemented only for the case of unique destinations):
-      if (Utilities::MPI::min((my_destinations_are_unique ? 1 : 0), mpi_comm) ==
-          1)
+      if (Utilities::MPI::min((my_destinations_are_unique ? 1 : 0), mpi_comm) == 1)
         {
-          return ConsensusAlgorithms::nbx<char, char>(
-            destinations, {}, {}, {}, mpi_comm);
+          return ConsensusAlgorithms::nbx<char, char>(destinations, {}, {}, {}, mpi_comm);
         }
 
       // So we need to run a different algorithm, specifically one that
@@ -370,8 +343,7 @@ namespace Utilities
       static CollectiveMutex      mutex;
       CollectiveMutex::ScopedLock lock(mutex, mpi_comm);
 
-      const int mpi_tag =
-        internal::Tags::compute_point_to_point_communication_pattern;
+      const int mpi_tag = internal::Tags::compute_point_to_point_communication_pattern;
 
       // Calculate the number of messages to send to each process
       std::vector<unsigned int> dest_vector(n_procs);
@@ -382,8 +354,7 @@ namespace Utilities
       // by reducing with sum and then scattering the
       // results over all processes
       unsigned int n_recv_from;
-      const int    ierr = MPI_Reduce_scatter_block(
-        dest_vector.data(), &n_recv_from, 1, MPI_UNSIGNED, MPI_SUM, mpi_comm);
+      const int ierr = MPI_Reduce_scatter_block(dest_vector.data(), &n_recv_from, 1, MPI_UNSIGNED, MPI_SUM, mpi_comm);
 
       AssertThrowMPI(ierr);
 
@@ -391,14 +362,8 @@ namespace Utilities
       std::vector<MPI_Request> send_requests(destinations.size());
       for (const auto &el : destinations)
         {
-          const int ierr =
-            MPI_Isend(&myid,
-                      1,
-                      MPI_UNSIGNED,
-                      el,
-                      mpi_tag,
-                      mpi_comm,
-                      send_requests.data() + (&el - destinations.data()));
+          const int ierr = MPI_Isend(
+            &myid, 1, MPI_UNSIGNED, el, mpi_tag, mpi_comm, send_requests.data() + (&el - destinations.data()));
           AssertThrowMPI(ierr);
         }
 
@@ -409,21 +374,13 @@ namespace Utilities
       std::vector<unsigned int> origins(n_recv_from);
       for (auto &el : origins)
         {
-          const int ierr = MPI_Recv(&el,
-                                    1,
-                                    MPI_UNSIGNED,
-                                    MPI_ANY_SOURCE,
-                                    mpi_tag,
-                                    mpi_comm,
-                                    MPI_STATUS_IGNORE);
+          const int ierr = MPI_Recv(&el, 1, MPI_UNSIGNED, MPI_ANY_SOURCE, mpi_tag, mpi_comm, MPI_STATUS_IGNORE);
           AssertThrowMPI(ierr);
         }
 
       if (destinations.size() > 0)
         {
-          const int ierr = MPI_Waitall(destinations.size(),
-                                       send_requests.data(),
-                                       MPI_STATUSES_IGNORE);
+          const int ierr = MPI_Waitall(destinations.size(), send_requests.data(), MPI_STATUSES_IGNORE);
           AssertThrowMPI(ierr);
         }
 
@@ -433,9 +390,7 @@ namespace Utilities
 
 
     unsigned int
-    compute_n_point_to_point_communications(
-      const MPI_Comm                   mpi_comm,
-      const std::vector<unsigned int> &destinations)
+    compute_n_point_to_point_communications(const MPI_Comm mpi_comm, const std::vector<unsigned int> &destinations)
     {
       // Have a little function that checks if destinations provided
       // to the current process are unique:
@@ -443,34 +398,27 @@ namespace Utilities
         std::vector<unsigned int> my_destinations = destinations;
         const unsigned int        n_destinations  = my_destinations.size();
         std::sort(my_destinations.begin(), my_destinations.end());
-        my_destinations.erase(std::unique(my_destinations.begin(),
-                                          my_destinations.end()),
-                              my_destinations.end());
+        my_destinations.erase(std::unique(my_destinations.begin(), my_destinations.end()), my_destinations.end());
         return (my_destinations.size() == n_destinations);
       }();
 
       // If all processes report that they have unique destinations,
       // then we can short-cut the process using a consensus algorithm:
 
-      if (Utilities::MPI::min((my_destinations_are_unique ? 1 : 0), mpi_comm) ==
-          1)
+      if (Utilities::MPI::min((my_destinations_are_unique ? 1 : 0), mpi_comm) == 1)
         {
-          return ConsensusAlgorithms::nbx<char, char>(
-                   destinations, {}, {}, {}, mpi_comm)
-            .size();
+          return ConsensusAlgorithms::nbx<char, char>(destinations, {}, {}, {}, mpi_comm).size();
         }
       else
         {
-          const unsigned int n_procs =
-            Utilities::MPI::n_mpi_processes(mpi_comm);
+          const unsigned int n_procs = Utilities::MPI::n_mpi_processes(mpi_comm);
 
           for (const unsigned int destination : destinations)
             {
               (void)destination;
               AssertIndexRange(destination, n_procs);
               Assert(destination != Utilities::MPI::this_mpi_process(mpi_comm),
-                     ExcMessage(
-                       "There is no point in communicating with ourselves."));
+                     ExcMessage("There is no point in communicating with ourselves."));
             }
 
           // Calculate the number of messages to send to each process
@@ -482,12 +430,8 @@ namespace Utilities
           // MPI_Reduce_scatter(_block) does exactly this
           unsigned int n_recv_from = 0;
 
-          const int ierr = MPI_Reduce_scatter_block(dest_vector.data(),
-                                                    &n_recv_from,
-                                                    1,
-                                                    MPI_UNSIGNED,
-                                                    MPI_SUM,
-                                                    mpi_comm);
+          const int ierr =
+            MPI_Reduce_scatter_block(dest_vector.data(), &n_recv_from, 1, MPI_UNSIGNED, MPI_SUM, mpi_comm);
 
           AssertThrowMPI(ierr);
 
@@ -501,13 +445,10 @@ namespace Utilities
     {
       // custom MIP_Op for calculate_collective_mpi_min_max_avg
       void
-      max_reduce(const void *in_lhs_,
-                 void *      inout_rhs_,
-                 int *       len,
-                 MPI_Datatype *)
+      max_reduce(const void *in_lhs_, void *inout_rhs_, int *len, MPI_Datatype *)
       {
         const MinMaxAvg *in_lhs    = static_cast<const MinMaxAvg *>(in_lhs_);
-        MinMaxAvg *      inout_rhs = static_cast<MinMaxAvg *>(inout_rhs_);
+        MinMaxAvg       *inout_rhs = static_cast<MinMaxAvg *>(inout_rhs_);
 
         for (int i = 0; i < *len; ++i)
           {
@@ -543,7 +484,7 @@ namespace Utilities
 
     void
     min_max_avg(const ArrayView<const double> &my_values,
-                const ArrayView<MinMaxAvg> &   result,
+                const ArrayView<MinMaxAvg>    &result,
                 const MPI_Comm                 mpi_communicator)
     {
       // If MPI was not started, we have a serial computation and cannot run
@@ -572,14 +513,11 @@ namespace Utilities
 
         int lengths[] = {3, 2, 1};
 
-        MPI_Aint displacements[] = {0,
-                                    offsetof(MinMaxAvg, min_index),
-                                    offsetof(MinMaxAvg, avg)};
+        MPI_Aint displacements[] = {0, offsetof(MinMaxAvg, min_index), offsetof(MinMaxAvg, avg)};
 
         MPI_Datatype types[] = {MPI_DOUBLE, MPI_INT, MPI_DOUBLE};
 
-        int ierr =
-          MPI_Type_create_struct(3, lengths, displacements, types, &type);
+        int ierr = MPI_Type_create_struct(3, lengths, displacements, types, &type);
         AssertThrowMPI(ierr);
 
         ierr = MPI_Type_commit(&type);
@@ -603,10 +541,7 @@ namespace Utilities
       static MPI_Op op = []() {
         MPI_Op op;
 
-        int ierr =
-          MPI_Op_create(reinterpret_cast<MPI_User_function *>(&max_reduce),
-                        static_cast<int>(true),
-                        &op);
+        int ierr = MPI_Op_create(reinterpret_cast<MPI_User_function *>(&max_reduce), static_cast<int>(true), &op);
         AssertThrowMPI(ierr);
 
         /* Ensure that we free the allocated op again at the end of the
@@ -626,20 +561,13 @@ namespace Utilities
 
       // To avoid uninitialized values on some MPI implementations, provide
       // result with a default value already...
-      MinMaxAvg dummy = {0.,
-                         std::numeric_limits<double>::max(),
-                         std::numeric_limits<double>::lowest(),
-                         0,
-                         0,
-                         0.};
+      MinMaxAvg dummy = {0., std::numeric_limits<double>::max(), std::numeric_limits<double>::lowest(), 0, 0, 0.};
 
       for (auto &i : result)
         i = dummy;
 
-      const unsigned int my_id =
-        dealii::Utilities::MPI::this_mpi_process(mpi_communicator);
-      const unsigned int numproc =
-        dealii::Utilities::MPI::n_mpi_processes(mpi_communicator);
+      const unsigned int my_id   = dealii::Utilities::MPI::this_mpi_process(mpi_communicator);
+      const unsigned int numproc = dealii::Utilities::MPI::n_mpi_processes(mpi_communicator);
 
       std::vector<MinMaxAvg> in(my_values.size());
 
@@ -649,8 +577,7 @@ namespace Utilities
           in[i].min_index = in[i].max_index = my_id;
         }
 
-      int ierr = MPI_Allreduce(
-        in.data(), result.data(), my_values.size(), type, op, mpi_communicator);
+      int ierr = MPI_Allreduce(in.data(), result.data(), my_values.size(), type, op, mpi_communicator);
       AssertThrowMPI(ierr);
 
       for (auto &r : result)
@@ -685,17 +612,13 @@ namespace Utilities
 
 
     std::vector<IndexSet>
-    create_ascending_partitioning(
-      const MPI_Comm /*comm*/,
-      const types::global_dof_index locally_owned_size)
+    create_ascending_partitioning(const MPI_Comm /*comm*/, const types::global_dof_index locally_owned_size)
     {
       return std::vector<IndexSet>(1, complete_index_set(locally_owned_size));
     }
 
     IndexSet
-    create_evenly_distributed_partitioning(
-      const MPI_Comm /*comm*/,
-      const types::global_dof_index total_size)
+    create_evenly_distributed_partitioning(const MPI_Comm /*comm*/, const types::global_dof_index total_size)
     {
       return complete_index_set(total_size);
     }
@@ -710,15 +633,14 @@ namespace Utilities
 
 
 
-    void free_communicator(MPI_Comm /*mpi_communicator*/)
+    void
+    free_communicator(MPI_Comm /*mpi_communicator*/)
     {}
 
 
 
     void
-    min_max_avg(const ArrayView<const double> &my_values,
-                const ArrayView<MinMaxAvg> &   result,
-                const MPI_Comm)
+    min_max_avg(const ArrayView<const double> &my_values, const ArrayView<MinMaxAvg> &result, const MPI_Comm)
     {
       AssertDimension(my_values.size(), result.size());
 
@@ -736,13 +658,10 @@ namespace Utilities
 #endif
 
     /* Force initialization of static struct: */
-    MPI_InitFinalize::Signals MPI_InitFinalize::signals =
-      MPI_InitFinalize::Signals();
+    MPI_InitFinalize::Signals MPI_InitFinalize::signals = MPI_InitFinalize::Signals();
 
 
-    MPI_InitFinalize::MPI_InitFinalize(int &              argc,
-                                       char **&           argv,
-                                       const unsigned int max_num_threads)
+    MPI_InitFinalize::MPI_InitFinalize(int &argc, char **&argv, const unsigned int max_num_threads)
     {
       static bool constructor_has_already_run = false;
       (void)constructor_has_already_run;
@@ -758,8 +677,7 @@ namespace Utilities
       int MPI_has_been_started = 0;
       ierr                     = MPI_Initialized(&MPI_has_been_started);
       AssertThrowMPI(ierr);
-      AssertThrow(MPI_has_been_started == 0,
-                  ExcMessage("MPI error. You can only start MPI once!"));
+      AssertThrow(MPI_has_been_started == 0, ExcMessage("MPI error. You can only start MPI once!"));
 
       int provided;
       // this works like ierr = MPI_Init (&argc, &argv); but tells MPI that
@@ -877,16 +795,12 @@ namespace Utilities
           //
           // in calculating the length of the string, don't forget the
           // terminating \0 on C-style strings
-          const std::string  hostname = Utilities::System::get_hostname();
-          const unsigned int max_hostname_size =
-            Utilities::MPI::max(hostname.size() + 1, MPI_COMM_WORLD);
-          std::vector<char> hostname_array(max_hostname_size);
-          std::copy(hostname.c_str(),
-                    hostname.c_str() + hostname.size() + 1,
-                    hostname_array.begin());
+          const std::string  hostname          = Utilities::System::get_hostname();
+          const unsigned int max_hostname_size = Utilities::MPI::max(hostname.size() + 1, MPI_COMM_WORLD);
+          std::vector<char>  hostname_array(max_hostname_size);
+          std::copy(hostname.c_str(), hostname.c_str() + hostname.size() + 1, hostname_array.begin());
 
-          std::vector<char> all_hostnames(max_hostname_size *
-                                          MPI::n_mpi_processes(MPI_COMM_WORLD));
+          std::vector<char> all_hostnames(max_hostname_size * MPI::n_mpi_processes(MPI_COMM_WORLD));
           const int         ierr = MPI_Allgather(hostname_array.data(),
                                          max_hostname_size,
                                          MPI_CHAR,
@@ -900,10 +814,8 @@ namespace Utilities
           // instance the current process represents
           unsigned int n_local_processes   = 0;
           unsigned int nth_process_on_host = 0;
-          for (unsigned int i = 0; i < MPI::n_mpi_processes(MPI_COMM_WORLD);
-               ++i)
-            if (std::string(all_hostnames.data() + i * max_hostname_size) ==
-                hostname)
+          for (unsigned int i = 0; i < MPI::n_mpi_processes(MPI_COMM_WORLD); ++i)
+            if (std::string(all_hostnames.data() + i * max_hostname_size) == hostname)
               {
                 ++n_local_processes;
                 if (i <= MPI::this_mpi_process(MPI_COMM_WORLD))
@@ -920,10 +832,7 @@ namespace Utilities
           // needs to have at least one thread
           const unsigned int n_threads =
             std::max(MultithreadInfo::n_cores() / n_local_processes +
-                       (nth_process_on_host <=
-                            MultithreadInfo::n_cores() % n_local_processes ?
-                          1 :
-                          0),
+                       (nth_process_on_host <= MultithreadInfo::n_cores() % n_local_processes ? 1 : 0),
                      1U);
 #else
           const unsigned int n_threads = MultithreadInfo::n_cores();
@@ -951,10 +860,8 @@ namespace Utilities
     void
     MPI_InitFinalize::unregister_request(MPI_Request &request)
     {
-      Assert(
-        requests.find(&request) != requests.end(),
-        ExcMessage(
-          "You tried to call unregister_request() with an invalid request."));
+      Assert(requests.find(&request) != requests.end(),
+             ExcMessage("You tried to call unregister_request() with an invalid request."));
 
       requests.erase(&request);
     }
@@ -984,21 +891,15 @@ namespace Utilities
         }
 
       // Start with deal.II MPI vectors and delete vectors from the pools:
-      GrowingVectorMemory<
-        LinearAlgebra::distributed::Vector<double>>::release_unused_memory();
-      GrowingVectorMemory<LinearAlgebra::distributed::BlockVector<double>>::
-        release_unused_memory();
-      GrowingVectorMemory<
-        LinearAlgebra::distributed::Vector<float>>::release_unused_memory();
-      GrowingVectorMemory<LinearAlgebra::distributed::BlockVector<float>>::
-        release_unused_memory();
+      GrowingVectorMemory<LinearAlgebra::distributed::Vector<double>>::release_unused_memory();
+      GrowingVectorMemory<LinearAlgebra::distributed::BlockVector<double>>::release_unused_memory();
+      GrowingVectorMemory<LinearAlgebra::distributed::Vector<float>>::release_unused_memory();
+      GrowingVectorMemory<LinearAlgebra::distributed::BlockVector<float>>::release_unused_memory();
 
       // Next with Trilinos:
 #  ifdef DEAL_II_WITH_TRILINOS
-      GrowingVectorMemory<
-        TrilinosWrappers::MPI::Vector>::release_unused_memory();
-      GrowingVectorMemory<
-        TrilinosWrappers::MPI::BlockVector>::release_unused_memory();
+      GrowingVectorMemory<TrilinosWrappers::MPI::Vector>::release_unused_memory();
+      GrowingVectorMemory<TrilinosWrappers::MPI::BlockVector>::release_unused_memory();
 #  endif
 #endif
 
@@ -1008,10 +909,8 @@ namespace Utilities
 #ifdef DEAL_II_WITH_PETSC
       if (!PetscFinalizeCalled)
         {
-          GrowingVectorMemory<
-            PETScWrappers::MPI::Vector>::release_unused_memory();
-          GrowingVectorMemory<
-            PETScWrappers::MPI::BlockVector>::release_unused_memory();
+          GrowingVectorMemory<PETScWrappers::MPI::Vector>::release_unused_memory();
+          GrowingVectorMemory<PETScWrappers::MPI::BlockVector>::release_unused_memory();
         }
 #  ifdef DEAL_II_WITH_SLEPC
       // and now end SLEPc with PETSc if we did so
@@ -1084,16 +983,12 @@ namespace Utilities
 
 
     std::vector<unsigned int>
-    compute_index_owner(const IndexSet &owned_indices,
-                        const IndexSet &indices_to_look_up,
-                        const MPI_Comm  comm)
+    compute_index_owner(const IndexSet &owned_indices, const IndexSet &indices_to_look_up, const MPI_Comm comm)
     {
-      Assert(owned_indices.size() == indices_to_look_up.size(),
-             ExcMessage("IndexSets have to have the same sizes."));
+      Assert(owned_indices.size() == indices_to_look_up.size(), ExcMessage("IndexSets have to have the same sizes."));
 
-      Assert(
-        owned_indices.size() == Utilities::MPI::max(owned_indices.size(), comm),
-        ExcMessage("IndexSets have to have the same size on all processes."));
+      Assert(owned_indices.size() == Utilities::MPI::max(owned_indices.size(), comm),
+             ExcMessage("IndexSets have to have the same size on all processes."));
 
       std::vector<unsigned int> owning_ranks(indices_to_look_up.n_elements());
 
@@ -1102,17 +997,17 @@ namespace Utilities
       // dictionary, the index set is statically repartitioned among the
       // processes again and extended with information with the actual owner
       // of that the index.
-      internal::ComputeIndexOwner::ConsensusAlgorithmsPayload process(
-        owned_indices, indices_to_look_up, comm, owning_ranks);
+      internal::ComputeIndexOwner::ConsensusAlgorithmsPayload process(owned_indices,
+                                                                      indices_to_look_up,
+                                                                      comm,
+                                                                      owning_ranks);
 
       // Step 2: read dictionary
       // Communicate with the process who owns the index in the static
       // partition (i.e. in the dictionary). This process returns the actual
       // owner of the index.
-      ConsensusAlgorithms::Selector<
-        std::vector<
-          std::pair<types::global_dof_index, types::global_dof_index>>,
-        std::vector<unsigned int>>
+      ConsensusAlgorithms::Selector<std::vector<std::pair<types::global_dof_index, types::global_dof_index>>,
+                                    std::vector<unsigned int>>
         consensus_algorithm;
       consensus_algorithm.run(process, comm);
 
@@ -1140,17 +1035,15 @@ namespace Utilities
           if (std::uncaught_exception() == true)
 #  endif
             {
-              std::cerr
-                << "---------------------------------------------------------\n"
-                << "An exception was thrown inside a section of the program\n"
-                << "guarded by a CollectiveMutex.\n"
-                << "Because a CollectiveMutex guards critical communication\n"
-                << "handling the exception would likely\n"
-                << "deadlock because only the current process is aware of the\n"
-                << "exception. To prevent this deadlock, the program will be\n"
-                << "aborted.\n"
-                << "---------------------------------------------------------"
-                << std::endl;
+              std::cerr << "---------------------------------------------------------\n"
+                        << "An exception was thrown inside a section of the program\n"
+                        << "guarded by a CollectiveMutex.\n"
+                        << "Because a CollectiveMutex guards critical communication\n"
+                        << "handling the exception would likely\n"
+                        << "deadlock because only the current process is aware of the\n"
+                        << "exception. To prevent this deadlock, the program will be\n"
+                        << "aborted.\n"
+                        << "---------------------------------------------------------" << std::endl;
 
               MPI_Abort(MPI_COMM_WORLD, 1);
             }
@@ -1176,10 +1069,7 @@ namespace Utilities
       // if so, abort.
       internal::CollectiveMutexImplementation::check_exception();
 
-      Assert(
-        !locked,
-        ExcMessage(
-          "Error: MPI::CollectiveMutex is still locked while being destroyed!"));
+      Assert(!locked, ExcMessage("Error: MPI::CollectiveMutex is still locked while being destroyed!"));
 
       Utilities::MPI::MPI_InitFinalize::unregister_request(request);
     }
@@ -1191,10 +1081,7 @@ namespace Utilities
     {
       (void)comm;
 
-      Assert(
-        !locked,
-        ExcMessage(
-          "Error: MPI::CollectiveMutex needs to be unlocked before lock()"));
+      Assert(!locked, ExcMessage("Error: MPI::CollectiveMutex needs to be unlocked before lock()"));
 
 #ifdef DEAL_II_WITH_MPI
 
@@ -1232,10 +1119,7 @@ namespace Utilities
       // if so, abort. This can happen if a ScopedLock is destroyed.
       internal::CollectiveMutexImplementation::check_exception();
 
-      Assert(
-        locked,
-        ExcMessage(
-          "Error: MPI::CollectiveMutex needs to be locked before unlock()"));
+      Assert(locked, ExcMessage("Error: MPI::CollectiveMutex needs to be locked before unlock()"));
 
 #ifdef DEAL_II_WITH_MPI
 
@@ -1263,37 +1147,26 @@ namespace Utilities
 
     // booleans aren't in MPI_SCALARS
     template bool
-    reduce(const bool &,
-           const MPI_Comm,
-           const std::function<bool(const bool &, const bool &)> &,
-           const unsigned int);
+    reduce(const bool &, const MPI_Comm, const std::function<bool(const bool &, const bool &)> &, const unsigned int);
 
     template std::vector<bool>
     reduce(const std::vector<bool> &,
            const MPI_Comm,
-           const std::function<std::vector<bool>(const std::vector<bool> &,
-                                                 const std::vector<bool> &)> &,
+           const std::function<std::vector<bool>(const std::vector<bool> &, const std::vector<bool> &)> &,
            const unsigned int);
 
     template bool
-    all_reduce(const bool &,
-               const MPI_Comm,
-               const std::function<bool(const bool &, const bool &)> &);
+    all_reduce(const bool &, const MPI_Comm, const std::function<bool(const bool &, const bool &)> &);
 
     template std::vector<bool>
-    all_reduce(
-      const std::vector<bool> &,
-      const MPI_Comm,
-      const std::function<std::vector<bool>(const std::vector<bool> &,
-                                            const std::vector<bool> &)> &);
+    all_reduce(const std::vector<bool> &,
+               const MPI_Comm,
+               const std::function<std::vector<bool>(const std::vector<bool> &, const std::vector<bool> &)> &);
 
     // We need an explicit instantiation of this for the same reason as the
     // other types described in mpi.inst.in
     template void
-    internal::all_reduce<bool>(const MPI_Op &,
-                               const ArrayView<const bool> &,
-                               const MPI_Comm,
-                               const ArrayView<bool> &);
+    internal::all_reduce<bool>(const MPI_Op &, const ArrayView<const bool> &, const MPI_Comm, const ArrayView<bool> &);
 
 
     template bool
@@ -1301,14 +1174,11 @@ namespace Utilities
 
 
     template void
-    logical_or<bool>(const ArrayView<const bool> &,
-                     const MPI_Comm,
-                     const ArrayView<bool> &);
+    logical_or<bool>(const ArrayView<const bool> &, const MPI_Comm, const ArrayView<bool> &);
 
 
     template std::vector<unsigned int>
-    compute_set_union(const std::vector<unsigned int> &vec,
-                      const MPI_Comm                   comm);
+    compute_set_union(const std::vector<unsigned int> &vec, const MPI_Comm comm);
 
 
     template std::set<unsigned int>

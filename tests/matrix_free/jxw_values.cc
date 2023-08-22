@@ -47,10 +47,8 @@ test()
   // refine a few cells
   for (unsigned int i = 0; i < 10 - 3 * dim; ++i)
     {
-      typename Triangulation<dim>::active_cell_iterator cell =
-                                                          tria.begin_active(),
-                                                        endc = tria.end();
-      unsigned int counter                                   = 0;
+      typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
+      unsigned int                                      counter = 0;
       for (; cell != endc; ++cell, ++counter)
         if (counter % (7 - i) == 0)
           cell->set_refine_flag();
@@ -82,9 +80,7 @@ test()
   for (unsigned int cell = 0; cell < mf_data.n_cell_batches(); ++cell)
     {
       fe_eval.reinit(cell);
-      for (unsigned int v = 0;
-           v < mf_data.n_active_entries_per_cell_batch(cell);
-           ++v)
+      for (unsigned int v = 0; v < mf_data.n_active_entries_per_cell_batch(cell); ++v)
         {
           fe_values.reinit(mf_data.get_cell_iterator(cell, v));
           for (unsigned int q = 0; q < quad.size(); ++q)

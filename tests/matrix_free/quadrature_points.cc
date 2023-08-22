@@ -52,8 +52,7 @@ test()
   const SphericalManifold<dim> manifold;
   Triangulation<dim>           tria;
   GridGenerator::hyper_ball(tria);
-  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(),
-                                                    endc = tria.end();
+  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
   for (; cell != endc; ++cell)
     for (const unsigned int f : GeometryInfo<dim>::face_indices())
       if (cell->at_boundary(f))
@@ -85,32 +84,25 @@ test()
   double                       error_points = 0, abs_points = 0;
   const unsigned int           n_cells = mf_data.n_cell_batches();
   FEEvaluation<dim, fe_degree> fe_eval(mf_data);
-  FEValues<dim>                fe_values(mapping,
-                          fe,
-                          mf_data.get_quadrature(),
-                          update_quadrature_points);
+  FEValues<dim>                fe_values(mapping, fe, mf_data.get_quadrature(), update_quadrature_points);
 
   using vector_t = VectorizedArray<double>;
   for (unsigned int cell = 0; cell < n_cells; ++cell)
     {
       fe_eval.reinit(cell);
-      for (unsigned int j = 0;
-           j < mf_data.n_active_entries_per_cell_batch(cell);
-           ++j)
+      for (unsigned int j = 0; j < mf_data.n_active_entries_per_cell_batch(cell); ++j)
         {
           fe_values.reinit(mf_data.get_cell_iterator(cell, j));
           for (unsigned int q = 0; q < fe_eval.n_q_points; ++q)
             {
               abs_points += fe_values.quadrature_point(q).norm();
               for (unsigned int d = 0; d < dim; ++d)
-                error_points += std::fabs(fe_values.quadrature_point(q)[d] -
-                                          fe_eval.quadrature_point(q)[d][j]);
+                error_points += std::fabs(fe_values.quadrature_point(q)[d] - fe_eval.quadrature_point(q)[d][j]);
             }
         }
     }
 
-  deallog << "Norm of difference: " << error_points / abs_points << std::endl
-          << std::endl;
+  deallog << "Norm of difference: " << error_points / abs_points << std::endl << std::endl;
 }
 
 

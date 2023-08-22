@@ -41,9 +41,7 @@ main()
 {
   initlog();
 
-  ParsedConvergenceTable table({"u", "u", "p"},
-                               {{VectorTools::H1_norm},
-                                {VectorTools::L2_norm}});
+  ParsedConvergenceTable table({"u", "u", "p"}, {{VectorTools::H1_norm}, {VectorTools::L2_norm}});
 
   ParameterHandler prm;
   table.add_parameters(prm);

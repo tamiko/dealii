@@ -37,12 +37,11 @@ test()
   constexpr unsigned int n_blocks                     = 3;
   constexpr unsigned int n_indices_per_proc_and_block = 2;
 
-  const unsigned int n_indices_per_block =
-    n_indices_per_proc_and_block * n_procs;
+  const unsigned int n_indices_per_block = n_indices_per_proc_and_block * n_procs;
 
   // set up partitioning
-  std::vector<IndexSet> owned_indexsets;
-  std::vector<IndexSet> relevant_indexsets;
+  std::vector<IndexSet>                                           owned_indexsets;
+  std::vector<IndexSet>                                           relevant_indexsets;
   std::vector<std::shared_ptr<const Utilities::MPI::Partitioner>> partitioners;
   for (unsigned int b = 0; b < n_blocks; ++b)
     {
@@ -51,16 +50,12 @@ test()
       // indices.
 
       IndexSet owned(n_indices_per_block);
-      owned.add_range(n_indices_per_proc_and_block * myid,
-                      n_indices_per_proc_and_block * (myid + 1));
+      owned.add_range(n_indices_per_proc_and_block * myid, n_indices_per_proc_and_block * (myid + 1));
 
       IndexSet relevant(n_indices_per_block);
       relevant.add_range(1, 2);
 
-      partitioners.push_back(
-        std::make_shared<const Utilities::MPI::Partitioner>(owned,
-                                                            relevant,
-                                                            comm));
+      partitioners.push_back(std::make_shared<const Utilities::MPI::Partitioner>(owned, relevant, comm));
       owned_indexsets.push_back(std::move(owned));
       relevant_indexsets.push_back(std::move(relevant));
     }

@@ -39,15 +39,12 @@ test()
   GridGenerator::hyper_cube(tria, left, right, true);
 
   // setup periodic boundary conditions
-  std::vector<
-    GridTools::PeriodicFacePair<typename Triangulation<dim>::cell_iterator>>
-    periodicity_vector;
+  std::vector<GridTools::PeriodicFacePair<typename Triangulation<dim>::cell_iterator>> periodicity_vector;
 
   // for the hypercube faces
   unsigned int id1 = 0; // id of the left boundary
   unsigned int id2 = 1; // id of the right boundary boundary
-  GridTools::collect_periodic_faces(
-    tria, id1, id2, /*x-direction*/ 0, periodicity_vector);
+  GridTools::collect_periodic_faces(tria, id1, id2, /*x-direction*/ 0, periodicity_vector);
 
   tria.add_periodicity(periodicity_vector);
 
@@ -71,12 +68,10 @@ test()
       if (cell->has_periodic_neighbor(f))
         ++neighbor_count;
 
-  deallog << "Found " << neighbor_count << " faces with periodic neighbor"
-          << std::endl;
+  deallog << "Found " << neighbor_count << " faces with periodic neighbor" << std::endl;
 
   const unsigned int expected_neighbor_count =
-    Utilities::pow(2, (dim - 1) * (n_refinements - 1)) +
-    Utilities::pow(2, (dim - 1) * n_refinements);
+    Utilities::pow(2, (dim - 1) * (n_refinements - 1)) + Utilities::pow(2, (dim - 1) * n_refinements);
   AssertThrow(neighbor_count == expected_neighbor_count, ExcInternalError());
 }
 

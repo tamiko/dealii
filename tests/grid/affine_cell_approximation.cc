@@ -30,24 +30,18 @@ do_test(const Triangulation<dim, spacedim> &tria)
 {
   for (const auto &cell : tria.cell_iterators())
     {
-      std::array<Point<spacedim>, GeometryInfo<dim>::vertices_per_cell>
-        vertices;
+      std::array<Point<spacedim>, GeometryInfo<dim>::vertices_per_cell> vertices;
       for (const unsigned int v : cell->vertex_indices())
         vertices[v] = cell->vertex(v);
-      deallog << "Cell " << cell->id() << " with center " << cell->center()
-              << ": A = [";
-      const auto A =
-        GridTools::affine_cell_approximation<dim, spacedim>(vertices).first;
+      deallog << "Cell " << cell->id() << " with center " << cell->center() << ": A = [";
+      const auto A = GridTools::affine_cell_approximation<dim, spacedim>(vertices).first;
       for (unsigned int d = 0; d < spacedim; ++d)
         {
           for (unsigned int e = 0; e < dim; ++e)
             deallog << A[d][e] << (e < dim - 1 ? " " : "");
           deallog << (d < spacedim - 1 ? ", " : "");
         }
-      deallog
-        << "] b = "
-        << GridTools::affine_cell_approximation<dim, spacedim>(vertices).second
-        << std::endl;
+      deallog << "] b = " << GridTools::affine_cell_approximation<dim, spacedim>(vertices).second << std::endl;
     }
 }
 

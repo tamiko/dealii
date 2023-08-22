@@ -159,8 +159,7 @@ main(int argc, char *argv[])
   check_ghosted_parallel<TrilinosWrappers::MPI::Vector>();
 
   // block vectors:
-  check_ghosted_parallel_block<
-    LinearAlgebra::distributed::BlockVector<double>>();
+  check_ghosted_parallel_block<LinearAlgebra::distributed::BlockVector<double>>();
   check_ghosted_parallel_block<PETScWrappers::MPI::BlockVector>();
   check_ghosted_parallel_block<TrilinosWrappers::MPI::BlockVector>();
 }

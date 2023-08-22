@@ -37,8 +37,7 @@ namespace hp
 
 
   template <int dim, int spacedim>
-  FECollection<dim, spacedim>::FECollection(
-    const FiniteElement<dim, spacedim> &fe)
+  FECollection<dim, spacedim>::FECollection(const FiniteElement<dim, spacedim> &fe)
     : FECollection()
   {
     push_back(fe);
@@ -47,12 +46,10 @@ namespace hp
 
 
   template <int dim, int spacedim>
-  FECollection<dim, spacedim>::FECollection(
-    const std::vector<const FiniteElement<dim, spacedim> *> &fes)
+  FECollection<dim, spacedim>::FECollection(const std::vector<const FiniteElement<dim, spacedim> *> &fes)
     : FECollection()
   {
-    Assert(fes.size() > 0,
-           ExcMessage("Need to pass at least one finite element."));
+    Assert(fes.size() > 0, ExcMessage("Need to pass at least one finite element."));
 
     for (unsigned int i = 0; i < fes.size(); ++i)
       push_back(*fes[i]);
@@ -62,14 +59,12 @@ namespace hp
 
   template <int dim, int spacedim>
   void
-  FECollection<dim, spacedim>::push_back(
-    const FiniteElement<dim, spacedim> &new_fe)
+  FECollection<dim, spacedim>::push_back(const FiniteElement<dim, spacedim> &new_fe)
   {
     // check that the new element has the right number of components. only check
     // with the first element, since all the other elements have already passed
     // the test against the first element
-    Assert(this->size() == 0 ||
-             new_fe.n_components() == this->operator[](0).n_components(),
+    Assert(this->size() == 0 || new_fe.n_components() == this->operator[](0).n_components(),
            ExcMessage("All elements inside a collection need to have the "
                       "same number of vector components!"));
 
@@ -93,18 +88,15 @@ namespace hp
     //   not recreated.
     // - The second FECollection is then resized by adding a new FE. The shared
     //   map is thus invalid for the second instance.
-    if (!reference_cell_default_linear_mapping ||
-        reference_cell_default_linear_mapping->size() != this->size())
+    if (!reference_cell_default_linear_mapping || reference_cell_default_linear_mapping->size() != this->size())
       {
         auto &this_nc = const_cast<FECollection<dim, spacedim> &>(*this);
 
-        this_nc.reference_cell_default_linear_mapping =
-          std::make_shared<MappingCollection<dim, spacedim>>();
+        this_nc.reference_cell_default_linear_mapping = std::make_shared<MappingCollection<dim, spacedim>>();
 
         for (const auto &fe : *this)
           this_nc.reference_cell_default_linear_mapping->push_back(
-            fe.reference_cell()
-              .template get_default_linear_mapping<dim, spacedim>());
+            fe.reference_cell().template get_default_linear_mapping<dim, spacedim>());
       }
 
     return *reference_cell_default_linear_mapping;
@@ -114,9 +106,7 @@ namespace hp
 
   template <int dim, int spacedim>
   std::set<unsigned int>
-  FECollection<dim, spacedim>::find_common_fes(
-    const std::set<unsigned int> &fes,
-    const unsigned int            codim) const
+  FECollection<dim, spacedim>::find_common_fes(const std::set<unsigned int> &fes, const unsigned int codim) const
   {
 #ifdef DEBUG
     // Validate user inputs.
@@ -133,13 +123,10 @@ namespace hp
     for (unsigned int current_fe = 0; current_fe < this->size(); ++current_fe)
       {
         // Check if current_fe can dominate all elements in @p fes.
-        FiniteElementDomination::Domination domination =
-          FiniteElementDomination::no_requirements;
+        FiniteElementDomination::Domination domination = FiniteElementDomination::no_requirements;
         for (const auto &other_fe : fes)
           domination =
-            domination &
-            this->operator[](current_fe)
-              .compare_for_domination(this->operator[](other_fe), codim);
+            domination & this->operator[](current_fe).compare_for_domination(this->operator[](other_fe), codim);
 
         // If current_fe dominates, add it to the set.
         if ((domination == FiniteElementDomination::this_element_dominates) ||
@@ -154,9 +141,7 @@ namespace hp
 
   template <int dim, int spacedim>
   std::set<unsigned int>
-  FECollection<dim, spacedim>::find_enclosing_fes(
-    const std::set<unsigned int> &fes,
-    const unsigned int            codim) const
+  FECollection<dim, spacedim>::find_enclosing_fes(const std::set<unsigned int> &fes, const unsigned int codim) const
   {
 #ifdef DEBUG
     // Validate user inputs.
@@ -173,13 +158,10 @@ namespace hp
     for (unsigned int current_fe = 0; current_fe < this->size(); ++current_fe)
       {
         // Check if current_fe is dominated by all other elements in @p fes.
-        FiniteElementDomination::Domination domination =
-          FiniteElementDomination::no_requirements;
+        FiniteElementDomination::Domination domination = FiniteElementDomination::no_requirements;
         for (const auto &other_fe : fes)
           domination =
-            domination &
-            this->operator[](current_fe)
-              .compare_for_domination(this->operator[](other_fe), codim);
+            domination & this->operator[](current_fe).compare_for_domination(this->operator[](other_fe), codim);
 
         // If current_fe is dominated, add it to the set.
         if ((domination == FiniteElementDomination::other_element_dominates) ||
@@ -194,9 +176,7 @@ namespace hp
 
   template <int dim, int spacedim>
   unsigned int
-  FECollection<dim, spacedim>::find_dominating_fe(
-    const std::set<unsigned int> &fes,
-    const unsigned int            codim) const
+  FECollection<dim, spacedim>::find_dominating_fe(const std::set<unsigned int> &fes, const unsigned int codim) const
   {
     // If the set of elements contains only a single element,
     // then this very element is considered to be the dominating one.
@@ -217,14 +197,11 @@ namespace hp
     for (const auto &current_fe : fes)
       {
         // Check if current_fe can dominate all elements in @p fes.
-        FiniteElementDomination::Domination domination =
-          FiniteElementDomination::no_requirements;
+        FiniteElementDomination::Domination domination = FiniteElementDomination::no_requirements;
         for (const auto &other_fe : fes)
           if (current_fe != other_fe)
             domination =
-              domination &
-              this->operator[](current_fe)
-                .compare_for_domination(this->operator[](other_fe), codim);
+              domination & this->operator[](current_fe).compare_for_domination(this->operator[](other_fe), codim);
 
         // If current_fe dominates, return its index.
         if ((domination == FiniteElementDomination::this_element_dominates) ||
@@ -241,9 +218,7 @@ namespace hp
 
   template <int dim, int spacedim>
   unsigned int
-  FECollection<dim, spacedim>::find_dominated_fe(
-    const std::set<unsigned int> &fes,
-    const unsigned int            codim) const
+  FECollection<dim, spacedim>::find_dominated_fe(const std::set<unsigned int> &fes, const unsigned int codim) const
   {
     // If the set of elements contains only a single element,
     // then this very element is considered to be the dominated one.
@@ -264,14 +239,11 @@ namespace hp
     for (const auto &current_fe : fes)
       {
         // Check if current_fe is dominated by all other elements in @p fes.
-        FiniteElementDomination::Domination domination =
-          FiniteElementDomination::no_requirements;
+        FiniteElementDomination::Domination domination = FiniteElementDomination::no_requirements;
         for (const auto &other_fe : fes)
           if (current_fe != other_fe)
             domination =
-              domination &
-              this->operator[](current_fe)
-                .compare_for_domination(this->operator[](other_fe), codim);
+              domination & this->operator[](current_fe).compare_for_domination(this->operator[](other_fe), codim);
 
         // If current_fe is dominated, return its index.
         if ((domination == FiniteElementDomination::other_element_dominates) ||
@@ -288,17 +260,15 @@ namespace hp
 
   template <int dim, int spacedim>
   unsigned int
-  FECollection<dim, spacedim>::find_dominating_fe_extended(
-    const std::set<unsigned int> &fes,
-    const unsigned int            codim) const
+  FECollection<dim, spacedim>::find_dominating_fe_extended(const std::set<unsigned int> &fes,
+                                                           const unsigned int            codim) const
   {
     unsigned int fe_index = find_dominating_fe(fes, codim);
 
     if (fe_index == numbers::invalid_fe_index)
       {
-        const std::set<unsigned int> dominating_fes =
-          find_common_fes(fes, codim);
-        fe_index = find_dominated_fe(dominating_fes, codim);
+        const std::set<unsigned int> dominating_fes = find_common_fes(fes, codim);
+        fe_index                                    = find_dominated_fe(dominating_fes, codim);
       }
 
     return fe_index;
@@ -308,17 +278,15 @@ namespace hp
 
   template <int dim, int spacedim>
   unsigned int
-  FECollection<dim, spacedim>::find_dominated_fe_extended(
-    const std::set<unsigned int> &fes,
-    const unsigned int            codim) const
+  FECollection<dim, spacedim>::find_dominated_fe_extended(const std::set<unsigned int> &fes,
+                                                          const unsigned int            codim) const
   {
     unsigned int fe_index = find_dominated_fe(fes, codim);
 
     if (fe_index == numbers::invalid_fe_index)
       {
-        const std::set<unsigned int> dominated_fes =
-          find_enclosing_fes(fes, codim);
-        fe_index = find_dominating_fe(dominated_fes, codim);
+        const std::set<unsigned int> dominated_fes = find_enclosing_fes(fes, codim);
+        fe_index                                   = find_dominating_fe(dominated_fes, codim);
       }
 
     return fe_index;
@@ -335,9 +303,8 @@ namespace hp
     std::vector<std::map<unsigned int, unsigned int>>
     compute_hp_dof_identities(
       const std::set<unsigned int> &fes,
-      const std::function<std::vector<std::pair<unsigned int, unsigned int>>(
-        const unsigned int,
-        const unsigned int)> &      query_identities)
+      const std::function<std::vector<std::pair<unsigned int, unsigned int>>(const unsigned int, const unsigned int)>
+        &query_identities)
     {
       // Let's deal with the easy cases first. If the set of fe indices is empty
       // or has only one entry, then there are no identities:
@@ -349,10 +316,9 @@ namespace hp
       // need. We just need to prefix its output with the respective fe indices:
       if (fes.size() == 2)
         {
-          const unsigned int fe_index_1 = *fes.begin();
-          const unsigned int fe_index_2 = *(++fes.begin());
-          const auto         reduced_identities =
-            query_identities(fe_index_1, fe_index_2);
+          const unsigned int fe_index_1         = *fes.begin();
+          const unsigned int fe_index_2         = *(++fes.begin());
+          const auto         reduced_identities = query_identities(fe_index_1, fe_index_2);
 
           std::vector<std::map<unsigned int, unsigned int>> complete_identities;
 
@@ -361,9 +327,8 @@ namespace hp
               // Each identity returned by query_identities() is a pair of
               // dof indices. Prefix each with its fe index and put the result
               // into a vector
-              std::map<unsigned int, unsigned int> complete_identity = {
-                {fe_index_1, reduced_identity.first},
-                {fe_index_2, reduced_identity.second}};
+              std::map<unsigned int, unsigned int> complete_identity = {{fe_index_1, reduced_identity.first},
+                                                                        {fe_index_2, reduced_identity.second}};
               complete_identities.emplace_back(std::move(complete_identity));
             }
 
@@ -386,10 +351,8 @@ namespace hp
       for (const unsigned int fe_index_1 : fes)
         for (const unsigned int fe_index_2 : fes)
           if (fe_index_1 != fe_index_2)
-            for (const auto &identity :
-                 query_identities(fe_index_1, fe_index_2))
-              identities_graph.emplace(Node(fe_index_1, identity.first),
-                                       Node(fe_index_2, identity.second));
+            for (const auto &identity : query_identities(fe_index_1, fe_index_2))
+              identities_graph.emplace(Node(fe_index_1, identity.first), Node(fe_index_2, identity.second));
 
 #ifdef DEBUG
       // Now verify that indeed the graph is symmetric: If one element
@@ -398,9 +361,7 @@ namespace hp
       // consequence of this test succeeding, we know that the graph is actually
       // undirected.
       for (const auto &edge : identities_graph)
-        Assert(identities_graph.find({edge.second, edge.first}) !=
-                 identities_graph.end(),
-               ExcInternalError());
+        Assert(identities_graph.find({edge.second, edge.first}) != identities_graph.end(), ExcInternalError());
 #endif
 
       // The next step is that we ought to verify that if there is an identity
@@ -480,8 +441,7 @@ namespace hp
           // - That the sub-graph is undirected, i.e. that every edge appears
           //   in both directions
           for (const auto &edge : sub_graph)
-            Assert(sub_graph.find({edge.second, edge.first}) != sub_graph.end(),
-                   ExcInternalError());
+            Assert(sub_graph.find({edge.second, edge.first}) != sub_graph.end(), ExcInternalError());
 
           // - None of the nodes in the sub-graph should have appeared in
           //   any of the other sub-graphs. If they did, then we have a bug
@@ -497,9 +457,7 @@ namespace hp
           //   be a "clique". We check this by counting how many edges it has.
           //   for 'n' nodes in 'N', we need to have n*(n-1) edges (we store
           //   both directed edges).
-          Assert(sub_graph.size() ==
-                   sub_graph_nodes.size() * (sub_graph_nodes.size() - 1),
-                 ExcInternalError());
+          Assert(sub_graph.size() == sub_graph_nodes.size() * (sub_graph_nodes.size() - 1), ExcInternalError());
 #endif
 
           // At this point we're sure that we have extracted a complete
@@ -511,10 +469,8 @@ namespace hp
           // fe_index can only appear once there, a better data structure
           // is a std::map from fe_index to dof_index, which can conveniently
           // be initialized from a range of iterators to pairs:
-          identities.emplace_back(sub_graph_nodes.begin(),
-                                  sub_graph_nodes.end());
-          Assert(identities.back().size() == sub_graph_nodes.size(),
-                 ExcInternalError());
+          identities.emplace_back(sub_graph_nodes.begin(), sub_graph_nodes.end());
+          Assert(identities.back().size() == sub_graph_nodes.size(), ExcInternalError());
         }
 
       return identities;
@@ -525,11 +481,9 @@ namespace hp
 
   template <int dim, int spacedim>
   std::vector<std::map<unsigned int, unsigned int>>
-  FECollection<dim, spacedim>::hp_vertex_dof_identities(
-    const std::set<unsigned int> &fes) const
+  FECollection<dim, spacedim>::hp_vertex_dof_identities(const std::set<unsigned int> &fes) const
   {
-    auto query_vertex_dof_identities = [this](const unsigned int fe_index_1,
-                                              const unsigned int fe_index_2) {
+    auto query_vertex_dof_identities = [this](const unsigned int fe_index_1, const unsigned int fe_index_2) {
       return (*this)[fe_index_1].hp_vertex_dof_identities((*this)[fe_index_2]);
     };
     return compute_hp_dof_identities(fes, query_vertex_dof_identities);
@@ -539,11 +493,9 @@ namespace hp
 
   template <int dim, int spacedim>
   std::vector<std::map<unsigned int, unsigned int>>
-  FECollection<dim, spacedim>::hp_line_dof_identities(
-    const std::set<unsigned int> &fes) const
+  FECollection<dim, spacedim>::hp_line_dof_identities(const std::set<unsigned int> &fes) const
   {
-    auto query_line_dof_identities = [this](const unsigned int fe_index_1,
-                                            const unsigned int fe_index_2) {
+    auto query_line_dof_identities = [this](const unsigned int fe_index_1, const unsigned int fe_index_2) {
       return (*this)[fe_index_1].hp_line_dof_identities((*this)[fe_index_2]);
     };
     return compute_hp_dof_identities(fes, query_line_dof_identities);
@@ -553,15 +505,11 @@ namespace hp
 
   template <int dim, int spacedim>
   std::vector<std::map<unsigned int, unsigned int>>
-  FECollection<dim, spacedim>::hp_quad_dof_identities(
-    const std::set<unsigned int> &fes,
-    const unsigned int            face_no) const
+  FECollection<dim, spacedim>::hp_quad_dof_identities(const std::set<unsigned int> &fes,
+                                                      const unsigned int            face_no) const
   {
-    auto query_quad_dof_identities = [this,
-                                      face_no](const unsigned int fe_index_1,
-                                               const unsigned int fe_index_2) {
-      return (*this)[fe_index_1].hp_quad_dof_identities((*this)[fe_index_2],
-                                                        face_no);
+    auto query_quad_dof_identities = [this, face_no](const unsigned int fe_index_1, const unsigned int fe_index_2) {
+      return (*this)[fe_index_1].hp_quad_dof_identities((*this)[fe_index_2], face_no);
     };
     return compute_hp_dof_identities(fes, query_quad_dof_identities);
   }
@@ -571,12 +519,8 @@ namespace hp
   template <int dim, int spacedim>
   void
   FECollection<dim, spacedim>::set_hierarchy(
-    const std::function<
-      unsigned int(const typename hp::FECollection<dim, spacedim> &,
-                   const unsigned int)> &next,
-    const std::function<
-      unsigned int(const typename hp::FECollection<dim, spacedim> &,
-                   const unsigned int)> &prev)
+    const std::function<unsigned int(const typename hp::FECollection<dim, spacedim> &, const unsigned int)> &next,
+    const std::function<unsigned int(const typename hp::FECollection<dim, spacedim> &, const unsigned int)> &prev)
   {
     // copy hierarchy functions
     hierarchy_next = next;
@@ -590,16 +534,14 @@ namespace hp
   FECollection<dim, spacedim>::set_default_hierarchy()
   {
     // establish hierarchy corresponding to order of indices
-    set_hierarchy(&DefaultHierarchy::next_index,
-                  &DefaultHierarchy::previous_index);
+    set_hierarchy(&DefaultHierarchy::next_index, &DefaultHierarchy::previous_index);
   }
 
 
 
   template <int dim, int spacedim>
   std::vector<unsigned int>
-  FECollection<dim, spacedim>::get_hierarchy_sequence(
-    const unsigned int fe_index) const
+  FECollection<dim, spacedim>::get_hierarchy_sequence(const unsigned int fe_index) const
   {
     AssertIndexRange(fe_index, this->size());
 
@@ -615,9 +557,8 @@ namespace hp
           front = previous;
 
           Assert(sequence.size() <= this->size(),
-                 ExcMessage(
-                   "The registered hierarchy is not terminated: "
-                   "previous_in_hierarchy() does not stop at a final index."));
+                 ExcMessage("The registered hierarchy is not terminated: "
+                            "previous_in_hierarchy() does not stop at a final index."));
         }
     }
 
@@ -631,9 +572,8 @@ namespace hp
           back = next;
 
           Assert(sequence.size() <= this->size(),
-                 ExcMessage(
-                   "The registered hierarchy is not terminated: "
-                   "next_in_hierarchy() does not stop at a final index."));
+                 ExcMessage("The registered hierarchy is not terminated: "
+                            "next_in_hierarchy() does not stop at a final index."));
         }
     }
 
@@ -644,8 +584,7 @@ namespace hp
 
   template <int dim, int spacedim>
   unsigned int
-  FECollection<dim, spacedim>::next_in_hierarchy(
-    const unsigned int fe_index) const
+  FECollection<dim, spacedim>::next_in_hierarchy(const unsigned int fe_index) const
   {
     AssertIndexRange(fe_index, this->size());
 
@@ -659,8 +598,7 @@ namespace hp
 
   template <int dim, int spacedim>
   unsigned int
-  FECollection<dim, spacedim>::previous_in_hierarchy(
-    const unsigned int fe_index) const
+  FECollection<dim, spacedim>::previous_in_hierarchy(const unsigned int fe_index) const
   {
     AssertIndexRange(fe_index, this->size());
 
@@ -674,11 +612,9 @@ namespace hp
 
   template <int dim, int spacedim>
   ComponentMask
-  FECollection<dim, spacedim>::component_mask(
-    const FEValuesExtractors::Scalar &scalar) const
+  FECollection<dim, spacedim>::component_mask(const FEValuesExtractors::Scalar &scalar) const
   {
-    Assert(this->size() > 0,
-           ExcMessage("This collection contains no finite element."));
+    Assert(this->size() > 0, ExcMessage("This collection contains no finite element."));
 
     // get the mask from the first element of the collection
     const ComponentMask mask = (*this)[0].component_mask(scalar);
@@ -694,11 +630,9 @@ namespace hp
 
   template <int dim, int spacedim>
   ComponentMask
-  FECollection<dim, spacedim>::component_mask(
-    const FEValuesExtractors::Vector &vector) const
+  FECollection<dim, spacedim>::component_mask(const FEValuesExtractors::Vector &vector) const
   {
-    Assert(this->size() > 0,
-           ExcMessage("This collection contains no finite element."));
+    Assert(this->size() > 0, ExcMessage("This collection contains no finite element."));
 
     // get the mask from the first element of the collection
     const ComponentMask mask = (*this)[0].component_mask(vector);
@@ -714,11 +648,9 @@ namespace hp
 
   template <int dim, int spacedim>
   ComponentMask
-  FECollection<dim, spacedim>::component_mask(
-    const FEValuesExtractors::SymmetricTensor<2> &sym_tensor) const
+  FECollection<dim, spacedim>::component_mask(const FEValuesExtractors::SymmetricTensor<2> &sym_tensor) const
   {
-    Assert(this->size() > 0,
-           ExcMessage("This collection contains no finite element."));
+    Assert(this->size() > 0, ExcMessage("This collection contains no finite element."));
 
     // get the mask from the first element of the collection
     const ComponentMask mask = (*this)[0].component_mask(sym_tensor);
@@ -736,8 +668,7 @@ namespace hp
   ComponentMask
   FECollection<dim, spacedim>::component_mask(const BlockMask &block_mask) const
   {
-    Assert(this->size() > 0,
-           ExcMessage("This collection contains no finite element."));
+    Assert(this->size() > 0, ExcMessage("This collection contains no finite element."));
 
     // get the mask from the first element of the collection
     const ComponentMask mask = (*this)[0].component_mask(block_mask);
@@ -755,11 +686,9 @@ namespace hp
 
   template <int dim, int spacedim>
   BlockMask
-  FECollection<dim, spacedim>::block_mask(
-    const FEValuesExtractors::Scalar &scalar) const
+  FECollection<dim, spacedim>::block_mask(const FEValuesExtractors::Scalar &scalar) const
   {
-    Assert(this->size() > 0,
-           ExcMessage("This collection contains no finite element."));
+    Assert(this->size() > 0, ExcMessage("This collection contains no finite element."));
 
     // get the mask from the first element of the collection
     const BlockMask mask = (*this)[0].block_mask(scalar);
@@ -777,11 +706,9 @@ namespace hp
 
   template <int dim, int spacedim>
   BlockMask
-  FECollection<dim, spacedim>::block_mask(
-    const FEValuesExtractors::Vector &vector) const
+  FECollection<dim, spacedim>::block_mask(const FEValuesExtractors::Vector &vector) const
   {
-    Assert(this->size() > 0,
-           ExcMessage("This collection contains no finite element."));
+    Assert(this->size() > 0, ExcMessage("This collection contains no finite element."));
 
     // get the mask from the first element of the collection
     const BlockMask mask = (*this)[0].block_mask(vector);
@@ -799,11 +726,9 @@ namespace hp
 
   template <int dim, int spacedim>
   BlockMask
-  FECollection<dim, spacedim>::block_mask(
-    const FEValuesExtractors::SymmetricTensor<2> &sym_tensor) const
+  FECollection<dim, spacedim>::block_mask(const FEValuesExtractors::SymmetricTensor<2> &sym_tensor) const
   {
-    Assert(this->size() > 0,
-           ExcMessage("This collection contains no finite element."));
+    Assert(this->size() > 0, ExcMessage("This collection contains no finite element."));
 
     // get the mask from the first element of the collection
     const BlockMask mask = (*this)[0].block_mask(sym_tensor);
@@ -822,11 +747,9 @@ namespace hp
 
   template <int dim, int spacedim>
   BlockMask
-  FECollection<dim, spacedim>::block_mask(
-    const ComponentMask &component_mask) const
+  FECollection<dim, spacedim>::block_mask(const ComponentMask &component_mask) const
   {
-    Assert(this->size() > 0,
-           ExcMessage("This collection contains no finite element."));
+    Assert(this->size() > 0, ExcMessage("This collection contains no finite element."));
 
     // get the mask from the first element of the collection
     const BlockMask mask = (*this)[0].block_mask(component_mask);

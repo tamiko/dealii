@@ -31,24 +31,19 @@ main()
 
   using SD_number_t = SD::Expression;
 
-  const SD::types::substitution_map sub_map{
-    {SD_number_t("c"), SD_number_t(1.0)},
-    {SD_number_t("b"), SD_number_t(2)},
-    {SD_number_t("a"), SD_number_t(3.0f)}};
+  const SD::types::substitution_map sub_map{{SD_number_t("c"), SD_number_t(1.0)},
+                                            {SD_number_t("b"), SD_number_t(2)},
+                                            {SD_number_t("a"), SD_number_t(3.0f)}};
 
-  const SD::types::symbol_vector symbols{SD_number_t("c"),
-                                         SD_number_t("b"),
-                                         SD_number_t("a")};
+  const SD::types::symbol_vector symbols{SD_number_t("c"), SD_number_t("b"), SD_number_t("a")};
 
   const SD_number_t symb        = SD::make_symbol("d");
   const SD_number_t symb_func_1 = SD::make_symbolic_function("f", symbols);
   const SD_number_t symb_func_2 = SD::make_symbolic_function("g", sub_map);
 
   deallog << "Symbol: " << symb << std::endl;
-  deallog << "Symbolic function (vector of arguments): " << symb_func_1
-          << std::endl;
-  deallog << "Symbolic function (map of arguments): " << symb_func_2
-          << std::endl;
+  deallog << "Symbolic function (vector of arguments): " << symb_func_1 << std::endl;
+  deallog << "Symbolic function (map of arguments): " << symb_func_2 << std::endl;
 
   deallog << "OK" << std::endl;
 }

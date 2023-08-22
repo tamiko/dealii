@@ -75,10 +75,7 @@ test(std::array<unsigned int, 4> fe_degrees)
           bottom_left[d] = 0.;
           top_right[d]   = 1.;
         }
-    GridGenerator::subdivided_hyper_rectangle(tria,
-                                              repetitions,
-                                              bottom_left,
-                                              top_right);
+    GridGenerator::subdivided_hyper_rectangle(tria, repetitions, bottom_left, top_right);
   }
 
   hp::FECollection<dim> fe;
@@ -98,12 +95,9 @@ test(std::array<unsigned int, 4> fe_degrees)
   DoFTools::make_hanging_node_constraints(dh, constraints);
   constraints.close();
 
-  deallog << "Total constraints:          " << constraints.n_constraints()
-          << std::endl
-          << "  Inhomogenous constraints: " << constraints.n_inhomogeneities()
-          << std::endl
-          << "  Identity constraints:     " << constraints.n_identities()
-          << std::endl;
+  deallog << "Total constraints:          " << constraints.n_constraints() << std::endl
+          << "  Inhomogenous constraints: " << constraints.n_inhomogeneities() << std::endl
+          << "  Identity constraints:     " << constraints.n_identities() << std::endl;
 }
 
 

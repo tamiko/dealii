@@ -42,9 +42,8 @@ test()
 
   dof_handler.distribute_dofs(fe);
 
-  const unsigned int local_boundary_dofs = dof_handler.n_boundary_dofs();
-  const unsigned int global_boundary_dofs =
-    Utilities::MPI::sum(local_boundary_dofs, MPI_COMM_WORLD);
+  const unsigned int local_boundary_dofs  = dof_handler.n_boundary_dofs();
+  const unsigned int global_boundary_dofs = Utilities::MPI::sum(local_boundary_dofs, MPI_COMM_WORLD);
   deallog << global_boundary_dofs << std::endl;
 }
 

@@ -456,8 +456,7 @@ public:
    * indicators are used for cells as manifold id, too.
    */
   void
-  read_ucd(std::istream &in,
-           const bool    apply_all_indicators_to_manifolds = false);
+  read_ucd(std::istream &in, const bool apply_all_indicators_to_manifolds = false);
 
   /**
    * Read grid data from an Abaqus file. Numerical and constitutive data is
@@ -499,8 +498,7 @@ public:
    *     - Click apply.
    */
   void
-  read_abaqus(std::istream &in,
-              const bool    apply_all_indicators_to_manifolds = false);
+  read_abaqus(std::istream &in, const bool apply_all_indicators_to_manifolds = false);
 
   /**
    * Read grid data from a file containing data in the DB mesh format.
@@ -668,7 +666,7 @@ public:
    */
   void
   read_assimp(const std::string &filename,
-              const unsigned int mesh_index = numbers::invalid_unsigned_int,
+              const unsigned int mesh_index                       = numbers::invalid_unsigned_int,
               const bool         remove_duplicates                = true,
               const double       tol                              = 1e-12,
               const bool         ignore_unsupported_element_types = true);
@@ -747,8 +745,7 @@ public:
    * in that case will be $\{\{\}, \{0\}, \{0, 1\}\}$.
    */
   ExodusIIData
-  read_exodusii(const std::string &filename,
-                const bool         apply_all_indicators_to_manifolds = false);
+  read_exodusii(const std::string &filename, const bool apply_all_indicators_to_manifolds = false);
 
   /**
    * Return the standard suffix for a file in this format.
@@ -808,24 +805,21 @@ public:
   /**
    * Exception
    */
-  DeclException2(
-    ExcInvalidVertexIndex,
-    int,
-    int,
-    << "While creating cell " << arg1
-    << ", you are referencing a vertex with index " << arg2
-    << " but no vertex with this index has been described in the input file.");
+  DeclException2(ExcInvalidVertexIndex,
+                 int,
+                 int,
+                 << "While creating cell " << arg1 << ", you are referencing a vertex with index " << arg2
+                 << " but no vertex with this index has been described in the input file.");
   /**
    * Exception
    */
-  DeclException3(
-    ExcInvalidVertexIndexGmsh,
-    int,
-    int,
-    int,
-    << "While creating cell " << arg1 << " (which is numbered as " << arg2
-    << " in the input file), you are referencing a vertex with index " << arg3
-    << " but no vertex with this index has been described in the input file.");
+  DeclException3(ExcInvalidVertexIndexGmsh,
+                 int,
+                 int,
+                 int,
+                 << "While creating cell " << arg1 << " (which is numbered as " << arg2
+                 << " in the input file), you are referencing a vertex with index " << arg3
+                 << " but no vertex with this index has been described in the input file.");
   /**
    * Exception
    */
@@ -835,23 +829,20 @@ public:
    */
   DeclException1(ExcInvalidDBMESHInput,
                  std::string,
-                 << "The string <" << arg1
-                 << "> is not recognized at the present"
+                 << "The string <" << arg1 << "> is not recognized at the present"
                  << " position of a DB Mesh file.");
 
   /**
    * Exception
    */
-  DeclException1(
-    ExcDBMESHWrongDimension,
-    int,
-    << "The specified dimension " << arg1
-    << " is not the same as that of the triangulation to be created.");
+  DeclException1(ExcDBMESHWrongDimension,
+                 int,
+                 << "The specified dimension " << arg1
+                 << " is not the same as that of the triangulation to be created.");
 
   DeclException1(ExcInvalidGMSHInput,
                  std::string,
-                 << "The string <" << arg1
-                 << "> is not recognized at the present"
+                 << "The string <" << arg1 << "> is not recognized at the present"
                  << " position of a Gmsh Mesh file.");
 
   DeclException1(ExcGmshUnsupportedGeometry,
@@ -867,17 +858,16 @@ public:
                  << "15 Point (1 node, ignored when read)");
 
 
-  DeclException2(
-    ExcGmshNoCellInformation,
-    unsigned int,
-    unsigned int,
-    "While reading a gmsh file, the reader function did not find "
-    "any cells. This sometimes happens if the file only contains a "
-    "surface mesh, but not a volume mesh."
-    "\n\n"
-    "The reader function did find " +
-      std::to_string(arg1) + " lines and " + std::to_string(arg2) +
-      " facets (surface triangles or quadrilaterals).");
+  DeclException2(ExcGmshNoCellInformation,
+                 unsigned int,
+                 unsigned int,
+                 "While reading a gmsh file, the reader function did not find "
+                 "any cells. This sometimes happens if the file only contains a "
+                 "surface mesh, but not a volume mesh."
+                 "\n\n"
+                 "The reader function did find " +
+                   std::to_string(arg1) + " lines and " + std::to_string(arg2) +
+                   " facets (surface triangles or quadrilaterals).");
 
 protected:
   /**
@@ -906,9 +896,9 @@ protected:
    * further ado by the user.
    */
   static void
-  debug_output_grid(const std::vector<CellData<dim>> &  cells,
+  debug_output_grid(const std::vector<CellData<dim>>   &cells,
                     const std::vector<Point<spacedim>> &vertices,
-                    std::ostream &                      out);
+                    std::ostream                       &out);
 
 private:
   /**
@@ -936,14 +926,14 @@ private:
    * function execution..
    */
   static void
-  parse_tecplot_header(std::string &              header,
+  parse_tecplot_header(std::string               &header,
                        std::vector<unsigned int> &tecplot2deal,
-                       unsigned int &             n_vars,
-                       unsigned int &             n_vertices,
-                       unsigned int &             n_cells,
+                       unsigned int              &n_vars,
+                       unsigned int              &n_vertices,
+                       unsigned int              &n_cells,
                        std::vector<unsigned int> &IJK,
-                       bool &                     structured,
-                       bool &                     blocked);
+                       bool                      &structured,
+                       bool                      &blocked);
 
   /**
    * Input format used by read() if no format is given.
@@ -958,20 +948,20 @@ private:
 template <>
 void
 GridIn<2>::debug_output_grid(const std::vector<CellData<2>> &cells,
-                             const std::vector<Point<2>> &   vertices,
-                             std::ostream &                  out);
+                             const std::vector<Point<2>>    &vertices,
+                             std::ostream                   &out);
 
 
 template <>
 void
 GridIn<2, 3>::debug_output_grid(const std::vector<CellData<2>> &cells,
-                                const std::vector<Point<3>> &   vertices,
-                                std::ostream &                  out);
+                                const std::vector<Point<3>>    &vertices,
+                                std::ostream                   &out);
 template <>
 void
 GridIn<3>::debug_output_grid(const std::vector<CellData<3>> &cells,
-                             const std::vector<Point<3>> &   vertices,
-                             std::ostream &                  out);
+                             const std::vector<Point<3>>    &vertices,
+                             std::ostream                   &out);
 #endif // DOXYGEN
 
 DEAL_II_NAMESPACE_CLOSE

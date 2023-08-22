@@ -31,36 +31,28 @@ DEAL_II_NAMESPACE_OPEN
 
 namespace Functions
 {
-  DeclException1(ExcCSplineEmpty,
-                 int,
-                 << "Interpolation points vector size can not be <" << arg1
-                 << ">.");
+  DeclException1(ExcCSplineEmpty, int, << "Interpolation points vector size can not be <" << arg1 << ">.");
 
   DeclException2(ExcCSplineSizeMismatch,
                  int,
                  int,
                  << "The size of interpolation points <" << arg1
-                 << "> is different from the size of interpolation values <"
-                 << arg2 << ">.");
+                 << "> is different from the size of interpolation values <" << arg2 << ">.");
 
 
   DeclException3(ExcCSplineOrder,
                  int,
                  double,
                  double,
-                 << "The input interpolation points are not strictly ordered : "
-                 << std::endl
-                 << "x[" << arg1 << "] = " << arg2 << " >= x[" << (arg1 + 1)
-                 << "] = " << arg3 << '.');
+                 << "The input interpolation points are not strictly ordered : " << std::endl
+                 << "x[" << arg1 << "] = " << arg2 << " >= x[" << (arg1 + 1) << "] = " << arg3 << '.');
 
-  DeclException3(
-    ExcCSplineRange,
-    double,
-    double,
-    double,
-    << "Spline function can not be evaluated outside of the interpolation range: "
-    << std::endl
-    << arg1 << " is not in [" << arg2 << ';' << arg3 << "].");
+  DeclException3(ExcCSplineRange,
+                 double,
+                 double,
+                 double,
+                 << "Spline function can not be evaluated outside of the interpolation range: " << std::endl
+                 << arg1 << " is not in [" << arg2 << ';' << arg3 << "].");
 
   /**
    * The cubic spline function using GNU Scientific Library.
@@ -81,24 +73,19 @@ namespace Functions
      * interpolation is to be done @p interpolation_points and a set of function
      * values @p interpolation_values .
      */
-    CSpline(const std::vector<double> &interpolation_points,
-            const std::vector<double> &interpolation_values);
+    CSpline(const std::vector<double> &interpolation_points, const std::vector<double> &interpolation_values);
 
     virtual double
-    value(const Point<dim> & point,
-          const unsigned int component = 0) const override;
+    value(const Point<dim> &point, const unsigned int component = 0) const override;
 
     virtual Tensor<1, dim>
-    gradient(const Point<dim> & p,
-             const unsigned int component = 0) const override;
+    gradient(const Point<dim> &p, const unsigned int component = 0) const override;
 
     virtual SymmetricTensor<2, dim>
-    hessian(const Point<dim> & p,
-            const unsigned int component = 0) const override;
+    hessian(const Point<dim> &p, const unsigned int component = 0) const override;
 
     virtual double
-    laplacian(const Point<dim> & p,
-              const unsigned int component = 0) const override;
+    laplacian(const Point<dim> &p, const unsigned int component = 0) const override;
 
     /**
      * Return an estimate for the memory consumption, in bytes, of this object.

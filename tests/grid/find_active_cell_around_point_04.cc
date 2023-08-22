@@ -31,11 +31,10 @@ main(int argc, char **argv)
   Utilities::MPI::MPI_InitFinalize init(argc, argv);
   MPILogInitAll                    log;
 
-  parallel::distributed::Triangulation<2> tria(
-    MPI_COMM_WORLD,
-    typename Triangulation<2>::MeshSmoothing(
-      Triangulation<2>::smoothing_on_refinement |
-      Triangulation<2>::smoothing_on_coarsening));
+  parallel::distributed::Triangulation<2> tria(MPI_COMM_WORLD,
+                                               typename Triangulation<2>::MeshSmoothing(
+                                                 Triangulation<2>::smoothing_on_refinement |
+                                                 Triangulation<2>::smoothing_on_coarsening));
 
   GridGenerator::hyper_cube(tria, -1, 1);
   tria.refine_global(5);

@@ -44,34 +44,26 @@ test(int n_refinements, MPI_Comm comm)
 {
   // 1) create TriangulationDescription::Description with
   // create_description_from_triangulation
-  Triangulation<dim> basetria(
-    Triangulation<dim>::limit_level_difference_at_vertices);
+  Triangulation<dim> basetria(Triangulation<dim>::limit_level_difference_at_vertices);
   GridGenerator::hyper_L(basetria);
   basetria.refine_global(n_refinements);
 
-  GridTools::partition_triangulation_zorder(
-    Utilities::MPI::n_mpi_processes(comm), basetria);
+  GridTools::partition_triangulation_zorder(Utilities::MPI::n_mpi_processes(comm), basetria);
   GridTools::partition_multigrid_levels(basetria);
 
-  auto construction_data_1 =
-    TriangulationDescription::Utilities::create_description_from_triangulation(
-      basetria,
-      comm,
-      TriangulationDescription::Settings::construct_multigrid_hierarchy);
+  auto construction_data_1 = TriangulationDescription::Utilities::create_description_from_triangulation(
+    basetria, comm, TriangulationDescription::Settings::construct_multigrid_hierarchy);
 
   // 2) create TriangulationDescription::Description with
   // create_description_from_triangulation_in_groups
-  auto construction_data_2 = TriangulationDescription::Utilities::
-    create_description_from_triangulation_in_groups<dim, spacedim>(
+  auto construction_data_2 =
+    TriangulationDescription::Utilities::create_description_from_triangulation_in_groups<dim, spacedim>(
       [n_refinements](dealii::Triangulation<dim, spacedim> &tria) {
         GridGenerator::hyper_L(tria);
         tria.refine_global(n_refinements);
       },
-      [](dealii::Triangulation<dim, spacedim> &tria,
-         const MPI_Comm                        comm,
-         const unsigned int /*group_size*/) {
-        GridTools::partition_triangulation_zorder(
-          Utilities::MPI::n_mpi_processes(comm), tria);
+      [](dealii::Triangulation<dim, spacedim> &tria, const MPI_Comm comm, const unsigned int /*group_size*/) {
+        GridTools::partition_triangulation_zorder(Utilities::MPI::n_mpi_processes(comm), tria);
       },
       comm,
       3 /* group size */,
@@ -95,10 +87,8 @@ test(int n_refinements, MPI_Comm comm)
   }
 
   // 4) the result has to be identical
-  AssertThrow((construction_data_1 == construction_data_2 &&
-               construction_data_1.comm == construction_data_2.comm),
-              ExcMessage(
-                "TriangulationDescription::Descriptions are not the same!"));
+  AssertThrow((construction_data_1 == construction_data_2 && construction_data_1.comm == construction_data_2.comm),
+              ExcMessage("TriangulationDescription::Descriptions are not the same!"));
 }
 
 int

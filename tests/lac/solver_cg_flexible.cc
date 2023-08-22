@@ -55,12 +55,9 @@ private:
 
 
 SolverControl::State
-monitor_norm(const unsigned int iteration,
-             const double       check_value,
-             const Vector<double> &)
+monitor_norm(const unsigned int iteration, const double check_value, const Vector<double> &)
 {
-  deallog << "   CG estimated residual at iteration " << iteration << ": "
-          << check_value << std::endl;
+  deallog << "   CG estimated residual at iteration " << iteration << ": " << check_value << std::endl;
   return SolverControl::success;
 }
 

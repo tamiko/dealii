@@ -36,9 +36,7 @@
 #include "../tests.h"
 
 
-template <int dim,
-          typename Number              = double,
-          typename VectorizedArrayType = VectorizedArray<Number>>
+template <int dim, typename Number = double, typename VectorizedArrayType = VectorizedArray<Number>>
 class Test
 {
 public:
@@ -47,8 +45,7 @@ public:
   void
   run(unsigned int fe_degree)
   {
-    Triangulation<dim> tria(
-      Triangulation<dim>::limit_level_difference_at_vertices);
+    Triangulation<dim> tria(Triangulation<dim>::limit_level_difference_at_vertices);
     GridGenerator::hyper_cube(tria);
 
     for (unsigned int i = 0; i < 3; ++i)
@@ -72,16 +69,14 @@ public:
     {
       AffineConstraints<Number> constraint;
 
-      typename MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData
-        additional_data;
+      typename MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData additional_data;
       additional_data.mapping_update_flags                = update_values;
       additional_data.mapping_update_flags_inner_faces    = update_values;
       additional_data.mapping_update_flags_boundary_faces = update_values;
       additional_data.mg_level                            = level;
 
       MatrixFree<dim, Number, VectorizedArrayType> matrix_free;
-      matrix_free.reinit(
-        mapping, dof_handler, constraint, quad, additional_data);
+      matrix_free.reinit(mapping, dof_handler, constraint, quad, additional_data);
 
       VectorType src, dst;
 
@@ -90,12 +85,7 @@ public:
 
       this->setup_vector(matrix_free);
 
-      matrix_free.loop(&Test::cell_operation,
-                       &Test::face_operation,
-                       &Test::boundary_operation,
-                       this,
-                       dst,
-                       src);
+      matrix_free.loop(&Test::cell_operation, &Test::face_operation, &Test::boundary_operation, this, dst, src);
 
       deallog << std::endl;
     }
@@ -114,8 +104,7 @@ private:
         fe_eval.reinit(cell);
 
         std::array<CellId, VectorizedArrayType::size()> cell_ids_local;
-        for (auto lane = 0u; lane < data.n_active_entries_per_cell_batch(cell);
-             lane++)
+        for (auto lane = 0u; lane < data.n_active_entries_per_cell_batch(cell); lane++)
           cell_ids_local[lane] = data.get_cell_iterator(cell, lane)->id();
 
         fe_eval.set_cell_data(cell_ids, cell_ids_local);
@@ -133,10 +122,8 @@ private:
       {
         fe_eval.reinit(cell);
         const auto cell_data = fe_eval.read_cell_data(cell_ids);
-        for (auto lane = 0u; lane < data.n_active_entries_per_cell_batch(cell);
-             lane++)
-          Assert(cell_data[lane] == data.get_cell_iterator(cell, lane)->id(),
-                 ExcInternalError());
+        for (auto lane = 0u; lane < data.n_active_entries_per_cell_batch(cell); lane++)
+          Assert(cell_data[lane] == data.get_cell_iterator(cell, lane)->id(), ExcInternalError());
       }
   }
 
@@ -154,15 +141,10 @@ private:
         fe_eval_p.reinit(face);
         const auto cell_data_m = fe_eval_m.read_cell_data(cell_ids);
         const auto cell_data_p = fe_eval_p.read_cell_data(cell_ids);
-        for (auto lane = 0u; lane < data.n_active_entries_per_face_batch(face);
-             lane++)
+        for (auto lane = 0u; lane < data.n_active_entries_per_face_batch(face); lane++)
           {
-            Assert(cell_data_m[lane] ==
-                     data.get_face_iterator(face, lane, true).first->id(),
-                   ExcInternalError());
-            Assert(cell_data_p[lane] ==
-                     data.get_face_iterator(face, lane, false).first->id(),
-                   ExcInternalError());
+            Assert(cell_data_m[lane] == data.get_face_iterator(face, lane, true).first->id(), ExcInternalError());
+            Assert(cell_data_p[lane] == data.get_face_iterator(face, lane, false).first->id(), ExcInternalError());
           }
       }
   }
@@ -179,11 +161,8 @@ private:
       {
         fe_eval.reinit(face);
         const auto cell_data = fe_eval.read_cell_data(cell_ids);
-        for (auto lane = 0u; lane < data.n_active_entries_per_face_batch(face);
-             lane++)
-          Assert(cell_data[lane] ==
-                   data.get_face_iterator(face, lane, true).first->id(),
-                 ExcInternalError());
+        for (auto lane = 0u; lane < data.n_active_entries_per_face_batch(face); lane++)
+          Assert(cell_data[lane] == data.get_face_iterator(face, lane, true).first->id(), ExcInternalError());
       }
   }
 

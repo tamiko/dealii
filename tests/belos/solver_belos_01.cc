@@ -66,17 +66,15 @@ main(int argc, char *argv[])
   DoFTools::make_zero_boundary_constraints(dof_handler, affine_constraints);
   affine_constraints.close();
 
-  TrilinosWrappers::SparsityPattern dsp(dof_handler.locally_owned_dofs(),
-                                        dof_handler.get_communicator());
+  TrilinosWrappers::SparsityPattern dsp(dof_handler.locally_owned_dofs(), dof_handler.get_communicator());
   DoFTools::make_sparsity_pattern(dof_handler, dsp, affine_constraints);
   dsp.compress();
 
   TrilinosWrappers::SparseMatrix system_matrix;
   system_matrix.reinit(dsp);
 
-  MatrixCreator::
-    create_laplace_matrix<dim, dim, TrilinosWrappers::SparseMatrix>(
-      mapping, dof_handler, quad, system_matrix, nullptr, affine_constraints);
+  MatrixCreator::create_laplace_matrix<dim, dim, TrilinosWrappers::SparseMatrix>(
+    mapping, dof_handler, quad, system_matrix, nullptr, affine_constraints);
 
   TrilinosWrappers::PreconditionILU ilu;
   ilu.initialize(system_matrix);
@@ -84,16 +82,10 @@ main(int argc, char *argv[])
   VectorType x(dof_handler.n_dofs());
   VectorType r(dof_handler.n_dofs());
 
-  VectorTools::create_right_hand_side(mapping,
-                                      dof_handler,
-                                      quad,
-                                      Functions::ConstantFunction<dim, Number>(
-                                        1.0),
-                                      r,
-                                      affine_constraints);
+  VectorTools::create_right_hand_side(
+    mapping, dof_handler, quad, Functions::ConstantFunction<dim, Number>(1.0), r, affine_constraints);
 
-  Teuchos::RCP<Teuchos::ParameterList> belos_parameters =
-    Teuchos::rcp(new Teuchos::ParameterList);
+  Teuchos::RCP<Teuchos::ParameterList> belos_parameters = Teuchos::rcp(new Teuchos::ParameterList);
 
   belos_parameters->set("Num Blocks", 20);
   belos_parameters->set("Block Size", 10);
@@ -107,22 +99,16 @@ main(int argc, char *argv[])
       using OP = Epetra_Operator;
 
       Teuchos::RCP<Epetra_CrsMatrix> A =
-        Teuchos::rcp(const_cast<Epetra_CrsMatrix *>(
-                       &system_matrix.trilinos_matrix()),
-                     false);
+        Teuchos::rcp(const_cast<Epetra_CrsMatrix *>(&system_matrix.trilinos_matrix()), false);
       Teuchos::RCP<Epetra_MultiVector> B, X;
 
-      LinearAlgebra::EpetraWrappers::Vector x_(dof_handler.locally_owned_dofs(),
-                                               dof_handler.get_communicator());
-      LinearAlgebra::ReadWriteVector<Number> x_temp(
-        dof_handler.locally_owned_dofs());
+      LinearAlgebra::EpetraWrappers::Vector  x_(dof_handler.locally_owned_dofs(), dof_handler.get_communicator());
+      LinearAlgebra::ReadWriteVector<Number> x_temp(dof_handler.locally_owned_dofs());
       x_temp.import_elements(x, VectorOperation::insert);
       x_.import_elements(x_temp, VectorOperation::insert);
 
-      LinearAlgebra::EpetraWrappers::Vector r_(dof_handler.locally_owned_dofs(),
-                                               dof_handler.get_communicator());
-      LinearAlgebra::ReadWriteVector<Number> r_temp(
-        dof_handler.locally_owned_dofs());
+      LinearAlgebra::EpetraWrappers::Vector  r_(dof_handler.locally_owned_dofs(), dof_handler.get_communicator());
+      LinearAlgebra::ReadWriteVector<Number> r_temp(dof_handler.locally_owned_dofs());
       r_temp.import_elements(r, VectorOperation::insert);
       r_.import_elements(r_temp, VectorOperation::insert);
 
@@ -135,8 +121,7 @@ main(int argc, char *argv[])
       AssertThrow(set, ExcInternalError());
 
       Teuchos::RCP<Belos::SolverManager<double, MV, OP>> newSolver =
-        Teuchos::rcp(new Belos::BlockGmresSolMgr<double, MV, OP>(
-          Teuchos::rcp(&problem, false), belos_parameters));
+        Teuchos::rcp(new Belos::BlockGmresSolMgr<double, MV, OP>(Teuchos::rcp(&problem, false), belos_parameters));
       Belos::ReturnType flag = newSolver->solve();
 
       AssertThrow(flag == Belos::ReturnType::Converged, ExcInternalError());
@@ -148,17 +133,13 @@ main(int argc, char *argv[])
     {
       x = 0.0;
 
-      SolverControl solver_control;
-      typename TrilinosWrappers::SolverBelos<VectorType>::AdditionalData
-        additional_data;
+      SolverControl                                                      solver_control;
+      typename TrilinosWrappers::SolverBelos<VectorType>::AdditionalData additional_data;
 
-      additional_data.solver_name =
-        TrilinosWrappers::SolverBelos<VectorType>::SolverName::gmres;
+      additional_data.solver_name           = TrilinosWrappers::SolverBelos<VectorType>::SolverName::gmres;
       additional_data.right_preconditioning = false;
 
-      TrilinosWrappers::SolverBelos<VectorType> solver(solver_control,
-                                                       additional_data,
-                                                       belos_parameters);
+      TrilinosWrappers::SolverBelos<VectorType> solver(solver_control, additional_data, belos_parameters);
       solver.solve(system_matrix, x, r, ilu);
 
       deallog << x.l2_norm() << std::endl;

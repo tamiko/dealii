@@ -48,9 +48,7 @@ struct copy_data
 
 
 void
-assemble(const std::vector<int>::iterator &it,
-         scratch_data & /*scratch*/,
-         copy_data &data)
+assemble(const std::vector<int>::iterator &it, scratch_data & /*scratch*/, copy_data &data)
 {
   data.value = (*it);
 }
@@ -85,8 +83,7 @@ test2()
 int
 main()
 {
-  std::cout << "TBB will use " << MultithreadInfo::n_threads() << " threads."
-            << std::endl;
+  std::cout << "TBB will use " << MultithreadInfo::n_threads() << " threads." << std::endl;
 
   test1();
   test2();

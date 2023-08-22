@@ -45,10 +45,7 @@ test(const Triangulation<dim> &tr, const FiniteElement<dim> &fe)
 
   const QGauss<dim> quadrature(2);
   MappingQ<dim>     mapping(2);
-  FEValues<dim>     fe_values(mapping,
-                          fe,
-                          quadrature,
-                          update_values | update_quadrature_points);
+  FEValues<dim>     fe_values(mapping, fe, quadrature, update_values | update_quadrature_points);
 
   for (const auto &cell : dof_handler.active_cell_iterators())
     {
@@ -78,16 +75,8 @@ main()
     Triangulation<2> tria;
     GridGenerator::hyper_ball(tria);
 
-    FESystem<2> fe(FE_RaviartThomas<2>(0),
-                   1,
-                   FE_Q<2>(2),
-                   2,
-                   FE_RaviartThomas<2>(2),
-                   3,
-                   FE_Nothing<2>(),
-                   4,
-                   FE_DGQ<2>(0),
-                   1);
+    FESystem<2> fe(
+      FE_RaviartThomas<2>(0), 1, FE_Q<2>(2), 2, FE_RaviartThomas<2>(2), 3, FE_Nothing<2>(), 4, FE_DGQ<2>(0), 1);
     test(tria, fe);
   }
 

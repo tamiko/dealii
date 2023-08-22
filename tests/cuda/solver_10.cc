@@ -34,8 +34,7 @@ template <typename MatrixType>
 class RelaxationOperator
 {
 public:
-  RelaxationOperator(const MatrixType &system_matrix_,
-                     const MatrixType &inverse_diagonal_matrix_)
+  RelaxationOperator(const MatrixType &system_matrix_, const MatrixType &inverse_diagonal_matrix_)
     : system_matrix(system_matrix_)
     , inverse_diagonal_matrix(inverse_diagonal_matrix_)
   {}
@@ -87,37 +86,32 @@ test(Utilities::CUDA::Handle &cuda_handle)
     A_diagonal_inverse(i, i) = 1. / A(i, i);
 
   // Solve on the host
-  RelaxationOperator<SparseMatrix<double>> relaxation_operator(
-    A, A_diagonal_inverse);
-  SolverControl      control(1000, 1.e-3);
-  SolverRelaxation<> relaxation_host(control);
-  Vector<double>     sol_host(size);
-  Vector<double>     rhs_host(size);
+  RelaxationOperator<SparseMatrix<double>> relaxation_operator(A, A_diagonal_inverse);
+  SolverControl                            control(1000, 1.e-3);
+  SolverRelaxation<>                       relaxation_host(control);
+  Vector<double>                           sol_host(size);
+  Vector<double>                           rhs_host(size);
   for (unsigned int i = 0; i < size; ++i)
     rhs_host[i] = static_cast<double>(i);
   relaxation_host.solve(A, sol_host, rhs_host, relaxation_operator);
 
   // Solve on the device
-  CUDAWrappers::SparseMatrix<double> A_dev(cuda_handle, A);
-  CUDAWrappers::SparseMatrix<double> A_diagonal_inverse_dev(cuda_handle,
-                                                            A_diagonal_inverse);
-  RelaxationOperator<CUDAWrappers::SparseMatrix<double>>
-    relaxation_operator_dev(A_dev, A_diagonal_inverse_dev);
-  LinearAlgebra::CUDAWrappers::Vector<double> sol_dev(size);
-  LinearAlgebra::CUDAWrappers::Vector<double> rhs_dev(size);
-  LinearAlgebra::ReadWriteVector<double>      rw_vector(size);
+  CUDAWrappers::SparseMatrix<double>                     A_dev(cuda_handle, A);
+  CUDAWrappers::SparseMatrix<double>                     A_diagonal_inverse_dev(cuda_handle, A_diagonal_inverse);
+  RelaxationOperator<CUDAWrappers::SparseMatrix<double>> relaxation_operator_dev(A_dev, A_diagonal_inverse_dev);
+  LinearAlgebra::CUDAWrappers::Vector<double>            sol_dev(size);
+  LinearAlgebra::CUDAWrappers::Vector<double>            rhs_dev(size);
+  LinearAlgebra::ReadWriteVector<double>                 rw_vector(size);
   for (unsigned int i = 0; i < size; ++i)
     rw_vector[i] = static_cast<double>(i);
   rhs_dev.import_elements(rw_vector, VectorOperation::insert);
-  SolverRelaxation<LinearAlgebra::CUDAWrappers::Vector<double>> relaxation_dev(
-    control);
+  SolverRelaxation<LinearAlgebra::CUDAWrappers::Vector<double>> relaxation_dev(control);
   relaxation_dev.solve(A_dev, sol_dev, rhs_dev, relaxation_operator_dev);
 
   // Check the result
   rw_vector.import_elements(sol_dev, VectorOperation::insert);
   for (unsigned int i = 0; i < size; ++i)
-    AssertThrow(std::fabs(rw_vector[i] - sol_host[i]) < 1e-8,
-                ExcInternalError());
+    AssertThrow(std::fabs(rw_vector[i] - sol_host[i]) < 1e-8, ExcInternalError());
 }
 
 int

@@ -41,12 +41,10 @@ main()
     const SD_number_t symb_a_plus_b = symb_a + symb_b;
     deallog << "Symbolic a+b: " << symb_a_plus_b << std::endl;
 
-    const SD_number_t symb_a_plus_b_1 =
-      SD::substitute(symb_a_plus_b, symb_a, a);
+    const SD_number_t symb_a_plus_b_1 = SD::substitute(symb_a_plus_b, symb_a, a);
     deallog << "Symbolic a+b (a=1): " << symb_a_plus_b_1 << std::endl;
 
-    const SD_number_t symb_a_plus_b_subs =
-      SD::substitute(symb_a_plus_b_1, symb_b, b);
+    const SD_number_t symb_a_plus_b_subs = SD::substitute(symb_a_plus_b_1, symb_b, b);
     deallog << "Symbolic a+b (a=1, b=2): " << symb_a_plus_b_subs << std::endl;
   }
   deallog.pop();
@@ -55,11 +53,10 @@ main()
   {
     const SD_number_t symb_a_plus_b = symb_a + symb_b;
 
-    const std::vector<std::pair<SD_number_t, double>> symbol_values{
-      std::make_pair(symb_a, a), std::make_pair(symb_b, b)};
+    const std::vector<std::pair<SD_number_t, double>> symbol_values{std::make_pair(symb_a, a),
+                                                                    std::make_pair(symb_b, b)};
 
-    const SD_number_t symb_a_plus_b_subs =
-      SD::substitute(symb_a_plus_b, symbol_values);
+    const SD_number_t symb_a_plus_b_subs = SD::substitute(symb_a_plus_b, symbol_values);
     deallog << "Symbolic a+b (a=1, b=2): " << symb_a_plus_b_subs << std::endl;
   }
   deallog.pop();
@@ -69,11 +66,9 @@ main()
     const SD_number_t symb_a_plus_b = symb_a + symb_b;
 
     const SD::types::substitution_map substitution_map =
-      SD::make_substitution_map(std::make_pair(symb_a, a),
-                                std::make_pair(symb_b, b));
+      SD::make_substitution_map(std::make_pair(symb_a, a), std::make_pair(symb_b, b));
 
-    const SD_number_t symb_a_plus_b_subs =
-      SD::substitute(symb_a_plus_b, substitution_map);
+    const SD_number_t symb_a_plus_b_subs = SD::substitute(symb_a_plus_b, substitution_map);
     deallog << "Symbolic a+b (a=1, b=2): " << symb_a_plus_b_subs << std::endl;
   }
   deallog.pop();
@@ -83,11 +78,9 @@ main()
     const SD_number_t symb_a_plus_b = symb_a + symb_b;
 
     const SD::types::substitution_map substitution_map =
-      SD::make_substitution_map(std::make_pair(symb_a, a),
-                                std::make_pair(symb_b, b));
+      SD::make_substitution_map(std::make_pair(symb_a, a), std::make_pair(symb_b, b));
 
-    const double symb_a_plus_b_subs =
-      SD::substitute_and_evaluate<double>(symb_a_plus_b, substitution_map);
+    const double symb_a_plus_b_subs = SD::substitute_and_evaluate<double>(symb_a_plus_b, substitution_map);
     Assert(symb_a_plus_b_subs == (a + b), ExcInternalError());
   }
   deallog.pop();

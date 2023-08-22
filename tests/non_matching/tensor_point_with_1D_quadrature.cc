@@ -60,8 +60,7 @@ create_and_output_quadrature_for_each_direction()
     {
       deallog << "direction=" << direction << std::endl;
       ExtendableQuadrature<dim> result;
-      tensor_point_with_1D_quadrature(
-        point, weight, quadrature1D, start, end, direction, result);
+      tensor_point_with_1D_quadrature(point, weight, quadrature1D, start, end, direction, result);
       print_quadrature(result);
       deallog << std::endl;
     }

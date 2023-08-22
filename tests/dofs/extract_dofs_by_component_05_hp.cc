@@ -53,14 +53,12 @@ check()
   // element of this collection
   hp::FECollection<dim> element;
   for (unsigned int i = 0; i < 2; ++i)
-    element.push_back(
-      FESystem<dim>(FE_Q<dim>(1 + i), 1, FE_Nedelec<dim>(0), 1));
+    element.push_back(FESystem<dim>(FE_Q<dim>(1 + i), 1, FE_Nedelec<dim>(0), 1));
   DoFHandler<dim> dof(tr);
   dof.begin_active()->set_active_fe_index(1);
   dof.distribute_dofs(element);
 
-  const std::vector<types::global_dof_index> count =
-    DoFTools::count_dofs_per_fe_component(dof, false);
+  const std::vector<types::global_dof_index> count = DoFTools::count_dofs_per_fe_component(dof, false);
 
   for (unsigned int d = 0; d < count.size(); ++d)
     deallog << count[d] << std::endl;

@@ -49,13 +49,9 @@ test()
   local_relevant.add_range(1, 2);
 
   PETScWrappers::MPI::Vector vb_one(local_active, MPI_COMM_WORLD);
-  PETScWrappers::MPI::Vector v_one(local_active,
-                                   local_relevant,
-                                   MPI_COMM_WORLD);
+  PETScWrappers::MPI::Vector v_one(local_active, local_relevant, MPI_COMM_WORLD);
 
-  LinearAlgebra::distributed::Vector<double> copied_one(local_active,
-                                                        local_relevant,
-                                                        MPI_COMM_WORLD);
+  LinearAlgebra::distributed::Vector<double> copied_one(local_active, local_relevant, MPI_COMM_WORLD);
 
   // set local values
   vb_one(myid * 2)     = myid * 2.0;
@@ -68,20 +64,15 @@ test()
   // Create a copy of v_one using the internal Vec
   PETScWrappers::MPI::Vector v_one_from_vec(v_one.petsc_vector());
   Assert(v_one.size() == v_one_from_vec.size(), ExcInternalError());
-  Assert(v_one.locally_owned_size() == v_one_from_vec.locally_owned_size(),
-         ExcInternalError());
-  Assert(v_one.has_ghost_elements() == v_one_from_vec.has_ghost_elements(),
-         ExcInternalError());
-  Assert(v_one.ghost_elements() == v_one_from_vec.ghost_elements(),
-         ExcInternalError());
+  Assert(v_one.locally_owned_size() == v_one_from_vec.locally_owned_size(), ExcInternalError());
+  Assert(v_one.has_ghost_elements() == v_one_from_vec.has_ghost_elements(), ExcInternalError());
+  Assert(v_one.ghost_elements() == v_one_from_vec.ghost_elements(), ExcInternalError());
 
   // Test swap
   IndexSet local_active_2(numproc * 4);
   local_active_2.add_range(myid * 4, myid * 4 + 4);
   PETScWrappers::MPI::Vector vs1(local_active, MPI_COMM_WORLD);
-  PETScWrappers::MPI::Vector vs2(local_active_2,
-                                 local_relevant,
-                                 MPI_COMM_WORLD);
+  PETScWrappers::MPI::Vector vs2(local_active_2, local_relevant, MPI_COMM_WORLD);
   vs1.swap(vs2);
   Assert(vs1.size() == numproc * 4, ExcInternalError());
   Assert(vs2.size() == numproc * 2, ExcInternalError());
@@ -118,8 +109,7 @@ test()
   for (unsigned int bl = 0; bl < 2; ++bl)
     {
       Assert(copied.block(bl)(myid * 2) == myid * 4.0, ExcInternalError());
-      Assert(copied.block(bl)(myid * 2 + 1) == myid * 4.0 + 2.0,
-             ExcInternalError());
+      Assert(copied.block(bl)(myid * 2 + 1) == myid * 4.0 + 2.0, ExcInternalError());
     }
 
   copied = v;
@@ -140,8 +130,7 @@ test()
   for (unsigned int bl = 0; bl < 2; ++bl)
     {
       Assert(copied.block(bl)(myid * 2) == myid * 4.0, ExcInternalError());
-      Assert(copied.block(bl)(myid * 2 + 1) == myid * 4.0 + 2.0,
-             ExcInternalError());
+      Assert(copied.block(bl)(myid * 2 + 1) == myid * 4.0 + 2.0, ExcInternalError());
     }
 
   // Create new block vector from a PETSc VECNEST
@@ -152,21 +141,18 @@ test()
   for (unsigned int bl = 0; bl < 2; ++bl)
     {
       Assert(vb2.block(bl).size() == v.block(bl).size(), ExcInternalError());
-      Assert(vb2.block(bl).petsc_vector() == v.block(bl).petsc_vector(),
-             ExcInternalError());
+      Assert(vb2.block(bl).petsc_vector() == v.block(bl).petsc_vector(), ExcInternalError());
     }
 
   // Create new block vector from an array of PETSc vectors
-  std::array<Vec, 2> arrayVecs = {
-    {vb.block(0).petsc_vector(), vb.block(1).petsc_vector()}};
+  std::array<Vec, 2>              arrayVecs = {{vb.block(0).petsc_vector(), vb.block(1).petsc_vector()}};
   PETScWrappers::MPI::BlockVector vb3(arrayVecs);
   Assert(vb3.n_blocks() == vb.n_blocks(), ExcInternalError());
   Assert(vb3.size() == vb.size(), ExcInternalError());
   for (unsigned int bl = 0; bl < 2; ++bl)
     {
       Assert(vb3.block(bl).size() == vb.block(bl).size(), ExcInternalError());
-      Assert(vb3.block(bl).petsc_vector() == vb.block(bl).petsc_vector(),
-             ExcInternalError());
+      Assert(vb3.block(bl).petsc_vector() == vb.block(bl).petsc_vector(), ExcInternalError());
     }
 
 
@@ -188,7 +174,7 @@ int
 main(int argc, char **argv)
 {
   Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
-  unsigned int myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  unsigned int                     myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
 
   deallog.push(Utilities::int_to_string(myid));
 

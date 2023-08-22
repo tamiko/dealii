@@ -203,15 +203,11 @@ print_matching(DoFHandler<dim, spacedim> &dof_handler)
 
   AffineConstraints<double>    constraint_matrix;
   std::vector<Point<spacedim>> support_points(dof_handler.n_dofs());
-  DoFTools::map_dofs_to_support_points<dim, spacedim>(mapping,
-                                                      dof_handler,
-                                                      support_points);
+  DoFTools::map_dofs_to_support_points<dim, spacedim>(mapping, dof_handler, support_points);
 
   // Look for the two outermost faces:
-  typename DoFHandler<dim, spacedim>::face_iterator face_1 =
-    (std::next(dof_handler.begin(0)))->face(2);
-  typename DoFHandler<dim, spacedim>::face_iterator face_2 =
-    dof_handler.begin(0)->face(2);
+  typename DoFHandler<dim, spacedim>::face_iterator face_1 = (std::next(dof_handler.begin(0)))->face(2);
+  typename DoFHandler<dim, spacedim>::face_iterator face_2 = dof_handler.begin(0)->face(2);
 
   // Determine the orientation of the two faces:
 
@@ -223,12 +219,10 @@ print_matching(DoFHandler<dim, spacedim> &dof_handler)
   // Print out all DoF support points on the two faces:
   deallog << "DoFs of face_1:" << std::endl;
   for (unsigned int i = 0; i < fe.dofs_per_face; ++i)
-    deallog << dofs_1[i] << " is located at " << support_points[dofs_1[i]]
-            << std::endl;
+    deallog << dofs_1[i] << " is located at " << support_points[dofs_1[i]] << std::endl;
   deallog << "DoFs of face_2:" << std::endl;
   for (unsigned int i = 0; i < fe.dofs_per_face; ++i)
-    deallog << dofs_2[i] << " is located at " << support_points[dofs_2[i]]
-            << std::endl;
+    deallog << dofs_2[i] << " is located at " << support_points[dofs_2[i]] << std::endl;
 
 
   std::bitset<3> orientation;
@@ -236,13 +230,8 @@ print_matching(DoFHandler<dim, spacedim> &dof_handler)
   orientation[1] = 1;
   orientation[2] = 0;
 
-  DoFTools::make_periodicity_constraints(face_1,
-                                         face_2,
-                                         constraint_matrix,
-                                         ComponentMask(),
-                                         orientation[0],
-                                         orientation[1],
-                                         orientation[2]);
+  DoFTools::make_periodicity_constraints(
+    face_1, face_2, constraint_matrix, ComponentMask(), orientation[0], orientation[1], orientation[2]);
   constraint_matrix.print(deallog.get_file_stream());
   constraint_matrix.close();
   deallog << "Matching:" << std::endl;

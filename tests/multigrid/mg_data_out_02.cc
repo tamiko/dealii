@@ -34,13 +34,11 @@ print(DataOut<dim> &data_out, const Triangulation<dim> &tria)
 {
   auto p = data_out.get_cell_selection();
 
-  for (auto cell = p.first(tria); cell.state() == IteratorState::valid;
-       cell      = p.second(tria, cell))
+  for (auto cell = p.first(tria); cell.state() == IteratorState::valid; cell = p.second(tria, cell))
     {
-      deallog << " cell lvl=" << cell->level()
-              << " active=" << cell->is_active()
-              << " owner=" << static_cast<int>(cell->level_subdomain_id())
-              << " id=" << cell->id().to_string() << std::endl;
+      deallog << " cell lvl=" << cell->level() << " active=" << cell->is_active()
+              << " owner=" << static_cast<int>(cell->level_subdomain_id()) << " id=" << cell->id().to_string()
+              << std::endl;
     }
 }
 
@@ -58,8 +56,7 @@ do_test()
   triangulation.begin_active()->set_refine_flag();
   triangulation.execute_coarsening_and_refinement();
 
-  deallog << "dim= " << dim << " cells=" << triangulation.n_cells()
-          << std::endl;
+  deallog << "dim= " << dim << " cells=" << triangulation.n_cells() << std::endl;
 
   DataOut<dim> data_out;
   data_out.attach_triangulation(triangulation);
@@ -68,10 +65,7 @@ do_test()
   print(data_out, triangulation);
 
   deallog << "* all cells:" << std::endl;
-  data_out.set_cell_selection(
-    [](const typename Triangulation<dim>::cell_iterator &cell) {
-      return true;
-    });
+  data_out.set_cell_selection([](const typename Triangulation<dim>::cell_iterator &cell) { return true; });
   print(data_out, triangulation);
 
   deallog << "* LocallyOwnedLevelCell:" << std::endl;
@@ -88,11 +82,9 @@ do_test()
       print(data_out, triangulation);
 
       deallog << "* owned on level " << level << std::endl;
-      data_out.set_cell_selection(
-        [level](const typename Triangulation<dim>::cell_iterator &cell) {
-          return (cell->level() == static_cast<int>(level) &&
-                  cell->is_locally_owned_on_level());
-        });
+      data_out.set_cell_selection([level](const typename Triangulation<dim>::cell_iterator &cell) {
+        return (cell->level() == static_cast<int>(level) && cell->is_locally_owned_on_level());
+      });
       print(data_out, triangulation);
     }
 }

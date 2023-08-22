@@ -54,8 +54,7 @@ test()
     const double min_x = 1.474531468108294;
     auto         func  = [](const double x) {
       const double f = (-3. * x) / (x * x + 2.) - 0.03 * x;
-      const double g =
-        -3. / (x * x + 2.) + (6. * x * x) / std::pow(x * x + 2., 2) - 0.03;
+      const double g = -3. / (x * x + 2.) + (6. * x * x) / std::pow(x * x + 2., 2) - 0.03;
       return std::make_pair(f, g);
     };
 
@@ -65,36 +64,16 @@ test()
       deallog << "Case 1:" << std::endl;
       // First, overshoot and get to solution immediately
       const auto res = LineMinimization::line_search<double>(
-        func,
-        fg0.first,
-        fg0.second,
-        LineMinimization::poly_fit<double>,
-        13,
-        0.1,
-        0.025,
-        30,
-        20,
-        true);
-      deallog << "Solution: " << res.first << std::endl
-              << "Distance: " << std::fabs(res.first - min_x) << std::endl;
+        func, fg0.first, fg0.second, LineMinimization::poly_fit<double>, 13, 0.1, 0.025, 30, 20, true);
+      deallog << "Solution: " << res.first << std::endl << "Distance: " << std::fabs(res.first - min_x) << std::endl;
     }
 
     {
       deallog << "Case 2:" << std::endl;
       // Now a small step to converge where needed:
       const auto res = LineMinimization::line_search<double>(
-        func,
-        fg0.first,
-        fg0.second,
-        LineMinimization::poly_fit<double>,
-        0.1,
-        0.1,
-        0.025,
-        30,
-        20,
-        true);
-      deallog << "Solution: " << res.first << std::endl
-              << "Distance: " << std::fabs(res.first - min_x) << std::endl;
+        func, fg0.first, fg0.second, LineMinimization::poly_fit<double>, 0.1, 0.1, 0.025, 30, 20, true);
+      deallog << "Solution: " << res.first << std::endl << "Distance: " << std::fabs(res.first - min_x) << std::endl;
     }
 
     {
@@ -105,18 +84,8 @@ test()
       // we are interested in another segment, which contains local
       // minimizer
       const auto res = LineMinimization::line_search<double>(
-        func,
-        fg0.first,
-        fg0.second,
-        LineMinimization::poly_fit<double>,
-        1,
-        0.1,
-        0.025,
-        30,
-        20,
-        true);
-      deallog << "Solution: " << res.first << std::endl
-              << "Distance: " << std::fabs(res.first - min_x) << std::endl;
+        func, fg0.first, fg0.second, LineMinimization::poly_fit<double>, 1, 0.1, 0.025, 30, 20, true);
+      deallog << "Solution: " << res.first << std::endl << "Distance: " << std::fabs(res.first - min_x) << std::endl;
     }
   }
 }

@@ -148,8 +148,7 @@ namespace internal
     /**
      * Abbreviation for the data type stored by this object.
      */
-    using value_type =
-      std::variant<int, unsigned int, std::uint64_t, double, std::string>;
+    using value_type = std::variant<int, unsigned int, std::uint64_t, double, std::string>;
 
     /**
      * Stored value.
@@ -448,8 +447,7 @@ public:
    * of output follows the order the columns are added to the supercolumn.
    */
   void
-  add_column_to_supercolumn(const std::string &key,
-                            const std::string &superkey);
+  add_column_to_supercolumn(const std::string &key, const std::string &superkey);
 
   /**
    * Change the order of columns and supercolumns in the table.
@@ -511,8 +509,7 @@ public:
    * contains formulas or similar constructs.
    */
   void
-  set_tex_supercaption(const std::string &superkey,
-                       const std::string &tex_supercaption);
+  set_tex_supercaption(const std::string &superkey, const std::string &tex_supercaption);
 
   /**
    * Set the tex output format of a column, e.g. <tt>c</tt>, <tt>r</tt>,
@@ -535,8 +532,7 @@ public:
    * the description of TextOutputFormat for more information.
    */
   void
-  write_text(std::ostream &         out,
-             const TextOutputFormat format = table_with_headers) const;
+  write_text(std::ostream &out, const TextOutputFormat format = table_with_headers) const;
 
   /**
    * Write table as a tex file. If @p with_header is set to false, then no
@@ -580,16 +576,12 @@ public:
   /**
    * Exception
    */
-  DeclException1(ExcColumnNotExistent,
-                 std::string,
-                 << "Column <" << arg1 << "> does not exist.");
+  DeclException1(ExcColumnNotExistent, std::string, << "Column <" << arg1 << "> does not exist.");
 
   /**
    * Exception
    */
-  DeclException1(ExcSuperColumnNotExistent,
-                 std::string,
-                 << "Supercolumn <" << arg1 << "> does not exist.");
+  DeclException1(ExcSuperColumnNotExistent, std::string, << "Supercolumn <" << arg1 << "> does not exist.");
 
   /**
    * Exception
@@ -606,8 +598,7 @@ public:
                  int,
                  std::string,
                  int,
-                 << "Column <" << arg1 << "> has " << arg2
-                 << " rows, but Column <" << arg3 << "> has " << arg4
+                 << "Column <" << arg1 << "> has " << arg2 << " rows, but Column <" << arg3 << "> has " << arg4
                  << " rows.");
 
   /**
@@ -828,9 +819,7 @@ namespace internal
       }
     catch (...)
       {
-        Assert(false,
-               ExcMessage(
-                 "This TableEntry object does not store a datum of type T"));
+        Assert(false, ExcMessage("This TableEntry object does not store a datum of type T"));
         throw;
       }
   }
@@ -848,31 +837,31 @@ namespace internal
       {
         const int p = std::get<int>(value);
         char      c = 'i';
-        ar &c &p;
+        ar &c    &p;
       }
     else if (std::holds_alternative<unsigned int>(value))
       {
         const unsigned int p = std::get<unsigned int>(value);
         char               c = 'u';
-        ar &c &p;
+        ar &c             &p;
       }
     else if (std::holds_alternative<double>(value))
       {
         const double p = std::get<double>(value);
         char         c = 'd';
-        ar &c &p;
+        ar &c       &p;
       }
     else if (std::holds_alternative<std::string>(value))
       {
         const std::string p = std::get<std::string>(value);
         char              c = 's';
-        ar &c &p;
+        ar &c            &p;
       }
     else if (std::holds_alternative<std::uint64_t>(value))
       {
         const std::uint64_t p = std::get<std::uint64_t>(value);
         char                c = 'l';
-        ar &c &p;
+        ar &c              &p;
       }
     else
       Assert(false, ExcInternalError());
@@ -889,7 +878,7 @@ namespace internal
     // as a one-character id, and then read
     // the data
     char c;
-    ar & c;
+    ar  &c;
 
     switch (c)
       {
@@ -904,7 +893,7 @@ namespace internal
         case 'u':
           {
             unsigned int val;
-            ar &         val;
+            ar          &val;
             value = val;
             break;
           }
@@ -912,7 +901,7 @@ namespace internal
         case 'd':
           {
             double val;
-            ar &   val;
+            ar    &val;
             value = val;
             break;
           }
@@ -920,7 +909,7 @@ namespace internal
         case 's':
           {
             std::string val;
-            ar &        val;
+            ar         &val;
             value = val;
             break;
           }
@@ -928,7 +917,7 @@ namespace internal
         case 'l':
           {
             std::uint64_t val;
-            ar &          val;
+            ar           &val;
             value = val;
             break;
           }
@@ -955,9 +944,7 @@ TableHandler::add_value(const std::string &key, const T value)
       // of padding columns as necessary
       unsigned int max_col_length = 0;
       for (const auto &column : columns)
-        max_col_length =
-          std::max(max_col_length,
-                   static_cast<unsigned int>(column.second.entries.size()));
+        max_col_length = std::max(max_col_length, static_cast<unsigned int>(column.second.entries.size()));
 
       while (columns[key].entries.size() + 1 < max_col_length)
         {
@@ -965,9 +952,7 @@ TableHandler::add_value(const std::string &key, const T value)
           internal::TableEntry &entry = columns[key].entries.back();
           entry.cache_string(columns[key].scientific, columns[key].precision);
           columns[key].max_length =
-            std::max(columns[key].max_length,
-                     static_cast<unsigned int>(
-                       entry.get_cached_string().size()));
+            std::max(columns[key].max_length, static_cast<unsigned int>(entry.get_cached_string().size()));
         }
     }
 
@@ -976,8 +961,7 @@ TableHandler::add_value(const std::string &key, const T value)
   internal::TableEntry &entry = columns[key].entries.back();
   entry.cache_string(columns[key].scientific, columns[key].precision);
   columns[key].max_length =
-    std::max(columns[key].max_length,
-             static_cast<unsigned int>(entry.get_cached_string().size()));
+    std::max(columns[key].max_length, static_cast<unsigned int>(entry.get_cached_string().size()));
 }
 
 
@@ -1004,8 +988,7 @@ template <class Archive>
 void
 TableHandler::serialize(Archive &ar, const unsigned int)
 {
-  ar &column_order &columns &supercolumns &tex_supercaptions &tex_table_caption
-    &tex_table_label &auto_fill_mode;
+  ar &column_order &columns &supercolumns &tex_supercaptions &tex_table_caption &tex_table_label &auto_fill_mode;
 }
 
 

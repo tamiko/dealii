@@ -30,9 +30,7 @@ namespace internal
 {
   template <int degree, typename EvaluatorType, typename... Args>
   bool
-  instantiation_helper_run(const unsigned int given_degree,
-                           const unsigned int n_q_points_1d,
-                           Args &...args)
+  instantiation_helper_run(const unsigned int given_degree, const unsigned int n_q_points_1d, Args &...args)
   {
     if (given_degree == degree)
       {
@@ -43,8 +41,7 @@ namespace internal
         else if (n_q_points_1d == degree)
           return EvaluatorType::template run<degree, degree>(args...);
         else if (n_q_points_1d == (3 * degree) / 2 + 1)
-          return EvaluatorType::template run<degree, (3 * degree) / 2 + 1>(
-            args...);
+          return EvaluatorType::template run<degree, (3 * degree) / 2 + 1>(args...);
         else if ((n_q_points_1d == (2 * degree)) && (degree <= 4))
           return EvaluatorType::template run<degree, (2 * degree)>(args...);
         else
@@ -52,9 +49,8 @@ namespace internal
           return EvaluatorType::template run<-1, 0>(args...);
       }
     else if (degree < FE_EVAL_FACTORY_DEGREE_MAX)
-      return instantiation_helper_run<
-        (degree < FE_EVAL_FACTORY_DEGREE_MAX ? degree + 1 : degree),
-        EvaluatorType>(given_degree, n_q_points_1d, args...);
+      return instantiation_helper_run<(degree < FE_EVAL_FACTORY_DEGREE_MAX ? degree + 1 : degree), EvaluatorType>(
+        given_degree, n_q_points_1d, args...);
     else
       // slow path
       return EvaluatorType::template run<-1, 0>(args...);
@@ -62,17 +58,15 @@ namespace internal
 
   template <int degree, typename EvaluatorType, typename... Args>
   bool
-  instantiation_helper_degree_run(const unsigned int given_degree,
-                                  Args &...args)
+  instantiation_helper_degree_run(const unsigned int given_degree, Args &...args)
   {
     if (given_degree == degree)
       {
         return EvaluatorType::template run<degree, degree + 1>(args...);
       }
     else if (degree < FE_EVAL_FACTORY_DEGREE_MAX)
-      return instantiation_helper_degree_run<
-        (degree < FE_EVAL_FACTORY_DEGREE_MAX ? degree + 1 : degree),
-        EvaluatorType>(given_degree, args...);
+      return instantiation_helper_degree_run<(degree < FE_EVAL_FACTORY_DEGREE_MAX ? degree + 1 : degree),
+                                             EvaluatorType>(given_degree, args...);
     else
       // slow path
       return EvaluatorType::template run<-1, 0>(args...);

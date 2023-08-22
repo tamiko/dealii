@@ -32,14 +32,12 @@ test(Vector<std::complex<double>> &v)
   for (unsigned int i = 0; i < v.size(); i += 1 + i)
     {
       v(i) = std::complex<double>(i + 1., i + 2.);
-      norm += std::conj(std::complex<double>(i + 1., i + 2.)) *
-              std::complex<double>(i + 1., i + 2.);
+      norm += std::conj(std::complex<double>(i + 1., i + 2.)) * std::complex<double>(i + 1., i + 2.);
     }
   v.compress();
 
   // then check the norm
-  AssertThrow(std::abs(v.norm_sqr() - norm) < 1e-14 * std::abs(norm),
-              ExcInternalError());
+  AssertThrow(std::abs(v.norm_sqr() - norm) < 1e-14 * std::abs(norm), ExcInternalError());
 
   deallog << "OK" << std::endl;
 }
@@ -58,28 +56,20 @@ main()
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

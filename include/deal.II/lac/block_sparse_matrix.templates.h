@@ -26,8 +26,7 @@
 DEAL_II_NAMESPACE_OPEN
 
 template <typename number>
-BlockSparseMatrix<number>::BlockSparseMatrix(
-  const BlockSparsityPattern &sparsity)
+BlockSparseMatrix<number>::BlockSparseMatrix(const BlockSparsityPattern &sparsity)
 {
   // virtual functions called in constructors and destructors never use the
   // override in a derived class
@@ -57,10 +56,8 @@ template <typename number>
 BlockSparseMatrix<number> &
 BlockSparseMatrix<number>::operator=(const BlockSparseMatrix<number> &m)
 {
-  Assert(this->row_block_indices == m.row_block_indices,
-         ExcBlockDimensionMismatch());
-  Assert(this->column_block_indices == m.column_block_indices,
-         ExcBlockDimensionMismatch());
+  Assert(this->row_block_indices == m.row_block_indices, ExcBlockDimensionMismatch());
+  Assert(this->column_block_indices == m.column_block_indices, ExcBlockDimensionMismatch());
 
   // this operator does not do
   // anything except than checking
@@ -149,8 +146,7 @@ BlockSparseMatrix<number>::n_nonzero_elements() const
 
 template <typename number>
 typename BlockSparseMatrix<number>::size_type
-BlockSparseMatrix<number>::n_actually_nonzero_elements(
-  const double threshold) const
+BlockSparseMatrix<number>::n_actually_nonzero_elements(const double threshold) const
 {
   size_type count = 0;
   for (size_type i = 0; i < this->n_block_rows(); ++i)
@@ -173,19 +169,18 @@ BlockSparseMatrix<number>::get_sparsity_pattern() const
 
 template <typename number>
 void
-BlockSparseMatrix<number>::print_formatted(std::ostream &     out,
+BlockSparseMatrix<number>::print_formatted(std::ostream      &out,
                                            const unsigned int precision,
                                            const bool         scientific,
                                            const unsigned int width,
-                                           const char *       zero_string,
+                                           const char        *zero_string,
                                            const double       denominator) const
 {
   for (size_type r = 0; r < this->n_block_rows(); ++r)
     for (size_type c = 0; c < this->n_block_cols(); ++c)
       {
         out << "Component (" << r << ',' << c << ')' << std::endl;
-        this->block(r, c).print_formatted(
-          out, precision, scientific, width, zero_string, denominator);
+        this->block(r, c).print_formatted(out, precision, scientific, width, zero_string, denominator);
       }
 }
 

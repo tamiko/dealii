@@ -37,9 +37,7 @@ test()
       {
         const auto j   = csp.column_number(i, ind);
         const auto val = csp.column_index(i, j);
-        AssertThrow(val == ind,
-                    ExcMessage(std::to_string(val) +
-                               "!=" + std::to_string(ind)));
+        AssertThrow(val == ind, ExcMessage(std::to_string(val) + "!=" + std::to_string(ind)));
       }
 
   deallog << "Ok" << std::endl;

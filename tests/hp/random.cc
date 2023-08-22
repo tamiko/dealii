@@ -53,18 +53,14 @@ test()
 
   DoFHandler<dim> dof_handler(tria);
 
-  for (typename DoFHandler<dim>::active_cell_iterator cell =
-         dof_handler.begin_active();
-       cell != dof_handler.end();
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(); cell != dof_handler.end();
        ++cell)
     cell->set_active_fe_index(Testing::rand() % fe_collection.size());
 
   dof_handler.distribute_dofs(fe_collection);
 
   std::vector<types::global_dof_index> local_dof_indices;
-  for (typename DoFHandler<dim>::active_cell_iterator cell =
-         dof_handler.begin_active();
-       cell != dof_handler.end();
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(); cell != dof_handler.end();
        ++cell)
     {
       local_dof_indices.resize(cell->get_fe().dofs_per_cell);

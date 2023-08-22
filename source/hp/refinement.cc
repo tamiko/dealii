@@ -52,11 +52,9 @@ namespace hp
         // nothing to do
         return;
 
-      Assert(dof_handler.has_hp_capabilities(),
-             (typename DoFHandler<dim, spacedim>::ExcOnlyAvailableWithHP()));
+      Assert(dof_handler.has_hp_capabilities(), (typename DoFHandler<dim, spacedim>::ExcOnlyAvailableWithHP()));
 
-      std::vector<bool> p_flags(
-        dof_handler.get_triangulation().n_active_cells(), true);
+      std::vector<bool> p_flags(dof_handler.get_triangulation().n_active_cells(), true);
 
       p_adaptivity_from_flags(dof_handler, p_flags);
     }
@@ -65,17 +63,14 @@ namespace hp
 
     template <int dim, int spacedim>
     void
-    p_adaptivity_from_flags(const DoFHandler<dim, spacedim> &dof_handler,
-                            const std::vector<bool> &        p_flags)
+    p_adaptivity_from_flags(const DoFHandler<dim, spacedim> &dof_handler, const std::vector<bool> &p_flags)
     {
       if (dof_handler.get_fe_collection().size() == 0)
         // nothing to do
         return;
 
-      Assert(dof_handler.has_hp_capabilities(),
-             (typename DoFHandler<dim, spacedim>::ExcOnlyAvailableWithHP()));
-      AssertDimension(dof_handler.get_triangulation().n_active_cells(),
-                      p_flags.size());
+      Assert(dof_handler.has_hp_capabilities(), (typename DoFHandler<dim, spacedim>::ExcOnlyAvailableWithHP()));
+      AssertDimension(dof_handler.get_triangulation().n_active_cells(), p_flags.size());
 
       for (const auto &cell : dof_handler.active_cell_iterators())
         if (cell->is_locally_owned() && p_flags[cell->active_cell_index()])
@@ -83,8 +78,7 @@ namespace hp
             if (cell->refine_flag_set())
               {
                 const unsigned int super_fe_index =
-                  dof_handler.get_fe_collection().next_in_hierarchy(
-                    cell->active_fe_index());
+                  dof_handler.get_fe_collection().next_in_hierarchy(cell->active_fe_index());
 
                 // Reject update if already most superordinate element.
                 if (super_fe_index != cell->active_fe_index())
@@ -93,8 +87,7 @@ namespace hp
             else if (cell->coarsen_flag_set())
               {
                 const unsigned int sub_fe_index =
-                  dof_handler.get_fe_collection().previous_in_hierarchy(
-                    cell->active_fe_index());
+                  dof_handler.get_fe_collection().previous_in_hierarchy(cell->active_fe_index());
 
                 // Reject update if already least subordinate element.
                 if (sub_fe_index != cell->active_fe_index())
@@ -107,36 +100,26 @@ namespace hp
 
     template <int dim, typename Number, int spacedim>
     void
-    p_adaptivity_from_absolute_threshold(
-      const DoFHandler<dim, spacedim> &dof_handler,
-      const Vector<Number> &           criteria,
-      const Number                     p_refine_threshold,
-      const Number                     p_coarsen_threshold,
-      const ComparisonFunction<std_cxx20::type_identity_t<Number>>
-        &compare_refine,
-      const ComparisonFunction<std_cxx20::type_identity_t<Number>>
-        &compare_coarsen)
+    p_adaptivity_from_absolute_threshold(const DoFHandler<dim, spacedim> &dof_handler,
+                                         const Vector<Number>            &criteria,
+                                         const Number                     p_refine_threshold,
+                                         const Number                     p_coarsen_threshold,
+                                         const ComparisonFunction<std_cxx20::type_identity_t<Number>> &compare_refine,
+                                         const ComparisonFunction<std_cxx20::type_identity_t<Number>> &compare_coarsen)
     {
       if (dof_handler.get_fe_collection().size() == 0)
         // nothing to do
         return;
 
-      Assert(dof_handler.has_hp_capabilities(),
-             (typename DoFHandler<dim, spacedim>::ExcOnlyAvailableWithHP()));
-      AssertDimension(dof_handler.get_triangulation().n_active_cells(),
-                      criteria.size());
+      Assert(dof_handler.has_hp_capabilities(), (typename DoFHandler<dim, spacedim>::ExcOnlyAvailableWithHP()));
+      AssertDimension(dof_handler.get_triangulation().n_active_cells(), criteria.size());
 
-      std::vector<bool> p_flags(
-        dof_handler.get_triangulation().n_active_cells(), false);
+      std::vector<bool> p_flags(dof_handler.get_triangulation().n_active_cells(), false);
 
       for (const auto &cell : dof_handler.active_cell_iterators())
         if (cell->is_locally_owned() &&
-            ((cell->refine_flag_set() &&
-              compare_refine(criteria[cell->active_cell_index()],
-                             p_refine_threshold)) ||
-             (cell->coarsen_flag_set() &&
-              compare_coarsen(criteria[cell->active_cell_index()],
-                              p_coarsen_threshold))))
+            ((cell->refine_flag_set() && compare_refine(criteria[cell->active_cell_index()], p_refine_threshold)) ||
+             (cell->coarsen_flag_set() && compare_coarsen(criteria[cell->active_cell_index()], p_coarsen_threshold))))
           p_flags[cell->active_cell_index()] = true;
 
       p_adaptivity_from_flags(dof_handler, p_flags);
@@ -146,153 +129,105 @@ namespace hp
 
     template <int dim, typename Number, int spacedim>
     void
-    p_adaptivity_from_relative_threshold(
-      const DoFHandler<dim, spacedim> &dof_handler,
-      const Vector<Number> &           criteria,
-      const double                     p_refine_fraction,
-      const double                     p_coarsen_fraction,
-      const ComparisonFunction<std_cxx20::type_identity_t<Number>>
-        &compare_refine,
-      const ComparisonFunction<std_cxx20::type_identity_t<Number>>
-        &compare_coarsen)
+    p_adaptivity_from_relative_threshold(const DoFHandler<dim, spacedim> &dof_handler,
+                                         const Vector<Number>            &criteria,
+                                         const double                     p_refine_fraction,
+                                         const double                     p_coarsen_fraction,
+                                         const ComparisonFunction<std_cxx20::type_identity_t<Number>> &compare_refine,
+                                         const ComparisonFunction<std_cxx20::type_identity_t<Number>> &compare_coarsen)
     {
       if (dof_handler.get_fe_collection().size() == 0)
         // nothing to do
         return;
 
-      Assert(dof_handler.has_hp_capabilities(),
-             (typename DoFHandler<dim, spacedim>::ExcOnlyAvailableWithHP()));
-      AssertDimension(dof_handler.get_triangulation().n_active_cells(),
-                      criteria.size());
-      Assert((p_refine_fraction >= 0) && (p_refine_fraction <= 1),
-             GridRefinement::ExcInvalidParameterValue());
-      Assert((p_coarsen_fraction >= 0) && (p_coarsen_fraction <= 1),
-             GridRefinement::ExcInvalidParameterValue());
+      Assert(dof_handler.has_hp_capabilities(), (typename DoFHandler<dim, spacedim>::ExcOnlyAvailableWithHP()));
+      AssertDimension(dof_handler.get_triangulation().n_active_cells(), criteria.size());
+      Assert((p_refine_fraction >= 0) && (p_refine_fraction <= 1), GridRefinement::ExcInvalidParameterValue());
+      Assert((p_coarsen_fraction >= 0) && (p_coarsen_fraction <= 1), GridRefinement::ExcInvalidParameterValue());
 
       // We first have to determine the maximal and minimal values of the
       // criteria of all flagged cells.
       Number max_criterion_refine  = std::numeric_limits<Number>::lowest(),
              min_criterion_refine  = std::numeric_limits<Number>::max();
-      Number max_criterion_coarsen = max_criterion_refine,
-             min_criterion_coarsen = min_criterion_refine;
+      Number max_criterion_coarsen = max_criterion_refine, min_criterion_coarsen = min_criterion_refine;
 
       for (const auto &cell : dof_handler.active_cell_iterators())
         if (cell->is_locally_owned())
           {
             if (cell->refine_flag_set())
               {
-                max_criterion_refine =
-                  std::max(max_criterion_refine,
-                           criteria(cell->active_cell_index()));
-                min_criterion_refine =
-                  std::min(min_criterion_refine,
-                           criteria(cell->active_cell_index()));
+                max_criterion_refine = std::max(max_criterion_refine, criteria(cell->active_cell_index()));
+                min_criterion_refine = std::min(min_criterion_refine, criteria(cell->active_cell_index()));
               }
             else if (cell->coarsen_flag_set())
               {
-                max_criterion_coarsen =
-                  std::max(max_criterion_coarsen,
-                           criteria(cell->active_cell_index()));
-                min_criterion_coarsen =
-                  std::min(min_criterion_coarsen,
-                           criteria(cell->active_cell_index()));
+                max_criterion_coarsen = std::max(max_criterion_coarsen, criteria(cell->active_cell_index()));
+                min_criterion_coarsen = std::min(min_criterion_coarsen, criteria(cell->active_cell_index()));
               }
           }
 
       const parallel::TriangulationBase<dim, spacedim> *parallel_tria =
-        dynamic_cast<const parallel::TriangulationBase<dim, spacedim> *>(
-          &dof_handler.get_triangulation());
-      if (parallel_tria != nullptr &&
-          dynamic_cast<const parallel::shared::Triangulation<dim, spacedim> *>(
-            &dof_handler.get_triangulation()) == nullptr)
+        dynamic_cast<const parallel::TriangulationBase<dim, spacedim> *>(&dof_handler.get_triangulation());
+      if (parallel_tria != nullptr && dynamic_cast<const parallel::shared::Triangulation<dim, spacedim> *>(
+                                        &dof_handler.get_triangulation()) == nullptr)
         {
-          max_criterion_refine =
-            Utilities::MPI::max(max_criterion_refine,
-                                parallel_tria->get_communicator());
-          min_criterion_refine =
-            Utilities::MPI::min(min_criterion_refine,
-                                parallel_tria->get_communicator());
-          max_criterion_coarsen =
-            Utilities::MPI::max(max_criterion_coarsen,
-                                parallel_tria->get_communicator());
-          min_criterion_coarsen =
-            Utilities::MPI::min(min_criterion_coarsen,
-                                parallel_tria->get_communicator());
+          max_criterion_refine  = Utilities::MPI::max(max_criterion_refine, parallel_tria->get_communicator());
+          min_criterion_refine  = Utilities::MPI::min(min_criterion_refine, parallel_tria->get_communicator());
+          max_criterion_coarsen = Utilities::MPI::max(max_criterion_coarsen, parallel_tria->get_communicator());
+          min_criterion_coarsen = Utilities::MPI::min(min_criterion_coarsen, parallel_tria->get_communicator());
         }
 
       // Absent any better strategies, we will set the threshold by linear
       // interpolation for both classes of cells individually.
       const Number threshold_refine =
-                     min_criterion_refine +
-                     p_refine_fraction *
-                       (max_criterion_refine - min_criterion_refine),
+                     min_criterion_refine + p_refine_fraction * (max_criterion_refine - min_criterion_refine),
                    threshold_coarsen =
-                     min_criterion_coarsen +
-                     p_coarsen_fraction *
-                       (max_criterion_coarsen - min_criterion_coarsen);
+                     min_criterion_coarsen + p_coarsen_fraction * (max_criterion_coarsen - min_criterion_coarsen);
 
-      p_adaptivity_from_absolute_threshold(dof_handler,
-                                           criteria,
-                                           threshold_refine,
-                                           threshold_coarsen,
-                                           compare_refine,
-                                           compare_coarsen);
+      p_adaptivity_from_absolute_threshold(
+        dof_handler, criteria, threshold_refine, threshold_coarsen, compare_refine, compare_coarsen);
     }
 
 
 
     template <int dim, typename Number, int spacedim>
     void
-    p_adaptivity_fixed_number(
-      const DoFHandler<dim, spacedim> &dof_handler,
-      const Vector<Number> &           criteria,
-      const double                     p_refine_fraction,
-      const double                     p_coarsen_fraction,
-      const ComparisonFunction<std_cxx20::type_identity_t<Number>>
-        &compare_refine,
-      const ComparisonFunction<std_cxx20::type_identity_t<Number>>
-        &compare_coarsen)
+    p_adaptivity_fixed_number(const DoFHandler<dim, spacedim>                              &dof_handler,
+                              const Vector<Number>                                         &criteria,
+                              const double                                                  p_refine_fraction,
+                              const double                                                  p_coarsen_fraction,
+                              const ComparisonFunction<std_cxx20::type_identity_t<Number>> &compare_refine,
+                              const ComparisonFunction<std_cxx20::type_identity_t<Number>> &compare_coarsen)
     {
       if (dof_handler.get_fe_collection().size() == 0)
         // nothing to do
         return;
 
-      Assert(dof_handler.has_hp_capabilities(),
-             (typename DoFHandler<dim, spacedim>::ExcOnlyAvailableWithHP()));
-      AssertDimension(dof_handler.get_triangulation().n_active_cells(),
-                      criteria.size());
-      Assert((p_refine_fraction >= 0) && (p_refine_fraction <= 1),
-             GridRefinement::ExcInvalidParameterValue());
-      Assert((p_coarsen_fraction >= 0) && (p_coarsen_fraction <= 1),
-             GridRefinement::ExcInvalidParameterValue());
+      Assert(dof_handler.has_hp_capabilities(), (typename DoFHandler<dim, spacedim>::ExcOnlyAvailableWithHP()));
+      AssertDimension(dof_handler.get_triangulation().n_active_cells(), criteria.size());
+      Assert((p_refine_fraction >= 0) && (p_refine_fraction <= 1), GridRefinement::ExcInvalidParameterValue());
+      Assert((p_coarsen_fraction >= 0) && (p_coarsen_fraction <= 1), GridRefinement::ExcInvalidParameterValue());
 
       // ComparisonFunction returning 'true' or 'false' for any set of
       // parameters. These will be used to overwrite user-provided comparison
       // functions whenever no actual comparison is required in the decision
       // process, i.e. when no or all cells will be refined or coarsened.
-      const ComparisonFunction<Number> compare_false =
-        [](const Number &, const Number &) { return false; };
-      const ComparisonFunction<Number> compare_true =
-        [](const Number &, const Number &) { return true; };
+      const ComparisonFunction<Number> compare_false = [](const Number &, const Number &) { return false; };
+      const ComparisonFunction<Number> compare_true  = [](const Number &, const Number &) { return true; };
 
       // 1.) First extract from the vector of indicators the ones that
       //     correspond to cells that we locally own.
       unsigned int   n_flags_refinement = 0;
       unsigned int   n_flags_coarsening = 0;
-      Vector<Number> indicators_refinement(
-        dof_handler.get_triangulation().n_active_cells());
-      Vector<Number> indicators_coarsening(
-        dof_handler.get_triangulation().n_active_cells());
-      for (const auto &cell :
-           dof_handler.get_triangulation().active_cell_iterators())
+      Vector<Number> indicators_refinement(dof_handler.get_triangulation().n_active_cells());
+      Vector<Number> indicators_coarsening(dof_handler.get_triangulation().n_active_cells());
+      for (const auto &cell : dof_handler.get_triangulation().active_cell_iterators())
         if (!cell->is_artificial() && cell->is_locally_owned())
           {
             if (cell->refine_flag_set())
-              indicators_refinement(n_flags_refinement++) =
-                criteria(cell->active_cell_index());
+              indicators_refinement(n_flags_refinement++) = criteria(cell->active_cell_index());
             else if (cell->coarsen_flag_set())
-              indicators_coarsening(n_flags_coarsening++) =
-                criteria(cell->active_cell_index());
+              indicators_coarsening(n_flags_coarsening++) = criteria(cell->active_cell_index());
           }
       indicators_refinement.grow_or_shrink(n_flags_refinement);
       indicators_coarsening.grow_or_shrink(n_flags_coarsening);
@@ -319,11 +254,9 @@ namespace hp
       auto   reference_compare_coarsen = std::cref(compare_coarsen);
 
       const parallel::TriangulationBase<dim, spacedim> *parallel_tria =
-        dynamic_cast<const parallel::TriangulationBase<dim, spacedim> *>(
-          &dof_handler.get_triangulation());
-      if (parallel_tria != nullptr &&
-          dynamic_cast<const parallel::shared::Triangulation<dim, spacedim> *>(
-            &dof_handler.get_triangulation()) == nullptr)
+        dynamic_cast<const parallel::TriangulationBase<dim, spacedim> *>(&dof_handler.get_triangulation());
+      if (parallel_tria != nullptr && dynamic_cast<const parallel::shared::Triangulation<dim, spacedim> *>(
+                                        &dof_handler.get_triangulation()) == nullptr)
         {
 #ifndef DEAL_II_WITH_P4EST
           Assert(false, ExcInternalError());
@@ -336,29 +269,23 @@ namespace hp
 
           // 2.) Communicate the number of cells scheduled for p-adaptation
           //     globally.
-          const unsigned int n_global_flags_refinement =
-            Utilities::MPI::sum(n_flags_refinement, mpi_communicator);
-          const unsigned int n_global_flags_coarsening =
-            Utilities::MPI::sum(n_flags_coarsening, mpi_communicator);
+          const unsigned int n_global_flags_refinement = Utilities::MPI::sum(n_flags_refinement, mpi_communicator);
+          const unsigned int n_global_flags_coarsening = Utilities::MPI::sum(n_flags_coarsening, mpi_communicator);
 
           const unsigned int target_index_refinement =
-            static_cast<unsigned int>(
-              std::floor(p_refine_fraction * n_global_flags_refinement));
+            static_cast<unsigned int>(std::floor(p_refine_fraction * n_global_flags_refinement));
           const unsigned int target_index_coarsening =
-            static_cast<unsigned int>(
-              std::ceil((1 - p_coarsen_fraction) * n_global_flags_coarsening));
+            static_cast<unsigned int>(std::ceil((1 - p_coarsen_fraction) * n_global_flags_coarsening));
 
           // 3.) Figure out the global max and min of the criteria. We don't
           //     need it here, but it's a collective communication call.
           const std::pair<Number, Number> global_min_max_refinement =
-            internal::parallel::distributed::GridRefinement::
-              compute_global_min_and_max_at_root(indicators_refinement,
-                                                 mpi_communicator);
+            internal::parallel::distributed::GridRefinement::compute_global_min_and_max_at_root(indicators_refinement,
+                                                                                                mpi_communicator);
 
           const std::pair<Number, Number> global_min_max_coarsening =
-            internal::parallel::distributed::GridRefinement::
-              compute_global_min_and_max_at_root(indicators_coarsening,
-                                                 mpi_communicator);
+            internal::parallel::distributed::GridRefinement::compute_global_min_and_max_at_root(indicators_coarsening,
+                                                                                                mpi_communicator);
 
           // 3.) Compute thresholds if necessary.
           if (target_index_refinement == 0)
@@ -366,24 +293,18 @@ namespace hp
           else if (target_index_refinement == n_global_flags_refinement)
             reference_compare_refine = std::cref(compare_true);
           else
-            threshold_refinement = internal::parallel::distributed::
-              GridRefinement::RefineAndCoarsenFixedNumber::compute_threshold(
-                indicators_refinement,
-                global_min_max_refinement,
-                target_index_refinement,
-                mpi_communicator);
+            threshold_refinement =
+              internal::parallel::distributed::GridRefinement::RefineAndCoarsenFixedNumber::compute_threshold(
+                indicators_refinement, global_min_max_refinement, target_index_refinement, mpi_communicator);
 
           if (target_index_coarsening == n_global_flags_coarsening)
             reference_compare_coarsen = std::cref(compare_false);
           else if (target_index_coarsening == 0)
             reference_compare_coarsen = std::cref(compare_true);
           else
-            threshold_coarsening = internal::parallel::distributed::
-              GridRefinement::RefineAndCoarsenFixedNumber::compute_threshold(
-                indicators_coarsening,
-                global_min_max_coarsening,
-                target_index_coarsening,
-                mpi_communicator);
+            threshold_coarsening =
+              internal::parallel::distributed::GridRefinement::RefineAndCoarsenFixedNumber::compute_threshold(
+                indicators_coarsening, global_min_max_coarsening, target_index_coarsening, mpi_communicator);
 #endif
         }
       else
@@ -393,10 +314,10 @@ namespace hp
           //
 
           // 2.) Determine the number of cells scheduled for p-adaptation.
-          const unsigned int n_p_refine_cells = static_cast<unsigned int>(
-            std::floor(p_refine_fraction * n_flags_refinement));
-          const unsigned int n_p_coarsen_cells = static_cast<unsigned int>(
-            std::floor(p_coarsen_fraction * n_flags_coarsening));
+          const unsigned int n_p_refine_cells =
+            static_cast<unsigned int>(std::floor(p_refine_fraction * n_flags_refinement));
+          const unsigned int n_p_coarsen_cells =
+            static_cast<unsigned int>(std::floor(p_coarsen_fraction * n_flags_coarsening));
 
           // 3.) Compute thresholds if necessary.
           if (n_p_refine_cells == 0)
@@ -406,12 +327,10 @@ namespace hp
           else
             {
               std::nth_element(indicators_refinement.begin(),
-                               indicators_refinement.begin() +
-                                 n_p_refine_cells - 1,
+                               indicators_refinement.begin() + n_p_refine_cells - 1,
                                indicators_refinement.end(),
                                std::greater<Number>());
-              threshold_refinement =
-                *(indicators_refinement.begin() + n_p_refine_cells - 1);
+              threshold_refinement = *(indicators_refinement.begin() + n_p_refine_cells - 1);
             }
 
           if (n_p_coarsen_cells == 0)
@@ -421,12 +340,10 @@ namespace hp
           else
             {
               std::nth_element(indicators_coarsening.begin(),
-                               indicators_coarsening.begin() +
-                                 n_p_coarsen_cells - 1,
+                               indicators_coarsening.begin() + n_p_coarsen_cells - 1,
                                indicators_coarsening.end(),
                                std::less<Number>());
-              threshold_coarsening =
-                *(indicators_coarsening.begin() + n_p_coarsen_cells - 1);
+              threshold_coarsening = *(indicators_coarsening.begin() + n_p_coarsen_cells - 1);
             }
         }
 
@@ -436,25 +353,21 @@ namespace hp
                                            threshold_refinement,
                                            threshold_coarsening,
                                            std::cref(reference_compare_refine),
-                                           std::cref(
-                                             reference_compare_coarsen));
+                                           std::cref(reference_compare_coarsen));
     }
 
 
 
     template <int dim, typename Number, int spacedim>
     void
-    p_adaptivity_from_regularity(const DoFHandler<dim, spacedim> &dof_handler,
-                                 const Vector<Number> &sobolev_indices)
+    p_adaptivity_from_regularity(const DoFHandler<dim, spacedim> &dof_handler, const Vector<Number> &sobolev_indices)
     {
       if (dof_handler.get_fe_collection().size() == 0)
         // nothing to do
         return;
 
-      Assert(dof_handler.has_hp_capabilities(),
-             (typename DoFHandler<dim, spacedim>::ExcOnlyAvailableWithHP()));
-      AssertDimension(dof_handler.get_triangulation().n_active_cells(),
-                      sobolev_indices.size());
+      Assert(dof_handler.has_hp_capabilities(), (typename DoFHandler<dim, spacedim>::ExcOnlyAvailableWithHP()));
+      AssertDimension(dof_handler.get_triangulation().n_active_cells(), sobolev_indices.size());
 
       for (const auto &cell : dof_handler.active_cell_iterators())
         if (cell->is_locally_owned())
@@ -462,34 +375,28 @@ namespace hp
             if (cell->refine_flag_set())
               {
                 const unsigned int super_fe_index =
-                  dof_handler.get_fe_collection().next_in_hierarchy(
-                    cell->active_fe_index());
+                  dof_handler.get_fe_collection().next_in_hierarchy(cell->active_fe_index());
 
                 // Reject update if already most superordinate element.
                 if (super_fe_index != cell->active_fe_index())
                   {
-                    const unsigned int super_fe_degree =
-                      dof_handler.get_fe_collection()[super_fe_index].degree;
+                    const unsigned int super_fe_degree = dof_handler.get_fe_collection()[super_fe_index].degree;
 
-                    if (sobolev_indices[cell->active_cell_index()] >
-                        super_fe_degree)
+                    if (sobolev_indices[cell->active_cell_index()] > super_fe_degree)
                       cell->set_future_fe_index(super_fe_index);
                   }
               }
             else if (cell->coarsen_flag_set())
               {
                 const unsigned int sub_fe_index =
-                  dof_handler.get_fe_collection().previous_in_hierarchy(
-                    cell->active_fe_index());
+                  dof_handler.get_fe_collection().previous_in_hierarchy(cell->active_fe_index());
 
                 // Reject update if already least subordinate element.
                 if (sub_fe_index != cell->active_fe_index())
                   {
-                    const unsigned int sub_fe_degree =
-                      dof_handler.get_fe_collection()[sub_fe_index].degree;
+                    const unsigned int sub_fe_degree = dof_handler.get_fe_collection()[sub_fe_index].degree;
 
-                    if (sobolev_indices[cell->active_cell_index()] <
-                        sub_fe_degree)
+                    if (sobolev_indices[cell->active_cell_index()] < sub_fe_degree)
                       cell->set_future_fe_index(sub_fe_index);
                   }
               }
@@ -500,37 +407,28 @@ namespace hp
 
     template <int dim, typename Number, int spacedim>
     void
-    p_adaptivity_from_reference(
-      const DoFHandler<dim, spacedim> &dof_handler,
-      const Vector<Number> &           criteria,
-      const Vector<Number> &           references,
-      const ComparisonFunction<std_cxx20::type_identity_t<Number>>
-        &compare_refine,
-      const ComparisonFunction<std_cxx20::type_identity_t<Number>>
-        &compare_coarsen)
+    p_adaptivity_from_reference(const DoFHandler<dim, spacedim>                              &dof_handler,
+                                const Vector<Number>                                         &criteria,
+                                const Vector<Number>                                         &references,
+                                const ComparisonFunction<std_cxx20::type_identity_t<Number>> &compare_refine,
+                                const ComparisonFunction<std_cxx20::type_identity_t<Number>> &compare_coarsen)
     {
       if (dof_handler.get_fe_collection().size() == 0)
         // nothing to do
         return;
 
-      Assert(dof_handler.has_hp_capabilities(),
-             (typename DoFHandler<dim, spacedim>::ExcOnlyAvailableWithHP()));
-      AssertDimension(dof_handler.get_triangulation().n_active_cells(),
-                      criteria.size());
-      AssertDimension(dof_handler.get_triangulation().n_active_cells(),
-                      references.size());
+      Assert(dof_handler.has_hp_capabilities(), (typename DoFHandler<dim, spacedim>::ExcOnlyAvailableWithHP()));
+      AssertDimension(dof_handler.get_triangulation().n_active_cells(), criteria.size());
+      AssertDimension(dof_handler.get_triangulation().n_active_cells(), references.size());
 
-      std::vector<bool> p_flags(
-        dof_handler.get_triangulation().n_active_cells(), false);
+      std::vector<bool> p_flags(dof_handler.get_triangulation().n_active_cells(), false);
 
       for (const auto &cell : dof_handler.active_cell_iterators())
         if (cell->is_locally_owned() &&
             ((cell->refine_flag_set() &&
-              compare_refine(criteria[cell->active_cell_index()],
-                             references[cell->active_cell_index()])) ||
+              compare_refine(criteria[cell->active_cell_index()], references[cell->active_cell_index()])) ||
              (cell->coarsen_flag_set() &&
-              compare_coarsen(criteria[cell->active_cell_index()],
-                              references[cell->active_cell_index()]))))
+              compare_coarsen(criteria[cell->active_cell_index()], references[cell->active_cell_index()]))))
           p_flags[cell->active_cell_index()] = true;
 
       p_adaptivity_from_flags(dof_handler, p_flags);
@@ -544,8 +442,8 @@ namespace hp
     template <int dim, typename Number, int spacedim>
     void
     predict_error(const DoFHandler<dim, spacedim> &dof_handler,
-                  const Vector<Number> &           error_indicators,
-                  Vector<Number> &                 predicted_errors,
+                  const Vector<Number>            &error_indicators,
+                  Vector<Number>                  &predicted_errors,
                   const double                     gamma_p,
                   const double                     gamma_h,
                   const double                     gamma_n)
@@ -554,12 +452,9 @@ namespace hp
         // nothing to do
         return;
 
-      AssertDimension(dof_handler.get_triangulation().n_active_cells(),
-                      error_indicators.size());
-      AssertDimension(dof_handler.get_triangulation().n_active_cells(),
-                      predicted_errors.size());
-      Assert(0 < gamma_p && gamma_p < 1,
-             GridRefinement::ExcInvalidParameterValue());
+      AssertDimension(dof_handler.get_triangulation().n_active_cells(), error_indicators.size());
+      AssertDimension(dof_handler.get_triangulation().n_active_cells(), predicted_errors.size());
+      Assert(0 < gamma_p && gamma_p < 1, GridRefinement::ExcInvalidParameterValue());
       Assert(0 < gamma_h, GridRefinement::ExcInvalidParameterValue());
       Assert(0 < gamma_n, GridRefinement::ExcInvalidParameterValue());
 
@@ -568,18 +463,15 @@ namespace hp
       unsigned int parent_future_fe_index = numbers::invalid_unsigned_int;
       // store all determined future finite element indices on parent cells for
       // coarsening
-      std::map<typename DoFHandler<dim, spacedim>::cell_iterator, unsigned int>
-        future_fe_indices_on_coarsened_cells;
+      std::map<typename DoFHandler<dim, spacedim>::cell_iterator, unsigned int> future_fe_indices_on_coarsened_cells;
 
       // deep copy error indicators
       predicted_errors = error_indicators;
 
-      for (const auto &cell : dof_handler.active_cell_iterators() |
-                                IteratorFilters::LocallyOwnedCell())
+      for (const auto &cell : dof_handler.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
         {
           // current cell will not be adapted
-          if (!(cell->future_fe_index_set()) && !(cell->refine_flag_set()) &&
-              !(cell->coarsen_flag_set()))
+          if (!(cell->future_fe_index_set()) && !(cell->refine_flag_set()) && !(cell->coarsen_flag_set()))
             {
               predicted_errors[cell->active_cell_index()] *= gamma_n;
               continue;
@@ -597,60 +489,50 @@ namespace hp
               // cell will be coarsened, thus determine future finite element
               // on parent cell
               const auto &parent = cell->parent();
-              if (future_fe_indices_on_coarsened_cells.find(parent) ==
-                  future_fe_indices_on_coarsened_cells.end())
+              if (future_fe_indices_on_coarsened_cells.find(parent) == future_fe_indices_on_coarsened_cells.end())
                 {
 #ifdef DEBUG
                   for (const auto &child : parent->child_iterators())
                     Assert(child->is_active() && child->coarsen_flag_set(),
-                           typename Triangulation<
-                             dim>::ExcInconsistentCoarseningFlags());
+                           typename Triangulation<dim>::ExcInconsistentCoarseningFlags());
 #endif
 
                   parent_future_fe_index =
-                    internal::hp::DoFHandlerImplementation::
-                      dominated_future_fe_on_children<dim, spacedim>(parent);
+                    internal::hp::DoFHandlerImplementation::dominated_future_fe_on_children<dim, spacedim>(parent);
 
-                  future_fe_indices_on_coarsened_cells.insert(
-                    {parent, parent_future_fe_index});
+                  future_fe_indices_on_coarsened_cells.insert({parent, parent_future_fe_index});
                 }
               else
                 {
-                  parent_future_fe_index =
-                    future_fe_indices_on_coarsened_cells[parent];
+                  parent_future_fe_index = future_fe_indices_on_coarsened_cells[parent];
                 }
 
-              future_fe_degree =
-                dof_handler.get_fe_collection()[parent_future_fe_index].degree;
+              future_fe_degree = dof_handler.get_fe_collection()[parent_future_fe_index].degree;
             }
           else
             {
               // future finite element on current cell is already set
-              future_fe_degree =
-                dof_handler.get_fe_collection()[cell->future_fe_index()].degree;
+              future_fe_degree = dof_handler.get_fe_collection()[cell->future_fe_index()].degree;
             }
 
           // step 1: exponential decay with p-adaptation
           if (cell->future_fe_index_set())
             {
               predicted_errors[cell->active_cell_index()] *=
-                std::pow(gamma_p,
-                         int(future_fe_degree) - int(cell->get_fe().degree));
+                std::pow(gamma_p, int(future_fe_degree) - int(cell->get_fe().degree));
             }
 
           // step 2: algebraic decay with h-adaptation
           if (cell->refine_flag_set())
             {
-              predicted_errors[cell->active_cell_index()] *=
-                (gamma_h * std::pow(.5, future_fe_degree));
+              predicted_errors[cell->active_cell_index()] *= (gamma_h * std::pow(.5, future_fe_degree));
 
               // predicted error will be split on children cells
               // after adaptation via CellDataTransfer
             }
           else if (cell->coarsen_flag_set())
             {
-              predicted_errors[cell->active_cell_index()] /=
-                (gamma_h * std::pow(.5, future_fe_degree));
+              predicted_errors[cell->active_cell_index()] /= (gamma_h * std::pow(.5, future_fe_degree));
 
               // predicted error will be summed up on parent cell
               // after adaptation via CellDataTransfer
@@ -671,8 +553,7 @@ namespace hp
         // nothing to do
         return;
 
-      Assert(dof_handler.has_hp_capabilities(),
-             (typename DoFHandler<dim, spacedim>::ExcOnlyAvailableWithHP()));
+      Assert(dof_handler.has_hp_capabilities(), (typename DoFHandler<dim, spacedim>::ExcOnlyAvailableWithHP()));
 
       for (const auto &cell : dof_handler.active_cell_iterators())
         if (cell->is_locally_owned() && cell->future_fe_index_set())
@@ -692,14 +573,13 @@ namespace hp
         // nothing to do
         return;
 
-      Assert(dof_handler.has_hp_capabilities(),
-             (typename DoFHandler<dim, spacedim>::ExcOnlyAvailableWithHP()));
+      Assert(dof_handler.has_hp_capabilities(), (typename DoFHandler<dim, spacedim>::ExcOnlyAvailableWithHP()));
 
       // Ghost siblings might occur on parallel::shared::Triangulation objects.
       // We need information about future FE indices on all locally relevant
       // cells here, and thus communicate them.
-      if (dynamic_cast<const parallel::shared::Triangulation<dim, spacedim> *>(
-            &dof_handler.get_triangulation()) != nullptr)
+      if (dynamic_cast<const parallel::shared::Triangulation<dim, spacedim> *>(&dof_handler.get_triangulation()) !=
+          nullptr)
         internal::hp::DoFHandlerImplementation::communicate_future_fe_indices(
           const_cast<DoFHandler<dim, spacedim> &>(dof_handler));
 
@@ -723,7 +603,7 @@ namespace hp
                     continue;
                   }
 
-                const auto &       parent     = cell->parent();
+                const auto        &parent     = cell->parent();
                 const unsigned int n_children = parent->n_children();
 
                 unsigned int h_flagged_children = 0, p_flagged_children = 0;
@@ -743,11 +623,9 @@ namespace hp
                             // The case of siblings being owned by different
                             // processors can only occur for
                             // parallel::shared::Triangulation objects.
-                            Assert(
-                              (dynamic_cast<const parallel::shared::
-                                              Triangulation<dim, spacedim> *>(
-                                 &dof_handler.get_triangulation()) != nullptr),
-                              ExcInternalError());
+                            Assert((dynamic_cast<const parallel::shared::Triangulation<dim, spacedim> *>(
+                                      &dof_handler.get_triangulation()) != nullptr),
+                                   ExcInternalError());
 
                             if (child->coarsen_flag_set())
                               ++h_flagged_children;
@@ -756,10 +634,8 @@ namespace hp
                             // need this information here and thus call the
                             // internal function that does not check for cell
                             // ownership.
-                            if (internal::DoFCellAccessorImplementation::
-                                  Implementation::
-                                    future_fe_index_set<dim, spacedim, false>(
-                                      *child))
+                            if (internal::DoFCellAccessorImplementation::Implementation::
+                                  future_fe_index_set<dim, spacedim, false>(*child))
                               ++p_flagged_children;
                           }
                         else
@@ -771,8 +647,7 @@ namespace hp
                       }
                   }
 
-                if (h_flagged_children == n_children &&
-                    p_flagged_children != n_children)
+                if (h_flagged_children == n_children && p_flagged_children != n_children)
                   {
                     // Perform pure h-coarsening and
                     // drop all p-adaptation flags.
@@ -814,14 +689,9 @@ namespace hp
         // nothing to do
         return false;
 
-      Assert(dof_handler.has_hp_capabilities(),
-             (typename DoFHandler<dim, spacedim>::ExcOnlyAvailableWithHP()));
-      Assert(
-        max_difference > 0,
-        ExcMessage(
-          "This function does not serve any purpose for max_difference = 0."));
-      AssertIndexRange(contains_fe_index,
-                       dof_handler.get_fe_collection().size());
+      Assert(dof_handler.has_hp_capabilities(), (typename DoFHandler<dim, spacedim>::ExcOnlyAvailableWithHP()));
+      Assert(max_difference > 0, ExcMessage("This function does not serve any purpose for max_difference = 0."));
+      AssertIndexRange(contains_fe_index, dof_handler.get_fe_collection().size());
 
       //
       // establish hierarchy
@@ -836,14 +706,12 @@ namespace hp
       // map from FE index to level in hierarchy
       // FE indices that are not covered in the hierarchy are not in the map
       const std::vector<unsigned int> fe_index_for_hierarchy_level =
-        dof_handler.get_fe_collection().get_hierarchy_sequence(
-          contains_fe_index);
+        dof_handler.get_fe_collection().get_hierarchy_sequence(contains_fe_index);
 
       // map from level in hierarchy to FE index
       // FE indices that are not covered in the hierarchy will be mapped to
       // invalid_level
-      std::vector<unsigned int> hierarchy_level_for_fe_index(
-        dof_handler.get_fe_collection().size(), invalid_level);
+      std::vector<unsigned int> hierarchy_level_for_fe_index(dof_handler.get_fe_collection().size(), invalid_level);
       for (unsigned int l = 0; l < fe_index_for_hierarchy_level.size(); ++l)
         hierarchy_level_for_fe_index[fe_index_for_hierarchy_level[l]] = l;
 
@@ -859,22 +727,17 @@ namespace hp
       // HOTFIX: dealii::Vector does not accept integral types
       LinearAlgebra::distributed::Vector<float> future_levels;
       if (const auto parallel_tria =
-            dynamic_cast<const parallel::TriangulationBase<dim, spacedim> *>(
-              &(dof_handler.get_triangulation())))
+            dynamic_cast<const parallel::TriangulationBase<dim, spacedim> *>(&(dof_handler.get_triangulation())))
         {
-          future_levels.reinit(
-            parallel_tria->global_active_cell_index_partitioner().lock());
+          future_levels.reinit(parallel_tria->global_active_cell_index_partitioner().lock());
         }
       else
         {
-          future_levels.reinit(
-            dof_handler.get_triangulation().n_active_cells());
+          future_levels.reinit(dof_handler.get_triangulation().n_active_cells());
         }
 
-      for (const auto &cell : dof_handler.active_cell_iterators() |
-                                IteratorFilters::LocallyOwnedCell())
-        future_levels[cell->global_active_cell_index()] =
-          hierarchy_level_for_fe_index[cell->future_fe_index()];
+      for (const auto &cell : dof_handler.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+        future_levels[cell->global_active_cell_index()] = hierarchy_level_for_fe_index[cell->future_fe_index()];
 
 
       //
@@ -890,16 +753,15 @@ namespace hp
       // Function that updates the level of neighbor to fulfill difference
       // criterion, and returns whether it was changed.
       const auto update_neighbor_level =
-        [&future_levels, max_difference, invalid_level](
-          const auto &neighbor, const level_type cell_level) -> bool {
+        [&future_levels, max_difference, invalid_level](const auto &neighbor, const level_type cell_level) -> bool {
         Assert(neighbor->is_active(), ExcInternalError());
         // We only care about locally owned neighbors. If neighbor is a ghost
         // cell, its future FE index will be updated on the owning process and
         // communicated at the next loop iteration.
         if (neighbor->is_locally_owned())
           {
-            const level_type neighbor_level = static_cast<level_type>(
-              future_levels[neighbor->global_active_cell_index()]);
+            const level_type neighbor_level =
+              static_cast<level_type>(future_levels[neighbor->global_active_cell_index()]);
 
             // ignore neighbors that are not part of the hierarchy
             if (neighbor_level == invalid_level)
@@ -907,8 +769,7 @@ namespace hp
 
             if ((cell_level - max_difference) > neighbor_level)
               {
-                future_levels[neighbor->global_active_cell_index()] =
-                  cell_level - max_difference;
+                future_levels[neighbor->global_active_cell_index()] = cell_level - max_difference;
 
                 return true;
               }
@@ -943,36 +804,30 @@ namespace hp
             for (const auto &child : parent->child_iterators())
               {
                 Assert(child->is_active() && child->coarsen_flag_set(),
-                       (typename Triangulation<dim, spacedim>::
-                          ExcInconsistentCoarseningFlags()));
+                       (typename Triangulation<dim, spacedim>::ExcInconsistentCoarseningFlags()));
 
-                const level_type child_level = static_cast<level_type>(
-                  future_levels[child->global_active_cell_index()]);
+                const level_type child_level =
+                  static_cast<level_type>(future_levels[child->global_active_cell_index()]);
                 Assert(child_level != invalid_level,
-                       ExcMessage(
-                         "The FiniteElement on one of the siblings of "
-                         "a cell you are trying to coarsen is not part "
-                         "of the registered p-adaptation hierarchy."));
+                       ExcMessage("The FiniteElement on one of the siblings of "
+                                  "a cell you are trying to coarsen is not part "
+                                  "of the registered p-adaptation hierarchy."));
                 future_levels_children.push_back(child_level);
               }
             Assert(!future_levels_children.empty(), ExcInternalError());
 
             const unsigned int max_level_children =
-              *std::max_element(future_levels_children.begin(),
-                                future_levels_children.end());
+              *std::max_element(future_levels_children.begin(), future_levels_children.end());
 
             bool children_changed = false;
             for (const auto &child : parent->child_iterators())
               // We only care about locally owned children. If child is a ghost
               // cell, its future FE index will be updated on the owning process
               // and communicated at the next loop iteration.
-              if (child->is_locally_owned() &&
-                  future_levels[child->global_active_cell_index()] !=
-                    max_level_children)
+              if (child->is_locally_owned() && future_levels[child->global_active_cell_index()] != max_level_children)
                 {
-                  future_levels[child->global_active_cell_index()] =
-                    max_level_children;
-                  children_changed = true;
+                  future_levels[child->global_active_cell_index()] = max_level_children;
+                  children_changed                                 = true;
                 }
             return children_changed;
           }
@@ -991,8 +846,7 @@ namespace hp
           for (const auto &cell : dof_handler.active_cell_iterators())
             if (!cell->is_artificial())
               {
-                const level_type cell_level = static_cast<level_type>(
-                  future_levels[cell->global_active_cell_index()]);
+                const level_type cell_level = static_cast<level_type>(future_levels[cell->global_active_cell_index()]);
 
                 // ignore cells that are not part of the hierarchy
                 if (cell_level == invalid_level)
@@ -1008,51 +862,39 @@ namespace hp
                     {
                       if (cell->face(f)->has_children())
                         {
-                          for (unsigned int sf = 0;
-                               sf < cell->face(f)->n_children();
-                               ++sf)
+                          for (unsigned int sf = 0; sf < cell->face(f)->n_children(); ++sf)
                             {
-                              const auto neighbor =
-                                cell->neighbor_child_on_subface(f, sf);
+                              const auto neighbor = cell->neighbor_child_on_subface(f, sf);
 
-                              levels_changed_in_cycle |=
-                                update_neighbor_level(neighbor, cell_level);
+                              levels_changed_in_cycle |= update_neighbor_level(neighbor, cell_level);
 
-                              levels_changed_in_cycle |=
-                                prepare_level_for_parent(neighbor);
+                              levels_changed_in_cycle |= prepare_level_for_parent(neighbor);
                             }
                         }
                       else
                         {
                           const auto neighbor = cell->neighbor(f);
 
-                          levels_changed_in_cycle |=
-                            update_neighbor_level(neighbor, cell_level);
+                          levels_changed_in_cycle |= update_neighbor_level(neighbor, cell_level);
 
-                          levels_changed_in_cycle |=
-                            prepare_level_for_parent(neighbor);
+                          levels_changed_in_cycle |= prepare_level_for_parent(neighbor);
                         }
                     }
               }
 
-          levels_changed_in_cycle =
-            Utilities::MPI::logical_or(levels_changed_in_cycle,
-                                       dof_handler.get_communicator());
+          levels_changed_in_cycle = Utilities::MPI::logical_or(levels_changed_in_cycle, dof_handler.get_communicator());
           levels_changed |= levels_changed_in_cycle;
         }
       while (levels_changed_in_cycle);
 
       // update future FE indices on locally owned cells
-      for (const auto &cell : dof_handler.active_cell_iterators() |
-                                IteratorFilters::LocallyOwnedCell())
+      for (const auto &cell : dof_handler.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
         {
-          const level_type cell_level = static_cast<level_type>(
-            future_levels[cell->global_active_cell_index()]);
+          const level_type cell_level = static_cast<level_type>(future_levels[cell->global_active_cell_index()]);
 
           if (cell_level != invalid_level)
             {
-              const unsigned int fe_index =
-                fe_index_for_hierarchy_level[cell_level];
+              const unsigned int fe_index = fe_index_for_hierarchy_level[cell_level];
 
               // only update if necessary
               if (fe_index != cell->active_fe_index())

@@ -376,8 +376,7 @@ inline T &
 SmartPointer<T, P>::operator*() const
 {
   Assert(t != nullptr, ExcNotInitialized());
-  Assert(pointed_to_object_is_alive,
-         ExcMessage("The object pointed to is not valid anymore."));
+  Assert(pointed_to_object_is_alive, ExcMessage("The object pointed to is not valid anymore."));
   return *t;
 }
 
@@ -388,8 +387,7 @@ inline T *
 SmartPointer<T, P>::get() const
 {
   Assert(t != nullptr, ExcNotInitialized());
-  Assert(pointed_to_object_is_alive,
-         ExcMessage("The object pointed to is not valid anymore."));
+  Assert(pointed_to_object_is_alive, ExcMessage("The object pointed to is not valid anymore."));
   return t;
 }
 

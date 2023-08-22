@@ -73,42 +73,31 @@ run_test(int testcase, bool recoverable)
           {
             if (throw_recoverable)
               {
-                deallog
-                  << "Throwing a recoverable exception from setup_jacobian."
-                  << std::endl;
+                deallog << "Throwing a recoverable exception from setup_jacobian." << std::endl;
                 throw RecoverableUserCallbackError();
               }
             else
               {
-                deallog
-                  << "Throwing a unrecoverable exception from setup_jacobian."
-                  << std::endl;
-                throw std::runtime_error(
-                  "Unrecoverable error in setup_jacobian");
+                deallog << "Throwing a unrecoverable exception from setup_jacobian." << std::endl;
+                throw std::runtime_error("Unrecoverable error in setup_jacobian");
               }
           }
       };
 
-      solver.solve_with_jacobian = [&](const VectorType &rhs,
-                                       VectorType &      sol) -> void {
+      solver.solve_with_jacobian = [&](const VectorType &rhs, VectorType &sol) -> void {
         deallog << "Solve Jacobian" << std::endl;
 
         if (throw_exception && testcase == 2)
           {
             if (throw_recoverable)
               {
-                deallog
-                  << "Throwing a recoverable exception from solve_with_jacobian."
-                  << std::endl;
+                deallog << "Throwing a recoverable exception from solve_with_jacobian." << std::endl;
                 throw RecoverableUserCallbackError();
               }
             else
               {
-                deallog
-                  << "Throwing a unrecoverable exception from solve_with_jacobian."
-                  << std::endl;
-                throw std::runtime_error(
-                  "Unrecoverable error in solve_with_jacobian");
+                deallog << "Throwing a unrecoverable exception from solve_with_jacobian." << std::endl;
+                throw std::runtime_error("Unrecoverable error in solve_with_jacobian");
               }
           }
         else
@@ -120,22 +109,19 @@ run_test(int testcase, bool recoverable)
     }
   else
     {
-      solver.jacobian =
-        [&](const VectorType &X, MatrixType &A, MatrixType &P) -> void {
+      solver.jacobian = [&](const VectorType &X, MatrixType &A, MatrixType &P) -> void {
         deallog << "Evaluating the Jacobian at x=" << X(0) << std::endl;
 
         if (throw_exception)
           {
             if (throw_recoverable)
               {
-                deallog << "Throwing a recoverable exception from jacobian."
-                        << std::endl;
+                deallog << "Throwing a recoverable exception from jacobian." << std::endl;
                 throw RecoverableUserCallbackError();
               }
             else
               {
-                deallog << "Throwing a unrecoverable exception from jacobian."
-                        << std::endl;
+                deallog << "Throwing a unrecoverable exception from jacobian." << std::endl;
                 throw std::runtime_error("Unrecoverable error in jacobian");
               }
           }
@@ -155,8 +141,7 @@ run_test(int testcase, bool recoverable)
 
   // This test triggers false positives in FPE trapping for some versions of
   // PETSc
-#if DEAL_II_PETSC_VERSION_LT(3, 19, 2) && defined(DEBUG) && \
-  defined(DEAL_II_HAVE_FP_EXCEPTIONS)
+#if DEAL_II_PETSC_VERSION_LT(3, 19, 2) && defined(DEBUG) && defined(DEAL_II_HAVE_FP_EXCEPTIONS)
   PetscErrorCode ierr = PetscFPTrapPush(PETSC_FP_TRAP_OFF);
   (void)ierr;
 #endif
@@ -166,8 +151,7 @@ run_test(int testcase, bool recoverable)
     {
       const auto nit = solver.solve(x);
 
-      deallog << "Found the solution x=" << x(0) << " after " << nit
-              << " iterations." << std::endl;
+      deallog << "Found the solution x=" << x(0) << " after " << nit << " iterations." << std::endl;
     }
   catch (const std::exception &exc)
     {

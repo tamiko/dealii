@@ -38,9 +38,7 @@
 #include "../tests.h"
 
 
-template <int dim,
-          typename Number              = double,
-          typename VectorizedArrayType = VectorizedArray<Number>>
+template <int dim, typename Number = double, typename VectorizedArrayType = VectorizedArray<Number>>
 class Test
 {
 public:
@@ -49,8 +47,7 @@ public:
   void
   run(unsigned int fe_degree)
   {
-    Triangulation<dim> tria(
-      Triangulation<dim>::limit_level_difference_at_vertices);
+    Triangulation<dim> tria(Triangulation<dim>::limit_level_difference_at_vertices);
     GridGenerator::hyper_cube(tria);
 
     tria.refine_global(2);
@@ -67,49 +64,38 @@ public:
 
 
     for (unsigned int level = numbers::invalid_unsigned_int;
-         level < tria.n_global_levels() ||
-         level == numbers::invalid_unsigned_int;
+         level < tria.n_global_levels() || level == numbers::invalid_unsigned_int;
          level++)
       {
         if (level == numbers::invalid_unsigned_int)
-          deallog << "Active level (with max_level="
-                  << tria.n_global_levels() - 1 << "):" << std::endl;
+          deallog << "Active level (with max_level=" << tria.n_global_levels() - 1 << "):" << std::endl;
         else
           deallog << "Multigrid level " << level << ':' << std::endl;
 
         AffineConstraints<Number> constraint;
 
-        typename MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData
-          additional_data;
+        typename MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData additional_data;
         additional_data.mapping_update_flags                = update_values;
         additional_data.mapping_update_flags_inner_faces    = update_values;
         additional_data.mapping_update_flags_boundary_faces = update_values;
         additional_data.mg_level                            = level;
-        additional_data.tasks_parallel_scheme =
-          MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData::none;
+        additional_data.tasks_parallel_scheme = MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData::none;
 
         MatrixFree<dim, Number, VectorizedArrayType> matrix_free;
-        matrix_free.reinit(
-          mapping, dof_handler, constraint, quad, additional_data);
+        matrix_free.reinit(mapping, dof_handler, constraint, quad, additional_data);
 
         VectorType src, dst;
 
         matrix_free.initialize_dof_vector(src);
         matrix_free.initialize_dof_vector(dst);
 
-        matrix_free.loop(&Test::cell_operation,
-                         &Test::face_operation,
-                         &Test::boundary_operation,
-                         this,
-                         dst,
-                         src);
+        matrix_free.loop(&Test::cell_operation, &Test::face_operation, &Test::boundary_operation, this, dst, src);
 
         for (const auto cell : cells)
           deallog << "cell:      " << cell.to_string() << std::endl;
 
         for (const auto &face : faces)
-          deallog << "face:      " << face.first.to_string() << ' '
-                  << face.second.to_string() << std::endl;
+          deallog << "face:      " << face.first.to_string() << ' ' << face.second.to_string() << std::endl;
 
         for (const auto boundary : boundaries)
           deallog << "boundary:  " << boundary.to_string() << std::endl;
@@ -130,8 +116,7 @@ private:
                  const std::pair<unsigned int, unsigned int> &pair) const
   {
     for (auto cell = pair.first; cell < pair.second; ++cell)
-      for (auto lane = 0u; lane < data.n_active_entries_per_cell_batch(cell);
-           lane++)
+      for (auto lane = 0u; lane < data.n_active_entries_per_cell_batch(cell); lane++)
         cells.emplace(data.get_cell_iterator(cell, lane)->id());
   }
 
@@ -142,13 +127,10 @@ private:
                  const std::pair<unsigned int, unsigned int> &pair) const
   {
     for (auto face = pair.first; face < pair.second; ++face)
-      for (auto lane = 0u; lane < data.n_active_entries_per_face_batch(face);
-           lane++)
+      for (auto lane = 0u; lane < data.n_active_entries_per_face_batch(face); lane++)
         {
-          const auto face_0 =
-            data.get_face_iterator(face, lane, true).first->id();
-          const auto face_1 =
-            data.get_face_iterator(face, lane, false).first->id();
+          const auto face_0 = data.get_face_iterator(face, lane, true).first->id();
+          const auto face_1 = data.get_face_iterator(face, lane, false).first->id();
           if (face_0 < face_1)
             faces.emplace(face_0, face_1);
           else
@@ -164,10 +146,8 @@ private:
                      const std::pair<unsigned int, unsigned int> &pair) const
   {
     for (auto face = pair.first; face < pair.second; ++face)
-      for (auto lane = 0u; lane < data.n_active_entries_per_face_batch(face);
-           lane++)
-        boundaries.emplace(
-          data.get_face_iterator(face, lane, true).first->id());
+      for (auto lane = 0u; lane < data.n_active_entries_per_face_batch(face); lane++)
+        boundaries.emplace(data.get_face_iterator(face, lane, true).first->id());
   }
 
   mutable std::set<CellId>                    cells;

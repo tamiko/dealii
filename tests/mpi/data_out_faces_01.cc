@@ -102,11 +102,8 @@ namespace pdd
     repetitions.push_back(10);
     repetitions.push_back(12);
 
-    GridGenerator::subdivided_hyper_rectangle(triangulation,
-                                              repetitions,
-                                              Point<dim>(-1., -1.),
-                                              Point<dim>(1., 1.),
-                                              true);
+    GridGenerator::subdivided_hyper_rectangle(
+      triangulation, repetitions, Point<dim>(-1., -1.), Point<dim>(1., 1.), true);
     // triangulation.refine_global (1);
 
     // Print out the mesh
@@ -123,8 +120,7 @@ namespace pdd
     constraints.clear();
     constraints.reinit(locally_relevant_dofs);
     DoFTools::make_hanging_node_constraints(dof_handler, constraints);
-    VectorTools::interpolate_boundary_values(
-      dof_handler, 0, Functions::ConstantFunction<dim>(1.0), constraints);
+    VectorTools::interpolate_boundary_values(dof_handler, 0, Functions::ConstantFunction<dim>(1.0), constraints);
     constraints.close();
     constraints.distribute(locally_relevant_solution);
   }
@@ -137,9 +133,7 @@ namespace pdd
     // First generate an output for the cells
     const unsigned int cycle = 1;
 
-    PETScWrappers::MPI::Vector solution(locally_owned_dofs,
-                                        locally_relevant_dofs,
-                                        mpi_communicator);
+    PETScWrappers::MPI::Vector solution(locally_owned_dofs, locally_relevant_dofs, mpi_communicator);
     solution = locally_relevant_solution;
 
     DataOut<dim> data_out;
@@ -191,27 +185,19 @@ main(int argc, char *argv[])
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

@@ -31,12 +31,8 @@ test()
 {
   // test 1:
   {
-    auto f = [](double x) {
-      return std::pow(x, 4) - 20. * std::pow(x, 3) + 0.1 * x;
-    };
-    auto g = [](double x) {
-      return 4. * std::pow(x, 3) - 60. * std::pow(x, 2) + 0.1;
-    };
+    auto f = [](double x) { return std::pow(x, 4) - 20. * std::pow(x, 3) + 0.1 * x; };
+    auto g = [](double x) { return 4. * std::pow(x, 3) - 60. * std::pow(x, 2) + 0.1; };
 
     const double x1  = 10;
     const double x2  = 17;

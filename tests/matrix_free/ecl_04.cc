@@ -108,17 +108,13 @@ test(const unsigned int geometry, const MPI_Comm comm = MPI_COMM_SELF)
   using MF = MatrixFree<dim, Number, VectorizedArrayType>;
 
   typename MF::AdditionalData additional_data;
-  additional_data.mapping_update_flags = update_values | update_gradients;
-  additional_data.mapping_update_flags_inner_faces =
-    update_values | update_gradients;
-  additional_data.mapping_update_flags_boundary_faces =
-    update_values | update_gradients;
-  additional_data.mapping_update_flags_faces_by_cells =
-    update_values | update_gradients;
-  additional_data.hold_all_faces_to_owned_cells = true;
-  additional_data.communicator_sm               = comm;
-  additional_data.tasks_parallel_scheme =
-    MF::AdditionalData::TasksParallelScheme::none;
+  additional_data.mapping_update_flags                = update_values | update_gradients;
+  additional_data.mapping_update_flags_inner_faces    = update_values | update_gradients;
+  additional_data.mapping_update_flags_boundary_faces = update_values | update_gradients;
+  additional_data.mapping_update_flags_faces_by_cells = update_values | update_gradients;
+  additional_data.hold_all_faces_to_owned_cells       = true;
+  additional_data.communicator_sm                     = comm;
+  additional_data.tasks_parallel_scheme               = MF::AdditionalData::TasksParallelScheme::none;
 
   MatrixFreeTools::categorize_by_boundary_ids(tria, additional_data);
 
@@ -139,18 +135,14 @@ test(const unsigned int geometry, const MPI_Comm comm = MPI_COMM_SELF)
    */
   matrix_free.template loop_cell_centric<VectorType, VectorType>(
     [&](const auto &, auto &dst, const auto &src, const auto range) {
-      FEFaceEvaluation<dim, fe_degree, n_points, 1, Number, VectorizedArrayType>
-        phi_m(matrix_free, true);
-      FEFaceEvaluation<dim, fe_degree, n_points, 1, Number, VectorizedArrayType>
-        phi_p(matrix_free, false);
+      FEFaceEvaluation<dim, fe_degree, n_points, 1, Number, VectorizedArrayType> phi_m(matrix_free, true);
+      FEFaceEvaluation<dim, fe_degree, n_points, 1, Number, VectorizedArrayType> phi_p(matrix_free, false);
 
       for (unsigned int cell = range.first; cell < range.second; ++cell)
         {
-          for (unsigned int face = 0; face < GeometryInfo<dim>::faces_per_cell;
-               face++)
+          for (unsigned int face = 0; face < GeometryInfo<dim>::faces_per_cell; face++)
             {
-              auto bids =
-                matrix_free.get_faces_by_cells_boundary_id(cell, face);
+              auto bids = matrix_free.get_faces_by_cells_boundary_id(cell, face);
 
               if (bids[0] != numbers::internal_face_boundary_id)
                 continue;
@@ -166,20 +158,14 @@ test(const unsigned int geometry, const MPI_Comm comm = MPI_COMM_SELF)
                   const auto u_minus = phi_m.get_value(q);
                   const auto u_plus  = phi_p.get_value(q);
 
-                  for (unsigned int v = 0; v < VectorizedArray<double>::size();
-                       ++v)
+                  for (unsigned int v = 0; v < VectorizedArray<double>::size(); ++v)
                     {
-                      Assert(std::abs(u_minus[v] - u_plus[v]) < 1e-10,
-                             ExcMessage("Entries do not match!"));
+                      Assert(std::abs(u_minus[v] - u_plus[v]) < 1e-10, ExcMessage("Entries do not match!"));
                     }
                 }
 
-              phi_m.gather_evaluate(src,
-                                    EvaluationFlags::values |
-                                      EvaluationFlags::gradients);
-              phi_p.gather_evaluate(src,
-                                    EvaluationFlags::values |
-                                      EvaluationFlags::gradients);
+              phi_m.gather_evaluate(src, EvaluationFlags::values | EvaluationFlags::gradients);
+              phi_p.gather_evaluate(src, EvaluationFlags::values | EvaluationFlags::gradients);
 
               for (unsigned int q = 0; q < phi_m.n_q_points; ++q)
                 {
@@ -189,16 +175,13 @@ test(const unsigned int geometry, const MPI_Comm comm = MPI_COMM_SELF)
                   const auto grad_u_minus = phi_m.get_gradient(q);
                   const auto grad_u_plus  = phi_p.get_gradient(q);
 
-                  for (unsigned int v = 0; v < VectorizedArray<double>::size();
-                       ++v)
+                  for (unsigned int v = 0; v < VectorizedArray<double>::size(); ++v)
                     {
-                      Assert(std::abs(u_minus[v] - u_plus[v]) < 1e-10,
-                             ExcMessage("Entries do not match!"));
+                      Assert(std::abs(u_minus[v] - u_plus[v]) < 1e-10, ExcMessage("Entries do not match!"));
 
                       if (false)
                         for (int d = 0; d < dim; ++d)
-                          Assert(std::abs(grad_u_minus[d][v] -
-                                          grad_u_plus[d][v]) < 1e-6,
+                          Assert(std::abs(grad_u_minus[d][v] - grad_u_plus[d][v]) < 1e-6,
                                  ExcMessage("Entries do not match!"));
                     }
                 }
@@ -223,11 +206,7 @@ main(int argc, char **argv)
   const auto rank = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
 
   MPI_Comm subcommunicator;
-  MPI_Comm_split_type(MPI_COMM_WORLD,
-                      MPI_COMM_TYPE_SHARED,
-                      rank,
-                      MPI_INFO_NULL,
-                      &subcommunicator);
+  MPI_Comm_split_type(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, rank, MPI_INFO_NULL, &subcommunicator);
 
   for (unsigned int i = 0; i < 3; ++i)
     test<2, 3, 4, double>(i, subcommunicator);

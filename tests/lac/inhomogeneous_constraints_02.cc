@@ -90,8 +90,7 @@ test(bool use_inhomogeneity_for_rhs)
 
   local_vec = 0;
 
-  cm.distribute_local_to_global(
-    local_mat, local_vec, local_dofs, mat, rhs, use_inhomogeneity_for_rhs);
+  cm.distribute_local_to_global(local_mat, local_vec, local_dofs, mat, rhs, use_inhomogeneity_for_rhs);
 
   mat.print(deallog.get_file_stream());
   rhs.print(deallog.get_file_stream());

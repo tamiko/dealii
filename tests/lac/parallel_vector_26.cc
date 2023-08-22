@@ -28,7 +28,7 @@
 void
 test()
 {
-  unsigned int       rank = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  unsigned int       rank       = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
   const unsigned int total_size = 100;
   const unsigned int ghost_size = 75;
   const unsigned int local_size = 50;
@@ -45,8 +45,7 @@ test()
   else
     ghost_indices.add_range(total_size - ghost_size, total_size);
 
-  LinearAlgebra::distributed::Vector<double, MemorySpace::Host> v(
-    local_owned, ghost_indices, MPI_COMM_WORLD);
+  LinearAlgebra::distributed::Vector<double, MemorySpace::Host> v(local_owned, ghost_indices, MPI_COMM_WORLD);
 
   for (unsigned int i = 0; i < ghost_size; ++i)
     v.local_element(i) = i;
@@ -62,8 +61,7 @@ test()
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   unsigned int rank = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
   deallog.push(Utilities::int_to_string(rank));

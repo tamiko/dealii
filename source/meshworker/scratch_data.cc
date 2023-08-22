@@ -22,13 +22,12 @@ DEAL_II_NAMESPACE_OPEN
 namespace MeshWorker
 {
   template <int dim, int spacedim>
-  ScratchData<dim, spacedim>::ScratchData(
-    const Mapping<dim, spacedim> &      mapping,
-    const FiniteElement<dim, spacedim> &fe,
-    const Quadrature<dim> &             quadrature,
-    const UpdateFlags &                 update_flags,
-    const Quadrature<dim - 1> &         face_quadrature,
-    const UpdateFlags &                 face_update_flags)
+  ScratchData<dim, spacedim>::ScratchData(const Mapping<dim, spacedim>       &mapping,
+                                          const FiniteElement<dim, spacedim> &fe,
+                                          const Quadrature<dim>              &quadrature,
+                                          const UpdateFlags                  &update_flags,
+                                          const Quadrature<dim - 1>          &face_quadrature,
+                                          const UpdateFlags                  &face_update_flags)
     : mapping(&mapping)
     , fe(&fe)
     , cell_quadrature(quadrature)
@@ -45,15 +44,14 @@ namespace MeshWorker
 
 
   template <int dim, int spacedim>
-  ScratchData<dim, spacedim>::ScratchData(
-    const Mapping<dim, spacedim> &      mapping,
-    const FiniteElement<dim, spacedim> &fe,
-    const Quadrature<dim> &             quadrature,
-    const UpdateFlags &                 update_flags,
-    const UpdateFlags &                 neighbor_update_flags,
-    const Quadrature<dim - 1> &         face_quadrature,
-    const UpdateFlags &                 face_update_flags,
-    const UpdateFlags &                 neighbor_face_update_flags)
+  ScratchData<dim, spacedim>::ScratchData(const Mapping<dim, spacedim>       &mapping,
+                                          const FiniteElement<dim, spacedim> &fe,
+                                          const Quadrature<dim>              &quadrature,
+                                          const UpdateFlags                  &update_flags,
+                                          const UpdateFlags                  &neighbor_update_flags,
+                                          const Quadrature<dim - 1>          &face_quadrature,
+                                          const UpdateFlags                  &face_update_flags,
+                                          const UpdateFlags                  &neighbor_face_update_flags)
     : mapping(&mapping)
     , fe(&fe)
     , cell_quadrature(quadrature)
@@ -70,14 +68,12 @@ namespace MeshWorker
 
 
   template <int dim, int spacedim>
-  ScratchData<dim, spacedim>::ScratchData(
-    const FiniteElement<dim, spacedim> &fe,
-    const Quadrature<dim> &             quadrature,
-    const UpdateFlags &                 update_flags,
-    const Quadrature<dim - 1> &         face_quadrature,
-    const UpdateFlags &                 face_update_flags)
-    : ScratchData(fe.reference_cell()
-                    .template get_default_linear_mapping<dim, spacedim>(),
+  ScratchData<dim, spacedim>::ScratchData(const FiniteElement<dim, spacedim> &fe,
+                                          const Quadrature<dim>              &quadrature,
+                                          const UpdateFlags                  &update_flags,
+                                          const Quadrature<dim - 1>          &face_quadrature,
+                                          const UpdateFlags                  &face_update_flags)
+    : ScratchData(fe.reference_cell().template get_default_linear_mapping<dim, spacedim>(),
                   fe,
                   quadrature,
                   update_flags,
@@ -88,16 +84,14 @@ namespace MeshWorker
 
 
   template <int dim, int spacedim>
-  ScratchData<dim, spacedim>::ScratchData(
-    const FiniteElement<dim, spacedim> &fe,
-    const Quadrature<dim> &             quadrature,
-    const UpdateFlags &                 update_flags,
-    const UpdateFlags &                 neighbor_update_flags,
-    const Quadrature<dim - 1> &         face_quadrature,
-    const UpdateFlags &                 face_update_flags,
-    const UpdateFlags &                 neighbor_face_update_flags)
-    : ScratchData(fe.reference_cell()
-                    .template get_default_linear_mapping<dim, spacedim>(),
+  ScratchData<dim, spacedim>::ScratchData(const FiniteElement<dim, spacedim> &fe,
+                                          const Quadrature<dim>              &quadrature,
+                                          const UpdateFlags                  &update_flags,
+                                          const UpdateFlags                  &neighbor_update_flags,
+                                          const Quadrature<dim - 1>          &face_quadrature,
+                                          const UpdateFlags                  &face_update_flags,
+                                          const UpdateFlags                  &neighbor_face_update_flags)
+    : ScratchData(fe.reference_cell().template get_default_linear_mapping<dim, spacedim>(),
                   fe,
                   quadrature,
                   update_flags,
@@ -110,13 +104,12 @@ namespace MeshWorker
 
 
   template <int dim, int spacedim>
-  ScratchData<dim, spacedim>::ScratchData(
-    const hp::MappingCollection<dim, spacedim> &mapping_collection,
-    const hp::FECollection<dim, spacedim> &     fe_collection,
-    const hp::QCollection<dim> &                cell_quadrature_collection,
-    const UpdateFlags &                         cell_update_flags,
-    const hp::QCollection<dim - 1> &            face_quadrature_collection,
-    const UpdateFlags &                         face_update_flags)
+  ScratchData<dim, spacedim>::ScratchData(const hp::MappingCollection<dim, spacedim> &mapping_collection,
+                                          const hp::FECollection<dim, spacedim>      &fe_collection,
+                                          const hp::QCollection<dim>                 &cell_quadrature_collection,
+                                          const UpdateFlags                          &cell_update_flags,
+                                          const hp::QCollection<dim - 1>             &face_quadrature_collection,
+                                          const UpdateFlags                          &face_update_flags)
     : mapping_collection(&mapping_collection)
     , fe_collection(&fe_collection)
     , cell_quadrature_collection(cell_quadrature_collection)
@@ -134,15 +127,14 @@ namespace MeshWorker
 
 
   template <int dim, int spacedim>
-  ScratchData<dim, spacedim>::ScratchData(
-    const hp::MappingCollection<dim, spacedim> &mapping_collection,
-    const hp::FECollection<dim, spacedim> &     fe_collection,
-    const hp::QCollection<dim> &                cell_quadrature_collection,
-    const UpdateFlags &                         cell_update_flags,
-    const UpdateFlags &                         neighbor_cell_update_flags,
-    const hp::QCollection<dim - 1> &            face_quadrature_collection,
-    const UpdateFlags &                         face_update_flags,
-    const UpdateFlags &                         neighbor_face_update_flags)
+  ScratchData<dim, spacedim>::ScratchData(const hp::MappingCollection<dim, spacedim> &mapping_collection,
+                                          const hp::FECollection<dim, spacedim>      &fe_collection,
+                                          const hp::QCollection<dim>                 &cell_quadrature_collection,
+                                          const UpdateFlags                          &cell_update_flags,
+                                          const UpdateFlags                          &neighbor_cell_update_flags,
+                                          const hp::QCollection<dim - 1>             &face_quadrature_collection,
+                                          const UpdateFlags                          &face_update_flags,
+                                          const UpdateFlags                          &neighbor_face_update_flags)
     : mapping_collection(&mapping_collection)
     , fe_collection(&fe_collection)
     , cell_quadrature_collection(cell_quadrature_collection)
@@ -160,12 +152,11 @@ namespace MeshWorker
 
 
   template <int dim, int spacedim>
-  ScratchData<dim, spacedim>::ScratchData(
-    const hp::FECollection<dim, spacedim> &fe_collection,
-    const hp::QCollection<dim> &           cell_quadrature_collection,
-    const UpdateFlags &                    cell_update_flags,
-    const hp::QCollection<dim - 1> &       face_quadrature_collection,
-    const UpdateFlags &                    face_update_flags)
+  ScratchData<dim, spacedim>::ScratchData(const hp::FECollection<dim, spacedim> &fe_collection,
+                                          const hp::QCollection<dim>            &cell_quadrature_collection,
+                                          const UpdateFlags                     &cell_update_flags,
+                                          const hp::QCollection<dim - 1>        &face_quadrature_collection,
+                                          const UpdateFlags                     &face_update_flags)
     : ScratchData(fe_collection.get_reference_cell_default_linear_mapping(),
                   fe_collection,
                   cell_quadrature_collection,
@@ -177,14 +168,13 @@ namespace MeshWorker
 
 
   template <int dim, int spacedim>
-  ScratchData<dim, spacedim>::ScratchData(
-    const hp::FECollection<dim, spacedim> &fe_collection,
-    const hp::QCollection<dim> &           cell_quadrature_collection,
-    const UpdateFlags &                    cell_update_flags,
-    const UpdateFlags &                    neighbor_cell_update_flags,
-    const hp::QCollection<dim - 1> &       face_quadrature_collection,
-    const UpdateFlags &                    face_update_flags,
-    const UpdateFlags &                    neighbor_face_update_flags)
+  ScratchData<dim, spacedim>::ScratchData(const hp::FECollection<dim, spacedim> &fe_collection,
+                                          const hp::QCollection<dim>            &cell_quadrature_collection,
+                                          const UpdateFlags                     &cell_update_flags,
+                                          const UpdateFlags                     &neighbor_cell_update_flags,
+                                          const hp::QCollection<dim - 1>        &face_quadrature_collection,
+                                          const UpdateFlags                     &face_update_flags,
+                                          const UpdateFlags                     &neighbor_face_update_flags)
     : ScratchData(fe_collection.get_reference_cell_default_linear_mapping(),
                   fe_collection,
                   cell_quadrature_collection,
@@ -198,8 +188,7 @@ namespace MeshWorker
 
 
   template <int dim, int spacedim>
-  ScratchData<dim, spacedim>::ScratchData(
-    const ScratchData<dim, spacedim> &scratch)
+  ScratchData<dim, spacedim>::ScratchData(const ScratchData<dim, spacedim> &scratch)
     : mapping(scratch.mapping)
     , fe(scratch.fe)
     , cell_quadrature(scratch.cell_quadrature)
@@ -223,14 +212,12 @@ namespace MeshWorker
 
   template <int dim, int spacedim>
   const FEValues<dim, spacedim> &
-  ScratchData<dim, spacedim>::reinit(
-    const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell)
+  ScratchData<dim, spacedim>::reinit(const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell)
   {
     if (hp_capability_enabled == false)
       {
         if (!fe_values)
-          fe_values = std::make_unique<FEValues<dim, spacedim>>(
-            *mapping, *fe, cell_quadrature, cell_update_flags);
+          fe_values = std::make_unique<FEValues<dim, spacedim>>(*mapping, *fe, cell_quadrature, cell_update_flags);
 
         fe_values->reinit(cell);
         local_dof_indices.resize(fe_values->dofs_per_cell);
@@ -241,18 +228,15 @@ namespace MeshWorker
     else
       {
         if (!hp_fe_values)
-          hp_fe_values = std::make_unique<hp::FEValues<dim, spacedim>>(
-            *mapping_collection,
-            *fe_collection,
-            cell_quadrature_collection,
-            cell_update_flags);
+          hp_fe_values = std::make_unique<hp::FEValues<dim, spacedim>>(*mapping_collection,
+                                                                       *fe_collection,
+                                                                       cell_quadrature_collection,
+                                                                       cell_update_flags);
 
         hp_fe_values->reinit(cell);
         const auto &fe_values = hp_fe_values->get_present_fe_values();
 
-        AssertDimension(
-          (*fe_collection)[cell->active_fe_index()].n_dofs_per_cell(),
-          fe_values.dofs_per_cell);
+        AssertDimension((*fe_collection)[cell->active_fe_index()].n_dofs_per_cell(), fe_values.dofs_per_cell);
         local_dof_indices.resize(fe_values.dofs_per_cell);
         cell->get_dof_indices(local_dof_indices);
 
@@ -265,15 +249,14 @@ namespace MeshWorker
 
   template <int dim, int spacedim>
   const FEFaceValues<dim, spacedim> &
-  ScratchData<dim, spacedim>::reinit(
-    const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
-    const unsigned int                                              face_no)
+  ScratchData<dim, spacedim>::reinit(const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
+                                     const unsigned int                                              face_no)
   {
     if (hp_capability_enabled == false)
       {
         if (!fe_face_values)
-          fe_face_values = std::make_unique<FEFaceValues<dim, spacedim>>(
-            *mapping, *fe, face_quadrature, face_update_flags);
+          fe_face_values =
+            std::make_unique<FEFaceValues<dim, spacedim>>(*mapping, *fe, face_quadrature, face_update_flags);
 
         fe_face_values->reinit(cell, face_no);
         local_dof_indices.resize(fe->n_dofs_per_cell());
@@ -291,20 +274,17 @@ namespace MeshWorker
 
   template <int dim, int spacedim>
   const FEFaceValues<dim, spacedim> &
-  ScratchData<dim, spacedim>::reinit(
-    const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
-    const typename DoFHandler<dim, spacedim>::active_cell_iterator
-      &                neighbor_cell,
-    const unsigned int face_no)
+  ScratchData<dim, spacedim>::reinit(const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
+                                     const typename DoFHandler<dim, spacedim>::active_cell_iterator &neighbor_cell,
+                                     const unsigned int                                              face_no)
   {
     Assert(hp_capability_enabled, ExcOnlyAvailableWithHP());
 
     if (!hp_fe_face_values)
-      hp_fe_face_values = std::make_unique<hp::FEFaceValues<dim, spacedim>>(
-        *mapping_collection,
-        *fe_collection,
-        face_quadrature_collection,
-        face_update_flags);
+      hp_fe_face_values = std::make_unique<hp::FEFaceValues<dim, spacedim>>(*mapping_collection,
+                                                                            *fe_collection,
+                                                                            face_quadrature_collection,
+                                                                            face_update_flags);
 
     if (neighbor_cell == cell)
       {
@@ -317,8 +297,8 @@ namespace MeshWorker
         // then we defer to the dominance of one FE over another. This should
         // ensure that the optimal integration order and mapping order are
         // selected for this situation.
-        unsigned int dominated_fe_index = fe_collection->find_dominated_fe(
-          {cell->active_fe_index(), neighbor_cell->active_fe_index()});
+        unsigned int dominated_fe_index =
+          fe_collection->find_dominated_fe({cell->active_fe_index(), neighbor_cell->active_fe_index()});
 
         // TODO: find_dominated_fe returns invalid_fe_index when no dominated FE
         // has been found. We want to pass this value to FEFaceValues, but it
@@ -327,10 +307,7 @@ namespace MeshWorker
         if (dominated_fe_index == numbers::invalid_fe_index)
           dominated_fe_index = numbers::invalid_unsigned_int;
 
-        hp_fe_face_values->reinit(cell,
-                                  face_no,
-                                  dominated_fe_index,
-                                  dominated_fe_index);
+        hp_fe_face_values->reinit(cell, face_no, dominated_fe_index, dominated_fe_index);
       }
 
     const auto &fe_face_values = hp_fe_face_values->get_present_fe_values();
@@ -347,10 +324,9 @@ namespace MeshWorker
 
   template <int dim, int spacedim>
   const FEFaceValuesBase<dim, spacedim> &
-  ScratchData<dim, spacedim>::reinit(
-    const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
-    const unsigned int                                              face_no,
-    const unsigned int                                              subface_no)
+  ScratchData<dim, spacedim>::reinit(const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
+                                     const unsigned int                                              face_no,
+                                     const unsigned int                                              subface_no)
   {
     if (subface_no != numbers::invalid_unsigned_int)
       {
@@ -358,8 +334,7 @@ namespace MeshWorker
           {
             if (!fe_subface_values)
               fe_subface_values =
-                std::make_unique<FESubfaceValues<dim, spacedim>>(
-                  *mapping, *fe, face_quadrature, face_update_flags);
+                std::make_unique<FESubfaceValues<dim, spacedim>>(*mapping, *fe, face_quadrature, face_update_flags);
             fe_subface_values->reinit(cell, face_no, subface_no);
             local_dof_indices.resize(fe->n_dofs_per_cell());
             cell->get_dof_indices(local_dof_indices);
@@ -380,24 +355,20 @@ namespace MeshWorker
 
   template <int dim, int spacedim>
   const FEFaceValuesBase<dim, spacedim> &
-  ScratchData<dim, spacedim>::reinit(
-    const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
-    const typename DoFHandler<dim, spacedim>::active_cell_iterator
-      &                neighbor_cell,
-    const unsigned int face_no,
-    const unsigned int subface_no)
+  ScratchData<dim, spacedim>::reinit(const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
+                                     const typename DoFHandler<dim, spacedim>::active_cell_iterator &neighbor_cell,
+                                     const unsigned int                                              face_no,
+                                     const unsigned int                                              subface_no)
   {
     Assert(hp_capability_enabled, ExcOnlyAvailableWithHP());
 
     if (subface_no != numbers::invalid_unsigned_int)
       {
         if (!hp_fe_subface_values)
-          hp_fe_subface_values =
-            std::make_unique<hp::FESubfaceValues<dim, spacedim>>(
-              *mapping_collection,
-              *fe_collection,
-              face_quadrature_collection,
-              face_update_flags);
+          hp_fe_subface_values = std::make_unique<hp::FESubfaceValues<dim, spacedim>>(*mapping_collection,
+                                                                                      *fe_collection,
+                                                                                      face_quadrature_collection,
+                                                                                      face_update_flags);
 
         if (neighbor_cell == cell)
           {
@@ -410,8 +381,8 @@ namespace MeshWorker
             // face, then we defer to the dominance of one FE over another. This
             // should ensure that the optimal integration order and mapping
             // order are selected for this situation.
-            unsigned int dominated_fe_index = fe_collection->find_dominated_fe(
-              {cell->active_fe_index(), neighbor_cell->active_fe_index()});
+            unsigned int dominated_fe_index =
+              fe_collection->find_dominated_fe({cell->active_fe_index(), neighbor_cell->active_fe_index()});
 
             // TODO: find_dominated_fe returns invalid_fe_index when no
             // dominated FE has been found. We want to pass this value to
@@ -420,16 +391,11 @@ namespace MeshWorker
             if (dominated_fe_index == numbers::invalid_fe_index)
               dominated_fe_index = numbers::invalid_unsigned_int;
 
-            hp_fe_subface_values->reinit(cell,
-                                         face_no,
-                                         subface_no,
-                                         dominated_fe_index,
-                                         dominated_fe_index);
+            hp_fe_subface_values->reinit(cell, face_no, subface_no, dominated_fe_index, dominated_fe_index);
           }
 
-        const auto &fe_subface_values =
-          hp_fe_subface_values->get_present_fe_values();
-        const auto &fe = (*fe_collection)[cell->active_fe_index()];
+        const auto &fe_subface_values = hp_fe_subface_values->get_present_fe_values();
+        const auto &fe                = (*fe_collection)[cell->active_fe_index()];
 
         local_dof_indices.resize(fe.n_dofs_per_cell());
         cell->get_dof_indices(local_dof_indices);
@@ -447,65 +413,49 @@ namespace MeshWorker
 
   template <int dim, int spacedim>
   const FEInterfaceValues<dim, spacedim> &
-  ScratchData<dim, spacedim>::reinit(
-    const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
-    const unsigned int                                              face_no,
-    const typename DoFHandler<dim, spacedim>::active_cell_iterator
-      &                cell_neighbor,
-    const unsigned int face_no_neighbor)
+  ScratchData<dim, spacedim>::reinit(const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
+                                     const unsigned int                                              face_no,
+                                     const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell_neighbor,
+                                     const unsigned int                                              face_no_neighbor)
   {
-    return reinit(cell,
-                  face_no,
-                  numbers::invalid_unsigned_int,
-                  cell_neighbor,
-                  face_no_neighbor,
-                  numbers::invalid_unsigned_int);
+    return reinit(
+      cell, face_no, numbers::invalid_unsigned_int, cell_neighbor, face_no_neighbor, numbers::invalid_unsigned_int);
   }
 
 
 
   template <int dim, int spacedim>
   const FEInterfaceValues<dim, spacedim> &
-  ScratchData<dim, spacedim>::reinit(
-    const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
-    const unsigned int                                              face_no,
-    const unsigned int                                              sub_face_no,
-    const typename DoFHandler<dim, spacedim>::active_cell_iterator
-      &                cell_neighbor,
-    const unsigned int face_no_neighbor,
-    const unsigned int sub_face_no_neighbor)
+  ScratchData<dim, spacedim>::reinit(const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
+                                     const unsigned int                                              face_no,
+                                     const unsigned int                                              sub_face_no,
+                                     const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell_neighbor,
+                                     const unsigned int                                              face_no_neighbor,
+                                     const unsigned int sub_face_no_neighbor)
   {
     if (hp_capability_enabled == false)
       {
         if (!interface_fe_values)
           interface_fe_values =
-            std::make_unique<FEInterfaceValues<dim, spacedim>>(
-              *mapping, *fe, face_quadrature, face_update_flags);
+            std::make_unique<FEInterfaceValues<dim, spacedim>>(*mapping, *fe, face_quadrature, face_update_flags);
 
-        interface_fe_values->reinit(cell,
-                                    face_no,
-                                    sub_face_no,
-                                    cell_neighbor,
-                                    face_no_neighbor,
-                                    sub_face_no_neighbor);
+        interface_fe_values->reinit(cell, face_no, sub_face_no, cell_neighbor, face_no_neighbor, sub_face_no_neighbor);
       }
     else
       {
         if (!interface_fe_values)
-          interface_fe_values =
-            std::make_unique<FEInterfaceValues<dim, spacedim>>(
-              *mapping_collection,
-              *fe_collection,
-              face_quadrature_collection,
-              face_update_flags);
+          interface_fe_values = std::make_unique<FEInterfaceValues<dim, spacedim>>(*mapping_collection,
+                                                                                   *fe_collection,
+                                                                                   face_quadrature_collection,
+                                                                                   face_update_flags);
 
         // When we want to ensure some agreement between the cell face and
         // its neighbor on the quadrature order and mapping to use on this
         // face, then we defer to the dominance of one FE over another. This
         // should ensure that the optimal integration order and mapping
         // order are selected for this situation.
-        unsigned int dominated_fe_index = fe_collection->find_dominated_fe(
-          {cell->active_fe_index(), cell_neighbor->active_fe_index()});
+        unsigned int dominated_fe_index =
+          fe_collection->find_dominated_fe({cell->active_fe_index(), cell_neighbor->active_fe_index()});
 
         // TODO: find_dominated_fe returns invalid_fe_index when no dominated FE
         // has been found. We want to pass this value to FEFaceValues, but it
@@ -535,14 +485,13 @@ namespace MeshWorker
 
   template <int dim, int spacedim>
   const FEValues<dim, spacedim> &
-  ScratchData<dim, spacedim>::reinit_neighbor(
-    const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell)
+  ScratchData<dim, spacedim>::reinit_neighbor(const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell)
   {
     if (hp_capability_enabled == false)
       {
         if (!neighbor_fe_values)
-          neighbor_fe_values = std::make_unique<FEValues<dim, spacedim>>(
-            *mapping, *fe, cell_quadrature, neighbor_cell_update_flags);
+          neighbor_fe_values =
+            std::make_unique<FEValues<dim, spacedim>>(*mapping, *fe, cell_quadrature, neighbor_cell_update_flags);
 
         neighbor_fe_values->reinit(cell);
         cell->get_dof_indices(neighbor_dof_indices);
@@ -552,19 +501,15 @@ namespace MeshWorker
     else
       {
         if (!neighbor_hp_fe_values)
-          neighbor_hp_fe_values = std::make_unique<hp::FEValues<dim, spacedim>>(
-            *mapping_collection,
-            *fe_collection,
-            cell_quadrature_collection,
-            neighbor_cell_update_flags);
+          neighbor_hp_fe_values = std::make_unique<hp::FEValues<dim, spacedim>>(*mapping_collection,
+                                                                                *fe_collection,
+                                                                                cell_quadrature_collection,
+                                                                                neighbor_cell_update_flags);
 
         neighbor_hp_fe_values->reinit(cell);
-        const auto &neighbor_fe_values =
-          neighbor_hp_fe_values->get_present_fe_values();
+        const auto &neighbor_fe_values = neighbor_hp_fe_values->get_present_fe_values();
 
-        AssertDimension(
-          (*fe_collection)[cell->active_fe_index()].n_dofs_per_cell(),
-          neighbor_fe_values.dofs_per_cell);
+        AssertDimension((*fe_collection)[cell->active_fe_index()].n_dofs_per_cell(), neighbor_fe_values.dofs_per_cell);
         neighbor_dof_indices.resize(neighbor_fe_values.dofs_per_cell);
         cell->get_dof_indices(neighbor_dof_indices);
 
@@ -577,16 +522,14 @@ namespace MeshWorker
 
   template <int dim, int spacedim>
   const FEFaceValues<dim, spacedim> &
-  ScratchData<dim, spacedim>::reinit_neighbor(
-    const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
-    const unsigned int                                              face_no)
+  ScratchData<dim, spacedim>::reinit_neighbor(const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
+                                              const unsigned int                                              face_no)
   {
     if (hp_capability_enabled == false)
       {
         if (!neighbor_fe_face_values)
           neighbor_fe_face_values =
-            std::make_unique<FEFaceValues<dim, spacedim>>(
-              *mapping, *fe, face_quadrature, neighbor_face_update_flags);
+            std::make_unique<FEFaceValues<dim, spacedim>>(*mapping, *fe, face_quadrature, neighbor_face_update_flags);
         neighbor_fe_face_values->reinit(cell, face_no);
         cell->get_dof_indices(neighbor_dof_indices);
         current_neighbor_fe_values = neighbor_fe_face_values.get();
@@ -604,19 +547,16 @@ namespace MeshWorker
   const FEFaceValues<dim, spacedim> &
   ScratchData<dim, spacedim>::reinit_neighbor(
     const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
-    const typename DoFHandler<dim, spacedim>::active_cell_iterator
-      &                neighbor_cell,
-    const unsigned int face_no)
+    const typename DoFHandler<dim, spacedim>::active_cell_iterator &neighbor_cell,
+    const unsigned int                                              face_no)
   {
     Assert(hp_capability_enabled, ExcOnlyAvailableWithHP());
 
     if (!neighbor_hp_fe_face_values)
-      neighbor_hp_fe_face_values =
-        std::make_unique<hp::FEFaceValues<dim, spacedim>>(
-          *mapping_collection,
-          *fe_collection,
-          face_quadrature_collection,
-          neighbor_face_update_flags);
+      neighbor_hp_fe_face_values = std::make_unique<hp::FEFaceValues<dim, spacedim>>(*mapping_collection,
+                                                                                     *fe_collection,
+                                                                                     face_quadrature_collection,
+                                                                                     neighbor_face_update_flags);
 
     if (neighbor_cell == cell)
       {
@@ -629,8 +569,8 @@ namespace MeshWorker
         // then we defer to the dominance of one FE over another. This should
         // ensure that the optimal integration order and mapping order are
         // selected for this situation.
-        unsigned int dominated_fe_index = fe_collection->find_dominated_fe(
-          {cell->active_fe_index(), neighbor_cell->active_fe_index()});
+        unsigned int dominated_fe_index =
+          fe_collection->find_dominated_fe({cell->active_fe_index(), neighbor_cell->active_fe_index()});
 
         // TODO: find_dominated_fe returns invalid_fe_index when no dominated FE
         // has been found. We want to pass this value to FEFaceValues, but it
@@ -639,16 +579,11 @@ namespace MeshWorker
         if (dominated_fe_index == numbers::invalid_fe_index)
           dominated_fe_index = numbers::invalid_unsigned_int;
 
-        neighbor_hp_fe_face_values->reinit(neighbor_cell,
-                                           face_no,
-                                           dominated_fe_index,
-                                           dominated_fe_index);
+        neighbor_hp_fe_face_values->reinit(neighbor_cell, face_no, dominated_fe_index, dominated_fe_index);
       }
 
-    const auto &neighbor_fe_face_values =
-      neighbor_hp_fe_face_values->get_present_fe_values();
-    const auto &neighbor_fe =
-      (*fe_collection)[neighbor_cell->active_fe_index()];
+    const auto &neighbor_fe_face_values = neighbor_hp_fe_face_values->get_present_fe_values();
+    const auto &neighbor_fe             = (*fe_collection)[neighbor_cell->active_fe_index()];
 
     neighbor_dof_indices.resize(neighbor_fe.n_dofs_per_cell());
     neighbor_cell->get_dof_indices(neighbor_dof_indices);
@@ -661,19 +596,19 @@ namespace MeshWorker
 
   template <int dim, int spacedim>
   const FEFaceValuesBase<dim, spacedim> &
-  ScratchData<dim, spacedim>::reinit_neighbor(
-    const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
-    const unsigned int                                              face_no,
-    const unsigned int                                              subface_no)
+  ScratchData<dim, spacedim>::reinit_neighbor(const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
+                                              const unsigned int                                              face_no,
+                                              const unsigned int subface_no)
   {
     if (subface_no != numbers::invalid_unsigned_int)
       {
         if (hp_capability_enabled == false)
           {
             if (!neighbor_fe_subface_values)
-              neighbor_fe_subface_values =
-                std::make_unique<FESubfaceValues<dim, spacedim>>(
-                  *mapping, *fe, face_quadrature, neighbor_face_update_flags);
+              neighbor_fe_subface_values = std::make_unique<FESubfaceValues<dim, spacedim>>(*mapping,
+                                                                                            *fe,
+                                                                                            face_quadrature,
+                                                                                            neighbor_face_update_flags);
             neighbor_fe_subface_values->reinit(cell, face_no, subface_no);
             cell->get_dof_indices(neighbor_dof_indices);
             current_neighbor_fe_values = neighbor_fe_subface_values.get();
@@ -694,28 +629,21 @@ namespace MeshWorker
   const FEFaceValuesBase<dim, spacedim> &
   ScratchData<dim, spacedim>::reinit_neighbor(
     const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
-    const typename DoFHandler<dim, spacedim>::active_cell_iterator
-      &                neighbor_cell,
-    const unsigned int face_no,
-    const unsigned int subface_no)
+    const typename DoFHandler<dim, spacedim>::active_cell_iterator &neighbor_cell,
+    const unsigned int                                              face_no,
+    const unsigned int                                              subface_no)
   {
     Assert(hp_capability_enabled, ExcOnlyAvailableWithHP());
 
     if (subface_no != numbers::invalid_unsigned_int)
       {
         if (!neighbor_hp_fe_subface_values)
-          neighbor_hp_fe_subface_values =
-            std::make_unique<hp::FESubfaceValues<dim, spacedim>>(
-              *mapping_collection,
-              *fe_collection,
-              face_quadrature_collection,
-              neighbor_face_update_flags);
+          neighbor_hp_fe_subface_values = std::make_unique<hp::FESubfaceValues<dim, spacedim>>(
+            *mapping_collection, *fe_collection, face_quadrature_collection, neighbor_face_update_flags);
 
         if (neighbor_cell == cell)
           {
-            neighbor_hp_fe_subface_values->reinit(neighbor_cell,
-                                                  face_no,
-                                                  subface_no);
+            neighbor_hp_fe_subface_values->reinit(neighbor_cell, face_no, subface_no);
           }
         else
           {
@@ -724,8 +652,8 @@ namespace MeshWorker
             // face, then we defer to the dominance of one FE over another. This
             // should ensure that the optimal integration order and mapping
             // order are selected for this situation.
-            unsigned int dominated_fe_index = fe_collection->find_dominated_fe(
-              {cell->active_fe_index(), neighbor_cell->active_fe_index()});
+            unsigned int dominated_fe_index =
+              fe_collection->find_dominated_fe({cell->active_fe_index(), neighbor_cell->active_fe_index()});
 
             // TODO: find_dominated_fe returns invalid_fe_index when no
             // dominated FE has been found. We want to pass this value to
@@ -734,17 +662,12 @@ namespace MeshWorker
             if (dominated_fe_index == numbers::invalid_fe_index)
               dominated_fe_index = numbers::invalid_unsigned_int;
 
-            neighbor_hp_fe_subface_values->reinit(neighbor_cell,
-                                                  face_no,
-                                                  subface_no,
-                                                  dominated_fe_index,
-                                                  dominated_fe_index);
+            neighbor_hp_fe_subface_values->reinit(
+              neighbor_cell, face_no, subface_no, dominated_fe_index, dominated_fe_index);
           }
 
-        const auto &neighbor_fe_subface_values =
-          neighbor_hp_fe_subface_values->get_present_fe_values();
-        const auto &neighbor_fe =
-          (*fe_collection)[neighbor_cell->active_fe_index()];
+        const auto &neighbor_fe_subface_values = neighbor_hp_fe_subface_values->get_present_fe_values();
+        const auto &neighbor_fe                = (*fe_collection)[neighbor_cell->active_fe_index()];
 
         neighbor_dof_indices.resize(neighbor_fe.n_dofs_per_cell());
         neighbor_cell->get_dof_indices(neighbor_dof_indices);

@@ -44,10 +44,9 @@ main(int argc, char **argv)
         const PetscScalar pi  = numbers::PI;
         const PetscScalar two = 2.;
 
-        deallog.get_file_stream()
-          << "   pi:           " << pi << std::endl
-          << "   two:          " << two << std::endl
-          << "   two times pi: " << two * pi << std::endl;
+        deallog.get_file_stream() << "   pi:           " << pi << std::endl
+                                  << "   two:          " << two << std::endl
+                                  << "   two times pi: " << two * pi << std::endl;
 
 
         deallog.get_file_stream() << "Finalizing SLEPc (PETSc): " << std::flush;
@@ -59,29 +58,21 @@ main(int argc, char **argv)
 
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
 
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

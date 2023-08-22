@@ -86,8 +86,7 @@ namespace CGALWrappers
     if constexpr (dim == 1)
       return dealii::Point<dim>(CGAL::to_double(p.x()));
     else if constexpr (dim == 2)
-      return dealii::Point<dim>(CGAL::to_double(p.x()),
-                                cdim > 1 ? CGAL::to_double(p.y()) : 0);
+      return dealii::Point<dim>(CGAL::to_double(p.x()), cdim > 1 ? CGAL::to_double(p.y()) : 0);
     else if constexpr (dim == 3)
       return dealii::Point<dim>(CGAL::to_double(p.x()),
                                 cdim > 1 ? CGAL::to_double(p.y()) : 0,

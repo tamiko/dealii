@@ -130,9 +130,7 @@ public:
    * formula of the set_formula() function. Change this preset formula by
    * calling the set_formula() function.
    */
-  AutoDerivativeFunction(const double       h,
-                         const unsigned int n_components = 1,
-                         const double       initial_time = 0.0);
+  AutoDerivativeFunction(const double h, const unsigned int n_components = 1, const double initial_time = 0.0);
 
   /**
    * Virtual destructor; absolutely necessary in this case.
@@ -165,8 +163,7 @@ public:
    * #DifferenceFormula.
    */
   virtual Tensor<1, dim>
-  gradient(const Point<dim> & p,
-           const unsigned int component = 0) const override;
+  gradient(const Point<dim> &p, const unsigned int component = 0) const override;
 
   /**
    * Return the gradient of all components of the function at the given point.
@@ -175,8 +172,7 @@ public:
    * #DifferenceFormula.
    */
   virtual void
-  vector_gradient(const Point<dim> &           p,
-                  std::vector<Tensor<1, dim>> &gradients) const override;
+  vector_gradient(const Point<dim> &p, std::vector<Tensor<1, dim>> &gradients) const override;
 
   /**
    * Set <tt>gradients</tt> to the gradients of the specified component of the
@@ -189,7 +185,7 @@ public:
    */
   virtual void
   gradient_list(const std::vector<Point<dim>> &points,
-                std::vector<Tensor<1, dim>> &  gradients,
+                std::vector<Tensor<1, dim>>   &gradients,
                 const unsigned int             component = 0) const override;
 
   /**
@@ -205,9 +201,8 @@ public:
    * #DifferenceFormula.
    */
   virtual void
-  vector_gradient_list(
-    const std::vector<Point<dim>> &           points,
-    std::vector<std::vector<Tensor<1, dim>>> &gradients) const override;
+  vector_gradient_list(const std::vector<Point<dim>>            &points,
+                       std::vector<std::vector<Tensor<1, dim>>> &gradients) const override;
 
   /**
    * Return a #DifferenceFormula of the order <tt>ord</tt> at minimum.

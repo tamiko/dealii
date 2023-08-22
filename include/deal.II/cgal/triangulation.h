@@ -81,8 +81,7 @@ namespace CGALWrappers
    */
   template <int spacedim, typename CGALTriangulation>
   void
-  add_points_to_cgal_triangulation(const std::vector<Point<spacedim>> &points,
-                                   CGALTriangulation &triangulation);
+  add_points_to_cgal_triangulation(const std::vector<Point<spacedim>> &points, CGALTriangulation &triangulation);
 
   /**
    * Convert any compatible CGAL triangulation type to a deal.II triangulation.
@@ -117,9 +116,8 @@ namespace CGALWrappers
    */
   template <typename CGALTriangulation, int dim, int spacedim>
   void
-  cgal_triangulation_to_dealii_triangulation(
-    const CGALTriangulation &     cgal_triangulation,
-    Triangulation<dim, spacedim> &dealii_triangulation);
+  cgal_triangulation_to_dealii_triangulation(const CGALTriangulation      &cgal_triangulation,
+                                             Triangulation<dim, spacedim> &dealii_triangulation);
 
   /**
    * Specialization of the above function for
@@ -144,15 +142,11 @@ namespace CGALWrappers
    * object
    * @param[out] dealii_triangulation The output deal.II Triangulation object
    */
-  template <typename CGALTriangulationType,
-            typename CornerIndexType,
-            typename CurveIndexType>
+  template <typename CGALTriangulationType, typename CornerIndexType, typename CurveIndexType>
   void
   cgal_triangulation_to_dealii_triangulation(
-    const CGAL::Mesh_complex_3_in_triangulation_3<CGALTriangulationType,
-                                                  CornerIndexType,
-                                                  CurveIndexType>
-      &               cgal_triangulation,
+    const CGAL::Mesh_complex_3_in_triangulation_3<CGALTriangulationType, CornerIndexType, CurveIndexType>
+                     &cgal_triangulation,
     Triangulation<3> &dealii_triangulation);
 
   /**
@@ -178,8 +172,7 @@ namespace CGALWrappers
    */
   template <typename CGAL_MeshType>
   void
-  cgal_surface_mesh_to_dealii_triangulation(const CGAL_MeshType &cgal_mesh,
-                                            Triangulation<2, 3> &triangulation);
+  cgal_surface_mesh_to_dealii_triangulation(const CGAL_MeshType &cgal_mesh, Triangulation<2, 3> &triangulation);
 
 
 
@@ -187,51 +180,37 @@ namespace CGALWrappers
   // Template implementation
   template <int spacedim, typename CGALTriangulation>
   void
-  add_points_to_cgal_triangulation(const std::vector<Point<spacedim>> &points,
-                                   CGALTriangulation &triangulation)
+  add_points_to_cgal_triangulation(const std::vector<Point<spacedim>> &points, CGALTriangulation &triangulation)
   {
     Assert(triangulation.is_valid(),
-           ExcMessage(
-             "The triangulation you pass to this function should be a valid "
-             "CGAL triangulation."));
+           ExcMessage("The triangulation you pass to this function should be a valid "
+                      "CGAL triangulation."));
 
     std::vector<typename CGALTriangulation::Point> cgal_points(points.size());
-    std::transform(points.begin(),
-                   points.end(),
-                   cgal_points.begin(),
-                   [](const auto &p) {
-                     return CGALWrappers::dealii_point_to_cgal_point<
-                       typename CGALTriangulation::Point>(p);
-                   });
+    std::transform(points.begin(), points.end(), cgal_points.begin(), [](const auto &p) {
+      return CGALWrappers::dealii_point_to_cgal_point<typename CGALTriangulation::Point>(p);
+    });
 
     triangulation.insert(cgal_points.begin(), cgal_points.end());
     Assert(triangulation.is_valid(),
-           ExcMessage(
-             "The Triangulation is no longer valid after inserting the points. "
-             "Bailing out."));
+           ExcMessage("The Triangulation is no longer valid after inserting the points. "
+                      "Bailing out."));
   }
 
 
 
-  template <typename CGALTriangulationType,
-            typename CornerIndexType,
-            typename CurveIndexType>
+  template <typename CGALTriangulationType, typename CornerIndexType, typename CurveIndexType>
   void
   cgal_triangulation_to_dealii_triangulation(
-    const CGAL::Mesh_complex_3_in_triangulation_3<CGALTriangulationType,
-                                                  CornerIndexType,
-                                                  CurveIndexType>
-      &               cgal_triangulation,
+    const CGAL::Mesh_complex_3_in_triangulation_3<CGALTriangulationType, CornerIndexType, CurveIndexType>
+                     &cgal_triangulation,
     Triangulation<3> &dealii_triangulation)
   {
-    using C3T3 = CGAL::Mesh_complex_3_in_triangulation_3<CGALTriangulationType,
-                                                         CornerIndexType,
-                                                         CurveIndexType>;
+    using C3T3 = CGAL::Mesh_complex_3_in_triangulation_3<CGALTriangulationType, CornerIndexType, CurveIndexType>;
 
     // Extract all vertices first
-    std::vector<Point<3>> dealii_vertices;
-    std::map<typename C3T3::Vertex_handle, unsigned int>
-      cgal_to_dealii_vertex_map;
+    std::vector<Point<3>>                                dealii_vertices;
+    std::map<typename C3T3::Vertex_handle, unsigned int> cgal_to_dealii_vertex_map;
 
     std::size_t inum = 0;
     for (auto vit = cgal_triangulation.triangulation().finite_vertices_begin();
@@ -241,8 +220,7 @@ namespace CGALWrappers
         if (vit->in_dimension() <= -1)
           continue;
         cgal_to_dealii_vertex_map[vit] = inum++;
-        dealii_vertices.emplace_back(
-          CGALWrappers::cgal_point_to_dealii_point<3>(vit->point()));
+        dealii_vertices.emplace_back(CGALWrappers::cgal_point_to_dealii_point<3>(vit->point()));
       }
 
     // Now build cell connectivity
@@ -274,46 +252,35 @@ namespace CGALWrappers
             int j = 0;
             for (int i = 0; i < 4; ++i)
               if (i != cgal_vertex_face_index)
-                dealii_face.vertices[j++] =
-                  cgal_to_dealii_vertex_map[cgal_cell->vertex(i)];
-            dealii_face.manifold_id =
-              cgal_triangulation.surface_patch_index(cgal_cell,
-                                                     cgal_vertex_face_index);
+                dealii_face.vertices[j++] = cgal_to_dealii_vertex_map[cgal_cell->vertex(i)];
+            dealii_face.manifold_id = cgal_triangulation.surface_patch_index(cgal_cell, cgal_vertex_face_index);
             subcell_data.boundary_quads.emplace_back(dealii_face);
           }
       }
     // and curves
     if constexpr (std::is_integral_v<typename C3T3::Curve_index>)
       {
-        for (auto edge = cgal_triangulation.edges_in_complex_begin();
-             edge != cgal_triangulation.edges_in_complex_end();
+        for (auto edge = cgal_triangulation.edges_in_complex_begin(); edge != cgal_triangulation.edges_in_complex_end();
              ++edge)
           {
             const auto &[cgal_cell, v1, v2] = *edge;
             CellData<1> dealii_edge(ReferenceCells::Line.n_vertices());
-            dealii_edge.vertices[0] =
-              cgal_to_dealii_vertex_map[cgal_cell->vertex(v1)];
-            dealii_edge.vertices[1] =
-              cgal_to_dealii_vertex_map[cgal_cell->vertex(v2)];
-            dealii_edge.manifold_id =
-              cgal_triangulation.curve_index(cgal_cell->vertex(v1),
-                                             cgal_cell->vertex(v2));
+            dealii_edge.vertices[0] = cgal_to_dealii_vertex_map[cgal_cell->vertex(v1)];
+            dealii_edge.vertices[1] = cgal_to_dealii_vertex_map[cgal_cell->vertex(v2)];
+            dealii_edge.manifold_id = cgal_triangulation.curve_index(cgal_cell->vertex(v1), cgal_cell->vertex(v2));
             subcell_data.boundary_lines.emplace_back(dealii_edge);
           }
       }
 
-    dealii_triangulation.create_triangulation(dealii_vertices,
-                                              cells,
-                                              subcell_data);
+    dealii_triangulation.create_triangulation(dealii_vertices, cells, subcell_data);
   }
 
 
 
   template <typename CGALTriangulation, int dim, int spacedim>
   void
-  cgal_triangulation_to_dealii_triangulation(
-    const CGALTriangulation &     cgal_triangulation,
-    Triangulation<dim, spacedim> &dealii_triangulation)
+  cgal_triangulation_to_dealii_triangulation(const CGALTriangulation      &cgal_triangulation,
+                                             Triangulation<dim, spacedim> &dealii_triangulation)
   {
     AssertThrow(cgal_triangulation.dimension() == dim,
                 ExcMessage("The dimension of the input CGAL triangulation (" +
@@ -322,33 +289,27 @@ namespace CGALWrappers
                            "deal.II triangulation (" +
                            std::to_string(dim) + ")."));
 
-    Assert(dealii_triangulation.n_cells() == 0,
-           ExcMessage("The output triangulation object needs to be empty."));
+    Assert(dealii_triangulation.n_cells() == 0, ExcMessage("The output triangulation object needs to be empty."));
 
     // deal.II storage data structures
-    std::vector<Point<spacedim>> vertices(
-      cgal_triangulation.number_of_vertices());
-    std::vector<CellData<dim>> cells;
-    SubCellData                subcell_data;
+    std::vector<Point<spacedim>> vertices(cgal_triangulation.number_of_vertices());
+    std::vector<CellData<dim>>   cells;
+    SubCellData                  subcell_data;
 
     // CGAL storage data structures
-    std::map<typename CGALTriangulation::Vertex_handle, unsigned int>
-      vertex_map;
+    std::map<typename CGALTriangulation::Vertex_handle, unsigned int> vertex_map;
     {
       unsigned int i = 0;
       for (const auto &v : cgal_triangulation.finite_vertex_handles())
         {
-          vertices[i] =
-            CGALWrappers::cgal_point_to_dealii_point<spacedim>(v->point());
+          vertices[i]   = CGALWrappers::cgal_point_to_dealii_point<spacedim>(v->point());
           vertex_map[v] = i++;
         }
     }
 
-    const auto has_faces = boost::hana::is_valid(
-      [](auto &&obj) -> decltype(obj.finite_face_handles()) {});
+    const auto has_faces = boost::hana::is_valid([](auto &&obj) -> decltype(obj.finite_face_handles()) {});
 
-    const auto has_cells = boost::hana::is_valid(
-      [](auto &&obj) -> decltype(obj.finite_cell_handles()) {});
+    const auto has_cells = boost::hana::is_valid([](auto &&obj) -> decltype(obj.finite_cell_handles()) {});
 
     // Different loops for Triangulation_2 and Triangulation_3 types.
     if constexpr (decltype(has_faces(cgal_triangulation)){})
@@ -358,9 +319,7 @@ namespace CGALWrappers
           for (const auto &f : cgal_triangulation.finite_face_handles())
             {
               CellData<dim> cell(ReferenceCells::Triangle.n_vertices());
-              for (unsigned int i = 0;
-                   i < ReferenceCells::Triangle.n_vertices();
-                   ++i)
+              for (unsigned int i = 0; i < ReferenceCells::Triangle.n_vertices(); ++i)
                 cell.vertices[i] = vertex_map[f->vertex(i)];
               cells.push_back(cell);
             }
@@ -370,8 +329,8 @@ namespace CGALWrappers
             {
               // An edge is identified by a face and a vertex index in the
               // face
-              const auto &  f = e.first;
-              const auto &  i = e.second;
+              const auto   &f = e.first;
+              const auto   &i = e.second;
               CellData<dim> cell(ReferenceCells::Line.n_vertices());
               unsigned int  id = 0;
               // Since an edge is identified by a face (a triangle) and the
@@ -379,9 +338,7 @@ namespace CGALWrappers
               // logic to infer the indices of the vertices of the edge: loop
               // over all vertices, and keep only those that are not the
               // opposite vertex of the edge.
-              for (unsigned int j = 0;
-                   j < ReferenceCells::Triangle.n_vertices();
-                   ++j)
+              for (unsigned int j = 0; j < ReferenceCells::Triangle.n_vertices(); ++j)
                 if (j != i)
                   cell.vertices[id++] = vertex_map[f->vertex(j)];
               cells.push_back(cell);
@@ -398,9 +355,7 @@ namespace CGALWrappers
           for (const auto &c : cgal_triangulation.finite_cell_handles())
             {
               CellData<dim> cell(ReferenceCells::Tetrahedron.n_vertices());
-              for (unsigned int i = 0;
-                   i < ReferenceCells::Tetrahedron.n_vertices();
-                   ++i)
+              for (unsigned int i = 0; i < ReferenceCells::Tetrahedron.n_vertices(); ++i)
                 cell.vertices[i] = vertex_map[c->vertex(i)];
               cells.push_back(cell);
             }
@@ -410,8 +365,8 @@ namespace CGALWrappers
             {
               // A facet is identified by a cell and the opposite vertex index
               // in the face
-              const auto &  c = facet.first;
-              const auto &  i = facet.second;
+              const auto   &c = facet.first;
+              const auto   &i = facet.second;
               CellData<dim> cell(ReferenceCells::Triangle.n_vertices());
               unsigned int  id = 0;
               // Since a face is identified by a cell (a tetrahedron) and the
@@ -419,9 +374,7 @@ namespace CGALWrappers
               // logic to infer the indices of the vertices of the face: loop
               // over all vertices, and keep only those that are not the
               // opposite vertex of the face.
-              for (unsigned int j = 0;
-                   j < ReferenceCells::Tetrahedron.n_vertices();
-                   ++j)
+              for (unsigned int j = 0; j < ReferenceCells::Tetrahedron.n_vertices(); ++j)
                 if (j != i)
                   cell.vertices[id++] = vertex_map[c->vertex(j)];
               cells.push_back(cell);
@@ -449,18 +402,13 @@ namespace CGALWrappers
 
   template <typename CGAL_MeshType>
   void
-  cgal_surface_mesh_to_dealii_triangulation(const CGAL_MeshType &cgal_mesh,
-                                            Triangulation<2, 3> &triangulation)
+  cgal_surface_mesh_to_dealii_triangulation(const CGAL_MeshType &cgal_mesh, Triangulation<2, 3> &triangulation)
   {
-    Assert(triangulation.n_cells() == 0,
-           ExcMessage(
-             "Triangulation must be empty upon calling this function."));
+    Assert(triangulation.n_cells() == 0, ExcMessage("Triangulation must be empty upon calling this function."));
 
-    const auto is_surface_mesh =
-      boost::hana::is_valid([](auto &&obj) -> decltype(obj.faces()) {});
+    const auto is_surface_mesh = boost::hana::is_valid([](auto &&obj) -> decltype(obj.faces()) {});
 
-    const auto is_polyhedral =
-      boost::hana::is_valid([](auto &&obj) -> decltype(obj.facets_begin()) {});
+    const auto is_polyhedral = boost::hana::is_valid([](auto &&obj) -> decltype(obj.facets_begin()) {});
 
     // Collect Vertices and cells
     std::vector<dealii::Point<3>> vertices;
@@ -470,16 +418,14 @@ namespace CGALWrappers
     // Different loops for Polyhedron or Surface_mesh types
     if constexpr (decltype(is_surface_mesh(cgal_mesh)){})
       {
-        AssertThrow(cgal_mesh.num_vertices() > 0,
-                    ExcMessage("CGAL surface mesh is empty."));
+        AssertThrow(cgal_mesh.num_vertices() > 0, ExcMessage("CGAL surface mesh is empty."));
         vertices.reserve(cgal_mesh.num_vertices());
         std::map<typename CGAL_MeshType::Vertex_index, unsigned int> vertex_map;
         {
           unsigned int i = 0;
           for (const auto &v : cgal_mesh.vertices())
             {
-              vertices.emplace_back(CGALWrappers::cgal_point_to_dealii_point<3>(
-                cgal_mesh.point(v)));
+              vertices.emplace_back(CGALWrappers::cgal_point_to_dealii_point<3>(cgal_mesh.point(v)));
               vertex_map[v] = i++;
             }
         }
@@ -487,8 +433,7 @@ namespace CGALWrappers
         // Collect CellData
         for (const auto &face : cgal_mesh.faces())
           {
-            const auto face_vertices =
-              CGAL::vertices_around_face(cgal_mesh.halfedge(face), cgal_mesh);
+            const auto face_vertices = CGAL::vertices_around_face(cgal_mesh.halfedge(face), cgal_mesh);
 
             AssertThrow(face_vertices.size() == 3 || face_vertices.size() == 4,
                         ExcMessage("Only triangle or quadrilateral surface "
@@ -508,26 +453,20 @@ namespace CGALWrappers
       }
     else if constexpr (decltype(is_polyhedral(cgal_mesh)){})
       {
-        AssertThrow(cgal_mesh.size_of_vertices() > 0,
-                    ExcMessage("CGAL surface mesh is empty."));
+        AssertThrow(cgal_mesh.size_of_vertices() > 0, ExcMessage("CGAL surface mesh is empty."));
         vertices.reserve(cgal_mesh.size_of_vertices());
         std::map<decltype(cgal_mesh.vertices_begin()), unsigned int> vertex_map;
         {
           unsigned int i = 0;
-          for (auto it = cgal_mesh.vertices_begin();
-               it != cgal_mesh.vertices_end();
-               ++it)
+          for (auto it = cgal_mesh.vertices_begin(); it != cgal_mesh.vertices_end(); ++it)
             {
-              vertices.emplace_back(
-                CGALWrappers::cgal_point_to_dealii_point<3>(it->point()));
+              vertices.emplace_back(CGALWrappers::cgal_point_to_dealii_point<3>(it->point()));
               vertex_map[it] = i++;
             }
         }
 
         // Loop over faces of Polyhedron, fill CellData
-        for (auto face = cgal_mesh.facets_begin();
-             face != cgal_mesh.facets_end();
-             ++face)
+        for (auto face = cgal_mesh.facets_begin(); face != cgal_mesh.facets_end(); ++face)
           {
             auto               j                 = face->facet_begin();
             const unsigned int vertices_per_face = CGAL::circulator_size(j);
@@ -535,8 +474,7 @@ namespace CGALWrappers
                         ExcMessage("Only triangle or quadrilateral surface "
                                    "meshes are supported in deal.II. You "
                                    "tried to read a mesh where a face has " +
-                                   std::to_string(vertices_per_face) +
-                                   " vertices per face."));
+                                   std::to_string(vertices_per_face) + " vertices per face."));
 
             CellData<2> c(vertices_per_face);
             auto        it = c.vertices.begin();
@@ -554,9 +492,7 @@ namespace CGALWrappers
       }
     else
       {
-        AssertThrow(false,
-                    ExcInternalError(
-                      "Unsupported CGAL surface triangulation type."));
+        AssertThrow(false, ExcInternalError("Unsupported CGAL surface triangulation type."));
       }
     triangulation.create_triangulation(vertices, cells, subcell_data);
   }

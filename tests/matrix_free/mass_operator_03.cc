@@ -75,8 +75,7 @@ test()
   // std::endl; std::cout << "Number of constraints: " <<
   // constraints.n_constraints() << std::endl;
 
-  std::shared_ptr<MatrixFree<dim, number>> mf_data(
-    new MatrixFree<dim, number>());
+  std::shared_ptr<MatrixFree<dim, number>> mf_data(new MatrixFree<dim, number>());
   {
     const QGauss<1>                                  quad(fe_degree + 2);
     typename MatrixFree<dim, number>::AdditionalData data;
@@ -85,16 +84,10 @@ test()
     mf_data->reinit(MappingQ1<dim>{}, dof, constraints, quad, data);
   }
 
-  MatrixFreeOperators::MassOperator<dim,
-                                    fe_degree,
-                                    fe_degree + 2,
-                                    1,
-                                    LinearAlgebra::distributed::Vector<number>>
-    mf;
+  MatrixFreeOperators::MassOperator<dim, fe_degree, fe_degree + 2, 1, LinearAlgebra::distributed::Vector<number>> mf;
   mf.initialize(mf_data);
   mf.compute_diagonal();
-  const LinearAlgebra::distributed::Vector<double> &inverse_diagonal =
-    mf.get_matrix_diagonal_inverse()->get_vector();
+  const LinearAlgebra::distributed::Vector<double> &inverse_diagonal = mf.get_matrix_diagonal_inverse()->get_vector();
 
   LinearAlgebra::distributed::Vector<number> in, out, ref;
   mf_data->initialize_dof_vector(in);
@@ -117,31 +110,22 @@ test()
   TrilinosWrappers::SparseMatrix sparse_matrix;
   {
     TrilinosWrappers::SparsityPattern csp(owned_set, MPI_COMM_WORLD);
-    DoFTools::make_sparsity_pattern(dof,
-                                    csp,
-                                    constraints,
-                                    true,
-                                    Utilities::MPI::this_mpi_process(
-                                      MPI_COMM_WORLD));
+    DoFTools::make_sparsity_pattern(dof, csp, constraints, true, Utilities::MPI::this_mpi_process(MPI_COMM_WORLD));
     csp.compress();
     sparse_matrix.reinit(csp);
   }
   {
     QGauss<dim> quadrature_formula(fe_degree + 2);
 
-    FEValues<dim> fe_values(dof.get_fe(),
-                            quadrature_formula,
-                            update_values | update_gradients |
-                              update_JxW_values);
+    FEValues<dim> fe_values(dof.get_fe(), quadrature_formula, update_values | update_gradients | update_JxW_values);
 
     const unsigned int dofs_per_cell = dof.get_fe().dofs_per_cell;
     const unsigned int n_q_points    = quadrature_formula.size();
 
-    FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
+    FullMatrix<double>                   cell_matrix(dofs_per_cell, dofs_per_cell);
     std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
 
-    typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(),
-                                                   endc = dof.end();
+    typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(), endc = dof.end();
     for (; cell != endc; ++cell)
       if (cell->is_locally_owned())
         {
@@ -152,15 +136,12 @@ test()
             for (unsigned int i = 0; i < dofs_per_cell; ++i)
               {
                 for (unsigned int j = 0; j < dofs_per_cell; ++j)
-                  cell_matrix(i, j) += (fe_values.shape_value(i, q_point) *
-                                        fe_values.shape_value(j, q_point)) *
-                                       fe_values.JxW(q_point);
+                  cell_matrix(i, j) +=
+                    (fe_values.shape_value(i, q_point) * fe_values.shape_value(j, q_point)) * fe_values.JxW(q_point);
               }
 
           cell->get_dof_indices(local_dof_indices);
-          constraints.distribute_local_to_global(cell_matrix,
-                                                 local_dof_indices,
-                                                 sparse_matrix);
+          constraints.distribute_local_to_global(cell_matrix, local_dof_indices, sparse_matrix);
         }
   }
   sparse_matrix.compress(VectorOperation::add);

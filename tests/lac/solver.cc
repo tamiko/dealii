@@ -32,16 +32,9 @@
 
 #include "../testmatrix.h"
 
-template <typename SolverType,
-          typename MatrixType,
-          typename VectorType,
-          class PRECONDITION>
+template <typename SolverType, typename MatrixType, typename VectorType, class PRECONDITION>
 void
-check_solve(SolverType &        solver,
-            const MatrixType &  A,
-            VectorType &        u,
-            VectorType &        f,
-            const PRECONDITION &P)
+check_solve(SolverType &solver, const MatrixType &A, VectorType &u, VectorType &f, const PRECONDITION &P)
 {
   u = 0.;
   f = 1.;
@@ -55,16 +48,9 @@ check_solve(SolverType &        solver,
     }
 }
 
-template <typename SolverType,
-          typename MatrixType,
-          typename VectorType,
-          class PRECONDITION>
+template <typename SolverType, typename MatrixType, typename VectorType, class PRECONDITION>
 void
-check_Tsolve(SolverType &        solver,
-             const MatrixType &  A,
-             VectorType &        u,
-             VectorType &        f,
-             const PRECONDITION &P)
+check_Tsolve(SolverType &solver, const MatrixType &A, VectorType &u, VectorType &f, const PRECONDITION &P)
 {
   u = 0.;
   f = 1.;
@@ -101,8 +87,7 @@ main()
   SolverFIRE<>                  fire(control, mem);
 
   SolverGMRES<>::AdditionalData data3(8);
-  data3.orthogonalization_strategy =
-    LinearAlgebra::OrthogonalizationStrategy::classical_gram_schmidt;
+  data3.orthogonalization_strategy = LinearAlgebra::OrthogonalizationStrategy::classical_gram_schmidt;
   SolverGMRES<> gmresclassical(control, mem, data3);
 
   for (unsigned int size = 4; size <= 30; size *= 3)

@@ -75,10 +75,8 @@ public:
     // In this case we use the implicit form
     if (implicit)
       {
-        time_stepper.implicit_function = [&](const real_type   t,
-                                             const VectorType &y,
-                                             const VectorType &y_dot,
-                                             VectorType &      res) -> void {
+        time_stepper.implicit_function =
+          [&](const real_type t, const VectorType &y, const VectorType &y_dot, VectorType &res) -> void {
           deallog << "Evaluating implicit function at t=" << t << std::endl;
           res(0) = y_dot(0) + kappa * y(0);
           res.compress(VectorOperation::insert);
@@ -101,8 +99,8 @@ public:
                                                  const VectorType &y,
                                                  const VectorType &y_dot,
                                                  const real_type   shift,
-                                                 MatrixType &      A,
-                                                 MatrixType &      P) -> void {
+                                                 MatrixType       &A,
+                                                 MatrixType       &P) -> void {
               deallog << "Evaluating implicit Jacobian at t=" << t << std::endl;
               P.set(0, 0, shift + kappa);
               P.compress(VectorOperation::insert);
@@ -114,18 +112,15 @@ public:
             // setting up the Jacobian system and solve for it.
             // In this example we only store the solver shift
             // during setup.
-            time_stepper.setup_jacobian = [&](const real_type   t,
-                                              const VectorType &y,
-                                              const VectorType &y_dot,
-                                              const real_type   shift) -> void {
+            time_stepper.setup_jacobian =
+              [&](const real_type t, const VectorType &y, const VectorType &y_dot, const real_type shift) -> void {
               deallog << "Setting up Jacobian at t=" << t << std::endl;
               myshift = shift;
             };
 
             // In the solve phase we se the stored shift to solve
             // for the implicit Jacobian system
-            time_stepper.solve_with_jacobian = [&](const VectorType &src,
-                                                   VectorType &dst) -> void {
+            time_stepper.solve_with_jacobian = [&](const VectorType &src, VectorType &dst) -> void {
               deallog << "Solving with Jacobian" << std::endl;
               dst(0) = src(0) / (myshift + kappa);
               dst.compress(VectorOperation::insert);
@@ -136,8 +131,7 @@ public:
       { // Here we instead use the explicit form
         // This is the only function one would populate in case an explicit
         // solver is used.
-        time_stepper.explicit_function =
-          [&](const real_type t, const VectorType &y, VectorType &res) -> void {
+        time_stepper.explicit_function = [&](const real_type t, const VectorType &y, VectorType &res) -> void {
           deallog << "Evaluating explicit function at t=" << t << std::endl;
           res(0) = -kappa * y(0);
           res.compress(VectorOperation::insert);
@@ -149,10 +143,8 @@ public:
         // this test
         if (setjac)
           {
-            time_stepper.explicit_jacobian = [&](const real_type   t,
-                                                 const VectorType &y,
-                                                 MatrixType &      A,
-                                                 MatrixType &      P) -> void {
+            time_stepper.explicit_jacobian =
+              [&](const real_type t, const VectorType &y, MatrixType &A, MatrixType &P) -> void {
               deallog << "Evaluating explicit Jacobian at t=" << t << std::endl;
               P.set(0, 0, -kappa);
               P.compress(VectorOperation::insert);
@@ -162,13 +154,10 @@ public:
 
     // Monitoring routine. Here we print diagnostic for the exact
     // solution to the log file.
-    time_stepper.monitor = [&](const real_type   t,
-                               const VectorType &sol,
-                               const unsigned int /*step_number*/) -> void {
+    time_stepper.monitor = [&](const real_type t, const VectorType &sol, const unsigned int /*step_number*/) -> void {
       deallog << "Intermediate output:" << std::endl;
       deallog << "  t =" << t << std::endl;
-      deallog << "  y =" << sol[0] << "  (exact: " << std::exp(-kappa * t)
-              << ')' << std::endl;
+      deallog << "  y =" << sol[0] << "  (exact: " << std::exp(-kappa * t) << ')' << std::endl;
     };
 
     // This callback is invoked after a successfull stage.
@@ -179,18 +168,14 @@ public:
 
     // This callback is used to decide to remesh.
     time_stepper.decide_for_coarsening_and_refinement =
-      [&](const real_type    t,
-          const unsigned int step,
-          const VectorType &,
-          bool &resize) -> void {
+      [&](const real_type t, const unsigned int step, const VectorType &, bool &resize) -> void {
       deallog << "Prepare at time " << t << " and step " << step << std::endl;
       resize = (step && step % 5 == 0);
     };
 
     // This callback is called if decide_for_coarsening_and_refinement sets
     // resize to true.
-    time_stepper.interpolate = [&](const std::vector<VectorType> &all_in,
-                                   std::vector<VectorType> &all_out) -> void {
+    time_stepper.interpolate = [&](const std::vector<VectorType> &all_in, std::vector<VectorType> &all_out) -> void {
       deallog << "Interpolate" << std::endl;
       for (auto &v : all_in)
         all_out.push_back(v);
@@ -246,15 +231,13 @@ main(int argc, char **argv)
       bool setjac = setjaci ? true : false;
 
       {
-        deallog << "# Test explicit interface (J " << setjac << ")"
-                << std::endl;
+        deallog << "# Test explicit interface (J " << setjac << ")" << std::endl;
         ExponentialDecay ode_expl(1.0, data, setjac, false, false);
         ode_expl.run();
       }
 
       {
-        deallog << "# Test implicit interface (J " << setjac << ")"
-                << std::endl;
+        deallog << "# Test implicit interface (J " << setjac << ")" << std::endl;
         ExponentialDecay ode_impl(1.0, data, setjac, true, false);
         ode_impl.run();
       }

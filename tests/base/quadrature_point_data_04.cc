@@ -27,9 +27,8 @@
 #include "../tests.h"
 
 
-using MaterialBase = TransferableQuadraturePointData;
-using QuadratureStorage =
-  CellDataStorage<typename Triangulation<2>::cell_iterator, MaterialBase>;
+using MaterialBase      = TransferableQuadraturePointData;
+using QuadratureStorage = CellDataStorage<typename Triangulation<2>::cell_iterator, MaterialBase>;
 
 // history structs for each material
 struct Mat0 : MaterialBase
@@ -99,9 +98,7 @@ struct Mat2 : MaterialBase
 };
 
 void
-initialize_data(const Triangulation<2> &tria,
-                QuadratureStorage &     storage,
-                const unsigned int      n_data_points_per_cell)
+initialize_data(const Triangulation<2> &tria, QuadratureStorage &storage, const unsigned int n_data_points_per_cell)
 {
   deallog << "Initializing quadrature cell data" << std::endl;
   for (auto cell : tria.active_cell_iterators())
@@ -120,8 +117,8 @@ initialize_data(const Triangulation<2> &tria,
 
 void
 assign_value_to_data(const Triangulation<2> &tria,
-                     FEValues<2> &           fe_values,
-                     QuadratureStorage &     storage,
+                     FEValues<2>            &fe_values,
+                     QuadratureStorage      &storage,
                      const unsigned int      n_data_points_per_cell)
 {
   deallog << "Assigning quadrature cell data" << std::endl;
@@ -150,12 +147,11 @@ DeclException3(ExcWrongValue,
                double,
                double,
                double,
-               << "Received " << arg1 << ", Expected " << arg2
-               << ", delta = " << arg3);
+               << "Received " << arg1 << ", Expected " << arg2 << ", delta = " << arg3);
 
 void
-check_data(const Triangulation<2> & tria,
-           FEValues<2> &            fe_values,
+check_data(const Triangulation<2>  &tria,
+           FEValues<2>             &fe_values,
            const QuadratureStorage &storage,
            const unsigned int       n_data_points_per_cell)
 {
@@ -173,9 +169,7 @@ check_data(const Triangulation<2> & tria,
                 const double value         = data_vec[i]->x;
                 const double correct_value = fe_values.quadrature_point(i)[0];
                 AssertThrow(std::fabs(value - correct_value) < eps,
-                            ExcWrongValue(value,
-                                          correct_value,
-                                          value - correct_value));
+                            ExcWrongValue(value, correct_value, value - correct_value));
               }
           }
         else if (cell->material_id() == 1)
@@ -183,13 +177,10 @@ check_data(const Triangulation<2> & tria,
             auto data_vec = storage.template get_data<Mat1>(cell);
             for (unsigned int i = 0; i < n_data_points_per_cell; ++i)
               {
-                const double value =
-                  fe_values.quadrature_point(i).distance(data_vec[i]->pt);
+                const double value         = fe_values.quadrature_point(i).distance(data_vec[i]->pt);
                 const double correct_value = 0.;
                 AssertThrow(std::fabs(value - correct_value) < eps,
-                            ExcWrongValue(value,
-                                          correct_value,
-                                          value - correct_value));
+                            ExcWrongValue(value, correct_value, value - correct_value));
               }
           }
       }
@@ -231,12 +222,11 @@ main(int argc, char *argv[])
   check_data(tria, fe_values, storage, quadrature.size());
 
   // refine all cells and transfer the data unto the new cells
-  parallel::distributed::ContinuousQuadratureDataTransfer<2, MaterialBase>
-    data_transfer(fe, /*mass_quadrature*/ QGauss<2>(2), quadrature);
+  parallel::distributed::ContinuousQuadratureDataTransfer<2, MaterialBase> data_transfer(
+    fe, /*mass_quadrature*/ QGauss<2>(2), quadrature);
   data_transfer.prepare_for_coarsening_and_refinement(tria, storage);
   tria.refine_global(1);
-  initialize_data(tria,
-                  storage,
+  initialize_data(tria, storage,
                   quadrature.size()); // initialize newly created cells
   data_transfer.interpolate();
   deallog << "Refinement done" << std::endl;

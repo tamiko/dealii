@@ -47,17 +47,13 @@ test()
 {
   parallel::shared::Triangulation<dim> tria(
     MPI_COMM_WORLD,
-    typename Triangulation<dim>::MeshSmoothing(
-      Triangulation<dim>::limit_level_difference_at_vertices),
+    typename Triangulation<dim>::MeshSmoothing(Triangulation<dim>::limit_level_difference_at_vertices),
     true,
-    typename parallel::shared::Triangulation<dim>::Settings(
-      parallel::shared::Triangulation<dim>::partition_zorder));
+    typename parallel::shared::Triangulation<dim>::Settings(parallel::shared::Triangulation<dim>::partition_zorder));
   DoFHandler<dim> dof_handler(tria);
   GridGenerator::subdivided_hyper_cube(tria, 3, -1, 1);
   {
-    typename Triangulation<dim>::active_cell_iterator cell =
-                                                        tria.begin_active(),
-                                                      endc = tria.end();
+    typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
     for (; cell != endc; ++cell)
       {
         if (cell->index() == 0 || cell->index() == 5 || cell->index() == 6)
@@ -69,19 +65,14 @@ test()
   FE_Q<dim> fe(2);
   dof_handler.distribute_dofs(fe);
 
-  deallog << "Number of locally owned dofs: "
-          << dof_handler.n_locally_owned_dofs() << std::endl;
+  deallog << "Number of locally owned dofs: " << dof_handler.n_locally_owned_dofs() << std::endl;
 
   std::vector<IndexSet> shared_dofs_per_proc =
-    Utilities::MPI::all_gather(MPI_COMM_WORLD,
-                               dof_handler.locally_owned_dofs());
-  for (unsigned int i = 0; i < Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
-       ++i)
+    Utilities::MPI::all_gather(MPI_COMM_WORLD, dof_handler.locally_owned_dofs());
+  for (unsigned int i = 0; i < Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD); ++i)
     shared_dofs_per_proc[i].print(deallog.get_file_stream());
 
-  typename DoFHandler<dim>::active_cell_iterator cell =
-                                                   dof_handler.begin_active(),
-                                                 endc = dof_handler.end();
+  typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
   for (; cell != endc; ++cell)
     {
       if (cell->subdomain_id() == numbers::artificial_subdomain_id)

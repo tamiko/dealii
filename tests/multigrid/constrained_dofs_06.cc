@@ -37,8 +37,7 @@ template <int dim>
 void
 test()
 {
-  Triangulation<dim> triangulation(
-    Triangulation<dim>::limit_level_difference_at_vertices);
+  Triangulation<dim> triangulation(Triangulation<dim>::limit_level_difference_at_vertices);
   GridGenerator::hyper_cube(triangulation, 0., 1., true);
   triangulation.refine_global(4 - dim);
 
@@ -56,8 +55,7 @@ test()
   for (unsigned int level = 0; level < triangulation.n_levels(); ++level)
     {
       deallog << "Level " << level << ": " << std::flush;
-      mg_constrained_dofs.get_boundary_indices(level).print(
-        deallog.get_file_stream());
+      mg_constrained_dofs.get_boundary_indices(level).print(deallog.get_file_stream());
       deallog << std::endl;
     }
 }

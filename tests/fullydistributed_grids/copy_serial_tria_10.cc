@@ -46,25 +46,20 @@ test(int n_refinements, MPI_Comm comm)
   GridGenerator::hyper_L(basetria);
   basetria.refine_global(n_refinements);
 
-  GridTools::partition_triangulation_zorder(
-    Utilities::MPI::n_mpi_processes(comm), basetria);
+  GridTools::partition_triangulation_zorder(Utilities::MPI::n_mpi_processes(comm), basetria);
 
   // create instance of pft
   parallel::fullydistributed::Triangulation<dim> tria_pft(comm);
 
   // extract relevant information form serial triangulation
-  auto construction_data =
-    TriangulationDescription::Utilities::create_description_from_triangulation(
-      basetria, comm);
+  auto construction_data = TriangulationDescription::Utilities::create_description_from_triangulation(basetria, comm);
 
   for (unsigned int i = 0; i < construction_data.coarse_cells.size() / 2; ++i)
     {
       std::swap(construction_data.coarse_cells[i],
-                construction_data
-                  .coarse_cells[construction_data.coarse_cells.size() - 1 - i]);
+                construction_data.coarse_cells[construction_data.coarse_cells.size() - 1 - i]);
       std::swap(construction_data.coarse_cell_index_to_coarse_cell_id[i],
-                construction_data.coarse_cell_index_to_coarse_cell_id
-                  [construction_data.coarse_cells.size() - 1 - i]);
+                construction_data.coarse_cell_index_to_coarse_cell_id[construction_data.coarse_cells.size() - 1 - i]);
     }
 
   // actually create triangulation

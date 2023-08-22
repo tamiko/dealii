@@ -82,14 +82,11 @@ test()
   const hp::MappingCollection<dim> mapping_collection(mapping);
 
 
-  deallog << "Adjacent finite elements: " << cell->get_fe().get_name()
-          << " and " << neighbor->get_fe().get_name() << std::endl;
+  deallog << "Adjacent finite elements: " << cell->get_fe().get_name() << " and " << neighbor->get_fe().get_name()
+          << std::endl;
 
   const UpdateFlags      update_flags = update_values;
-  FEInterfaceValues<dim> fiv(mapping_collection,
-                             fe_collection,
-                             q_collection,
-                             update_flags);
+  FEInterfaceValues<dim> fiv(mapping_collection, fe_collection, q_collection, update_flags);
   fiv.reinit(cell,
              face_index,
              /* subface_no */ numbers::invalid_unsigned_int,
@@ -100,8 +97,7 @@ test()
              /* mapping_index */ numbers::invalid_unsigned_int,
              /* fe_index */ numbers::invalid_unsigned_int);
 
-  deallog << "Chosen quadrature for the common face has "
-          << fiv.get_fe_face_values(0).get_quadrature().size()
+  deallog << "Chosen quadrature for the common face has " << fiv.get_fe_face_values(0).get_quadrature().size()
           << " quadrature points. These points are located at:" << std::endl;
   for (const auto p : fiv.get_fe_face_values(0).get_quadrature().get_points())
     deallog << "  " << p << std::endl;

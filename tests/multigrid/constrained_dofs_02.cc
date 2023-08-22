@@ -52,27 +52,22 @@ setup_tria(parallel::distributed::Triangulation<dim> &triangulation)
   GridGenerator::subdivided_hyper_cube(triangulation, n_subdiv, 0, 1);
   triangulation.refine_global(2);
   {
-    for (typename Triangulation<dim>::active_cell_iterator cell =
-           triangulation.begin_active();
+    for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
          cell != triangulation.end();
          ++cell)
       if (cell->is_locally_owned() && cell->center().norm() < 0.55)
         cell->set_refine_flag();
     triangulation.execute_coarsening_and_refinement();
-    for (typename Triangulation<dim>::active_cell_iterator cell =
-           triangulation.begin_active();
+    for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
          cell != triangulation.end();
          ++cell)
-      if (cell->is_locally_owned() && cell->center().norm() > 0.3 &&
-          cell->center().norm() < 0.42)
+      if (cell->is_locally_owned() && cell->center().norm() > 0.3 && cell->center().norm() < 0.42)
         cell->set_refine_flag();
     triangulation.execute_coarsening_and_refinement();
-    for (typename Triangulation<dim>::active_cell_iterator cell =
-           triangulation.begin_active();
+    for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
          cell != triangulation.end();
          ++cell)
-      if (cell->is_locally_owned() && cell->center().norm() > 0.335 &&
-          cell->center().norm() < 0.39)
+      if (cell->is_locally_owned() && cell->center().norm() > 0.335 && cell->center().norm() < 0.39)
         cell->set_refine_flag();
     triangulation.execute_coarsening_and_refinement();
   }
@@ -81,9 +76,7 @@ setup_tria(parallel::distributed::Triangulation<dim> &triangulation)
 
 template <int dim>
 void
-extract_locally_active_level_dofs(const DoFHandler<dim> &dof_handler,
-                                  const unsigned int     level,
-                                  IndexSet &             dof_set)
+extract_locally_active_level_dofs(const DoFHandler<dim> &dof_handler, const unsigned int level, IndexSet &dof_set)
 {
   dof_set = IndexSet(dof_handler.n_dofs(level));
 
@@ -98,8 +91,7 @@ extract_locally_active_level_dofs(const DoFHandler<dim> &dof_handler,
   std::vector<types::global_dof_index> dof_indices;
   std::vector<types::global_dof_index> active_dofs;
 
-  typename DoFHandler<dim>::cell_iterator cell = dof_handler.begin(level),
-                                          endc = dof_handler.end(level);
+  typename DoFHandler<dim>::cell_iterator cell = dof_handler.begin(level), endc = dof_handler.end(level);
   for (; cell != endc; ++cell)
     {
       const types::subdomain_id id = cell->level_subdomain_id();
@@ -115,8 +107,7 @@ extract_locally_active_level_dofs(const DoFHandler<dim> &dof_handler,
 
   // sort, compress out duplicates, fill into index set
   std::sort(active_dofs.begin(), active_dofs.end());
-  dof_set.add_indices(active_dofs.begin(),
-                      std::unique(active_dofs.begin(), active_dofs.end()));
+  dof_set.add_indices(active_dofs.begin(), std::unique(active_dofs.begin(), active_dofs.end()));
 
   dof_set.compress();
 }
@@ -159,28 +150,22 @@ check_fe(FiniteElement<dim> &fe)
     // std::map<std::string,std::vector<types::global_dof_index> > dofmap;
     std::map<std::string, std::vector<types::global_dof_index>> mgdofmap;
 
-    for (typename DoFHandler<dim>::level_cell_iterator cell = dofhref.begin();
-         cell != dofhref.end();
-         ++cell)
+    for (typename DoFHandler<dim>::level_cell_iterator cell = dofhref.begin(); cell != dofhref.end(); ++cell)
       {
         if (!cell->is_locally_owned_on_level())
           continue;
 
-        std::vector<types::global_dof_index> &d =
-          mgdofmap[cell->id().to_string()];
+        std::vector<types::global_dof_index> &d = mgdofmap[cell->id().to_string()];
         d.resize(fe.dofs_per_cell);
         cell->get_mg_dof_indices(d);
       }
 
-    for (typename DoFHandler<dim>::level_cell_iterator cell = dofh.begin();
-         cell != dofh.end();
-         ++cell)
+    for (typename DoFHandler<dim>::level_cell_iterator cell = dofh.begin(); cell != dofh.end(); ++cell)
       {
         if (cell->level_subdomain_id() == numbers::artificial_subdomain_id)
           continue;
 
-        std::vector<types::global_dof_index> &renumbered =
-          mgdofmap[cell->id().to_string()];
+        std::vector<types::global_dof_index> &renumbered = mgdofmap[cell->id().to_string()];
         cell->set_mg_dof_indices(renumbered);
       }
 
@@ -219,17 +204,10 @@ check_fe(FiniteElement<dim> &fe)
 
       // the indexsets should be the same when run in parallel (on the
       // active subset):
-      deallog
-        << (((rei & active) ==
-             (active &
-              mg_constrained_dofs_ref.get_refinement_edge_indices(level))) ?
-              "ok " :
-              "FAIL ")
-        << (((bi & active) ==
-             (active & mg_constrained_dofs_ref.get_boundary_indices(level))) ?
-              "ok " :
-              "FAIL ")
-        << std::endl;
+      deallog << (((rei & active) == (active & mg_constrained_dofs_ref.get_refinement_edge_indices(level))) ? "ok " :
+                                                                                                              "FAIL ")
+              << (((bi & active) == (active & mg_constrained_dofs_ref.get_boundary_indices(level))) ? "ok " : "FAIL ")
+              << std::endl;
     }
 }
 

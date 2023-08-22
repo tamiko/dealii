@@ -58,9 +58,7 @@ test()
 
   DoFHandler<dim> dof_handler(triangulation);
 
-  typename DoFHandler<dim>::active_cell_iterator cell =
-                                                   dof_handler.begin_active(),
-                                                 endc = dof_handler.end();
+  typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
 
   for (; cell != endc; ++cell)
     {
@@ -76,9 +74,7 @@ test()
   Vector<double> interpolant(dof_handler.n_dofs());
 
   // interpolate the function
-  VectorTools::interpolate(dof_handler,
-                           Functions::ConstantFunction<dim>(3.14),
-                           interpolant);
+  VectorTools::interpolate(dof_handler, Functions::ConstantFunction<dim>(3.14), interpolant);
   deallog << interpolant.mean_value() << std::endl;
 }
 

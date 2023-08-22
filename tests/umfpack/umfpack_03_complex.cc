@@ -65,9 +65,7 @@ test(const bool transpose = false)
   deallog << "Number of dofs = " << dof_handler.n_dofs() << std::endl;
 
   SparsityPattern sparsity_pattern;
-  sparsity_pattern.reinit(dof_handler.n_dofs(),
-                          dof_handler.n_dofs(),
-                          dof_handler.max_couplings_between_dofs());
+  sparsity_pattern.reinit(dof_handler.n_dofs(), dof_handler.n_dofs(), dof_handler.max_couplings_between_dofs());
   DoFTools::make_sparsity_pattern(dof_handler, sparsity_pattern);
   sparsity_pattern.compress();
 
@@ -94,8 +92,7 @@ test(const bool transpose = false)
     // check that we've done it right
     for (SparseMatrix<double>::iterator p = BB.begin(); p != BB.end(); ++p)
       if (p->column() != p->row())
-        AssertThrow(B(p->row(), p->column()) != BB(p->column(), p->row()),
-                    ExcInternalError());
+        AssertThrow(B(p->row(), p->column()) != BB(p->column(), p->row()), ExcInternalError());
 
     for (SparseMatrix<double>::iterator p = BB.begin(); p != BB.end(); ++p)
       B.set(p->row(), p->column(), {p->value(), 0});
@@ -112,9 +109,7 @@ test(const bool transpose = false)
       Vector<std::complex<double>> b(dof_handler.n_dofs());
 
       for (unsigned int j = 0; j < dof_handler.n_dofs(); ++j)
-        solution(j) =
-          1. * (j + j * (i + 1) * (i + 1)) *
-          std::complex<double>(1. / std::sqrt(2.), 1. / std::sqrt(2.));
+        solution(j) = 1. * (j + j * (i + 1) * (i + 1)) * std::complex<double>(1. / std::sqrt(2.), 1. / std::sqrt(2.));
 
       if (transpose)
         B.Tvmult(b, solution);
@@ -125,10 +120,8 @@ test(const bool transpose = false)
       SparseDirectUMFPACK().solve(B, x, transpose);
 
       x -= solution;
-      deallog << "relative norm distance = " << x.l2_norm() / solution.l2_norm()
-              << std::endl;
-      deallog << "absolute norms = " << x.l2_norm() << ' ' << solution.l2_norm()
-              << std::endl;
+      deallog << "relative norm distance = " << x.l2_norm() / solution.l2_norm() << std::endl;
+      deallog << "absolute norms = " << x.l2_norm() << ' ' << solution.l2_norm() << std::endl;
       Assert(x.l2_norm() / solution.l2_norm() < 1e-8, ExcInternalError());
     }
 }

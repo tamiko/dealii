@@ -45,9 +45,7 @@ void
 print_dofs(const DoFHandler<dim> &dof)
 {
   std::vector<types::global_dof_index> v(dof.get_fe().dofs_per_cell);
-  for (typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active();
-       cell != dof.end();
-       ++cell)
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(); cell != dof.end(); ++cell)
     {
       deallog << "Cell " << cell << " -- ";
       cell->get_dof_indices(v);
@@ -64,9 +62,7 @@ void
 print_dofs(const DoFHandler<dim> &dof, unsigned int level)
 {
   std::vector<types::global_dof_index> v(dof.get_fe().dofs_per_cell);
-  for (typename DoFHandler<dim>::cell_iterator cell = dof.begin(level);
-       cell != dof.end(level);
-       ++cell)
+  for (typename DoFHandler<dim>::cell_iterator cell = dof.begin(level); cell != dof.end(level); ++cell)
     {
       deallog << "Cell " << cell << " -- ";
       cell->get_mg_dof_indices(v);
@@ -82,7 +78,7 @@ void
 check_renumbering(DoFHandler<dim> &mgdof, bool discontinuous)
 {
   const FiniteElement<dim> &element = mgdof.get_fe();
-  DoFHandler<dim> &         dof     = mgdof;
+  DoFHandler<dim>          &dof     = mgdof;
 
   // Prepare a reordering of
   // components for later use
@@ -123,8 +119,7 @@ check_renumbering(DoFHandler<dim> &mgdof, bool discontinuous)
   print_dofs(dof);
 
   // Check level ordering
-  for (unsigned int level = 0; level < dof.get_triangulation().n_levels();
-       ++level)
+  for (unsigned int level = 0; level < dof.get_triangulation().n_levels(); ++level)
     {
       print_dofs(mgdof, level);
 

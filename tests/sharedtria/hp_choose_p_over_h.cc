@@ -40,16 +40,14 @@ void
 test()
 {
   // setup
-  parallel::shared::Triangulation<dim> tr(
-    MPI_COMM_WORLD,
-    ::Triangulation<dim>::none,
-    false,
-    parallel::shared::Triangulation<dim>::partition_custom_signal);
+  parallel::shared::Triangulation<dim> tr(MPI_COMM_WORLD,
+                                          ::Triangulation<dim>::none,
+                                          false,
+                                          parallel::shared::Triangulation<dim>::partition_custom_signal);
   tr.signals.post_refinement.connect([&tr]() {
     // partition the triangulation by hand
     for (const auto &cell : tr.active_cell_iterators())
-      cell->set_subdomain_id(cell->active_cell_index() %
-                             Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD));
+      cell->set_subdomain_id(cell->active_cell_index() % Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD));
   });
 
   TestGrids::hyper_line(tr, 2);
@@ -103,18 +101,15 @@ test()
 
   // verify
   unsigned int h_flagged_cells = 0, p_flagged_cells = 0;
-  for (const auto &cell :
-       dh.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : dh.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     {
       if (cell->coarsen_flag_set())
         ++h_flagged_cells;
       if (cell->future_fe_index_set())
         ++p_flagged_cells;
     }
-  const unsigned int global_h_flagged_cells =
-                       Utilities::MPI::sum(h_flagged_cells, MPI_COMM_WORLD),
-                     global_p_flagged_cells =
-                       Utilities::MPI::sum(p_flagged_cells, MPI_COMM_WORLD);
+  const unsigned int global_h_flagged_cells = Utilities::MPI::sum(h_flagged_cells, MPI_COMM_WORLD),
+                     global_p_flagged_cells = Utilities::MPI::sum(p_flagged_cells, MPI_COMM_WORLD);
 
   deallog << "h-flags:" << global_h_flagged_cells << std::endl
           << "p-flags:" << global_p_flagged_cells << std::endl

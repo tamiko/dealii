@@ -62,10 +62,7 @@ main()
   Triangulation<3>          triangulation;
   std::vector<unsigned int> subdivisions(3, 2);
   subdivisions[2] = 1;
-  GridGenerator::subdivided_hyper_rectangle(triangulation,
-                                            subdivisions,
-                                            Point<3>(),
-                                            Point<3>(2, 2, 1));
+  GridGenerator::subdivided_hyper_rectangle(triangulation, subdivisions, Point<3>(), Point<3>(2, 2, 1));
 
   hp::FECollection<3> fe;
   fe.push_back(FE_Q<3>(1));
@@ -102,9 +99,7 @@ main()
   // with it). note that there is
   // only one such line so we can
   // quit the loop once we find it
-  for (DoFHandler<3>::active_cell_iterator cell = dof_handler.begin_active();
-       cell != dof_handler.end();
-       ++cell)
+  for (DoFHandler<3>::active_cell_iterator cell = dof_handler.begin_active(); cell != dof_handler.end(); ++cell)
     for (unsigned int l = 0; l < GeometryInfo<3>::lines_per_cell; ++l)
       if (cell->line(l)->n_active_fe_indices() == 4)
         {
@@ -112,12 +107,9 @@ main()
           for (unsigned int i = 0; i < 4; ++i)
             {
               deallog << "DoF indices for fe_index=" << i << ": ";
-              std::vector<types::global_dof_index> line_dofs(
-                fe[i].dofs_per_line + 2 * fe[i].dofs_per_vertex);
+              std::vector<types::global_dof_index> line_dofs(fe[i].dofs_per_line + 2 * fe[i].dofs_per_vertex);
               cell->line(l)->get_dof_indices(line_dofs, i);
-              for (unsigned int j = 0;
-                   j < fe[i].dofs_per_line + 2 * fe[i].dofs_per_vertex;
-                   ++j)
+              for (unsigned int j = 0; j < fe[i].dofs_per_line + 2 * fe[i].dofs_per_vertex; ++j)
                 deallog << line_dofs[j] << ' ';
               deallog << std::endl;
             }

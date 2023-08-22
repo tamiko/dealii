@@ -34,22 +34,19 @@ public:
   C()
   {
     object_number = ::object_number++;
-    deallog << "Default constructor. Object number " << object_number
-            << std::endl;
+    deallog << "Default constructor. Object number " << object_number << std::endl;
   }
 
   C(const C &c)
   {
     object_number = ::object_number++;
-    deallog << "copy constructor from " << c.object_number << ". Object number "
-            << object_number << std::endl;
+    deallog << "copy constructor from " << c.object_number << ". Object number " << object_number << std::endl;
   }
 
   C(const C &&c)
   {
     object_number = ::object_number++;
-    deallog << "move constructor from " << c.object_number << ". Object number "
-            << object_number << std::endl;
+    deallog << "move constructor from " << c.object_number << ". Object number " << object_number << std::endl;
   }
 
   ~C()

@@ -45,8 +45,7 @@ template <int dim, int spacedim>
 void
 test(const types::material_id test_id)
 {
-  Assert(test_id == 0 || test_id == 1,
-         ExcMessage("Only material IDs 0 and 1 are valid."));
+  Assert(test_id == 0 || test_id == 1, ExcMessage("Only material IDs 0 and 1 are valid."));
 
   Triangulation<dim, spacedim> tria;
   FE_Q<dim, spacedim>          fe(1);
@@ -82,24 +81,21 @@ test(const types::material_id test_id)
       c.vectors[0][0] += w;
   };
 
-  auto boundary_worker = [](const Iterator &    cell,
-                            const unsigned int &f,
-                            ScratchData &       s,
-                            CopyData &          c) {
+  auto boundary_worker = [](const Iterator &cell, const unsigned int &f, ScratchData &s, CopyData &c) {
     const auto &fev = s.reinit(cell, f);
     const auto &JxW = s.get_JxW_values();
     for (auto w : JxW)
       c.vectors[0][1] += w;
   };
 
-  auto face_worker = [](const Iterator &    cell,
+  auto face_worker = [](const Iterator     &cell,
                         const unsigned int &f,
                         const unsigned int &sf,
-                        const Iterator &    ncell,
+                        const Iterator     &ncell,
                         const unsigned int &nf,
                         const unsigned int &nsf,
-                        ScratchData &       s,
-                        CopyData &          c) {
+                        ScratchData        &s,
+                        CopyData           &c) {
     const auto &fev  = s.reinit(cell, f, sf);
     const auto &nfev = s.reinit_neighbor(ncell, nf, nsf);
 
@@ -116,16 +112,14 @@ test(const types::material_id test_id)
   };
 
   const auto filtered_iterator_range =
-    filter_iterators(dh.active_cell_iterators(),
-                     IteratorFilters::MaterialIdEqualTo(test_id));
+    filter_iterators(dh.active_cell_iterators(), IteratorFilters::MaterialIdEqualTo(test_id));
 
   mesh_loop(filtered_iterator_range,
             cell_worker,
             copier,
             scratch,
             copy,
-            assemble_own_cells | assemble_boundary_faces |
-              assemble_own_interior_faces_once,
+            assemble_own_cells | assemble_boundary_faces | assemble_own_interior_faces_once,
             boundary_worker,
             face_worker);
 

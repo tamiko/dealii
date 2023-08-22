@@ -70,20 +70,15 @@ test(const unsigned int degree)
   dof_handler.distribute_dofs(fe);
   Vector<Number> vector(dof_handler.n_dofs());
 
-  FEPointEvaluation<1, dim, dim, Number> evaluator(
-    mapping, fe, update_values | update_gradients);
+  FEPointEvaluation<1, dim, dim, Number> evaluator(mapping, fe, update_values | update_gradients);
 
   FEPointEvaluation<1, dim, dim, Number> evaluator_copy(evaluator);
 
-  FEPointEvaluation<1, dim, dim, Number> evaluator_move(
-    std::move(evaluator_copy));
+  FEPointEvaluation<1, dim, dim, Number> evaluator_move(std::move(evaluator_copy));
 
   Tensor<1, dim, Number> exponents;
   exponents[0] = 1.;
-  VectorTools::interpolate(mapping,
-                           dof_handler,
-                           Functions::Monomial<dim, Number>(exponents),
-                           vector);
+  VectorTools::interpolate(mapping, dof_handler, Functions::Monomial<dim, Number>(exponents), vector);
 
   std::vector<Number> solution_values(fe.dofs_per_cell);
 
@@ -94,31 +89,21 @@ test(const unsigned int degree)
 
   for (const auto &cell : dof_handler.active_cell_iterators())
     {
-      cell->get_dof_values(vector,
-                           solution_values.begin(),
-                           solution_values.end());
+      cell->get_dof_values(vector, solution_values.begin(), solution_values.end());
 
       evaluator.reinit(cell, unit_points);
-      evaluator.evaluate(solution_values,
-                         EvaluationFlags::values | EvaluationFlags::gradients);
+      evaluator.evaluate(solution_values, EvaluationFlags::values | EvaluationFlags::gradients);
 
       evaluator_move.reinit(cell, unit_points);
-      evaluator_move.evaluate(solution_values,
-                              EvaluationFlags::values |
-                                EvaluationFlags::gradients);
+      evaluator_move.evaluate(solution_values, EvaluationFlags::values | EvaluationFlags::gradients);
 
       deallog << "Cell with center " << cell->center(true) << std::endl;
       for (unsigned int i = 0; i < n_q_points; ++i)
-        deallog << mapping.transform_unit_to_real_cell(cell, unit_points[i])
-                << ": " << factor_float * evaluator.get_value(i)
-                << " evaluator difference "
-                << factor_float *
-                     (evaluator.get_value(i) - evaluator_move.get_value(i))
+        deallog << mapping.transform_unit_to_real_cell(cell, unit_points[i]) << ": "
+                << factor_float * evaluator.get_value(i) << " evaluator difference "
+                << factor_float * (evaluator.get_value(i) - evaluator_move.get_value(i))
                 << " evaluator gradient difference "
-                << factor_float * (evaluator.get_gradient(i) -
-                                   evaluator_move.get_gradient(i))
-                                    .norm()
-                << std::endl;
+                << factor_float * (evaluator.get_gradient(i) - evaluator_move.get_gradient(i)).norm() << std::endl;
       deallog << std::endl;
 
       for (unsigned int i = 0; i < n_q_points; ++i)
@@ -130,16 +115,12 @@ test(const unsigned int degree)
           evaluator_move.submit_gradient(evaluator_move.get_gradient(i), i);
         }
 
-      evaluator.test_and_sum(solution_values,
-                             EvaluationFlags::values |
-                               EvaluationFlags::gradients);
+      evaluator.test_and_sum(solution_values, EvaluationFlags::values | EvaluationFlags::gradients);
 
       for (const auto i : solution_values)
         deallog << factor_float * i << ' ';
 
-      evaluator_move.test_and_sum(solution_values,
-                                  EvaluationFlags::values |
-                                    EvaluationFlags::gradients);
+      evaluator_move.test_and_sum(solution_values, EvaluationFlags::values | EvaluationFlags::gradients);
 
       deallog << std::endl;
 

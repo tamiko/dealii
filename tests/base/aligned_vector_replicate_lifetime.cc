@@ -33,22 +33,19 @@ public:
   C()
   {
     object_number = ::object_number++;
-    deallog << "Default constructor. Object number " << object_number
-            << std::endl;
+    deallog << "Default constructor. Object number " << object_number << std::endl;
   }
 
   C(const C &c)
   {
     object_number = ::object_number++;
-    deallog << "copy constructor from " << c.object_number << ". Object number "
-            << object_number << std::endl;
+    deallog << "copy constructor from " << c.object_number << ". Object number " << object_number << std::endl;
   }
 
   C(const C &&c)
   {
     object_number = ::object_number++;
-    deallog << "move constructor from " << c.object_number << ". Object number "
-            << object_number << std::endl;
+    deallog << "move constructor from " << c.object_number << ". Object number " << object_number << std::endl;
   }
 
   ~C()
@@ -76,22 +73,18 @@ test()
 {
   const MPI_Comm     communicator = MPI_COMM_WORLD;
   const unsigned int root         = 1;
-  Assert(root < Utilities::MPI::n_mpi_processes(communicator),
-         ExcInternalError());
+  Assert(root < Utilities::MPI::n_mpi_processes(communicator), ExcInternalError());
 
-  deallog << "*** On process " << Utilities::MPI::this_mpi_process(communicator)
-          << ": Starting up..." << std::endl;
+  deallog << "*** On process " << Utilities::MPI::this_mpi_process(communicator) << ": Starting up..." << std::endl;
 
   // Create an object of nonzero size and then replicate it.
   AlignedVector<C> avec(Utilities::MPI::this_mpi_process(communicator));
 
-  deallog << "*** On process " << Utilities::MPI::this_mpi_process(communicator)
-          << ": Replicating..." << std::endl;
+  deallog << "*** On process " << Utilities::MPI::this_mpi_process(communicator) << ": Replicating..." << std::endl;
 
   avec.replicate_across_communicator(communicator, root);
 
-  deallog << "*** On process " << Utilities::MPI::this_mpi_process(communicator)
-          << ": Going out of scope" << std::endl;
+  deallog << "*** On process " << Utilities::MPI::this_mpi_process(communicator) << ": Going out of scope" << std::endl;
 }
 
 

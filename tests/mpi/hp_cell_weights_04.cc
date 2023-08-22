@@ -48,11 +48,10 @@ template <int dim>
 void
 test()
 {
-  parallel::shared::Triangulation<dim> tria(
-    MPI_COMM_WORLD,
-    ::Triangulation<dim>::none,
-    true,
-    parallel::shared::Triangulation<dim>::Settings::partition_metis);
+  parallel::shared::Triangulation<dim> tria(MPI_COMM_WORLD,
+                                            ::Triangulation<dim>::none,
+                                            true,
+                                            parallel::shared::Triangulation<dim>::Settings::partition_metis);
 
   GridGenerator::hyper_cube(tria);
   tria.refine_global(2);
@@ -72,8 +71,7 @@ test()
 
   dh.distribute_dofs(fe_collection);
 
-  deallog << "Number of cells before repartitioning: "
-          << tria.n_locally_owned_active_cells() << std::endl;
+  deallog << "Number of cells before repartitioning: " << tria.n_locally_owned_active_cells() << std::endl;
   {
     unsigned int dof_counter = 0;
     for (auto &cell : dh.active_cell_iterators())
@@ -83,15 +81,13 @@ test()
   }
 
 
-  const parallel::CellWeights<dim> cell_weights(
-    dh, parallel::CellWeights<dim>::ndofs_weighting({1, 1}));
+  const parallel::CellWeights<dim> cell_weights(dh, parallel::CellWeights<dim>::ndofs_weighting({1, 1}));
 
   // we didn't mark any cells, but we want to repartition our domain
   tria.execute_coarsening_and_refinement();
 
 
-  deallog << "Number of cells after repartitioning: "
-          << tria.n_locally_owned_active_cells() << std::endl;
+  deallog << "Number of cells after repartitioning: " << tria.n_locally_owned_active_cells() << std::endl;
   {
     unsigned int dof_counter = 0;
     for (auto &cell : dh.active_cell_iterators())
@@ -101,11 +97,10 @@ test()
   }
 
 #ifdef DEBUG
-  parallel::shared::Triangulation<dim> other_tria(
-    MPI_COMM_WORLD,
-    ::Triangulation<dim>::none,
-    false,
-    parallel::shared::Triangulation<dim>::Settings::partition_metis);
+  parallel::shared::Triangulation<dim> other_tria(MPI_COMM_WORLD,
+                                                  ::Triangulation<dim>::none,
+                                                  false,
+                                                  parallel::shared::Triangulation<dim>::Settings::partition_metis);
   GridGenerator::hyper_cube(other_tria);
   other_tria.refine_global(3);
 
@@ -115,8 +110,7 @@ test()
   try
     {
       tria.execute_coarsening_and_refinement();
-      deallog << "Error: we did not throw an exception when we should have"
-              << std::endl;
+      deallog << "Error: we did not throw an exception when we should have" << std::endl;
       std::abort();
     }
   catch (const ExceptionBase &e)
@@ -124,9 +118,7 @@ test()
       deallog << e.get_exc_name() << std::endl;
     }
 #else
-  deallog
-    << "ExcMessage(\"Triangulation associated with the DoFHandler has changed!\")"
-    << std::endl;
+  deallog << "ExcMessage(\"Triangulation associated with the DoFHandler has changed!\")" << std::endl;
 #endif
 
   // make sure no processor is hanging

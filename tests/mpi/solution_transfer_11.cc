@@ -53,15 +53,12 @@ test()
       cell->set_active_fe_index(1);
 
   dofh.distribute_dofs(fes);
-  IndexSet locally_owned_dofs = dofh.locally_owned_dofs();
-  IndexSet locally_relevant_dofs =
-    DoFTools::extract_locally_relevant_dofs(dofh);
+  IndexSet locally_owned_dofs    = dofh.locally_owned_dofs();
+  IndexSet locally_relevant_dofs = DoFTools::extract_locally_relevant_dofs(dofh);
 
   // set up solution
   LinearAlgebra::distributed::Vector<double> solution;
-  solution.reinit(locally_owned_dofs,
-                  locally_relevant_dofs,
-                  dofh.get_communicator());
+  solution.reinit(locally_owned_dofs, locally_relevant_dofs, dofh.get_communicator());
 
   for (unsigned int i = 0; i < solution.size(); ++i)
     if (locally_owned_dofs.is_element(i))
@@ -91,15 +88,13 @@ test()
         else if (parent_id_string == "2_0:")
           {
             // parent 2: p refinement
-            const auto super_fe_index =
-              fes.next_in_hierarchy(cell->active_fe_index());
+            const auto super_fe_index = fes.next_in_hierarchy(cell->active_fe_index());
             cell->set_future_fe_index(super_fe_index);
           }
         else if (parent_id_string == "3_0:")
           {
             // parent 3: p coarsening
-            const auto sub_fe_index =
-              fes.previous_in_hierarchy(cell->active_fe_index());
+            const auto sub_fe_index = fes.previous_in_hierarchy(cell->active_fe_index());
             cell->set_future_fe_index(sub_fe_index);
           }
         else
@@ -109,9 +104,7 @@ test()
       }
 
   // initiate refinement and transfer
-  parallel::distributed::
-    SolutionTransfer<dim, LinearAlgebra::distributed::Vector<double>>
-      soltrans(dofh);
+  parallel::distributed::SolutionTransfer<dim, LinearAlgebra::distributed::Vector<double>> soltrans(dofh);
   soltrans.prepare_for_coarsening_and_refinement(solution);
 
   tria.execute_coarsening_and_refinement();
@@ -120,9 +113,7 @@ test()
   locally_owned_dofs    = dofh.locally_owned_dofs();
   locally_relevant_dofs = DoFTools::extract_locally_relevant_dofs(dofh);
 
-  solution.reinit(locally_owned_dofs,
-                  locally_relevant_dofs,
-                  dofh.get_communicator());
+  solution.reinit(locally_owned_dofs, locally_relevant_dofs, dofh.get_communicator());
   soltrans.interpolate(solution);
 
   l1_norm = solution.l1_norm();

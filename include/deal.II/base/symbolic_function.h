@@ -196,13 +196,10 @@ namespace Functions
      * evaluation occurs.
      */
     SymbolicFunction(
-      const std::vector<Differentiation::SD::Expression> &function,
-      const Tensor<1, dim, Differentiation::SD::Expression>
-        &coordinate_symbols = get_default_coordinate_symbols(),
-      const Differentiation::SD::Expression &time_symbol =
-        Differentiation::SD::make_symbol("t"),
-      const Differentiation::SD::types::substitution_map
-        &user_substitution_map = {});
+      const std::vector<Differentiation::SD::Expression>    &function,
+      const Tensor<1, dim, Differentiation::SD::Expression> &coordinate_symbols = get_default_coordinate_symbols(),
+      const Differentiation::SD::Expression                 &time_symbol        = Differentiation::SD::make_symbol("t"),
+      const Differentiation::SD::types::substitution_map    &user_substitution_map = {});
 
     /**
      * Constructor that takes a single string that describes the function
@@ -226,8 +223,7 @@ namespace Functions
      * gradients, Hessians, and Laplacians of each component.
      */
     void
-    update_user_substitution_map(
-      const Differentiation::SD::types::substitution_map &substitutions);
+    update_user_substitution_map(const Differentiation::SD::types::substitution_map &substitutions);
 
     /**
      * Set the additional @p arguments to be substituted in next evaluation
@@ -245,8 +241,7 @@ namespace Functions
      * should call update_user_substitution_map() instead.
      */
     void
-    set_additional_function_arguments(
-      const Differentiation::SD::types::substitution_map &arguments);
+    set_additional_function_arguments(const Differentiation::SD::types::substitution_map &arguments);
 
     /**
      * Return a tensor of coordinate symbols that can be used to define the
@@ -298,18 +293,15 @@ namespace Functions
 
     // documentation inherited from the base class
     virtual Tensor<1, dim, RangeNumberType>
-    gradient(const Point<dim> & p,
-             const unsigned int component = 0) const override;
+    gradient(const Point<dim> &p, const unsigned int component = 0) const override;
 
     // documentation inherited from the base class
     virtual RangeNumberType
-    laplacian(const Point<dim> & p,
-              const unsigned int component = 0) const override;
+    laplacian(const Point<dim> &p, const unsigned int component = 0) const override;
 
     // documentation inherited from the base class
     virtual SymmetricTensor<2, dim, RangeNumberType>
-    hessian(const Point<dim> & p,
-            const unsigned int component = 0) const override;
+    hessian(const Point<dim> &p, const unsigned int component = 0) const override;
 
     /**
      * Print the stored arguments and function expression, as it would be
@@ -393,16 +385,14 @@ namespace Functions
      * obtained by computing the symbolic gradient of the object @p function,
      * that is, after applying the @p user_substitution_map to @p user_function.
      */
-    mutable std::vector<Tensor<1, dim, Differentiation::SD::Expression>>
-      function_gradient;
+    mutable std::vector<Tensor<1, dim, Differentiation::SD::Expression>> function_gradient;
 
     /**
      * The Hessians of each component of this symbolic function. This is
      * obtained by computing the symbolic Hessian of the object @p function,
      * that is, after applying the @p user_substitution_map to @p user_function.
      */
-    mutable std::vector<Tensor<2, dim, Differentiation::SD::Expression>>
-      function_hessian;
+    mutable std::vector<Tensor<2, dim, Differentiation::SD::Expression>> function_hessian;
 
     /**
      * The Laplacians of each component of this symbolic function. This is
@@ -467,11 +457,9 @@ namespace Functions
   public:
     SymbolicFunction()
     {
-      AssertThrow(
-        false,
-        ExcMessage(
-          "This class is not available if you did not enable SymEngine "
-          "when compiling deal.II."));
+      AssertThrow(false,
+                  ExcMessage("This class is not available if you did not enable SymEngine "
+                             "when compiling deal.II."));
     }
   };
 #endif

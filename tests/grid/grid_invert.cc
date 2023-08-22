@@ -66,8 +66,7 @@ test(bool second_case = false)
 
   std::ostream &logfile = deallog.get_file_stream();
   logfile << "---------------------------------------------" << std::endl
-          << "dim=" << dim << (second_case ? ", second case" : ", first case")
-          << std::endl
+          << "dim=" << dim << (second_case ? ", second case" : ", first case") << std::endl
           << std::endl;
 
   GridOut grid_out;

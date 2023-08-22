@@ -67,8 +67,7 @@ test_point_owner(unsigned int n_procs)
     }
 
   // Step 2: building the rtree
-  RTree<std::pair<BoundingBox<spacedim>, unsigned int>> covering_rtree(
-    global_bboxes.begin(), global_bboxes.end());
+  RTree<std::pair<BoundingBox<spacedim>, unsigned int>> covering_rtree(global_bboxes.begin(), global_bboxes.end());
 
   // Step 2: testing the function
   auto output_tp = GridTools::guess_point_owner(covering_rtree, points);
@@ -89,11 +88,9 @@ test_point_owner(unsigned int n_procs)
           const auto &rk_points = std::get<0>(output_tp)[rk];
           for (unsigned int box = 0; box < rk; ++box)
             {
-              if (std::find(rk_points.begin(), rk_points.end(), tot_pt) ==
-                  rk_points.end())
+              if (std::find(rk_points.begin(), rk_points.end(), tot_pt) == rk_points.end())
                 {
-                  deallog << "Point " << tot_pt << " not found in rank " << rk
-                          << std::endl;
+                  deallog << "Point " << tot_pt << " not found in rank " << rk << std::endl;
                   test_passed = false;
                 }
               else
@@ -122,10 +119,9 @@ test_point_owner(unsigned int n_procs)
 
   for (unsigned int rk = 1; rk < n_procs; rk += 2)
     {
-      unsigned int first_el = rk * (rk + 1) / 2 - 1;
-      unsigned int last_el  = (rk + 1) * (rk + 2) / 2;
-      std::pair<Point<spacedim>, Point<spacedim>> boundaries =
-        global_bboxes[first_el].first.get_boundary_points();
+      unsigned int                                first_el   = rk * (rk + 1) / 2 - 1;
+      unsigned int                                last_el    = (rk + 1) * (rk + 2) / 2;
+      std::pair<Point<spacedim>, Point<spacedim>> boundaries = global_bboxes[first_el].first.get_boundary_points();
 
       boundaries.first[0] -= 0.5 * double(Testing::rand()) / RAND_MAX;
       boundaries.second[0] -= 0.5 * double(Testing::rand()) / RAND_MAX;
@@ -135,8 +131,7 @@ test_point_owner(unsigned int n_procs)
     }
 
   // Building a new tree
-  RTree<std::pair<BoundingBox<spacedim>, unsigned int>> covering_rtree_2(
-    global_bboxes.begin(), global_bboxes.end());
+  RTree<std::pair<BoundingBox<spacedim>, unsigned int>> covering_rtree_2(global_bboxes.begin(), global_bboxes.end());
 
   // Running the function again and checking the output
   output_tp = GridTools::guess_point_owner(covering_rtree_2, points);
@@ -156,8 +151,7 @@ test_point_owner(unsigned int n_procs)
           if (!found)
             {
               test_passed = false;
-              deallog << "Couldn't find point " << pt << " in process " << rk
-                      << std::endl;
+              deallog << "Couldn't find point " << pt << " in process " << rk << std::endl;
             }
         }
     }

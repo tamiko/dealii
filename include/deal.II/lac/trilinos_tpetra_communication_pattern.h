@@ -102,14 +102,12 @@ namespace LinearAlgebra
       /**
        * Shared pointer to the Tpetra::Import object used.
        */
-      std::unique_ptr<Tpetra::Import<int, types::signed_global_dof_index>>
-        tpetra_import;
+      std::unique_ptr<Tpetra::Import<int, types::signed_global_dof_index>> tpetra_import;
 
       /**
        * Shared pointer to the Tpetra::Export object used.
        */
-      std::unique_ptr<Tpetra::Export<int, types::signed_global_dof_index>>
-        tpetra_export;
+      std::unique_ptr<Tpetra::Export<int, types::signed_global_dof_index>> tpetra_export;
     };
   } // end of namespace TpetraWrappers
 } // end of namespace LinearAlgebra

@@ -56,8 +56,7 @@ public:
    * FE_RaviartThomas and FE_RaviartThomasNodal classes will use `degree + 1`
    * and `degree` in the two directions, respectively.
    */
-  PolynomialsRaviartThomas(const unsigned int degree_normal,
-                           const unsigned int degree_tangential);
+  PolynomialsRaviartThomas(const unsigned int degree_normal, const unsigned int degree_tangential);
 
   /**
    * Constructor, using the common Raviart-Thomas space of degree `k + 1` in
@@ -87,7 +86,7 @@ public:
    * in a loop over all tensor product polynomials.
    */
   void
-  evaluate(const Point<dim> &           unit_point,
+  evaluate(const Point<dim>            &unit_point,
            std::vector<Tensor<1, dim>> &values,
            std::vector<Tensor<2, dim>> &grads,
            std::vector<Tensor<3, dim>> &grad_grads,
@@ -106,8 +105,7 @@ public:
    * FiniteElement classes.
    */
   static unsigned int
-  n_polynomials(const unsigned int normal_degree,
-                const unsigned int tangential_degree);
+  n_polynomials(const unsigned int normal_degree, const unsigned int tangential_degree);
 
   /**
    * Variant of the n_polynomials() function taking only a single argument
@@ -122,8 +120,7 @@ public:
    * computed as a free function.
    */
   static std::vector<unsigned int>
-  get_lexicographic_numbering(const unsigned int normal_degree,
-                              const unsigned int tangential_degree);
+  get_lexicographic_numbering(const unsigned int normal_degree, const unsigned int tangential_degree);
 
   /**
    * @copydoc TensorPolynomialsBase::clone()

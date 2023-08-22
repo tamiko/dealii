@@ -41,8 +41,7 @@ template <int dim, int spacedim>
 void
 test()
 {
-  Triangulation<dim, spacedim> tria(
-    Triangulation<dim, spacedim>::limit_level_difference_at_vertices);
+  Triangulation<dim, spacedim> tria(Triangulation<dim, spacedim>::limit_level_difference_at_vertices);
   GridGenerator::hyper_ball(tria);
 
   tria.refine_global(1);
@@ -54,49 +53,36 @@ test()
   dh.distribute_mg_dofs();
 
   deallog << "dim, spacedim: " << dim << ", " << spacedim << std::endl
-          << "cells: " << tria.n_active_cells() << ", dofs: " << dh.n_dofs()
-          << std::endl;
+          << "cells: " << tria.n_active_cells() << ", dofs: " << dh.n_dofs() << std::endl;
 
   // Create a Mapping
   LinearAlgebra::distributed::Vector<double> map_vector(dh.n_dofs());
   VectorTools::get_position_vector(dh, map_vector);
-  MGLevelObject<LinearAlgebra::distributed::Vector<double>> level_vectors(
-    0, tria.n_global_levels() - 1);
+  MGLevelObject<LinearAlgebra::distributed::Vector<double>> level_vectors(0, tria.n_global_levels() - 1);
   for (unsigned int level = 0; level < tria.n_global_levels(); ++level)
     level_vectors[level].reinit(dh.n_dofs(level));
 
   MGTransferMatrixFree<dim, double> transfer;
   transfer.build(dh);
   transfer.interpolate_to_mg(dh, level_vectors, map_vector);
-  MappingFEField<dim, spacedim, LinearAlgebra::distributed::Vector<double>>
-                mapping(dh, level_vectors);
-  MappingQ<dim> mapping_ref(fe.degree);
+  MappingFEField<dim, spacedim, LinearAlgebra::distributed::Vector<double>> mapping(dh, level_vectors);
+  MappingQ<dim>                                                             mapping_ref(fe.degree);
 
   QGauss<dim>   quad(1);
-  FEValues<dim> fe_values_ref(mapping_ref,
-                              fe,
-                              quad,
-                              update_jacobians | update_quadrature_points);
-  FEValues<dim> fe_values(mapping,
-                          fe,
-                          quad,
-                          update_jacobians | update_quadrature_points);
+  FEValues<dim> fe_values_ref(mapping_ref, fe, quad, update_jacobians | update_quadrature_points);
+  FEValues<dim> fe_values(mapping, fe, quad, update_jacobians | update_quadrature_points);
 
   for (const auto &cell : tria.cell_iterators())
     {
       fe_values_ref.reinit(cell);
       fe_values.reinit(cell);
 
-      if (fe_values_ref.quadrature_point(0).distance(
-            fe_values.quadrature_point(0)) > 1e-12)
-        deallog << "Mapped point should be "
-                << fe_values_ref.quadrature_point(0) << " and is "
+      if (fe_values_ref.quadrature_point(0).distance(fe_values.quadrature_point(0)) > 1e-12)
+        deallog << "Mapped point should be " << fe_values_ref.quadrature_point(0) << " and is "
                 << fe_values.quadrature_point(0) << std::endl;
-      Tensor<2, dim> jac_ref = fe_values_ref.jacobian(0),
-                     jac     = fe_values.jacobian(0);
+      Tensor<2, dim> jac_ref = fe_values_ref.jacobian(0), jac = fe_values.jacobian(0);
       if ((jac_ref - jac).norm() > 1e-12)
-        deallog << "Jacobian should be " << jac_ref << " and is " << jac
-                << std::endl;
+        deallog << "Jacobian should be " << jac_ref << " and is " << jac << std::endl;
     }
   deallog << "OK" << std::endl;
 }

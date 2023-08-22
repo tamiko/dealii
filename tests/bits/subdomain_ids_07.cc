@@ -48,8 +48,7 @@ test()
   // ids based on their position, in
   // particular we take the quadrant
   // (octant)
-  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(),
-                                                    endc = tria.end();
+  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
   for (; cell != endc; ++cell)
     {
       unsigned int subdomain = 0;
@@ -72,12 +71,9 @@ test()
   DoFTools::get_subdomain_association(dof_handler, subdomain_association);
   for (unsigned int subdomain = 0; subdomain < (1 << dim); ++subdomain)
     {
-      const IndexSet index_set =
-        DoFTools::dof_indices_with_subdomain_association(dof_handler,
-                                                         subdomain);
+      const IndexSet index_set = DoFTools::dof_indices_with_subdomain_association(dof_handler, subdomain);
 
-      deallog << "Index set is " << (index_set.is_contiguous() ? "" : "not ")
-              << "contiguous." << std::endl;
+      deallog << "Index set is " << (index_set.is_contiguous() ? "" : "not ") << "contiguous." << std::endl;
 
       for (unsigned int i = 0; i < dof_handler.n_dofs(); ++i)
         if (subdomain_association[i] == subdomain)

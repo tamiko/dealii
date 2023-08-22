@@ -64,7 +64,7 @@
 
 #include "../tests.h"
 
-//#define DEBUG_OUTPUT_VTK
+// #define DEBUG_OUTPUT_VTK
 unsigned int counter = 0;
 
 const double eps = 1e-10;
@@ -74,8 +74,7 @@ template <int dim>
 struct less_than_key
 {
   inline bool
-  operator()(const std::pair<Point<dim>, Vector<double>> &pair1,
-             const std::pair<Point<dim>, Vector<double>> &pair2)
+  operator()(const std::pair<Point<dim>, Vector<double>> &pair1, const std::pair<Point<dim>, Vector<double>> &pair2)
   {
     const double      precision = 1e-3;
     const Point<dim> &p1        = pair1.first;
@@ -113,10 +112,7 @@ test2cells(const FiniteElement<dim> &fe_0,
     p1[0] = -1.0;
     std::vector<unsigned int> repetitoins(dim, 1);
     repetitoins[0] = 2;
-    GridGenerator::subdivided_hyper_rectangle(triangulation,
-                                              repetitoins,
-                                              p1,
-                                              p2);
+    GridGenerator::subdivided_hyper_rectangle(triangulation, repetitoins, p1, p2);
   }
 
   DoFHandler<dim> dof_handler(triangulation);
@@ -135,17 +131,14 @@ test2cells(const FiniteElement<dim> &fe_0,
   q_face_collection.push_back(quad_formula);
   q_face_collection.push_back(quad_formula);
 
-  deallog << "hp-ref: " << fe_0.get_name() << " vs " << fe_1.get_name()
-          << " vs " << fe_2.get_name() << " with " << fe_common.get_name()
-          << std::endl;
+  deallog << "hp-ref: " << fe_0.get_name() << " vs " << fe_1.get_name() << " vs " << fe_2.get_name() << " with "
+          << fe_common.get_name() << std::endl;
 
   // refine once:
   triangulation.begin_active()->set_refine_flag();
   triangulation.execute_coarsening_and_refinement();
 
-  for (typename DoFHandler<dim>::active_cell_iterator cell =
-         dof_handler.begin_active();
-       cell != dof_handler.end();
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(); cell != dof_handler.end();
        ++cell)
     {
       const Point<dim> &center = cell->center();
@@ -179,13 +172,11 @@ test2cells(const FiniteElement<dim> &fe_0,
       // if the dof is constrained, first output unconstrained vector
       if (constraints.is_constrained(s))
         {
-          names.push_back(std::string("UN_") +
-                          dealii::Utilities::int_to_string(s, 2));
+          names.push_back(std::string("UN_") + dealii::Utilities::int_to_string(s, 2));
           shape_functions.push_back(shape_function);
         }
 
-      names.push_back(std::string("N_") +
-                      dealii::Utilities::int_to_string(s, 2));
+      names.push_back(std::string("N_") + dealii::Utilities::int_to_string(s, 2));
 
       // make continuous/constrain:
       constraints.distribute(shape_function);
@@ -196,10 +187,8 @@ test2cells(const FiniteElement<dim> &fe_0,
   data_out.attach_dof_handler(dof_handler);
 
   // get material ids:
-  Vector<float> fe_index(triangulation.n_active_cells());
-  typename DoFHandler<dim>::active_cell_iterator cell =
-                                                   dof_handler.begin_active(),
-                                                 endc = dof_handler.end();
+  Vector<float>                                  fe_index(triangulation.n_active_cells());
+  typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
   for (unsigned int index = 0; cell != endc; ++cell, ++index)
     {
       fe_index[index] = cell->active_fe_index();
@@ -211,8 +200,7 @@ test2cells(const FiniteElement<dim> &fe_0,
 
   data_out.build_patches(0);
 
-  std::string filename = "shape_functions_" +
-                         dealii::Utilities::int_to_string(counter, 1) + "_" +
+  std::string filename = "shape_functions_" + dealii::Utilities::int_to_string(counter, 1) + "_" +
                          dealii::Utilities::int_to_string(dim) + "D.vtu";
   std::ofstream output(filename);
   data_out.write_vtu(output);
@@ -227,17 +215,14 @@ test2cells(const FiniteElement<dim> &fe_0,
 
 
   // evaluate field at the interface:
-  hp::FEFaceValues<dim> fe_face_values_hp(
-    fe_collection, q_face_collection, update_values | update_quadrature_points);
+  hp::FEFaceValues<dim> fe_face_values_hp(fe_collection, q_face_collection, update_values | update_quadrature_points);
 
   std::vector<unsigned int>   local_face_dof_indices;
   std::vector<Vector<double>> values;
 
   std::vector<std::pair<Point<dim>, Vector<double>>> pairs_point_value;
 
-  for (typename DoFHandler<dim>::active_cell_iterator cell =
-         dof_handler.begin_active();
-       cell != dof_handler.end();
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(); cell != dof_handler.end();
        ++cell)
     {
       const unsigned int fe_index = cell->active_fe_index();
@@ -247,16 +232,14 @@ test2cells(const FiniteElement<dim> &fe_0,
           {
             // deallog << "cell="<<cell<<" face="<<f<<std::endl;
             fe_face_values_hp.reinit(cell, f);
-            const FEFaceValues<dim> &fe_face_values =
-              fe_face_values_hp.get_present_fe_values();
+            const FEFaceValues<dim> &fe_face_values = fe_face_values_hp.get_present_fe_values();
 
             const unsigned int n_q_points = fe_face_values.n_quadrature_points;
             values.resize(n_q_points, Vector<double>(n_comp));
 
             fe_face_values.get_function_values(solution, values);
 
-            const std::vector<dealii::Point<dim>> &q_points =
-              fe_face_values.get_quadrature_points();
+            const std::vector<dealii::Point<dim>> &q_points = fe_face_values.get_quadrature_points();
 
             for (unsigned int q = 0; q < n_q_points; ++q)
               {
@@ -275,8 +258,7 @@ test2cells(const FiniteElement<dim> &fe_0,
 
                 if (q_found < quad_formula.size())
                   {
-                    pairs_point_value.push_back(
-                      std::make_pair(q_points[q], values[q]));
+                    pairs_point_value.push_back(std::make_pair(q_points[q], values[q]));
                     //                      deallog << '@'<<q_points[q]<<" u =
                     //                      {"<<values[q][0]; for (unsigned int
                     //                      c = 1; c < n_comp; c++)
@@ -288,12 +270,10 @@ test2cells(const FiniteElement<dim> &fe_0,
     }
 
   // sort
-  std::sort(pairs_point_value.begin(),
-            pairs_point_value.end(),
-            less_than_key<dim>());
+  std::sort(pairs_point_value.begin(), pairs_point_value.end(), less_than_key<dim>());
   for (unsigned int p = 0; p < pairs_point_value.size(); ++p)
     {
-      const Point<dim> &    pt  = pairs_point_value[p].first;
+      const Point<dim>     &pt  = pairs_point_value[p].first;
       const Vector<double> &val = pairs_point_value[p].second;
 
       Assert(val.size() == n_comp, ExcInternalError());
@@ -316,76 +296,60 @@ main(int argc, char **argv)
     {
       {
         const unsigned int dim = 2;
-        test2cells<dim>(
-          FESystem<dim>(FE_Q<dim>(2), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1),
-          FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(2), 1, FE_Q<dim>(1), 1),
-          FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(2), 1),
-          FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1));
-        test2cells<dim>(
-          FESystem<dim>(FE_Q<dim>(2), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1),
-          FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(2), 1, FE_Q<dim>(1), 1),
-          FESystem<dim>(FE_Q<dim>(2), 1, FE_Q<dim>(2), 1, FE_Q<dim>(2), 1),
-          FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1));
-        test2cells<dim>(
-          FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1),
-          FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(2), 1, FE_Q<dim>(1), 1),
-          FESystem<dim>(FE_Q<dim>(2), 1, FE_Q<dim>(2), 1, FE_Q<dim>(2), 1),
-          FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1));
-        test2cells<dim>(
-          FESystem<dim>(FE_Q<dim>(2), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1),
-          FESystem<dim>(FE_Q<dim>(2), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1),
-          FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(2), 1),
-          FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1));
+        test2cells<dim>(FESystem<dim>(FE_Q<dim>(2), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1),
+                        FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(2), 1, FE_Q<dim>(1), 1),
+                        FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(2), 1),
+                        FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1));
+        test2cells<dim>(FESystem<dim>(FE_Q<dim>(2), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1),
+                        FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(2), 1, FE_Q<dim>(1), 1),
+                        FESystem<dim>(FE_Q<dim>(2), 1, FE_Q<dim>(2), 1, FE_Q<dim>(2), 1),
+                        FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1));
+        test2cells<dim>(FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1),
+                        FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(2), 1, FE_Q<dim>(1), 1),
+                        FESystem<dim>(FE_Q<dim>(2), 1, FE_Q<dim>(2), 1, FE_Q<dim>(2), 1),
+                        FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1));
+        test2cells<dim>(FESystem<dim>(FE_Q<dim>(2), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1),
+                        FESystem<dim>(FE_Q<dim>(2), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1),
+                        FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(2), 1),
+                        FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1));
       }
 
       {
         const unsigned int dim = 3;
-        test2cells<dim>(
-          FESystem<dim>(FE_Q<dim>(2), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1),
-          FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(2), 1, FE_Q<dim>(1), 1),
-          FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(2), 1),
-          FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1));
-        test2cells<dim>(
-          FESystem<dim>(FE_Q<dim>(2), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1),
-          FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(2), 1, FE_Q<dim>(1), 1),
-          FESystem<dim>(FE_Q<dim>(2), 1, FE_Q<dim>(2), 1, FE_Q<dim>(2), 1),
-          FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1));
-        test2cells<dim>(
-          FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1),
-          FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(2), 1, FE_Q<dim>(1), 1),
-          FESystem<dim>(FE_Q<dim>(2), 1, FE_Q<dim>(2), 1, FE_Q<dim>(2), 1),
-          FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1));
-        test2cells<dim>(
-          FESystem<dim>(FE_Q<dim>(2), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1),
-          FESystem<dim>(FE_Q<dim>(2), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1),
-          FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(2), 1),
-          FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1));
+        test2cells<dim>(FESystem<dim>(FE_Q<dim>(2), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1),
+                        FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(2), 1, FE_Q<dim>(1), 1),
+                        FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(2), 1),
+                        FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1));
+        test2cells<dim>(FESystem<dim>(FE_Q<dim>(2), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1),
+                        FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(2), 1, FE_Q<dim>(1), 1),
+                        FESystem<dim>(FE_Q<dim>(2), 1, FE_Q<dim>(2), 1, FE_Q<dim>(2), 1),
+                        FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1));
+        test2cells<dim>(FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1),
+                        FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(2), 1, FE_Q<dim>(1), 1),
+                        FESystem<dim>(FE_Q<dim>(2), 1, FE_Q<dim>(2), 1, FE_Q<dim>(2), 1),
+                        FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1));
+        test2cells<dim>(FESystem<dim>(FE_Q<dim>(2), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1),
+                        FESystem<dim>(FE_Q<dim>(2), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1),
+                        FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(2), 1),
+                        FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(1), 1, FE_Q<dim>(1), 1));
       }
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

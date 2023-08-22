@@ -60,15 +60,8 @@ DEAL_II_NAMESPACE_OPEN
  * @tparam spacedim_B Spacial dimension of ChartManifold B.
  * @tparam chartdim_B Chart dimension of ChartManifold B.
  */
-template <int dim,
-          int dim_A,
-          int spacedim_A,
-          int chartdim_A,
-          int dim_B,
-          int spacedim_B,
-          int chartdim_B>
-class TensorProductManifold
-  : public ChartManifold<dim, spacedim_A + spacedim_B, chartdim_A + chartdim_B>
+template <int dim, int dim_A, int spacedim_A, int chartdim_A, int dim_B, int spacedim_B, int chartdim_B>
+class TensorProductManifold : public ChartManifold<dim, spacedim_A + spacedim_B, chartdim_A + chartdim_B>
 {
 public:
   /**
@@ -85,9 +78,8 @@ public:
   /**
    * Constructor.
    */
-  TensorProductManifold(
-    const ChartManifold<dim_A, spacedim_A, chartdim_A> &manifold_A,
-    const ChartManifold<dim_B, spacedim_B, chartdim_B> &manifold_B);
+  TensorProductManifold(const ChartManifold<dim_A, spacedim_A, chartdim_A> &manifold_A,
+                        const ChartManifold<dim_B, spacedim_B, chartdim_B> &manifold_B);
 
   /**
    * Clone this manifold.
@@ -114,11 +106,9 @@ public:
   push_forward_gradient(const Point<chartdim> &chart_point) const override;
 
 private:
-  std::unique_ptr<const ChartManifold<dim_A, spacedim_A, chartdim_A>>
-    manifold_A;
+  std::unique_ptr<const ChartManifold<dim_A, spacedim_A, chartdim_A>> manifold_A;
 
-  std::unique_ptr<const ChartManifold<dim_B, spacedim_B, chartdim_B>>
-    manifold_B;
+  std::unique_ptr<const ChartManifold<dim_B, spacedim_B, chartdim_B>> manifold_B;
 };
 
 
@@ -157,9 +147,7 @@ namespace internal
 
     template <int dim1, int dim2>
     void
-    split_point(const Point<dim1 + dim2> &source,
-                Point<dim1> &             p1,
-                Point<dim2> &             p2)
+    split_point(const Point<dim1 + dim2> &source, Point<dim1> &p1, Point<dim2> &p2)
     {
       for (unsigned int d = 0; d < dim1; ++d)
         p1[d] = source[d];
@@ -170,196 +158,75 @@ namespace internal
   } // namespace TensorProductManifoldImplementation
 } // namespace internal
 
-template <int dim,
-          int dim_A,
-          int spacedim_A,
-          int chartdim_A,
-          int dim_B,
-          int spacedim_B,
-          int chartdim_B>
-TensorProductManifold<dim,
-                      dim_A,
-                      spacedim_A,
-                      chartdim_A,
-                      dim_B,
-                      spacedim_B,
-                      chartdim_B>::
-  TensorProductManifold(
-    const ChartManifold<dim_A, spacedim_A, chartdim_A> &manifold_A,
-    const ChartManifold<dim_B, spacedim_B, chartdim_B> &manifold_B)
+template <int dim, int dim_A, int spacedim_A, int chartdim_A, int dim_B, int spacedim_B, int chartdim_B>
+TensorProductManifold<dim, dim_A, spacedim_A, chartdim_A, dim_B, spacedim_B, chartdim_B>::TensorProductManifold(
+  const ChartManifold<dim_A, spacedim_A, chartdim_A> &manifold_A,
+  const ChartManifold<dim_B, spacedim_B, chartdim_B> &manifold_B)
   : ChartManifold<dim, spacedim_A + spacedim_B, chartdim_A + chartdim_B>(
-      internal::TensorProductManifoldImplementation::concat(
-        manifold_A.get_periodicity(),
-        manifold_B.get_periodicity()))
-  , manifold_A(Utilities::dynamic_unique_cast<
-               ChartManifold<dim_A, spacedim_A, chartdim_A>,
-               Manifold<dim_A, spacedim_A>>(manifold_A.clone()))
-  , manifold_B(Utilities::dynamic_unique_cast<
-               ChartManifold<dim_B, spacedim_B, chartdim_B>,
-               Manifold<dim_B, spacedim_B>>(manifold_B.clone()))
+      internal::TensorProductManifoldImplementation::concat(manifold_A.get_periodicity(), manifold_B.get_periodicity()))
+  , manifold_A(
+      Utilities::dynamic_unique_cast<ChartManifold<dim_A, spacedim_A, chartdim_A>, Manifold<dim_A, spacedim_A>>(
+        manifold_A.clone()))
+  , manifold_B(
+      Utilities::dynamic_unique_cast<ChartManifold<dim_B, spacedim_B, chartdim_B>, Manifold<dim_B, spacedim_B>>(
+        manifold_B.clone()))
 {}
 
-template <int dim,
-          int dim_A,
-          int spacedim_A,
-          int chartdim_A,
-          int dim_B,
-          int spacedim_B,
-          int chartdim_B>
+template <int dim, int dim_A, int spacedim_A, int chartdim_A, int dim_B, int spacedim_B, int chartdim_B>
 std::unique_ptr<Manifold<dim, spacedim_A + spacedim_B>>
-TensorProductManifold<dim,
-                      dim_A,
-                      spacedim_A,
-                      chartdim_A,
-                      dim_B,
-                      spacedim_B,
-                      chartdim_B>::clone() const
+TensorProductManifold<dim, dim_A, spacedim_A, chartdim_A, dim_B, spacedim_B, chartdim_B>::clone() const
 {
-  return std::make_unique<TensorProductManifold<dim,
-                                                dim_A,
-                                                spacedim_A,
-                                                chartdim_A,
-                                                dim_B,
-                                                spacedim_B,
-                                                chartdim_B>>(*manifold_A,
-                                                             *manifold_B);
+  return std::make_unique<TensorProductManifold<dim, dim_A, spacedim_A, chartdim_A, dim_B, spacedim_B, chartdim_B>>(
+    *manifold_A, *manifold_B);
 }
 
-template <int dim,
-          int dim_A,
-          int spacedim_A,
-          int chartdim_A,
-          int dim_B,
-          int spacedim_B,
-          int chartdim_B>
-Point<TensorProductManifold<dim,
-                            dim_A,
-                            spacedim_A,
-                            chartdim_A,
-                            dim_B,
-                            spacedim_B,
-                            chartdim_B>::chartdim>
-TensorProductManifold<dim,
-                      dim_A,
-                      spacedim_A,
-                      chartdim_A,
-                      dim_B,
-                      spacedim_B,
-                      chartdim_B>::
-  pull_back(
-    const Point<TensorProductManifold<dim,
-                                      dim_A,
-                                      spacedim_A,
-                                      chartdim_A,
-                                      dim_B,
-                                      spacedim_B,
-                                      chartdim_B>::spacedim> &space_point) const
+template <int dim, int dim_A, int spacedim_A, int chartdim_A, int dim_B, int spacedim_B, int chartdim_B>
+Point<TensorProductManifold<dim, dim_A, spacedim_A, chartdim_A, dim_B, spacedim_B, chartdim_B>::chartdim>
+TensorProductManifold<dim, dim_A, spacedim_A, chartdim_A, dim_B, spacedim_B, chartdim_B>::pull_back(
+  const Point<TensorProductManifold<dim, dim_A, spacedim_A, chartdim_A, dim_B, spacedim_B, chartdim_B>::spacedim>
+    &space_point) const
 {
   Point<spacedim_A> space_point_A;
   Point<spacedim_B> space_point_B;
-  internal::TensorProductManifoldImplementation::split_point(space_point,
-                                                             space_point_A,
-                                                             space_point_B);
+  internal::TensorProductManifoldImplementation::split_point(space_point, space_point_A, space_point_B);
 
   Point<chartdim_A> result_A = manifold_A->pull_back(space_point_A);
   Point<chartdim_B> result_B = manifold_B->pull_back(space_point_B);
 
-  return internal::TensorProductManifoldImplementation::concat(result_A,
-                                                               result_B);
+  return internal::TensorProductManifoldImplementation::concat(result_A, result_B);
 }
 
-template <int dim,
-          int dim_A,
-          int spacedim_A,
-          int chartdim_A,
-          int dim_B,
-          int spacedim_B,
-          int chartdim_B>
-Point<TensorProductManifold<dim,
-                            dim_A,
-                            spacedim_A,
-                            chartdim_A,
-                            dim_B,
-                            spacedim_B,
-                            chartdim_B>::spacedim>
-TensorProductManifold<dim,
-                      dim_A,
-                      spacedim_A,
-                      chartdim_A,
-                      dim_B,
-                      spacedim_B,
-                      chartdim_B>::
-  push_forward(
-    const Point<TensorProductManifold<dim,
-                                      dim_A,
-                                      spacedim_A,
-                                      chartdim_A,
-                                      dim_B,
-                                      spacedim_B,
-                                      chartdim_B>::chartdim> &chart_point) const
+template <int dim, int dim_A, int spacedim_A, int chartdim_A, int dim_B, int spacedim_B, int chartdim_B>
+Point<TensorProductManifold<dim, dim_A, spacedim_A, chartdim_A, dim_B, spacedim_B, chartdim_B>::spacedim>
+TensorProductManifold<dim, dim_A, spacedim_A, chartdim_A, dim_B, spacedim_B, chartdim_B>::push_forward(
+  const Point<TensorProductManifold<dim, dim_A, spacedim_A, chartdim_A, dim_B, spacedim_B, chartdim_B>::chartdim>
+    &chart_point) const
 {
   Point<chartdim_A> chart_point_A;
   Point<chartdim_B> chart_point_B;
-  internal::TensorProductManifoldImplementation::split_point(chart_point,
-                                                             chart_point_A,
-                                                             chart_point_B);
+  internal::TensorProductManifoldImplementation::split_point(chart_point, chart_point_A, chart_point_B);
 
   Point<spacedim_A> result_A = manifold_A->push_forward(chart_point_A);
   Point<spacedim_B> result_B = manifold_B->push_forward(chart_point_B);
 
-  return internal::TensorProductManifoldImplementation::concat(result_A,
-                                                               result_B);
+  return internal::TensorProductManifoldImplementation::concat(result_A, result_B);
 }
 
-template <int dim,
-          int dim_A,
-          int spacedim_A,
-          int chartdim_A,
-          int dim_B,
-          int spacedim_B,
-          int chartdim_B>
+template <int dim, int dim_A, int spacedim_A, int chartdim_A, int dim_B, int spacedim_B, int chartdim_B>
 DerivativeForm<1,
-               TensorProductManifold<dim,
-                                     dim_A,
-                                     spacedim_A,
-                                     chartdim_A,
-                                     dim_B,
-                                     spacedim_B,
-                                     chartdim_B>::chartdim,
-               TensorProductManifold<dim,
-                                     dim_A,
-                                     spacedim_A,
-                                     chartdim_A,
-                                     dim_B,
-                                     spacedim_B,
-                                     chartdim_B>::spacedim>
+               TensorProductManifold<dim, dim_A, spacedim_A, chartdim_A, dim_B, spacedim_B, chartdim_B>::chartdim,
+               TensorProductManifold<dim, dim_A, spacedim_A, chartdim_A, dim_B, spacedim_B, chartdim_B>::spacedim>
 
-TensorProductManifold<dim,
-                      dim_A,
-                      spacedim_A,
-                      chartdim_A,
-                      dim_B,
-                      spacedim_B,
-                      chartdim_B>::
-  push_forward_gradient(
-    const Point<TensorProductManifold<dim,
-                                      dim_A,
-                                      spacedim_A,
-                                      chartdim_A,
-                                      dim_B,
-                                      spacedim_B,
-                                      chartdim_B>::chartdim> &chart_point) const
+TensorProductManifold<dim, dim_A, spacedim_A, chartdim_A, dim_B, spacedim_B, chartdim_B>::push_forward_gradient(
+  const Point<TensorProductManifold<dim, dim_A, spacedim_A, chartdim_A, dim_B, spacedim_B, chartdim_B>::chartdim>
+    &chart_point) const
 {
   Point<chartdim_A> chart_point_A;
   Point<chartdim_B> chart_point_B;
-  internal::TensorProductManifoldImplementation::split_point(chart_point,
-                                                             chart_point_A,
-                                                             chart_point_B);
+  internal::TensorProductManifoldImplementation::split_point(chart_point, chart_point_A, chart_point_B);
 
-  DerivativeForm<1, chartdim_A, spacedim_A> result_A =
-    manifold_A->push_forward_gradient(chart_point_A);
-  DerivativeForm<1, chartdim_B, spacedim_B> result_B =
-    manifold_B->push_forward_gradient(chart_point_B);
+  DerivativeForm<1, chartdim_A, spacedim_A> result_A = manifold_A->push_forward_gradient(chart_point_A);
+  DerivativeForm<1, chartdim_B, spacedim_B> result_B = manifold_B->push_forward_gradient(chart_point_B);
 
 
   DerivativeForm<1, chartdim, spacedim> result;

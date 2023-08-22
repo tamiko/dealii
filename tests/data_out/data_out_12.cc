@@ -82,31 +82,22 @@ check()
     {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}};
 
   // coords:
-  const std::vector<std::vector<double>> coords_3d = {{0, 0, 0},
-                                                      {1, 0, 0},
-                                                      {0, 1, 0},
-                                                      {1, 1, 0},
-                                                      {0, 0, 1},
-                                                      {1, 0, 1},
-                                                      {0, 1, 1},
-                                                      {1, 1, 1}};
+  const std::vector<std::vector<double>> coords_3d = {
+    {0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {1, 1, 0}, {0, 0, 1}, {1, 0, 1}, {0, 1, 1}, {1, 1, 1}};
 
-  const std::vector<std::vector<std::vector<double>>> tensors_2d = {
-    {{1, 0}, {0, 1}}, {{3, 0}, {0, 1}}, {{1, 0}, {0, 3}}, {{3, 1}, {1, 2}}};
+  const std::vector<std::vector<std::vector<double>>> tensors_2d = {{{1, 0}, {0, 1}},
+                                                                    {{3, 0}, {0, 1}},
+                                                                    {{1, 0}, {0, 3}},
+                                                                    {{3, 1}, {1, 2}}};
 
   // coords:
-  const std::vector<std::vector<double>> coords_2d = {{0, 0},
-                                                      {1, 0},
-                                                      {0, 1},
-                                                      {1, 1}};
+  const std::vector<std::vector<double>> coords_2d = {{0, 0}, {1, 0}, {0, 1}, {1, 1}};
 
-  const std::vector<std::vector<std::vector<double>>> &tensors =
-    (dim == 2 ? tensors_2d : tensors_3d);
-  const std::vector<std::vector<double>> &coords =
-    (dim == 2 ? coords_2d : coords_3d);
+  const std::vector<std::vector<std::vector<double>>> &tensors = (dim == 2 ? tensors_2d : tensors_3d);
+  const std::vector<std::vector<double>>              &coords  = (dim == 2 ? coords_2d : coords_3d);
 
   const Quadrature<dim> support_quadrature(fe.get_unit_support_points());
-  FEValues<dim> fe_values(fe, support_quadrature, update_quadrature_points);
+  FEValues<dim>         fe_values(fe, support_quadrature, update_quadrature_points);
   for (const auto &cell : dof_handler.active_cell_iterators())
     {
       fe_values.reinit(cell);
@@ -114,7 +105,7 @@ check()
 
       for (unsigned int i = 0; i < dofs_per_cell; ++i)
         {
-          const auto &       this_qp = qp[i];
+          const auto        &this_qp = qp[i];
           const unsigned int i_group = fe.system_to_base_index(i).first.first;
           const unsigned int i_comp  = fe.system_to_component_index(i).first;
           if (i_group == 0)
@@ -146,19 +137,15 @@ check()
                 }
 
               const unsigned int tens_comp = i_comp - dim;
-              const unsigned int ii =
-                Tensor<2, dim>::unrolled_to_component_indices(tens_comp)[0];
-              const unsigned int jj =
-                Tensor<2, dim>::unrolled_to_component_indices(tens_comp)[1];
-              v(i) = tensors[p][ii][jj];
+              const unsigned int ii        = Tensor<2, dim>::unrolled_to_component_indices(tens_comp)[0];
+              const unsigned int jj        = Tensor<2, dim>::unrolled_to_component_indices(tens_comp)[1];
+              v(i)                         = tensors[p][ii][jj];
             }
         }
     }
 
-  std::vector<DataComponentInterpretation::DataComponentInterpretation>
-    data_component_interpretation(
-      dim + dim * dim,
-      DataComponentInterpretation::component_is_part_of_tensor);
+  std::vector<DataComponentInterpretation::DataComponentInterpretation> data_component_interpretation(
+    dim + dim * dim, DataComponentInterpretation::component_is_part_of_tensor);
   std::fill(data_component_interpretation.begin(),
             data_component_interpretation.begin() + dim,
             DataComponentInterpretation::component_is_part_of_vector);
@@ -171,10 +158,7 @@ check()
 
   DataOut<dim> data_out;
   data_out.attach_dof_handler(dof_handler);
-  data_out.add_data_vector(v,
-                           component_name,
-                           DataOut<dim>::type_dof_data,
-                           data_component_interpretation);
+  data_out.add_data_vector(v, component_name, DataOut<dim>::type_dof_data, data_component_interpretation);
   data_out.build_patches();
   data_out.set_flags(vtk_flags);
 

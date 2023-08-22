@@ -20,11 +20,7 @@
 #include "../tests.h"
 
 const double eps = 1e-10;
-DeclException3(ExcWrongValue,
-               double,
-               double,
-               double,
-               << arg1 << " != " << arg2 << " with delta = " << arg3);
+DeclException3(ExcWrongValue, double, double, double, << arg1 << " != " << arg2 << " with delta = " << arg3);
 
 template <int dim>
 void
@@ -32,20 +28,16 @@ test()
 {
   for (const unsigned int i : GeometryInfo<dim>::face_indices())
     {
-      const Tensor<1, dim> unit_normal_vector =
-        GeometryInfo<dim>::unit_normal_vector[i];
+      const Tensor<1, dim> unit_normal_vector = GeometryInfo<dim>::unit_normal_vector[i];
       deallog << "Direction " << i << " = " << unit_normal_vector << std::endl;
       // check consistency with other arrays within GeometryInfo
       for (unsigned int j = 0; j < dim; ++j)
         {
           const double obtained = unit_normal_vector[j];
-          const double expected =
-            (j == GeometryInfo<dim>::unit_normal_direction[i]) ?
-              static_cast<double>(
-                GeometryInfo<dim>::unit_normal_orientation[i]) :
-              0;
-          AssertThrow(obtained == expected,
-                      ExcWrongValue(obtained, expected, obtained - expected));
+          const double expected = (j == GeometryInfo<dim>::unit_normal_direction[i]) ?
+                                    static_cast<double>(GeometryInfo<dim>::unit_normal_orientation[i]) :
+                                    0;
+          AssertThrow(obtained == expected, ExcWrongValue(obtained, expected, obtained - expected));
         }
     }
   deallog << "OK" << std::endl;

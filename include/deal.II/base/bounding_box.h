@@ -163,8 +163,7 @@ public:
    * which describe the box: one for the bottom and one for the top
    * corner.
    */
-  BoundingBox(const std::pair<Point<spacedim, Number>, Point<spacedim, Number>>
-                &boundary_points);
+  BoundingBox(const std::pair<Point<spacedim, Number>, Point<spacedim, Number>> &boundary_points);
 
   /**
    * Construct the bounding box that encloses all the points in the given
@@ -205,17 +204,15 @@ public:
    * have dimension spacedim, check if their intersection is non empty.
    */
   bool
-  has_overlap_with(
-    const BoundingBox<spacedim, Number> &other_bbox,
-    const double tolerance = std::numeric_limits<Number>::epsilon()) const;
+  has_overlap_with(const BoundingBox<spacedim, Number> &other_bbox,
+                   const double                         tolerance = std::numeric_limits<Number>::epsilon()) const;
 
   /**
    * Check which NeighborType @p other_bbox is to the current object.
    */
   NeighborType
-  get_neighbor_type(
-    const BoundingBox<spacedim, Number> &other_bbox,
-    const double tolerance = std::numeric_limits<Number>::epsilon()) const;
+  get_neighbor_type(const BoundingBox<spacedim, Number> &other_bbox,
+                    const double                         tolerance = std::numeric_limits<Number>::epsilon()) const;
 
   /**
    * Enlarge the current object so that it contains @p other_bbox .
@@ -232,9 +229,7 @@ public:
    * numerically robust way whether the point is inside.
    */
   bool
-  point_inside(
-    const Point<spacedim, Number> &p,
-    const double tolerance = std::numeric_limits<Number>::epsilon()) const;
+  point_inside(const Point<spacedim, Number> &p, const double tolerance = std::numeric_limits<Number>::epsilon()) const;
 
   /**
    * Increase (or decrease) the size of the bounding box by the given amount.
@@ -361,8 +356,7 @@ public:
    * outside.
    */
   Number
-  signed_distance(const Point<spacedim, Number> &point,
-                  const unsigned int             direction) const;
+  signed_distance(const Point<spacedim, Number> &point, const unsigned int direction) const;
 
   /**
    * Returns the signed distance from a @p point to the bounds of the box. The
@@ -458,8 +452,7 @@ namespace internal
    */
   template <int dim>
   inline int
-  coordinate_to_one_dim_higher(const int locked_coordinate,
-                               const int coordinate_in_dim)
+  coordinate_to_one_dim_higher(const int locked_coordinate, const int coordinate_in_dim)
   {
     AssertIndexRange(locked_coordinate, dim + 1);
     AssertIndexRange(coordinate_in_dim, dim);
@@ -474,8 +467,7 @@ namespace internal
 
 
 template <int spacedim, typename Number>
-inline BoundingBox<spacedim, Number>::BoundingBox(
-  const Point<spacedim, Number> &p)
+inline BoundingBox<spacedim, Number>::BoundingBox(const Point<spacedim, Number> &p)
   : BoundingBox({p, p})
 {}
 
@@ -483,8 +475,7 @@ inline BoundingBox<spacedim, Number>::BoundingBox(
 
 template <int spacedim, typename Number>
 inline BoundingBox<spacedim, Number>::BoundingBox(
-  const std::pair<Point<spacedim, Number>, Point<spacedim, Number>>
-    &boundary_points)
+  const std::pair<Point<spacedim, Number>, Point<spacedim, Number>> &boundary_points)
 {
   // We check the Bounding Box is not degenerate
   for (unsigned int i = 0; i < spacedim; ++i)
@@ -544,8 +535,7 @@ BoundingBox<spacedim, Number>::get_boundary_points() const
 
 template <int spacedim, typename Number>
 inline bool
-BoundingBox<spacedim, Number>::operator==(
-  const BoundingBox<spacedim, Number> &box) const
+BoundingBox<spacedim, Number>::operator==(const BoundingBox<spacedim, Number> &box) const
 {
   return boundary_points == box.boundary_points;
 }
@@ -554,8 +544,7 @@ BoundingBox<spacedim, Number>::operator==(
 
 template <int spacedim, typename Number>
 inline bool
-BoundingBox<spacedim, Number>::operator!=(
-  const BoundingBox<spacedim, Number> &box) const
+BoundingBox<spacedim, Number>::operator!=(const BoundingBox<spacedim, Number> &box) const
 {
   return boundary_points != box.boundary_points;
 }
@@ -593,8 +582,7 @@ BoundingBox<spacedim, Number>::create_extended(const Number amount) const
 
 template <int spacedim, typename Number>
 inline BoundingBox<spacedim, Number>
-BoundingBox<spacedim, Number>::create_extended_relative(
-  const Number relative_amount) const
+BoundingBox<spacedim, Number>::create_extended_relative(const Number relative_amount) const
 {
   // create and modify copy
   auto bb = *this;
@@ -616,8 +604,7 @@ BoundingBox<spacedim, Number>::create_extended_relative(
 template <int spacedim, typename Number>
 template <class Archive>
 void
-BoundingBox<spacedim, Number>::serialize(Archive &ar,
-                                         const unsigned int /*version*/)
+BoundingBox<spacedim, Number>::serialize(Archive &ar, const unsigned int /*version*/)
 {
   ar &boundary_points;
 }
@@ -633,8 +620,7 @@ inline BoundingBox<0, Number>::BoundingBox()
 
 
 template <typename Number>
-inline BoundingBox<0, Number>::BoundingBox(
-  const std::pair<Point<0, Number>, Point<0, Number>> &)
+inline BoundingBox<0, Number>::BoundingBox(const std::pair<Point<0, Number>, Point<0, Number>> &)
 {
   AssertThrow(false, ExcImpossibleInDim(0));
 }

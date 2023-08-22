@@ -132,19 +132,14 @@ namespace MeshWorker
      */
     template <class DHCellIterator, class DHFaceIterator>
     void
-    reinit(const DHCellIterator &c,
-           const DHFaceIterator &f,
-           const unsigned int    face_no);
+    reinit(const DHCellIterator &c, const DHFaceIterator &f, const unsigned int face_no);
 
     /**
      * Set the current subface and fill @p indices if the #cell changed.
      */
     template <class DHCellIterator, class DHFaceIterator>
     void
-    reinit(const DHCellIterator &c,
-           const DHFaceIterator &f,
-           const unsigned int    face_no,
-           const unsigned int    subface_no);
+    reinit(const DHCellIterator &c, const DHFaceIterator &f, const unsigned int face_no, const unsigned int subface_no);
 
     /**
      * Switch to a new face of the same cell. Does not change @p indices and
@@ -160,9 +155,7 @@ namespace MeshWorker
      */
     template <class DHFaceIterator>
     void
-    set_subface(const DHFaceIterator &f,
-                const unsigned int    face_no,
-                const unsigned int    subface_no);
+    set_subface(const DHFaceIterator &f, const unsigned int face_no, const unsigned int subface_no);
 
     const BlockIndices &
     local_indices() const;
@@ -297,8 +290,7 @@ namespace MeshWorker
 
 
   template <int dim, int spacedim, typename number>
-  DoFInfo<dim, spacedim, number>::DoFInfo(
-    const DoFHandler<dim, spacedim> &dof_handler)
+  DoFInfo<dim, spacedim, number>::DoFInfo(const DoFHandler<dim, spacedim> &dof_handler)
     : face_number(numbers::invalid_unsigned_int)
     , sub_number(numbers::invalid_unsigned_int)
     , level_cell(false)
@@ -347,10 +339,9 @@ namespace MeshWorker
   template <int dim, int spacedim, typename number>
   template <class DHFaceIterator>
   inline void
-  DoFInfo<dim, spacedim, number>::set_face(const DHFaceIterator &f,
-                                           const unsigned int    face_no)
+  DoFInfo<dim, spacedim, number>::set_face(const DHFaceIterator &f, const unsigned int face_no)
   {
-    face = static_cast<typename Triangulation<dim, spacedim>::face_iterator>(f);
+    face        = static_cast<typename Triangulation<dim, spacedim>::face_iterator>(f);
     face_number = face_no;
     sub_number  = numbers::invalid_unsigned_int;
   }
@@ -359,12 +350,9 @@ namespace MeshWorker
   template <int dim, int spacedim, typename number>
   template <class DHCellIterator, class DHFaceIterator>
   inline void
-  DoFInfo<dim, spacedim, number>::reinit(const DHCellIterator &c,
-                                         const DHFaceIterator &f,
-                                         const unsigned int    face_no)
+  DoFInfo<dim, spacedim, number>::reinit(const DHCellIterator &c, const DHFaceIterator &f, const unsigned int face_no)
   {
-    if ((cell.state() != IteratorState::valid) ||
-        cell != typename Triangulation<dim, spacedim>::cell_iterator(*c))
+    if ((cell.state() != IteratorState::valid) || cell != typename Triangulation<dim, spacedim>::cell_iterator(*c))
       get_indices(c);
     level_cell = c->is_level_cell();
 
@@ -385,7 +373,7 @@ namespace MeshWorker
                                               const unsigned int    face_no,
                                               const unsigned int    subface_no)
   {
-    face = static_cast<typename Triangulation<dim, spacedim>::face_iterator>(f);
+    face        = static_cast<typename Triangulation<dim, spacedim>::face_iterator>(f);
     face_number = face_no;
     sub_number  = subface_no;
   }
@@ -400,8 +388,7 @@ namespace MeshWorker
                                          const unsigned int    subface_no)
   {
     if (cell.state() != IteratorState::valid ||
-        cell !=
-          static_cast<typename Triangulation<dim, spacedim>::cell_iterator>(c))
+        cell != static_cast<typename Triangulation<dim, spacedim>::cell_iterator>(c))
       get_indices(c);
     level_cell = c->is_level_cell();
 
@@ -442,8 +429,7 @@ namespace MeshWorker
 
 
   template <int dim, class DOFINFO>
-  inline DoFInfoBox<dim, DOFINFO>::DoFInfoBox(
-    const DoFInfoBox<dim, DOFINFO> &other)
+  inline DoFInfoBox<dim, DOFINFO>::DoFInfoBox(const DoFInfoBox<dim, DOFINFO> &other)
     : cell(other.cell)
     , cell_valid(other.cell_valid)
   {

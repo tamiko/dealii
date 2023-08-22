@@ -60,51 +60,39 @@ do_test()
 
   using VectorType = LinearAlgebra::distributed::Vector<double>;
   VectorType global_dof_vector;
-  global_dof_vector.reinit(dof_handler.locally_owned_dofs(),
-                           locally_relevant_dofs,
-                           MPI_COMM_WORLD);
+  global_dof_vector.reinit(dof_handler.locally_owned_dofs(), locally_relevant_dofs, MPI_COMM_WORLD);
 
-  VectorTools::interpolate(dof_handler,
-                           Functions::SquareFunction<dim>(),
-                           global_dof_vector);
+  VectorTools::interpolate(dof_handler, Functions::SquareFunction<dim>(), global_dof_vector);
   global_dof_vector.update_ghost_values();
 
   {
     DataOut<dim> data_out;
     data_out.attach_dof_handler(dof_handler);
-    data_out.add_data_vector(dof_handler,
-                             global_dof_vector,
-                             std::vector<std::string>(1, "data"));
+    data_out.add_data_vector(dof_handler, global_dof_vector, std::vector<std::string>(1, "data"));
     data_out.build_patches(0);
     data_out.write_gnuplot(deallog.get_file_stream());
     data_out.write_vtu_in_parallel("base.vtu", MPI_COMM_WORLD);
   }
 
   {
-    MGLevelObject<VectorType>         dof_vector(0,
-                                         triangulation.n_global_levels() - 1);
+    MGLevelObject<VectorType>         dof_vector(0, triangulation.n_global_levels() - 1);
     MGTransferMatrixFree<dim, double> transfer;
 
     transfer.build(dof_handler);
     transfer.interpolate_to_mg(dof_handler, dof_vector, global_dof_vector);
 
-    for (unsigned int level = 0; level < triangulation.n_global_levels();
-         ++level)
+    for (unsigned int level = 0; level < triangulation.n_global_levels(); ++level)
       {
         deallog << "* level " << level << std::endl;
         DataOut<dim> data_out;
-        data_out.set_cell_selection(
-          [level](const typename Triangulation<dim>::cell_iterator &cell) {
-            return (cell->level() == static_cast<int>(level) &&
-                    cell->is_locally_owned_on_level());
-          });
+        data_out.set_cell_selection([level](const typename Triangulation<dim>::cell_iterator &cell) {
+          return (cell->level() == static_cast<int>(level) && cell->is_locally_owned_on_level());
+        });
         data_out.attach_triangulation(triangulation);
         data_out.add_mg_data_vector(dof_handler, dof_vector, "data");
         data_out.build_patches(0);
         data_out.write_gnuplot(deallog.get_file_stream());
-        data_out.write_vtu_in_parallel(std::string("level") +
-                                         Utilities::to_string(level) + ".vtu",
-                                       MPI_COMM_WORLD);
+        data_out.write_vtu_in_parallel(std::string("level") + Utilities::to_string(level) + ".vtu", MPI_COMM_WORLD);
       }
   }
 }

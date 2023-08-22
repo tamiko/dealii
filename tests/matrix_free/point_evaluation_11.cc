@@ -67,18 +67,13 @@ test(const unsigned int degree)
     }
 
   FE_DGQHermite<dim> fe(degree);
-  FEValues<dim>      fe_values(mapping,
-                          fe,
-                          Quadrature<dim>(unit_points),
-                          update_values | update_gradients);
+  FEValues<dim>      fe_values(mapping, fe, Quadrature<dim>(unit_points), update_values | update_gradients);
 
   DoFHandler<dim> dof_handler(tria);
   dof_handler.distribute_dofs(fe);
   Vector<double> vector(dof_handler.n_dofs());
 
-  FEPointEvaluation<1, dim> evaluator(mapping,
-                                      fe,
-                                      update_values | update_gradients);
+  FEPointEvaluation<1, dim> evaluator(mapping, fe, update_values | update_gradients);
 
   // FE_DGQHermite is not interpolatory, so we just set up some arbitrary
   // content in the vector for the sake of comparison
@@ -95,21 +90,16 @@ test(const unsigned int degree)
       fe_values.get_function_values(vector, function_values);
       fe_values.get_function_gradients(vector, function_gradients);
 
-      cell->get_dof_values(vector,
-                           solution_values.begin(),
-                           solution_values.end());
+      cell->get_dof_values(vector, solution_values.begin(), solution_values.end());
 
       evaluator.reinit(cell, unit_points);
-      evaluator.evaluate(solution_values,
-                         EvaluationFlags::values | EvaluationFlags::gradients);
+      evaluator.evaluate(solution_values, EvaluationFlags::values | EvaluationFlags::gradients);
 
       deallog << "Cell with center " << cell->center(true) << std::endl;
       for (unsigned int i = 0; i < function_values.size(); ++i)
-        deallog << mapping.transform_unit_to_real_cell(cell, unit_points[i])
-                << ": " << evaluator.get_value(i) << " error value "
-                << function_values[i] - evaluator.get_value(i) << " error grad "
-                << (evaluator.get_gradient(i) - function_gradients[i]).norm()
-                << std::endl;
+        deallog << mapping.transform_unit_to_real_cell(cell, unit_points[i]) << ": " << evaluator.get_value(i)
+                << " error value " << function_values[i] - evaluator.get_value(i) << " error grad "
+                << (evaluator.get_gradient(i) - function_gradients[i]).norm() << std::endl;
       deallog << std::endl;
 
       for (unsigned int i = 0; i < unit_points.size(); ++i)
@@ -118,9 +108,7 @@ test(const unsigned int degree)
           evaluator.submit_gradient(evaluator.get_gradient(i), i);
         }
 
-      evaluator.test_and_sum(solution_values,
-                             EvaluationFlags::values |
-                               EvaluationFlags::gradients);
+      evaluator.test_and_sum(solution_values, EvaluationFlags::values | EvaluationFlags::gradients);
 
       for (const auto i : solution_values)
         deallog << i << ' ';

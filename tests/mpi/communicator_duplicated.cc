@@ -30,7 +30,7 @@ test(const MPI_Comm comm)
 
   const auto my_rank = Utilities::MPI::this_mpi_process(comm);
 
-  MPI_Comm comm2 = Utilities::MPI::duplicate_communicator(comm);
+  MPI_Comm                               comm2 = Utilities::MPI::duplicate_communicator(comm);
   Utilities::MPI::DuplicatedCommunicator pcomm3(comm);
 
   if (my_rank == 1)
@@ -52,8 +52,7 @@ test(const MPI_Comm comm)
 
       // receive in reverse order, if duplication of communicators worked,
       // these won't be mixed up!
-      MPI_Recv(
-        &value[2], 1, MPI_UNSIGNED, src, tag, *pcomm3, MPI_STATUS_IGNORE);
+      MPI_Recv(&value[2], 1, MPI_UNSIGNED, src, tag, *pcomm3, MPI_STATUS_IGNORE);
       MPI_Recv(&value[1], 1, MPI_UNSIGNED, src, tag, comm2, MPI_STATUS_IGNORE);
       MPI_Recv(&value[0], 1, MPI_UNSIGNED, src, tag, comm, MPI_STATUS_IGNORE);
 
@@ -68,8 +67,7 @@ test(const MPI_Comm comm)
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   mpi_initlog();
 

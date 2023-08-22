@@ -63,8 +63,7 @@ setup(Triangulation<dim> &tria, const DoFHandler<dim> &dh)
   for (unsigned int counter = 0; cell != endc; ++counter, ++cell)
     {
       Assert(!cell->is_active(), ExcInternalError());
-      for (unsigned int child_index = 0; child_index < cell->n_children();
-           ++child_index)
+      for (unsigned int child_index = 0; child_index < cell->n_children(); ++child_index)
         {
           const auto &child = cell->child(child_index);
           Assert(child->is_active(), ExcInternalError());
@@ -115,10 +114,7 @@ test()
         indicators[i] = 0.;
     }
 
-  hp::Refinement::p_adaptivity_from_absolute_threshold(dh,
-                                                       indicators,
-                                                       1 + 1e-4,
-                                                       1 - 1e-4);
+  hp::Refinement::p_adaptivity_from_absolute_threshold(dh, indicators, 1 + 1e-4, 1 - 1e-4);
 
   deallog << "p-adaptivity from absolute threshold" << std::endl;
   validate(dh);

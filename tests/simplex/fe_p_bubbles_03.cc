@@ -54,16 +54,13 @@ template <int dim, int spacedim = dim>
 void
 test_unit_support_points()
 {
-  deallog << "Test support points for dim = " << dim
-          << " and spacedim = " << spacedim << std::endl;
+  deallog << "Test support points for dim = " << dim << " and spacedim = " << spacedim << std::endl;
   for (unsigned int degree = 1; degree < 3; ++degree)
     {
       deallog << "approximation degree = " << degree << std::endl;
-      FESystem<dim, spacedim> fe(FE_SimplexP_Bubbles<dim, spacedim>(degree),
-                                 dim);
+      FESystem<dim, spacedim> fe(FE_SimplexP_Bubbles<dim, spacedim>(degree), dim);
       deallog << "element tensor degree = " << fe.tensor_degree() << std::endl;
-      Quadrature<dim> quad(
-        fe.reference_cell().template get_midpoint_quadrature<dim>());
+      Quadrature<dim> quad(fe.reference_cell().template get_midpoint_quadrature<dim>());
       test(fe, quad);
     }
 }

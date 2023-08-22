@@ -31,12 +31,9 @@ test()
 
   deallog << std::endl;
   deallog << "number = " << std::scientific << number << std::endl;
-  deallog << "number_1digit = " << std::scientific << number_1digit
-          << std::endl;
-  deallog << "number_2digit = " << std::scientific << number_2digit
-          << std::endl;
-  deallog << "number_3digit = " << std::scientific << number_3digit
-          << std::endl;
+  deallog << "number_1digit = " << std::scientific << number_1digit << std::endl;
+  deallog << "number_2digit = " << std::scientific << number_2digit << std::endl;
+  deallog << "number_3digit = " << std::scientific << number_3digit << std::endl;
 
   number        = 0.999999999;
   number_1digit = Utilities::truncate_to_n_digits(number, 1);
@@ -45,12 +42,9 @@ test()
 
   deallog << std::endl;
   deallog << "number = " << std::scientific << number << std::endl;
-  deallog << "number_1digit = " << std::scientific << number_1digit
-          << std::endl;
-  deallog << "number_2digit = " << std::scientific << number_2digit
-          << std::endl;
-  deallog << "number_3digit = " << std::scientific << number_3digit
-          << std::endl;
+  deallog << "number_1digit = " << std::scientific << number_1digit << std::endl;
+  deallog << "number_2digit = " << std::scientific << number_2digit << std::endl;
+  deallog << "number_3digit = " << std::scientific << number_3digit << std::endl;
 
   number        = 0.0;
   number_1digit = Utilities::truncate_to_n_digits(number, 1);
@@ -59,12 +53,9 @@ test()
 
   deallog << std::endl;
   deallog << "number = " << std::scientific << number << std::endl;
-  deallog << "number_1digit = " << std::scientific << number_1digit
-          << std::endl;
-  deallog << "number_2digit = " << std::scientific << number_2digit
-          << std::endl;
-  deallog << "number_3digit = " << std::scientific << number_3digit
-          << std::endl;
+  deallog << "number_1digit = " << std::scientific << number_1digit << std::endl;
+  deallog << "number_2digit = " << std::scientific << number_2digit << std::endl;
+  deallog << "number_3digit = " << std::scientific << number_3digit << std::endl;
 
   float number_float        = -9.87654321e-6;
   float number_1digit_float = Utilities::truncate_to_n_digits(number_float, 1);
@@ -73,12 +64,9 @@ test()
 
   deallog << std::endl;
   deallog << "number = " << std::scientific << number_float << std::endl;
-  deallog << "number_1digit = " << std::scientific << number_1digit_float
-          << std::endl;
-  deallog << "number_2digit = " << std::scientific << number_2digit_float
-          << std::endl;
-  deallog << "number_3digit = " << std::scientific << number_3digit_float
-          << std::endl;
+  deallog << "number_1digit = " << std::scientific << number_1digit_float << std::endl;
+  deallog << "number_2digit = " << std::scientific << number_2digit_float << std::endl;
+  deallog << "number_3digit = " << std::scientific << number_3digit_float << std::endl;
 }
 
 

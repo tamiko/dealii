@@ -32,8 +32,7 @@ public:
   virtual double
   value(const Point<3> &p, const unsigned int component = 0) const override
   {
-    return std::pow(1 - std::sqrt(p[0] * p[0] + p[1] * p[1]), 2) + p[2] * p[2] -
-           .25;
+    return std::pow(1 - std::sqrt(p[0] * p[0] + p[1] * p[1]), 2) + p[2] * p[2] - .25;
   }
 };
 
@@ -46,8 +45,7 @@ main()
   ImplicitFunction                implicit_function;
   CGALWrappers::AdditionalData<3> data;
   data.cell_size = 0.4;
-  GridGenerator::implicit_function(
-    tria, implicit_function, data, Point<3>(1, 0, 0), 10.0);
+  GridGenerator::implicit_function(tria, implicit_function, data, Point<3>(1, 0, 0), 10.0);
   {
     GridOut       go;
     std::ofstream of("tria.vtk");

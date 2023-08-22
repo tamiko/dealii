@@ -73,13 +73,11 @@ template <typename MeshType>
 MPI_Comm
 get_mpi_comm(const MeshType &mesh)
 {
-  const auto *tria_parallel = dynamic_cast<
-    const parallel::TriangulationBase<MeshType::dimension,
-                                      MeshType::space_dimension> *>(
-    &(mesh.get_triangulation()));
+  const auto *tria_parallel =
+    dynamic_cast<const parallel::TriangulationBase<MeshType::dimension, MeshType::space_dimension> *>(
+      &(mesh.get_triangulation()));
 
-  return tria_parallel != nullptr ? tria_parallel->get_communicator() :
-                                    MPI_COMM_SELF;
+  return tria_parallel != nullptr ? tria_parallel->get_communicator() : MPI_COMM_SELF;
 }
 
 template <int dim, int spacedim>
@@ -90,10 +88,9 @@ create_partitioner(const DoFHandler<dim, spacedim> &dof_handler)
 
   DoFTools::extract_locally_relevant_dofs(dof_handler, locally_relevant_dofs);
 
-  return std::make_shared<const Utilities::MPI::Partitioner>(
-    dof_handler.locally_owned_dofs(),
-    locally_relevant_dofs,
-    get_mpi_comm(dof_handler));
+  return std::make_shared<const Utilities::MPI::Partitioner>(dof_handler.locally_owned_dofs(),
+                                                             locally_relevant_dofs,
+                                                             get_mpi_comm(dof_handler));
 }
 
 namespace dealii
@@ -103,14 +100,13 @@ namespace dealii
     template <int dim, int spacedim, typename VectorType>
     void
     get_position_vector(const DoFHandler<dim, spacedim> &dof_handler_dim,
-                        VectorType &                  euler_coordinates_vector,
-                        const Mapping<dim, spacedim> &mapping)
+                        VectorType                      &euler_coordinates_vector,
+                        const Mapping<dim, spacedim>    &mapping)
     {
-      FEValues<dim, spacedim> fe_eval(
-        mapping,
-        dof_handler_dim.get_fe(),
-        Quadrature<dim>(dof_handler_dim.get_fe().get_unit_support_points()),
-        update_quadrature_points);
+      FEValues<dim, spacedim> fe_eval(mapping,
+                                      dof_handler_dim.get_fe(),
+                                      Quadrature<dim>(dof_handler_dim.get_fe().get_unit_support_points()),
+                                      update_quadrature_points);
 
       Vector<double> temp;
 
@@ -127,8 +123,7 @@ namespace dealii
             {
               const auto point = fe_eval.quadrature_point(q);
 
-              const unsigned int comp =
-                dof_handler_dim.get_fe().system_to_component_index(q).first;
+              const unsigned int comp = dof_handler_dim.get_fe().system_to_component_index(q).first;
 
               temp[q] = point[comp];
             }
@@ -146,11 +141,11 @@ namespace dealii
 template <int dim, int spacedim, typename VectorType>
 void
 test_1(const Triangulation<dim, spacedim> &surface_mesh,
-       const Mapping<dim, spacedim> &      surface_mapping,
-       const Quadrature<dim> &             surface_quadrature,
-       const Mapping<spacedim> &           mapping,
-       const DoFHandler<spacedim> &        dof_handler_dim,
-       const VectorType &                  normal_solution)
+       const Mapping<dim, spacedim>       &surface_mapping,
+       const Quadrature<dim>              &surface_quadrature,
+       const Mapping<spacedim>            &mapping,
+       const DoFHandler<spacedim>         &dof_handler_dim,
+       const VectorType                   &normal_solution)
 {
   using T = Point<spacedim>;
 
@@ -159,10 +154,7 @@ test_1(const Triangulation<dim, spacedim> &surface_mesh,
 
     FE_Nothing<dim, spacedim> dummy;
 
-    FEValues<dim, spacedim> fe_eval(surface_mapping,
-                                    dummy,
-                                    surface_quadrature,
-                                    update_quadrature_points);
+    FEValues<dim, spacedim> fe_eval(surface_mapping, dummy, surface_quadrature, update_quadrature_points);
 
     for (const auto &cell : surface_mesh.active_cell_iterators())
       {
@@ -186,10 +178,7 @@ test_1(const Triangulation<dim, spacedim> &surface_mesh,
 
     FE_Nothing<dim, spacedim> dummy;
 
-    FEValues<dim, spacedim> fe_eval(surface_mapping,
-                                    dummy,
-                                    surface_quadrature,
-                                    update_quadrature_points);
+    FEValues<dim, spacedim> fe_eval(surface_mapping, dummy, surface_quadrature, update_quadrature_points);
 
     for (const auto &cell : surface_mesh.active_cell_iterators())
       {
@@ -208,12 +197,8 @@ test_1(const Triangulation<dim, spacedim> &surface_mesh,
   const auto fu = [&](const auto &values, const auto &cell_data) {
     AffineConstraints<double> constraints; // TODO: use the right ones
 
-    FEPointEvaluation<spacedim, spacedim> phi_normal(mapping,
-                                                     dof_handler_dim.get_fe(),
-                                                     update_values);
-    FEPointEvaluation<spacedim, spacedim> phi_force(mapping,
-                                                    dof_handler_dim.get_fe(),
-                                                    update_values);
+    FEPointEvaluation<spacedim, spacedim> phi_normal(mapping, dof_handler_dim.get_fe(), update_values);
+    FEPointEvaluation<spacedim, spacedim> phi_force(mapping, dof_handler_dim.get_fe(), update_values);
 
     std::vector<double>                  buffer;
     std::vector<double>                  buffer_dim;
@@ -222,22 +207,18 @@ test_1(const Triangulation<dim, spacedim> &surface_mesh,
 
     for (unsigned int i = 0; i < cell_data.cells.size(); ++i)
       {
-        typename DoFHandler<spacedim>::active_cell_iterator cell_dim = {
-          &eval.get_triangulation(),
-          cell_data.cells[i].first,
-          cell_data.cells[i].second,
-          &dof_handler_dim};
+        typename DoFHandler<spacedim>::active_cell_iterator cell_dim = {&eval.get_triangulation(),
+                                                                        cell_data.cells[i].first,
+                                                                        cell_data.cells[i].second,
+                                                                        &dof_handler_dim};
 
-        const ArrayView<const Point<spacedim>> unit_points(
-          cell_data.reference_point_values.data() +
-            cell_data.reference_point_ptrs[i],
-          cell_data.reference_point_ptrs[i + 1] -
-            cell_data.reference_point_ptrs[i]);
+        const ArrayView<const Point<spacedim>> unit_points(cell_data.reference_point_values.data() +
+                                                             cell_data.reference_point_ptrs[i],
+                                                           cell_data.reference_point_ptrs[i + 1] -
+                                                             cell_data.reference_point_ptrs[i]);
 
-        const ArrayView<const T> JxW(values.data() +
-                                       cell_data.reference_point_ptrs[i],
-                                     cell_data.reference_point_ptrs[i + 1] -
-                                       cell_data.reference_point_ptrs[i]);
+        const ArrayView<const T> JxW(values.data() + cell_data.reference_point_ptrs[i],
+                                     cell_data.reference_point_ptrs[i + 1] - cell_data.reference_point_ptrs[i]);
 
         // gather_evaluate normal
         {
@@ -252,17 +233,14 @@ test_1(const Triangulation<dim, spacedim> &surface_mesh,
                                      buffer_dim.end());
 
           phi_normal.reinit(cell_dim, unit_points);
-          phi_normal.evaluate(make_array_view(buffer_dim),
-                              EvaluationFlags::values);
+          phi_normal.evaluate(make_array_view(buffer_dim), EvaluationFlags::values);
         }
 
         // perform operation on quadrature points
         for (unsigned int q = 0; q < unit_points.size(); ++q)
           {
-            if (JxW[q].distance(Point<spacedim>(phi_normal.get_value(q))) >
-                1e-7)
-              std::cout << JxW[q] << ' ' << phi_normal.get_value(q)
-                        << std::endl;
+            if (JxW[q].distance(Point<spacedim>(phi_normal.get_value(q))) > 1e-7)
+              std::cout << JxW[q] << ' ' << phi_normal.get_value(q) << std::endl;
           }
       }
   };
@@ -277,11 +255,11 @@ test_1(const Triangulation<dim, spacedim> &surface_mesh,
 template <int dim, int spacedim, typename VectorType>
 void
 test_2(const Triangulation<dim, spacedim> &surface_mesh,
-       const Mapping<dim, spacedim> &      surface_mapping,
-       const Quadrature<dim> &             surface_quadrature,
-       const Mapping<spacedim> &           mapping,
-       const DoFHandler<spacedim> &        dof_handler_dim,
-       const VectorType &                  normal_solution)
+       const Mapping<dim, spacedim>       &surface_mapping,
+       const Quadrature<dim>              &surface_quadrature,
+       const Mapping<spacedim>            &mapping,
+       const DoFHandler<spacedim>         &dof_handler_dim,
+       const VectorType                   &normal_solution)
 {
   using T = Point<spacedim>;
 
@@ -290,10 +268,7 @@ test_2(const Triangulation<dim, spacedim> &surface_mesh,
 
     FE_Nothing<dim, spacedim> dummy;
 
-    FEValues<dim, spacedim> fe_eval(surface_mapping,
-                                    dummy,
-                                    surface_quadrature,
-                                    update_quadrature_points);
+    FEValues<dim, spacedim> fe_eval(surface_mapping, dummy, surface_quadrature, update_quadrature_points);
 
     for (const auto &cell : surface_mesh.active_cell_iterators())
       {
@@ -312,15 +287,12 @@ test_2(const Triangulation<dim, spacedim> &surface_mesh,
   Utilities::MPI::RemotePointEvaluation<spacedim, spacedim> eval;
   eval.reinit(integration_points, dof_handler_dim.get_triangulation(), mapping);
 
-  const auto evaluation_point_results =
-    VectorTools::point_values<spacedim>(eval, dof_handler_dim, normal_solution);
+  const auto evaluation_point_results = VectorTools::point_values<spacedim>(eval, dof_handler_dim, normal_solution);
 
   for (unsigned int i = 0; i < evaluation_point_results.size(); ++i)
     {
-      if (integration_points[i].distance(
-            Point<spacedim>(evaluation_point_results[i])) > 1e-7)
-        std::cout << integration_points[i] << ' ' << evaluation_point_results[i]
-                  << std::endl;
+      if (integration_points[i].distance(Point<spacedim>(evaluation_point_results[i])) > 1e-7)
+        std::cout << integration_points[i] << ' ' << evaluation_point_results[i] << std::endl;
     }
 }
 
@@ -361,9 +333,7 @@ test(const MPI_Comm comm)
 
   // Set up MappingFEField
   Vector<double> euler_vector(dof_handler_dim.n_dofs());
-  VectorTools::get_position_vector(dof_handler_dim,
-                                   euler_vector,
-                                   MappingQ<dim, spacedim>(mapping_degree));
+  VectorTools::get_position_vector(dof_handler_dim, euler_vector, MappingQ<dim, spacedim>(mapping_degree));
   MappingFEField<dim, spacedim> mapping(dof_handler_dim, euler_vector);
 
 
@@ -375,36 +345,25 @@ test(const MPI_Comm comm)
   const unsigned int background_fe_degree = 2;
 
   parallel::shared::Triangulation<spacedim> background_tria(
-    comm,
-    Triangulation<spacedim>::none,
-    true,
-    parallel::shared::Triangulation<spacedim>::Settings::partition_zorder);
+    comm, Triangulation<spacedim>::none, true, parallel::shared::Triangulation<spacedim>::Settings::partition_zorder);
 #if false
   GridGenerator::hyper_cube(background_tria, -1.0, +1.0);
 #else
-  GridGenerator::subdivided_hyper_cube(background_tria,
-                                       background_n_global_refinements,
-                                       -2.5,
-                                       2.5);
+  GridGenerator::subdivided_hyper_cube(background_tria, background_n_global_refinements, -2.5, 2.5);
 #endif
   if (background_n_global_refinements < 20)
     background_tria.refine_global(background_n_global_refinements);
 
-  FESystem<spacedim>   background_fe_dim(FE_Q<spacedim>{background_fe_degree},
-                                       spacedim);
+  FESystem<spacedim>   background_fe_dim(FE_Q<spacedim>{background_fe_degree}, spacedim);
   DoFHandler<spacedim> background_dof_handler_dim(background_tria);
   background_dof_handler_dim.distribute_dofs(background_fe_dim);
 
   MappingQ1<spacedim> background_mapping;
 
-  VectorType force_vector_sharp_interface(
-    create_partitioner(background_dof_handler_dim));
+  VectorType force_vector_sharp_interface(create_partitioner(background_dof_handler_dim));
   VectorType normal_vector(create_partitioner(background_dof_handler_dim));
 
-  VectorTools::interpolate(background_mapping,
-                           background_dof_handler_dim,
-                           NormalFunction<spacedim>(),
-                           normal_vector);
+  VectorTools::interpolate(background_mapping, background_dof_handler_dim, NormalFunction<spacedim>(), normal_vector);
 
   normal_vector.update_ghost_values();
 
@@ -412,24 +371,13 @@ test(const MPI_Comm comm)
   if (true)
     {
       GridOut().write_mesh_per_processor_as_vtu(tria, "grid_surface");
-      GridOut().write_mesh_per_processor_as_vtu(background_tria,
-                                                "grid_background");
+      GridOut().write_mesh_per_processor_as_vtu(background_tria, "grid_background");
     }
 
-  test_1(tria,
-         mapping,
-         QGauss<dim>(fe_degree + 1),
-         background_mapping,
-         background_dof_handler_dim,
-         normal_vector);
+  test_1(tria, mapping, QGauss<dim>(fe_degree + 1), background_mapping, background_dof_handler_dim, normal_vector);
   deallog << "OK1!" << std::endl;
 
-  test_2(tria,
-         mapping,
-         QGauss<dim>(fe_degree + 1),
-         background_mapping,
-         background_dof_handler_dim,
-         normal_vector);
+  test_2(tria, mapping, QGauss<dim>(fe_degree + 1), background_mapping, background_dof_handler_dim, normal_vector);
   deallog << "OK2!" << std::endl;
 }
 

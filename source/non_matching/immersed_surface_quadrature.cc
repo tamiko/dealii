@@ -19,10 +19,9 @@ DEAL_II_NAMESPACE_OPEN
 namespace NonMatching
 {
   template <int dim, int spacedim>
-  ImmersedSurfaceQuadrature<dim, spacedim>::ImmersedSurfaceQuadrature(
-    const std::vector<Point<dim>> &         points,
-    const std::vector<double> &             weights,
-    const std::vector<Tensor<1, spacedim>> &normals)
+  ImmersedSurfaceQuadrature<dim, spacedim>::ImmersedSurfaceQuadrature(const std::vector<Point<dim>>          &points,
+                                                                      const std::vector<double>              &weights,
+                                                                      const std::vector<Tensor<1, spacedim>> &normals)
     : Quadrature<dim>(points, weights)
     , normals(normals)
   {
@@ -31,8 +30,7 @@ namespace NonMatching
     for (const auto &normal : normals)
       {
         (void)normal;
-        Assert(std::abs(normal.norm() - 1.0) < 1e-9,
-               ExcMessage("Normal is not normalized."));
+        Assert(std::abs(normal.norm() - 1.0) < 1e-9, ExcMessage("Normal is not normalized."));
       }
   }
 
@@ -51,24 +49,21 @@ namespace NonMatching
 
   template <int dim, int spacedim>
   void
-  ImmersedSurfaceQuadrature<dim, spacedim>::push_back(
-    const Point<dim> &         point,
-    const double               weight,
-    const Tensor<1, spacedim> &normal)
+  ImmersedSurfaceQuadrature<dim, spacedim>::push_back(const Point<dim>          &point,
+                                                      const double               weight,
+                                                      const Tensor<1, spacedim> &normal)
   {
     this->quadrature_points.push_back(point);
     this->weights.push_back(weight);
     this->normals.push_back(normal);
-    Assert(std::abs(normal.norm() - 1.0) < 1e-9,
-           ExcMessage("Normal is not normalized."));
+    Assert(std::abs(normal.norm() - 1.0) < 1e-9, ExcMessage("Normal is not normalized."));
   }
 
 
 
   template <int dim, int spacedim>
   const Tensor<1, spacedim> &
-  ImmersedSurfaceQuadrature<dim, spacedim>::normal_vector(
-    const unsigned int i) const
+  ImmersedSurfaceQuadrature<dim, spacedim>::normal_vector(const unsigned int i) const
   {
     AssertIndexRange(i, this->size());
     return normals[i];

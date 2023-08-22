@@ -83,25 +83,15 @@ namespace
 
 
 template <int dim, int spacedim>
-FE_WedgePoly<dim, spacedim>::FE_WedgePoly(
-  const unsigned int                                degree,
-  const internal::GenericDoFsPerObject &            dpos,
-  const typename FiniteElementData<dim>::Conformity conformity)
+FE_WedgePoly<dim, spacedim>::FE_WedgePoly(const unsigned int                                degree,
+                                          const internal::GenericDoFsPerObject             &dpos,
+                                          const typename FiniteElementData<dim>::Conformity conformity)
   : dealii::FE_Poly<dim, spacedim>(
       ScalarLagrangePolynomialWedge<dim>(degree),
-      FiniteElementData<dim>(dpos,
-                             ReferenceCells::Wedge,
-                             1,
-                             degree,
-                             conformity),
-      std::vector<bool>(
-        FiniteElementData<dim>(dpos, ReferenceCells::Wedge, 1, degree)
-          .dofs_per_cell,
-        true),
-      std::vector<ComponentMask>(
-        FiniteElementData<dim>(dpos, ReferenceCells::Wedge, 1, degree)
-          .dofs_per_cell,
-        ComponentMask(std::vector<bool>(1, true))))
+      FiniteElementData<dim>(dpos, ReferenceCells::Wedge, 1, degree, conformity),
+      std::vector<bool>(FiniteElementData<dim>(dpos, ReferenceCells::Wedge, 1, degree).dofs_per_cell, true),
+      std::vector<ComponentMask>(FiniteElementData<dim>(dpos, ReferenceCells::Wedge, 1, degree).dofs_per_cell,
+                                 ComponentMask(std::vector<bool>(1, true))))
 {
   AssertDimension(dim, 3);
 
@@ -113,24 +103,20 @@ FE_WedgePoly<dim, spacedim>::FE_WedgePoly(
 
   for (unsigned int i = 0; i < this->n_dofs_per_cell(); ++i)
     {
-      const auto pair = this->degree == 1 ? internal::wedge_table_1[i] :
-                                            internal::wedge_table_2[i];
+      const auto pair = this->degree == 1 ? internal::wedge_table_1[i] : internal::wedge_table_2[i];
 
-      this->unit_support_points.emplace_back(
-        fe_triangle.get_unit_support_points()[pair[0]][0],
-        fe_triangle.get_unit_support_points()[pair[0]][1],
-        fe_line.get_unit_support_points()[pair[1]][0]);
+      this->unit_support_points.emplace_back(fe_triangle.get_unit_support_points()[pair[0]][0],
+                                             fe_triangle.get_unit_support_points()[pair[0]][1],
+                                             fe_line.get_unit_support_points()[pair[1]][0]);
     }
 
   this->unit_face_support_points.resize(this->reference_cell().n_faces());
 
   for (const auto f : this->reference_cell().face_indices())
-    if (this->reference_cell().face_reference_cell(f) ==
-        ReferenceCells::Triangle)
+    if (this->reference_cell().face_reference_cell(f) == ReferenceCells::Triangle)
       for (const auto &p : fe_triangle.get_unit_support_points())
         this->unit_face_support_points[f].emplace_back(p[0], p[1]);
-    else if (this->reference_cell().face_reference_cell(f) ==
-             ReferenceCells::Quadrilateral)
+    else if (this->reference_cell().face_reference_cell(f) == ReferenceCells::Quadrilateral)
       for (const auto &p : fe_quad.get_unit_support_points())
         this->unit_face_support_points[f].emplace_back(p[0], p[1]);
     else
@@ -141,13 +127,11 @@ FE_WedgePoly<dim, spacedim>::FE_WedgePoly(
 
 template <int dim, int spacedim>
 void
-FE_WedgePoly<dim, spacedim>::
-  convert_generalized_support_point_values_to_dof_values(
-    const std::vector<Vector<double>> &support_point_values,
-    std::vector<double> &              nodal_values) const
+FE_WedgePoly<dim, spacedim>::convert_generalized_support_point_values_to_dof_values(
+  const std::vector<Vector<double>> &support_point_values,
+  std::vector<double>               &nodal_values) const
 {
-  AssertDimension(support_point_values.size(),
-                  this->get_unit_support_points().size());
+  AssertDimension(support_point_values.size(), this->get_unit_support_points().size());
   AssertDimension(support_point_values.size(), nodal_values.size());
   AssertDimension(this->dofs_per_cell, nodal_values.size());
 
@@ -163,9 +147,7 @@ FE_WedgePoly<dim, spacedim>::
 
 template <int dim, int spacedim>
 FE_WedgeP<dim, spacedim>::FE_WedgeP(const unsigned int degree)
-  : FE_WedgePoly<dim, spacedim>(degree,
-                                get_dpo_vector_fe_wedge_p(degree),
-                                FiniteElementData<dim>::H1)
+  : FE_WedgePoly<dim, spacedim>(degree, get_dpo_vector_fe_wedge_p(degree), FiniteElementData<dim>::H1)
 {}
 
 
@@ -193,9 +175,8 @@ FE_WedgeP<dim, spacedim>::get_name() const
 
 template <int dim, int spacedim>
 FiniteElementDomination::Domination
-FE_WedgeP<dim, spacedim>::compare_for_domination(
-  const FiniteElement<dim, spacedim> &fe_other,
-  const unsigned int                  codim) const
+FE_WedgeP<dim, spacedim>::compare_for_domination(const FiniteElement<dim, spacedim> &fe_other,
+                                                 const unsigned int                  codim) const
 {
   Assert(codim <= dim, ExcImpossibleInDim(dim));
 
@@ -203,8 +184,7 @@ FE_WedgeP<dim, spacedim>::compare_for_domination(
   // (if fe_other is derived from FE_SimplexDGP)
   // ------------------------------------
   if (codim > 0)
-    if (dynamic_cast<const FE_SimplexDGP<dim, spacedim> *>(&fe_other) !=
-        nullptr)
+    if (dynamic_cast<const FE_SimplexDGP<dim, spacedim> *>(&fe_other) != nullptr)
       // there are no requirements between continuous and discontinuous
       // elements
       return FiniteElementDomination::no_requirements;
@@ -214,8 +194,7 @@ FE_WedgeP<dim, spacedim>::compare_for_domination(
   // (if fe_other is not derived from FE_SimplexDGP)
   // & cell domination
   // ----------------------------------------
-  if (const FE_WedgeP<dim, spacedim> *fe_wp_other =
-        dynamic_cast<const FE_WedgeP<dim, spacedim> *>(&fe_other))
+  if (const FE_WedgeP<dim, spacedim> *fe_wp_other = dynamic_cast<const FE_WedgeP<dim, spacedim> *>(&fe_other))
     {
       if (this->degree < fe_wp_other->degree)
         return FiniteElementDomination::this_element_dominates;
@@ -224,8 +203,7 @@ FE_WedgeP<dim, spacedim>::compare_for_domination(
       else
         return FiniteElementDomination::other_element_dominates;
     }
-  else if (const FE_SimplexP<dim, spacedim> *fe_p_other =
-             dynamic_cast<const FE_SimplexP<dim, spacedim> *>(&fe_other))
+  else if (const FE_SimplexP<dim, spacedim> *fe_p_other = dynamic_cast<const FE_SimplexP<dim, spacedim> *>(&fe_other))
     {
       if (this->degree < fe_p_other->degree)
         return FiniteElementDomination::this_element_dominates;
@@ -234,8 +212,7 @@ FE_WedgeP<dim, spacedim>::compare_for_domination(
       else
         return FiniteElementDomination::other_element_dominates;
     }
-  else if (const FE_Q<dim, spacedim> *fe_q_other =
-             dynamic_cast<const FE_Q<dim, spacedim> *>(&fe_other))
+  else if (const FE_Q<dim, spacedim> *fe_q_other = dynamic_cast<const FE_Q<dim, spacedim> *>(&fe_other))
     {
       if (this->degree < fe_q_other->degree)
         return FiniteElementDomination::this_element_dominates;
@@ -244,8 +221,7 @@ FE_WedgeP<dim, spacedim>::compare_for_domination(
       else
         return FiniteElementDomination::other_element_dominates;
     }
-  else if (const FE_Nothing<dim> *fe_nothing =
-             dynamic_cast<const FE_Nothing<dim> *>(&fe_other))
+  else if (const FE_Nothing<dim> *fe_nothing = dynamic_cast<const FE_Nothing<dim> *>(&fe_other))
     {
       if (fe_nothing->is_dominating())
         return FiniteElementDomination::other_element_dominates;
@@ -264,8 +240,7 @@ FE_WedgeP<dim, spacedim>::compare_for_domination(
 
 template <int dim, int spacedim>
 std::vector<std::pair<unsigned int, unsigned int>>
-FE_WedgeP<dim, spacedim>::hp_vertex_dof_identities(
-  const FiniteElement<dim, spacedim> &fe_other) const
+FE_WedgeP<dim, spacedim>::hp_vertex_dof_identities(const FiniteElement<dim, spacedim> &fe_other) const
 {
   (void)fe_other;
 
@@ -280,8 +255,7 @@ FE_WedgeP<dim, spacedim>::hp_vertex_dof_identities(
 
 template <int dim, int spacedim>
 std::vector<std::pair<unsigned int, unsigned int>>
-FE_WedgeP<dim, spacedim>::hp_line_dof_identities(
-  const FiniteElement<dim, spacedim> &fe_other) const
+FE_WedgeP<dim, spacedim>::hp_line_dof_identities(const FiniteElement<dim, spacedim> &fe_other) const
 {
   (void)fe_other;
 
@@ -301,9 +275,8 @@ FE_WedgeP<dim, spacedim>::hp_line_dof_identities(
 
 template <int dim, int spacedim>
 std::vector<std::pair<unsigned int, unsigned int>>
-FE_WedgeP<dim, spacedim>::hp_quad_dof_identities(
-  const FiniteElement<dim, spacedim> &fe_other,
-  const unsigned int                  face_no) const
+FE_WedgeP<dim, spacedim>::hp_quad_dof_identities(const FiniteElement<dim, spacedim> &fe_other,
+                                                 const unsigned int                  face_no) const
 {
   (void)fe_other;
 
@@ -311,13 +284,11 @@ FE_WedgeP<dim, spacedim>::hp_quad_dof_identities(
 
   if (face_no < 2)
     {
-      Assert((dynamic_cast<const FE_SimplexP<dim, spacedim> *>(&fe_other)),
-             ExcNotImplemented());
+      Assert((dynamic_cast<const FE_SimplexP<dim, spacedim> *>(&fe_other)), ExcNotImplemented());
     }
   else
     {
-      Assert((dynamic_cast<const FE_Q<dim, spacedim> *>(&fe_other)),
-             ExcNotImplemented());
+      Assert((dynamic_cast<const FE_Q<dim, spacedim> *>(&fe_other)), ExcNotImplemented());
     }
 
   std::vector<std::pair<unsigned int, unsigned int>> result;
@@ -332,9 +303,7 @@ FE_WedgeP<dim, spacedim>::hp_quad_dof_identities(
 
 template <int dim, int spacedim>
 FE_WedgeDGP<dim, spacedim>::FE_WedgeDGP(const unsigned int degree)
-  : FE_WedgePoly<dim, spacedim>(degree,
-                                get_dpo_vector_fe_wedge_dgp(degree),
-                                FiniteElementData<dim>::L2)
+  : FE_WedgePoly<dim, spacedim>(degree, get_dpo_vector_fe_wedge_dgp(degree), FiniteElementData<dim>::L2)
 {}
 
 

@@ -40,13 +40,12 @@ main(int argc, char **argv)
     {
       Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
       {
-        parallel::shared::Triangulation<dim> triangulation(
-          MPI_COMM_WORLD,
-          ::Triangulation<dim>::none,
-          false,
-          parallel::shared::Triangulation<dim>::partition_metis);
-        FE_Q<dim>       fe(1);
-        DoFHandler<dim> dof_handler(triangulation);
+        parallel::shared::Triangulation<dim> triangulation(MPI_COMM_WORLD,
+                                                           ::Triangulation<dim>::none,
+                                                           false,
+                                                           parallel::shared::Triangulation<dim>::partition_metis);
+        FE_Q<dim>                            fe(1);
+        DoFHandler<dim>                      dof_handler(triangulation);
 
         GridGenerator::hyper_cube(triangulation, -1, 1);
         triangulation.refine_global(2);
@@ -60,28 +59,20 @@ main(int argc, char **argv)
 
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
 

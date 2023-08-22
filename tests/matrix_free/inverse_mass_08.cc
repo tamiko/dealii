@@ -50,11 +50,10 @@ public:
     : data(data_in){};
 
   void
-  local_mass_operator(
-    const MatrixFree<dim, Number> &              data,
-    VectorType &                                 dst,
-    const VectorType &                           src,
-    const std::pair<unsigned int, unsigned int> &cell_range) const
+  local_mass_operator(const MatrixFree<dim, Number>               &data,
+                      VectorType                                  &dst,
+                      const VectorType                            &src,
+                      const std::pair<unsigned int, unsigned int> &cell_range) const
   {
     FEEvaluation<dim, -1, 0, 1, Number> fe_eval(data);
     const unsigned int                  n_q_points = fe_eval.n_q_points;
@@ -72,15 +71,13 @@ public:
   }
 
   void
-  local_inverse_mass_operator(
-    const MatrixFree<dim, Number> &              data,
-    VectorType &                                 dst,
-    const VectorType &                           src,
-    const std::pair<unsigned int, unsigned int> &cell_range) const
+  local_inverse_mass_operator(const MatrixFree<dim, Number>               &data,
+                              VectorType                                  &dst,
+                              const VectorType                            &src,
+                              const std::pair<unsigned int, unsigned int> &cell_range) const
   {
-    FEEvaluation<dim, -1, 0, 1, Number> fe_eval(data);
-    MatrixFreeOperators::CellwiseInverseMassMatrix<dim, -1, 1, Number> mass_inv(
-      fe_eval);
+    FEEvaluation<dim, -1, 0, 1, Number>                                fe_eval(data);
+    MatrixFreeOperators::CellwiseInverseMassMatrix<dim, -1, 1, Number> mass_inv(fe_eval);
 
     for (unsigned int cell = cell_range.first; cell < cell_range.second; ++cell)
       {
@@ -94,21 +91,13 @@ public:
   void
   vmult(VectorType &dst, const VectorType &src) const
   {
-    data.cell_loop(
-      &MatrixFreeTest<dim, Number, VectorType>::local_mass_operator,
-      this,
-      dst,
-      src);
+    data.cell_loop(&MatrixFreeTest<dim, Number, VectorType>::local_mass_operator, this, dst, src);
   };
 
   void
   apply_inverse(VectorType &dst, const VectorType &src) const
   {
-    data.cell_loop(
-      &MatrixFreeTest<dim, Number, VectorType>::local_inverse_mass_operator,
-      this,
-      dst,
-      src);
+    data.cell_loop(&MatrixFreeTest<dim, Number, VectorType>::local_inverse_mass_operator, this, dst, src);
   };
 
 private:
@@ -126,19 +115,17 @@ do_test(const DoFHandler<dim> &dof)
 
   MatrixFree<dim, number> mf_data;
   {
-    const QGauss<1> quad(dof.get_fe().degree + 1);
+    const QGauss<1>                                  quad(dof.get_fe().degree + 1);
     typename MatrixFree<dim, number>::AdditionalData data;
-    data.tasks_parallel_scheme =
-      MatrixFree<dim, number>::AdditionalData::partition_color;
-    data.tasks_block_size = 3;
+    data.tasks_parallel_scheme = MatrixFree<dim, number>::AdditionalData::partition_color;
+    data.tasks_block_size      = 3;
     AffineConstraints<double> constraints;
 
     mf_data.reinit(mapping, dof, constraints, quad, data);
   }
 
   MatrixFreeTest<dim, number> mf(mf_data);
-  Vector<number>              in(dof.n_dofs()), inverse(dof.n_dofs()),
-    reference(dof.n_dofs());
+  Vector<number>              in(dof.n_dofs()), inverse(dof.n_dofs()), reference(dof.n_dofs());
 
   for (unsigned int i = 0; i < dof.n_dofs(); ++i)
     {

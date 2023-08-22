@@ -35,9 +35,7 @@ using namespace dealii;
 
 template <int dim>
 std::vector<std::vector<BoundingBox<dim>>>
-get_global_bboxes(const Triangulation<dim> &tria,
-                  const Mapping<dim> &      mapping,
-                  const unsigned int        rtree_level = 0)
+get_global_bboxes(const Triangulation<dim> &tria, const Mapping<dim> &mapping, const unsigned int rtree_level = 0)
 {
   std::vector<dealii::BoundingBox<dim>> local_boxes;
   for (const auto &cell : tria.active_cell_iterators())
@@ -79,40 +77,30 @@ do_test(const unsigned int n_quad_points)
 
       const unsigned int      n_vertices = cell->n_vertices();
       std::vector<Point<dim>> vertices(n_vertices);
-      std::copy_n(mapping.get_vertices(cell).begin(),
-                  n_vertices,
-                  vertices.begin());
+      std::copy_n(mapping.get_vertices(cell).begin(), n_vertices, vertices.begin());
 
       intersection_requests.emplace_back(vertices);
     }
 
-  auto intersection_location =
-    GridTools::internal::distributed_compute_intersection_locations<structdim>(
-      cache,
-      intersection_requests,
-      get_global_bboxes<dim>(tria, mapping),
-      std::vector<bool>(),
-      1.0e-9);
+  auto intersection_location = GridTools::internal::distributed_compute_intersection_locations<structdim>(
+    cache, intersection_requests, get_global_bboxes<dim>(tria, mapping), std::vector<bool>(), 1.0e-9);
 
-  auto rpe_data = intersection_location
-                    .convert_to_distributed_compute_point_locations_internal(
-                      n_quad_points, tria, mapping, true);
+  auto rpe_data =
+    intersection_location.convert_to_distributed_compute_point_locations_internal(n_quad_points, tria, mapping, true);
 
   deallog << "Recv Components " << std::endl;
   for (const auto &rc : rpe_data.recv_components)
     {
-      deallog << std::get<0>(rc) << "; " << std::get<1>(rc) << "; "
-              << std::get<2>(rc) << std::endl;
+      deallog << std::get<0>(rc) << "; " << std::get<1>(rc) << "; " << std::get<2>(rc) << std::endl;
     }
   deallog << std::endl;
 
   deallog << "Send Components " << std::endl;
   for (const auto &sc : rpe_data.send_components)
     {
-      deallog << "<" << std::get<0>(sc).first << ", " << std::get<0>(sc).second
-              << ">; " << std::get<1>(sc) << "; " << std::get<2>(sc) << "; ("
-              << std::get<3>(sc) << "); (" << std::get<4>(sc) << "); "
-              << std::get<5>(sc) << std::endl;
+      deallog << "<" << std::get<0>(sc).first << ", " << std::get<0>(sc).second << ">; " << std::get<1>(sc) << "; "
+              << std::get<2>(sc) << "; (" << std::get<3>(sc) << "); (" << std::get<4>(sc) << "); " << std::get<5>(sc)
+              << std::endl;
     }
   deallog << std::endl;
 }
@@ -126,8 +114,7 @@ main(int argc, char **argv)
 
   for (unsigned int q = 1; q < 3; ++q)
     {
-      deallog << "Cell intersections 2D-2D with n_quadrature_points = " << q
-              << std::endl;
+      deallog << "Cell intersections 2D-2D with n_quadrature_points = " << q << std::endl;
       do_test<2, 2>(q);
     }
 }

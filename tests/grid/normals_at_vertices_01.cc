@@ -78,8 +78,7 @@ main()
           boundary.get_normals_at_vertices(face, normals);
           for (unsigned int v = 0; v < GeometryInfo<3>::vertices_per_face; ++v)
             {
-              deallog << "  vertex=" << face->vertex(v)
-                      << ",  normal=" << normals[v] << std::endl;
+              deallog << "  vertex=" << face->vertex(v) << ",  normal=" << normals[v] << std::endl;
 
               // note that we can't check
               // here that the normal vector

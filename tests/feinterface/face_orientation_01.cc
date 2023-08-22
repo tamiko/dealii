@@ -55,10 +55,7 @@ test()
       MappingQ<dim> mapping(1);
       UpdateFlags   update_flags = update_values;
 
-      FEInterfaceValues<dim> fiv(mapping,
-                                 fe,
-                                 QGauss<dim - 1>(fe.degree + 1),
-                                 update_flags);
+      FEInterfaceValues<dim> fiv(mapping, fe, QGauss<dim - 1>(fe.degree + 1), update_flags);
 
 
       for (auto cell : dofh.active_cell_iterators())
@@ -72,28 +69,22 @@ test()
                          cell->neighbor_of_neighbor(f),
                          numbers::invalid_unsigned_int);
 
-              Assert(fiv.get_fe_face_values(0).get_cell() == cell,
-                     ExcInternalError());
-              Assert(fiv.get_fe_face_values(1).get_cell() == cell->neighbor(f),
-                     ExcInternalError());
+              Assert(fiv.get_fe_face_values(0).get_cell() == cell, ExcInternalError());
+              Assert(fiv.get_fe_face_values(1).get_cell() == cell->neighbor(f), ExcInternalError());
 
               // We have a continuous element, so the set of DoFs that
               // are active on the interface is twice the number of
               // DoFs per cell (namely, the two adjacent cells) minus
               // the common set of DoFs on the face itself.
-              AssertDimension(fiv.n_current_interface_dofs(),
-                              2 * fe.dofs_per_cell - fe.dofs_per_face);
+              AssertDimension(fiv.n_current_interface_dofs(), 2 * fe.dofs_per_cell - fe.dofs_per_face);
               Assert(!fiv.at_boundary(), ExcInternalError());
 
               for (unsigned int q = 0; q < fiv.get_quadrature().size(); ++q)
-                for (unsigned int i = 0; i < fiv.n_current_interface_dofs();
-                     ++i)
-                  Assert(std::abs(fiv.jump_in_shape_values(i, q)) <= 1e-12,
-                         ExcInternalError());
+                for (unsigned int i = 0; i < fiv.n_current_interface_dofs(); ++i)
+                  Assert(std::abs(fiv.jump_in_shape_values(i, q)) <= 1e-12, ExcInternalError());
             }
 
-      deallog << "Twist " << twist << "*pi/2 seems to work just fine..."
-              << std::endl;
+      deallog << "Twist " << twist << "*pi/2 seems to work just fine..." << std::endl;
     }
 }
 

@@ -39,24 +39,19 @@ void
 test(int n_refinements, const int n_subdivisions, MPI_Comm comm)
 {
   // create serial triangulation
-  Triangulation<dim> basetria(
-    Triangulation<dim>::limit_level_difference_at_vertices);
+  Triangulation<dim> basetria(Triangulation<dim>::limit_level_difference_at_vertices);
   GridGenerator::subdivided_hyper_cube(basetria, n_subdivisions);
   basetria.refine_global(n_refinements);
 
-  GridTools::partition_triangulation_zorder(
-    Utilities::MPI::n_mpi_processes(comm), basetria);
+  GridTools::partition_triangulation_zorder(Utilities::MPI::n_mpi_processes(comm), basetria);
   GridTools::partition_multigrid_levels(basetria);
 
   // create instance of pft
   parallel::fullydistributed::Triangulation<dim> tria_pft(comm);
 
   // extract relevant information form serial triangulation
-  auto construction_data =
-    TriangulationDescription::Utilities::create_description_from_triangulation(
-      basetria,
-      comm,
-      TriangulationDescription::Settings::construct_multigrid_hierarchy);
+  auto construction_data = TriangulationDescription::Utilities::create_description_from_triangulation(
+    basetria, comm, TriangulationDescription::Settings::construct_multigrid_hierarchy);
 
   // actually create triangulation
   tria_pft.create_triangulation(construction_data);

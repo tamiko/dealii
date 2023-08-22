@@ -42,22 +42,19 @@ test_cpu()
 void
 test_gpu()
 {
-  const unsigned int                                       dim = 3;
-  Kokkos::View<double, MemorySpace::Default::kokkos_space> norm_dev("norm_dev");
-  double                                                   norm_host;
-  Kokkos::View<double, MemorySpace::Default::kokkos_space> norm_square_dev(
-    "norm_square_dev");
-  double norm_square_host;
-  Kokkos::View<Tensor<2, dim>, MemorySpace::Default::kokkos_space> t_dev(
-    "t_dev");
+  const unsigned int                                               dim = 3;
+  Kokkos::View<double, MemorySpace::Default::kokkos_space>         norm_dev("norm_dev");
+  double                                                           norm_host;
+  Kokkos::View<double, MemorySpace::Default::kokkos_space>         norm_square_dev("norm_square_dev");
+  double                                                           norm_square_host;
+  Kokkos::View<Tensor<2, dim>, MemorySpace::Default::kokkos_space> t_dev("t_dev");
 
   using ExecutionSpace = MemorySpace::Default::kokkos_space::execution_space;
   ExecutionSpace exec;
 
   // Launch the kernels.
   Kokkos::parallel_for(
-    Kokkos::MDRangePolicy<ExecutionSpace, Kokkos::Rank<2>>({{0, 0}},
-                                                           {{dim, dim}}),
+    Kokkos::MDRangePolicy<ExecutionSpace, Kokkos::Rank<2>>({{0, 0}}, {{dim, dim}}),
     KOKKOS_LAMBDA(int i, int j) { t_dev()[i][j] = j + i * dim + 1.; });
   Kokkos::parallel_for(
     Kokkos::RangePolicy<ExecutionSpace>(exec, 0, 1), KOKKOS_LAMBDA(int) {

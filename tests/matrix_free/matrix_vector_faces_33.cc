@@ -75,12 +75,9 @@ test()
   }
   matrix.reinit(sparsity);
   MeshWorker::IntegrationInfoBox<dim> info_box;
-  UpdateFlags                         update_flags =
-    update_values | update_gradients | update_jacobians;
+  UpdateFlags                         update_flags = update_values | update_gradients | update_jacobians;
   info_box.add_update_flags_all(update_flags);
-  info_box.initialize_gauss_quadrature(n_q_points_1d,
-                                       n_q_points_1d,
-                                       n_q_points_1d);
+  info_box.initialize_gauss_quadrature(n_q_points_1d, n_q_points_1d, n_q_points_1d);
   info_box.initialize(dof.get_fe(), mapping);
 
   MeshWorker::DoFInfo<dim> dof_info(dof);
@@ -89,8 +86,7 @@ test()
   assembler.initialize(matrix);
 
   MatrixIntegrator<dim> integrator;
-  MeshWorker::integration_loop<dim, dim>(
-    dof.begin_active(), dof.end(), dof_info, info_box, integrator, assembler);
+  MeshWorker::integration_loop<dim, dim>(dof.begin_active(), dof.end(), dof_info, info_box, integrator, assembler);
 
   matrix.vmult(out, in);
 
@@ -99,14 +95,12 @@ test()
     if (constraints.is_constrained(i))
       out(i) = 0;
 
-  MatrixFree<dim, double> mf_data;
-  const QGauss<1>         quad(n_q_points_1d > 0 ? n_q_points_1d :
-                                                   dof.get_fe().degree + 1);
+  MatrixFree<dim, double>                          mf_data;
+  const QGauss<1>                                  quad(n_q_points_1d > 0 ? n_q_points_1d : dof.get_fe().degree + 1);
   typename MatrixFree<dim, double>::AdditionalData data;
-  data.tasks_parallel_scheme = MatrixFree<dim, double>::AdditionalData::none;
-  data.tasks_block_size      = 3;
-  data.mapping_update_flags_boundary_faces =
-    (update_gradients | update_JxW_values);
+  data.tasks_parallel_scheme               = MatrixFree<dim, double>::AdditionalData::none;
+  data.tasks_block_size                    = 3;
+  data.mapping_update_flags_boundary_faces = (update_gradients | update_JxW_values);
 
   mf_data.reinit(mapping, dof, constraints, quad, data);
 
@@ -114,8 +108,7 @@ test()
   Assert(mf_data.n_inner_face_batches() == 0, ExcInternalError());
   Assert(mf_data.n_boundary_face_batches() > 0, ExcInternalError());
 
-  MatrixFreeTest<dim, fe_degree, n_q_points_1d, double, Vector<double>, 1> mf(
-    mf_data);
+  MatrixFreeTest<dim, fe_degree, n_q_points_1d, double, Vector<double>, 1> mf(mf_data);
   mf.vmult(out_dist, in);
 
   out_dist -= out;

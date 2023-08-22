@@ -94,9 +94,8 @@ namespace MeshWorker
     /**
      * Combination of flags to determine if any work is done on faces.
      */
-    work_on_faces = assemble_own_interior_faces_once |
-                    assemble_own_interior_faces_both |
-                    assemble_ghost_faces_once | assemble_ghost_faces_both,
+    work_on_faces = assemble_own_interior_faces_once | assemble_own_interior_faces_both | assemble_ghost_faces_once |
+                    assemble_ghost_faces_both,
 
     /**
      * Combination of flags to determine if any work is done on the boundary
@@ -146,8 +145,7 @@ namespace MeshWorker
   inline AssembleFlags
   operator|(AssembleFlags f1, AssembleFlags f2)
   {
-    return static_cast<AssembleFlags>(static_cast<unsigned int>(f1) |
-                                      static_cast<unsigned int>(f2));
+    return static_cast<AssembleFlags>(static_cast<unsigned int>(f1) | static_cast<unsigned int>(f2));
   }
 
 
@@ -178,8 +176,7 @@ namespace MeshWorker
   inline AssembleFlags
   operator&(AssembleFlags f1, AssembleFlags f2)
   {
-    return static_cast<AssembleFlags>(static_cast<unsigned int>(f1) &
-                                      static_cast<unsigned int>(f2));
+    return static_cast<AssembleFlags>(static_cast<unsigned int>(f1) & static_cast<unsigned int>(f2));
   }
 
 

@@ -89,9 +89,7 @@ test_scalar()
   // Configure tape
   const int  tape_no = 1;
   const bool is_recording =
-    ad_helper.start_recording_operations(tape_no /*material_id*/,
-                                         true /*overwrite_tape*/,
-                                         true /*keep*/);
+    ad_helper.start_recording_operations(tape_no /*material_id*/, true /*overwrite_tape*/, true /*keep*/);
   if (is_recording == true)
     {
       ad_helper.register_independent_variable(s, s_dof);
@@ -119,9 +117,7 @@ test_scalar()
   // Set a new evaluation point
   if (AD::ADNumberTraits<ADNumberType>::is_taped == true)
     {
-      std::cout
-        << "Using tape with different values for independent variables..."
-        << std::endl;
+      std::cout << "Using tape with different values for independent variables..." << std::endl;
       s = 1.5;
       ad_helper.activate_recorded_tape(tape_no);
       ad_helper.set_independent_variable(s, s_dof);
@@ -148,30 +144,23 @@ test_scalar()
     }
 
   // Extract components of the solution
-  const ScalarNumberType dpsi_ds =
-    ad_helper.extract_gradient_component(Dpsi, s_dof);
+  const ScalarNumberType dpsi_ds = ad_helper.extract_gradient_component(Dpsi, s_dof);
 
   // Verify the result
-  using func = FunctionsTestScalar<dim, ScalarNumberType>;
-  static const ScalarNumberType tol =
-    1e5 * std::numeric_limits<ScalarNumberType>::epsilon();
+  using func                        = FunctionsTestScalar<dim, ScalarNumberType>;
+  static const ScalarNumberType tol = 1e5 * std::numeric_limits<ScalarNumberType>::epsilon();
   std::cout << "psi:              " << psi << std::endl;
   std::cout << "func::psi(s):     " << func::psi(s) << std::endl;
-  Assert(std::abs(psi - func::psi(s)) < tol,
-         ExcMessage("No match for function value."));
+  Assert(std::abs(psi - func::psi(s)) < tol, ExcMessage("No match for function value."));
   std::cout << "dpsi_ds:              " << dpsi_ds << std::endl;
   std::cout << "func::dpsi_ds(s):     " << func::dpsi_ds(s) << std::endl;
-  Assert(std::abs(dpsi_ds - func::dpsi_ds(s)) < tol,
-         ExcMessage("No match for first derivative."));
+  Assert(std::abs(dpsi_ds - func::dpsi_ds(s)) < tol, ExcMessage("No match for first derivative."));
   if (AD::ADNumberTraits<ADNumberType>::n_supported_derivative_levels >= 2)
     {
-      const ScalarNumberType d2psi_ds_ds =
-        ad_helper.extract_hessian_component(D2psi, s_dof, s_dof);
+      const ScalarNumberType d2psi_ds_ds = ad_helper.extract_hessian_component(D2psi, s_dof, s_dof);
       std::cout << "d2psi_ds_ds:              " << d2psi_ds_ds << std::endl;
-      std::cout << "func::d2psi_ds_ds(s):     " << func::d2psi_ds_ds(s)
-                << std::endl;
-      Assert(std::abs(d2psi_ds_ds - func::d2psi_ds_ds(s)) < tol,
-             ExcMessage("No match for second derivative."));
+      std::cout << "func::d2psi_ds_ds(s):     " << func::d2psi_ds_ds(s) << std::endl;
+      Assert(std::abs(d2psi_ds_ds - func::d2psi_ds_ds(s)) < tol, ExcMessage("No match for second derivative."));
     }
 
   std::cout << std::endl << std::endl;

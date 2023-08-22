@@ -41,22 +41,18 @@ namespace internal
      */
     template <int dim>
     inline std::pair<ReferenceCell, dealii::hp::QCollection<dim - 1>>
-    get_face_quadrature_collection(const Quadrature<dim> &quad,
-                                   const bool             do_assert = true)
+    get_face_quadrature_collection(const Quadrature<dim> &quad, const bool do_assert = true)
     {
       if (dim == 2 || dim == 3)
         {
           for (unsigned int i = 1; i <= 4; ++i)
             if (quad == QGaussSimplex<dim>(i))
-              return {ReferenceCells::get_simplex<dim>(),
-                      dealii::hp::QCollection<dim - 1>(
-                        QGaussSimplex<dim - 1>(i))};
+              return {ReferenceCells::get_simplex<dim>(), dealii::hp::QCollection<dim - 1>(QGaussSimplex<dim - 1>(i))};
 
           for (unsigned int i = 1; i <= 5; ++i)
             if (quad == QWitherdenVincentSimplex<dim>(i))
               return {ReferenceCells::get_simplex<dim>(),
-                      dealii::hp::QCollection<dim - 1>(
-                        QWitherdenVincentSimplex<dim - 1>(i))};
+                      dealii::hp::QCollection<dim - 1>(QWitherdenVincentSimplex<dim - 1>(i))};
         }
 
       if (dim == 3)
@@ -66,9 +62,7 @@ namespace internal
               QGauss<dim - 1>        quad(i);
               QGaussSimplex<dim - 1> tri(i);
 
-              return {
-                ReferenceCells::Wedge,
-                dealii::hp::QCollection<dim - 1>(tri, tri, quad, quad, quad)};
+              return {ReferenceCells::Wedge, dealii::hp::QCollection<dim - 1>(tri, tri, quad, quad, quad)};
             }
 
       if (dim == 3)
@@ -78,17 +72,14 @@ namespace internal
               QGauss<dim - 1>        quad(i);
               QGaussSimplex<dim - 1> tri(i);
 
-              return {
-                ReferenceCells::Pyramid,
-                dealii::hp::QCollection<dim - 1>(quad, tri, tri, tri, tri)};
+              return {ReferenceCells::Pyramid, dealii::hp::QCollection<dim - 1>(quad, tri, tri, tri, tri)};
             }
 
       // note: handle hypercubes last since normally this function is not
       // called for hypercubes
       for (unsigned int i = 1; i <= 5; ++i)
         if (quad == QGauss<dim>(i))
-          return {ReferenceCells::get_hypercube<dim>(),
-                  dealii::hp::QCollection<dim - 1>(QGauss<dim - 1>(i))};
+          return {ReferenceCells::get_hypercube<dim>(), dealii::hp::QCollection<dim - 1>(QGauss<dim - 1>(i))};
 
       if (do_assert)
         AssertThrow(false, ExcNotImplemented());
@@ -110,12 +101,10 @@ namespace internal
     inline std::pair<Quadrature<dim - 1>, Quadrature<dim - 1>>
     get_unique_face_quadratures(const Quadrature<dim> &quad)
     {
-      AssertThrow(
-        quad.size() > 0,
-        ExcMessage(
-          "There is nothing useful you can do with a MatrixFree/FEEvaluation "
-          "object when using a quadrature formula with zero "
-          "quadrature points!"));
+      AssertThrow(quad.size() > 0,
+                  ExcMessage("There is nothing useful you can do with a MatrixFree/FEEvaluation "
+                             "object when using a quadrature formula with zero "
+                             "quadrature points!"));
 
       if (dim == 2 || dim == 3)
         {
@@ -136,8 +125,7 @@ namespace internal
                   return {QWitherdenVincentSimplex<dim - 1>(i), // line!
                           Quadrature<dim - 1>()};
                 else
-                  return {Quadrature<dim - 1>(),
-                          QWitherdenVincentSimplex<dim - 1>(i)};
+                  return {Quadrature<dim - 1>(), QWitherdenVincentSimplex<dim - 1>(i)};
               }
         }
 

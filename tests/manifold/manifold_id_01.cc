@@ -43,11 +43,9 @@ test(unsigned int ref = 1)
 
   for (cell = tria.begin_active(); cell != tria.end(); ++cell)
     {
-      deallog << "C: " << cell << ", mid: " << (int)cell->manifold_id()
-              << std::endl;
+      deallog << "C: " << cell << ", mid: " << (int)cell->manifold_id() << std::endl;
       for (const unsigned int f : GeometryInfo<dim>::face_indices())
-        deallog << "f: " << cell->face(f)
-                << ", mid: " << (int)cell->face(f)->manifold_id() << std::endl;
+        deallog << "f: " << cell->face(f) << ", mid: " << (int)cell->face(f)->manifold_id() << std::endl;
     }
 }
 

@@ -92,22 +92,17 @@ main(int argc, char **argv)
   const unsigned int dim  = 2;
   const MPI_Comm     comm = MPI_COMM_WORLD;
 
-  const auto test = [&](const bool keep_fine_triangulation,
-                        const bool repartition_fine_triangulation) {
+  const auto test = [&](const bool keep_fine_triangulation, const bool repartition_fine_triangulation) {
     parallel::distributed::Triangulation<dim> tria(comm);
     create_triangulation(tria);
 
     const RepartitioningPolicyTools::DefaultPolicy<dim> policy;
 
-    std::string label =
-      (keep_fine_triangulation ? std::string("true") : std::string("false")) +
-      "_" +
-      (repartition_fine_triangulation ? std::string("true") :
-                                        std::string("false"));
+    std::string label = (keep_fine_triangulation ? std::string("true") : std::string("false")) + "_" +
+                        (repartition_fine_triangulation ? std::string("true") : std::string("false"));
 
-    const auto trias =
-      MGTransferGlobalCoarseningTools::create_geometric_coarsening_sequence(
-        tria, policy, keep_fine_triangulation, repartition_fine_triangulation);
+    const auto trias = MGTransferGlobalCoarseningTools::create_geometric_coarsening_sequence(
+      tria, policy, keep_fine_triangulation, repartition_fine_triangulation);
     output_grid(tria, label);
     output_grid(*trias.back(), label);
   };

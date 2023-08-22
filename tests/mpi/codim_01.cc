@@ -35,8 +35,7 @@
 
 template <int dim, int spacedim>
 void
-write_vtk(const parallel::distributed::Triangulation<dim, spacedim> &tria,
-          const char *                                               filename)
+write_vtk(const parallel::distributed::Triangulation<dim, spacedim> &tria, const char *filename)
 {
   AssertThrow(tria.are_vertices_communicated_to_p4est(),
               ExcMessage("To use this function the flag "
@@ -70,8 +69,7 @@ test(std::ostream & /*out*/)
   parallel::distributed::Triangulation<dim, spacedim> tr(
     MPI_COMM_WORLD,
     Triangulation<dim, spacedim>::none,
-    parallel::distributed::Triangulation<dim, spacedim>::
-      communicate_vertices_to_p4est);
+    parallel::distributed::Triangulation<dim, spacedim>::communicate_vertices_to_p4est);
 
   GridGenerator::torus(tr, 1, 0.2);
   tr.reset_all_manifolds();

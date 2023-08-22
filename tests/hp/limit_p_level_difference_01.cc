@@ -52,14 +52,13 @@ test(const unsigned int fes_size, const unsigned int max_difference)
     fes.push_back(FE_Q<dim>(1));
 
   const unsigned int contains_fe_index = 0;
-  const auto         sequence = fes.get_hierarchy_sequence(contains_fe_index);
+  const auto         sequence          = fes.get_hierarchy_sequence(contains_fe_index);
 
   // setup cross-shaped mesh
   Triangulation<dim> tria;
   {
     std::vector<unsigned int> sizes(Utilities::pow(2, dim),
-                                    static_cast<unsigned int>(
-                                      (sequence.size() - 1) / max_difference));
+                                    static_cast<unsigned int>((sequence.size() - 1) / max_difference));
     GridGenerator::hyper_cross(tria, sizes);
   }
 
@@ -74,10 +73,7 @@ test(const unsigned int fes_size, const unsigned int max_difference)
   Assert(center_cell->center() == Point<dim>(), ExcInternalError());
 
   center_cell->set_active_fe_index(sequence.back());
-  const bool fe_indices_changed =
-    hp::Refinement::limit_p_level_difference(dofh,
-                                             max_difference,
-                                             contains_fe_index);
+  const bool fe_indices_changed = hp::Refinement::limit_p_level_difference(dofh, max_difference, contains_fe_index);
   tria.execute_coarsening_and_refinement();
 
   (void)fe_indices_changed;
@@ -93,13 +89,11 @@ test(const unsigned int fes_size, const unsigned int max_difference)
   // check each cell's active FE index by its distance from the center
   for (const auto &cell : dofh.active_cell_iterators())
     {
-      const double distance = cell->center().distance(center_cell->center());
+      const double       distance = cell->center().distance(center_cell->center());
       const unsigned int expected_level =
-        (sequence.size() - 1) -
-        max_difference * static_cast<unsigned int>(std::round(distance));
+        (sequence.size() - 1) - max_difference * static_cast<unsigned int>(std::round(distance));
 
-      Assert(cell->active_fe_index() == sequence[expected_level],
-             ExcInternalError());
+      Assert(cell->active_fe_index() == sequence[expected_level], ExcInternalError());
     }
 #endif
 

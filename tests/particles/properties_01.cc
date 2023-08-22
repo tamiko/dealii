@@ -47,7 +47,7 @@ public:
   {}
 
   inline virtual void
-  vector_value(Point<dim> const &p, Vector<double> &values) const override
+  vector_value(const Point<dim> &p, Vector<double> &values) const override
   {
     for (unsigned int i = 0; i < dim; ++i)
       {
@@ -83,31 +83,27 @@ test()
   VectorTools::interpolate(dofHandler, function, solution);
 
   // create the particle handler
-  Particles::ParticleHandler<dim> particleHandler(triangulation,
-                                                  mapping,
-                                                  ncomponents);
+  Particles::ParticleHandler<dim> particleHandler(triangulation, mapping, ncomponents);
 
   // randomly place particles in the domain
   Functions::ConstantFunction<dim> pdf(1.0);
-  Particles::Generators::probabilistic_locations(
-    triangulation, pdf, true, nparticles, particleHandler, mapping);
+  Particles::Generators::probabilistic_locations(triangulation, pdf, true, nparticles, particleHandler, mapping);
 
   // map the conserved properties onto the particles
-  dealii::Vector<double> interpolatedParticleQuantities(ncomponents *
-                                                        nparticles);
-  Particles::Utilities::interpolate_field_on_particles(
-    dofHandler, particleHandler, solution, interpolatedParticleQuantities);
+  dealii::Vector<double> interpolatedParticleQuantities(ncomponents * nparticles);
+  Particles::Utilities::interpolate_field_on_particles(dofHandler,
+                                                       particleHandler,
+                                                       solution,
+                                                       interpolatedParticleQuantities);
 
   // check to make sure we get what we expect
   unsigned int part = 0;
-  for (auto iter = particleHandler.begin(); iter != particleHandler.end();
-       ++iter, ++part)
+  for (auto iter = particleHandler.begin(); iter != particleHandler.end(); ++iter, ++part)
     {
       deallog << "particle " << part << " quantities: ";
       for (unsigned int i = 0; i < ncomponents; ++i)
         {
-          deallog << interpolatedParticleQuantities[part * ncomponents + i]
-                  << ' ';
+          deallog << interpolatedParticleQuantities[part * ncomponents + i] << ' ';
         }
       deallog << std::endl;
       deallog << "expected quantities: ";
@@ -124,14 +120,12 @@ test()
   // the set the property_pool pointer of the particles that were
   // bulk-inserted before.
   part = 0;
-  for (auto iter = particleHandler.begin(); iter != particleHandler.end();
-       ++iter, ++part)
+  for (auto iter = particleHandler.begin(); iter != particleHandler.end(); ++iter, ++part)
     {
       std::vector<double> quantities(ncomponents);
       for (unsigned int i = 0; i < ncomponents; ++i)
         {
-          quantities[i] =
-            interpolatedParticleQuantities[part * ncomponents + i];
+          quantities[i] = interpolatedParticleQuantities[part * ncomponents + i];
         }
 
       iter->set_properties(quantities);

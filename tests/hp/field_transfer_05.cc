@@ -47,9 +47,9 @@ public:
 };
 
 void
-output(const DoFHandler<2> &                             dof_handler,
+output(const DoFHandler<2>                              &dof_handler,
        const LinearAlgebra::distributed::Vector<double> &vector,
-       const std::string &                               file_name)
+       const std::string                                &file_name)
 {
   DataOut<2> data_out;
   data_out.attach_dof_handler(dof_handler);
@@ -94,10 +94,10 @@ main(int argc, char *argv[])
   dof_handler.distribute_dofs(fe_collection);
 
   // Initialize solution
-  auto locally_relevant_dofs =
-    DoFTools::extract_locally_relevant_dofs(dof_handler);
-  LinearAlgebra::distributed::Vector<double> solution(
-    dof_handler.locally_owned_dofs(), locally_relevant_dofs, MPI_COMM_WORLD);
+  auto locally_relevant_dofs = DoFTools::extract_locally_relevant_dofs(dof_handler);
+  LinearAlgebra::distributed::Vector<double> solution(dof_handler.locally_owned_dofs(),
+                                                      locally_relevant_dofs,
+                                                      MPI_COMM_WORLD);
 
   // Initialize with a non-constant function
   VectorTools::interpolate(dof_handler, TestFunction(), solution);
@@ -112,9 +112,8 @@ main(int argc, char *argv[])
     deallog << ss.str() << std::endl;
   }
 
-  parallel::distributed::experimental::
-    FieldTransfer<2, LinearAlgebra::distributed::Vector<double>>
-      field_transfer(dof_handler);
+  parallel::distributed::experimental::FieldTransfer<2, LinearAlgebra::distributed::Vector<double>> field_transfer(
+    dof_handler);
   // Assign FE_Q to all the cells
   for (auto cell : dof_handler.active_cell_iterators())
     {
@@ -145,8 +144,9 @@ main(int argc, char *argv[])
   dof_handler.distribute_dofs(fe_collection);
 
   locally_relevant_dofs = DoFTools::extract_locally_relevant_dofs(dof_handler);
-  LinearAlgebra::distributed::Vector<double> new_solution(
-    dof_handler.locally_owned_dofs(), locally_relevant_dofs, MPI_COMM_WORLD);
+  LinearAlgebra::distributed::Vector<double> new_solution(dof_handler.locally_owned_dofs(),
+                                                          locally_relevant_dofs,
+                                                          MPI_COMM_WORLD);
 
   AffineConstraints<double> affine_constraints;
   DoFTools::make_hanging_node_constraints(dof_handler, affine_constraints);

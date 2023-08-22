@@ -91,8 +91,7 @@ public:
   /**
    * Specialized constructor for a structure with blocks of equal size.
    */
-  explicit BlockIndices(const unsigned int n_blocks,
-                        const size_type    block_size = 0);
+  explicit BlockIndices(const unsigned int n_blocks, const size_type block_size = 0);
 
   /**
    * Reinitialize the number of blocks and assign each block the same number
@@ -286,8 +285,7 @@ inline BlockIndices::BlockIndices()
 
 
 
-inline BlockIndices::BlockIndices(const unsigned int n_blocks,
-                                  const size_type    block_size)
+inline BlockIndices::BlockIndices(const unsigned int n_blocks, const size_type block_size)
   : n_blocks(n_blocks)
   , start_indices(n_blocks + 1)
 {
@@ -332,16 +330,14 @@ BlockIndices::global_to_local(const size_type i) const
   Assert(n_blocks > 0, ExcLowerRangeType<size_type>(i, size_type(1)));
 
   // start_indices[0] == 0 so we might as well start from the next one
-  const auto it = std::prev(
-    std::upper_bound(std::next(start_indices.begin()), start_indices.end(), i));
+  const auto it = std::prev(std::upper_bound(std::next(start_indices.begin()), start_indices.end(), i));
 
   return {std::distance(start_indices.begin(), it), i - *it};
 }
 
 
 inline BlockIndices::size_type
-BlockIndices::local_to_global(const unsigned int block,
-                              const size_type    index) const
+BlockIndices::local_to_global(const unsigned int block, const size_type index) const
 {
   AssertIndexRange(block, n_blocks);
   AssertIndexRange(index, start_indices[block + 1] - start_indices[block]);

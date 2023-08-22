@@ -89,27 +89,22 @@ main()
   Vector<double> temp_fine(fe.n_dofs_per_cell());
 
   // interpolate function onto coarse grid.
-  VectorTools::interpolate(mapping,
-                           dof_handler_coarse,
-                           RightHandSideFunction<dim>(1),
-                           vec_coarse);
+  VectorTools::interpolate(mapping, dof_handler_coarse, RightHandSideFunction<dim>(1), vec_coarse);
 
   // project the result onto fine grid (cell by cell)
   for (const auto &cell_coarse : dof_handler_coarse.active_cell_iterators())
     {
-      DoFCellAccessor<dim, spacedim, false> cell_coarse_on_fine_tria(
-        &tria_fine,
-        cell_coarse->level(),
-        cell_coarse->index(),
-        &dof_handler_fine);
+      DoFCellAccessor<dim, spacedim, false> cell_coarse_on_fine_tria(&tria_fine,
+                                                                     cell_coarse->level(),
+                                                                     cell_coarse->index(),
+                                                                     &dof_handler_fine);
 
       cell_coarse->get_dof_values(vec_coarse, temp_coarse);
 
       for (unsigned int c = 0; c < cell_coarse_on_fine_tria.n_children(); ++c)
         {
           fe.get_prolongation_matrix(c).vmult(temp_fine, temp_coarse);
-          cell_coarse_on_fine_tria.child(c)->set_dof_values(temp_fine,
-                                                            vec_fine);
+          cell_coarse_on_fine_tria.child(c)->set_dof_values(temp_fine, vec_fine);
         }
     }
 

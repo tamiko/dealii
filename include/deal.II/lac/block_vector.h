@@ -104,8 +104,7 @@ public:
    * Confer the other constructor further down if you intend to use blocks of
    * different sizes.
    */
-  explicit BlockVector(const unsigned int n_blocks   = 0,
-                       const size_type    block_size = 0);
+  explicit BlockVector(const unsigned int n_blocks = 0, const size_type block_size = 0);
 
   /**
    * Copy Constructor. Dimension set to that of @p v, all components are
@@ -159,9 +158,7 @@ public:
    * blocks.
    */
   template <typename InputIterator>
-  BlockVector(const std::vector<size_type> &block_sizes,
-              const InputIterator           first,
-              const InputIterator           end);
+  BlockVector(const std::vector<size_type> &block_sizes, const InputIterator first, const InputIterator end);
 
   /**
    * Destructor. Clears memory
@@ -247,9 +244,7 @@ public:
    * If <tt>omit_zeroing_entries==false</tt>, the vector is filled with zeros.
    */
   void
-  reinit(const unsigned int n_blocks,
-         const size_type    block_size           = 0,
-         const bool         omit_zeroing_entries = false);
+  reinit(const unsigned int n_blocks, const size_type block_size = 0, const bool omit_zeroing_entries = false);
 
   /**
    * Reinitialize the BlockVector such that it contains
@@ -268,8 +263,7 @@ public:
    * yield unpredictable results since they may be routed to the wrong block.
    */
   void
-  reinit(const std::vector<size_type> &block_sizes,
-         const bool                    omit_zeroing_entries = false);
+  reinit(const std::vector<size_type> &block_sizes, const bool omit_zeroing_entries = false);
 
   /**
    * Reinitialize the BlockVector to reflect the structure found in
@@ -281,8 +275,7 @@ public:
    * If <tt>omit_zeroing_entries==false</tt>, the vector is filled with zeros.
    */
   void
-  reinit(const BlockIndices &block_indices,
-         const bool          omit_zeroing_entries = false);
+  reinit(const BlockIndices &block_indices, const bool omit_zeroing_entries = false);
 
   /**
    * Change the dimension to that of the vector <tt>V</tt>. The same applies
@@ -299,8 +292,7 @@ public:
    */
   template <typename Number2>
   void
-  reinit(const BlockVector<Number2> &V,
-         const bool                  omit_zeroing_entries = false);
+  reinit(const BlockVector<Number2> &V, const bool omit_zeroing_entries = false);
 
   /**
    * Multiply each element of this vector by the corresponding element of
@@ -328,7 +320,7 @@ public:
    * Print to a stream.
    */
   void
-  print(std::ostream &     out,
+  print(std::ostream      &out,
         const unsigned int precision  = 3,
         const bool         scientific = true,
         const bool         across     = true) const;
@@ -503,18 +495,14 @@ namespace internal
     public:
       template <typename Matrix>
       static void
-      reinit_range_vector(const Matrix &       matrix,
-                          BlockVector<number> &v,
-                          bool                 omit_zeroing_entries)
+      reinit_range_vector(const Matrix &matrix, BlockVector<number> &v, bool omit_zeroing_entries)
       {
         v.reinit(matrix.get_row_indices(), omit_zeroing_entries);
       }
 
       template <typename Matrix>
       static void
-      reinit_domain_vector(const Matrix &       matrix,
-                           BlockVector<number> &v,
-                           bool                 omit_zeroing_entries)
+      reinit_domain_vector(const Matrix &matrix, BlockVector<number> &v, bool omit_zeroing_entries)
       {
         v.reinit(matrix.get_column_indices(), omit_zeroing_entries);
       }

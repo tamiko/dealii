@@ -48,29 +48,20 @@ check()
   GridGenerator::hyper_cube(tr, -1, 1);
   tr.refine_global(1);
 
-  FESystem<dim>   element(FE_Q<dim>(1),
-                        1,
-                        FE_RaviartThomas<dim>(0),
-                        1,
-                        FE_Q<dim>(1),
-                        1,
-                        FE_Nedelec<dim>(0),
-                        1);
+  FESystem<dim>   element(FE_Q<dim>(1), 1, FE_RaviartThomas<dim>(0), 1, FE_Q<dim>(1), 1, FE_Nedelec<dim>(0), 1);
   DoFHandler<dim> dof(tr);
   dof.distribute_dofs(element);
 
   // try all possible block
   // masks, which we encode as bit
   // strings
-  for (unsigned int int_mask = 0; int_mask < (1U << element.n_blocks());
-       ++int_mask)
+  for (unsigned int int_mask = 0; int_mask < (1U << element.n_blocks()); ++int_mask)
     {
       std::vector<bool> component_mask(element.n_blocks());
       for (unsigned int c = 0; c < element.n_blocks(); ++c)
         component_mask[c] = (int_mask & (1 << c));
 
-      const IndexSet dofs =
-        DoFTools::extract_dofs(dof, BlockMask(component_mask));
+      const IndexSet dofs = DoFTools::extract_dofs(dof, BlockMask(component_mask));
 
       for (unsigned int d = 0; d < dof.n_dofs(); ++d)
         deallog << dofs.is_element(d);

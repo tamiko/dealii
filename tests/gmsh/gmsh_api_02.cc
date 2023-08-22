@@ -25,12 +25,10 @@ template <int dim, int spacedim>
 void
 test(const std::uint8_t kind, const std::string out = "")
 {
-  deallog << "Testing kind(" << (int)kind << ") in dimensions " << '<' << dim
-          << ',' << spacedim << '>' << std::endl;
+  deallog << "Testing kind(" << (int)kind << ") in dimensions " << '<' << dim << ',' << spacedim << '>' << std::endl;
 
   Triangulation<dim, spacedim> tria;
-  GridGenerator::reference_cell(tria,
-                                internal::make_reference_cell_from_int(kind));
+  GridGenerator::reference_cell(tria, internal::make_reference_cell_from_int(kind));
   GridOut go;
   go.write_msh(tria, "output.msh");
   cat_file("output.msh");

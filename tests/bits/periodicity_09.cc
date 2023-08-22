@@ -51,8 +51,7 @@ test()
   GridGenerator::subdivided_hyper_rectangle(triangulation,
                                             repetitions,
                                             Point<dim>(),
-                                            (dim == 2 ? Point<dim>(2, 1) :
-                                                        Point<dim>(2, 1, 1)));
+                                            (dim == 2 ? Point<dim>(2, 1) : Point<dim>(2, 1, 1)));
   triangulation.begin_active()->set_refine_flag();
   triangulation.execute_coarsening_and_refinement();
 
@@ -62,23 +61,20 @@ test()
 
 
   AffineConstraints<std::complex<double>> cm;
-  const std::complex<double>              periodicity_factor =
-    std::exp(-std::complex<double>(0, 1) * 0.4);
+  const std::complex<double>              periodicity_factor = std::exp(-std::complex<double>(0, 1) * 0.4);
 
-  deallog << dim << " 1/periodicity_factor: " << 1. / periodicity_factor
-          << std::endl;
+  deallog << dim << " 1/periodicity_factor: " << 1. / periodicity_factor << std::endl;
 
-  DoFTools::make_periodicity_constraints(
-    dof_handler.begin(0)->face(0),
-    (std::next(dof_handler.begin(0)))->face(1),
-    cm,
-    ComponentMask(),
-    true,
-    false,
-    false,
-    FullMatrix<double>(),
-    std::vector<unsigned int>(),
-    periodicity_factor);
+  DoFTools::make_periodicity_constraints(dof_handler.begin(0)->face(0),
+                                         (std::next(dof_handler.begin(0)))->face(1),
+                                         cm,
+                                         ComponentMask(),
+                                         true,
+                                         false,
+                                         false,
+                                         FullMatrix<double>(),
+                                         std::vector<unsigned int>(),
+                                         periodicity_factor);
   cm.print(deallog.get_file_stream());
 }
 

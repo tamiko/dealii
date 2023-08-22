@@ -49,8 +49,7 @@ using namespace dealii;
  */
 template <typename Number>
 IndexSet
-collect_lines(const AffineConstraints<Number> &constraints,
-              const unsigned int               size)
+collect_lines(const AffineConstraints<Number> &constraints, const unsigned int size)
 {
   IndexSet lines_local(size);
   for (const auto &line : constraints.get_lines())
@@ -60,13 +59,11 @@ collect_lines(const AffineConstraints<Number> &constraints,
 
 template <int dim, int spacedim>
 void
-test(const DoFHandler<dim, spacedim> &dof_handler,
-     const IndexSet &                 locally_relevant_dofs)
+test(const DoFHandler<dim, spacedim> &dof_handler, const IndexSet &locally_relevant_dofs)
 {
   AffineConstraints<double> constraints;
 
-  std::vector<types::global_dof_index> dof_indices(
-    dof_handler.get_fe().n_dofs_per_face());
+  std::vector<types::global_dof_index> dof_indices(dof_handler.get_fe().n_dofs_per_face());
 
   for (const auto &cell : dof_handler.active_cell_iterators())
     for (const auto face : cell->face_indices())
@@ -97,9 +94,7 @@ main(int argc, char **argv)
 
   const int dim = 2;
 
-  ConditionalOStream pcout(std::cout,
-                           Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) ==
-                             0);
+  ConditionalOStream pcout(std::cout, Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0);
 
   parallel::distributed::Triangulation<dim> tria(MPI_COMM_WORLD);
   GridGenerator::subdivided_hyper_cube(tria, 2);

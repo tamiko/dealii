@@ -34,9 +34,7 @@ using namespace dealii;
 
 template <int dim>
 std::vector<std::vector<BoundingBox<dim>>>
-get_global_bboxes(const Triangulation<dim> &tria,
-                  const Mapping<dim> &      mapping,
-                  const unsigned int        rtree_level = 0)
+get_global_bboxes(const Triangulation<dim> &tria, const Mapping<dim> &mapping, const unsigned int rtree_level = 0)
 {
   std::vector<dealii::BoundingBox<dim>> local_boxes;
   for (const auto &cell : tria.active_cell_iterators())
@@ -96,17 +94,13 @@ do_test(const bool use_marked_vertices = false)
       {
         const unsigned int      n_vertices = cell->n_vertices();
         std::vector<Point<dim>> vertices(n_vertices);
-        std::copy_n(mapping.get_vertices(cell).begin(),
-                    n_vertices,
-                    vertices.begin());
+        std::copy_n(mapping.get_vertices(cell).begin(), n_vertices, vertices.begin());
         intersection_requests.emplace_back(vertices);
       }
       {
         const unsigned int      n_vertices = simplex_cell->n_vertices();
         std::vector<Point<dim>> vertices(n_vertices);
-        std::copy_n(mapping.get_vertices(simplex_cell).begin(),
-                    n_vertices,
-                    vertices.begin());
+        std::copy_n(mapping.get_vertices(simplex_cell).begin(), n_vertices, vertices.begin());
         intersection_requests.emplace_back(vertices);
       }
     }
@@ -122,13 +116,8 @@ do_test(const bool use_marked_vertices = false)
             marked_vertices[cell->vertex_index(v)] = true;
     }
 
-  auto intersection_location =
-    GridTools::internal::distributed_compute_intersection_locations<structdim>(
-      cache,
-      intersection_requests,
-      get_global_bboxes<dim>(tria, mapping),
-      marked_vertices,
-      1.0e-9);
+  auto intersection_location = GridTools::internal::distributed_compute_intersection_locations<structdim>(
+    cache, intersection_requests, get_global_bboxes<dim>(tria, mapping), marked_vertices, 1.0e-9);
 
   deallog << "Recv Components " << std::endl;
   for (const auto &rc : intersection_location.recv_components)
@@ -142,8 +131,8 @@ do_test(const bool use_marked_vertices = false)
   deallog << "Send Components " << std::endl;
   for (const auto &sc : intersection_location.send_components)
     {
-      deallog << "<" << std::get<0>(sc).first << ", " << std::get<0>(sc).second
-              << ">; " << std::get<1>(sc) << "; " << std::get<2>(sc) << "; ";
+      deallog << "<" << std::get<0>(sc).first << ", " << std::get<0>(sc).second << ">; " << std::get<1>(sc) << "; "
+              << std::get<2>(sc) << "; ";
       print_vertices(std::get<3>(sc));
       deallog << std::endl;
     }

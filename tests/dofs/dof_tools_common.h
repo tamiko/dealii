@@ -101,10 +101,7 @@ check(const FiniteElement<dim> &fe, const std::string &name)
       tria.begin_active()->set_refine_flag();
       tria.execute_coarsening_and_refinement();
     }
-  for (typename Triangulation<dim>::active_cell_iterator cell =
-         tria.begin_active();
-       cell != tria.end();
-       ++cell)
+  for (typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(); cell != tria.end(); ++cell)
     cell->set_subdomain_id(cell->level());
 
   // setup DoFHandler
@@ -219,51 +216,31 @@ main()
       CHECK_SYS3(FE_DGQ<3>(1), 3, FE_DGP<3>(3), 1, FE_Q<3>(1), 3, 3);
 
       // systems of systems
-      CHECK_SYS3(
-        (FESystem<2>(FE_Q<2>(1), 3)), 3, FE_DGQ<2>(0), 1, FE_Q<2>(1), 3, 2);
-      CHECK_SYS3(FE_DGQ<2>(3),
-                 1,
-                 FESystem<2>(FE_DGQ<2>(0), 3),
-                 1,
-                 FESystem<2>(FE_Q<2>(2), 1, FE_DGQ<2>(0), 1),
-                 2,
-                 2);
+      CHECK_SYS3((FESystem<2>(FE_Q<2>(1), 3)), 3, FE_DGQ<2>(0), 1, FE_Q<2>(1), 3, 2);
+      CHECK_SYS3(FE_DGQ<2>(3), 1, FESystem<2>(FE_DGQ<2>(0), 3), 1, FESystem<2>(FE_Q<2>(2), 1, FE_DGQ<2>(0), 1), 2, 2);
 
       // systems with Nedelec elements
       CHECK_SYS2(FE_DGQ<2>(3), 1, FE_Nedelec<2>(0), 2, 2);
-      CHECK_SYS3(FE_Nedelec<2>(0),
-                 1,
-                 FESystem<2>(FE_DGQ<2>(1), 2),
-                 1,
-                 FESystem<2>(FE_Q<2>(2), 1, FE_Nedelec<2>(0), 2),
-                 2,
-                 2);
+      CHECK_SYS3(
+        FE_Nedelec<2>(0), 1, FESystem<2>(FE_DGQ<2>(1), 2), 1, FESystem<2>(FE_Q<2>(2), 1, FE_Nedelec<2>(0), 2), 2, 2);
 
       return 0;
     }
   catch (std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

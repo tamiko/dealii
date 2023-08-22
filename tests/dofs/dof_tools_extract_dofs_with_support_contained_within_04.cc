@@ -75,15 +75,12 @@ test()
   // Setup system
   parallel::distributed::Triangulation<dim> triangulation(MPI_COMM_WORLD);
 
-  GridGenerator::hyper_rectangle(triangulation,
-                                 Point<dim>(0, 0),
-                                 Point<dim>(1, 1));
+  GridGenerator::hyper_rectangle(triangulation, Point<dim>(0, 0), Point<dim>(1, 1));
 
   triangulation.refine_global(1);
 
   // Extra refinement to generate hanging nodes
-  for (typename Triangulation<dim>::active_cell_iterator cell =
-         triangulation.begin_active();
+  for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
        cell != triangulation.end();
        ++cell)
     if (cell->is_locally_owned() && pred_r<dim>(cell))
@@ -110,10 +107,7 @@ test()
 
   // get support on the predicate
   IndexSet support = DoFTools::extract_dofs_with_support_contained_within(
-    dh,
-    std::function<bool(const typename DoFHandler<dim>::active_cell_iterator &)>(
-      &pred_d<dim>),
-    cm);
+    dh, std::function<bool(const typename DoFHandler<dim>::active_cell_iterator &)>(&pred_d<dim>), cm);
   IndexSet local_support = support & locally_owned_set;
 
   // rhs vectors:
@@ -126,42 +120,35 @@ test()
   rhs.zero_out_ghost_values();
 
   // assemble RHS which has a local support:
-  const std::function<double(const Point<dim> &)> rhs_func =
-    [=](const Point<dim> &p) -> double { return p[0] > 0.5 ? 0. : 0.5 - p[0]; };
+  const std::function<double(const Point<dim> &)> rhs_func = [=](const Point<dim> &p) -> double {
+    return p[0] > 0.5 ? 0. : 0.5 - p[0];
+  };
 
   Vector<double> local_rhs(fe.dofs_per_cell);
   QGauss<dim>    quadrature(3);
-  FEValues<dim>  fe_values(fe,
-                          quadrature,
-                          update_values | update_JxW_values |
-                            update_quadrature_points);
-  for (typename DoFHandler<dim>::active_cell_iterator cell = dh.begin_active();
-       cell != dh.end();
-       ++cell)
+  FEValues<dim>  fe_values(fe, quadrature, update_values | update_JxW_values | update_quadrature_points);
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dh.begin_active(); cell != dh.end(); ++cell)
     if (cell->is_locally_owned() && pred_d<dim>(cell))
       {
         fe_values.reinit(cell);
         cell->get_dof_indices(local_dof_indices);
 
-        const std::vector<Point<dim>> &q_points =
-          fe_values.get_quadrature_points();
+        const std::vector<Point<dim>> &q_points = fe_values.get_quadrature_points();
 
         local_rhs = 0.;
         for (unsigned int i = 0; i < fe.dofs_per_cell; ++i)
           for (unsigned int q = 0; q < quadrature.size(); ++q)
-            local_rhs[i] += fe_values.shape_value(i, q) *
-                            rhs_func(q_points[q]) * fe_values.JxW(q);
+            local_rhs[i] += fe_values.shape_value(i, q) * rhs_func(q_points[q]) * fe_values.JxW(q);
 
         cm.distribute_local_to_global(local_rhs, local_dof_indices, rhs);
 
         // copy-paste of CM distribute_local_to_global and
         // add is_element() checks:
-        auto       local_vector_begin  = local_rhs.begin();
-        const auto local_vector_end    = local_rhs.end();
-        auto       local_indices_begin = local_dof_indices.begin();
+        auto                                                           local_vector_begin  = local_rhs.begin();
+        const auto                                                     local_vector_end    = local_rhs.end();
+        auto                                                           local_indices_begin = local_dof_indices.begin();
         const std::vector<std::pair<types::global_dof_index, double>> *line_ptr;
-        for (; local_vector_begin != local_vector_end;
-             ++local_vector_begin, ++local_indices_begin)
+        for (; local_vector_begin != local_vector_end; ++local_vector_begin, ++local_indices_begin)
           {
             line_ptr = cm.get_constraint_entries(*local_indices_begin);
             if (line_ptr == NULL) // unconstrained
@@ -174,8 +161,7 @@ test()
                 const unsigned int line_size = line_ptr->size();
                 for (unsigned int j = 0; j < line_size; ++j)
                   if (support.is_element((*line_ptr)[j].first))
-                    sparse_rhs((*line_ptr)[j].first) +=
-                      *local_vector_begin * (*line_ptr)[j].second;
+                    sparse_rhs((*line_ptr)[j].first) += *local_vector_begin * (*line_ptr)[j].second;
               }
           }
         /*
@@ -196,18 +182,15 @@ test()
   // print grid and DoFs for visual inspection
   if (false)
     {
-      const unsigned int this_mpi_process =
-        dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
-      const unsigned int n_mpi_processes =
-        dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
+      const unsigned int this_mpi_process = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+      const unsigned int n_mpi_processes  = dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
 
       for (unsigned int i = 0; i < n_mpi_processes; ++i)
         {
           MPI_Barrier(MPI_COMM_WORLD);
           if (i == this_mpi_process)
             {
-              std::cout << "-------------------- " << this_mpi_process
-                        << std::endl;
+              std::cout << "-------------------- " << this_mpi_process << std::endl;
               cm.print(std::cout);
 
               std::cout << "local support:" << std::endl;
@@ -226,20 +209,17 @@ test()
         MappingQ1<dim>                                mapping;
         DoFTools::map_dofs_to_support_points(mapping, dh, support_points);
 
-        const std::string filename =
-          "grid" + dealii::Utilities::int_to_string(n_mpi_processes) +
-          dealii::Utilities::int_to_string(this_mpi_process);
+        const std::string filename = "grid" + dealii::Utilities::int_to_string(n_mpi_processes) +
+                                     dealii::Utilities::int_to_string(this_mpi_process);
         std::ofstream f(filename + ".gp");
 
-        f << "set terminal png size 400,410 enhanced font \"Helvetica,8\""
-          << std::endl
+        f << "set terminal png size 400,410 enhanced font \"Helvetica,8\"" << std::endl
           << "set output \"" << filename << ".png\"" << std::endl
           << "set size square" << std::endl
           << "set view equal xy" << std::endl
           << "unset xtics" << std::endl
           << "unset ytics" << std::endl
-          << "plot '-' using 1:2 with lines notitle, '-' with labels point pt 2 offset 1,1 notitle"
-          << std::endl;
+          << "plot '-' using 1:2 with lines notitle, '-' with labels point pt 2 offset 1,1 notitle" << std::endl;
         GridOut().write_gnuplot(triangulation, f);
         f << 'e' << std::endl;
 
@@ -251,12 +231,10 @@ test()
         DataOut<dim> data_out;
         data_out.attach_dof_handler(dh);
 
-        std::vector<LinearAlgebra::distributed::Vector<double>> shape_functions(
-          dh.n_dofs());
+        std::vector<LinearAlgebra::distributed::Vector<double>> shape_functions(dh.n_dofs());
         for (unsigned int i = 0; i < dh.n_dofs(); ++i)
           {
-            LinearAlgebra::distributed::Vector<double> sl(locally_owned_set,
-                                                          MPI_COMM_WORLD);
+            LinearAlgebra::distributed::Vector<double> sl(locally_owned_set, MPI_COMM_WORLD);
             sl = 0.;
             if (locally_owned_set.is_element(i))
               sl[i] = 1.0;
@@ -267,9 +245,7 @@ test()
             s = 0.;
             s = sl;
 
-            data_out.add_data_vector(s,
-                                     std::string("N_") +
-                                       dealii::Utilities::int_to_string(i));
+            data_out.add_data_vector(s, std::string("N_") + dealii::Utilities::int_to_string(i));
           }
 
         Vector<float> subdomain(triangulation.n_active_cells());
@@ -278,8 +254,7 @@ test()
         data_out.add_data_vector(subdomain, "subdomain");
         data_out.build_patches();
 
-        const std::string filename =
-          output_name(triangulation.locally_owned_subdomain());
+        const std::string filename = output_name(triangulation.locally_owned_subdomain());
 
         std::ofstream output(filename);
         data_out.write_vtu(output);
@@ -287,9 +262,7 @@ test()
         if (dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
           {
             std::vector<std::string> filenames;
-            for (unsigned int i = 0;
-                 i < dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
-                 ++i)
+            for (unsigned int i = 0; i < dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD); ++i)
               filenames.push_back(output_name(i));
 
             const std::string pvtu_filename = "output.pvtu";
@@ -304,11 +277,9 @@ test()
       const unsigned int ind = locally_owned_set.nth_index_in_set(i);
       const double       v   = rhs[ind];
       AssertThrow(std::abs(v) < 1e-12,
-                  ExcMessage(
-                    "Element " + std::to_string(ind) + " has an error " +
-                    std::to_string(v) + " on the process " +
-                    std::to_string(dealii::Utilities::MPI::this_mpi_process(
-                      MPI_COMM_WORLD))));
+                  ExcMessage("Element " + std::to_string(ind) + " has an error " + std::to_string(v) +
+                             " on the process " +
+                             std::to_string(dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD))));
     }
 
   if (dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)

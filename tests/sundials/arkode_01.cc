@@ -80,10 +80,9 @@ main()
     ydot[1] = -kappa * kappa * y[0];
   };
 
-  ode.output_step =
-    [&](const double t, const VectorType &sol, const unsigned int step_number) {
-      deallog << t << ' ' << sol[0] << ' ' << sol[1] << std::endl;
-    };
+  ode.output_step = [&](const double t, const VectorType &sol, const unsigned int step_number) {
+    deallog << t << ' ' << sol[0] << ' ' << sol[1] << std::endl;
+  };
 
   Vector<double> y(2);
   y[0] = 0;

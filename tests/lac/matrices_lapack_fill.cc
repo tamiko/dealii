@@ -46,16 +46,14 @@ main()
   ez.set(4, 3, 14.);
 
   {
-    deallog << "SparseMatrixEZ<float>::fill  SparseMatrixEZ<double>"
-            << std::endl;
+    deallog << "SparseMatrixEZ<float>::fill  SparseMatrixEZ<double>" << std::endl;
     LAPACKFullMatrix<float> ff(ez.m(), ez.n());
     ff.fill(ez, 0, 0, 0, 0, 2, false);
     ff.print_formatted(deallog.get_file_stream(), 0, false, 5, "~");
   }
 
   {
-    deallog << "SparseMatrixEZ<float>::fill  SparseMatrixEZ<double>  transpose"
-            << std::endl;
+    deallog << "SparseMatrixEZ<float>::fill  SparseMatrixEZ<double>  transpose" << std::endl;
     LAPACKFullMatrix<float> ff(ez.n(), ez.m());
     ff.fill(ez, 0, 0, 0, 0, 2, true);
     ff.print_formatted(deallog.get_file_stream(), 0, false, 5, "~");

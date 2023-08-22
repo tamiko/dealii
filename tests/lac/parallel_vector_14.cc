@@ -55,8 +55,7 @@ test()
   // and once where they have not
   for (unsigned int run = 0; run < 2; ++run)
     {
-      LinearAlgebra::distributed::Vector<double, MemorySpace::Default> v(
-        local_owned, local_relevant, MPI_COMM_WORLD);
+      LinearAlgebra::distributed::Vector<double, MemorySpace::Default> v(local_owned, local_relevant, MPI_COMM_WORLD);
 
       // set local values
       LinearAlgebra::ReadWriteVector<double> rw_vector(local_owned);
@@ -68,8 +67,7 @@ test()
 
       v.import_elements(rw_vector, VectorOperation::insert);
 
-      LinearAlgebra::distributed::Vector<double, MemorySpace::Default> w(v),
-        u(v);
+      LinearAlgebra::distributed::Vector<double, MemorySpace::Default> w(v), u(v);
       u = 0;
 
       v *= 2.0;
@@ -86,13 +84,11 @@ test()
       if (myid < 2)
         {
           Assert(rw_vector(myid * 2) == myid * 4.0 + 1, ExcInternalError());
-          Assert(rw_vector(myid * 2 + 1) == myid * 4.0 + 3.0,
-                 ExcInternalError());
+          Assert(rw_vector(myid * 2 + 1) == myid * 4.0 + 3.0, ExcInternalError());
         }
 
       // copy vector content to non-ghosted vectors, manually created.
-      LinearAlgebra::distributed::Vector<double, MemorySpace::Default> v_dist(
-        local_owned, MPI_COMM_WORLD),
+      LinearAlgebra::distributed::Vector<double, MemorySpace::Default> v_dist(local_owned, MPI_COMM_WORLD),
         w_dist(v_dist), u_dist(v_dist);
 
       v_dist = v;
@@ -109,16 +105,14 @@ test()
       if (myid < 2)
         {
           Assert(rw_vector(myid * 2) == myid * 2.0 + 1, ExcInternalError());
-          Assert(rw_vector(myid * 2 + 1) == myid * 2.0 + 2.0,
-                 ExcInternalError());
+          Assert(rw_vector(myid * 2 + 1) == myid * 2.0 + 2.0, ExcInternalError());
         }
 
       rw_vector.import_elements(u, VectorOperation::insert);
       if (myid < 2)
         {
           Assert(rw_vector(myid * 2) == myid * 2.0 + 1, ExcInternalError());
-          Assert(rw_vector(myid * 2 + 1) == myid * 2.0 + 2.0,
-                 ExcInternalError());
+          Assert(rw_vector(myid * 2 + 1) == myid * 2.0 + 2.0, ExcInternalError());
         }
 
       IndexSet u_ghost_set(local_owned.size());
@@ -133,8 +127,7 @@ test()
             {
               IndexSet v_ghost_set(local_owned.size());
               v_ghost_set.add_index(3);
-              LinearAlgebra::ReadWriteVector<double> v_ghost_vector(
-                v_ghost_set);
+              LinearAlgebra::ReadWriteVector<double> v_ghost_vector(v_ghost_set);
               v_ghost_vector.import_elements(v, VectorOperation::insert);
               Assert(v_ghost_vector(3) == 7., ExcInternalError());
             }
@@ -156,8 +149,7 @@ test()
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   unsigned int myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
   deallog.push(Utilities::int_to_string(myid));

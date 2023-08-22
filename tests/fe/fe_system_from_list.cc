@@ -42,8 +42,7 @@
 template <int dim>
 struct MyFESystem
 {
-  MyFESystem(const std::vector<const FiniteElement<dim> *> &fes,
-             const std::vector<unsigned int> &              multiplicities)
+  MyFESystem(const std::vector<const FiniteElement<dim> *> &fes, const std::vector<unsigned int> &multiplicities)
   {
     deallog << "Constructing FESystem from list." << std::endl;
   }
@@ -63,8 +62,7 @@ private:
   struct VectorElementDestroyer
   {
     const std::vector<const FiniteElement<dim> *> data;
-    VectorElementDestroyer(
-      const std::vector<const FiniteElement<dim> *> &pointers);
+    VectorElementDestroyer(const std::vector<const FiniteElement<dim> *> &pointers);
     ~VectorElementDestroyer(); // destructor to delete the pointers
     const std::vector<const FiniteElement<dim> *> &
     get_data() const;
@@ -129,8 +127,7 @@ MySimulator<dim>::VectorElementDestroyer::get_data() const
 
 template <int dim>
 MySimulator<dim>::MySimulator(const unsigned int polynomial_degree)
-  : fe(VectorElementDestroyer(create_fe_list(polynomial_degree)).get_data(),
-       create_fe_multiplicities())
+  : fe(VectorElementDestroyer(create_fe_list(polynomial_degree)).get_data(), create_fe_multiplicities())
 {}
 
 

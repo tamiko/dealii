@@ -39,24 +39,17 @@
 
 template <typename NumberType>
 void
-test(const unsigned int size_1,
-     const unsigned int size_2,
-     const unsigned int block_size,
-     const NumberType   tol)
+test(const unsigned int size_1, const unsigned int size_2, const unsigned int block_size, const NumberType tol)
 {
   MPI_Comm           mpi_communicator(MPI_COMM_WORLD);
-  const unsigned int n_mpi_processes(
-    Utilities::MPI::n_mpi_processes(mpi_communicator));
-  const unsigned int this_mpi_process(
-    Utilities::MPI::this_mpi_process(mpi_communicator));
+  const unsigned int n_mpi_processes(Utilities::MPI::n_mpi_processes(mpi_communicator));
+  const unsigned int this_mpi_process(Utilities::MPI::this_mpi_process(mpi_communicator));
   ConditionalOStream pcout(std::cout, (this_mpi_process == 0));
 
   std::shared_ptr<Utilities::MPI::ProcessGrid> grid =
-    std::make_shared<Utilities::MPI::ProcessGrid>(
-      mpi_communicator, size_1, size_2, block_size, block_size);
+    std::make_shared<Utilities::MPI::ProcessGrid>(mpi_communicator, size_1, size_2, block_size, block_size);
 
-  pcout << size_1 << 'x' << size_2 << ' ' << block_size << ' '
-        << grid->get_process_grid_rows() << ' '
+  pcout << size_1 << 'x' << size_2 << ' ' << block_size << ' ' << grid->get_process_grid_rows() << ' '
         << grid->get_process_grid_columns() << std::endl;
 
   // Create randomly filled matrix of requested dimension size_1xsize_2:
@@ -64,39 +57,22 @@ test(const unsigned int size_1,
   create_random(full_A);
   const NumberType ratio = 1e-8;
 
-  ScaLAPACKMatrix<NumberType> pseudoinverse_A(size_1,
-                                              size_2,
-                                              grid,
-                                              block_size,
-                                              block_size,
-                                              LAPACKSupport::Property::general);
+  ScaLAPACKMatrix<NumberType> pseudoinverse_A(
+    size_1, size_2, grid, block_size, block_size, LAPACKSupport::Property::general);
   pseudoinverse_A         = full_A;
   const unsigned int rank = pseudoinverse_A.pseudoinverse(ratio);
 
   // The pseudoinverse_A has to fulfill: A * A+ * A = A
 
-  ScaLAPACKMatrix<NumberType> scalapack_A(size_1,
-                                          size_2,
-                                          grid,
-                                          block_size,
-                                          block_size,
-                                          LAPACKSupport::Property::general);
+  ScaLAPACKMatrix<NumberType> scalapack_A(
+    size_1, size_2, grid, block_size, block_size, LAPACKSupport::Property::general);
   scalapack_A = full_A;
-  ScaLAPACKMatrix<NumberType> scalapack_tmp(size_2,
-                                            size_2,
-                                            grid,
-                                            block_size,
-                                            block_size,
-                                            LAPACKSupport::Property::general);
+  ScaLAPACKMatrix<NumberType> scalapack_tmp(
+    size_2, size_2, grid, block_size, block_size, LAPACKSupport::Property::general);
   // compute tmp = A+ * A
   pseudoinverse_A.mmult(scalapack_tmp, scalapack_A);
   ScaLAPACKMatrix<NumberType> scalapack_result(
-    size_1,
-    size_2,
-    grid,
-    block_size,
-    block_size,
-    LAPACKSupport::Property::general);
+    size_1, size_2, grid, block_size, block_size, LAPACKSupport::Property::general);
   // compute result = A * tmp
   scalapack_A.mmult(scalapack_result, scalapack_tmp);
 
@@ -106,8 +82,7 @@ test(const unsigned int size_1,
 
   if (this_mpi_process == 0)
     {
-      std::cout << "rank=" << rank << '/' << std::min(size_1, size_2)
-                << std::endl;
+      std::cout << "rank=" << rank << '/' << std::min(size_1, size_2) << std::endl;
       AssertThrow(norm < tol, ExcInternalError());
     }
   pcout << std::endl;
@@ -118,8 +93,7 @@ test(const unsigned int size_1,
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, numbers::invalid_unsigned_int);
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, numbers::invalid_unsigned_int);
 
   const std::vector<unsigned int> sizes_1 = {{200, 400}};
   const std::vector<unsigned int> sizes_2 = {{250, 350}};

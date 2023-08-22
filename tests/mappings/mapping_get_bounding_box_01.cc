@@ -34,11 +34,9 @@
 
 template <int dim, int spacedim>
 void
-test_bounding_boxes(const Mapping<dim, spacedim> &mapping,
-                    const unsigned int            degree)
+test_bounding_boxes(const Mapping<dim, spacedim> &mapping, const unsigned int degree)
 {
-  deallog << "Testing " << boost::core::demangle(typeid(mapping).name()) << '('
-          << degree << ')' << std::endl;
+  deallog << "Testing " << boost::core::demangle(typeid(mapping).name()) << '(' << degree << ')' << std::endl;
 
   Triangulation<dim, spacedim> triangulation;
   GridGenerator::hyper_ball(triangulation);
@@ -47,9 +45,8 @@ test_bounding_boxes(const Mapping<dim, spacedim> &mapping,
   const auto boxes = cache.get_cell_bounding_boxes_rtree();
 
   {
-    std::string fname = "boxes_" + std::to_string(dim) + "_" +
-                        std::to_string(spacedim) + "_" +
-                        std::to_string(degree) + ".vtk";
+    std::string fname =
+      "boxes_" + std::to_string(dim) + "_" + std::to_string(spacedim) + "_" + std::to_string(degree) + ".vtk";
     std::ofstream           ofile(fname);
     BoundingBoxDataOut<dim> data_out;
     DataOutBase::VtkFlags   flags;

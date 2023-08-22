@@ -81,26 +81,16 @@ check_boundary(const DoFHandler<dim> &dof, const Mapping<dim> &mapping)
   std::vector<types::global_dof_index> dof_to_boundary_mapping;
   DoFTools::map_dof_to_boundary_indices(dof, dof_to_boundary_mapping);
 
-  SparsityPattern sparsity(dof.n_boundary_dofs(function_map),
-                           dof.max_couplings_between_boundary_dofs());
-  DoFTools::make_boundary_sparsity_pattern(dof,
-                                           function_map,
-                                           dof_to_boundary_mapping,
-                                           sparsity);
+  SparsityPattern sparsity(dof.n_boundary_dofs(function_map), dof.max_couplings_between_boundary_dofs());
+  DoFTools::make_boundary_sparsity_pattern(dof, function_map, dof_to_boundary_mapping, sparsity);
   sparsity.compress();
 
   SparseMatrix<double> matrix;
   matrix.reinit(sparsity);
 
   Vector<double> rhs(dof.n_boundary_dofs(function_map));
-  MatrixTools::create_boundary_mass_matrix(mapping,
-                                           dof,
-                                           face_quadrature,
-                                           matrix,
-                                           function_map,
-                                           rhs,
-                                           dof_to_boundary_mapping,
-                                           &coefficient);
+  MatrixTools::create_boundary_mass_matrix(
+    mapping, dof, face_quadrature, matrix, function_map, rhs, dof_to_boundary_mapping, &coefficient);
 
   // since we only generate
   // output with two digits after
@@ -179,12 +169,10 @@ check()
       switch (test)
         {
           case 0:
-            MatrixTools::create_mass_matrix(
-              mapping, dof, quadrature, matrix, &coefficient);
+            MatrixTools::create_mass_matrix(mapping, dof, quadrature, matrix, &coefficient);
             break;
           case 1:
-            MatrixTools::create_laplace_matrix(
-              mapping, dof, quadrature, matrix, &coefficient);
+            MatrixTools::create_laplace_matrix(mapping, dof, quadrature, matrix, &coefficient);
             break;
           default:
             Assert(false, ExcInternalError());
@@ -197,9 +185,7 @@ check()
       // range of 1 or below,
       // multiply matrix by 100 to
       // make test more sensitive
-      for (SparseMatrix<double>::const_iterator p = matrix.begin();
-           p != matrix.end();
-           ++p)
+      for (SparseMatrix<double>::const_iterator p = matrix.begin(); p != matrix.end(); ++p)
         deallog.get_file_stream() << p->value() * 100 << std::endl;
     };
 

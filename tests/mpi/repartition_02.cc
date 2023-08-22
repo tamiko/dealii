@@ -34,14 +34,11 @@
 
 template <int dim>
 std::vector<char>
-pack_function(
-  const typename parallel::distributed::Triangulation<dim, dim>::cell_iterator
-    &              cell,
-  const CellStatus status)
+pack_function(const typename parallel::distributed::Triangulation<dim, dim>::cell_iterator &cell,
+              const CellStatus                                                              status)
 {
   static int some_number = cell->index();
-  deallog << "packing cell " << cell->id() << " with data=" << some_number
-          << " status=";
+  deallog << "packing cell " << cell->id() << " with data=" << some_number << " status=";
   if (status == CellStatus::cell_will_persist)
     deallog << "PERSIST";
   else if (status == CellStatus::cell_will_be_refined)
@@ -64,18 +61,15 @@ pack_function(
 
 template <int dim>
 void
-unpack_function(
-  const typename parallel::distributed::Triangulation<dim, dim>::cell_iterator
-    &                                                             cell,
-  const CellStatus                                                status,
-  const boost::iterator_range<std::vector<char>::const_iterator> &data_range)
+unpack_function(const typename parallel::distributed::Triangulation<dim, dim>::cell_iterator &cell,
+                const CellStatus                                                              status,
+                const boost::iterator_range<std::vector<char>::const_iterator>               &data_range)
 {
   const int number = Utilities::unpack<int>(data_range.begin(),
                                             data_range.end(),
                                             /*allow_compression=*/false);
 
-  deallog << "unpacking cell " << cell->id() << " with data=" << number
-          << " status=";
+  deallog << "unpacking cell " << cell->id() << " with data=" << number << " status=";
   if (status == CellStatus::cell_will_persist)
     deallog << "PERSIST";
   else if (status == CellStatus::cell_will_be_refined)
@@ -110,19 +104,18 @@ test()
       GridGenerator::hyper_cube(tr);
       tr.refine_global(1);
 
-      deallog << "locally owned cells: " << tr.n_locally_owned_active_cells()
-              << " / " << tr.n_global_active_cells() << std::endl;
+      deallog << "locally owned cells: " << tr.n_locally_owned_active_cells() << " / " << tr.n_global_active_cells()
+              << std::endl;
 
       deallog << "* global refine:" << std::endl;
 
-      unsigned int handle =
-        tr.register_data_attach(pack_function<dim>,
-                                /*returns_variable_size_data=*/false);
+      unsigned int handle = tr.register_data_attach(pack_function<dim>,
+                                                    /*returns_variable_size_data=*/false);
 
       tr.refine_global(1);
 
-      deallog << "locally owned cells: " << tr.n_locally_owned_active_cells()
-              << " / " << tr.n_global_active_cells() << std::endl;
+      deallog << "locally owned cells: " << tr.n_locally_owned_active_cells() << " / " << tr.n_global_active_cells()
+              << std::endl;
 
       tr.notify_ready_to_unpack(handle, unpack_function<dim>);
 
@@ -139,8 +132,8 @@ test()
 
       // tr.write_mesh_vtk("b");
 
-      deallog << "locally owned cells: " << tr.n_locally_owned_active_cells()
-              << " / " << tr.n_global_active_cells() << std::endl;
+      deallog << "locally owned cells: " << tr.n_locally_owned_active_cells() << " / " << tr.n_global_active_cells()
+              << std::endl;
 
       tr.notify_ready_to_unpack(handle, unpack_function<dim>);
 

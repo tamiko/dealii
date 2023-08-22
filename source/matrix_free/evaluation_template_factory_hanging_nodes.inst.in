@@ -14,12 +14,10 @@
 // ---------------------------------------------------------------------
 
 
-for (deal_II_dimension : DIMENSIONS;
-     deal_II_scalar_vectorized : REAL_SCALARS_VECTORIZED)
+for (deal_II_dimension : DIMENSIONS; deal_II_scalar_vectorized : REAL_SCALARS_VECTORIZED)
   {
     // hanging nodes
-    template struct dealii::internal::FEEvaluationHangingNodesFactory<
-      deal_II_dimension,
-      deal_II_scalar_vectorized::value_type,
-      deal_II_scalar_vectorized>;
+    template struct dealii::internal::FEEvaluationHangingNodesFactory<deal_II_dimension,
+                                                                      deal_II_scalar_vectorized::value_type,
+                                                                      deal_II_scalar_vectorized>;
   }

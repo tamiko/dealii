@@ -63,9 +63,7 @@ test()
     fe.push_back(FE_Q<dim>(i));
 
   DoFHandler<dim> dof_handler(tr);
-  for (typename DoFHandler<dim>::cell_iterator cell = dof_handler.begin();
-       cell != dof_handler.end();
-       ++cell)
+  for (typename DoFHandler<dim>::cell_iterator cell = dof_handler.begin(); cell != dof_handler.end(); ++cell)
     if (cell->has_children() == false)
       cell->set_active_fe_index(cell->index() % fe.size());
 
@@ -76,9 +74,7 @@ test()
   Vector<double> solution2(dof_handler.n_dofs());
 
   // do the test
-  for (typename DoFHandler<dim>::active_cell_iterator cell =
-         dof_handler.begin_active();
-       cell != dof_handler.end();
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(); cell != dof_handler.end();
        ++cell)
     {
       solution1 = 0;
@@ -92,9 +88,7 @@ test()
       cell->set_dof_values_by_interpolation(local, solution1);
 
       // then do the same with the "correct", local fe_index
-      cell->set_dof_values_by_interpolation(local,
-                                            solution2,
-                                            cell->active_fe_index());
+      cell->set_dof_values_by_interpolation(local, solution2, cell->active_fe_index());
 
       // now verify correctness
       AssertThrow(solution1 == solution2, ExcInternalError());

@@ -69,22 +69,13 @@ check()
         Assert(false, ExcNotImplemented());
     }
 
-  GridGenerator::subdivided_hyper_rectangle(triangulation,
-                                            subdivisions,
-                                            p1,
-                                            p2);
+  GridGenerator::subdivided_hyper_rectangle(triangulation, subdivisions, p1, p2);
 
   // Create FE Collection and insert two FE objects
   // (RT0 - DGQ0 - Q1 ^ dim) and (Nothing - Nothing - Q2 ^ dim)
   hp::FECollection<dim> fe_collection;
-  fe_collection.push_back(FESystem<dim>(
-    FE_Nothing<dim>(dim), 1, FE_Nothing<dim>(), 1, FE_Q<dim>(2), dim));
-  fe_collection.push_back(FESystem<dim>(FE_RaviartThomasNodal<dim>(0),
-                                        1,
-                                        FE_DGQ<dim>(0),
-                                        1,
-                                        FE_Nothing<dim>(),
-                                        dim));
+  fe_collection.push_back(FESystem<dim>(FE_Nothing<dim>(dim), 1, FE_Nothing<dim>(), 1, FE_Q<dim>(2), dim));
+  fe_collection.push_back(FESystem<dim>(FE_RaviartThomasNodal<dim>(0), 1, FE_DGQ<dim>(0), 1, FE_Nothing<dim>(), dim));
 
   DoFHandler<dim> dof_handler(triangulation);
   dof_handler.begin_active()->set_active_fe_index(1);
@@ -96,10 +87,8 @@ check()
   // RT and Q
   DynamicSparsityPattern dsp(dof_handler.n_dofs(), dof_handler.n_dofs());
 
-  Table<2, DoFTools::Coupling> cell_coupling(fe_collection.n_components(),
-                                             fe_collection.n_components());
-  Table<2, DoFTools::Coupling> face_coupling(fe_collection.n_components(),
-                                             fe_collection.n_components());
+  Table<2, DoFTools::Coupling> cell_coupling(fe_collection.n_components(), fe_collection.n_components());
+  Table<2, DoFTools::Coupling> face_coupling(fe_collection.n_components(), fe_collection.n_components());
 
   for (unsigned int c = 0; c < fe_collection.n_components(); ++c)
     for (unsigned int d = 0; d < fe_collection.n_components(); ++d)
@@ -117,10 +106,7 @@ check()
           face_coupling[c][d] = DoFTools::always;
       }
 
-  DoFTools::make_flux_sparsity_pattern(dof_handler,
-                                       dsp,
-                                       cell_coupling,
-                                       face_coupling);
+  DoFTools::make_flux_sparsity_pattern(dof_handler, dsp, cell_coupling, face_coupling);
   dsp.compress();
 
   // Print sparsity pattern

@@ -164,10 +164,8 @@ public:
   /**
    * Convert a boost::geometry::point to a dealii::Point.
    */
-  template <std::size_t dummy_dim,
-            std::enable_if_t<(dim == dummy_dim) && (dummy_dim != 0), int> = 0>
-  Point(const boost::geometry::model::
-          point<Number, dummy_dim, boost::geometry::cs::cartesian> &boost_pt);
+  template <std::size_t dummy_dim, std::enable_if_t<(dim == dummy_dim) && (dummy_dim != 0), int> = 0>
+  Point(const boost::geometry::model::point<Number, dummy_dim, boost::geometry::cs::cartesian> &boost_pt);
 
   /**
    * Return a unit vector in coordinate direction <tt>i</tt>, i.e., a vector
@@ -193,7 +191,7 @@ public:
    * @note This function can also be used in @ref GlossDevice "device" code.
    */
   DEAL_II_HOST_DEVICE Number &
-                      operator()(const unsigned int index);
+  operator()(const unsigned int index);
 
   /**
    * Assignment operator from Tensor<1, dim, Number> with different underlying
@@ -265,11 +263,8 @@ public:
    * @relatesalso EnableIfScalar
    */
   template <typename OtherNumber>
-  DEAL_II_HOST_DEVICE Point<
-    dim,
-    typename ProductType<Number,
-                         typename EnableIfScalar<OtherNumber>::type>::type>
-  operator*(const OtherNumber) const;
+  DEAL_II_HOST_DEVICE Point<dim, typename ProductType<Number, typename EnableIfScalar<OtherNumber>::type>::type>
+                      operator*(const OtherNumber) const;
 
   /**
    * Divide the current point by a factor.
@@ -277,11 +272,8 @@ public:
    * @note This function can also be used in @ref GlossDevice "device" code.
    */
   template <typename OtherNumber>
-  DEAL_II_HOST_DEVICE Point<
-    dim,
-    typename ProductType<Number,
-                         typename EnableIfScalar<OtherNumber>::type>::type>
-  operator/(const OtherNumber) const;
+  DEAL_II_HOST_DEVICE Point<dim, typename ProductType<Number, typename EnableIfScalar<OtherNumber>::type>::type>
+                      operator/(const OtherNumber) const;
 
   /**
    * Return the scalar product of the vectors representing two points.
@@ -354,8 +346,7 @@ inline DEAL_II_HOST_DEVICE Point<dim, Number>::Point() // NOLINT
 
 template <int dim, typename Number>
 DEAL_II_CXX20_REQUIRES(dim >= 0)
-inline DEAL_II_HOST_DEVICE Point<dim, Number>::Point(
-  const Tensor<1, dim, Number> &t)
+inline DEAL_II_HOST_DEVICE Point<dim, Number>::Point(const Tensor<1, dim, Number> &t)
   : Tensor<1, dim, Number>(t)
 {}
 
@@ -366,11 +357,10 @@ DEAL_II_CXX20_REQUIRES(dim >= 0)
 inline DEAL_II_HOST_DEVICE Point<dim, Number>::Point(const Number x)
 {
   Assert(dim == 1,
-         ExcMessage(
-           "You can only initialize Point<1> objects using the constructor "
-           "that takes only one argument. Point<dim> objects with dim!=1 "
-           "require initialization with the constructor that takes 'dim' "
-           "arguments."));
+         ExcMessage("You can only initialize Point<1> objects using the constructor "
+                    "that takes only one argument. Point<dim> objects with dim!=1 "
+                    "require initialization with the constructor that takes 'dim' "
+                    "arguments."));
 
   // we can only get here if we pass the assertion. use the switch anyway so
   // as to avoid compiler warnings about uninitialized elements or writing
@@ -389,15 +379,13 @@ inline DEAL_II_HOST_DEVICE Point<dim, Number>::Point(const Number x)
 
 template <int dim, typename Number>
 DEAL_II_CXX20_REQUIRES(dim >= 0)
-inline DEAL_II_HOST_DEVICE Point<dim, Number>::Point(const Number x,
-                                                     const Number y)
+inline DEAL_II_HOST_DEVICE Point<dim, Number>::Point(const Number x, const Number y)
 {
   Assert(dim == 2,
-         ExcMessage(
-           "You can only initialize Point<2> objects using the constructor "
-           "that takes two arguments. Point<dim> objects with dim!=2 "
-           "require initialization with the constructor that takes 'dim' "
-           "arguments."));
+         ExcMessage("You can only initialize Point<2> objects using the constructor "
+                    "that takes two arguments. Point<dim> objects with dim!=2 "
+                    "require initialization with the constructor that takes 'dim' "
+                    "arguments."));
 
   // we can only get here if we pass the assertion. use the indirection anyway
   // so as to avoid compiler warnings about uninitialized elements or writing
@@ -411,16 +399,13 @@ inline DEAL_II_HOST_DEVICE Point<dim, Number>::Point(const Number x,
 
 template <int dim, typename Number>
 DEAL_II_CXX20_REQUIRES(dim >= 0)
-inline DEAL_II_HOST_DEVICE Point<dim, Number>::Point(const Number x,
-                                                     const Number y,
-                                                     const Number z)
+inline DEAL_II_HOST_DEVICE Point<dim, Number>::Point(const Number x, const Number y, const Number z)
 {
   Assert(dim == 3,
-         ExcMessage(
-           "You can only initialize Point<3> objects using the constructor "
-           "that takes three arguments. Point<dim> objects with dim!=3 "
-           "require initialization with the constructor that takes 'dim' "
-           "arguments."));
+         ExcMessage("You can only initialize Point<3> objects using the constructor "
+                    "that takes three arguments. Point<dim> objects with dim!=3 "
+                    "require initialization with the constructor that takes 'dim' "
+                    "arguments."));
 
   // we can only get here if we pass the assertion. use the indirection anyway
   // so as to avoid compiler warnings about uninitialized elements or writing
@@ -436,11 +421,9 @@ inline DEAL_II_HOST_DEVICE Point<dim, Number>::Point(const Number x,
 
 template <int dim, typename Number>
 DEAL_II_CXX20_REQUIRES(dim >= 0)
-template <std::size_t dummy_dim,
-          std::enable_if_t<(dim == dummy_dim) && (dummy_dim != 0), int>>
+template <std::size_t dummy_dim, std::enable_if_t<(dim == dummy_dim) && (dummy_dim != 0), int>>
 inline Point<dim, Number>::Point(
-  const boost::geometry::model::
-    point<Number, dummy_dim, boost::geometry::cs::cartesian> &boost_pt)
+  const boost::geometry::model::point<Number, dummy_dim, boost::geometry::cs::cartesian> &boost_pt)
 {
   Assert(dim <= 3, ExcNotImplemented());
   this->values[0]                = boost::geometry::get<0>(boost_pt);
@@ -458,8 +441,7 @@ inline Point<dim, Number>::Point(
 
 template <int dim, typename Number>
 DEAL_II_CXX20_REQUIRES(dim >= 0)
-inline DEAL_II_HOST_DEVICE Point<dim, Number> Point<dim, Number>::unit_vector(
-  unsigned int i)
+inline DEAL_II_HOST_DEVICE Point<dim, Number> Point<dim, Number>::unit_vector(unsigned int i)
 {
   Point<dim, Number> p;
   p[i] = 1.;
@@ -469,8 +451,7 @@ inline DEAL_II_HOST_DEVICE Point<dim, Number> Point<dim, Number>::unit_vector(
 
 template <int dim, typename Number>
 DEAL_II_CXX20_REQUIRES(dim >= 0)
-inline DEAL_II_HOST_DEVICE Number Point<dim, Number>::operator()(
-  const unsigned int index) const
+inline DEAL_II_HOST_DEVICE Number Point<dim, Number>::operator()(const unsigned int index) const
 {
   AssertIndexRange(static_cast<int>(index), dim);
   return this->values[index];
@@ -480,8 +461,7 @@ inline DEAL_II_HOST_DEVICE Number Point<dim, Number>::operator()(
 
 template <int dim, typename Number>
 DEAL_II_CXX20_REQUIRES(dim >= 0)
-inline DEAL_II_HOST_DEVICE Number &Point<dim, Number>::operator()(
-  const unsigned int index)
+inline DEAL_II_HOST_DEVICE Number &Point<dim, Number>::operator()(const unsigned int index)
 {
   AssertIndexRange(static_cast<int>(index), dim);
   return this->values[index];
@@ -492,8 +472,7 @@ inline DEAL_II_HOST_DEVICE Number &Point<dim, Number>::operator()(
 template <int dim, typename Number>
 DEAL_II_CXX20_REQUIRES(dim >= 0)
 template <typename OtherNumber>
-inline DEAL_II_ALWAYS_INLINE Point<dim, Number> &Point<dim, Number>::operator=(
-  const Tensor<1, dim, OtherNumber> &p)
+inline DEAL_II_ALWAYS_INLINE Point<dim, Number> &Point<dim, Number>::operator=(const Tensor<1, dim, OtherNumber> &p)
 {
   Tensor<1, dim, Number>::operator=(p);
   return *this;
@@ -503,8 +482,7 @@ inline DEAL_II_ALWAYS_INLINE Point<dim, Number> &Point<dim, Number>::operator=(
 
 template <int dim, typename Number>
 DEAL_II_CXX20_REQUIRES(dim >= 0)
-inline DEAL_II_HOST_DEVICE Point<dim, Number> Point<dim, Number>::operator+(
-  const Tensor<1, dim, Number> &p) const
+inline DEAL_II_HOST_DEVICE Point<dim, Number> Point<dim, Number>::operator+(const Tensor<1, dim, Number> &p) const
 {
   Point<dim, Number> tmp = *this;
   tmp += p;
@@ -515,8 +493,7 @@ inline DEAL_II_HOST_DEVICE Point<dim, Number> Point<dim, Number>::operator+(
 
 template <int dim, typename Number>
 DEAL_II_CXX20_REQUIRES(dim >= 0)
-inline DEAL_II_HOST_DEVICE Tensor<1, dim, Number> Point<dim, Number>::operator-(
-  const Point<dim, Number> &p) const
+inline DEAL_II_HOST_DEVICE Tensor<1, dim, Number> Point<dim, Number>::operator-(const Point<dim, Number> &p) const
 {
   return (Tensor<1, dim, Number>(*this) -= p);
 }
@@ -525,8 +502,7 @@ inline DEAL_II_HOST_DEVICE Tensor<1, dim, Number> Point<dim, Number>::operator-(
 
 template <int dim, typename Number>
 DEAL_II_CXX20_REQUIRES(dim >= 0)
-inline DEAL_II_HOST_DEVICE Point<dim, Number> Point<dim, Number>::operator-(
-  const Tensor<1, dim, Number> &p) const
+inline DEAL_II_HOST_DEVICE Point<dim, Number> Point<dim, Number>::operator-(const Tensor<1, dim, Number> &p) const
 {
   Point<dim, Number> tmp = *this;
   tmp -= p;
@@ -537,8 +513,7 @@ inline DEAL_II_HOST_DEVICE Point<dim, Number> Point<dim, Number>::operator-(
 
 template <int dim, typename Number>
 DEAL_II_CXX20_REQUIRES(dim >= 0)
-inline DEAL_II_HOST_DEVICE Point<dim, Number> Point<dim, Number>::operator-()
-  const
+inline DEAL_II_HOST_DEVICE Point<dim, Number> Point<dim, Number>::operator-() const
 {
   Point<dim, Number> result;
   for (unsigned int i = 0; i < dim; ++i)
@@ -551,10 +526,9 @@ inline DEAL_II_HOST_DEVICE Point<dim, Number> Point<dim, Number>::operator-()
 template <int dim, typename Number>
 DEAL_II_CXX20_REQUIRES(dim >= 0)
 template <typename OtherNumber>
-inline DEAL_II_HOST_DEVICE Point<
-  dim,
-  typename ProductType<Number, typename EnableIfScalar<OtherNumber>::type>::
-    type> Point<dim, Number>::operator*(const OtherNumber factor) const
+inline DEAL_II_HOST_DEVICE
+  Point<dim, typename ProductType<Number, typename EnableIfScalar<OtherNumber>::type>::type> Point<dim, Number>::
+  operator*(const OtherNumber factor) const
 {
   Point<dim, typename ProductType<Number, OtherNumber>::type> tmp;
   for (unsigned int i = 0; i < dim; ++i)
@@ -567,16 +541,12 @@ inline DEAL_II_HOST_DEVICE Point<
 template <int dim, typename Number>
 DEAL_II_CXX20_REQUIRES(dim >= 0)
 template <typename OtherNumber>
-inline DEAL_II_HOST_DEVICE Point<
-  dim,
-  typename ProductType<Number, typename EnableIfScalar<OtherNumber>::type>::
-    type> Point<dim, Number>::operator/(const OtherNumber factor) const
+inline DEAL_II_HOST_DEVICE
+  Point<dim, typename ProductType<Number, typename EnableIfScalar<OtherNumber>::type>::type> Point<dim, Number>::
+  operator/(const OtherNumber factor) const
 {
   const Tensor<1, dim, Number> &base_object = *this;
-  return Point<
-    dim,
-    typename ProductType<Number,
-                         typename EnableIfScalar<OtherNumber>::type>::type>(
+  return Point<dim, typename ProductType<Number, typename EnableIfScalar<OtherNumber>::type>::type>(
     dealii::operator/(base_object, factor));
 }
 
@@ -584,8 +554,7 @@ inline DEAL_II_HOST_DEVICE Point<
 
 template <int dim, typename Number>
 DEAL_II_CXX20_REQUIRES(dim >= 0)
-inline DEAL_II_HOST_DEVICE Number Point<dim, Number>::operator*(
-  const Tensor<1, dim, Number> &p) const
+inline DEAL_II_HOST_DEVICE Number Point<dim, Number>::operator*(const Tensor<1, dim, Number> &p) const
 {
   Number res = Number();
   for (unsigned int i = 0; i < dim; ++i)
@@ -596,8 +565,7 @@ inline DEAL_II_HOST_DEVICE Number Point<dim, Number>::operator*(
 
 template <int dim, typename Number>
 DEAL_II_CXX20_REQUIRES(dim >= 0)
-inline DEAL_II_HOST_DEVICE typename numbers::NumberTraits<Number>::real_type
-  Point<dim, Number>::square() const
+inline DEAL_II_HOST_DEVICE typename numbers::NumberTraits<Number>::real_type Point<dim, Number>::square() const
 {
   return this->norm_square();
 }
@@ -606,8 +574,8 @@ inline DEAL_II_HOST_DEVICE typename numbers::NumberTraits<Number>::real_type
 
 template <int dim, typename Number>
 DEAL_II_CXX20_REQUIRES(dim >= 0)
-inline DEAL_II_HOST_DEVICE typename numbers::NumberTraits<Number>::real_type
-  Point<dim, Number>::distance(const Point<dim, Number> &p) const
+inline DEAL_II_HOST_DEVICE
+  typename numbers::NumberTraits<Number>::real_type Point<dim, Number>::distance(const Point<dim, Number> &p) const
 {
   return std::sqrt(distance_square(p));
 }
@@ -616,8 +584,8 @@ inline DEAL_II_HOST_DEVICE typename numbers::NumberTraits<Number>::real_type
 
 template <int dim, typename Number>
 DEAL_II_CXX20_REQUIRES(dim >= 0)
-inline DEAL_II_HOST_DEVICE typename numbers::NumberTraits<Number>::real_type
-  Point<dim, Number>::distance_square(const Point<dim, Number> &p) const
+inline DEAL_II_HOST_DEVICE typename numbers::NumberTraits<Number>::real_type Point<dim, Number>::distance_square(
+  const Point<dim, Number> &p) const
 {
   Number sum = internal::NumberType<Number>::value(0.0);
   for (unsigned int i = 0; i < dim; ++i)
@@ -655,11 +623,8 @@ inline void Point<dim, Number>::serialize(Archive &ar, const unsigned int)
  * @relates Point
  */
 template <int dim, typename Number, typename OtherNumber>
-inline DEAL_II_HOST_DEVICE
-  Point<dim,
-        typename ProductType<Number,
-                             typename EnableIfScalar<OtherNumber>::type>::type>
-  operator*(const OtherNumber factor, const Point<dim, Number> &p)
+inline DEAL_II_HOST_DEVICE Point<dim, typename ProductType<Number, typename EnableIfScalar<OtherNumber>::type>::type>
+                           operator*(const OtherNumber factor, const Point<dim, Number> &p)
 {
   return p * factor;
 }

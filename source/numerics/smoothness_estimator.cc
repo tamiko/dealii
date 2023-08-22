@@ -100,42 +100,35 @@ namespace SmoothnessEstimator
     template <int dim, int spacedim, typename VectorType>
     void
     coefficient_decay(FESeries::Legendre<dim, spacedim> &fe_legendre,
-                      const DoFHandler<dim, spacedim> &  dof_handler,
-                      const VectorType &                 solution,
-                      Vector<float> &                    smoothness_indicators,
+                      const DoFHandler<dim, spacedim>   &dof_handler,
+                      const VectorType                  &solution,
+                      Vector<float>                     &smoothness_indicators,
                       const VectorTools::NormType        regression_strategy,
-                      const double smallest_abs_coefficient,
-                      const bool   only_flagged_cells)
+                      const double                       smallest_abs_coefficient,
+                      const bool                         only_flagged_cells)
     {
-      using number = typename VectorType::value_type;
-      using number_coeff =
-        typename FESeries::Legendre<dim, spacedim>::CoefficientType;
+      using number       = typename VectorType::value_type;
+      using number_coeff = typename FESeries::Legendre<dim, spacedim>::CoefficientType;
 
-      smoothness_indicators.reinit(
-        dof_handler.get_triangulation().n_active_cells());
+      smoothness_indicators.reinit(dof_handler.get_triangulation().n_active_cells());
 
       unsigned int             n_modes;
       Table<dim, number_coeff> expansion_coefficients;
 
-      Vector<number>      local_dof_values;
-      std::vector<double> converted_indices;
+      Vector<number>                                            local_dof_values;
+      std::vector<double>                                       converted_indices;
       std::pair<std::vector<unsigned int>, std::vector<double>> res;
-      for (const auto &cell : dof_handler.active_cell_iterators() |
-                                IteratorFilters::LocallyOwnedCell())
+      for (const auto &cell : dof_handler.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
         {
-          if (!only_flagged_cells || cell->refine_flag_set() ||
-              cell->coarsen_flag_set())
+          if (!only_flagged_cells || cell->refine_flag_set() || cell->coarsen_flag_set())
             {
-              n_modes = fe_legendre.get_n_coefficients_per_direction(
-                cell->active_fe_index());
+              n_modes = fe_legendre.get_n_coefficients_per_direction(cell->active_fe_index());
               resize(expansion_coefficients, n_modes);
 
               local_dof_values.reinit(cell->get_fe().n_dofs_per_cell());
               cell->get_dof_values(solution, local_dof_values);
 
-              fe_legendre.calculate(local_dof_values,
-                                    cell->active_fe_index(),
-                                    expansion_coefficients);
+              fe_legendre.calculate(local_dof_values, cell->active_fe_index(), expansion_coefficients);
 
               // We fit our exponential decay of expansion coefficients to the
               // provided regression_strategy on each possible value of |k|.
@@ -143,9 +136,7 @@ namespace SmoothnessEstimator
               // rework coefficients into the desired format.
               res = FESeries::process_coefficients<dim>(
                 expansion_coefficients,
-                [n_modes](const TableIndices<dim> &indices) {
-                  return index_sum_less_than_N(indices, n_modes);
-                },
+                [n_modes](const TableIndices<dim> &indices) { return index_sum_less_than_N(indices, n_modes); },
                 regression_strategy,
                 smallest_abs_coefficient);
 
@@ -162,16 +153,14 @@ namespace SmoothnessEstimator
                   for (auto &residual_element : res.second)
                     residual_element = std::log(residual_element);
 
-                  const std::pair<double, double> fit =
-                    FESeries::linear_regression(converted_indices, res.second);
-                  regularity = static_cast<float>(-fit.first);
+                  const std::pair<double, double> fit = FESeries::linear_regression(converted_indices, res.second);
+                  regularity                          = static_cast<float>(-fit.first);
                 }
 
               smoothness_indicators(cell->active_cell_index()) = regularity;
             }
           else
-            smoothness_indicators(cell->active_cell_index()) =
-              numbers::signaling_nan<float>();
+            smoothness_indicators(cell->active_cell_index()) = numbers::signaling_nan<float>();
         }
     }
 
@@ -179,45 +168,37 @@ namespace SmoothnessEstimator
 
     template <int dim, int spacedim, typename VectorType>
     void
-    coefficient_decay_per_direction(
-      FESeries::Legendre<dim, spacedim> &fe_legendre,
-      const DoFHandler<dim, spacedim> &  dof_handler,
-      const VectorType &                 solution,
-      Vector<float> &                    smoothness_indicators,
-      const ComponentMask &              coefficients_predicate,
-      const double                       smallest_abs_coefficient,
-      const bool                         only_flagged_cells)
+    coefficient_decay_per_direction(FESeries::Legendre<dim, spacedim> &fe_legendre,
+                                    const DoFHandler<dim, spacedim>   &dof_handler,
+                                    const VectorType                  &solution,
+                                    Vector<float>                     &smoothness_indicators,
+                                    const ComponentMask               &coefficients_predicate,
+                                    const double                       smallest_abs_coefficient,
+                                    const bool                         only_flagged_cells)
     {
-      Assert(smallest_abs_coefficient >= 0.,
-             ExcMessage("smallest_abs_coefficient should be non-negative."));
+      Assert(smallest_abs_coefficient >= 0., ExcMessage("smallest_abs_coefficient should be non-negative."));
 
-      using number = typename VectorType::value_type;
-      using number_coeff =
-        typename FESeries::Legendre<dim, spacedim>::CoefficientType;
+      using number       = typename VectorType::value_type;
+      using number_coeff = typename FESeries::Legendre<dim, spacedim>::CoefficientType;
 
-      smoothness_indicators.reinit(
-        dof_handler.get_triangulation().n_active_cells());
+      smoothness_indicators.reinit(dof_handler.get_triangulation().n_active_cells());
 
       unsigned int             n_modes;
       Table<dim, number_coeff> expansion_coefficients;
       Vector<number>           local_dof_values;
 
       // auxiliary vector to do linear regression
-      const unsigned int max_degree =
-        dof_handler.get_fe_collection().max_degree();
+      const unsigned int max_degree = dof_handler.get_fe_collection().max_degree();
 
       std::vector<double> x, y;
       x.reserve(max_degree);
       y.reserve(max_degree);
 
-      for (const auto &cell : dof_handler.active_cell_iterators() |
-                                IteratorFilters::LocallyOwnedCell())
+      for (const auto &cell : dof_handler.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
         {
-          if (!only_flagged_cells || cell->refine_flag_set() ||
-              cell->coarsen_flag_set())
+          if (!only_flagged_cells || cell->refine_flag_set() || cell->coarsen_flag_set())
             {
-              n_modes = fe_legendre.get_n_coefficients_per_direction(
-                cell->active_fe_index());
+              n_modes = fe_legendre.get_n_coefficients_per_direction(cell->active_fe_index());
               resize(expansion_coefficients, n_modes);
 
               const unsigned int pe = cell->get_fe().degree;
@@ -231,9 +212,7 @@ namespace SmoothnessEstimator
               local_dof_values.reinit(cell->get_fe().n_dofs_per_cell());
               cell->get_dof_values(solution, local_dof_values);
 
-              fe_legendre.calculate(local_dof_values,
-                                    cell->active_fe_index(),
-                                    expansion_coefficients);
+              fe_legendre.calculate(local_dof_values, cell->active_fe_index(), expansion_coefficients);
 
               // choose the smallest decay of coefficients in each direction,
               // i.e. the maximum decay slope k_v as in exp(-k_v)
@@ -249,9 +228,8 @@ namespace SmoothnessEstimator
                     if (coefficients_predicate[i])
                       {
                         TableIndices<dim> ind;
-                        ind[d] = i;
-                        const double coeff_abs =
-                          std::abs(expansion_coefficients(ind));
+                        ind[d]                 = i;
+                        const double coeff_abs = std::abs(expansion_coefficients(ind));
 
                         if (coeff_abs > smallest_abs_coefficient)
                           {
@@ -265,20 +243,17 @@ namespace SmoothnessEstimator
                   if (x.size() < 2)
                     continue;
 
-                  const std::pair<double, double> fit =
-                    FESeries::linear_regression(x, y);
+                  const std::pair<double, double> fit = FESeries::linear_regression(x, y);
 
                   // decay corresponds to negative slope
                   // take the lesser negative slope along each direction
                   k_v = std::min(k_v, -fit.first);
                 }
 
-              smoothness_indicators(cell->active_cell_index()) =
-                static_cast<float>(k_v);
+              smoothness_indicators(cell->active_cell_index()) = static_cast<float>(k_v);
             }
           else
-            smoothness_indicators(cell->active_cell_index()) =
-              numbers::signaling_nan<float>();
+            smoothness_indicators(cell->active_cell_index()) = numbers::signaling_nan<float>();
         }
     }
 
@@ -286,8 +261,7 @@ namespace SmoothnessEstimator
 
     template <int dim, int spacedim>
     FESeries::Legendre<dim, spacedim>
-    default_fe_series(const hp::FECollection<dim, spacedim> &fe_collection,
-                      const unsigned int                     component)
+    default_fe_series(const hp::FECollection<dim, spacedim> &fe_collection, const unsigned int component)
     {
       // Default number of coefficients per direction.
       //
@@ -321,10 +295,7 @@ namespace SmoothnessEstimator
           q_collection.push_back(quadrature_sorted);
         }
 
-      return FESeries::Legendre<dim, spacedim>(n_coefficients_per_direction,
-                                               fe_collection,
-                                               q_collection,
-                                               component);
+      return FESeries::Legendre<dim, spacedim>(n_coefficients_per_direction, fe_collection, q_collection, component);
     }
   } // namespace Legendre
 
@@ -350,9 +321,7 @@ namespace SmoothnessEstimator
        */
       template <int dim>
       std::pair<bool, unsigned int>
-      index_norm_greater_than_zero_and_less_than_N_squared(
-        const TableIndices<dim> &ind,
-        const unsigned int       N)
+      index_norm_greater_than_zero_and_less_than_N_squared(const TableIndices<dim> &ind, const unsigned int N)
       {
         unsigned int v = 0;
         for (unsigned int i = 0; i < dim; ++i)
@@ -367,34 +336,29 @@ namespace SmoothnessEstimator
     template <int dim, int spacedim, typename VectorType>
     void
     coefficient_decay(FESeries::Fourier<dim, spacedim> &fe_fourier,
-                      const DoFHandler<dim, spacedim> & dof_handler,
-                      const VectorType &                solution,
-                      Vector<float> &                   smoothness_indicators,
+                      const DoFHandler<dim, spacedim>  &dof_handler,
+                      const VectorType                 &solution,
+                      Vector<float>                    &smoothness_indicators,
                       const VectorTools::NormType       regression_strategy,
-                      const double smallest_abs_coefficient,
-                      const bool   only_flagged_cells)
+                      const double                      smallest_abs_coefficient,
+                      const bool                        only_flagged_cells)
     {
-      using number = typename VectorType::value_type;
-      using number_coeff =
-        typename FESeries::Fourier<dim, spacedim>::CoefficientType;
+      using number       = typename VectorType::value_type;
+      using number_coeff = typename FESeries::Fourier<dim, spacedim>::CoefficientType;
 
-      smoothness_indicators.reinit(
-        dof_handler.get_triangulation().n_active_cells());
+      smoothness_indicators.reinit(dof_handler.get_triangulation().n_active_cells());
 
       unsigned int             n_modes;
       Table<dim, number_coeff> expansion_coefficients;
 
-      Vector<number>      local_dof_values;
-      std::vector<double> ln_k;
+      Vector<number>                                            local_dof_values;
+      std::vector<double>                                       ln_k;
       std::pair<std::vector<unsigned int>, std::vector<double>> res;
-      for (const auto &cell : dof_handler.active_cell_iterators() |
-                                IteratorFilters::LocallyOwnedCell())
+      for (const auto &cell : dof_handler.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
         {
-          if (!only_flagged_cells || cell->refine_flag_set() ||
-              cell->coarsen_flag_set())
+          if (!only_flagged_cells || cell->refine_flag_set() || cell->coarsen_flag_set())
             {
-              n_modes = fe_fourier.get_n_coefficients_per_direction(
-                cell->active_fe_index());
+              n_modes = fe_fourier.get_n_coefficients_per_direction(cell->active_fe_index());
               resize(expansion_coefficients, n_modes);
 
               // Inside the loop, we first need to get the values of the local
@@ -404,9 +368,7 @@ namespace SmoothnessEstimator
               local_dof_values.reinit(cell->get_fe().n_dofs_per_cell());
               cell->get_dof_values(solution, local_dof_values);
 
-              fe_fourier.calculate(local_dof_values,
-                                   cell->active_fe_index(),
-                                   expansion_coefficients);
+              fe_fourier.calculate(local_dof_values, cell->active_fe_index(), expansion_coefficients);
 
               // We fit our exponential decay of expansion coefficients to the
               // provided regression_strategy on each possible value of |k|.
@@ -415,8 +377,7 @@ namespace SmoothnessEstimator
               res = FESeries::process_coefficients<dim>(
                 expansion_coefficients,
                 [n_modes](const TableIndices<dim> &indices) {
-                  return index_norm_greater_than_zero_and_less_than_N_squared(
-                    indices, n_modes);
+                  return index_norm_greater_than_zero_and_less_than_N_squared(indices, n_modes);
                 },
                 regression_strategy,
                 smallest_abs_coefficient);
@@ -444,19 +405,16 @@ namespace SmoothnessEstimator
                   for (auto &residual_element : res.second)
                     residual_element = std::log(residual_element);
 
-                  const std::pair<double, double> fit =
-                    FESeries::linear_regression(ln_k, res.second);
+                  const std::pair<double, double> fit = FESeries::linear_regression(ln_k, res.second);
                   // Compute regularity s = mu - dim/2
-                  regularity = static_cast<float>(-fit.first) -
-                               ((dim > 1) ? (.5 * dim) : 0);
+                  regularity = static_cast<float>(-fit.first) - ((dim > 1) ? (.5 * dim) : 0);
                 }
 
               // Store result in the vector of estimated values for each cell.
               smoothness_indicators(cell->active_cell_index()) = regularity;
             }
           else
-            smoothness_indicators(cell->active_cell_index()) =
-              numbers::signaling_nan<float>();
+            smoothness_indicators(cell->active_cell_index()) = numbers::signaling_nan<float>();
         }
     }
 
@@ -464,45 +422,37 @@ namespace SmoothnessEstimator
 
     template <int dim, int spacedim, typename VectorType>
     void
-    coefficient_decay_per_direction(
-      FESeries::Fourier<dim, spacedim> &fe_fourier,
-      const DoFHandler<dim, spacedim> & dof_handler,
-      const VectorType &                solution,
-      Vector<float> &                   smoothness_indicators,
-      const ComponentMask &             coefficients_predicate,
-      const double                      smallest_abs_coefficient,
-      const bool                        only_flagged_cells)
+    coefficient_decay_per_direction(FESeries::Fourier<dim, spacedim> &fe_fourier,
+                                    const DoFHandler<dim, spacedim>  &dof_handler,
+                                    const VectorType                 &solution,
+                                    Vector<float>                    &smoothness_indicators,
+                                    const ComponentMask              &coefficients_predicate,
+                                    const double                      smallest_abs_coefficient,
+                                    const bool                        only_flagged_cells)
     {
-      Assert(smallest_abs_coefficient >= 0.,
-             ExcMessage("smallest_abs_coefficient should be non-negative."));
+      Assert(smallest_abs_coefficient >= 0., ExcMessage("smallest_abs_coefficient should be non-negative."));
 
-      using number = typename VectorType::value_type;
-      using number_coeff =
-        typename FESeries::Fourier<dim, spacedim>::CoefficientType;
+      using number       = typename VectorType::value_type;
+      using number_coeff = typename FESeries::Fourier<dim, spacedim>::CoefficientType;
 
-      smoothness_indicators.reinit(
-        dof_handler.get_triangulation().n_active_cells());
+      smoothness_indicators.reinit(dof_handler.get_triangulation().n_active_cells());
 
       unsigned int             n_modes;
       Table<dim, number_coeff> expansion_coefficients;
       Vector<number>           local_dof_values;
 
       // auxiliary vector to do linear regression
-      const unsigned int max_degree =
-        dof_handler.get_fe_collection().max_degree();
+      const unsigned int max_degree = dof_handler.get_fe_collection().max_degree();
 
       std::vector<double> x, y;
       x.reserve(max_degree);
       y.reserve(max_degree);
 
-      for (const auto &cell : dof_handler.active_cell_iterators() |
-                                IteratorFilters::LocallyOwnedCell())
+      for (const auto &cell : dof_handler.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
         {
-          if (!only_flagged_cells || cell->refine_flag_set() ||
-              cell->coarsen_flag_set())
+          if (!only_flagged_cells || cell->refine_flag_set() || cell->coarsen_flag_set())
             {
-              n_modes = fe_fourier.get_n_coefficients_per_direction(
-                cell->active_fe_index());
+              n_modes = fe_fourier.get_n_coefficients_per_direction(cell->active_fe_index());
               resize(expansion_coefficients, n_modes);
 
               const unsigned int pe = cell->get_fe().degree;
@@ -516,9 +466,7 @@ namespace SmoothnessEstimator
               local_dof_values.reinit(cell->get_fe().n_dofs_per_cell());
               cell->get_dof_values(solution, local_dof_values);
 
-              fe_fourier.calculate(local_dof_values,
-                                   cell->active_fe_index(),
-                                   expansion_coefficients);
+              fe_fourier.calculate(local_dof_values, cell->active_fe_index(), expansion_coefficients);
 
               // choose the smallest decay of coefficients in each direction,
               // i.e. the maximum decay slope k_v as in exp(-k_v)
@@ -536,9 +484,8 @@ namespace SmoothnessEstimator
                     if (coefficients_predicate[i])
                       {
                         TableIndices<dim> ind;
-                        ind[d] = i;
-                        const double coeff_abs =
-                          std::abs(expansion_coefficients(ind));
+                        ind[d]                 = i;
+                        const double coeff_abs = std::abs(expansion_coefficients(ind));
 
                         if (coeff_abs > smallest_abs_coefficient)
                           {
@@ -552,20 +499,17 @@ namespace SmoothnessEstimator
                   if (x.size() < 2)
                     continue;
 
-                  const std::pair<double, double> fit =
-                    FESeries::linear_regression(x, y);
+                  const std::pair<double, double> fit = FESeries::linear_regression(x, y);
 
                   // decay corresponds to negative slope
                   // take the lesser negative slope along each direction
                   k_v = std::min(k_v, -fit.first);
                 }
 
-              smoothness_indicators(cell->active_cell_index()) =
-                static_cast<float>(k_v);
+              smoothness_indicators(cell->active_cell_index()) = static_cast<float>(k_v);
             }
           else
-            smoothness_indicators(cell->active_cell_index()) =
-              numbers::signaling_nan<float>();
+            smoothness_indicators(cell->active_cell_index()) = numbers::signaling_nan<float>();
         }
     }
 
@@ -573,8 +517,7 @@ namespace SmoothnessEstimator
 
     template <int dim, int spacedim>
     FESeries::Fourier<dim, spacedim>
-    default_fe_series(const hp::FECollection<dim, spacedim> &fe_collection,
-                      const unsigned int                     component)
+    default_fe_series(const hp::FECollection<dim, spacedim> &fe_collection, const unsigned int component)
     {
       // Default number of coefficients per direction.
       //
@@ -605,16 +548,12 @@ namespace SmoothnessEstimator
       hp::QCollection<dim> q_collection;
       for (unsigned int i = 0; i < fe_collection.size(); ++i)
         {
-          const QIterated<dim> quadrature(base_quadrature,
-                                          n_coefficients_per_direction[i] - 1);
+          const QIterated<dim> quadrature(base_quadrature, n_coefficients_per_direction[i] - 1);
           const QSorted<dim>   quadrature_sorted(quadrature);
           q_collection.push_back(quadrature_sorted);
         }
 
-      return FESeries::Fourier<dim, spacedim>(n_coefficients_per_direction,
-                                              fe_collection,
-                                              q_collection,
-                                              component);
+      return FESeries::Fourier<dim, spacedim>(n_coefficients_per_direction, fe_collection, q_collection, component);
     }
   } // namespace Fourier
 } // namespace SmoothnessEstimator

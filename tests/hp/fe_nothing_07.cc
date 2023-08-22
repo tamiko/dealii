@@ -83,10 +83,7 @@ test()
   triangulation.refine_global(1);
 
   {
-    typename Triangulation<dim>::active_cell_iterator cell = triangulation
-                                                               .begin_active(),
-                                                      endc =
-                                                        triangulation.end();
+    typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active(), endc = triangulation.end();
 
     for (; cell != endc; ++cell)
       {
@@ -121,9 +118,7 @@ test()
   DoFHandler<dim> dof_handler(triangulation);
 
   {
-    typename DoFHandler<dim>::active_cell_iterator cell =
-                                                     dof_handler.begin_active(),
-                                                   endc = dof_handler.end();
+    typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
 
     for (; cell != endc; ++cell)
       {
@@ -136,10 +131,8 @@ test()
     dof_handler.distribute_dofs(fe_collection);
   }
 
-  deallog << "   Number of active cells:       "
-          << triangulation.n_active_cells() << std::endl
-          << "   Number of degrees of freedom: " << dof_handler.n_dofs()
-          << std::endl;
+  deallog << "   Number of active cells:       " << triangulation.n_active_cells() << std::endl
+          << "   Number of degrees of freedom: " << dof_handler.n_dofs() << std::endl;
 
 
   // .... test constraint handling
@@ -150,8 +143,7 @@ test()
 
   constraints.close();
 
-  deallog << "   Number of constraints:        " << constraints.n_constraints()
-          << std::endl;
+  deallog << "   Number of constraints:        " << constraints.n_constraints() << std::endl;
 
   // the FE assignment is entirely
   // symmetric, so the number of
@@ -159,22 +151,16 @@ test()
   Assert(constraints.n_constraints() % 2 == 0, ExcInternalError());
 
   {
-    typename DoFHandler<dim>::active_cell_iterator cell =
-                                                     dof_handler.begin_active(),
-                                                   endc = dof_handler.end();
+    typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
 
     for (; cell != endc; ++cell)
       {
         deallog << cell << ' ' << cell->active_fe_index() << std::endl << "   ";
-        std::vector<types::global_dof_index> local_dof_indices(
-          cell->get_fe().dofs_per_cell);
+        std::vector<types::global_dof_index> local_dof_indices(cell->get_fe().dofs_per_cell);
         cell->get_dof_indices(local_dof_indices);
 
         for (unsigned int i = 0; i < cell->get_fe().dofs_per_cell; ++i)
-          deallog << local_dof_indices[i]
-                  << (constraints.is_constrained(local_dof_indices[i]) ? "*" :
-                                                                         "")
-                  << ' ';
+          deallog << local_dof_indices[i] << (constraints.is_constrained(local_dof_indices[i]) ? "*" : "") << ' ';
         deallog << std::endl;
       }
   }

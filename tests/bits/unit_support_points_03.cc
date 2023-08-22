@@ -39,9 +39,7 @@ test(const FiniteElement<dim, spacedim> &fe)
     for (unsigned int j = 0; j < fe.n_dofs_per_cell(); ++j)
       {
         const auto value = fe.shape_value(i, unit_support_points[j]);
-        Assert((i == j ? (std::abs(value - 1.0) < 1e-8) :
-                         (std::abs(value) < 1e-8)),
-               ExcInternalError());
+        Assert((i == j ? (std::abs(value - 1.0) < 1e-8) : (std::abs(value) < 1e-8)), ExcInternalError());
       }
 
   FE_Q<dim - 1>        fe_q(fe.degree);
@@ -53,19 +51,15 @@ test(const FiniteElement<dim, spacedim> &fe)
 
       AssertDimension(unit_face_support_points.size(), fe.n_dofs_per_face(f));
 
-      const auto &fe_face =
-        fe.reference_cell().face_reference_cell(f).is_hyper_cube() ?
-          static_cast<FiniteElement<dim - 1> &>(fe_q) :
-          static_cast<FiniteElement<dim - 1> &>(fe_p);
+      const auto &fe_face = fe.reference_cell().face_reference_cell(f).is_hyper_cube() ?
+                              static_cast<FiniteElement<dim - 1> &>(fe_q) :
+                              static_cast<FiniteElement<dim - 1> &>(fe_p);
 
       for (unsigned int i = 0; i < fe.n_dofs_per_face(f); ++i)
         for (unsigned int j = 0; j < fe.n_dofs_per_face(f); ++j)
           {
-            const auto value =
-              fe_face.shape_value(i, unit_face_support_points[j]);
-            Assert((i == j ? (std::abs(value - 1.0) < 1e-8) :
-                             (std::abs(value) < 1e-8)),
-                   ExcInternalError());
+            const auto value = fe_face.shape_value(i, unit_face_support_points[j]);
+            Assert((i == j ? (std::abs(value - 1.0) < 1e-8) : (std::abs(value) < 1e-8)), ExcInternalError());
           }
     }
 

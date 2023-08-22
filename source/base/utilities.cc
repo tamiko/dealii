@@ -82,13 +82,9 @@ namespace Utilities
   DeclException2(ExcInvalidNumber2StringConversersion,
                  unsigned int,
                  unsigned int,
-                 << "When trying to convert " << arg1 << " to a string with "
-                 << arg2 << " digits");
+                 << "When trying to convert " << arg1 << " to a string with " << arg2 << " digits");
   DeclException1(ExcInvalidNumber, unsigned int, << "Invalid number " << arg1);
-  DeclException1(ExcCantConvertString,
-                 std::string,
-                 << "Can't convert the string " << arg1
-                 << " to the desired type");
+  DeclException1(ExcCantConvertString, std::string, << "Can't convert the string " << arg1 << " to the desired type");
 
 
   std::string
@@ -100,19 +96,14 @@ namespace Utilities
 
   namespace
   {
-    template <int dim,
-              typename Number,
-              int effective_dim,
-              typename LongDouble,
-              typename Integer>
+    template <int dim, typename Number, int effective_dim, typename LongDouble, typename Integer>
     std::vector<std::array<std::uint64_t, effective_dim>>
-    inverse_Hilbert_space_filling_curve_effective(
-      const std::vector<Point<dim, Number>> &points,
-      const Point<dim, Number> &             bl,
-      const std::array<LongDouble, dim> &    extents,
-      const std::bitset<dim> &               valid_extents,
-      const int                              min_bits,
-      const Integer                          max_int)
+    inverse_Hilbert_space_filling_curve_effective(const std::vector<Point<dim, Number>> &points,
+                                                  const Point<dim, Number>              &bl,
+                                                  const std::array<LongDouble, dim>     &extents,
+                                                  const std::bitset<dim>                &valid_extents,
+                                                  const int                              min_bits,
+                                                  const Integer                          max_int)
     {
       std::vector<std::array<Integer, effective_dim>> int_points(points.size());
 
@@ -124,28 +115,23 @@ namespace Utilities
             if (valid_extents[d])
               {
                 Assert(extents[d] > 0, ExcInternalError());
-                const LongDouble v = (static_cast<LongDouble>(points[i][d]) -
-                                      static_cast<LongDouble>(bl[d])) /
-                                     extents[d];
+                const LongDouble v =
+                  (static_cast<LongDouble>(points[i][d]) - static_cast<LongDouble>(bl[d])) / extents[d];
                 Assert(v >= 0. && v <= 1., ExcInternalError());
                 AssertIndexRange(eff_d, effective_dim);
-                int_points[i][eff_d] =
-                  static_cast<Integer>(v * static_cast<LongDouble>(max_int));
+                int_points[i][eff_d] = static_cast<Integer>(v * static_cast<LongDouble>(max_int));
                 ++eff_d;
               }
         }
 
       // note that we call this with "min_bits"
-      return inverse_Hilbert_space_filling_curve<effective_dim>(int_points,
-                                                                min_bits);
+      return inverse_Hilbert_space_filling_curve<effective_dim>(int_points, min_bits);
     }
   } // namespace
 
   template <int dim, typename Number>
   std::vector<std::array<std::uint64_t, dim>>
-  inverse_Hilbert_space_filling_curve(
-    const std::vector<Point<dim, Number>> &points,
-    const int                              bits_per_dim)
+  inverse_Hilbert_space_filling_curve(const std::vector<Point<dim, Number>> &points, const int bits_per_dim)
   {
     using Integer = std::uint64_t;
     // take floating point number hopefully with mantissa >= 64bit
@@ -169,31 +155,23 @@ namespace Utilities
     std::bitset<dim>            valid_extents;
     for (unsigned int i = 0; i < dim; ++i)
       {
-        extents[i] =
-          static_cast<LongDouble>(tr[i]) - static_cast<LongDouble>(bl[i]);
+        extents[i]       = static_cast<LongDouble>(tr[i]) - static_cast<LongDouble>(bl[i]);
         valid_extents[i] = (extents[i] > 0.);
       }
 
     // make sure our conversion from fractional coordinates to
     // Integers work as expected, namely our cast (LongDouble)max_int
     const int min_bits =
-      std::min(bits_per_dim,
-               std::min(std::numeric_limits<Integer>::digits,
-                        std::numeric_limits<LongDouble>::digits));
+      std::min(bits_per_dim, std::min(std::numeric_limits<Integer>::digits, std::numeric_limits<LongDouble>::digits));
 
     // based on that get the maximum integer:
-    const Integer max_int = (min_bits == std::numeric_limits<Integer>::digits ?
-                               std::numeric_limits<Integer>::max() :
-                               (Integer(1) << min_bits) - 1);
+    const Integer max_int = (min_bits == std::numeric_limits<Integer>::digits ? std::numeric_limits<Integer>::max() :
+                                                                                (Integer(1) << min_bits) - 1);
 
     const unsigned int effective_dim = valid_extents.count();
     if (effective_dim == dim)
       {
-        return inverse_Hilbert_space_filling_curve_effective<dim,
-                                                             Number,
-                                                             dim,
-                                                             LongDouble,
-                                                             Integer>(
+        return inverse_Hilbert_space_filling_curve_effective<dim, Number, dim, LongDouble, Integer>(
           points, bl, extents, valid_extents, min_bits, max_int);
       }
 
@@ -206,13 +184,8 @@ namespace Utilities
     // manually check effective_dim == 1 and effective_dim == 2
     if (dim == 3 && effective_dim == 2)
       {
-        const auto ind2 =
-          inverse_Hilbert_space_filling_curve_effective<dim,
-                                                        Number,
-                                                        2,
-                                                        LongDouble,
-                                                        Integer>(
-            points, bl, extents, valid_extents, min_bits, max_int);
+        const auto ind2 = inverse_Hilbert_space_filling_curve_effective<dim, Number, 2, LongDouble, Integer>(
+          points, bl, extents, valid_extents, min_bits, max_int);
 
         for (unsigned int i = 0; i < ind.size(); ++i)
           for (unsigned int d = 0; d < 2; ++d)
@@ -222,13 +195,8 @@ namespace Utilities
       }
     else if (effective_dim == 1)
       {
-        const auto ind1 =
-          inverse_Hilbert_space_filling_curve_effective<dim,
-                                                        Number,
-                                                        1,
-                                                        LongDouble,
-                                                        Integer>(
-            points, bl, extents, valid_extents, min_bits, max_int);
+        const auto ind1 = inverse_Hilbert_space_filling_curve_effective<dim, Number, 1, LongDouble, Integer>(
+          points, bl, extents, valid_extents, min_bits, max_int);
 
         for (unsigned int i = 0; i < ind.size(); ++i)
           ind[i][dim - 1] = ind1[i][0];
@@ -252,9 +220,7 @@ namespace Utilities
 
   template <int dim>
   std::vector<std::array<std::uint64_t, dim>>
-  inverse_Hilbert_space_filling_curve(
-    const std::vector<std::array<std::uint64_t, dim>> &points,
-    const int                                          bits_per_dim)
+  inverse_Hilbert_space_filling_curve(const std::vector<std::array<std::uint64_t, dim>> &points, const int bits_per_dim)
   {
     using Integer = std::uint64_t;
 
@@ -284,8 +250,7 @@ namespace Utilities
 
     // Depth of the Hilbert curve
     Assert(bits_per_dim <= std::numeric_limits<Integer>::digits,
-           ExcMessage("This integer type can not hold " +
-                      std::to_string(bits_per_dim) + " bits."));
+           ExcMessage("This integer type can not hold " + std::to_string(bits_per_dim) + " bits."));
 
     const Integer M = Integer(1) << (bits_per_dim - 1); // largest bit
 
@@ -364,8 +329,7 @@ namespace Utilities
 
   template <int dim>
   std::uint64_t
-  pack_integers(const std::array<std::uint64_t, dim> &index,
-                const int                             bits_per_dim)
+  pack_integers(const std::array<std::uint64_t, dim> &index, const int bits_per_dim)
   {
     using Integer = std::uint64_t;
 
@@ -434,8 +398,7 @@ namespace Utilities
   encode_base64(const std::vector<unsigned char> &binary_input)
   {
     using namespace boost::archive::iterators;
-    using It = base64_from_binary<
-      transform_width<std::vector<unsigned char>::const_iterator, 6, 8>>;
+    using It    = base64_from_binary<transform_width<std::vector<unsigned char>::const_iterator, 6, 8>>;
     auto base64 = std::string(It(binary_input.begin()), It(binary_input.end()));
     // Add padding.
     return base64.append((3 - binary_input.size() % 3) % 3, '=');
@@ -447,14 +410,11 @@ namespace Utilities
   decode_base64(const std::string &base64_input)
   {
     using namespace boost::archive::iterators;
-    using It =
-      transform_width<binary_from_base64<std::string::const_iterator>, 8, 6>;
-    auto binary = std::vector<unsigned char>(It(base64_input.begin()),
-                                             It(base64_input.end()));
+    using It    = transform_width<binary_from_base64<std::string::const_iterator>, 8, 6>;
+    auto binary = std::vector<unsigned char>(It(base64_input.begin()), It(base64_input.end()));
     // Remove padding.
     auto length = base64_input.size();
-    if (binary.size() > 2 && base64_input[length - 1] == '=' &&
-        base64_input[length - 2] == '=')
+    if (binary.size() > 2 && base64_input[length - 1] == '=' && base64_input[length - 2] == '=')
       {
         binary.erase(binary.end() - 2, binary.end());
       }
@@ -488,11 +448,9 @@ namespace Utilities
     // resort to boost::lexical_cast for all other types (in
     // particular for floating point types.
     std::string lc_string =
-      (std::is_integral_v<number> ? std::to_string(value) :
-                                    boost::lexical_cast<std::string>(value));
+      (std::is_integral_v<number> ? std::to_string(value) : boost::lexical_cast<std::string>(value));
 
-    if ((digits != numbers::invalid_unsigned_int) &&
-        (lc_string.size() < digits))
+    if ((digits != numbers::invalid_unsigned_int) && (lc_string.size() < digits))
       {
         // We have to add the padding zeroes in front of the number
         const unsigned int padding_position = (lc_string[0] == '-') ? 1 : 0;
@@ -507,9 +465,7 @@ namespace Utilities
 
 
   std::string
-  replace_in_string(const std::string &input,
-                    const std::string &from,
-                    const std::string &to)
+  replace_in_string(const std::string &input, const std::string &from, const std::string &to)
   {
     if (from.empty())
       return input;
@@ -566,8 +522,7 @@ namespace Utilities
   needed_digits(const unsigned int max_number)
   {
     if (max_number > 0)
-      return static_cast<int>(
-        std::ceil(std::log10(std::fabs(max_number + 0.1))));
+      return static_cast<int>(std::ceil(std::log10(std::fabs(max_number + 0.1))));
 
     return 1;
   }
@@ -583,16 +538,13 @@ namespace Utilities
     if (!(std::fabs(number) > std::numeric_limits<Number>::min()))
       return number;
 
-    const int order =
-      static_cast<int>(std::floor(std::log10(std::fabs(number))));
+    const int order = static_cast<int>(std::floor(std::log10(std::fabs(number))));
 
     const int shift = -order + static_cast<int>(n_digits) - 1;
 
-    Assert(shift <= static_cast<int>(std::floor(
-                      std::log10(std::numeric_limits<Number>::max()))),
-           ExcMessage(
-             "Overflow. Use a smaller value for n_digits and/or make sure "
-             "that the absolute value of 'number' does not become too small."));
+    Assert(shift <= static_cast<int>(std::floor(std::log10(std::numeric_limits<Number>::max()))),
+           ExcMessage("Overflow. Use a smaller value for n_digits and/or make sure "
+                      "that the absolute value of 'number' does not become too small."));
 
     const Number factor = std::pow(10.0, static_cast<Number>(shift));
 
@@ -630,8 +582,7 @@ namespace Utilities
     //   first part to something useful, but stopped converting short
     //   of the terminating '\0' character. This happens, for example,
     //   if the given string is "1234 abc".
-    AssertThrow(!((errno != 0) || (s.empty()) ||
-                  ((s.size() > 0) && (*p != '\0'))),
+    AssertThrow(!((errno != 0) || (s.empty()) || ((s.size() > 0) && (*p != '\0'))),
                 ExcMessage("Can't convert <" + s + "> to an integer."));
 
     return i;
@@ -678,8 +629,7 @@ namespace Utilities
     //   first part to something useful, but stopped converting short
     //   of the terminating '\0' character. This happens, for example,
     //   if the given string is "1.234 abc".
-    AssertThrow(!((errno != 0) || (s.empty()) ||
-                  ((s.size() > 0) && (*p != '\0'))),
+    AssertThrow(!((errno != 0) || (s.empty()) || ((s.size() > 0) && (*p != '\0'))),
                 ExcMessage("Can't convert <" + s + "> to a double."));
 
     return d;
@@ -753,9 +703,7 @@ namespace Utilities
 
 
   std::vector<std::string>
-  break_text_into_lines(const std::string &original_text,
-                        const unsigned int width,
-                        const char         delimiter)
+  break_text_into_lines(const std::string &original_text, const unsigned int width, const char delimiter)
   {
     std::string              text = original_text;
     std::vector<std::string> lines;
@@ -807,8 +755,7 @@ namespace Utilities
             // if there are no spaces, then try if
             // there are spaces coming up
             if (location == 0)
-              for (location = std::min<int>(width, text.size() - 1);
-                   location < static_cast<int>(text.size());
+              for (location = std::min<int>(width, text.size() - 1); location < static_cast<int>(text.size());
                    ++location)
                 if (text[location] == delimiter)
                   break;
@@ -901,8 +848,7 @@ namespace Utilities
     // we could use std::mt19937 but doing so results in compiler-dependent
     // output.
     static Threads::ThreadLocalStorage<boost::mt19937> random_number_generator;
-    return boost::normal_distribution<>(a,
-                                        sigma)(random_number_generator.get());
+    return boost::normal_distribution<>(a, sigma)(random_number_generator.get());
   }
 
 
@@ -953,9 +899,7 @@ namespace Utilities
           case 512:
             return "AVX512";
           default:
-            AssertThrow(false,
-                        ExcInternalError(
-                          "Invalid DEAL_II_VECTORIZATION_WIDTH_IN_BITS."));
+            AssertThrow(false, ExcInternalError("Invalid DEAL_II_VECTORIZATION_WIDTH_IN_BITS."));
             return "ERROR";
         }
     }
@@ -1014,12 +958,11 @@ namespace Utilities
     get_time()
     {
       std::time_t time1 = std::time(nullptr);
-      std::tm *   time  = std::localtime(&time1);
+      std::tm    *time  = std::localtime(&time1);
 
       std::ostringstream o;
-      o << time->tm_hour << ":" << (time->tm_min < 10 ? "0" : "")
-        << time->tm_min << ":" << (time->tm_sec < 10 ? "0" : "")
-        << time->tm_sec;
+      o << time->tm_hour << ":" << (time->tm_min < 10 ? "0" : "") << time->tm_min << ":"
+        << (time->tm_sec < 10 ? "0" : "") << time->tm_sec;
 
       return o.str();
     }
@@ -1030,11 +973,10 @@ namespace Utilities
     get_date()
     {
       std::time_t time1 = std::time(nullptr);
-      std::tm *   time  = std::localtime(&time1);
+      std::tm    *time  = std::localtime(&time1);
 
       std::ostringstream o;
-      o << time->tm_year + 1900 << "/" << time->tm_mon + 1 << "/"
-        << time->tm_mday;
+      o << time->tm_year + 1900 << "/" << time->tm_mon + 1 << "/" << time->tm_mday;
 
       return o.str();
     }
@@ -1093,29 +1035,17 @@ namespace Utilities
   truncate_to_n_digits(const float, const unsigned int);
 
   template std::vector<std::array<std::uint64_t, 1>>
-  inverse_Hilbert_space_filling_curve<1, double>(
-    const std::vector<Point<1, double>> &,
-    const int);
+  inverse_Hilbert_space_filling_curve<1, double>(const std::vector<Point<1, double>> &, const int);
   template std::vector<std::array<std::uint64_t, 1>>
-  inverse_Hilbert_space_filling_curve<1>(
-    const std::vector<std::array<std::uint64_t, 1>> &,
-    const int);
+  inverse_Hilbert_space_filling_curve<1>(const std::vector<std::array<std::uint64_t, 1>> &, const int);
   template std::vector<std::array<std::uint64_t, 2>>
-  inverse_Hilbert_space_filling_curve<2, double>(
-    const std::vector<Point<2, double>> &,
-    const int);
+  inverse_Hilbert_space_filling_curve<2, double>(const std::vector<Point<2, double>> &, const int);
   template std::vector<std::array<std::uint64_t, 2>>
-  inverse_Hilbert_space_filling_curve<2>(
-    const std::vector<std::array<std::uint64_t, 2>> &,
-    const int);
+  inverse_Hilbert_space_filling_curve<2>(const std::vector<std::array<std::uint64_t, 2>> &, const int);
   template std::vector<std::array<std::uint64_t, 3>>
-  inverse_Hilbert_space_filling_curve<3, double>(
-    const std::vector<Point<3, double>> &,
-    const int);
+  inverse_Hilbert_space_filling_curve<3, double>(const std::vector<Point<3, double>> &, const int);
   template std::vector<std::array<std::uint64_t, 3>>
-  inverse_Hilbert_space_filling_curve<3>(
-    const std::vector<std::array<std::uint64_t, 3>> &,
-    const int);
+  inverse_Hilbert_space_filling_curve<3>(const std::vector<std::array<std::uint64_t, 3>> &, const int);
 
   template std::uint64_t
   pack_integers<1>(const std::array<std::uint64_t, 1> &, const int);

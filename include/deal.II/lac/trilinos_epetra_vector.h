@@ -83,8 +83,7 @@ namespace LinearAlgebra
        * includes information about the size of the vector, this is all we
        * need to generate a %parallel vector.
        */
-      explicit Vector(const IndexSet &parallel_partitioner,
-                      const MPI_Comm  communicator);
+      explicit Vector(const IndexSet &parallel_partitioner, const MPI_Comm communicator);
 
       /**
        * Reinit functionality. This function destroys the old vector content
@@ -108,9 +107,8 @@ namespace LinearAlgebra
        * Extract a range of elements all at once.
        */
       virtual void
-      extract_subvector_to(
-        const ArrayView<const types::global_dof_index> &indices,
-        ArrayView<double> &elements) const override;
+      extract_subvector_to(const ArrayView<const types::global_dof_index> &indices,
+                           ArrayView<double>                              &elements) const override;
 
       /**
        * Copy function. This function takes a Vector and copies all the
@@ -137,21 +135,18 @@ namespace LinearAlgebra
        */
       void
       import_elements(
-        const ReadWriteVector<double> &V,
-        VectorOperation::values        operation,
-        const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase>
-          &communication_pattern = {});
+        const ReadWriteVector<double>                                         &V,
+        VectorOperation::values                                                operation,
+        const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase> &communication_pattern = {});
 
       /**
        * @deprecated Use import_elements() instead.
        */
       DEAL_II_DEPRECATED
       void
-      import(
-        const ReadWriteVector<double> &V,
-        const VectorOperation::values  operation,
-        const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase>
-          &communication_pattern = {})
+      import(const ReadWriteVector<double>                                         &V,
+             const VectorOperation::values                                          operation,
+             const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase> &communication_pattern = {})
       {
         import_elements(V, operation, communication_pattern);
       }
@@ -358,7 +353,7 @@ namespace LinearAlgebra
        * Prints the vector to the output stream @p out.
        */
       void
-      print(std::ostream &     out,
+      print(std::ostream      &out,
             const unsigned int precision  = 3,
             const bool         scientific = true,
             const bool         across     = true) const;
@@ -389,8 +384,7 @@ namespace LinearAlgebra
        */
       DeclException1(ExcTrilinosError,
                      int,
-                     << "An error with error number " << arg1
-                     << " occurred while calling a Trilinos function");
+                     << "An error with error number " << arg1 << " occurred while calling a Trilinos function");
 
     private:
       /**
@@ -399,8 +393,7 @@ namespace LinearAlgebra
        * on the communicator @p mpi_comm.
        */
       void
-      create_epetra_comm_pattern(const IndexSet &source_index_set,
-                                 const MPI_Comm  mpi_comm);
+      create_epetra_comm_pattern(const IndexSet &source_index_set, const MPI_Comm mpi_comm);
 
       /**
        * Pointer to the actual Epetra vector object.

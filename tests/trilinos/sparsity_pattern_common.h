@@ -43,8 +43,7 @@ build_sparsity(TrilinosWrappers::SparsityPattern &sparsity_pattern)
   FDMatrix(N, N).five_point_structure(sparsity_pattern);
   sparsity_pattern.compress();
 
-  deallog << sparsity_pattern.n_rows() << " " << sparsity_pattern.n_cols()
-          << " " << sparsity_pattern.bandwidth() << " "
+  deallog << sparsity_pattern.n_rows() << " " << sparsity_pattern.n_cols() << " " << sparsity_pattern.bandwidth() << " "
           << sparsity_pattern.n_nonzero_elements() << std::endl;
 }
 

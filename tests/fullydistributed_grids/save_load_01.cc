@@ -71,11 +71,10 @@ main(int argc, char **argv)
     GridGenerator::hyper_cube(triangulation);
     triangulation.refine_global(3);
 
-    const auto description = TriangulationDescription::Utilities::
-      create_description_from_triangulation(triangulation, MPI_COMM_WORLD);
+    const auto description =
+      TriangulationDescription::Utilities::create_description_from_triangulation(triangulation, MPI_COMM_WORLD);
 
-    parallel::fullydistributed::Triangulation<dim> triangulation_pft(
-      MPI_COMM_WORLD);
+    parallel::fullydistributed::Triangulation<dim> triangulation_pft(MPI_COMM_WORLD);
     triangulation_pft.create_triangulation(description);
 
     test<dim>(triangulation_pft);
@@ -90,11 +89,10 @@ main(int argc, char **argv)
     GridGenerator::hyper_cube(triangulation);
     triangulation.refine_global(3);
 
-    const auto description = TriangulationDescription::Utilities::
-      create_description_from_triangulation(triangulation, MPI_COMM_WORLD);
+    const auto description =
+      TriangulationDescription::Utilities::create_description_from_triangulation(triangulation, MPI_COMM_WORLD);
 
-    parallel::fullydistributed::Triangulation<dim> triangulation_pft(
-      MPI_COMM_WORLD);
+    parallel::fullydistributed::Triangulation<dim> triangulation_pft(MPI_COMM_WORLD);
     triangulation_pft.create_triangulation(description);
 
     test<dim>(triangulation_pft);

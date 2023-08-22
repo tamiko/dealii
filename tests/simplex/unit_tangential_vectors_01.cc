@@ -32,13 +32,10 @@ test(const ReferenceCell &reference_cell)
 {
   for (const auto face_no : reference_cell.face_indices())
     {
-      deallog << reference_cell.template unit_normal_vectors<dim>(face_no)
-              << std::endl;
+      deallog << reference_cell.template unit_normal_vectors<dim>(face_no) << std::endl;
 
       for (unsigned int i = 0; i < dim - 1; ++i)
-        deallog << reference_cell.template unit_tangential_vectors<dim>(face_no,
-                                                                        i)
-                << std::endl;
+        deallog << reference_cell.template unit_tangential_vectors<dim>(face_no, i) << std::endl;
     }
   deallog << std::endl;
 }

@@ -50,18 +50,13 @@ test()
   unsigned int myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
   const int    dim  = 2;
   // Setup system
-  dealii::parallel::distributed::Triangulation<dim> triangulation(
-    MPI_COMM_WORLD);
+  dealii::parallel::distributed::Triangulation<dim> triangulation(MPI_COMM_WORLD);
 
-  GridGenerator::hyper_rectangle(triangulation,
-                                 Point<dim>(0, 0),
-                                 Point<dim>(1, 1),
-                                 true);
+  GridGenerator::hyper_rectangle(triangulation, Point<dim>(0, 0), Point<dim>(1, 1), true);
 
   triangulation.refine_global(1);
   // Extra refinement to generate hanging nodes
-  for (typename Triangulation<dim>::active_cell_iterator cell =
-         triangulation.begin_active();
+  for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
        cell != triangulation.end();
        ++cell)
     if (cell->center()(0) > 0.49)
@@ -104,18 +99,9 @@ test()
 
   // Generate sparsity pattern
   DynamicSparsityPattern sp(relevant_partitioning);
-  DoFTools::make_flux_sparsity_pattern(dh,
-                                       sp,
-                                       constraints,
-                                       false,
-                                       coupling,
-                                       flux_coupling,
-                                       Utilities::MPI::this_mpi_process(
-                                         MPI_COMM_WORLD));
-  SparsityTools::distribute_sparsity_pattern(sp,
-                                             dh.locally_owned_dofs(),
-                                             MPI_COMM_WORLD,
-                                             relevant_partitioning);
+  DoFTools::make_flux_sparsity_pattern(
+    dh, sp, constraints, false, coupling, flux_coupling, Utilities::MPI::this_mpi_process(MPI_COMM_WORLD));
+  SparsityTools::distribute_sparsity_pattern(sp, dh.locally_owned_dofs(), MPI_COMM_WORLD, relevant_partitioning);
 
   // Output
   MPI_Barrier(MPI_COMM_WORLD);
@@ -132,10 +118,9 @@ test()
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
-  const unsigned int myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
-  MPILogInitAll      log;
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
+  const unsigned int               myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  MPILogInitAll                    log;
 
   deallog.push(Utilities::int_to_string(myid));
 

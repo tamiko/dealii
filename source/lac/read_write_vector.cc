@@ -27,9 +27,8 @@ namespace LinearAlgebra
   // arguments is covered by the default copy constructor and copy operator that
   // is declared separately)
 
-#define TEMPL_COPY_CONSTRUCTOR(S1, S2)                         \
-  template ReadWriteVector<S1> &ReadWriteVector<S1>::operator= \
-    <S2>(const ReadWriteVector<S2> &)
+#define TEMPL_COPY_CONSTRUCTOR(S1, S2) \
+  template ReadWriteVector<S1> &ReadWriteVector<S1>::operator=<S2>(const ReadWriteVector<S2> &)
 
   TEMPL_COPY_CONSTRUCTOR(double, float);
   TEMPL_COPY_CONSTRUCTOR(float, double);
@@ -42,38 +41,32 @@ namespace LinearAlgebra
 
 #ifndef DOXYGEN
   template void
-  ReadWriteVector<float>::import_elements(
-    const distributed::Vector<float, ::dealii::MemorySpace::Host> &,
-    VectorOperation::values,
-    const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase> &);
+  ReadWriteVector<float>::import_elements(const distributed::Vector<float, ::dealii::MemorySpace::Host> &,
+                                          VectorOperation::values,
+                                          const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase> &);
   template void
-  ReadWriteVector<float>::import_elements(
-    const distributed::Vector<float, ::dealii::MemorySpace::Default> &,
-    VectorOperation::values,
-    const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase> &);
+  ReadWriteVector<float>::import_elements(const distributed::Vector<float, ::dealii::MemorySpace::Default> &,
+                                          VectorOperation::values,
+                                          const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase> &);
 
   template void
-  ReadWriteVector<double>::import_elements(
-    const distributed::Vector<double, ::dealii::MemorySpace::Host> &,
-    VectorOperation::values,
-    const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase> &);
+  ReadWriteVector<double>::import_elements(const distributed::Vector<double, ::dealii::MemorySpace::Host> &,
+                                           VectorOperation::values,
+                                           const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase> &);
   template void
-  ReadWriteVector<double>::import_elements(
-    const distributed::Vector<double, ::dealii::MemorySpace::Default> &,
-    VectorOperation::values,
-    const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase> &);
+  ReadWriteVector<double>::import_elements(const distributed::Vector<double, ::dealii::MemorySpace::Default> &,
+                                           VectorOperation::values,
+                                           const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase> &);
 #  ifdef DEAL_II_WITH_COMPLEX_VALUES
   template void
   ReadWriteVector<std::complex<float>>::import_elements(
-    const distributed::Vector<std::complex<float>, ::dealii::MemorySpace::Host>
-      &,
+    const distributed::Vector<std::complex<float>, ::dealii::MemorySpace::Host> &,
     VectorOperation::values,
     const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase> &);
 
   template void
   ReadWriteVector<std::complex<double>>::import_elements(
-    const distributed::Vector<std::complex<double>, ::dealii::MemorySpace::Host>
-      &,
+    const distributed::Vector<std::complex<double>, ::dealii::MemorySpace::Host> &,
     VectorOperation::values,
     const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase> &);
 #  endif
@@ -82,17 +75,15 @@ namespace LinearAlgebra
 
 #  ifdef HAVE_TPETRA_INST_FLOAT
   template void
-  ReadWriteVector<float>::import_elements(
-    const LinearAlgebra::TpetraWrappers::Vector<float> &,
-    VectorOperation::values,
-    const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase> &);
+  ReadWriteVector<float>::import_elements(const LinearAlgebra::TpetraWrappers::Vector<float> &,
+                                          VectorOperation::values,
+                                          const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase> &);
 #  endif
 #  ifdef HAVE_TPETRA_INST_DOUBLE
   template void
-  ReadWriteVector<double>::import_elements(
-    const LinearAlgebra::TpetraWrappers::Vector<double> &,
-    VectorOperation::values,
-    const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase> &);
+  ReadWriteVector<double>::import_elements(const LinearAlgebra::TpetraWrappers::Vector<double> &,
+                                           VectorOperation::values,
+                                           const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase> &);
 #  endif
 #  ifdef DEAL_II_WITH_COMPLEX_VALUES
 #    ifdef HAVE_TPETRA_INST_COMPLEX_FLOAT

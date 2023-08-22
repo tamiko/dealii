@@ -77,8 +77,7 @@ private:
  * ColorEnriched::internal::color_predicates.
  */
 template <int dim>
-using predicate_function =
-  std::function<bool(const typename Triangulation<dim>::cell_iterator &)>;
+using predicate_function = std::function<bool(const typename Triangulation<dim>::cell_iterator &)>;
 
 
 
@@ -107,20 +106,13 @@ main(int argc, char **argv)
   // Do manual coloring since we are not testing coloring function here!
   std::vector<unsigned int> predicate_colors;
   predicate_colors.resize(vec_predicates.size());
-  ColorEnriched::internal::color_predicates(dof_handler,
-                                            vec_predicates,
-                                            predicate_colors);
+  ColorEnriched::internal::color_predicates(dof_handler, vec_predicates, predicate_colors);
 
   // Make required objects to call function set_cellwise_color_set_and_fe_index
-  std::map<unsigned int, std::map<unsigned int, unsigned int>>
-                                      cellwise_color_predicate_map;
-  std::vector<std::set<unsigned int>> fe_sets;
+  std::map<unsigned int, std::map<unsigned int, unsigned int>> cellwise_color_predicate_map;
+  std::vector<std::set<unsigned int>>                          fe_sets;
   ColorEnriched::internal::set_cellwise_color_set_and_fe_index(
-    dof_handler,
-    vec_predicates,
-    predicate_colors,
-    cellwise_color_predicate_map,
-    fe_sets);
+    dof_handler, vec_predicates, predicate_colors, cellwise_color_predicate_map, fe_sets);
 
   /*
    * Run through active cells to check FE index, colors of
@@ -155,11 +147,9 @@ main(int argc, char **argv)
       // Note that here material id is used to identify cells
       // Here (1,2) indicates predicate 2 of color 1 is relevant for cell.
       deallog << "(color, enrichment_func_id):";
-      for (auto color_predicate_pair :
-           cellwise_color_predicate_map[cell->material_id()])
+      for (auto color_predicate_pair : cellwise_color_predicate_map[cell->material_id()])
         {
-          deallog << '(' << color_predicate_pair.first << ','
-                  << color_predicate_pair.second << "):";
+          deallog << '(' << color_predicate_pair.first << ',' << color_predicate_pair.second << "):";
         }
 
       // For a cell, print FE active index and corresponding FE set.

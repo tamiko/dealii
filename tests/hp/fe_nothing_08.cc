@@ -57,9 +57,7 @@ test()
 
   DoFHandler<dim> dof_handler(triangulation);
 
-  typename DoFHandler<dim>::active_cell_iterator cell =
-                                                   dof_handler.begin_active(),
-                                                 endc = dof_handler.end();
+  typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
 
   for (; cell != endc; ++cell)
     if (cell->center()[0] > 0)
@@ -71,13 +69,8 @@ test()
   deallog << dof_handler.n_dofs() << " dofs" << std::endl;
 
   std::map<types::global_dof_index, double> bv;
-  VectorTools::interpolate_boundary_values(dof_handler,
-                                           0,
-                                           Functions::ZeroFunction<dim>(1),
-                                           bv);
-  for (std::map<types::global_dof_index, double>::iterator p = bv.begin();
-       p != bv.end();
-       ++p)
+  VectorTools::interpolate_boundary_values(dof_handler, 0, Functions::ZeroFunction<dim>(1), bv);
+  for (std::map<types::global_dof_index, double>::iterator p = bv.begin(); p != bv.end(); ++p)
     deallog << p->first << ' ' << p->second << std::endl;
 }
 

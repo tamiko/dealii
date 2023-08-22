@@ -43,26 +43,21 @@ test()
 {
   deallog << "Testing for dim = " << dim << std::endl;
 
-  parallel::shared::Triangulation<dim> tria(
-    MPI_COMM_WORLD,
-    Triangulation<dim>::none,
-    false,
-    parallel::shared::Triangulation<dim>::Settings::partition_zoltan);
+  parallel::shared::Triangulation<dim> tria(MPI_COMM_WORLD,
+                                            Triangulation<dim>::none,
+                                            false,
+                                            parallel::shared::Triangulation<dim>::Settings::partition_zoltan);
   GridGenerator::hyper_cube(tria, -3, -2);
   tria.refine_global(std::max(6 - dim, 3));
 
 
   GridTools::Cache<dim> cache(tria);
 
-  const auto &global_description =
-    cache.get_locally_owned_cell_bounding_boxes_rtree();
+  const auto &global_description = cache.get_locally_owned_cell_bounding_boxes_rtree();
 
   // Extract from the cache a list of all bounding boxes with process owners:
-  std::vector<std::pair<BoundingBox<dim>,
-                        typename Triangulation<dim>::active_cell_iterator>>
-    test_results;
-  global_description.query(bgi::satisfies([](const auto &) { return true; }),
-                           std::back_inserter(test_results));
+  std::vector<std::pair<BoundingBox<dim>, typename Triangulation<dim>::active_cell_iterator>> test_results;
+  global_description.query(bgi::satisfies([](const auto &) { return true; }), std::back_inserter(test_results));
 
   // Loop over all bounding boxes and output them. We expect this list
   // to be identical on all processes, but do not actually check this
@@ -70,9 +65,8 @@ test()
   for (const auto &bb_and_owner : test_results)
     {
       const auto &bd_points = bb_and_owner.first.get_boundary_points();
-      deallog << "  Bounding box: p1 " << bd_points.first << " p2 "
-              << bd_points.second << " owning cell: " << bb_and_owner.second
-              << std::endl;
+      deallog << "  Bounding box: p1 " << bd_points.first << " p2 " << bd_points.second
+              << " owning cell: " << bb_and_owner.second << std::endl;
     }
 }
 

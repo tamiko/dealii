@@ -102,9 +102,7 @@ test()
   v[3] = 9;
   v[4] = 8.;
 
-  const auto fun = [&](const Vector<number> &u,
-                       const number &        rho2,
-                       const number &        col_l2_norm2) {
+  const auto fun = [&](const Vector<number> &u, const number &rho2, const number &col_l2_norm2) {
     deallog << "Linearly dependent column" << std::endl;
     deallog << "u:" << std::endl;
     u.print(deallog.get_file_stream());
@@ -112,8 +110,7 @@ test()
     deallog.get_file_stream() << rho2 << std::endl;
     deallog << "col2:" << std::endl;
     deallog.get_file_stream() << col_l2_norm2 << std::endl;
-    const bool reject =
-      rho2 < dealii::Utilities::fixed_power<2>(1e-4) * col_l2_norm2;
+    const bool reject = rho2 < dealii::Utilities::fixed_power<2>(1e-4) * col_l2_norm2;
     deallog << "reject:" << std::endl;
     deallog.get_file_stream() << reject << std::endl;
     return !reject;

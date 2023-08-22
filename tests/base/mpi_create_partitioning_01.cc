@@ -31,14 +31,13 @@ test()
   const auto n_proc  = Utilities::MPI::n_mpi_processes(comm);
 
   const auto my_size = (my_proc == 2 ? 0 : my_proc * 2 + 5);
-  const auto vec = Utilities::MPI::create_ascending_partitioning(comm, my_size);
+  const auto vec     = Utilities::MPI::create_ascending_partitioning(comm, my_size);
 
   // correct number:
   AssertThrow(vec.size() == n_proc, ExcInternalError());
 
   // ascending one-to-one
-  AssertThrow(vec[my_proc].is_ascending_and_one_to_one(comm),
-              ExcInternalError());
+  AssertThrow(vec[my_proc].is_ascending_and_one_to_one(comm), ExcInternalError());
 
   // same size:
   const auto size = vec[0].size();

@@ -92,9 +92,7 @@ struct FunctionsTestScalarScalarCoupled
 
 template <int dim, typename number_t, enum AD::NumberTypes ad_type_code>
 void
-test_scalar_scalar_coupled_one_run(const number_t s1,
-                                   const number_t s2,
-                                   const bool     clear_tapes)
+test_scalar_scalar_coupled_one_run(const number_t s1, const number_t s2, const bool clear_tapes)
 {
   using ADHelper         = AD::ScalarFunction<dim, ad_type_code, number_t>;
   using ADNumberType     = typename ADHelper::ad_type;
@@ -128,13 +126,10 @@ test_scalar_scalar_coupled_one_run(const number_t s1,
 
   // Configure tape
   const int tape_no = 1;
-  deallog << "is_registered_tape? " << std::boolalpha
-          << ad_helper.is_registered_tape(tape_no) << std::endl;
+  deallog << "is_registered_tape? " << std::boolalpha << ad_helper.is_registered_tape(tape_no) << std::endl;
 
   const bool is_recording =
-    ad_helper.start_recording_operations(tape_no /*material_id*/,
-                                         false /*overwrite_tape*/,
-                                         true /*keep*/);
+    ad_helper.start_recording_operations(tape_no /*material_id*/, false /*overwrite_tape*/, true /*keep*/);
   if (is_recording == true)
     {
       deallog << "Recording new tape" << std::endl;
@@ -160,9 +155,7 @@ test_scalar_scalar_coupled_one_run(const number_t s1,
   else
     {
       deallog << "Reusing prerecorded tape" << std::endl;
-      std::cout
-        << "Using tape with different values for independent variables..."
-        << std::endl;
+      std::cout << "Using tape with different values for independent variables..." << std::endl;
       // Set a new evaluation point
       ad_helper.activate_recorded_tape(tape_no);
       ad_helper.set_independent_variable(s1, s1_dof);
@@ -192,70 +185,46 @@ test_scalar_scalar_coupled_one_run(const number_t s1,
     }
 
   // Extract components of the solution
-  const ScalarNumberType dpsi_ds1 =
-    ad_helper.extract_gradient_component(Dpsi, s1_dof);
-  const ScalarNumberType dpsi_ds2 =
-    ad_helper.extract_gradient_component(Dpsi, s2_dof);
+  const ScalarNumberType dpsi_ds1 = ad_helper.extract_gradient_component(Dpsi, s1_dof);
+  const ScalarNumberType dpsi_ds2 = ad_helper.extract_gradient_component(Dpsi, s2_dof);
   std::cout << "extracted Dpsi (s1): " << dpsi_ds1 << "\n"
             << "extracted Dpsi (s2): " << dpsi_ds2 << "\n";
 
   // Verify the result
-  using func = FunctionsTestScalarScalarCoupled<dim, ScalarNumberType>;
-  static const ScalarNumberType tol =
-    1e8 * std::numeric_limits<ScalarNumberType>::epsilon();
+  using func                        = FunctionsTestScalarScalarCoupled<dim, ScalarNumberType>;
+  static const ScalarNumberType tol = 1e8 * std::numeric_limits<ScalarNumberType>::epsilon();
   std::cout << "dpsi_ds1:            " << dpsi_ds1 << std::endl;
   std::cout << "func::dpsi_ds1(s1,s2): " << func::dpsi_ds1(s1, s2) << std::endl;
-  std::cout << "diff: " << std::abs(dpsi_ds1 - func::dpsi_ds1(s1, s2))
-            << std::endl;
+  std::cout << "diff: " << std::abs(dpsi_ds1 - func::dpsi_ds1(s1, s2)) << std::endl;
   std::cout << "dpsi_ds2:            " << dpsi_ds2 << std::endl;
   std::cout << "func::dpsi_ds2(s1,s2): " << func::dpsi_ds2(s1, s2) << std::endl;
-  std::cout << "diff: " << std::abs(dpsi_ds2 - func::dpsi_ds2(s1, s2))
-            << std::endl;
-  Assert(std::abs(psi - func::psi(s1, s2)) < tol,
-         ExcMessage("No match for function value."));
-  Assert(std::abs(dpsi_ds1 - func::dpsi_ds1(s1, s2)) < tol,
-         ExcMessage("No match for first derivative."));
-  Assert(std::abs(dpsi_ds2 - func::dpsi_ds2(s1, s2)) < tol,
-         ExcMessage("No match for first derivative."));
+  std::cout << "diff: " << std::abs(dpsi_ds2 - func::dpsi_ds2(s1, s2)) << std::endl;
+  Assert(std::abs(psi - func::psi(s1, s2)) < tol, ExcMessage("No match for function value."));
+  Assert(std::abs(dpsi_ds1 - func::dpsi_ds1(s1, s2)) < tol, ExcMessage("No match for first derivative."));
+  Assert(std::abs(dpsi_ds2 - func::dpsi_ds2(s1, s2)) < tol, ExcMessage("No match for first derivative."));
   if (AD::ADNumberTraits<ADNumberType>::n_supported_derivative_levels >= 2)
     {
-      const ScalarNumberType d2psi_ds1_ds1 =
-        ad_helper.extract_hessian_component(D2psi, s1_dof, s1_dof);
-      const ScalarNumberType d2psi_ds2_ds1 =
-        ad_helper.extract_hessian_component(D2psi, s1_dof, s2_dof);
-      const ScalarNumberType d2psi_ds1_ds2 =
-        ad_helper.extract_hessian_component(D2psi, s2_dof, s1_dof);
-      const ScalarNumberType d2psi_ds2_ds2 =
-        ad_helper.extract_hessian_component(D2psi, s2_dof, s2_dof);
+      const ScalarNumberType d2psi_ds1_ds1 = ad_helper.extract_hessian_component(D2psi, s1_dof, s1_dof);
+      const ScalarNumberType d2psi_ds2_ds1 = ad_helper.extract_hessian_component(D2psi, s1_dof, s2_dof);
+      const ScalarNumberType d2psi_ds1_ds2 = ad_helper.extract_hessian_component(D2psi, s2_dof, s1_dof);
+      const ScalarNumberType d2psi_ds2_ds2 = ad_helper.extract_hessian_component(D2psi, s2_dof, s2_dof);
       std::cout << "extracted D2psi (s1,s1): " << d2psi_ds1_ds1 << "\n"
                 << "extracted D2psi (s1,s2): " << d2psi_ds2_ds1 << "\n"
                 << "extracted D2psi (s2,s1): " << d2psi_ds1_ds2 << "\n"
                 << "extracted D2psi (s2,s2): " << d2psi_ds2_ds2 << "\n"
                 << std::endl;
       std::cout << "d2psi_ds1_ds1:            " << d2psi_ds1_ds1 << std::endl;
-      std::cout << "func::d2psi_ds1_ds1(s1,s2): " << func::d2psi_ds1_ds1(s1, s2)
-                << std::endl;
-      std::cout << "diff: "
-                << std::abs(d2psi_ds1_ds1 - func::d2psi_ds1_ds1(s1, s2))
-                << std::endl;
+      std::cout << "func::d2psi_ds1_ds1(s1,s2): " << func::d2psi_ds1_ds1(s1, s2) << std::endl;
+      std::cout << "diff: " << std::abs(d2psi_ds1_ds1 - func::d2psi_ds1_ds1(s1, s2)) << std::endl;
       std::cout << "d2psi_ds2_ds1:            " << d2psi_ds2_ds1 << std::endl;
-      std::cout << "func::d2psi_ds2_ds1(s1,s2): " << func::d2psi_ds2_ds1(s1, s2)
-                << std::endl;
-      std::cout << "diff: "
-                << std::abs(d2psi_ds2_ds1 - func::d2psi_ds2_ds1(s1, s2))
-                << std::endl;
+      std::cout << "func::d2psi_ds2_ds1(s1,s2): " << func::d2psi_ds2_ds1(s1, s2) << std::endl;
+      std::cout << "diff: " << std::abs(d2psi_ds2_ds1 - func::d2psi_ds2_ds1(s1, s2)) << std::endl;
       std::cout << "d2psi_ds1_ds2:            " << d2psi_ds1_ds2 << std::endl;
-      std::cout << "func::d2psi_ds1_ds2(s1,s2): " << func::d2psi_ds1_ds2(s1, s2)
-                << std::endl;
-      std::cout << "diff: "
-                << std::abs(d2psi_ds1_ds2 - func::d2psi_ds1_ds2(s1, s2))
-                << std::endl;
+      std::cout << "func::d2psi_ds1_ds2(s1,s2): " << func::d2psi_ds1_ds2(s1, s2) << std::endl;
+      std::cout << "diff: " << std::abs(d2psi_ds1_ds2 - func::d2psi_ds1_ds2(s1, s2)) << std::endl;
       std::cout << "d2psi_ds2_ds2:            " << d2psi_ds2_ds2 << std::endl;
-      std::cout << "func::d2psi_ds2_ds2(s1,s2): " << func::d2psi_ds2_ds2(s1, s2)
-                << std::endl;
-      std::cout << "diff: "
-                << std::abs(d2psi_ds2_ds2 - func::d2psi_ds2_ds2(s1, s2))
-                << std::endl;
+      std::cout << "func::d2psi_ds2_ds2(s1,s2): " << func::d2psi_ds2_ds2(s1, s2) << std::endl;
+      std::cout << "diff: " << std::abs(d2psi_ds2_ds2 - func::d2psi_ds2_ds2(s1, s2)) << std::endl;
       Assert(std::abs(d2psi_ds1_ds1 - func::d2psi_ds1_ds1(s1, s2)) < tol,
              ExcMessage("No match for second derivative."));
       Assert(std::abs(d2psi_ds2_ds1 - func::d2psi_ds2_ds1(s1, s2)) < tol,
@@ -271,17 +240,14 @@ test_scalar_scalar_coupled_one_run(const number_t s1,
 
 template <int dim, typename number_t, enum AD::NumberTypes ad_type_code>
 void
-test_scalar_scalar_coupled(const unsigned int n_runs,
-                           const unsigned int clearing_modulo)
+test_scalar_scalar_coupled(const unsigned int n_runs, const unsigned int clearing_modulo)
 {
   for (unsigned int r = 0; r < n_runs; ++r)
     {
       const bool     clear_tape = (r % clearing_modulo == 0);
       const number_t s1         = 3.1 * (1.0 + r / 10.0);
       const number_t s2         = 5.9 * (1.0 + r / 10.0);
-      test_scalar_scalar_coupled_one_run<3, number_t, ad_type_code>(s1,
-                                                                    s2,
-                                                                    clear_tape);
+      test_scalar_scalar_coupled_one_run<3, number_t, ad_type_code>(s1, s2, clear_tape);
     }
 }
 

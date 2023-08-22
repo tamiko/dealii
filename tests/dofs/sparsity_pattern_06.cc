@@ -43,17 +43,11 @@ main(int argc, char **argv)
   MPILogInitAll all;
 
   parallel::distributed::Triangulation<2> triangulation(MPI_COMM_WORLD);
-  GridGenerator::subdivided_hyper_rectangle(triangulation,
-                                            {4u, 1u},
-                                            {0.0, 0.0},
-                                            {4.0, 1.0});
+  GridGenerator::subdivided_hyper_rectangle(triangulation, {4u, 1u}, {0.0, 0.0}, {4.0, 1.0});
   triangulation.refine_global(1);
-  deallog << "global number of active cells: "
-          << triangulation.n_global_active_cells() << std::endl;
-  deallog << "local number of active cells: " << triangulation.n_active_cells()
-          << std::endl;
-  deallog << "number of locally owned active cells: "
-          << triangulation.n_locally_owned_active_cells() << std::endl;
+  deallog << "global number of active cells: " << triangulation.n_global_active_cells() << std::endl;
+  deallog << "local number of active cells: " << triangulation.n_active_cells() << std::endl;
+  deallog << "number of locally owned active cells: " << triangulation.n_locally_owned_active_cells() << std::endl;
 
   FE_DGQ<2>     fe_0(0);
   DoFHandler<2> dof_handler_0(triangulation);
@@ -64,10 +58,8 @@ main(int argc, char **argv)
 
   IndexSet locally_relevant_dofs_0;
   IndexSet locally_relevant_dofs_1;
-  DoFTools::extract_locally_relevant_dofs(dof_handler_0,
-                                          locally_relevant_dofs_0);
-  DoFTools::extract_locally_relevant_dofs(dof_handler_1,
-                                          locally_relevant_dofs_1);
+  DoFTools::extract_locally_relevant_dofs(dof_handler_0, locally_relevant_dofs_0);
+  DoFTools::extract_locally_relevant_dofs(dof_handler_1, locally_relevant_dofs_1);
   deallog << "locally owned dofs 0: ";
   dof_handler_0.locally_owned_dofs().print(deallog);
   deallog << std::endl;
@@ -128,19 +120,15 @@ main(int argc, char **argv)
   }
 #endif
 
-  DynamicSparsityPattern dynamic_sparsity_pattern(
-    dof_handler_0.locally_owned_dofs().size(),
-    dof_handler_1.locally_owned_dofs().size(),
-    dof_handler_0.locally_owned_dofs());
-  DoFTools::make_sparsity_pattern(dof_handler_0,
-                                  dof_handler_1,
-                                  dynamic_sparsity_pattern);
+  DynamicSparsityPattern dynamic_sparsity_pattern(dof_handler_0.locally_owned_dofs().size(),
+                                                  dof_handler_1.locally_owned_dofs().size(),
+                                                  dof_handler_0.locally_owned_dofs());
+  DoFTools::make_sparsity_pattern(dof_handler_0, dof_handler_1, dynamic_sparsity_pattern);
   dynamic_sparsity_pattern.print(deallog.get_file_stream());
-  SparsityTools::distribute_sparsity_pattern(
-    dynamic_sparsity_pattern,
-    dof_handler_0.locally_owned_dofs(),
-    MPI_COMM_WORLD,
-    dof_handler_0.locally_owned_dofs());
+  SparsityTools::distribute_sparsity_pattern(dynamic_sparsity_pattern,
+                                             dof_handler_0.locally_owned_dofs(),
+                                             MPI_COMM_WORLD,
+                                             dof_handler_0.locally_owned_dofs());
   dynamic_sparsity_pattern.print(deallog.get_file_stream());
 
   deallog << "OK" << std::endl;

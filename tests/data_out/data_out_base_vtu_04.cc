@@ -40,11 +40,8 @@ check(std::ostream &log, unsigned cell_order)
   // choose some arbitrary radii to reduce possibility of roundoff effects in
   // the double -> float transition and with binary (zlib compressed VTU)
   // output
-  GridGenerator::hyper_shell(triangulation,
-                             Point<dim>(3.2323343428452032, 2.12432324033),
-                             0.53324387343224532,
-                             1.032354728342342875235,
-                             6);
+  GridGenerator::hyper_shell(
+    triangulation, Point<dim>(3.2323343428452032, 2.12432324033), 0.53324387343224532, 1.032354728342342875235, 6);
   triangulation.refine_global(1);
 
   FE_Q<dim>       fe(cell_order);
@@ -54,14 +51,11 @@ check(std::ostream &log, unsigned cell_order)
   Vector<double> vec(dof_handler.n_dofs());
   MappingQ<dim>  mapping(cell_order);
 
-  VectorTools::interpolate(mapping,
-                           dof_handler,
-                           Functions::SquareFunction<dim>(),
-                           vec);
+  VectorTools::interpolate(mapping, dof_handler, Functions::SquareFunction<dim>(), vec);
 
   DataOutBase::VtkFlags flags;
   flags.write_higher_order_cells = true;
-  flags.compression_level = DataOutBase::CompressionLevel::best_compression;
+  flags.compression_level        = DataOutBase::CompressionLevel::best_compression;
 
   DataOut<dim> data_out;
   data_out.set_flags(flags);

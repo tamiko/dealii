@@ -50,16 +50,13 @@ check(const unsigned int fe_degree)
   for (unsigned int cycle = 0; cycle < (dim == 2 ? 10 : 7); ++cycle)
     {
       // adaptive refinement into a circle
-      for (typename Triangulation<dim>::active_cell_iterator cell =
-             tr.begin_active();
-           cell != tr.end();
-           ++cell)
+      for (typename Triangulation<dim>::active_cell_iterator cell = tr.begin_active(); cell != tr.end(); ++cell)
         if (cell->is_locally_owned() && cell->vertex(0).norm() < 1e-10)
           cell->set_refine_flag();
       tr.execute_coarsening_and_refinement();
 
-      deallog << "no. cells: " << tr.n_global_active_cells() << " on "
-              << tr.n_global_levels() << " levels" << std::endl;
+      deallog << "no. cells: " << tr.n_global_active_cells() << " on " << tr.n_global_levels() << " levels"
+              << std::endl;
 
       DoFHandler<dim> mgdof(tr);
       mgdof.distribute_dofs(fe);
@@ -70,8 +67,7 @@ check(const unsigned int fe_degree)
       mg_constrained_dofs.make_zero_boundary_constraints(mgdof, {0});
 
       // build reference
-      MGTransferPrebuilt<LinearAlgebra::distributed::Vector<double>>
-        transfer_ref(mg_constrained_dofs);
+      MGTransferPrebuilt<LinearAlgebra::distributed::Vector<double>> transfer_ref(mg_constrained_dofs);
       transfer_ref.build(mgdof);
 
       // build matrix-free transfer
@@ -81,9 +77,7 @@ check(const unsigned int fe_degree)
       const Number tolerance = 1000. * std::numeric_limits<Number>::epsilon();
 
       // check prolongation for all levels using random vector
-      for (unsigned int level = 1;
-           level < mgdof.get_triangulation().n_global_levels();
-           ++level)
+      for (unsigned int level = 1; level < mgdof.get_triangulation().n_global_levels(); ++level)
         {
           LinearAlgebra::distributed::Vector<Number> v1, v2;
           LinearAlgebra::distributed::Vector<double> v1_cpy, v2_cpy, v3;
@@ -97,15 +91,12 @@ check(const unsigned int fe_degree)
           transfer_ref.prolongate(level, v3, v1_cpy);
           v2_cpy = v2;
           v3 -= v2_cpy;
-          deallog << "Diff prolongate   l" << level << ": "
-                  << filter_out_small_numbers(v3.l2_norm(), tolerance)
+          deallog << "Diff prolongate   l" << level << ": " << filter_out_small_numbers(v3.l2_norm(), tolerance)
                   << std::endl;
         }
 
       // check restriction for all levels using random vector
-      for (unsigned int level = 1;
-           level < mgdof.get_triangulation().n_global_levels();
-           ++level)
+      for (unsigned int level = 1; level < mgdof.get_triangulation().n_global_levels(); ++level)
         {
           LinearAlgebra::distributed::Vector<Number> v1, v2;
           LinearAlgebra::distributed::Vector<double> v1_cpy, v2_cpy, v3;
@@ -119,8 +110,7 @@ check(const unsigned int fe_degree)
           transfer_ref.restrict_and_add(level, v3, v1_cpy);
           v2_cpy = v2;
           v3 -= v2_cpy;
-          deallog << "Diff restrict     l" << level << ": "
-                  << filter_out_small_numbers(v3.l2_norm(), tolerance)
+          deallog << "Diff restrict     l" << level << ": " << filter_out_small_numbers(v3.l2_norm(), tolerance)
                   << std::endl;
 
           v2 = 1.;
@@ -129,8 +119,7 @@ check(const unsigned int fe_degree)
           transfer_ref.restrict_and_add(level, v3, v1_cpy);
           v2_cpy = v2;
           v3 -= v2_cpy;
-          deallog << "Diff restrict add l" << level << ": "
-                  << filter_out_small_numbers(v3.l2_norm(), tolerance)
+          deallog << "Diff restrict add l" << level << ": " << filter_out_small_numbers(v3.l2_norm(), tolerance)
                   << std::endl;
         }
       deallog << std::endl;

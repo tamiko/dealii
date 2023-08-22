@@ -49,8 +49,7 @@ template <int dim>
 void
 compute_pi_by_area()
 {
-  deallog << "Computation of Pi by the area:" << std::endl
-          << "==============================" << std::endl;
+  deallog << "Computation of Pi by the area:" << std::endl << "==============================" << std::endl;
 
   const unsigned int degree = 10 - dim;
   deallog << "Degree = " << degree << std::endl;
@@ -72,16 +71,13 @@ compute_pi_by_area()
   // in 3D, we obtain many digits only on a finer mesh
   if (dim == 3)
     triangulation.refine_global(1);
-  for (int refinement = 0; refinement < 4 - dim;
-       ++refinement, triangulation.refine_global(1))
+  for (int refinement = 0; refinement < 4 - dim; ++refinement, triangulation.refine_global(1))
     {
       dof_handler.distribute_dofs(dummy_fe);
 
       long double area = 0;
 
-      typename DoFHandler<dim>::active_cell_iterator cell = dof_handler
-                                                              .begin_active(),
-                                                     endc = dof_handler.end();
+      typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
       for (; cell != endc; ++cell)
         {
           x_fe_values.reinit(cell);
@@ -97,18 +93,14 @@ compute_pi_by_area()
       // on any level.
       if (dim == 2)
         {
-          deallog << "Evaluation of pi on " << triangulation.n_active_cells()
-                  << " cells: " << area << std::endl;
+          deallog << "Evaluation of pi on " << triangulation.n_active_cells() << " cells: " << area << std::endl;
           // assert accuracy because numdiff might cut off digits from output
-          Assert(std::abs(area - pi) < 1e-14,
-                 ExcMessage("Calculation not accurate"));
+          Assert(std::abs(area - pi) < 1e-14, ExcMessage("Calculation not accurate"));
         }
       else
         {
           area *= 0.75;
-          deallog << "Evaluation of pi on in 3D "
-                  << triangulation.n_active_cells() << " cells: " << area
-                  << std::endl;
+          deallog << "Evaluation of pi on in 3D " << triangulation.n_active_cells() << " cells: " << area << std::endl;
           // Assert(std::abs(area - pi) < 1e-12,
           //       ExcMessage("Calculation not accurate"));
         }
@@ -122,8 +114,7 @@ template <int dim>
 void
 compute_pi_by_perimeter()
 {
-  deallog << "Computation of Pi by the perimeter:" << std::endl
-          << "===================================" << std::endl;
+  deallog << "Computation of Pi by the perimeter:" << std::endl << "===================================" << std::endl;
 
 
   const unsigned int degree = 20;
@@ -140,35 +131,25 @@ compute_pi_by_perimeter()
 
   DoFHandler<dim> dof_handler(triangulation);
 
-  FEFaceValues<dim> x_fe_face_values(mapping,
-                                     fe,
-                                     quadrature,
-                                     update_JxW_values);
-  for (unsigned int refinement = 0; refinement < 2;
-       ++refinement, triangulation.refine_global(1))
+  FEFaceValues<dim> x_fe_face_values(mapping, fe, quadrature, update_JxW_values);
+  for (unsigned int refinement = 0; refinement < 2; ++refinement, triangulation.refine_global(1))
     {
       dof_handler.distribute_dofs(fe);
 
-      typename DoFHandler<dim>::active_cell_iterator cell = dof_handler
-                                                              .begin_active(),
-                                                     endc = dof_handler.end();
-      long double perimeter                               = 0;
+      typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
+      long double                                    perimeter = 0;
       for (; cell != endc; ++cell)
         for (const unsigned int face_no : GeometryInfo<dim>::face_indices())
           if (cell->face(face_no)->at_boundary())
             {
               x_fe_face_values.reinit(cell, face_no);
-              const FEFaceValues<dim> &fe_face_values =
-                x_fe_face_values.get_present_fe_values();
+              const FEFaceValues<dim> &fe_face_values = x_fe_face_values.get_present_fe_values();
 
-              for (unsigned int i = 0; i < fe_face_values.n_quadrature_points;
-                   ++i)
+              for (unsigned int i = 0; i < fe_face_values.n_quadrature_points; ++i)
                 perimeter += fe_face_values.JxW(i);
             };
-      deallog << "Evaluation of pi on " << triangulation.n_active_cells()
-              << " cells: " << perimeter / 2. << std::endl;
-      Assert(std::abs(perimeter / 2. - pi) < 1e-14,
-             ExcMessage("Calculation not accurate"));
+      deallog << "Evaluation of pi on " << triangulation.n_active_cells() << " cells: " << perimeter / 2. << std::endl;
+      Assert(std::abs(perimeter / 2. - pi) < 1e-14, ExcMessage("Calculation not accurate"));
     };
 
   deallog << std::endl;

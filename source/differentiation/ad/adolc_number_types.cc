@@ -40,21 +40,15 @@ namespace numbers
       // such a comparison. This is implemented as a general function so that
       // the list of implemented comparative operations can be easily extended.
       bool
-      adouble_boolean_comparator(
-        const adouble &value_1,
-        const adouble &value_2,
-        const std::function<adouble(const adouble &, const adouble &)>
-          &comparator)
+      adouble_boolean_comparator(const adouble                                                  &value_1,
+                                 const adouble                                                  &value_2,
+                                 const std::function<adouble(const adouble &, const adouble &)> &comparator)
       {
-        using ad_type = typename Differentiation::AD::NumberTraits<
-          double,
-          Differentiation::AD::NumberTypes::adolc_taped>::ad_type;
-        static_assert(
-          std::is_same_v<adouble, ad_type>,
-          "The type of the AD number is not that which was expected.");
+        using ad_type =
+          typename Differentiation::AD::NumberTraits<double, Differentiation::AD::NumberTypes::adolc_taped>::ad_type;
+        static_assert(std::is_same_v<adouble, ad_type>, "The type of the AD number is not that which was expected.");
         const ad_type result = comparator(value_1, value_2);
-        return !(Differentiation::AD::ADNumberTraits<ad_type>::get_scalar_value(
-                   result) == 0.0);
+        return !(Differentiation::AD::ADNumberTraits<ad_type>::get_scalar_value(result) == 0.0);
       }
     } // namespace
   }   // namespace internal
@@ -62,19 +56,17 @@ namespace numbers
   bool
   values_are_equal(const adouble &value_1, const adouble &value_2)
   {
-    return internal::adouble_boolean_comparator(
-      value_1, value_2, [](const adouble &a, const adouble &b) -> adouble {
-        return dealii::internal::NumberType<adouble>::value(a == b);
-      });
+    return internal::adouble_boolean_comparator(value_1, value_2, [](const adouble &a, const adouble &b) -> adouble {
+      return dealii::internal::NumberType<adouble>::value(a == b);
+    });
   }
 
   bool
   value_is_less_than(const adouble &value_1, const adouble &value_2)
   {
-    return internal::adouble_boolean_comparator(
-      value_1, value_2, [](const adouble &a, const adouble &b) -> adouble {
-        return dealii::internal::NumberType<adouble>::value(a < b);
-      });
+    return internal::adouble_boolean_comparator(value_1, value_2, [](const adouble &a, const adouble &b) -> adouble {
+      return dealii::internal::NumberType<adouble>::value(a < b);
+    });
   }
 } // namespace numbers
 

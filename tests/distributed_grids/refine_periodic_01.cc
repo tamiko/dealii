@@ -38,18 +38,14 @@ test()
     MPI_COMM_WORLD,
     dealii::Triangulation<dim>::none,
     typename parallel::distributed::Triangulation<dim>::Settings(
-      parallel::distributed::Triangulation<
-        dim>::mesh_reconstruction_after_repartitioning |
+      parallel::distributed::Triangulation<dim>::mesh_reconstruction_after_repartitioning |
       parallel::distributed::Triangulation<dim>::construct_multigrid_hierarchy |
-      parallel::distributed::Triangulation<
-        dim>::communicate_vertices_to_p4est));
+      parallel::distributed::Triangulation<dim>::communicate_vertices_to_p4est));
 
   GridGenerator::subdivided_hyper_cube(tr, 4, -1.0, 3.0, true);
 
   // make x periodic
-  std::vector<
-    GridTools::PeriodicFacePair<typename Triangulation<dim>::cell_iterator>>
-    periodic_faces;
+  std::vector<GridTools::PeriodicFacePair<typename Triangulation<dim>::cell_iterator>> periodic_faces;
   GridTools::collect_periodic_faces(tr, 0, 1, 0, periodic_faces);
 
   tr.add_periodicity(periodic_faces);

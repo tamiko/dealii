@@ -57,13 +57,12 @@ main()
   dof_handler.distribute_dofs(fe);
 
   AffineConstraints<double> constraints;
-  VectorTools::interpolate_boundary_values(
-    MappingCartesian<2>(),
-    dof_handler,
-    0,
-    Functions::ConstantFunction<2>(42.0, n_components),
-    constraints,
-    ComponentMask({true, true, false, false, false}));
+  VectorTools::interpolate_boundary_values(MappingCartesian<2>(),
+                                           dof_handler,
+                                           0,
+                                           Functions::ConstantFunction<2>(42.0, n_components),
+                                           constraints,
+                                           ComponentMask({true, true, false, false, false}));
   DoFTools::make_hanging_node_constraints(dof_handler, constraints);
 
   Table<2, DoFTools::Coupling> coupling(n_components, n_components);
@@ -72,12 +71,10 @@ main()
       // This is completely arbitrary for this test so just flip back and forth
       coupling[c][d] = (c + d) % 2 == 0 ? DoFTools::always : DoFTools::none;
 
-  const std::vector<types::global_dof_index> dofs_per_block =
-    DoFTools::count_dofs_per_fe_block(dof_handler);
+  const std::vector<types::global_dof_index> dofs_per_block = DoFTools::count_dofs_per_fe_block(dof_handler);
 
   BlockDynamicSparsityPattern dsp(dofs_per_block, dofs_per_block);
-  DoFTools::make_sparsity_pattern(
-    dof_handler, coupling, dsp, constraints, false);
+  DoFTools::make_sparsity_pattern(dof_handler, coupling, dsp, constraints, false);
 
   BlockSparsityPattern sp(n_blocks, n_blocks);
   sp.copy_from(dsp);

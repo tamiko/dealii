@@ -65,23 +65,20 @@ test()
   Particles::ParticleHandler<dim, spacedim> particle_handler(tr, mapping);
 
   const unsigned int n_points = 2;
-  const unsigned int my_cpu = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
-  const unsigned int n_cpus = Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
+  const unsigned int my_cpu   = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  const unsigned int n_cpus   = Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
   Testing::srand(my_cpu + 1);
 
   // Create the bounding boxes for the global insertion
-  auto my_bounding_box = GridTools::compute_mesh_predicate_bounding_box(
-    tr, IteratorFilters::LocallyOwnedCell());
+  auto my_bounding_box = GridTools::compute_mesh_predicate_bounding_box(tr, IteratorFilters::LocallyOwnedCell());
 
-  auto global_bounding_boxes =
-    Utilities::MPI::all_gather(MPI_COMM_WORLD, my_bounding_box);
+  auto global_bounding_boxes = Utilities::MPI::all_gather(MPI_COMM_WORLD, my_bounding_box);
 
   std::vector<Point<spacedim>> points(n_points);
   for (auto &p : points)
     p = random_point<spacedim>(0.1, 0.2);
 
-  auto cpu_to_index =
-    particle_handler.insert_global_particles(points, global_bounding_boxes);
+  auto cpu_to_index = particle_handler.insert_global_particles(points, global_bounding_boxes);
 
   for (const auto &particle : particle_handler)
     {

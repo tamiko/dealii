@@ -43,39 +43,33 @@ test_2d()
   for (unsigned int i = 0; i < fe_collection.size(); ++i)
     fourier_q_collection.push_back(quadrature);
 
-  const std::vector<unsigned int> n_coefficients_per_direction(
-    fe_collection.size(), N);
+  const std::vector<unsigned int> n_coefficients_per_direction(fe_collection.size(), N);
 
-  FESeries::Fourier<dim> fourier(n_coefficients_per_direction,
-                                 fe_collection,
-                                 fourier_q_collection);
+  FESeries::Fourier<dim> fourier(n_coefficients_per_direction, fe_collection, fourier_q_collection);
 
   Table<dim, std::complex<double>> fourier_coefficients;
   fourier_coefficients.reinit(N, N);
 
   Vector<double> local_dof_values(9);
   double         dofs[] = {0.0000000000000000e+00,
-                   0.0000000000000000e+00,
-                   0.0000000000000000e+00,
-                   2.3801522930483391e-04,
-                   0.0000000000000000e+00,
-                   1.1949018981806140e-04,
-                   0.0000000000000000e+00,
-                   1.1949019042912971e-04,
-                   5.9982796422221083e-05};
+                           0.0000000000000000e+00,
+                           0.0000000000000000e+00,
+                           2.3801522930483391e-04,
+                           0.0000000000000000e+00,
+                           1.1949018981806140e-04,
+                           0.0000000000000000e+00,
+                           1.1949019042912971e-04,
+                           5.9982796422221083e-05};
   for (unsigned int i = 0; i < 9; ++i)
     local_dof_values[i] = dofs[i];
 
   const unsigned int cell_active_fe_index = 0;
-  fourier.calculate(local_dof_values,
-                    cell_active_fe_index,
-                    fourier_coefficients);
+  fourier.calculate(local_dof_values, cell_active_fe_index, fourier_coefficients);
 
   for (unsigned int i = 0; i < fourier_coefficients.size(0); ++i)
     for (unsigned int j = 0; j < fourier_coefficients.size(1); ++j)
       if ((i * i + j * j < N * N) && (i * i + j * j > 0))
-        deallog << (i * i + j * j) << " : " << fourier_coefficients(i, j)
-                << std::endl;
+        deallog << (i * i + j * j) << " : " << fourier_coefficients(i, j) << std::endl;
 }
 
 

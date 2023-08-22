@@ -46,18 +46,15 @@ namespace HDF5
         if (std::uncaught_exception() == true)
 #    endif
           {
-            std::cerr
-              << "---------------------------------------------------------\n"
-              << "HDF5 " + type + " objects call " + name +
-                   " to end access to\n"
-              << "them and release any resources they acquired. This call\n"
-              << "requires MPI synchronization. Since an exception is\n"
-              << "currently uncaught, this synchronization would likely\n"
-              << "deadlock because only the current process is trying to\n"
-              << "destroy the object. As a consequence, the program will be\n"
-              << "aborted and the HDF5 might be corrupted.\n"
-              << "---------------------------------------------------------"
-              << std::endl;
+            std::cerr << "---------------------------------------------------------\n"
+                      << "HDF5 " + type + " objects call " + name + " to end access to\n"
+                      << "them and release any resources they acquired. This call\n"
+                      << "requires MPI synchronization. Since an exception is\n"
+                      << "currently uncaught, this synchronization would likely\n"
+                      << "deadlock because only the current process is trying to\n"
+                      << "destroy the object. As a consequence, the program will be\n"
+                      << "aborted and the HDF5 might be corrupted.\n"
+                      << "---------------------------------------------------------" << std::endl;
 
             MPI_Abort(MPI_COMM_WORLD, 1);
           }
@@ -86,9 +83,7 @@ namespace HDF5
 
 
 
-  DataSet::DataSet(const std::string &name,
-                   const hid_t &      parent_group_id,
-                   const bool         mpi)
+  DataSet::DataSet(const std::string &name, const hid_t &parent_group_id, const bool mpi)
     : HDF5Object(name, mpi)
     , query_io_mode(false)
     , io_mode(H5D_MPIO_NO_COLLECTIVE)
@@ -96,8 +91,7 @@ namespace HDF5
     , global_no_collective_cause(H5D_MPIO_SET_INDEPENDENT)
   {
     hdf5_reference = std::shared_ptr<hid_t>(new hid_t, [](hid_t *pointer) {
-      internal::HDF5ObjectImplementation::check_exception("DataSet",
-                                                          "H5Dclose");
+      internal::HDF5ObjectImplementation::check_exception("DataSet", "H5Dclose");
       // Release the HDF5 resource
       const herr_t ret = H5Dclose(*pointer);
       AssertNothrow(ret >= 0, ExcInternalError());
@@ -105,8 +99,7 @@ namespace HDF5
       delete pointer;
     });
     dataspace      = std::shared_ptr<hid_t>(new hid_t, [](hid_t *pointer) {
-      internal::HDF5ObjectImplementation::check_exception("DataSpace",
-                                                          "H5Sclose");
+      internal::HDF5ObjectImplementation::check_exception("DataSpace", "H5Sclose");
       // Release the HDF5 resource
       const herr_t ret = H5Sclose(*pointer);
       AssertNothrow(ret >= 0, ExcInternalError());
@@ -128,8 +121,7 @@ namespace HDF5
     Assert(rank_ret >= 0, ExcInternalError());
     rank = rank_ret;
     dimensions.resize(rank);
-    rank_ret =
-      H5Sget_simple_extent_dims(*dataspace, dimensions.data(), nullptr);
+    rank_ret = H5Sget_simple_extent_dims(*dataspace, dimensions.data(), nullptr);
     AssertDimension(rank_ret, static_cast<int>(rank));
 
     size = 1;
@@ -141,9 +133,9 @@ namespace HDF5
 
 
 
-  DataSet::DataSet(const std::string &           name,
-                   const hid_t &                 parent_group_id,
-                   const std::vector<hsize_t> &  dimensions,
+  DataSet::DataSet(const std::string            &name,
+                   const hid_t                  &parent_group_id,
+                   const std::vector<hsize_t>   &dimensions,
                    const std::shared_ptr<hid_t> &t_type,
                    const bool                    mpi)
     : HDF5Object(name, mpi)
@@ -155,8 +147,7 @@ namespace HDF5
     , global_no_collective_cause(H5D_MPIO_SET_INDEPENDENT)
   {
     hdf5_reference = std::shared_ptr<hid_t>(new hid_t, [](hid_t *pointer) {
-      internal::HDF5ObjectImplementation::check_exception("DataSet",
-                                                          "H5Dclose");
+      internal::HDF5ObjectImplementation::check_exception("DataSet", "H5Dclose");
       // Release the HDF5 resource
       const herr_t ret = H5Dclose(*pointer);
       AssertNothrow(ret >= 0, ExcInternalError());
@@ -164,8 +155,7 @@ namespace HDF5
       delete pointer;
     });
     dataspace      = std::shared_ptr<hid_t>(new hid_t, [](hid_t *pointer) {
-      internal::HDF5ObjectImplementation::check_exception("DataSpace",
-                                                          "H5Sclose");
+      internal::HDF5ObjectImplementation::check_exception("DataSpace", "H5Sclose");
       // Release the HDF5 resource
       const herr_t ret = H5Sclose(*pointer);
       AssertNothrow(ret >= 0, ExcInternalError());
@@ -176,13 +166,8 @@ namespace HDF5
     *dataspace = H5Screate_simple(rank, dimensions.data(), nullptr);
     Assert(*dataspace >= 0, ExcMessage("Error at H5Screate_simple"));
 
-    *hdf5_reference = H5Dcreate2(parent_group_id,
-                                 name.data(),
-                                 *t_type,
-                                 *dataspace,
-                                 H5P_DEFAULT,
-                                 H5P_DEFAULT,
-                                 H5P_DEFAULT);
+    *hdf5_reference =
+      H5Dcreate2(parent_group_id, name.data(), *t_type, *dataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     Assert(*hdf5_reference >= 0, ExcMessage("Error at H5Dcreate2"));
 
     size = 1;
@@ -213,8 +198,7 @@ namespace HDF5
   std::string
   DataSet::get_io_mode()
   {
-    Assert(query_io_mode,
-           ExcMessage("query_io_mode should be true in order to use io_mode"));
+    Assert(query_io_mode, ExcMessage("query_io_mode should be true in order to use io_mode"));
     switch (io_mode)
       {
         case (H5D_MPIO_NO_COLLECTIVE):
@@ -247,9 +231,7 @@ namespace HDF5
   H5D_mpio_actual_io_mode_t
   DataSet::get_io_mode_as_hdf5_type()
   {
-    Assert(query_io_mode,
-           ExcMessage(
-             "query_io_mode should be true in order to use get_io_mode"));
+    Assert(query_io_mode, ExcMessage("query_io_mode should be true in order to use get_io_mode"));
     return io_mode;
   }
 
@@ -258,10 +240,7 @@ namespace HDF5
   std::string
   DataSet::get_local_no_collective_cause()
   {
-    Assert(
-      query_io_mode,
-      ExcMessage(
-        "query_io_mode should be true in order to use get_local_no_collective_cause()"));
+    Assert(query_io_mode, ExcMessage("query_io_mode should be true in order to use get_local_no_collective_cause()"));
     return internal::no_collective_cause_to_string(local_no_collective_cause);
   }
 
@@ -270,10 +249,7 @@ namespace HDF5
   std::uint32_t
   DataSet::get_local_no_collective_cause_as_hdf5_type()
   {
-    Assert(
-      query_io_mode,
-      ExcMessage(
-        "query_io_mode should be true in order to use get_local_no_collective_cause()"));
+    Assert(query_io_mode, ExcMessage("query_io_mode should be true in order to use get_local_no_collective_cause()"));
     return local_no_collective_cause;
   }
 
@@ -282,10 +258,7 @@ namespace HDF5
   std::string
   DataSet::get_global_no_collective_cause()
   {
-    Assert(
-      query_io_mode,
-      ExcMessage(
-        "query_io_mode should be true in order to use get_global_no_collective_cause()"));
+    Assert(query_io_mode, ExcMessage("query_io_mode should be true in order to use get_global_no_collective_cause()"));
     return internal::no_collective_cause_to_string(global_no_collective_cause);
   }
 
@@ -294,10 +267,7 @@ namespace HDF5
   std::uint32_t
   DataSet::get_global_no_collective_cause_as_hdf5_type()
   {
-    Assert(
-      query_io_mode,
-      ExcMessage(
-        "query_io_mode should be true in order to use get_global_no_collective_cause()"));
+    Assert(query_io_mode, ExcMessage("query_io_mode should be true in order to use get_global_no_collective_cause()"));
     return global_no_collective_cause;
   }
 
@@ -326,10 +296,7 @@ namespace HDF5
 
 
 
-  Group::Group(const std::string &   name,
-               const Group &         parentGroup,
-               const bool            mpi,
-               const GroupAccessMode mode)
+  Group::Group(const std::string &name, const Group &parentGroup, const bool mpi, const GroupAccessMode mode)
     : HDF5Object(name, mpi)
   {
     hdf5_reference = std::shared_ptr<hid_t>(new hid_t, [](hid_t *pointer) {
@@ -343,16 +310,12 @@ namespace HDF5
     switch (mode)
       {
         case (GroupAccessMode::open):
-          *hdf5_reference =
-            H5Gopen2(*(parentGroup.hdf5_reference), name.data(), H5P_DEFAULT);
+          *hdf5_reference = H5Gopen2(*(parentGroup.hdf5_reference), name.data(), H5P_DEFAULT);
           Assert(*hdf5_reference >= 0, ExcMessage("Error at H5Gopen2"));
           break;
         case (GroupAccessMode::create):
-          *hdf5_reference = H5Gcreate2(*(parentGroup.hdf5_reference),
-                                       name.data(),
-                                       H5P_DEFAULT,
-                                       H5P_DEFAULT,
-                                       H5P_DEFAULT);
+          *hdf5_reference =
+            H5Gcreate2(*(parentGroup.hdf5_reference), name.data(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
           Assert(*hdf5_reference >= 0, ExcMessage("Error at H5Gcreate2"));
           break;
         default:
@@ -407,18 +370,13 @@ namespace HDF5
 
 
 
-  File::File(const std::string &  name,
-             const FileAccessMode mode,
-             const MPI_Comm       mpi_communicator)
+  File::File(const std::string &name, const FileAccessMode mode, const MPI_Comm mpi_communicator)
     : File(name, mode, true, mpi_communicator)
   {}
 
 
 
-  File::File(const std::string &  name,
-             const FileAccessMode mode,
-             const bool           mpi,
-             const MPI_Comm       mpi_communicator)
+  File::File(const std::string &name, const FileAccessMode mode, const bool mpi, const MPI_Comm mpi_communicator)
     : Group(name, mpi)
   {
     hdf5_reference = std::shared_ptr<hid_t>(new hid_t, [](hid_t *pointer) {
@@ -462,8 +420,7 @@ namespace HDF5
           Assert(*hdf5_reference >= 0, ExcMessage("Error at H5Fopen"));
           break;
         case (FileAccessMode::create):
-          *hdf5_reference =
-            H5Fcreate(name.data(), H5F_ACC_TRUNC, H5P_DEFAULT, plist);
+          *hdf5_reference = H5Fcreate(name.data(), H5F_ACC_TRUNC, H5P_DEFAULT, plist);
           Assert(*hdf5_reference >= 0, ExcMessage("Error at H5Fcreate"));
           break;
         default:

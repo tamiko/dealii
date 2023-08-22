@@ -90,8 +90,7 @@ public:
    * and the number of children of a cell in the current space dimension (i.e.,
    * GeometryInfo<dim>::max_children_per_cell).
    */
-  CellId(const types::coarse_cell_id      coarse_cell_id,
-         const std::vector<std::uint8_t> &child_indices);
+  CellId(const types::coarse_cell_id coarse_cell_id, const std::vector<std::uint8_t> &child_indices);
 
   /**
    * Construct a CellId object with a given @p coarse_cell_id and array of
@@ -106,7 +105,7 @@ public:
    */
   CellId(const types::coarse_cell_id coarse_cell_id,
          const unsigned int          n_child_indices,
-         const std::uint8_t *        child_indices);
+         const std::uint8_t         *child_indices);
 
   /**
    * Construct a CellId object with a given binary representation that was
@@ -228,8 +227,7 @@ private:
    * the array can be extended.
    */
 #ifdef DEAL_II_WITH_P4EST
-  std::array<std::uint8_t, internal::p4est::functions<2>::max_level>
-    child_indices;
+  std::array<std::uint8_t, internal::p4est::functions<2>::max_level> child_indices;
 #else
   std::array<std::uint8_t, 30> child_indices;
 #endif

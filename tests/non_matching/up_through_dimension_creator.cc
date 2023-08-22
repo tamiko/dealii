@@ -61,8 +61,7 @@ create_and_print_partitioning(const Function<dim> &level_set)
   const hp::QCollection<1>                    q_collection1D(QGauss<1>(2));
   const NonMatching::AdditionalQGeneratorData additional_data;
 
-  UpThroughDimensionCreator<dim, dim> up_through_dimension_creator(
-    q_collection1D, additional_data);
+  UpThroughDimensionCreator<dim, dim> up_through_dimension_creator(q_collection1D, additional_data);
 
   std::vector<std::reference_wrapper<const Function<dim>>> level_sets;
   level_sets.push_back(level_set);
@@ -71,11 +70,7 @@ create_and_print_partitioning(const Function<dim> &level_set)
   const unsigned int       height_function_direction = dim - 1;
 
   QPartitioning<dim> q_partitioning;
-  up_through_dimension_creator.generate(level_sets,
-                                        box,
-                                        low_dim_quadrature,
-                                        height_function_direction,
-                                        q_partitioning);
+  up_through_dimension_creator.generate(level_sets, box, low_dim_quadrature, height_function_direction, q_partitioning);
   print(q_partitioning);
 }
 
@@ -94,10 +89,9 @@ test_cut_through_center()
   deallog << "test_cut_through_center" << std::endl;
   deallog << std::endl;
 
-  Point<dim>     point_through_plane = .5 * Point<dim>::unit_vector(dim - 1);
-  Tensor<1, dim> plane_normal        = Point<dim>::unit_vector(dim - 1);
-  const Functions::SignedDistance::Plane<dim> level_set(point_through_plane,
-                                                        plane_normal);
+  Point<dim>                                  point_through_plane = .5 * Point<dim>::unit_vector(dim - 1);
+  Tensor<1, dim>                              plane_normal        = Point<dim>::unit_vector(dim - 1);
+  const Functions::SignedDistance::Plane<dim> level_set(point_through_plane, plane_normal);
 
   create_and_print_partitioning(level_set);
 }
@@ -121,8 +115,7 @@ test_missed_roots_on_bottom_face()
   const Tensor<1, dim> plane_normal = Point<dim>::unit_vector(dim - 1);
   Point<dim>           point_in_plane;
   point_in_plane[dim - 1] = -.1;
-  const Functions::SignedDistance::Plane<dim> level_set(point_in_plane,
-                                                        plane_normal);
+  const Functions::SignedDistance::Plane<dim> level_set(point_in_plane, plane_normal);
 
   create_and_print_partitioning(level_set);
 }
@@ -142,8 +135,7 @@ test_missed_roots_on_top_face()
   const Tensor<1, dim> plane_normal = Point<dim>::unit_vector(dim - 1);
   Point<dim>           point_in_plane;
   point_in_plane[dim - 1] = 1.1;
-  const Functions::SignedDistance::Plane<dim> level_set(point_in_plane,
-                                                        plane_normal);
+  const Functions::SignedDistance::Plane<dim> level_set(point_in_plane, plane_normal);
 
   create_and_print_partitioning(level_set);
 }

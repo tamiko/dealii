@@ -43,8 +43,7 @@ test()
     for (const unsigned int v : GeometryInfo<dim>::vertex_indices())
       {
         deallog << "Reference cell: " << determinants[v] << std::endl;
-        AssertThrow(static_cast<double>(determinants[v]) == 1,
-                    ExcInternalError());
+        AssertThrow(static_cast<double>(determinants[v]) == 1, ExcInternalError());
       }
   }
 
@@ -63,8 +62,7 @@ test()
     for (const unsigned int v : GeometryInfo<dim>::vertex_indices())
       {
         deallog << "Squashed cell: " << determinants[v] << std::endl;
-        AssertThrow(static_cast<double>(determinants[v]) == 0.1,
-                    ExcInternalError());
+        AssertThrow(static_cast<double>(determinants[v]) == 0.1, ExcInternalError());
       }
   }
 
@@ -92,8 +90,7 @@ test()
     for (const unsigned int v : GeometryInfo<dim>::vertex_indices())
       {
         deallog << "Squashed+rotated cell: " << determinants[v] << std::endl;
-        AssertThrow(static_cast<double>(determinants[v]) == 0.1,
-                    ExcInternalError());
+        AssertThrow(static_cast<double>(determinants[v]) == 0.1, ExcInternalError());
       }
   }
 

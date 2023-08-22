@@ -61,71 +61,50 @@ test()
 
     std::vector<double> properties = {0.15, 0.45, 0.75};
 
-    typename Particles::ParticleHandler<dim>::particle_container
-      particle_container;
+    typename Particles::ParticleHandler<dim>::particle_container particle_container;
 
     auto particle = pool.register_particle();
-    particle_container.emplace_back(
-      std::vector<typename Particles::PropertyPool<dim>::Handle>(1, particle),
-      tr.begin_active());
-    particle_container.emplace_front(
-      std::vector<typename Particles::PropertyPool<dim>::Handle>(), tr.end());
-    particle_container.emplace_back(
-      std::vector<typename Particles::PropertyPool<dim>::Handle>(), tr.end());
+    particle_container.emplace_back(std::vector<typename Particles::PropertyPool<dim>::Handle>(1, particle),
+                                    tr.begin_active());
+    particle_container.emplace_front(std::vector<typename Particles::PropertyPool<dim>::Handle>(), tr.end());
+    particle_container.emplace_back(std::vector<typename Particles::PropertyPool<dim>::Handle>(), tr.end());
 
     pool.set_location(particle, position);
     pool.set_reference_location(particle, reference_position);
     pool.set_id(particle, index);
     auto particle_properties = pool.get_properties(particle);
 
-    std::copy(properties.begin(),
-              properties.end(),
-              particle_properties.begin());
+    std::copy(properties.begin(), properties.end(), particle_properties.begin());
 
-    Particles::ParticleIterator<dim> particle_begin(
-      ++particle_container.begin(), pool, 0);
-    Particles::ParticleIterator<dim> particle_end(--particle_container.end(),
-                                                  pool,
-                                                  0);
-    Particles::ParticleIterator<dim> particle_nonexistent1(
-      ++particle_container.begin(), pool, 1);
-    Particles::ParticleIterator<dim> particle_nonexistent2(
-      --particle_container.end(), pool, 1);
+    Particles::ParticleIterator<dim> particle_begin(++particle_container.begin(), pool, 0);
+    Particles::ParticleIterator<dim> particle_end(--particle_container.end(), pool, 0);
+    Particles::ParticleIterator<dim> particle_nonexistent1(++particle_container.begin(), pool, 1);
+    Particles::ParticleIterator<dim> particle_nonexistent2(--particle_container.end(), pool, 1);
     Particles::ParticleIterator<dim> particle_invalid;
 
     Assert(particle_begin->state() == IteratorState::valid, ExcInternalError());
-    Assert(particle_end->state() == IteratorState::past_the_end,
-           ExcInternalError());
-    Assert(particle_nonexistent1->state() == IteratorState::invalid,
-           ExcInternalError());
-    Assert(particle_nonexistent2->state() == IteratorState::invalid,
-           ExcInternalError());
-    Assert(particle_invalid->state() == IteratorState::invalid,
-           ExcInternalError());
+    Assert(particle_end->state() == IteratorState::past_the_end, ExcInternalError());
+    Assert(particle_nonexistent1->state() == IteratorState::invalid, ExcInternalError());
+    Assert(particle_nonexistent2->state() == IteratorState::invalid, ExcInternalError());
+    Assert(particle_invalid->state() == IteratorState::invalid, ExcInternalError());
 
     Particles::ParticleIterator<dim> particle_iterator = particle_begin;
     ++particle_iterator;
 
-    Assert(particle_iterator->state() == IteratorState::past_the_end,
-           ExcInternalError());
+    Assert(particle_iterator->state() == IteratorState::past_the_end, ExcInternalError());
 
     particle_iterator = particle_begin;
     --particle_iterator;
 
-    Assert(particle_iterator->state() == IteratorState::past_the_end,
-           ExcInternalError());
+    Assert(particle_iterator->state() == IteratorState::past_the_end, ExcInternalError());
 
-    for (particle_iterator = particle_begin; particle_iterator != particle_end;
-         ++particle_iterator)
+    for (particle_iterator = particle_begin; particle_iterator != particle_end; ++particle_iterator)
       {
         deallog << "Particle position: " << particle_iterator->get_location()
-                << ". Iterator valid: "
-                << (particle_iterator->state() == IteratorState::valid)
-                << std::endl;
+                << ". Iterator valid: " << (particle_iterator->state() == IteratorState::valid) << std::endl;
       }
 
-    Assert(particle_iterator->state() == IteratorState::past_the_end,
-           ExcInternalError());
+    Assert(particle_iterator->state() == IteratorState::past_the_end, ExcInternalError());
 
     pool.deregister_particle(particle);
   }

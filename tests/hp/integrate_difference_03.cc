@@ -79,9 +79,7 @@ test()
 
   DoFHandler<dim> dof_handler(tria);
 
-  for (typename DoFHandler<dim>::active_cell_iterator cell =
-         dof_handler.begin_active();
-       cell != dof_handler.end();
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(); cell != dof_handler.end();
        ++cell)
     cell->set_active_fe_index(Testing::rand() % fe_collection.size());
 
@@ -89,23 +87,15 @@ test()
 
   // interpolate a linear function
   Vector<double> vec(dof_handler.n_dofs());
-  VectorTools::interpolate(dof_handler,
-                           VectorFunctionFromScalarFunctionObject<dim>(&f<dim>,
-                                                                       0,
-                                                                       dim),
-                           vec);
+  VectorTools::interpolate(dof_handler, VectorFunctionFromScalarFunctionObject<dim>(&f<dim>, 0, dim), vec);
 
   Vector<float> diff(tria.n_active_cells());
 
   // H1 seminorm. the function is u(x)=x, so
   // its H1 seminorm should be equal to 1
   {
-    VectorTools::integrate_difference(dof_handler,
-                                      vec,
-                                      Functions::ZeroFunction<dim>(dim),
-                                      diff,
-                                      q_collection,
-                                      VectorTools::H1_seminorm);
+    VectorTools::integrate_difference(
+      dof_handler, vec, Functions::ZeroFunction<dim>(dim), diff, q_collection, VectorTools::H1_seminorm);
     deallog << "H1 seminorm, diff=" << diff.l2_norm() << std::endl;
   }
 
@@ -113,12 +103,8 @@ test()
   // u(x)=x, so the norm must be equal to 1
   // on every cell
   {
-    VectorTools::integrate_difference(dof_handler,
-                                      vec,
-                                      Functions::ZeroFunction<dim>(dim),
-                                      diff,
-                                      q_collection,
-                                      VectorTools::W1infty_seminorm);
+    VectorTools::integrate_difference(
+      dof_handler, vec, Functions::ZeroFunction<dim>(dim), diff, q_collection, VectorTools::W1infty_seminorm);
     deallog << "Hdiv semi, diff=" << diff.linfty_norm() << std::endl;
     // also ensure that we indeed get the
     // same value on every cell

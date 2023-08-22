@@ -36,8 +36,7 @@ test(const FiniteElement<dim, spacedim> &fe)
   deallog << "  n_dofs_per_line():   " << fe.n_dofs_per_line() << std::endl;
 
   deallog << "  n_dofs_per_quad():   ";
-  for (unsigned int i = 0; i < (dim == 2 ? 1 : fe.reference_cell().n_faces());
-       ++i)
+  for (unsigned int i = 0; i < (dim == 2 ? 1 : fe.reference_cell().n_faces()); ++i)
     deallog << fe.n_dofs_per_quad(i) << ' ';
   deallog << std::endl;
 

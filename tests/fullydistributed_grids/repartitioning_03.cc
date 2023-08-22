@@ -68,9 +68,7 @@ create_triangulation(Triangulation<dim, spacedim> &tria)
 
 template <int dim, int spacedim>
 void
-output_grid(
-  const std::vector<std::shared_ptr<const Triangulation<dim, spacedim>>> &trias,
-  const std::string &                                                     label)
+output_grid(const std::vector<std::shared_ptr<const Triangulation<dim, spacedim>>> &trias, const std::string &label)
 {
   deallog.push(label);
   const auto comm    = trias.front()->get_communicator();
@@ -117,9 +115,7 @@ main(int argc, char **argv)
   create_triangulation(tria);
 
   const auto test = [&](const auto &policy, const std::string &label) {
-    const auto trias =
-      MGTransferGlobalCoarseningTools::create_geometric_coarsening_sequence(
-        tria, policy);
+    const auto trias = MGTransferGlobalCoarseningTools::create_geometric_coarsening_sequence(tria, policy);
     output_grid(trias, label);
   };
 
@@ -127,20 +123,14 @@ main(int argc, char **argv)
   test(RepartitioningPolicyTools::DefaultPolicy<dim>(), "grid_policy_default");
 
   // first-child policy
-  test(RepartitioningPolicyTools::FirstChildPolicy<dim>(tria),
-       "grid_policy_first");
+  test(RepartitioningPolicyTools::FirstChildPolicy<dim>(tria), "grid_policy_first");
 
   // first-child policy
-  test(RepartitioningPolicyTools::MinimalGranularityPolicy<dim>(4),
-       "grid_policy_minimal");
+  test(RepartitioningPolicyTools::MinimalGranularityPolicy<dim>(4), "grid_policy_minimal");
 
   // cell-weight policy
-  test(RepartitioningPolicyTools::CellWeightPolicy<dim>(
-         [](const auto &cell, const auto) {
-           return (cell->global_active_cell_index() <
-                   cell->get_triangulation().n_global_active_cells() / 2) ?
-                    1.0 :
-                    2.0;
-         }),
+  test(RepartitioningPolicyTools::CellWeightPolicy<dim>([](const auto &cell, const auto) {
+         return (cell->global_active_cell_index() < cell->get_triangulation().n_global_active_cells() / 2) ? 1.0 : 2.0;
+       }),
        "grid_policy_weight");
 }

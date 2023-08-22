@@ -231,11 +231,9 @@ test_deformed_cube()
   const QGauss<1>                          quad(3);
   MatrixFree<dim>                          mf;
   typename MatrixFree<dim>::AdditionalData data;
-  data.tasks_parallel_scheme = MatrixFree<dim>::AdditionalData::none;
-  data.mapping_update_flags_inner_faces =
-    update_gradients | update_normal_vectors;
-  data.mapping_update_flags_boundary_faces =
-    update_gradients | update_normal_vectors;
+  data.tasks_parallel_scheme               = MatrixFree<dim>::AdditionalData::none;
+  data.mapping_update_flags_inner_faces    = update_gradients | update_normal_vectors;
+  data.mapping_update_flags_boundary_faces = update_gradients | update_normal_vectors;
 
   mf.reinit(MappingQ1<dim>{}, dof, constraints, quad, data);
   const unsigned int n_cell_batches = mf.n_cell_batches();
@@ -251,8 +249,7 @@ test_deformed_cube()
 
     // should have as many different Jacobians as we have cell batches in x
     // direction; as the mesh is a cube, we can easily calculate it
-    deallog << "Number of different Jacobians: "
-            << mf.get_mapping_info().cell_data[0].jacobians[0].size() / 2
+    deallog << "Number of different Jacobians: " << mf.get_mapping_info().cell_data[0].jacobians[0].size() / 2
             << std::endl;
   }
 
@@ -271,9 +268,7 @@ test_deformed_cube()
     // should have as many different Jacobians as we have cell batches in x
     // direction times the number of quadrature points; as the mesh is a cube,
     // we can easily calculate it
-    deallog << "Number of different Jacobians: "
-            << mf.get_mapping_info().cell_data[0].jacobians[0].size()
-            << std::endl;
+    deallog << "Number of different Jacobians: " << mf.get_mapping_info().cell_data[0].jacobians[0].size() << std::endl;
   }
 
   deallog << "OK" << std::endl;

@@ -37,66 +37,54 @@ TensorFunctionParser<rank, dim, Number>::get_expressions() const
 
 
 template <int rank, int dim, typename Number>
-TensorFunctionParser<rank, dim, Number>::TensorFunctionParser(
-  const double initial_time)
+TensorFunctionParser<rank, dim, Number>::TensorFunctionParser(const double initial_time)
   : TensorFunction<rank, dim, Number>(initial_time)
   , n_components(Utilities::pow(dim, rank))
 {}
 
 
 template <int rank, int dim, typename Number>
-TensorFunctionParser<rank, dim, Number>::TensorFunctionParser(
-  const std::string &expression,
-  const std::string &constants,
-  const std::string &variable_names)
+TensorFunctionParser<rank, dim, Number>::TensorFunctionParser(const std::string &expression,
+                                                              const std::string &constants,
+                                                              const std::string &variable_names)
   : TensorFunction<rank, dim, Number>()
   , n_components(Utilities::pow(dim, rank))
 {
   auto constants_map = Patterns::Tools::Convert<ConstMap>::to_value(
-    constants,
-    Patterns::Map(Patterns::Anything(),
-                  Patterns::Double(),
-                  0,
-                  Patterns::Map::max_int_value,
-                  ",",
-                  "="));
+    constants, Patterns::Map(Patterns::Anything(), Patterns::Double(), 0, Patterns::Map::max_int_value, ",", "="));
   initialize(variable_names,
              expression,
              constants_map,
-             Utilities::split_string_list(variable_names, ",").size() ==
-               dim + 1);
+             Utilities::split_string_list(variable_names, ",").size() == dim + 1);
 }
 
 
 
 template <int rank, int dim, typename Number>
 void
-TensorFunctionParser<rank, dim, Number>::initialize(
-  const std::string &                  variables,
-  const std::vector<std::string> &     expressions,
-  const std::map<std::string, double> &constants,
-  const bool                           time_dependent)
+TensorFunctionParser<rank, dim, Number>::initialize(const std::string                   &variables,
+                                                    const std::vector<std::string>      &expressions,
+                                                    const std::map<std::string, double> &constants,
+                                                    const bool                           time_dependent)
 {
   AssertThrow(this->n_components == expressions.size(),
               ExcInvalidExpressionSize(this->n_components, expressions.size()));
-  internal::FunctionParser::ParserImplementation<dim, Number>::initialize(
-    variables, expressions, constants, time_dependent);
+  internal::FunctionParser::ParserImplementation<dim, Number>::initialize(variables,
+                                                                          expressions,
+                                                                          constants,
+                                                                          time_dependent);
 }
 
 
 
 template <int rank, int dim, typename Number>
 void
-TensorFunctionParser<rank, dim, Number>::initialize(
-  const std::string &                  vars,
-  const std::string &                  expression,
-  const std::map<std::string, double> &constants,
-  const bool                           time_dependent)
+TensorFunctionParser<rank, dim, Number>::initialize(const std::string                   &vars,
+                                                    const std::string                   &expression,
+                                                    const std::map<std::string, double> &constants,
+                                                    const bool                           time_dependent)
 {
-  initialize(vars,
-             Utilities::split_string_list(expression, ';'),
-             constants,
-             time_dependent);
+  initialize(vars, Utilities::split_string_list(expression, ';'), constants, time_dependent);
 }
 
 
@@ -105,25 +93,21 @@ template <int rank, int dim, typename Number>
 Tensor<rank, dim, Number>
 TensorFunctionParser<rank, dim, Number>::value(const Point<dim> &p) const
 {
-  std::array<Number, Tensor<rank, dim, Number>::n_independent_components>
-       values;
+  std::array<Number, Tensor<rank, dim, Number>::n_independent_components> values;
   auto values_view = make_array_view(values.begin(), values.end());
   this->do_all_values(p, this->get_time(), values_view);
 
-  return Tensor<rank, dim, Number>(
-    make_array_view(values.begin(), values.end()));
+  return Tensor<rank, dim, Number>(make_array_view(values.begin(), values.end()));
 }
 
 
 
 template <int rank, int dim, typename Number>
 void
-TensorFunctionParser<rank, dim, Number>::value_list(
-  const std::vector<Point<dim>> &         p,
-  std::vector<Tensor<rank, dim, Number>> &values) const
+TensorFunctionParser<rank, dim, Number>::value_list(const std::vector<Point<dim>>          &p,
+                                                    std::vector<Tensor<rank, dim, Number>> &values) const
 {
-  Assert(p.size() == values.size(),
-         ExcDimensionMismatch(p.size(), values.size()));
+  Assert(p.size() == values.size(), ExcDimensionMismatch(p.size(), values.size()));
 
   for (unsigned int i = 0; i < p.size(); ++i)
     {

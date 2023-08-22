@@ -173,30 +173,28 @@ namespace PETScWrappers
       /**
        * Exception
        */
-      DeclException3(
-        ExcAccessToNonlocalElement,
-        int,
-        int,
-        int,
-        << "You tried to access element " << arg1
-        << " of a distributed vector, but only elements in range [" << arg2
-        << ',' << arg3 << "] are stored locally and can be accessed."
-        << "\n\n"
-        << "A common source for this kind of problem is that you "
-        << "are passing a 'fully distributed' vector into a function "
-        << "that needs read access to vector elements that correspond "
-        << "to degrees of freedom on ghost cells (or at least to "
-        << "'locally active' degrees of freedom that are not also "
-        << "'locally owned'). You need to pass a vector that has these "
-        << "elements as ghost entries.");
+      DeclException3(ExcAccessToNonlocalElement,
+                     int,
+                     int,
+                     int,
+                     << "You tried to access element " << arg1
+                     << " of a distributed vector, but only elements in range [" << arg2 << ',' << arg3
+                     << "] are stored locally and can be accessed."
+                     << "\n\n"
+                     << "A common source for this kind of problem is that you "
+                     << "are passing a 'fully distributed' vector into a function "
+                     << "that needs read access to vector elements that correspond "
+                     << "to degrees of freedom on ghost cells (or at least to "
+                     << "'locally active' degrees of freedom that are not also "
+                     << "'locally owned'). You need to pass a vector that has these "
+                     << "elements as ghost entries.");
       /**
        * Exception.
        */
       DeclException2(ExcWrongMode,
                      int,
                      int,
-                     << "You tried to do a "
-                     << (arg1 == 1 ? "'set'" : (arg1 == 2 ? "'add'" : "???"))
+                     << "You tried to do a " << (arg1 == 1 ? "'set'" : (arg1 == 2 ? "'add'" : "???"))
                      << " operation but the vector is currently in "
                      << (arg2 == 1 ? "'set'" : (arg2 == 2 ? "'add'" : "???"))
                      << " mode. You first have to call 'compress()'.");
@@ -458,8 +456,7 @@ namespace PETScWrappers
      * the corresponding values in the second.
      */
     void
-    set(const std::vector<size_type> &  indices,
-        const std::vector<PetscScalar> &values);
+    set(const std::vector<size_type> &indices, const std::vector<PetscScalar> &values);
 
     /**
      * Instead of getting individual elements of a vector via operator(),
@@ -477,16 +474,14 @@ namespace PETScWrappers
      * @pre The sizes of the @p indices and @p values arrays must be identical.
      */
     void
-    extract_subvector_to(const std::vector<size_type> &indices,
-                         std::vector<PetscScalar> &    values) const;
+    extract_subvector_to(const std::vector<size_type> &indices, std::vector<PetscScalar> &values) const;
 
     /**
      * Extract a range of elements all at once.
      */
     virtual void
-    extract_subvector_to(
-      const ArrayView<const types::global_dof_index> &indices,
-      ArrayView<PetscScalar> &                        elements) const override;
+    extract_subvector_to(const ArrayView<const types::global_dof_index> &indices,
+                         ArrayView<PetscScalar>                         &elements) const override;
 
     /**
      * Instead of getting individual elements of a vector via operator(),
@@ -526,16 +521,14 @@ namespace PETScWrappers
      * stored in @p values to the vector components specified by @p indices.
      */
     void
-    add(const std::vector<size_type> &  indices,
-        const std::vector<PetscScalar> &values);
+    add(const std::vector<size_type> &indices, const std::vector<PetscScalar> &values);
 
     /**
      * This is a second collective add operation. As a difference, this
      * function takes a deal.II vector of values.
      */
     void
-    add(const std::vector<size_type> &       indices,
-        const ::dealii::Vector<PetscScalar> &values);
+    add(const std::vector<size_type> &indices, const ::dealii::Vector<PetscScalar> &values);
 
     /**
      * Take an address where <tt>n_elements</tt> are stored contiguously and
@@ -543,9 +536,7 @@ namespace PETScWrappers
      * the other two <tt>add()</tt> functions above.
      */
     void
-    add(const size_type    n_elements,
-        const size_type *  indices,
-        const PetscScalar *values);
+    add(const size_type n_elements, const size_type *indices, const PetscScalar *values);
 
     /**
      * Return the scalar product of two vectors. The vectors must have the
@@ -670,10 +661,7 @@ namespace PETScWrappers
      * Multiple addition of scaled vectors, i.e. <tt>*this += a*V+b*W</tt>.
      */
     void
-    add(const PetscScalar a,
-        const VectorBase &V,
-        const PetscScalar b,
-        const VectorBase &W);
+    add(const PetscScalar a, const VectorBase &V, const PetscScalar b, const VectorBase &W);
 
     /**
      * Scaling and simple vector addition, i.e. <tt>*this = s*(*this)+V</tt>.
@@ -719,7 +707,7 @@ namespace PETScWrappers
      * separate line each.
      */
     void
-    print(std::ostream &     out,
+    print(std::ostream      &out,
           const unsigned int precision  = 3,
           const bool         scientific = true,
           const bool         across     = true) const;
@@ -806,7 +794,7 @@ namespace PETScWrappers
      */
     void
     do_set_add_operation(const size_type    n_elements,
-                         const size_type *  indices,
+                         const size_type   *indices,
                          const PetscScalar *values,
                          const bool         add_values);
 
@@ -837,8 +825,7 @@ namespace PETScWrappers
 #  ifndef DOXYGEN
   namespace internal
   {
-    inline VectorReference::VectorReference(const VectorBase &vector,
-                                            const size_type   index)
+    inline VectorReference::VectorReference(const VectorBase &vector, const size_type index)
       : vector(vector)
       , index(index)
     {}
@@ -875,16 +862,14 @@ namespace PETScWrappers
     inline const VectorReference &
     VectorReference::operator=(const PetscScalar &value) const
     {
-      Assert((vector.last_action == VectorOperation::insert) ||
-               (vector.last_action == VectorOperation::unknown),
+      Assert((vector.last_action == VectorOperation::insert) || (vector.last_action == VectorOperation::unknown),
              ExcWrongMode(VectorOperation::insert, vector.last_action));
 
       Assert(!vector.has_ghost_elements(), ExcGhostsPresent());
 
       const PetscInt petsc_i = index;
 
-      const PetscErrorCode ierr =
-        VecSetValues(vector, 1, &petsc_i, &value, INSERT_VALUES);
+      const PetscErrorCode ierr = VecSetValues(vector, 1, &petsc_i, &value, INSERT_VALUES);
       AssertThrow(ierr == 0, ExcPETScError(ierr));
 
       vector.last_action = VectorOperation::insert;
@@ -897,8 +882,7 @@ namespace PETScWrappers
     inline const VectorReference &
     VectorReference::operator+=(const PetscScalar &value) const
     {
-      Assert((vector.last_action == VectorOperation::add) ||
-               (vector.last_action == VectorOperation::unknown),
+      Assert((vector.last_action == VectorOperation::add) || (vector.last_action == VectorOperation::unknown),
              ExcWrongMode(VectorOperation::add, vector.last_action));
 
       Assert(!vector.has_ghost_elements(), ExcGhostsPresent());
@@ -917,8 +901,7 @@ namespace PETScWrappers
 
       // use the PETSc function to add something
       const PetscInt       petsc_i = index;
-      const PetscErrorCode ierr =
-        VecSetValues(vector, 1, &petsc_i, &value, ADD_VALUES);
+      const PetscErrorCode ierr    = VecSetValues(vector, 1, &petsc_i, &value, ADD_VALUES);
       AssertThrow(ierr == 0, ExcPETScError(ierr));
 
 
@@ -930,8 +913,7 @@ namespace PETScWrappers
     inline const VectorReference &
     VectorReference::operator-=(const PetscScalar &value) const
     {
-      Assert((vector.last_action == VectorOperation::add) ||
-               (vector.last_action == VectorOperation::unknown),
+      Assert((vector.last_action == VectorOperation::add) || (vector.last_action == VectorOperation::unknown),
              ExcWrongMode(VectorOperation::add, vector.last_action));
 
       Assert(!vector.has_ghost_elements(), ExcGhostsPresent());
@@ -952,8 +934,7 @@ namespace PETScWrappers
       // add something
       const PetscInt       petsc_i     = index;
       const PetscScalar    subtractand = -value;
-      const PetscErrorCode ierr =
-        VecSetValues(vector, 1, &petsc_i, &subtractand, ADD_VALUES);
+      const PetscErrorCode ierr        = VecSetValues(vector, 1, &petsc_i, &subtractand, ADD_VALUES);
       AssertThrow(ierr == 0, ExcPETScError(ierr));
 
       return *this;
@@ -964,8 +945,7 @@ namespace PETScWrappers
     inline const VectorReference &
     VectorReference::operator*=(const PetscScalar &value) const
     {
-      Assert((vector.last_action == VectorOperation::insert) ||
-               (vector.last_action == VectorOperation::unknown),
+      Assert((vector.last_action == VectorOperation::insert) || (vector.last_action == VectorOperation::unknown),
              ExcWrongMode(VectorOperation::insert, vector.last_action));
 
       Assert(!vector.has_ghost_elements(), ExcGhostsPresent());
@@ -985,8 +965,7 @@ namespace PETScWrappers
       const PetscInt    petsc_i   = index;
       const PetscScalar new_value = static_cast<PetscScalar>(*this) * value;
 
-      const PetscErrorCode ierr =
-        VecSetValues(vector, 1, &petsc_i, &new_value, INSERT_VALUES);
+      const PetscErrorCode ierr = VecSetValues(vector, 1, &petsc_i, &new_value, INSERT_VALUES);
       AssertThrow(ierr == 0, ExcPETScError(ierr));
 
       return *this;
@@ -997,8 +976,7 @@ namespace PETScWrappers
     inline const VectorReference &
     VectorReference::operator/=(const PetscScalar &value) const
     {
-      Assert((vector.last_action == VectorOperation::insert) ||
-               (vector.last_action == VectorOperation::unknown),
+      Assert((vector.last_action == VectorOperation::insert) || (vector.last_action == VectorOperation::unknown),
              ExcWrongMode(VectorOperation::insert, vector.last_action));
 
       Assert(!vector.has_ghost_elements(), ExcGhostsPresent());
@@ -1018,8 +996,7 @@ namespace PETScWrappers
       const PetscInt    petsc_i   = index;
       const PetscScalar new_value = static_cast<PetscScalar>(*this) / value;
 
-      const PetscErrorCode ierr =
-        VecSetValues(vector, 1, &petsc_i, &new_value, INSERT_VALUES);
+      const PetscErrorCode ierr = VecSetValues(vector, 1, &petsc_i, &new_value, INSERT_VALUES);
       AssertThrow(ierr == 0, ExcPETScError(ierr));
 
       return *this;
@@ -1055,12 +1032,10 @@ namespace PETScWrappers
   VectorBase::in_local_range(const size_type index) const
   {
     PetscInt             begin, end;
-    const PetscErrorCode ierr =
-      VecGetOwnershipRange(static_cast<const Vec &>(vector), &begin, &end);
+    const PetscErrorCode ierr = VecGetOwnershipRange(static_cast<const Vec &>(vector), &begin, &end);
     AssertThrow(ierr == 0, ExcPETScError(ierr));
 
-    return ((index >= static_cast<size_type>(begin)) &&
-            (index < static_cast<size_type>(end)));
+    return ((index >= static_cast<size_type>(begin)) && (index < static_cast<size_type>(end)));
   }
 
 
@@ -1144,18 +1119,15 @@ namespace PETScWrappers
   }
 
   inline void
-  VectorBase::extract_subvector_to(const std::vector<size_type> &indices,
-                                   std::vector<PetscScalar> &    values) const
+  VectorBase::extract_subvector_to(const std::vector<size_type> &indices, std::vector<PetscScalar> &values) const
   {
-    Assert(indices.size() <= values.size(),
-           ExcDimensionMismatch(indices.size(), values.size()));
+    Assert(indices.size() <= values.size(), ExcDimensionMismatch(indices.size(), values.size()));
     extract_subvector_to(indices.begin(), indices.end(), values.begin());
   }
 
   inline void
-  VectorBase::extract_subvector_to(
-    const ArrayView<const types::global_dof_index> &indices,
-    ArrayView<PetscScalar> &                        elements) const
+  VectorBase::extract_subvector_to(const ArrayView<const types::global_dof_index> &indices,
+                                   ArrayView<PetscScalar>                         &elements) const
   {
     AssertDimension(indices.size(), elements.size());
     extract_subvector_to(indices.begin(), indices.end(), elements.begin());
@@ -1198,7 +1170,7 @@ namespace PETScWrappers
         AssertThrow(ierr == 0, ExcPETScError(ierr));
 
         Vec locally_stored_elements = nullptr;
-        ierr = VecGhostGetLocalForm(vector, &locally_stored_elements);
+        ierr                        = VecGhostGetLocalForm(vector, &locally_stored_elements);
         AssertThrow(ierr == 0, ExcPETScError(ierr));
 
         PetscInt lsize;
@@ -1212,8 +1184,7 @@ namespace PETScWrappers
         for (PetscInt i = 0; i < n_idx; ++i)
           {
             const unsigned int index = *(indices_begin + i);
-            if (index >= static_cast<unsigned int>(begin) &&
-                index < static_cast<unsigned int>(end))
+            if (index >= static_cast<unsigned int>(begin) && index < static_cast<unsigned int>(end))
               {
                 // local entry
                 *(values_begin + i) = *(ptr + index - begin);
@@ -1221,8 +1192,7 @@ namespace PETScWrappers
             else
               {
                 // ghost entry
-                const unsigned int ghostidx =
-                  ghost_indices.index_within_set(index);
+                const unsigned int ghostidx = ghost_indices.index_within_set(index);
 
                 AssertIndexRange(ghostidx + end - begin, lsize);
                 *(values_begin + i) = *(ptr + ghostidx + end - begin);
@@ -1252,8 +1222,7 @@ namespace PETScWrappers
           {
             const unsigned int index = *(indices_begin + i);
 
-            Assert(index >= static_cast<unsigned int>(begin) &&
-                     index < static_cast<unsigned int>(end),
+            Assert(index >= static_cast<unsigned int>(begin) && index < static_cast<unsigned int>(end),
                    ExcMessage("You are accessing elements of a vector without "
                               "ghost elements that are not actually owned by "
                               "this vector. A typical case where this may "

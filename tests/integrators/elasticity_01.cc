@@ -44,8 +44,7 @@ test_cell(const FEValuesBase<dim> &fev)
   }
 
   Vector<double>                           u(n), v(n), w(n);
-  std::vector<std::vector<Tensor<1, dim>>> ugrad(
-    dim, std::vector<Tensor<1, dim>>(fev.n_quadrature_points));
+  std::vector<std::vector<Tensor<1, dim>>> ugrad(dim, std::vector<Tensor<1, dim>>(fev.n_quadrature_points));
 
   std::vector<types::global_dof_index> indices(n);
   for (unsigned int i = 0; i < n; ++i)
@@ -83,11 +82,9 @@ test_boundary(const FEValuesBase<dim> &fev)
   }
 
   Vector<double>                   u(n), v(n), w(n);
-  std::vector<std::vector<double>> uval(
-    d, std::vector<double>(fev.n_quadrature_points)),
+  std::vector<std::vector<double>> uval(d, std::vector<double>(fev.n_quadrature_points)),
     null_val(d, std::vector<double>(fev.n_quadrature_points, 0.));
-  std::vector<std::vector<Tensor<1, dim>>> ugrad(
-    d, std::vector<Tensor<1, dim>>(fev.n_quadrature_points));
+  std::vector<std::vector<Tensor<1, dim>>> ugrad(d, std::vector<Tensor<1, dim>>(fev.n_quadrature_points));
 
   std::vector<types::global_dof_index> indices(n);
   for (unsigned int i = 0; i < n; ++i)
@@ -145,14 +142,10 @@ test_face(const FEValuesBase<dim> &fev1, const FEValuesBase<dim> &fev2)
 
   Vector<double>                   u1(n1), v1(n1), w1(n1);
   Vector<double>                   u2(n2), v2(n2), w2(n2);
-  std::vector<std::vector<double>> u1val(
-    d, std::vector<double>(fev1.n_quadrature_points)),
+  std::vector<std::vector<double>> u1val(d, std::vector<double>(fev1.n_quadrature_points)),
     nullval(d, std::vector<double>(fev2.n_quadrature_points, 0.));
-  std::vector<std::vector<Tensor<1, dim>>> u1grad(
-    d, std::vector<Tensor<1, dim>>(fev1.n_quadrature_points)),
-    nullgrad(d,
-             std::vector<Tensor<1, dim>>(fev2.n_quadrature_points,
-                                         Tensor<1, dim>()));
+  std::vector<std::vector<Tensor<1, dim>>> u1grad(d, std::vector<Tensor<1, dim>>(fev1.n_quadrature_points)),
+    nullgrad(d, std::vector<Tensor<1, dim>>(fev2.n_quadrature_points, Tensor<1, dim>()));
 
   std::vector<types::global_dof_index> indices1(n1), indices2(n2);
   for (unsigned int i = 0; i < n1; ++i)
@@ -169,12 +162,8 @@ test_face(const FEValuesBase<dim> &fev1, const FEValuesBase<dim> &fev2)
         w1     = 0.;
         w2     = 0.;
         fev1.get_function_values(u1, indices1, make_array_view(u1val), true);
-        fev1.get_function_gradients(u1,
-                                    indices1,
-                                    make_array_view(u1grad),
-                                    true);
-        ip_residual<dim>(
-          w1, w2, fev1, fev2, u1val, u1grad, nullval, nullgrad, 17);
+        fev1.get_function_gradients(u1, indices1, make_array_view(u1grad), true);
+        ip_residual<dim>(w1, w2, fev1, fev2, u1val, u1grad, nullval, nullgrad, 17);
         M11.vmult(v1, u1);
         w1.add(-1., v1);
         M21.vmult(v2, u1);
@@ -184,12 +173,8 @@ test_face(const FEValuesBase<dim> &fev1, const FEValuesBase<dim> &fev2)
         w1 = 0.;
         w2 = 0.;
         fev2.get_function_values(u1, indices2, make_array_view(u1val), true);
-        fev2.get_function_gradients(u1,
-                                    indices2,
-                                    make_array_view(u1grad),
-                                    true);
-        ip_residual<dim>(
-          w1, w2, fev1, fev2, nullval, nullgrad, u1val, u1grad, 17);
+        fev2.get_function_gradients(u1, indices2, make_array_view(u1grad), true);
+        ip_residual<dim>(w1, w2, fev1, fev2, nullval, nullgrad, u1val, u1grad, 17);
         M12.vmult(v1, u1);
         w1.add(-1., v1);
         M22.vmult(v2, u1);
@@ -206,8 +191,8 @@ void
 test_fe(Triangulation<dim> &tr, FiniteElement<dim> &fe)
 {
   deallog << fe.get_name() << std::endl << "cell matrix" << std::endl;
-  QGauss<dim>   quadrature(fe.tensor_degree() + 1);
-  FEValues<dim> fev(fe, quadrature, update_gradients | update_JxW_values);
+  QGauss<dim>                                quadrature(fe.tensor_degree() + 1);
+  FEValues<dim>                              fev(fe, quadrature, update_gradients | update_JxW_values);
   typename Triangulation<dim>::cell_iterator cell1 = tr.begin(1);
   fev.reinit(cell1);
   test_cell(fev);
@@ -215,8 +200,7 @@ test_fe(Triangulation<dim> &tr, FiniteElement<dim> &fe)
   QGauss<dim - 1>   face_quadrature(fe.tensor_degree() + 1);
   FEFaceValues<dim> fef1(fe,
                          face_quadrature,
-                         update_values | update_gradients |
-                           update_normal_vectors | update_JxW_values);
+                         update_values | update_gradients | update_normal_vectors | update_JxW_values);
   for (const unsigned int i : GeometryInfo<dim>::face_indices())
     {
       deallog << "boundary_matrix " << i << std::endl;
@@ -224,9 +208,7 @@ test_fe(Triangulation<dim> &tr, FiniteElement<dim> &fe)
       test_boundary(fef1);
     }
 
-  FEFaceValues<dim>                          fef2(fe,
-                         face_quadrature,
-                         update_values | update_gradients | update_JxW_values);
+  FEFaceValues<dim> fef2(fe, face_quadrature, update_values | update_gradients | update_JxW_values);
   typename Triangulation<dim>::cell_iterator cell2 = cell1->neighbor(1);
 
   deallog << "face_matrix " << 0 << std::endl;

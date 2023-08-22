@@ -48,9 +48,7 @@
 
 template <int dim>
 inline void
-plot_faces(Mapping<dim> &                           mapping,
-           FiniteElement<dim> &                     fe,
-           typename DoFHandler<dim>::cell_iterator &cell)
+plot_faces(Mapping<dim> &mapping, FiniteElement<dim> &fe, typename DoFHandler<dim>::cell_iterator &cell)
 {
   // create a QGauss<0>(4), which should
   // still only have 1 quadrature point
@@ -60,10 +58,8 @@ plot_faces(Mapping<dim> &                           mapping,
   FEFaceValues<dim> fe_values(mapping,
                               fe,
                               q,
-                              UpdateFlags(update_quadrature_points |
-                                          update_JxW_values | update_values |
-                                          update_gradients | update_hessians |
-                                          update_normal_vectors));
+                              UpdateFlags(update_quadrature_points | update_JxW_values | update_values |
+                                          update_gradients | update_hessians | update_normal_vectors));
 
   for (const unsigned int face_nr : GeometryInfo<dim>::face_indices())
     {
@@ -81,8 +77,7 @@ plot_faces(Mapping<dim> &                           mapping,
         deallog << "shape_function " << i << ':' << std::endl
                 << "  phi=" << fe_values.shape_value(i, 0) << std::endl
                 << "  grad phi=" << fe_values.shape_grad(i, 0) << std::endl
-                << "  grad^2 phi=" << fe_values.shape_hessian(i, 0)
-                << std::endl;
+                << "  grad^2 phi=" << fe_values.shape_hessian(i, 0) << std::endl;
 
       deallog << std::endl;
     }
@@ -92,25 +87,20 @@ plot_faces(Mapping<dim> &                           mapping,
 
 template <int dim>
 inline void
-plot_subfaces(Mapping<dim> &                           mapping,
-              FiniteElement<dim> &                     fe,
-              typename DoFHandler<dim>::cell_iterator &cell)
+plot_subfaces(Mapping<dim> &mapping, FiniteElement<dim> &fe, typename DoFHandler<dim>::cell_iterator &cell)
 {
   // create a QGauss<0>(4), which should
   // still only have 1 quadrature point
   QGauss<dim - 1> q(4);
   Assert(q.size() == 1, ExcInternalError());
 
-  FESubfaceValues<dim> fe_values(
-    mapping,
-    fe,
-    q,
-    UpdateFlags(update_quadrature_points | update_JxW_values | update_values |
-                update_gradients | update_hessians | update_normal_vectors));
+  FESubfaceValues<dim> fe_values(mapping,
+                                 fe,
+                                 q,
+                                 UpdateFlags(update_quadrature_points | update_JxW_values | update_values |
+                                             update_gradients | update_hessians | update_normal_vectors));
   for (const unsigned int face_nr : GeometryInfo<dim>::face_indices())
-    for (unsigned int sub_nr = 0;
-         sub_nr < GeometryInfo<dim>::max_children_per_face;
-         ++sub_nr)
+    for (unsigned int sub_nr = 0; sub_nr < GeometryInfo<dim>::max_children_per_face; ++sub_nr)
       {
         deallog << "Face=" << face_nr << ", subface=" << sub_nr << std::endl;
 
@@ -127,8 +117,7 @@ plot_subfaces(Mapping<dim> &                           mapping,
           deallog << "shape_function " << i << ':' << std::endl
                   << "  phi=" << fe_values.shape_value(i, 0) << std::endl
                   << "  grad phi=" << fe_values.shape_grad(i, 0) << std::endl
-                  << "  grad^2 phi=" << fe_values.shape_hessian(i, 0)
-                  << std::endl;
+                  << "  grad^2 phi=" << fe_values.shape_hessian(i, 0) << std::endl;
 
         deallog << std::endl;
       }

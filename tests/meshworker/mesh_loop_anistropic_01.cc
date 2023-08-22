@@ -94,9 +94,7 @@ template <int dim>
 void
 test()
 {
-  deallog << "Testing dim = " << dim << std::endl
-          << "===============" << std::endl
-          << std::endl;
+  deallog << "Testing dim = " << dim << std::endl << "===============" << std::endl << std::endl;
   Triangulation<dim> tria;
   create_grid(tria);
 
@@ -116,11 +114,9 @@ test()
   DoFHandler<dim> dh(tria);
   dh.distribute_dofs(fe);
 
-  auto workerFoo = [](const typename DoFHandler<dim>::active_cell_iterator &,
-                      ScratchData &,
-                      CopyData &) {};
+  auto workerFoo = [](const typename DoFHandler<dim>::active_cell_iterator &, ScratchData &, CopyData &) {};
   auto copierFoo = [](const CopyData &) {};
-  auto faceFoo = [](const typename DoFHandler<dim>::active_cell_iterator &cell,
+  auto faceFoo   = [](const typename DoFHandler<dim>::active_cell_iterator &cell,
                     const unsigned int                                    f,
                     const unsigned int                                    sf,
                     const typename DoFHandler<dim>::active_cell_iterator &ncell,
@@ -128,19 +124,13 @@ test()
                     const unsigned int                                    nsf,
                     ScratchData &,
                     CopyData &) {
-    deallog << "Cell (+): " << cell << " -- " << f << ", " << (int)sf
-            << std::endl
-            << "Cell (-): " << ncell << " -- " << nf << ", " << (int)nsf
-            << std::endl
+    deallog << "Cell (+): " << cell << " -- " << f << ", " << (int)sf << std::endl
+            << "Cell (-): " << ncell << " -- " << nf << ", " << (int)nsf << std::endl
             << std::endl;
   };
-  auto boundaryFoo = [](const typename DoFHandler<dim>::active_cell_iterator &,
-                        const unsigned int,
-                        ScratchData &,
-                        CopyData &) {};
-  std::function<void(const typename DoFHandler<dim>::active_cell_iterator &,
-                     ScratchData &,
-                     CopyData &)>
+  auto boundaryFoo =
+    [](const typename DoFHandler<dim>::active_cell_iterator &, const unsigned int, ScratchData &, CopyData &) {};
+  std::function<void(const typename DoFHandler<dim>::active_cell_iterator &, ScratchData &, CopyData &)>
     emptyCellWorker(workerFoo);
   std::function<void(const typename DoFHandler<dim>::active_cell_iterator &,
                      const unsigned int,
@@ -151,16 +141,13 @@ test()
                      ScratchData &,
                      CopyData &)>
     emptyFaceWorker(faceFoo);
-  std::function<void(const typename DoFHandler<dim>::active_cell_iterator &,
-                     const unsigned int,
-                     ScratchData &,
-                     CopyData &)>
+  std::function<
+    void(const typename DoFHandler<dim>::active_cell_iterator &, const unsigned int, ScratchData &, CopyData &)>
                                         emptyBoundaryWorker(boundaryFoo);
   std::function<void(const CopyData &)> emptyCopier(copierFoo);
 
   MeshWorker::AssembleFlags flags;
-  flags = MeshWorker::AssembleFlags::assemble_own_cells |
-          MeshWorker::AssembleFlags::assemble_own_interior_faces_once |
+  flags = MeshWorker::AssembleFlags::assemble_own_cells | MeshWorker::AssembleFlags::assemble_own_interior_faces_once |
           MeshWorker::AssembleFlags::assemble_boundary_faces;
 
   MeshWorker::mesh_loop(dh.begin_active(),

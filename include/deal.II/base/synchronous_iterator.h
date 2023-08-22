@@ -112,8 +112,7 @@ SynchronousIterators<Iterators>::operator*()
  */
 template <typename Iterators>
 inline bool
-operator<(const SynchronousIterators<Iterators> &a,
-          const SynchronousIterators<Iterators> &b)
+operator<(const SynchronousIterators<Iterators> &a, const SynchronousIterators<Iterators> &b)
 {
   return std::get<0>(*a) < std::get<0>(*b);
 }
@@ -129,11 +128,9 @@ operator<(const SynchronousIterators<Iterators> &a,
  */
 template <typename Iterators>
 inline std::size_t
-operator-(const SynchronousIterators<Iterators> &a,
-          const SynchronousIterators<Iterators> &b)
+operator-(const SynchronousIterators<Iterators> &a, const SynchronousIterators<Iterators> &b)
 {
-  Assert(std::distance(std::get<0>(*b), std::get<0>(*a)) >= 0,
-         ExcInternalError());
+  Assert(std::distance(std::get<0>(*b), std::get<0>(*a)) >= 0, ExcInternalError());
   return std::distance(std::get<0>(*b), std::get<0>(*a));
 }
 
@@ -262,8 +259,7 @@ operator++(SynchronousIterators<Iterators> &a)
  */
 template <typename Iterators>
 inline bool
-operator!=(const SynchronousIterators<Iterators> &a,
-           const SynchronousIterators<Iterators> &b)
+operator!=(const SynchronousIterators<Iterators> &a, const SynchronousIterators<Iterators> &b)
 {
   return (std::get<0>(*a) != std::get<0>(*b));
 }

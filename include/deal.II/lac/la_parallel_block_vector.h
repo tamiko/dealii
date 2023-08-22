@@ -137,8 +137,7 @@ namespace LinearAlgebra
        * Confer the other constructor further down if you intend to use blocks
        * of different sizes.
        */
-      explicit BlockVector(const size_type num_blocks = 0,
-                           const size_type block_size = 0);
+      explicit BlockVector(const size_type num_blocks = 0, const size_type block_size = 0);
 
       /**
        * Copy-Constructor. Dimension set to that of V, all components are
@@ -172,8 +171,7 @@ namespace LinearAlgebra
       /**
        * Same as above but the ghost indices are assumed to be empty.
        */
-      BlockVector(const std::vector<IndexSet> &local_ranges,
-                  const MPI_Comm               communicator);
+      BlockVector(const std::vector<IndexSet> &local_ranges, const MPI_Comm communicator);
 
       /**
        * Construct a block vector with a Utilities::MPI::Partitioner for each
@@ -186,10 +184,8 @@ namespace LinearAlgebra
        * LinearAlgebra::distributed::Vector class for more information about
        * this argument.
        */
-      BlockVector(
-        const std::vector<std::shared_ptr<const Utilities::MPI::Partitioner>>
-          &             partitioners,
-        const MPI_Comm &comm_sm = MPI_COMM_SELF);
+      BlockVector(const std::vector<std::shared_ptr<const Utilities::MPI::Partitioner>> &partitioners,
+                  const MPI_Comm                                                        &comm_sm = MPI_COMM_SELF);
 
       /**
        * Destructor.
@@ -268,9 +264,7 @@ namespace LinearAlgebra
        * zeros.
        */
       void
-      reinit(const size_type num_blocks,
-             const size_type block_size           = 0,
-             const bool      omit_zeroing_entries = false);
+      reinit(const size_type num_blocks, const size_type block_size = 0, const bool omit_zeroing_entries = false);
 
       /**
        * Reinitialize the BlockVector such that it contains
@@ -292,8 +286,7 @@ namespace LinearAlgebra
        * be routed to the wrong block.
        */
       void
-      reinit(const std::vector<size_type> &block_sizes,
-             const bool                    omit_zeroing_entries = false);
+      reinit(const std::vector<size_type> &block_sizes, const bool omit_zeroing_entries = false);
 
       /**
        * Change the dimension to that of the vector <tt>V</tt>. The same
@@ -311,8 +304,7 @@ namespace LinearAlgebra
        */
       template <typename Number2>
       void
-      reinit(const BlockVector<Number2> &V,
-             const bool                  omit_zeroing_entries = false);
+      reinit(const BlockVector<Number2> &V, const bool omit_zeroing_entries = false);
 
       /**
        * Initialize the block vector. For each block, the local range is
@@ -340,8 +332,7 @@ namespace LinearAlgebra
        * Same as above, but without ghost entries.
        */
       void
-      reinit(const std::vector<IndexSet> &local_ranges,
-             const MPI_Comm               communicator);
+      reinit(const std::vector<IndexSet> &local_ranges, const MPI_Comm communicator);
 
       /**
        * Initialize each block with the corresponding parallel partitioning
@@ -357,10 +348,8 @@ namespace LinearAlgebra
        * this argument.
        */
       void
-      reinit(
-        const std::vector<std::shared_ptr<const Utilities::MPI::Partitioner>>
-          &             partitioners,
-        const MPI_Comm &comm_sm = MPI_COMM_SELF);
+      reinit(const std::vector<std::shared_ptr<const Utilities::MPI::Partitioner>> &partitioners,
+             const MPI_Comm                                                        &comm_sm = MPI_COMM_SELF);
 
       /**
        * This function exists purely for reasons of compatibility with the
@@ -369,11 +358,9 @@ namespace LinearAlgebra
        * It calls the function above, and ignores the parameter @p make_ghosted.
        */
       void
-      reinit(
-        const std::vector<std::shared_ptr<const Utilities::MPI::Partitioner>>
-          &             partitioners,
-        const bool      make_ghosted,
-        const MPI_Comm &comm_sm = MPI_COMM_SELF);
+      reinit(const std::vector<std::shared_ptr<const Utilities::MPI::Partitioner>> &partitioners,
+             const bool                                                             make_ghosted,
+             const MPI_Comm                                                        &comm_sm = MPI_COMM_SELF);
 
       /**
        * This function copies the data that has accumulated in the data buffer
@@ -459,8 +446,7 @@ namespace LinearAlgebra
        */
       template <typename OtherNumber>
       void
-      add(const std::vector<size_type> &       indices,
-          const ::dealii::Vector<OtherNumber> &values);
+      add(const std::vector<size_type> &indices, const ::dealii::Vector<OtherNumber> &values);
 
       /**
        * Scaling and simple vector addition, i.e.  <tt>*this =
@@ -550,19 +536,17 @@ namespace LinearAlgebra
        */
       void
       import_elements(
-        const LinearAlgebra::ReadWriteVector<Number> &V,
-        const VectorOperation::values                 operation,
-        const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase>
-          &communication_pattern = {});
+        const LinearAlgebra::ReadWriteVector<Number>                          &V,
+        const VectorOperation::values                                          operation,
+        const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase> &communication_pattern = {});
 
       /**
        * @deprecated Use import_elements() instead.
        */
       DEAL_II_DEPRECATED void
-      import(const LinearAlgebra::ReadWriteVector<Number> &V,
-             VectorOperation::values                       operation,
-             std::shared_ptr<const Utilities::MPI::CommunicationPatternBase>
-               communication_pattern = {})
+      import(const LinearAlgebra::ReadWriteVector<Number>                   &V,
+             VectorOperation::values                                         operation,
+             std::shared_ptr<const Utilities::MPI::CommunicationPatternBase> communication_pattern = {})
       {
         import_elements(V, operation, communication_pattern);
       }
@@ -591,9 +575,9 @@ namespace LinearAlgebra
        */
       template <typename FullMatrixType>
       void
-      multivector_inner_product(FullMatrixType &           matrix,
+      multivector_inner_product(FullMatrixType            &matrix,
                                 const BlockVector<Number> &V,
-                                const bool symmetric = false) const;
+                                const bool                 symmetric = false) const;
 
       /**
        * Calculate the scalar product between each block of this vector and @p V
@@ -613,9 +597,9 @@ namespace LinearAlgebra
        */
       template <typename FullMatrixType>
       Number
-      multivector_inner_product_with_metric(const FullMatrixType &     matrix,
+      multivector_inner_product_with_metric(const FullMatrixType      &matrix,
                                             const BlockVector<Number> &V,
-                                            const bool symmetric = false) const;
+                                            const bool                 symmetric = false) const;
 
       /**
        * Set each block of this vector as follows:
@@ -628,7 +612,7 @@ namespace LinearAlgebra
        */
       template <typename FullMatrixType>
       void
-      mmult(BlockVector<Number> & V,
+      mmult(BlockVector<Number>  &V,
             const FullMatrixType &matrix,
             const Number          s = Number(0.),
             const Number          b = Number(1.)) const;
@@ -649,18 +633,14 @@ namespace LinearAlgebra
        * Multiple addition of scaled vectors, i.e. <tt>*this += a*V+b*W</tt>.
        */
       void
-      add(const Number               a,
-          const BlockVector<Number> &V,
-          const Number               b,
-          const BlockVector<Number> &W);
+      add(const Number a, const BlockVector<Number> &V, const Number b, const BlockVector<Number> &W);
 
       /**
        * A collective add operation: This function adds a whole set of values
        * stored in @p values to the vector components specified by @p indices.
        */
       void
-      add(const std::vector<size_type> &indices,
-          const std::vector<Number> &   values);
+      add(const std::vector<size_type> &indices, const std::vector<Number> &values);
 
       /**
        * Scaling and simple addition of a multiple of a vector, i.e. <tt>*this =
@@ -731,9 +711,7 @@ namespace LinearAlgebra
        * $\left<v,w\right>=\sum_i v_i \bar{w_i}$.
        */
       Number
-      add_and_dot(const Number               a,
-                  const BlockVector<Number> &V,
-                  const BlockVector<Number> &W);
+      add_and_dot(const Number a, const BlockVector<Number> &V, const BlockVector<Number> &W);
 
       /**
        * Return the global size of the vector, equal to the sum of the number of
@@ -760,7 +738,7 @@ namespace LinearAlgebra
        * Print the vector to the output stream @p out.
        */
       void
-      print(std::ostream &     out,
+      print(std::ostream      &out,
             const unsigned int precision  = 3,
             const bool         scientific = true,
             const bool         across     = true) const;
@@ -807,8 +785,7 @@ namespace LinearAlgebra
  */
 template <typename Number>
 inline void
-swap(LinearAlgebra::distributed::BlockVector<Number> &u,
-     LinearAlgebra::distributed::BlockVector<Number> &v)
+swap(LinearAlgebra::distributed::BlockVector<Number> &u, LinearAlgebra::distributed::BlockVector<Number> &v)
 {
   u.swap(v);
 }
@@ -819,8 +796,7 @@ swap(LinearAlgebra::distributed::BlockVector<Number> &u,
  * vector.
  */
 template <typename Number>
-struct is_serial_vector<LinearAlgebra::distributed::BlockVector<Number>>
-  : std::false_type
+struct is_serial_vector<LinearAlgebra::distributed::BlockVector<Number>> : std::false_type
 {};
 
 

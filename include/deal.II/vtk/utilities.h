@@ -59,8 +59,7 @@ namespace VTKWrappers
   inline vtkSmartPointer<vtkDoubleArray>
   dealii_point_to_vtk_array(const dealii::Point<dim> &p)
   {
-    vtkSmartPointer<vtkDoubleArray> p_vtk =
-      vtkSmartPointer<vtkDoubleArray>::New();
+    vtkSmartPointer<vtkDoubleArray> p_vtk = vtkSmartPointer<vtkDoubleArray>::New();
 
     p_vtk->SetNumberOfComponents(dim);
     p_vtk->SetNumberOfTuples(1);

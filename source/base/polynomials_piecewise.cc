@@ -24,11 +24,10 @@ DEAL_II_NAMESPACE_OPEN
 namespace Polynomials
 {
   template <typename number>
-  PiecewisePolynomial<number>::PiecewisePolynomial(
-    const Polynomial<number> &coefficients_on_interval,
-    const unsigned int        n_intervals,
-    const unsigned int        interval,
-    const bool                spans_next_interval)
+  PiecewisePolynomial<number>::PiecewisePolynomial(const Polynomial<number> &coefficients_on_interval,
+                                                   const unsigned int        n_intervals,
+                                                   const unsigned int        interval,
+                                                   const bool                spans_next_interval)
     : polynomial(coefficients_on_interval)
     , n_intervals(n_intervals)
     , interval(interval)
@@ -42,9 +41,8 @@ namespace Polynomials
 
 
   template <typename number>
-  PiecewisePolynomial<number>::PiecewisePolynomial(
-    const std::vector<Point<1, number>> &points,
-    const unsigned int                   index)
+  PiecewisePolynomial<number>::PiecewisePolynomial(const std::vector<Point<1, number>> &points,
+                                                   const unsigned int                   index)
     : n_intervals(numbers::invalid_unsigned_int)
     , interval(numbers::invalid_unsigned_int)
     , spans_two_intervals(false)
@@ -59,16 +57,14 @@ namespace Polynomials
 
     this->one_over_lengths.resize(points.size() - 1);
     for (unsigned int i = 0; i < points.size() - 1; ++i)
-      this->one_over_lengths[i] =
-        number(1.0) / (points[i + 1][0] - points[i][0]);
+      this->one_over_lengths[i] = number(1.0) / (points[i + 1][0] - points[i][0]);
   }
 
 
 
   template <typename number>
   void
-  PiecewisePolynomial<number>::value(const number         x,
-                                     std::vector<number> &values) const
+  PiecewisePolynomial<number>::value(const number x, std::vector<number> &values) const
   {
     Assert(values.size() > 0, ExcZero());
 
@@ -79,20 +75,14 @@ namespace Polynomials
 
   template <typename number>
   void
-  PiecewisePolynomial<number>::value(const number       x,
-                                     const unsigned int n_derivatives,
-                                     number *           values) const
+  PiecewisePolynomial<number>::value(const number x, const unsigned int n_derivatives, number *values) const
   {
     if (points.size() > 0)
       {
         if (x > points[index])
-          values[0] = std::max<number>(0.0,
-                                       1.0 - (x - points[index]) *
-                                               one_over_lengths[index]);
+          values[0] = std::max<number>(0.0, 1.0 - (x - points[index]) * one_over_lengths[index]);
         else if (x < points[index])
-          values[0] = std::max<number>(0.0,
-                                       0.0 + (x - points[index - 1]) *
-                                               one_over_lengths[index - 1]);
+          values[0] = std::max<number>(0.0, 0.0 + (x - points[index - 1]) * one_over_lengths[index - 1]);
         else
           values[0] = 1.0;
 
@@ -152,10 +142,8 @@ namespace Polynomials
 
         // on subinterval boundaries, cannot evaluate derivatives properly, so
         // set them to zero
-        if ((std::abs(y) < 1e-14 &&
-             (interval > 0 || derivative_change_sign == -1.)) ||
-            (std::abs(y - step) < 1e-14 &&
-             (interval < n_intervals - 1 || derivative_change_sign == -1.)))
+        if ((std::abs(y) < 1e-14 && (interval > 0 || derivative_change_sign == -1.)) ||
+            (std::abs(y - step) < 1e-14 && (interval < n_intervals - 1 || derivative_change_sign == -1.)))
           {
             values[0] = value(x);
             for (unsigned int d = 1; d <= n_derivatives; ++d)
@@ -177,23 +165,18 @@ namespace Polynomials
   std::size_t
   PiecewisePolynomial<number>::memory_consumption() const
   {
-    return (polynomial.memory_consumption() +
-            MemoryConsumption::memory_consumption(n_intervals) +
+    return (polynomial.memory_consumption() + MemoryConsumption::memory_consumption(n_intervals) +
             MemoryConsumption::memory_consumption(interval) +
-            MemoryConsumption::memory_consumption(spans_two_intervals) +
-            MemoryConsumption::memory_consumption(points) +
+            MemoryConsumption::memory_consumption(spans_two_intervals) + MemoryConsumption::memory_consumption(points) +
             MemoryConsumption::memory_consumption(index));
   }
 
 
 
   std::vector<PiecewisePolynomial<double>>
-  generate_complete_Lagrange_basis_on_subdivisions(
-    const unsigned int n_subdivisions,
-    const unsigned int base_degree)
+  generate_complete_Lagrange_basis_on_subdivisions(const unsigned int n_subdivisions, const unsigned int base_degree)
   {
-    std::vector<Polynomial<double>> p_base =
-      LagrangeEquidistant::generate_complete_basis(base_degree);
+    std::vector<Polynomial<double>> p_base = LagrangeEquidistant::generate_complete_basis(base_degree);
     for (auto &polynomial : p_base)
       polynomial.scale(n_subdivisions);
 
@@ -203,18 +186,14 @@ namespace Polynomials
     p.emplace_back(p_base[0], n_subdivisions, 0, false);
     for (unsigned int s = 0; s < n_subdivisions; ++s)
       for (unsigned int i = 0; i < base_degree; ++i)
-        p.emplace_back(p_base[i + 1],
-                       n_subdivisions,
-                       s,
-                       i == (base_degree - 1) && s < n_subdivisions - 1);
+        p.emplace_back(p_base[i + 1], n_subdivisions, s, i == (base_degree - 1) && s < n_subdivisions - 1);
     return p;
   }
 
 
 
   std::vector<PiecewisePolynomial<double>>
-  generate_complete_linear_basis_on_subdivisions(
-    const std::vector<Point<1>> &points)
+  generate_complete_linear_basis_on_subdivisions(const std::vector<Point<1>> &points)
   {
     std::vector<PiecewisePolynomial<double>> p;
     p.reserve(points.size());

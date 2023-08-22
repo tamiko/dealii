@@ -35,27 +35,21 @@ main()
 {
   initlog();
 
-  using tria_raw_iterator_category = std::iterator_traits<
-    TriaRawIterator<TriaAccessor<2, 2, 2>>>::iterator_category;
-  using tria_iterator_category = std::iterator_traits<
-    TriaIterator<TriaAccessor<2, 2, 2>>>::iterator_category;
-  using tria_active_iterator_category = std::iterator_traits<
-    TriaActiveIterator<TriaAccessor<2, 2, 2>>>::iterator_category;
+  using tria_raw_iterator_category = std::iterator_traits<TriaRawIterator<TriaAccessor<2, 2, 2>>>::iterator_category;
+  using tria_iterator_category     = std::iterator_traits<TriaIterator<TriaAccessor<2, 2, 2>>>::iterator_category;
+  using tria_active_iterator_category =
+    std::iterator_traits<TriaActiveIterator<TriaAccessor<2, 2, 2>>>::iterator_category;
 
-  using particle_category =
-    std::iterator_traits<Particles::ParticleIterator<2>>::iterator_category;
+  using particle_category = std::iterator_traits<Particles::ParticleIterator<2>>::iterator_category;
 
-  using iterator_over_iterator_category = std::iterator_traits<IteratorRange<
-    Particles::ParticleIterator<2>>::IteratorOverIterators>::iterator_category;
+  using iterator_over_iterator_category =
+    std::iterator_traits<IteratorRange<Particles::ParticleIterator<2>>::IteratorOverIterators>::iterator_category;
 
-  using block_vector_base_iterator_category = std::iterator_traits<
-    internal::BlockVectorIterators::Iterator<BlockVector<double>,
-                                             false>>::iterator_category;
+  using block_vector_base_iterator_category =
+    std::iterator_traits<internal::BlockVectorIterators::Iterator<BlockVector<double>, false>>::iterator_category;
 
-  using intervall_iterator_category =
-    std::iterator_traits<IndexSet::IntervalIterator>::iterator_category;
-  using element_iterator_category =
-    std::iterator_traits<IndexSet::ElementIterator>::iterator_category;
+  using intervall_iterator_category = std::iterator_traits<IndexSet::IntervalIterator>::iterator_category;
+  using element_iterator_category   = std::iterator_traits<IndexSet::ElementIterator>::iterator_category;
 
   deallog << "OK" << std::endl;
 }

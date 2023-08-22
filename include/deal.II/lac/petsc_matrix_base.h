@@ -82,9 +82,7 @@ namespace PETScWrappers
          * Constructor. Since we use accessors only for read access, a const
          * matrix pointer is sufficient.
          */
-        Accessor(const MatrixBase *matrix,
-                 const size_type   row,
-                 const size_type   index);
+        Accessor(const MatrixBase *matrix, const size_type row, const size_type index);
 
         /**
          * Row number of the element represented by this object.
@@ -121,10 +119,8 @@ namespace PETScWrappers
                        int,
                        int,
                        int,
-                       << "You tried to access row " << arg1
-                       << " of a distributed matrix, but only rows " << arg2
-                       << " through " << arg3
-                       << " are stored locally and can be accessed.");
+                       << "You tried to access row " << arg1 << " of a distributed matrix, but only rows " << arg2
+                       << " through " << arg3 << " are stored locally and can be accessed.");
 
       private:
         /**
@@ -183,9 +179,7 @@ namespace PETScWrappers
        * Constructor. Create an iterator into the matrix @p matrix for the
        * given row and the index within it.
        */
-      const_iterator(const MatrixBase *matrix,
-                     const size_type   row,
-                     const size_type   index);
+      const_iterator(const MatrixBase *matrix, const size_type row, const size_type index);
 
       /**
        * Prefix increment.
@@ -237,8 +231,8 @@ namespace PETScWrappers
       DeclException2(ExcInvalidIndexWithinRow,
                      int,
                      int,
-                     << "Attempt to access element " << arg2 << " of row "
-                     << arg1 << " which doesn't have that many elements.");
+                     << "Attempt to access element " << arg2 << " of row " << arg1
+                     << " which doesn't have that many elements.");
 
     private:
       /**
@@ -404,7 +398,7 @@ namespace PETScWrappers
      * values are inserted/replaced.
      */
     void
-    set(const std::vector<size_type> & indices,
+    set(const std::vector<size_type>  &indices,
         const FullMatrix<PetscScalar> &full_matrix,
         const bool                     elide_zero_values = false);
 
@@ -414,8 +408,8 @@ namespace PETScWrappers
      * rows and columns, respectively.
      */
     void
-    set(const std::vector<size_type> & row_indices,
-        const std::vector<size_type> & col_indices,
+    set(const std::vector<size_type>  &row_indices,
+        const std::vector<size_type>  &col_indices,
         const FullMatrix<PetscScalar> &full_matrix,
         const bool                     elide_zero_values = false);
 
@@ -435,7 +429,7 @@ namespace PETScWrappers
      */
     void
     set(const size_type                 row,
-        const std::vector<size_type> &  col_indices,
+        const std::vector<size_type>   &col_indices,
         const std::vector<PetscScalar> &values,
         const bool                      elide_zero_values = false);
 
@@ -456,7 +450,7 @@ namespace PETScWrappers
     void
     set(const size_type    row,
         const size_type    n_cols,
-        const size_type *  col_indices,
+        const size_type   *col_indices,
         const PetscScalar *values,
         const bool         elide_zero_values = false);
 
@@ -492,7 +486,7 @@ namespace PETScWrappers
      * <tt>true</tt>, i.e., zero values won't be added into the matrix.
      */
     void
-    add(const std::vector<size_type> & indices,
+    add(const std::vector<size_type>  &indices,
         const FullMatrix<PetscScalar> &full_matrix,
         const bool                     elide_zero_values = true);
 
@@ -502,8 +496,8 @@ namespace PETScWrappers
      * rows and columns, respectively.
      */
     void
-    add(const std::vector<size_type> & row_indices,
-        const std::vector<size_type> & col_indices,
+    add(const std::vector<size_type>  &row_indices,
+        const std::vector<size_type>  &col_indices,
         const FullMatrix<PetscScalar> &full_matrix,
         const bool                     elide_zero_values = true);
 
@@ -523,7 +517,7 @@ namespace PETScWrappers
      */
     void
     add(const size_type                 row,
-        const std::vector<size_type> &  col_indices,
+        const std::vector<size_type>   &col_indices,
         const std::vector<PetscScalar> &values,
         const bool                      elide_zero_values = true);
 
@@ -544,7 +538,7 @@ namespace PETScWrappers
     void
     add(const size_type    row,
         const size_type    n_cols,
-        const size_type *  col_indices,
+        const size_type   *col_indices,
         const PetscScalar *values,
         const bool         elide_zero_values      = true,
         const bool         col_indices_are_sorted = false);
@@ -577,15 +571,13 @@ namespace PETScWrappers
      * the diagonal entries, you have to set them by hand.
      */
     void
-    clear_rows(const std::vector<size_type> &rows,
-               const PetscScalar             new_diag_value = 0);
+    clear_rows(const std::vector<size_type> &rows, const PetscScalar new_diag_value = 0);
 
     /**
      * Same as clear_rows(), except that the function also zeros the columns.
      */
     void
-    clear_rows_columns(const std::vector<size_type> &row_and_column_indices,
-                       const PetscScalar             new_diag_value = 0);
+    clear_rows_columns(const std::vector<size_type> &row_and_column_indices, const PetscScalar new_diag_value = 0);
 
     /**
      * PETSc matrices store their own sparsity patterns. So, in analogy to our
@@ -998,8 +990,7 @@ namespace PETScWrappers
     DeclException2(ExcWrongMode,
                    int,
                    int,
-                   << "You tried to do a "
-                   << (arg1 == 1 ? "'set'" : (arg1 == 2 ? "'add'" : "???"))
+                   << "You tried to do a " << (arg1 == 1 ? "'set'" : (arg1 == 2 ? "'add'" : "???"))
                    << " operation but the matrix is currently in "
                    << (arg2 == 1 ? "'set'" : (arg2 == 2 ? "'add'" : "???"))
                    << " mode. You first have to call 'compress()'.");
@@ -1130,9 +1121,7 @@ namespace PETScWrappers
 
   namespace MatrixIterators
   {
-    inline const_iterator::Accessor::Accessor(const MatrixBase *matrix,
-                                              const size_type   row,
-                                              const size_type   index)
+    inline const_iterator::Accessor::Accessor(const MatrixBase *matrix, const size_type row, const size_type index)
       : matrix(const_cast<MatrixBase *>(matrix))
       , a_row(row)
       , a_index(index)
@@ -1174,9 +1163,7 @@ namespace PETScWrappers
     }
 
 
-    inline const_iterator::const_iterator(const MatrixBase *matrix,
-                                          const size_type   row,
-                                          const size_type   index)
+    inline const_iterator::const_iterator(const MatrixBase *matrix, const size_type row, const size_type index)
       : accessor(matrix, row, index)
     {}
 
@@ -1196,8 +1183,7 @@ namespace PETScWrappers
           accessor.a_index = 0;
           ++accessor.a_row;
 
-          while ((accessor.a_row < accessor.matrix->m()) &&
-                 (accessor.a_row < accessor.matrix->local_range().second) &&
+          while ((accessor.a_row < accessor.matrix->m()) && (accessor.a_row < accessor.matrix->local_range().second) &&
                  (accessor.matrix->row_length(accessor.a_row) == 0))
             ++accessor.a_row;
 
@@ -1233,8 +1219,7 @@ namespace PETScWrappers
     inline bool
     const_iterator::operator==(const const_iterator &other) const
     {
-      return (accessor.a_row == other.accessor.a_row &&
-              accessor.a_index == other.accessor.a_index);
+      return (accessor.a_row == other.accessor.a_row && accessor.a_index == other.accessor.a_index);
     }
 
 
@@ -1249,8 +1234,7 @@ namespace PETScWrappers
     const_iterator::operator<(const const_iterator &other) const
     {
       return (accessor.row() < other.accessor.row() ||
-              (accessor.row() == other.accessor.row() &&
-               accessor.index() < other.accessor.index()));
+              (accessor.row() == other.accessor.row() && accessor.index() < other.accessor.index()));
     }
 
   } // namespace MatrixIterators
@@ -1275,59 +1259,43 @@ namespace PETScWrappers
 
 
   inline void
-  MatrixBase::set(const std::vector<size_type> & indices,
+  MatrixBase::set(const std::vector<size_type>  &indices,
                   const FullMatrix<PetscScalar> &values,
                   const bool                     elide_zero_values)
   {
-    Assert(indices.size() == values.m(),
-           ExcDimensionMismatch(indices.size(), values.m()));
+    Assert(indices.size() == values.m(), ExcDimensionMismatch(indices.size(), values.m()));
     Assert(values.m() == values.n(), ExcNotQuadratic());
 
     for (size_type i = 0; i < indices.size(); ++i)
-      set(indices[i],
-          indices.size(),
-          indices.data(),
-          &values(i, 0),
-          elide_zero_values);
+      set(indices[i], indices.size(), indices.data(), &values(i, 0), elide_zero_values);
   }
 
 
 
   inline void
-  MatrixBase::set(const std::vector<size_type> & row_indices,
-                  const std::vector<size_type> & col_indices,
+  MatrixBase::set(const std::vector<size_type>  &row_indices,
+                  const std::vector<size_type>  &col_indices,
                   const FullMatrix<PetscScalar> &values,
                   const bool                     elide_zero_values)
   {
-    Assert(row_indices.size() == values.m(),
-           ExcDimensionMismatch(row_indices.size(), values.m()));
-    Assert(col_indices.size() == values.n(),
-           ExcDimensionMismatch(col_indices.size(), values.n()));
+    Assert(row_indices.size() == values.m(), ExcDimensionMismatch(row_indices.size(), values.m()));
+    Assert(col_indices.size() == values.n(), ExcDimensionMismatch(col_indices.size(), values.n()));
 
     for (size_type i = 0; i < row_indices.size(); ++i)
-      set(row_indices[i],
-          col_indices.size(),
-          col_indices.data(),
-          &values(i, 0),
-          elide_zero_values);
+      set(row_indices[i], col_indices.size(), col_indices.data(), &values(i, 0), elide_zero_values);
   }
 
 
 
   inline void
   MatrixBase::set(const size_type                 row,
-                  const std::vector<size_type> &  col_indices,
+                  const std::vector<size_type>   &col_indices,
                   const std::vector<PetscScalar> &values,
                   const bool                      elide_zero_values)
   {
-    Assert(col_indices.size() == values.size(),
-           ExcDimensionMismatch(col_indices.size(), values.size()));
+    Assert(col_indices.size() == values.size(), ExcDimensionMismatch(col_indices.size(), values.size()));
 
-    set(row,
-        col_indices.size(),
-        col_indices.data(),
-        values.data(),
-        elide_zero_values);
+    set(row, col_indices.size(), col_indices.data(), values.data(), elide_zero_values);
   }
 
 
@@ -1335,16 +1303,16 @@ namespace PETScWrappers
   inline void
   MatrixBase::set(const size_type    row,
                   const size_type    n_cols,
-                  const size_type *  col_indices,
+                  const size_type   *col_indices,
                   const PetscScalar *values,
                   const bool         elide_zero_values)
   {
     prepare_action(VectorOperation::insert);
 
     const PetscInt  petsc_i = row;
-    PetscInt const *col_index_ptr;
+    const PetscInt *col_index_ptr;
 
-    PetscScalar const *col_value_ptr;
+    const PetscScalar *col_value_ptr;
     int                n_columns;
 
     // If we don't elide zeros, the pointers are already available...
@@ -1382,13 +1350,8 @@ namespace PETScWrappers
         col_value_ptr = column_values.data();
       }
 
-    const PetscErrorCode ierr = MatSetValues(matrix,
-                                             1,
-                                             &petsc_i,
-                                             n_columns,
-                                             col_index_ptr,
-                                             col_value_ptr,
-                                             INSERT_VALUES);
+    const PetscErrorCode ierr =
+      MatSetValues(matrix, 1, &petsc_i, n_columns, col_index_ptr, col_value_ptr, INSERT_VALUES);
     AssertThrow(ierr == 0, ExcPETScError(ierr));
   }
 
@@ -1416,59 +1379,43 @@ namespace PETScWrappers
 
 
   inline void
-  MatrixBase::add(const std::vector<size_type> & indices,
+  MatrixBase::add(const std::vector<size_type>  &indices,
                   const FullMatrix<PetscScalar> &values,
                   const bool                     elide_zero_values)
   {
-    Assert(indices.size() == values.m(),
-           ExcDimensionMismatch(indices.size(), values.m()));
+    Assert(indices.size() == values.m(), ExcDimensionMismatch(indices.size(), values.m()));
     Assert(values.m() == values.n(), ExcNotQuadratic());
 
     for (size_type i = 0; i < indices.size(); ++i)
-      add(indices[i],
-          indices.size(),
-          indices.data(),
-          &values(i, 0),
-          elide_zero_values);
+      add(indices[i], indices.size(), indices.data(), &values(i, 0), elide_zero_values);
   }
 
 
 
   inline void
-  MatrixBase::add(const std::vector<size_type> & row_indices,
-                  const std::vector<size_type> & col_indices,
+  MatrixBase::add(const std::vector<size_type>  &row_indices,
+                  const std::vector<size_type>  &col_indices,
                   const FullMatrix<PetscScalar> &values,
                   const bool                     elide_zero_values)
   {
-    Assert(row_indices.size() == values.m(),
-           ExcDimensionMismatch(row_indices.size(), values.m()));
-    Assert(col_indices.size() == values.n(),
-           ExcDimensionMismatch(col_indices.size(), values.n()));
+    Assert(row_indices.size() == values.m(), ExcDimensionMismatch(row_indices.size(), values.m()));
+    Assert(col_indices.size() == values.n(), ExcDimensionMismatch(col_indices.size(), values.n()));
 
     for (size_type i = 0; i < row_indices.size(); ++i)
-      add(row_indices[i],
-          col_indices.size(),
-          col_indices.data(),
-          &values(i, 0),
-          elide_zero_values);
+      add(row_indices[i], col_indices.size(), col_indices.data(), &values(i, 0), elide_zero_values);
   }
 
 
 
   inline void
   MatrixBase::add(const size_type                 row,
-                  const std::vector<size_type> &  col_indices,
+                  const std::vector<size_type>   &col_indices,
                   const std::vector<PetscScalar> &values,
                   const bool                      elide_zero_values)
   {
-    Assert(col_indices.size() == values.size(),
-           ExcDimensionMismatch(col_indices.size(), values.size()));
+    Assert(col_indices.size() == values.size(), ExcDimensionMismatch(col_indices.size(), values.size()));
 
-    add(row,
-        col_indices.size(),
-        col_indices.data(),
-        values.data(),
-        elide_zero_values);
+    add(row, col_indices.size(), col_indices.data(), values.data(), elide_zero_values);
   }
 
 
@@ -1476,7 +1423,7 @@ namespace PETScWrappers
   inline void
   MatrixBase::add(const size_type    row,
                   const size_type    n_cols,
-                  const size_type *  col_indices,
+                  const size_type   *col_indices,
                   const PetscScalar *values,
                   const bool         elide_zero_values,
                   const bool /*col_indices_are_sorted*/)
@@ -1486,9 +1433,9 @@ namespace PETScWrappers
     prepare_action(VectorOperation::add);
 
     const PetscInt  petsc_i = row;
-    PetscInt const *col_index_ptr;
+    const PetscInt *col_index_ptr;
 
-    PetscScalar const *col_value_ptr;
+    const PetscScalar *col_value_ptr;
     int                n_columns;
 
     // If we don't elide zeros, the pointers are already available...
@@ -1526,8 +1473,7 @@ namespace PETScWrappers
         col_value_ptr = column_values.data();
       }
 
-    const PetscErrorCode ierr = MatSetValues(
-      matrix, 1, &petsc_i, n_columns, col_index_ptr, col_value_ptr, ADD_VALUES);
+    const PetscErrorCode ierr = MatSetValues(matrix, 1, &petsc_i, n_columns, col_index_ptr, col_value_ptr, ADD_VALUES);
     AssertThrow(ierr == 0, ExcPETScError(ierr));
   }
 
@@ -1574,8 +1520,7 @@ namespace PETScWrappers
   inline MatrixBase::const_iterator
   MatrixBase::begin(const size_type r) const
   {
-    Assert(in_local_range(r),
-           ExcIndexRange(r, local_range().first, local_range().second));
+    Assert(in_local_range(r), ExcIndexRange(r, local_range().first, local_range().second));
 
     if (row_length(r) > 0)
       return const_iterator(this, r, 0);
@@ -1587,8 +1532,7 @@ namespace PETScWrappers
   inline MatrixBase::const_iterator
   MatrixBase::end(const size_type r) const
   {
-    Assert(in_local_range(r),
-           ExcIndexRange(r, local_range().first, local_range().second));
+    Assert(in_local_range(r), ExcIndexRange(r, local_range().first, local_range().second));
 
     // place the iterator on the first entry past this line, or at the
     // end of the matrix
@@ -1618,12 +1562,10 @@ namespace PETScWrappers
   {
     PetscInt begin, end;
 
-    const PetscErrorCode ierr =
-      MatGetOwnershipRange(static_cast<const Mat &>(matrix), &begin, &end);
+    const PetscErrorCode ierr = MatGetOwnershipRange(static_cast<const Mat &>(matrix), &begin, &end);
     AssertThrow(ierr == 0, ExcPETScError(ierr));
 
-    return ((index >= static_cast<size_type>(begin)) &&
-            (index < static_cast<size_type>(end)));
+    return ((index >= static_cast<size_type>(begin)) && (index < static_cast<size_type>(end)));
   }
 
 
@@ -1644,8 +1586,7 @@ namespace PETScWrappers
   {
     // compress() sets the last action to none, which allows us to check if
     // there are pending add/insert operations:
-    AssertThrow(last_action == VectorOperation::unknown,
-                ExcMessage("Error: missing compress() call."));
+    AssertThrow(last_action == VectorOperation::unknown, ExcMessage("Error: missing compress() call."));
   }
 
 

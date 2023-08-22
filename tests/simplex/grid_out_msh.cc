@@ -39,11 +39,9 @@ check()
       for (const unsigned int face : cell->face_indices())
         if (cell->at_boundary(face))
           {
-            if (std::fabs(cell->face(face)->center()[0] - 0) <
-                0.1 * cell->diameter())
+            if (std::fabs(cell->face(face)->center()[0] - 0) < 0.1 * cell->diameter())
               cell->face(face)->set_boundary_id(1);
-            else if (std::fabs(cell->face(face)->center()[0] - 4) <
-                     0.1 * cell->diameter())
+            else if (std::fabs(cell->face(face)->center()[0] - 4) < 0.1 * cell->diameter())
               cell->face(face)->set_boundary_id(2);
           }
     GridGenerator::convert_hypercube_to_simplex_mesh(x, triangulation);

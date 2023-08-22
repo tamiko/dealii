@@ -51,21 +51,17 @@ public:
     // In this case we use the implicit form
     if (implicit)
       {
-        time_stepper.implicit_function = [&](const real_type   t,
-                                             const VectorType &y,
-                                             const VectorType &y_dot,
-                                             VectorType &      res) -> void {
+        time_stepper.implicit_function =
+          [&](const real_type t, const VectorType &y, const VectorType &y_dot, VectorType &res) -> void {
           deallog << "Evaluating implicit function at t=" << t << std::endl;
 
           if (t > last_eval_time + 0.1)
             {
-              deallog << "Time step too large: last_eval_time="
-                      << last_eval_time << ", t=" << t << std::endl;
+              deallog << "Time step too large: last_eval_time=" << last_eval_time << ", t=" << t << std::endl;
               if (recoverable_error)
                 throw RecoverableUserCallbackError();
               else
-                throw std::runtime_error(
-                  "Unrecoverable error in implicit_function");
+                throw std::runtime_error("Unrecoverable error in implicit_function");
             }
 
 
@@ -92,8 +88,8 @@ public:
                                                  const VectorType &y,
                                                  const VectorType &y_dot,
                                                  const real_type   shift,
-                                                 MatrixType &      A,
-                                                 MatrixType &      P) -> void {
+                                                 MatrixType       &A,
+                                                 MatrixType       &P) -> void {
               deallog << "Evaluating implicit Jacobian at t=" << t << std::endl;
               P.set(0, 0, shift + kappa);
               P.compress(VectorOperation::insert);
@@ -105,18 +101,15 @@ public:
             // setting up the Jacobian system and solve for it.
             // In this example we only store the solver shift
             // during setup.
-            time_stepper.setup_jacobian = [&](const real_type   t,
-                                              const VectorType &y,
-                                              const VectorType &y_dot,
-                                              const real_type   shift) -> void {
+            time_stepper.setup_jacobian =
+              [&](const real_type t, const VectorType &y, const VectorType &y_dot, const real_type shift) -> void {
               deallog << "Setting up Jacobian at t=" << t << std::endl;
               myshift = shift;
             };
 
             // In the solve phase we se the stored shift to solve
             // for the implicit Jacobian system
-            time_stepper.solve_with_jacobian = [&](const VectorType &src,
-                                                   VectorType &dst) -> void {
+            time_stepper.solve_with_jacobian = [&](const VectorType &src, VectorType &dst) -> void {
               deallog << "Solving with Jacobian" << std::endl;
               dst(0) = src(0) / (myshift + kappa);
               dst.compress(VectorOperation::insert);
@@ -127,19 +120,16 @@ public:
       { // Here we instead use the explicit form
         // This is the only function one would populate in case an explicit
         // solver is used.
-        time_stepper.explicit_function =
-          [&](const real_type t, const VectorType &y, VectorType &res) -> void {
+        time_stepper.explicit_function = [&](const real_type t, const VectorType &y, VectorType &res) -> void {
           deallog << "Evaluating explicit function at t=" << t << std::endl;
 
           if (t > last_eval_time + 0.1)
             {
-              deallog << "Time step too large: last_eval_time="
-                      << last_eval_time << ", t=" << t << std::endl;
+              deallog << "Time step too large: last_eval_time=" << last_eval_time << ", t=" << t << std::endl;
               if (recoverable_error)
                 throw RecoverableUserCallbackError();
               else
-                throw std::runtime_error(
-                  "Unrecoverable error in explicit_function");
+                throw std::runtime_error("Unrecoverable error in explicit_function");
             }
 
           res(0) = -kappa * y(0);
@@ -154,10 +144,8 @@ public:
         // this test
         if (setjac)
           {
-            time_stepper.explicit_jacobian = [&](const real_type   t,
-                                                 const VectorType &y,
-                                                 MatrixType &      A,
-                                                 MatrixType &      P) -> void {
+            time_stepper.explicit_jacobian =
+              [&](const real_type t, const VectorType &y, MatrixType &A, MatrixType &P) -> void {
               deallog << "Evaluating explicit Jacobian at t=" << t << std::endl;
               P.set(0, 0, -kappa);
               P.compress(VectorOperation::insert);
@@ -167,13 +155,10 @@ public:
 
     // Monitoring routine. Here we print diagnostic for the exact
     // solution to the log file.
-    time_stepper.monitor = [&](const real_type   t,
-                               const VectorType &sol,
-                               const unsigned int /*step_number*/) -> void {
+    time_stepper.monitor = [&](const real_type t, const VectorType &sol, const unsigned int /*step_number*/) -> void {
       deallog << "Intermediate output:" << std::endl;
       deallog << "  t =" << t << std::endl;
-      deallog << "  y =" << sol[0] << "  (exact: " << std::exp(-kappa * t)
-              << ')' << std::endl;
+      deallog << "  y =" << sol[0] << "  (exact: " << std::exp(-kappa * t) << ')' << std::endl;
     };
   }
 
@@ -198,8 +183,7 @@ public:
       }
     catch (const std::exception &exc)
       {
-        deallog << "Time stepper aborted with an exception:" << std::endl
-                << exc.what() << std::endl;
+        deallog << "Time stepper aborted with an exception:" << std::endl << exc.what() << std::endl;
       }
   }
 
@@ -233,8 +217,7 @@ main(int argc, char **argv)
 
   // This test triggers false positives in FPE trapping for some versions of
   // PETSc
-#if DEAL_II_PETSC_VERSION_LT(3, 19, 2) && defined(DEBUG) && \
-  defined(DEAL_II_HAVE_FP_EXCEPTIONS)
+#if DEAL_II_PETSC_VERSION_LT(3, 19, 2) && defined(DEBUG) && defined(DEAL_II_HAVE_FP_EXCEPTIONS)
   PetscErrorCode ierr = PetscFPTrapPush(PETSC_FP_TRAP_OFF);
   (void)ierr;
 #endif
@@ -252,15 +235,13 @@ main(int argc, char **argv)
           bool setjac = setjaci ? true : false;
 
           {
-            deallog << "# Test explicit interface (J " << setjac << ")"
-                    << std::endl;
+            deallog << "# Test explicit interface (J " << setjac << ")" << std::endl;
             ExponentialDecay ode_expl(1.0, data, setjac, false, false, recerr);
             ode_expl.run();
           }
 
           {
-            deallog << "# Test implicit interface (J " << setjac << ")"
-                    << std::endl;
+            deallog << "# Test implicit interface (J " << setjac << ")" << std::endl;
             ExponentialDecay ode_impl(1.0, data, setjac, true, false, recerr);
             ode_impl.run();
           }

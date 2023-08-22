@@ -83,9 +83,7 @@ namespace nonlinear_solver_selector_test
     void
     setup_system(const bool initial_step);
     void
-    solve(const Vector<double> &rhs,
-          Vector<double> &      solution,
-          const double          tolerance);
+    solve(const Vector<double> &rhs, Vector<double> &solution, const double tolerance);
     void
     refine_mesh();
     void
@@ -95,8 +93,7 @@ namespace nonlinear_solver_selector_test
     void
     compute_and_factorize_jacobian(const Vector<double> &evaluation_point);
     void
-    compute_residual(const Vector<double> &evaluation_point,
-                     Vector<double> &      residual);
+    compute_residual(const Vector<double> &evaluation_point, Vector<double> &residual);
 
     Triangulation<dim> triangulation;
 
@@ -124,8 +121,7 @@ namespace nonlinear_solver_selector_test
 
   template <int dim>
   double
-  BoundaryValues<dim>::value(const Point<dim> &p,
-                             const unsigned int /*component*/) const
+  BoundaryValues<dim>::value(const Point<dim> &p, const unsigned int /*component*/) const
   {
     return std::sin(2 * numbers::PI * (p[0] + p[1]));
   }
@@ -148,8 +144,7 @@ namespace nonlinear_solver_selector_test
         current_solution.reinit(dof_handler.n_dofs());
 
         hanging_node_constraints.clear();
-        DoFTools::make_hanging_node_constraints(dof_handler,
-                                                hanging_node_constraints);
+        DoFTools::make_hanging_node_constraints(dof_handler, hanging_node_constraints);
         hanging_node_constraints.close();
       }
 
@@ -166,8 +161,7 @@ namespace nonlinear_solver_selector_test
 
   template <int dim>
   void
-  MinimalSurfaceProblem<dim>::compute_and_factorize_jacobian(
-    const Vector<double> &evaluation_point)
+  MinimalSurfaceProblem<dim>::compute_and_factorize_jacobian(const Vector<double> &evaluation_point)
   {
     {
       deallog << "  Computing Jacobian matrix" << std::endl;
@@ -176,10 +170,7 @@ namespace nonlinear_solver_selector_test
 
       jacobian_matrix = 0;
 
-      FEValues<dim> fe_values(fe,
-                              quadrature_formula,
-                              update_gradients | update_quadrature_points |
-                                update_JxW_values);
+      FEValues<dim> fe_values(fe, quadrature_formula, update_gradients | update_quadrature_points | update_JxW_values);
 
       const unsigned int dofs_per_cell = fe.n_dofs_per_cell();
       const unsigned int n_q_points    = quadrature_formula.size();
@@ -196,50 +187,37 @@ namespace nonlinear_solver_selector_test
 
           fe_values.reinit(cell);
 
-          fe_values.get_function_gradients(evaluation_point,
-                                           evaluation_point_gradients);
+          fe_values.get_function_gradients(evaluation_point, evaluation_point_gradients);
 
           for (unsigned int q = 0; q < n_q_points; ++q)
             {
-              const double coeff =
-                1.0 / std::sqrt(1 + evaluation_point_gradients[q] *
-                                      evaluation_point_gradients[q]);
+              const double coeff = 1.0 / std::sqrt(1 + evaluation_point_gradients[q] * evaluation_point_gradients[q]);
 
               for (unsigned int i = 0; i < dofs_per_cell; ++i)
                 {
                   for (unsigned int j = 0; j < dofs_per_cell; ++j)
-                    cell_matrix(i, j) +=
-                      (((fe_values.shape_grad(i, q)    // ((\nabla \phi_i
-                         * coeff                       //   * a_n
-                         * fe_values.shape_grad(j, q)) //   * \nabla \phi_j)
-                        -                              //  -
-                        (fe_values.shape_grad(i, q)    //  (\nabla \phi_i
-                         * coeff * coeff * coeff       //   * a_n^3
-                         *
-                         (fe_values.shape_grad(j, q)       //   * (\nabla \phi_j
-                          * evaluation_point_gradients[q]) //      * \nabla u_n)
-                         * evaluation_point_gradients[q])) //   * \nabla u_n)))
-                       * fe_values.JxW(q));                // * dx
+                    cell_matrix(i, j) += (((fe_values.shape_grad(i, q)          // ((\nabla \phi_i
+                                            * coeff                             //   * a_n
+                                            * fe_values.shape_grad(j, q))       //   * \nabla \phi_j)
+                                           -                                    //  -
+                                           (fe_values.shape_grad(i, q)          //  (\nabla \phi_i
+                                            * coeff * coeff * coeff             //   * a_n^3
+                                            * (fe_values.shape_grad(j, q)       //   * (\nabla \phi_j
+                                               * evaluation_point_gradients[q]) //      * \nabla u_n)
+                                            * evaluation_point_gradients[q]))   //   * \nabla u_n)))
+                                          * fe_values.JxW(q));                  // * dx
                 }
             }
 
           cell->get_dof_indices(local_dof_indices);
-          hanging_node_constraints.distribute_local_to_global(cell_matrix,
-                                                              local_dof_indices,
-                                                              jacobian_matrix);
+          hanging_node_constraints.distribute_local_to_global(cell_matrix, local_dof_indices, jacobian_matrix);
         }
 
       std::map<types::global_dof_index, double> boundary_values;
-      VectorTools::interpolate_boundary_values(dof_handler,
-                                               0,
-                                               Functions::ZeroFunction<dim>(),
-                                               boundary_values);
+      VectorTools::interpolate_boundary_values(dof_handler, 0, Functions::ZeroFunction<dim>(), boundary_values);
       Vector<double> dummy_solution(dof_handler.n_dofs());
       Vector<double> dummy_rhs(dof_handler.n_dofs());
-      MatrixTools::apply_boundary_values(boundary_values,
-                                         jacobian_matrix,
-                                         dummy_solution,
-                                         dummy_rhs);
+      MatrixTools::apply_boundary_values(boundary_values, jacobian_matrix, dummy_solution, dummy_rhs);
     }
 
     {
@@ -253,18 +231,13 @@ namespace nonlinear_solver_selector_test
 
   template <int dim>
   void
-  MinimalSurfaceProblem<dim>::compute_residual(
-    const Vector<double> &evaluation_point,
-    Vector<double> &      residual)
+  MinimalSurfaceProblem<dim>::compute_residual(const Vector<double> &evaluation_point, Vector<double> &residual)
   {
     deallog << "  Computing residual vector..." << std::flush;
     residual = 0.;
 
     const QGauss<dim> quadrature_formula(fe.degree + 1);
-    FEValues<dim>     fe_values(fe,
-                            quadrature_formula,
-                            update_gradients | update_quadrature_points |
-                              update_JxW_values);
+    FEValues<dim> fe_values(fe, quadrature_formula, update_gradients | update_quadrature_points | update_JxW_values);
 
     const unsigned int dofs_per_cell = fe.n_dofs_per_cell();
     const unsigned int n_q_points    = quadrature_formula.size();
@@ -279,22 +252,18 @@ namespace nonlinear_solver_selector_test
         cell_residual = 0;
         fe_values.reinit(cell);
 
-        fe_values.get_function_gradients(evaluation_point,
-                                         evaluation_point_gradients);
+        fe_values.get_function_gradients(evaluation_point, evaluation_point_gradients);
 
 
         for (unsigned int q = 0; q < n_q_points; ++q)
           {
-            const double coeff =
-              1.0 / std::sqrt(1 + evaluation_point_gradients[q] *
-                                    evaluation_point_gradients[q]);
+            const double coeff = 1.0 / std::sqrt(1 + evaluation_point_gradients[q] * evaluation_point_gradients[q]);
 
             for (unsigned int i = 0; i < dofs_per_cell; ++i)
-              cell_residual(i) +=
-                (fe_values.shape_grad(i, q)      // \nabla \phi_i
-                 * coeff                         // * a_n
-                 * evaluation_point_gradients[q] // * \nabla u_n
-                 * fe_values.JxW(q));            // * dx
+              cell_residual(i) += (fe_values.shape_grad(i, q)      // \nabla \phi_i
+                                   * coeff                         // * a_n
+                                   * evaluation_point_gradients[q] // * \nabla u_n
+                                   * fe_values.JxW(q));            // * dx
           }
 
         cell->get_dof_indices(local_dof_indices);
@@ -304,12 +273,10 @@ namespace nonlinear_solver_selector_test
 
     hanging_node_constraints.condense(residual);
 
-    for (const types::global_dof_index i :
-         DoFTools::extract_boundary_dofs(dof_handler))
+    for (const types::global_dof_index i : DoFTools::extract_boundary_dofs(dof_handler))
       residual(i) = 0;
 
-    for (const types::global_dof_index i :
-         DoFTools::extract_hanging_node_dofs(dof_handler))
+    for (const types::global_dof_index i : DoFTools::extract_hanging_node_dofs(dof_handler))
       residual(i) = 0;
 
     deallog << " norm=" << residual.l2_norm() << std::endl;
@@ -318,9 +285,7 @@ namespace nonlinear_solver_selector_test
 
   template <int dim>
   void
-  MinimalSurfaceProblem<dim>::solve(const Vector<double> &rhs,
-                                    Vector<double> &      solution,
-                                    const double /*tolerance*/)
+  MinimalSurfaceProblem<dim>::solve(const Vector<double> &rhs, Vector<double> &solution, const double /*tolerance*/)
   {
     deallog << "  Solving linear system" << std::endl;
 
@@ -335,10 +300,7 @@ namespace nonlinear_solver_selector_test
   MinimalSurfaceProblem<dim>::set_boundary_values()
   {
     std::map<types::global_dof_index, double> boundary_values;
-    VectorTools::interpolate_boundary_values(dof_handler,
-                                             0,
-                                             BoundaryValues<dim>(),
-                                             boundary_values);
+    VectorTools::interpolate_boundary_values(dof_handler, 0, BoundaryValues<dim>(), boundary_values);
     for (const auto &boundary_value : boundary_values)
       current_solution(boundary_value.first) = boundary_value.second;
 
@@ -362,12 +324,9 @@ namespace nonlinear_solver_selector_test
 
       NLSolve nonlinear_solver(additional_data);
 
-      nonlinear_solver.reinit_vector = [&](Vector<double> &x) {
-        x.reinit(dof_handler.n_dofs());
-      };
+      nonlinear_solver.reinit_vector = [&](Vector<double> &x) { x.reinit(dof_handler.n_dofs()); };
 
-      nonlinear_solver.residual = [&](const Vector<double> &evaluation_point,
-                                      Vector<double> &      residual) {
+      nonlinear_solver.residual = [&](const Vector<double> &evaluation_point, Vector<double> &residual) {
         compute_residual(evaluation_point, residual);
       };
 
@@ -375,11 +334,8 @@ namespace nonlinear_solver_selector_test
         compute_and_factorize_jacobian(current_u);
       };
 
-      nonlinear_solver.solve_with_jacobian = [&](const Vector<double> &rhs,
-                                                 Vector<double> &      dst,
-                                                 const double tolerance) {
-        solve(rhs, dst, tolerance);
-      };
+      nonlinear_solver.solve_with_jacobian =
+        [&](const Vector<double> &rhs, Vector<double> &dst, const double tolerance) { solve(rhs, dst, tolerance); };
 
       nonlinear_solver.solve(current_solution);
     }

@@ -50,8 +50,7 @@ main()
     const SE::RCP<const SE::Symbol> y = (SE::symbol("y"));
 
     // Construction of symbolic function
-    const SE::RCP<const SE::Basic> c =
-      SE::mul(y, SE::mul(SE::sub(y, b), SE::add(a, x)));
+    const SE::RCP<const SE::Basic> c = SE::mul(y, SE::mul(SE::sub(y, b), SE::add(a, x)));
     deallog << "c = y*(y-b)*(a+x): " << *c << std::endl;
 
     // Perform symbolic differentiation
@@ -62,8 +61,7 @@ main()
     deallog << "dc_dy = (2*y+1)*(a+x): " << *dc_dy << std::endl;
 
     const SE::RCP<const SE::Basic> dc_dx_check = SE::mul(y, SE::sub(y, b));
-    const SE::RCP<const SE::Basic> dc_dy_check =
-      SE::mul(SE::sub(SE::mul(SE::integer(2), y), b), SE::add(a, x));
+    const SE::RCP<const SE::Basic> dc_dy_check = SE::mul(SE::sub(SE::mul(SE::integer(2), y), b), SE::add(a, x));
     Assert(SE::eq(*dc_dx, *dc_dx_check), ExcMessage("Should be equal!"));
     // Although these two *values* are the same, the underlying
     // *representation* is different. So we'd need to match the representation

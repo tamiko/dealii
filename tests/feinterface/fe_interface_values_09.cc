@@ -45,17 +45,14 @@ print_norm_of_average_over_quadrature_points(const FEInterfaceValues<dim> &fiv)
   cell_vector = 0.0;
   for (unsigned int qpoint = 0; qpoint < fiv.n_quadrature_points; ++qpoint)
     for (unsigned int i = 0; i < n_dofs; ++i)
-      cell_vector(i) += fiv.jump_in_shape_hessians(i, qpoint).norm() *
-                        fiv.get_JxW_values()[qpoint];
+      cell_vector(i) += fiv.jump_in_shape_hessians(i, qpoint).norm() * fiv.get_JxW_values()[qpoint];
   deallog << "jump_in_shape_hessians.norm(): " << cell_vector << std::endl;
 
   cell_vector = 0.0;
   for (unsigned int qpoint = 0; qpoint < fiv.n_quadrature_points; ++qpoint)
     for (unsigned int i = 0; i < n_dofs; ++i)
-      cell_vector(i) += fiv.jump_in_shape_3rd_derivatives(i, qpoint).norm() *
-                        fiv.get_JxW_values()[qpoint];
-  deallog << "jump_in_shape_3rd_derivatives.norm(): " << cell_vector
-          << std::endl;
+      cell_vector(i) += fiv.jump_in_shape_3rd_derivatives(i, qpoint).norm() * fiv.get_JxW_values()[qpoint];
+  deallog << "jump_in_shape_3rd_derivatives.norm(): " << cell_vector << std::endl;
 }
 
 
@@ -72,13 +69,9 @@ test(const FiniteElement<dim> &fe)
   dofh.distribute_dofs(fe);
 
   MappingQ<dim>     mapping(1);
-  const UpdateFlags update_flags =
-    update_hessians | update_3rd_derivatives | update_JxW_values;
+  const UpdateFlags update_flags = update_hessians | update_3rd_derivatives | update_JxW_values;
 
-  FEInterfaceValues<dim> fiv(mapping,
-                             fe,
-                             QGauss<dim - 1>(fe.degree + 1),
-                             update_flags);
+  FEInterfaceValues<dim> fiv(mapping, fe, QGauss<dim - 1>(fe.degree + 1), update_flags);
 
   auto cell = dofh.begin();
 

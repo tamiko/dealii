@@ -64,10 +64,7 @@ test(const FiniteElement<dim> &fe)
 
 
   Vector<double> vector(dof_handler.n_dofs());
-  VectorTools::interpolate(mapping,
-                           dof_handler,
-                           AnalyticalFunction<dim>(n_components),
-                           vector);
+  VectorTools::interpolate(mapping, dof_handler, AnalyticalFunction<dim>(n_components), vector);
 
   // define point inside cell
   // we want to obtain the exact same point by evaluating with FEPEval at the
@@ -75,8 +72,10 @@ test(const FiniteElement<dim> &fe)
   auto eval_p = Point<dim>{0.1, 0.2};
 
   // use FEPointEvaluation to get the point
-  FEPointEvaluation<dim - first_selected_component, dim, dim, Number>
-    fe_point_eval(mapping, fe, update_values, first_selected_component);
+  FEPointEvaluation<dim - first_selected_component, dim, dim, Number> fe_point_eval(mapping,
+                                                                                    fe,
+                                                                                    update_values,
+                                                                                    first_selected_component);
 
   std::vector<Number> buffer(fe.dofs_per_cell);
 

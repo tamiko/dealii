@@ -66,19 +66,13 @@ check(const FiniteElement<dim> &fe, const unsigned int selected_block)
 
   MGTransferSelect<double> transfer;
 
-  transfer.build(mg_dof_handler,
-                 selected_block,
-                 selected_block,
-                 block_component,
-                 block_component);
+  transfer.build(mg_dof_handler, selected_block, selected_block, block_component, block_component);
 
   const std::vector<types::global_dof_index> dofs_per_block =
     DoFTools::count_dofs_per_fe_block(mg_dof_handler, block_component);
-  std::vector<std::vector<types::global_dof_index>> mg_dofs_per_block(
-    tr.n_levels(), std::vector<types::global_dof_index>(3));
-  MGTools::count_dofs_per_block(mg_dof_handler,
-                                mg_dofs_per_block,
-                                block_component);
+  std::vector<std::vector<types::global_dof_index>> mg_dofs_per_block(tr.n_levels(),
+                                                                      std::vector<types::global_dof_index>(3));
+  MGTools::count_dofs_per_block(mg_dof_handler, mg_dofs_per_block, block_component);
 
   deallog << "Global  dofs:";
   for (unsigned int i = 0; i < dofs_per_block.size(); ++i)

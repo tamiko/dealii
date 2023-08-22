@@ -43,17 +43,14 @@ namespace ArborXWrappers
      * The BoundingBox objects in @p bounding_boxes are local to the MPI process.
      */
     template <int dim, typename Number>
-    DistributedTree(
-      const MPI_Comm                               comm,
-      const std::vector<BoundingBox<dim, Number>> &bounding_boxes);
+    DistributedTree(const MPI_Comm comm, const std::vector<BoundingBox<dim, Number>> &bounding_boxes);
 
     /**
      * Constructor. Use a vector of @p points as primitives. The Point objects
      * in @p points are local to the MPI process.
      */
     template <int dim, typename Number>
-    DistributedTree(const MPI_Comm                         comm,
-                    const std::vector<Point<dim, Number>> &points);
+    DistributedTree(const MPI_Comm comm, const std::vector<Point<dim, Number>> &points);
 
     /**
      * Return the indices and the MPI ranks of those BoundingBox objects that
@@ -81,20 +78,14 @@ namespace ArborXWrappers
 
 
   template <int dim, typename Number>
-  DistributedTree::DistributedTree(
-    const MPI_Comm                               comm,
-    const std::vector<BoundingBox<dim, Number>> &bounding_boxes)
-    : distributed_tree(comm,
-                       Kokkos::DefaultHostExecutionSpace{},
-                       bounding_boxes)
+  DistributedTree::DistributedTree(const MPI_Comm comm, const std::vector<BoundingBox<dim, Number>> &bounding_boxes)
+    : distributed_tree(comm, Kokkos::DefaultHostExecutionSpace{}, bounding_boxes)
   {}
 
 
 
   template <int dim, typename Number>
-  DistributedTree::DistributedTree(
-    const MPI_Comm                         comm,
-    const std::vector<Point<dim, Number>> &points)
+  DistributedTree::DistributedTree(const MPI_Comm comm, const std::vector<Point<dim, Number>> &points)
     : distributed_tree(comm, Kokkos::DefaultHostExecutionSpace{}, points)
   {}
 
@@ -104,25 +95,18 @@ namespace ArborXWrappers
   std::pair<std::vector<std::pair<int, int>>, std::vector<int>>
   DistributedTree::query(const QueryType &queries)
   {
-    Kokkos::View<int *, Kokkos::HostSpace> offsets("offsets", 0);
-    Kokkos::View<Kokkos::pair<int, int> *, Kokkos::HostSpace> indices_ranks(
-      "indices_ranks", 0);
-    distributed_tree.query(Kokkos::DefaultHostExecutionSpace{},
-                           queries,
-                           indices_ranks,
-                           offsets);
+    Kokkos::View<int *, Kokkos::HostSpace>                    offsets("offsets", 0);
+    Kokkos::View<Kokkos::pair<int, int> *, Kokkos::HostSpace> indices_ranks("indices_ranks", 0);
+    distributed_tree.query(Kokkos::DefaultHostExecutionSpace{}, queries, indices_ranks, offsets);
 
     std::vector<std::pair<int, int>> indices_ranks_vector;
     for (unsigned int i = 0; i < indices_ranks.extent(0); ++i)
       {
-        indices_ranks_vector.emplace_back(indices_ranks(i).first,
-                                          indices_ranks(i).second);
+        indices_ranks_vector.emplace_back(indices_ranks(i).first, indices_ranks(i).second);
       }
 
     std::vector<int> offsets_vector;
-    offsets_vector.insert(offsets_vector.begin(),
-                          offsets.data(),
-                          offsets.data() + offsets.extent(0));
+    offsets_vector.insert(offsets_vector.begin(), offsets.data(), offsets.data() + offsets.extent(0));
 
     return {indices_ranks_vector, offsets_vector};
   }

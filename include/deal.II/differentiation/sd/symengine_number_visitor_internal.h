@@ -54,8 +54,7 @@ namespace Differentiation
       template <typename ReturnType, typename ExpressionType>
       class CSEDictionaryVisitor
       {
-        using symbol_vector_pair =
-          std::vector<std::pair<SD::Expression, SD::Expression>>;
+        using symbol_vector_pair = std::vector<std::pair<SD::Expression, SD::Expression>>;
 
       public:
         /*
@@ -121,9 +120,9 @@ namespace Differentiation
          * their numerical value be correctly set up and maintained.
          */
         void
-        call(ReturnType *                output_values,
+        call(ReturnType                 *output_values,
              const types::symbol_vector &independent_symbols,
-             const ReturnType *          substitution_values);
+             const ReturnType           *substitution_values);
 
         /**
          * Write the data of this object to a stream for the purpose
@@ -226,9 +225,9 @@ namespace Differentiation
          * function apply here as well.
          */
         void
-        call(ReturnType *                output_values,
+        call(ReturnType                 *output_values,
              const SymEngine::vec_basic &independent_symbols,
-             const ReturnType *          substitution_values);
+             const ReturnType           *substitution_values);
 
       private:
         // Note: It would be more efficient to store this data in native
@@ -261,8 +260,7 @@ namespace Differentiation
        */
       template <typename ReturnType, typename ExpressionType>
       class DictionarySubstitutionVisitor
-        : public SymEngine::BaseVisitor<
-            DictionarySubstitutionVisitor<ReturnType, ExpressionType>>
+        : public SymEngine::BaseVisitor<DictionarySubstitutionVisitor<ReturnType, ExpressionType>>
       {
       public:
         /*
@@ -300,7 +298,7 @@ namespace Differentiation
          */
         void
         init(const types::symbol_vector &independent_symbols,
-             const Expression &          dependent_function,
+             const Expression           &dependent_function,
              const bool                  use_cse = false);
 
         /**
@@ -328,7 +326,7 @@ namespace Differentiation
         // The following definition is required due to base class CRTP.
         void
         init(const SymEngine::vec_basic &independent_symbols,
-             const SymEngine::Basic &    dependent_function,
+             const SymEngine::Basic     &dependent_function,
              const bool                  use_cse = false);
 
         /**
@@ -588,19 +586,16 @@ namespace Differentiation
 
       template <typename ReturnType, typename ExpressionType>
       void
-      CSEDictionaryVisitor<ReturnType, ExpressionType>::init(
-        const SD::types::symbol_vector &dependent_functions)
+      CSEDictionaryVisitor<ReturnType, ExpressionType>::init(const SD::types::symbol_vector &dependent_functions)
       {
-        init(Utilities::convert_expression_vector_to_basic_vector(
-          dependent_functions));
+        init(Utilities::convert_expression_vector_to_basic_vector(dependent_functions));
       }
 
 
 
       template <typename ReturnType, typename ExpressionType>
       void
-      CSEDictionaryVisitor<ReturnType, ExpressionType>::init(
-        const SymEngine::vec_basic &dependent_functions)
+      CSEDictionaryVisitor<ReturnType, ExpressionType>::init(const SymEngine::vec_basic &dependent_functions)
       {
         // After the next call, the data stored in replacements is structured
         // as follows:
@@ -622,25 +617,20 @@ namespace Differentiation
         SymEngine::vec_basic se_reduced_exprs;
         SymEngine::cse(se_replacements, se_reduced_exprs, dependent_functions);
 
-        intermediate_symbols_exprs =
-          Utilities::convert_basic_pair_vector_to_expression_pair_vector(
-            se_replacements);
-        reduced_exprs = Utilities::convert_basic_vector_to_expression_vector(
-          se_reduced_exprs);
+        intermediate_symbols_exprs = Utilities::convert_basic_pair_vector_to_expression_pair_vector(se_replacements);
+        reduced_exprs              = Utilities::convert_basic_vector_to_expression_vector(se_reduced_exprs);
       }
 
 
 
       template <typename ReturnType, typename ExpressionType>
       void
-      CSEDictionaryVisitor<ReturnType, ExpressionType>::call(
-        ReturnType *                    output_values,
-        const SD::types::symbol_vector &independent_symbols,
-        const ReturnType *              substitution_values)
+      CSEDictionaryVisitor<ReturnType, ExpressionType>::call(ReturnType                     *output_values,
+                                                             const SD::types::symbol_vector &independent_symbols,
+                                                             const ReturnType               *substitution_values)
       {
         call(output_values,
-             Utilities::convert_expression_vector_to_basic_vector(
-               independent_symbols),
+             Utilities::convert_expression_vector_to_basic_vector(independent_symbols),
              substitution_values);
       }
 
@@ -648,10 +638,9 @@ namespace Differentiation
 
       template <typename ReturnType, typename ExpressionType>
       void
-      CSEDictionaryVisitor<ReturnType, ExpressionType>::call(
-        ReturnType *                output_values,
-        const SymEngine::vec_basic &independent_symbols,
-        const ReturnType *          substitution_values)
+      CSEDictionaryVisitor<ReturnType, ExpressionType>::call(ReturnType                 *output_values,
+                                                             const SymEngine::vec_basic &independent_symbols,
+                                                             const ReturnType           *substitution_values)
       {
         Assert(n_reduced_expressions() > 0, ExcInternalError());
 
@@ -659,35 +648,27 @@ namespace Differentiation
         SymEngine::map_basic_basic substitution_value_map;
         for (unsigned i = 0; i < independent_symbols.size(); ++i)
           substitution_value_map[independent_symbols[i]] =
-            static_cast<const SymEngine::RCP<const SymEngine::Basic> &>(
-              ExpressionType(substitution_values[i]));
+            static_cast<const SymEngine::RCP<const SymEngine::Basic> &>(ExpressionType(substitution_values[i]));
 
         // ... followed by any intermediate evaluations due to the application
         // of CSE. These are fed directly back into the substitution map...
         for (const auto &expression : intermediate_symbols_exprs)
           {
-            const SymEngine::RCP<const SymEngine::Basic> &cse_symbol =
-              expression.first;
-            const SymEngine::RCP<const SymEngine::Basic> &cse_expr =
-              expression.second;
-            Assert(substitution_value_map.find(cse_symbol) ==
-                     substitution_value_map.end(),
-                   ExcMessage(
-                     "Reduced symbol already appears in substitution map. "
-                     "Is there a clash between the reduced symbol name and "
-                     "the symbol used for an independent variable?"));
+            const SymEngine::RCP<const SymEngine::Basic> &cse_symbol = expression.first;
+            const SymEngine::RCP<const SymEngine::Basic> &cse_expr   = expression.second;
+            Assert(substitution_value_map.find(cse_symbol) == substitution_value_map.end(),
+                   ExcMessage("Reduced symbol already appears in substitution map. "
+                              "Is there a clash between the reduced symbol name and "
+                              "the symbol used for an independent variable?"));
             substitution_value_map[cse_symbol] =
-              static_cast<const SymEngine::RCP<const SymEngine::Basic> &>(
-                ExpressionType(ExpressionType(cse_expr)
-                                 .template substitute_and_evaluate<ReturnType>(
-                                   substitution_value_map)));
+              static_cast<const SymEngine::RCP<const SymEngine::Basic> &>(ExpressionType(
+                ExpressionType(cse_expr).template substitute_and_evaluate<ReturnType>(substitution_value_map)));
           }
 
         // ... followed by the final reduced expressions
         for (unsigned i = 0; i < reduced_exprs.size(); ++i)
-          output_values[i] = ExpressionType(reduced_exprs[i])
-                               .template substitute_and_evaluate<ReturnType>(
-                                 substitution_value_map);
+          output_values[i] =
+            ExpressionType(reduced_exprs[i]).template substitute_and_evaluate<ReturnType>(substitution_value_map);
       }
 
 
@@ -695,9 +676,7 @@ namespace Differentiation
       template <typename ReturnType, typename ExpressionType>
       template <class Archive>
       void
-      CSEDictionaryVisitor<ReturnType, ExpressionType>::save(
-        Archive &ar,
-        const unsigned int /*version*/) const
+      CSEDictionaryVisitor<ReturnType, ExpressionType>::save(Archive &ar, const unsigned int /*version*/) const
       {
         // The reduced expressions depend on the intermediate expressions,
         // so we serialize the latter before the former.
@@ -710,9 +689,7 @@ namespace Differentiation
       template <typename ReturnType, typename ExpressionType>
       template <class Archive>
       void
-      CSEDictionaryVisitor<ReturnType, ExpressionType>::load(
-        Archive &ar,
-        const unsigned int /*version*/)
+      CSEDictionaryVisitor<ReturnType, ExpressionType>::load(Archive &ar, const unsigned int /*version*/)
       {
         Assert(intermediate_symbols_exprs.empty(), ExcInternalError());
         Assert(reduced_exprs.empty(), ExcInternalError());
@@ -728,19 +705,15 @@ namespace Differentiation
       template <typename ReturnType, typename ExpressionType>
       template <typename StreamType>
       void
-      CSEDictionaryVisitor<ReturnType, ExpressionType>::print(
-        StreamType &stream) const
+      CSEDictionaryVisitor<ReturnType, ExpressionType>::print(StreamType &stream) const
       {
         stream << "Common subexpression elimination: \n";
         stream << "  Intermediate reduced expressions: \n";
         for (unsigned i = 0; i < intermediate_symbols_exprs.size(); ++i)
           {
-            const SymEngine::RCP<const SymEngine::Basic> &cse_symbol =
-              intermediate_symbols_exprs[i].first;
-            const SymEngine::RCP<const SymEngine::Basic> &cse_expr =
-              intermediate_symbols_exprs[i].second;
-            stream << "  " << i << ": " << cse_symbol << " = " << cse_expr
-                   << '\n';
+            const SymEngine::RCP<const SymEngine::Basic> &cse_symbol = intermediate_symbols_exprs[i].first;
+            const SymEngine::RCP<const SymEngine::Basic> &cse_expr   = intermediate_symbols_exprs[i].second;
+            stream << "  " << i << ": " << cse_symbol << " = " << cse_expr << '\n';
           }
 
         stream << "  Final reduced expressions for dependent variables: \n";
@@ -760,16 +733,14 @@ namespace Differentiation
         // ownership of the dependent function expression definition
         // to the entries in reduced_exprs. So its size thus determines
         // whether CSE has been executed or not.
-        return (n_reduced_expressions() > 0) ||
-               (n_intermediate_expressions() > 0);
+        return (n_reduced_expressions() > 0) || (n_intermediate_expressions() > 0);
       }
 
 
 
       template <typename ReturnType, typename ExpressionType>
       unsigned int
-      CSEDictionaryVisitor<ReturnType,
-                           ExpressionType>::n_intermediate_expressions() const
+      CSEDictionaryVisitor<ReturnType, ExpressionType>::n_intermediate_expressions() const
       {
         return intermediate_symbols_exprs.size();
       }
@@ -778,8 +749,7 @@ namespace Differentiation
 
       template <typename ReturnType, typename ExpressionType>
       unsigned int
-      CSEDictionaryVisitor<ReturnType, ExpressionType>::n_reduced_expressions()
-        const
+      CSEDictionaryVisitor<ReturnType, ExpressionType>::n_reduced_expressions() const
       {
         return reduced_exprs.size();
       }
@@ -791,10 +761,9 @@ namespace Differentiation
 
       template <typename ReturnType, typename ExpressionType>
       void
-      DictionarySubstitutionVisitor<ReturnType, ExpressionType>::init(
-        const types::symbol_vector &inputs,
-        const SD::Expression &      output,
-        const bool                  use_cse)
+      DictionarySubstitutionVisitor<ReturnType, ExpressionType>::init(const types::symbol_vector &inputs,
+                                                                      const SD::Expression       &output,
+                                                                      const bool                  use_cse)
       {
         init(inputs, types::symbol_vector{output}, use_cse);
       }
@@ -803,10 +772,9 @@ namespace Differentiation
 
       template <typename ReturnType, typename ExpressionType>
       void
-      DictionarySubstitutionVisitor<ReturnType, ExpressionType>::init(
-        const SymEngine::vec_basic &inputs,
-        const SymEngine::Basic &    output,
-        const bool                  use_cse)
+      DictionarySubstitutionVisitor<ReturnType, ExpressionType>::init(const SymEngine::vec_basic &inputs,
+                                                                      const SymEngine::Basic     &output,
+                                                                      const bool                  use_cse)
       {
         init(Utilities::convert_basic_vector_to_expression_vector(inputs),
              SD::Expression(output.rcp_from_this()),
@@ -817,10 +785,9 @@ namespace Differentiation
 
       template <typename ReturnType, typename ExpressionType>
       void
-      DictionarySubstitutionVisitor<ReturnType, ExpressionType>::init(
-        const SymEngine::vec_basic &inputs,
-        const SymEngine::vec_basic &outputs,
-        const bool                  use_cse)
+      DictionarySubstitutionVisitor<ReturnType, ExpressionType>::init(const SymEngine::vec_basic &inputs,
+                                                                      const SymEngine::vec_basic &outputs,
+                                                                      const bool                  use_cse)
       {
         init(Utilities::convert_basic_vector_to_expression_vector(inputs),
              Utilities::convert_basic_vector_to_expression_vector(outputs),
@@ -831,10 +798,9 @@ namespace Differentiation
 
       template <typename ReturnType, typename ExpressionType>
       void
-      DictionarySubstitutionVisitor<ReturnType, ExpressionType>::init(
-        const types::symbol_vector &inputs,
-        const types::symbol_vector &outputs,
-        const bool                  use_cse)
+      DictionarySubstitutionVisitor<ReturnType, ExpressionType>::init(const types::symbol_vector &inputs,
+                                                                      const types::symbol_vector &outputs,
+                                                                      const bool                  use_cse)
       {
         independent_symbols.clear();
         dependent_functions.clear();
@@ -861,14 +827,10 @@ namespace Differentiation
       DictionarySubstitutionVisitor<ReturnType, ExpressionType>::call(
         const std::vector<ReturnType> &substitution_values)
       {
-        Assert(
-          dependent_functions.size() == 1,
-          ExcMessage(
-            "Cannot use this call function when more than one symbolic expression is to be evaluated."));
-        Assert(
-          substitution_values.size() == independent_symbols.size(),
-          ExcMessage(
-            "Input substitution vector does not match size of symbol vector."));
+        Assert(dependent_functions.size() == 1,
+               ExcMessage("Cannot use this call function when more than one symbolic expression is to be evaluated."));
+        Assert(substitution_values.size() == independent_symbols.size(),
+               ExcMessage("Input substitution vector does not match size of symbol vector."));
 
         ReturnType out = dealii::internal::NumberType<ReturnType>::value(0.0);
         call(&out, substitution_values.data());
@@ -879,9 +841,8 @@ namespace Differentiation
 
       template <typename ReturnType, typename ExpressionType>
       void
-      DictionarySubstitutionVisitor<ReturnType, ExpressionType>::call(
-        ReturnType *      output_values,
-        const ReturnType *substitution_values)
+      DictionarySubstitutionVisitor<ReturnType, ExpressionType>::call(ReturnType       *output_values,
+                                                                      const ReturnType *substitution_values)
       {
         // Check to see if CSE has been performed
         if (cse.executed())
@@ -894,8 +855,7 @@ namespace Differentiation
             SymEngine::map_basic_basic substitution_value_map;
             for (unsigned i = 0; i < independent_symbols.size(); ++i)
               substitution_value_map[independent_symbols[i]] =
-                static_cast<const SymEngine::RCP<const SymEngine::Basic> &>(
-                  ExpressionType(substitution_values[i]));
+                static_cast<const SymEngine::RCP<const SymEngine::Basic> &>(ExpressionType(substitution_values[i]));
 
             // Since we don't know how to definitively evaluate the
             // input number type, we create a generic Expression
@@ -903,10 +863,8 @@ namespace Differentiation
             // substitution and evaluation for us.
             Assert(dependent_functions.size() > 0, ExcInternalError());
             for (unsigned i = 0; i < dependent_functions.size(); ++i)
-              output_values[i] =
-                ExpressionType(dependent_functions[i])
-                  .template substitute_and_evaluate<ReturnType>(
-                    substitution_value_map);
+              output_values[i] = ExpressionType(dependent_functions[i])
+                                   .template substitute_and_evaluate<ReturnType>(substitution_value_map);
           }
       }
 
@@ -915,9 +873,7 @@ namespace Differentiation
       template <typename ReturnType, typename ExpressionType>
       template <class Archive>
       void
-      DictionarySubstitutionVisitor<ReturnType, ExpressionType>::save(
-        Archive &          ar,
-        const unsigned int version) const
+      DictionarySubstitutionVisitor<ReturnType, ExpressionType>::save(Archive &ar, const unsigned int version) const
       {
         // Add some dynamic information to determine if CSE has been used,
         // without relying on the CSE class when deserializing.
@@ -938,9 +894,7 @@ namespace Differentiation
       template <typename ReturnType, typename ExpressionType>
       template <class Archive>
       void
-      DictionarySubstitutionVisitor<ReturnType, ExpressionType>::load(
-        Archive &          ar,
-        const unsigned int version)
+      DictionarySubstitutionVisitor<ReturnType, ExpressionType>::load(Archive &ar, const unsigned int version)
       {
         Assert(cse.executed() == false, ExcInternalError());
         Assert(cse.n_intermediate_expressions() == 0, ExcInternalError());
@@ -960,11 +914,10 @@ namespace Differentiation
       template <typename ReturnType, typename ExpressionType>
       template <typename StreamType>
       void
-      DictionarySubstitutionVisitor<ReturnType, ExpressionType>::print(
-        StreamType &stream,
-        const bool  print_independent_symbols,
-        const bool  print_dependent_functions,
-        const bool  print_cse_reductions) const
+      DictionarySubstitutionVisitor<ReturnType, ExpressionType>::print(StreamType &stream,
+                                                                       const bool  print_independent_symbols,
+                                                                       const bool  print_dependent_functions,
+                                                                       const bool  print_cse_reductions) const
       {
         if (print_independent_symbols)
           {

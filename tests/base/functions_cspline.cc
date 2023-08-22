@@ -39,7 +39,7 @@ check()
   // native version
   {
     gsl_interp_accel *acc    = gsl_interp_accel_alloc();
-    gsl_spline *      spline = gsl_spline_alloc(gsl_interp_cspline, n_points);
+    gsl_spline       *spline = gsl_spline_alloc(gsl_interp_cspline, n_points);
 
     gsl_spline_init(spline, &x[0], &y[0], n_points);
 
@@ -64,9 +64,8 @@ check()
       }
   }
 
-  AssertThrow(
-    std::equal(y_native.begin(), y_native.end(), y_dealii.begin()),
-    ExcMessage("deal.II implementation of CSpline does not match native GSL."));
+  AssertThrow(std::equal(y_native.begin(), y_native.end(), y_dealii.begin()),
+              ExcMessage("deal.II implementation of CSpline does not match native GSL."));
 
   deallog << "Ok" << std::endl;
 }

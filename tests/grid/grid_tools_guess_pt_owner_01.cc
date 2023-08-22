@@ -83,11 +83,9 @@ test_point_owner(unsigned int n_procs)
           const auto &rk_points = std::get<0>(output_tp)[rk];
           for (unsigned int box = 0; box < rk; ++box)
             {
-              if (std::find(rk_points.begin(), rk_points.end(), tot_pt) ==
-                  rk_points.end())
+              if (std::find(rk_points.begin(), rk_points.end(), tot_pt) == rk_points.end())
                 {
-                  deallog << "Point " << tot_pt << " not found in rank " << rk
-                          << std::endl;
+                  deallog << "Point " << tot_pt << " not found in rank " << rk << std::endl;
                   test_passed = false;
                 }
               else
@@ -116,8 +114,7 @@ test_point_owner(unsigned int n_procs)
 
   for (unsigned int rk = 1; rk < n_procs; rk += 2)
     {
-      std::pair<Point<spacedim>, Point<spacedim>> boundaries =
-        global_bboxes[rk][0].get_boundary_points();
+      std::pair<Point<spacedim>, Point<spacedim>> boundaries = global_bboxes[rk][0].get_boundary_points();
 
       boundaries.first[0] -= 0.5 * double(Testing::rand()) / RAND_MAX;
       boundaries.second[0] -= 0.5 * double(Testing::rand()) / RAND_MAX;
@@ -144,20 +141,16 @@ test_point_owner(unsigned int n_procs)
           if (!found)
             {
               test_passed = false;
-              deallog << "Couldn't find point " << pt << " in process " << rk
-                      << std::endl;
+              deallog << "Couldn't find point " << pt << " in process " << rk << std::endl;
             }
           else
             {
               // Check if the point is contained also in one of the maps
-              if (std::get<1>(output_tp).find(pt) ==
-                    std::get<1>(output_tp).end() &&
-                  std::get<2>(output_tp).find(pt) ==
-                    std::get<2>(output_tp).end())
+              if (std::get<1>(output_tp).find(pt) == std::get<1>(output_tp).end() &&
+                  std::get<2>(output_tp).find(pt) == std::get<2>(output_tp).end())
                 {
                   test_passed = false;
-                  deallog << "Output maps missing point " << pt
-                          << " in process " << rk << std::endl;
+                  deallog << "Output maps missing point " << pt << " in process " << rk << std::endl;
                 }
             }
         }

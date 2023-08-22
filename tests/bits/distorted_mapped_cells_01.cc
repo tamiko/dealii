@@ -67,13 +67,11 @@ test()
 
   // this gives a Cartesian cell but in non-standard orientation (x-coordinate
   // is gone through backwards)
-  MappingQEulerian<dim> mapping(1, dof_h, displacements);
-  QGauss<dim>           quad(1);
-  FEValues<dim>         fe_val(mapping, fe, quad, update_JxW_values);
-  double                integral = 0.;
-  /*typename*/ Triangulation<dim>::active_cell_iterator cell =
-                                                          tria.begin_active(),
-                                                        endc = tria.end();
+  MappingQEulerian<dim>                                 mapping(1, dof_h, displacements);
+  QGauss<dim>                                           quad(1);
+  FEValues<dim>                                         fe_val(mapping, fe, quad, update_JxW_values);
+  double                                                integral = 0.;
+  /*typename*/ Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
   for (; cell != endc; ++cell)
     {
       try

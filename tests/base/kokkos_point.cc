@@ -25,8 +25,7 @@ test_gpu()
 {
   const unsigned int n_tests = 16;
 
-  Kokkos::View<Number *, MemorySpace::Default::kokkos_space> check("check",
-                                                                   n_tests);
+  Kokkos::View<Number *, MemorySpace::Default::kokkos_space> check("check", n_tests);
 
   using ExecutionSpace = MemorySpace::Default::kokkos_space::execution_space;
   ExecutionSpace exec;
@@ -82,8 +81,7 @@ test_gpu()
       check[15] = s_4;
     });
 
-  auto check_host =
-    Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace{}, check);
+  auto check_host = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace{}, check);
 
   const double tolerance = 1.e-8;
   AssertThrow(std::abs(check_host[0] - 0.) < tolerance, ExcInternalError());

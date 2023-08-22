@@ -49,9 +49,7 @@ test(const Triangulation<dim> &tr, const FiniteElement<dim> &fe)
   const QGauss<dim - 1>  face_quadrature(2);
   FEInterfaceValues<dim> fe_iv(fe,
                                face_quadrature,
-                               update_values | update_gradients |
-                                 update_quadrature_points |
-                                 update_3rd_derivatives);
+                               update_values | update_gradients | update_quadrature_points | update_3rd_derivatives);
   auto                   cell = dof.begin_active();
 
   for (const auto f : GeometryInfo<dim>::face_indices())
@@ -63,7 +61,7 @@ test(const Triangulation<dim> &tr, const FiniteElement<dim> &fe)
                      cell->neighbor(f),
                      cell->neighbor_of_neighbor(f),
                      numbers::invalid_unsigned_int);
-        const auto &       q_points    = fe_iv.get_quadrature_points();
+        const auto        &q_points    = fe_iv.get_quadrature_points();
         const unsigned int n_q_points  = q_points.size();
         const unsigned int n_dofs_face = fe_iv.n_current_interface_dofs();
 
@@ -74,50 +72,33 @@ test(const Triangulation<dim> &tr, const FiniteElement<dim> &fe)
               for (unsigned int q = 0; q < n_q_points; ++q)
                 {
                   if (fe_iv[single_component].value(true, i, q) != 0)
-                    deallog << fe_iv[single_component].value(true, i, q)
-                            << "  ";
+                    deallog << fe_iv[single_component].value(true, i, q) << "  ";
                   if (fe_iv[single_component].value(false, i, q) != 0)
-                    deallog << fe_iv[single_component].value(false, i, q)
-                            << "  ";
+                    deallog << fe_iv[single_component].value(false, i, q) << "  ";
                   if (fe_iv[single_component].jump_in_values(i, q) != 0)
-                    deallog << fe_iv[single_component].jump_in_values(i, q)
-                            << "  ";
+                    deallog << fe_iv[single_component].jump_in_values(i, q) << "  ";
                   if (fe_iv[single_component].average_of_values(i, q) != 0)
-                    deallog << fe_iv[single_component].average_of_values(i, q)
-                            << "  ";
-                  if (fe_iv[single_component].jump_in_gradients(i, q).norm() !=
-                      0)
-                    deallog << fe_iv[single_component].jump_in_gradients(i, q)
-                            << "  ";
-                  if (fe_iv[single_component]
-                        .average_of_gradients(i, q)
-                        .norm() != 0)
-                    deallog
-                      << fe_iv[single_component].average_of_gradients(i, q)
-                      << std::endl;
+                    deallog << fe_iv[single_component].average_of_values(i, q) << "  ";
+                  if (fe_iv[single_component].jump_in_gradients(i, q).norm() != 0)
+                    deallog << fe_iv[single_component].jump_in_gradients(i, q) << "  ";
+                  if (fe_iv[single_component].average_of_gradients(i, q).norm() != 0)
+                    deallog << fe_iv[single_component].average_of_gradients(i, q) << std::endl;
 
 
-                  Assert(fe_iv[single_component].value(true, i, q) ==
-                           fe_iv.shape_value(true, i, q, c),
+                  Assert(fe_iv[single_component].value(true, i, q) == fe_iv.shape_value(true, i, q, c),
                          ExcInternalError());
-                  Assert(fe_iv[single_component].value(false, i, q) ==
-                           fe_iv.shape_value(false, i, q, c),
+                  Assert(fe_iv[single_component].value(false, i, q) == fe_iv.shape_value(false, i, q, c),
                          ExcInternalError());
-                  Assert(fe_iv[single_component].jump_in_values(i, q) ==
-                           fe_iv.jump_in_shape_values(i, q, c),
+                  Assert(fe_iv[single_component].jump_in_values(i, q) == fe_iv.jump_in_shape_values(i, q, c),
                          ExcInternalError());
-                  Assert(fe_iv[single_component].average_of_values(i, q) ==
-                           fe_iv.average_of_shape_values(i, q, c),
+                  Assert(fe_iv[single_component].average_of_values(i, q) == fe_iv.average_of_shape_values(i, q, c),
                          ExcInternalError());
-                  Assert(fe_iv[single_component].average_of_hessians(i, q) ==
-                           fe_iv.average_of_shape_hessians(i, q, c),
+                  Assert(fe_iv[single_component].average_of_hessians(i, q) == fe_iv.average_of_shape_hessians(i, q, c),
                          ExcInternalError());
-                  Assert(fe_iv[single_component].jump_in_hessians(i, q) ==
-                           fe_iv.jump_in_shape_hessians(i, q, c),
+                  Assert(fe_iv[single_component].jump_in_hessians(i, q) == fe_iv.jump_in_shape_hessians(i, q, c),
                          ExcInternalError());
 
-                  Assert(fe_iv[single_component].jump_in_third_derivatives(i,
-                                                                           q) ==
+                  Assert(fe_iv[single_component].jump_in_third_derivatives(i, q) ==
                            fe_iv.jump_in_shape_3rd_derivatives(i, q, c),
                          ExcInternalError());
 
@@ -139,10 +120,7 @@ test_hyper_sphere()
   static const SphericalManifold<dim> boundary;
   tr.set_manifold(0, boundary);
 
-  FESystem<dim> fe(FE_Q<dim>(1),
-                   1,
-                   FE_DGQArbitraryNodes<dim>(QGauss<1>(2)),
-                   dim);
+  FESystem<dim> fe(FE_Q<dim>(1), 1, FE_DGQArbitraryNodes<dim>(QGauss<1>(2)), dim);
   test(tr, fe);
 }
 

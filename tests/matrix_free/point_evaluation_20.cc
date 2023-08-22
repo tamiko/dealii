@@ -93,9 +93,7 @@ test()
   Vector<double> vector(dof_handler.n_dofs());
 
   // mapping info object for precomputed mapping
-  NonMatching::MappingInfo<dim, dim> mapping_info(mapping,
-                                                  update_values |
-                                                    update_gradients);
+  NonMatching::MappingInfo<dim, dim> mapping_info(mapping, update_values | update_gradients);
   // First evaluator to use precomputed mapping
   FEPointEvaluation<dim, dim> evaluator1(mapping_info, fe);
 
@@ -105,30 +103,26 @@ test()
 
   for (const auto &cell : dof_handler.active_cell_iterators())
     {
-      cell->get_dof_values(vector,
-                           solution_values.begin(),
-                           solution_values.end());
+      cell->get_dof_values(vector, solution_values.begin(), solution_values.end());
 
       mapping_info.reinit(cell, unit_points);
 
-      evaluator1.evaluate(solution_values,
-                          EvaluationFlags::values | EvaluationFlags::gradients);
+      evaluator1.evaluate(solution_values, EvaluationFlags::values | EvaluationFlags::gradients);
 
       deallog << "Cell with center " << cell->center(true) << std::endl;
       for (unsigned int i = 0; i < unit_points.size(); ++i)
-        deallog << mapping.transform_unit_to_real_cell(cell, unit_points[i])
-                << ": " << evaluator1.get_value(i) << std::endl;
+        deallog << mapping.transform_unit_to_real_cell(cell, unit_points[i]) << ": " << evaluator1.get_value(i)
+                << std::endl;
       deallog << std::endl;
 
       mapping_info.reinit(cell, unit_points2);
 
-      evaluator1.evaluate(solution_values,
-                          EvaluationFlags::values | EvaluationFlags::gradients);
+      evaluator1.evaluate(solution_values, EvaluationFlags::values | EvaluationFlags::gradients);
 
       deallog << "Cell with center " << cell->center(true) << std::endl;
       for (unsigned int i = 0; i < unit_points2.size(); ++i)
-        deallog << mapping.transform_unit_to_real_cell(cell, unit_points2[i])
-                << ": " << evaluator1.get_value(i) << std::endl;
+        deallog << mapping.transform_unit_to_real_cell(cell, unit_points2[i]) << ": " << evaluator1.get_value(i)
+                << std::endl;
       deallog << std::endl;
     }
 }

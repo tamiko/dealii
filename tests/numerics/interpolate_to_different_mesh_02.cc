@@ -81,46 +81,31 @@ check(const unsigned int refinement_1, const unsigned int refinement_2)
   Vector<double> u_1(dof_handler_1.n_dofs()), u_2(dof_handler_2.n_dofs());
   F1<spacedim>   f_1;
   VectorTools::interpolate(mapping, dof_handler_1, f_1, u_1);
-  VectorTools::interpolate_to_different_mesh(dof_handler_1,
-                                             u_1,
-                                             dof_handler_2,
-                                             u_2);
+  VectorTools::interpolate_to_different_mesh(dof_handler_1, u_1, dof_handler_2, u_2);
 
   Point<spacedim>                      support_point, unit_support_point;
-  std::vector<types::global_dof_index> local_dof_indices_1(
-    fe_collection[0].n_dofs_per_cell());
-  std::vector<types::global_dof_index> local_dof_indices_2(
-    fe_collection[1].n_dofs_per_cell());
+  std::vector<types::global_dof_index> local_dof_indices_1(fe_collection[0].n_dofs_per_cell());
+  std::vector<types::global_dof_index> local_dof_indices_2(fe_collection[1].n_dofs_per_cell());
   deallog << "dof values of dof_handler_1:" << std::endl;
   for (const auto &cell : dof_handler_1.active_cell_iterators())
     {
       cell->get_dof_indices(local_dof_indices_1);
-      for (unsigned int shapefun = 0;
-           shapefun < cell->get_fe().n_dofs_per_cell();
-           ++shapefun)
+      for (unsigned int shapefun = 0; shapefun < cell->get_fe().n_dofs_per_cell(); ++shapefun)
         {
           unit_support_point = cell->get_fe().unit_support_point(shapefun);
-          support_point =
-            mapping.transform_unit_to_real_cell(cell, unit_support_point);
-          deallog << ' ' << support_point << ":\n "
-                  << u_1[local_dof_indices_1[shapefun]] << std::endl
-                  << std::endl;
+          support_point      = mapping.transform_unit_to_real_cell(cell, unit_support_point);
+          deallog << ' ' << support_point << ":\n " << u_1[local_dof_indices_1[shapefun]] << std::endl << std::endl;
         }
     }
   deallog << std::endl << "dof values of dof_handler_2:" << std::endl;
   for (const auto &cell : dof_handler_2.active_cell_iterators())
     {
       cell->get_dof_indices(local_dof_indices_2);
-      for (unsigned int shapefun = 0;
-           shapefun < cell->get_fe().n_dofs_per_cell();
-           ++shapefun)
+      for (unsigned int shapefun = 0; shapefun < cell->get_fe().n_dofs_per_cell(); ++shapefun)
         {
           unit_support_point = cell->get_fe().unit_support_point(shapefun);
-          support_point =
-            mapping.transform_unit_to_real_cell(cell, unit_support_point);
-          deallog << ' ' << support_point << ":\n "
-                  << u_2[local_dof_indices_2[shapefun]] << std::endl
-                  << std::endl;
+          support_point      = mapping.transform_unit_to_real_cell(cell, unit_support_point);
+          deallog << ' ' << support_point << ":\n " << u_2[local_dof_indices_2[shapefun]] << std::endl << std::endl;
         }
     }
 }
@@ -132,33 +117,27 @@ main(int argc, char **argv)
 
   Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
 
-  deallog
-    << "### 2D-Case, first cell refined once, second cell unrefined###\n\n";
+  deallog << "### 2D-Case, first cell refined once, second cell unrefined###\n\n";
   check<2>(1, 0);
   deallog << std::endl;
 
-  deallog
-    << "### 2D-Case, first cell unrefined, second cell refined once###\n\n";
+  deallog << "### 2D-Case, first cell unrefined, second cell refined once###\n\n";
   check<2>(0, 1);
   deallog << std::endl;
 
-  deallog
-    << "### 2D-Case, first cell refined once, second cell refined once###\n\n";
+  deallog << "### 2D-Case, first cell refined once, second cell refined once###\n\n";
   check<2>(1, 1);
   deallog << std::endl;
 
-  deallog
-    << "### 3D-Case, first cell refined once, second cell unrefined###\n\n";
+  deallog << "### 3D-Case, first cell refined once, second cell unrefined###\n\n";
   check<3>(1, 0);
   deallog << std::endl;
 
-  deallog
-    << "### 3D-Case, first cell unrefined, second cell refined once###\n\n";
+  deallog << "### 3D-Case, first cell unrefined, second cell refined once###\n\n";
   check<3>(0, 1);
   deallog << std::endl;
 
-  deallog
-    << "### 3D-Case, first cell refined once, second cell refined once###\n\n";
+  deallog << "### 3D-Case, first cell refined once, second cell refined once###\n\n";
   check<3>(1, 1);
   deallog << std::endl;
 }

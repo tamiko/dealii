@@ -32,9 +32,7 @@ test()
   // Write data
   {
     // Create file
-    HDF5::File data_file(filename,
-                         HDF5::File::FileAccessMode::create,
-                         mpi_communicator);
+    HDF5::File data_file(filename, HDF5::File::FileAccessMode::create, mpi_communicator);
 
     // Create attributes attached to the root
     data_file.set_attribute("root_true", true);
@@ -52,8 +50,7 @@ test()
 
 
     const std::vector<hsize_t> dataset_dimensions = {2, 5, 3};
-    auto                       dataset =
-      group.template create_dataset<double>(dataset_name, dataset_dimensions);
+    auto                       dataset = group.template create_dataset<double>(dataset_name, dataset_dimensions);
 
 
     dataset.set_attribute("dataset_true", true);
@@ -63,9 +60,7 @@ test()
   // Read data
   {
     // Read attributes attached to the root
-    HDF5::File data_file(filename,
-                         HDF5::File::FileAccessMode::open,
-                         mpi_communicator);
+    HDF5::File data_file(filename, HDF5::File::FileAccessMode::open, mpi_communicator);
     auto       root_true  = data_file.get_attribute<bool>("root_true");
     auto       root_false = data_file.get_attribute<bool>("root_false");
     deallog << "root_true:" << root_true << std::endl;
@@ -104,28 +99,20 @@ main(int argc, char **argv)
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

@@ -25,10 +25,7 @@
 using namespace dealii;
 namespace SD = Differentiation::SD;
 
-template <int dim,
-          typename NumberType,
-          enum SD::OptimizerType     opt_method,
-          enum SD::OptimizationFlags opt_flags>
+template <int dim, typename NumberType, enum SD::OptimizerType opt_method, enum SD::OptimizationFlags opt_flags>
 void
 test_serialization()
 {
@@ -51,8 +48,7 @@ test_serialization()
 
     // Substitution map
     const SD::types::substitution_map sub_vals =
-      SD::make_substitution_map(std::make_pair(x, NumberType(10.0)),
-                                std::make_pair(y, NumberType(2.0)));
+      SD::make_substitution_map(std::make_pair(x, NumberType(10.0)), std::make_pair(y, NumberType(2.0)));
 
     // Optimize
     SD::BatchOptimizer<NumberType> optimizer(opt_method, opt_flags);
@@ -135,9 +131,7 @@ test_serialization()
 }
 
 
-template <int                        dim,
-          enum SD::OptimizerType     opt_method,
-          enum SD::OptimizationFlags opt_flags>
+template <int dim, enum SD::OptimizerType opt_method, enum SD::OptimizationFlags opt_flags>
 void
 run_tests()
 {

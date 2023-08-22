@@ -221,16 +221,14 @@ enum UpdateFlags
    */
   update_mapping =
     // Direct data
-  update_quadrature_points | update_JxW_values | update_jacobians |
-  update_jacobian_grads | update_jacobian_pushed_forward_grads |
-  update_jacobian_2nd_derivatives |
-  update_jacobian_pushed_forward_2nd_derivatives |
-  update_jacobian_3rd_derivatives |
-  update_jacobian_pushed_forward_3rd_derivatives | update_inverse_jacobians |
-  update_boundary_forms | update_normal_vectors |
+  update_quadrature_points | update_JxW_values | update_jacobians | update_jacobian_grads |
+  update_jacobian_pushed_forward_grads | update_jacobian_2nd_derivatives |
+  update_jacobian_pushed_forward_2nd_derivatives | update_jacobian_3rd_derivatives |
+  update_jacobian_pushed_forward_3rd_derivatives | update_inverse_jacobians | update_boundary_forms |
+  update_normal_vectors |
   // Transformation dependence
-  update_covariant_transformation | update_contravariant_transformation |
-  update_transformation_values | update_transformation_gradients |
+  update_covariant_transformation | update_contravariant_transformation | update_transformation_values |
+  update_transformation_gradients |
   // Volume data
   update_volume_elements
 };
@@ -302,8 +300,7 @@ operator<<(StreamType &s, const UpdateFlags u)
 inline UpdateFlags
 operator|(const UpdateFlags f1, const UpdateFlags f2)
 {
-  return static_cast<UpdateFlags>(static_cast<unsigned int>(f1) |
-                                  static_cast<unsigned int>(f2));
+  return static_cast<UpdateFlags>(static_cast<unsigned int>(f1) | static_cast<unsigned int>(f2));
 }
 
 
@@ -334,8 +331,7 @@ operator|=(UpdateFlags &f1, const UpdateFlags f2)
 inline UpdateFlags
 operator&(const UpdateFlags f1, const UpdateFlags f2)
 {
-  return static_cast<UpdateFlags>(static_cast<unsigned int>(f1) &
-                                  static_cast<unsigned int>(f2));
+  return static_cast<UpdateFlags>(static_cast<unsigned int>(f1) & static_cast<unsigned int>(f2));
 }
 
 

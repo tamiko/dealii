@@ -71,8 +71,7 @@ test(std::string filename, unsigned int n)
   QGauss<dim>                         quad(5);
   AffineConstraints<double>           constraints;
   constraints.close();
-  VectorTools::project(
-    dof_handler, constraints, quad, cosine, interpolated_one);
+  VectorTools::project(dof_handler, constraints, quad, cosine, interpolated_one);
 
   DataOut<dim, spacedim> dataout;
   dataout.attach_dof_handler(dof_handler);

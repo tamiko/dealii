@@ -43,18 +43,13 @@ test(std::ostream &out)
   const double inner_radius = 0.5;
   const double outer_radius = 1.0;
 
-  GridGenerator::eccentric_hyper_shell(triangulation,
-                                       inner_center,
-                                       outer_center,
-                                       inner_radius,
-                                       outer_radius,
-                                       dim == 2 ? 10 : 12);
+  GridGenerator::eccentric_hyper_shell(
+    triangulation, inner_center, outer_center, inner_radius, outer_radius, dim == 2 ? 10 : 12);
 
   triangulation.refine_global(1);
 
   GridOut go;
-  deallog.get_file_stream() << "Output mesh for dim = " << dim << std::endl
-                            << std::endl;
+  deallog.get_file_stream() << "Output mesh for dim = " << dim << std::endl << std::endl;
   go.write_gnuplot(triangulation, out);
 }
 

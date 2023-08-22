@@ -79,9 +79,7 @@ boundary_q(const DoFHandler<dim> &)
 void
 write_map(const std::map<types::global_dof_index, double> &bv)
 {
-  for (std::map<types::global_dof_index, double>::const_iterator i = bv.begin();
-       i != bv.end();
-       ++i)
+  for (std::map<types::global_dof_index, double>::const_iterator i = bv.begin(); i != bv.end(); ++i)
     deallog << i->first << ' ' << i->second << std::endl;
 }
 
@@ -97,9 +95,7 @@ check()
       GridGenerator::hyper_ball(tr, Point<dim>(), 1);
     }
   else
-    GridGenerator::hyper_cube(tr,
-                              -1. / std::sqrt(static_cast<double>(dim)),
-                              1. / std::sqrt(static_cast<double>(dim)));
+    GridGenerator::hyper_cube(tr, -1. / std::sqrt(static_cast<double>(dim)), 1. / std::sqrt(static_cast<double>(dim)));
   GridTools::copy_boundary_to_manifold_id(tr);
   static const SphericalManifold<dim> boundary;
   if (dim != 1)
@@ -148,8 +144,7 @@ check()
       // interpolate boundary values
       deallog << "Interpolated boundary values" << std::endl;
       std::map<types::global_dof_index, double> interpolated_bv;
-      VectorTools::interpolate_boundary_values(
-        mapping, dof, function_map, interpolated_bv, ComponentMask());
+      VectorTools::interpolate_boundary_values(mapping, dof, function_map, interpolated_bv, ComponentMask());
       write_map(interpolated_bv);
 
       // project boundary values
@@ -159,8 +154,7 @@ check()
         {
           deallog << "Projected boundary values" << std::endl;
           std::map<types::global_dof_index, double> projected_bv;
-          VectorTools::project_boundary_values(
-            mapping, dof, function_map, boundary_q(dof), projected_bv);
+          VectorTools::project_boundary_values(mapping, dof, function_map, boundary_q(dof), projected_bv);
           write_map(projected_bv);
         }
     }

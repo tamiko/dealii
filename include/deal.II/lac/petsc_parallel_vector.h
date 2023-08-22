@@ -20,7 +20,6 @@
 
 #include <deal.II/lac/petsc_vector.h>
 
-DEAL_II_WARNING(
-  "This file is deprecated. Use deal.II/lac/petsc_vector.h instead!")
+DEAL_II_WARNING("This file is deprecated. Use deal.II/lac/petsc_vector.h instead!")
 
 #endif

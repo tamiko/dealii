@@ -143,8 +143,7 @@ test()
 
   using rank0_complex_float = std::complex<float>;
   dealii::Tensor<1, dim == 2 ? 1 : dim, rank0_complex_float> curl_complex_float;
-  dealii::Tensor<dim == 2 ? 0 : 2, dim, rank0_complex_float>
-    permeability_complex_float;
+  dealii::Tensor<dim == 2 ? 0 : 2, dim, rank0_complex_float> permeability_complex_float;
 
   using rank0 = double;
   dealii::Tensor<1, dim == 2 ? 1 : dim, rank0> curl;

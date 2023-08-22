@@ -80,8 +80,7 @@ test()
       local_relevant.add_range(4, 7);
     }
 
-  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> v(
-    local_owned, local_relevant, MPI_COMM_WORLD);
+  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> v(local_owned, local_relevant, MPI_COMM_WORLD);
   v = 0.;
 
   // set local values
@@ -90,8 +89,7 @@ test()
   indexset_1.compress();
   LinearAlgebra::ReadWriteVector<double> rw_vector(indexset_1);
   for (unsigned int i = 0; i < local_nonzero.n_elements(); ++i)
-    rw_vector(local_nonzero.nth_index_in_set(i)) =
-      local_nonzero.nth_index_in_set(i);
+    rw_vector(local_nonzero.nth_index_in_set(i)) = local_nonzero.nth_index_in_set(i);
 
   // set value from processor which does not own it:
   rw_vector(5) = 55.;
@@ -149,8 +147,7 @@ test()
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   unsigned int myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
   deallog.push(Utilities::int_to_string(myid));

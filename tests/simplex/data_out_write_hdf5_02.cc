@@ -69,14 +69,12 @@ test(const FiniteElement<dim, spacedim> &fe, const unsigned int n_components)
 
   {
     Triangulation<dim, spacedim> tria_serial;
-    GridGenerator::subdivided_hyper_cube_with_simplices(tria_serial,
-                                                        dim == 2 ? 4 : 2);
+    GridGenerator::subdivided_hyper_cube_with_simplices(tria_serial, dim == 2 ? 4 : 2);
 
-    GridTools::partition_triangulation(Utilities::MPI::n_mpi_processes(comm),
-                                       tria_serial);
+    GridTools::partition_triangulation(Utilities::MPI::n_mpi_processes(comm), tria_serial);
 
-    auto construction_data = TriangulationDescription::Utilities::
-      create_description_from_triangulation(tria_serial, comm);
+    auto construction_data =
+      TriangulationDescription::Utilities::create_description_from_triangulation(tria_serial, comm);
 
     tria.create_triangulation(construction_data);
   }
@@ -94,10 +92,7 @@ test(const FiniteElement<dim, spacedim> &fe, const unsigned int n_components)
 
   MappingFE<dim> mapping(FE_SimplexP<dim>(1));
 
-  VectorTools::interpolate(mapping,
-                           dof_handler,
-                           RightHandSideFunction<dim>(n_components),
-                           solution);
+  VectorTools::interpolate(mapping, dof_handler, RightHandSideFunction<dim>(n_components), solution);
   solution.update_ghost_values();
 
   static unsigned int counter = 0;
@@ -109,16 +104,13 @@ test(const FiniteElement<dim, spacedim> &fe, const unsigned int n_components)
 
   data_out.build_patches(mapping);
 
-  const std::string output_basename("test." + std::to_string(dim) + "." +
-                                    std::to_string(counter++));
+  const std::string output_basename("test." + std::to_string(dim) + "." + std::to_string(counter++));
 
-  DataOutBase::DataOutFilter data_filter(
-    DataOutBase::DataOutFilterFlags(true, true));
+  DataOutBase::DataOutFilter data_filter(DataOutBase::DataOutFilterFlags(true, true));
   data_out.write_filtered_data(data_filter);
   data_out.write_hdf5_parallel(data_filter, output_basename + ".h5", comm);
 
-  std::vector<XDMFEntry> xdmf_entries({data_out.create_xdmf_entry(
-    data_filter, output_basename + ".h5", 0, comm)});
+  std::vector<XDMFEntry> xdmf_entries({data_out.create_xdmf_entry(data_filter, output_basename + ".h5", 0, comm)});
 
   data_out.write_xdmf_file(xdmf_entries, output_basename + ".xdmf", comm);
 
@@ -152,14 +144,12 @@ main(int argc, char **argv)
     const unsigned int dim = 2;
     test<dim>(FE_SimplexP<dim>(2), 1);
     test<dim>(FESystem<dim>(FE_SimplexP<dim>(2), dim), dim);
-    test<dim>(FESystem<dim>(FE_SimplexP<dim>(2), dim, FE_SimplexP<dim>(1), 1),
-              dim + 1);
+    test<dim>(FESystem<dim>(FE_SimplexP<dim>(2), dim, FE_SimplexP<dim>(1), 1), dim + 1);
   }
   {
     const unsigned int dim = 3;
     test<dim>(FE_SimplexP<dim>(2), 1);
     test<dim>(FESystem<dim>(FE_SimplexP<dim>(2), dim), dim);
-    test<dim>(FESystem<dim>(FE_SimplexP<dim>(2), dim, FE_SimplexP<dim>(1), 1),
-              dim + 1);
+    test<dim>(FESystem<dim>(FE_SimplexP<dim>(2), dim, FE_SimplexP<dim>(1), 1), dim + 1);
   }
 }

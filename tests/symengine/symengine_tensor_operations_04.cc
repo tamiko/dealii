@@ -39,12 +39,10 @@ test(const TensorType<rank, dim, double>      a,
     const Tensor_SD_number_t symb_a_plus_b = symb_a + symb_b;
     deallog << "Symbolic a+b: " << symb_a_plus_b << std::endl;
 
-    const Tensor_SD_number_t symb_a_plus_b_1 =
-      SD::substitute(symb_a_plus_b, symb_a, a);
+    const Tensor_SD_number_t symb_a_plus_b_1 = SD::substitute(symb_a_plus_b, symb_a, a);
     deallog << "Symbolic a+b (a=1): " << symb_a_plus_b_1 << std::endl;
 
-    const Tensor_SD_number_t symb_a_plus_b_subs =
-      SD::substitute(symb_a_plus_b_1, symb_b, b);
+    const Tensor_SD_number_t symb_a_plus_b_subs = SD::substitute(symb_a_plus_b_1, symb_b, b);
     deallog << "Symbolic a+b (a=1, b=2): " << symb_a_plus_b_subs << std::endl;
   }
   deallog.pop();
@@ -53,11 +51,10 @@ test(const TensorType<rank, dim, double>      a,
   {
     const Tensor_SD_number_t symb_a_plus_b = symb_a + symb_b;
 
-    const std::vector<std::pair<Tensor_SD_number_t, Tensor_t>> symbol_values{
-      std::make_pair(symb_a, a), std::make_pair(symb_b, b)};
+    const std::vector<std::pair<Tensor_SD_number_t, Tensor_t>> symbol_values{std::make_pair(symb_a, a),
+                                                                             std::make_pair(symb_b, b)};
 
-    const Tensor_SD_number_t symb_a_plus_b_subs =
-      SD::substitute(symb_a_plus_b, symbol_values);
+    const Tensor_SD_number_t symb_a_plus_b_subs = SD::substitute(symb_a_plus_b, symbol_values);
     deallog << "Symbolic a+b (a=1, b=2): " << symb_a_plus_b_subs << std::endl;
   }
   deallog.pop();
@@ -67,11 +64,9 @@ test(const TensorType<rank, dim, double>      a,
     const Tensor_SD_number_t symb_a_plus_b = symb_a + symb_b;
 
     const SD::types::substitution_map substitution_map =
-      SD::make_substitution_map(std::make_pair(symb_a, a),
-                                std::make_pair(symb_b, b));
+      SD::make_substitution_map(std::make_pair(symb_a, a), std::make_pair(symb_b, b));
 
-    const Tensor_SD_number_t symb_a_plus_b_subs =
-      SD::substitute(symb_a_plus_b, substitution_map);
+    const Tensor_SD_number_t symb_a_plus_b_subs = SD::substitute(symb_a_plus_b, substitution_map);
     deallog << "Symbolic a+b (a=1, b=2): " << symb_a_plus_b_subs << std::endl;
   }
   deallog.pop();
@@ -81,11 +76,9 @@ test(const TensorType<rank, dim, double>      a,
     const Tensor_SD_number_t symb_a_plus_b = symb_a + symb_b;
 
     const SD::types::substitution_map substitution_map =
-      SD::make_substitution_map(std::make_pair(symb_a, a),
-                                std::make_pair(symb_b, b));
+      SD::make_substitution_map(std::make_pair(symb_a, a), std::make_pair(symb_b, b));
 
-    const Tensor_t symb_a_plus_b_subs =
-      SD::substitute_and_evaluate<double>(symb_a_plus_b, substitution_map);
+    const Tensor_t symb_a_plus_b_subs = SD::substitute_and_evaluate<double>(symb_a_plus_b, substitution_map);
     Assert(symb_a_plus_b_subs == (a + b), ExcInternalError());
   }
   deallog.pop();
@@ -109,10 +102,8 @@ test_tensor()
   for (auto it = t_b.begin_raw(); it != t_b.end_raw(); ++it)
     *it = 2.0;
 
-  const Tensor_SD_number_t symb_t_a =
-    SD::make_tensor_of_symbols<rank, dim>("a");
-  const Tensor_SD_number_t symb_t_b =
-    SD::make_tensor_of_symbols<rank, dim>("b");
+  const Tensor_SD_number_t symb_t_a = SD::make_tensor_of_symbols<rank, dim>("a");
+  const Tensor_SD_number_t symb_t_b = SD::make_tensor_of_symbols<rank, dim>("b");
 
   test(t_a, t_b, symb_t_a, symb_t_b);
 }
@@ -133,10 +124,8 @@ test_symmetric_tensor()
   for (auto it = t_b.begin_raw(); it != t_b.end_raw(); ++it)
     *it = 2.0;
 
-  const Tensor_SD_number_t symb_t_a =
-    SD::make_symmetric_tensor_of_symbols<rank, dim>("a");
-  const Tensor_SD_number_t symb_t_b =
-    SD::make_symmetric_tensor_of_symbols<rank, dim>("b");
+  const Tensor_SD_number_t symb_t_a = SD::make_symmetric_tensor_of_symbols<rank, dim>("a");
+  const Tensor_SD_number_t symb_t_b = SD::make_symmetric_tensor_of_symbols<rank, dim>("b");
 
   test(t_a, t_b, symb_t_a, symb_t_b);
 }

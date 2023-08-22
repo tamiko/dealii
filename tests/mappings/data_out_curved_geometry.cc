@@ -61,9 +61,7 @@ main()
       const FE_Q<2>     dummy_fe(1);
       DoFHandler<2>     dof_handler(triangulation);
 
-      for (Triangulation<2>::active_cell_iterator cell =
-             triangulation.begin_active();
-           cell != triangulation.end();
+      for (Triangulation<2>::active_cell_iterator cell = triangulation.begin_active(); cell != triangulation.end();
            ++cell)
         {
           if (cell->center().square() < 1.e-5)
@@ -72,9 +70,7 @@ main()
             cell->set_material_id(0);
         }
 
-      Triangulation<2>::active_cell_iterator cell =
-                                               triangulation.begin_active(),
-                                             endc = triangulation.end();
+      Triangulation<2>::active_cell_iterator cell = triangulation.begin_active(), endc = triangulation.end();
 
       for (; cell != endc; ++cell)
         if (cell->material_id() != 1)

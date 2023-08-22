@@ -41,8 +41,7 @@ test()
   ghost_set.add_index(0);
   ghost_set.add_index(2);
 
-  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> v(
-    locally_owned, ghost_set, MPI_COMM_WORLD);
+  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> v(locally_owned, ghost_set, MPI_COMM_WORLD);
 
   // create vector without actually setting the entries since they will be
   // overwritten soon anyway
@@ -50,8 +49,7 @@ test()
   v2.reinit(v, true);
 
   // set locally owned range of v2 manually
-  Kokkos::View<double *, MemorySpace::Default::kokkos_space> v2_view(
-    v2.get_values(), v2.locally_owned_size());
+  Kokkos::View<double *, MemorySpace::Default::kokkos_space> v2_view(v2.get_values(), v2.locally_owned_size());
   Kokkos::deep_copy(v2_view, 1.);
 
   // add entries to ghost values
@@ -79,8 +77,7 @@ test()
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   MPILogInitAll log;
   test();

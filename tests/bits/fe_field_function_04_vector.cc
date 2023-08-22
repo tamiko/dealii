@@ -95,8 +95,7 @@ test()
   fe_function.vector_value_list(points, m);
 
   for (unsigned int i = 0; i < m.size(); ++i)
-    deallog << points[i].square() << "  " << m[i](0) - points[i].square()
-            << std::endl;
+    deallog << points[i].square() << "  " << m[i](0) - points[i].square() << std::endl;
   deallog << std::endl;
 
   double sum = 0.;

@@ -65,16 +65,15 @@ namespace Particles
     void
     regular_reference_locations(
       const Triangulation<dim, spacedim> &triangulation,
-      const std::vector<Point<dim>> &     particle_reference_locations,
-      ParticleHandler<dim, spacedim> &    particle_handler,
-      const Mapping<dim, spacedim> &      mapping =
-        (ReferenceCells::get_hypercube<dim>()
+      const std::vector<Point<dim>>      &particle_reference_locations,
+      ParticleHandler<dim, spacedim>     &particle_handler,
+      const Mapping<dim, spacedim>       &mapping = (ReferenceCells::get_hypercube<dim>()
 #ifndef _MSC_VER
-           .template get_default_linear_mapping<dim, spacedim>()
+                                                 .template get_default_linear_mapping<dim, spacedim>()
 #else
-           .ReferenceCell::get_default_linear_mapping<dim, spacedim>()
+                                                  .ReferenceCell::get_default_linear_mapping<dim, spacedim>()
 #endif
-           ));
+                                                 ));
 
     /**
      * A function that generates one particle at a random location in cell @p cell and with
@@ -110,15 +109,14 @@ namespace Particles
     random_particle_in_cell(
       const typename Triangulation<dim, spacedim>::active_cell_iterator &cell,
       const types::particle_index                                        id,
-      std::mt19937 &                random_number_generator,
-      const Mapping<dim, spacedim> &mapping =
-        (ReferenceCells::get_hypercube<dim>()
+      std::mt19937                                                      &random_number_generator,
+      const Mapping<dim, spacedim>                                      &mapping = (ReferenceCells::get_hypercube<dim>()
 #ifndef _MSC_VER
-           .template get_default_linear_mapping<dim, spacedim>()
+                                                 .template get_default_linear_mapping<dim, spacedim>()
 #else
-           .ReferenceCell::get_default_linear_mapping<dim, spacedim>()
+                                                 .ReferenceCell::get_default_linear_mapping<dim, spacedim>()
 #endif
-           ));
+                                                 ));
 
     /**
      * A function that generates one particle at a random location in cell @p cell and with
@@ -131,16 +129,15 @@ namespace Particles
     random_particle_in_cell_insert(
       const typename Triangulation<dim, spacedim>::active_cell_iterator &cell,
       const types::particle_index                                        id,
-      std::mt19937 &                  random_number_generator,
-      ParticleHandler<dim, spacedim> &particle_handler,
-      const Mapping<dim, spacedim> &  mapping =
-        (ReferenceCells::get_hypercube<dim>()
+      std::mt19937                                                      &random_number_generator,
+      ParticleHandler<dim, spacedim>                                    &particle_handler,
+      const Mapping<dim, spacedim>                                      &mapping = (ReferenceCells::get_hypercube<dim>()
 #ifndef _MSC_VER
-           .template get_default_linear_mapping<dim, spacedim>()
+                                                 .template get_default_linear_mapping<dim, spacedim>()
 #else
-           .ReferenceCell::get_default_linear_mapping<dim, spacedim>()
+                                                  .ReferenceCell::get_default_linear_mapping<dim, spacedim>()
 #endif
-           ));
+                                                 ));
 
     /**
      * A function that generates particles randomly in the domain with a
@@ -190,16 +187,15 @@ namespace Particles
     void
     probabilistic_locations(
       const Triangulation<dim, spacedim> &triangulation,
-      const Function<spacedim> &          probability_density_function,
+      const Function<spacedim>           &probability_density_function,
       const bool                          random_cell_selection,
       const types::particle_index         n_particles_to_create,
-      ParticleHandler<dim, spacedim> &    particle_handler,
-      const Mapping<dim, spacedim> &      mapping =
-        (ReferenceCells::get_hypercube<dim>()
+      ParticleHandler<dim, spacedim>     &particle_handler,
+      const Mapping<dim, spacedim>       &mapping = (ReferenceCells::get_hypercube<dim>()
 #ifndef _MSC_VER
-           .template get_default_linear_mapping<dim, spacedim>()),
+                                                 .template get_default_linear_mapping<dim, spacedim>()),
 #else
-           .ReferenceCell::get_default_linear_mapping<dim, spacedim>()),
+                                                  .ReferenceCell::get_default_linear_mapping<dim, spacedim>()),
 #endif
       const unsigned int random_number_seed = 5432);
 
@@ -241,18 +237,16 @@ namespace Particles
     template <int dim, int spacedim = dim>
     void
     dof_support_points(
-      const DoFHandler<dim, spacedim> &dof_handler,
-      const std::vector<std::vector<BoundingBox<spacedim>>>
-        &                             global_bounding_boxes,
-      ParticleHandler<dim, spacedim> &particle_handler,
-      const Mapping<dim, spacedim> &  mapping =
-        (ReferenceCells::get_hypercube<dim>()
+      const DoFHandler<dim, spacedim>                       &dof_handler,
+      const std::vector<std::vector<BoundingBox<spacedim>>> &global_bounding_boxes,
+      ParticleHandler<dim, spacedim>                        &particle_handler,
+      const Mapping<dim, spacedim>                          &mapping = (ReferenceCells::get_hypercube<dim>()
 #ifndef _MSC_VER
-           .template get_default_linear_mapping<dim, spacedim>()),
+                                                 .template get_default_linear_mapping<dim, spacedim>()),
 #else
-           .ReferenceCell::get_default_linear_mapping<dim, spacedim>()),
+                                                  .ReferenceCell::get_default_linear_mapping<dim, spacedim>()),
 #endif
-      const ComponentMask &                   components = {},
+      const ComponentMask                    &components = {},
       const std::vector<std::vector<double>> &properties = {});
 
     /**
@@ -291,16 +285,13 @@ namespace Particles
      */
     template <int dim, int spacedim = dim>
     void
-    quadrature_points(
-      const Triangulation<dim, spacedim> &triangulation,
-      const Quadrature<dim> &             quadrature,
-      const std::vector<std::vector<BoundingBox<spacedim>>>
-        &                             global_bounding_boxes,
-      ParticleHandler<dim, spacedim> &particle_handler,
-      const Mapping<dim, spacedim> &  mapping =
-        (ReferenceCells::get_hypercube<dim>()
-           .template get_default_linear_mapping<dim, spacedim>()),
-      const std::vector<std::vector<double>> &properties = {});
+    quadrature_points(const Triangulation<dim, spacedim>                    &triangulation,
+                      const Quadrature<dim>                                 &quadrature,
+                      const std::vector<std::vector<BoundingBox<spacedim>>> &global_bounding_boxes,
+                      ParticleHandler<dim, spacedim>                        &particle_handler,
+                      const Mapping<dim, spacedim>                          &mapping =
+                        (ReferenceCells::get_hypercube<dim>().template get_default_linear_mapping<dim, spacedim>()),
+                      const std::vector<std::vector<double>> &properties = {});
   } // namespace Generators
 } // namespace Particles
 

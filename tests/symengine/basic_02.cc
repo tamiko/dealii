@@ -68,8 +68,7 @@ SE::RCP<const SE::Number>
 make_symengine_rcp(const std::complex<NumberType> &val)
 {
   // Build complex from two SymEngine numbers
-  return SE::Complex::from_two_nums(*make_symengine_rcp(val.real()),
-                                    *make_symengine_rcp(val.imag()));
+  return SE::Complex::from_two_nums(*make_symengine_rcp(val.real()), *make_symengine_rcp(val.imag()));
 }
 
 SE::RCP<const SE::Symbol>
@@ -103,8 +102,7 @@ test_number()
   SE::RCP<const SE::Basic> dc_dx = c->diff(x);
   // SE::RCP<const SE::Basic> dc_dy = diff(c,SE::implicit_cast<const
   // SE::RCP<const SE::Symbol> &>(y));
-  SE::RCP<const SE::Basic> dc_dy =
-    diff(c, SE::rcp_static_cast<const SE::Symbol>(y));
+  SE::RCP<const SE::Basic> dc_dy   = diff(c, SE::rcp_static_cast<const SE::Symbol>(y));
   SE::RCP<const SE::Basic> dc_dy_2 = sdiff(c, y);
 
   deallog << "dc_dx = a*y*(y-b): " << *dc_dx << std::endl;

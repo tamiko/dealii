@@ -53,12 +53,9 @@ test(const unsigned int n_refinements = 1)
   using VectorType = LinearAlgebra::distributed::Vector<Number>;
 
   Triangulation<dim> tria;
-  GridGenerator::subdivided_hyper_rectangle(
-    tria, {2, 1}, Point<dim>(0.0, 0.0), Point<dim>(2.0, 1.0), true);
+  GridGenerator::subdivided_hyper_rectangle(tria, {2, 1}, Point<dim>(0.0, 0.0), Point<dim>(2.0, 1.0), true);
 
-  std::vector<dealii::GridTools::PeriodicFacePair<
-    typename dealii::Triangulation<dim>::cell_iterator>>
-    periodic_faces;
+  std::vector<dealii::GridTools::PeriodicFacePair<typename dealii::Triangulation<dim>::cell_iterator>> periodic_faces;
 
   if (dim >= 1)
     dealii::GridTools::collect_periodic_faces(tria, 0, 1, 0, periodic_faces);
@@ -94,12 +91,9 @@ test(const unsigned int n_refinements = 1)
   matrix_free.initialize_dof_vector(src);
   matrix_free.initialize_dof_vector(dst);
 
-  FEEvaluation<dim, fe_degree, n_points, 1, Number, VectorizedArrayType> phi(
-    matrix_free);
-  FEFaceEvaluation<dim, fe_degree, n_points, 1, Number, VectorizedArrayType>
-    phi_m(matrix_free, true);
-  FEFaceEvaluation<dim, fe_degree, n_points, 1, Number, VectorizedArrayType>
-    phi_p(matrix_free, false);
+  FEEvaluation<dim, fe_degree, n_points, 1, Number, VectorizedArrayType>     phi(matrix_free);
+  FEFaceEvaluation<dim, fe_degree, n_points, 1, Number, VectorizedArrayType> phi_m(matrix_free, true);
+  FEFaceEvaluation<dim, fe_degree, n_points, 1, Number, VectorizedArrayType> phi_p(matrix_free, false);
 
 
   for (unsigned int i = 0; i < src.size() / 2; ++i)
@@ -117,8 +111,7 @@ test(const unsigned int n_refinements = 1)
     [&](const auto &, auto &dst, const auto &src, const auto range) {
       for (unsigned int cell = range.first; cell < range.second; ++cell)
         {
-          for (unsigned int face = 0; face < GeometryInfo<dim>::faces_per_cell;
-               face++)
+          for (unsigned int face = 0; face < GeometryInfo<dim>::faces_per_cell; face++)
             {
               phi_m.reinit(cell, face);
               phi_p.reinit(cell, face);
@@ -126,8 +119,7 @@ test(const unsigned int n_refinements = 1)
               phi_m.read_dof_values(src);
 
               for (const auto i : phi_m.dof_indices())
-                deallog << static_cast<int>(phi_m.begin_dof_values()[i][0])
-                        << ' ';
+                deallog << static_cast<int>(phi_m.begin_dof_values()[i][0]) << ' ';
               deallog << std::endl;
               phi_m.gather_evaluate(src, EvaluationFlags::values);
               for (const auto q : phi_p.quadrature_point_indices())
@@ -136,8 +128,7 @@ test(const unsigned int n_refinements = 1)
 
               phi_p.read_dof_values(src);
               for (const auto i : phi_p.dof_indices())
-                deallog << static_cast<int>(phi_p.begin_dof_values()[i][0])
-                        << ' ';
+                deallog << static_cast<int>(phi_p.begin_dof_values()[i][0]) << ' ';
               deallog << std::endl;
 
               phi_p.gather_evaluate(src, EvaluationFlags::values);
@@ -161,8 +152,5 @@ main()
        1,
        2,
        double,
-       VectorizedArray<double,
-                       VectorizedArray<double>::size() < 2 ?
-                         VectorizedArray<double>::size() :
-                         2>>();
+       VectorizedArray<double, VectorizedArray<double>::size() < 2 ? VectorizedArray<double>::size() : 2>>();
 }

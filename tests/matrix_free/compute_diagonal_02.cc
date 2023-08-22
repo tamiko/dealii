@@ -32,8 +32,7 @@ public:
 };
 template <int dim>
 void
-BoundaryValues<dim>::vector_value(const Point<dim> &p,
-                                  Vector<double> &  values) const
+BoundaryValues<dim>::vector_value(const Point<dim> &p, Vector<double> &values) const
 {
   (void)p;
   for (unsigned int i = 0; i < values.size(); ++i)
@@ -79,10 +78,7 @@ test()
 
   BoundaryValues<dim> boundary;
   for (auto bid : dirichlet_boundary)
-    VectorTools::interpolate_boundary_values(dof_handler,
-                                             bid,
-                                             boundary,
-                                             constraints);
+    VectorTools::interpolate_boundary_values(dof_handler, bid, boundary, constraints);
 
   VectorTools::compute_no_normal_flux_constraints(dof_handler,
                                                   /* first_vector_component= */
@@ -91,8 +87,7 @@ test()
                                                   constraints);
   constraints.close();
 
-  typename MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData
-    additional_data;
+  typename MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData additional_data;
   additional_data.mapping_update_flags = update_values | update_gradients;
 
   MappingQ<dim> mapping(1);
@@ -102,24 +97,17 @@ test()
   matrix_free.reinit(mapping, dof_handler, constraints, quad, additional_data);
 
 
-  Test<dim, fe_degree, n_points, n_components, Number, VectorizedArrayType>
-    test(matrix_free,
-         constraints,
-         [](FEEvaluation<dim,
-                         fe_degree,
-                         n_points,
-                         n_components,
-                         Number,
-                         VectorizedArrayType> &phi) {
-           phi.evaluate(EvaluationFlags::gradients);
-           for (unsigned int q = 0; q < phi.n_q_points; ++q)
-             {
-               phi.submit_symmetric_gradient(2.0 *
-                                               phi.get_symmetric_gradient(q),
-                                             q);
-             }
-           phi.integrate(EvaluationFlags::gradients);
-         });
+  Test<dim, fe_degree, n_points, n_components, Number, VectorizedArrayType> test(
+    matrix_free,
+    constraints,
+    [](FEEvaluation<dim, fe_degree, n_points, n_components, Number, VectorizedArrayType> &phi) {
+      phi.evaluate(EvaluationFlags::gradients);
+      for (unsigned int q = 0; q < phi.n_q_points; ++q)
+        {
+          phi.submit_symmetric_gradient(2.0 * phi.get_symmetric_gradient(q), q);
+        }
+      phi.integrate(EvaluationFlags::gradients);
+    });
 
   test.do_test();
 }

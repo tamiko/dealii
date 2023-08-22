@@ -36,8 +36,9 @@ main()
 
   Point<2> p(.1, .1);
 
-  std::function<void(const double, const unsigned int)> reduced_function =
-    [&p](const double d, const unsigned int i) { example_function(p, d, i); };
+  std::function<void(const double, const unsigned int)> reduced_function = [&p](const double d, const unsigned int i) {
+    example_function(p, d, i);
+  };
 
   auto exp = Utilities::mutable_bind(reduced_function);
   exp();

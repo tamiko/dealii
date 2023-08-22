@@ -45,9 +45,7 @@ void
 print_dofs(const DoFHandler<dim> &dof, unsigned int level)
 {
   std::vector<types::global_dof_index> v(dof.get_fe().dofs_per_cell);
-  for (typename DoFHandler<dim>::cell_iterator cell = dof.begin(level);
-       cell != dof.end(level);
-       ++cell)
+  for (typename DoFHandler<dim>::cell_iterator cell = dof.begin(level); cell != dof.end(level); ++cell)
     {
       deallog << "Cell " << cell << " -- ";
       cell->get_mg_dof_indices(v);

@@ -60,9 +60,7 @@
 class HarmonicOscillator
 {
 public:
-  HarmonicOscillator(
-    double                                                        _kappa,
-    const typename SUNDIALS::IDA<Vector<double>>::AdditionalData &data)
+  HarmonicOscillator(double _kappa, const typename SUNDIALS::IDA<Vector<double>>::AdditionalData &data)
     : time_stepper(data)
     , y(2)
     , y_dot(2)
@@ -76,18 +74,12 @@ public:
     time_stepper.reinit_vector = [&](VectorType &v) { v.reinit(2); };
 
 
-    time_stepper.residual = [&](const double      t,
-                                const VectorType &y,
-                                const VectorType &y_dot,
-                                VectorType &      res) {
+    time_stepper.residual = [&](const double t, const VectorType &y, const VectorType &y_dot, VectorType &res) {
       res = y_dot;
       A.vmult_add(res, y);
     };
 
-    time_stepper.setup_jacobian = [&](const double,
-                                      const VectorType &,
-                                      const VectorType &,
-                                      const double alpha) {
+    time_stepper.setup_jacobian = [&](const double, const VectorType &, const VectorType &, const double alpha) {
       A(0, 1) = -1.0;
       A(1, 0) = kappa * kappa;
 
@@ -97,20 +89,16 @@ public:
       J(1, 1) = alpha;
     };
 
-    time_stepper.solve_with_jacobian =
-      [&](const VectorType &src, VectorType &dst, const double tolerance) {
-        SolverControl solver_control(1000, tolerance, false, false);
-        SolverGMRES<Vector<double>> solver(solver_control);
-        solver.solve(J, dst, src, PreconditionIdentity());
-      };
-
-    time_stepper.output_step = [&](const double       t,
-                                   const VectorType & sol,
-                                   const VectorType & sol_dot,
-                                   const unsigned int step_number) {
-      deallog << t << ' ' << sol[0] << ' ' << sol[1] << ' ' << sol_dot[0] << ' '
-              << sol_dot[1] << std::endl;
+    time_stepper.solve_with_jacobian = [&](const VectorType &src, VectorType &dst, const double tolerance) {
+      SolverControl               solver_control(1000, tolerance, false, false);
+      SolverGMRES<Vector<double>> solver(solver_control);
+      solver.solve(J, dst, src, PreconditionIdentity());
     };
+
+    time_stepper.output_step =
+      [&](const double t, const VectorType &sol, const VectorType &sol_dot, const unsigned int step_number) {
+        deallog << t << ' ' << sol[0] << ' ' << sol[1] << ' ' << sol_dot[0] << ' ' << sol_dot[1] << std::endl;
+      };
   }
 
   void

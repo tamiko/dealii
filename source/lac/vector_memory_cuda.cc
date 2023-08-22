@@ -32,10 +32,8 @@ namespace internal
     void
     release_all_unused_cuda_memory()
     {
-      dealii::GrowingVectorMemory<dealii::LinearAlgebra::CUDAWrappers::Vector<
-        float>>::release_unused_memory();
-      dealii::GrowingVectorMemory<dealii::LinearAlgebra::CUDAWrappers::Vector<
-        double>>::release_unused_memory();
+      dealii::GrowingVectorMemory<dealii::LinearAlgebra::CUDAWrappers::Vector<float>>::release_unused_memory();
+      dealii::GrowingVectorMemory<dealii::LinearAlgebra::CUDAWrappers::Vector<double>>::release_unused_memory();
     }
   } // namespace GrowingVectorMemoryImplementation
 } // namespace internal

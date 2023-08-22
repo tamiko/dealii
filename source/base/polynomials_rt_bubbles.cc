@@ -41,20 +41,16 @@ PolynomialsRT_Bubbles<dim>::PolynomialsRT_Bubbles(const unsigned int k)
 
 template <int dim>
 void
-PolynomialsRT_Bubbles<dim>::evaluate(
-  const Point<dim> &           unit_point,
-  std::vector<Tensor<1, dim>> &values,
-  std::vector<Tensor<2, dim>> &grads,
-  std::vector<Tensor<3, dim>> &grad_grads,
-  std::vector<Tensor<4, dim>> &third_derivatives,
-  std::vector<Tensor<5, dim>> &fourth_derivatives) const
+PolynomialsRT_Bubbles<dim>::evaluate(const Point<dim>            &unit_point,
+                                     std::vector<Tensor<1, dim>> &values,
+                                     std::vector<Tensor<2, dim>> &grads,
+                                     std::vector<Tensor<3, dim>> &grad_grads,
+                                     std::vector<Tensor<4, dim>> &third_derivatives,
+                                     std::vector<Tensor<5, dim>> &fourth_derivatives) const
 {
-  Assert(values.size() == this->n() || values.empty(),
-         ExcDimensionMismatch(values.size(), this->n()));
-  Assert(grads.size() == this->n() || grads.empty(),
-         ExcDimensionMismatch(grads.size(), this->n()));
-  Assert(grad_grads.size() == this->n() || grad_grads.empty(),
-         ExcDimensionMismatch(grad_grads.size(), this->n()));
+  Assert(values.size() == this->n() || values.empty(), ExcDimensionMismatch(values.size(), this->n()));
+  Assert(grads.size() == this->n() || grads.empty(), ExcDimensionMismatch(grads.size(), this->n()));
+  Assert(grad_grads.size() == this->n() || grad_grads.empty(), ExcDimensionMismatch(grad_grads.size(), this->n()));
   Assert(third_derivatives.size() == this->n() || third_derivatives.empty(),
          ExcDimensionMismatch(third_derivatives.size(), this->n()));
   Assert(fourth_derivatives.size() == this->n() || fourth_derivatives.empty(),
@@ -87,12 +83,8 @@ PolynomialsRT_Bubbles<dim>::evaluate(
     p_grad_grads.resize((grad_grads.empty()) ? 0 : n_sub);
 
     // This is the Raviart-Thomas part of the space
-    raviart_thomas_space.evaluate(unit_point,
-                                  p_values,
-                                  p_grads,
-                                  p_grad_grads,
-                                  p_third_derivatives,
-                                  p_fourth_derivatives);
+    raviart_thomas_space.evaluate(
+      unit_point, p_values, p_grads, p_grad_grads, p_third_derivatives, p_fourth_derivatives);
     for (unsigned int i = 0; i < p_values.size(); ++i)
       values[i] = p_values[i];
     for (unsigned int i = 0; i < p_grads.size(); ++i)
@@ -126,9 +118,7 @@ PolynomialsRT_Bubbles<dim>::evaluate(
       //  monoval_i = x^i,
       //  monoval_plus = x^(k+1)
       for (unsigned int d = 0; d < dim; ++d)
-        monomials[my_degree + 1].value(unit_point(d),
-                                       n_derivatives,
-                                       monoval_plus[d]);
+        monomials[my_degree + 1].value(unit_point(d), n_derivatives, monoval_plus[d]);
 
       for (unsigned int i = 0; i <= my_degree; ++i, ++start)
         {
@@ -140,10 +130,8 @@ PolynomialsRT_Bubbles<dim>::evaluate(
               values[start][0] = monoval_i[0][0] * monoval_plus[1][1];
               values[start][1] = -monoval_i[0][1] * monoval_plus[1][0];
 
-              values[start + my_degree + 1][0] =
-                -monoval_plus[0][0] * monoval_i[1][1];
-              values[start + my_degree + 1][1] =
-                monoval_plus[0][1] * monoval_i[1][0];
+              values[start + my_degree + 1][0] = -monoval_plus[0][0] * monoval_i[1][1];
+              values[start + my_degree + 1][1] = monoval_plus[0][1] * monoval_i[1][0];
             }
 
           if (grads.size() != 0)
@@ -153,14 +141,10 @@ PolynomialsRT_Bubbles<dim>::evaluate(
               grads[start][1][0] = -monoval_i[0][2] * monoval_plus[1][0];
               grads[start][1][1] = -monoval_i[0][1] * monoval_plus[1][1];
 
-              grads[start + my_degree + 1][0][0] =
-                -monoval_plus[0][1] * monoval_i[1][1];
-              grads[start + my_degree + 1][0][1] =
-                -monoval_plus[0][0] * monoval_i[1][2];
-              grads[start + my_degree + 1][1][0] =
-                monoval_plus[0][2] * monoval_i[1][0];
-              grads[start + my_degree + 1][1][1] =
-                monoval_plus[0][1] * monoval_i[1][1];
+              grads[start + my_degree + 1][0][0] = -monoval_plus[0][1] * monoval_i[1][1];
+              grads[start + my_degree + 1][0][1] = -monoval_plus[0][0] * monoval_i[1][2];
+              grads[start + my_degree + 1][1][0] = monoval_plus[0][2] * monoval_i[1][0];
+              grads[start + my_degree + 1][1][1] = monoval_plus[0][1] * monoval_i[1][1];
             }
 
           if (grad_grads.size() != 0)
@@ -169,31 +153,19 @@ PolynomialsRT_Bubbles<dim>::evaluate(
               grad_grads[start][0][0][1] = monoval_i[0][1] * monoval_plus[1][2];
               grad_grads[start][0][1][0] = monoval_i[0][1] * monoval_plus[1][2];
               grad_grads[start][0][1][1] = monoval_i[0][0] * monoval_plus[1][3];
-              grad_grads[start][1][0][0] =
-                -monoval_i[0][3] * monoval_plus[1][0];
-              grad_grads[start][1][0][1] =
-                -monoval_i[0][2] * monoval_plus[1][1];
-              grad_grads[start][1][1][0] =
-                -monoval_i[0][2] * monoval_plus[1][1];
-              grad_grads[start][1][1][1] =
-                -monoval_i[0][1] * monoval_plus[1][2];
+              grad_grads[start][1][0][0] = -monoval_i[0][3] * monoval_plus[1][0];
+              grad_grads[start][1][0][1] = -monoval_i[0][2] * monoval_plus[1][1];
+              grad_grads[start][1][1][0] = -monoval_i[0][2] * monoval_plus[1][1];
+              grad_grads[start][1][1][1] = -monoval_i[0][1] * monoval_plus[1][2];
 
-              grad_grads[start + my_degree + 1][0][0][0] =
-                -monoval_plus[0][2] * monoval_i[1][1];
-              grad_grads[start + my_degree + 1][0][0][1] =
-                -monoval_plus[0][1] * monoval_i[1][2];
-              grad_grads[start + my_degree + 1][0][1][0] =
-                -monoval_plus[0][1] * monoval_i[1][2];
-              grad_grads[start + my_degree + 1][0][1][1] =
-                -monoval_plus[0][0] * monoval_i[1][3];
-              grad_grads[start + my_degree + 1][1][0][0] =
-                monoval_plus[0][3] * monoval_i[1][0];
-              grad_grads[start + my_degree + 1][1][0][1] =
-                monoval_plus[0][2] * monoval_i[1][1];
-              grad_grads[start + my_degree + 1][1][1][0] =
-                monoval_plus[0][2] * monoval_i[1][1];
-              grad_grads[start + my_degree + 1][1][1][1] =
-                monoval_plus[0][1] * monoval_i[1][2];
+              grad_grads[start + my_degree + 1][0][0][0] = -monoval_plus[0][2] * monoval_i[1][1];
+              grad_grads[start + my_degree + 1][0][0][1] = -monoval_plus[0][1] * monoval_i[1][2];
+              grad_grads[start + my_degree + 1][0][1][0] = -monoval_plus[0][1] * monoval_i[1][2];
+              grad_grads[start + my_degree + 1][0][1][1] = -monoval_plus[0][0] * monoval_i[1][3];
+              grad_grads[start + my_degree + 1][1][0][0] = monoval_plus[0][3] * monoval_i[1][0];
+              grad_grads[start + my_degree + 1][1][0][1] = monoval_plus[0][2] * monoval_i[1][1];
+              grad_grads[start + my_degree + 1][1][1][0] = monoval_plus[0][2] * monoval_i[1][1];
+              grad_grads[start + my_degree + 1][1][1][1] = monoval_plus[0][1] * monoval_i[1][2];
             }
         }
       Assert(start == this->n() - my_degree - 1, ExcInternalError());
@@ -216,9 +188,7 @@ PolynomialsRT_Bubbles<dim>::evaluate(
       //  monoval_* = x^*, monoval_jplus = x^(j+1)
       for (unsigned int d = 0; d < dim; ++d)
         {
-          monomials[my_degree + 1].value(unit_point(d),
-                                         n_derivatives,
-                                         monoval_plus[d]);
+          monomials[my_degree + 1].value(unit_point(d), n_derivatives, monoval_plus[d]);
           monomials[my_degree].value(unit_point(d), n_derivatives, monoval[d]);
         }
 
@@ -233,467 +203,283 @@ PolynomialsRT_Bubbles<dim>::evaluate(
             {
               for (unsigned int d = 0; d < dim; ++d)
                 {
-                  monomials[j].value(unit_point(d),
-                                     n_derivatives,
-                                     monoval_j[d]);
-                  monomials[j + 1].value(unit_point(d),
-                                         n_derivatives,
-                                         monoval_jplus[d]);
+                  monomials[j].value(unit_point(d), n_derivatives, monoval_j[d]);
+                  monomials[j + 1].value(unit_point(d), n_derivatives, monoval_jplus[d]);
                 }
 
               if (values.size() != 0)
                 {
-                  values[start][0] = monoval_i[0][0] * monoval_j[1][0] *
-                                     monoval[2][0] *
-                                     static_cast<double>(j + my_degree + 2);
-                  values[start][1] =
-                    -monoval_i[0][1] * monoval_jplus[1][0] * monoval[2][0];
-                  values[start][2] =
-                    -monoval_i[0][1] * monoval_j[1][0] * monoval_plus[2][0];
+                  values[start][0] =
+                    monoval_i[0][0] * monoval_j[1][0] * monoval[2][0] * static_cast<double>(j + my_degree + 2);
+                  values[start][1] = -monoval_i[0][1] * monoval_jplus[1][0] * monoval[2][0];
+                  values[start][2] = -monoval_i[0][1] * monoval_j[1][0] * monoval_plus[2][0];
 
-                  values[start + n_curls][0] =
-                    -monoval_jplus[0][0] * monoval_i[1][1] * monoval[2][0];
+                  values[start + n_curls][0] = -monoval_jplus[0][0] * monoval_i[1][1] * monoval[2][0];
                   values[start + n_curls][1] =
-                    monoval_j[0][0] * monoval_i[1][0] * monoval[2][0] *
-                    static_cast<double>(j + my_degree + 2);
-                  values[start + n_curls][2] =
-                    -monoval_j[0][0] * monoval_i[1][1] * monoval_plus[2][0];
+                    monoval_j[0][0] * monoval_i[1][0] * monoval[2][0] * static_cast<double>(j + my_degree + 2);
+                  values[start + n_curls][2] = -monoval_j[0][0] * monoval_i[1][1] * monoval_plus[2][0];
 
-                  values[start + 2 * n_curls][0] =
-                    -monoval_jplus[0][0] * monoval[1][0] * monoval_i[2][1];
-                  values[start + 2 * n_curls][1] =
-                    -monoval_j[0][0] * monoval_plus[1][0] * monoval_i[2][1];
+                  values[start + 2 * n_curls][0] = -monoval_jplus[0][0] * monoval[1][0] * monoval_i[2][1];
+                  values[start + 2 * n_curls][1] = -monoval_j[0][0] * monoval_plus[1][0] * monoval_i[2][1];
                   values[start + 2 * n_curls][2] =
-                    monoval_j[0][0] * monoval[1][0] * monoval_i[2][0] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_j[0][0] * monoval[1][0] * monoval_i[2][0] * static_cast<double>(j + my_degree + 2);
 
                   // Only unique triples of powers (i j k)
                   // and (i k j) are allowed, 0 <= i,j <= k
                   if (j != my_degree)
                     {
                       values[start + 1][0] =
-                        monoval_i[0][0] * monoval[1][0] * monoval_j[2][0] *
-                        static_cast<double>(j + my_degree + 2);
-                      values[start + 1][1] =
-                        -monoval_i[0][1] * monoval_plus[1][0] * monoval_j[2][0];
-                      values[start + 1][2] =
-                        -monoval_i[0][1] * monoval[1][0] * monoval_jplus[2][0];
+                        monoval_i[0][0] * monoval[1][0] * monoval_j[2][0] * static_cast<double>(j + my_degree + 2);
+                      values[start + 1][1] = -monoval_i[0][1] * monoval_plus[1][0] * monoval_j[2][0];
+                      values[start + 1][2] = -monoval_i[0][1] * monoval[1][0] * monoval_jplus[2][0];
 
-                      values[start + n_curls + 1][0] =
-                        -monoval_plus[0][0] * monoval_i[1][1] * monoval_j[2][0];
+                      values[start + n_curls + 1][0] = -monoval_plus[0][0] * monoval_i[1][1] * monoval_j[2][0];
                       values[start + n_curls + 1][1] =
-                        monoval[0][0] * monoval_i[1][0] * monoval_j[2][0] *
-                        static_cast<double>(j + my_degree + 2);
-                      values[start + n_curls + 1][2] =
-                        -monoval[0][0] * monoval_i[1][1] * monoval_jplus[2][0];
+                        monoval[0][0] * monoval_i[1][0] * monoval_j[2][0] * static_cast<double>(j + my_degree + 2);
+                      values[start + n_curls + 1][2] = -monoval[0][0] * monoval_i[1][1] * monoval_jplus[2][0];
 
-                      values[start + 2 * n_curls + 1][0] =
-                        -monoval_plus[0][0] * monoval_j[1][0] * monoval_i[2][1];
-                      values[start + 2 * n_curls + 1][1] =
-                        -monoval[0][0] * monoval_jplus[1][0] * monoval_i[2][1];
+                      values[start + 2 * n_curls + 1][0] = -monoval_plus[0][0] * monoval_j[1][0] * monoval_i[2][1];
+                      values[start + 2 * n_curls + 1][1] = -monoval[0][0] * monoval_jplus[1][0] * monoval_i[2][1];
                       values[start + 2 * n_curls + 1][2] =
-                        monoval[0][0] * monoval_j[1][0] * monoval_i[2][0] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval[0][0] * monoval_j[1][0] * monoval_i[2][0] * static_cast<double>(j + my_degree + 2);
                     }
                 }
 
               if (grads.size() != 0)
                 {
-                  grads[start][0][0] = monoval_i[0][1] * monoval_j[1][0] *
-                                       monoval[2][0] *
-                                       static_cast<double>(j + my_degree + 2);
-                  grads[start][0][1] = monoval_i[0][0] * monoval_j[1][1] *
-                                       monoval[2][0] *
-                                       static_cast<double>(j + my_degree + 2);
-                  grads[start][0][2] = monoval_i[0][0] * monoval_j[1][0] *
-                                       monoval[2][1] *
-                                       static_cast<double>(j + my_degree + 2);
-                  grads[start][1][0] =
-                    -monoval_i[0][2] * monoval_jplus[1][0] * monoval[2][0];
-                  grads[start][1][1] =
-                    -monoval_i[0][1] * monoval_jplus[1][1] * monoval[2][0];
-                  grads[start][1][2] =
-                    -monoval_i[0][1] * monoval_jplus[1][0] * monoval[2][1];
-                  grads[start][2][0] =
-                    -monoval_i[0][2] * monoval_j[1][0] * monoval_plus[2][0];
-                  grads[start][2][1] =
-                    -monoval_i[0][1] * monoval_j[1][1] * monoval_plus[2][0];
-                  grads[start][2][2] =
-                    -monoval_i[0][1] * monoval_j[1][0] * monoval_plus[2][1];
+                  grads[start][0][0] =
+                    monoval_i[0][1] * monoval_j[1][0] * monoval[2][0] * static_cast<double>(j + my_degree + 2);
+                  grads[start][0][1] =
+                    monoval_i[0][0] * monoval_j[1][1] * monoval[2][0] * static_cast<double>(j + my_degree + 2);
+                  grads[start][0][2] =
+                    monoval_i[0][0] * monoval_j[1][0] * monoval[2][1] * static_cast<double>(j + my_degree + 2);
+                  grads[start][1][0] = -monoval_i[0][2] * monoval_jplus[1][0] * monoval[2][0];
+                  grads[start][1][1] = -monoval_i[0][1] * monoval_jplus[1][1] * monoval[2][0];
+                  grads[start][1][2] = -monoval_i[0][1] * monoval_jplus[1][0] * monoval[2][1];
+                  grads[start][2][0] = -monoval_i[0][2] * monoval_j[1][0] * monoval_plus[2][0];
+                  grads[start][2][1] = -monoval_i[0][1] * monoval_j[1][1] * monoval_plus[2][0];
+                  grads[start][2][2] = -monoval_i[0][1] * monoval_j[1][0] * monoval_plus[2][1];
 
-                  grads[start + n_curls][0][0] =
-                    -monoval_jplus[0][1] * monoval_i[1][1] * monoval[2][0];
-                  grads[start + n_curls][0][1] =
-                    -monoval_jplus[0][0] * monoval_i[1][2] * monoval[2][0];
-                  grads[start + n_curls][0][2] =
-                    -monoval_jplus[0][0] * monoval_i[1][1] * monoval[2][1];
+                  grads[start + n_curls][0][0] = -monoval_jplus[0][1] * monoval_i[1][1] * monoval[2][0];
+                  grads[start + n_curls][0][1] = -monoval_jplus[0][0] * monoval_i[1][2] * monoval[2][0];
+                  grads[start + n_curls][0][2] = -monoval_jplus[0][0] * monoval_i[1][1] * monoval[2][1];
                   grads[start + n_curls][1][0] =
-                    monoval_j[0][1] * monoval_i[1][0] * monoval[2][0] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_j[0][1] * monoval_i[1][0] * monoval[2][0] * static_cast<double>(j + my_degree + 2);
                   grads[start + n_curls][1][1] =
-                    monoval_j[0][0] * monoval_i[1][1] * monoval[2][0] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_j[0][0] * monoval_i[1][1] * monoval[2][0] * static_cast<double>(j + my_degree + 2);
                   grads[start + n_curls][1][2] =
-                    monoval_j[0][0] * monoval_i[1][0] * monoval[2][1] *
-                    static_cast<double>(j + my_degree + 2);
-                  grads[start + n_curls][2][0] =
-                    -monoval_j[0][1] * monoval_i[1][1] * monoval_plus[2][0];
-                  grads[start + n_curls][2][1] =
-                    -monoval_j[0][0] * monoval_i[1][2] * monoval_plus[2][0];
-                  grads[start + n_curls][2][2] =
-                    -monoval_j[0][0] * monoval_i[1][1] * monoval_plus[2][1];
+                    monoval_j[0][0] * monoval_i[1][0] * monoval[2][1] * static_cast<double>(j + my_degree + 2);
+                  grads[start + n_curls][2][0] = -monoval_j[0][1] * monoval_i[1][1] * monoval_plus[2][0];
+                  grads[start + n_curls][2][1] = -monoval_j[0][0] * monoval_i[1][2] * monoval_plus[2][0];
+                  grads[start + n_curls][2][2] = -monoval_j[0][0] * monoval_i[1][1] * monoval_plus[2][1];
 
-                  grads[start + 2 * n_curls][0][0] =
-                    -monoval_jplus[0][1] * monoval[1][0] * monoval_i[2][1];
-                  grads[start + 2 * n_curls][0][1] =
-                    -monoval_jplus[0][0] * monoval[1][1] * monoval_i[2][1];
-                  grads[start + 2 * n_curls][0][2] =
-                    -monoval_jplus[0][0] * monoval[1][0] * monoval_i[2][2];
-                  grads[start + 2 * n_curls][1][0] =
-                    -monoval_j[0][1] * monoval_plus[1][0] * monoval_i[2][1];
-                  grads[start + 2 * n_curls][1][1] =
-                    -monoval_j[0][0] * monoval_plus[1][1] * monoval_i[2][1];
-                  grads[start + 2 * n_curls][1][2] =
-                    -monoval_j[0][0] * monoval_plus[1][0] * monoval_i[2][2];
+                  grads[start + 2 * n_curls][0][0] = -monoval_jplus[0][1] * monoval[1][0] * monoval_i[2][1];
+                  grads[start + 2 * n_curls][0][1] = -monoval_jplus[0][0] * monoval[1][1] * monoval_i[2][1];
+                  grads[start + 2 * n_curls][0][2] = -monoval_jplus[0][0] * monoval[1][0] * monoval_i[2][2];
+                  grads[start + 2 * n_curls][1][0] = -monoval_j[0][1] * monoval_plus[1][0] * monoval_i[2][1];
+                  grads[start + 2 * n_curls][1][1] = -monoval_j[0][0] * monoval_plus[1][1] * monoval_i[2][1];
+                  grads[start + 2 * n_curls][1][2] = -monoval_j[0][0] * monoval_plus[1][0] * monoval_i[2][2];
                   grads[start + 2 * n_curls][2][0] =
-                    monoval_j[0][1] * monoval[1][0] * monoval_i[2][0] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_j[0][1] * monoval[1][0] * monoval_i[2][0] * static_cast<double>(j + my_degree + 2);
                   grads[start + 2 * n_curls][2][1] =
-                    monoval_j[0][0] * monoval[1][1] * monoval_i[2][0] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_j[0][0] * monoval[1][1] * monoval_i[2][0] * static_cast<double>(j + my_degree + 2);
                   grads[start + 2 * n_curls][2][2] =
-                    monoval_j[0][0] * monoval[1][0] * monoval_i[2][1] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_j[0][0] * monoval[1][0] * monoval_i[2][1] * static_cast<double>(j + my_degree + 2);
 
                   if (j != my_degree)
                     {
                       grads[start + 1][0][0] =
-                        monoval_i[0][1] * monoval[1][0] * monoval_j[2][0] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval_i[0][1] * monoval[1][0] * monoval_j[2][0] * static_cast<double>(j + my_degree + 2);
                       grads[start + 1][0][1] =
-                        monoval_i[0][0] * monoval[1][1] * monoval_j[2][0] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval_i[0][0] * monoval[1][1] * monoval_j[2][0] * static_cast<double>(j + my_degree + 2);
                       grads[start + 1][0][2] =
-                        monoval_i[0][0] * monoval[1][0] * monoval_j[2][1] *
-                        static_cast<double>(j + my_degree + 2);
-                      grads[start + 1][1][0] =
-                        -monoval_i[0][2] * monoval_plus[1][0] * monoval_j[2][0];
-                      grads[start + 1][1][1] =
-                        -monoval_i[0][1] * monoval_plus[1][1] * monoval_j[2][0];
-                      grads[start + 1][1][2] =
-                        -monoval_i[0][1] * monoval_plus[1][0] * monoval_j[2][1];
-                      grads[start + 1][2][0] =
-                        -monoval_i[0][2] * monoval[1][0] * monoval_jplus[2][0];
-                      grads[start + 1][2][1] =
-                        -monoval_i[0][1] * monoval[1][1] * monoval_jplus[2][0];
-                      grads[start + 1][2][2] =
-                        -monoval_i[0][1] * monoval[1][0] * monoval_jplus[2][1];
+                        monoval_i[0][0] * monoval[1][0] * monoval_j[2][1] * static_cast<double>(j + my_degree + 2);
+                      grads[start + 1][1][0] = -monoval_i[0][2] * monoval_plus[1][0] * monoval_j[2][0];
+                      grads[start + 1][1][1] = -monoval_i[0][1] * monoval_plus[1][1] * monoval_j[2][0];
+                      grads[start + 1][1][2] = -monoval_i[0][1] * monoval_plus[1][0] * monoval_j[2][1];
+                      grads[start + 1][2][0] = -monoval_i[0][2] * monoval[1][0] * monoval_jplus[2][0];
+                      grads[start + 1][2][1] = -monoval_i[0][1] * monoval[1][1] * monoval_jplus[2][0];
+                      grads[start + 1][2][2] = -monoval_i[0][1] * monoval[1][0] * monoval_jplus[2][1];
 
-                      grads[start + n_curls + 1][0][0] =
-                        -monoval_plus[0][1] * monoval_i[1][1] * monoval_j[2][0];
-                      grads[start + n_curls + 1][0][1] =
-                        -monoval_plus[0][0] * monoval_i[1][2] * monoval_j[2][0];
-                      grads[start + n_curls + 1][0][2] =
-                        -monoval_plus[0][0] * monoval_i[1][1] * monoval_j[2][1];
+                      grads[start + n_curls + 1][0][0] = -monoval_plus[0][1] * monoval_i[1][1] * monoval_j[2][0];
+                      grads[start + n_curls + 1][0][1] = -monoval_plus[0][0] * monoval_i[1][2] * monoval_j[2][0];
+                      grads[start + n_curls + 1][0][2] = -monoval_plus[0][0] * monoval_i[1][1] * monoval_j[2][1];
                       grads[start + n_curls + 1][1][0] =
-                        monoval[0][1] * monoval_i[1][0] * monoval_j[2][0] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval[0][1] * monoval_i[1][0] * monoval_j[2][0] * static_cast<double>(j + my_degree + 2);
                       grads[start + n_curls + 1][1][1] =
-                        monoval[0][0] * monoval_i[1][1] * monoval_j[2][0] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval[0][0] * monoval_i[1][1] * monoval_j[2][0] * static_cast<double>(j + my_degree + 2);
                       grads[start + n_curls + 1][1][2] =
-                        monoval[0][0] * monoval_i[1][0] * monoval_j[2][1] *
-                        static_cast<double>(j + my_degree + 2);
-                      grads[start + n_curls + 1][2][0] =
-                        -monoval[0][1] * monoval_i[1][1] * monoval_jplus[2][0];
-                      grads[start + n_curls + 1][2][1] =
-                        -monoval[0][0] * monoval_i[1][2] * monoval_jplus[2][0];
-                      grads[start + n_curls + 1][2][2] =
-                        -monoval[0][0] * monoval_i[1][1] * monoval_jplus[2][1];
+                        monoval[0][0] * monoval_i[1][0] * monoval_j[2][1] * static_cast<double>(j + my_degree + 2);
+                      grads[start + n_curls + 1][2][0] = -monoval[0][1] * monoval_i[1][1] * monoval_jplus[2][0];
+                      grads[start + n_curls + 1][2][1] = -monoval[0][0] * monoval_i[1][2] * monoval_jplus[2][0];
+                      grads[start + n_curls + 1][2][2] = -monoval[0][0] * monoval_i[1][1] * monoval_jplus[2][1];
 
-                      grads[start + 2 * n_curls + 1][0][0] =
-                        -monoval_plus[0][1] * monoval_j[1][0] * monoval_i[2][1];
-                      grads[start + 2 * n_curls + 1][0][1] =
-                        -monoval_plus[0][0] * monoval_j[1][1] * monoval_i[2][1];
-                      grads[start + 2 * n_curls + 1][0][2] =
-                        -monoval_plus[0][0] * monoval_j[1][0] * monoval_i[2][2];
-                      grads[start + 2 * n_curls + 1][1][0] =
-                        -monoval[0][1] * monoval_jplus[1][0] * monoval_i[2][1];
-                      grads[start + 2 * n_curls + 1][1][1] =
-                        -monoval[0][0] * monoval_jplus[1][1] * monoval_i[2][1];
-                      grads[start + 2 * n_curls + 1][1][2] =
-                        -monoval[0][0] * monoval_jplus[1][0] * monoval_i[2][2];
+                      grads[start + 2 * n_curls + 1][0][0] = -monoval_plus[0][1] * monoval_j[1][0] * monoval_i[2][1];
+                      grads[start + 2 * n_curls + 1][0][1] = -monoval_plus[0][0] * monoval_j[1][1] * monoval_i[2][1];
+                      grads[start + 2 * n_curls + 1][0][2] = -monoval_plus[0][0] * monoval_j[1][0] * monoval_i[2][2];
+                      grads[start + 2 * n_curls + 1][1][0] = -monoval[0][1] * monoval_jplus[1][0] * monoval_i[2][1];
+                      grads[start + 2 * n_curls + 1][1][1] = -monoval[0][0] * monoval_jplus[1][1] * monoval_i[2][1];
+                      grads[start + 2 * n_curls + 1][1][2] = -monoval[0][0] * monoval_jplus[1][0] * monoval_i[2][2];
                       grads[start + 2 * n_curls + 1][2][0] =
-                        monoval[0][1] * monoval_j[1][0] * monoval_i[2][0] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval[0][1] * monoval_j[1][0] * monoval_i[2][0] * static_cast<double>(j + my_degree + 2);
                       grads[start + 2 * n_curls + 1][2][1] =
-                        monoval[0][0] * monoval_j[1][1] * monoval_i[2][0] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval[0][0] * monoval_j[1][1] * monoval_i[2][0] * static_cast<double>(j + my_degree + 2);
                       grads[start + 2 * n_curls + 1][2][2] =
-                        monoval[0][0] * monoval_j[1][0] * monoval_i[2][1] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval[0][0] * monoval_j[1][0] * monoval_i[2][1] * static_cast<double>(j + my_degree + 2);
                     }
                 }
 
               if (grad_grads.size() != 0)
                 {
                   grad_grads[start][0][0][0] =
-                    monoval_i[0][2] * monoval_j[1][0] * monoval[2][0] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_i[0][2] * monoval_j[1][0] * monoval[2][0] * static_cast<double>(j + my_degree + 2);
                   grad_grads[start][0][0][1] =
-                    monoval_i[0][1] * monoval_j[1][1] * monoval[2][0] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_i[0][1] * monoval_j[1][1] * monoval[2][0] * static_cast<double>(j + my_degree + 2);
                   grad_grads[start][0][0][2] =
-                    monoval_i[0][1] * monoval_j[1][0] * monoval[2][1] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_i[0][1] * monoval_j[1][0] * monoval[2][1] * static_cast<double>(j + my_degree + 2);
                   grad_grads[start][0][1][0] =
-                    monoval_i[0][1] * monoval_j[1][1] * monoval[2][0] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_i[0][1] * monoval_j[1][1] * monoval[2][0] * static_cast<double>(j + my_degree + 2);
                   grad_grads[start][0][1][1] =
-                    monoval_i[0][0] * monoval_j[1][2] * monoval[2][0] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_i[0][0] * monoval_j[1][2] * monoval[2][0] * static_cast<double>(j + my_degree + 2);
                   grad_grads[start][0][1][2] =
-                    monoval_i[0][0] * monoval_j[1][1] * monoval[2][1] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_i[0][0] * monoval_j[1][1] * monoval[2][1] * static_cast<double>(j + my_degree + 2);
                   grad_grads[start][0][2][0] =
-                    monoval_i[0][1] * monoval_j[1][0] * monoval[2][1] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_i[0][1] * monoval_j[1][0] * monoval[2][1] * static_cast<double>(j + my_degree + 2);
                   grad_grads[start][0][2][1] =
-                    monoval_i[0][0] * monoval_j[1][1] * monoval[2][1] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_i[0][0] * monoval_j[1][1] * monoval[2][1] * static_cast<double>(j + my_degree + 2);
                   grad_grads[start][0][2][2] =
-                    monoval_i[0][0] * monoval_j[1][0] * monoval[2][2] *
-                    static_cast<double>(j + my_degree + 2);
-                  grad_grads[start][1][0][0] =
-                    -monoval_i[0][3] * monoval_jplus[1][0] * monoval[2][0];
-                  grad_grads[start][1][0][1] =
-                    -monoval_i[0][2] * monoval_jplus[1][1] * monoval[2][0];
-                  grad_grads[start][1][0][2] =
-                    -monoval_i[0][2] * monoval_jplus[1][0] * monoval[2][1];
-                  grad_grads[start][1][1][0] =
-                    -monoval_i[0][2] * monoval_jplus[1][1] * monoval[2][0];
-                  grad_grads[start][1][1][1] =
-                    -monoval_i[0][1] * monoval_jplus[1][2] * monoval[2][0];
-                  grad_grads[start][1][1][2] =
-                    -monoval_i[0][1] * monoval_jplus[1][1] * monoval[2][1];
-                  grad_grads[start][1][2][0] =
-                    -monoval_i[0][2] * monoval_jplus[1][0] * monoval[2][1];
-                  grad_grads[start][1][2][1] =
-                    -monoval_i[0][1] * monoval_jplus[1][1] * monoval[2][1];
-                  grad_grads[start][1][2][2] =
-                    -monoval_i[0][1] * monoval_jplus[1][0] * monoval[2][2];
-                  grad_grads[start][2][0][0] =
-                    -monoval_i[0][3] * monoval_j[1][0] * monoval_plus[2][0];
-                  grad_grads[start][2][0][1] =
-                    -monoval_i[0][2] * monoval_j[1][1] * monoval_plus[2][0];
-                  grad_grads[start][2][0][2] =
-                    -monoval_i[0][2] * monoval_j[1][0] * monoval_plus[2][1];
-                  grad_grads[start][2][1][0] =
-                    -monoval_i[0][2] * monoval_j[1][1] * monoval_plus[2][0];
-                  grad_grads[start][2][1][1] =
-                    -monoval_i[0][1] * monoval_j[1][2] * monoval_plus[2][0];
-                  grad_grads[start][2][1][2] =
-                    -monoval_i[0][1] * monoval_j[1][1] * monoval_plus[2][1];
-                  grad_grads[start][2][2][0] =
-                    -monoval_i[0][2] * monoval_j[1][0] * monoval_plus[2][1];
-                  grad_grads[start][2][2][1] =
-                    -monoval_i[0][1] * monoval_j[1][1] * monoval_plus[2][1];
-                  grad_grads[start][2][2][2] =
-                    -monoval_i[0][1] * monoval_j[1][0] * monoval_plus[2][2];
+                    monoval_i[0][0] * monoval_j[1][0] * monoval[2][2] * static_cast<double>(j + my_degree + 2);
+                  grad_grads[start][1][0][0] = -monoval_i[0][3] * monoval_jplus[1][0] * monoval[2][0];
+                  grad_grads[start][1][0][1] = -monoval_i[0][2] * monoval_jplus[1][1] * monoval[2][0];
+                  grad_grads[start][1][0][2] = -monoval_i[0][2] * monoval_jplus[1][0] * monoval[2][1];
+                  grad_grads[start][1][1][0] = -monoval_i[0][2] * monoval_jplus[1][1] * monoval[2][0];
+                  grad_grads[start][1][1][1] = -monoval_i[0][1] * monoval_jplus[1][2] * monoval[2][0];
+                  grad_grads[start][1][1][2] = -monoval_i[0][1] * monoval_jplus[1][1] * monoval[2][1];
+                  grad_grads[start][1][2][0] = -monoval_i[0][2] * monoval_jplus[1][0] * monoval[2][1];
+                  grad_grads[start][1][2][1] = -monoval_i[0][1] * monoval_jplus[1][1] * monoval[2][1];
+                  grad_grads[start][1][2][2] = -monoval_i[0][1] * monoval_jplus[1][0] * monoval[2][2];
+                  grad_grads[start][2][0][0] = -monoval_i[0][3] * monoval_j[1][0] * monoval_plus[2][0];
+                  grad_grads[start][2][0][1] = -monoval_i[0][2] * monoval_j[1][1] * monoval_plus[2][0];
+                  grad_grads[start][2][0][2] = -monoval_i[0][2] * monoval_j[1][0] * monoval_plus[2][1];
+                  grad_grads[start][2][1][0] = -monoval_i[0][2] * monoval_j[1][1] * monoval_plus[2][0];
+                  grad_grads[start][2][1][1] = -monoval_i[0][1] * monoval_j[1][2] * monoval_plus[2][0];
+                  grad_grads[start][2][1][2] = -monoval_i[0][1] * monoval_j[1][1] * monoval_plus[2][1];
+                  grad_grads[start][2][2][0] = -monoval_i[0][2] * monoval_j[1][0] * monoval_plus[2][1];
+                  grad_grads[start][2][2][1] = -monoval_i[0][1] * monoval_j[1][1] * monoval_plus[2][1];
+                  grad_grads[start][2][2][2] = -monoval_i[0][1] * monoval_j[1][0] * monoval_plus[2][2];
 
-                  grad_grads[start + n_curls][0][0][0] =
-                    -monoval_jplus[0][2] * monoval_i[1][1] * monoval[2][0];
-                  grad_grads[start + n_curls][0][0][1] =
-                    -monoval_jplus[0][1] * monoval_i[1][2] * monoval[2][0];
-                  grad_grads[start + n_curls][0][0][2] =
-                    -monoval_jplus[0][1] * monoval_i[1][1] * monoval[2][1];
-                  grad_grads[start + n_curls][0][1][0] =
-                    -monoval_jplus[0][1] * monoval_i[1][2] * monoval[2][0];
-                  grad_grads[start + n_curls][0][1][1] =
-                    -monoval_jplus[0][0] * monoval_i[1][3] * monoval[2][0];
-                  grad_grads[start + n_curls][0][1][2] =
-                    -monoval_jplus[0][0] * monoval_i[1][2] * monoval[2][1];
-                  grad_grads[start + n_curls][0][2][0] =
-                    -monoval_jplus[0][1] * monoval_i[1][1] * monoval[2][1];
-                  grad_grads[start + n_curls][0][2][1] =
-                    -monoval_jplus[0][0] * monoval_i[1][2] * monoval[2][1];
-                  grad_grads[start + n_curls][0][2][2] =
-                    -monoval_jplus[0][0] * monoval_i[1][1] * monoval[2][2];
+                  grad_grads[start + n_curls][0][0][0] = -monoval_jplus[0][2] * monoval_i[1][1] * monoval[2][0];
+                  grad_grads[start + n_curls][0][0][1] = -monoval_jplus[0][1] * monoval_i[1][2] * monoval[2][0];
+                  grad_grads[start + n_curls][0][0][2] = -monoval_jplus[0][1] * monoval_i[1][1] * monoval[2][1];
+                  grad_grads[start + n_curls][0][1][0] = -monoval_jplus[0][1] * monoval_i[1][2] * monoval[2][0];
+                  grad_grads[start + n_curls][0][1][1] = -monoval_jplus[0][0] * monoval_i[1][3] * monoval[2][0];
+                  grad_grads[start + n_curls][0][1][2] = -monoval_jplus[0][0] * monoval_i[1][2] * monoval[2][1];
+                  grad_grads[start + n_curls][0][2][0] = -monoval_jplus[0][1] * monoval_i[1][1] * monoval[2][1];
+                  grad_grads[start + n_curls][0][2][1] = -monoval_jplus[0][0] * monoval_i[1][2] * monoval[2][1];
+                  grad_grads[start + n_curls][0][2][2] = -monoval_jplus[0][0] * monoval_i[1][1] * monoval[2][2];
                   grad_grads[start + n_curls][1][0][0] =
-                    monoval_j[0][2] * monoval_i[1][0] * monoval[2][0] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_j[0][2] * monoval_i[1][0] * monoval[2][0] * static_cast<double>(j + my_degree + 2);
                   grad_grads[start + n_curls][1][0][1] =
-                    monoval_j[0][1] * monoval_i[1][1] * monoval[2][0] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_j[0][1] * monoval_i[1][1] * monoval[2][0] * static_cast<double>(j + my_degree + 2);
                   grad_grads[start + n_curls][1][0][2] =
-                    monoval_j[0][1] * monoval_i[1][0] * monoval[2][1] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_j[0][1] * monoval_i[1][0] * monoval[2][1] * static_cast<double>(j + my_degree + 2);
                   grad_grads[start + n_curls][1][1][0] =
-                    monoval_j[0][1] * monoval_i[1][1] * monoval[2][0] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_j[0][1] * monoval_i[1][1] * monoval[2][0] * static_cast<double>(j + my_degree + 2);
                   grad_grads[start + n_curls][1][1][1] =
-                    monoval_j[0][0] * monoval_i[1][2] * monoval[2][0] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_j[0][0] * monoval_i[1][2] * monoval[2][0] * static_cast<double>(j + my_degree + 2);
                   grad_grads[start + n_curls][1][1][2] =
-                    monoval_j[0][0] * monoval_i[1][1] * monoval[2][1] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_j[0][0] * monoval_i[1][1] * monoval[2][1] * static_cast<double>(j + my_degree + 2);
                   grad_grads[start + n_curls][1][2][0] =
-                    monoval_j[0][1] * monoval_i[1][0] * monoval[2][1] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_j[0][1] * monoval_i[1][0] * monoval[2][1] * static_cast<double>(j + my_degree + 2);
                   grad_grads[start + n_curls][1][2][1] =
-                    monoval_j[0][0] * monoval_i[1][1] * monoval[2][1] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_j[0][0] * monoval_i[1][1] * monoval[2][1] * static_cast<double>(j + my_degree + 2);
                   grad_grads[start + n_curls][1][2][2] =
-                    monoval_j[0][0] * monoval_i[1][0] * monoval[2][2] *
-                    static_cast<double>(j + my_degree + 2);
-                  grad_grads[start + n_curls][2][0][0] =
-                    -monoval_j[0][2] * monoval_i[1][1] * monoval_plus[2][0];
-                  grad_grads[start + n_curls][2][0][1] =
-                    -monoval_j[0][1] * monoval_i[1][2] * monoval_plus[2][0];
-                  grad_grads[start + n_curls][2][0][2] =
-                    -monoval_j[0][1] * monoval_i[1][1] * monoval_plus[2][1];
-                  grad_grads[start + n_curls][2][1][0] =
-                    -monoval_j[0][1] * monoval_i[1][2] * monoval_plus[2][0];
-                  grad_grads[start + n_curls][2][1][1] =
-                    -monoval_j[0][0] * monoval_i[1][3] * monoval_plus[2][0];
-                  grad_grads[start + n_curls][2][1][2] =
-                    -monoval_j[0][0] * monoval_i[1][2] * monoval_plus[2][1];
-                  grad_grads[start + n_curls][2][2][0] =
-                    -monoval_j[0][1] * monoval_i[1][1] * monoval_plus[2][1];
-                  grad_grads[start + n_curls][2][2][1] =
-                    -monoval_j[0][0] * monoval_i[1][2] * monoval_plus[2][1];
-                  grad_grads[start + n_curls][2][2][2] =
-                    -monoval_j[0][0] * monoval_i[1][1] * monoval_plus[2][2];
+                    monoval_j[0][0] * monoval_i[1][0] * monoval[2][2] * static_cast<double>(j + my_degree + 2);
+                  grad_grads[start + n_curls][2][0][0] = -monoval_j[0][2] * monoval_i[1][1] * monoval_plus[2][0];
+                  grad_grads[start + n_curls][2][0][1] = -monoval_j[0][1] * monoval_i[1][2] * monoval_plus[2][0];
+                  grad_grads[start + n_curls][2][0][2] = -monoval_j[0][1] * monoval_i[1][1] * monoval_plus[2][1];
+                  grad_grads[start + n_curls][2][1][0] = -monoval_j[0][1] * monoval_i[1][2] * monoval_plus[2][0];
+                  grad_grads[start + n_curls][2][1][1] = -monoval_j[0][0] * monoval_i[1][3] * monoval_plus[2][0];
+                  grad_grads[start + n_curls][2][1][2] = -monoval_j[0][0] * monoval_i[1][2] * monoval_plus[2][1];
+                  grad_grads[start + n_curls][2][2][0] = -monoval_j[0][1] * monoval_i[1][1] * monoval_plus[2][1];
+                  grad_grads[start + n_curls][2][2][1] = -monoval_j[0][0] * monoval_i[1][2] * monoval_plus[2][1];
+                  grad_grads[start + n_curls][2][2][2] = -monoval_j[0][0] * monoval_i[1][1] * monoval_plus[2][2];
 
-                  grad_grads[start + 2 * n_curls][0][0][0] =
-                    -monoval_jplus[0][2] * monoval[1][0] * monoval_i[2][1];
-                  grad_grads[start + 2 * n_curls][0][0][1] =
-                    -monoval_jplus[0][1] * monoval[1][1] * monoval_i[2][1];
-                  grad_grads[start + 2 * n_curls][0][0][2] =
-                    -monoval_jplus[0][1] * monoval[1][0] * monoval_i[2][2];
-                  grad_grads[start + 2 * n_curls][0][1][0] =
-                    -monoval_jplus[0][1] * monoval[1][1] * monoval_i[2][1];
-                  grad_grads[start + 2 * n_curls][0][1][1] =
-                    -monoval_jplus[0][0] * monoval[1][2] * monoval_i[2][1];
-                  grad_grads[start + 2 * n_curls][0][1][2] =
-                    -monoval_jplus[0][0] * monoval[1][1] * monoval_i[2][2];
-                  grad_grads[start + 2 * n_curls][0][2][0] =
-                    -monoval_jplus[0][1] * monoval[1][0] * monoval_i[2][2];
-                  grad_grads[start + 2 * n_curls][0][2][1] =
-                    -monoval_jplus[0][0] * monoval[1][1] * monoval_i[2][2];
-                  grad_grads[start + 2 * n_curls][0][2][2] =
-                    -monoval_jplus[0][0] * monoval[1][0] * monoval_i[2][3];
-                  grad_grads[start + 2 * n_curls][1][0][0] =
-                    -monoval_j[0][2] * monoval_plus[1][0] * monoval_i[2][1];
-                  grad_grads[start + 2 * n_curls][1][0][1] =
-                    -monoval_j[0][1] * monoval_plus[1][1] * monoval_i[2][1];
-                  grad_grads[start + 2 * n_curls][1][0][2] =
-                    -monoval_j[0][1] * monoval_plus[1][0] * monoval_i[2][2];
-                  grad_grads[start + 2 * n_curls][1][1][0] =
-                    -monoval_j[0][1] * monoval_plus[1][1] * monoval_i[2][1];
-                  grad_grads[start + 2 * n_curls][1][1][1] =
-                    -monoval_j[0][0] * monoval_plus[1][2] * monoval_i[2][1];
-                  grad_grads[start + 2 * n_curls][1][1][2] =
-                    -monoval_j[0][0] * monoval_plus[1][1] * monoval_i[2][2];
-                  grad_grads[start + 2 * n_curls][1][2][0] =
-                    -monoval_j[0][1] * monoval_plus[1][0] * monoval_i[2][2];
-                  grad_grads[start + 2 * n_curls][1][2][1] =
-                    -monoval_j[0][0] * monoval_plus[1][1] * monoval_i[2][2];
-                  grad_grads[start + 2 * n_curls][1][2][2] =
-                    -monoval_j[0][0] * monoval_plus[1][0] * monoval_i[2][3];
+                  grad_grads[start + 2 * n_curls][0][0][0] = -monoval_jplus[0][2] * monoval[1][0] * monoval_i[2][1];
+                  grad_grads[start + 2 * n_curls][0][0][1] = -monoval_jplus[0][1] * monoval[1][1] * monoval_i[2][1];
+                  grad_grads[start + 2 * n_curls][0][0][2] = -monoval_jplus[0][1] * monoval[1][0] * monoval_i[2][2];
+                  grad_grads[start + 2 * n_curls][0][1][0] = -monoval_jplus[0][1] * monoval[1][1] * monoval_i[2][1];
+                  grad_grads[start + 2 * n_curls][0][1][1] = -monoval_jplus[0][0] * monoval[1][2] * monoval_i[2][1];
+                  grad_grads[start + 2 * n_curls][0][1][2] = -monoval_jplus[0][0] * monoval[1][1] * monoval_i[2][2];
+                  grad_grads[start + 2 * n_curls][0][2][0] = -monoval_jplus[0][1] * monoval[1][0] * monoval_i[2][2];
+                  grad_grads[start + 2 * n_curls][0][2][1] = -monoval_jplus[0][0] * monoval[1][1] * monoval_i[2][2];
+                  grad_grads[start + 2 * n_curls][0][2][2] = -monoval_jplus[0][0] * monoval[1][0] * monoval_i[2][3];
+                  grad_grads[start + 2 * n_curls][1][0][0] = -monoval_j[0][2] * monoval_plus[1][0] * monoval_i[2][1];
+                  grad_grads[start + 2 * n_curls][1][0][1] = -monoval_j[0][1] * monoval_plus[1][1] * monoval_i[2][1];
+                  grad_grads[start + 2 * n_curls][1][0][2] = -monoval_j[0][1] * monoval_plus[1][0] * monoval_i[2][2];
+                  grad_grads[start + 2 * n_curls][1][1][0] = -monoval_j[0][1] * monoval_plus[1][1] * monoval_i[2][1];
+                  grad_grads[start + 2 * n_curls][1][1][1] = -monoval_j[0][0] * monoval_plus[1][2] * monoval_i[2][1];
+                  grad_grads[start + 2 * n_curls][1][1][2] = -monoval_j[0][0] * monoval_plus[1][1] * monoval_i[2][2];
+                  grad_grads[start + 2 * n_curls][1][2][0] = -monoval_j[0][1] * monoval_plus[1][0] * monoval_i[2][2];
+                  grad_grads[start + 2 * n_curls][1][2][1] = -monoval_j[0][0] * monoval_plus[1][1] * monoval_i[2][2];
+                  grad_grads[start + 2 * n_curls][1][2][2] = -monoval_j[0][0] * monoval_plus[1][0] * monoval_i[2][3];
                   grad_grads[start + 2 * n_curls][2][0][0] =
-                    monoval_j[0][2] * monoval[1][0] * monoval_i[2][0] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_j[0][2] * monoval[1][0] * monoval_i[2][0] * static_cast<double>(j + my_degree + 2);
                   grad_grads[start + 2 * n_curls][2][0][1] =
-                    monoval_j[0][1] * monoval[1][1] * monoval_i[2][0] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_j[0][1] * monoval[1][1] * monoval_i[2][0] * static_cast<double>(j + my_degree + 2);
                   grad_grads[start + 2 * n_curls][2][0][2] =
-                    monoval_j[0][1] * monoval[1][0] * monoval_i[2][1] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_j[0][1] * monoval[1][0] * monoval_i[2][1] * static_cast<double>(j + my_degree + 2);
                   grad_grads[start + 2 * n_curls][2][1][0] =
-                    monoval_j[0][1] * monoval[1][1] * monoval_i[2][0] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_j[0][1] * monoval[1][1] * monoval_i[2][0] * static_cast<double>(j + my_degree + 2);
                   grad_grads[start + 2 * n_curls][2][1][1] =
-                    monoval_j[0][0] * monoval[1][2] * monoval_i[2][0] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_j[0][0] * monoval[1][2] * monoval_i[2][0] * static_cast<double>(j + my_degree + 2);
                   grad_grads[start + 2 * n_curls][2][1][2] =
-                    monoval_j[0][0] * monoval[1][1] * monoval_i[2][1] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_j[0][0] * monoval[1][1] * monoval_i[2][1] * static_cast<double>(j + my_degree + 2);
                   grad_grads[start + 2 * n_curls][2][2][0] =
-                    monoval_j[0][1] * monoval[1][0] * monoval_i[2][1] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_j[0][1] * monoval[1][0] * monoval_i[2][1] * static_cast<double>(j + my_degree + 2);
                   grad_grads[start + 2 * n_curls][2][2][1] =
-                    monoval_j[0][0] * monoval[1][1] * monoval_i[2][1] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_j[0][0] * monoval[1][1] * monoval_i[2][1] * static_cast<double>(j + my_degree + 2);
                   grad_grads[start + 2 * n_curls][2][2][2] =
-                    monoval_j[0][0] * monoval[1][0] * monoval_i[2][2] *
-                    static_cast<double>(j + my_degree + 2);
+                    monoval_j[0][0] * monoval[1][0] * monoval_i[2][2] * static_cast<double>(j + my_degree + 2);
 
                   if (j != my_degree)
                     {
                       grad_grads[start + 1][0][0][0] =
-                        monoval_i[0][2] * monoval[1][0] * monoval_j[2][0] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval_i[0][2] * monoval[1][0] * monoval_j[2][0] * static_cast<double>(j + my_degree + 2);
                       grad_grads[start + 1][0][0][1] =
-                        monoval_i[0][1] * monoval[1][1] * monoval_j[2][0] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval_i[0][1] * monoval[1][1] * monoval_j[2][0] * static_cast<double>(j + my_degree + 2);
                       grad_grads[start + 1][0][0][2] =
-                        monoval_i[0][1] * monoval[1][0] * monoval_j[2][1] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval_i[0][1] * monoval[1][0] * monoval_j[2][1] * static_cast<double>(j + my_degree + 2);
                       grad_grads[start + 1][0][1][0] =
-                        monoval_i[0][1] * monoval[1][1] * monoval_j[2][0] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval_i[0][1] * monoval[1][1] * monoval_j[2][0] * static_cast<double>(j + my_degree + 2);
                       grad_grads[start + 1][0][1][1] =
-                        monoval_i[0][0] * monoval[1][2] * monoval_j[2][0] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval_i[0][0] * monoval[1][2] * monoval_j[2][0] * static_cast<double>(j + my_degree + 2);
                       grad_grads[start + 1][0][1][2] =
-                        monoval_i[0][0] * monoval[1][1] * monoval_j[2][1] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval_i[0][0] * monoval[1][1] * monoval_j[2][1] * static_cast<double>(j + my_degree + 2);
                       grad_grads[start + 1][0][2][0] =
-                        monoval_i[0][1] * monoval[1][0] * monoval_j[2][1] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval_i[0][1] * monoval[1][0] * monoval_j[2][1] * static_cast<double>(j + my_degree + 2);
                       grad_grads[start + 1][0][2][1] =
-                        monoval_i[0][0] * monoval[1][1] * monoval_j[2][1] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval_i[0][0] * monoval[1][1] * monoval_j[2][1] * static_cast<double>(j + my_degree + 2);
                       grad_grads[start + 1][0][2][2] =
-                        monoval_i[0][0] * monoval[1][0] * monoval_j[2][2] *
-                        static_cast<double>(j + my_degree + 2);
-                      grad_grads[start + 1][1][0][0] =
-                        -monoval_i[0][3] * monoval_plus[1][0] * monoval_j[2][0];
-                      grad_grads[start + 1][1][0][1] =
-                        -monoval_i[0][2] * monoval_plus[1][1] * monoval_j[2][0];
-                      grad_grads[start + 1][1][0][2] =
-                        -monoval_i[0][2] * monoval_plus[1][0] * monoval_j[2][1];
-                      grad_grads[start + 1][1][1][0] =
-                        -monoval_i[0][2] * monoval_plus[1][1] * monoval_j[2][0];
-                      grad_grads[start + 1][1][1][1] =
-                        -monoval_i[0][1] * monoval_plus[1][2] * monoval_j[2][0];
-                      grad_grads[start + 1][1][1][2] =
-                        -monoval_i[0][1] * monoval_plus[1][1] * monoval_j[2][1];
-                      grad_grads[start + 1][1][2][0] =
-                        -monoval_i[0][2] * monoval_plus[1][0] * monoval_j[2][1];
-                      grad_grads[start + 1][1][2][1] =
-                        -monoval_i[0][1] * monoval_plus[1][1] * monoval_j[2][1];
-                      grad_grads[start + 1][1][2][2] =
-                        -monoval_i[0][1] * monoval_plus[1][0] * monoval_j[2][2];
-                      grad_grads[start + 1][2][0][0] =
-                        -monoval_i[0][3] * monoval[1][0] * monoval_jplus[2][0];
-                      grad_grads[start + 1][2][0][1] =
-                        -monoval_i[0][2] * monoval[1][1] * monoval_jplus[2][0];
-                      grad_grads[start + 1][2][0][2] =
-                        -monoval_i[0][2] * monoval[1][0] * monoval_jplus[2][1];
-                      grad_grads[start + 1][2][1][0] =
-                        -monoval_i[0][2] * monoval[1][1] * monoval_jplus[2][0];
-                      grad_grads[start + 1][2][1][1] =
-                        -monoval_i[0][1] * monoval[1][2] * monoval_jplus[2][0];
-                      grad_grads[start + 1][2][1][2] =
-                        -monoval_i[0][1] * monoval[1][1] * monoval_jplus[2][1];
-                      grad_grads[start + 1][2][2][0] =
-                        -monoval_i[0][2] * monoval[1][0] * monoval_jplus[2][1];
-                      grad_grads[start + 1][2][2][1] =
-                        -monoval_i[0][1] * monoval[1][1] * monoval_jplus[2][1];
-                      grad_grads[start + 1][2][2][2] =
-                        -monoval_i[0][1] * monoval[1][0] * monoval_jplus[2][2];
+                        monoval_i[0][0] * monoval[1][0] * monoval_j[2][2] * static_cast<double>(j + my_degree + 2);
+                      grad_grads[start + 1][1][0][0] = -monoval_i[0][3] * monoval_plus[1][0] * monoval_j[2][0];
+                      grad_grads[start + 1][1][0][1] = -monoval_i[0][2] * monoval_plus[1][1] * monoval_j[2][0];
+                      grad_grads[start + 1][1][0][2] = -monoval_i[0][2] * monoval_plus[1][0] * monoval_j[2][1];
+                      grad_grads[start + 1][1][1][0] = -monoval_i[0][2] * monoval_plus[1][1] * monoval_j[2][0];
+                      grad_grads[start + 1][1][1][1] = -monoval_i[0][1] * monoval_plus[1][2] * monoval_j[2][0];
+                      grad_grads[start + 1][1][1][2] = -monoval_i[0][1] * monoval_plus[1][1] * monoval_j[2][1];
+                      grad_grads[start + 1][1][2][0] = -monoval_i[0][2] * monoval_plus[1][0] * monoval_j[2][1];
+                      grad_grads[start + 1][1][2][1] = -monoval_i[0][1] * monoval_plus[1][1] * monoval_j[2][1];
+                      grad_grads[start + 1][1][2][2] = -monoval_i[0][1] * monoval_plus[1][0] * monoval_j[2][2];
+                      grad_grads[start + 1][2][0][0] = -monoval_i[0][3] * monoval[1][0] * monoval_jplus[2][0];
+                      grad_grads[start + 1][2][0][1] = -monoval_i[0][2] * monoval[1][1] * monoval_jplus[2][0];
+                      grad_grads[start + 1][2][0][2] = -monoval_i[0][2] * monoval[1][0] * monoval_jplus[2][1];
+                      grad_grads[start + 1][2][1][0] = -monoval_i[0][2] * monoval[1][1] * monoval_jplus[2][0];
+                      grad_grads[start + 1][2][1][1] = -monoval_i[0][1] * monoval[1][2] * monoval_jplus[2][0];
+                      grad_grads[start + 1][2][1][2] = -monoval_i[0][1] * monoval[1][1] * monoval_jplus[2][1];
+                      grad_grads[start + 1][2][2][0] = -monoval_i[0][2] * monoval[1][0] * monoval_jplus[2][1];
+                      grad_grads[start + 1][2][2][1] = -monoval_i[0][1] * monoval[1][1] * monoval_jplus[2][1];
+                      grad_grads[start + 1][2][2][2] = -monoval_i[0][1] * monoval[1][0] * monoval_jplus[2][2];
 
                       grad_grads[start + n_curls + 1][0][0][0] =
                         -monoval_plus[0][2] * monoval_i[1][1] * monoval_j[2][0];
@@ -714,50 +500,32 @@ PolynomialsRT_Bubbles<dim>::evaluate(
                       grad_grads[start + n_curls + 1][0][2][2] =
                         -monoval_plus[0][0] * monoval_i[1][1] * monoval_j[2][2];
                       grad_grads[start + n_curls + 1][1][0][0] =
-                        monoval[0][2] * monoval_i[1][0] * monoval_j[2][0] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval[0][2] * monoval_i[1][0] * monoval_j[2][0] * static_cast<double>(j + my_degree + 2);
                       grad_grads[start + n_curls + 1][1][0][1] =
-                        monoval[0][1] * monoval_i[1][1] * monoval_j[2][0] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval[0][1] * monoval_i[1][1] * monoval_j[2][0] * static_cast<double>(j + my_degree + 2);
                       grad_grads[start + n_curls + 1][1][0][2] =
-                        monoval[0][1] * monoval_i[1][0] * monoval_j[2][1] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval[0][1] * monoval_i[1][0] * monoval_j[2][1] * static_cast<double>(j + my_degree + 2);
                       grad_grads[start + n_curls + 1][1][1][0] =
-                        monoval[0][1] * monoval_i[1][1] * monoval_j[2][0] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval[0][1] * monoval_i[1][1] * monoval_j[2][0] * static_cast<double>(j + my_degree + 2);
                       grad_grads[start + n_curls + 1][1][1][1] =
-                        monoval[0][0] * monoval_i[1][2] * monoval_j[2][0] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval[0][0] * monoval_i[1][2] * monoval_j[2][0] * static_cast<double>(j + my_degree + 2);
                       grad_grads[start + n_curls + 1][1][1][2] =
-                        monoval[0][0] * monoval_i[1][1] * monoval_j[2][1] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval[0][0] * monoval_i[1][1] * monoval_j[2][1] * static_cast<double>(j + my_degree + 2);
                       grad_grads[start + n_curls + 1][1][2][0] =
-                        monoval[0][1] * monoval_i[1][0] * monoval_j[2][1] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval[0][1] * monoval_i[1][0] * monoval_j[2][1] * static_cast<double>(j + my_degree + 2);
                       grad_grads[start + n_curls + 1][1][2][1] =
-                        monoval[0][0] * monoval_i[1][1] * monoval_j[2][1] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval[0][0] * monoval_i[1][1] * monoval_j[2][1] * static_cast<double>(j + my_degree + 2);
                       grad_grads[start + n_curls + 1][1][2][2] =
-                        monoval[0][0] * monoval_i[1][0] * monoval_j[2][2] *
-                        static_cast<double>(j + my_degree + 2);
-                      grad_grads[start + n_curls + 1][2][0][0] =
-                        -monoval[0][2] * monoval_i[1][1] * monoval_jplus[2][0];
-                      grad_grads[start + n_curls + 1][2][0][1] =
-                        -monoval[0][1] * monoval_i[1][2] * monoval_jplus[2][0];
-                      grad_grads[start + n_curls + 1][2][0][2] =
-                        -monoval[0][1] * monoval_i[1][1] * monoval_jplus[2][1];
-                      grad_grads[start + n_curls + 1][2][1][0] =
-                        -monoval[0][1] * monoval_i[1][2] * monoval_jplus[2][0];
-                      grad_grads[start + n_curls + 1][2][1][1] =
-                        -monoval[0][0] * monoval_i[1][3] * monoval_jplus[2][0];
-                      grad_grads[start + n_curls + 1][2][1][2] =
-                        -monoval[0][0] * monoval_i[1][2] * monoval_jplus[2][1];
-                      grad_grads[start + n_curls + 1][2][2][0] =
-                        -monoval[0][1] * monoval_i[1][1] * monoval_jplus[2][1];
-                      grad_grads[start + n_curls + 1][2][2][1] =
-                        -monoval[0][0] * monoval_i[1][2] * monoval_jplus[2][1];
-                      grad_grads[start + n_curls + 1][2][2][2] =
-                        -monoval[0][0] * monoval_i[1][1] * monoval_jplus[2][2];
+                        monoval[0][0] * monoval_i[1][0] * monoval_j[2][2] * static_cast<double>(j + my_degree + 2);
+                      grad_grads[start + n_curls + 1][2][0][0] = -monoval[0][2] * monoval_i[1][1] * monoval_jplus[2][0];
+                      grad_grads[start + n_curls + 1][2][0][1] = -monoval[0][1] * monoval_i[1][2] * monoval_jplus[2][0];
+                      grad_grads[start + n_curls + 1][2][0][2] = -monoval[0][1] * monoval_i[1][1] * monoval_jplus[2][1];
+                      grad_grads[start + n_curls + 1][2][1][0] = -monoval[0][1] * monoval_i[1][2] * monoval_jplus[2][0];
+                      grad_grads[start + n_curls + 1][2][1][1] = -monoval[0][0] * monoval_i[1][3] * monoval_jplus[2][0];
+                      grad_grads[start + n_curls + 1][2][1][2] = -monoval[0][0] * monoval_i[1][2] * monoval_jplus[2][1];
+                      grad_grads[start + n_curls + 1][2][2][0] = -monoval[0][1] * monoval_i[1][1] * monoval_jplus[2][1];
+                      grad_grads[start + n_curls + 1][2][2][1] = -monoval[0][0] * monoval_i[1][2] * monoval_jplus[2][1];
+                      grad_grads[start + n_curls + 1][2][2][2] = -monoval[0][0] * monoval_i[1][1] * monoval_jplus[2][2];
 
                       grad_grads[start + 2 * n_curls + 1][0][0][0] =
                         -monoval_plus[0][2] * monoval_j[1][0] * monoval_i[2][1];
@@ -796,32 +564,23 @@ PolynomialsRT_Bubbles<dim>::evaluate(
                       grad_grads[start + 2 * n_curls + 1][1][2][2] =
                         -monoval[0][0] * monoval_jplus[1][0] * monoval_i[2][3];
                       grad_grads[start + 2 * n_curls + 1][2][0][0] =
-                        monoval[0][2] * monoval_j[1][0] * monoval_i[2][0] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval[0][2] * monoval_j[1][0] * monoval_i[2][0] * static_cast<double>(j + my_degree + 2);
                       grad_grads[start + 2 * n_curls + 1][2][0][1] =
-                        monoval[0][1] * monoval_j[1][1] * monoval_i[2][0] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval[0][1] * monoval_j[1][1] * monoval_i[2][0] * static_cast<double>(j + my_degree + 2);
                       grad_grads[start + 2 * n_curls + 1][2][0][2] =
-                        monoval[0][1] * monoval_j[1][0] * monoval_i[2][1] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval[0][1] * monoval_j[1][0] * monoval_i[2][1] * static_cast<double>(j + my_degree + 2);
                       grad_grads[start + 2 * n_curls + 1][2][1][0] =
-                        monoval[0][1] * monoval_j[1][1] * monoval_i[2][0] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval[0][1] * monoval_j[1][1] * monoval_i[2][0] * static_cast<double>(j + my_degree + 2);
                       grad_grads[start + 2 * n_curls + 1][2][1][1] =
-                        monoval[0][0] * monoval_j[1][2] * monoval_i[2][0] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval[0][0] * monoval_j[1][2] * monoval_i[2][0] * static_cast<double>(j + my_degree + 2);
                       grad_grads[start + 2 * n_curls + 1][2][1][2] =
-                        monoval[0][0] * monoval_j[1][1] * monoval_i[2][1] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval[0][0] * monoval_j[1][1] * monoval_i[2][1] * static_cast<double>(j + my_degree + 2);
                       grad_grads[start + 2 * n_curls + 1][2][2][0] =
-                        monoval[0][1] * monoval_j[1][0] * monoval_i[2][1] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval[0][1] * monoval_j[1][0] * monoval_i[2][1] * static_cast<double>(j + my_degree + 2);
                       grad_grads[start + 2 * n_curls + 1][2][2][1] =
-                        monoval[0][0] * monoval_j[1][1] * monoval_i[2][1] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval[0][0] * monoval_j[1][1] * monoval_i[2][1] * static_cast<double>(j + my_degree + 2);
                       grad_grads[start + 2 * n_curls + 1][2][2][2] =
-                        monoval[0][0] * monoval_j[1][0] * monoval_i[2][2] *
-                        static_cast<double>(j + my_degree + 2);
+                        monoval[0][0] * monoval_j[1][0] * monoval_i[2][2] * static_cast<double>(j + my_degree + 2);
                     }
                 }
 

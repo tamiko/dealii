@@ -56,9 +56,7 @@ namespace TrilinosWrappers
          */
         template <typename F, typename... Args>
         int
-        call_and_possibly_capture_exception(const F &           f,
-                                            std::exception_ptr &eptr,
-                                            Args &&...args)
+        call_and_possibly_capture_exception(const F &f, std::exception_ptr &eptr, Args &&...args)
         {
           // See whether there is already something in the exception pointer
           // variable. There is no reason why this should be so, and
@@ -209,9 +207,7 @@ namespace TrilinosWrappers
          * Compute `x = (alpha * a) + (gamma * x)` where `x` is this vector.
          */
         NOX::Abstract::Vector &
-        update(double                       alpha,
-               const NOX::Abstract::Vector &a,
-               double                       gamma = 0.0) override
+        update(double alpha, const NOX::Abstract::Vector &a, double gamma = 0.0) override
         {
           const auto a_ = dynamic_cast<const Vector<VectorType> *>(&a);
 
@@ -241,8 +237,7 @@ namespace TrilinosWrappers
           Assert(a_, ExcInternalError());
           Assert(b_, ExcInternalError());
 
-          vector->operator*=(
-            static_cast<typename VectorType::value_type>(gamma));
+          vector->operator*=(static_cast<typename VectorType::value_type>(gamma));
           vector->add(static_cast<typename VectorType::value_type>(alpha),
                       *a_->vector,
                       static_cast<typename VectorType::value_type>(beta),
@@ -274,8 +269,7 @@ namespace TrilinosWrappers
          * Return the vector norm.
          */
         double
-        norm(NOX::Abstract::Vector::NormType type =
-               NOX::Abstract::Vector::TwoNorm) const override
+        norm(NOX::Abstract::Vector::NormType type = NOX::Abstract::Vector::TwoNorm) const override
         {
           if (type == NOX::Abstract::Vector::NormType::TwoNorm)
             return vector->l2_norm();
@@ -358,15 +352,11 @@ namespace TrilinosWrappers
          * functions to compute the residual, to set up the jacobian, and
          * to solve the Jacobian.
          */
-        Group(
-          VectorType &                                                solution,
-          const std::function<int(const VectorType &, VectorType &)> &residual,
-          const std::function<int(const VectorType &)> &setup_jacobian,
-          const std::function<int(const VectorType &, VectorType &)>
-            &                                     apply_jacobian,
-          const std::function<int(const VectorType &,
-                                  VectorType &,
-                                  const double)> &solve_with_jacobian)
+        Group(VectorType                                                               &solution,
+              const std::function<int(const VectorType &, VectorType &)>               &residual,
+              const std::function<int(const VectorType &)>                             &setup_jacobian,
+              const std::function<int(const VectorType &, VectorType &)>               &apply_jacobian,
+              const std::function<int(const VectorType &, VectorType &, const double)> &solve_with_jacobian)
           : x(solution)
           , residual(residual)
           , setup_jacobian(setup_jacobian)
@@ -384,8 +374,7 @@ namespace TrilinosWrappers
         {
           if (this != &source)
             {
-              const auto other =
-                dynamic_cast<const Group<VectorType> *>(&source);
+              const auto other = dynamic_cast<const Group<VectorType> *>(&source);
 
               Assert(other, ExcInternalError());
 
@@ -464,9 +453,7 @@ namespace TrilinosWrappers
          * Compute the solution update `x = grp.x + step * d`.
          */
         void
-        computeX(const NOX::Abstract::Group & grp,
-                 const NOX::Abstract::Vector &d,
-                 double                       step) override
+        computeX(const NOX::Abstract::Group &grp, const NOX::Abstract::Vector &d, double step) override
         {
           reset();
 
@@ -625,12 +612,8 @@ namespace TrilinosWrappers
         Teuchos::RCP<NOX::Abstract::Group>
         clone(NOX::CopyType copy_type) const override
         {
-          auto new_group =
-            Teuchos::rcp(new Group<VectorType>(*x.vector,
-                                               residual,
-                                               setup_jacobian,
-                                               apply_jacobian,
-                                               solve_with_jacobian));
+          auto new_group = Teuchos::rcp(
+            new Group<VectorType>(*x.vector, residual, setup_jacobian, apply_jacobian, solve_with_jacobian));
 
           if (x.vector)
             {
@@ -712,8 +695,7 @@ namespace TrilinosWrappers
          * the output to the @p result.
          */
         NOX::Abstract::Group::ReturnType
-        applyJacobian(const NOX::Abstract::Vector &input,
-                      NOX::Abstract::Vector &      result) const override
+        applyJacobian(const NOX::Abstract::Vector &input, NOX::Abstract::Vector &result) const override
         {
           if (apply_jacobian == nullptr)
             return NOX::Abstract::Group::NotDefined;
@@ -721,9 +703,8 @@ namespace TrilinosWrappers
           if (!isJacobian())
             return NOX::Abstract::Group::BadDependency;
 
-          const auto *input_ = dynamic_cast<const Vector<VectorType> *>(&input);
-          const auto *result_ =
-            dynamic_cast<const Vector<VectorType> *>(&result);
+          const auto *input_  = dynamic_cast<const Vector<VectorType> *>(&input);
+          const auto *result_ = dynamic_cast<const Vector<VectorType> *>(&result);
 
           if (apply_jacobian(*input_->vector, *result_->vector) != 0)
             return NOX::Abstract::Group::Failed;
@@ -780,9 +761,7 @@ namespace TrilinosWrappers
         /**
          * A helper function to solve Jacobian.
          */
-        std::function<
-          int(const VectorType &f, VectorType &x, const double tolerance)>
-          solve_with_jacobian;
+        std::function<int(const VectorType &f, VectorType &x, const double tolerance)> solve_with_jacobian;
 
         /**
          * A flag that indicates if the has residual been computed.
@@ -807,10 +786,8 @@ namespace TrilinosWrappers
         /**
          * Constructor.
          */
-        NOXCheck(const std::function<SolverControl::State(const unsigned int,
-                                                          const double,
-                                                          const VectorType &,
-                                                          const VectorType &)>
+        NOXCheck(const std::function<
+                 SolverControl::State(const unsigned int, const double, const VectorType &, const VectorType &)>
                    check_iteration_status)
           : check_iteration_status(check_iteration_status)
           , status(NOX::StatusTest::Unevaluated)
@@ -820,8 +797,7 @@ namespace TrilinosWrappers
          * Check the status of the nonlinear solver.
          */
         NOX::StatusTest::StatusType
-        checkStatus(const NOX::Solver::Generic &problem,
-                    NOX::StatusTest::CheckType  checkType) override
+        checkStatus(const NOX::Solver::Generic &problem, NOX::StatusTest::CheckType checkType) override
         {
           if (checkType == NOX::StatusTest::None)
             {
@@ -836,17 +812,14 @@ namespace TrilinosWrappers
               else
                 {
                   // unwrap the various vectors
-                  const VectorType &x = *dynamic_cast<
-                    const internal::NOXWrappers::Vector<VectorType> *>(
+                  const VectorType &x = *dynamic_cast<const internal::NOXWrappers::Vector<VectorType> *>(
                     &problem.getSolutionGroup().getX());
-                  const VectorType &f = *dynamic_cast<
-                    const internal::NOXWrappers::Vector<VectorType> *>(
+                  const VectorType &f = *dynamic_cast<const internal::NOXWrappers::Vector<VectorType> *>(
                     &problem.getSolutionGroup().getF());
 
                   // forward to the user-provided function and check
                   // convergence
-                  const auto state = this->check_iteration_status(
-                    problem.getNumIterations(), f.l2_norm(), x, f);
+                  const auto state = this->check_iteration_status(problem.getNumIterations(), f.l2_norm(), x, f);
 
                   // translate the returned value back to Trilinos data
                   // structure
@@ -896,10 +869,8 @@ namespace TrilinosWrappers
          * The user function that allows the solver to check for
          * convergence.
          */
-        const std::function<SolverControl::State(const unsigned int i,
-                                                 const double       f_norm,
-                                                 const VectorType & x,
-                                                 const VectorType & f)>
+        const std::function<
+          SolverControl::State(const unsigned int i, const double f_norm, const VectorType &x, const VectorType &f)>
           check_iteration_status;
 
         /**
@@ -913,13 +884,12 @@ namespace TrilinosWrappers
 
 
   template <typename VectorType>
-  NOXSolver<VectorType>::AdditionalData::AdditionalData(
-    const unsigned int max_iter,
-    const double       abs_tol,
-    const double       rel_tol,
-    const unsigned int threshold_nonlinear_iterations,
-    const unsigned int threshold_n_linear_iterations,
-    const bool         reuse_solver)
+  NOXSolver<VectorType>::AdditionalData::AdditionalData(const unsigned int max_iter,
+                                                        const double       abs_tol,
+                                                        const double       rel_tol,
+                                                        const unsigned int threshold_nonlinear_iterations,
+                                                        const unsigned int threshold_n_linear_iterations,
+                                                        const bool         reuse_solver)
     : max_iter(max_iter)
     , abs_tol(abs_tol)
     , rel_tol(rel_tol)
@@ -931,9 +901,8 @@ namespace TrilinosWrappers
 
 
   template <typename VectorType>
-  NOXSolver<VectorType>::NOXSolver(
-    AdditionalData &                            additional_data,
-    const Teuchos::RCP<Teuchos::ParameterList> &parameters)
+  NOXSolver<VectorType>::NOXSolver(AdditionalData                             &additional_data,
+                                   const Teuchos::RCP<Teuchos::ParameterList> &parameters)
     : additional_data(additional_data)
     , parameters(parameters)
     , n_residual_evaluations(0)
@@ -973,35 +942,26 @@ namespace TrilinosWrappers
       clear(); // clear state
 
     // create group
-    const auto group = Teuchos::rcp(new internal::NOXWrappers::Group<
-                                    VectorType>(
+    const auto group = Teuchos::rcp(new internal::NOXWrappers::Group<VectorType>(
       /* Starting vector */
       solution,
 
       /* Residual function */
       [&](const VectorType &x, VectorType &f) -> int {
-        Assert(
-          residual,
-          ExcMessage(
-            "No residual function has been attached to the NOXSolver object."));
+        Assert(residual, ExcMessage("No residual function has been attached to the NOXSolver object."));
 
         n_residual_evaluations++;
 
         // evaluate residual
-        return internal::NOXWrappers::call_and_possibly_capture_exception(
-          residual, pending_exception, x, f);
+        return internal::NOXWrappers::call_and_possibly_capture_exception(residual, pending_exception, x, f);
       },
 
       /* setup_jacobian function */
       [&](const VectorType &x) -> int {
-        Assert(
-          setup_jacobian,
-          ExcMessage(
-            "No setup_jacobian function has been attached to the NOXSolver object."));
+        Assert(setup_jacobian, ExcMessage("No setup_jacobian function has been attached to the NOXSolver object."));
 
         // setup Jacobian
-        int flag = internal::NOXWrappers::call_and_possibly_capture_exception(
-          setup_jacobian, pending_exception, x);
+        int flag = internal::NOXWrappers::call_and_possibly_capture_exception(setup_jacobian, pending_exception, x);
 
         if (flag != 0)
           return flag;
@@ -1011,18 +971,16 @@ namespace TrilinosWrappers
             // check if preconditioner needs to be updated
             bool update_preconditioner =
               ((additional_data.threshold_nonlinear_iterations > 0) &&
-               ((n_nonlinear_iterations %
-                 additional_data.threshold_nonlinear_iterations) == 0)) ||
+               ((n_nonlinear_iterations % additional_data.threshold_nonlinear_iterations) == 0)) ||
               (solve_with_jacobian_and_track_n_linear_iterations &&
-               (n_last_linear_iterations >
-                additional_data.threshold_n_linear_iterations));
+               (n_last_linear_iterations > additional_data.threshold_n_linear_iterations));
 
             if (update_preconditioner_predicate)
               update_preconditioner |= update_preconditioner_predicate();
 
             if (update_preconditioner)
-              flag = internal::NOXWrappers::call_and_possibly_capture_exception(
-                setup_preconditioner, pending_exception, x);
+              flag =
+                internal::NOXWrappers::call_and_possibly_capture_exception(setup_preconditioner, pending_exception, x);
           }
 
         return flag;
@@ -1030,16 +988,12 @@ namespace TrilinosWrappers
 
       /* apply_jacobian function */
       [&](const VectorType &x, VectorType &v) -> int {
-        Assert(
-          apply_jacobian,
-          ExcMessage(
-            "No apply_jacobian function has been attached to the NOXSolver object."));
+        Assert(apply_jacobian, ExcMessage("No apply_jacobian function has been attached to the NOXSolver object."));
 
         ++n_jacobian_applications;
 
         // apply Jacobian
-        return internal::NOXWrappers::call_and_possibly_capture_exception(
-          apply_jacobian, pending_exception, x, v);
+        return internal::NOXWrappers::call_and_possibly_capture_exception(apply_jacobian, pending_exception, x, v);
       },
 
       /* solve_with_jacobian function */
@@ -1049,11 +1003,9 @@ namespace TrilinosWrappers
         // invert Jacobian
         if (solve_with_jacobian)
           {
-            Assert(
-              !solve_with_jacobian_and_track_n_linear_iterations,
-              ExcMessage(
-                "It does not make sense to provide both solve_with_jacobian and "
-                "solve_with_jacobian_and_track_n_linear_iterations!"));
+            Assert(!solve_with_jacobian_and_track_n_linear_iterations,
+                   ExcMessage("It does not make sense to provide both solve_with_jacobian and "
+                              "solve_with_jacobian_and_track_n_linear_iterations!"));
 
             // without tracking of linear iterations
             return internal::NOXWrappers::call_and_possibly_capture_exception(
@@ -1072,21 +1024,16 @@ namespace TrilinosWrappers
             // internal::NOXWrappers::call_and_possibly_capture_exception.
             return internal::NOXWrappers::call_and_possibly_capture_exception(
               [&]() {
-                this->n_last_linear_iterations =
-                  solve_with_jacobian_and_track_n_linear_iterations(f,
-                                                                    x,
-                                                                    tolerance);
+                this->n_last_linear_iterations = solve_with_jacobian_and_track_n_linear_iterations(f, x, tolerance);
               },
               pending_exception);
           }
         else
           {
-            Assert(
-              false,
-              ExcMessage(
-                "Neither a solve_with_jacobian or a "
-                "solve_with_jacobian_and_track_n_linear_iterations function "
-                "has been attached to the NOXSolver object."));
+            Assert(false,
+                   ExcMessage("Neither a solve_with_jacobian or a "
+                              "solve_with_jacobian_and_track_n_linear_iterations function "
+                              "has been attached to the NOXSolver object."));
 
             Assert(false, ExcNotImplemented());
             return 1;
@@ -1094,28 +1041,24 @@ namespace TrilinosWrappers
       }));
 
     // setup solver control
-    auto check =
-      Teuchos::rcp(new NOX::StatusTest::Combo(NOX::StatusTest::Combo::OR));
+    auto check = Teuchos::rcp(new NOX::StatusTest::Combo(NOX::StatusTest::Combo::OR));
 
     if (this->check_iteration_status)
       {
-        const auto info =
-          Teuchos::rcp(new internal::NOXWrappers::NOXCheck<VectorType>(
-            this->check_iteration_status));
+        const auto info = Teuchos::rcp(new internal::NOXWrappers::NOXCheck<VectorType>(this->check_iteration_status));
         check->addStatusTest(info);
       }
 
     if (additional_data.abs_tol > 0.0)
       {
-        const auto additional_data_norm_f_abs =
-          Teuchos::rcp(new NOX::StatusTest::NormF(additional_data.abs_tol));
+        const auto additional_data_norm_f_abs = Teuchos::rcp(new NOX::StatusTest::NormF(additional_data.abs_tol));
         check->addStatusTest(additional_data_norm_f_abs);
       }
 
     if (additional_data.rel_tol > 0.0)
       {
-        const auto additional_data_norm_f_rel = Teuchos::rcp(
-          new NOX::StatusTest::RelativeNormF(additional_data.rel_tol));
+        const auto additional_data_norm_f_rel =
+          Teuchos::rcp(new NOX::StatusTest::RelativeNormF(additional_data.rel_tol));
         check->addStatusTest(additional_data_norm_f_rel);
       }
 
@@ -1157,8 +1100,7 @@ namespace TrilinosWrappers
               }
 
             // If that was not the case, NOX just didn't converge:
-            AssertThrow(status == NOX::StatusTest::Converged,
-                        ExcNOXNoConvergence());
+            AssertThrow(status == NOX::StatusTest::Converged, ExcNOXNoConvergence());
           }
       }
       // See if NOX returned by triggering an exception.
@@ -1193,10 +1135,9 @@ namespace TrilinosWrappers
             catch (const std::exception &e)
               {
                 // Collate the exception texts:
-                throw ExcMessage(
-                  "NOX aborted with an error text of <" + std::string(s) +
-                  "> after a user callback function had thrown an exception " +
-                  "with the following message:\n" + e.what());
+                throw ExcMessage("NOX aborted with an error text of <" + std::string(s) +
+                                 "> after a user callback function had thrown an exception " +
+                                 "with the following message:\n" + e.what());
               }
             catch (...)
               {
@@ -1208,9 +1149,7 @@ namespace TrilinosWrappers
         // NOX just happened to throw an exception, but it wasn't because there
         // was a user callback exception before. Convert the char* to something
         // more readable:
-        AssertThrow(false,
-                    ExcMessage("NOX aborted with an error text of <" +
-                               std::string(s) + ">."));
+        AssertThrow(false, ExcMessage("NOX aborted with an error text of <" + std::string(s) + ">."));
       }
 
     return 0; // unreachable

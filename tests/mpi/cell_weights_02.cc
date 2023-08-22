@@ -36,9 +36,7 @@
 
 template <int dim>
 unsigned int
-cell_weight(
-  const typename parallel::distributed::Triangulation<dim>::cell_iterator &cell,
-  const CellStatus status)
+cell_weight(const typename parallel::distributed::Triangulation<dim>::cell_iterator &cell, const CellStatus status)
 {
   return 1;
 }
@@ -50,8 +48,7 @@ test()
   unsigned int myid    = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
   unsigned int numproc = Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
 
-  parallel::distributed::Triangulation<dim> tr(
-    MPI_COMM_WORLD, dealii::Triangulation<dim>::none);
+  parallel::distributed::Triangulation<dim> tr(MPI_COMM_WORLD, dealii::Triangulation<dim>::none);
 
   GridGenerator::subdivided_hyper_cube(tr, 16);
 
@@ -59,12 +56,10 @@ test()
   tr.refine_global(1);
 
   const auto n_locally_owned_active_cells_per_processor =
-    Utilities::MPI::all_gather(tr.get_communicator(),
-                               tr.n_locally_owned_active_cells());
+    Utilities::MPI::all_gather(tr.get_communicator(), tr.n_locally_owned_active_cells());
   if (myid == 0)
     for (unsigned int p = 0; p < numproc; ++p)
-      deallog << "processor " << p << ": "
-              << n_locally_owned_active_cells_per_processor[p]
+      deallog << "processor " << p << ": " << n_locally_owned_active_cells_per_processor[p]
               << " locally owned active cells" << std::endl;
 }
 

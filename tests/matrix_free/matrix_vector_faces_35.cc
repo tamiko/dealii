@@ -34,35 +34,33 @@ void
 generate_grid(Triangulation<3> &triangulation, int orientation)
 {
   Point<3>              vertices_1[] = {Point<3>(-1., -1., -3.),
-                           Point<3>(+1., -1., -3.),
-                           Point<3>(-1., +1., -3.),
-                           Point<3>(+1., +1., -3.),
-                           Point<3>(-1., -1., -1.),
-                           Point<3>(+1., -1., -1.),
-                           Point<3>(-1., +1., -1.),
-                           Point<3>(+1., +1., -1.),
-                           Point<3>(-1., -1., +1.),
-                           Point<3>(+1., -1., +1.),
-                           Point<3>(-1., +1., +1.),
-                           Point<3>(+1., +1., +1.)};
+                                        Point<3>(+1., -1., -3.),
+                                        Point<3>(-1., +1., -3.),
+                                        Point<3>(+1., +1., -3.),
+                                        Point<3>(-1., -1., -1.),
+                                        Point<3>(+1., -1., -1.),
+                                        Point<3>(-1., +1., -1.),
+                                        Point<3>(+1., +1., -1.),
+                                        Point<3>(-1., -1., +1.),
+                                        Point<3>(+1., -1., +1.),
+                                        Point<3>(-1., +1., +1.),
+                                        Point<3>(+1., +1., +1.)};
   std::vector<Point<3>> vertices(&vertices_1[0], &vertices_1[12]);
 
   std::vector<CellData<3>> cells(2, CellData<3>());
 
   /* cell 0 */
-  int cell_vertices_0[GeometryInfo<3>::vertices_per_cell] = {
-    0, 1, 2, 3, 4, 5, 6, 7};
+  int cell_vertices_0[GeometryInfo<3>::vertices_per_cell] = {0, 1, 2, 3, 4, 5, 6, 7};
 
   /* cell 1 */
-  int cell_vertices_1[8][GeometryInfo<3>::vertices_per_cell] = {
-    {4, 5, 6, 7, 8, 9, 10, 11},
-    {5, 7, 4, 6, 9, 11, 8, 10},
-    {7, 6, 5, 4, 11, 10, 9, 8},
-    {6, 4, 7, 5, 10, 8, 11, 9},
-    {9, 8, 11, 10, 5, 4, 7, 6},
-    {8, 10, 9, 11, 4, 6, 5, 7},
-    {10, 11, 8, 9, 6, 7, 4, 5},
-    {11, 9, 10, 8, 7, 5, 6, 4}};
+  int cell_vertices_1[8][GeometryInfo<3>::vertices_per_cell] = {{4, 5, 6, 7, 8, 9, 10, 11},
+                                                                {5, 7, 4, 6, 9, 11, 8, 10},
+                                                                {7, 6, 5, 4, 11, 10, 9, 8},
+                                                                {6, 4, 7, 5, 10, 8, 11, 9},
+                                                                {9, 8, 11, 10, 5, 4, 7, 6},
+                                                                {8, 10, 9, 11, 4, 6, 5, 7},
+                                                                {10, 11, 8, 9, 6, 7, 4, 5},
+                                                                {11, 9, 10, 8, 7, 5, 6, 4}};
 
   for (const unsigned int j : GeometryInfo<3>::vertex_indices())
     {
@@ -78,8 +76,7 @@ generate_grid(Triangulation<3> &triangulation, int orientation)
   const unsigned int face_no = orientation < 4 ? 4 : 5;
   const auto         cell    = ++(triangulation.begin());
   deallog << "Orientation index within MatrixFree: "
-          << (!cell->face_orientation(face_no) + 2 * cell->face_flip(face_no) +
-              4 * cell->face_rotation(face_no))
+          << (!cell->face_orientation(face_no) + 2 * cell->face_flip(face_no) + 4 * cell->face_rotation(face_no))
           << std::endl;
 }
 
@@ -95,10 +92,9 @@ template <int dim,
 class MatrixFreeAdvectionTest
 {
 public:
-  MatrixFreeAdvectionTest(
-    const MatrixFree<dim, number, VectorizedArrayType> &data,
-    const bool                                          zero_within_loop = true,
-    const unsigned int start_vector_component                            = 0)
+  MatrixFreeAdvectionTest(const MatrixFree<dim, number, VectorizedArrayType> &data,
+                          const bool                                          zero_within_loop       = true,
+                          const unsigned int                                  start_vector_component = 0)
     : data(data)
     , zero_within_loop(zero_within_loop)
     , start_vector_component(start_vector_component)
@@ -112,32 +108,28 @@ public:
   {
     if (!zero_within_loop)
       dst = 0;
-    data.loop(
-      &MatrixFreeAdvectionTest::local_apply,
-      &MatrixFreeAdvectionTest::local_apply_face,
-      &MatrixFreeAdvectionTest::local_apply_boundary_face,
-      this,
-      dst,
-      src,
-      zero_within_loop,
-      MatrixFree<dim, number, VectorizedArrayType>::DataAccessOnFaces::values,
-      MatrixFree<dim, number, VectorizedArrayType>::DataAccessOnFaces::values);
+    data.loop(&MatrixFreeAdvectionTest::local_apply,
+              &MatrixFreeAdvectionTest::local_apply_face,
+              &MatrixFreeAdvectionTest::local_apply_boundary_face,
+              this,
+              dst,
+              src,
+              zero_within_loop,
+              MatrixFree<dim, number, VectorizedArrayType>::DataAccessOnFaces::values,
+              MatrixFree<dim, number, VectorizedArrayType>::DataAccessOnFaces::values);
   }
 
 private:
   void
   local_apply(const MatrixFree<dim, number, VectorizedArrayType> &data,
-              VectorType &                                        dst,
-              const VectorType &                                  src,
-              const std::pair<unsigned int, unsigned int> &cell_range) const
+              VectorType                                         &dst,
+              const VectorType                                   &src,
+              const std::pair<unsigned int, unsigned int>        &cell_range) const
   {
-    FEEvaluation<dim,
-                 fe_degree,
-                 n_q_points_1d,
-                 n_components,
-                 number,
-                 VectorizedArrayType>
-      phi(data, 0, 0, start_vector_component);
+    FEEvaluation<dim, fe_degree, n_q_points_1d, n_components, number, VectorizedArrayType> phi(data,
+                                                                                               0,
+                                                                                               0,
+                                                                                               start_vector_component);
 
     for (unsigned int cell = cell_range.first; cell < cell_range.second; ++cell)
       {
@@ -145,42 +137,24 @@ private:
         phi.read_dof_values(src);
         phi.evaluate(EvaluationFlags::values);
         for (unsigned int q = 0; q < phi.n_q_points; ++q)
-          phi.submit_gradient(multiply_by_advection(advection,
-                                                    phi.get_value(q)),
-                              q);
+          phi.submit_gradient(multiply_by_advection(advection, phi.get_value(q)), q);
         phi.integrate(EvaluationFlags::gradients);
         phi.distribute_local_to_global(dst);
       }
   }
 
   void
-  local_apply_face(
-    const MatrixFree<dim, number, VectorizedArrayType> &data,
-    VectorType &                                        dst,
-    const VectorType &                                  src,
-    const std::pair<unsigned int, unsigned int> &       face_range) const
+  local_apply_face(const MatrixFree<dim, number, VectorizedArrayType> &data,
+                   VectorType                                         &dst,
+                   const VectorType                                   &src,
+                   const std::pair<unsigned int, unsigned int>        &face_range) const
   {
-    FEFaceEvaluation<dim,
-                     fe_degree,
-                     n_q_points_1d,
-                     n_components,
-                     number,
-                     VectorizedArrayType>
-      phi_m(data, true, 0, 0, start_vector_component);
-    FEFaceEvaluation<dim,
-                     fe_degree,
-                     n_q_points_1d,
-                     n_components,
-                     number,
-                     VectorizedArrayType>
-      phi_p(data, false, 0, 0, start_vector_component);
+    FEFaceEvaluation<dim, fe_degree, n_q_points_1d, n_components, number, VectorizedArrayType> phi_m(
+      data, true, 0, 0, start_vector_component);
+    FEFaceEvaluation<dim, fe_degree, n_q_points_1d, n_components, number, VectorizedArrayType> phi_p(
+      data, false, 0, 0, start_vector_component);
     using value_type =
-      typename FEFaceEvaluation<dim,
-                                fe_degree,
-                                n_q_points_1d,
-                                n_components,
-                                number,
-                                VectorizedArrayType>::value_type;
+      typename FEFaceEvaluation<dim, fe_degree, n_q_points_1d, n_components, number, VectorizedArrayType>::value_type;
 
     for (unsigned int face = face_range.first; face < face_range.second; ++face)
       {
@@ -193,14 +167,11 @@ private:
 
         for (unsigned int q = 0; q < phi_m.n_q_points; ++q)
           {
-            value_type u_minus = phi_m.get_value(q),
-                       u_plus  = phi_p.get_value(q);
-            const VectorizedArrayType normal_times_advection =
-              advection * phi_m.normal_vector(q);
-            const value_type flux_times_normal =
+            value_type                u_minus = phi_m.get_value(q), u_plus = phi_p.get_value(q);
+            const VectorizedArrayType normal_times_advection = advection * phi_m.normal_vector(q);
+            const value_type          flux_times_normal =
               make_vectorized_array<number, VectorizedArrayType::size()>(0.5) *
-              ((u_minus + u_plus) * normal_times_advection +
-               std::abs(normal_times_advection) * (u_minus - u_plus));
+              ((u_minus + u_plus) * normal_times_advection + std::abs(normal_times_advection) * (u_minus - u_plus));
             phi_m.submit_value(-flux_times_normal, q);
             phi_p.submit_value(flux_times_normal, q);
           }
@@ -213,26 +184,15 @@ private:
   }
 
   void
-  local_apply_boundary_face(
-    const MatrixFree<dim, number, VectorizedArrayType> &data,
-    VectorType &                                        dst,
-    const VectorType &                                  src,
-    const std::pair<unsigned int, unsigned int> &       face_range) const
+  local_apply_boundary_face(const MatrixFree<dim, number, VectorizedArrayType> &data,
+                            VectorType                                         &dst,
+                            const VectorType                                   &src,
+                            const std::pair<unsigned int, unsigned int>        &face_range) const
   {
-    FEFaceEvaluation<dim,
-                     fe_degree,
-                     n_q_points_1d,
-                     n_components,
-                     number,
-                     VectorizedArrayType>
-      fe_eval(data, true, 0, 0, start_vector_component);
+    FEFaceEvaluation<dim, fe_degree, n_q_points_1d, n_components, number, VectorizedArrayType> fe_eval(
+      data, true, 0, 0, start_vector_component);
     using value_type =
-      typename FEFaceEvaluation<dim,
-                                fe_degree,
-                                n_q_points_1d,
-                                n_components,
-                                number,
-                                VectorizedArrayType>::value_type;
+      typename FEFaceEvaluation<dim, fe_degree, n_q_points_1d, n_components, number, VectorizedArrayType>::value_type;
     value_type u_plus = {};
     for (unsigned int d = 0; d < n_components; ++d)
       u_plus[d] = 1.3;
@@ -245,13 +205,11 @@ private:
 
         for (unsigned int q = 0; q < fe_eval.n_q_points; ++q)
           {
-            value_type                u_minus = fe_eval.get_value(q);
-            const VectorizedArrayType normal_times_advection =
-              advection * fe_eval.normal_vector(q);
-            const value_type flux_times_normal =
+            value_type                u_minus                = fe_eval.get_value(q);
+            const VectorizedArrayType normal_times_advection = advection * fe_eval.normal_vector(q);
+            const value_type          flux_times_normal =
               make_vectorized_array<number, VectorizedArrayType::size()>(0.5) *
-              ((u_minus + u_plus) * normal_times_advection +
-               std::abs(normal_times_advection) * (u_minus - u_plus));
+              ((u_minus + u_plus) * normal_times_advection + std::abs(normal_times_advection) * (u_minus - u_plus));
             fe_eval.submit_value(-flux_times_normal, q);
           }
 
@@ -283,14 +241,12 @@ run_test(const unsigned int fe_degree)
           if (refine == 0)
             {
               tria.begin()->set_refine_flag();
-              deallog << "Standard cell refined, oriented cell unrefined"
-                      << std::endl;
+              deallog << "Standard cell refined, oriented cell unrefined" << std::endl;
             }
           else
             {
               (++tria.begin())->set_refine_flag();
-              deallog << "Standard cell unrefined, oriented cell refined"
-                      << std::endl;
+              deallog << "Standard cell unrefined, oriented cell refined" << std::endl;
             }
           tria.execute_coarsening_and_refinement();
 
@@ -317,34 +273,28 @@ run_test(const unsigned int fe_degree)
               in(i)              = entry;
             }
 
-          MatrixFree<3, double> mf_data;
-          const QGauss<1>       quad(dof.get_fe().degree + 1);
+          MatrixFree<3, double>                          mf_data;
+          const QGauss<1>                                quad(dof.get_fe().degree + 1);
           typename MatrixFree<3, double>::AdditionalData data;
-          data.tasks_parallel_scheme =
-            MatrixFree<3, double>::AdditionalData::none;
-          data.tasks_block_size = 3;
-          data.mapping_update_flags_inner_faces =
-            (update_gradients | update_JxW_values);
-          data.mapping_update_flags_boundary_faces =
-            (update_gradients | update_JxW_values);
+          data.tasks_parallel_scheme               = MatrixFree<3, double>::AdditionalData::none;
+          data.tasks_block_size                    = 3;
+          data.mapping_update_flags_inner_faces    = (update_gradients | update_JxW_values);
+          data.mapping_update_flags_boundary_faces = (update_gradients | update_JxW_values);
 
           mf_data.reinit(mapping, dof, constraints, quad, data);
 
           {
-            MatrixFreeAdvectionTest<3, -1, 0, double, Vector<double>, 3> mf(
-              mf_data);
+            MatrixFreeAdvectionTest<3, -1, 0, double, Vector<double>, 3> mf(mf_data);
             mf.vmult(out, in);
           }
 
           {
-            MatrixFreeAdvection<3, -1, 0, double, Vector<double>, 3> mf(mf_data,
-                                                                        true);
+            MatrixFreeAdvection<3, -1, 0, double, Vector<double>, 3> mf(mf_data, true);
             mf.vmult(out_dist, in);
 
             out_dist -= out;
             const double diff_norm = out_dist.linfty_norm() / out.linfty_norm();
-            deallog << "Norm of difference gather_evaluate: " << diff_norm
-                    << std::endl;
+            deallog << "Norm of difference gather_evaluate: " << diff_norm << std::endl;
           }
         }
     }

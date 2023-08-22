@@ -65,23 +65,18 @@ check()
   const FE_DGQ<dim>  fe_constant(0);
   const FE_Q<dim>    fe_quadratic(2);
   const FE_DGQ<dim>  fe_dq_linear(1);
-  const FE_DGQ<dim> *fe_dq_quadratic =
-    (dim != 3 ? new FE_DGQ<dim>(2) : nullptr);
+  const FE_DGQ<dim> *fe_dq_quadratic = (dim != 3 ? new FE_DGQ<dim>(2) : nullptr);
 
   // define composed finite
   // elements. to limit memory
   // consumption in 3d to reasonable
   // values, use simpler finite
   // elements there
-  const FESystem<dim> *fe_1 =
-    (dim != 3 ? new FESystem<dim>(
-                  fe_quadratic, 4, *fe_dq_quadratic, 2, fe_constant, 12) :
-                new FESystem<dim>(fe_dq_linear, 1, fe_constant, 1));
+  const FESystem<dim> *fe_1 = (dim != 3 ? new FESystem<dim>(fe_quadratic, 4, *fe_dq_quadratic, 2, fe_constant, 12) :
+                                          new FESystem<dim>(fe_dq_linear, 1, fe_constant, 1));
 
-  const FESystem<dim> *fe_2 =
-    (dim != 3 ?
-       new FESystem<dim>(fe_constant, 1, *fe_dq_quadratic, 2, fe_quadratic, 5) :
-       new FESystem<dim>(fe_constant, 1, fe_dq_linear, 1));
+  const FESystem<dim> *fe_2 = (dim != 3 ? new FESystem<dim>(fe_constant, 1, *fe_dq_quadratic, 2, fe_quadratic, 5) :
+                                          new FESystem<dim>(fe_constant, 1, fe_dq_linear, 1));
 
   // make several loops to refine the
   // two grids
@@ -107,10 +102,8 @@ check()
           DoFRenumbering::Cuthill_McKee(dof_2);
         };
 
-      deallog << "  Grid 1: " << tria_1.n_active_cells() << " cells, "
-              << dof_1.n_dofs() << " dofs" << std::endl;
-      deallog << "  Grid 2: " << tria_2.n_active_cells() << " cells, "
-              << dof_2.n_dofs() << " dofs" << std::endl;
+      deallog << "  Grid 1: " << tria_1.n_active_cells() << " cells, " << dof_1.n_dofs() << " dofs" << std::endl;
+      deallog << "  Grid 2: " << tria_2.n_active_cells() << " cells, " << dof_2.n_dofs() << " dofs" << std::endl;
 
       // now compute intergrid constraints
       InterGridMap<DoFHandler<dim>> intergrid_map;
@@ -120,21 +113,17 @@ check()
       if (dim != 3)
         {
           // dq quadratic
-          DoFTools::compute_intergrid_constraints(
-            dof_1, 5, dof_2, 2, intergrid_map, intergrid_constraints);
+          DoFTools::compute_intergrid_constraints(dof_1, 5, dof_2, 2, intergrid_map, intergrid_constraints);
           // dq constant
-          DoFTools::compute_intergrid_constraints(
-            dof_1, 8, dof_2, 0, intergrid_map, intergrid_constraints);
+          DoFTools::compute_intergrid_constraints(dof_1, 8, dof_2, 0, intergrid_map, intergrid_constraints);
         }
       else
         // 3d
         {
           // dq linear
-          DoFTools::compute_intergrid_constraints(
-            dof_1, 0, dof_2, 1, intergrid_map, intergrid_constraints);
+          DoFTools::compute_intergrid_constraints(dof_1, 0, dof_2, 1, intergrid_map, intergrid_constraints);
           // dq constant
-          DoFTools::compute_intergrid_constraints(
-            dof_1, 1, dof_2, 0, intergrid_map, intergrid_constraints);
+          DoFTools::compute_intergrid_constraints(dof_1, 1, dof_2, 0, intergrid_map, intergrid_constraints);
         };
 
 
@@ -143,8 +132,7 @@ check()
       // elements only work for 1d at
       // present!
       if (dim == 1)
-        DoFTools::compute_intergrid_constraints(
-          dof_1, 3, dof_2, 5, intergrid_map, intergrid_constraints);
+        DoFTools::compute_intergrid_constraints(dof_1, 3, dof_2, 5, intergrid_map, intergrid_constraints);
 
       intergrid_constraints.print(deallog.get_file_stream());
 
@@ -171,10 +159,7 @@ check()
                 // refined if that
                 // has not yet
                 // happened
-                typename DoFHandler<dim>::cell_iterator cell2(&tria_2,
-                                                              cell->level(),
-                                                              cell->index(),
-                                                              &dof_2);
+                typename DoFHandler<dim>::cell_iterator cell2(&tria_2, cell->level(), cell->index(), &dof_2);
                 if (!cell2->has_children())
                   cell2->set_refine_flag();
               };

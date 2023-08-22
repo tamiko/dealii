@@ -51,8 +51,7 @@ test()
   if (numproc > 1)
     local_relevant.add_range(3, 4);
 
-  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> v(
-    local_owned, local_relevant, MPI_COMM_WORLD);
+  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> v(local_owned, local_relevant, MPI_COMM_WORLD);
 
   // set local values
   LinearAlgebra::ReadWriteVector<double> rw_vector(local_owned);
@@ -105,8 +104,7 @@ test()
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   unsigned int myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
   deallog.push(Utilities::int_to_string(myid));

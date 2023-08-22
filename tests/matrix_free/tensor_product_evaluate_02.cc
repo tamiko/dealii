@@ -52,26 +52,20 @@ test(const unsigned int degree)
     coefficients[i] = matrix * fe.get_unit_support_points()[i] + offset;
 
   const std::vector<Polynomials::Polynomial<double>> polynomials =
-    Polynomials::generate_complete_Lagrange_basis(
-      QGaussLobatto<1>(degree + 1).get_points());
+    Polynomials::generate_complete_Lagrange_basis(QGaussLobatto<1>(degree + 1).get_points());
 
-  const std::vector<unsigned int> renumbering =
-    FETools::lexicographic_to_hierarchic_numbering<dim>(degree);
+  const std::vector<unsigned int> renumbering = FETools::lexicographic_to_hierarchic_numbering<dim>(degree);
 
   const std::vector<Point<dim>> evaluation_points =
-    dim == 3 ? QGauss<dim>(2).get_points() :
-               QIterated<dim>(QTrapezoid<1>(), 3).get_points();
+    dim == 3 ? QGauss<dim>(2).get_points() : QIterated<dim>(QTrapezoid<1>(), 3).get_points();
 
-  deallog << "Evaluate in " << dim << "d with polynomial degree " << degree
-          << std::endl;
+  deallog << "Evaluate in " << dim << "d with polynomial degree " << degree << std::endl;
   for (const auto &p : evaluation_points)
     {
-      const auto val = internal::evaluate_tensor_product_value_and_gradient(
-        polynomials, coefficients, p, false, renumbering);
-      deallog << "Value " << val.first << " vs " << matrix * p + offset
-              << std::endl;
-      deallog << "Gradient " << val.second << " vs " << transpose(matrix)
-              << std::endl;
+      const auto val =
+        internal::evaluate_tensor_product_value_and_gradient(polynomials, coefficients, p, false, renumbering);
+      deallog << "Value " << val.first << " vs " << matrix * p + offset << std::endl;
+      deallog << "Gradient " << val.second << " vs " << transpose(matrix) << std::endl;
     }
 
   if (degree == 1)
@@ -79,12 +73,10 @@ test(const unsigned int degree)
       deallog << "Evaluate d-linear shortcut in " << dim << 'd' << std::endl;
       for (const auto &p : evaluation_points)
         {
-          const auto val = internal::evaluate_tensor_product_value_and_gradient(
-            polynomials, coefficients, p, true, renumbering);
-          deallog << "Value " << val.first << " vs " << matrix * p + offset
-                  << std::endl;
-          deallog << "Gradient " << val.second << " vs " << transpose(matrix)
-                  << std::endl;
+          const auto val =
+            internal::evaluate_tensor_product_value_and_gradient(polynomials, coefficients, p, true, renumbering);
+          deallog << "Value " << val.first << " vs " << matrix * p + offset << std::endl;
+          deallog << "Gradient " << val.second << " vs " << transpose(matrix) << std::endl;
         }
     }
 }

@@ -35,11 +35,11 @@ test<1>()
   points.emplace_back(0.);
   points.emplace_back(3.);
 
-  unsigned int indices1[GeometryInfo<1>::vertices_per_cell] = {0, 1};
-  std::vector<unsigned int> indices2                        = {0, 1};
+  unsigned int              indices1[GeometryInfo<1>::vertices_per_cell] = {0, 1};
+  std::vector<unsigned int> indices2                                     = {0, 1};
 
-  deallog << "1d: " << GridTools::cell_measure(points, indices1) << ' '
-          << GridTools::cell_measure(points, indices2) << std::endl;
+  deallog << "1d: " << GridTools::cell_measure(points, indices1) << ' ' << GridTools::cell_measure(points, indices2)
+          << std::endl;
 }
 
 template <>
@@ -52,11 +52,11 @@ test<2>()
   points.emplace_back(0., 2.);
   points.emplace_back(1., 2.);
 
-  unsigned int indices1[GeometryInfo<2>::vertices_per_cell] = {0, 1, 2, 3};
-  std::vector<unsigned int> indices2                        = {0, 1, 2, 3};
+  unsigned int              indices1[GeometryInfo<2>::vertices_per_cell] = {0, 1, 2, 3};
+  std::vector<unsigned int> indices2                                     = {0, 1, 2, 3};
 
-  deallog << "2d: " << GridTools::cell_measure(points, indices1) << ' '
-          << GridTools::cell_measure(points, indices2) << std::endl;
+  deallog << "2d: " << GridTools::cell_measure(points, indices1) << ' ' << GridTools::cell_measure(points, indices2)
+          << std::endl;
 }
 
 template <>
@@ -73,12 +73,11 @@ test<3>()
   points.emplace_back(0., 2., 3.);
   points.emplace_back(1., 2., 3.);
 
-  unsigned int indices1[GeometryInfo<3>::vertices_per_cell] = {
-    0, 1, 2, 3, 4, 5, 6, 7};
-  std::vector<unsigned int> indices2 = {0, 1, 2, 3, 4, 5, 6, 7};
+  unsigned int              indices1[GeometryInfo<3>::vertices_per_cell] = {0, 1, 2, 3, 4, 5, 6, 7};
+  std::vector<unsigned int> indices2                                     = {0, 1, 2, 3, 4, 5, 6, 7};
 
-  deallog << "3d: " << GridTools::cell_measure(points, indices1) << ' '
-          << GridTools::cell_measure(points, indices2) << std::endl;
+  deallog << "3d: " << GridTools::cell_measure(points, indices1) << ' ' << GridTools::cell_measure(points, indices2)
+          << std::endl;
 }
 
 int

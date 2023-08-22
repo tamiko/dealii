@@ -31,8 +31,7 @@ test()
   std::unique_ptr<Mapping<dim, spacedim>>       mapping;
   std::unique_ptr<FiniteElement<dim, spacedim>> fe;
 
-  FEPointEvaluation<n_components, dim, spacedim, Number> fpe(
-    *mapping, *fe, UpdateFlags::update_default);
+  FEPointEvaluation<n_components, dim, spacedim, Number> fpe(*mapping, *fe, UpdateFlags::update_default);
 
   Triangulation<dim, spacedim> tria;
 

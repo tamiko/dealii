@@ -37,8 +37,7 @@ main(int argc, char **argv)
       {
         PETScWrappers::MPI::Vector v(MPI_COMM_WORLD, 5, 5);
         for (unsigned int k = 0; k < v.size(); ++k)
-          v(k) =
-            PetscScalar(k * 1.2345678901234567, 2. * k * 1.2345678901234567);
+          v(k) = PetscScalar(k * 1.2345678901234567, 2. * k * 1.2345678901234567);
 
         // print with prescribed precision
         deallog << "unreadable=true,across=false" << std::endl;
@@ -50,28 +49,20 @@ main(int argc, char **argv)
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

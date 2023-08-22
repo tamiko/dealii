@@ -29,13 +29,12 @@
 
 template <int dim, int fe_degree, int n_q_points_1d, typename number>
 void
-sub_test(const DoFHandler<dim> &          dof,
+sub_test(const DoFHandler<dim>           &dof,
          const AffineConstraints<double> &constraints,
-         MatrixFree<dim, number> &        mf_data,
-         Vector<number> &                 solution)
+         MatrixFree<dim, number>         &mf_data,
+         Vector<number>                  &solution)
 {
-  deallog << "Test with fe_degree " << fe_degree
-          << ", n_q_points_1d: " << (n_q_points_1d) << std::endl;
+  deallog << "Test with fe_degree " << fe_degree << ", n_q_points_1d: " << (n_q_points_1d) << std::endl;
   const QGauss<1>                                  quad(n_q_points_1d);
   MappingQ<dim>                                    mapping(2);
   typename MatrixFree<dim, number>::AdditionalData data;
@@ -56,8 +55,7 @@ test()
   const SphericalManifold<dim> manifold;
   Triangulation<dim>           tria;
   GridGenerator::hyper_ball(tria);
-  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(),
-                                                    endc = tria.end();
+  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
   for (; cell != endc; ++cell)
     for (const unsigned int f : GeometryInfo<dim>::face_indices())
       if (cell->at_boundary(f))
@@ -104,21 +102,9 @@ test()
 
   MatrixFree<dim, number> mf_data;
   if (fe_degree > 1)
-    sub_test<dim, fe_degree, fe_degree - 1, number>(dof,
-                                                    constraints,
-                                                    mf_data,
-                                                    solution);
-  sub_test<dim, fe_degree, fe_degree, number>(dof,
-                                              constraints,
-                                              mf_data,
-                                              solution);
-  sub_test<dim, fe_degree, fe_degree + 2, number>(dof,
-                                                  constraints,
-                                                  mf_data,
-                                                  solution);
+    sub_test<dim, fe_degree, fe_degree - 1, number>(dof, constraints, mf_data, solution);
+  sub_test<dim, fe_degree, fe_degree, number>(dof, constraints, mf_data, solution);
+  sub_test<dim, fe_degree, fe_degree + 2, number>(dof, constraints, mf_data, solution);
   if (dim == 2)
-    sub_test<dim, fe_degree, fe_degree + 3, number>(dof,
-                                                    constraints,
-                                                    mf_data,
-                                                    solution);
+    sub_test<dim, fe_degree, fe_degree + 3, number>(dof, constraints, mf_data, solution);
 }

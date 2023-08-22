@@ -46,31 +46,27 @@ template <int dim>
 void
 test(unsigned int fe_nothing_index)
 {
-  unsigned int myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  unsigned int                              myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
   parallel::distributed::Triangulation<dim> tr(MPI_COMM_WORLD);
 
   std::vector<unsigned int> sub(2);
   sub[0] = 2 * Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
   sub[1] = 1;
-  GridGenerator::subdivided_hyper_rectangle(
-    static_cast<Triangulation<dim> &>(tr), sub, Point<2>(0, 0), Point<2>(1, 1));
+  GridGenerator::subdivided_hyper_rectangle(static_cast<Triangulation<dim> &>(tr), sub, Point<2>(0, 0), Point<2>(1, 1));
 
   DoFHandler<dim> dofh(tr);
 
   {
     // set cells to use FE_Q and FE_Nothing alternately
     unsigned int last_index = 1;
-    for (const auto &cell :
-         dofh.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+    for (const auto &cell : dofh.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
       cell->set_active_fe_index(last_index = 1 - last_index);
   }
 
   if (fe_nothing_index == 1)
-    dofh.distribute_dofs(
-      hp::FECollection<dim>(FE_Q<dim>(1), FE_Nothing<dim>(1)));
+    dofh.distribute_dofs(hp::FECollection<dim>(FE_Q<dim>(1), FE_Nothing<dim>(1)));
   else
-    dofh.distribute_dofs(
-      hp::FECollection<dim>(FE_Nothing<dim>(1), FE_Q<dim>(1)));
+    dofh.distribute_dofs(hp::FECollection<dim>(FE_Nothing<dim>(1), FE_Q<dim>(1)));
 
   if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
     deallog << "Total dofs=" << dofh.n_dofs() << std::endl;

@@ -50,8 +50,7 @@
 DEAL_II_NAMESPACE_OPEN
 
 #ifdef signals
-#  error \
-    "The name 'signals' is already defined. You are most likely using the QT library \
+#  error "The name 'signals' is already defined. You are most likely using the QT library \
 and using the 'signals' keyword. You can either #include the Qt headers (or any conflicting headers) \
 *after* the deal.II headers or you can define the 'QT_NO_KEYWORDS' macro and use the 'Q_SIGNALS' macro."
 #endif
@@ -181,14 +180,12 @@ namespace internal
       /**
        * Partitioner for the global active cell indices.
        */
-      std::shared_ptr<const Utilities::MPI::Partitioner>
-        active_cell_index_partitioner;
+      std::shared_ptr<const Utilities::MPI::Partitioner> active_cell_index_partitioner;
 
       /**
        * Partitioner for the global level cell indices for each level.
        */
-      std::vector<std::shared_ptr<const Utilities::MPI::Partitioner>>
-        level_cell_index_partitioners;
+      std::vector<std::shared_ptr<const Utilities::MPI::Partitioner>> level_cell_index_partitioners;
 
       /**
        * Constructor. Set values to zero by default.
@@ -352,8 +349,7 @@ namespace internal
      */
     unsigned int n_attached_deserialize;
 
-    using pack_callback_t =
-      std::function<std::vector<char>(cell_iterator, CellStatus)>;
+    using pack_callback_t = std::function<std::vector<char>(cell_iterator, CellStatus)>;
 
     /**
      * These callback functions will be stored in the order in which they
@@ -399,14 +395,10 @@ namespace internal
      */
     void
     pack_data(
-      const std::vector<cell_relation_t> &cell_relations,
-      const std::vector<
-        typename internal::CellAttachedData<dim, spacedim>::pack_callback_t>
-        &pack_callbacks_fixed,
-      const std::vector<
-        typename internal::CellAttachedData<dim, spacedim>::pack_callback_t>
-        &             pack_callbacks_variable,
-      const MPI_Comm &mpi_communicator);
+      const std::vector<cell_relation_t>                                                     &cell_relations,
+      const std::vector<typename internal::CellAttachedData<dim, spacedim>::pack_callback_t> &pack_callbacks_fixed,
+      const std::vector<typename internal::CellAttachedData<dim, spacedim>::pack_callback_t> &pack_callbacks_variable,
+      const MPI_Comm                                                                         &mpi_communicator);
 
     /**
      * Unpack the CellStatus information on each entry of
@@ -431,14 +423,12 @@ namespace internal
      * or deserialized from the file system via load().
      */
     void
-    unpack_data(
-      const std::vector<cell_relation_t> &cell_relations,
-      const unsigned int                  handle,
-      const std::function<
-        void(const cell_iterator &,
-             const CellStatus &,
-             const boost::iterator_range<std::vector<char>::const_iterator> &)>
-        &unpack_callback) const;
+    unpack_data(const std::vector<cell_relation_t> &cell_relations,
+                const unsigned int                  handle,
+                const std::function<void(const cell_iterator &,
+                                         const CellStatus &,
+                                         const boost::iterator_range<std::vector<char>::const_iterator> &)>
+                  &unpack_callback) const;
 
     /**
      * Serialize data to file system.
@@ -458,7 +448,7 @@ namespace internal
     save(const unsigned int global_first_cell,
          const unsigned int global_num_cells,
          const std::string &filename,
-         const MPI_Comm &   mpi_communicator) const;
+         const MPI_Comm    &mpi_communicator) const;
 
     /**
      * Deserialize data from file system.
@@ -485,7 +475,7 @@ namespace internal
          const std::string &filename,
          const unsigned int n_attached_deserialize_fixed,
          const unsigned int n_attached_deserialize_variable,
-         const MPI_Comm &   mpi_communicator);
+         const MPI_Comm    &mpi_communicator);
 
     /**
      * Clears all containers and associated data, and resets member
@@ -1341,8 +1331,7 @@ private:
    * An internal alias to make the definition of the iterator classes
    * simpler.
    */
-  using IteratorSelector =
-    dealii::internal::TriangulationImplementation::Iterators<dim, spacedim>;
+  using IteratorSelector = dealii::internal::TriangulationImplementation::Iterators<dim, spacedim>;
 
 public:
   /**
@@ -1535,15 +1524,13 @@ public:
      * This flag sums up all smoothing algorithms which may be performed upon
      * refinement by flagging some more cells for refinement.
      */
-    smoothing_on_refinement =
-      (limit_level_difference_at_vertices | eliminate_unrefined_islands),
+    smoothing_on_refinement = (limit_level_difference_at_vertices | eliminate_unrefined_islands),
     /**
      * This flag sums up all smoothing algorithms which may be performed upon
      * coarsening by flagging some more cells for coarsening.
      */
     smoothing_on_coarsening =
-      (eliminate_refined_inner_islands | eliminate_refined_boundary_islands |
-       do_not_produce_unrefined_islands),
+      (eliminate_refined_inner_islands | eliminate_refined_boundary_islands | do_not_produce_unrefined_islands),
 
     /**
      * This flag includes all the above ones (therefore combines all
@@ -1620,8 +1607,7 @@ public:
    *
    * @ingroup Iterators
    */
-  using active_face_iterator =
-    TriaActiveIterator<TriaAccessor<dim - 1, dim, spacedim>>;
+  using active_face_iterator = TriaActiveIterator<TriaAccessor<dim - 1, dim, spacedim>>;
 
   /**
    * An alias that defines an iterator type to iterate over
@@ -1645,8 +1631,7 @@ public:
    *
    * @ingroup Iterators
    */
-  using active_vertex_iterator =
-    TriaActiveIterator<dealii::TriaAccessor<0, dim, spacedim>>;
+  using active_vertex_iterator = TriaActiveIterator<dealii::TriaAccessor<0, dim, spacedim>>;
 
   /**
    * An alias that defines an iterator over the (one-dimensional) lines
@@ -1748,8 +1733,7 @@ public:
      * A list of those cells among the coarse mesh cells that are deformed or
      * whose children are deformed.
      */
-    std::list<typename Triangulation<dim, spacedim>::cell_iterator>
-      distorted_cells;
+    std::list<typename Triangulation<dim, spacedim>::cell_iterator> distorted_cells;
   };
 
   /**
@@ -1776,8 +1760,7 @@ public:
    * If set, these two functions may throw an exception if they encounter
    * distorted cells.
    */
-  Triangulation(const MeshSmoothing smooth_grid               = none,
-                const bool          check_for_distorted_cells = false);
+  Triangulation(const MeshSmoothing smooth_grid = none, const bool check_for_distorted_cells = false);
 
   /**
    * Copy constructor.
@@ -1884,8 +1867,7 @@ public:
    * @ref GlossManifoldIndicator "Glossary entry on manifold indicators"
    */
   void
-  set_manifold(const types::manifold_id       number,
-               const Manifold<dim, spacedim> &manifold_object);
+  set_manifold(const types::manifold_id number, const Manifold<dim, spacedim> &manifold_object);
 
   /**
    * Reset those parts of the triangulation with the given
@@ -1948,8 +1930,7 @@ public:
    * @ref GlossManifoldIndicator "Glossary entry on manifold indicators"
    */
   void
-  set_all_manifold_ids_on_boundary(const types::boundary_id b_id,
-                                   const types::manifold_id number);
+  set_all_manifold_ids_on_boundary(const types::boundary_id b_id, const types::manifold_id number);
 
   /**
    * Return a constant reference to a Manifold object used for this
@@ -2074,8 +2055,8 @@ public:
    */
   virtual void
   create_triangulation(const std::vector<Point<spacedim>> &vertices,
-                       const std::vector<CellData<dim>> &  cells,
-                       const SubCellData &                 subcelldata);
+                       const std::vector<CellData<dim>>   &cells,
+                       const SubCellData                  &subcelldata);
 
   /**
    * Create a triangulation from the provided
@@ -2090,9 +2071,7 @@ public:
    * @param construction_data The data needed for this process.
    */
   virtual void
-  create_triangulation(
-    const TriangulationDescription::Description<dim, spacedim>
-      &construction_data);
+  create_triangulation(const TriangulationDescription::Description<dim, spacedim> &construction_data);
 
   /**
    * Revert or flip the direction_flags of a dim<spacedim triangulation, see
@@ -2243,29 +2222,25 @@ public:
    * @deprecated This is an alias for backward compatibility. Use
    * ::dealii::CellStatus directly.
    */
-  static constexpr auto CELL_PERSIST DEAL_II_DEPRECATED_EARLY =
-    ::dealii::CellStatus::cell_will_persist;
+  static constexpr auto CELL_PERSIST DEAL_II_DEPRECATED_EARLY = ::dealii::CellStatus::cell_will_persist;
 
   /**
    * @deprecated This is an alias for backward compatibility. Use
    * ::dealii::CellStatus directly.
    */
-  static constexpr auto CELL_REFINE DEAL_II_DEPRECATED_EARLY =
-    ::dealii::CellStatus::cell_will_be_refined;
+  static constexpr auto CELL_REFINE DEAL_II_DEPRECATED_EARLY = ::dealii::CellStatus::cell_will_be_refined;
 
   /**
    * @deprecated This is an alias for backward compatibility. Use
    * ::dealii::CellStatus directly.
    */
-  static constexpr auto CELL_COARSEN DEAL_II_DEPRECATED_EARLY =
-    ::dealii::CellStatus::children_will_be_coarsened;
+  static constexpr auto CELL_COARSEN DEAL_II_DEPRECATED_EARLY = ::dealii::CellStatus::children_will_be_coarsened;
 
   /**
    * @deprecated This is an alias for backward compatibility. Use
    * ::dealii::CellStatus directly.
    */
-  static constexpr auto CELL_INVALID DEAL_II_DEPRECATED_EARLY =
-    ::dealii::CellStatus::cell_invalid;
+  static constexpr auto CELL_INVALID DEAL_II_DEPRECATED_EARLY = ::dealii::CellStatus::cell_invalid;
 
 
   /**
@@ -2346,8 +2321,7 @@ public:
      * of active cells as argument. The children of this parent cell will
      * subsequently be coarsened away.
      */
-    boost::signals2::signal<void(
-      const typename Triangulation<dim, spacedim>::cell_iterator &cell)>
+    boost::signals2::signal<void(const typename Triangulation<dim, spacedim>::cell_iterator &cell)>
       pre_coarsening_on_cell;
 
     /**
@@ -2356,8 +2330,7 @@ public:
      * @note The signal parameter @p cell corresponds to the immediate parent
      * cell of a set of newly created active cells.
      */
-    boost::signals2::signal<void(
-      const typename Triangulation<dim, spacedim>::cell_iterator &cell)>
+    boost::signals2::signal<void(const typename Triangulation<dim, spacedim>::cell_iterator &cell)>
       post_refinement_on_cell;
 
     /**
@@ -2366,9 +2339,7 @@ public:
      * Triangulation::copy_triangulation() (i.e. it is triggered on the
      * <i>old</i> triangulation, but the new one is passed as an argument).
      */
-    boost::signals2::signal<void(
-      const Triangulation<dim, spacedim> &destination_tria)>
-      copy;
+    boost::signals2::signal<void(const Triangulation<dim, spacedim> &destination_tria)> copy;
 
     /**
      * This signal is triggered whenever the Triangulation::clear() function
@@ -2432,8 +2403,7 @@ public:
      * This function is used in step-68 and implicitly in step-75 using the
      * parallel::CellWeights class.
      */
-    boost::signals2::signal<unsigned int(const cell_iterator &,
-                                         const ::dealii::CellStatus),
+    boost::signals2::signal<unsigned int(const cell_iterator &, const ::dealii::CellStatus),
                             CellWeightSum<unsigned int>>
       weight;
 
@@ -3637,15 +3607,13 @@ public:
    * initialized and must not be refined.
    */
   virtual void
-  add_periodicity(
-    const std::vector<GridTools::PeriodicFacePair<cell_iterator>> &);
+  add_periodicity(const std::vector<GridTools::PeriodicFacePair<cell_iterator>> &);
 
   /**
    * Return the periodic_face_map.
    */
-  const std::map<
-    std::pair<cell_iterator, unsigned int>,
-    std::pair<std::pair<cell_iterator, unsigned int>, std::bitset<3>>> &
+  const std::map<std::pair<cell_iterator, unsigned int>,
+                 std::pair<std::pair<cell_iterator, unsigned int>, std::bitset<3>>> &
   get_periodic_face_map() const;
 
   /**
@@ -3806,9 +3774,7 @@ public:
    */
   unsigned int
   register_data_attach(
-    const std::function<std::vector<char>(const cell_iterator &,
-                                          const ::dealii::CellStatus)>
-      &        pack_callback,
+    const std::function<std::vector<char>(const cell_iterator &, const ::dealii::CellStatus)> &pack_callback,
     const bool returns_variable_size_data);
 
   /**
@@ -3862,12 +3828,10 @@ public:
    */
   void
   notify_ready_to_unpack(
-    const unsigned int handle,
-    const std::function<
-      void(const cell_iterator &,
-           const ::dealii::CellStatus,
-           const boost::iterator_range<std::vector<char>::const_iterator> &)>
-      &unpack_callback);
+    const unsigned int                                                                           handle,
+    const std::function<void(const cell_iterator &,
+                             const ::dealii::CellStatus,
+                             const boost::iterator_range<std::vector<char>::const_iterator> &)> &unpack_callback);
 
   internal::CellAttachedData<dim, spacedim> cell_attached_data;
 
@@ -3917,9 +3881,7 @@ protected:
    * respective CellStatus. To update its contents, use the
    * update_cell_relations() member function.
    */
-  std::vector<typename internal::CellAttachedDataSerializer<dim, spacedim>::
-                cell_relation_t>
-    local_cell_relations;
+  std::vector<typename internal::CellAttachedDataSerializer<dim, spacedim>::cell_relation_t> local_cell_relations;
 
   internal::CellAttachedDataSerializer<dim, spacedim> data_serializer;
   /**
@@ -3940,25 +3902,22 @@ public:
   DeclException2(ExcInvalidLevel,
                  int,
                  int,
-                 << "You are requesting information from refinement level "
-                 << arg1
-                 << " of a triangulation, but this triangulation only has "
-                 << arg2 << " refinement levels. The given level " << arg1
-                 << " must be *less* than " << arg2 << '.');
+                 << "You are requesting information from refinement level " << arg1
+                 << " of a triangulation, but this triangulation only has " << arg2
+                 << " refinement levels. The given level " << arg1 << " must be *less* than " << arg2 << '.');
   /**
    * The function raising this exception can only operate on an empty
    * Triangulation, i.e., a Triangulation without grid cells.
    *
    * @ingroup Exceptions
    */
-  DeclException2(
-    ExcTriangulationNotEmpty,
-    int,
-    int,
-    << "You are trying to perform an operation on a triangulation "
-    << "that is only allowed if the triangulation is currently empty. "
-    << "However, it currently stores " << arg1 << " vertices and has "
-    << "cells on " << arg2 << " levels.");
+  DeclException2(ExcTriangulationNotEmpty,
+                 int,
+                 int,
+                 << "You are trying to perform an operation on a triangulation "
+                 << "that is only allowed if the triangulation is currently empty. "
+                 << "However, it currently stores " << arg1 << " vertices and has "
+                 << "cells on " << arg2 << " levels.");
   /**
    * Trying to re-read a grid, an error occurred.
    *
@@ -3975,10 +3934,7 @@ public:
    *
    * @ingroup Exceptions
    */
-  DeclException1(ExcEmptyLevel,
-                 int,
-                 << "You tried to do something on level " << arg1
-                 << ", but this level is empty.");
+  DeclException1(ExcEmptyLevel, int, << "You tried to do something on level " << arg1 << ", but this level is empty.");
   /**
    * Exception
    *
@@ -3995,20 +3951,18 @@ public:
    */
   DeclException1(ExcBoundaryIdNotFound,
                  types::boundary_id,
-                 << "The given boundary_id " << arg1
-                 << " is not defined in this Triangulation!");
+                 << "The given boundary_id " << arg1 << " is not defined in this Triangulation!");
 
   /**
    * Exception
    *
    * @ingroup Exceptions
    */
-  DeclExceptionMsg(
-    ExcInconsistentCoarseningFlags,
-    "A cell is flagged for coarsening, but either not all of its siblings "
-    "are active or flagged for coarsening as well. Please clean up all "
-    "coarsen flags on your triangulation via "
-    "Triangulation::prepare_coarsening_and_refinement() beforehand!");
+  DeclExceptionMsg(ExcInconsistentCoarseningFlags,
+                   "A cell is flagged for coarsening, but either not all of its siblings "
+                   "are active or flagged for coarsening as well. Please clean up all "
+                   "coarsen flags on your triangulation via "
+                   "Triangulation::prepare_coarsening_and_refinement() beforehand!");
 
   /** @} */
 
@@ -4042,7 +3996,7 @@ protected:
   write_bool_vector(const unsigned int       magic_number1,
                     const std::vector<bool> &v,
                     const unsigned int       magic_number2,
-                    std::ostream &           out);
+                    std::ostream            &out);
 
   /**
    * Re-read a vector of bools previously written by @p write_bool_vector and
@@ -4052,7 +4006,7 @@ protected:
   read_bool_vector(const unsigned int magic_number1,
                    std::vector<bool> &v,
                    const unsigned int magic_number2,
-                   std::istream &     in);
+                   std::istream      &in);
 
   /**
    * Recreate information about periodic neighbors from
@@ -4073,9 +4027,7 @@ private:
    * Policy with the Triangulation-specific tasks related to creation,
    * refinement, and coarsening.
    */
-  std::unique_ptr<
-    dealii::internal::TriangulationImplementation::Policy<dim, spacedim>>
-    policy;
+  std::unique_ptr<dealii::internal::TriangulationImplementation::Policy<dim, spacedim>> policy;
 
   /**
    * If add_periodicity() is called, this variable stores the given periodic
@@ -4083,15 +4035,13 @@ private:
    * cells for the multigrid hierarchy and for setting up the
    * periodic_face_map.
    */
-  std::vector<GridTools::PeriodicFacePair<cell_iterator>>
-    periodic_face_pairs_level_0;
+  std::vector<GridTools::PeriodicFacePair<cell_iterator>> periodic_face_pairs_level_0;
 
   /**
    * If add_periodicity() is called, this variable stores the active periodic
    * face pairs.
    */
-  std::map<std::pair<cell_iterator, unsigned int>,
-           std::pair<std::pair<cell_iterator, unsigned int>, std::bitset<3>>>
+  std::map<std::pair<cell_iterator, unsigned int>, std::pair<std::pair<cell_iterator, unsigned int>, std::bitset<3>>>
     periodic_face_map;
 
   /**
@@ -4102,14 +4052,12 @@ private:
    * Since users should never have to access these internal properties of how
    * we store data, these iterator types are made private.
    */
-  using raw_cell_iterator = TriaRawIterator<CellAccessor<dim, spacedim>>;
-  using raw_face_iterator =
-    TriaRawIterator<TriaAccessor<dim - 1, dim, spacedim>>;
-  using raw_vertex_iterator =
-    TriaRawIterator<dealii::TriaAccessor<0, dim, spacedim>>;
-  using raw_line_iterator = typename IteratorSelector::raw_line_iterator;
-  using raw_quad_iterator = typename IteratorSelector::raw_quad_iterator;
-  using raw_hex_iterator  = typename IteratorSelector::raw_hex_iterator;
+  using raw_cell_iterator   = TriaRawIterator<CellAccessor<dim, spacedim>>;
+  using raw_face_iterator   = TriaRawIterator<TriaAccessor<dim - 1, dim, spacedim>>;
+  using raw_vertex_iterator = TriaRawIterator<dealii::TriaAccessor<0, dim, spacedim>>;
+  using raw_line_iterator   = typename IteratorSelector::raw_line_iterator;
+  using raw_quad_iterator   = typename IteratorSelector::raw_quad_iterator;
+  using raw_hex_iterator    = typename IteratorSelector::raw_hex_iterator;
 
   /**
    * @name Cell iterator functions for internal use
@@ -4438,8 +4386,7 @@ private:
    * @return Index of the coarse cell within the current triangulation.
    */
   virtual unsigned int
-  coarse_cell_id_to_coarse_cell_index(
-    const types::coarse_cell_id coarse_cell_id) const;
+  coarse_cell_id_to_coarse_cell_index(const types::coarse_cell_id coarse_cell_id) const;
 
 
   /**
@@ -4455,24 +4402,20 @@ private:
    * @return Id of the coarse cell.
    */
   virtual types::coarse_cell_id
-  coarse_cell_index_to_coarse_cell_id(
-    const unsigned int coarse_cell_index) const;
+  coarse_cell_index_to_coarse_cell_id(const unsigned int coarse_cell_index) const;
 
   /**
    * Array of pointers pointing to the objects storing the cell data on the
    * different levels.
    */
-  std::vector<
-    std::unique_ptr<dealii::internal::TriangulationImplementation::TriaLevel>>
-    levels;
+  std::vector<std::unique_ptr<dealii::internal::TriangulationImplementation::TriaLevel>> levels;
 
   /**
    * Pointer to the faces of the triangulation. In 1d this contains nothing,
    * in 2d it contains data concerning lines and in 3d quads and lines.  All
    * of these have no level and are therefore treated separately.
    */
-  std::unique_ptr<dealii::internal::TriangulationImplementation::TriaFaces>
-    faces;
+  std::unique_ptr<dealii::internal::TriangulationImplementation::TriaFaces> faces;
 
 
   /**
@@ -4489,8 +4432,7 @@ private:
    * Collection of manifold objects. We store only objects, which are not of
    * type FlatManifold.
    */
-  std::map<types::manifold_id, std::unique_ptr<const Manifold<dim, spacedim>>>
-    manifolds;
+  std::map<types::manifold_id, std::unique_ptr<const Manifold<dim, spacedim>>> manifolds;
 
   /**
    * Flag indicating whether anisotropic refinement took place.
@@ -4529,8 +4471,7 @@ private:
    * this field (that can be modified by TriaAccessor::set_boundary_id) were
    * not a pointer.
    */
-  std::unique_ptr<std::map<unsigned int, types::boundary_id>>
-    vertex_to_boundary_id_map_1d;
+  std::unique_ptr<std::map<unsigned int, types::boundary_id>> vertex_to_boundary_id_map_1d;
 
 
   /**
@@ -4552,8 +4493,7 @@ private:
    * this field (that can be modified by TriaAccessor::set_manifold_id) were
    * not a pointer.
    */
-  std::unique_ptr<std::map<unsigned int, types::manifold_id>>
-    vertex_to_manifold_id_map_1d;
+  std::unique_ptr<std::map<unsigned int, types::manifold_id>> vertex_to_manifold_id_map_1d;
 
   // make a couple of classes friends
   template <int, int, int>
@@ -4567,8 +4507,7 @@ private:
   friend struct dealii::internal::TriaAccessorImplementation::Implementation;
 
   friend struct dealii::internal::TriangulationImplementation::Implementation;
-  friend struct dealii::internal::TriangulationImplementation::
-    ImplementationMixedMesh;
+  friend struct dealii::internal::TriangulationImplementation::ImplementationMixedMesh;
 
   friend class dealii::internal::TriangulationImplementation::TriaObjects;
 
@@ -4594,8 +4533,8 @@ namespace internal
     void
     NumberCache<1>::serialize(Archive &ar, const unsigned int)
     {
-      ar &n_levels;
-      ar &n_lines &n_lines_level;
+      ar                 &n_levels;
+      ar &n_lines        &n_lines_level;
       ar &n_active_lines &n_active_lines_level;
     }
 
@@ -4606,7 +4545,7 @@ namespace internal
     {
       this->NumberCache<1>::serialize(ar, version);
 
-      ar &n_quads &n_quads_level;
+      ar &n_quads        &n_quads_level;
       ar &n_active_quads &n_active_quads_level;
     }
 
@@ -4617,7 +4556,7 @@ namespace internal
     {
       this->NumberCache<2>::serialize(ar, version);
 
-      ar &n_hexes &n_hexes_level;
+      ar &n_hexes        &n_hexes_level;
       ar &n_active_hexes &n_active_hexes_level;
     }
 
@@ -4627,8 +4566,7 @@ namespace internal
 
 template <int dim, int spacedim>
 DEAL_II_CXX20_REQUIRES((concepts::is_valid_dim_spacedim<dim, spacedim>))
-inline bool Triangulation<dim, spacedim>::vertex_used(
-  const unsigned int index) const
+inline bool Triangulation<dim, spacedim>::vertex_used(const unsigned int index) const
 {
   AssertIndexRange(index, vertices_used.size());
   return vertices_used[index];
@@ -4662,8 +4600,7 @@ inline unsigned int Triangulation<dim, spacedim>::n_vertices() const
 
 template <int dim, int spacedim>
 DEAL_II_CXX20_REQUIRES((concepts::is_valid_dim_spacedim<dim, spacedim>))
-inline const std::vector<Point<spacedim>>
-  &Triangulation<dim, spacedim>::get_vertices() const
+inline const std::vector<Point<spacedim>> &Triangulation<dim, spacedim>::get_vertices() const
 {
   return vertices;
 }
@@ -4679,7 +4616,7 @@ void Triangulation<dim, spacedim>::save(Archive &ar, const unsigned int) const
   ar &smooth_grid;
 
   unsigned int n_levels = levels.size();
-  ar &         n_levels;
+  ar          &n_levels;
   for (const auto &level : levels)
     ar &level;
 
@@ -4687,7 +4624,7 @@ void Triangulation<dim, spacedim>::save(Archive &ar, const unsigned int) const
   // at least up to 1.65.1. This causes problems with clang-5.
   // Therefore, work around it.
   bool faces_is_nullptr = (faces.get() == nullptr);
-  ar & faces_is_nullptr;
+  ar  &faces_is_nullptr;
   if (!faces_is_nullptr)
     ar &faces;
 
@@ -4721,18 +4658,18 @@ void Triangulation<dim, spacedim>::load(Archive &ar, const unsigned int)
   ar &smooth_grid;
 
   unsigned int size;
-  ar &         size;
+  ar          &size;
   levels.resize(size);
   for (auto &level_ : levels)
     {
       std::unique_ptr<internal::TriangulationImplementation::TriaLevel> level;
-      ar &                                                              level;
+      ar                                                               &level;
       level_ = std::move(level);
     }
 
   // Workaround for nullptr, see in save().
   bool faces_is_nullptr = true;
-  ar & faces_is_nullptr;
+  ar  &faces_is_nullptr;
   if (!faces_is_nullptr)
     ar &faces;
 
@@ -4760,7 +4697,7 @@ void Triangulation<dim, spacedim>::load(Archive &ar, const unsigned int)
   reset_policy();
 
   bool my_check_for_distorted_cells;
-  ar & my_check_for_distorted_cells;
+  ar  &my_check_for_distorted_cells;
 
   Assert(my_check_for_distorted_cells == check_for_distorted_cells,
          ExcMessage("The triangulation loaded into here must have the "
@@ -4783,9 +4720,8 @@ void Triangulation<dim, spacedim>::load(Archive &ar, const unsigned int)
 
 template <int dim, int spacedim>
 DEAL_II_CXX20_REQUIRES((concepts::is_valid_dim_spacedim<dim, spacedim>))
-inline unsigned int Triangulation<dim, spacedim>::
-  coarse_cell_id_to_coarse_cell_index(
-    const types::coarse_cell_id coarse_cell_id) const
+inline unsigned int Triangulation<dim, spacedim>::coarse_cell_id_to_coarse_cell_index(
+  const types::coarse_cell_id coarse_cell_id) const
 {
   return coarse_cell_id;
 }
@@ -4795,8 +4731,7 @@ inline unsigned int Triangulation<dim, spacedim>::
 template <int dim, int spacedim>
 DEAL_II_CXX20_REQUIRES((concepts::is_valid_dim_spacedim<dim, spacedim>))
 inline types::coarse_cell_id
-  Triangulation<dim, spacedim>::coarse_cell_index_to_coarse_cell_id(
-    const unsigned int coarse_cell_index) const
+  Triangulation<dim, spacedim>::coarse_cell_index_to_coarse_cell_id(const unsigned int coarse_cell_index) const
 {
   return coarse_cell_index;
 }

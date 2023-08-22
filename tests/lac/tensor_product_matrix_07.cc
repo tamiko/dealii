@@ -52,10 +52,7 @@ compute_reference_matrices(const unsigned int fe_degree)
   FullMatrix<Number> mass_matrix_reference(n_dofs, n_dofs);
   FullMatrix<Number> derivative_matrix_reference(n_dofs, n_dofs);
 
-  FEValues<dim> fe_values(mapping,
-                          fe,
-                          quadrature,
-                          update_values | update_gradients | update_JxW_values);
+  FEValues<dim> fe_values(mapping, fe, quadrature, update_values | update_gradients | update_JxW_values);
 
   fe_values.reinit(dof_handler.begin());
 
@@ -64,18 +61,15 @@ compute_reference_matrices(const unsigned int fe_degree)
       for (const unsigned int j : fe_values.dof_indices())
         {
           mass_matrix_reference(i, j) +=
-            (fe_values.shape_value(i, q_index) *
-             fe_values.shape_value(j, q_index) * fe_values.JxW(q_index));
+            (fe_values.shape_value(i, q_index) * fe_values.shape_value(j, q_index) * fe_values.JxW(q_index));
 
           derivative_matrix_reference(i, j) +=
-            (fe_values.shape_grad(i, q_index) *
-             fe_values.shape_grad(j, q_index) * fe_values.JxW(q_index));
+            (fe_values.shape_grad(i, q_index) * fe_values.shape_grad(j, q_index) * fe_values.JxW(q_index));
         }
 
 
 
-  return std::tuple<FullMatrix<Number>, FullMatrix<Number>>{
-    mass_matrix_reference, derivative_matrix_reference};
+  return std::tuple<FullMatrix<Number>, FullMatrix<Number>>{mass_matrix_reference, derivative_matrix_reference};
 }
 
 template <typename Number>
@@ -96,9 +90,8 @@ do_test(const bool zero_out_constraints)
   const unsigned int n_rows_1d = 4;
 
   // compute 2D stiffness matrix
-  const auto reference_matrices_2D =
-    compute_reference_matrices<dim, Number>(n_rows_1d - 1);
-  auto K_2D = std::get<1>(reference_matrices_2D);
+  const auto reference_matrices_2D = compute_reference_matrices<dim, Number>(n_rows_1d - 1);
+  auto       K_2D                  = std::get<1>(reference_matrices_2D);
 
   // ... and apply DBC on face 2*(dim-1)
   for (unsigned int j = 0; j < Utilities::pow(n_rows_1d, dim); ++j)
@@ -129,8 +122,7 @@ do_test(const bool zero_out_constraints)
   print(K_2D, "K_2D^-1:");
 
   // compute 1D stiffness and mass matrix
-  const auto reference_matrices_1D =
-    compute_reference_matrices<1, Number>(n_rows_1d - 1);
+  const auto reference_matrices_1D = compute_reference_matrices<1, Number>(n_rows_1d - 1);
 
   // ... setup FDM
   std::array<Table<2, Number>, dim> mass_matrix;

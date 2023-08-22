@@ -40,14 +40,12 @@ main()
 
   for (const auto &cell : triangulation.active_cell_iterators())
     {
-      deallog << "current cell manifold id: " << cell->manifold_id()
-              << std::endl;
+      deallog << "current cell manifold id: " << cell->manifold_id() << std::endl;
 
       for (const unsigned int vertex_n : GeometryInfo<1>::vertex_indices())
         {
           deallog << "current vertex: " << cell->vertex(vertex_n) << std::endl;
-          deallog << "current vertex manifold id: "
-                  << cell->face(vertex_n)->manifold_id() << std::endl;
+          deallog << "current vertex manifold id: " << cell->face(vertex_n)->manifold_id() << std::endl;
         }
     }
 }

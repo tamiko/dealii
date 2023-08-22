@@ -39,24 +39,19 @@ void
 test(int n_refinements, MPI_Comm comm)
 {
   // create serial triangulation
-  Triangulation<dim> basetria(
-    Triangulation<dim>::limit_level_difference_at_vertices);
+  Triangulation<dim> basetria(Triangulation<dim>::limit_level_difference_at_vertices);
   GridGenerator::hyper_L(basetria);
   basetria.refine_global(n_refinements);
 
-  GridTools::partition_triangulation_zorder(
-    Utilities::MPI::n_mpi_processes(comm), basetria);
+  GridTools::partition_triangulation_zorder(Utilities::MPI::n_mpi_processes(comm), basetria);
   GridTools::partition_multigrid_levels(basetria);
 
   // create instance of pft
   parallel::fullydistributed::Triangulation<dim> tria_pft(comm);
 
   // extract relevant information form serial triangulation
-  auto construction_data =
-    TriangulationDescription::Utilities::create_description_from_triangulation(
-      basetria,
-      comm,
-      TriangulationDescription::Settings::construct_multigrid_hierarchy);
+  auto construction_data = TriangulationDescription::Utilities::create_description_from_triangulation(
+    basetria, comm, TriangulationDescription::Settings::construct_multigrid_hierarchy);
 
   // actually create triangulation
   tria_pft.create_triangulation(construction_data);
@@ -69,8 +64,7 @@ test(int n_refinements, MPI_Comm comm)
       // Assert(cell->center() == cell_base->center(),
       //       ExcMessage("Cells do not match"));
       for (unsigned int d = 0; d < dim; ++d)
-        Assert(std::abs(cell->center()[d] - cell_base->center()[d]) < 1e-9,
-               ExcMessage("Cells do not match"));
+        Assert(std::abs(cell->center()[d] - cell_base->center()[d]) < 1e-9, ExcMessage("Cells do not match"));
     }
 }
 

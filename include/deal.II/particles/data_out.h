@@ -73,11 +73,10 @@ namespace Particles
      * or tensors. Has to be of the same length as @p data_component_names.
      */
     void
-    build_patches(const Particles::ParticleHandler<dim, spacedim> &particles,
-                  const std::vector<std::string> &data_component_names = {},
-                  const std::vector<
-                    DataComponentInterpretation::DataComponentInterpretation>
-                    &data_component_interpretations = {});
+    build_patches(
+      const Particles::ParticleHandler<dim, spacedim>                             &particles,
+      const std::vector<std::string>                                              &data_component_names           = {},
+      const std::vector<DataComponentInterpretation::DataComponentInterpretation> &data_component_interpretations = {});
 
   protected:
     /**
@@ -102,10 +101,7 @@ namespace Particles
      * DataOut_DoFData::get_nonscalar_data_ranges().
      */
     virtual std::vector<
-      std::tuple<unsigned int,
-                 unsigned int,
-                 std::string,
-                 DataComponentInterpretation::DataComponentInterpretation>>
+      std::tuple<unsigned int, unsigned int, std::string, DataComponentInterpretation::DataComponentInterpretation>>
     get_nonscalar_data_ranges() const override;
 
   private:
@@ -126,8 +122,7 @@ namespace Particles
      * current data set indicates whether they are scalar fields, parts of a
      * vector-field, or any of the other supported kinds of data.
      */
-    std::vector<DataComponentInterpretation::DataComponentInterpretation>
-      data_component_interpretations;
+    std::vector<DataComponentInterpretation::DataComponentInterpretation> data_component_interpretations;
   };
 
 } // namespace Particles

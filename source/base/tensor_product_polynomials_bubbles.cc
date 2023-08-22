@@ -46,11 +46,9 @@ TensorProductPolynomialsBubbles<dim>::output_indices(std::ostream &out) const
 
 template <int dim>
 void
-TensorProductPolynomialsBubbles<dim>::set_numbering(
-  const std::vector<unsigned int> &renumber)
+TensorProductPolynomialsBubbles<dim>::set_numbering(const std::vector<unsigned int> &renumber)
 {
-  Assert(renumber.size() == index_map.size(),
-         ExcDimensionMismatch(renumber.size(), index_map.size()));
+  Assert(renumber.size() == index_map.size(), ExcDimensionMismatch(renumber.size(), index_map.size()));
 
   index_map = renumber;
   for (unsigned int i = 0; i < index_map.size(); ++i)
@@ -66,13 +64,11 @@ TensorProductPolynomialsBubbles<dim>::set_numbering(
 
 template <int dim>
 double
-TensorProductPolynomialsBubbles<dim>::compute_value(const unsigned int i,
-                                                    const Point<dim> & p) const
+TensorProductPolynomialsBubbles<dim>::compute_value(const unsigned int i, const Point<dim> &p) const
 {
   const unsigned int q_degree      = tensor_polys.polynomials.size() - 1;
   const unsigned int max_q_indices = tensor_polys.n();
-  Assert(i < max_q_indices + /* n_bubbles= */ ((q_degree <= 1) ? 1 : dim),
-         ExcInternalError());
+  Assert(i < max_q_indices + /* n_bubbles= */ ((q_degree <= 1) ? 1 : dim), ExcInternalError());
 
   // treat the regular basis functions
   if (i < max_q_indices)
@@ -96,8 +92,7 @@ TensorProductPolynomialsBubbles<dim>::compute_value(const unsigned int i,
 
 template <>
 double
-TensorProductPolynomialsBubbles<0>::compute_value(const unsigned int,
-                                                  const Point<0> &) const
+TensorProductPolynomialsBubbles<0>::compute_value(const unsigned int, const Point<0> &) const
 {
   Assert(false, ExcNotImplemented());
   return 0.;
@@ -107,13 +102,11 @@ TensorProductPolynomialsBubbles<0>::compute_value(const unsigned int,
 
 template <int dim>
 Tensor<1, dim>
-TensorProductPolynomialsBubbles<dim>::compute_grad(const unsigned int i,
-                                                   const Point<dim> & p) const
+TensorProductPolynomialsBubbles<dim>::compute_grad(const unsigned int i, const Point<dim> &p) const
 {
   const unsigned int q_degree      = tensor_polys.polynomials.size() - 1;
   const unsigned int max_q_indices = tensor_polys.n();
-  Assert(i < max_q_indices + /* n_bubbles= */ ((q_degree <= 1) ? 1 : dim),
-         ExcInternalError());
+  Assert(i < max_q_indices + /* n_bubbles= */ ((q_degree <= 1) ? 1 : dim), ExcInternalError());
 
   // treat the regular basis functions
   if (i < max_q_indices)
@@ -153,14 +146,11 @@ TensorProductPolynomialsBubbles<dim>::compute_grad(const unsigned int i,
 
 template <int dim>
 Tensor<2, dim>
-TensorProductPolynomialsBubbles<dim>::compute_grad_grad(
-  const unsigned int i,
-  const Point<dim> & p) const
+TensorProductPolynomialsBubbles<dim>::compute_grad_grad(const unsigned int i, const Point<dim> &p) const
 {
   const unsigned int q_degree      = tensor_polys.polynomials.size() - 1;
   const unsigned int max_q_indices = tensor_polys.n();
-  Assert(i < max_q_indices + /* n_bubbles= */ ((q_degree <= 1) ? 1 : dim),
-         ExcInternalError());
+  Assert(i < max_q_indices + /* n_bubbles= */ ((q_degree <= 1) ? 1 : dim), ExcInternalError());
 
   // treat the regular basis functions
   if (i < max_q_indices)
@@ -246,8 +236,7 @@ TensorProductPolynomialsBubbles<dim>::compute_grad_grad(
 
   for (unsigned int d1 = 0; d1 < dim; ++d1)
     for (unsigned int d2 = 0; d2 < dim; ++d2)
-      grad_grad[d1][d2] =
-        grad_grad_1[d1][d2] + grad_grad_2[d1][d2] + grad_grad_3[d1][d2];
+      grad_grad[d1][d2] = grad_grad_1[d1][d2] + grad_grad_2[d1][d2] + grad_grad_3[d1][d2];
   grad_grad[comp][comp] += psi_value * v[dim][2];
 
   return grad_grad;
@@ -257,13 +246,12 @@ TensorProductPolynomialsBubbles<dim>::compute_grad_grad(
 
 template <int dim>
 void
-TensorProductPolynomialsBubbles<dim>::evaluate(
-  const Point<dim> &           p,
-  std::vector<double> &        values,
-  std::vector<Tensor<1, dim>> &grads,
-  std::vector<Tensor<2, dim>> &grad_grads,
-  std::vector<Tensor<3, dim>> &third_derivatives,
-  std::vector<Tensor<4, dim>> &fourth_derivatives) const
+TensorProductPolynomialsBubbles<dim>::evaluate(const Point<dim>            &p,
+                                               std::vector<double>         &values,
+                                               std::vector<Tensor<1, dim>> &grads,
+                                               std::vector<Tensor<2, dim>> &grad_grads,
+                                               std::vector<Tensor<3, dim>> &third_derivatives,
+                                               std::vector<Tensor<4, dim>> &fourth_derivatives) const
 {
   const unsigned int q_degree      = tensor_polys.polynomials.size() - 1;
   const unsigned int max_q_indices = tensor_polys.n();
@@ -274,19 +262,11 @@ TensorProductPolynomialsBubbles<dim>::evaluate(
   Assert(grads.size() == max_q_indices + n_bubbles || grads.empty(),
          ExcDimensionMismatch2(grads.size(), max_q_indices + n_bubbles, 0));
   Assert(grad_grads.size() == max_q_indices + n_bubbles || grad_grads.empty(),
-         ExcDimensionMismatch2(grad_grads.size(),
-                               max_q_indices + n_bubbles,
-                               0));
-  Assert(third_derivatives.size() == max_q_indices + n_bubbles ||
-           third_derivatives.empty(),
-         ExcDimensionMismatch2(third_derivatives.size(),
-                               max_q_indices + n_bubbles,
-                               0));
-  Assert(fourth_derivatives.size() == max_q_indices + n_bubbles ||
-           fourth_derivatives.empty(),
-         ExcDimensionMismatch2(fourth_derivatives.size(),
-                               max_q_indices + n_bubbles,
-                               0));
+         ExcDimensionMismatch2(grad_grads.size(), max_q_indices + n_bubbles, 0));
+  Assert(third_derivatives.size() == max_q_indices + n_bubbles || third_derivatives.empty(),
+         ExcDimensionMismatch2(third_derivatives.size(), max_q_indices + n_bubbles, 0));
+  Assert(fourth_derivatives.size() == max_q_indices + n_bubbles || fourth_derivatives.empty(),
+         ExcDimensionMismatch2(fourth_derivatives.size(), max_q_indices + n_bubbles, 0));
 
   bool do_values = false, do_grads = false, do_grad_grads = false;
   bool do_3rd_derivatives = false, do_4th_derivatives = false;
@@ -316,8 +296,7 @@ TensorProductPolynomialsBubbles<dim>::evaluate(
       do_4th_derivatives = true;
     }
 
-  tensor_polys.evaluate(
-    p, values, grads, grad_grads, third_derivatives, fourth_derivatives);
+  tensor_polys.evaluate(p, values, grads, grad_grads, third_derivatives, fourth_derivatives);
 
   for (unsigned int i = tensor_polys.n(); i < tensor_polys.n() + n_bubbles; ++i)
     {

@@ -259,14 +259,10 @@ namespace PETScWrappers
             typename PMatrixType = PETScWrappers::MatrixBase,
             typename AMatrixType = PMatrixType>
   DEAL_II_CXX20_REQUIRES(
-    (concepts::is_dealii_petsc_vector_type<VectorType> ||
-     std::constructible_from<
-       VectorType,
-       Vec>)&&(concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
-               std::constructible_from<
-                 PMatrixType,
-                 Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
-                         std::constructible_from<AMatrixType, Mat>))
+    (concepts::is_dealii_petsc_vector_type<VectorType> || std::constructible_from<VectorType, Vec>)&&(
+      concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
+      std::constructible_from<PMatrixType, Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
+                                                   std::constructible_from<AMatrixType, Mat>))
   class NonlinearSolver
   {
   public:
@@ -396,8 +392,7 @@ namespace PETScWrappers
      * See there for a description of how to deal with errors and other
      * requirements and conventions.
      */
-    std::function<void(const VectorType &x, AMatrixType &A, PMatrixType &P)>
-      jacobian;
+    std::function<void(const VectorType &x, AMatrixType &A, PMatrixType &P)> jacobian;
 
     /**
      * Callback for monitoring the solution process.
@@ -411,10 +406,7 @@ namespace PETScWrappers
      * See there for a description of how to deal with errors and other
      * requirements and conventions.
      */
-    std::function<void(const VectorType & x,
-                       const unsigned int step_number,
-                       const real_type    f_norm)>
-      monitor;
+    std::function<void(const VectorType &x, const unsigned int step_number, const real_type f_norm)> monitor;
 
     /**
      * Callback for the set up of the Jacobian system.
@@ -442,8 +434,7 @@ namespace PETScWrappers
      * See there for a description of how to deal with errors and other
      * requirements and conventions.
      */
-    std::function<void(const VectorType &src, VectorType &dst)>
-      solve_with_jacobian;
+    std::function<void(const VectorType &src, VectorType &dst)> solve_with_jacobian;
 
     /**
      * Callback for the computation of the energy function.

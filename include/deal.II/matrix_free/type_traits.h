@@ -38,7 +38,7 @@ namespace internal
   // a helper type-trait that leverage SFINAE to figure out if type T has
   // ... T::local_element() const
   template <typename T>
-  using local_element_t = decltype(std::declval<T const>().local_element(0));
+  using local_element_t = decltype(std::declval<const T>().local_element(0));
 
   template <typename T>
   constexpr bool has_local_element = is_supported_operation<local_element_t, T>;
@@ -48,24 +48,20 @@ namespace internal
   // a helper type-trait that leverage SFINAE to figure out if type T has
   // void T::add_local_element(const uint, const typename T::value_type)
   template <typename T>
-  using add_local_element_t =
-    decltype(std::declval<T>().add_local_element(0, typename T::value_type()));
+  using add_local_element_t = decltype(std::declval<T>().add_local_element(0, typename T::value_type()));
 
   template <typename T>
-  constexpr bool has_add_local_element =
-    is_supported_operation<add_local_element_t, T>;
+  constexpr bool has_add_local_element = is_supported_operation<add_local_element_t, T>;
 
 
 
   // a helper type-trait that leverage SFINAE to figure out if type T has
   // void T::set_local_element(const uint, const typename T::value_type)
   template <typename T>
-  using set_local_element_t =
-    decltype(std::declval<T>().set_local_element(0, typename T::value_type()));
+  using set_local_element_t = decltype(std::declval<T>().set_local_element(0, typename T::value_type()));
 
   template <typename T>
-  constexpr bool has_set_local_element =
-    is_supported_operation<set_local_element_t, T>;
+  constexpr bool has_set_local_element = is_supported_operation<set_local_element_t, T>;
 
 
 
@@ -74,19 +70,17 @@ namespace internal
   // const
   template <typename T>
   using partitioners_are_compatible_t =
-    decltype(std::declval<T const>().partitioners_are_compatible(
-      std::declval<Utilities::MPI::Partitioner>()));
+    decltype(std::declval<const T>().partitioners_are_compatible(std::declval<Utilities::MPI::Partitioner>()));
 
   template <typename T>
-  constexpr bool has_partitioners_are_compatible =
-    is_supported_operation<partitioners_are_compatible_t, T>;
+  constexpr bool has_partitioners_are_compatible = is_supported_operation<partitioners_are_compatible_t, T>;
 
 
 
   // same as above to check
   // ... T::begin() const
   template <typename T>
-  using begin_t = decltype(std::declval<T const>().begin());
+  using begin_t = decltype(std::declval<const T>().begin());
 
   template <typename T>
   constexpr bool has_begin = is_supported_operation<begin_t, T>;
@@ -96,12 +90,10 @@ namespace internal
   // same as above to check
   // ... T::shared_vector_data() const
   template <typename T>
-  using shared_vector_data_t =
-    decltype(std::declval<T const>().shared_vector_data());
+  using shared_vector_data_t = decltype(std::declval<const T>().shared_vector_data());
 
   template <typename T>
-  constexpr bool has_shared_vector_data =
-    is_supported_operation<shared_vector_data_t, T>;
+  constexpr bool has_shared_vector_data = is_supported_operation<shared_vector_data_t, T>;
 
 
 
@@ -113,11 +105,9 @@ namespace internal
   template <typename T, typename Number>
   struct is_vectorizable
   {
-    static const bool value =
-      has_begin<T> &&
-      (has_local_element<T> ||
-       is_serial_vector<std::remove_const_t<T>>::value) &&
-      std::is_same_v<typename T::value_type, Number>;
+    static const bool value = has_begin<T> &&
+                              (has_local_element<T> || is_serial_vector<std::remove_const_t<T>>::value) &&
+                              std::is_same_v<typename T::value_type, Number>;
   };
 
   // We need to have a separate declaration for static const members
@@ -137,24 +127,20 @@ namespace internal
   // a helper type-trait that leverage SFINAE to figure out if type T has
   // void T::update_ghost_values_start(const uint) const
   template <typename T>
-  using update_ghost_values_start_t =
-    decltype(std::declval<T const>().update_ghost_values_start(0));
+  using update_ghost_values_start_t = decltype(std::declval<const T>().update_ghost_values_start(0));
 
   template <typename T>
-  constexpr bool has_update_ghost_values_start =
-    is_supported_operation<update_ghost_values_start_t, T>;
+  constexpr bool has_update_ghost_values_start = is_supported_operation<update_ghost_values_start_t, T>;
 
 
 
   // a helper type-trait that leverage SFINAE to figure out if type T has
   // void T::	compress_start(const uint, VectorOperation::values)
   template <typename T>
-  using compress_start_t =
-    decltype(std::declval<T>().compress_start(0, VectorOperation::add));
+  using compress_start_t = decltype(std::declval<T>().compress_start(0, VectorOperation::add));
 
   template <typename T>
-  constexpr bool has_compress_start =
-    is_supported_operation<compress_start_t, T>;
+  constexpr bool has_compress_start = is_supported_operation<compress_start_t, T>;
 
 
 
@@ -163,8 +149,7 @@ namespace internal
   // We assume that if both begin() and local_element()
   // exist, then begin() + offset == local_element(offset)
   template <typename T>
-  constexpr bool   has_exchange_on_subset =
-    has_begin<T> &&has_local_element<T> &&has_partitioners_are_compatible<T>;
+  constexpr bool has_exchange_on_subset = has_begin<T> && has_local_element<T> && has_partitioners_are_compatible<T>;
 
 
 
@@ -174,8 +159,7 @@ namespace internal
   using communication_block_size_t = decltype(T::communication_block_size);
 
   template <typename T>
-  constexpr bool has_communication_block_size =
-    is_supported_operation<communication_block_size_t, T>;
+  constexpr bool has_communication_block_size = is_supported_operation<communication_block_size_t, T>;
 
 
 
@@ -186,8 +170,7 @@ namespace internal
   // a dummy InVector == unsigned int is provided.
   // Thus we have to treat this case as well.
   template <class T, class IsSerialVectorNotSpecialized = void>
-  using not_parallel_vector_t =
-    std::integral_constant<bool, is_serial_vector<T>::value>;
+  using not_parallel_vector_t = std::integral_constant<bool, is_serial_vector<T>::value>;
 
   /**
    * A predicate stating whether something is a vector type. We test this
@@ -202,8 +185,7 @@ namespace internal
    * indeed a serial vector.
    */
   template <typename VectorType>
-  using is_serial_vector_type =
-    decltype(std::enable_if_t<is_serial_vector<VectorType>::value, int>());
+  using is_serial_vector_type = decltype(std::enable_if_t<is_serial_vector<VectorType>::value, int>());
 
   /**
    * A variable that indicates that the type `T` is either (i) not
@@ -211,9 +193,8 @@ namespace internal
    * that it is not a parallel vector type.
    */
   template <typename VectorType>
-  constexpr bool is_not_parallel_vector =
-    (is_supported_operation<is_vector_type, VectorType> == false) ||
-    (is_supported_operation<is_serial_vector_type, VectorType> == true);
+  constexpr bool is_not_parallel_vector = (is_supported_operation<is_vector_type, VectorType> == false) ||
+                                          (is_supported_operation<is_serial_vector_type, VectorType> == true);
 } // namespace internal
 #endif
 

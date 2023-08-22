@@ -55,16 +55,13 @@ void
 test(const unsigned int poly_degree = 1)
 {
   MPI_Comm           mpi_communicator(MPI_COMM_WORLD);
-  const unsigned int n_mpi_processes(
-    Utilities::MPI::n_mpi_processes(mpi_communicator));
-  const unsigned int this_mpi_process(
-    Utilities::MPI::this_mpi_process(mpi_communicator));
+  const unsigned int n_mpi_processes(Utilities::MPI::n_mpi_processes(mpi_communicator));
+  const unsigned int this_mpi_process(Utilities::MPI::this_mpi_process(mpi_communicator));
 
-  parallel::distributed::Triangulation<dim> tria(
-    mpi_communicator,
-    typename Triangulation<dim>::MeshSmoothing(
-      Triangulation<dim>::smoothing_on_refinement |
-      Triangulation<dim>::smoothing_on_coarsening));
+  parallel::distributed::Triangulation<dim> tria(mpi_communicator,
+                                                 typename Triangulation<dim>::MeshSmoothing(
+                                                   Triangulation<dim>::smoothing_on_refinement |
+                                                   Triangulation<dim>::smoothing_on_coarsening));
 
   GridGenerator::hyper_cube(tria, -1, 0);
   tria.refine_global(3);
@@ -91,24 +88,15 @@ test(const unsigned int poly_degree = 1)
 
   DynamicSparsityPattern dsp(locally_relevant_dofs);
   DoFTools::make_sparsity_pattern(dof_handler, dsp, constraints, false);
-  SparsityTools::distribute_sparsity_pattern(dsp,
-                                             locally_owned_dofs,
-                                             mpi_communicator,
-                                             locally_relevant_dofs);
+  SparsityTools::distribute_sparsity_pattern(dsp, locally_owned_dofs, mpi_communicator, locally_relevant_dofs);
 
-  mass_matrix.reinit(locally_owned_dofs,
-                     locally_owned_dofs,
-                     dsp,
-                     mpi_communicator);
+  mass_matrix.reinit(locally_owned_dofs, locally_owned_dofs, dsp, mpi_communicator);
 
   // assemble mass matrix:
   mass_matrix = PetscScalar();
   {
     QGauss<dim>   quadrature_formula(poly_degree + 1);
-    FEValues<dim> fe_values(fe,
-                            quadrature_formula,
-                            update_values | update_gradients |
-                              update_JxW_values);
+    FEValues<dim> fe_values(fe, quadrature_formula, update_values | update_gradients | update_JxW_values);
 
     const unsigned int dofs_per_cell = fe.dofs_per_cell;
     const unsigned int n_q_points    = quadrature_formula.size();
@@ -117,9 +105,7 @@ test(const unsigned int poly_degree = 1)
 
     std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
 
-    typename DoFHandler<dim>::active_cell_iterator cell =
-                                                     dof_handler.begin_active(),
-                                                   endc = dof_handler.end();
+    typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
     for (; cell != endc; ++cell)
       if (cell->is_locally_owned())
         {
@@ -131,15 +117,11 @@ test(const unsigned int poly_degree = 1)
               for (unsigned int j = 0; j < dofs_per_cell; ++j)
                 {
                   cell_mass_matrix(i, j) +=
-                    (fe_values.shape_value(i, q_point) *
-                     fe_values.shape_value(j, q_point)) *
-                    fe_values.JxW(q_point);
+                    (fe_values.shape_value(i, q_point) * fe_values.shape_value(j, q_point)) * fe_values.JxW(q_point);
                 }
 
           cell->get_dof_indices(local_dof_indices);
-          constraints.distribute_local_to_global(cell_mass_matrix,
-                                                 local_dof_indices,
-                                                 mass_matrix);
+          constraints.distribute_local_to_global(cell_mass_matrix, local_dof_indices, mass_matrix);
         }
 
     mass_matrix.compress(VectorOperation::add);
@@ -178,8 +160,7 @@ test(const unsigned int poly_degree = 1)
   deallog << "real part:      " << PetscRealPart(norm1) << std::endl;
   deallog << "imaginary part: " << PetscImaginaryPart(norm1) << std::endl;
 
-  const std::complex<double> norm2 =
-    mass_matrix.matrix_scalar_product(vector, vector);
+  const std::complex<double> norm2 = mass_matrix.matrix_scalar_product(vector, vector);
   deallog << "matrix_scalar_product(vec,vec): " << std::endl;
   deallog << "real part:      " << PetscRealPart(norm2) << std::endl;
   deallog << "imaginary part: " << PetscImaginaryPart(norm2) << std::endl;
@@ -203,28 +184,20 @@ main(int argc, char *argv[])
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

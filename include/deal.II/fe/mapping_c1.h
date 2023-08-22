@@ -63,9 +63,8 @@ public:
    * that the resulting cubic mapping is a continuous one.
    */
   virtual void
-  add_line_support_points(
-    const typename Triangulation<dim>::cell_iterator &cell,
-    std::vector<Point<dim>> &                         a) const override;
+  add_line_support_points(const typename Triangulation<dim>::cell_iterator &cell,
+                          std::vector<Point<dim>>                          &a) const override;
 
   /**
    * For <tt>dim=3</tt>. Append the support points of all shape functions
@@ -77,9 +76,8 @@ public:
    * that the resulting cubic mapping is a continuous one.
    */
   virtual void
-  add_quad_support_points(
-    const typename Triangulation<dim>::cell_iterator &cell,
-    std::vector<Point<dim>> &                         a) const override;
+  add_quad_support_points(const typename Triangulation<dim>::cell_iterator &cell,
+                          std::vector<Point<dim>>                          &a) const override;
 };
 
 /** @} */
@@ -90,22 +88,17 @@ public:
 
 template <>
 void
-MappingC1<1>::add_line_support_points(const Triangulation<1>::cell_iterator &,
-                                      std::vector<Point<1>> &) const;
+MappingC1<1>::add_line_support_points(const Triangulation<1>::cell_iterator &, std::vector<Point<1>> &) const;
 template <>
 void
-MappingC1<2>::add_line_support_points(
-  const Triangulation<2>::cell_iterator &cell,
-  std::vector<Point<2>> &                a) const;
+MappingC1<2>::add_line_support_points(const Triangulation<2>::cell_iterator &cell, std::vector<Point<2>> &a) const;
 
 template <>
 void
-MappingC1<1>::add_quad_support_points(const Triangulation<1>::cell_iterator &,
-                                      std::vector<Point<1>> &) const;
+MappingC1<1>::add_quad_support_points(const Triangulation<1>::cell_iterator &, std::vector<Point<1>> &) const;
 template <>
 void
-MappingC1<2>::add_quad_support_points(const Triangulation<2>::cell_iterator &,
-                                      std::vector<Point<2>> &) const;
+MappingC1<2>::add_quad_support_points(const Triangulation<2>::cell_iterator &, std::vector<Point<2>> &) const;
 
 
 #endif // DOXYGEN

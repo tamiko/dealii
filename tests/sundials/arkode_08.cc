@@ -79,9 +79,7 @@ main()
   M(0, 0) = M(1, 1) = 2.0 / 3;
   M(1, 0) = M(0, 1) = 1.0 / 3;
 
-  ode.implicit_function = [&](double, const VectorType &y, VectorType &ydot) {
-    K.vmult(ydot, y);
-  };
+  ode.implicit_function = [&](double, const VectorType &y, VectorType &ydot) { K.vmult(ydot, y); };
 
 
   ode.explicit_function = [&](double, const VectorType &y, VectorType &ydot) {
@@ -89,22 +87,18 @@ main()
     ydot[1] = 2;
   };
 
-  ode.jacobian_times_vector = [&](const VectorType &v,
-                                  VectorType &      Jv,
-                                  double            t,
-                                  const VectorType &y,
-                                  const VectorType &fy) { K.vmult(Jv, v); };
+  ode.jacobian_times_vector =
+    [&](const VectorType &v, VectorType &Jv, double t, const VectorType &y, const VectorType &fy) { K.vmult(Jv, v); };
 
-  const auto solve_function =
-    [&](SUNDIALS::SundialsOperator<VectorType> &      op,
-        SUNDIALS::SundialsPreconditioner<VectorType> &prec,
-        VectorType &                                  x,
-        const VectorType &                            b,
-        double                                        tol) {
-      ReductionControl     control;
-      SolverCG<VectorType> solver_cg(control);
-      solver_cg.solve(op, x, b, prec);
-    };
+  const auto solve_function = [&](SUNDIALS::SundialsOperator<VectorType>       &op,
+                                  SUNDIALS::SundialsPreconditioner<VectorType> &prec,
+                                  VectorType                                   &x,
+                                  const VectorType                             &b,
+                                  double                                        tol) {
+    ReductionControl     control;
+    SolverCG<VectorType> solver_cg(control);
+    solver_cg.solve(op, x, b, prec);
+  };
 
   ode.solve_linearized_system = solve_function;
 
@@ -112,12 +106,11 @@ main()
 
   FullMatrix<double> M_inv(2, 2);
 
-  ode.mass_preconditioner_solve =
-    [&](double t, const VectorType &r, VectorType &z, double gamma, int lr) {
-      LogStream::Prefix prefix("mass_preconditioner_solve");
-      deallog << "applied" << std::endl;
-      M_inv.vmult(z, r);
-    };
+  ode.mass_preconditioner_solve = [&](double t, const VectorType &r, VectorType &z, double gamma, int lr) {
+    LogStream::Prefix prefix("mass_preconditioner_solve");
+    deallog << "applied" << std::endl;
+    M_inv.vmult(z, r);
+  };
 
   ode.mass_preconditioner_setup = [&](double t) {
     LogStream::Prefix prefix("mass_preconditioner_setup");
@@ -125,15 +118,12 @@ main()
     M_inv.invert(M);
   };
 
-  ode.mass_times_vector = [&](const double      t,
-                              const VectorType &v,
-                              VectorType &      Mv) { M.vmult(Mv, v); };
+  ode.mass_times_vector = [&](const double t, const VectorType &v, VectorType &Mv) { M.vmult(Mv, v); };
 
 
-  ode.output_step =
-    [&](const double t, const VectorType &sol, const unsigned int step_number) {
-      deallog << t << ' ' << sol[0] << ' ' << sol[1] << std::endl;
-    };
+  ode.output_step = [&](const double t, const VectorType &sol, const unsigned int step_number) {
+    deallog << t << ' ' << sol[0] << ' ' << sol[1] << std::endl;
+  };
 
   Vector<double> y(2);
   y[0] = 1;

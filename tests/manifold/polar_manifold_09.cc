@@ -41,32 +41,22 @@ main()
 
   tria.set_manifold(1, polar_manifold);
 
-  for (typename Triangulation<2, 2>::active_cell_iterator cell =
-         tria.begin_active();
-       cell != tria.end();
-       ++cell)
+  for (typename Triangulation<2, 2>::active_cell_iterator cell = tria.begin_active(); cell != tria.end(); ++cell)
     {
       cell->set_all_manifold_ids(1);
     }
 
-  for (typename Triangulation<2, 2>::active_cell_iterator cell =
-         tria.begin_active();
-       cell != tria.end();
-       ++cell)
+  for (typename Triangulation<2, 2>::active_cell_iterator cell = tria.begin_active(); cell != tria.end(); ++cell)
     {
       for (unsigned int f = 0; f < GeometryInfo<2>::faces_per_cell; ++f)
         {
-          const Point<2>     position = cell->face(f)->center();
-          const Tensor<1, 2> polar_normal =
-            polar_manifold.normal_vector(cell->face(f), position);
-          const Tensor<1, 2> spherical_normal =
-            spherical_manifold.normal_vector(cell->face(f), position);
+          const Point<2>     position         = cell->face(f)->center();
+          const Tensor<1, 2> polar_normal     = polar_manifold.normal_vector(cell->face(f), position);
+          const Tensor<1, 2> spherical_normal = spherical_manifold.normal_vector(cell->face(f), position);
           deallog << "Position: " << position << std::endl;
           deallog << "Polar normal: " << polar_normal << std::endl;
           deallog << "Spherical normal: " << spherical_normal << std::endl;
-          deallog << "Relative difference: "
-                  << (polar_normal - spherical_normal).norm() /
-                       polar_normal.norm()
+          deallog << "Relative difference: " << (polar_normal - spherical_normal).norm() / polar_normal.norm()
                   << std::endl
                   << std::endl;
         }

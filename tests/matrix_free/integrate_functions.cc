@@ -58,9 +58,9 @@ public:
              update_values | update_gradients | update_JxW_values){};
 
   void
-  operator()(const MatrixFree<dim, Number> &              data,
-             VectorType &                                 dst,
-             const VectorType &                           src,
+  operator()(const MatrixFree<dim, Number>               &data,
+             VectorType                                  &dst,
+             const VectorType                            &src,
              const std::pair<unsigned int, unsigned int> &cell_range) const;
 
   void
@@ -72,10 +72,7 @@ public:
     dst_data[0] = &dst;
     dst_data[1] = &dst_deal;
     VectorType src_dummy;
-    data.cell_loop(&MatrixFreeTest<dim, fe_degree, Number>::operator(),
-                   this,
-                   dst_data,
-                   src_dummy);
+    data.cell_loop(&MatrixFreeTest<dim, fe_degree, Number>::operator(), this, dst_data, src_dummy);
   };
 
 private:
@@ -87,25 +84,23 @@ private:
 
 template <int dim, int fe_degree, typename Number>
 void
-MatrixFreeTest<dim, fe_degree, Number>::operator()(
-  const MatrixFree<dim, Number> &data,
-  std::vector<Vector<Number> *> &dst,
-  const std::vector<Vector<Number> *> &,
-  const std::pair<unsigned int, unsigned int> &cell_range) const
+MatrixFreeTest<dim, fe_degree, Number>::operator()(const MatrixFree<dim, Number> &data,
+                                                   std::vector<Vector<Number> *> &dst,
+                                                   const std::vector<Vector<Number> *> &,
+                                                   const std::pair<unsigned int, unsigned int> &cell_range) const
 {
   FEEvaluation<dim, fe_degree, fe_degree + 1, 1, Number> fe_eval(data);
-  const unsigned int                     n_q_points    = fe_eval.n_q_points;
-  const unsigned int                     dofs_per_cell = fe_eval.dofs_per_cell;
-  AlignedVector<VectorizedArray<Number>> values(n_q_points);
-  AlignedVector<VectorizedArray<Number>> gradients(dim * n_q_points);
-  std::vector<types::global_dof_index>   dof_indices(dofs_per_cell);
+  const unsigned int                                     n_q_points    = fe_eval.n_q_points;
+  const unsigned int                                     dofs_per_cell = fe_eval.dofs_per_cell;
+  AlignedVector<VectorizedArray<Number>>                 values(n_q_points);
+  AlignedVector<VectorizedArray<Number>>                 gradients(dim * n_q_points);
+  std::vector<types::global_dof_index>                   dof_indices(dofs_per_cell);
   for (unsigned int cell = cell_range.first; cell < cell_range.second; ++cell)
     {
       fe_eval.reinit(cell);
       // compare values with the ones the FEValues
       // gives us. Those are seen as reference
-      for (unsigned int j = 0; j < data.n_active_entries_per_cell_batch(cell);
-           ++j)
+      for (unsigned int j = 0; j < data.n_active_entries_per_cell_batch(cell); ++j)
         {
           // generate random numbers at quadrature
           // points and test them with basis functions
@@ -124,11 +119,9 @@ MatrixFreeTest<dim, fe_degree, Number>::operator()(
               double sum = 0.;
               for (unsigned int q = 0; q < n_q_points; ++q)
                 {
-                  sum +=
-                    values[q][j] * fe_val.shape_value(i, q) * fe_val.JxW(q);
+                  sum += values[q][j] * fe_val.shape_value(i, q) * fe_val.JxW(q);
                   for (unsigned int d = 0; d < dim; ++d)
-                    sum += (gradients[q * dim + d][j] *
-                            fe_val.shape_grad(i, q)[d] * fe_val.JxW(q));
+                    sum += (gradients[q * dim + d][j] * fe_val.shape_grad(i, q)[d] * fe_val.JxW(q));
                 }
               (*dst[1])(dof_indices[i]) += sum;
             }
@@ -156,8 +149,7 @@ test()
   const SphericalManifold<dim> manifold;
   Triangulation<dim>           tria;
   GridGenerator::hyper_ball(tria);
-  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(),
-                                                    endc = tria.end();
+  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
   for (; cell != endc; ++cell)
     for (const unsigned int f : GeometryInfo<dim>::face_indices())
       if (cell->at_boundary(f))
@@ -208,8 +200,7 @@ test()
                    dof,
                    constraints,
                    quad,
-                   typename MatrixFree<dim, number>::AdditionalData(
-                     MatrixFree<dim, number>::AdditionalData::none));
+                   typename MatrixFree<dim, number>::AdditionalData(MatrixFree<dim, number>::AdditionalData::none));
   }
 
   MatrixFreeTest<dim, fe_degree, number> mf(mf_data);

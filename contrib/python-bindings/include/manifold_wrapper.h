@@ -71,24 +71,21 @@ namespace python
      * Create CylindricalManifold with the given orientation.
      */
     void
-    create_cylindrical(const boost::python::list &direction,
-                       const boost::python::list &axial_point);
+    create_cylindrical(const boost::python::list &direction, const boost::python::list &axial_point);
 
     /**
      * Create FunctionManifold with string expressions for the push
      * forward and pull back functions.
      */
     void
-    create_function_string(const std::string &push_forward,
-                           const std::string &pull_back);
+    create_function_string(const std::string &push_forward, const std::string &pull_back);
 
     /**
      * Create FunctionManifold with python the push forward and
      * pull back functions.
      */
     void
-    create_function(boost::python::object &push_forward,
-                    boost::python::object &pull_back);
+    create_function(boost::python::object &push_forward, boost::python::object &pull_back);
 
     /**
      * Return pointer to an underlying manifold object

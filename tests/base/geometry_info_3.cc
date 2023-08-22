@@ -33,18 +33,15 @@ test()
     for (unsigned int v = 0; v < GeometryInfo<dim>::vertices_per_face; ++v)
       {
         deallog << "Face " << f << ", vertex=" << v << ": ";
-        deallog << GeometryInfo<dim>::face_to_cell_vertices(f, v, true)
-                << std::endl;
+        deallog << GeometryInfo<dim>::face_to_cell_vertices(f, v, true) << std::endl;
       }
 
   if (dim == 3)
     for (const unsigned int f : GeometryInfo<dim>::face_indices())
       for (unsigned int v = 0; v < GeometryInfo<dim>::vertices_per_face; ++v)
         {
-          deallog << "Face " << f << ", vertex=" << v
-                  << " (reverse orientation): ";
-          deallog << GeometryInfo<dim>::face_to_cell_vertices(f, v, false)
-                  << std::endl;
+          deallog << "Face " << f << ", vertex=" << v << " (reverse orientation): ";
+          deallog << GeometryInfo<dim>::face_to_cell_vertices(f, v, false) << std::endl;
         }
 }
 

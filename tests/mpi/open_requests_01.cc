@@ -64,8 +64,7 @@ test(MPI_Comm comm)
           unsigned int value;
           MPI_Recv(&value, 1, MPI_UNSIGNED, MPI_ANY_SOURCE, tag, comm, &status);
 
-          AssertThrow(received_from.count(status.MPI_SOURCE) == 0,
-                      ExcMessage("oh no!"));
+          AssertThrow(received_from.count(status.MPI_SOURCE) == 0, ExcMessage("oh no!"));
           received_from.insert(status.MPI_SOURCE);
         }
     }

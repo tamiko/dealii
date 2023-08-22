@@ -48,12 +48,10 @@ test_tensor(const Tensor<2, dim> &F)
           tmp1[i][j] = c++;
         }
 
-    const Tensor<2, dim> tmp2 = contract<1, 0>(
-      F, contract<1, 1>(tmp1, F)); // Note: Order of arguments is important
+    const Tensor<2, dim> tmp2 = contract<1, 0>(F, contract<1, 1>(tmp1, F)); // Note: Order of arguments is important
     const Tensor<2, dim> tmp3 = F * tmp1 * transpose(F);
 
-    Assert((tmp2 - tmp3).norm() < 1e-9,
-           ExcMessage("Contraction using contract() function is incorrect."));
+    Assert((tmp2 - tmp3).norm() < 1e-9, ExcMessage("Contraction using contract() function is incorrect."));
   }
 
   // Rank-3 Tensors
@@ -67,12 +65,10 @@ test_tensor(const Tensor<2, dim> &F)
             tmp1[i][j][k] = c++;
           }
 
-    const Tensor<3, dim> tmp2 = contract<1, 0>(
-      F, contract<2, 1>(tmp1, F)); // Note: Order of arguments is important
+    const Tensor<3, dim> tmp2 = contract<1, 0>(F, contract<2, 1>(tmp1, F)); // Note: Order of arguments is important
     const Tensor<3, dim> tmp3 = F * tmp1 * transpose(F);
 
-    Assert((tmp2 - tmp3).norm() < 1e-9,
-           ExcMessage("Contraction using contract() function is incorrect."));
+    Assert((tmp2 - tmp3).norm() < 1e-9, ExcMessage("Contraction using contract() function is incorrect."));
   }
 
   // Rank-4 Tensors
@@ -87,12 +83,10 @@ test_tensor(const Tensor<2, dim> &F)
               tmp1[i][j][k][l] = c++;
             }
 
-    const Tensor<4, dim> tmp2 = contract<1, 0>(
-      F, contract<3, 1>(tmp1, F)); // Note: Order of arguments is important
+    const Tensor<4, dim> tmp2 = contract<1, 0>(F, contract<3, 1>(tmp1, F)); // Note: Order of arguments is important
     const Tensor<4, dim> tmp3 = F * tmp1 * transpose(F);
 
-    Assert((tmp2 - tmp3).norm() < 1e-9,
-           ExcMessage("Contraction using contract() function is incorrect."));
+    Assert((tmp2 - tmp3).norm() < 1e-9, ExcMessage("Contraction using contract() function is incorrect."));
   }
 }
 

@@ -44,9 +44,7 @@ test()
 
   for (unsigned int i = 0; i < is3.size(); ++i)
     {
-      AssertThrow((is1.is_element(i) && !is2.is_element(i)) ==
-                    is3.is_element(i),
-                  ExcInternalError());
+      AssertThrow((is1.is_element(i) && !is2.is_element(i)) == is3.is_element(i), ExcInternalError());
     }
 
   deallog << is3.index_within_set(51) << std::endl;

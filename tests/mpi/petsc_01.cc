@@ -27,7 +27,7 @@
 
 #include "../tests.h"
 
-//#include <mpi.h>
+// #include <mpi.h>
 
 
 void
@@ -53,9 +53,7 @@ test()
   mat.add(2 * myid + 1, 2 * myid + 1, 1.0);
   mat.add(1, 0, 42.0);
 
-  mat.add((2 * myid + 2) % (2 * numprocs),
-          (2 * myid + 2) % (2 * numprocs),
-          0.1);
+  mat.add((2 * myid + 2) % (2 * numprocs), (2 * myid + 2) % (2 * numprocs), 0.1);
 
   mat.compress(VectorOperation::add);
 
@@ -71,9 +69,7 @@ test()
   mat.add(2 * myid, 2 * myid, 1.0);
   mat.add(2 * myid + 1, 2 * myid + 1, 1.0);
 
-  mat.add((2 * myid + 2) % (2 * numprocs),
-          (2 * myid + 2) % (2 * numprocs),
-          0.1);
+  mat.add((2 * myid + 2) % (2 * numprocs), (2 * myid + 2) % (2 * numprocs), 0.1);
 
   mat.compress(VectorOperation::add);
   //    mat.write_ascii();
@@ -86,8 +82,7 @@ test()
 int
 main(int argc, char *argv[])
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
     {

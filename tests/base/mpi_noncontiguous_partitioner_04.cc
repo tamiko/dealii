@@ -53,9 +53,7 @@ test(const MPI_Comm comm)
       index_set_want.push_back(5);
     }
 
-  Utilities::MPI::NoncontiguousPartitioner vector(index_set_has,
-                                                  index_set_want,
-                                                  comm);
+  Utilities::MPI::NoncontiguousPartitioner vector(index_set_has, index_set_want, comm);
 
   AlignedVector<double> src(index_set_want.size());
   AlignedVector<double> dst(index_set_has.size());

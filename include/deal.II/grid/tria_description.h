@@ -157,8 +157,7 @@ struct CellData
    * argument different from the default value, or manually resize the
    * `vertices` member variable after construction.
    */
-  CellData(const unsigned int n_vertices =
-             ReferenceCells::get_hypercube<structdim>().n_vertices());
+  CellData(const unsigned int n_vertices = ReferenceCells::get_hypercube<structdim>().n_vertices());
 
   /**
    * Comparison operator.
@@ -175,8 +174,7 @@ struct CellData
   void
   serialize(Archive &ar, const unsigned int version);
 
-  static_assert(structdim > 0,
-                "The class CellData can only be used for structdim>0.");
+  static_assert(structdim > 0, "The class CellData can only be used for structdim>0.");
 };
 
 
@@ -365,17 +363,14 @@ namespace TriangulationDescription
      *
      * @note Only used for 2d and 3d.
      */
-    std::array<types::manifold_id, GeometryInfo<dim>::lines_per_cell>
-      manifold_line_ids;
+    std::array<types::manifold_id, GeometryInfo<dim>::lines_per_cell> manifold_line_ids;
 
     /**
      * Manifold id of all face quads of the cell.
      *
      * @note Only used for 3d.
      */
-    std::array<types::manifold_id,
-               dim == 1 ? 1 : GeometryInfo<3>::quads_per_cell>
-      manifold_quad_ids;
+    std::array<types::manifold_id, dim == 1 ? 1 : GeometryInfo<3>::quads_per_cell> manifold_quad_ids;
 
     /**
      * List of face number and boundary id of all non-internal faces of the
@@ -529,9 +524,8 @@ namespace TriangulationDescription
     create_description_from_triangulation(
       const dealii::Triangulation<dim, spacedim> &tria,
       const MPI_Comm                              comm,
-      const TriangulationDescription::Settings    settings =
-        TriangulationDescription::Settings::default_setting,
-      const unsigned int my_rank_in = numbers::invalid_unsigned_int);
+      const TriangulationDescription::Settings    settings   = TriangulationDescription::Settings::default_setting,
+      const unsigned int                          my_rank_in = numbers::invalid_unsigned_int);
 
     /**
      * Similar to the above function but the owner of active cells are provided
@@ -556,11 +550,9 @@ namespace TriangulationDescription
     template <int dim, int spacedim>
     Description<dim, spacedim>
     create_description_from_triangulation(
-      const Triangulation<dim, spacedim> &tria,
-      const LinearAlgebra::distributed::Vector<double, MemorySpace::Host>
-        &                                      partition,
-      const TriangulationDescription::Settings settings =
-        TriangulationDescription::Settings::default_setting);
+      const Triangulation<dim, spacedim>                                  &tria,
+      const LinearAlgebra::distributed::Vector<double, MemorySpace::Host> &partition,
+      const TriangulationDescription::Settings settings = TriangulationDescription::Settings::default_setting);
 
     /**
      * Similar to the above function but allowing the user to prescribe the
@@ -569,14 +561,10 @@ namespace TriangulationDescription
     template <int dim, int spacedim>
     Description<dim, spacedim>
     create_description_from_triangulation(
-      const Triangulation<dim, spacedim> &tria,
-      const LinearAlgebra::distributed::Vector<double, MemorySpace::Host>
-        &partition,
-      const std::vector<
-        LinearAlgebra::distributed::Vector<double, MemorySpace::Host>>
-        &                                      mg_partitions,
-      const TriangulationDescription::Settings settings =
-        TriangulationDescription::Settings::default_setting);
+      const Triangulation<dim, spacedim>                                               &tria,
+      const LinearAlgebra::distributed::Vector<double, MemorySpace::Host>              &partition,
+      const std::vector<LinearAlgebra::distributed::Vector<double, MemorySpace::Host>> &mg_partitions,
+      const TriangulationDescription::Settings settings = TriangulationDescription::Settings::default_setting);
 
     /**
      * Construct a TriangulationDescription::Description. In contrast
@@ -638,17 +626,13 @@ namespace TriangulationDescription
     template <int dim, int spacedim = dim>
     Description<dim, spacedim>
     create_description_from_triangulation_in_groups(
-      const std::function<void(dealii::Triangulation<dim, spacedim> &)>
-        &                                            serial_grid_generator,
-      const std::function<void(dealii::Triangulation<dim, spacedim> &,
-                               const MPI_Comm,
-                               const unsigned int)> &serial_grid_partitioner,
-      const MPI_Comm                                 comm,
-      const int                                      group_size = 1,
-      const typename Triangulation<dim, spacedim>::MeshSmoothing smoothing =
-        dealii::Triangulation<dim, spacedim>::none,
-      const TriangulationDescription::Settings setting =
-        TriangulationDescription::Settings::default_setting);
+      const std::function<void(dealii::Triangulation<dim, spacedim> &)> &serial_grid_generator,
+      const std::function<void(dealii::Triangulation<dim, spacedim> &, const MPI_Comm, const unsigned int)>
+                                                                &serial_grid_partitioner,
+      const MPI_Comm                                             comm,
+      const int                                                  group_size = 1,
+      const typename Triangulation<dim, spacedim>::MeshSmoothing smoothing = dealii::Triangulation<dim, spacedim>::none,
+      const TriangulationDescription::Settings setting = TriangulationDescription::Settings::default_setting);
 
   } // namespace Utilities
 
@@ -674,8 +658,7 @@ namespace TriangulationDescription
   template <int dim, int spacedim>
   template <class Archive>
   void
-  Description<dim, spacedim>::serialize(Archive &ar,
-                                        const unsigned int /*version*/)
+  Description<dim, spacedim>::serialize(Archive &ar, const unsigned int /*version*/)
   {
     ar &coarse_cells;
     ar &coarse_cell_vertices;
@@ -713,15 +696,13 @@ namespace TriangulationDescription
 
   template <int dim, int spacedim>
   bool
-  Description<dim, spacedim>::operator==(
-    const Description<dim, spacedim> &other) const
+  Description<dim, spacedim>::operator==(const Description<dim, spacedim> &other) const
   {
     if (this->coarse_cells != other.coarse_cells)
       return false;
     if (this->coarse_cell_vertices != other.coarse_cell_vertices)
       return false;
-    if (this->coarse_cell_index_to_coarse_cell_id !=
-        other.coarse_cell_index_to_coarse_cell_id)
+    if (this->coarse_cell_index_to_coarse_cell_id != other.coarse_cell_index_to_coarse_cell_id)
       return false;
     if (this->cell_infos != other.cell_infos)
       return false;

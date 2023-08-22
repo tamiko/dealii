@@ -91,12 +91,10 @@ private:
 template <int dim>
 LaplaceProblem<dim>::LaplaceProblem()
   : mpi_communicator(MPI_COMM_WORLD)
-  , triangulation(
-      mpi_communicator,
-      typename Triangulation<dim>::MeshSmoothing(
-        Triangulation<dim>::smoothing_on_refinement |
-        Triangulation<dim>::smoothing_on_coarsening),
-      parallel::distributed::Triangulation<dim>::construct_multigrid_hierarchy)
+  , triangulation(mpi_communicator,
+                  typename Triangulation<dim>::MeshSmoothing(Triangulation<dim>::smoothing_on_refinement |
+                                                             Triangulation<dim>::smoothing_on_coarsening),
+                  parallel::distributed::Triangulation<dim>::construct_multigrid_hierarchy)
   , fe(2)
   , dof_handler(triangulation)
 {}
@@ -120,12 +118,13 @@ LaplaceProblem<dim>::refine_grid()
   for (auto &cell : triangulation.active_cell_iterators())
     {
       if (cell->is_locally_owned())
-        estimated_error_per_cell(cell->active_cell_index()) =
-          cell->center().norm() * std::pow(cell->diameter(), 0.5);
+        estimated_error_per_cell(cell->active_cell_index()) = cell->center().norm() * std::pow(cell->diameter(), 0.5);
     }
 
-  parallel::distributed::GridRefinement::refine_and_coarsen_fixed_number(
-    triangulation, estimated_error_per_cell, 0.20, 0.0);
+  parallel::distributed::GridRefinement::refine_and_coarsen_fixed_number(triangulation,
+                                                                         estimated_error_per_cell,
+                                                                         0.20,
+                                                                         0.0);
 
   triangulation.execute_coarsening_and_refinement();
 }
@@ -134,15 +133,13 @@ LaplaceProblem<dim>::refine_grid()
 
 template <int dim>
 void
-LaplaceProblem<dim>::run(unsigned int n_cycles_global,
-                         unsigned int n_cycles_adaptive)
+LaplaceProblem<dim>::run(unsigned int n_cycles_global, unsigned int n_cycles_adaptive)
 {
   using VectorType = TrilinosWrappers::MPI::Vector;
 
   for (unsigned int cycle = 0; cycle < n_cycles_adaptive; ++cycle)
     {
-      deallog << "Cycle " << 1 + cycle << " / " << n_cycles_adaptive << ':'
-              << std::endl;
+      deallog << "Cycle " << 1 + cycle << " / " << n_cycles_adaptive << ':' << std::endl;
 
       if (cycle == 0)
         {
@@ -152,12 +149,10 @@ LaplaceProblem<dim>::run(unsigned int n_cycles_global,
       else
         refine_grid();
 
-      deallog << "n_global_active_cells: "
-              << triangulation.n_global_active_cells()
+      deallog << "n_global_active_cells: " << triangulation.n_global_active_cells()
               << " n_global_levels: " << triangulation.n_global_levels()
               << " ghost_owners.size: " << triangulation.ghost_owners().size()
-              << " level_ghost_owners.size: "
-              << triangulation.level_ghost_owners().size() << std::endl;
+              << " level_ghost_owners.size: " << triangulation.level_ghost_owners().size() << std::endl;
 
       setup_system();
 
@@ -168,9 +163,7 @@ LaplaceProblem<dim>::run(unsigned int n_cycles_global,
         VectorType              x(locally_owned_dofs, mpi_communicator);
         for (unsigned int i = 0; i < n_vectors; ++i)
           {
-            vectors[i].reinit(locally_owned_dofs,
-                              locally_relevant_dofs,
-                              mpi_communicator);
+            vectors[i].reinit(locally_owned_dofs, locally_relevant_dofs, mpi_communicator);
             vectors[i] = x;
             x.add(1.0);
           }
@@ -183,17 +176,13 @@ LaplaceProblem<dim>::run(unsigned int n_cycles_global,
             ++i;
           }
 
-        VectorType y(locally_owned_dofs,
-                     locally_relevant_dofs,
-                     mpi_communicator);
+        VectorType y(locally_owned_dofs, locally_relevant_dofs, mpi_communicator);
         y = x;
 
         // To be sure, use two SolutionTransfer objects, because the second one
         // will get a large offset
-        parallel::distributed::SolutionTransfer<dim, VectorType> system_trans(
-          dof_handler);
-        parallel::distributed::SolutionTransfer<dim, VectorType> trans2(
-          dof_handler);
+        parallel::distributed::SolutionTransfer<dim, VectorType> system_trans(dof_handler);
+        parallel::distributed::SolutionTransfer<dim, VectorType> trans2(dof_handler);
 
         system_trans.prepare_for_serialization(x_system);
         trans2.prepare_for_serialization(y);
@@ -219,16 +208,13 @@ LaplaceProblem<dim>::run(unsigned int n_cycles_global,
         triangulation.coarsen_global(99);
         triangulation.load("restart.mesh");
 
-        parallel::distributed::SolutionTransfer<dim, VectorType> system_trans(
-          dof_handler);
-        parallel::distributed::SolutionTransfer<dim, VectorType> trans2(
-          dof_handler);
+        parallel::distributed::SolutionTransfer<dim, VectorType> system_trans(dof_handler);
+        parallel::distributed::SolutionTransfer<dim, VectorType> trans2(dof_handler);
         system_trans.deserialize(x_system);
         trans2.deserialize(y);
 
         for (unsigned int i = 0; i < n_vectors; ++i)
-          deallog << "vec " << i << ": " << vectors[i].linfty_norm()
-                  << std::endl;
+          deallog << "vec " << i << ": " << vectors[i].linfty_norm() << std::endl;
         deallog << "vec y: " << y.linfty_norm() << std::endl;
       }
 

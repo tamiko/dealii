@@ -30,10 +30,9 @@
 
 template <int dim, int spacedim>
 void
-create_regular_particle_distribution(
-  Particles::ParticleHandler<dim, spacedim> &particle_handler,
-  const Triangulation<dim, spacedim> &       tr,
-  const unsigned int                         particles_per_direction = 3)
+create_regular_particle_distribution(Particles::ParticleHandler<dim, spacedim> &particle_handler,
+                                     const Triangulation<dim, spacedim>        &tr,
+                                     const unsigned int                         particles_per_direction = 3)
 {
   for (unsigned int i = 0; i < particles_per_direction; ++i)
     for (unsigned int j = 0; j < particles_per_direction; ++j)
@@ -42,37 +41,27 @@ create_regular_particle_distribution(
         Point<dim>      reference_position;
         unsigned int    id = i * particles_per_direction + j;
 
-        position[0] = static_cast<double>(i) /
-                      static_cast<double>(particles_per_direction - 1);
-        position[1] = static_cast<double>(j) /
-                      static_cast<double>(particles_per_direction - 1);
+        position[0] = static_cast<double>(i) / static_cast<double>(particles_per_direction - 1);
+        position[1] = static_cast<double>(j) / static_cast<double>(particles_per_direction - 1);
 
         if (dim > 2)
           for (unsigned int k = 0; k < particles_per_direction; ++k)
             {
-              position[2] = static_cast<double>(j) /
-                            static_cast<double>(particles_per_direction - 1);
-              id = i * particles_per_direction * particles_per_direction +
-                   j * particles_per_direction + k;
-              Particles::Particle<dim, spacedim> particle(position,
-                                                          reference_position,
-                                                          id);
+              position[2] = static_cast<double>(j) / static_cast<double>(particles_per_direction - 1);
+              id          = i * particles_per_direction * particles_per_direction + j * particles_per_direction + k;
+              Particles::Particle<dim, spacedim> particle(position, reference_position, id);
 
               typename Triangulation<dim, spacedim>::active_cell_iterator cell =
-                GridTools::find_active_cell_around_point(
-                  tr, particle.get_location());
+                GridTools::find_active_cell_around_point(tr, particle.get_location());
 
               particle_handler.insert_particle(particle, cell);
             }
         else
           {
-            Particles::Particle<dim, spacedim> particle(position,
-                                                        reference_position,
-                                                        id);
+            Particles::Particle<dim, spacedim> particle(position, reference_position, id);
 
             typename Triangulation<dim, spacedim>::active_cell_iterator cell =
-              GridTools::find_active_cell_around_point(tr,
-                                                       particle.get_location());
+              GridTools::find_active_cell_around_point(tr, particle.get_location());
 
             particle_handler.insert_particle(particle, cell);
           }
@@ -95,12 +84,9 @@ test()
   create_regular_particle_distribution(particle_handler, tr);
   particle_handler.sort_particles_into_subdomains_and_cells();
 
-  for (auto particle = particle_handler.begin();
-       particle != particle_handler.end();
-       ++particle)
-    deallog << "Before serialization particle id " << particle->get_id()
-            << " is in cell " << particle->get_surrounding_cell(tr)
-            << std::endl;
+  for (auto particle = particle_handler.begin(); particle != particle_handler.end(); ++particle)
+    deallog << "Before serialization particle id " << particle->get_id() << " is in cell "
+            << particle->get_surrounding_cell(tr) << std::endl;
 
   // save data to archive
   std::ostringstream oss;
@@ -125,11 +111,9 @@ test()
   particle_handler.initialize(tr, mapping);
 
   // This should not produce any output
-  for (auto particle = particle_handler.begin();
-       particle != particle_handler.end();
-       ++particle)
-    deallog << "In between particle id " << particle->get_id() << " is in cell "
-            << particle->get_surrounding_cell(tr) << std::endl;
+  for (auto particle = particle_handler.begin(); particle != particle_handler.end(); ++particle)
+    deallog << "In between particle id " << particle->get_id() << " is in cell " << particle->get_surrounding_cell(tr)
+            << std::endl;
 
   // verify correctness of the serialization. Note that the deserialization of
   // the particle handler has to happen before the triangulation (otherwise it
@@ -144,12 +128,9 @@ test()
     // particle_handler.deserialize();
   }
 
-  for (auto particle = particle_handler.begin();
-       particle != particle_handler.end();
-       ++particle)
-    deallog << "After serialization particle id " << particle->get_id()
-            << " is in cell " << particle->get_surrounding_cell(tr)
-            << std::endl;
+  for (auto particle = particle_handler.begin(); particle != particle_handler.end(); ++particle)
+    deallog << "After serialization particle id " << particle->get_id() << " is in cell "
+            << particle->get_surrounding_cell(tr) << std::endl;
 
   deallog << "OK" << std::endl << std::endl;
 }

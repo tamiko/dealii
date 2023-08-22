@@ -26,10 +26,7 @@
 
 #include "Kokkos_Core.hpp"
 
-template <int dim,
-          int fe_degree,
-          int n_q_points_1d = fe_degree + 1,
-          typename Number   = double>
+template <int dim, int fe_degree, int n_q_points_1d = fe_degree + 1, typename Number = double>
 class MatrixFreeTest
 {
 public:
@@ -41,33 +38,28 @@ public:
     : data(data_in){};
 
   DEAL_II_HOST_DEVICE void
-  operator()(
-    const unsigned int                                          cell,
-    const typename CUDAWrappers::MatrixFree<dim, Number>::Data *gpu_data,
-    CUDAWrappers::SharedData<dim, Number> *                     shared_data,
-    const Number *                                              src,
-    Number *                                                    dst) const
+  operator()(const unsigned int                                          cell,
+             const typename CUDAWrappers::MatrixFree<dim, Number>::Data *gpu_data,
+             CUDAWrappers::SharedData<dim, Number>                      *shared_data,
+             const Number                                               *src,
+             Number                                                     *dst) const
   {
-    CUDAWrappers::FEEvaluation<dim, fe_degree, n_q_points_1d, 1, Number>
-      fe_eval(gpu_data, shared_data);
+    CUDAWrappers::FEEvaluation<dim, fe_degree, n_q_points_1d, 1, Number> fe_eval(gpu_data, shared_data);
 
     // set to unit vector
     auto fe_eval_ptr = &fe_eval;
-    Kokkos::parallel_for(Kokkos::TeamThreadRange(shared_data->team_member,
-                                                 n_local_dofs),
+    Kokkos::parallel_for(Kokkos::TeamThreadRange(shared_data->team_member, n_local_dofs),
                          [&](int i) { fe_eval_ptr->submit_dof_value(1., i); });
     shared_data->team_member.team_barrier();
     fe_eval.evaluate(/*evaluate_values =*/true, /*evaluate_gradients=*/true);
 
 #ifndef __APPLE__
-    Kokkos::parallel_for(Kokkos::TeamThreadRange(shared_data->team_member,
-                                                 n_local_dofs),
-                         [&](int i) {
-                           // values should evaluate to one, derivatives to zero
-                           assert(fe_eval_ptr->get_value(i) == 1.);
-                           for (unsigned int e = 0; e < dim; ++e)
-                             assert(fe_eval_ptr->get_gradient(i)[e] == 0.);
-                         });
+    Kokkos::parallel_for(Kokkos::TeamThreadRange(shared_data->team_member, n_local_dofs), [&](int i) {
+      // values should evaluate to one, derivatives to zero
+      assert(fe_eval_ptr->get_value(i) == 1.);
+      for (unsigned int e = 0; e < dim; ++e)
+        assert(fe_eval_ptr->get_gradient(i)[e] == 0.);
+    });
 
     fe_eval.integrate(/*integrate_values = */ true,
                       /*integrate_gradients=*/true);
@@ -98,30 +90,25 @@ protected:
 };
 
 template <int dim, int fe_degree, int n_q_points_1d, typename Number>
-const unsigned int
-  MatrixFreeTest<dim, fe_degree, n_q_points_1d, Number>::n_dofs_1d;
+const unsigned int MatrixFreeTest<dim, fe_degree, n_q_points_1d, Number>::n_dofs_1d;
 
 template <int dim, int fe_degree, int n_q_points_1d, typename Number>
-const unsigned int
-  MatrixFreeTest<dim, fe_degree, n_q_points_1d, Number>::n_local_dofs;
+const unsigned int MatrixFreeTest<dim, fe_degree, n_q_points_1d, Number>::n_local_dofs;
 
 template <int dim, int fe_degree, int n_q_points_1d, typename Number>
-const unsigned int
-  MatrixFreeTest<dim, fe_degree, n_q_points_1d, Number>::n_q_points;
+const unsigned int MatrixFreeTest<dim, fe_degree, n_q_points_1d, Number>::n_q_points;
 
 
 
 template <int dim, int fe_degree, typename number>
 void
-do_test(const DoFHandler<dim> &          dof,
-        const AffineConstraints<double> &constraints)
+do_test(const DoFHandler<dim> &dof, const AffineConstraints<double> &constraints)
 {
   CUDAWrappers::MatrixFree<dim, number> mf_data;
   {
-    const QGauss<1> quad(fe_degree + 1);
+    const QGauss<1>                                                quad(fe_degree + 1);
     typename CUDAWrappers::MatrixFree<dim, number>::AdditionalData data;
-    data.mapping_update_flags = update_values | update_gradients |
-                                update_JxW_values | update_quadrature_points;
+    data.mapping_update_flags = update_values | update_gradients | update_JxW_values | update_quadrature_points;
     mf_data.reinit(dof, constraints, quad, data);
   }
 

@@ -73,13 +73,11 @@ SystemTest<dim>::make_grid_and_dofs()
 {
   GridGenerator::hyper_cube(triangulation, -1, 1);
   triangulation.refine_global(0);
-  deallog << "Number of active cells: " << triangulation.n_active_cells()
-          << std::endl;
+  deallog << "Number of active cells: " << triangulation.n_active_cells() << std::endl;
   deallog << "Total number of cells: " << triangulation.n_cells() << std::endl;
 
   dof_handler.distribute_dofs(fe);
-  deallog << "Number of degrees of freedom: " << dof_handler.n_dofs()
-          << std::endl;
+  deallog << "Number of degrees of freedom: " << dof_handler.n_dofs() << std::endl;
 }
 
 
@@ -91,17 +89,15 @@ SystemTest<dim>::check()
     {
       deallog << "Checking for component " << c << std::endl;
       std::vector<bool> x(fe.n_components(), false);
-      x[c] = true;
-      const IndexSet sel =
-        DoFTools::extract_dofs(dof_handler, ComponentMask(x));
+      x[c]               = true;
+      const IndexSet sel = DoFTools::extract_dofs(dof_handler, ComponentMask(x));
 
       for (unsigned int i = 0; i < sel.size(); ++i)
         if (sel.is_element(i))
           deallog << "  DoF " << i << std::endl;
     };
 
-  const std::vector<types::global_dof_index> dofs_per_component =
-    DoFTools::count_dofs_per_fe_component(dof_handler);
+  const std::vector<types::global_dof_index> dofs_per_component = DoFTools::count_dofs_per_fe_component(dof_handler);
   deallog << "DoFs per component: ";
   for (unsigned int i = 0; i < fe.n_components(); ++i)
     deallog << dofs_per_component[i] << ' ';

@@ -65,24 +65,15 @@ test_send_recv(MPI_Comm comm)
     {
       std::vector<char> buffer(n_bytes, 'A');
       buffer[n_bytes - 1] = 'B';
-      const auto bigtype =
-        Utilities::MPI::create_mpi_data_type_n_bytes(buffer.size());
-      int ierr =
-        MPI_Send(buffer.data(), 1, *bigtype, 1 /* dest */, 0 /* tag */, comm);
+      const auto bigtype  = Utilities::MPI::create_mpi_data_type_n_bytes(buffer.size());
+      int        ierr     = MPI_Send(buffer.data(), 1, *bigtype, 1 /* dest */, 0 /* tag */, comm);
       AssertThrowMPI(ierr);
     }
   else if (myid == 1)
     {
       std::vector<char> buffer(n_bytes, '?');
-      const auto        bigtype =
-        Utilities::MPI::create_mpi_data_type_n_bytes(buffer.size());
-      int ierr = MPI_Recv(buffer.data(),
-                          1,
-                          *bigtype,
-                          0 /* src */,
-                          0 /* tag */,
-                          comm,
-                          MPI_STATUS_IGNORE);
+      const auto        bigtype = Utilities::MPI::create_mpi_data_type_n_bytes(buffer.size());
+      int               ierr = MPI_Recv(buffer.data(), 1, *bigtype, 0 /* src */, 0 /* tag */, comm, MPI_STATUS_IGNORE);
       AssertThrowMPI(ierr);
 
       AssertThrow(buffer[0] == 'A', ExcInternalError());

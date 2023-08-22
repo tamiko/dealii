@@ -64,9 +64,7 @@ test_1d()
 
   const std::vector<unsigned int> n_coefficients_per_direction(1, N);
 
-  FESeries::Fourier<dim> fourier(n_coefficients_per_direction,
-                                 fe_collection,
-                                 q_collection);
+  FESeries::Fourier<dim> fourier(n_coefficients_per_direction, fe_collection, q_collection);
 
   Vector<double> local_dof_values(2);
   local_dof_values[0]                     = 0;
@@ -76,14 +74,11 @@ test_1d()
   Table<dim, std::complex<double>> fourier_coefficients;
   fourier_coefficients.reinit(TableIndices<1>(N));
 
-  fourier.calculate(local_dof_values,
-                    cell_active_fe_index,
-                    fourier_coefficients);
+  fourier.calculate(local_dof_values, cell_active_fe_index, fourier_coefficients);
 
   deallog << "calculated:" << std::endl;
   for (unsigned int i = 0; i < N; ++i)
-    deallog << fourier_coefficients[i].real() << ' '
-            << fourier_coefficients[i].imag() << std::endl;
+    deallog << fourier_coefficients[i].real() << ' ' << fourier_coefficients[i].imag() << std::endl;
   deallog << "exact:" << std::endl;
   for (unsigned int i = 0; i < N; ++i)
     deallog << exact[i].real() << ' ' << exact[i].imag() << std::endl;

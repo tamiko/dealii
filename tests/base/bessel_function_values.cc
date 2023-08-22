@@ -35,9 +35,9 @@ main()
             Functions::Bessel1<2> bessel(order, wave_n, Point<2>(x, y));
 
             const Point<2> new_point(x + 0.1, y + 0.1);
-            deallog << "value at (" << new_point[0] << ", " << new_point[1]
-                    << ") = " << bessel.value(new_point) << std::endl;
-            deallog << "gradient at (" << new_point[0] << ", " << new_point[1]
-                    << ") = " << bessel.gradient(new_point) << std::endl;
+            deallog << "value at (" << new_point[0] << ", " << new_point[1] << ") = " << bessel.value(new_point)
+                    << std::endl;
+            deallog << "gradient at (" << new_point[0] << ", " << new_point[1] << ") = " << bessel.gradient(new_point)
+                    << std::endl;
           }
 }

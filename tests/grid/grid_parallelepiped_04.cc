@@ -78,17 +78,11 @@ check_parallelepiped(bool colorize, bool log, const unsigned int (&subd)[dim])
 
   Triangulation<dim> triangulation;
 
-  GridGenerator::subdivided_parallelepiped(triangulation,
-                                           subd,
-                                           corners,
-                                           colorize);
+  GridGenerator::subdivided_parallelepiped(triangulation, subd, corners, colorize);
 
   {
     std::map<unsigned int, unsigned int>              boundary_count;
-    typename Triangulation<dim>::active_cell_iterator cell = triangulation
-                                                               .begin_active(),
-                                                      endc =
-                                                        triangulation.end();
+    typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active(), endc = triangulation.end();
     for (; cell != endc; ++cell)
       {
         for (const unsigned int face : GeometryInfo<dim>::face_indices())
@@ -96,18 +90,14 @@ check_parallelepiped(bool colorize, bool log, const unsigned int (&subd)[dim])
             if (cell->face(face)->at_boundary())
               {
                 boundary_count[cell->face(face)->boundary_id()]++;
-                deallog << " center: " << cell->face(face)->center()
-                        << " id: " << (int)cell->face(face)->boundary_id()
+                deallog << " center: " << cell->face(face)->center() << " id: " << (int)cell->face(face)->boundary_id()
                         << std::endl;
               }
           }
       }
 
     deallog << " boundary indicators: ";
-    for (std::map<unsigned int, unsigned int>::iterator it =
-           boundary_count.begin();
-         it != boundary_count.end();
-         ++it)
+    for (std::map<unsigned int, unsigned int>::iterator it = boundary_count.begin(); it != boundary_count.end(); ++it)
       {
         deallog << it->first << '(' << it->second << " times) ";
       }
@@ -126,8 +116,7 @@ check_parallelepiped(bool colorize, bool log, const unsigned int (&subd)[dim])
       Vector<double>            vec(dh.n_dofs());
       AffineConstraints<double> constraints;
       for (unsigned int c = 0; c < 6; ++c)
-        VectorTools::interpolate_boundary_values(
-          dh, c, Functions::ConstantFunction<dim>(c), constraints);
+        VectorTools::interpolate_boundary_values(dh, c, Functions::ConstantFunction<dim>(c), constraints);
       constraints.close();
       constraints.distribute(vec);
 

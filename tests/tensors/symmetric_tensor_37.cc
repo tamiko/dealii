@@ -34,16 +34,13 @@ template <int rank1,
           template <int, int, typename>
           class T3>
 void
-test_symm_tensor_contract_3(const T1<rank1, dim, number> &    l,
+test_symm_tensor_contract_3(const T1<rank1, dim, number>     &l,
                             const Tensor<rank2, dim, number> &m,
-                            const T3<rank3, dim, number> &    r)
+                            const T3<rank3, dim, number>     &r)
 {
   const double res1 = contract3(l, m, r);
-  const double res2 = contract3(static_cast<Tensor<rank1, dim>>(l),
-                                m,
-                                static_cast<Tensor<rank3, dim>>(r));
-  Assert(std::abs(res1 - res2) < 1e-12,
-         ExcMessage("Result from symmetric tensor contract3 is incorrect."));
+  const double res2 = contract3(static_cast<Tensor<rank1, dim>>(l), m, static_cast<Tensor<rank3, dim>>(r));
+  Assert(std::abs(res1 - res2) < 1e-12, ExcMessage("Result from symmetric tensor contract3 is incorrect."));
 }
 
 int
@@ -71,8 +68,7 @@ main()
             {
               T1[i][j][k] = 1 + k + j * dim + i * dim * dim;
               for (unsigned int l = 0; l < dim; ++l)
-                H1[i][j][k][l] =
-                  1 + l + k * dim + j * dim * dim + i * dim * dim * dim;
+                H1[i][j][k][l] = 1 + l + k * dim + j * dim * dim + i * dim * dim * dim;
             }
         }
     }

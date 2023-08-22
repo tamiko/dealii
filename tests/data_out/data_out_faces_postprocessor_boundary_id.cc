@@ -56,16 +56,14 @@ public:
 
 
   virtual void
-  evaluate_scalar_field(
-    const DataPostprocessorInputs::Scalar<dim> &inputs,
-    std::vector<Vector<double>> &computed_quantities) const override
+  evaluate_scalar_field(const DataPostprocessorInputs::Scalar<dim> &inputs,
+                        std::vector<Vector<double>>                &computed_quantities) const override
   {
     AssertDimension(computed_quantities.size(), inputs.solution_values.size());
 
     // Get the cell and face we are currently dealing with:
-    const typename DoFHandler<dim>::active_cell_iterator cell =
-      inputs.template get_cell<dim>();
-    const unsigned int face = inputs.get_face_number();
+    const typename DoFHandler<dim>::active_cell_iterator cell = inputs.template get_cell<dim>();
+    const unsigned int                                   face = inputs.get_face_number();
 
     // Then fill the output fields with the boundary_id of the face
     for (auto &output : computed_quantities)

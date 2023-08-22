@@ -30,9 +30,8 @@ BlockSparsityPatternBase<SparsityPatternType>::BlockSparsityPatternBase()
 
 
 template <typename SparsityPatternType>
-BlockSparsityPatternBase<SparsityPatternType>::BlockSparsityPatternBase(
-  const size_type block_rows,
-  const size_type block_columns)
+BlockSparsityPatternBase<SparsityPatternType>::BlockSparsityPatternBase(const size_type block_rows,
+                                                                        const size_type block_columns)
   : BlockSparsityPatternBase()
 {
   reinit(block_rows, block_columns);
@@ -41,25 +40,21 @@ BlockSparsityPatternBase<SparsityPatternType>::BlockSparsityPatternBase(
 
 
 template <typename SparsityPatternType>
-BlockSparsityPatternBase<SparsityPatternType>::BlockSparsityPatternBase(
-  const BlockSparsityPatternBase &s)
+BlockSparsityPatternBase<SparsityPatternType>::BlockSparsityPatternBase(const BlockSparsityPatternBase &s)
   : BlockSparsityPatternBase()
 {
   (void)s;
   Assert(s.n_block_rows() == 0 && s.n_block_cols() == 0,
-         ExcMessage(
-           "This constructor can only be called if the provided argument "
-           "is the sparsity pattern for an empty matrix. This constructor can "
-           "not be used to copy-construct a non-empty sparsity pattern."));
+         ExcMessage("This constructor can only be called if the provided argument "
+                    "is the sparsity pattern for an empty matrix. This constructor can "
+                    "not be used to copy-construct a non-empty sparsity pattern."));
 }
 
 
 
 template <typename SparsityPatternType>
 void
-BlockSparsityPatternBase<SparsityPatternType>::reinit(
-  const size_type new_block_rows,
-  const size_type new_block_columns)
+BlockSparsityPatternBase<SparsityPatternType>::reinit(const size_type new_block_rows, const size_type new_block_columns)
 {
   sub_objects.reinit(0, 0);
 
@@ -75,8 +70,7 @@ BlockSparsityPatternBase<SparsityPatternType>::reinit(
 
 template <typename SparsityPatternType>
 BlockSparsityPatternBase<SparsityPatternType> &
-BlockSparsityPatternBase<SparsityPatternType>::operator=(
-  const BlockSparsityPatternBase<SparsityPatternType> &bsp)
+BlockSparsityPatternBase<SparsityPatternType>::operator=(const BlockSparsityPatternBase<SparsityPatternType> &bsp)
 {
   AssertDimension(n_block_rows(), bsp.n_block_rows());
   AssertDimension(n_block_cols(), bsp.n_block_cols());
@@ -138,8 +132,7 @@ BlockSparsityPatternBase<SparsityPatternType>::collect_sizes()
   // sizes
   for (size_type c = 1; c < n_block_cols(); ++c)
     for (size_type r = 0; r < n_block_rows(); ++r)
-      Assert(row_sizes[r] == sub_objects[r][c]->n_rows(),
-             ExcIncompatibleRowNumbers(r, 0, r, c));
+      Assert(row_sizes[r] == sub_objects[r][c]->n_rows(), ExcIncompatibleRowNumbers(r, 0, r, c));
 
   // finally initialize the row
   // indices with this array
@@ -151,8 +144,7 @@ BlockSparsityPatternBase<SparsityPatternType>::collect_sizes()
     col_sizes[c] = sub_objects[0][c]->n_cols();
   for (size_type r = 1; r < n_block_rows(); ++r)
     for (size_type c = 0; c < n_block_cols(); ++c)
-      Assert(col_sizes[c] == sub_objects[r][c]->n_cols(),
-             ExcIncompatibleRowNumbers(0, c, r, c));
+      Assert(col_sizes[c] == sub_objects[r][c]->n_cols(), ExcIncompatibleRowNumbers(0, c, r, c));
 
   // finally initialize the row
   // indices with this array
@@ -262,8 +254,7 @@ BlockSparsityPatternBase<DynamicSparsityPattern>::print(std::ostream &out) const
           for (size_type jb = 0; jb < n_block_cols(); ++jb)
             {
               const DynamicSparsityPattern &b = block(ib, jb);
-              if (b.row_index_set().size() == 0 ||
-                  b.row_index_set().is_element(i))
+              if (b.row_index_set().size() == 0 || b.row_index_set().is_element(i))
                 for (size_type j = 0; j < b.n_cols(); ++j)
                   if (b.exists(i, j))
                     out << ',' << l + j;
@@ -280,8 +271,7 @@ BlockSparsityPatternBase<DynamicSparsityPattern>::print(std::ostream &out) const
 
 template <typename SparsityPatternType>
 void
-BlockSparsityPatternBase<SparsityPatternType>::print_gnuplot(
-  std::ostream &out) const
+BlockSparsityPatternBase<SparsityPatternType>::print_gnuplot(std::ostream &out) const
 {
   size_type k = 0;
   for (size_type ib = 0; ib < n_block_rows(); ++ib)
@@ -294,8 +284,7 @@ BlockSparsityPatternBase<SparsityPatternType>::print_gnuplot(
               const SparsityPatternType &b = block(ib, jb);
               for (size_type j = 0; j < b.n_cols(); ++j)
                 if (b.exists(i, j))
-                  out << l + j << " " << -static_cast<signed int>(i + k)
-                      << std::endl;
+                  out << l + j << " " << -static_cast<signed int>(i + k) << std::endl;
               l += b.n_cols();
             }
         }
@@ -307,37 +296,31 @@ BlockSparsityPatternBase<SparsityPatternType>::print_gnuplot(
 
 template <typename SparsityPatternType>
 void
-BlockSparsityPatternBase<SparsityPatternType>::print_svg(
-  std::ostream &out) const
+BlockSparsityPatternBase<SparsityPatternType>::print_svg(std::ostream &out) const
 {
   const unsigned int m = this->n_rows();
   const unsigned int n = this->n_cols();
-  out
-    << "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" viewBox=\"0 0 "
-    << n + 2 << " " << m + 2
-    << " \">\n"
-       "<style type=\"text/css\" >\n"
-       "     <![CDATA[\n"
-       "      rect.pixel {\n"
-       "          fill:   #ff0000;\n"
-       "      }\n"
-       "    ]]>\n"
-       "  </style>\n\n"
-       "   <rect width=\""
-    << n + 2 << "\" height=\"" << m + 2
-    << "\" fill=\"rgb(128, 128, 128)\"/>\n"
-       "   <rect x=\"1\" y=\"1\" width=\""
-    << n + 0.1 << "\" height=\"" << m + 0.1
-    << "\" fill=\"rgb(255, 255, 255)\"/>\n\n";
+  out << "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" viewBox=\"0 0 " << n + 2 << " " << m + 2
+      << " \">\n"
+         "<style type=\"text/css\" >\n"
+         "     <![CDATA[\n"
+         "      rect.pixel {\n"
+         "          fill:   #ff0000;\n"
+         "      }\n"
+         "    ]]>\n"
+         "  </style>\n\n"
+         "   <rect width=\""
+      << n + 2 << "\" height=\"" << m + 2
+      << "\" fill=\"rgb(128, 128, 128)\"/>\n"
+         "   <rect x=\"1\" y=\"1\" width=\""
+      << n + 0.1 << "\" height=\"" << m + 0.1 << "\" fill=\"rgb(255, 255, 255)\"/>\n\n";
 
   for (unsigned int block_i = 0; block_i < n_block_rows(); ++block_i)
     for (unsigned int block_j = 0; block_j < n_block_cols(); ++block_j)
       for (const auto &entry : block(block_i, block_j))
         {
-          out << "  <rect class=\"pixel\" x=\""
-              << column_indices.local_to_global(block_j, entry.column()) + 1
-              << "\" y=\""
-              << row_indices.local_to_global(block_i, entry.row()) + 1
+          out << "  <rect class=\"pixel\" x=\"" << column_indices.local_to_global(block_j, entry.column()) + 1
+              << "\" y=\"" << row_indices.local_to_global(block_i, entry.row()) + 1
               << "\" width=\".9\" height=\".9\"/>\n";
         }
 
@@ -352,10 +335,8 @@ BlockSparsityPatternBase<SparsityPatternType>::memory_consumption() const
 {
   std::size_t mem = 0;
   mem += (MemoryConsumption::memory_consumption(n_block_rows()) +
-          MemoryConsumption::memory_consumption(n_block_cols()) +
-          MemoryConsumption::memory_consumption(sub_objects) +
-          MemoryConsumption::memory_consumption(row_indices) +
-          MemoryConsumption::memory_consumption(column_indices));
+          MemoryConsumption::memory_consumption(n_block_cols()) + MemoryConsumption::memory_consumption(sub_objects) +
+          MemoryConsumption::memory_consumption(row_indices) + MemoryConsumption::memory_consumption(column_indices));
   for (size_type r = 0; r < n_block_rows(); ++r)
     for (size_type c = 0; c < n_block_cols(); ++c)
       mem += MemoryConsumption::memory_consumption(*sub_objects[r][c]);
@@ -365,17 +346,15 @@ BlockSparsityPatternBase<SparsityPatternType>::memory_consumption() const
 
 
 
-BlockSparsityPattern::BlockSparsityPattern(const size_type n_rows,
-                                           const size_type n_columns)
+BlockSparsityPattern::BlockSparsityPattern(const size_type n_rows, const size_type n_columns)
   : BlockSparsityPatternBase<SparsityPattern>(n_rows, n_columns)
 {}
 
 
 void
-BlockSparsityPattern::reinit(
-  const BlockIndices &                          rows,
-  const BlockIndices &                          cols,
-  const std::vector<std::vector<unsigned int>> &row_lengths)
+BlockSparsityPattern::reinit(const BlockIndices                           &rows,
+                             const BlockIndices                           &cols,
+                             const std::vector<std::vector<unsigned int>> &row_lengths)
 {
   AssertDimension(row_lengths.size(), cols.size());
 
@@ -387,20 +366,12 @@ BlockSparsityPattern::reinit(
         const size_type length = rows.block_size(i);
 
         if (row_lengths[j].size() == 1)
-          block(i, j).reinit(rows.block_size(i),
-                             cols.block_size(j),
-                             row_lengths[j][0]);
+          block(i, j).reinit(rows.block_size(i), cols.block_size(j), row_lengths[j][0]);
         else
           {
-            Assert(row_lengths[j].begin() + start + length <=
-                     row_lengths[j].end(),
-                   ExcInternalError());
-            ArrayView<const unsigned int> block_rows(row_lengths[j].data() +
-                                                       start,
-                                                     length);
-            block(i, j).reinit(rows.block_size(i),
-                               cols.block_size(j),
-                               block_rows);
+            Assert(row_lengths[j].begin() + start + length <= row_lengths[j].end(), ExcInternalError());
+            ArrayView<const unsigned int> block_rows(row_lengths[j].data() + start, length);
+            block(i, j).reinit(rows.block_size(i), cols.block_size(j), block_rows);
           }
       }
   this->collect_sizes();
@@ -440,19 +411,15 @@ BlockSparsityPattern::copy_from(const BlockDynamicSparsityPattern &dsp)
 
 
 
-BlockDynamicSparsityPattern::BlockDynamicSparsityPattern(
-  const size_type n_rows,
-  const size_type n_columns)
+BlockDynamicSparsityPattern::BlockDynamicSparsityPattern(const size_type n_rows, const size_type n_columns)
   : BlockSparsityPatternBase<DynamicSparsityPattern>(n_rows, n_columns)
 {}
 
 
 
-BlockDynamicSparsityPattern::BlockDynamicSparsityPattern(
-  const std::vector<size_type> &row_indices,
-  const std::vector<size_type> &col_indices)
-  : BlockSparsityPatternBase<DynamicSparsityPattern>(row_indices.size(),
-                                                     col_indices.size())
+BlockDynamicSparsityPattern::BlockDynamicSparsityPattern(const std::vector<size_type> &row_indices,
+                                                         const std::vector<size_type> &col_indices)
+  : BlockSparsityPatternBase<DynamicSparsityPattern>(row_indices.size(), col_indices.size())
 {
   for (size_type i = 0; i < row_indices.size(); ++i)
     for (size_type j = 0; j < col_indices.size(); ++j)
@@ -462,24 +429,19 @@ BlockDynamicSparsityPattern::BlockDynamicSparsityPattern(
 
 
 
-BlockDynamicSparsityPattern::BlockDynamicSparsityPattern(
-  const std::vector<IndexSet> &partitioning)
-  : BlockSparsityPatternBase<DynamicSparsityPattern>(partitioning.size(),
-                                                     partitioning.size())
+BlockDynamicSparsityPattern::BlockDynamicSparsityPattern(const std::vector<IndexSet> &partitioning)
+  : BlockSparsityPatternBase<DynamicSparsityPattern>(partitioning.size(), partitioning.size())
 {
   for (size_type i = 0; i < partitioning.size(); ++i)
     for (size_type j = 0; j < partitioning.size(); ++j)
-      this->block(i, j).reinit(partitioning[i].size(),
-                               partitioning[j].size(),
-                               partitioning[i]);
+      this->block(i, j).reinit(partitioning[i].size(), partitioning[j].size(), partitioning[i]);
   this->collect_sizes();
 }
 
 
 
-BlockDynamicSparsityPattern::BlockDynamicSparsityPattern(
-  const BlockIndices &row_indices,
-  const BlockIndices &col_indices)
+BlockDynamicSparsityPattern::BlockDynamicSparsityPattern(const BlockIndices &row_indices,
+                                                         const BlockIndices &col_indices)
 {
   reinit(row_indices, col_indices);
 }
@@ -487,12 +449,10 @@ BlockDynamicSparsityPattern::BlockDynamicSparsityPattern(
 
 
 void
-BlockDynamicSparsityPattern::reinit(
-  const std::vector<size_type> &row_block_sizes,
-  const std::vector<size_type> &col_block_sizes)
+BlockDynamicSparsityPattern::reinit(const std::vector<size_type> &row_block_sizes,
+                                    const std::vector<size_type> &col_block_sizes)
 {
-  BlockSparsityPatternBase<DynamicSparsityPattern>::reinit(
-    row_block_sizes.size(), col_block_sizes.size());
+  BlockSparsityPatternBase<DynamicSparsityPattern>::reinit(row_block_sizes.size(), col_block_sizes.size());
   for (size_type i = 0; i < row_block_sizes.size(); ++i)
     for (size_type j = 0; j < col_block_sizes.size(); ++j)
       this->block(i, j).reinit(row_block_sizes[i], col_block_sizes[j]);
@@ -504,28 +464,22 @@ BlockDynamicSparsityPattern::reinit(
 void
 BlockDynamicSparsityPattern::reinit(const std::vector<IndexSet> &partitioning)
 {
-  BlockSparsityPatternBase<DynamicSparsityPattern>::reinit(partitioning.size(),
-                                                           partitioning.size());
+  BlockSparsityPatternBase<DynamicSparsityPattern>::reinit(partitioning.size(), partitioning.size());
   for (size_type i = 0; i < partitioning.size(); ++i)
     for (size_type j = 0; j < partitioning.size(); ++j)
-      this->block(i, j).reinit(partitioning[i].size(),
-                               partitioning[j].size(),
-                               partitioning[i]);
+      this->block(i, j).reinit(partitioning[i].size(), partitioning[j].size(), partitioning[i]);
   this->collect_sizes();
 }
 
 
 
 void
-BlockDynamicSparsityPattern::reinit(const BlockIndices &row_indices,
-                                    const BlockIndices &col_indices)
+BlockDynamicSparsityPattern::reinit(const BlockIndices &row_indices, const BlockIndices &col_indices)
 {
-  BlockSparsityPatternBase<DynamicSparsityPattern>::reinit(row_indices.size(),
-                                                           col_indices.size());
+  BlockSparsityPatternBase<DynamicSparsityPattern>::reinit(row_indices.size(), col_indices.size());
   for (size_type i = 0; i < row_indices.size(); ++i)
     for (size_type j = 0; j < col_indices.size(); ++j)
-      this->block(i, j).reinit(row_indices.block_size(i),
-                               col_indices.block_size(j));
+      this->block(i, j).reinit(row_indices.block_size(i), col_indices.block_size(j));
   this->collect_sizes();
 }
 
@@ -533,18 +487,15 @@ BlockDynamicSparsityPattern::reinit(const BlockIndices &row_indices,
 #ifdef DEAL_II_WITH_TRILINOS
 namespace TrilinosWrappers
 {
-  BlockSparsityPattern::BlockSparsityPattern(const size_type n_rows,
-                                             const size_type n_columns)
+  BlockSparsityPattern::BlockSparsityPattern(const size_type n_rows, const size_type n_columns)
     : dealii::BlockSparsityPatternBase<SparsityPattern>(n_rows, n_columns)
   {}
 
 
 
-  BlockSparsityPattern::BlockSparsityPattern(
-    const std::vector<size_type> &row_indices,
-    const std::vector<size_type> &col_indices)
-    : BlockSparsityPatternBase<SparsityPattern>(row_indices.size(),
-                                                col_indices.size())
+  BlockSparsityPattern::BlockSparsityPattern(const std::vector<size_type> &row_indices,
+                                             const std::vector<size_type> &col_indices)
+    : BlockSparsityPatternBase<SparsityPattern>(row_indices.size(), col_indices.size())
   {
     for (size_type i = 0; i < row_indices.size(); ++i)
       for (size_type j = 0; j < col_indices.size(); ++j)
@@ -554,30 +505,23 @@ namespace TrilinosWrappers
 
 
 
-  BlockSparsityPattern::BlockSparsityPattern(
-    const std::vector<IndexSet> &parallel_partitioning,
-    const MPI_Comm               communicator)
-    : BlockSparsityPatternBase<SparsityPattern>(parallel_partitioning.size(),
-                                                parallel_partitioning.size())
+  BlockSparsityPattern::BlockSparsityPattern(const std::vector<IndexSet> &parallel_partitioning,
+                                             const MPI_Comm               communicator)
+    : BlockSparsityPatternBase<SparsityPattern>(parallel_partitioning.size(), parallel_partitioning.size())
   {
     for (size_type i = 0; i < parallel_partitioning.size(); ++i)
       for (size_type j = 0; j < parallel_partitioning.size(); ++j)
-        this->block(i, j).reinit(parallel_partitioning[i],
-                                 parallel_partitioning[j],
-                                 communicator);
+        this->block(i, j).reinit(parallel_partitioning[i], parallel_partitioning[j], communicator);
     this->collect_sizes();
   }
 
 
 
-  BlockSparsityPattern::BlockSparsityPattern(
-    const std::vector<IndexSet> &row_parallel_partitioning,
-    const std::vector<IndexSet> &col_parallel_partitioning,
-    const std::vector<IndexSet> &writable_rows,
-    const MPI_Comm               communicator)
-    : BlockSparsityPatternBase<SparsityPattern>(
-        row_parallel_partitioning.size(),
-        col_parallel_partitioning.size())
+  BlockSparsityPattern::BlockSparsityPattern(const std::vector<IndexSet> &row_parallel_partitioning,
+                                             const std::vector<IndexSet> &col_parallel_partitioning,
+                                             const std::vector<IndexSet> &writable_rows,
+                                             const MPI_Comm               communicator)
+    : BlockSparsityPatternBase<SparsityPattern>(row_parallel_partitioning.size(), col_parallel_partitioning.size())
   {
     for (size_type i = 0; i < row_parallel_partitioning.size(); ++i)
       for (size_type j = 0; j < col_parallel_partitioning.size(); ++j)
@@ -594,8 +538,7 @@ namespace TrilinosWrappers
   BlockSparsityPattern::reinit(const std::vector<size_type> &row_block_sizes,
                                const std::vector<size_type> &col_block_sizes)
   {
-    dealii::BlockSparsityPatternBase<SparsityPattern>::reinit(
-      row_block_sizes.size(), col_block_sizes.size());
+    dealii::BlockSparsityPatternBase<SparsityPattern>::reinit(row_block_sizes.size(), col_block_sizes.size());
     for (size_type i = 0; i < row_block_sizes.size(); ++i)
       for (size_type j = 0; j < col_block_sizes.size(); ++j)
         this->block(i, j).reinit(row_block_sizes[i], col_block_sizes[j]);
@@ -605,50 +548,42 @@ namespace TrilinosWrappers
 
 
   void
-  BlockSparsityPattern::reinit(
-    const std::vector<IndexSet> &parallel_partitioning,
-    const MPI_Comm               communicator)
+  BlockSparsityPattern::reinit(const std::vector<IndexSet> &parallel_partitioning, const MPI_Comm communicator)
   {
-    dealii::BlockSparsityPatternBase<SparsityPattern>::reinit(
-      parallel_partitioning.size(), parallel_partitioning.size());
+    dealii::BlockSparsityPatternBase<SparsityPattern>::reinit(parallel_partitioning.size(),
+                                                              parallel_partitioning.size());
     for (size_type i = 0; i < parallel_partitioning.size(); ++i)
       for (size_type j = 0; j < parallel_partitioning.size(); ++j)
-        this->block(i, j).reinit(parallel_partitioning[i],
-                                 parallel_partitioning[j],
-                                 communicator);
+        this->block(i, j).reinit(parallel_partitioning[i], parallel_partitioning[j], communicator);
     this->collect_sizes();
   }
 
 
 
   void
-  BlockSparsityPattern::reinit(
-    const std::vector<IndexSet> &row_parallel_partitioning,
-    const std::vector<IndexSet> &col_parallel_partitioning,
-    const MPI_Comm               communicator)
+  BlockSparsityPattern::reinit(const std::vector<IndexSet> &row_parallel_partitioning,
+                               const std::vector<IndexSet> &col_parallel_partitioning,
+                               const MPI_Comm               communicator)
   {
-    dealii::BlockSparsityPatternBase<SparsityPattern>::reinit(
-      row_parallel_partitioning.size(), col_parallel_partitioning.size());
+    dealii::BlockSparsityPatternBase<SparsityPattern>::reinit(row_parallel_partitioning.size(),
+                                                              col_parallel_partitioning.size());
     for (size_type i = 0; i < row_parallel_partitioning.size(); ++i)
       for (size_type j = 0; j < col_parallel_partitioning.size(); ++j)
-        this->block(i, j).reinit(row_parallel_partitioning[i],
-                                 col_parallel_partitioning[j],
-                                 communicator);
+        this->block(i, j).reinit(row_parallel_partitioning[i], col_parallel_partitioning[j], communicator);
     this->collect_sizes();
   }
 
 
 
   void
-  BlockSparsityPattern::reinit(
-    const std::vector<IndexSet> &row_parallel_partitioning,
-    const std::vector<IndexSet> &col_parallel_partitioning,
-    const std::vector<IndexSet> &writable_rows,
-    const MPI_Comm               communicator)
+  BlockSparsityPattern::reinit(const std::vector<IndexSet> &row_parallel_partitioning,
+                               const std::vector<IndexSet> &col_parallel_partitioning,
+                               const std::vector<IndexSet> &writable_rows,
+                               const MPI_Comm               communicator)
   {
     AssertDimension(writable_rows.size(), row_parallel_partitioning.size());
-    dealii::BlockSparsityPatternBase<SparsityPattern>::reinit(
-      row_parallel_partitioning.size(), col_parallel_partitioning.size());
+    dealii::BlockSparsityPatternBase<SparsityPattern>::reinit(row_parallel_partitioning.size(),
+                                                              col_parallel_partitioning.size());
     for (size_type i = 0; i < row_parallel_partitioning.size(); ++i)
       for (size_type j = 0; j < col_parallel_partitioning.size(); ++j)
         this->block(i, j).reinit(row_parallel_partitioning[i],

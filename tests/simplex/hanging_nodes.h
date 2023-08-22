@@ -52,8 +52,7 @@ refine(const std::vector<unsigned int> &n_refinements, Triangulation<dim> &tria)
 {
   AssertDimension(n_refinements.size(), tria.n_cells(0));
 
-  const unsigned int max_level =
-    *std::max_element(n_refinements.begin(), n_refinements.end());
+  const unsigned int max_level = *std::max_element(n_refinements.begin(), n_refinements.end());
 
   while (tria.n_levels() <= max_level)
     {
@@ -61,8 +60,7 @@ refine(const std::vector<unsigned int> &n_refinements, Triangulation<dim> &tria)
         {
           const unsigned int coarse_cell_id = cell->id().get_coarse_cell_id();
 
-          if (static_cast<unsigned int>(cell->level()) <
-              n_refinements[coarse_cell_id])
+          if (static_cast<unsigned int>(cell->level()) < n_refinements[coarse_cell_id])
             cell->set_refine_flag();
         }
 
@@ -89,8 +87,7 @@ refine(const std::vector<unsigned int> &n_refinements, Triangulation<dim> &tria)
  */
 template <int dim>
 void
-set_active_fe_indices(const std::vector<unsigned int> &fe_indices,
-                      DoFHandler<dim> &                dofh)
+set_active_fe_indices(const std::vector<unsigned int> &fe_indices, DoFHandler<dim> &dofh)
 {
   AssertDimension(fe_indices.size(), dofh.get_triangulation().n_cells(0));
 
@@ -122,7 +119,7 @@ print_dof_indices_on_faces(const DoFHandler<dim> &dofh)
 
   for (const auto &cell : dofh.active_cell_iterators())
     {
-      const auto &       fe       = cell->get_fe();
+      const auto        &fe       = cell->get_fe();
       const unsigned int fe_index = cell->active_fe_index();
 
       for (unsigned int f = 0; f < cell->n_faces(); ++f)
@@ -131,13 +128,11 @@ print_dof_indices_on_faces(const DoFHandler<dim> &dofh)
           Assert(face->fe_index_is_active(fe_index), ExcInternalError());
 
           const unsigned int n_dofs =
-            internal::DoFAccessorImplementation::Implementation::n_dof_indices(
-              *face, fe_index);
+            internal::DoFAccessorImplementation::Implementation::n_dof_indices(*face, fe_index);
           dof_indices.resize(n_dofs);
           face->get_dof_indices(dof_indices, fe_index);
 
-          deallog << "cell:" << cell->active_cell_index() << " face:" << f
-                  << " dofs:";
+          deallog << "cell:" << cell->active_cell_index() << " face:" << f << " dofs:";
           for (const auto &i : dof_indices)
             deallog << i << " ";
           deallog << std::endl;
@@ -146,13 +141,12 @@ print_dof_indices_on_faces(const DoFHandler<dim> &dofh)
           // in this case, only one fe should be active on the subface.
           for (unsigned int sf = 0; sf < face->n_children(); ++sf)
             {
-              const auto &       subface = face->child(sf);
-              const unsigned int subface_fe_index =
-                subface->nth_active_fe_index(0);
+              const auto        &subface          = face->child(sf);
+              const unsigned int subface_fe_index = subface->nth_active_fe_index(0);
               Assert(subface->n_active_fe_indices() == 1, ExcInternalError());
 
-              const unsigned int n_dofs = internal::DoFAccessorImplementation::
-                Implementation::n_dof_indices(*subface, subface_fe_index);
+              const unsigned int n_dofs =
+                internal::DoFAccessorImplementation::Implementation::n_dof_indices(*subface, subface_fe_index);
               dof_indices.resize(n_dofs);
               subface->get_dof_indices(dof_indices, subface_fe_index);
 
@@ -199,9 +193,9 @@ print_dof_points(const DoFHandler<dim> &dofh)
  */
 template <int dim>
 void
-test(const std::vector<unsigned int> &                n_refinements,
-     const std::vector<unsigned int> &                fe_indices,
-     const hp::FECollection<dim> &                    fe_collection,
+test(const std::vector<unsigned int>                 &n_refinements,
+     const std::vector<unsigned int>                 &fe_indices,
+     const hp::FECollection<dim>                     &fe_collection,
      const std::function<void(Triangulation<dim> &)> &grid_generator)
 {
   // setup grid

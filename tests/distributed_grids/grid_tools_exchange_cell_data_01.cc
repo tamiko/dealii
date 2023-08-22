@@ -48,22 +48,17 @@ test()
   std::map<CellId, DT> map;
   DT                   counter = 0.0;
 
-  std::map<unsigned int, std::set<dealii::types::subdomain_id>>
-    vertices_with_ghost_neighbors =
-      GridTools::compute_vertices_with_ghost_neighbors(tria);
+  std::map<unsigned int, std::set<dealii::types::subdomain_id>> vertices_with_ghost_neighbors =
+    GridTools::compute_vertices_with_ghost_neighbors(tria);
 
-  for (const auto &cell :
-       tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     {
       for (const unsigned int v : GeometryInfo<dim>::vertex_indices())
         {
-          const std::map<unsigned int,
-                         std::set<dealii::types::subdomain_id>>::const_iterator
-            neighbor_subdomains_of_vertex =
-              vertices_with_ghost_neighbors.find(cell->vertex_index(v));
+          const std::map<unsigned int, std::set<dealii::types::subdomain_id>>::const_iterator
+            neighbor_subdomains_of_vertex = vertices_with_ghost_neighbors.find(cell->vertex_index(v));
 
-          if (neighbor_subdomains_of_vertex !=
-              vertices_with_ghost_neighbors.end())
+          if (neighbor_subdomains_of_vertex != vertices_with_ghost_neighbors.end())
             {
               map[cell->id()] = ++counter;
               break;
@@ -71,26 +66,23 @@ test()
         }
     }
 
-  using cell_iterator =
-    typename parallel::distributed::Triangulation<dim>::active_cell_iterator;
-  GridTools::
-    exchange_cell_data_to_ghosts<DT, parallel::distributed::Triangulation<dim>>(
-      tria,
-      [&](const cell_iterator &cell) {
-        DT                 value = map[cell->id()];
-        std::ostringstream oss;
-        oss << "pack " << cell->id() << ' ' << value;
-        input.insert(oss.str());
+  using cell_iterator = typename parallel::distributed::Triangulation<dim>::active_cell_iterator;
+  GridTools::exchange_cell_data_to_ghosts<DT, parallel::distributed::Triangulation<dim>>(
+    tria,
+    [&](const cell_iterator &cell) {
+      DT                 value = map[cell->id()];
+      std::ostringstream oss;
+      oss << "pack " << cell->id() << ' ' << value;
+      input.insert(oss.str());
 
-        return value;
-      },
-      [&](const cell_iterator &cell, const DT &data) {
-        std::ostringstream oss;
-        oss << "unpack " << cell->id() << ' ' << data << " from "
-            << cell->subdomain_id();
+      return value;
+    },
+    [&](const cell_iterator &cell, const DT &data) {
+      std::ostringstream oss;
+      oss << "unpack " << cell->id() << ' ' << data << " from " << cell->subdomain_id();
 
-        output.insert(oss.str());
-      });
+      output.insert(oss.str());
+    });
 
   // sort the output because it will come in in random order
   for (auto &it : input)

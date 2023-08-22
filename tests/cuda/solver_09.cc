@@ -78,26 +78,22 @@ test(Utilities::CUDA::Handle &cuda_handle)
   richardson_host.solve(A, sol_host, rhs_host, preconditioner);
 
   // Solve on the device
-  CUDAWrappers::SparseMatrix<double> A_dev(cuda_handle, A);
-  CUDAWrappers::SparseMatrix<double> A_diagonal_inverse_dev(cuda_handle,
-                                                            A_diagonal_inverse);
-  PreconditionOperator<CUDAWrappers::SparseMatrix<double>> preconditioner_dev(
-    A_diagonal_inverse_dev);
-  LinearAlgebra::CUDAWrappers::Vector<double> sol_dev(size);
-  LinearAlgebra::CUDAWrappers::Vector<double> rhs_dev(size);
-  LinearAlgebra::ReadWriteVector<double>      rw_vector(size);
+  CUDAWrappers::SparseMatrix<double>                       A_dev(cuda_handle, A);
+  CUDAWrappers::SparseMatrix<double>                       A_diagonal_inverse_dev(cuda_handle, A_diagonal_inverse);
+  PreconditionOperator<CUDAWrappers::SparseMatrix<double>> preconditioner_dev(A_diagonal_inverse_dev);
+  LinearAlgebra::CUDAWrappers::Vector<double>              sol_dev(size);
+  LinearAlgebra::CUDAWrappers::Vector<double>              rhs_dev(size);
+  LinearAlgebra::ReadWriteVector<double>                   rw_vector(size);
   for (unsigned int i = 0; i < size; ++i)
     rw_vector[i] = static_cast<double>(i);
   rhs_dev.import_elements(rw_vector, VectorOperation::insert);
-  SolverRichardson<LinearAlgebra::CUDAWrappers::Vector<double>> richardson_dev(
-    control);
+  SolverRichardson<LinearAlgebra::CUDAWrappers::Vector<double>> richardson_dev(control);
   richardson_dev.solve(A_dev, sol_dev, rhs_dev, preconditioner_dev);
 
   // Check the result
   rw_vector.import_elements(sol_dev, VectorOperation::insert);
   for (unsigned int i = 0; i < size; ++i)
-    AssertThrow(std::fabs(rw_vector[i] - sol_host[i]) < 1e-8,
-                ExcInternalError());
+    AssertThrow(std::fabs(rw_vector[i] - sol_host[i]) < 1e-8, ExcInternalError());
 }
 
 int

@@ -60,16 +60,14 @@ test(MPI_Comm mpi_communicator)
   DoFHandler<dim> dof_handler(triangulation);
 
   // set active_fe_index mostly randomly
-  for (const auto &cell : dof_handler.active_cell_iterators() |
-                            IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : dof_handler.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     cell->set_active_fe_index(cell->active_cell_index() % fe.size());
 
   dof_handler.distribute_dofs(fe);
 
   if (Utilities::MPI::this_mpi_process(mpi_communicator) == 0)
-    deallog << "n_procs/n_dofs: "
-            << Utilities::MPI::n_mpi_processes(mpi_communicator) << '/'
-            << dof_handler.n_dofs() << std::endl;
+    deallog << "n_procs/n_dofs: " << Utilities::MPI::n_mpi_processes(mpi_communicator) << '/' << dof_handler.n_dofs()
+            << std::endl;
 }
 
 
@@ -87,13 +85,11 @@ main(int argc, char *argv[])
   // Create communicators with larger and larger subsets of
   // processors, and then see what happens with the number of DoFs we
   // get on the (always same) mesh created in the test() function
-  for (unsigned int n = 1; n <= Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
-       ++n)
+  for (unsigned int n = 1; n <= Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD); ++n)
     {
       // Colorize the current processor: zero if we want to include it
       // in the communication, one otherwise
-      const int color =
-        (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) < n ? 0 : 1);
+      const int color = (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) < n ? 0 : 1);
 
       // Then split the communicator into two, based on the two
       // colors. We'll only do something with that communicator that

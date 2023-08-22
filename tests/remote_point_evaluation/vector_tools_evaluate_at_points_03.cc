@@ -49,13 +49,11 @@ template <typename MeshType>
 MPI_Comm
 get_mpi_comm(const MeshType &mesh)
 {
-  const auto *tria_parallel = dynamic_cast<
-    const parallel::TriangulationBase<MeshType::dimension,
-                                      MeshType::space_dimension> *>(
-    &(mesh.get_triangulation()));
+  const auto *tria_parallel =
+    dynamic_cast<const parallel::TriangulationBase<MeshType::dimension, MeshType::space_dimension> *>(
+      &(mesh.get_triangulation()));
 
-  return tria_parallel != nullptr ? tria_parallel->get_communicator() :
-                                    MPI_COMM_SELF;
+  return tria_parallel != nullptr ? tria_parallel->get_communicator() : MPI_COMM_SELF;
 }
 
 template <int dim, int spacedim>
@@ -66,16 +64,15 @@ create_partitioner(const DoFHandler<dim, spacedim> &dof_handler)
 
   DoFTools::extract_locally_relevant_dofs(dof_handler, locally_relevant_dofs);
 
-  return std::make_shared<const Utilities::MPI::Partitioner>(
-    dof_handler.locally_owned_dofs(),
-    locally_relevant_dofs,
-    get_mpi_comm(dof_handler));
+  return std::make_shared<const Utilities::MPI::Partitioner>(dof_handler.locally_owned_dofs(),
+                                                             locally_relevant_dofs,
+                                                             get_mpi_comm(dof_handler));
 }
 
 template <int dim>
 void
-print(const Mapping<dim> &                              mapping,
-      const DoFHandler<dim> &                           dof_handler,
+print(const Mapping<dim>                               &mapping,
+      const DoFHandler<dim>                            &dof_handler,
       const LinearAlgebra::distributed::Vector<double> &result,
       const unsigned int                                counter)
 {
@@ -91,15 +88,13 @@ print(const Mapping<dim> &                              mapping,
   const auto &tria = dof_handler.get_triangulation();
 
   Vector<double> ranks(tria.n_active_cells());
-  for (const auto &cell :
-       tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     ranks(cell->active_cell_index()) = cell->subdomain_id();
   data_out.add_data_vector(ranks, "rank");
   data_out.add_data_vector(result, "result");
 
   data_out.build_patches(mapping, dof_handler.get_fe().tensor_degree() + 1);
-  data_out.write_vtu_with_pvtu_record(
-    "./", "example-3", counter, MPI_COMM_WORLD, 1, 1);
+  data_out.write_vtu_with_pvtu_record("./", "example-3", counter, MPI_COMM_WORLD, 1, 1);
 
   result.zero_out_ghost_values();
 }
@@ -122,22 +117,20 @@ test()
       }
   };
 
-  parallel::shared::Triangulation<dim> tria_1(
-    MPI_COMM_WORLD,
-    Triangulation<dim>::MeshSmoothing::none,
-    false,
-    parallel::shared::Triangulation<dim>::Settings::partition_auto);
+  parallel::shared::Triangulation<dim> tria_1(MPI_COMM_WORLD,
+                                              Triangulation<dim>::MeshSmoothing::none,
+                                              false,
+                                              parallel::shared::Triangulation<dim>::Settings::partition_auto);
   create_triangulation(tria_1);
 
   DoFHandler<dim> dof_handler_1(tria_1);
   FE_Q<dim>       fe_1(degree);
   dof_handler_1.distribute_dofs(fe_1);
 
-  parallel::shared::Triangulation<dim> tria_2(
-    MPI_COMM_WORLD,
-    Triangulation<dim>::MeshSmoothing::none,
-    false,
-    parallel::shared::Triangulation<dim>::Settings::partition_custom_signal);
+  parallel::shared::Triangulation<dim> tria_2(MPI_COMM_WORLD,
+                                              Triangulation<dim>::MeshSmoothing::none,
+                                              false,
+                                              parallel::shared::Triangulation<dim>::Settings::partition_custom_signal);
   tria_2.signals.post_refinement.connect([&tria_2]() {
     for (const auto &cell : tria_2.active_cell_iterators())
       {
@@ -160,21 +153,14 @@ test()
   FE_DGQArbitraryNodes<dim> fe_2(QGauss<1>(degree + 1).get_points());
   dof_handler_2.distribute_dofs(fe_2);
 
-  LinearAlgebra::distributed::Vector<double> vector_1(
-    create_partitioner(dof_handler_1));
+  LinearAlgebra::distributed::Vector<double> vector_1(create_partitioner(dof_handler_1));
 
   const MappingQ1<dim> mapping_1;
-  VectorTools::interpolate(mapping_1,
-                           dof_handler_1,
-                           Functions::CosineFunction<2>(),
-                           vector_1);
+  VectorTools::interpolate(mapping_1, dof_handler_1, Functions::CosineFunction<2>(), vector_1);
 
   const MappingQ1<dim> mapping_2;
   const QGauss<dim>    quadrature_2(degree + 1);
-  FEValues<dim>        fe_values_2(mapping_2,
-                            fe_2,
-                            quadrature_2,
-                            update_quadrature_points);
+  FEValues<dim>        fe_values_2(mapping_2, fe_2, quadrature_2, update_quadrature_points);
 
   std::vector<Point<dim>> evaluation_points;
   for (const auto &cell : dof_handler_2.active_cell_iterators())
@@ -190,12 +176,11 @@ test()
 
   vector_1.update_ghost_values();
   Utilities::MPI::RemotePointEvaluation<dim> evaluation_cache;
-  const auto evaluation_point_results = VectorTools::point_values<1>(
-    mapping_1, dof_handler_1, vector_1, evaluation_points, evaluation_cache);
+  const auto                                 evaluation_point_results =
+    VectorTools::point_values<1>(mapping_1, dof_handler_1, vector_1, evaluation_points, evaluation_cache);
   vector_1.zero_out_ghost_values();
 
-  LinearAlgebra::distributed::Vector<double> vector_2(
-    create_partitioner(dof_handler_2));
+  LinearAlgebra::distributed::Vector<double> vector_2(create_partitioner(dof_handler_2));
 
   auto ptr = evaluation_point_results.begin();
   for (const auto &cell : dof_handler_2.active_cell_iterators())
@@ -231,10 +216,7 @@ test()
                                     quadrature_2,
                                     VectorTools::NormType::L2_norm);
 
-  double error =
-    VectorTools::compute_global_error(tria_2,
-                                      difference,
-                                      VectorTools::NormType::L2_norm);
+  double error = VectorTools::compute_global_error(tria_2, difference, VectorTools::NormType::L2_norm);
 
 
   if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD))

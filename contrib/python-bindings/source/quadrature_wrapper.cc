@@ -27,8 +27,7 @@ namespace python
     boost::python::list
     get_points(const void *quadrature_ptr)
     {
-      const auto quadrature =
-        static_cast<const Quadrature<dim> *>(quadrature_ptr);
+      const auto quadrature = static_cast<const Quadrature<dim> *>(quadrature_ptr);
 
       const auto points = quadrature->get_points();
 
@@ -49,8 +48,7 @@ namespace python
     boost::python::list
     get_weights(const void *quadrature_ptr)
     {
-      const auto quadrature =
-        static_cast<const Quadrature<dim> *>(quadrature_ptr);
+      const auto quadrature = static_cast<const Quadrature<dim> *>(quadrature_ptr);
 
       const auto weights = quadrature->get_weights();
 
@@ -77,20 +75,17 @@ namespace python
   {
     dim = other.dim;
 
-    AssertThrow(other.quadrature_ptr != nullptr,
-                ExcMessage("Underlying quadrature does not exist."));
+    AssertThrow(other.quadrature_ptr != nullptr, ExcMessage("Underlying quadrature does not exist."));
 
     if (dim == 2)
       {
-        const auto quadrature =
-          static_cast<const Quadrature<2> *>(other.quadrature_ptr);
-        quadrature_ptr = new Quadrature<2>(*quadrature);
+        const auto quadrature = static_cast<const Quadrature<2> *>(other.quadrature_ptr);
+        quadrature_ptr        = new Quadrature<2>(*quadrature);
       }
     else if (dim == 3)
       {
-        const auto quadrature =
-          static_cast<const Quadrature<3> *>(other.quadrature_ptr);
-        quadrature_ptr = new Quadrature<3>(*quadrature);
+        const auto quadrature = static_cast<const Quadrature<3> *>(other.quadrature_ptr);
+        quadrature_ptr        = new Quadrature<3>(*quadrature);
       }
     else
       AssertThrow(false, ExcMessage("Given dimension is not implemented."));

@@ -54,8 +54,7 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS)
       subdivided_parallelepiped<deal_II_dimension, deal_II_space_dimension>(
         Triangulation<deal_II_dimension, deal_II_space_dimension> &,
         const Point<deal_II_space_dimension> &,
-        const std::array<Tensor<1, deal_II_space_dimension>, deal_II_dimension>
-          &,
+        const std::array<Tensor<1, deal_II_space_dimension>, deal_II_dimension> &,
         const std::vector<unsigned int> &,
         const bool colorize);
 
@@ -66,60 +65,46 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS)
         const bool);
 
       template void
-      subdivided_hyper_L(
-        Triangulation<deal_II_dimension, deal_II_space_dimension> &,
-        const std::vector<unsigned int> &,
-        const Point<deal_II_dimension> &,
-        const Point<deal_II_dimension> &,
-        const std::vector<int> &);
+      subdivided_hyper_L(Triangulation<deal_II_dimension, deal_II_space_dimension> &,
+                         const std::vector<unsigned int> &,
+                         const Point<deal_II_dimension> &,
+                         const Point<deal_II_dimension> &,
+                         const std::vector<int> &);
 
       template void
-      cheese<deal_II_dimension, deal_II_space_dimension>(
-        Triangulation<deal_II_dimension, deal_II_space_dimension> &,
-        const std::vector<unsigned int> &);
+      cheese<deal_II_dimension, deal_II_space_dimension>(Triangulation<deal_II_dimension, deal_II_space_dimension> &,
+                                                         const std::vector<unsigned int> &);
 
       template void
-      merge_triangulations(
-        const std::vector<
-          const Triangulation<deal_II_dimension, deal_II_space_dimension> *> &,
-        Triangulation<deal_II_dimension, deal_II_space_dimension> &,
-        const double,
-        const bool,
-        const bool);
+      merge_triangulations(const std::vector<const Triangulation<deal_II_dimension, deal_II_space_dimension> *> &,
+                           Triangulation<deal_II_dimension, deal_II_space_dimension> &,
+                           const double,
+                           const bool,
+                           const bool);
 
       template void
-      merge_triangulations(
-        const Triangulation<deal_II_dimension, deal_II_space_dimension>
-          &triangulation_1,
-        const Triangulation<deal_II_dimension, deal_II_space_dimension>
-          &triangulation_2,
-        Triangulation<deal_II_dimension, deal_II_space_dimension> &result,
-        const double duplicated_vertex_tolerance,
-        const bool   copy_manifold_ids,
-        const bool   copy_boundary_ids);
+      merge_triangulations(const Triangulation<deal_II_dimension, deal_II_space_dimension> &triangulation_1,
+                           const Triangulation<deal_II_dimension, deal_II_space_dimension> &triangulation_2,
+                           Triangulation<deal_II_dimension, deal_II_space_dimension>       &result,
+                           const double                                                     duplicated_vertex_tolerance,
+                           const bool                                                       copy_manifold_ids,
+                           const bool                                                       copy_boundary_ids);
 
       template void
-      replicate_triangulation(
-        const Triangulation<deal_II_dimension, deal_II_space_dimension> &input,
-        const std::vector<unsigned int> &                          extents,
-        Triangulation<deal_II_dimension, deal_II_space_dimension> &result);
+      replicate_triangulation(const Triangulation<deal_II_dimension, deal_II_space_dimension> &input,
+                              const std::vector<unsigned int>                                 &extents,
+                              Triangulation<deal_II_dimension, deal_II_space_dimension>       &result);
 
       template void
-      create_union_triangulation(
-        const Triangulation<deal_II_dimension, deal_II_space_dimension>
-          &triangulation_1,
-        const Triangulation<deal_II_dimension, deal_II_space_dimension>
-          &triangulation_2,
-        Triangulation<deal_II_dimension, deal_II_space_dimension> &result);
+      create_union_triangulation(const Triangulation<deal_II_dimension, deal_II_space_dimension> &triangulation_1,
+                                 const Triangulation<deal_II_dimension, deal_II_space_dimension> &triangulation_2,
+                                 Triangulation<deal_II_dimension, deal_II_space_dimension>       &result);
 
       template void
       create_triangulation_with_removed_cells(
-        const Triangulation<deal_II_dimension, deal_II_space_dimension>
-          &input_triangulation,
-        const std::set<
-          Triangulation<deal_II_dimension,
-                        deal_II_space_dimension>::active_cell_iterator>
-          &cells_to_remove,
+        const Triangulation<deal_II_dimension, deal_II_space_dimension> &input_triangulation,
+        const std::set<Triangulation<deal_II_dimension, deal_II_space_dimension>::active_cell_iterator>
+                                                                  &cells_to_remove,
         Triangulation<deal_II_dimension, deal_II_space_dimension> &result);
 
       template void
@@ -141,20 +126,14 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS;
 #  if deal_II_dimension != 1
       template
 #    ifndef _MSC_VER
-        std::map<
-          Container<deal_II_dimension - 1,
-                    deal_II_space_dimension>::cell_iterator,
-          Container<deal_II_dimension, deal_II_space_dimension>::face_iterator>
+        std::map<Container<deal_II_dimension - 1, deal_II_space_dimension>::cell_iterator,
+                 Container<deal_II_dimension, deal_II_space_dimension>::face_iterator>
 #    else
-        ExtractBoundaryMesh<Container,
-                            deal_II_dimension,
-                            deal_II_space_dimension>::return_type
+        ExtractBoundaryMesh<Container, deal_II_dimension, deal_II_space_dimension>::return_type
 #    endif
-        extract_boundary_mesh(
-          const Container<deal_II_dimension, deal_II_space_dimension> &mesh,
-          Container<deal_II_dimension - 1, deal_II_space_dimension>
-            &                                 boundary_mesh,
-          const std::set<types::boundary_id> &boundary_ids);
+        extract_boundary_mesh(const Container<deal_II_dimension, deal_II_space_dimension> &mesh,
+                              Container<deal_II_dimension - 1, deal_II_space_dimension>   &boundary_mesh,
+                              const std::set<types::boundary_id>                          &boundary_ids);
 #  endif
     \}
 #endif
@@ -174,37 +153,32 @@ for (deal_II_dimension : DIMENSIONS)
                                  const bool);
 
       template void
-      simplex<deal_II_dimension>(
-        Triangulation<deal_II_dimension, deal_II_dimension> &,
-        const std::vector<Point<deal_II_dimension>> &);
+      simplex<deal_II_dimension>(Triangulation<deal_II_dimension, deal_II_dimension> &,
+                                 const std::vector<Point<deal_II_dimension>> &);
 
       template void
-      parallelepiped<deal_II_dimension>(
-        Triangulation<deal_II_dimension> &,
-        const Point<deal_II_dimension> (&)[deal_II_dimension],
-        const bool);
+      parallelepiped<deal_II_dimension>(Triangulation<deal_II_dimension> &,
+                                        const Point<deal_II_dimension> (&)[deal_II_dimension],
+                                        const bool);
 
       template void
-      subdivided_parallelepiped<deal_II_dimension>(
-        Triangulation<deal_II_dimension> &,
-        const unsigned int,
-        const Point<deal_II_dimension> (&)[deal_II_dimension],
-        const bool);
+      subdivided_parallelepiped<deal_II_dimension>(Triangulation<deal_II_dimension> &,
+                                                   const unsigned int,
+                                                   const Point<deal_II_dimension> (&)[deal_II_dimension],
+                                                   const bool);
 
 #ifndef _MSC_VER
       template void
-      subdivided_parallelepiped<deal_II_dimension>(
-        Triangulation<deal_II_dimension> &,
-        const unsigned int (&)[deal_II_dimension],
-        const Point<deal_II_dimension> (&)[deal_II_dimension],
-        const bool);
+      subdivided_parallelepiped<deal_II_dimension>(Triangulation<deal_II_dimension> &,
+                                                   const unsigned int (&)[deal_II_dimension],
+                                                   const Point<deal_II_dimension> (&)[deal_II_dimension],
+                                                   const bool);
 #else
       template void
-      subdivided_parallelepiped<deal_II_dimension>(
-        Triangulation<deal_II_dimension> &,
-        const unsigned int *,
-        const Point<deal_II_dimension> (&)[deal_II_dimension],
-        const bool);
+      subdivided_parallelepiped<deal_II_dimension>(Triangulation<deal_II_dimension> &,
+                                                   const unsigned int *,
+                                                   const Point<deal_II_dimension> (&)[deal_II_dimension],
+                                                   const bool);
 #endif
 
       template void
@@ -243,10 +217,9 @@ for (deal_II_space_dimension : DIMENSIONS)
 
 #if deal_II_space_dimension >= 2
       template void
-      hyper_sphere<deal_II_space_dimension>(
-        Triangulation<deal_II_space_dimension - 1, deal_II_space_dimension> &,
-        const Point<deal_II_space_dimension> &,
-        double);
+      hyper_sphere<deal_II_space_dimension>(Triangulation<deal_II_space_dimension - 1, deal_II_space_dimension> &,
+                                            const Point<deal_II_space_dimension> &,
+                                            double);
 #endif
 
     \}
@@ -257,12 +230,10 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS;
   {
     namespace GridGenerator
     \{
-#if (deal_II_dimension <= deal_II_space_dimension) && \
-  (deal_II_dimension <= deal_II_space_dimension_2)
+#if (deal_II_dimension <= deal_II_space_dimension) && (deal_II_dimension <= deal_II_space_dimension_2)
       template void
-      flatten_triangulation<>(
-        const Triangulation<deal_II_dimension, deal_II_space_dimension> &,
-        Triangulation<deal_II_dimension, deal_II_space_dimension_2> &);
+      flatten_triangulation<>(const Triangulation<deal_II_dimension, deal_II_space_dimension> &,
+                              Triangulation<deal_II_dimension, deal_II_space_dimension_2> &);
 #endif
     \}
   }
@@ -278,26 +249,23 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS)
         const ReferenceCell &);
 
       template void
-      convert_hypercube_to_simplex_mesh(
-        const Triangulation<deal_II_dimension, deal_II_space_dimension> &,
-        Triangulation<deal_II_dimension, deal_II_space_dimension> &);
+      convert_hypercube_to_simplex_mesh(const Triangulation<deal_II_dimension, deal_II_space_dimension> &,
+                                        Triangulation<deal_II_dimension, deal_II_space_dimension> &);
 #endif
     \}
   }
 
 for (deal_II_dimension : DIMENSIONS)
   {
-    template void GridGenerator::subdivided_hyper_rectangle_with_simplices(
-      Triangulation<deal_II_dimension> & tria,
-      const std::vector<unsigned int> &repetitions,
-      const Point<deal_II_dimension> & p1,
-      const Point<deal_II_dimension> & p2,
-      const bool                       colorize);
+    template void GridGenerator::subdivided_hyper_rectangle_with_simplices(Triangulation<deal_II_dimension> & tria,
+                                                                           const std::vector<unsigned int> &repetitions,
+                                                                           const Point<deal_II_dimension>  &p1,
+                                                                           const Point<deal_II_dimension>  &p2,
+                                                                           const bool                       colorize);
 
-    template void GridGenerator::subdivided_hyper_cube_with_simplices(
-      Triangulation<deal_II_dimension> & tria,
-      const unsigned int repetitions,
-      const double       p1,
-      const double       p2,
-      const bool         colorize);
+    template void GridGenerator::subdivided_hyper_cube_with_simplices(Triangulation<deal_II_dimension> & tria,
+                                                                      const unsigned int repetitions,
+                                                                      const double       p1,
+                                                                      const double       p2,
+                                                                      const bool         colorize);
   }

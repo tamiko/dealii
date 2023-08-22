@@ -60,10 +60,7 @@ namespace PETScWrappers
     {
       PetscBool isnest;
 
-      PetscErrorCode ierr =
-        PetscObjectTypeCompare(reinterpret_cast<PetscObject>(v),
-                               VECNEST,
-                               &isnest);
+      PetscErrorCode ierr = PetscObjectTypeCompare(reinterpret_cast<PetscObject>(v), VECNEST, &isnest);
       AssertThrow(ierr == 0, ExcPETScError(ierr));
       std::vector<Vec> sv;
       if (isnest)
@@ -145,12 +142,9 @@ namespace PETScWrappers
         pcomponents[i] = this->components[i].petsc_vector();
 
       MPI_Comm comm =
-        pcomponents.size() > 0 ?
-          PetscObjectComm(reinterpret_cast<PetscObject>(pcomponents[0])) :
-          PETSC_COMM_SELF;
+        pcomponents.size() > 0 ? PetscObjectComm(reinterpret_cast<PetscObject>(pcomponents[0])) : PETSC_COMM_SELF;
 
-      ierr =
-        VecCreateNest(comm, n, nullptr, pcomponents.data(), &petsc_nest_vector);
+      ierr = VecCreateNest(comm, n, nullptr, pcomponents.data(), &petsc_nest_vector);
       AssertThrow(ierr == 0, ExcPETScError(ierr));
     }
   } // namespace MPI

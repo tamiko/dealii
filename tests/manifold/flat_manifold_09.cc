@@ -87,8 +87,7 @@ make_grid(Triangulation<dim> &triangulation)
   for (unsigned int z = 0; z < z_slices; ++z)
     material_id(5, 2, z) = -1;
 
-  GridGenerator::subdivided_hyper_rectangle(
-    triangulation, spacing, p, material_id, false);
+  GridGenerator::subdivided_hyper_rectangle(triangulation, spacing, p, material_id, false);
 }
 
 template <int dim>
@@ -99,8 +98,7 @@ check(Triangulation<dim> &tria)
 
   Quadrature<dim - 1> quadrature_formula(fe.get_unit_face_support_points());
 
-  FEFaceValues<dim> fe_face_values(
-    fe, quadrature_formula, update_normal_vectors | update_quadrature_points);
+  FEFaceValues<dim> fe_face_values(fe, quadrature_formula, update_normal_vectors | update_quadrature_points);
 
   Tensor<1, dim> n;
   for (const auto &cell : tria.active_cell_iterators())
@@ -109,10 +107,9 @@ check(Triangulation<dim> &tria)
         if (cell->face(face)->at_boundary())
           {
             fe_face_values.reinit(cell, face);
-            for (unsigned int q_point = 0; q_point < quadrature_formula.size();
-                 ++q_point)
-              n += (cell->face(face)->get_manifold().normal_vector(
-                cell->face(face), fe_face_values.quadrature_point(q_point)));
+            for (unsigned int q_point = 0; q_point < quadrature_formula.size(); ++q_point)
+              n += (cell->face(face)->get_manifold().normal_vector(cell->face(face),
+                                                                   fe_face_values.quadrature_point(q_point)));
           }
     }
   std::cout << n << std::endl;

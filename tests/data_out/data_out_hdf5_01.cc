@@ -51,15 +51,13 @@ test()
   data_out.add_data_vector(dof1, v1, "linear");
   data_out.build_patches(2);
 
-  DataOutBase::DataOutFilter data_filter(
-    DataOutBase::DataOutFilterFlags(false, false));
+  DataOutBase::DataOutFilter data_filter(DataOutBase::DataOutFilterFlags(false, false));
   data_out.write_filtered_data(data_filter);
   data_out.write_hdf5_parallel(data_filter, "out.h5", MPI_COMM_SELF);
   std::vector<XDMFEntry> xdmf_entries;
 
   // Use a point in time that requires high precision output
-  xdmf_entries.push_back(data_out.create_xdmf_entry(
-    data_filter, "out.h5", 1 + 1e-10, MPI_COMM_SELF));
+  xdmf_entries.push_back(data_out.create_xdmf_entry(data_filter, "out.h5", 1 + 1e-10, MPI_COMM_SELF));
 
   data_out.write_xdmf_file(xdmf_entries, "out.xdmf", MPI_COMM_SELF);
 
@@ -88,27 +86,19 @@ main(int argc, char *argv[])
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

@@ -58,8 +58,7 @@ private:
   setup_discrete_level_set();
 
   void
-  print_which_optionals_have_values_on_cell_0(
-    NonMatching::FEInterfaceValues<dim> &fe_values);
+  print_which_optionals_have_values_on_cell_0(NonMatching::FEInterfaceValues<dim> &fe_values);
 
   Triangulation<dim>    triangulation;
   hp::FECollection<dim> fe_collection;
@@ -102,12 +101,8 @@ Test<dim>::run()
   // Test to create an object with each constructor.
   {
     deallog << "Simple constructor:" << std::endl;
-    NonMatching::FEInterfaceValues<dim> fe_values(fe_collection,
-                                                  q_collection1D[0],
-                                                  region_update_flags,
-                                                  mesh_classifier,
-                                                  dof_handler,
-                                                  level_set);
+    NonMatching::FEInterfaceValues<dim> fe_values(
+      fe_collection, q_collection1D[0], region_update_flags, mesh_classifier, dof_handler, level_set);
     print_which_optionals_have_values_on_cell_0(fe_values);
   }
   {
@@ -142,10 +137,7 @@ Test<dim>::setup_mesh()
       repetitions.push_back(1);
     }
 
-  GridGenerator::subdivided_hyper_rectangle(triangulation,
-                                            repetitions,
-                                            lower_left,
-                                            upper_right);
+  GridGenerator::subdivided_hyper_rectangle(triangulation, repetitions, lower_left, upper_right);
 }
 
 
@@ -159,8 +151,8 @@ Test<dim>::setup_discrete_level_set()
 
   Point<dim> point_on_zero_contour;
   point_on_zero_contour[dim - 1] = 0.5;
-  const Functions::SignedDistance::Plane<dim> analytical_levelset(
-    point_on_zero_contour, Point<dim>::unit_vector(dim - 1));
+  const Functions::SignedDistance::Plane<dim> analytical_levelset(point_on_zero_contour,
+                                                                  Point<dim>::unit_vector(dim - 1));
 
   VectorTools::interpolate(dof_handler, analytical_levelset, level_set);
 }
@@ -169,8 +161,7 @@ Test<dim>::setup_discrete_level_set()
 
 template <int dim>
 void
-Test<dim>::print_which_optionals_have_values_on_cell_0(
-  NonMatching::FEInterfaceValues<dim> &fe_values)
+Test<dim>::print_which_optionals_have_values_on_cell_0(NonMatching::FEInterfaceValues<dim> &fe_values)
 {
   const auto cell = dof_handler.begin_active();
 
@@ -184,8 +175,7 @@ Test<dim>::print_which_optionals_have_values_on_cell_0(
         }
       else
         {
-          const unsigned int invalid_subface =
-            dealii::numbers::invalid_unsigned_int;
+          const unsigned int invalid_subface = dealii::numbers::invalid_unsigned_int;
 
           fe_values.reinit(cell,
                            face_index,

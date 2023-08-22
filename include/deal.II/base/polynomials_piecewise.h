@@ -86,8 +86,7 @@ namespace Polynomials
      * scaled to the size of the subinterval compared to the unit interval.
      * The subintervals are bounded by the adjacent points in @p points.
      */
-    PiecewisePolynomial(const std::vector<Point<1, number>> &points,
-                        const unsigned int                   index);
+    PiecewisePolynomial(const std::vector<Point<1, number>> &points, const unsigned int index);
 
     /**
      * Return the value of this polynomial at the given point, evaluating the
@@ -131,9 +130,7 @@ namespace Polynomials
      * make sense.
      */
     void
-    value(const number       x,
-          const unsigned int n_derivatives,
-          number *           values) const;
+    value(const number x, const unsigned int n_derivatives, number *values) const;
 
     /**
      * Degree of the polynomial. This is the degree of the underlying base
@@ -209,17 +206,14 @@ namespace Polynomials
    * intervals.
    */
   std::vector<PiecewisePolynomial<double>>
-  generate_complete_Lagrange_basis_on_subdivisions(
-    const unsigned int n_subdivisions,
-    const unsigned int base_degree);
+  generate_complete_Lagrange_basis_on_subdivisions(const unsigned int n_subdivisions, const unsigned int base_degree);
 
   /**
    * Generates a complete linear basis on a subdivision of the unit interval
    * in smaller intervals for a given vector of points.
    */
   std::vector<PiecewisePolynomial<double>>
-  generate_complete_linear_basis_on_subdivisions(
-    const std::vector<Point<1>> &points);
+  generate_complete_linear_basis_on_subdivisions(const std::vector<Point<1>> &points);
 
 } // namespace Polynomials
 
@@ -248,13 +242,9 @@ namespace Polynomials
     if (points.size() > 0)
       {
         if (x > points[index])
-          return std::max<number>(0.0,
-                                  1.0 - (x - points[index]) *
-                                          one_over_lengths[index]);
+          return std::max<number>(0.0, 1.0 - (x - points[index]) * one_over_lengths[index]);
         else if (x < points[index])
-          return std::max<number>(0.0,
-                                  0.0 + (x - points[index - 1]) *
-                                          one_over_lengths[index - 1]);
+          return std::max<number>(0.0, 0.0 + (x - points[index - 1]) * one_over_lengths[index - 1]);
         else
           return 1.0;
       }

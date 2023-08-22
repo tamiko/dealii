@@ -80,11 +80,9 @@ public:
     const double &x = point[0];
     const double &y = point[1];
 
-    return (Utilities::fixed_power<3>(y) +
-            std::exp(-Utilities::fixed_power<2>(y)) +
+    return (Utilities::fixed_power<3>(y) + std::exp(-Utilities::fixed_power<2>(y)) +
             std::sin(4.5 * Utilities::fixed_power<2>(y)) + std::sin(20 * y)) *
-           (20 * std::cos(4 * pi * x) + 0.1 * std::sin(20 * pi * x) -
-            80 * std::sin(6 * pi * x));
+           (20 * std::cos(4 * pi * x) + 0.1 * std::sin(20 * pi * x) - 80 * std::sin(6 * pi * x));
   }
 };
 
@@ -100,21 +98,15 @@ public:
     const double &x = point[0];
     const double &y = point[1];
     return -40.0 *
-             (Utilities::fixed_power<3>(y) +
-              std::exp(-Utilities::fixed_power<2>(y)) +
+             (Utilities::fixed_power<3>(y) + std::exp(-Utilities::fixed_power<2>(y)) +
               std::sin(4.5 * Utilities::fixed_power<2>(y)) + std::sin(20 * y)) *
-             (-8.0 * pi * pi * std::cos(4 * pi * x) -
-              1.0 * pi * pi * std::sin(20 * pi * x) +
+             (-8.0 * pi * pi * std::cos(4 * pi * x) - 1.0 * pi * pi * std::sin(20 * pi * x) +
               72.0 * pi * pi * std::sin(6 * pi * x)) -
-           (4 * Utilities::fixed_power<2>(y) *
-              std::exp(-Utilities::fixed_power<2>(y)) -
-            81.0 * Utilities::fixed_power<2>(y) *
-              std::sin(4.5 * Utilities::fixed_power<2>(y)) +
-            6 * y + 9.0 * std::cos(4.5 * Utilities::fixed_power<2>(y)) -
-            2 * std::exp(-Utilities::fixed_power<2>(y)) -
+           (4 * Utilities::fixed_power<2>(y) * std::exp(-Utilities::fixed_power<2>(y)) -
+            81.0 * Utilities::fixed_power<2>(y) * std::sin(4.5 * Utilities::fixed_power<2>(y)) + 6 * y +
+            9.0 * std::cos(4.5 * Utilities::fixed_power<2>(y)) - 2 * std::exp(-Utilities::fixed_power<2>(y)) -
             400 * std::sin(20 * y)) *
-             (20 * std::cos(4 * pi * x) + 0.1 * std::sin(20 * pi * x) -
-              80 * std::sin(6 * pi * x));
+             (20 * std::cos(4 * pi * x) + 0.1 * std::sin(20 * pi * x) - 80 * std::sin(6 * pi * x));
   }
 };
 
@@ -196,8 +188,7 @@ struct CubicRoofFunctions
  * A manifold describing the cubic roof.
  */
 template <int dim>
-class CubicRoofManifold : private CubicRoofFunctions<dim>,
-                          public FunctionManifold<dim>
+class CubicRoofManifold : private CubicRoofFunctions<dim>, public FunctionManifold<dim>
 {
 public:
   CubicRoofManifold()
@@ -277,15 +268,11 @@ void
 JxWError<dim>::setup_dofs()
 {
   dof_handler.distribute_dofs(finite_element);
-  VectorTools::interpolate_boundary_values(cell_mapping,
-                                           dof_handler,
-                                           boundary_id,
-                                           *manufactured_solution,
-                                           all_constraints);
+  VectorTools::interpolate_boundary_values(
+    cell_mapping, dof_handler, boundary_id, *manufactured_solution, all_constraints);
   all_constraints.close();
 
-  DynamicSparsityPattern dynamic_sparsity_pattern(dof_handler.n_dofs(),
-                                                  dof_handler.n_dofs());
+  DynamicSparsityPattern dynamic_sparsity_pattern(dof_handler.n_dofs(), dof_handler.n_dofs());
   DoFTools::make_sparsity_pattern(dof_handler,
                                   dynamic_sparsity_pattern,
                                   all_constraints,
@@ -301,18 +288,15 @@ JxWError<dim>::setup_matrices()
   system_matrix.reinit(sparsity_pattern);
   system_rhs.reinit(dof_handler.n_dofs());
 
-  const UpdateFlags flags = update_values | update_gradients |
-                            update_JxW_values | update_quadrature_points;
-  FEValues<dim> fe_values(cell_mapping, finite_element, cell_quadrature, flags);
+  const UpdateFlags flags = update_values | update_gradients | update_JxW_values | update_quadrature_points;
+  FEValues<dim>     fe_values(cell_mapping, finite_element, cell_quadrature, flags);
 
-  const unsigned int dofs_per_cell = finite_element.dofs_per_cell;
-  FullMatrix<double> cell_system(dofs_per_cell, dofs_per_cell);
-  Vector<double>     cell_rhs(dofs_per_cell);
+  const unsigned int                   dofs_per_cell = finite_element.dofs_per_cell;
+  FullMatrix<double>                   cell_system(dofs_per_cell, dofs_per_cell);
+  Vector<double>                       cell_rhs(dofs_per_cell);
   std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
 
-  typename DoFHandler<dim>::active_cell_iterator cell =
-                                                   dof_handler.begin_active(),
-                                                 endc = dof_handler.end();
+  typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
   for (; cell != endc; ++cell)
     {
       cell->get_dof_indices(local_dof_indices);
@@ -322,27 +306,21 @@ JxWError<dim>::setup_matrices()
 
       for (const auto q_point_n : fe_values.quadrature_point_indices())
         {
-          const double point_forcing =
-            manufactured_forcing->value(fe_values.quadrature_point(q_point_n));
+          const double point_forcing = manufactured_forcing->value(fe_values.quadrature_point(q_point_n));
 
           for (unsigned int test_n = 0; test_n < dofs_per_cell; ++test_n)
             {
               for (unsigned int trial_n = 0; trial_n < dofs_per_cell; ++trial_n)
                 {
-                  cell_system(test_n, trial_n) +=
-                    fe_values.JxW(q_point_n) *
-                    (fe_values.shape_grad(test_n, q_point_n) *
-                     fe_values.shape_grad(trial_n, q_point_n));
+                  cell_system(test_n, trial_n) += fe_values.JxW(q_point_n) * (fe_values.shape_grad(test_n, q_point_n) *
+                                                                              fe_values.shape_grad(trial_n, q_point_n));
                 }
 
-              cell_rhs[test_n] += fe_values.JxW(q_point_n) *
-                                  fe_values.shape_value(test_n, q_point_n) *
-                                  point_forcing;
+              cell_rhs[test_n] += fe_values.JxW(q_point_n) * fe_values.shape_value(test_n, q_point_n) * point_forcing;
             }
         }
 
-      all_constraints.distribute_local_to_global(
-        cell_system, cell_rhs, local_dof_indices, system_matrix, system_rhs);
+      all_constraints.distribute_local_to_global(cell_system, cell_rhs, local_dof_indices, system_matrix, system_rhs);
     }
 }
 
@@ -354,8 +332,7 @@ JxWError<dim>::solve()
 {
   {
     SolverControl      solver_control(std::max(types::global_dof_index(100),
-                                          static_cast<types::global_dof_index>(
-                                            system_rhs.size())),
+                                          static_cast<types::global_dof_index>(system_rhs.size())),
                                  1e-14 * system_rhs.l2_norm(),
                                  false,
                                  false);
@@ -369,20 +346,16 @@ JxWError<dim>::solve()
   }
 
   Vector<double> cell_l2_error(triangulation.n_cells());
-  VectorTools::integrate_difference(
-    cell_mapping,
-    dof_handler,
-    solution,
-    *manufactured_solution,
-    cell_l2_error,
-    // use QIterated to avoid spurious superconvergence
-    QIterated<dim>(QGauss<1>(finite_element.degree), 2),
-    VectorTools::L2_norm);
+  VectorTools::integrate_difference(cell_mapping,
+                                    dof_handler,
+                                    solution,
+                                    *manufactured_solution,
+                                    cell_l2_error,
+                                    // use QIterated to avoid spurious superconvergence
+                                    QIterated<dim>(QGauss<1>(finite_element.degree), 2),
+                                    VectorTools::L2_norm);
 
-  const double l2_error =
-    VectorTools::compute_global_error(triangulation,
-                                      cell_l2_error,
-                                      VectorTools::L2_norm);
+  const double l2_error = VectorTools::compute_global_error(triangulation, cell_l2_error, VectorTools::L2_norm);
   return l2_error;
 }
 
@@ -410,8 +383,7 @@ main(int argc, char **argv)
 
   initlog();
   deallog << std::setprecision(10);
-  for (unsigned int n_global_refines = 3; n_global_refines < 6;
-       ++n_global_refines)
+  for (unsigned int n_global_refines = 3; n_global_refines < 6; ++n_global_refines)
     {
       JxWError<dim> solver(n_global_refines);
       deallog << "L2 error: " << solver.run() << std::endl;

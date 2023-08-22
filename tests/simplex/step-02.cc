@@ -52,11 +52,9 @@ make_grid(Triangulation<2> &triangulation)
 
   const Point<2> center(1, 0);
   const double   inner_radius = 0.5, outer_radius = 1.0;
-  GridGenerator::hyper_shell(
-    triangulation_temp, center, inner_radius, outer_radius, 5);
+  GridGenerator::hyper_shell(triangulation_temp, center, inner_radius, outer_radius, 5);
 
-  GridGenerator::convert_hypercube_to_simplex_mesh(triangulation_temp,
-                                                   triangulation);
+  GridGenerator::convert_hypercube_to_simplex_mesh(triangulation_temp, triangulation);
 
   triangulation.refine_global(); // WARNING: no local refinement is performed
 }
@@ -67,8 +65,7 @@ distribute_dofs(DoFHandler<2> &dof_handler)
   const FE_SimplexP<2> finite_element(1);
   dof_handler.distribute_dofs(finite_element);
 
-  DynamicSparsityPattern dynamic_sparsity_pattern(dof_handler.n_dofs(),
-                                                  dof_handler.n_dofs());
+  DynamicSparsityPattern dynamic_sparsity_pattern(dof_handler.n_dofs(), dof_handler.n_dofs());
 
   DoFTools::make_sparsity_pattern(dof_handler, dynamic_sparsity_pattern);
 
@@ -83,8 +80,7 @@ renumber_dofs(DoFHandler<2> &dof_handler)
 {
   DoFRenumbering::Cuthill_McKee(dof_handler);
 
-  DynamicSparsityPattern dynamic_sparsity_pattern(dof_handler.n_dofs(),
-                                                  dof_handler.n_dofs());
+  DynamicSparsityPattern dynamic_sparsity_pattern(dof_handler.n_dofs(), dof_handler.n_dofs());
   DoFTools::make_sparsity_pattern(dof_handler, dynamic_sparsity_pattern);
 
   SparsityPattern sparsity_pattern;

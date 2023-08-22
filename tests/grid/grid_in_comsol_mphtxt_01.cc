@@ -41,10 +41,7 @@ comsol_grid(const char *name)
 
   int hash  = 0;
   int index = 0;
-  for (typename Triangulation<dim>::active_cell_iterator c =
-         tria.begin_active();
-       c != tria.end();
-       ++c, ++index)
+  for (typename Triangulation<dim>::active_cell_iterator c = tria.begin_active(); c != tria.end(); ++c, ++index)
     for (const unsigned int i : c->vertex_indices())
       hash += (index * i * c->vertex_index(i)) % (tria.n_active_cells() + 1);
   deallog << "  hash=" << hash << std::endl;
@@ -83,8 +80,7 @@ comsol_grid(const char *name)
                     << '\n';
           }
 
-    deallog << "n_marked_boundary_faces=" << n_marked_boundary_faces
-            << std::endl;
+    deallog << "n_marked_boundary_faces=" << n_marked_boundary_faces << std::endl;
   }
 
   if (dim >= 3)
@@ -98,14 +94,10 @@ comsol_grid(const char *name)
                 {
                   ++n_marked_boundary_edges;
 
-                  deallog << f->line(e)->vertex(0) << '\n'
-                          << f->line(e)->vertex(1) << '\n'
-                          << '\n'
-                          << '\n';
+                  deallog << f->line(e)->vertex(0) << '\n' << f->line(e)->vertex(1) << '\n' << '\n' << '\n';
                 }
 
-      deallog << "n_marked_boundary_edges=" << n_marked_boundary_edges
-              << std::endl;
+      deallog << "n_marked_boundary_edges=" << n_marked_boundary_edges << std::endl;
     }
 }
 
@@ -121,27 +113,19 @@ main()
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 

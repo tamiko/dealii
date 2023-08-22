@@ -46,13 +46,9 @@ test(unsigned int fe_degree)
   dofh.distribute_dofs(fe);
 
   MappingQ<dim> mapping(1);
-  UpdateFlags   update_flags = update_values | update_gradients |
-                             update_quadrature_points | update_JxW_values;
+  UpdateFlags   update_flags = update_values | update_gradients | update_quadrature_points | update_JxW_values;
 
-  FEInterfaceValues<dim> fiv(mapping,
-                             fe,
-                             QGauss<dim - 1>(fe.degree + 1),
-                             update_flags);
+  FEInterfaceValues<dim> fiv(mapping, fe, QGauss<dim - 1>(fe.degree + 1), update_flags);
 
 
   auto               cell = dofh.begin();
@@ -67,29 +63,25 @@ test(unsigned int fe_degree)
   cell_vector = 0.0;
   for (unsigned int qpoint = 0; qpoint < q_points.size(); ++qpoint)
     for (unsigned int i = 0; i < n_dofs; ++i)
-      cell_vector(i) +=
-        fiv.shape_value(true, i, qpoint) * fiv.get_JxW_values()[qpoint];
+      cell_vector(i) += fiv.shape_value(true, i, qpoint) * fiv.get_JxW_values()[qpoint];
   deallog << "shape_value(true): " << cell_vector << std::endl;
 
   cell_vector = 0.0;
   for (unsigned int qpoint = 0; qpoint < q_points.size(); ++qpoint)
     for (unsigned int i = 0; i < n_dofs; ++i)
-      cell_vector(i) +=
-        fiv.shape_value(false, i, qpoint) * fiv.get_JxW_values()[qpoint];
+      cell_vector(i) += fiv.shape_value(false, i, qpoint) * fiv.get_JxW_values()[qpoint];
   deallog << "shape_value(false): " << cell_vector << std::endl;
 
   cell_vector = 0.0;
   for (unsigned int qpoint = 0; qpoint < q_points.size(); ++qpoint)
     for (unsigned int i = 0; i < n_dofs; ++i)
-      cell_vector(i) +=
-        fiv.jump_in_shape_values(i, qpoint) * fiv.get_JxW_values()[qpoint];
+      cell_vector(i) += fiv.jump_in_shape_values(i, qpoint) * fiv.get_JxW_values()[qpoint];
   deallog << "jump_in_shape_values(): " << cell_vector << std::endl;
 
   cell_vector = 0.0;
   for (unsigned int qpoint = 0; qpoint < q_points.size(); ++qpoint)
     for (unsigned int i = 0; i < n_dofs; ++i)
-      cell_vector(i) +=
-        fiv.average_of_shape_values(i, qpoint) * fiv.get_JxW_values()[qpoint];
+      cell_vector(i) += fiv.average_of_shape_values(i, qpoint) * fiv.get_JxW_values()[qpoint];
   deallog << "average_of_shape_values(): " << cell_vector << std::endl;
 }
 

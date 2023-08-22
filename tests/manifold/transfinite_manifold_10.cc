@@ -45,8 +45,7 @@ public:
   pull_back(const Point<spacedim> &space_point) const override
   {
     const double phi    = std::atan2(space_point[2], space_point[0]);
-    const double radius = std::sqrt(space_point[0] * space_point[0] +
-                                    space_point[2] * space_point[2]);
+    const double radius = std::sqrt(space_point[0] * space_point[0] + space_point[2] * space_point[2]);
     return Point<3>(radius, space_point[1], phi);
   }
 
@@ -75,8 +74,8 @@ main()
   const unsigned int n_cells = 3;
 
   // the first 8 vertices are in the x-y-plane
-  Point<3> const        p = Point<3>(R, 0.0, 0.0);
-  double const          a = 1. / (1 + std::sqrt(2.0));
+  const Point<3>        p = Point<3>(R, 0.0, 0.0);
+  const double          a = 1. / (1 + std::sqrt(2.0));
   std::vector<Point<3>> vertices(8 * n_cells);
   vertices[0] = p + Point<3>(-1, -1, 0) * (r / std::sqrt(2.0)),
   vertices[1] = p + Point<3>(+1, -1, 0) * (r / std::sqrt(2.0)),
@@ -93,7 +92,7 @@ main()
     {
       for (unsigned int v = 0; v < 8; ++v)
         {
-          double const r_2d      = vertices[v][0];
+          const double r_2d      = vertices[v][0];
           vertices[8 * c + v][0] = r_2d * std::cos(phi_cell * c);
           vertices[8 * c + v][1] = vertices[v][1];
           vertices[8 * c + v][2] = r_2d * std::sin(phi_cell * c);
@@ -165,8 +164,7 @@ main()
     {
       tria.refine_global(1);
       deallog << "Cycle " << cycle << std::endl;
-      deallog << "Number of active cells: " << tria.n_active_cells()
-              << std::endl;
+      deallog << "Number of active cells: " << tria.n_active_cells() << std::endl;
       deallog << "Vertices: " << std::endl;
       for (auto &v : tria.get_vertices())
         deallog << v << std::endl;

@@ -71,8 +71,7 @@ main()
   Vector<double> weights(surrounding_points.size());
   weights = 1. / surrounding_points.size();
   auto intermediate_point =
-    manifold.get_new_point(ArrayView<Point<3>>(&surrounding_points[0],
-                                               surrounding_points.size()),
+    manifold.get_new_point(ArrayView<Point<3>>(&surrounding_points[0], surrounding_points.size()),
                            ArrayView<double>(&weights[0], weights.size()));
   surrounding_points.push_back(intermediate_point);
   surrounding_points.push_back(Point<3>(0., 1., 0.));
@@ -81,19 +80,15 @@ main()
   weights = 1. / surrounding_points.size();
 
 
-  auto new_point =
-    manifold.get_new_point(ArrayView<Point<3>>(&surrounding_points[0],
-                                               surrounding_points.size()),
-                           ArrayView<double>(&weights[0], weights.size()));
+  auto new_point = manifold.get_new_point(ArrayView<Point<3>>(&surrounding_points[0], surrounding_points.size()),
+                                          ArrayView<double>(&weights[0], weights.size()));
   auto new_point_flat =
-    flat_manifold.get_new_point(ArrayView<Point<3>>(&surrounding_points[0],
-                                                    surrounding_points.size()),
+    flat_manifold.get_new_point(ArrayView<Point<3>>(&surrounding_points[0], surrounding_points.size()),
                                 ArrayView<double>(&weights[0], weights.size()));
 
   for (unsigned int i = 0; i < surrounding_points.size(); ++i)
     {
-      deallog << "Surrunding point " << i << ' ' << surrounding_points[i]
-              << " weight " << weights[i] << std::endl;
+      deallog << "Surrunding point " << i << ' ' << surrounding_points[i] << " weight " << weights[i] << std::endl;
     }
   deallog << "Mean point " << new_point_flat << std::endl;
   deallog << "Projected point " << ' ' << new_point << std::endl;

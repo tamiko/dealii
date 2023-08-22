@@ -142,9 +142,7 @@ public:
    * @param open_mode The mode handed over to the @p fopen function.
    */
   std::string
-  find(const std::string &filename,
-       const std::string &suffix,
-       const char *       open_mode = "r");
+  find(const std::string &filename, const std::string &suffix, const char *open_mode = "r");
 
   /**
    * Show the paths and suffixes used for this object.
@@ -179,8 +177,7 @@ public:
    */
   DeclException1(ExcNoClass,
                  std::string,
-                 << "The class " << arg1
-                 << " must be registered before referring it in PathSearch.");
+                 << "The class " << arg1 << " must be registered before referring it in PathSearch.");
   /**
    * The PathSearch class could not find a file with this name in its path
    * list.

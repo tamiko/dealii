@@ -52,16 +52,9 @@ main(int argc, char **argv)
     const auto rank = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
 
     MPI_Comm subcommunicator;
-    MPI_Comm_split_type(MPI_COMM_WORLD,
-                        MPI_COMM_TYPE_SHARED,
-                        rank,
-                        MPI_INFO_NULL,
-                        &subcommunicator);
+    MPI_Comm_split_type(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, rank, MPI_INFO_NULL, &subcommunicator);
 
-    test<2, 2, 3, double, VectorizedArray<double>>(0,
-                                                   6,
-                                                   false,
-                                                   subcommunicator);
+    test<2, 2, 3, double, VectorizedArray<double>>(0, 6, false, subcommunicator);
 
     MPI_Comm_free(&subcommunicator);
   }

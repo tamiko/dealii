@@ -101,19 +101,12 @@ test()
           constraints.distribute(interpolant);
 
           // then compute the interpolation error
-          VectorTools::integrate_difference(dof_handler,
-                                            interpolant,
-                                            F<dim>(q),
-                                            error,
-                                            hp::QCollection<dim>(
-                                              QGauss<dim>(q + 2)),
-                                            VectorTools::L2_norm);
+          VectorTools::integrate_difference(
+            dof_handler, interpolant, F<dim>(q), error, hp::QCollection<dim>(QGauss<dim>(q + 2)), VectorTools::L2_norm);
           if (q <= p)
-            AssertThrow(error.l2_norm() < 1e-12 * interpolant.l2_norm(),
-                        ExcInternalError());
+            AssertThrow(error.l2_norm() < 1e-12 * interpolant.l2_norm(), ExcInternalError());
 
-          deallog << fe.get_name() << ", P_" << q
-                  << ", rel. error=" << error.l2_norm() / interpolant.l2_norm()
+          deallog << fe.get_name() << ", P_" << q << ", rel. error=" << error.l2_norm() / interpolant.l2_norm()
                   << std::endl;
         }
     }

@@ -55,49 +55,40 @@ test()
 
   Particles::ParticleHandler<dim, spacedim> particle_handler(tr, mapping);
 
-  parallel::distributed::Triangulation<dim, spacedim> particles_tr(
-    MPI_COMM_WORLD);
+  parallel::distributed::Triangulation<dim, spacedim> particles_tr(MPI_COMM_WORLD);
   GridGenerator::hyper_cube(particles_tr, 0.1, 0.9);
 
   // Generate the necessary bounding boxes for the generator
-  const auto my_bounding_box = GridTools::compute_mesh_predicate_bounding_box(
-    tr, IteratorFilters::LocallyOwnedCell());
-  const auto global_bounding_boxes =
-    Utilities::MPI::all_gather(MPI_COMM_WORLD, my_bounding_box);
+  const auto my_bounding_box = GridTools::compute_mesh_predicate_bounding_box(tr, IteratorFilters::LocallyOwnedCell());
+  const auto global_bounding_boxes = Utilities::MPI::all_gather(MPI_COMM_WORLD, my_bounding_box);
 
   DoFHandler<dim, spacedim> particles_dof_handler(particles_tr);
   const FE_Q<dim, spacedim> particles_fe(1);
   particles_dof_handler.distribute_dofs(particles_fe);
 
 
-  Particles::Generators::dof_support_points(particles_dof_handler,
-                                            global_bounding_boxes,
-                                            particle_handler);
+  Particles::Generators::dof_support_points(particles_dof_handler, global_bounding_boxes, particle_handler);
 
 
   {
-    deallog << "Locally owned active cells: "
-            << tr.n_locally_owned_active_cells() << std::endl;
+    deallog << "Locally owned active cells: " << tr.n_locally_owned_active_cells() << std::endl;
 
-    deallog << "Global particles: " << particle_handler.n_global_particles()
-            << std::endl;
+    deallog << "Global particles: " << particle_handler.n_global_particles() << std::endl;
 
     for (const auto &cell : tr.active_cell_iterators())
       {
         if (cell->is_locally_owned())
           {
-            deallog << "Cell " << cell << " has "
-                    << particle_handler.n_particles_in_cell(cell)
-                    << " particles." << std::endl;
+            deallog << "Cell " << cell << " has " << particle_handler.n_particles_in_cell(cell) << " particles."
+                    << std::endl;
           }
       }
 
     for (const auto &particle : particle_handler)
       {
-        deallog << "Particle index " << particle.get_id() << " is in cell "
-                << particle.get_surrounding_cell(tr) << std::endl;
-        deallog << "Particle location: " << particle.get_location()
+        deallog << "Particle index " << particle.get_id() << " is in cell " << particle.get_surrounding_cell(tr)
                 << std::endl;
+        deallog << "Particle location: " << particle.get_location() << std::endl;
       }
   }
   deallog << "OK" << std::endl;

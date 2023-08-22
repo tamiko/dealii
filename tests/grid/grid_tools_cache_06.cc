@@ -51,12 +51,10 @@ test(unsigned int ref)
   const auto &tree = cache.get_locally_owned_cell_bounding_boxes_rtree();
   const auto  box  = random_box<dim>();
 
-  deallog << "Query box: " << box.get_boundary_points().first << "; "
-          << box.get_boundary_points().second << std::endl;
+  deallog << "Query box: " << box.get_boundary_points().first << "; " << box.get_boundary_points().second << std::endl;
 
   for (const auto p : tree | bgi::adaptors::queried(bgi::intersects(box)))
-    deallog << "Cell " << p.second << " intersects box with "
-            << p.first.get_boundary_points().first << "; "
+    deallog << "Cell " << p.second << " intersects box with " << p.first.get_boundary_points().first << "; "
             << p.first.get_boundary_points().second << std::endl;
 }
 

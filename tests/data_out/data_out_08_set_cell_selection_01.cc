@@ -99,16 +99,13 @@ check()
       return cell;
     },
 
-    [](const Triangulation<dim> &                        t,
-       const typename Triangulation<dim>::cell_iterator &old_cell) ->
+    [](const Triangulation<dim> &t, const typename Triangulation<dim>::cell_iterator &old_cell) ->
     typename Triangulation<dim>::cell_iterator {
       if (old_cell != t.end())
         {
           const IteratorFilters::SubdomainEqualTo predicate(0);
 
-          return ++(
-            FilteredIterator<typename Triangulation<dim>::active_cell_iterator>(
-              predicate, old_cell));
+          return ++(FilteredIterator<typename Triangulation<dim>::active_cell_iterator>(predicate, old_cell));
         }
       else
         return old_cell;
@@ -117,9 +114,7 @@ check()
 
   data_out.attach_dof_handler(dof_handler);
 
-  data_out.add_data_vector(cell_data,
-                           "cell_data",
-                           DataOut<dim>::type_cell_data);
+  data_out.add_data_vector(cell_data, "cell_data", DataOut<dim>::type_cell_data);
   data_out.build_patches();
 
   data_out.write_deal_II_intermediate(deallog.get_file_stream());

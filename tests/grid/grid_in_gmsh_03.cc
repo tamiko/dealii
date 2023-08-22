@@ -36,8 +36,7 @@ using namespace dealii;
 
 template <int dim>
 void
-print_mesh_info(const Triangulation<dim> &triangulation,
-                const std::string &       filename)
+print_mesh_info(const Triangulation<dim> &triangulation, const std::string &filename)
 {
   deallog << "Mesh info:" << std::endl
           << " dimension: " << dim << std::endl
@@ -50,8 +49,7 @@ print_mesh_info(const Triangulation<dim> &triangulation,
         boundary_count[face->boundary_id()]++;
 
     deallog << " boundary indicators: ";
-    for (const std::pair<const types::boundary_id, unsigned int> &pair :
-         boundary_count)
+    for (const std::pair<const types::boundary_id, unsigned int> &pair : boundary_count)
       {
         deallog << pair.first << "(" << pair.second << " times) ";
       }

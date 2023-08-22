@@ -42,22 +42,16 @@ template <int dim>
 bool
 satisfies_level1_at_vertex_rule(const Triangulation<dim> &tr)
 {
-  std::vector<unsigned int> min_adjacent_cell_level(tr.n_vertices(),
-                                                    tr.n_levels());
+  std::vector<unsigned int> min_adjacent_cell_level(tr.n_vertices(), tr.n_levels());
   std::vector<unsigned int> max_adjacent_cell_level(tr.n_vertices(), 0);
 
-  for (typename Triangulation<dim>::active_cell_iterator cell =
-         tr.begin_active();
-       cell != tr.end();
-       ++cell)
+  for (typename Triangulation<dim>::active_cell_iterator cell = tr.begin_active(); cell != tr.end(); ++cell)
     for (const unsigned int v : GeometryInfo<dim>::vertex_indices())
       {
         min_adjacent_cell_level[cell->vertex_index(v)] =
-          std::min<unsigned int>(min_adjacent_cell_level[cell->vertex_index(v)],
-                                 cell->level());
+          std::min<unsigned int>(min_adjacent_cell_level[cell->vertex_index(v)], cell->level());
         max_adjacent_cell_level[cell->vertex_index(v)] =
-          std::max<unsigned int>(min_adjacent_cell_level[cell->vertex_index(v)],
-                                 cell->level());
+          std::max<unsigned int>(min_adjacent_cell_level[cell->vertex_index(v)], cell->level());
       }
 
   for (unsigned int k = 0; k < tr.n_vertices(); ++k)
@@ -72,8 +66,7 @@ template <int dim>
 void
 test()
 {
-  Triangulation<dim> triangulation(
-    Triangulation<dim>::limit_level_difference_at_vertices);
+  Triangulation<dim> triangulation(Triangulation<dim>::limit_level_difference_at_vertices);
 
   GridGenerator::hyper_cube(triangulation);
   triangulation.refine_global(2);
@@ -90,8 +83,7 @@ test()
 
       // refine triangulation
       unsigned int index = 0;
-      for (typename Triangulation<dim>::active_cell_iterator cell =
-             triangulation.begin_active();
+      for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
            cell != triangulation.end();
            ++cell, ++index)
         if (flags[index])
@@ -103,8 +95,7 @@ test()
       // some of them will actually be
       // coarsened)
       index = 0;
-      for (typename Triangulation<dim>::active_cell_iterator cell =
-             triangulation.begin_active();
+      for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
            cell != triangulation.end();
            ++cell, ++index)
         if (!flags[index])
@@ -113,8 +104,7 @@ test()
       GridOut go;
       go.write_gnuplot(triangulation, deallog.get_file_stream());
 
-      for (typename Triangulation<dim>::active_cell_iterator cell =
-             triangulation.begin_active();
+      for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
            cell != triangulation.end();
            ++cell)
         if (cell->refine_flag_set())
@@ -130,12 +120,10 @@ test()
 
       // verify that none of the cells
       // violates the level-1-at-vertex rule
-      AssertThrow(satisfies_level1_at_vertex_rule(triangulation),
-                  ExcInternalError());
+      AssertThrow(satisfies_level1_at_vertex_rule(triangulation), ExcInternalError());
 
 
-      deallog << "Iteration " << i
-              << ": cells=" << triangulation.n_active_cells() << std::endl;
+      deallog << "Iteration " << i << ": cells=" << triangulation.n_active_cells() << std::endl;
     }
 
   deallog << "OK" << std::endl;

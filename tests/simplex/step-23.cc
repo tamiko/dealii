@@ -121,8 +121,7 @@ namespace Step23
   {
   public:
     virtual double
-    value(const Point<dim> & /*p*/,
-          const unsigned int component = 0) const override
+    value(const Point<dim> & /*p*/, const unsigned int component = 0) const override
     {
       (void)component;
       Assert(component == 0, ExcIndexRange(component, 0, 1));
@@ -137,8 +136,7 @@ namespace Step23
   {
   public:
     virtual double
-    value(const Point<dim> & /*p*/,
-          const unsigned int component = 0) const override
+    value(const Point<dim> & /*p*/, const unsigned int component = 0) const override
     {
       (void)component;
       Assert(component == 0, ExcIndexRange(component, 0, 1));
@@ -153,8 +151,7 @@ namespace Step23
   {
   public:
     virtual double
-    value(const Point<dim> & /*p*/,
-          const unsigned int component = 0) const override
+    value(const Point<dim> & /*p*/, const unsigned int component = 0) const override
     {
       (void)component;
       Assert(component == 0, ExcIndexRange(component, 0, 1));
@@ -174,8 +171,7 @@ namespace Step23
       (void)component;
       Assert(component == 0, ExcIndexRange(component, 0, 1));
 
-      if ((this->get_time() <= 0.5) && (p[0] < 0) && (p[1] < 1. / 3) &&
-          (p[1] > -1. / 3))
+      if ((this->get_time() <= 0.5) && (p[0] < 0) && (p[1] < 1. / 3) && (p[1] > -1. / 3))
         return std::sin(this->get_time() * 4 * numbers::PI);
       else
         return 0;
@@ -194,8 +190,7 @@ namespace Step23
       (void)component;
       Assert(component == 0, ExcIndexRange(component, 0, 1));
 
-      if ((this->get_time() <= 0.5) && (p[0] < 0) && (p[1] < 1. / 3) &&
-          (p[1] > -1. / 3))
+      if ((this->get_time() <= 0.5) && (p[0] < 0) && (p[1] < 1. / 3) && (p[1] > -1. / 3))
         return (std::cos(this->get_time() * 4 * numbers::PI) * 4 * numbers::PI);
       else
         return 0;
@@ -226,20 +221,14 @@ namespace Step23
 #ifdef HEX
     GridGenerator::subdivided_hyper_cube(triangulation, n_subdivisions, -1, 1);
 #else
-    GridGenerator::subdivided_hyper_cube_with_simplices(triangulation,
-                                                        n_subdivisions,
-                                                        -1,
-                                                        1);
+    GridGenerator::subdivided_hyper_cube_with_simplices(triangulation, n_subdivisions, -1, 1);
 #endif
 
-    deallog << "Number of active cells: " << triangulation.n_active_cells()
-            << std::endl;
+    deallog << "Number of active cells: " << triangulation.n_active_cells() << std::endl;
 
     dof_handler.distribute_dofs(fe);
 
-    deallog << "Number of degrees of freedom: " << dof_handler.n_dofs()
-            << std::endl
-            << std::endl;
+    deallog << "Number of degrees of freedom: " << dof_handler.n_dofs() << std::endl << std::endl;
 
     DynamicSparsityPattern dsp(dof_handler.n_dofs(), dof_handler.n_dofs());
     DoFTools::make_sparsity_pattern(dof_handler, dsp);
@@ -250,14 +239,8 @@ namespace Step23
     matrix_u.reinit(sparsity_pattern);
     matrix_v.reinit(sparsity_pattern);
 
-    MatrixCreator::create_mass_matrix(mapping,
-                                      dof_handler,
-                                      quadrature,
-                                      mass_matrix);
-    MatrixCreator::create_laplace_matrix(mapping,
-                                         dof_handler,
-                                         quadrature,
-                                         laplace_matrix);
+    MatrixCreator::create_mass_matrix(mapping, dof_handler, quadrature, mass_matrix);
+    MatrixCreator::create_laplace_matrix(mapping, dof_handler, quadrature, laplace_matrix);
     solution_u.reinit(dof_handler.n_dofs());
     solution_v.reinit(dof_handler.n_dofs());
     old_solution_u.reinit(dof_handler.n_dofs());
@@ -277,8 +260,7 @@ namespace Step23
 
     cg.solve(matrix_u, solution_u, system_rhs, PreconditionIdentity());
 
-    deallog << "   u-equation: " << solver_control.last_step()
-            << " CG iterations." << std::endl;
+    deallog << "   u-equation: " << solver_control.last_step() << " CG iterations." << std::endl;
   }
 
 
@@ -292,8 +274,7 @@ namespace Step23
 
     cg.solve(matrix_v, solution_v, system_rhs, PreconditionIdentity());
 
-    deallog << "   v-equation: " << solver_control.last_step()
-            << " CG iterations." << std::endl;
+    deallog << "   v-equation: " << solver_control.last_step() << " CG iterations." << std::endl;
   }
 
 
@@ -309,8 +290,7 @@ namespace Step23
 
     data_out.build_patches(mapping);
 
-    const std::string filename =
-      "solution-" + Utilities::int_to_string(timestep_number, 3) + ".vtu";
+    const std::string     filename = "solution-" + Utilities::int_to_string(timestep_number, 3) + ".vtu";
     DataOutBase::VtkFlags vtk_flags;
     vtk_flags.compression_level = DataOutBase::CompressionLevel::best_speed;
     data_out.set_flags(vtk_flags);
@@ -325,26 +305,15 @@ namespace Step23
   {
     setup_system();
 
-    VectorTools::project(mapping,
-                         dof_handler,
-                         constraints,
-                         quadrature,
-                         InitialValuesU<dim>(),
-                         old_solution_u);
-    VectorTools::project(mapping,
-                         dof_handler,
-                         constraints,
-                         quadrature,
-                         InitialValuesV<dim>(),
-                         old_solution_v);
+    VectorTools::project(mapping, dof_handler, constraints, quadrature, InitialValuesU<dim>(), old_solution_u);
+    VectorTools::project(mapping, dof_handler, constraints, quadrature, InitialValuesV<dim>(), old_solution_v);
 
     Vector<double> tmp(solution_u.size());
     Vector<double> forcing_terms(solution_u.size());
 
     for (; time <= 5; time += time_step, ++timestep_number)
       {
-        deallog << "Time step " << timestep_number << " at t=" << time
-                << std::endl;
+        deallog << "Time step " << timestep_number << " at t=" << time << std::endl;
 
         mass_matrix.vmult(system_rhs, old_solution_u);
 
@@ -356,14 +325,12 @@ namespace Step23
 
         RightHandSide<dim> rhs_function;
         rhs_function.set_time(time);
-        VectorTools::create_right_hand_side(
-          mapping, dof_handler, quadrature, rhs_function, tmp);
+        VectorTools::create_right_hand_side(mapping, dof_handler, quadrature, rhs_function, tmp);
         forcing_terms = tmp;
         forcing_terms *= theta * time_step;
 
         rhs_function.set_time(time - time_step);
-        VectorTools::create_right_hand_side(
-          mapping, dof_handler, quadrature, rhs_function, tmp);
+        VectorTools::create_right_hand_side(mapping, dof_handler, quadrature, rhs_function, tmp);
 
         forcing_terms.add((1 - theta) * time_step, tmp);
 
@@ -374,18 +341,12 @@ namespace Step23
           boundary_values_u_function.set_time(time);
 
           std::map<types::global_dof_index, double> boundary_values;
-          VectorTools::interpolate_boundary_values(mapping,
-                                                   dof_handler,
-                                                   0,
-                                                   boundary_values_u_function,
-                                                   boundary_values);
+          VectorTools::interpolate_boundary_values(
+            mapping, dof_handler, 0, boundary_values_u_function, boundary_values);
 
           matrix_u.copy_from(mass_matrix);
           matrix_u.add(theta * theta * time_step * time_step, laplace_matrix);
-          MatrixTools::apply_boundary_values(boundary_values,
-                                             matrix_u,
-                                             solution_u,
-                                             system_rhs);
+          MatrixTools::apply_boundary_values(boundary_values, matrix_u, solution_u, system_rhs);
         }
         solve_u();
 
@@ -405,25 +366,17 @@ namespace Step23
           boundary_values_v_function.set_time(time);
 
           std::map<types::global_dof_index, double> boundary_values;
-          VectorTools::interpolate_boundary_values(mapping,
-                                                   dof_handler,
-                                                   0,
-                                                   boundary_values_v_function,
-                                                   boundary_values);
+          VectorTools::interpolate_boundary_values(
+            mapping, dof_handler, 0, boundary_values_v_function, boundary_values);
           matrix_v.copy_from(mass_matrix);
-          MatrixTools::apply_boundary_values(boundary_values,
-                                             matrix_v,
-                                             solution_v,
-                                             system_rhs);
+          MatrixTools::apply_boundary_values(boundary_values, matrix_v, solution_v, system_rhs);
         }
         solve_v();
 
         output_results();
 
         deallog << "   Total energy: "
-                << (mass_matrix.matrix_norm_square(solution_v) +
-                    laplace_matrix.matrix_norm_square(solution_u)) /
-                     2
+                << (mass_matrix.matrix_norm_square(solution_v) + laplace_matrix.matrix_norm_square(solution_u)) / 2
                 << std::endl;
 
         old_solution_u = solution_u;
@@ -450,28 +403,20 @@ main(int argc, char **argv)
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
 

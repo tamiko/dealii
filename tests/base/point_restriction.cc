@@ -87,9 +87,7 @@ namespace
     const Point<dim - 1>    locked_point;
     const TestFunction<dim> function;
 
-    const Functions::PointRestriction<dim - 1> restriction(function,
-                                                           open_direction,
-                                                           locked_point);
+    const Functions::PointRestriction<dim - 1> restriction(function, open_direction, locked_point);
 
     const Point<1>     point;
     const unsigned int component = 0;

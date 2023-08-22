@@ -88,19 +88,14 @@ main()
     ydot[2] = b / eps - y[2] * y[0];
   };
 
-  ode.jacobian_times_vector = [&](const VectorType &src,
-                                  VectorType &      dst,
-                                  double            t,
-                                  const VectorType & /*y*/,
-                                  const VectorType & /*fy*/) {
-    J.vmult(dst, src);
-  };
-
-  ode.output_step =
-    [&](const double t, const VectorType &sol, const unsigned int step_number) {
-      deallog << std::setprecision(16) << t << ' ' << sol[0] << ' ' << sol[1]
-              << ' ' << sol[2] << std::endl;
+  ode.jacobian_times_vector =
+    [&](const VectorType &src, VectorType &dst, double t, const VectorType & /*y*/, const VectorType & /*fy*/) {
+      J.vmult(dst, src);
     };
+
+  ode.output_step = [&](const double t, const VectorType &sol, const unsigned int step_number) {
+    deallog << std::setprecision(16) << t << ' ' << sol[0] << ' ' << sol[1] << ' ' << sol[2] << std::endl;
+  };
 
   Vector<double> y(3);
   y[0] = u0;

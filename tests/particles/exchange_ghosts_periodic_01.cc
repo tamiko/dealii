@@ -49,15 +49,12 @@ test()
     for (int i = 0; i < spacedim; ++i)
       right[i] = 1;
 
-    GridGenerator::subdivided_hyper_rectangle(
-      tr, repetitions, left, right, true);
+    GridGenerator::subdivided_hyper_rectangle(tr, repetitions, left, right, true);
     MappingQ<dim, spacedim> mapping(1);
 
 
     // Generate periodic boundary conditions
-    std::vector<GridTools::PeriodicFacePair<
-      typename Triangulation<dim, spacedim>::cell_iterator>>
-      periodicity_vector;
+    std::vector<GridTools::PeriodicFacePair<typename Triangulation<dim, spacedim>::cell_iterator>> periodicity_vector;
     GridTools::collect_periodic_faces(tr, 0, 1, 0, periodicity_vector);
     tr.add_periodicity(periodicity_vector);
 
@@ -74,15 +71,13 @@ test()
     else
       position[0] = 0.999;
 
-    Particles::Particle<dim, spacedim> particle(
-      position,
-      reference_position,
-      Utilities::MPI::this_mpi_process(tr.get_communicator()));
+    Particles::Particle<dim, spacedim> particle(position,
+                                                reference_position,
+                                                Utilities::MPI::this_mpi_process(tr.get_communicator()));
 
     // We give a local random cell hint to check that sorting and
     // transferring ghost particles works.
-    typename Triangulation<dim, spacedim>::active_cell_iterator cell =
-      tr.begin_active();
+    typename Triangulation<dim, spacedim>::active_cell_iterator cell = tr.begin_active();
     while (!cell->is_locally_owned())
       ++cell;
 
@@ -94,21 +89,18 @@ test()
     // The expected result is zero
 
     unsigned int n_ghost_particles = 0;
-    for (auto ghost_particle = particle_handler.begin_ghost();
-         ghost_particle != particle_handler.end_ghost();
+    for (auto ghost_particle = particle_handler.begin_ghost(); ghost_particle != particle_handler.end_ghost();
          ++ghost_particle)
       {
         ++n_ghost_particles;
       }
 
-    deallog << "Number of ghost particles before exchange ghost: "
-            << std::to_string(n_ghost_particles) << std::endl;
+    deallog << "Number of ghost particles before exchange ghost: " << std::to_string(n_ghost_particles) << std::endl;
 
     particle_handler.exchange_ghost_particles();
 
     n_ghost_particles = 0;
-    for (auto ghost_particle = particle_handler.begin_ghost();
-         ghost_particle != particle_handler.end_ghost();
+    for (auto ghost_particle = particle_handler.begin_ghost(); ghost_particle != particle_handler.end_ghost();
          ++ghost_particle)
       {
         ++n_ghost_particles;
@@ -117,8 +109,7 @@ test()
     // We count the number of ghost particles after they are exchanged
     // The expected result is one
 
-    deallog << "Number of ghost particles after exchange ghost: "
-            << std::to_string(n_ghost_particles) << std::endl;
+    deallog << "Number of ghost particles after exchange ghost: " << std::to_string(n_ghost_particles) << std::endl;
   }
 
   deallog << "OK" << std::endl;

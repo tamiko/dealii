@@ -24,40 +24,30 @@ namespace python
 {
   BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_center_overloads, get_center, 0, 2)
 
-  const char manifold_id_docstring[] =
-    "Get/Set the manifold_id of the face                                \n";
+  const char manifold_id_docstring[] = "Get/Set the manifold_id of the face                                \n";
 
-  const char boundary_id_docstring[] =
-    "Get/Set the boundary_id of the face                                \n";
+  const char boundary_id_docstring[] = "Get/Set the boundary_id of the face                                \n";
 
-  const char set_all_boundary_ids_docstring[] =
-    "Do as set_boundary_id() but also set the boundary indicators       \n"
-    "of the objects that bound the current object.                      \n";
+  const char set_all_boundary_ids_docstring[] = "Do as set_boundary_id() but also set the boundary indicators       \n"
+                                                "of the objects that bound the current object.                      \n";
 
-  const char barycenter_docstring[] =
-    "Return the barycenter of the current face                          \n";
+  const char barycenter_docstring[] = "Return the barycenter of the current face                          \n";
 
-  const char center_docstring[] =
-    "Return the center of the current face taking into account manifold.\n";
+  const char center_docstring[] = "Return the center of the current face taking into account manifold.\n";
 
-  const char set_vertex_docstring[] =
-    " Set the ith vertex of the face to point_wrapper                   \n";
+  const char set_vertex_docstring[] = " Set the ith vertex of the face to point_wrapper                   \n";
 
-  const char get_vertex_docstring[] =
-    " Get the ith vertex of the face                                    \n";
+  const char get_vertex_docstring[] = " Get the ith vertex of the face                                    \n";
 
-  const char at_boundary_docstring[] =
-    " Return whether the face is at the boundary                        \n";
+  const char at_boundary_docstring[] = " Return whether the face is at the boundary                        \n";
 
-  const char measure_docstring[] =
-    " Compute the dim-dimensional measure of the object.                 \n";
+  const char measure_docstring[] = " Compute the dim-dimensional measure of the object.                 \n";
 
   void
   export_tria_accessor()
   {
-    boost::python::class_<TriaAccessorWrapper>(
-      "TriaAccessor",
-      boost::python::init<void *, const int, const int, const int>())
+    boost::python::class_<TriaAccessorWrapper>("TriaAccessor",
+                                               boost::python::init<void *, const int, const int, const int>())
       .add_property("boundary_id",
                     &TriaAccessorWrapper::get_boundary_id,
                     &TriaAccessorWrapper::set_boundary_id,
@@ -66,37 +56,22 @@ namespace python
                     &TriaAccessorWrapper::get_manifold_id,
                     &TriaAccessorWrapper::set_manifold_id,
                     manifold_id_docstring)
-      .def("barycenter",
-           &TriaAccessorWrapper::get_barycenter,
-           barycenter_docstring,
-           boost::python::args("self"))
+      .def("barycenter", &TriaAccessorWrapper::get_barycenter, barycenter_docstring, boost::python::args("self"))
       .def("center",
            &TriaAccessorWrapper::get_center,
-           get_center_overloads(
-             boost::python::args("self",
-                                 "respect_manifold",
-                                 "interpolate_from_surrounding"),
-             center_docstring))
+           get_center_overloads(boost::python::args("self", "respect_manifold", "interpolate_from_surrounding"),
+                                center_docstring))
       .def("set_vertex",
            &TriaAccessorWrapper::set_vertex,
            set_vertex_docstring,
            boost::python::args("self", "i", "point_wrapper"))
-      .def("get_vertex",
-           &TriaAccessorWrapper::get_vertex,
-           get_vertex_docstring,
-           boost::python::args("self", "i"))
-      .def("at_boundary",
-           &TriaAccessorWrapper::at_boundary,
-           at_boundary_docstring,
-           boost::python::args("self"))
+      .def("get_vertex", &TriaAccessorWrapper::get_vertex, get_vertex_docstring, boost::python::args("self", "i"))
+      .def("at_boundary", &TriaAccessorWrapper::at_boundary, at_boundary_docstring, boost::python::args("self"))
       .def("set_all_boundary_ids",
            &TriaAccessorWrapper::set_all_boundary_ids,
            set_all_boundary_ids_docstring,
            boost::python::args("self", "boundary_id"))
-      .def("measure",
-           &TriaAccessorWrapper::measure,
-           measure_docstring,
-           boost::python::args("self"));
+      .def("measure", &TriaAccessorWrapper::measure, measure_docstring, boost::python::args("self"));
   }
 } // namespace python
 

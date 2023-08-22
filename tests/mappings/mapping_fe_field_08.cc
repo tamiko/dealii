@@ -35,18 +35,15 @@
 
 template <int dim, int spacedim>
 void
-print_result(const Mapping<dim, spacedim> &      mapping,
+print_result(const Mapping<dim, spacedim>       &mapping,
              const Triangulation<dim, spacedim> &tria,
              const Point<dim>                    p,
              const double                        tolerance)
 {
-  deallog << "Testing " << dim << "D with point " << p << " tolerance "
-          << tolerance << std::endl;
-  auto c_p =
-    GridTools::find_all_active_cells_around_point(mapping, tria, p, tolerance);
+  deallog << "Testing " << dim << "D with point " << p << " tolerance " << tolerance << std::endl;
+  auto c_p = GridTools::find_all_active_cells_around_point(mapping, tria, p, tolerance);
   for (auto i : c_p)
-    deallog << "Cell: " << i.first->id() << " unit point " << i.second
-            << std::endl;
+    deallog << "Cell: " << i.first->id() << " unit point " << i.second << std::endl;
   deallog << std::endl;
 }
 
@@ -183,12 +180,10 @@ test(unsigned int n_ref)
   VectorTools::get_position_vector(dofh, nodes, mask);
   MappingFEField<dim, dim, Vector<double>> mapping(dofh, nodes, mask);
 
-  deallog << "Test with MappingQ in " << dim << "D on " << tria.n_active_cells()
-          << " cells:" << std::endl;
+  deallog << "Test with MappingQ in " << dim << "D on " << tria.n_active_cells() << " cells:" << std::endl;
   do_test(mapping_q, tria);
   deallog << std::endl;
-  deallog << "Test with MappingFEField in " << dim << "D on "
-          << tria.n_active_cells() << " cells:" << std::endl;
+  deallog << "Test with MappingFEField in " << dim << "D on " << tria.n_active_cells() << " cells:" << std::endl;
   do_test(mapping, tria);
   deallog << std::endl;
 }

@@ -62,20 +62,15 @@ test()
 
   AffineConstraints<double> constraints(relevant_set);
   DoFTools::make_hanging_node_constraints(dof, constraints);
-  VectorTools::interpolate_boundary_values(dof,
-                                           0,
-                                           Functions::ZeroFunction<dim>(),
-                                           constraints);
+  VectorTools::interpolate_boundary_values(dof, 0, Functions::ZeroFunction<dim>(), constraints);
   constraints.close();
 
-  MappingQ<dim>                         mapping(fe_degree);
-  CUDAWrappers::MatrixFree<dim, Number> mf_data;
-  const QGauss<1>                       quad(fe_degree + 1);
-  typename CUDAWrappers::MatrixFree<dim, Number>::AdditionalData
-    additional_data;
-  additional_data.mapping_update_flags = update_values | update_gradients |
-                                         update_JxW_values |
-                                         update_quadrature_points;
+  MappingQ<dim>                                                  mapping(fe_degree);
+  CUDAWrappers::MatrixFree<dim, Number>                          mf_data;
+  const QGauss<1>                                                quad(fe_degree + 1);
+  typename CUDAWrappers::MatrixFree<dim, Number>::AdditionalData additional_data;
+  additional_data.mapping_update_flags =
+    update_values | update_gradients | update_JxW_values | update_quadrature_points;
   mf_data.reinit(mapping, dof, constraints, quad, additional_data);
 
   deallog << "OK" << std::endl;
@@ -85,8 +80,7 @@ test()
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   unsigned int myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
   deallog.push(Utilities::int_to_string(myid));

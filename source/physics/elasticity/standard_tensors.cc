@@ -22,8 +22,7 @@ DEAL_II_NAMESPACE_OPEN
 #ifndef DOXYGEN
 
 template <int dim>
-DEAL_II_CONSTEXPR const SymmetricTensor<2, dim>
-                        Physics::Elasticity::StandardTensors<dim>::I
+DEAL_II_CONSTEXPR const SymmetricTensor<2, dim> Physics::Elasticity::StandardTensors<dim>::I
 #  ifdef DEAL_II_CXX14_CONSTEXPR_BUG
   = unit_symmetric_tensor<dim>()
 #  endif
@@ -32,8 +31,7 @@ DEAL_II_CONSTEXPR const SymmetricTensor<2, dim>
 
 
 template <int dim>
-DEAL_II_CONSTEXPR const SymmetricTensor<4, dim>
-                        Physics::Elasticity::StandardTensors<dim>::S
+DEAL_II_CONSTEXPR const SymmetricTensor<4, dim> Physics::Elasticity::StandardTensors<dim>::S
 #  ifdef DEAL_II_CXX14_CONSTEXPR_BUG
   = identity_tensor<dim>()
 #  endif
@@ -42,8 +40,7 @@ DEAL_II_CONSTEXPR const SymmetricTensor<4, dim>
 
 
 template <int dim>
-DEAL_II_CONSTEXPR const SymmetricTensor<4, dim>
-                        Physics::Elasticity::StandardTensors<dim>::IxI
+DEAL_II_CONSTEXPR const SymmetricTensor<4, dim> Physics::Elasticity::StandardTensors<dim>::IxI
 #  ifdef DEAL_II_CXX14_CONSTEXPR_BUG
   = outer_product(unit_symmetric_tensor<dim>(), unit_symmetric_tensor<dim>())
 #  endif
@@ -52,8 +49,7 @@ DEAL_II_CONSTEXPR const SymmetricTensor<4, dim>
 
 
 template <int dim>
-DEAL_II_CONSTEXPR const SymmetricTensor<4, dim>
-                        Physics::Elasticity::StandardTensors<dim>::dev_P
+DEAL_II_CONSTEXPR const SymmetricTensor<4, dim> Physics::Elasticity::StandardTensors<dim>::dev_P
 #  ifdef DEAL_II_CXX14_CONSTEXPR_BUG
   = deviator_tensor<dim>()
 #  endif

@@ -84,23 +84,18 @@ test()
 
   VectorTools::project(dh, cm, QGauss<dim>(3), approximated_function, v);
 
-  for (typename DoFHandler<dim>::active_cell_iterator cell = dh.begin_active();
-       cell != dh.end();
-       ++cell)
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dh.begin_active(); cell != dh.end(); ++cell)
     for (const unsigned int i : GeometryInfo<dim>::vertex_indices())
       {
-        deallog << cell->vertex(i) << ' ' << v(cell->vertex_dof_index(i, 0))
-                << std::endl;
+        deallog << cell->vertex(i) << ' ' << v(cell->vertex_dof_index(i, 0)) << std::endl;
 
         // check that the error is
         // somewhat small. it won't
         // be zero since we project
         // and do not interpolate
-        if (std::fabs(v(cell->vertex_dof_index(i, 0)) -
-                      F<dim>().value(cell->vertex(i))) > 1e-4)
+        if (std::fabs(v(cell->vertex_dof_index(i, 0)) - F<dim>().value(cell->vertex(i))) > 1e-4)
           {
-            deallog << "expected value: " << F<dim>().value(cell->vertex(i))
-                    << std::endl;
+            deallog << "expected value: " << F<dim>().value(cell->vertex(i)) << std::endl;
             AssertThrow(false, ExcInternalError());
           }
       }

@@ -83,14 +83,9 @@ struct FunctionsTestScalarScalarCoupled
   };
 };
 
-template <int dim,
-          typename number_t,
-          enum AD::NumberTypes ad_type_code,
-          typename tape_index_t>
+template <int dim, typename number_t, enum AD::NumberTypes ad_type_code, typename tape_index_t>
 void
-test_scalar_scalar_coupled_one_run(const number_t     s1,
-                                   const number_t     s2,
-                                   const tape_index_t tape_no)
+test_scalar_scalar_coupled_one_run(const number_t s1, const number_t s2, const tape_index_t tape_no)
 {
   using ADHelper         = AD::ScalarFunction<dim, ad_type_code, number_t>;
   using ADNumberType     = typename ADHelper::ad_type;
@@ -122,10 +117,7 @@ test_scalar_scalar_coupled_one_run(const number_t     s1,
                                          // tape indices are universally valid
 
   // Configure tape
-  const bool is_recording =
-    ad_helper.start_recording_operations(tape_no,
-                                         false /*overwrite_tape*/,
-                                         true /*keep*/);
+  const bool is_recording = ad_helper.start_recording_operations(tape_no, false /*overwrite_tape*/, true /*keep*/);
   if (is_recording == true)
     {
       ad_helper.register_independent_variable(s1, s1_dof);
@@ -180,16 +172,14 @@ test_scalar_scalar_coupled_one_run(const number_t     s1,
   //    }
 
   // Extract components of the solution
-  const ScalarNumberType dpsi_ds1 =
-    ad_helper.extract_gradient_component(Dpsi, s1_dof);
-  const ScalarNumberType dpsi_ds2 =
-    ad_helper.extract_gradient_component(Dpsi, s2_dof);
+  const ScalarNumberType dpsi_ds1 = ad_helper.extract_gradient_component(Dpsi, s1_dof);
+  const ScalarNumberType dpsi_ds2 = ad_helper.extract_gradient_component(Dpsi, s2_dof);
   //  std::cout
   //      << "extracted Dpsi (s1): " << dpsi_ds1 << "\n"
   //      << "extracted Dpsi (s2): " << dpsi_ds2 << "\n";
 
   // Verify the result
-  using func = FunctionsTestScalarScalarCoupled<dim, ScalarNumberType>;
+  using func                        = FunctionsTestScalarScalarCoupled<dim, ScalarNumberType>;
   static const ScalarNumberType tol = 1.e-7;
   //  std::cout << "dpsi_ds1:            " << dpsi_ds1 << std::endl;
   //  std::cout << "func::dpsi_ds1(s1,s2): " << func::dpsi_ds1(s1,s2) <<
@@ -198,22 +188,15 @@ test_scalar_scalar_coupled_one_run(const number_t     s1,
   //  << dpsi_ds2 << std::endl; std::cout << "func::dpsi_ds2(s1,s2): " <<
   //  func::dpsi_ds2(s1,s2) << std::endl; std::cout << "diff: " <<
   //  std::abs(dpsi_ds2 - func::dpsi_ds2(s1,s2)) << std::endl;
-  Assert(std::abs(psi - func::psi(s1, s2)) < tol,
-         ExcMessage("No match for function value."));
-  Assert(std::abs(dpsi_ds1 - func::dpsi_ds1(s1, s2)) < tol,
-         ExcMessage("No match for first derivative."));
-  Assert(std::abs(dpsi_ds2 - func::dpsi_ds2(s1, s2)) < tol,
-         ExcMessage("No match for first derivative."));
+  Assert(std::abs(psi - func::psi(s1, s2)) < tol, ExcMessage("No match for function value."));
+  Assert(std::abs(dpsi_ds1 - func::dpsi_ds1(s1, s2)) < tol, ExcMessage("No match for first derivative."));
+  Assert(std::abs(dpsi_ds2 - func::dpsi_ds2(s1, s2)) < tol, ExcMessage("No match for first derivative."));
   if (AD::ADNumberTraits<ADNumberType>::n_supported_derivative_levels >= 2)
     {
-      const ScalarNumberType d2psi_ds1_ds1 =
-        ad_helper.extract_hessian_component(D2psi, s1_dof, s1_dof);
-      const ScalarNumberType d2psi_ds2_ds1 =
-        ad_helper.extract_hessian_component(D2psi, s1_dof, s2_dof);
-      const ScalarNumberType d2psi_ds1_ds2 =
-        ad_helper.extract_hessian_component(D2psi, s2_dof, s1_dof);
-      const ScalarNumberType d2psi_ds2_ds2 =
-        ad_helper.extract_hessian_component(D2psi, s2_dof, s2_dof);
+      const ScalarNumberType d2psi_ds1_ds1 = ad_helper.extract_hessian_component(D2psi, s1_dof, s1_dof);
+      const ScalarNumberType d2psi_ds2_ds1 = ad_helper.extract_hessian_component(D2psi, s1_dof, s2_dof);
+      const ScalarNumberType d2psi_ds1_ds2 = ad_helper.extract_hessian_component(D2psi, s2_dof, s1_dof);
+      const ScalarNumberType d2psi_ds2_ds2 = ad_helper.extract_hessian_component(D2psi, s2_dof, s2_dof);
       //      std::cout
       //          << "extracted D2psi (s1,s1): " << d2psi_ds1_ds1 << "\n"
       //          << "extracted D2psi (s1,s2): " << d2psi_ds2_ds1 << "\n"
@@ -249,22 +232,15 @@ test_scalar_scalar_coupled_one_run(const number_t     s1,
 
 
 
-template <int dim,
-          typename number_t,
-          enum AD::NumberTypes ad_type_code,
-          typename tape_index_t>
+template <int dim, typename number_t, enum AD::NumberTypes ad_type_code, typename tape_index_t>
 void
-test_scalar_scalar_coupled(const tape_index_t tape_index_begin,
-                           const tape_index_t tape_index_end)
+test_scalar_scalar_coupled(const tape_index_t tape_index_begin, const tape_index_t tape_index_end)
 {
-  for (tape_index_t tape_no = tape_index_begin; tape_no < tape_index_end;
-       ++tape_no)
+  for (tape_index_t tape_no = tape_index_begin; tape_no < tape_index_end; ++tape_no)
     {
       const number_t s1 = 3.1 * (1.0 + tape_no / 10.0);
       const number_t s2 = 5.9 * (1.0 + tape_no / 10.0);
-      test_scalar_scalar_coupled_one_run<3, number_t, ad_type_code>(s1,
-                                                                    s2,
-                                                                    tape_no);
+      test_scalar_scalar_coupled_one_run<3, number_t, ad_type_code>(s1, s2, tape_no);
     }
 }
 
@@ -276,19 +252,18 @@ main()
 
   using number_t                     = double;
   const AD::NumberTypes ad_type_code = AD::NumberTypes::adolc_taped;
-  using ADNumberType = typename AD::HelperBase<ad_type_code, number_t>::ad_type;
-  using tape_index_t = typename AD::Types<ADNumberType>::tape_index;
+  using ADNumberType                 = typename AD::HelperBase<ad_type_code, number_t>::ad_type;
+  using tape_index_t                 = typename AD::Types<ADNumberType>::tape_index;
 
-  const tape_index_t invalid_tape_index =
-    AD::Numbers<ADNumberType>::invalid_tape_index;
-  const tape_index_t max_tape_index = AD::Numbers<ADNumberType>::max_tape_index;
+  const tape_index_t invalid_tape_index = AD::Numbers<ADNumberType>::invalid_tape_index;
+  const tape_index_t max_tape_index     = AD::Numbers<ADNumberType>::max_tape_index;
 
   deallog.push("Valid range");
   {
-    test_scalar_scalar_coupled<2, number_t, ad_type_code>(
-      static_cast<tape_index_t>(invalid_tape_index + 1), max_tape_index);
-    test_scalar_scalar_coupled<3, number_t, ad_type_code>(
-      static_cast<tape_index_t>(invalid_tape_index + 1), max_tape_index);
+    test_scalar_scalar_coupled<2, number_t, ad_type_code>(static_cast<tape_index_t>(invalid_tape_index + 1),
+                                                          max_tape_index);
+    test_scalar_scalar_coupled<3, number_t, ad_type_code>(static_cast<tape_index_t>(invalid_tape_index + 1),
+                                                          max_tape_index);
     deallog << "OK" << std::endl;
   }
   deallog.pop();
@@ -300,12 +275,10 @@ main()
   {
     try
       {
-        test_scalar_scalar_coupled<2, number_t, ad_type_code>(
-          invalid_tape_index,
-          static_cast<tape_index_t>(invalid_tape_index + 1));
-        test_scalar_scalar_coupled<3, number_t, ad_type_code>(
-          invalid_tape_index,
-          static_cast<tape_index_t>(invalid_tape_index + 1));
+        test_scalar_scalar_coupled<2, number_t, ad_type_code>(invalid_tape_index,
+                                                              static_cast<tape_index_t>(invalid_tape_index + 1));
+        test_scalar_scalar_coupled<3, number_t, ad_type_code>(invalid_tape_index,
+                                                              static_cast<tape_index_t>(invalid_tape_index + 1));
         deallog << "Expected failure" << std::endl;
       }
     catch (...)
@@ -319,10 +292,10 @@ main()
   {
     try
       {
-        test_scalar_scalar_coupled<2, number_t, ad_type_code>(
-          max_tape_index, static_cast<tape_index_t>(max_tape_index + 1));
-        test_scalar_scalar_coupled<3, number_t, ad_type_code>(
-          max_tape_index, static_cast<tape_index_t>(max_tape_index + 1));
+        test_scalar_scalar_coupled<2, number_t, ad_type_code>(max_tape_index,
+                                                              static_cast<tape_index_t>(max_tape_index + 1));
+        test_scalar_scalar_coupled<3, number_t, ad_type_code>(max_tape_index,
+                                                              static_cast<tape_index_t>(max_tape_index + 1));
         deallog << "Expected failure" << std::endl;
       }
     catch (...)

@@ -98,13 +98,9 @@ boundary_q(const DoFHandler<1> &)
 void
 write_map(const std::map<types::global_dof_index, double> &bv)
 {
-  for (std::map<types::global_dof_index, double>::const_iterator i = bv.begin();
-       i != bv.end();
-       ++i)
+  for (std::map<types::global_dof_index, double>::const_iterator i = bv.begin(); i != bv.end(); ++i)
     // also output log of value to also display small numbers
-    deallog << i->first << ' ' << i->second << ' '
-            << (std::abs(i->second) > 0 ? std::log(std::abs(i->second)) :
-                                          -10000)
+    deallog << i->first << ' ' << i->second << ' ' << (std::abs(i->second) > 0 ? std::log(std::abs(i->second)) : -10000)
             << std::endl;
 }
 
@@ -120,9 +116,7 @@ check()
       GridGenerator::hyper_ball(tr, Point<dim>(), 1);
     }
   else
-    GridGenerator::hyper_cube(tr,
-                              -1. / std::sqrt(static_cast<double>(dim)),
-                              1. / std::sqrt(static_cast<double>(dim)));
+    GridGenerator::hyper_cube(tr, -1. / std::sqrt(static_cast<double>(dim)), 1. / std::sqrt(static_cast<double>(dim)));
   GridTools::copy_boundary_to_manifold_id(tr);
 
   static const SphericalManifold<dim> boundary;
@@ -169,14 +163,12 @@ check()
           // interpolate boundary values
           deallog << "Interpolated boundary values" << std::endl;
           std::map<types::global_dof_index, double> interpolated_bv;
-          VectorTools::interpolate_boundary_values(
-            mapping, dof, function_map, interpolated_bv, ComponentMask());
+          VectorTools::interpolate_boundary_values(mapping, dof, function_map, interpolated_bv, ComponentMask());
           write_map(interpolated_bv);
 
           deallog << "Projected boundary values" << std::endl;
           std::map<types::global_dof_index, double> projected_bv;
-          VectorTools::project_boundary_values(
-            mapping, dof, function_map, boundary_q(dof), projected_bv);
+          VectorTools::project_boundary_values(mapping, dof, function_map, boundary_q(dof), projected_bv);
           write_map(projected_bv);
         };
       deallog.pop();

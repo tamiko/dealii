@@ -39,23 +39,17 @@
 #include "../tests.h"
 
 
-template <int dim,
-          int spacedim        = dim,
-          typename NumberType = double,
-          typename ExtractorType>
+template <int dim, int spacedim = dim, typename NumberType = double, typename ExtractorType>
 void
 run(const ExtractorType &extractor)
 {
   LogStream::Prefix prefix("Dim " + Utilities::to_string(dim));
   std::cout << "Dim: " << dim << std::endl;
 
-  hp::FECollection<dim, spacedim> fe(
-    FESystem<dim, spacedim>(FE_Q<dim, spacedim>(1), dim),
-    FESystem<dim, spacedim>(FE_Q<dim, spacedim>(3), dim));
-  hp::QCollection<dim>     qf_cell(QGauss<dim>(fe[0].degree + 1),
-                               QGauss<dim>(fe[1].degree + 1));
-  hp::QCollection<dim - 1> qf_face(QGauss<dim - 1>(fe[0].degree + 1),
-                                   QGauss<dim - 1>(fe[1].degree + 1));
+  hp::FECollection<dim, spacedim> fe(FESystem<dim, spacedim>(FE_Q<dim, spacedim>(1), dim),
+                                     FESystem<dim, spacedim>(FE_Q<dim, spacedim>(3), dim));
+  hp::QCollection<dim>            qf_cell(QGauss<dim>(fe[0].degree + 1), QGauss<dim>(fe[1].degree + 1));
+  hp::QCollection<dim - 1>        qf_face(QGauss<dim - 1>(fe[0].degree + 1), QGauss<dim - 1>(fe[1].degree + 1));
 
   Triangulation<dim, spacedim> triangulation;
   GridGenerator::hyper_cube(triangulation);
@@ -65,40 +59,23 @@ run(const ExtractorType &extractor)
   dof_handler.distribute_dofs(fe);
 
   Vector<double> solution(dof_handler.n_dofs());
-  VectorTools::interpolate(dof_handler,
-                           Functions::CosineFunction<spacedim>(
-                             fe.n_components()),
-                           solution);
+  VectorTools::interpolate(dof_handler, Functions::CosineFunction<spacedim>(fe.n_components()), solution);
 
-  const UpdateFlags update_flags =
-    update_values | update_gradients | update_hessians | update_3rd_derivatives;
-  MeshWorker::ScratchData<dim, spacedim> scratch_data(fe,
-                                                      qf_cell,
-                                                      update_flags);
+  const UpdateFlags update_flags = update_values | update_gradients | update_hessians | update_3rd_derivatives;
+  MeshWorker::ScratchData<dim, spacedim> scratch_data(fe, qf_cell, update_flags);
 
   const auto cell = dof_handler.begin_active();
   scratch_data.reinit(cell);
   scratch_data.extract_local_dof_values("solution", solution);
 
-  deallog << "Value: " << scratch_data.get_values("solution", extractor)[0]
-          << std::endl;
-  deallog << "Gradient: "
-          << scratch_data.get_gradients("solution", extractor)[0] << std::endl;
-  deallog << "Symmetric gradient: "
-          << scratch_data.get_symmetric_gradients("solution", extractor)[0]
-          << std::endl;
-  deallog << "Divergence: "
-          << scratch_data.get_divergences("solution", extractor)[0]
-          << std::endl;
-  deallog << "Curl: " << scratch_data.get_curls("solution", extractor)[0]
-          << std::endl;
-  deallog << "Hessian: " << scratch_data.get_hessians("solution", extractor)[0]
-          << std::endl;
-  deallog << "Laplacian: "
-          << scratch_data.get_laplacians("solution", extractor)[0] << std::endl;
-  deallog << "Third derivative: "
-          << scratch_data.get_third_derivatives("solution", extractor)[0]
-          << std::endl;
+  deallog << "Value: " << scratch_data.get_values("solution", extractor)[0] << std::endl;
+  deallog << "Gradient: " << scratch_data.get_gradients("solution", extractor)[0] << std::endl;
+  deallog << "Symmetric gradient: " << scratch_data.get_symmetric_gradients("solution", extractor)[0] << std::endl;
+  deallog << "Divergence: " << scratch_data.get_divergences("solution", extractor)[0] << std::endl;
+  deallog << "Curl: " << scratch_data.get_curls("solution", extractor)[0] << std::endl;
+  deallog << "Hessian: " << scratch_data.get_hessians("solution", extractor)[0] << std::endl;
+  deallog << "Laplacian: " << scratch_data.get_laplacians("solution", extractor)[0] << std::endl;
+  deallog << "Third derivative: " << scratch_data.get_third_derivatives("solution", extractor)[0] << std::endl;
 
   deallog << "OK" << std::endl;
 }
@@ -108,8 +85,7 @@ int
 main(int argc, char *argv[])
 {
   initlog();
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   FEValuesExtractors::Vector extractor(0);
 

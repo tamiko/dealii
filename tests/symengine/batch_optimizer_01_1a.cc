@@ -32,8 +32,7 @@ main()
   deallog << std::setprecision(10);
 
   const enum SD::OptimizerType     opt_method = SD::OptimizerType::dictionary;
-  const enum SD::OptimizationFlags opt_flags =
-    SD::OptimizationFlags::optimize_default;
+  const enum SD::OptimizationFlags opt_flags  = SD::OptimizationFlags::optimize_default;
 
   run_tests<opt_method, opt_flags>();
 

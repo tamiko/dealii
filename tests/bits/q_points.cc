@@ -41,12 +41,8 @@
 void
 create_two_cubes(Triangulation<3> &coarse_grid)
 {
-  const Point<3>        points[6] = {Point<3>(0, 0, 0),
-                              Point<3>(1, 0, 0),
-                              Point<3>(1, 1, 0),
-                              Point<3>(0, 1, 0),
-                              Point<3>(2, 0, 0),
-                              Point<3>(2, 1, 0)};
+  const Point<3> points[6] = {
+    Point<3>(0, 0, 0), Point<3>(1, 0, 0), Point<3>(1, 1, 0), Point<3>(0, 1, 0), Point<3>(2, 0, 0), Point<3>(2, 1, 0)};
   std::vector<Point<3>> vertices;
   for (unsigned int i = 0; i < 6; ++i)
     vertices.push_back(points[i]);
@@ -80,19 +76,13 @@ check(Triangulation<3> &tria)
 {
   QGauss<2>       quadrature(3);
   FE_Q<3>         fe(1);
-  FEFaceValues<3> fe_face_values1(fe,
-                                  quadrature,
-                                  update_quadrature_points | update_JxW_values);
-  FEFaceValues<3> fe_face_values2(fe,
-                                  quadrature,
-                                  update_quadrature_points | update_JxW_values);
+  FEFaceValues<3> fe_face_values1(fe, quadrature, update_quadrature_points | update_JxW_values);
+  FEFaceValues<3> fe_face_values2(fe, quadrature, update_quadrature_points | update_JxW_values);
 
   DoFHandler<3> dof_handler(tria);
   dof_handler.distribute_dofs(fe);
 
-  for (DoFHandler<3>::cell_iterator cell = dof_handler.begin();
-       cell != dof_handler.end();
-       ++cell)
+  for (DoFHandler<3>::cell_iterator cell = dof_handler.begin(); cell != dof_handler.end(); ++cell)
     for (const unsigned int f : GeometryInfo<3>::face_indices())
       if (!cell->at_boundary(f))
         {
@@ -103,8 +93,7 @@ check(Triangulation<3> &tria)
           // faces. mesh_3d_7 does it
           // for mis-oriented faces
           AssertThrow(cell->face_orientation(f) == true, ExcInternalError());
-          AssertThrow(cell->neighbor(f)->face_orientation(nn) == true,
-                      ExcInternalError());
+          AssertThrow(cell->neighbor(f)->face_orientation(nn) == true, ExcInternalError());
 
           fe_face_values1.reinit(cell, f);
           fe_face_values2.reinit(cell->neighbor(f), nn);
@@ -113,11 +102,9 @@ check(Triangulation<3> &tria)
 
           for (unsigned int q = 0; q < quadrature.size(); ++q)
             {
-              deallog << "  " << fe_face_values1.quadrature_point(q)
-                      << std::endl;
-              AssertThrow((fe_face_values1.quadrature_point(q) -
-                           fe_face_values2.quadrature_point(q))
-                              .norm_square() < 1e-20,
+              deallog << "  " << fe_face_values1.quadrature_point(q) << std::endl;
+              AssertThrow((fe_face_values1.quadrature_point(q) - fe_face_values2.quadrature_point(q)).norm_square() <
+                            1e-20,
                           ExcInternalError());
             }
         }

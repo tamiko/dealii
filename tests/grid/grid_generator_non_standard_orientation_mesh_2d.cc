@@ -40,22 +40,16 @@ plot_all_info(const Triangulation<dim> &tria)
     {
       CellId current_cell_id(cell->id());
 
-      deallog << "CellId = " << current_cell_id << std::endl
-              << "   {line_index -> face_orientation}: " << std::endl;
-      for (unsigned int face_index = 0;
-           face_index < GeometryInfo<dim>::faces_per_cell;
-           ++face_index)
+      deallog << "CellId = " << current_cell_id << std::endl << "   {line_index -> face_orientation}: " << std::endl;
+      for (unsigned int face_index = 0; face_index < GeometryInfo<dim>::faces_per_cell; ++face_index)
         {
-          deallog << "      {" << face_index << " -> "
-                  << cell->face_orientation(face_index) << "} " << std::endl;
+          deallog << "      {" << face_index << " -> " << cell->face_orientation(face_index) << "} " << std::endl;
         } // face_index
 
       // in 2D faces that are not consistently oriented should of course be also
       // lines with the same property
       deallog << "   line orientation: {  ";
-      for (unsigned int line_index = 0;
-           line_index < GeometryInfo<dim>::lines_per_cell;
-           ++line_index)
+      for (unsigned int line_index = 0; line_index < GeometryInfo<dim>::lines_per_cell; ++line_index)
         {
           deallog << cell->line_orientation(line_index) << "  ";
         } // line_index
@@ -79,15 +73,13 @@ main(int /*argc*/, char ** /*argv*/)
 
   deallog << "Testing 2D mesh for orientation tests:" << std::endl;
 
-  for (unsigned int n_rotate_right_square = 0; n_rotate_right_square < 4;
-       ++n_rotate_right_square)
+  for (unsigned int n_rotate_right_square = 0; n_rotate_right_square < 4; ++n_rotate_right_square)
     {
       tria_test.clear();
 
       bool manipulate_first_cube = true;
 
-      GridGenerator::non_standard_orientation_mesh(tria_test,
-                                                   n_rotate_right_square);
+      GridGenerator::non_standard_orientation_mesh(tria_test, n_rotate_right_square);
 
       plot_all_info(tria_test);
 

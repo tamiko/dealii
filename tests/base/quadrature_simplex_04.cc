@@ -37,11 +37,7 @@ test(unsigned int n)
       deallog << p << std::endl;
 
     deallog << std::endl
-            << "# Area: "
-            << std::accumulate(quad.get_weights().begin(),
-                               quad.get_weights().end(),
-                               0.0)
-            << std::endl
+            << "# Area: " << std::accumulate(quad.get_weights().begin(), quad.get_weights().end(), 0.0) << std::endl
             << std::endl;
 
     if (quad.size() == n * n * 4)
@@ -56,11 +52,7 @@ test(unsigned int n)
       deallog << p << std::endl;
 
     deallog << std::endl
-            << "# Area: "
-            << std::accumulate(quad.get_weights().begin(),
-                               quad.get_weights().end(),
-                               0.0)
-            << std::endl
+            << "# Area: " << std::accumulate(quad.get_weights().begin(), quad.get_weights().end(), 0.0) << std::endl
             << std::endl;
     if (quad.size() == n * n * 3)
       deallog << "# Size OK" << std::endl;
@@ -74,11 +66,7 @@ test(unsigned int n)
       deallog << p << std::endl;
 
     deallog << std::endl
-            << "# Area: "
-            << std::accumulate(quad.get_weights().begin(),
-                               quad.get_weights().end(),
-                               0.0)
-            << std::endl
+            << "# Area: " << std::accumulate(quad.get_weights().begin(), quad.get_weights().end(), 0.0) << std::endl
             << std::endl;
     if (quad.size() == n * n * 2)
       deallog << "# Size OK" << std::endl;

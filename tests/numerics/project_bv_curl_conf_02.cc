@@ -51,8 +51,7 @@ BoundaryFunction<dim>::BoundaryFunction()
 
 template <int dim>
 void
-BoundaryFunction<dim>::vector_value(const Point<dim> &,
-                                    Vector<double> &values) const
+BoundaryFunction<dim>::vector_value(const Point<dim> &, Vector<double> &values) const
 {
   for (unsigned int d = 0; d < dim; ++d)
     values(d) = d + 1.0;
@@ -60,8 +59,7 @@ BoundaryFunction<dim>::vector_value(const Point<dim> &,
 
 template <int dim>
 void
-test_boundary_values(const FiniteElement<dim> & fe,
-                     AffineConstraints<double> &constraints)
+test_boundary_values(const FiniteElement<dim> &fe, AffineConstraints<double> &constraints)
 {
   Triangulation<dim> triangulation;
   GridGenerator::subdivided_hyper_cube(triangulation, 2);
@@ -70,12 +68,7 @@ test_boundary_values(const FiniteElement<dim> & fe,
   BoundaryFunction<dim> boundary_function;
   constraints.clear();
   VectorTools::project_boundary_values_curl_conforming_l2(
-    dof_handler,
-    0,
-    boundary_function,
-    0,
-    constraints,
-    StaticMappingQ1<dim>::mapping);
+    dof_handler, 0, boundary_function, 0, constraints, StaticMappingQ1<dim>::mapping);
   constraints.close();
 }
 
@@ -115,8 +108,7 @@ test(unsigned order)
             *constraints_fe.get_constraint_entries(lines.nth_index_in_set(i));
 
           for (std::size_t j = 0; j < c1.size(); ++j)
-            if ((c1[j].first != c2[j].first) ||
-                (fabs(c1[j].second - c2[j].second) > 1e-14))
+            if ((c1[j].first != c2[j].first) || (fabs(c1[j].second - c2[j].second) > 1e-14))
               {
                 deallog << "Failed" << std::endl;
                 return;

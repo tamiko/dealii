@@ -60,10 +60,9 @@ namespace internal
       /**
        * Only a constructor needed for this class (a struct really)
        */
-      PointGeometryData(
-        const Point<dim> &                          new_requested_location,
-        const std::vector<Point<dim>> &             new_locations,
-        const std::vector<types::global_dof_index> &new_sol_indices);
+      PointGeometryData(const Point<dim>                           &new_requested_location,
+                        const std::vector<Point<dim>>              &new_locations,
+                        const std::vector<types::global_dof_index> &new_sol_indices);
       Point<dim>                           requested_location;
       std::vector<Point<dim>>              support_point_locations;
       std::vector<types::global_dof_index> solution_indices;
@@ -234,8 +233,7 @@ public:
    * making calls to @p push_back_independent as needed.  This may be used for
    * example for recording external input or logging solver performance data.
    */
-  PointValueHistory(const DoFHandler<dim> &dof_handler,
-                    const unsigned int     n_independent_variables = 0);
+  PointValueHistory(const DoFHandler<dim> &dof_handler, const unsigned int n_independent_variables = 0);
 
   /**
    * Copy constructor. This constructor can be safely called with a @p
@@ -292,8 +290,7 @@ public:
    * called in any order.
    */
   void
-  add_field_name(const std::string &  vector_name,
-                 const ComponentMask &component_mask = {});
+  add_field_name(const std::string &vector_name, const ComponentMask &component_mask = {});
 
   /**
    * Put another mnemonic string (and hence @p VectorType) into the class.
@@ -304,16 +301,14 @@ public:
    * function.
    */
   void
-  add_field_name(const std::string &vector_name,
-                 const unsigned int n_components);
+  add_field_name(const std::string &vector_name, const unsigned int n_components);
 
   /**
    * Provide optional names for each component of a field. These names will be
    * used instead of names generated from the field name, if supplied.
    */
   void
-  add_component_names(const std::string &             vector_name,
-                      const std::vector<std::string> &component_names);
+  add_component_names(const std::string &vector_name, const std::vector<std::string> &component_names);
 
   /**
    * Provide optional names for the independent values. These names will be
@@ -357,9 +352,9 @@ public:
   template <typename VectorType>
   void
   evaluate_field(const std::vector<std::string> &names,
-                 const VectorType &              solution,
-                 const DataPostprocessor<dim> &  data_postprocessor,
-                 const Quadrature<dim> &         quadrature);
+                 const VectorType               &solution,
+                 const DataPostprocessor<dim>   &data_postprocessor,
+                 const Quadrature<dim>          &quadrature);
 
   /**
    * Construct a std::vector <std::string> containing only vector_name and
@@ -368,10 +363,10 @@ public:
    */
   template <typename VectorType>
   void
-  evaluate_field(const std::string &           name,
-                 const VectorType &            solution,
+  evaluate_field(const std::string            &name,
+                 const VectorType             &solution,
                  const DataPostprocessor<dim> &data_postprocessor,
-                 const Quadrature<dim> &       quadrature);
+                 const Quadrature<dim>        &quadrature);
 
 
   /**
@@ -388,8 +383,7 @@ public:
    */
   template <typename VectorType>
   void
-  evaluate_field_at_requested_location(const std::string &name,
-                                       const VectorType & solution);
+  evaluate_field_at_requested_location(const std::string &name, const VectorType &solution);
 
 
   /**
@@ -432,9 +426,8 @@ public:
    * locations output.
    */
   void
-  write_gnuplot(const std::string &            base_name,
-                const std::vector<Point<dim>> &postprocessor_locations =
-                  std::vector<Point<dim>>());
+  write_gnuplot(const std::string             &base_name,
+                const std::vector<Point<dim>> &postprocessor_locations = std::vector<Point<dim>>());
 
 
   /**
@@ -483,8 +476,7 @@ public:
    * correct number of points by the method.
    */
   void
-  get_postprocessor_locations(const Quadrature<dim> &  quadrature,
-                              std::vector<Point<dim>> &locations);
+  get_postprocessor_locations(const Quadrature<dim> &quadrature, std::vector<Point<dim>> &locations);
 
   /**
    * Once datasets have been added to the class, requests to add additional
@@ -543,35 +535,32 @@ public:
   /**
    * Exception
    */
-  DeclExceptionMsg(
-    ExcDataLostSync,
-    "This error is thrown to indicate that the data sets appear to be out of "
-    "sync. The class requires that the number of dataset keys is the same as "
-    "the number of independent values sets and mesh linked value sets. The "
-    "number of each of these is allowed to differ by one to allow new values "
-    "to be added with out restricting the order the user choses to do so. "
-    "Special cases of no FHandler and no independent values should not "
-    "trigger this error.");
+  DeclExceptionMsg(ExcDataLostSync,
+                   "This error is thrown to indicate that the data sets appear to be out of "
+                   "sync. The class requires that the number of dataset keys is the same as "
+                   "the number of independent values sets and mesh linked value sets. The "
+                   "number of each of these is allowed to differ by one to allow new values "
+                   "to be added with out restricting the order the user choses to do so. "
+                   "Special cases of no FHandler and no independent values should not "
+                   "trigger this error.");
 
 
   /**
    * Exception
    */
-  DeclExceptionMsg(
-    ExcDoFHandlerRequired,
-    "A method which requires access to a @p DoFHandler to be meaningful has "
-    "been called when have_dof_handler is false (most likely due to default "
-    "constructor being called). Only independent variables may be logged with "
-    "no DoFHandler.");
+  DeclExceptionMsg(ExcDoFHandlerRequired,
+                   "A method which requires access to a @p DoFHandler to be meaningful has "
+                   "been called when have_dof_handler is false (most likely due to default "
+                   "constructor being called). Only independent variables may be logged with "
+                   "no DoFHandler.");
 
   /**
    * Exception
    */
-  DeclExceptionMsg(
-    ExcDoFHandlerChanged,
-    "The triangulation has been refined or coarsened in some way. This "
-    "suggests that the internal DoF indices stored by the current "
-    "object are no longer meaningful.");
+  DeclExceptionMsg(ExcDoFHandlerChanged,
+                   "The triangulation has been refined or coarsened in some way. This "
+                   "suggests that the internal DoF indices stored by the current "
+                   "object are no longer meaningful.");
 
 private:
   /**
@@ -616,8 +605,7 @@ private:
   /**
    * Save the location and other mesh information about support points.
    */
-  std::vector<internal::PointValueHistoryImplementation::PointGeometryData<dim>>
-    point_geometry_data;
+  std::vector<internal::PointValueHistoryImplementation::PointGeometryData<dim>> point_geometry_data;
 
 
   /**

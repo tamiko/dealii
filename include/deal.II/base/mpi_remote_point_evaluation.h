@@ -68,11 +68,10 @@ namespace Utilities
        * @param marked_vertices Function that marks relevant vertices to make search
        *   of active cells around point more efficient.
        */
-      RemotePointEvaluation(
-        const double       tolerance                              = 1e-6,
-        const bool         enforce_unique_mapping                 = false,
-        const unsigned int rtree_level                            = 0,
-        const std::function<std::vector<bool>()> &marked_vertices = {});
+      RemotePointEvaluation(const double                              tolerance              = 1e-6,
+                            const bool                                enforce_unique_mapping = false,
+                            const unsigned int                        rtree_level            = 0,
+                            const std::function<std::vector<bool>()> &marked_vertices        = {});
 
       /**
        * Destructor.
@@ -93,7 +92,7 @@ namespace Utilities
       void
       reinit(const std::vector<Point<spacedim>> &points,
              const Triangulation<dim, spacedim> &tria,
-             const Mapping<dim, spacedim> &      mapping);
+             const Mapping<dim, spacedim>       &mapping);
 
       /**
        * Set up internal data structures and communication pattern based on
@@ -105,10 +104,9 @@ namespace Utilities
        * located (e.g. if intersections of cells are known).
        */
       void
-      reinit(const GridTools::internal::
-               DistributedComputePointLocationsInternal<dim, spacedim> &data,
-             const Triangulation<dim, spacedim> &                       tria,
-             const Mapping<dim, spacedim> &mapping);
+      reinit(const GridTools::internal::DistributedComputePointLocationsInternal<dim, spacedim> &data,
+             const Triangulation<dim, spacedim>                                                 &tria,
+             const Mapping<dim, spacedim>                                                       &mapping);
 
       /**
        * Data of points positioned in a cell.
@@ -156,10 +154,9 @@ namespace Utilities
       template <typename T>
       void
       evaluate_and_process(
-        std::vector<T> &output,
-        std::vector<T> &buffer,
-        const std::function<void(const ArrayView<T> &, const CellData &)>
-          &evaluation_function) const;
+        std::vector<T>                                                    &output,
+        std::vector<T>                                                    &buffer,
+        const std::function<void(const ArrayView<T> &, const CellData &)> &evaluation_function) const;
 
       /**
        * This method is the inverse of the method evaluate_and_process(). It
@@ -172,10 +169,9 @@ namespace Utilities
       template <typename T>
       void
       process_and_evaluate(
-        const std::vector<T> &input,
-        std::vector<T> &      buffer,
-        const std::function<void(const ArrayView<const T> &, const CellData &)>
-          &evaluation_function) const;
+        const std::vector<T>                                                    &input,
+        std::vector<T>                                                          &buffer,
+        const std::function<void(const ArrayView<const T> &, const CellData &)> &evaluation_function) const;
 
       /**
        * Return a CRS-like data structure to determine the position of the
@@ -332,10 +328,9 @@ namespace Utilities
     template <typename T>
     void
     RemotePointEvaluation<dim, spacedim>::evaluate_and_process(
-      std::vector<T> &output,
-      std::vector<T> &buffer,
-      const std::function<void(const ArrayView<T> &, const CellData &)>
-        &evaluation_function) const
+      std::vector<T>                                                    &output,
+      std::vector<T>                                                    &buffer,
+      const std::function<void(const ArrayView<T> &, const CellData &)> &evaluation_function) const
     {
 #ifndef DEAL_II_WITH_MPI
       Assert(false, ExcNeedsMPI());
@@ -346,20 +341,17 @@ namespace Utilities
       static CollectiveMutex      mutex;
       CollectiveMutex::ScopedLock lock(mutex, tria->get_communicator());
 
-      const unsigned int my_rank =
-        Utilities::MPI::this_mpi_process(tria->get_communicator());
+      const unsigned int my_rank = Utilities::MPI::this_mpi_process(tria->get_communicator());
 
       // allocate memory for output and buffer
       output.resize(point_ptrs.back());
-      buffer.resize(std::max(send_permutation.size() * 2,
-                             point_ptrs.back() + send_permutation.size()));
+      buffer.resize(std::max(send_permutation.size() * 2, point_ptrs.back() + send_permutation.size()));
 
       // ... for evaluation
       ArrayView<T> buffer_eval(buffer.data(), send_permutation.size());
 
       // ... for communication
-      ArrayView<T> buffer_comm(buffer.data() + send_permutation.size(),
-                               send_permutation.size());
+      ArrayView<T> buffer_comm(buffer.data() + send_permutation.size(), send_permutation.size());
 
       // evaluate functions at points
       evaluation_function(buffer_eval, cell_data);
@@ -368,17 +360,13 @@ namespace Utilities
       unsigned int my_rank_local_recv = numbers::invalid_unsigned_int;
       unsigned int my_rank_local_send = numbers::invalid_unsigned_int;
 
-      const auto my_rank_local_recv_ptr =
-        std::find(recv_ranks.begin(), recv_ranks.end(), my_rank);
+      const auto my_rank_local_recv_ptr = std::find(recv_ranks.begin(), recv_ranks.end(), my_rank);
 
       if (my_rank_local_recv_ptr != recv_ranks.end())
         {
-          my_rank_local_recv =
-            std::distance(recv_ranks.begin(), my_rank_local_recv_ptr);
-          my_rank_local_send = std::distance(send_ranks.begin(),
-                                             std::find(send_ranks.begin(),
-                                                       send_ranks.end(),
-                                                       my_rank));
+          my_rank_local_recv = std::distance(recv_ranks.begin(), my_rank_local_recv_ptr);
+          my_rank_local_send =
+            std::distance(send_ranks.begin(), std::find(send_ranks.begin(), send_ranks.end(), my_rank));
         }
 
       for (unsigned int i = 0; i < send_permutation.size(); ++i)
@@ -387,10 +375,8 @@ namespace Utilities
 
           // local data -> can be copied to output directly
           if (my_rank_local_send != numbers::invalid_unsigned_int &&
-              (send_ptrs[my_rank_local_send] <= send_index &&
-               send_index < send_ptrs[my_rank_local_send + 1]))
-            output[recv_permutation[send_index - send_ptrs[my_rank_local_send] +
-                                    recv_ptrs[my_rank_local_recv]]] =
+              (send_ptrs[my_rank_local_send] <= send_index && send_index < send_ptrs[my_rank_local_send + 1]))
+            output[recv_permutation[send_index - send_ptrs[my_rank_local_send] + recv_ptrs[my_rank_local_recv]]] =
               buffer_eval[i];
           else // data to be sent
             buffer_comm[send_index] = buffer_eval[i];
@@ -410,10 +396,9 @@ namespace Utilities
 
           send_requests.emplace_back(MPI_Request());
 
-          send_buffer.emplace_back(Utilities::pack(
-            std::vector<T>(buffer_comm.begin() + send_ptrs[i],
-                           buffer_comm.begin() + send_ptrs[i + 1]),
-            false));
+          send_buffer.emplace_back(
+            Utilities::pack(std::vector<T>(buffer_comm.begin() + send_ptrs[i], buffer_comm.begin() + send_ptrs[i + 1]),
+                            false));
 
           const int ierr = MPI_Isend(send_buffer.back().data(),
                                      send_buffer.back().size(),
@@ -435,10 +420,8 @@ namespace Utilities
 
           // receive remote data
           MPI_Status status;
-          int        ierr = MPI_Probe(MPI_ANY_SOURCE,
-                               internal::Tags::remote_point_evaluation,
-                               tria->get_communicator(),
-                               &status);
+          int        ierr =
+            MPI_Probe(MPI_ANY_SOURCE, internal::Tags::remote_point_evaluation, tria->get_communicator(), &status);
           AssertThrowMPI(ierr);
 
           int message_length;
@@ -457,12 +440,10 @@ namespace Utilities
           AssertThrowMPI(ierr);
 
           // unpack data
-          const auto buffer =
-            Utilities::unpack<std::vector<T>>(buffer_char, false);
+          const auto buffer = Utilities::unpack<std::vector<T>>(buffer_char, false);
 
           // write data into output vector
-          const auto ptr =
-            std::find(recv_ranks.begin(), recv_ranks.end(), status.MPI_SOURCE);
+          const auto ptr = std::find(recv_ranks.begin(), recv_ranks.end(), status.MPI_SOURCE);
 
           Assert(ptr != recv_ranks.end(), ExcNotImplemented());
 
@@ -470,17 +451,14 @@ namespace Utilities
 
           AssertDimension(buffer.size(), recv_ptrs[j + 1] - recv_ptrs[j]);
 
-          for (unsigned int i = recv_ptrs[j], c = 0; i < recv_ptrs[j + 1];
-               ++i, ++c)
+          for (unsigned int i = recv_ptrs[j], c = 0; i < recv_ptrs[j + 1]; ++i, ++c)
             output[recv_permutation[i]] = buffer[c];
         }
 
       // make sure all messages have been sent
       if (!send_requests.empty())
         {
-          const int ierr = MPI_Waitall(send_requests.size(),
-                                       send_requests.data(),
-                                       MPI_STATUSES_IGNORE);
+          const int ierr = MPI_Waitall(send_requests.size(), send_requests.data(), MPI_STATUSES_IGNORE);
           AssertThrowMPI(ierr);
         }
 #endif
@@ -491,10 +469,9 @@ namespace Utilities
     template <typename T>
     void
     RemotePointEvaluation<dim, spacedim>::process_and_evaluate(
-      const std::vector<T> &input,
-      std::vector<T> &      buffer,
-      const std::function<void(const ArrayView<const T> &, const CellData &)>
-        &evaluation_function) const
+      const std::vector<T>                                                    &input,
+      std::vector<T>                                                          &buffer,
+      const std::function<void(const ArrayView<const T> &, const CellData &)> &evaluation_function) const
     {
 #ifndef DEAL_II_WITH_MPI
       Assert(false, ExcNeedsMPI());
@@ -505,8 +482,7 @@ namespace Utilities
       static CollectiveMutex      mutex;
       CollectiveMutex::ScopedLock lock(mutex, tria->get_communicator());
 
-      const unsigned int my_rank =
-        Utilities::MPI::this_mpi_process(tria->get_communicator());
+      const unsigned int my_rank = Utilities::MPI::this_mpi_process(tria->get_communicator());
 
       // invert permutation matrices (TODO: precompute)
       std::vector<unsigned int> recv_permutation_inv(recv_permutation.size());
@@ -520,31 +496,25 @@ namespace Utilities
       // allocate memory for buffer
       const auto &point_ptrs = this->get_point_ptrs();
       AssertDimension(input.size(), point_ptrs.size() - 1);
-      buffer.resize(std::max(send_permutation.size() * 2,
-                             point_ptrs.back() + send_permutation.size()));
+      buffer.resize(std::max(send_permutation.size() * 2, point_ptrs.back() + send_permutation.size()));
 
       // ... for evaluation
       ArrayView<T> buffer_eval(buffer.data(), send_permutation.size());
 
       // ... for communication
-      ArrayView<T> buffer_comm(buffer.data() + send_permutation.size(),
-                               point_ptrs.back());
+      ArrayView<T> buffer_comm(buffer.data() + send_permutation.size(), point_ptrs.back());
 
       // sort for communication (and duplicate data if necessary)
       unsigned int my_rank_local_recv = numbers::invalid_unsigned_int;
       unsigned int my_rank_local_send = numbers::invalid_unsigned_int;
 
-      const auto my_rank_local_recv_ptr =
-        std::find(recv_ranks.begin(), recv_ranks.end(), my_rank);
+      const auto my_rank_local_recv_ptr = std::find(recv_ranks.begin(), recv_ranks.end(), my_rank);
 
       if (my_rank_local_recv_ptr != recv_ranks.end())
         {
-          my_rank_local_recv =
-            std::distance(recv_ranks.begin(), my_rank_local_recv_ptr);
-          my_rank_local_send = std::distance(send_ranks.begin(),
-                                             std::find(send_ranks.begin(),
-                                                       send_ranks.end(),
-                                                       my_rank));
+          my_rank_local_recv = std::distance(recv_ranks.begin(), my_rank_local_recv_ptr);
+          my_rank_local_send =
+            std::distance(send_ranks.begin(), std::find(send_ranks.begin(), send_ranks.end(), my_rank));
         }
 
       for (unsigned int i = 0, c = 0; i < point_ptrs.size() - 1; ++i)
@@ -557,11 +527,9 @@ namespace Utilities
 
               // local data -> can be copied to final buffer directly
               if (my_rank_local_recv != numbers::invalid_unsigned_int &&
-                  (recv_ptrs[my_rank_local_recv] <= recv_index &&
-                   recv_index < recv_ptrs[my_rank_local_recv + 1]))
-                buffer_eval[send_permutation_inv
-                              [recv_index - recv_ptrs[my_rank_local_recv] +
-                               send_ptrs[my_rank_local_send]]] = input[i];
+                  (recv_ptrs[my_rank_local_recv] <= recv_index && recv_index < recv_ptrs[my_rank_local_recv + 1]))
+                buffer_eval[send_permutation_inv[recv_index - recv_ptrs[my_rank_local_recv] +
+                                                 send_ptrs[my_rank_local_send]]] = input[i];
               else // data to be sent
                 buffer_comm[recv_index] = input[i];
             }
@@ -581,10 +549,9 @@ namespace Utilities
 
           send_requests.push_back(MPI_Request());
 
-          send_buffer.emplace_back(Utilities::pack(
-            std::vector<T>(buffer_comm.begin() + recv_ptrs[i],
-                           buffer_comm.begin() + recv_ptrs[i + 1]),
-            false));
+          send_buffer.emplace_back(
+            Utilities::pack(std::vector<T>(buffer_comm.begin() + recv_ptrs[i], buffer_comm.begin() + recv_ptrs[i + 1]),
+                            false));
 
           const int ierr = MPI_Isend(send_buffer.back().data(),
                                      send_buffer.back().size(),
@@ -606,10 +573,8 @@ namespace Utilities
 
           // receive remote data
           MPI_Status status;
-          int        ierr = MPI_Probe(MPI_ANY_SOURCE,
-                               internal::Tags::remote_point_evaluation,
-                               tria->get_communicator(),
-                               &status);
+          int        ierr =
+            MPI_Probe(MPI_ANY_SOURCE, internal::Tags::remote_point_evaluation, tria->get_communicator(), &status);
           AssertThrowMPI(ierr);
 
           int message_length;
@@ -628,30 +593,24 @@ namespace Utilities
           AssertThrowMPI(ierr);
 
           // unpack data
-          const auto recv_buffer_unpacked =
-            Utilities::unpack<std::vector<T>>(recv_buffer, false);
+          const auto recv_buffer_unpacked = Utilities::unpack<std::vector<T>>(recv_buffer, false);
 
           // write data into buffer vector
-          const auto ptr =
-            std::find(send_ranks.begin(), send_ranks.end(), status.MPI_SOURCE);
+          const auto ptr = std::find(send_ranks.begin(), send_ranks.end(), status.MPI_SOURCE);
 
           Assert(ptr != send_ranks.end(), ExcNotImplemented());
 
           const unsigned int j = std::distance(send_ranks.begin(), ptr);
 
-          AssertDimension(recv_buffer_unpacked.size(),
-                          send_ptrs[j + 1] - send_ptrs[j]);
+          AssertDimension(recv_buffer_unpacked.size(), send_ptrs[j + 1] - send_ptrs[j]);
 
-          for (unsigned int i = send_ptrs[j], c = 0; i < send_ptrs[j + 1];
-               ++i, ++c)
+          for (unsigned int i = send_ptrs[j], c = 0; i < send_ptrs[j + 1]; ++i, ++c)
             buffer_eval[send_permutation_inv[i]] = recv_buffer_unpacked[c];
         }
 
       if (!send_requests.empty())
         {
-          const int ierr = MPI_Waitall(send_requests.size(),
-                                       send_requests.data(),
-                                       MPI_STATUSES_IGNORE);
+          const int ierr = MPI_Waitall(send_requests.size(), send_requests.data(), MPI_STATUSES_IGNORE);
           AssertThrowMPI(ierr);
         }
 

@@ -42,8 +42,7 @@ test()
   // same, but create iterator in a different
   // way
   {
-    PETScWrappers::MPI::BlockVector::const_iterator i =
-      const_cast<const PETScWrappers::MPI::BlockVector &>(v).begin();
+    PETScWrappers::MPI::BlockVector::const_iterator i = const_cast<const PETScWrappers::MPI::BlockVector &>(v).begin();
     AssertThrow(i[0] == 1, ExcInternalError());
     AssertThrow(i[1] == 2, ExcInternalError());
   }
@@ -88,28 +87,20 @@ main(int argc, char **argv)
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

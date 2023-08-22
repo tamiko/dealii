@@ -75,9 +75,7 @@ namespace Threads
    */
   template <typename ForwardIterator>
   std::vector<std::pair<ForwardIterator, ForwardIterator>>
-  split_range(const ForwardIterator &begin,
-              const ForwardIterator &end,
-              const unsigned int     n_intervals);
+  split_range(const ForwardIterator &begin, const ForwardIterator &end, const unsigned int n_intervals);
 
   /**
    * Split the interval <code>[begin,end)</code> into subintervals of (almost)
@@ -88,9 +86,7 @@ namespace Threads
    * @ingroup threads
    */
   std::vector<std::pair<unsigned int, unsigned int>>
-  split_interval(const unsigned int begin,
-                 const unsigned int end,
-                 const unsigned int n_intervals);
+  split_interval(const unsigned int begin, const unsigned int end, const unsigned int n_intervals);
 
   /**
    * @cond internal
@@ -144,9 +140,7 @@ namespace Threads
 {
   template <typename ForwardIterator>
   std::vector<std::pair<ForwardIterator, ForwardIterator>>
-  split_range(const ForwardIterator &begin,
-              const ForwardIterator &end,
-              const unsigned int     n_intervals)
+  split_range(const ForwardIterator &begin, const ForwardIterator &end, const unsigned int n_intervals)
   {
     using IteratorPair = std::pair<ForwardIterator, ForwardIterator>;
 
@@ -174,8 +168,7 @@ namespace Threads
             // that in the library `dist>=0' is checked (dist has a
             // template type, which here is unsigned if no cast is
             // performed)
-            std::advance(return_values[i].second,
-                         static_cast<signed int>(n_elements_per_interval));
+            std::advance(return_values[i].second, static_cast<signed int>(n_elements_per_interval));
             // distribute residual in division equally among the first
             // few subintervals
             if (i < residual)
@@ -232,12 +225,10 @@ namespace Threads
       inline reference_type
       get()
       {
-        Assert(
-          value_is_initialized,
-          ExcMessage(
-            "You cannot read the return value of a thread or task "
-            "if that value has not been set. This happens, for example, if "
-            "a task or thread threw an exception."));
+        Assert(value_is_initialized,
+               ExcMessage("You cannot read the return value of a thread or task "
+                          "if that value has not been set. This happens, for example, if "
+                          "a task or thread threw an exception."));
         return value;
       }
 
@@ -288,7 +279,7 @@ namespace Threads
     struct return_value<RT &>
     {
     private:
-      RT * value;
+      RT  *value;
       bool value_is_initialized;
 
     public:
@@ -302,12 +293,10 @@ namespace Threads
       inline reference_type
       get() const
       {
-        Assert(
-          value_is_initialized,
-          ExcMessage(
-            "You cannot read the return value of a thread or task "
-            "if that value has not been set. This happens, for example, if "
-            "a task or thread threw an exception."));
+        Assert(value_is_initialized,
+               ExcMessage("You cannot read the return value of a thread or task "
+                          "if that value has not been set. This happens, for example, if "
+                          "a task or thread threw an exception."));
         return *value;
       }
 
@@ -424,9 +413,7 @@ namespace Threads
      *    std::convertible_to<std::invoke_result_t<Function>, RT>)}
      */
     template <typename RT, typename Function>
-    DEAL_II_CXX20_REQUIRES(
-      (std::invocable<Function> &&
-       std::convertible_to<std::invoke_result_t<Function>, RT>))
+    DEAL_II_CXX20_REQUIRES((std::invocable<Function> && std::convertible_to<std::invoke_result_t<Function>, RT>))
     void evaluate_and_set_promise(Function &function, std::promise<RT> &promise)
     {
       promise.set_value(function());
@@ -444,8 +431,7 @@ namespace Threads
      */
     template <typename Function>
     DEAL_II_CXX20_REQUIRES((std::invocable<Function>))
-    void evaluate_and_set_promise(Function &          function,
-                                  std::promise<void> &promise)
+    void evaluate_and_set_promise(Function &function, std::promise<void> &promise)
     {
       function();
       promise.set_value();
@@ -504,10 +490,8 @@ namespace Threads
           // we can use to refer to the outcome of the task. For reasons
           // explained below, we can't just create a std::promise object,
           // but have to make do with a pointer to such an object.
-          std::unique_ptr<std::promise<RT>> promise =
-            std::make_unique<std::promise<RT>>();
-          task_data =
-            std::make_shared<TaskData>(std::move(promise->get_future()));
+          std::unique_ptr<std::promise<RT>> promise = std::make_unique<std::promise<RT>>();
+          task_data                                 = std::make_shared<TaskData>(std::move(promise->get_future()));
 
           // Then start the task, using a task_group object (for just this one
           // task) that is associated with the TaskData object. Note that we
@@ -545,9 +529,7 @@ namespace Threads
           // instead we move the std::unique_ptr used above into a
           // std::shared_ptr to be stored within the lambda function object.
           task_data->task_group.run(
-            [function_object,
-             promise =
-               std::shared_ptr<std::promise<RT>>(std::move(promise))]() {
+            [function_object, promise = std::shared_ptr<std::promise<RT>>(std::move(promise))]() {
               try
                 {
                   internal::evaluate_and_set_promise(function_object, *promise);
@@ -585,9 +567,8 @@ namespace Threads
           //
           // The issue illustrates why relying on external libraries
           // with task schedulers is the way to go.
-          task_data = std::make_shared<TaskData>(
-            std::async(std::launch::async | std::launch::deferred,
-                       function_object));
+          task_data =
+            std::make_shared<TaskData>(std::async(std::launch::async | std::launch::deferred, function_object));
 #endif
         }
       else
@@ -1096,8 +1077,7 @@ namespace Threads
    */
   template <typename FunctionObjectType>
   DEAL_II_CXX20_REQUIRES((std::invocable<FunctionObjectType>))
-  inline auto new_task(FunctionObjectType function_object)
-    -> Task<decltype(function_object())>
+  inline auto new_task(FunctionObjectType function_object) -> Task<decltype(function_object())>
   {
     using return_type = decltype(function_object());
     dealii::MultithreadInfo::initialize_multithreading();
@@ -1117,8 +1097,7 @@ namespace Threads
   new_task(RT (*fun_ptr)(Args...), std_cxx20::type_identity_t<Args>... args)
   {
     auto dummy = std::make_tuple(internal::maybe_make_ref<Args>::act(args)...);
-    return new_task(
-      [dummy, fun_ptr]() -> RT { return std::apply(fun_ptr, dummy); });
+    return new_task([dummy, fun_ptr]() -> RT { return std::apply(fun_ptr, dummy); });
   }
 
 
@@ -1131,13 +1110,10 @@ namespace Threads
    */
   template <typename RT, typename C, typename... Args>
   inline Task<RT>
-  new_task(RT (C::*fun_ptr)(Args...),
-           std_cxx20::type_identity_t<C> &c,
-           std_cxx20::type_identity_t<Args>... args)
+  new_task(RT (C::*fun_ptr)(Args...), std_cxx20::type_identity_t<C> &c, std_cxx20::type_identity_t<Args>... args)
   {
     // NOLINTNEXTLINE(modernize-avoid-bind) silence clang-tidy
-    return new_task(std::function<RT()>(std::bind(
-      fun_ptr, std::ref(c), internal::maybe_make_ref<Args>::act(args)...)));
+    return new_task(std::function<RT()>(std::bind(fun_ptr, std::ref(c), internal::maybe_make_ref<Args>::act(args)...)));
   }
 
   /**
@@ -1153,8 +1129,8 @@ namespace Threads
            std_cxx20::type_identity_t<Args>... args)
   {
     // NOLINTNEXTLINE(modernize-avoid-bind) silence clang-tidy
-    return new_task(std::function<RT()>(std::bind(
-      fun_ptr, std::cref(c), internal::maybe_make_ref<Args>::act(args)...)));
+    return new_task(
+      std::function<RT()>(std::bind(fun_ptr, std::cref(c), internal::maybe_make_ref<Args>::act(args)...)));
   }
 
 

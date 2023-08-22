@@ -49,8 +49,7 @@ print_quadrature(const Quadrature<dim> &quadrature)
  */
 template <int dim, int spacedim>
 void
-print_surface_quadrature(
-  const NonMatching::ImmersedSurfaceQuadrature<dim, spacedim> &quadrature)
+print_surface_quadrature(const NonMatching::ImmersedSurfaceQuadrature<dim, spacedim> &quadrature)
 {
   for (unsigned int i = 0; i < quadrature.size(); ++i)
     {

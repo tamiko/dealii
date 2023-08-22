@@ -14,18 +14,14 @@
 // ---------------------------------------------------------------------
 
 
-for (S : REAL_AND_COMPLEX_SCALARS; deal_II_dimension : DIMENSIONS;
-     deal_II_space_dimension : SPACE_DIMENSIONS)
+for (S : REAL_AND_COMPLEX_SCALARS; deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS)
   {
 #if deal_II_dimension <= deal_II_space_dimension
     namespace VectorTools
     \{
 
       template void
-      integrate_difference<deal_II_dimension,
-                           S,
-                           Vector<float>,
-                           deal_II_space_dimension>(
+      integrate_difference<deal_II_dimension, S, Vector<float>, deal_II_space_dimension>(
         const Mapping<deal_II_dimension, deal_II_space_dimension> &,
         const DoFHandler<deal_II_dimension, deal_II_space_dimension> &,
         const ReadVector<S> &,
@@ -37,10 +33,7 @@ for (S : REAL_AND_COMPLEX_SCALARS; deal_II_dimension : DIMENSIONS;
         const double);
 
       template void
-      integrate_difference<deal_II_dimension,
-                           S,
-                           Vector<float>,
-                           deal_II_space_dimension>(
+      integrate_difference<deal_II_dimension, S, Vector<float>, deal_II_space_dimension>(
         const DoFHandler<deal_II_dimension, deal_II_space_dimension> &,
         const ReadVector<S> &,
         const Function<deal_II_space_dimension, S> &,
@@ -51,10 +44,7 @@ for (S : REAL_AND_COMPLEX_SCALARS; deal_II_dimension : DIMENSIONS;
         const double);
 
       template void
-      integrate_difference<deal_II_dimension,
-                           S,
-                           Vector<double>,
-                           deal_II_space_dimension>(
+      integrate_difference<deal_II_dimension, S, Vector<double>, deal_II_space_dimension>(
         const Mapping<deal_II_dimension, deal_II_space_dimension> &,
         const DoFHandler<deal_II_dimension, deal_II_space_dimension> &,
         const ReadVector<S> &,
@@ -66,10 +56,7 @@ for (S : REAL_AND_COMPLEX_SCALARS; deal_II_dimension : DIMENSIONS;
         const double);
 
       template void
-      integrate_difference<deal_II_dimension,
-                           S,
-                           Vector<double>,
-                           deal_II_space_dimension>(
+      integrate_difference<deal_II_dimension, S, Vector<double>, deal_II_space_dimension>(
         const DoFHandler<deal_II_dimension, deal_II_space_dimension> &,
         const ReadVector<S> &,
         const Function<deal_II_space_dimension, S> &,
@@ -80,12 +67,8 @@ for (S : REAL_AND_COMPLEX_SCALARS; deal_II_dimension : DIMENSIONS;
         const double);
 
       template void
-      integrate_difference<deal_II_dimension,
-                           S,
-                           Vector<double>,
-                           deal_II_space_dimension>(
-        const hp::MappingCollection<deal_II_dimension, deal_II_space_dimension>
-          &,
+      integrate_difference<deal_II_dimension, S, Vector<double>, deal_II_space_dimension>(
+        const hp::MappingCollection<deal_II_dimension, deal_II_space_dimension> &,
         const DoFHandler<deal_II_dimension, deal_II_space_dimension> &,
         const ReadVector<S> &,
         const Function<deal_II_space_dimension, S> &,
@@ -96,10 +79,7 @@ for (S : REAL_AND_COMPLEX_SCALARS; deal_II_dimension : DIMENSIONS;
         const double);
 
       template void
-      integrate_difference<deal_II_dimension,
-                           S,
-                           Vector<double>,
-                           deal_II_space_dimension>(
+      integrate_difference<deal_II_dimension, S, Vector<double>, deal_II_space_dimension>(
         const DoFHandler<deal_II_dimension, deal_II_space_dimension> &,
         const ReadVector<S> &,
         const Function<deal_II_space_dimension, S> &,
@@ -110,12 +90,8 @@ for (S : REAL_AND_COMPLEX_SCALARS; deal_II_dimension : DIMENSIONS;
         const double);
 
       template void
-      integrate_difference<deal_II_dimension,
-                           S,
-                           Vector<float>,
-                           deal_II_space_dimension>(
-        const hp::MappingCollection<deal_II_dimension, deal_II_space_dimension>
-          &,
+      integrate_difference<deal_II_dimension, S, Vector<float>, deal_II_space_dimension>(
+        const hp::MappingCollection<deal_II_dimension, deal_II_space_dimension> &,
         const DoFHandler<deal_II_dimension, deal_II_space_dimension> &,
         const ReadVector<S> &,
         const Function<deal_II_space_dimension, S> &,
@@ -126,10 +102,7 @@ for (S : REAL_AND_COMPLEX_SCALARS; deal_II_dimension : DIMENSIONS;
         const double);
 
       template void
-      integrate_difference<deal_II_dimension,
-                           S,
-                           Vector<float>,
-                           deal_II_space_dimension>(
+      integrate_difference<deal_II_dimension, S, Vector<float>, deal_II_space_dimension>(
         const DoFHandler<deal_II_dimension, deal_II_space_dimension> &,
         const ReadVector<S> &,
         const Function<deal_II_space_dimension, S> &,
@@ -149,18 +122,14 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS)
     namespace VectorTools
     \{
       template double
-      compute_global_error<deal_II_dimension,
-                           deal_II_space_dimension,
-                           Vector<float>>(
+      compute_global_error<deal_II_dimension, deal_II_space_dimension, Vector<float>>(
         const Triangulation<deal_II_dimension, deal_II_space_dimension> &,
         const Vector<float> &,
         const NormType &,
         const double);
 
       template double
-      compute_global_error<deal_II_dimension,
-                           deal_II_space_dimension,
-                           Vector<double>>(
+      compute_global_error<deal_II_dimension, deal_II_space_dimension, Vector<double>>(
         const Triangulation<deal_II_dimension, deal_II_space_dimension> &,
         const Vector<double> &,
         const NormType &,

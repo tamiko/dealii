@@ -46,16 +46,10 @@ test(const std::string &filename)
       deallog << "cell->manifold_id: " << cell->manifold_id() << std::endl;
       if (dim > 1)
         for (const unsigned int face_no : GeometryInfo<dim>::face_indices())
-          deallog << "cell->face(" << face_no
-                  << ")->manifold_id: " << cell->face(face_no)->manifold_id()
-                  << std::endl;
+          deallog << "cell->face(" << face_no << ")->manifold_id: " << cell->face(face_no)->manifold_id() << std::endl;
       if (dim > 1)
-        for (unsigned int line_no = 0;
-             line_no < GeometryInfo<dim>::lines_per_cell;
-             ++line_no)
-          deallog << "cell->line(" << line_no
-                  << ")->manifold_id: " << cell->line(line_no)->manifold_id()
-                  << std::endl;
+        for (unsigned int line_no = 0; line_no < GeometryInfo<dim>::lines_per_cell; ++line_no)
+          deallog << "cell->line(" << line_no << ")->manifold_id: " << cell->line(line_no)->manifold_id() << std::endl;
     }
   deallog << std::endl;
 }

@@ -110,10 +110,10 @@ namespace FESeries
      * case it indicates that the sole component is to be decomposed. For
      * vector-valued FEs, a non-default value must be explicitly provided.
      */
-    Fourier(const std::vector<unsigned int> &      n_coefficients_per_direction,
+    Fourier(const std::vector<unsigned int>       &n_coefficients_per_direction,
             const hp::FECollection<dim, spacedim> &fe_collection,
-            const hp::QCollection<dim> &           q_collection,
-            const unsigned int component = numbers::invalid_unsigned_int);
+            const hp::QCollection<dim>            &q_collection,
+            const unsigned int                     component = numbers::invalid_unsigned_int);
 
     /**
      * Calculate @p fourier_coefficients of the cell vector field given by
@@ -124,7 +124,7 @@ namespace FESeries
     void
     calculate(const dealii::Vector<Number> &local_dof_values,
               const unsigned int            cell_active_fe_index,
-              Table<dim, CoefficientType> & fourier_coefficients);
+              Table<dim, CoefficientType>  &fourier_coefficients);
 
     /**
      * Return the number of coefficients in each coordinate direction for the
@@ -280,10 +280,10 @@ namespace FESeries
      * case it indicates that the sole component is to be decomposed. For
      * vector-valued FEs, a non-default value must be explicitly provided.
      */
-    Legendre(const std::vector<unsigned int> &n_coefficients_per_direction,
+    Legendre(const std::vector<unsigned int>       &n_coefficients_per_direction,
              const hp::FECollection<dim, spacedim> &fe_collection,
-             const hp::QCollection<dim> &           q_collection,
-             const unsigned int component = numbers::invalid_unsigned_int);
+             const hp::QCollection<dim>            &q_collection,
+             const unsigned int                     component = numbers::invalid_unsigned_int);
 
     /**
      * Calculate @p legendre_coefficients of the cell vector field given by
@@ -294,7 +294,7 @@ namespace FESeries
     void
     calculate(const dealii::Vector<Number> &local_dof_values,
               const unsigned int            cell_active_fe_index,
-              Table<dim, CoefficientType> & legendre_coefficients);
+              Table<dim, CoefficientType>  &legendre_coefficients);
 
     /**
      * Return the number of coefficients in each coordinate direction for the
@@ -398,10 +398,9 @@ namespace FESeries
    */
   template <int dim, typename CoefficientType>
   std::pair<std::vector<unsigned int>, std::vector<double>>
-  process_coefficients(const Table<dim, CoefficientType> &coefficients,
-                       const std::function<std::pair<bool, unsigned int>(
-                         const TableIndices<dim> &)> &    predicate,
-                       const VectorTools::NormType        norm_type,
+  process_coefficients(const Table<dim, CoefficientType>                                             &coefficients,
+                       const std::function<std::pair<bool, unsigned int>(const TableIndices<dim> &)> &predicate,
+                       const VectorTools::NormType                                                    norm_type,
                        const double smallest_abs_coefficient = 1e-10);
 
   /**
@@ -428,12 +427,10 @@ namespace internal
   {
     template <int dim, typename CoefficientType>
     void
-    fill_map_index(
-      const Table<dim, CoefficientType> &coefficients,
-      const TableIndices<dim> &          ind,
-      const std::function<
-        std::pair<bool, unsigned int>(const TableIndices<dim> &)> &predicate,
-      std::map<unsigned int, std::vector<CoefficientType>> &pred_to_values)
+    fill_map_index(const Table<dim, CoefficientType>                                             &coefficients,
+                   const TableIndices<dim>                                                       &ind,
+                   const std::function<std::pair<bool, unsigned int>(const TableIndices<dim> &)> &predicate,
+                   std::map<unsigned int, std::vector<CoefficientType>>                          &pred_to_values)
     {
       const std::pair<bool, unsigned int> pred_pair = predicate(ind);
       // don't add a value if predicate is false
@@ -451,11 +448,9 @@ namespace internal
 
     template <typename CoefficientType>
     void
-    fill_map(
-      const Table<1, CoefficientType> &coefficients,
-      const std::function<
-        std::pair<bool, unsigned int>(const TableIndices<1> &)> &predicate,
-      std::map<unsigned int, std::vector<CoefficientType>> &     pred_to_values)
+    fill_map(const Table<1, CoefficientType>                                             &coefficients,
+             const std::function<std::pair<bool, unsigned int>(const TableIndices<1> &)> &predicate,
+             std::map<unsigned int, std::vector<CoefficientType>>                        &pred_to_values)
     {
       for (unsigned int i = 0; i < coefficients.size(0); ++i)
         {
@@ -468,11 +463,9 @@ namespace internal
 
     template <typename CoefficientType>
     void
-    fill_map(
-      const Table<2, CoefficientType> &coefficients,
-      const std::function<
-        std::pair<bool, unsigned int>(const TableIndices<2> &)> &predicate,
-      std::map<unsigned int, std::vector<CoefficientType>> &     pred_to_values)
+    fill_map(const Table<2, CoefficientType>                                             &coefficients,
+             const std::function<std::pair<bool, unsigned int>(const TableIndices<2> &)> &predicate,
+             std::map<unsigned int, std::vector<CoefficientType>>                        &pred_to_values)
     {
       for (unsigned int i = 0; i < coefficients.size(0); ++i)
         for (unsigned int j = 0; j < coefficients.size(1); ++j)
@@ -486,11 +479,9 @@ namespace internal
 
     template <typename CoefficientType>
     void
-    fill_map(
-      const Table<3, CoefficientType> &coefficients,
-      const std::function<
-        std::pair<bool, unsigned int>(const TableIndices<3> &)> &predicate,
-      std::map<unsigned int, std::vector<CoefficientType>> &     pred_to_values)
+    fill_map(const Table<3, CoefficientType>                                             &coefficients,
+             const std::function<std::pair<bool, unsigned int>(const TableIndices<3> &)> &predicate,
+             std::map<unsigned int, std::vector<CoefficientType>>                        &pred_to_values)
     {
       for (unsigned int i = 0; i < coefficients.size(0); ++i)
         for (unsigned int j = 0; j < coefficients.size(1); ++j)
@@ -517,9 +508,8 @@ namespace internal
     complex_mean_value(const std::complex<Number> &value)
     {
       AssertThrow(false,
-                  ExcMessage(
-                    "FESeries::process_coefficients() can not be used with "
-                    "complex-valued coefficients and VectorTools::mean norm."));
+                  ExcMessage("FESeries::process_coefficients() can not be used with "
+                             "complex-valued coefficients and VectorTools::mean norm."));
       return std::abs(value);
     }
   } // namespace FESeriesImplementation
@@ -529,15 +519,12 @@ namespace internal
 
 template <int dim, typename CoefficientType>
 std::pair<std::vector<unsigned int>, std::vector<double>>
-FESeries::process_coefficients(
-  const Table<dim, CoefficientType> &coefficients,
-  const std::function<std::pair<bool, unsigned int>(const TableIndices<dim> &)>
-    &                         predicate,
-  const VectorTools::NormType norm_type,
-  const double                smallest_abs_coefficient)
+FESeries::process_coefficients(const Table<dim, CoefficientType> &coefficients,
+                               const std::function<std::pair<bool, unsigned int>(const TableIndices<dim> &)> &predicate,
+                               const VectorTools::NormType                                                    norm_type,
+                               const double smallest_abs_coefficient)
 {
-  Assert(smallest_abs_coefficient >= 0.,
-         ExcMessage("smallest_abs_coefficient should be non-negative."));
+  Assert(smallest_abs_coefficient >= 0., ExcMessage("smallest_abs_coefficient should be non-negative."));
 
   std::vector<unsigned int> predicate_values;
   std::vector<double>       norm_values;
@@ -546,15 +533,12 @@ FESeries::process_coefficients(
   // coefficients. We could have stored (predicate values ->TableIndices) map,
   // but its processing would have been much harder later on.
   std::map<unsigned int, std::vector<CoefficientType>> pred_to_values;
-  internal::FESeriesImplementation::fill_map(coefficients,
-                                             predicate,
-                                             pred_to_values);
+  internal::FESeriesImplementation::fill_map(coefficients, predicate, pred_to_values);
 
   // now go through the map and populate the @p norm_values based on @p norm:
   for (const auto &pred_to_value : pred_to_values)
     {
-      Vector<CoefficientType> values(pred_to_value.second.cbegin(),
-                                     pred_to_value.second.cend());
+      Vector<CoefficientType> values(pred_to_value.second.cbegin(), pred_to_value.second.cend());
 
       double norm_value = 0;
       switch (norm_type)
@@ -576,8 +560,7 @@ FESeries::process_coefficients(
             }
           case VectorTools::mean:
             {
-              norm_value = internal::FESeriesImplementation::complex_mean_value(
-                values.mean_value());
+              norm_value = internal::FESeriesImplementation::complex_mean_value(values.mean_value());
               break;
             }
           default:
@@ -601,9 +584,7 @@ FESeries::process_coefficients(
 template <int dim, int spacedim>
 template <class Archive>
 inline void
-FESeries::Fourier<dim, spacedim>::save_transformation_matrices(
-  Archive &ar,
-  const unsigned int /*version*/)
+FESeries::Fourier<dim, spacedim>::save_transformation_matrices(Archive &ar, const unsigned int /*version*/)
 {
   // Store information about those resources which have been used to generate
   // the transformation matrices.
@@ -612,7 +593,7 @@ FESeries::Fourier<dim, spacedim>::save_transformation_matrices(
 
   // finite element collection
   unsigned int size = fe_collection->size();
-  ar &         size;
+  ar          &size;
   for (unsigned int i = 0; i < size; ++i)
     ar &(*fe_collection)[i].get_name();
 
@@ -631,15 +612,13 @@ FESeries::Fourier<dim, spacedim>::save_transformation_matrices(
 template <int dim, int spacedim>
 template <class Archive>
 inline void
-FESeries::Fourier<dim, spacedim>::load_transformation_matrices(
-  Archive &ar,
-  const unsigned int /*version*/)
+FESeries::Fourier<dim, spacedim>::load_transformation_matrices(Archive &ar, const unsigned int /*version*/)
 {
   // Check whether the currently registered resources are compatible with
   // the transformation matrices to load.
   // mode vector
   std::vector<unsigned int> compare_coefficients;
-  ar &                      compare_coefficients;
+  ar                       &compare_coefficients;
   Assert(compare_coefficients == n_coefficients_per_direction,
          ExcMessage("A different number of coefficients vector has been used "
                     "to generate the transformation matrices you are about "
@@ -647,7 +626,7 @@ FESeries::Fourier<dim, spacedim>::load_transformation_matrices(
 
   // finite element collection
   unsigned int size;
-  ar &         size;
+  ar          &size;
   AssertDimension(size, fe_collection->size());
   std::string name;
   for (unsigned int i = 0; i < size; ++i)
@@ -679,9 +658,7 @@ FESeries::Fourier<dim, spacedim>::load_transformation_matrices(
 template <int dim, int spacedim>
 template <class Archive>
 inline void
-FESeries::Legendre<dim, spacedim>::save_transformation_matrices(
-  Archive &ar,
-  const unsigned int /*version*/)
+FESeries::Legendre<dim, spacedim>::save_transformation_matrices(Archive &ar, const unsigned int /*version*/)
 {
   // Store information about those resources which have been used to generate
   // the transformation matrices.
@@ -690,7 +667,7 @@ FESeries::Legendre<dim, spacedim>::save_transformation_matrices(
 
   // finite element collection
   unsigned int size = fe_collection->size();
-  ar &         size;
+  ar          &size;
   for (unsigned int i = 0; i < size; ++i)
     ar &(*fe_collection)[i].get_name();
 
@@ -709,15 +686,13 @@ FESeries::Legendre<dim, spacedim>::save_transformation_matrices(
 template <int dim, int spacedim>
 template <class Archive>
 inline void
-FESeries::Legendre<dim, spacedim>::load_transformation_matrices(
-  Archive &ar,
-  const unsigned int /*version*/)
+FESeries::Legendre<dim, spacedim>::load_transformation_matrices(Archive &ar, const unsigned int /*version*/)
 {
   // Check whether the currently registered resources are compatible with
   // the transformation matrices to load.
   // mode vector
   std::vector<unsigned int> compare_coefficients;
-  ar &                      compare_coefficients;
+  ar                       &compare_coefficients;
   Assert(compare_coefficients == n_coefficients_per_direction,
          ExcMessage("A different number of coefficients vector has been used "
                     "to generate the transformation matrices you are about "
@@ -725,7 +700,7 @@ FESeries::Legendre<dim, spacedim>::load_transformation_matrices(
 
   // finite element collection
   unsigned int size;
-  ar &         size;
+  ar          &size;
   AssertDimension(size, fe_collection->size());
   std::string name;
   for (unsigned int i = 0; i < size; ++i)

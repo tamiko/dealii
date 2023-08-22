@@ -31,21 +31,18 @@ namespace GridTools
 {
   template <>
   double
-  cell_measure<1>(const std::vector<Point<1>> &        all_vertices,
-                  const ArrayView<const unsigned int> &vertex_indices)
+  cell_measure<1>(const std::vector<Point<1>> &all_vertices, const ArrayView<const unsigned int> &vertex_indices)
   {
     AssertDimension(vertex_indices.size(), GeometryInfo<1>::vertices_per_cell);
 
-    return all_vertices[vertex_indices[1]][0] -
-           all_vertices[vertex_indices[0]][0];
+    return all_vertices[vertex_indices[1]][0] - all_vertices[vertex_indices[0]][0];
   }
 
 
 
   template <>
   double
-  cell_measure<2>(const std::vector<Point<2>> &        all_vertices,
-                  const ArrayView<const unsigned int> &vertex_indices)
+  cell_measure<2>(const std::vector<Point<2>> &all_vertices, const ArrayView<const unsigned int> &vertex_indices)
   {
     if (vertex_indices.size() == 3) // triangle
       {
@@ -57,8 +54,7 @@ namespace GridTools
                              all_vertices[vertex_indices[1]](1),
                              all_vertices[vertex_indices[2]](1)};
 
-        return 0.5 *
-               ((x[0] - x[2]) * (y[1] - y[0]) - (x[1] - x[0]) * (y[0] - y[2]));
+        return 0.5 * ((x[0] - x[2]) * (y[1] - y[0]) - (x[1] - x[0]) * (y[0] - y[2]));
       }
 
     AssertDimension(vertex_indices.size(), GeometryInfo<2>::vertices_per_cell);
@@ -109,8 +105,8 @@ namespace GridTools
                          all_vertices[vertex_indices[2]](1),
                          all_vertices[vertex_indices[3]](1)};
 
-    return (-x[1] * y[0] + x[1] * y[3] + y[0] * x[2] + x[0] * y[1] -
-            x[0] * y[2] - y[1] * x[3] - x[2] * y[3] + x[3] * y[2]) /
+    return (-x[1] * y[0] + x[1] * y[3] + y[0] * x[2] + x[0] * y[1] - x[0] * y[2] - y[1] * x[3] - x[2] * y[3] +
+            x[3] * y[2]) /
            2;
   }
 
@@ -118,8 +114,7 @@ namespace GridTools
 
   template <>
   double
-  cell_measure<3>(const std::vector<Point<3>> &        all_vertices,
-                  const ArrayView<const unsigned int> &vertex_indices)
+  cell_measure<3>(const std::vector<Point<3>> &all_vertices, const ArrayView<const unsigned int> &vertex_indices)
   {
     if (vertex_indices.size() == 4) // tetrahedron
       {
@@ -149,8 +144,7 @@ namespace GridTools
 
         // doing high - low consistently puts us off by -1 from the original
         // paper in the first term
-        return -v04 * cross_product_3d(v21, v03) / 6.0 +
-               v03 * cross_product_3d(v01, v02) / 12.0;
+        return -v04 * cross_product_3d(v21, v03) / 6.0 + v03 * cross_product_3d(v01, v02) / 12.0;
       }
     else if (vertex_indices.size() == 6) // wedge
       {
@@ -257,18 +251,12 @@ namespace GridTools
         const double x34 = (1.0 / 6.0) * z4;
         const double x35 = (1.0 / 6.0) * z3;
         const double result =
-          x0 * (x12 * y5 + x9 * y4 + y1 * (-x13 + x14 + x8) +
-                y2 * (x11 + x15 + x17) + y3 * (x18 + x20)) +
-          x1 * (x22 * y3 + x24 * y5 + y0 * (x11 + x13 + x19) +
-                y2 * (x14 + x16 - x25) + y4 * (x26 + x27)) +
-          x2 * (x29 * y3 + x30 * y4 + y0 * (-x15 + x16 + x8) +
-                y1 * (x17 + x19 + x25) + y5 * (x31 + x32)) +
-          x3 * (x26 * y2 + x31 * y1 + y0 * (x24 + x30) + y4 * (x28 + x33 + x7) +
-                y5 * (x10 + x21 - x34)) +
-          x4 * (x18 * y2 + x32 * y0 + y1 * (x12 + x29) + y3 * (x21 - x33 + x6) +
-                y5 * (x23 + x35 + x7)) +
-          x5 * (x20 * y1 + x27 * y0 + y2 * (x22 + x9) + y3 * (x23 + x28 + x34) +
-                y4 * (x10 - x35 + x6));
+          x0 * (x12 * y5 + x9 * y4 + y1 * (-x13 + x14 + x8) + y2 * (x11 + x15 + x17) + y3 * (x18 + x20)) +
+          x1 * (x22 * y3 + x24 * y5 + y0 * (x11 + x13 + x19) + y2 * (x14 + x16 - x25) + y4 * (x26 + x27)) +
+          x2 * (x29 * y3 + x30 * y4 + y0 * (-x15 + x16 + x8) + y1 * (x17 + x19 + x25) + y5 * (x31 + x32)) +
+          x3 * (x26 * y2 + x31 * y1 + y0 * (x24 + x30) + y4 * (x28 + x33 + x7) + y5 * (x10 + x21 - x34)) +
+          x4 * (x18 * y2 + x32 * y0 + y1 * (x12 + x29) + y3 * (x21 - x33 + x6) + y5 * (x23 + x35 + x7)) +
+          x5 * (x20 * y1 + x27 * y0 + y2 * (x22 + x9) + y3 * (x23 + x28 + x34) + y4 * (x10 - x35 + x6));
         return result;
       }
 
@@ -346,11 +334,9 @@ namespace GridTools
     const double t22 = y[5] * x[4];
     const double t26 = z[7] * x[6];
     const double t28 = x[0] * y[4];
-    const double t34 =
-      z[3] * x[1] * y[2] + t3 * z[1] - t5 * y[7] + y[7] * x[4] * z[6] +
-      t9 * y[6] - t11 * z[4] - t5 * y[3] - t14 * z[2] + z[1] * x[4] * y[0] -
-      t18 * z[3] + t20 * z[0] - t22 * z[0] - y[0] * x[5] * z[4] - t26 * y[3] +
-      t28 * z[2] - t9 * y[1] - y[1] * x[4] * z[0] - t11 * z[5];
+    const double t34 = z[3] * x[1] * y[2] + t3 * z[1] - t5 * y[7] + y[7] * x[4] * z[6] + t9 * y[6] - t11 * z[4] -
+                       t5 * y[3] - t14 * z[2] + z[1] * x[4] * y[0] - t18 * z[3] + t20 * z[0] - t22 * z[0] -
+                       y[0] * x[5] * z[4] - t26 * y[3] + t28 * z[2] - t9 * y[1] - y[1] * x[4] * z[0] - t11 * z[5];
     const double t37 = y[1] * x[0];
     const double t44 = x[1] * y[5];
     const double t46 = z[1] * x[0];
@@ -359,11 +345,9 @@ namespace GridTools
     const double t54 = x[3] * y[7];
     const double t56 = x[2] * z[0];
     const double t58 = x[3] * y[2];
-    const double t64 = -x[6] * y[4] * z[2] - t37 * z[2] + t18 * z[6] -
-                       x[3] * y[6] * z[2] + t11 * z[2] + t5 * y[0] +
-                       t44 * z[4] - t46 * y[4] - t20 * z[7] - t49 * z[6] -
-                       t22 * z[1] + t52 * z[3] - t54 * z[2] - t56 * y[4] -
-                       t58 * z[0] + y[1] * x[2] * z[0] + t9 * y[7] + t37 * z[4];
+    const double t64 = -x[6] * y[4] * z[2] - t37 * z[2] + t18 * z[6] - x[3] * y[6] * z[2] + t11 * z[2] + t5 * y[0] +
+                       t44 * z[4] - t46 * y[4] - t20 * z[7] - t49 * z[6] - t22 * z[1] + t52 * z[3] - t54 * z[2] -
+                       t56 * y[4] - t58 * z[0] + y[1] * x[2] * z[0] + t9 * y[7] + t37 * z[4];
     const double t66 = x[1] * y[7];
     const double t68 = y[0] * x[6];
     const double t70 = x[7] * y[6];
@@ -371,48 +355,36 @@ namespace GridTools
     const double t76 = x[6] * y[7];
     const double t90 = x[4] * z[0];
     const double t92 = x[1] * y[3];
-    const double t95 = -t66 * z[3] - t68 * z[2] - t70 * z[2] + t26 * y[5] -
-                       t73 * y[6] - t14 * z[6] + t76 * z[2] - t3 * z[6] +
-                       x[6] * y[2] * z[4] - z[3] * x[6] * y[2] + t26 * y[4] -
-                       t44 * z[3] - x[1] * y[2] * z[0] + x[5] * y[6] * z[4] +
-                       t54 * z[5] + t90 * y[2] - t92 * z[2] + t46 * y[2];
+    const double t95 = -t66 * z[3] - t68 * z[2] - t70 * z[2] + t26 * y[5] - t73 * y[6] - t14 * z[6] + t76 * z[2] -
+                       t3 * z[6] + x[6] * y[2] * z[4] - z[3] * x[6] * y[2] + t26 * y[4] - t44 * z[3] -
+                       x[1] * y[2] * z[0] + x[5] * y[6] * z[4] + t54 * z[5] + t90 * y[2] - t92 * z[2] + t46 * y[2];
     const double t102 = x[2] * y[0];
     const double t107 = y[3] * x[7];
     const double t114 = x[0] * y[6];
-    const double t125 =
-      y[0] * x[3] * z[2] - z[7] * x[5] * y[6] - x[2] * y[6] * z[4] +
-      t102 * z[6] - t52 * z[6] + x[2] * y[4] * z[6] - t107 * z[5] - t54 * z[6] +
-      t58 * z[6] - x[7] * y[4] * z[6] + t37 * z[5] - t114 * z[4] + t102 * z[4] -
-      z[1] * x[2] * y[0] + t28 * z[6] - y[5] * x[6] * z[4] -
-      z[5] * x[1] * y[4] - t73 * y[7];
+    const double t125 = y[0] * x[3] * z[2] - z[7] * x[5] * y[6] - x[2] * y[6] * z[4] + t102 * z[6] - t52 * z[6] +
+                        x[2] * y[4] * z[6] - t107 * z[5] - t54 * z[6] + t58 * z[6] - x[7] * y[4] * z[6] + t37 * z[5] -
+                        t114 * z[4] + t102 * z[4] - z[1] * x[2] * y[0] + t28 * z[6] - y[5] * x[6] * z[4] -
+                        z[5] * x[1] * y[4] - t73 * y[7];
     const double t129 = z[0] * x[6];
     const double t133 = y[1] * x[7];
     const double t145 = y[1] * x[5];
-    const double t156 = t90 * y[6] - t129 * y[4] + z[7] * x[2] * y[6] -
-                        t133 * z[5] + x[5] * y[3] * z[7] - t26 * y[2] -
-                        t70 * z[3] + t46 * y[3] + z[5] * x[7] * y[4] +
-                        z[7] * x[3] * y[6] - t49 * z[4] + t145 * z[7] -
-                        x[2] * y[7] * z[6] + t70 * z[5] + t66 * z[5] -
-                        z[7] * x[4] * y[6] + t18 * z[4] + x[1] * y[4] * z[0];
+    const double t156 = t90 * y[6] - t129 * y[4] + z[7] * x[2] * y[6] - t133 * z[5] + x[5] * y[3] * z[7] - t26 * y[2] -
+                        t70 * z[3] + t46 * y[3] + z[5] * x[7] * y[4] + z[7] * x[3] * y[6] - t49 * z[4] + t145 * z[7] -
+                        x[2] * y[7] * z[6] + t70 * z[5] + t66 * z[5] - z[7] * x[4] * y[6] + t18 * z[4] +
+                        x[1] * y[4] * z[0];
     const double t160 = x[5] * y[4];
     const double t165 = z[1] * x[7];
     const double t178 = z[1] * x[3];
-    const double t181 =
-      t107 * z[6] + t22 * z[7] + t76 * z[3] + t160 * z[1] - x[4] * y[2] * z[6] +
-      t70 * z[4] + t165 * y[5] + x[7] * y[2] * z[6] - t76 * z[5] - t76 * z[4] +
-      t133 * z[3] - t58 * z[1] + y[5] * x[0] * z[4] + t114 * z[2] - t3 * z[7] +
-      t20 * z[2] + t178 * y[7] + t129 * y[2];
-    const double t207 = t92 * z[7] + t22 * z[6] + z[3] * x[0] * y[2] -
-                        x[0] * y[3] * z[2] - z[3] * x[7] * y[2] - t165 * y[3] -
-                        t9 * y[0] + t58 * z[7] + y[3] * x[6] * z[2] +
-                        t107 * z[2] + t73 * y[0] - x[3] * y[5] * z[7] +
-                        t3 * z[0] - t56 * y[6] - z[5] * x[0] * y[4] +
-                        t73 * y[1] - t160 * z[6] + t160 * z[0];
-    const double t228 = -t44 * z[7] + z[5] * x[6] * y[4] - t52 * z[4] -
-                        t145 * z[4] + t68 * z[4] + t92 * z[5] - t92 * z[0] +
-                        t11 * z[3] + t44 * z[0] + t178 * y[5] - t46 * y[5] -
-                        t178 * y[0] - t145 * z[0] - t20 * z[5] - t37 * z[3] -
-                        t160 * z[7] + t145 * z[3] + x[4] * y[6] * z[2];
+    const double t181 = t107 * z[6] + t22 * z[7] + t76 * z[3] + t160 * z[1] - x[4] * y[2] * z[6] + t70 * z[4] +
+                        t165 * y[5] + x[7] * y[2] * z[6] - t76 * z[5] - t76 * z[4] + t133 * z[3] - t58 * z[1] +
+                        y[5] * x[0] * z[4] + t114 * z[2] - t3 * z[7] + t20 * z[2] + t178 * y[7] + t129 * y[2];
+    const double t207 = t92 * z[7] + t22 * z[6] + z[3] * x[0] * y[2] - x[0] * y[3] * z[2] - z[3] * x[7] * y[2] -
+                        t165 * y[3] - t9 * y[0] + t58 * z[7] + y[3] * x[6] * z[2] + t107 * z[2] + t73 * y[0] -
+                        x[3] * y[5] * z[7] + t3 * z[0] - t56 * y[6] - z[5] * x[0] * y[4] + t73 * y[1] - t160 * z[6] +
+                        t160 * z[0];
+    const double t228 = -t44 * z[7] + z[5] * x[6] * y[4] - t52 * z[4] - t145 * z[4] + t68 * z[4] + t92 * z[5] -
+                        t92 * z[0] + t11 * z[3] + t44 * z[0] + t178 * y[5] - t46 * y[5] - t178 * y[0] - t145 * z[0] -
+                        t20 * z[5] - t37 * z[3] - t160 * z[7] + t145 * z[3] + x[4] * y[6] * z[2];
 
     return (t34 + t64 + t95 + t125 + t156 + t181 + t207 + t228) / 12.;
   }

@@ -61,12 +61,9 @@ test(const unsigned int v)
       const auto v1 = cell->vertex_index(1);
       const auto v2 = cell->vertex_index(2);
 
-      const auto p0  = cell->face_orientation(0) ? std::make_pair(v0, v1) :
-                                                   std::make_pair(v1, v0);
-      const auto p1  = cell->face_orientation(1) ? std::make_pair(v1, v2) :
-                                                   std::make_pair(v2, v1);
-      const auto p2  = cell->face_orientation(2) ? std::make_pair(v2, v0) :
-                                                   std::make_pair(v0, v2);
+      const auto p0  = cell->face_orientation(0) ? std::make_pair(v0, v1) : std::make_pair(v1, v0);
+      const auto p1  = cell->face_orientation(1) ? std::make_pair(v1, v2) : std::make_pair(v2, v1);
+      const auto p2  = cell->face_orientation(2) ? std::make_pair(v2, v0) : std::make_pair(v0, v2);
       const auto p0w = std::make_pair(p0.second, p0.first);
       const auto p1w = std::make_pair(p1.second, p1.first);
       const auto p2w = std::make_pair(p2.second, p2.first);
@@ -76,14 +73,11 @@ test(const unsigned int v)
       all_faces.insert(p2);
 
       if (all_faces.count(p0w) == 1)
-        deallog << "found inconsistent line (" << p0w.first << ", "
-                << p0w.second << ")" << std::endl;
+        deallog << "found inconsistent line (" << p0w.first << ", " << p0w.second << ")" << std::endl;
       if (all_faces.count(p1w) == 1)
-        deallog << "found inconsistent line (" << p1w.first << ", "
-                << p1w.second << ")" << std::endl;
+        deallog << "found inconsistent line (" << p1w.first << ", " << p1w.second << ")" << std::endl;
       if (all_faces.count(p2w) == 1)
-        deallog << "found inconsistent line (" << p2w.first << ", "
-                << p2w.second << ")" << std::endl;
+        deallog << "found inconsistent line (" << p2w.first << ", " << p2w.second << ")" << std::endl;
     }
 
   for (const auto &cell : tria.active_cell_iterators())
@@ -93,8 +87,7 @@ test(const unsigned int v)
         if (cell->at_boundary(f))
           deallog << "-:- ";
         else
-          deallog << cell->neighbor_level(f) << ':' << cell->neighbor_index(f)
-                  << ' ';
+          deallog << cell->neighbor_level(f) << ':' << cell->neighbor_index(f) << ' ';
       deallog << std::endl;
     }
 

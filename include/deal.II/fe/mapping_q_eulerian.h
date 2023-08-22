@@ -113,8 +113,8 @@ public:
    */
   MappingQEulerian(const unsigned int               degree,
                    const DoFHandler<dim, spacedim> &euler_dof_handler,
-                   const VectorType &               euler_vector,
-                   const unsigned int level = numbers::invalid_unsigned_int);
+                   const VectorType                &euler_vector,
+                   const unsigned int               level = numbers::invalid_unsigned_int);
 
   /**
    * Return the mapped vertices of the cell. For the current class, this
@@ -122,10 +122,8 @@ public:
    * cell but instead evaluates an externally given displacement field in
    * addition to the geometry of the cell.
    */
-  virtual boost::container::small_vector<Point<spacedim>,
-                                         GeometryInfo<dim>::vertices_per_cell>
-  get_vertices(const typename Triangulation<dim, spacedim>::cell_iterator &cell)
-    const override;
+  virtual boost::container::small_vector<Point<spacedim>, GeometryInfo<dim>::vertices_per_cell>
+  get_vertices(const typename Triangulation<dim, spacedim>::cell_iterator &cell) const override;
 
   /**
    * Return a pointer to a copy of the present object. The caller of this copy
@@ -144,9 +142,7 @@ public:
 
   // for documentation, see the Mapping base class
   virtual std::vector<Point<spacedim>>
-  compute_mapping_support_points(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell)
-    const override;
+  compute_mapping_support_points(const typename Triangulation<dim, spacedim>::cell_iterator &cell) const override;
 
   /**
    * Exception which is thrown when the mapping is being evaluated at
@@ -164,26 +160,21 @@ protected:
    * use any cell similarity for this class.
    */
   virtual CellSimilarity::Similarity
-  fill_fe_values(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const CellSimilarity::Similarity                            cell_similarity,
-    const Quadrature<dim> &                                     quadrature,
-    const typename Mapping<dim, spacedim>::InternalDataBase &   internal_data,
-    internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &output_data) const override;
+  fill_fe_values(const typename Triangulation<dim, spacedim>::cell_iterator          &cell,
+                 const CellSimilarity::Similarity                                     cell_similarity,
+                 const Quadrature<dim>                                               &quadrature,
+                 const typename Mapping<dim, spacedim>::InternalDataBase             &internal_data,
+                 internal::FEValuesImplementation::MappingRelatedData<dim, spacedim> &output_data) const override;
 
   /**
    * Reference to the vector of shifts.
    */
-  SmartPointer<const VectorType, MappingQEulerian<dim, VectorType, spacedim>>
-    euler_vector;
+  SmartPointer<const VectorType, MappingQEulerian<dim, VectorType, spacedim>> euler_vector;
 
   /**
    * Pointer to the DoFHandler to which the mapping vector is associated.
    */
-  SmartPointer<const DoFHandler<dim, spacedim>,
-               MappingQEulerian<dim, VectorType, spacedim>>
-    euler_dof_handler;
+  SmartPointer<const DoFHandler<dim, spacedim>, MappingQEulerian<dim, VectorType, spacedim>> euler_dof_handler;
 
 private:
   /**

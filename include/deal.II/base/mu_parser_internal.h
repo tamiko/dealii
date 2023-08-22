@@ -99,8 +99,7 @@ namespace internal
     DeclException2(ExcParseError,
                    int,
                    std::string,
-                   << "Parsing Error at Column " << arg1
-                   << ". The parser said: " << arg2);
+                   << "Parsing Error at Column " << arg1 << ". The parser said: " << arg2);
 
     /** @} */
 
@@ -168,8 +167,8 @@ namespace internal
        * information.
        */
       virtual void
-      initialize(const std::string &                  vars,
-                 const std::vector<std::string> &     expressions,
+      initialize(const std::string                   &vars,
+                 const std::vector<std::string>      &expressions,
                  const std::map<std::string, double> &constants,
                  const bool                           time_dependent = false);
 
@@ -184,17 +183,13 @@ namespace internal
        * Compute the value of a single component.
        */
       Number
-      do_value(const Point<dim> &p,
-               const double      time,
-               unsigned int      component) const;
+      do_value(const Point<dim> &p, const double time, unsigned int component) const;
 
       /**
        * Compute the values of all components.
        */
       void
-      do_all_values(const Point<dim> & p,
-                    const double       time,
-                    ArrayView<Number> &values) const;
+      do_all_values(const Point<dim> &p, const double time, ArrayView<Number> &values) const;
 
       /**
        * An array of function expressions (one per component), required to
@@ -207,8 +202,7 @@ namespace internal
        * The muParser objects (hidden with the PIMPL idiom) for each thread (and
        * one for each component).
        */
-      mutable Threads::ThreadLocalStorage<internal::FunctionParser::ParserData>
-        parser_data;
+      mutable Threads::ThreadLocalStorage<internal::FunctionParser::ParserData> parser_data;
 
       /**
        * An array to keep track of all the constants, required to initialize fp

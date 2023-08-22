@@ -36,9 +36,8 @@ using namespace dealii;
 // Assert that the two incoming cells are the same. Throw an exception if not.
 template <int dim>
 void
-assert_cells_are_the_same(
-  const typename Triangulation<dim>::cell_iterator &expected,
-  const typename Triangulation<dim>::cell_iterator &cell)
+assert_cells_are_the_same(const typename Triangulation<dim>::cell_iterator &expected,
+                          const typename Triangulation<dim>::cell_iterator &cell)
 {
   AssertThrow(expected == cell, ExcInternalError());
   deallog << "OK" << std::endl;
@@ -91,8 +90,7 @@ private:
   setup_discrete_level_set();
 
   void
-  test_fe_values_reinitializes_correctly(
-    NonMatching::FEValues<dim> &fe_values) const;
+  test_fe_values_reinitializes_correctly(NonMatching::FEValues<dim> &fe_values) const;
 
   Triangulation<dim>    triangulation;
   hp::FECollection<dim> fe_collection;
@@ -135,12 +133,8 @@ Test<dim>::run()
 
   {
     // Test with the "simple" constructor.
-    NonMatching::FEValues<dim> fe_values(fe_collection,
-                                         q_collection1D[0],
-                                         region_update_flags,
-                                         mesh_classifier,
-                                         dof_handler,
-                                         level_set);
+    NonMatching::FEValues<dim> fe_values(
+      fe_collection, q_collection1D[0], region_update_flags, mesh_classifier, dof_handler, level_set);
     test_fe_values_reinitializes_correctly(fe_values);
   }
   {
@@ -175,10 +169,7 @@ Test<dim>::setup_mesh()
       repetitions.push_back(1);
     }
 
-  GridGenerator::subdivided_hyper_rectangle(triangulation,
-                                            repetitions,
-                                            lower_left,
-                                            upper_right);
+  GridGenerator::subdivided_hyper_rectangle(triangulation, repetitions, lower_left, upper_right);
 }
 
 
@@ -189,8 +180,7 @@ Test<dim>::setup_discrete_level_set()
 {
   Point<dim> point_on_zero_contour;
   point_on_zero_contour[0] = 1.5;
-  const Functions::SignedDistance::Plane<dim> analytical_levelset(
-    point_on_zero_contour, Point<dim>::unit_vector(0));
+  const Functions::SignedDistance::Plane<dim> analytical_levelset(point_on_zero_contour, Point<dim>::unit_vector(0));
 
   level_set.reinit(dof_handler.n_dofs());
   VectorTools::interpolate(dof_handler, analytical_levelset, level_set);
@@ -200,16 +190,14 @@ Test<dim>::setup_discrete_level_set()
 
 template <int dim>
 void
-Test<dim>::test_fe_values_reinitializes_correctly(
-  NonMatching::FEValues<dim> &fe_values) const
+Test<dim>::test_fe_values_reinitializes_correctly(NonMatching::FEValues<dim> &fe_values) const
 {
   //  The first is inside so only the inside FEValues object should be
   //  initialized.
   auto cell = dof_handler.begin_active();
   fe_values.reinit(cell);
 
-  assert_cells_are_the_same<dim>(cell,
-                                 fe_values.get_inside_fe_values()->get_cell());
+  assert_cells_are_the_same<dim>(cell, fe_values.get_inside_fe_values()->get_cell());
   assert_doesnt_have_value(fe_values.get_surface_fe_values());
   assert_doesnt_have_value(fe_values.get_outside_fe_values());
 
@@ -219,12 +207,9 @@ Test<dim>::test_fe_values_reinitializes_correctly(
   cell++;
   fe_values.reinit(cell);
 
-  assert_cells_are_the_same<dim>(cell,
-                                 fe_values.get_inside_fe_values()->get_cell());
-  assert_cells_are_the_same<dim>(cell,
-                                 fe_values.get_outside_fe_values()->get_cell());
-  assert_cells_are_the_same<dim>(cell,
-                                 fe_values.get_surface_fe_values()->get_cell());
+  assert_cells_are_the_same<dim>(cell, fe_values.get_inside_fe_values()->get_cell());
+  assert_cells_are_the_same<dim>(cell, fe_values.get_outside_fe_values()->get_cell());
+  assert_cells_are_the_same<dim>(cell, fe_values.get_surface_fe_values()->get_cell());
 
   //  The third is outside so only the outside FEValues object should be
   //  initialized.
@@ -233,8 +218,7 @@ Test<dim>::test_fe_values_reinitializes_correctly(
 
   assert_doesnt_have_value(fe_values.get_inside_fe_values());
   assert_doesnt_have_value(fe_values.get_surface_fe_values());
-  assert_cells_are_the_same<dim>(cell,
-                                 fe_values.get_outside_fe_values()->get_cell());
+  assert_cells_are_the_same<dim>(cell, fe_values.get_outside_fe_values()->get_cell());
 }
 
 

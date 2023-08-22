@@ -103,9 +103,8 @@ class Vector;
  * @ingroup functions
  */
 template <int rank, int dim, typename Number = double>
-class TensorFunctionParser
-  : public TensorFunction<rank, dim, Number>,
-    protected internal::FunctionParser::ParserImplementation<dim, Number>
+class TensorFunctionParser : public TensorFunction<rank, dim, Number>,
+                             protected internal::FunctionParser::ParserImplementation<dim, Number>
 {
 public:
   /**
@@ -124,10 +123,9 @@ public:
    * Takes a semicolon separated list of expressions (one for each component
    * of the tensor function), an optional comma-separated list of constants.
    */
-  TensorFunctionParser(
-    const std::string &expression,
-    const std::string &constants      = "",
-    const std::string &variable_names = default_variable_names() + ",t");
+  TensorFunctionParser(const std::string &expression,
+                       const std::string &constants      = "",
+                       const std::string &variable_names = default_variable_names() + ",t");
 
   /**
    * Copy constructor. Objects of this type can not be copied, and
@@ -197,9 +195,9 @@ public:
    * false, i.e. do not consider time.
    */
   virtual void
-  initialize(const std::string &             vars,
+  initialize(const std::string              &vars,
              const std::vector<std::string> &expressions,
-             const ConstMap &                constants,
+             const ConstMap                 &constants,
              const bool                      time_dependent = false) override;
 
   /**
@@ -212,7 +210,7 @@ public:
   void
   initialize(const std::string &vars,
              const std::string &expression,
-             const ConstMap &   constants,
+             const ConstMap    &constants,
              const bool         time_dependent = false);
 
   /**
@@ -233,8 +231,7 @@ public:
    * Return the value of the tensor function at the given point.
    */
   virtual void
-  value_list(const std::vector<Point<dim>> &         p,
-             std::vector<Tensor<rank, dim, Number>> &values) const override;
+  value_list(const std::vector<Point<dim>> &p, std::vector<Tensor<rank, dim, Number>> &values) const override;
 
   /**
    * Return an array of function expressions (one per component), used to
@@ -250,14 +247,12 @@ public:
   DeclException2(ExcParseError,
                  int,
                  std::string,
-                 << "Parsing Error at Column " << arg1
-                 << ". The parser said: " << arg2);
+                 << "Parsing Error at Column " << arg1 << ". The parser said: " << arg2);
 
   DeclException2(ExcInvalidExpressionSize,
                  int,
                  int,
-                 << "The number of components (" << arg1
-                 << ") is not equal to the number of expressions (" << arg2
+                 << "The number of components (" << arg1 << ") is not equal to the number of expressions (" << arg2
                  << ").");
 
   /** @} */

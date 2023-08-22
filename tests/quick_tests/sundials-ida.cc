@@ -73,18 +73,12 @@ public:
 
     using VectorType = Vector<double>;
 
-    time_stepper.residual = [&](const double /*t*/,
-                                const VectorType &y,
-                                const VectorType &y_dot,
-                                VectorType &      res) {
+    time_stepper.residual = [&](const double /*t*/, const VectorType &y, const VectorType &y_dot, VectorType &res) {
       res = y_dot;
       A.vmult_add(res, y);
     };
 
-    time_stepper.setup_jacobian = [&](const double,
-                                      const VectorType &,
-                                      const VectorType &,
-                                      const double alpha) {
+    time_stepper.setup_jacobian = [&](const double, const VectorType &, const VectorType &, const double alpha) {
       A(0, 1) = -1.0;
       A(1, 0) = kappa * kappa;
 
@@ -96,10 +90,9 @@ public:
       Jinv.invert(J);
     };
 
-    time_stepper.solve_with_jacobian =
-      [&](const VectorType &rhs, VectorType &dst, const double /*tol*/) {
-        Jinv.vmult(dst, rhs);
-      };
+    time_stepper.solve_with_jacobian = [&](const VectorType &rhs, VectorType &dst, const double /*tol*/) {
+      Jinv.vmult(dst, rhs);
+    };
 
     time_stepper.output_step = [&](const double /*t*/,
                                    const VectorType & /*sol*/,
@@ -108,13 +101,10 @@ public:
       // In this test, don't output anything.
     };
 
-    time_stepper.solver_should_restart =
-      [](const double, VectorType &, VectorType &) -> bool { return false; };
+    time_stepper.solver_should_restart = [](const double, VectorType &, VectorType &) -> bool { return false; };
 
 
-    time_stepper.differential_components = [&]() -> IndexSet {
-      return complete_index_set(2);
-    };
+    time_stepper.differential_components = [&]() -> IndexSet { return complete_index_set(2); };
   }
 
   void
@@ -139,8 +129,7 @@ private:
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, numbers::invalid_unsigned_int);
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, numbers::invalid_unsigned_int);
 
   HarmonicOscillator ode(2 * numbers::PI);
   ode.run();

@@ -47,10 +47,7 @@ log_vector(const std::vector<std::set<types::global_dof_index>> &count)
   for (unsigned int l = 0; l < count.size(); ++l)
     {
       deallog << "Level " << l << ':';
-      for (std::set<types::global_dof_index>::const_iterator c =
-             count[l].begin();
-           c != count[l].end();
-           ++c)
+      for (std::set<types::global_dof_index>::const_iterator c = count[l].begin(); c != count[l].end(); ++c)
         deallog << ' ' << *c;
       deallog << std::endl;
     }
@@ -74,8 +71,7 @@ check_fe(FiniteElement<dim> &fe)
   mgdof.distribute_dofs(fe);
   mgdof.distribute_mg_dofs();
 
-  std::vector<std::set<types::global_dof_index>> boundary_indices(
-    tr.n_levels());
+  std::vector<std::set<types::global_dof_index>> boundary_indices(tr.n_levels());
   MGTools::make_boundary_list(mgdof, fmap, boundary_indices);
   log_vector(boundary_indices);
 }

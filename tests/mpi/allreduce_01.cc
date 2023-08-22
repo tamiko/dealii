@@ -24,27 +24,21 @@
 
 template <typename T>
 void
-check(const std::function<std::vector<T>(const std::vector<T> &,
-                                         const std::vector<T> &)> &fu)
+check(const std::function<std::vector<T>(const std::vector<T> &, const std::vector<T> &)> &fu)
 {
-  const auto result = Utilities::MPI::all_reduce(
-    std::vector<T>{Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)},
-    MPI_COMM_WORLD,
-    fu);
+  const auto result =
+    Utilities::MPI::all_reduce(std::vector<T>{Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)}, MPI_COMM_WORLD, fu);
 
   for (const auto r : result)
     deallog << r << ' ';
   deallog << std::endl;
 
-  for (unsigned int rank = 0;
-       rank < Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
-       ++rank)
+  for (unsigned int rank = 0; rank < Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD); ++rank)
     {
-      const auto result = Utilities::MPI::reduce(
-        std::vector<T>{Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)},
-        MPI_COMM_WORLD,
-        fu,
-        rank);
+      const auto result = Utilities::MPI::reduce(std::vector<T>{Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)},
+                                                 MPI_COMM_WORLD,
+                                                 fu,
+                                                 rank);
 
       for (const auto r : result)
         deallog << r << ' ';
@@ -60,19 +54,13 @@ main(int argc, char *argv[])
   MPILogInitAll                    log;
 
   // compute min
-  check<unsigned int>([](const auto &a, const auto &b) {
-    return std::vector<unsigned int>{std::min(a[0], b[0])};
-  });
+  check<unsigned int>([](const auto &a, const auto &b) { return std::vector<unsigned int>{std::min(a[0], b[0])}; });
 
   // compute max
-  check<unsigned int>([](const auto &a, const auto &b) {
-    return std::vector<unsigned int>{std::max(a[0], b[0])};
-  });
+  check<unsigned int>([](const auto &a, const auto &b) { return std::vector<unsigned int>{std::max(a[0], b[0])}; });
 
   // compute sum
-  check<unsigned int>([](const auto &a, const auto &b) {
-    return std::vector<unsigned int>{a[0] + b[0]};
-  });
+  check<unsigned int>([](const auto &a, const auto &b) { return std::vector<unsigned int>{a[0] + b[0]}; });
 
   // perform gather all
   check<unsigned int>([](const auto &a, const auto &b) {

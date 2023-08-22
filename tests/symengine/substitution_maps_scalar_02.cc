@@ -35,14 +35,10 @@ main()
   deallog.push("2 maps");
   {
     SD::types::substitution_map substitution_map;
-    SD::add_to_substitution_map(substitution_map,
-                                SD::Expression("x1"),
-                                SD::Expression(1));
+    SD::add_to_substitution_map(substitution_map, SD::Expression("x1"), SD::Expression(1));
 
     SD::types::substitution_map substitution_map_1;
-    SD::add_to_substitution_map(substitution_map_1,
-                                SD::Expression("x2"),
-                                SD::Expression(2));
+    SD::add_to_substitution_map(substitution_map_1, SD::Expression("x2"), SD::Expression(2));
 
     SD::merge_substitution_maps(substitution_map, substitution_map_1);
     SD::Utilities::print_substitution_map(deallog, substitution_map);
@@ -53,35 +49,22 @@ main()
   deallog.push("Multiple maps");
   {
     SD::types::substitution_map substitution_map;
-    SD::add_to_substitution_map(substitution_map,
-                                SD::Expression("x1"),
-                                SD::Expression(1));
+    SD::add_to_substitution_map(substitution_map, SD::Expression("x1"), SD::Expression(1));
 
     SD::types::substitution_map substitution_map_1;
-    SD::add_to_substitution_map(substitution_map_1,
-                                SD::Expression("x2"),
-                                SD::Expression(2));
+    SD::add_to_substitution_map(substitution_map_1, SD::Expression("x2"), SD::Expression(2));
 
     SD::types::substitution_map substitution_map_2;
-    SD::add_to_substitution_map(substitution_map_2,
-                                SD::Expression("x3"),
-                                SD::Expression(3));
+    SD::add_to_substitution_map(substitution_map_2, SD::Expression("x3"), SD::Expression(3));
 
     SD::types::substitution_map substitution_map_3;
-    SD::add_to_substitution_map(substitution_map_3,
-                                SD::Expression("x4"),
-                                SD::Expression(4));
+    SD::add_to_substitution_map(substitution_map_3, SD::Expression("x4"), SD::Expression(4));
 
     SD::types::substitution_map substitution_map_4;
-    SD::add_to_substitution_map(substitution_map_4,
-                                SD::Expression("x5"),
-                                SD::Expression(5));
+    SD::add_to_substitution_map(substitution_map_4, SD::Expression("x5"), SD::Expression(5));
 
-    SD::merge_substitution_maps(substitution_map,
-                                substitution_map_1,
-                                substitution_map_2,
-                                substitution_map_3,
-                                substitution_map_4);
+    SD::merge_substitution_maps(
+      substitution_map, substitution_map_1, substitution_map_2, substitution_map_3, substitution_map_4);
     SD::Utilities::print_substitution_map(deallog, substitution_map);
     deallog << std::endl;
   }
@@ -92,14 +75,10 @@ main()
   deallog.push("Const maps");
   {
     SD::types::substitution_map substitution_map_1;
-    SD::add_to_substitution_map(substitution_map_1,
-                                SD::Expression("x1"),
-                                SD::Expression(1));
+    SD::add_to_substitution_map(substitution_map_1, SD::Expression("x1"), SD::Expression(1));
 
     SD::types::substitution_map substitution_map_2;
-    SD::add_to_substitution_map(substitution_map_2,
-                                SD::Expression("x2"),
-                                SD::Expression(2));
+    SD::add_to_substitution_map(substitution_map_2, SD::Expression("x2"), SD::Expression(2));
 
     const SD::types::substitution_map substitution_map_1c = substitution_map_1;
     const SD::types::substitution_map substitution_map_2c = substitution_map_2;
@@ -114,14 +93,10 @@ main()
   // in two substitution maps
   {
     SD::types::substitution_map substitution_map;
-    SD::add_to_substitution_map(substitution_map,
-                                SD::Expression("x1"),
-                                SD::Expression(1));
+    SD::add_to_substitution_map(substitution_map, SD::Expression("x1"), SD::Expression(1));
 
     SD::types::substitution_map substitution_map_1;
-    SD::add_to_substitution_map(substitution_map_1,
-                                SD::Expression("x1"),
-                                SD::Expression(1));
+    SD::add_to_substitution_map(substitution_map_1, SD::Expression("x1"), SD::Expression(1));
 
     SD::merge_substitution_maps(substitution_map, substitution_map_1);
   }
@@ -134,21 +109,15 @@ main()
     {
       {
         SD::types::substitution_map substitution_map;
-        SD::add_to_substitution_map(substitution_map,
-                                    SD::Expression("x1"),
-                                    SD::Expression(1));
+        SD::add_to_substitution_map(substitution_map, SD::Expression("x1"), SD::Expression(1));
 
         SD::types::substitution_map substitution_map_1;
-        SD::add_to_substitution_map(substitution_map_1,
-                                    SD::Expression("x1"),
-                                    SD::Expression(2));
+        SD::add_to_substitution_map(substitution_map_1, SD::Expression("x1"), SD::Expression(2));
 
         SD::merge_substitution_maps(substitution_map, substitution_map_1);
       }
 
-      deallog
-        << "Duplicate symbol with non-equal value in map did not raise an error."
-        << std::endl;
+      deallog << "Duplicate symbol with non-equal value in map did not raise an error." << std::endl;
     }
   catch (const ExcMessage &)
     {}

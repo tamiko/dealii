@@ -21,45 +21,31 @@ DEAL_II_NAMESPACE_OPEN
 
 namespace python
 {
-  const char create_gauss_docstring[] =
-    "Create Gauss quadrature with n points                     \n"
-    "in each space direction.                                  \n";
+  const char create_gauss_docstring[] = "Create Gauss quadrature with n points                     \n"
+                                        "in each space direction.                                  \n";
 
 
-  const char create_gauss_lobatto_docstring[] =
-    "Create Gauss-Lobatto quadrature with n points             \n"
-    "in each space direction.                                  \n";
+  const char create_gauss_lobatto_docstring[] = "Create Gauss-Lobatto quadrature with n points             \n"
+                                                "in each space direction.                                  \n";
 
 
-  const char get_points_docstring[] =
-    "Return the list of quadrature points.                     \n";
+  const char get_points_docstring[] = "Return the list of quadrature points.                     \n";
 
 
-  const char get_weights_docstring[] =
-    "Return the list of quadrature weights.                    \n";
+  const char get_weights_docstring[] = "Return the list of quadrature weights.                    \n";
 
 
   void
   export_quadrature()
   {
-    boost::python::class_<QuadratureWrapper>(
-      "Quadrature", boost::python::init<const int>(boost::python::args("dim")))
-      .def("create_gauss",
-           &QuadratureWrapper::create_gauss,
-           create_gauss_docstring,
-           boost::python::args("self", "n"))
+    boost::python::class_<QuadratureWrapper>("Quadrature", boost::python::init<const int>(boost::python::args("dim")))
+      .def("create_gauss", &QuadratureWrapper::create_gauss, create_gauss_docstring, boost::python::args("self", "n"))
       .def("create_gauss_lobatto",
            &QuadratureWrapper::create_gauss_lobatto,
            create_gauss_lobatto_docstring,
            boost::python::args("self", "n"))
-      .def("points",
-           &QuadratureWrapper::get_points,
-           get_points_docstring,
-           boost::python::args("self"))
-      .def("weights",
-           &QuadratureWrapper::get_weights,
-           get_weights_docstring,
-           boost::python::args("self"));
+      .def("points", &QuadratureWrapper::get_points, get_points_docstring, boost::python::args("self"))
+      .def("weights", &QuadratureWrapper::get_weights, get_weights_docstring, boost::python::args("self"));
   }
 } // namespace python
 

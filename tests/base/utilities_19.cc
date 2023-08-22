@@ -27,14 +27,10 @@ void
 test()
 {
   deallog << "dim=" << dim << std::endl;
-  const std::vector<Point<dim>> points_degenerate = {Point<dim>(),
-                                                     Point<dim>(),
-                                                     Point<dim>()};
+  const std::vector<Point<dim>> points_degenerate = {Point<dim>(), Point<dim>(), Point<dim>()};
 
   const int  bit_depth = 5;
-  const auto res =
-    Utilities::inverse_Hilbert_space_filling_curve(points_degenerate,
-                                                   bit_depth);
+  const auto res       = Utilities::inverse_Hilbert_space_filling_curve(points_degenerate, bit_depth);
 
   for (unsigned int i = 0; i < res.size(); ++i)
     {

@@ -40,9 +40,7 @@ test(int n_refinements, const int n_subdivisions, MPI_Comm comm)
 {
   // create pdt
   parallel::distributed::Triangulation<dim> tria_pdt(
-    comm,
-    dealii::Triangulation<dim>::none,
-    parallel::distributed::Triangulation<dim>::construct_multigrid_hierarchy);
+    comm, dealii::Triangulation<dim>::none, parallel::distributed::Triangulation<dim>::construct_multigrid_hierarchy);
   GridGenerator::subdivided_hyper_cube(tria_pdt, n_subdivisions);
   tria_pdt.refine_global(n_refinements);
 
@@ -50,11 +48,8 @@ test(int n_refinements, const int n_subdivisions, MPI_Comm comm)
   parallel::fullydistributed::Triangulation<dim> tria_pft(comm);
 
   // extract relevant information form pdt
-  auto construction_data =
-    TriangulationDescription::Utilities::create_description_from_triangulation(
-      tria_pdt,
-      comm,
-      TriangulationDescription::Settings::construct_multigrid_hierarchy);
+  auto construction_data = TriangulationDescription::Utilities::create_description_from_triangulation(
+    tria_pdt, comm, TriangulationDescription::Settings::construct_multigrid_hierarchy);
 
   // actually create triangulation
   tria_pft.create_triangulation(construction_data);
@@ -65,8 +60,7 @@ test(int n_refinements, const int n_subdivisions, MPI_Comm comm)
       CellId id        = cell->id();
       auto   cell_base = tria_pdt.create_cell_iterator(id);
       for (unsigned int d = 0; d < dim; ++d)
-        Assert(std::abs(cell->center()[d] - cell_base->center()[d]) < 1e-9,
-               ExcMessage("Cells do not match"));
+        Assert(std::abs(cell->center()[d] - cell_base->center()[d]) < 1e-9, ExcMessage("Cells do not match"));
     }
 }
 

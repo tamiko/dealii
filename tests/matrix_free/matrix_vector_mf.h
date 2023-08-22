@@ -31,13 +31,13 @@
 template <int dim, int fe_degree, typename VectorType, int n_q_points_1d>
 void
 helmholtz_operator(const MatrixFree<dim, typename VectorType::value_type> &data,
-                   VectorType &                                            dst,
-                   const VectorType &                                      src,
-                   const std::pair<unsigned int, unsigned int> &cell_range)
+                   VectorType                                             &dst,
+                   const VectorType                                       &src,
+                   const std::pair<unsigned int, unsigned int>            &cell_range)
 {
   using Number = typename VectorType::value_type;
   FEEvaluation<dim, fe_degree, n_q_points_1d, 1, Number> fe_eval(data);
-  const unsigned int n_q_points = fe_eval.n_q_points;
+  const unsigned int                                     n_q_points = fe_eval.n_q_points;
 
   for (unsigned int cell = cell_range.first; cell < cell_range.second; ++cell)
     {
@@ -58,11 +58,10 @@ helmholtz_operator(const MatrixFree<dim, typename VectorType::value_type> &data,
 
 template <int dim, typename VectorType>
 void
-helmholtz_operator_no_template(
-  const MatrixFree<dim, typename VectorType::value_type> &data,
-  VectorType &                                            dst,
-  const VectorType &                                      src,
-  const std::pair<unsigned int, unsigned int> &           cell_range)
+helmholtz_operator_no_template(const MatrixFree<dim, typename VectorType::value_type> &data,
+                               VectorType                                             &dst,
+                               const VectorType                                       &src,
+                               const std::pair<unsigned int, unsigned int>            &cell_range)
 {
   using Number = typename VectorType::value_type;
   FEEvaluation<dim, -1, 0, 1, Number> fe_eval(data, cell_range);
@@ -87,18 +86,16 @@ helmholtz_operator_no_template(
 
 template <int dim, typename VectorType>
 void
-helmholtz_operator_no_template(
-  const MatrixFree<dim, typename VectorType::value_type> &data,
-  VectorType &                                            dst,
-  const VectorType &                                      src,
-  const std::pair<unsigned int, unsigned int> &           cell_range,
-  const unsigned int                                      active_fe_index,
-  const unsigned int                                      active_quad_index)
+helmholtz_operator_no_template(const MatrixFree<dim, typename VectorType::value_type> &data,
+                               VectorType                                             &dst,
+                               const VectorType                                       &src,
+                               const std::pair<unsigned int, unsigned int>            &cell_range,
+                               const unsigned int                                      active_fe_index,
+                               const unsigned int                                      active_quad_index)
 {
   using Number = typename VectorType::value_type;
-  FEEvaluation<dim, -1, 0, 1, Number> fe_eval(
-    data, 0, 0, 0, active_fe_index, active_quad_index);
-  const unsigned int n_q_points = fe_eval.n_q_points;
+  FEEvaluation<dim, -1, 0, 1, Number> fe_eval(data, 0, 0, 0, active_fe_index, active_quad_index);
+  const unsigned int                  n_q_points = fe_eval.n_q_points;
 
   for (unsigned int cell = cell_range.first; cell < cell_range.second; ++cell)
     {
@@ -135,11 +132,10 @@ public:
   vmult(VectorType &dst, const VectorType &src) const
   {
     dst = 0;
-    const std::function<
-      void(const MatrixFree<dim, typename VectorType::value_type> &,
-           VectorType &,
-           const VectorType &,
-           const std::pair<unsigned int, unsigned int> &)>
+    const std::function<void(const MatrixFree<dim, typename VectorType::value_type> &,
+                             VectorType &,
+                             const VectorType &,
+                             const std::pair<unsigned int, unsigned int> &)>
       wrap = helmholtz_operator<dim, fe_degree, VectorType, n_q_points_1d>;
     data.cell_loop(wrap, dst, src);
   }

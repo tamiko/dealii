@@ -27,20 +27,16 @@ using namespace dealii;
 template <int dim, int spacedim = dim>
 void
 test(const Triangulation<dim, spacedim> &tria,
-     const Mapping<dim, spacedim> &      mapping,
-     const Quadrature<dim - 1> &         face_quadrature)
+     const Mapping<dim, spacedim>       &mapping,
+     const Quadrature<dim - 1>          &face_quadrature)
 {
   Assert(tria.get_reference_cells().size() == 1, ExcNotImplemented());
   const ReferenceCell reference_cell = tria.get_reference_cells().front();
-  Assert(reference_cell == ReferenceCells::get_simplex<dim>() ||
-           reference_cell == ReferenceCells::get_hypercube<dim>(),
+  Assert(reference_cell == ReferenceCells::get_simplex<dim>() || reference_cell == ReferenceCells::get_hypercube<dim>(),
          ExcNotImplemented());
 
   FE_Nothing<dim, spacedim>   fe_nothing(reference_cell);
-  FEFaceValues<dim, spacedim> face_values(mapping,
-                                          fe_nothing,
-                                          face_quadrature,
-                                          update_JxW_values);
+  FEFaceValues<dim, spacedim> face_values(mapping, fe_nothing, face_quadrature, update_JxW_values);
   for (const auto &cell : tria.active_cell_iterators())
     for (const auto &face : cell->face_iterators())
       {
@@ -48,10 +44,8 @@ test(const Triangulation<dim, spacedim> &tria,
         double measure = 0.0;
         for (unsigned int q = 0; q < face_quadrature.size(); ++q)
           measure += face_values.JxW(q);
-        Assert(std::abs(face->measure() - measure) < 1e-10 * measure,
-               ExcMessage("face measures should be equal"));
-        deallog << "face measure = " << face->measure() << ", " << measure
-                << std::endl;
+        Assert(std::abs(face->measure() - measure) < 1e-10 * measure, ExcMessage("face measures should be equal"));
+        deallog << "face measure = " << face->measure() << ", " << measure << std::endl;
       }
 }
 
@@ -69,10 +63,7 @@ main(int argc, char **argv)
 
     // easy test - should work with MappingFE
     deallog << "Test with MappingFE" << std::endl;
-    test(
-      tria_simplex,
-      ReferenceCells::get_simplex<2>().template get_default_linear_mapping<2>(),
-      QGaussSimplex<1>(2));
+    test(tria_simplex, ReferenceCells::get_simplex<2>().template get_default_linear_mapping<2>(), QGaussSimplex<1>(2));
 
     // harder test - at the time this test was initially written this did not
     // work
@@ -82,9 +73,7 @@ main(int argc, char **argv)
     dof_handler.distribute_dofs(fe);
 
     Vector<double> position(dof_handler.n_dofs());
-    VectorTools::interpolate(dof_handler,
-                             Functions::IdentityFunction<2>(),
-                             position);
+    VectorTools::interpolate(dof_handler, Functions::IdentityFunction<2>(), position);
     MappingFEField<2, 2, Vector<double>> mapping(dof_handler, position);
     test(tria_simplex, mapping, QGaussSimplex<1>(2));
   }
@@ -97,10 +86,7 @@ main(int argc, char **argv)
 
     // easy test - should work with MappingFE
     deallog << "Test with MappingFE" << std::endl;
-    test(
-      tria_simplex,
-      ReferenceCells::get_simplex<3>().template get_default_linear_mapping<3>(),
-      QGaussSimplex<2>(2));
+    test(tria_simplex, ReferenceCells::get_simplex<3>().template get_default_linear_mapping<3>(), QGaussSimplex<2>(2));
 
     // harder test - at the time this test was initially written this did not
     // work
@@ -110,9 +96,7 @@ main(int argc, char **argv)
     dof_handler.distribute_dofs(fe);
 
     Vector<double> position(dof_handler.n_dofs());
-    VectorTools::interpolate(dof_handler,
-                             Functions::IdentityFunction<3>(),
-                             position);
+    VectorTools::interpolate(dof_handler, Functions::IdentityFunction<3>(), position);
     MappingFEField<3, 3, Vector<double>> mapping(dof_handler, position);
     test(tria_simplex, mapping, QGaussSimplex<2>(2));
   }

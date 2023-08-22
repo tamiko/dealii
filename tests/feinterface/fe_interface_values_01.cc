@@ -38,11 +38,9 @@ void
 inspect_fiv(FEInterfaceValues<dim> &fiv)
 {
   deallog << "at_boundary(): " << fiv.at_boundary() << "\n"
-          << "n_current_interface_dofs(): " << fiv.n_current_interface_dofs()
-          << "\n";
+          << "n_current_interface_dofs(): " << fiv.n_current_interface_dofs() << "\n";
 
-  std::vector<types::global_dof_index> indices =
-    fiv.get_interface_dof_indices();
+  std::vector<types::global_dof_index> indices = fiv.get_interface_dof_indices();
   Assert(indices.size() == fiv.n_current_interface_dofs(), ExcInternalError());
 
   deallog << "interface_dof_indices: ";
@@ -57,8 +55,7 @@ inspect_fiv(FEInterfaceValues<dim> &fiv)
       deallog << "  index " << idx << " global_dof_index:" << v << ":\n";
 
       const auto pair = fiv.interface_dof_to_dof_indices(idx);
-      deallog << "    dof indices: " << static_cast<int>(pair[0]) << " | "
-              << static_cast<int>(pair[1]) << "\n";
+      deallog << "    dof indices: " << static_cast<int>(pair[0]) << " | " << static_cast<int>(pair[1]) << "\n";
 
       ++idx;
     }
@@ -81,13 +78,9 @@ test()
   dofh.distribute_dofs(fe);
 
   MappingQ<dim> mapping(1);
-  UpdateFlags   update_flags = update_values | update_gradients |
-                             update_quadrature_points | update_JxW_values;
+  UpdateFlags   update_flags = update_values | update_gradients | update_quadrature_points | update_JxW_values;
 
-  FEInterfaceValues<dim> fiv(mapping,
-                             fe,
-                             QGauss<dim - 1>(fe.degree + 1),
-                             update_flags);
+  FEInterfaceValues<dim> fiv(mapping, fe, QGauss<dim - 1>(fe.degree + 1), update_flags);
 
 
   auto cell = dofh.begin();
@@ -104,12 +97,9 @@ test()
                    cell->neighbor_of_neighbor(f),
                    numbers::invalid_unsigned_int);
 
-        Assert(fiv.get_fe_face_values(0).get_cell() == cell,
-               ExcInternalError());
-        Assert(fiv.get_fe_face_values(1).get_cell() == cell->neighbor(f),
-               ExcInternalError());
-        Assert(fiv.n_current_interface_dofs() == 2 * fe.n_dofs_per_cell(),
-               ExcInternalError());
+        Assert(fiv.get_fe_face_values(0).get_cell() == cell, ExcInternalError());
+        Assert(fiv.get_fe_face_values(1).get_cell() == cell->neighbor(f), ExcInternalError());
+        Assert(fiv.n_current_interface_dofs() == 2 * fe.n_dofs_per_cell(), ExcInternalError());
         Assert(!fiv.at_boundary(), ExcInternalError());
 
         auto mycell = cell;
@@ -133,8 +123,7 @@ test()
     ++cell;
     fiv.reinit(cell, 1);
     Assert(fiv.get_fe_face_values(0).get_cell() == cell, ExcInternalError());
-    Assert(fiv.n_current_interface_dofs() == fe.n_dofs_per_cell(),
-           ExcInternalError());
+    Assert(fiv.n_current_interface_dofs() == fe.n_dofs_per_cell(), ExcInternalError());
     Assert(fiv.at_boundary(), ExcInternalError());
     inspect_fiv(fiv);
   }

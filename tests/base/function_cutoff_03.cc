@@ -32,14 +32,12 @@ test()
     p[i] = .5;
 
 
-  CutOffFunctionTensorProduct<dim> fun(
-    .5, p, 1, CutOffFunctionBase<dim>::no_component, true);
+  CutOffFunctionTensorProduct<dim> fun(.5, p, 1, CutOffFunctionBase<dim>::no_component, true);
 
 
   fun.template set_base<CutOffFunctionC1>();
 
-  deallog << "Center: " << fun.get_center() << std::endl
-          << "Radius: " << fun.get_radius() << std::endl;
+  deallog << "Center: " << fun.get_center() << std::endl << "Radius: " << fun.get_radius() << std::endl;
 
   // Check integration of the function, and of its gradient square
   QGauss<dim> quad(12);

@@ -40,8 +40,7 @@ test1()
         {
           tria.refine_global(2);
           deallog << dim << "d, "
-                  << "hypercube diameter, " << i * 2
-                  << " refinements: " << GridTools::diameter(tria) << std::endl;
+                  << "hypercube diameter, " << i * 2 << " refinements: " << GridTools::diameter(tria) << std::endl;
         };
     };
 
@@ -55,8 +54,7 @@ test1()
         {
           tria.refine_global(2);
           deallog << dim << "d, "
-                  << "hyperball diameter, " << i * 2
-                  << " refinements: " << GridTools::diameter(tria) << std::endl;
+                  << "hyperball diameter, " << i * 2 << " refinements: " << GridTools::diameter(tria) << std::endl;
         };
     };
 }
@@ -66,7 +64,7 @@ test1()
 void
 test2()
 {
-  std::ostream &   logfile = deallog.get_file_stream();
+  std::ostream    &logfile = deallog.get_file_stream();
   Triangulation<2> tria;
   GridGenerator::hyper_cube(tria);
 

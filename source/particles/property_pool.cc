@@ -23,14 +23,13 @@ DEAL_II_NAMESPACE_OPEN
 namespace Particles
 {
   template <int dim, int spacedim>
-  const typename PropertyPool<dim, spacedim>::Handle
-    PropertyPool<dim, spacedim>::invalid_handle = static_cast<Handle>(-1);
+  const typename PropertyPool<dim, spacedim>::Handle PropertyPool<dim, spacedim>::invalid_handle =
+    static_cast<Handle>(-1);
 
 
 
   template <int dim, int spacedim>
-  PropertyPool<dim, spacedim>::PropertyPool(
-    const unsigned int n_properties_per_slot)
+  PropertyPool<dim, spacedim>::PropertyPool(const unsigned int n_properties_per_slot)
     : n_properties(n_properties_per_slot)
   {}
 
@@ -50,12 +49,10 @@ namespace Particles
   {
     if (n_properties > 0)
       {
-        const unsigned int n_open_handles =
-          properties.size() / n_properties - currently_available_handles.size();
+        const unsigned int n_open_handles = properties.size() / n_properties - currently_available_handles.size();
         (void)n_open_handles;
         AssertThrow(n_open_handles == 0,
-                    ExcMessage("This property pool currently still holds " +
-                               std::to_string(n_open_handles) +
+                    ExcMessage("This property pool currently still holds " + std::to_string(n_open_handles) +
                                " open handles to memory that was allocated "
                                "via allocate_properties_array() but that has "
                                "not been returned via "
@@ -118,17 +115,13 @@ namespace Particles
   void
   PropertyPool<dim, spacedim>::deregister_particle(Handle &handle)
   {
-    Assert(
-      handle != invalid_handle,
-      ExcMessage(
-        "This handle is invalid and cannot be deallocated. This can happen if the "
-        "handle was deallocated already before calling this function."));
+    Assert(handle != invalid_handle,
+           ExcMessage("This handle is invalid and cannot be deallocated. This can happen if the "
+                      "handle was deallocated already before calling this function."));
 
-    Assert(
-      currently_available_handles.size() < locations.size(),
-      ExcMessage(
-        "Trying to deallocate a particle when none are allocated. This can happen if all "
-        "handles were deallocated already before calling this function."));
+    Assert(currently_available_handles.size() < locations.size(),
+           ExcMessage("Trying to deallocate a particle when none are allocated. This can happen if all "
+                      "handles were deallocated already before calling this function."));
 
     currently_available_handles.push_back(handle);
     handle = invalid_handle;
@@ -192,8 +185,7 @@ namespace Particles
 
   template <int dim, int spacedim>
   void
-  PropertyPool<dim, spacedim>::sort_memory_slots(
-    const std::vector<Handle> &handles_to_sort)
+  PropertyPool<dim, spacedim>::sort_memory_slots(const std::vector<Handle> &handles_to_sort)
   {
     std::vector<Point<spacedim>>       sorted_locations;
     std::vector<Point<dim>>            sorted_reference_locations;
@@ -207,9 +199,7 @@ namespace Particles
 
     for (const auto &handle : handles_to_sort)
       {
-        Assert(handle != invalid_handle,
-               ExcMessage(
-                 "Invalid handle detected during sorting particle memory."));
+        Assert(handle != invalid_handle, ExcMessage("Invalid handle detected during sorting particle memory."));
 
         sorted_locations.push_back(locations[handle]);
         sorted_reference_locations.push_back(reference_locations[handle]);
@@ -219,12 +209,10 @@ namespace Particles
           sorted_properties.push_back(properties[handle * n_properties + j]);
       }
 
-    Assert(sorted_locations.size() ==
-             locations.size() - currently_available_handles.size(),
+    Assert(sorted_locations.size() == locations.size() - currently_available_handles.size(),
            ExcMessage("Number of sorted property handles is not equal to "
                       "number of currently registered handles: " +
-                      std::to_string(sorted_locations.size()) + " vs " +
-                      std::to_string(locations.size()) + " - " +
+                      std::to_string(sorted_locations.size()) + " vs " + std::to_string(locations.size()) + " - " +
                       std::to_string(currently_available_handles.size())));
 
     locations           = std::move(sorted_locations);

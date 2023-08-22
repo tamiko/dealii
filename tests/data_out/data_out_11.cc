@@ -50,9 +50,8 @@ test()
   // "forget" to put a name on the last component -> should trigger assertion
   std::vector<std::string> names(dim, "u");
 
-  std::vector<DataComponentInterpretation::DataComponentInterpretation>
-    component_interpretation(
-      dim, DataComponentInterpretation::component_is_part_of_vector);
+  std::vector<DataComponentInterpretation::DataComponentInterpretation> component_interpretation(
+    dim, DataComponentInterpretation::component_is_part_of_vector);
 
   MappingQ<dim> mapping(2);
 
@@ -61,10 +60,7 @@ test()
     DataOut<dim> data_out;
     try
       {
-        data_out.add_data_vector(dof_handler,
-                                 vec,
-                                 names,
-                                 component_interpretation);
+        data_out.add_data_vector(dof_handler, vec, names, component_interpretation);
         data_out.build_patches(mapping, 2);
       }
     catch (ExceptionBase &exc)
@@ -79,10 +75,7 @@ test()
     data_out.attach_dof_handler(dof_handler);
     try
       {
-        data_out.add_data_vector(vec,
-                                 names,
-                                 DataOut<dim>::type_automatic,
-                                 component_interpretation);
+        data_out.add_data_vector(vec, names, DataOut<dim>::type_automatic, component_interpretation);
         data_out.build_patches(mapping, 2);
       }
     catch (ExceptionBase &exc)

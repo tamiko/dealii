@@ -72,15 +72,12 @@ namespace parallel
     template <int dim, int spacedim, typename VectorType>
     CellDataTransfer<dim, spacedim, VectorType>::CellDataTransfer(
       const parallel::distributed::Triangulation<dim, spacedim> &triangulation,
-      const bool                        transfer_variable_size_data,
-      const std::function<std::vector<value_type>(
-        const typename dealii::Triangulation<dim, spacedim>::cell_iterator
-          &              parent,
-        const value_type parent_value)> refinement_strategy,
-      const std::function<value_type(
-        const typename dealii::Triangulation<dim, spacedim>::cell_iterator
-          &                            parent,
-        const std::vector<value_type> &children_values)> coarsening_strategy)
+      const bool                                                 transfer_variable_size_data,
+      const std::function<
+        std::vector<value_type>(const typename dealii::Triangulation<dim, spacedim>::cell_iterator &parent,
+                                const value_type parent_value)>                       refinement_strategy,
+      const std::function<value_type(const typename dealii::Triangulation<dim, spacedim>::cell_iterator &parent,
+                                     const std::vector<value_type> &children_values)> coarsening_strategy)
       : triangulation(&triangulation, typeid(*this).name())
       , transfer_variable_size_data(transfer_variable_size_data)
       , refinement_strategy(refinement_strategy)
@@ -99,8 +96,7 @@ namespace parallel
     {
       // TODO: casting away constness is bad
       parallel::distributed::Triangulation<dim, spacedim> *tria =
-        const_cast<parallel::distributed::Triangulation<dim, spacedim> *>(
-          &(*triangulation));
+        const_cast<parallel::distributed::Triangulation<dim, spacedim> *>(&(*triangulation));
       Assert(tria != nullptr, ExcInternalError());
 
       Assert(handle == numbers::invalid_unsigned_int,
@@ -108,11 +104,8 @@ namespace parallel
                         "CellDataTransfer object."));
 
       handle = tria->register_data_attach(
-        [this](const typename parallel::distributed::
-                 Triangulation<dim, spacedim>::cell_iterator &cell,
-               const CellStatus                               status) {
-          return this->pack_callback(cell, status);
-        },
+        [this](const typename parallel::distributed::Triangulation<dim, spacedim>::cell_iterator &cell,
+               const CellStatus status) { return this->pack_callback(cell, status); },
         /*returns_variable_size_data=*/transfer_variable_size_data);
     }
 
@@ -120,9 +113,8 @@ namespace parallel
 
     template <int dim, int spacedim, typename VectorType>
     void
-    CellDataTransfer<dim, spacedim, VectorType>::
-      prepare_for_coarsening_and_refinement(
-        const std::vector<const VectorType *> &all_in)
+    CellDataTransfer<dim, spacedim, VectorType>::prepare_for_coarsening_and_refinement(
+      const std::vector<const VectorType *> &all_in)
     {
       input_vectors = all_in;
       register_data_attach();
@@ -132,8 +124,7 @@ namespace parallel
 
     template <int dim, int spacedim, typename VectorType>
     void
-    CellDataTransfer<dim, spacedim, VectorType>::
-      prepare_for_coarsening_and_refinement(const VectorType &in)
+    CellDataTransfer<dim, spacedim, VectorType>::prepare_for_coarsening_and_refinement(const VectorType &in)
     {
       std::vector<const VectorType *> all_in(1, &in);
       prepare_for_coarsening_and_refinement(all_in);
@@ -153,8 +144,7 @@ namespace parallel
 
     template <int dim, int spacedim, typename VectorType>
     void
-    CellDataTransfer<dim, spacedim, VectorType>::prepare_for_serialization(
-      const VectorType &in)
+    CellDataTransfer<dim, spacedim, VectorType>::prepare_for_serialization(const VectorType &in)
     {
       std::vector<const VectorType *> all_in(1, &in);
       prepare_for_serialization(all_in);
@@ -167,31 +157,24 @@ namespace parallel
 
     template <int dim, int spacedim, typename VectorType>
     void
-    CellDataTransfer<dim, spacedim, VectorType>::unpack(
-      std::vector<VectorType *> &all_out)
+    CellDataTransfer<dim, spacedim, VectorType>::unpack(std::vector<VectorType *> &all_out)
     {
-      Assert(input_vectors.size() == all_out.size(),
-             ExcDimensionMismatch(input_vectors.size(), all_out.size()));
+      Assert(input_vectors.size() == all_out.size(), ExcDimensionMismatch(input_vectors.size(), all_out.size()));
 
       // TODO: casting away constness is bad
       parallel::distributed::Triangulation<dim, spacedim> *tria =
-        const_cast<parallel::distributed::Triangulation<dim, spacedim> *>(
-          &(*triangulation));
+        const_cast<parallel::distributed::Triangulation<dim, spacedim> *>(&(*triangulation));
       Assert(tria != nullptr, ExcInternalError());
 
       tria->notify_ready_to_unpack(
         handle,
-        [this, &all_out](
-          const typename parallel::distributed::Triangulation<dim, spacedim>::
-            cell_iterator &cell,
-          const CellStatus status,
-          const boost::iterator_range<std::vector<char>::const_iterator>
-            &data_range) {
+        [this, &all_out](const typename parallel::distributed::Triangulation<dim, spacedim>::cell_iterator &cell,
+                         const CellStatus                                                                   status,
+                         const boost::iterator_range<std::vector<char>::const_iterator> &data_range) {
           this->unpack_callback(cell, status, data_range, all_out);
         });
 
-      dealii::internal::parallel::distributed::CellDataTransferImplementation::
-        post_unpack_action(all_out);
+      dealii::internal::parallel::distributed::CellDataTransferImplementation::post_unpack_action(all_out);
 
       input_vectors.clear();
       handle = numbers::invalid_unsigned_int;
@@ -211,8 +194,7 @@ namespace parallel
 
     template <int dim, int spacedim, typename VectorType>
     void
-    CellDataTransfer<dim, spacedim, VectorType>::deserialize(
-      std::vector<VectorType *> &all_out)
+    CellDataTransfer<dim, spacedim, VectorType>::deserialize(std::vector<VectorType *> &all_out)
     {
       // For deserialization, we need to register this object
       // to the triangulation first to get a valid handle for
@@ -243,9 +225,8 @@ namespace parallel
     template <int dim, int spacedim, typename VectorType>
     std::vector<char>
     CellDataTransfer<dim, spacedim, VectorType>::pack_callback(
-      const typename parallel::distributed::Triangulation<dim, spacedim>::
-        cell_iterator &cell,
-      const CellStatus status)
+      const typename parallel::distributed::Triangulation<dim, spacedim>::cell_iterator &cell,
+      const CellStatus                                                                   status)
     {
       std::vector<value_type> cell_data(input_vectors.size());
 
@@ -268,17 +249,13 @@ namespace parallel
                   // Cell is parent whose children will get coarsened to.
                   // Decide data to store on parent by provided strategy.
                   std::vector<value_type> children_values(cell->n_children());
-                  for (unsigned int child_index = 0;
-                       child_index < cell->n_children();
-                       ++child_index)
+                  for (unsigned int child_index = 0; child_index < cell->n_children(); ++child_index)
                     {
                       const auto &child = cell->child(child_index);
                       Assert(child->is_active() && child->coarsen_flag_set(),
-                             typename dealii::Triangulation<
-                               dim>::ExcInconsistentCoarseningFlags());
+                             typename dealii::Triangulation<dim>::ExcInconsistentCoarseningFlags());
 
-                      children_values[child_index] =
-                        (**it_input)[child->active_cell_index()];
+                      children_values[child_index] = (**it_input)[child->active_cell_index()];
                     }
 
                   *it_output = coarsening_strategy(cell, children_values);
@@ -293,11 +270,9 @@ namespace parallel
 
       // We don't have to pack the whole container if there is just one entry.
       if (input_vectors.size() == 1)
-        return Utilities::pack(
-          cell_data[0], /*allow_compression=*/transfer_variable_size_data);
+        return Utilities::pack(cell_data[0], /*allow_compression=*/transfer_variable_size_data);
       else
-        return Utilities::pack(
-          cell_data, /*allow_compression=*/transfer_variable_size_data);
+        return Utilities::pack(cell_data, /*allow_compression=*/transfer_variable_size_data);
     }
 
 
@@ -305,27 +280,23 @@ namespace parallel
     template <int dim, int spacedim, typename VectorType>
     void
     CellDataTransfer<dim, spacedim, VectorType>::unpack_callback(
-      const typename parallel::distributed::Triangulation<dim, spacedim>::
-        cell_iterator &cell,
-      const CellStatus status,
-      const boost::iterator_range<std::vector<char>::const_iterator>
-        &                        data_range,
-      std::vector<VectorType *> &all_out)
+      const typename parallel::distributed::Triangulation<dim, spacedim>::cell_iterator &cell,
+      const CellStatus                                                                   status,
+      const boost::iterator_range<std::vector<char>::const_iterator>                    &data_range,
+      std::vector<VectorType *>                                                         &all_out)
     {
       std::vector<value_type> cell_data;
 
       // We have to unpack the corresponding datatype that has been packed
       // beforehand.
       if (all_out.size() == 1)
-        cell_data.push_back(Utilities::unpack<value_type>(
-          data_range.begin(),
-          data_range.end(),
-          /*allow_compression=*/transfer_variable_size_data));
+        cell_data.push_back(Utilities::unpack<value_type>(data_range.begin(),
+                                                          data_range.end(),
+                                                          /*allow_compression=*/transfer_variable_size_data));
       else
-        cell_data = Utilities::unpack<std::vector<value_type>>(
-          data_range.begin(),
-          data_range.end(),
-          /*allow_compression=*/transfer_variable_size_data);
+        cell_data = Utilities::unpack<std::vector<value_type>>(data_range.begin(),
+                                                               data_range.end(),
+                                                               /*allow_compression=*/transfer_variable_size_data);
 
       // Check if sizes match.
       Assert(cell_data.size() == all_out.size(), ExcInternalError());
@@ -346,13 +317,9 @@ namespace parallel
               {
                 // Cell has been refined, and is now parent of its children.
                 // Thus, distribute parent's data on its children.
-                const std::vector<value_type> children_values =
-                  refinement_strategy(cell, *it_input);
-                for (unsigned int child_index = 0;
-                     child_index < cell->n_children();
-                     ++child_index)
-                  (**it_output)[cell->child(child_index)->active_cell_index()] =
-                    children_values[child_index];
+                const std::vector<value_type> children_values = refinement_strategy(cell, *it_input);
+                for (unsigned int child_index = 0; child_index < cell->n_children(); ++child_index)
+                  (**it_output)[cell->child(child_index)->active_cell_index()] = children_values[child_index];
                 break;
               }
 

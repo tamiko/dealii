@@ -315,9 +315,7 @@ public:
    * exception of type FiniteElement::ExcUnitShapeValuesDoNotExist.
    */
   virtual double
-  shape_value_component(const unsigned int i,
-                        const Point<dim> & p,
-                        const unsigned int component) const override;
+  shape_value_component(const unsigned int i, const Point<dim> &p, const unsigned int component) const override;
 
   /**
    * This function is intended to return the gradient of a shape function at a
@@ -343,9 +341,7 @@ public:
    * exception of type FiniteElement::ExcUnitShapeValuesDoNotExist.
    */
   virtual Tensor<1, dim>
-  shape_grad_component(const unsigned int i,
-                       const Point<dim> & p,
-                       const unsigned int component) const override;
+  shape_grad_component(const unsigned int i, const Point<dim> &p, const unsigned int component) const override;
 
   /**
    * This function is intended to return the Hessian of a shape function at a
@@ -371,9 +367,7 @@ public:
    * an exception of type FiniteElement::ExcUnitShapeValuesDoNotExist.
    */
   virtual Tensor<2, dim>
-  shape_grad_grad_component(const unsigned int i,
-                            const Point<dim> & p,
-                            const unsigned int component) const override;
+  shape_grad_grad_component(const unsigned int i, const Point<dim> &p, const unsigned int component) const override;
 
   /**
    * Return the polynomial degree of this finite element, i.e. the value
@@ -395,8 +389,8 @@ public:
    */
   virtual void
   get_face_interpolation_matrix(const FiniteElement<dim, spacedim> &source,
-                                FullMatrix<double> &                matrix,
-                                const unsigned int face_no = 0) const override;
+                                FullMatrix<double>                 &matrix,
+                                const unsigned int                  face_no = 0) const override;
 
   /**
    * Return the matrix interpolating from a face of one element to the face
@@ -410,11 +404,10 @@ public:
    * FiniteElement<dim,spacedim>::ExcInterpolationNotImplemented.
    */
   virtual void
-  get_subface_interpolation_matrix(
-    const FiniteElement<dim, spacedim> &source,
-    const unsigned int                  subface,
-    FullMatrix<double> &                matrix,
-    const unsigned int                  face_no = 0) const override;
+  get_subface_interpolation_matrix(const FiniteElement<dim, spacedim> &source,
+                                   const unsigned int                  subface,
+                                   FullMatrix<double>                 &matrix,
+                                   const unsigned int                  face_no = 0) const override;
 
   /**
    * @name Functions to support hp
@@ -440,8 +433,7 @@ public:
    * course empty.
    */
   virtual std::vector<std::pair<unsigned int, unsigned int>>
-  hp_vertex_dof_identities(
-    const FiniteElement<dim, spacedim> &fe_other) const override;
+  hp_vertex_dof_identities(const FiniteElement<dim, spacedim> &fe_other) const override;
 
   /**
    * Same as hp_vertex_dof_indices(), except that the function treats degrees
@@ -451,8 +443,7 @@ public:
    * course empty.
    */
   virtual std::vector<std::pair<unsigned int, unsigned int>>
-  hp_line_dof_identities(
-    const FiniteElement<dim, spacedim> &fe_other) const override;
+  hp_line_dof_identities(const FiniteElement<dim, spacedim> &fe_other) const override;
 
   /**
    * Same as hp_vertex_dof_indices(), except that the function treats degrees
@@ -462,8 +453,7 @@ public:
    * course empty.
    */
   virtual std::vector<std::pair<unsigned int, unsigned int>>
-  hp_quad_dof_identities(const FiniteElement<dim, spacedim> &fe_other,
-                         const unsigned int face_no = 0) const override;
+  hp_quad_dof_identities(const FiniteElement<dim, spacedim> &fe_other, const unsigned int face_no = 0) const override;
 
   /**
    * Return whether this element implements its hanging node constraints in
@@ -481,7 +471,7 @@ public:
    */
   virtual FiniteElementDomination::Domination
   compare_for_domination(const FiniteElement<dim, spacedim> &fe_other,
-                         const unsigned int codim = 0) const override final;
+                         const unsigned int                  codim = 0) const override final;
 
   /**
    * @}
@@ -492,8 +482,7 @@ public:
    * non-zero function values somewhere on the face @p face_index.
    */
   virtual bool
-  has_support_on_face(const unsigned int shape_index,
-                      const unsigned int face_index) const override;
+  has_support_on_face(const unsigned int shape_index, const unsigned int face_index) const override;
 
   /**
    * Determine an estimate for the memory consumption (in bytes) of this
@@ -511,60 +500,48 @@ protected:
    * Prepare internal data structures and fill in values independent of the
    * cell.
    */
-  virtual std::unique_ptr<
-    typename FiniteElement<dim, spacedim>::InternalDataBase>
+  virtual std::unique_ptr<typename FiniteElement<dim, spacedim>::InternalDataBase>
   get_data(
-    const UpdateFlags             update_flags,
-    const Mapping<dim, spacedim> &mapping,
-    const Quadrature<dim> &       quadrature,
-    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim,
-                                                                       spacedim>
-      &output_data) const override;
+    const UpdateFlags                                                                  update_flags,
+    const Mapping<dim, spacedim>                                                      &mapping,
+    const Quadrature<dim>                                                             &quadrature,
+    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> &output_data) const override;
 
   virtual void
   fill_fe_values(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const CellSimilarity::Similarity                            cell_similarity,
-    const Quadrature<dim> &                                     quadrature,
-    const Mapping<dim, spacedim> &                              mapping,
-    const typename Mapping<dim, spacedim>::InternalDataBase &mapping_internal,
-    const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &                                                            mapping_data,
-    const typename FiniteElement<dim, spacedim>::InternalDataBase &fe_internal,
-    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim,
-                                                                       spacedim>
-      &output_data) const override;
+    const typename Triangulation<dim, spacedim>::cell_iterator                        &cell,
+    const CellSimilarity::Similarity                                                   cell_similarity,
+    const Quadrature<dim>                                                             &quadrature,
+    const Mapping<dim, spacedim>                                                      &mapping,
+    const typename Mapping<dim, spacedim>::InternalDataBase                           &mapping_internal,
+    const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>         &mapping_data,
+    const typename FiniteElement<dim, spacedim>::InternalDataBase                     &fe_internal,
+    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> &output_data) const override;
 
   using FiniteElement<dim, spacedim>::fill_fe_face_values;
 
   virtual void
   fill_fe_face_values(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const unsigned int                                          face_no,
-    const hp::QCollection<dim - 1> &                            quadrature,
-    const Mapping<dim, spacedim> &                              mapping,
-    const typename Mapping<dim, spacedim>::InternalDataBase &mapping_internal,
-    const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &                                                            mapping_data,
-    const typename FiniteElement<dim, spacedim>::InternalDataBase &fe_internal,
-    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim,
-                                                                       spacedim>
-      &output_data) const override;
+    const typename Triangulation<dim, spacedim>::cell_iterator                        &cell,
+    const unsigned int                                                                 face_no,
+    const hp::QCollection<dim - 1>                                                    &quadrature,
+    const Mapping<dim, spacedim>                                                      &mapping,
+    const typename Mapping<dim, spacedim>::InternalDataBase                           &mapping_internal,
+    const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>         &mapping_data,
+    const typename FiniteElement<dim, spacedim>::InternalDataBase                     &fe_internal,
+    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> &output_data) const override;
 
   virtual void
   fill_fe_subface_values(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const unsigned int                                          face_no,
-    const unsigned int                                          sub_no,
-    const Quadrature<dim - 1> &                                 quadrature,
-    const Mapping<dim, spacedim> &                              mapping,
-    const typename Mapping<dim, spacedim>::InternalDataBase &mapping_internal,
-    const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &                                                            mapping_data,
-    const typename FiniteElement<dim, spacedim>::InternalDataBase &fe_internal,
-    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim,
-                                                                       spacedim>
-      &output_data) const override;
+    const typename Triangulation<dim, spacedim>::cell_iterator                        &cell,
+    const unsigned int                                                                 face_no,
+    const unsigned int                                                                 sub_no,
+    const Quadrature<dim - 1>                                                         &quadrature,
+    const Mapping<dim, spacedim>                                                      &mapping,
+    const typename Mapping<dim, spacedim>::InternalDataBase                           &mapping_internal,
+    const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>         &mapping_data,
+    const typename FiniteElement<dim, spacedim>::InternalDataBase                     &fe_internal,
+    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> &output_data) const override;
 
 private:
   /**

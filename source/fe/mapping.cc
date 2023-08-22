@@ -34,14 +34,10 @@ DEAL_II_NAMESPACE_OPEN
 
 
 template <int dim, int spacedim>
-boost::container::small_vector<Point<spacedim>,
-                               GeometryInfo<dim>::vertices_per_cell>
-Mapping<dim, spacedim>::get_vertices(
-  const typename Triangulation<dim, spacedim>::cell_iterator &cell) const
+boost::container::small_vector<Point<spacedim>, GeometryInfo<dim>::vertices_per_cell>
+Mapping<dim, spacedim>::get_vertices(const typename Triangulation<dim, spacedim>::cell_iterator &cell) const
 {
-  boost::container::small_vector<Point<spacedim>,
-                                 GeometryInfo<dim>::vertices_per_cell>
-    vertices;
+  boost::container::small_vector<Point<spacedim>, GeometryInfo<dim>::vertices_per_cell> vertices;
   for (const unsigned int i : cell->vertex_indices())
     vertices.push_back(cell->vertex(i));
 
@@ -51,26 +47,19 @@ Mapping<dim, spacedim>::get_vertices(
 
 
 template <int dim, int spacedim>
-boost::container::small_vector<Point<spacedim>,
-                               GeometryInfo<dim>::vertices_per_face>
-Mapping<dim, spacedim>::get_vertices(
-  const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-  const unsigned int                                          face_no) const
+boost::container::small_vector<Point<spacedim>, GeometryInfo<dim>::vertices_per_face>
+Mapping<dim, spacedim>::get_vertices(const typename Triangulation<dim, spacedim>::cell_iterator &cell,
+                                     const unsigned int                                          face_no) const
 {
-  boost::container::small_vector<Point<spacedim>,
-                                 GeometryInfo<dim>::vertices_per_face>
-    face_vertices;
+  boost::container::small_vector<Point<spacedim>, GeometryInfo<dim>::vertices_per_face> face_vertices;
 
   const auto &cell_vertices    = get_vertices(cell);
   const auto &reference_cell   = cell->reference_cell();
   const auto  face_orientation = cell->combined_face_orientation(face_no);
 
-  for (const unsigned int v :
-       reference_cell.face_reference_cell(face_no).vertex_indices())
+  for (const unsigned int v : reference_cell.face_reference_cell(face_no).vertex_indices())
     {
-      face_vertices.push_back(
-        cell_vertices[reference_cell.face_to_cell_vertices(
-          face_no, v, face_orientation)]);
+      face_vertices.push_back(cell_vertices[reference_cell.face_to_cell_vertices(face_no, v, face_orientation)]);
     }
 
   return face_vertices;
@@ -80,14 +69,12 @@ Mapping<dim, spacedim>::get_vertices(
 
 template <int dim, int spacedim>
 Point<spacedim>
-Mapping<dim, spacedim>::get_center(
-  const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-  const bool map_barycenter_of_reference_cell) const
+Mapping<dim, spacedim>::get_center(const typename Triangulation<dim, spacedim>::cell_iterator &cell,
+                                   const bool map_barycenter_of_reference_cell) const
 {
   if (map_barycenter_of_reference_cell)
     {
-      return transform_unit_to_real_cell(
-        cell, cell->reference_cell().template barycenter<dim>());
+      return transform_unit_to_real_cell(cell, cell->reference_cell().template barycenter<dim>());
     }
   else
     {
@@ -103,8 +90,7 @@ Mapping<dim, spacedim>::get_center(
 
 template <int dim, int spacedim>
 BoundingBox<spacedim>
-Mapping<dim, spacedim>::get_bounding_box(
-  const typename Triangulation<dim, spacedim>::cell_iterator &cell) const
+Mapping<dim, spacedim>::get_bounding_box(const typename Triangulation<dim, spacedim>::cell_iterator &cell) const
 {
   if (preserves_vertex_locations())
     return cell->bounding_box();
@@ -131,8 +117,8 @@ template <int dim, int spacedim>
 void
 Mapping<dim, spacedim>::transform_points_real_to_unit_cell(
   const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-  const ArrayView<const Point<spacedim>> &                    real_points,
-  const ArrayView<Point<dim>> &                               unit_points) const
+  const ArrayView<const Point<spacedim>>                     &real_points,
+  const ArrayView<Point<dim>>                                &unit_points) const
 {
   AssertDimension(real_points.size(), unit_points.size());
   for (unsigned int i = 0; i < real_points.size(); ++i)
@@ -156,7 +142,7 @@ Point<dim - 1>
 Mapping<dim, spacedim>::project_real_point_to_unit_point_on_face(
   const typename Triangulation<dim, spacedim>::cell_iterator &cell,
   const unsigned int                                          face_no,
-  const Point<spacedim> &                                     p) const
+  const Point<spacedim>                                      &p) const
 {
   // The function doesn't make physical sense for dim=1
   Assert(dim > 1, ExcNotImplemented());
@@ -165,8 +151,7 @@ Mapping<dim, spacedim>::project_real_point_to_unit_point_on_face(
 
   Point<dim> unit_cell_pt = transform_real_to_unit_cell(cell, p);
 
-  const unsigned int unit_normal_direction =
-    GeometryInfo<dim>::unit_normal_direction[face_no];
+  const unsigned int unit_normal_direction = GeometryInfo<dim>::unit_normal_direction[face_no];
 
   if (dim == 2)
     {
@@ -196,12 +181,11 @@ Mapping<dim, spacedim>::project_real_point_to_unit_point_on_face(
 template <int dim, int spacedim>
 void
 Mapping<dim, spacedim>::fill_fe_face_values(
-  const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-  const unsigned int                                          face_no,
-  const hp::QCollection<dim - 1> &                            quadrature,
-  const typename Mapping<dim, spacedim>::InternalDataBase &   internal_data,
-  internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-    &output_data) const
+  const typename Triangulation<dim, spacedim>::cell_iterator          &cell,
+  const unsigned int                                                   face_no,
+  const hp::QCollection<dim - 1>                                      &quadrature,
+  const typename Mapping<dim, spacedim>::InternalDataBase             &internal_data,
+  internal::FEValuesImplementation::MappingRelatedData<dim, spacedim> &output_data) const
 {
   // base class version, implement overridden function in derived classes
   AssertDimension(quadrature.size(), 1);
@@ -213,12 +197,11 @@ Mapping<dim, spacedim>::fill_fe_face_values(
 template <int dim, int spacedim>
 void
 Mapping<dim, spacedim>::fill_fe_face_values(
-  const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-  const unsigned int                                          face_no,
-  const Quadrature<dim - 1> &                                 quadrature,
-  const typename Mapping<dim, spacedim>::InternalDataBase &   internal_data,
-  internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-    &output_data) const
+  const typename Triangulation<dim, spacedim>::cell_iterator          &cell,
+  const unsigned int                                                   face_no,
+  const Quadrature<dim - 1>                                           &quadrature,
+  const typename Mapping<dim, spacedim>::InternalDataBase             &internal_data,
+  internal::FEValuesImplementation::MappingRelatedData<dim, spacedim> &output_data) const
 {
   Assert(false,
          ExcMessage("Use of a deprecated interface, please implement "
@@ -234,9 +217,7 @@ Mapping<dim, spacedim>::fill_fe_face_values(
 
 template <int dim, int spacedim>
 std::unique_ptr<typename Mapping<dim, spacedim>::InternalDataBase>
-Mapping<dim, spacedim>::get_face_data(
-  const UpdateFlags               update_flags,
-  const hp::QCollection<dim - 1> &quadrature) const
+Mapping<dim, spacedim>::get_face_data(const UpdateFlags update_flags, const hp::QCollection<dim - 1> &quadrature) const
 {
   // base class version, implement overridden function in derived classes
   return get_face_data(update_flags, quadrature[0]);
@@ -246,9 +227,7 @@ Mapping<dim, spacedim>::get_face_data(
 
 template <int dim, int spacedim>
 std::unique_ptr<typename Mapping<dim, spacedim>::InternalDataBase>
-Mapping<dim, spacedim>::get_face_data(
-  const UpdateFlags          update_flags,
-  const Quadrature<dim - 1> &quadrature) const
+Mapping<dim, spacedim>::get_face_data(const UpdateFlags update_flags, const Quadrature<dim - 1> &quadrature) const
 {
   Assert(false,
          ExcMessage("Use of a deprecated interface, please implement "
@@ -286,16 +265,14 @@ get_default_linear_mapping(const Triangulation<dim, spacedim> &triangulation)
 {
   const auto &reference_cells = triangulation.get_reference_cells();
   Assert(reference_cells.size() == 1,
-         ExcMessage(
-           "This function can only work for triangulations that "
-           "use only a single cell type -- for example, only triangles "
-           "or only quadrilaterals. For mixed meshes, there is no "
-           "single linear mapping object that can be used for all "
-           "cells of the triangulation. The triangulation you are "
-           "passing to this function uses multiple cell types."));
+         ExcMessage("This function can only work for triangulations that "
+                    "use only a single cell type -- for example, only triangles "
+                    "or only quadrilaterals. For mixed meshes, there is no "
+                    "single linear mapping object that can be used for all "
+                    "cells of the triangulation. The triangulation you are "
+                    "passing to this function uses multiple cell types."));
 
-  return reference_cells.front()
-    .template get_default_linear_mapping<dim, spacedim>();
+  return reference_cells.front().template get_default_linear_mapping<dim, spacedim>();
 }
 
 

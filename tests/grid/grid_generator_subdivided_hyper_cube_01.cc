@@ -37,8 +37,7 @@ test()
       for (const auto &face : cell->face_iterators())
         {
           if (face->at_boundary())
-            deallog << "boundary id = " << face->boundary_id()
-                    << " center = " << face->center()
+            deallog << "boundary id = " << face->boundary_id() << " center = " << face->center()
                     << " faceidx = " << face->index() << std::endl;
         }
     }

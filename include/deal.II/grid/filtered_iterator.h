@@ -239,16 +239,14 @@ namespace IteratorFilters
      * Constructor. Store the material id which iterators shall have to be
      * evaluated to true and state if the iterator must be locally owned.
      */
-    MaterialIdEqualTo(const types::material_id material_id,
-                      const bool               only_locally_owned = false);
+    MaterialIdEqualTo(const types::material_id material_id, const bool only_locally_owned = false);
 
     /**
      * Constructor. Store a collection of material ids which iterators shall
      * have to be evaluated to true and state if the iterator must be locally
      * owned.
      */
-    MaterialIdEqualTo(const std::set<types::material_id> &material_ids,
-                      const bool only_locally_owned = false);
+    MaterialIdEqualTo(const std::set<types::material_id> &material_ids, const bool only_locally_owned = false);
 
     /**
      * Evaluation operator. Returns true if the material id of the object
@@ -285,16 +283,14 @@ namespace IteratorFilters
      * Constructor. Store the active FE index which iterators shall have to be
      * evaluated to true and state if the iterator must be locally owned.
      */
-    ActiveFEIndexEqualTo(const unsigned int active_fe_index,
-                         const bool         only_locally_owned = false);
+    ActiveFEIndexEqualTo(const unsigned int active_fe_index, const bool only_locally_owned = false);
 
     /**
      * Constructor. Store a collection of active FE indices which iterators
      * shall have to be evaluated to true and state if the iterator must be
      * locally owned.
      */
-    ActiveFEIndexEqualTo(const std::set<unsigned int> &active_fe_indices,
-                         const bool only_locally_owned = false);
+    ActiveFEIndexEqualTo(const std::set<unsigned int> &active_fe_indices, const bool only_locally_owned = false);
 
     /**
      * Evaluation operator. Returns true if the active FE index of the object
@@ -801,12 +797,10 @@ public:
   /**
    * Exception.
    */
-  DeclException1(
-    ExcInvalidElement,
-    BaseIterator,
-    << "The element " << arg1
-    << " with which you want to compare or which you want to"
-    << " assign from is invalid since it does not satisfy the predicate.");
+  DeclException1(ExcInvalidElement,
+                 BaseIterator,
+                 << "The element " << arg1 << " with which you want to compare or which you want to"
+                 << " assign from is invalid since it does not satisfy the predicate.");
 
 private:
   /**
@@ -902,8 +896,7 @@ private:
  */
 template <typename BaseIterator, typename Predicate>
 DEAL_II_CXX20_REQUIRES((std::predicate<Predicate, BaseIterator>))
-FilteredIterator<BaseIterator> make_filtered_iterator(const BaseIterator &i,
-                                                      const Predicate &   p)
+FilteredIterator<BaseIterator> make_filtered_iterator(const BaseIterator &i, const Predicate &p)
 {
   FilteredIterator<BaseIterator> fi(p);
   fi.set_to_next_positive(i);
@@ -932,9 +925,7 @@ namespace internal
     template <typename BaseIterator, typename Predicate, typename... Targs>
     struct NestFilteredIterators<BaseIterator, std::tuple<Predicate, Targs...>>
     {
-      using type = ::dealii::FilteredIterator<
-        typename NestFilteredIterators<BaseIterator,
-                                       std::tuple<Targs...>>::type>;
+      using type = ::dealii::FilteredIterator<typename NestFilteredIterators<BaseIterator, std::tuple<Targs...>>::type>;
     };
   } // namespace FilteredIteratorImplementation
 } // namespace internal
@@ -995,9 +986,7 @@ namespace internal
  */
 template <typename BaseIterator, typename Predicate>
 DEAL_II_CXX20_REQUIRES((std::predicate<Predicate, BaseIterator>))
-inline IteratorRange<FilteredIterator<BaseIterator>> filter_iterators(
-  IteratorRange<BaseIterator> i,
-  const Predicate &           p)
+inline IteratorRange<FilteredIterator<BaseIterator>> filter_iterators(IteratorRange<BaseIterator> i, const Predicate &p)
 {
   FilteredIterator<BaseIterator> fi(p, *(i.begin()));
   FilteredIterator<BaseIterator> fi_end(p, *(i.end()));
@@ -1066,12 +1055,11 @@ inline IteratorRange<FilteredIterator<BaseIterator>> filter_iterators(
  */
 template <typename BaseIterator, typename Predicate, typename... Targs>
 DEAL_II_CXX20_REQUIRES((std::predicate<Predicate, BaseIterator>))
-IteratorRange<
-  typename internal::FilteredIteratorImplementation::
-    NestFilteredIterators<BaseIterator, std::tuple<Predicate, Targs...>>::
-      type> filter_iterators(IteratorRange<BaseIterator> i,
-                             const Predicate &           p,
-                             const Targs... args)
+IteratorRange<typename internal::FilteredIteratorImplementation::NestFilteredIterators<
+  BaseIterator,
+  std::tuple<Predicate, Targs...>>::type> filter_iterators(IteratorRange<BaseIterator> i,
+                                                           const Predicate            &p,
+                                                           const Targs... args)
 {
   // Recursively create filtered iterators, one predicate at a time
   auto fi = filter_iterators(i, p);
@@ -1165,8 +1153,7 @@ inline FilteredIterator<BaseIterator>::FilteredIterator(Predicate p)
 template <typename BaseIterator>
 template <typename Predicate>
 DEAL_II_CXX20_REQUIRES((std::predicate<Predicate, BaseIterator>))
-inline FilteredIterator<BaseIterator>::FilteredIterator(Predicate           p,
-                                                        const BaseIterator &bi)
+inline FilteredIterator<BaseIterator>::FilteredIterator(Predicate p, const BaseIterator &bi)
   : BaseIterator(bi)
   , predicate(new PredicateTemplate<Predicate>(p))
 {
@@ -1177,8 +1164,7 @@ inline FilteredIterator<BaseIterator>::FilteredIterator(Predicate           p,
 
 
 template <typename BaseIterator>
-inline FilteredIterator<BaseIterator>::FilteredIterator(
-  const FilteredIterator &fi)
+inline FilteredIterator<BaseIterator>::FilteredIterator(const FilteredIterator &fi)
   : // this construction looks strange, but without going through the
     // address of fi, GCC would not cast fi to the base class of type
     // BaseIterator but tries to go through constructing a new
@@ -1198,8 +1184,8 @@ FilteredIterator<BaseIterator>::operator=(const FilteredIterator &fi)
   // BaseIterator but try to go through constructing a new Accessor from fi
   // which fails. Hence, we just use an explicit upcast and call the above-
   // mentioned method.
-  const BaseIterator &bi      = fi;
-  return              operator=(bi);
+  const BaseIterator &bi = fi;
+  return operator=(bi);
 }
 
 
@@ -1208,8 +1194,7 @@ template <typename BaseIterator>
 inline FilteredIterator<BaseIterator> &
 FilteredIterator<BaseIterator>::operator=(const BaseIterator &bi)
 {
-  Assert((bi.state() != IteratorState::valid) || (*predicate)(bi),
-         ExcInvalidElement(bi));
+  Assert((bi.state() != IteratorState::valid) || (*predicate)(bi), ExcInvalidElement(bi));
   BaseIterator::operator=(bi);
   return *this;
 }
@@ -1246,8 +1231,7 @@ template <typename BaseIterator>
 inline bool
 FilteredIterator<BaseIterator>::operator==(const FilteredIterator &fi) const
 {
-  return (static_cast<const BaseIterator &>(*this) ==
-          static_cast<const BaseIterator &>(fi));
+  return (static_cast<const BaseIterator &>(*this) == static_cast<const BaseIterator &>(fi));
 }
 
 
@@ -1256,8 +1240,7 @@ template <typename BaseIterator>
 inline bool
 FilteredIterator<BaseIterator>::operator!=(const FilteredIterator &fi) const
 {
-  return (static_cast<const BaseIterator &>(*this) !=
-          static_cast<const BaseIterator &>(fi));
+  return (static_cast<const BaseIterator &>(*this) != static_cast<const BaseIterator &>(fi));
 }
 
 
@@ -1266,8 +1249,7 @@ template <typename BaseIterator>
 inline bool
 FilteredIterator<BaseIterator>::operator<(const FilteredIterator &fi) const
 {
-  return (static_cast<const BaseIterator &>(*this) <
-          static_cast<const BaseIterator &>(fi));
+  return (static_cast<const BaseIterator &>(*this) < static_cast<const BaseIterator &>(fi));
 }
 
 
@@ -1356,8 +1338,7 @@ FilteredIterator<BaseIterator>::operator--(int)
 
 template <typename BaseIterator>
 template <typename Predicate>
-inline FilteredIterator<BaseIterator>::PredicateTemplate<
-  Predicate>::PredicateTemplate(const Predicate &predicate)
+inline FilteredIterator<BaseIterator>::PredicateTemplate<Predicate>::PredicateTemplate(const Predicate &predicate)
   : predicate(predicate)
 {}
 
@@ -1366,8 +1347,7 @@ inline FilteredIterator<BaseIterator>::PredicateTemplate<
 template <typename BaseIterator>
 template <typename Predicate>
 bool
-FilteredIterator<BaseIterator>::PredicateTemplate<Predicate>::operator()(
-  const BaseIterator &bi) const
+FilteredIterator<BaseIterator>::PredicateTemplate<Predicate>::operator()(const BaseIterator &bi) const
 {
   return predicate(bi);
 }
@@ -1433,8 +1413,7 @@ namespace IteratorFilters
 
 
   // ---------------- IteratorFilters::SubdomainEqualTo ---------
-  inline SubdomainEqualTo::SubdomainEqualTo(
-    const types::subdomain_id subdomain_id)
+  inline SubdomainEqualTo::SubdomainEqualTo(const types::subdomain_id subdomain_id)
     : subdomain_id(subdomain_id)
   {}
 
@@ -1471,18 +1450,15 @@ namespace IteratorFilters
 
 
   // ---------------- IteratorFilters::MaterialIdEqualTo ---------
-  inline MaterialIdEqualTo::MaterialIdEqualTo(
-    const types::material_id material_id,
-    const bool               only_locally_owned)
+  inline MaterialIdEqualTo::MaterialIdEqualTo(const types::material_id material_id, const bool only_locally_owned)
     : material_ids{material_id}
     , only_locally_owned(only_locally_owned)
   {}
 
 
 
-  inline MaterialIdEqualTo::MaterialIdEqualTo(
-    const std::set<types::material_id> &material_ids,
-    const bool                          only_locally_owned)
+  inline MaterialIdEqualTo::MaterialIdEqualTo(const std::set<types::material_id> &material_ids,
+                                              const bool                          only_locally_owned)
     : material_ids(material_ids)
     , only_locally_owned(only_locally_owned)
   {}
@@ -1494,26 +1470,22 @@ namespace IteratorFilters
   MaterialIdEqualTo::operator()(const Iterator &i) const
   {
     return only_locally_owned == true ?
-             (material_ids.find(i->material_id()) != material_ids.end() &&
-              i->is_locally_owned()) :
+             (material_ids.find(i->material_id()) != material_ids.end() && i->is_locally_owned()) :
              material_ids.find(i->material_id()) != material_ids.end();
   }
 
 
 
   // ---------------- IteratorFilters::ActiveFEIndexEqualTo ---------
-  inline ActiveFEIndexEqualTo::ActiveFEIndexEqualTo(
-    const unsigned int active_fe_index,
-    const bool         only_locally_owned)
+  inline ActiveFEIndexEqualTo::ActiveFEIndexEqualTo(const unsigned int active_fe_index, const bool only_locally_owned)
     : active_fe_indices{active_fe_index}
     , only_locally_owned(only_locally_owned)
   {}
 
 
 
-  inline ActiveFEIndexEqualTo::ActiveFEIndexEqualTo(
-    const std::set<unsigned int> &active_fe_indices,
-    const bool                    only_locally_owned)
+  inline ActiveFEIndexEqualTo::ActiveFEIndexEqualTo(const std::set<unsigned int> &active_fe_indices,
+                                                    const bool                    only_locally_owned)
     : active_fe_indices(active_fe_indices)
     , only_locally_owned(only_locally_owned)
   {}
@@ -1525,11 +1497,8 @@ namespace IteratorFilters
   ActiveFEIndexEqualTo::operator()(const Iterator &i) const
   {
     return only_locally_owned == true ?
-             (i->is_locally_owned() &&
-              active_fe_indices.find(i->active_fe_index()) !=
-                active_fe_indices.end()) :
-             active_fe_indices.find(i->active_fe_index()) !=
-               active_fe_indices.end();
+             (i->is_locally_owned() && active_fe_indices.find(i->active_fe_index()) != active_fe_indices.end()) :
+             active_fe_indices.find(i->active_fe_index()) != active_fe_indices.end();
   }
 
 
@@ -1546,15 +1515,13 @@ namespace IteratorFilters
 
 
   // ---------------- IteratorFilters::BoundaryIdEqualTo ---------
-  inline BoundaryIdEqualTo::BoundaryIdEqualTo(
-    const types::boundary_id boundary_id)
+  inline BoundaryIdEqualTo::BoundaryIdEqualTo(const types::boundary_id boundary_id)
     : boundary_ids{boundary_id}
   {}
 
 
 
-  inline BoundaryIdEqualTo::BoundaryIdEqualTo(
-    const std::set<types::boundary_id> &boundary_ids)
+  inline BoundaryIdEqualTo::BoundaryIdEqualTo(const std::set<types::boundary_id> &boundary_ids)
     : boundary_ids(boundary_ids)
   {}
 
@@ -1570,15 +1537,13 @@ namespace IteratorFilters
 
 
   // ---------------- IteratorFilters::ManifoldIdEqualTo ---------
-  inline ManifoldIdEqualTo::ManifoldIdEqualTo(
-    const types::manifold_id manifold_id)
+  inline ManifoldIdEqualTo::ManifoldIdEqualTo(const types::manifold_id manifold_id)
     : manifold_ids{manifold_id}
   {}
 
 
 
-  inline ManifoldIdEqualTo::ManifoldIdEqualTo(
-    const std::set<types::manifold_id> &manifold_ids)
+  inline ManifoldIdEqualTo::ManifoldIdEqualTo(const std::set<types::manifold_id> &manifold_ids)
     : manifold_ids(manifold_ids)
   {}
 

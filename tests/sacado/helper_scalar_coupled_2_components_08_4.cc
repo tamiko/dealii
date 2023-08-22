@@ -30,28 +30,16 @@ main()
 
   deallog.push("Double");
   {
-    test_symmetric_tensor_symmetric_tensor_coupled<
-      2,
-      double,
-      AD::NumberTypes::sacado_rad_dfad>();
-    test_symmetric_tensor_symmetric_tensor_coupled<
-      3,
-      double,
-      AD::NumberTypes::sacado_rad_dfad>();
+    test_symmetric_tensor_symmetric_tensor_coupled<2, double, AD::NumberTypes::sacado_rad_dfad>();
+    test_symmetric_tensor_symmetric_tensor_coupled<3, double, AD::NumberTypes::sacado_rad_dfad>();
     deallog << "OK" << std::endl;
   }
   deallog.pop();
 
   deallog.push("Float");
   {
-    test_symmetric_tensor_symmetric_tensor_coupled<
-      2,
-      float,
-      AD::NumberTypes::sacado_rad_dfad>();
-    test_symmetric_tensor_symmetric_tensor_coupled<
-      3,
-      float,
-      AD::NumberTypes::sacado_rad_dfad>();
+    test_symmetric_tensor_symmetric_tensor_coupled<2, float, AD::NumberTypes::sacado_rad_dfad>();
+    test_symmetric_tensor_symmetric_tensor_coupled<3, float, AD::NumberTypes::sacado_rad_dfad>();
     deallog << "OK" << std::endl;
   }
   deallog.pop();

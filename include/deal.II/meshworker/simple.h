@@ -72,8 +72,7 @@ namespace MeshWorker
        * Initialize the constraints.
        */
       void
-      initialize(
-        const AffineConstraints<typename VectorType::value_type> &constraints);
+      initialize(const AffineConstraints<typename VectorType::value_type> &constraints);
 
       /**
        * Initialize the local data in the DoFInfo object used later for
@@ -112,9 +111,7 @@ namespace MeshWorker
       /**
        * A pointer to the object containing constraints.
        */
-      SmartPointer<const AffineConstraints<typename VectorType::value_type>,
-                   ResidualSimple<VectorType>>
-        constraints;
+      SmartPointer<const AffineConstraints<typename VectorType::value_type>, ResidualSimple<VectorType>> constraints;
     };
 
 
@@ -178,8 +175,7 @@ namespace MeshWorker
        * sparse matrix.
        */
       void
-      initialize(
-        const AffineConstraints<typename MatrixType::value_type> &constraints);
+      initialize(const AffineConstraints<typename MatrixType::value_type> &constraints);
 
       /**
        * Initialize the local data in the DoFInfo object used later for
@@ -227,7 +223,7 @@ namespace MeshWorker
        * <code>index</code> in the vector #matrix.
        */
       void
-      assemble(const FullMatrix<double> &                  M,
+      assemble(const FullMatrix<double>                   &M,
                const unsigned int                          index,
                const std::vector<types::global_dof_index> &i1,
                const std::vector<types::global_dof_index> &i2);
@@ -235,9 +231,7 @@ namespace MeshWorker
       /**
        * A pointer to the object containing constraints.
        */
-      SmartPointer<const AffineConstraints<typename MatrixType::value_type>,
-                   MatrixSimple<MatrixType>>
-        constraints;
+      SmartPointer<const AffineConstraints<typename MatrixType::value_type>, MatrixSimple<MatrixType>> constraints;
     };
 
 
@@ -277,16 +271,14 @@ namespace MeshWorker
        * refinement with discontinuous Galerkin methods.
        */
       void
-      initialize_fluxes(MGLevelObject<MatrixType> &flux_up,
-                        MGLevelObject<MatrixType> &flux_down);
+      initialize_fluxes(MGLevelObject<MatrixType> &flux_up, MGLevelObject<MatrixType> &flux_down);
 
       /**
        * Initialize the matrices #interface_in and #interface_out used for
        * local refinement with continuous Galerkin methods.
        */
       void
-      initialize_interfaces(MGLevelObject<MatrixType> &interface_in,
-                            MGLevelObject<MatrixType> &interface_out);
+      initialize_interfaces(MGLevelObject<MatrixType> &interface_in, MGLevelObject<MatrixType> &interface_out);
       /**
        * Initialize the local data in the DoFInfo object used later for
        * assembling.
@@ -318,8 +310,8 @@ namespace MeshWorker
        * Assemble a single matrix into a global matrix.
        */
       void
-      assemble(MatrixType &                                G,
-               const FullMatrix<double> &                  M,
+      assemble(MatrixType                                 &G,
+               const FullMatrix<double>                   &M,
                const std::vector<types::global_dof_index> &i1,
                const std::vector<types::global_dof_index> &i2);
 
@@ -327,8 +319,8 @@ namespace MeshWorker
        * Assemble a single matrix into a global matrix.
        */
       void
-      assemble(MatrixType &                                G,
-               const FullMatrix<double> &                  M,
+      assemble(MatrixType                                 &G,
+               const FullMatrix<double>                   &M,
                const std::vector<types::global_dof_index> &i1,
                const std::vector<types::global_dof_index> &i2,
                const unsigned int                          level);
@@ -338,82 +330,76 @@ namespace MeshWorker
        */
 
       void
-      assemble_up(MatrixType &                                G,
-                  const FullMatrix<double> &                  M,
+      assemble_up(MatrixType                                 &G,
+                  const FullMatrix<double>                   &M,
                   const std::vector<types::global_dof_index> &i1,
                   const std::vector<types::global_dof_index> &i2,
-                  const unsigned int level = numbers::invalid_unsigned_int);
+                  const unsigned int                          level = numbers::invalid_unsigned_int);
       /**
        * Assemble a single matrix into a global matrix.
        */
 
       void
-      assemble_down(MatrixType &                                G,
-                    const FullMatrix<double> &                  M,
+      assemble_down(MatrixType                                 &G,
+                    const FullMatrix<double>                   &M,
                     const std::vector<types::global_dof_index> &i1,
                     const std::vector<types::global_dof_index> &i2,
-                    const unsigned int level = numbers::invalid_unsigned_int);
+                    const unsigned int                          level = numbers::invalid_unsigned_int);
 
       /**
        * Assemble a single matrix into a global matrix.
        */
 
       void
-      assemble_in(MatrixType &                                G,
-                  const FullMatrix<double> &                  M,
+      assemble_in(MatrixType                                 &G,
+                  const FullMatrix<double>                   &M,
                   const std::vector<types::global_dof_index> &i1,
                   const std::vector<types::global_dof_index> &i2,
-                  const unsigned int level = numbers::invalid_unsigned_int);
+                  const unsigned int                          level = numbers::invalid_unsigned_int);
 
       /**
        * Assemble a single matrix into a global matrix.
        */
 
       void
-      assemble_out(MatrixType &                                G,
-                   const FullMatrix<double> &                  M,
+      assemble_out(MatrixType                                 &G,
+                   const FullMatrix<double>                   &M,
                    const std::vector<types::global_dof_index> &i1,
                    const std::vector<types::global_dof_index> &i2,
-                   const unsigned int level = numbers::invalid_unsigned_int);
+                   const unsigned int                          level = numbers::invalid_unsigned_int);
 
       /**
        * The global matrix being assembled.
        */
-      SmartPointer<MGLevelObject<MatrixType>, MGMatrixSimple<MatrixType>>
-        matrix;
+      SmartPointer<MGLevelObject<MatrixType>, MGMatrixSimple<MatrixType>> matrix;
 
       /**
        * The matrix used for face flux terms across the refinement edge,
        * coupling coarse to fine.
        */
-      SmartPointer<MGLevelObject<MatrixType>, MGMatrixSimple<MatrixType>>
-        flux_up;
+      SmartPointer<MGLevelObject<MatrixType>, MGMatrixSimple<MatrixType>> flux_up;
 
       /**
        * The matrix used for face flux terms across the refinement edge,
        * coupling fine to coarse.
        */
-      SmartPointer<MGLevelObject<MatrixType>, MGMatrixSimple<MatrixType>>
-        flux_down;
+      SmartPointer<MGLevelObject<MatrixType>, MGMatrixSimple<MatrixType>> flux_down;
 
       /**
        * The matrix used for face contributions for continuous elements across
        * the refinement edge, coupling coarse to fine.
        */
-      SmartPointer<MGLevelObject<MatrixType>, MGMatrixSimple<MatrixType>>
-        interface_in;
+      SmartPointer<MGLevelObject<MatrixType>, MGMatrixSimple<MatrixType>> interface_in;
 
       /**
        * The matrix used for face contributions for continuous elements across
        * the refinement edge, coupling fine to coarse.
        */
-      SmartPointer<MGLevelObject<MatrixType>, MGMatrixSimple<MatrixType>>
-        interface_out;
+      SmartPointer<MGLevelObject<MatrixType>, MGMatrixSimple<MatrixType>> interface_out;
       /**
        * A pointer to the object containing constraints.
        */
-      SmartPointer<const MGConstrainedDoFs, MGMatrixSimple<MatrixType>>
-        mg_constrained_dofs;
+      SmartPointer<const MGConstrainedDoFs, MGMatrixSimple<MatrixType>> mg_constrained_dofs;
 
       /**
        * The smallest positive number that will be entered into the global
@@ -434,8 +420,7 @@ namespace MeshWorker
      * @ingroup MeshWorker
      */
     template <typename MatrixType, typename VectorType>
-    class SystemSimple : private MatrixSimple<MatrixType>,
-                         private ResidualSimple<VectorType>
+    class SystemSimple : private MatrixSimple<MatrixType>, private ResidualSimple<VectorType>
     {
     public:
       /**
@@ -457,8 +442,7 @@ namespace MeshWorker
        * sparse matrix.
        */
       void
-      initialize(
-        const AffineConstraints<typename VectorType::value_type> &constraints);
+      initialize(const AffineConstraints<typename VectorType::value_type> &constraints);
 
       /**
        * Initialize the local data in the DoFInfo object used later for
@@ -492,14 +476,14 @@ namespace MeshWorker
        * <code>index</code> in the vector #matrix.
        */
       void
-      assemble(const FullMatrix<double> &                  M,
-               const Vector<double> &                      vector,
+      assemble(const FullMatrix<double>                   &M,
+               const Vector<double>                       &vector,
                const unsigned int                          index,
                const std::vector<types::global_dof_index> &indices);
 
       void
-      assemble(const FullMatrix<double> &                  M,
-               const Vector<double> &                      vector,
+      assemble(const FullMatrix<double>                   &M,
+               const Vector<double>                       &vector,
                const unsigned int                          index,
                const std::vector<types::global_dof_index> &i1,
                const std::vector<types::global_dof_index> &i2);
@@ -519,8 +503,7 @@ namespace MeshWorker
 
     template <typename VectorType>
     inline void
-    ResidualSimple<VectorType>::initialize(
-      const AffineConstraints<typename VectorType::value_type> &c)
+    ResidualSimple<VectorType>::initialize(const AffineConstraints<typename VectorType::value_type> &c)
     {
       constraints = &c;
     }
@@ -548,13 +531,10 @@ namespace MeshWorker
           for (unsigned int i = 0; i != info.vector(k).n_blocks(); ++i)
             {
               const std::vector<types::global_dof_index> &ldi =
-                info.vector(k).n_blocks() == 1 ? info.indices :
-                                                 info.indices_by_block[i];
+                info.vector(k).n_blocks() == 1 ? info.indices : info.indices_by_block[i];
 
               if (constraints != nullptr)
-                constraints->distribute_local_to_global(info.vector(k).block(i),
-                                                        ldi,
-                                                        *v);
+                constraints->distribute_local_to_global(info.vector(k).block(i), ldi, *v);
               else
                 v->add(ldi, info.vector(k).block(i));
             }
@@ -564,8 +544,7 @@ namespace MeshWorker
     template <typename VectorType>
     template <class DOFINFO>
     inline void
-    ResidualSimple<VectorType>::assemble(const DOFINFO &info1,
-                                         const DOFINFO &info2)
+    ResidualSimple<VectorType>::assemble(const DOFINFO &info1, const DOFINFO &info2)
     {
       assemble(info1);
       assemble(info2);
@@ -601,8 +580,7 @@ namespace MeshWorker
 
     template <typename MatrixType>
     inline void
-    MatrixSimple<MatrixType>::initialize(
-      const AffineConstraints<typename MatrixType::value_type> &c)
+    MatrixSimple<MatrixType>::initialize(const AffineConstraints<typename MatrixType::value_type> &c)
     {
       constraints = &c;
     }
@@ -642,11 +620,10 @@ namespace MeshWorker
 
     template <typename MatrixType>
     inline void
-    MatrixSimple<MatrixType>::assemble(
-      const FullMatrix<double> &                  M,
-      const unsigned int                          index,
-      const std::vector<types::global_dof_index> &i1,
-      const std::vector<types::global_dof_index> &i2)
+    MatrixSimple<MatrixType>::assemble(const FullMatrix<double>                   &M,
+                                       const unsigned int                          index,
+                                       const std::vector<types::global_dof_index> &i1,
+                                       const std::vector<types::global_dof_index> &i2)
     {
       AssertDimension(M.m(), i1.size());
       AssertDimension(M.n(), i2.size());
@@ -679,12 +656,10 @@ namespace MeshWorker
           for (unsigned int m = 0; m < matrix.size(); ++m)
             for (unsigned int k = 0; k < n * n; ++k)
               {
-                assemble(
-                  info.matrix(k + m * n * n, false).matrix,
-                  m,
-                  info.indices_by_block[info.matrix(k + m * n * n, false).row],
-                  info.indices_by_block[info.matrix(k + m * n * n, false)
-                                          .column]);
+                assemble(info.matrix(k + m * n * n, false).matrix,
+                         m,
+                         info.indices_by_block[info.matrix(k + m * n * n, false).row],
+                         info.indices_by_block[info.matrix(k + m * n * n, false).column]);
               }
         }
     }
@@ -693,13 +668,11 @@ namespace MeshWorker
     template <typename MatrixType>
     template <class DOFINFO>
     inline void
-    MatrixSimple<MatrixType>::assemble(const DOFINFO &info1,
-                                       const DOFINFO &info2)
+    MatrixSimple<MatrixType>::assemble(const DOFINFO &info1, const DOFINFO &info2)
     {
       Assert(!info1.level_cell, ExcMessage("Cell may not access level dofs"));
       Assert(!info2.level_cell, ExcMessage("Cell may not access level dofs"));
-      AssertDimension(info1.indices_by_block.size(),
-                      info2.indices_by_block.size());
+      AssertDimension(info1.indices_by_block.size(), info2.indices_by_block.size());
 
       const unsigned int n = info1.indices_by_block.size();
 
@@ -707,22 +680,10 @@ namespace MeshWorker
         {
           for (unsigned int m = 0; m < matrix.size(); ++m)
             {
-              assemble(info1.matrix(m, false).matrix,
-                       m,
-                       info1.indices,
-                       info1.indices);
-              assemble(info1.matrix(m, true).matrix,
-                       m,
-                       info1.indices,
-                       info2.indices);
-              assemble(info2.matrix(m, false).matrix,
-                       m,
-                       info2.indices,
-                       info2.indices);
-              assemble(info2.matrix(m, true).matrix,
-                       m,
-                       info2.indices,
-                       info1.indices);
+              assemble(info1.matrix(m, false).matrix, m, info1.indices, info1.indices);
+              assemble(info1.matrix(m, true).matrix, m, info1.indices, info2.indices);
+              assemble(info2.matrix(m, false).matrix, m, info2.indices, info2.indices);
+              assemble(info2.matrix(m, true).matrix, m, info2.indices, info1.indices);
             }
         }
       else
@@ -730,9 +691,8 @@ namespace MeshWorker
           for (unsigned int m = 0; m < matrix.size(); ++m)
             for (unsigned int k = 0; k < n * n; ++k)
               {
-                const unsigned int row = info1.matrix(k + m * n * n, false).row;
-                const unsigned int column =
-                  info1.matrix(k + m * n * n, false).column;
+                const unsigned int row    = info1.matrix(k + m * n * n, false).row;
+                const unsigned int column = info1.matrix(k + m * n * n, false).column;
 
                 assemble(info1.matrix(k + m * n * n, false).matrix,
                          m,
@@ -780,9 +740,7 @@ namespace MeshWorker
 
     template <typename MatrixType>
     inline void
-    MGMatrixSimple<MatrixType>::initialize_fluxes(
-      MGLevelObject<MatrixType> &up,
-      MGLevelObject<MatrixType> &down)
+    MGMatrixSimple<MatrixType>::initialize_fluxes(MGLevelObject<MatrixType> &up, MGLevelObject<MatrixType> &down)
     {
       flux_up   = &up;
       flux_down = &down;
@@ -791,9 +749,7 @@ namespace MeshWorker
 
     template <typename MatrixType>
     inline void
-    MGMatrixSimple<MatrixType>::initialize_interfaces(
-      MGLevelObject<MatrixType> &in,
-      MGLevelObject<MatrixType> &out)
+    MGMatrixSimple<MatrixType>::initialize_interfaces(MGLevelObject<MatrixType> &in, MGLevelObject<MatrixType> &out)
     {
       interface_in  = &in;
       interface_out = &out;
@@ -830,11 +786,10 @@ namespace MeshWorker
 
     template <typename MatrixType>
     inline void
-    MGMatrixSimple<MatrixType>::assemble(
-      MatrixType &                                G,
-      const FullMatrix<double> &                  M,
-      const std::vector<types::global_dof_index> &i1,
-      const std::vector<types::global_dof_index> &i2)
+    MGMatrixSimple<MatrixType>::assemble(MatrixType                                 &G,
+                                         const FullMatrix<double>                   &M,
+                                         const std::vector<types::global_dof_index> &i1,
+                                         const std::vector<types::global_dof_index> &i2)
     {
       AssertDimension(M.m(), i1.size());
       AssertDimension(M.n(), i2.size());
@@ -850,12 +805,11 @@ namespace MeshWorker
 
     template <typename MatrixType>
     inline void
-    MGMatrixSimple<MatrixType>::assemble(
-      MatrixType &                                G,
-      const FullMatrix<double> &                  M,
-      const std::vector<types::global_dof_index> &i1,
-      const std::vector<types::global_dof_index> &i2,
-      const unsigned int                          level)
+    MGMatrixSimple<MatrixType>::assemble(MatrixType                                 &G,
+                                         const FullMatrix<double>                   &M,
+                                         const std::vector<types::global_dof_index> &i1,
+                                         const std::vector<types::global_dof_index> &i2,
+                                         const unsigned int                          level)
     {
       AssertDimension(M.m(), i1.size());
       AssertDimension(M.n(), i2.size());
@@ -903,12 +857,11 @@ namespace MeshWorker
 
     template <typename MatrixType>
     inline void
-    MGMatrixSimple<MatrixType>::assemble_up(
-      MatrixType &                                G,
-      const FullMatrix<double> &                  M,
-      const std::vector<types::global_dof_index> &i1,
-      const std::vector<types::global_dof_index> &i2,
-      const unsigned int                          level)
+    MGMatrixSimple<MatrixType>::assemble_up(MatrixType                                 &G,
+                                            const FullMatrix<double>                   &M,
+                                            const std::vector<types::global_dof_index> &i1,
+                                            const std::vector<types::global_dof_index> &i2,
+                                            const unsigned int                          level)
     {
       AssertDimension(M.n(), i1.size());
       AssertDimension(M.m(), i2.size());
@@ -932,12 +885,11 @@ namespace MeshWorker
 
     template <typename MatrixType>
     inline void
-    MGMatrixSimple<MatrixType>::assemble_down(
-      MatrixType &                                G,
-      const FullMatrix<double> &                  M,
-      const std::vector<types::global_dof_index> &i1,
-      const std::vector<types::global_dof_index> &i2,
-      const unsigned int                          level)
+    MGMatrixSimple<MatrixType>::assemble_down(MatrixType                                 &G,
+                                              const FullMatrix<double>                   &M,
+                                              const std::vector<types::global_dof_index> &i1,
+                                              const std::vector<types::global_dof_index> &i2,
+                                              const unsigned int                          level)
     {
       AssertDimension(M.m(), i1.size());
       AssertDimension(M.n(), i2.size());
@@ -961,12 +913,11 @@ namespace MeshWorker
 
     template <typename MatrixType>
     inline void
-    MGMatrixSimple<MatrixType>::assemble_in(
-      MatrixType &                                G,
-      const FullMatrix<double> &                  M,
-      const std::vector<types::global_dof_index> &i1,
-      const std::vector<types::global_dof_index> &i2,
-      const unsigned int                          level)
+    MGMatrixSimple<MatrixType>::assemble_in(MatrixType                                 &G,
+                                            const FullMatrix<double>                   &M,
+                                            const std::vector<types::global_dof_index> &i1,
+                                            const std::vector<types::global_dof_index> &i2,
+                                            const unsigned int                          level)
     {
       AssertDimension(M.m(), i1.size());
       AssertDimension(M.n(), i2.size());
@@ -992,8 +943,7 @@ namespace MeshWorker
                 if ((!mg_constrained_dofs->is_boundary_index(level, i1[j]) &&
                      !mg_constrained_dofs->is_boundary_index(level, i2[k])) ||
                     (mg_constrained_dofs->is_boundary_index(level, i1[j]) &&
-                     mg_constrained_dofs->is_boundary_index(level, i2[k]) &&
-                     i1[j] == i2[k]))
+                     mg_constrained_dofs->is_boundary_index(level, i2[k]) && i1[j] == i2[k]))
                   G.add(i1[j], i2[k], M(j, k));
               }
     }
@@ -1001,12 +951,11 @@ namespace MeshWorker
 
     template <typename MatrixType>
     inline void
-    MGMatrixSimple<MatrixType>::assemble_out(
-      MatrixType &                                G,
-      const FullMatrix<double> &                  M,
-      const std::vector<types::global_dof_index> &i1,
-      const std::vector<types::global_dof_index> &i2,
-      const unsigned int                          level)
+    MGMatrixSimple<MatrixType>::assemble_out(MatrixType                                 &G,
+                                             const FullMatrix<double>                   &M,
+                                             const std::vector<types::global_dof_index> &i1,
+                                             const std::vector<types::global_dof_index> &i2,
+                                             const unsigned int                          level)
     {
       AssertDimension(M.n(), i1.size());
       AssertDimension(M.m(), i2.size());
@@ -1021,8 +970,7 @@ namespace MeshWorker
                 if ((!mg_constrained_dofs->is_boundary_index(level, i1[j]) &&
                      !mg_constrained_dofs->is_boundary_index(level, i2[k])) ||
                     (mg_constrained_dofs->is_boundary_index(level, i1[j]) &&
-                     mg_constrained_dofs->is_boundary_index(level, i2[k]) &&
-                     i1[j] == i2[k]))
+                     mg_constrained_dofs->is_boundary_index(level, i2[k]) && i1[j] == i2[k]))
                   G.add(i1[j], i2[k], M(k, j));
               }
     }
@@ -1038,23 +986,11 @@ namespace MeshWorker
 
       if (info.indices_by_block.empty())
         {
-          assemble((*matrix)[level],
-                   info.matrix(0, false).matrix,
-                   info.indices,
-                   info.indices,
-                   level);
+          assemble((*matrix)[level], info.matrix(0, false).matrix, info.indices, info.indices, level);
           if (mg_constrained_dofs != nullptr)
             {
-              assemble_in((*interface_in)[level],
-                          info.matrix(0, false).matrix,
-                          info.indices,
-                          info.indices,
-                          level);
-              assemble_out((*interface_out)[level],
-                           info.matrix(0, false).matrix,
-                           info.indices,
-                           info.indices,
-                           level);
+              assemble_in((*interface_in)[level], info.matrix(0, false).matrix, info.indices, info.indices, level);
+              assemble_out((*interface_out)[level], info.matrix(0, false).matrix, info.indices, info.indices, level);
             }
         }
       else
@@ -1089,8 +1025,7 @@ namespace MeshWorker
     template <typename MatrixType>
     template <class DOFINFO>
     inline void
-    MGMatrixSimple<MatrixType>::assemble(const DOFINFO &info1,
-                                         const DOFINFO &info2)
+    MGMatrixSimple<MatrixType>::assemble(const DOFINFO &info1, const DOFINFO &info2)
     {
       Assert(info1.level_cell, ExcMessage("Cell must access level dofs"));
       Assert(info2.level_cell, ExcMessage("Cell must access level dofs"));
@@ -1101,26 +1036,10 @@ namespace MeshWorker
         {
           if (level1 == level2)
             {
-              assemble((*matrix)[level1],
-                       info1.matrix(0, false).matrix,
-                       info1.indices,
-                       info1.indices,
-                       level1);
-              assemble((*matrix)[level1],
-                       info1.matrix(0, true).matrix,
-                       info1.indices,
-                       info2.indices,
-                       level1);
-              assemble((*matrix)[level1],
-                       info2.matrix(0, false).matrix,
-                       info2.indices,
-                       info2.indices,
-                       level1);
-              assemble((*matrix)[level1],
-                       info2.matrix(0, true).matrix,
-                       info2.indices,
-                       info1.indices,
-                       level1);
+              assemble((*matrix)[level1], info1.matrix(0, false).matrix, info1.indices, info1.indices, level1);
+              assemble((*matrix)[level1], info1.matrix(0, true).matrix, info1.indices, info2.indices, level1);
+              assemble((*matrix)[level1], info2.matrix(0, false).matrix, info2.indices, info2.indices, level1);
+              assemble((*matrix)[level1], info2.matrix(0, true).matrix, info2.indices, info1.indices, level1);
             }
           else
             {
@@ -1128,23 +1047,12 @@ namespace MeshWorker
               // Do not add info2.M1,
               // which is done by
               // the coarser cell
-              assemble((*matrix)[level1],
-                       info1.matrix(0, false).matrix,
-                       info1.indices,
-                       info1.indices,
-                       level1);
+              assemble((*matrix)[level1], info1.matrix(0, false).matrix, info1.indices, info1.indices, level1);
               if (level1 > 0)
                 {
-                  assemble_up((*flux_up)[level1],
-                              info1.matrix(0, true).matrix,
-                              info2.indices,
-                              info1.indices,
-                              level1);
-                  assemble_down((*flux_down)[level1],
-                                info2.matrix(0, true).matrix,
-                                info2.indices,
-                                info1.indices,
-                                level1);
+                  assemble_up((*flux_up)[level1], info1.matrix(0, true).matrix, info2.indices, info1.indices, level1);
+                  assemble_down(
+                    (*flux_down)[level1], info2.matrix(0, true).matrix, info2.indices, info1.indices, level1);
                 }
             }
         }
@@ -1215,8 +1123,7 @@ namespace MeshWorker
 
     template <typename MatrixType, typename VectorType>
     inline void
-    SystemSimple<MatrixType, VectorType>::initialize(MatrixType &m,
-                                                     VectorType &rhs)
+    SystemSimple<MatrixType, VectorType>::initialize(MatrixType &m, VectorType &rhs)
     {
       AnyData     data;
       VectorType *p = &rhs;
@@ -1228,8 +1135,7 @@ namespace MeshWorker
 
     template <typename MatrixType, typename VectorType>
     inline void
-    SystemSimple<MatrixType, VectorType>::initialize(
-      const AffineConstraints<typename VectorType::value_type> &c)
+    SystemSimple<MatrixType, VectorType>::initialize(const AffineConstraints<typename VectorType::value_type> &c)
     {
       ResidualSimple<VectorType>::initialize(c);
     }
@@ -1238,8 +1144,7 @@ namespace MeshWorker
     template <typename MatrixType, typename VectorType>
     template <class DOFINFO>
     inline void
-    SystemSimple<MatrixType, VectorType>::initialize_info(DOFINFO &info,
-                                                          bool     face) const
+    SystemSimple<MatrixType, VectorType>::initialize_info(DOFINFO &info, bool face) const
     {
       MatrixSimple<MatrixType>::initialize_info(info, face);
       ResidualSimple<VectorType>::initialize_info(info, face);
@@ -1247,11 +1152,10 @@ namespace MeshWorker
 
     template <typename MatrixType, typename VectorType>
     inline void
-    SystemSimple<MatrixType, VectorType>::assemble(
-      const FullMatrix<double> &                  M,
-      const Vector<double> &                      vector,
-      const unsigned int                          index,
-      const std::vector<types::global_dof_index> &indices)
+    SystemSimple<MatrixType, VectorType>::assemble(const FullMatrix<double>                   &M,
+                                                   const Vector<double>                       &vector,
+                                                   const unsigned int                          index,
+                                                   const std::vector<types::global_dof_index> &indices)
     {
       AssertDimension(M.m(), indices.size());
       AssertDimension(M.n(), indices.size());
@@ -1267,30 +1171,22 @@ namespace MeshWorker
           for (unsigned int j = 0; j < indices.size(); ++j)
             for (unsigned int k = 0; k < indices.size(); ++k)
               if (std::fabs(M(j, k)) >= MatrixSimple<MatrixType>::threshold)
-                MatrixSimple<MatrixType>::matrix[index]->add(indices[j],
-                                                             indices[k],
-                                                             M(j, k));
+                MatrixSimple<MatrixType>::matrix[index]->add(indices[j], indices[k], M(j, k));
         }
       else
         {
           ResidualSimple<VectorType>::constraints->distribute_local_to_global(
-            M,
-            vector,
-            indices,
-            *MatrixSimple<MatrixType>::matrix[index],
-            *v,
-            true);
+            M, vector, indices, *MatrixSimple<MatrixType>::matrix[index], *v, true);
         }
     }
 
     template <typename MatrixType, typename VectorType>
     inline void
-    SystemSimple<MatrixType, VectorType>::assemble(
-      const FullMatrix<double> &                  M,
-      const Vector<double> &                      vector,
-      const unsigned int                          index,
-      const std::vector<types::global_dof_index> &i1,
-      const std::vector<types::global_dof_index> &i2)
+    SystemSimple<MatrixType, VectorType>::assemble(const FullMatrix<double>                   &M,
+                                                   const Vector<double>                       &vector,
+                                                   const unsigned int                          index,
+                                                   const std::vector<types::global_dof_index> &i1,
+                                                   const std::vector<types::global_dof_index> &i2)
     {
       AssertDimension(M.m(), i1.size());
       AssertDimension(M.n(), i2.size());
@@ -1303,16 +1199,15 @@ namespace MeshWorker
           for (unsigned int j = 0; j < i1.size(); ++j)
             for (unsigned int k = 0; k < i2.size(); ++k)
               if (std::fabs(M(j, k)) >= MatrixSimple<MatrixType>::threshold)
-                MatrixSimple<MatrixType>::matrix[index]->add(i1[j],
-                                                             i2[k],
-                                                             M(j, k));
+                MatrixSimple<MatrixType>::matrix[index]->add(i1[j], i2[k], M(j, k));
         }
       else
         {
-          ResidualSimple<VectorType>::constraints->distribute_local_to_global(
-            vector, i1, i2, *v, M, false);
-          ResidualSimple<VectorType>::constraints->distribute_local_to_global(
-            M, i1, i2, *MatrixSimple<MatrixType>::matrix[index]);
+          ResidualSimple<VectorType>::constraints->distribute_local_to_global(vector, i1, i2, *v, M, false);
+          ResidualSimple<VectorType>::constraints->distribute_local_to_global(M,
+                                                                              i1,
+                                                                              i2,
+                                                                              *MatrixSimple<MatrixType>::matrix[index]);
         }
     }
 
@@ -1322,29 +1217,22 @@ namespace MeshWorker
     inline void
     SystemSimple<MatrixType, VectorType>::assemble(const DOFINFO &info)
     {
-      AssertDimension(MatrixSimple<MatrixType>::matrix.size(),
-                      ResidualSimple<VectorType>::residuals.size());
+      AssertDimension(MatrixSimple<MatrixType>::matrix.size(), ResidualSimple<VectorType>::residuals.size());
       Assert(!info.level_cell, ExcMessage("Cell may not access level dofs"));
       const unsigned int n = info.indices_by_block.size();
 
       if (n == 0)
         {
-          for (unsigned int m = 0; m < MatrixSimple<MatrixType>::matrix.size();
-               ++m)
-            assemble(info.matrix(m, false).matrix,
-                     info.vector(m).block(0),
-                     m,
-                     info.indices);
+          for (unsigned int m = 0; m < MatrixSimple<MatrixType>::matrix.size(); ++m)
+            assemble(info.matrix(m, false).matrix, info.vector(m).block(0), m, info.indices);
         }
       else
         {
-          for (unsigned int m = 0; m < MatrixSimple<MatrixType>::matrix.size();
-               ++m)
+          for (unsigned int m = 0; m < MatrixSimple<MatrixType>::matrix.size(); ++m)
             for (unsigned int k = 0; k < n * n; ++k)
               {
-                const unsigned int row = info.matrix(k + m * n * n, false).row;
-                const unsigned int column =
-                  info.matrix(k + m * n * n, false).column;
+                const unsigned int row    = info.matrix(k + m * n * n, false).row;
+                const unsigned int column = info.matrix(k + m * n * n, false).column;
 
                 if (row == column)
                   assemble(info.matrix(k + m * n * n, false).matrix,
@@ -1365,50 +1253,31 @@ namespace MeshWorker
     template <typename MatrixType, typename VectorType>
     template <class DOFINFO>
     inline void
-    SystemSimple<MatrixType, VectorType>::assemble(const DOFINFO &info1,
-                                                   const DOFINFO &info2)
+    SystemSimple<MatrixType, VectorType>::assemble(const DOFINFO &info1, const DOFINFO &info2)
     {
       Assert(!info1.level_cell, ExcMessage("Cell may not access level dofs"));
       Assert(!info2.level_cell, ExcMessage("Cell may not access level dofs"));
-      AssertDimension(info1.indices_by_block.size(),
-                      info2.indices_by_block.size());
+      AssertDimension(info1.indices_by_block.size(), info2.indices_by_block.size());
 
       const unsigned int n = info1.indices_by_block.size();
 
       if (n == 0)
         {
-          for (unsigned int m = 0; m < MatrixSimple<MatrixType>::matrix.size();
-               ++m)
+          for (unsigned int m = 0; m < MatrixSimple<MatrixType>::matrix.size(); ++m)
             {
-              assemble(info1.matrix(m, false).matrix,
-                       info1.vector(m).block(0),
-                       m,
-                       info1.indices);
-              assemble(info1.matrix(m, true).matrix,
-                       info1.vector(m).block(0),
-                       m,
-                       info1.indices,
-                       info2.indices);
-              assemble(info2.matrix(m, false).matrix,
-                       info2.vector(m).block(0),
-                       m,
-                       info2.indices);
-              assemble(info2.matrix(m, true).matrix,
-                       info2.vector(m).block(0),
-                       m,
-                       info2.indices,
-                       info1.indices);
+              assemble(info1.matrix(m, false).matrix, info1.vector(m).block(0), m, info1.indices);
+              assemble(info1.matrix(m, true).matrix, info1.vector(m).block(0), m, info1.indices, info2.indices);
+              assemble(info2.matrix(m, false).matrix, info2.vector(m).block(0), m, info2.indices);
+              assemble(info2.matrix(m, true).matrix, info2.vector(m).block(0), m, info2.indices, info1.indices);
             }
         }
       else
         {
-          for (unsigned int m = 0; m < MatrixSimple<MatrixType>::matrix.size();
-               ++m)
+          for (unsigned int m = 0; m < MatrixSimple<MatrixType>::matrix.size(); ++m)
             for (unsigned int k = 0; k < n * n; ++k)
               {
-                const unsigned int row = info1.matrix(k + m * n * n, false).row;
-                const unsigned int column =
-                  info1.matrix(k + m * n * n, false).column;
+                const unsigned int row    = info1.matrix(k + m * n * n, false).row;
+                const unsigned int column = info1.matrix(k + m * n * n, false).column;
 
                 if (row == column)
                   {

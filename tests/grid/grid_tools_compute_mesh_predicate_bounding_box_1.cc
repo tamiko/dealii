@@ -37,8 +37,7 @@
 // predicate: test if the cell is locally owned
 template <int dim, int spacedim>
 bool
-pred_locally_owned(const typename parallel::distributed::
-                     Triangulation<dim, spacedim>::cell_iterator &cell)
+pred_locally_owned(const typename parallel::distributed::Triangulation<dim, spacedim>::cell_iterator &cell)
 {
   return cell->is_locally_owned();
 }
@@ -48,23 +47,19 @@ void
 test_hypercube(unsigned int ref, unsigned int max_bbox)
 {
   const MPI_Comm mpi_communicator = MPI_COMM_WORLD;
-  deallog << "Testing hypercube for spacedim = " << spacedim
-          << " refinement: " << ref << " max number of boxes: " << max_bbox
-          << std::endl;
+  deallog << "Testing hypercube for spacedim = " << spacedim << " refinement: " << ref
+          << " max number of boxes: " << max_bbox << std::endl;
 
   parallel::distributed::Triangulation<dim, spacedim> tria(mpi_communicator);
   GridGenerator::hyper_cube(tria);
   tria.refine_global(4);
 
-  using cell_iterator = typename parallel::distributed::
-    Triangulation<dim, spacedim>::active_cell_iterator;
+  using cell_iterator = typename parallel::distributed::Triangulation<dim, spacedim>::active_cell_iterator;
 
-  std::function<bool(const cell_iterator &)> predicate =
-    pred_locally_owned<dim, spacedim>;
+  std::function<bool(const cell_iterator &)> predicate = pred_locally_owned<dim, spacedim>;
 
   std::vector<BoundingBox<spacedim>> local_bbox =
-    GridTools::compute_mesh_predicate_bounding_box<
-      parallel::distributed::Triangulation<dim, spacedim>>(
+    GridTools::compute_mesh_predicate_bounding_box<parallel::distributed::Triangulation<dim, spacedim>>(
       tria, predicate, ref, true, max_bbox);
 
   if (local_bbox.size() > 0)
@@ -83,12 +78,8 @@ test_hypercube(unsigned int ref, unsigned int max_bbox)
   // Checking if all the points are inside the bounding boxes
   bool check = true;
 
-  typename parallel::distributed::Triangulation<dim,
-                                                spacedim>::active_cell_iterator
-    cell = tria.begin_active();
-  typename parallel::distributed::Triangulation<dim,
-                                                spacedim>::active_cell_iterator
-    endc = tria.last_active();
+  typename parallel::distributed::Triangulation<dim, spacedim>::active_cell_iterator cell = tria.begin_active();
+  typename parallel::distributed::Triangulation<dim, spacedim>::active_cell_iterator endc = tria.last_active();
 
   // Looking if every point is at least inside a bounding box
   for (; cell < endc; ++cell)
@@ -108,8 +99,7 @@ test_hypercube(unsigned int ref, unsigned int max_bbox)
               break;
             }
         }
-  deallog << "Bounding Boxes surround locally_owned cells: " << check
-          << std::endl;
+  deallog << "Bounding Boxes surround locally_owned cells: " << check << std::endl;
 
   deallog << "Current test END" << std::endl;
 }

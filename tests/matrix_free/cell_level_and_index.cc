@@ -46,22 +46,16 @@ compare_indices(const MatrixFree<dim, number> *mf_data)
   const unsigned int n_batches = mf_data->n_cell_batches();
   for (unsigned int batch_no = 0; batch_no < n_batches; ++batch_no)
     {
-      const unsigned int n_lanes_filled =
-        mf_data->n_active_entries_per_cell_batch(batch_no);
+      const unsigned int n_lanes_filled = mf_data->n_active_entries_per_cell_batch(batch_no);
       for (unsigned int lane = 0; lane < n_lanes_filled; ++lane)
         {
-          const auto cell = mf_data->get_cell_iterator(batch_no, lane);
-          const auto level_index_pair =
-            mf_data->get_cell_level_and_index(batch_no, lane);
-          std::cout << "(cell->level(), cell->index) = (" << cell->level()
-                    << ", " << cell->index() << ") "
-                    << "versus get_cell_level_and_index() = ("
-                    << level_index_pair.first << ", " << level_index_pair.second
-                    << ")\n";
-          AssertThrow(cell->level() == level_index_pair.first,
-                      ExcMessage("mismatching cell levels"));
-          AssertThrow(cell->index() == level_index_pair.second,
-                      ExcMessage("mismatching cell indices"));
+          const auto cell             = mf_data->get_cell_iterator(batch_no, lane);
+          const auto level_index_pair = mf_data->get_cell_level_and_index(batch_no, lane);
+          std::cout << "(cell->level(), cell->index) = (" << cell->level() << ", " << cell->index() << ") "
+                    << "versus get_cell_level_and_index() = (" << level_index_pair.first << ", "
+                    << level_index_pair.second << ")\n";
+          AssertThrow(cell->level() == level_index_pair.first, ExcMessage("mismatching cell levels"));
+          AssertThrow(cell->index() == level_index_pair.second, ExcMessage("mismatching cell indices"));
         }
     }
 }
@@ -72,8 +66,7 @@ template <int dim, int fe_degree, typename number = double>
 void
 test(const bool adaptive_ref = true)
 {
-  Triangulation<dim> tria(
-    Triangulation<dim>::limit_level_difference_at_vertices);
+  Triangulation<dim> tria(Triangulation<dim>::limit_level_difference_at_vertices);
   GridGenerator::hyper_cube(tria, 0, 1, true);
   tria.refine_global(1);
   if (adaptive_ref)
@@ -103,9 +96,8 @@ test(const bool adaptive_ref = true)
   constraints.close();
   const QGauss<1>                                  quad(fe_degree + 1);
   typename MatrixFree<dim, number>::AdditionalData additional_data;
-  additional_data.tasks_parallel_scheme =
-    MatrixFree<dim, number>::AdditionalData::none;
-  auto mf_data = std::make_shared<MatrixFree<dim, number>>();
+  additional_data.tasks_parallel_scheme = MatrixFree<dim, number>::AdditionalData::none;
+  auto mf_data                          = std::make_shared<MatrixFree<dim, number>>();
 
   {
     std::cout << "Compare active indices." << std::endl;

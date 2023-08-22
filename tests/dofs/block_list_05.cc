@@ -70,8 +70,7 @@ test_block_list(const Triangulation<dim> &tr, const FiniteElement<dim> &fe)
     BlockMask                 exclude_boundary_dofs(temp_vector);
     std::vector<unsigned int> vm;
     std::cout << exclude_boundary_dofs.size() << std::endl;
-    vm = DoFTools::make_vertex_patches(
-      bl, dof, level, exclude_boundary_dofs, false, false, false, false);
+    vm = DoFTools::make_vertex_patches(bl, dof, level, exclude_boundary_dofs, false, false, false, false);
     bl.compress();
     print_patches(bl);
     deallog.push("vertex mapping");
@@ -89,8 +88,7 @@ test_block_list(const Triangulation<dim> &tr, const FiniteElement<dim> &fe)
     temp_vector[1] = false;
     BlockMask                 exclude_boundary_dofs(temp_vector);
     std::vector<unsigned int> vm;
-    vm = DoFTools::make_vertex_patches(
-      bl, dof, level, exclude_boundary_dofs, false, false, false, false);
+    vm = DoFTools::make_vertex_patches(bl, dof, level, exclude_boundary_dofs, false, false, false, false);
     bl.compress();
     print_patches(bl);
     deallog.push("vertex mapping");
@@ -108,8 +106,7 @@ test_block_list(const Triangulation<dim> &tr, const FiniteElement<dim> &fe)
     temp_vector[1] = true;
     BlockMask                 exclude_boundary_dofs(temp_vector);
     std::vector<unsigned int> vm;
-    vm = DoFTools::make_vertex_patches(
-      bl, dof, level, exclude_boundary_dofs, false, false, false, false);
+    vm = DoFTools::make_vertex_patches(bl, dof, level, exclude_boundary_dofs, false, false, false, false);
     bl.compress();
     print_patches(bl);
     deallog.push("vertex mapping");
@@ -126,8 +123,7 @@ test_block_list(const Triangulation<dim> &tr, const FiniteElement<dim> &fe)
     std::vector<bool>         temp_vector(2, false);
     BlockMask                 exclude_boundary_dofs(temp_vector);
     std::vector<unsigned int> vm;
-    vm = DoFTools::make_vertex_patches(
-      bl, dof, level, exclude_boundary_dofs, false, false, false, false);
+    vm = DoFTools::make_vertex_patches(bl, dof, level, exclude_boundary_dofs, false, false, false, false);
     bl.compress();
     print_patches(bl);
     deallog.push("vertex mapping");
@@ -142,22 +138,16 @@ test_block_list(const Triangulation<dim> &tr, const FiniteElement<dim> &fe)
 
 template <int dim>
 void
-test_global_refinement(void (*test_block_list)(const Triangulation<dim> &tr,
-                                               const FiniteElement<dim> &fe))
+test_global_refinement(void (*test_block_list)(const Triangulation<dim> &tr, const FiniteElement<dim> &fe))
 {
-  Triangulation<dim> trc(
-    Triangulation<dim>::limit_level_difference_at_vertices);
-  Triangulation<dim> trl(
-    Triangulation<dim>::limit_level_difference_at_vertices);
+  Triangulation<dim> trc(Triangulation<dim>::limit_level_difference_at_vertices);
+  Triangulation<dim> trl(Triangulation<dim>::limit_level_difference_at_vertices);
   GridGenerator::hyper_cube(trc);
   trc.refine_global(2);
   GridGenerator::hyper_L(trl);
   trl.refine_global(1);
 
-  FESystem<dim, dim> fe1(FESystem<dim, dim>(FE_Q<dim, dim>(2), dim),
-                         1,
-                         FE_Q<dim, dim>(1),
-                         1);
+  FESystem<dim, dim> fe1(FESystem<dim, dim>(FE_Q<dim, dim>(2), dim), 1, FE_Q<dim, dim>(1), 1);
 
   deallog.push("Square");
   test_block_list(trc, fe1);

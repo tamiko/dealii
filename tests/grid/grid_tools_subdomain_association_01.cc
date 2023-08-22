@@ -48,11 +48,9 @@ std::unique_ptr<parallel::TriangulationBase<dim>>
 create_triangulation(Type type)
 {
   if (type == Type::Shared)
-    return std::make_unique<parallel::shared::Triangulation<dim>>(
-      MPI_COMM_WORLD, Triangulation<dim>::none, true);
+    return std::make_unique<parallel::shared::Triangulation<dim>>(MPI_COMM_WORLD, Triangulation<dim>::none, true);
   else if (type == Type::Distributed)
-    return std::make_unique<parallel::distributed::Triangulation<dim>>(
-      MPI_COMM_WORLD);
+    return std::make_unique<parallel::distributed::Triangulation<dim>>(MPI_COMM_WORLD);
   else
     return nullptr;
 }
@@ -79,22 +77,18 @@ test(parallel::TriangulationBase<dim> &tria)
   {
     std::vector<CellId> local_cell_ids;
     local_cell_ids.reserve(tria.n_active_cells());
-    for (const auto &cell :
-         tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+    for (const auto &cell : tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
       local_cell_ids.push_back(cell->id());
 
     std::vector<std::vector<CellId>> cell_ids_per_processor =
       Utilities::MPI::all_gather(MPI_COMM_WORLD, local_cell_ids);
 
     for (const auto &cell_ids : cell_ids_per_processor)
-      global_cell_ids.insert(global_cell_ids.end(),
-                             cell_ids.cbegin(),
-                             cell_ids.cend());
+      global_cell_ids.insert(global_cell_ids.end(), cell_ids.cbegin(), cell_ids.cend());
   }
 
   // determine subdomain of every cellid
-  std::vector<types::subdomain_id> subdomain_ids =
-    GridTools::get_subdomain_association(tria, global_cell_ids);
+  std::vector<types::subdomain_id> subdomain_ids = GridTools::get_subdomain_association(tria, global_cell_ids);
 
   // ----- verify results -----
   AssertDimension(tria.n_global_active_cells(), global_cell_ids.size());
@@ -115,8 +109,7 @@ test(parallel::TriangulationBase<dim> &tria)
 
     if (tria.locally_owned_subdomain() == 0)
       for (unsigned int i = 1; i < subdomain_ids_per_processor.size(); ++i)
-        Assert(subdomain_ids_per_processor[0] == subdomain_ids_per_processor[i],
-               ExcInternalError());
+        Assert(subdomain_ids_per_processor[0] == subdomain_ids_per_processor[i], ExcInternalError());
   }
 
   deallog << "OK" << std::endl;

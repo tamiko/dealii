@@ -52,15 +52,12 @@ check()
   for (unsigned int level = 0; level < tr.n_levels(); ++level)
     {
       IndexSet relevant_dofs;
-      DoFTools::extract_locally_relevant_level_dofs(mgdof,
-                                                    level,
-                                                    relevant_dofs);
+      DoFTools::extract_locally_relevant_level_dofs(mgdof, level, relevant_dofs);
       AffineConstraints<double> level_constraints;
       level_constraints.reinit(relevant_dofs);
 
-      typename DoFHandler<dim>::level_face_iterator face0 =
-        mgdof.begin(level)->face(0);
-      std::vector<types::global_dof_index> face_dofs(fe.dofs_per_face);
+      typename DoFHandler<dim>::level_face_iterator face0 = mgdof.begin(level)->face(0);
+      std::vector<types::global_dof_index>          face_dofs(fe.dofs_per_face);
       face0->get_mg_dof_indices(level, face_dofs);
       for (unsigned int i = 0; i < face_dofs.size(); ++i)
         {
@@ -72,19 +69,14 @@ check()
         }
       level_constraints.close();
       mg_constrained_dofs.add_user_constraints(level, level_constraints);
-      deallog << " level: " << level
-              << " n_constraints: " << level_constraints.n_constraints()
-              << std::endl;
+      deallog << " level: " << level << " n_constraints: " << level_constraints.n_constraints() << std::endl;
     }
 
   mg_constrained_dofs.clear_user_constraints();
   for (unsigned int level = 0; level < tr.n_levels(); ++level)
     {
-      const AffineConstraints<double> &level_constraints =
-        mg_constrained_dofs.get_user_constraint_matrix(level);
-      deallog << " level: " << level
-              << " n_constraints: " << level_constraints.n_constraints()
-              << std::endl;
+      const AffineConstraints<double> &level_constraints = mg_constrained_dofs.get_user_constraint_matrix(level);
+      deallog << " level: " << level << " n_constraints: " << level_constraints.n_constraints() << std::endl;
     }
 }
 

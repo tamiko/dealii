@@ -30,12 +30,8 @@ test()
   constexpr types::global_dof_index size       = n_blocks * block_size;
   BlockIndices                      idx(n_blocks, block_size);
 
-  const std::vector<types::global_dof_index> is = {{0,
-                                                    1,
-                                                    block_size * 500 + 2,
-                                                    block_size * 600,
-                                                    block_size * 701 - 1,
-                                                    size - 1}};
+  const std::vector<types::global_dof_index> is = {
+    {0, 1, block_size * 500 + 2, block_size * 600, block_size * 701 - 1, size - 1}};
 
   deallog << "n_blocks:   " << n_blocks << std::endl
           << "block_size: " << block_size << std::endl

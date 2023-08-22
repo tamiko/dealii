@@ -30,8 +30,7 @@ test()
 
   for (unsigned int i = 0; i < N; ++i)
     if (i != 2 && i != 4)
-      for (unsigned int j = (i == 0 ? 0 : i - 1); j < (i == N - 1 ? N : i + 1);
-           ++j)
+      for (unsigned int j = (i == 0 ? 0 : i - 1); j < (i == N - 1 ? N : i + 1); ++j)
         dsp.add(i, j);
 
   IndexSet rows(N);

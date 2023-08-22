@@ -75,18 +75,13 @@ check()
 
   hp::FECollection<dim> element;
   element.push_back(FESystem<dim>(FE_Q<dim>(1), 1, FE_Q<dim>(2), 1));
-  element.push_back(FESystem<dim>(
-    FE_Q<dim>(2), 1, FE_Q<dim>(QIterated<1>(QTrapezoid<1>(), 3)), 1));
-  element.push_back(FESystem<dim>(FE_Q<dim>(QIterated<1>(QTrapezoid<1>(), 3)),
-                                  1,
-                                  FE_Q<dim>(QIterated<1>(QTrapezoid<1>(), 4)),
-                                  1));
+  element.push_back(FESystem<dim>(FE_Q<dim>(2), 1, FE_Q<dim>(QIterated<1>(QTrapezoid<1>(), 3)), 1));
+  element.push_back(
+    FESystem<dim>(FE_Q<dim>(QIterated<1>(QTrapezoid<1>(), 3)), 1, FE_Q<dim>(QIterated<1>(QTrapezoid<1>(), 4)), 1));
 
   DoFHandler<dim> dof(tr);
 
-  for (typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active();
-       cell != dof.end();
-       ++cell)
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(); cell != dof.end(); ++cell)
     cell->set_active_fe_index(Testing::rand() % element.size());
 
   dof.distribute_dofs(element);
@@ -135,9 +130,7 @@ check()
   // multiply matrix by 100 to
   // make test more sensitive
   deallog << "Matrix: " << std::endl;
-  for (SparseMatrix<double>::const_iterator p = matrix.begin();
-       p != matrix.end();
-       ++p)
+  for (SparseMatrix<double>::const_iterator p = matrix.begin(); p != matrix.end(); ++p)
     deallog << p->value() * 100 << std::endl;
 
   deallog << "RHS vector: " << std::endl;

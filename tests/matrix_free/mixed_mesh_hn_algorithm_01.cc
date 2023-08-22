@@ -50,25 +50,12 @@ main()
 
   Triangulation<dim> tria_0, tria_1, tria_2, tria_3, tria;
 
-  GridGenerator::subdivided_hyper_rectangle(tria_0,
-                                            {1, 1},
-                                            {0.0, 0.0},
-                                            {0.5, 0.5});
-  GridGenerator::subdivided_hyper_rectangle_with_simplices(tria_1,
-                                                           {1, 1},
-                                                           {0.5, 0.0},
-                                                           {1.0, 0.5});
-  GridGenerator::subdivided_hyper_rectangle_with_simplices(tria_2,
-                                                           {1, 1},
-                                                           {0.0, 0.5},
-                                                           {0.5, 1.0});
-  GridGenerator::subdivided_hyper_rectangle_with_simplices(tria_3,
-                                                           {1, 1},
-                                                           {0.5, 0.5},
-                                                           {1.0, 1.0});
+  GridGenerator::subdivided_hyper_rectangle(tria_0, {1, 1}, {0.0, 0.0}, {0.5, 0.5});
+  GridGenerator::subdivided_hyper_rectangle_with_simplices(tria_1, {1, 1}, {0.5, 0.0}, {1.0, 0.5});
+  GridGenerator::subdivided_hyper_rectangle_with_simplices(tria_2, {1, 1}, {0.0, 0.5}, {0.5, 1.0});
+  GridGenerator::subdivided_hyper_rectangle_with_simplices(tria_3, {1, 1}, {0.5, 0.5}, {1.0, 1.0});
 
-  GridGenerator::merge_triangulations({&tria_0, &tria_1, &tria_2, &tria_3},
-                                      tria);
+  GridGenerator::merge_triangulations({&tria_0, &tria_1, &tria_2, &tria_3}, tria);
 
   auto cell = tria.begin();
 
@@ -96,11 +83,9 @@ main()
         Assert(false, ExcNotImplemented());
     }
 
-  const hp::MappingCollection<2> mapping(MappingFE<2>(FE_SimplexP<2>(1)),
-                                         MappingFE<2>(FE_Q<2>(1)));
+  const hp::MappingCollection<2> mapping(MappingFE<2>(FE_SimplexP<2>(1)), MappingFE<2>(FE_Q<2>(1)));
   const hp::FECollection<2>      fe(FE_SimplexP<2>{degree}, FE_Q<2>{degree});
-  const hp::QCollection<2> quadrature_formula(QGaussSimplex<2>(degree + 1),
-                                              QGauss<2>(degree + 1));
+  const hp::QCollection<2>       quadrature_formula(QGaussSimplex<2>(degree + 1), QGauss<2>(degree + 1));
 
   dof_handler.distribute_dofs(fe);
 
@@ -111,37 +96,29 @@ main()
   const auto print = [](const auto &label, const auto &matrix_free) {
     deallog << label << std::endl;
 
-    for (unsigned int c = 0;
-         c < matrix_free.get_dof_info(0).row_starts.size() - 1;
-         ++c)
+    for (unsigned int c = 0; c < matrix_free.get_dof_info(0).row_starts.size() - 1; ++c)
       {
-        deallog
-          << std::setw(3)
-          << (matrix_free.get_dof_info(0)
-                    .hanging_node_constraint_masks.size() == 0 ?
-                0 :
-                static_cast<unsigned int>(
-                  matrix_free.get_dof_info(0).hanging_node_constraint_masks[c]))
-          << " : ";
+        deallog << std::setw(3)
+                << (matrix_free.get_dof_info(0).hanging_node_constraint_masks.size() == 0 ?
+                      0 :
+                      static_cast<unsigned int>(matrix_free.get_dof_info(0).hanging_node_constraint_masks[c]))
+                << " : ";
 
         for (unsigned int i = matrix_free.get_dof_info(0).row_starts[c].first;
              i < matrix_free.get_dof_info(0).row_starts[c + 1].first;
              ++i)
-          deallog << std::setw(3) << matrix_free.get_dof_info(0).dof_indices[i]
-                  << ' ';
+          deallog << std::setw(3) << matrix_free.get_dof_info(0).dof_indices[i] << ' ';
         deallog << std::endl;
       }
     deallog << std::endl;
   };
 
   {
-    typename MatrixFree<dim, double, VectorizedArray<double, 1>>::AdditionalData
-      additional_data;
+    typename MatrixFree<dim, double, VectorizedArray<double, 1>>::AdditionalData additional_data;
     additional_data.mapping_update_flags = update_gradients | update_values;
 
     MatrixFree<dim, double, VectorizedArray<double, 1>> matrix_free;
-    matrix_free.reinit(
-      mapping, dof_handler, constraints, quadrature_formula, additional_data);
+    matrix_free.reinit(mapping, dof_handler, constraints, quadrature_formula, additional_data);
 
     print("use_fast_hanging_node_algorithm = true", matrix_free);
   }

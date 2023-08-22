@@ -80,16 +80,13 @@ public:
   /**
    * Constructor.
    */
-  SolverMinRes(SolverControl &           cn,
-               VectorMemory<VectorType> &mem,
-               const AdditionalData &    data = AdditionalData());
+  SolverMinRes(SolverControl &cn, VectorMemory<VectorType> &mem, const AdditionalData &data = AdditionalData());
 
   /**
    * Constructor. Use an object of type GrowingVectorMemory as a default to
    * allocate memory.
    */
-  SolverMinRes(SolverControl &       cn,
-               const AdditionalData &data = AdditionalData());
+  SolverMinRes(SolverControl &cn, const AdditionalData &data = AdditionalData());
 
   /**
    * Virtual destructor.
@@ -101,10 +98,7 @@ public:
    */
   template <typename MatrixType, typename PreconditionerType>
   void
-  solve(const MatrixType &        A,
-        VectorType &              x,
-        const VectorType &        b,
-        const PreconditionerType &preconditioner);
+  solve(const MatrixType &A, VectorType &x, const VectorType &b, const PreconditionerType &preconditioner);
 
   /**
    * @addtogroup Exceptions
@@ -130,10 +124,7 @@ protected:
    * for graphical output of the convergence history.
    */
   virtual void
-  print_vectors(const unsigned int step,
-                const VectorType & x,
-                const VectorType & r,
-                const VectorType & d) const;
+  print_vectors(const unsigned int step, const VectorType &x, const VectorType &r, const VectorType &d) const;
 
   /**
    * Within the iteration loop, the square of the residual vector is stored in
@@ -150,9 +141,7 @@ protected:
 #ifndef DOXYGEN
 
 template <typename VectorType>
-SolverMinRes<VectorType>::SolverMinRes(SolverControl &           cn,
-                                       VectorMemory<VectorType> &mem,
-                                       const AdditionalData &)
+SolverMinRes<VectorType>::SolverMinRes(SolverControl &cn, VectorMemory<VectorType> &mem, const AdditionalData &)
   : SolverBase<VectorType>(cn, mem)
   , res2(numbers::signaling_nan<double>())
 {}
@@ -160,8 +149,7 @@ SolverMinRes<VectorType>::SolverMinRes(SolverControl &           cn,
 
 
 template <typename VectorType>
-SolverMinRes<VectorType>::SolverMinRes(SolverControl &cn,
-                                       const AdditionalData &)
+SolverMinRes<VectorType>::SolverMinRes(SolverControl &cn, const AdditionalData &)
   : SolverBase<VectorType>(cn)
   , res2(numbers::signaling_nan<double>())
 {}
@@ -189,9 +177,9 @@ SolverMinRes<VectorType>::print_vectors(const unsigned int,
 template <typename VectorType>
 template <typename MatrixType, typename PreconditionerType>
 void
-SolverMinRes<VectorType>::solve(const MatrixType &        A,
-                                VectorType &              x,
-                                const VectorType &        b,
+SolverMinRes<VectorType>::solve(const MatrixType         &A,
+                                VectorType               &x,
+                                const VectorType         &b,
                                 const PreconditionerType &preconditioner)
 {
   LogStream::Prefix prefix("minres");
@@ -345,8 +333,7 @@ SolverMinRes<VectorType>::solve(const MatrixType &        A,
     }
 
   // in case of failure: throw exception
-  AssertThrow(conv == SolverControl::success,
-              SolverControl::NoConvergence(j, r_l2));
+  AssertThrow(conv == SolverControl::success, SolverControl::NoConvergence(j, r_l2));
 
   // otherwise exit as normal
 }

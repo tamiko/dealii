@@ -30,19 +30,16 @@
 
 template <int dim, int spacedim>
 void
-print_result(const Mapping<dim, spacedim> &      mapping,
+print_result(const Mapping<dim, spacedim>       &mapping,
              const Triangulation<dim, spacedim> &tria,
              const Point<dim>                    p,
              const double                        tolerance = 1.e-10)
 {
-  deallog << "Testing " << dim << "D with point " << p << " tolerance "
-          << tolerance << std::endl;
+  deallog << "Testing " << dim << "D with point " << p << " tolerance " << tolerance << std::endl;
   auto first_cell = GridTools::find_active_cell_around_point(mapping, tria, p);
-  auto c_p        = GridTools::find_all_active_cells_around_point(
-    mapping, tria, p, tolerance, first_cell);
+  auto c_p        = GridTools::find_all_active_cells_around_point(mapping, tria, p, tolerance, first_cell);
   for (auto i : c_p)
-    deallog << "Cell: " << i.first->id() << " unit point " << i.second
-            << std::endl;
+    deallog << "Cell: " << i.first->id() << " unit point " << i.second << std::endl;
   deallog << std::endl;
 }
 

@@ -70,8 +70,7 @@ Lh(const Point<dim> &x_q, const TableIndices<dim> &indices)
   for (unsigned int d = 0; d < dim; ++d)
     {
       const double x = 2.0 * (x_q[d] - 0.5);
-      Assert((x_q[d] <= 1.0) && (x_q[d] >= 0.),
-             ExcMessage("x_q is not in [0,1]" + Utilities::to_string(x_q[d])));
+      Assert((x_q[d] <= 1.0) && (x_q[d] >= 0.), ExcMessage("x_q is not in [0,1]" + Utilities::to_string(x_q[d])));
       const unsigned int ind = indices[d];
       res *= sqrt(2.0) * std_cxx17::legendre(ind, x);
     }
@@ -80,8 +79,7 @@ Lh(const Point<dim> &x_q, const TableIndices<dim> &indices)
 
 template <>
 double
-LegendreFunction<2>::value(const dealii::Point<2> &point,
-                           const unsigned int) const
+LegendreFunction<2>::value(const dealii::Point<2> &point, const unsigned int) const
 {
   double f = 0.0;
 
@@ -94,8 +92,7 @@ LegendreFunction<2>::value(const dealii::Point<2> &point,
 
 template <>
 double
-LegendreFunction<3>::value(const dealii::Point<3> &point,
-                           const unsigned int) const
+LegendreFunction<3>::value(const dealii::Point<3> &point, const unsigned int) const
 {
   double f = 0.0;
 
@@ -149,8 +146,7 @@ test(const LegendreFunction<dim> &func, const unsigned int poly_degree)
 {
   const unsigned int max_poly = poly_degree + 3;
   deallog << "-----------------------------------" << std::endl;
-  deallog << dim << "d, p=" << poly_degree << ", max_p=" << max_poly
-          << std::endl;
+  deallog << dim << "d, p=" << poly_degree << ", max_p=" << max_poly << std::endl;
   deallog << "-----------------------------------" << std::endl;
   Triangulation<dim>    triangulation;
   DoFHandler<dim>       dof_handler(triangulation);
@@ -174,11 +170,8 @@ test(const LegendreFunction<dim> &func, const unsigned int poly_degree)
   VectorTools::interpolate(dof_handler, func, values);
 
   const unsigned int              N = poly_degree + 1;
-  const std::vector<unsigned int> n_coefficients_per_direction(
-    fe_collection.size(), N);
-  FESeries::Legendre<dim> legendre(n_coefficients_per_direction,
-                                   fe_collection,
-                                   quadrature_formula);
+  const std::vector<unsigned int> n_coefficients_per_direction(fe_collection.size(), N);
+  FESeries::Legendre<dim>         legendre(n_coefficients_per_direction, fe_collection, quadrature_formula);
 
   const Table<dim, double> &coeff_in = func.get_coefficients();
   Table<dim, double>        coeff_out;
@@ -186,8 +179,7 @@ test(const LegendreFunction<dim> &func, const unsigned int poly_degree)
 
   Vector<double> local_dof_values;
 
-  typename DoFHandler<dim>::active_cell_iterator cell =
-    dof_handler.begin_active();
+  typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active();
   {
     const unsigned int cell_n_dofs          = cell->get_fe().dofs_per_cell;
     const unsigned int cell_active_fe_index = cell->active_fe_index();

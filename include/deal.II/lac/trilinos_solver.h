@@ -123,7 +123,7 @@ namespace TrilinosWrappers
        * it is quite inelegant to set a specific option of one solver in the
        * base class for all solvers.
        */
-      explicit AdditionalData(const bool         output_solver_details = false,
+      explicit AdditionalData(const bool         output_solver_details   = false,
                               const unsigned int gmres_restart_parameter = 30);
 
       /**
@@ -141,16 +141,13 @@ namespace TrilinosWrappers
     /**
      * Constructor. Takes the solver control object and creates the solver.
      */
-    SolverBase(SolverControl &       cn,
-               const AdditionalData &data = AdditionalData());
+    SolverBase(SolverControl &cn, const AdditionalData &data = AdditionalData());
 
     /**
      * Second constructor. This constructor takes an enum object that
      * specifies the solver name and sets the appropriate Krylov method.
      */
-    SolverBase(const enum SolverName solver_name,
-               SolverControl &       cn,
-               const AdditionalData &data = AdditionalData());
+    SolverBase(const enum SolverName solver_name, SolverControl &cn, const AdditionalData &data = AdditionalData());
 
     /**
      * Destructor.
@@ -163,10 +160,7 @@ namespace TrilinosWrappers
      * one of the linear solvers and preconditioners of Trilinos is chosen.
      */
     void
-    solve(const SparseMatrix &    A,
-          MPI::Vector &           x,
-          const MPI::Vector &     b,
-          const PreconditionBase &preconditioner);
+    solve(const SparseMatrix &A, MPI::Vector &x, const MPI::Vector &b, const PreconditionBase &preconditioner);
 
     /**
      * Solve the linear system <tt>Ax=b</tt> where <tt>A</tt> is an operator.
@@ -176,10 +170,7 @@ namespace TrilinosWrappers
      * Trilinos is chosen.
      */
     void
-    solve(const Epetra_Operator & A,
-          MPI::Vector &           x,
-          const MPI::Vector &     b,
-          const PreconditionBase &preconditioner);
+    solve(const Epetra_Operator &A, MPI::Vector &x, const MPI::Vector &b, const PreconditionBase &preconditioner);
 
     /**
      * Solve the linear system <tt>Ax=b</tt> where both <tt>A</tt> and its
@@ -191,10 +182,7 @@ namespace TrilinosWrappers
      * of Trilinos is chosen.
      */
     void
-    solve(const Epetra_Operator &A,
-          MPI::Vector &          x,
-          const MPI::Vector &    b,
-          const Epetra_Operator &preconditioner);
+    solve(const Epetra_Operator &A, MPI::Vector &x, const MPI::Vector &b, const Epetra_Operator &preconditioner);
 
     /**
      * Solve the linear system <tt>Ax=b</tt> where <tt>A</tt> is an operator,
@@ -206,10 +194,10 @@ namespace TrilinosWrappers
      * of Trilinos is chosen.
      */
     void
-    solve(const Epetra_Operator &   A,
-          Epetra_MultiVector &      x,
+    solve(const Epetra_Operator    &A,
+          Epetra_MultiVector       &x,
           const Epetra_MultiVector &b,
-          const PreconditionBase &  preconditioner);
+          const PreconditionBase   &preconditioner);
 
     /**
      * Solve the linear system <tt>Ax=b</tt> where both <tt>A</tt> and its
@@ -222,10 +210,10 @@ namespace TrilinosWrappers
      * of Trilinos is chosen.
      */
     void
-    solve(const Epetra_Operator &   A,
-          Epetra_MultiVector &      x,
+    solve(const Epetra_Operator    &A,
+          Epetra_MultiVector       &x,
           const Epetra_MultiVector &b,
-          const Epetra_Operator &   preconditioner);
+          const Epetra_Operator    &preconditioner);
 
 
 
@@ -240,10 +228,10 @@ namespace TrilinosWrappers
      * will be thrown.
      */
     void
-    solve(const SparseMatrix &          A,
-          dealii::Vector<double> &      x,
+    solve(const SparseMatrix           &A,
+          dealii::Vector<double>       &x,
           const dealii::Vector<double> &b,
-          const PreconditionBase &      preconditioner);
+          const PreconditionBase       &preconditioner);
 
     /**
      * Solve the linear system <tt>Ax=b</tt> where <tt>A</tt> is an operator.
@@ -257,10 +245,10 @@ namespace TrilinosWrappers
      * exception will be thrown.
      */
     void
-    solve(Epetra_Operator &             A,
-          dealii::Vector<double> &      x,
+    solve(Epetra_Operator              &A,
+          dealii::Vector<double>       &x,
           const dealii::Vector<double> &b,
-          const PreconditionBase &      preconditioner);
+          const PreconditionBase       &preconditioner);
 
     /**
      * Solve the linear system <tt>Ax=b</tt> for deal.II's parallel
@@ -269,10 +257,10 @@ namespace TrilinosWrappers
      * solvers and preconditioners of Trilinos is chosen.
      */
     void
-    solve(const SparseMatrix &                                      A,
-          dealii::LinearAlgebra::distributed::Vector<double> &      x,
+    solve(const SparseMatrix                                       &A,
+          dealii::LinearAlgebra::distributed::Vector<double>       &x,
           const dealii::LinearAlgebra::distributed::Vector<double> &b,
-          const PreconditionBase &preconditioner);
+          const PreconditionBase                                   &preconditioner);
 
     /**
      * Solve the linear system <tt>Ax=b</tt> where <tt>A</tt> is an operator.
@@ -282,10 +270,10 @@ namespace TrilinosWrappers
      * Trilinos is chosen.
      */
     void
-    solve(Epetra_Operator &                                         A,
-          dealii::LinearAlgebra::distributed::Vector<double> &      x,
+    solve(Epetra_Operator                                          &A,
+          dealii::LinearAlgebra::distributed::Vector<double>       &x,
           const dealii::LinearAlgebra::distributed::Vector<double> &b,
-          const PreconditionBase &preconditioner);
+          const PreconditionBase                                   &preconditioner);
 
 
     /**
@@ -299,8 +287,7 @@ namespace TrilinosWrappers
      */
     DeclException1(ExcTrilinosError,
                    int,
-                   << "An error with error number " << arg1
-                   << " occurred while calling a Trilinos function");
+                   << "An error with error number " << arg1 << " occurred while calling a Trilinos function");
 
   protected:
     /**
@@ -356,13 +343,11 @@ namespace TrilinosWrappers
   // provide a declaration for two explicit specializations
   template <>
   void
-  SolverBase::set_preconditioner(AztecOO &               solver,
-                                 const PreconditionBase &preconditioner);
+  SolverBase::set_preconditioner(AztecOO &solver, const PreconditionBase &preconditioner);
 
   template <>
   void
-  SolverBase::set_preconditioner(AztecOO &              solver,
-                                 const Epetra_Operator &preconditioner);
+  SolverBase::set_preconditioner(AztecOO &solver, const Epetra_Operator &preconditioner);
 
 
   /**
@@ -419,8 +404,7 @@ namespace TrilinosWrappers
      * The last argument takes a structure with additional, solver dependent
      * flags for tuning.
      */
-    SolverGMRES(SolverControl &       cn,
-                const AdditionalData &data = AdditionalData());
+    SolverGMRES(SolverControl &cn, const AdditionalData &data = AdditionalData());
   };
 
 
@@ -441,8 +425,7 @@ namespace TrilinosWrappers
      * The last argument takes a structure with additional, solver dependent
      * flags for tuning.
      */
-    SolverBicgstab(SolverControl &       cn,
-                   const AdditionalData &data = AdditionalData());
+    SolverBicgstab(SolverControl &cn, const AdditionalData &data = AdditionalData());
   };
 
 
@@ -463,8 +446,7 @@ namespace TrilinosWrappers
      * The last argument takes a structure with additional, solver dependent
      * flags for tuning.
      */
-    SolverTFQMR(SolverControl &       cn,
-                const AdditionalData &data = AdditionalData());
+    SolverTFQMR(SolverControl &cn, const AdditionalData &data = AdditionalData());
   };
 
 
@@ -493,8 +475,7 @@ namespace TrilinosWrappers
       /**
        * Set the additional data field to the desired output format.
        */
-      explicit AdditionalData(const bool         output_solver_details = false,
-                              const std::string &solver_type = "Amesos_Klu");
+      explicit AdditionalData(const bool output_solver_details = false, const std::string &solver_type = "Amesos_Klu");
 
       /**
        * Enables/disables the output of solver details (residual in each
@@ -526,8 +507,7 @@ namespace TrilinosWrappers
     /**
      * Constructor. Takes the solver control object and creates the solver.
      */
-    SolverDirect(SolverControl &       cn,
-                 const AdditionalData &data = AdditionalData());
+    SolverDirect(SolverControl &cn, const AdditionalData &data = AdditionalData());
 
     /**
      * Destructor.
@@ -557,7 +537,7 @@ namespace TrilinosWrappers
      * refactorized during this call.
      */
     void
-    solve(dealii::LinearAlgebra::distributed::Vector<double> &      x,
+    solve(dealii::LinearAlgebra::distributed::Vector<double>       &x,
           const dealii::LinearAlgebra::distributed::Vector<double> &b);
 
     /**
@@ -577,9 +557,7 @@ namespace TrilinosWrappers
      * exception will be thrown.
      */
     void
-    solve(const SparseMatrix &          A,
-          dealii::Vector<double> &      x,
-          const dealii::Vector<double> &b);
+    solve(const SparseMatrix &A, dealii::Vector<double> &x, const dealii::Vector<double> &b);
 
     /**
      * Solve the linear system <tt>Ax=b</tt> for deal.II's own parallel
@@ -588,8 +566,8 @@ namespace TrilinosWrappers
      * there is no need for a preconditioner here.
      */
     void
-    solve(const SparseMatrix &                                      A,
-          dealii::LinearAlgebra::distributed::Vector<double> &      x,
+    solve(const SparseMatrix                                       &A,
+          dealii::LinearAlgebra::distributed::Vector<double>       &x,
           const dealii::LinearAlgebra::distributed::Vector<double> &b);
 
     /**
@@ -603,8 +581,7 @@ namespace TrilinosWrappers
      */
     DeclException1(ExcTrilinosError,
                    int,
-                   << "An error with error number " << arg1
-                   << " occurred while calling a Trilinos function");
+                   << "An error with error number " << arg1 << " occurred while calling a Trilinos function");
 
   private:
     /**
@@ -680,8 +657,7 @@ namespace TrilinosWrappers
       /**
        * Constructor.
        */
-      AdditionalData(const SolverName solver_name           = SolverName::cg,
-                     const bool       right_preconditioning = false)
+      AdditionalData(const SolverName solver_name = SolverName::cg, const bool right_preconditioning = false)
         : solver_name(solver_name)
         , right_preconditioning(right_preconditioning)
       {}
@@ -700,8 +676,8 @@ namespace TrilinosWrappers
     /**
      * Constructor.
      */
-    SolverBelos(SolverControl &                             solver_control,
-                const AdditionalData &                      additional_data,
+    SolverBelos(SolverControl                              &solver_control,
+                const AdditionalData                       &additional_data,
                 const Teuchos::RCP<Teuchos::ParameterList> &belos_parameters);
 
     /**
@@ -709,13 +685,10 @@ namespace TrilinosWrappers
      */
     template <typename OperatorType, typename PreconditionerType>
     void
-    solve(const OperatorType &      a,
-          VectorType &              x,
-          const VectorType &        b,
-          const PreconditionerType &p);
+    solve(const OperatorType &a, VectorType &x, const VectorType &b, const PreconditionerType &p);
 
   private:
-    SolverControl &                             solver_control;
+    SolverControl                              &solver_control;
     const AdditionalData                        additional_data;
     const Teuchos::RCP<Teuchos::ParameterList> &belos_parameters;
   };
@@ -739,8 +712,7 @@ namespace TrilinosWrappers
      * https://docs.trilinos.org/latest-release/packages/belos/doc/html/classBelos_1_1MultiVec.html.
      */
     template <typename VectorType>
-    class MultiVecWrapper
-      : public Belos::MultiVec<typename VectorType::value_type>
+    class MultiVecWrapper : public Belos::MultiVec<typename VectorType::value_type>
     {
     public:
       /**
@@ -763,9 +735,7 @@ namespace TrilinosWrappers
       MultiVecWrapper(VectorType &vector)
       {
         this->vectors.resize(1);
-        this->vectors[0].reset(
-          &vector,
-          [](auto *) { /*Nothing to do, since vector is owned outside.*/ });
+        this->vectors[0].reset(&vector, [](auto *) { /*Nothing to do, since vector is owned outside.*/ });
       }
 
       /**
@@ -774,9 +744,8 @@ namespace TrilinosWrappers
       MultiVecWrapper(const VectorType &vector)
       {
         this->vectors.resize(1);
-        this->vectors[0].reset(
-          &const_cast<VectorType &>(vector),
-          [](auto *) { /*Nothing to do, since vector is owned outside.*/ });
+        this->vectors[0].reset(&const_cast<VectorType &>(vector),
+                               [](auto *) { /*Nothing to do, since vector is owned outside.*/ });
       }
 
       /**
@@ -828,9 +797,7 @@ namespace TrilinosWrappers
 
         for (unsigned int i = 0; i < index.size(); ++i)
           {
-            AssertThrow(static_cast<unsigned int>(index[i]) <
-                          this->vectors.size(),
-                        ExcInternalError());
+            AssertThrow(static_cast<unsigned int>(index[i]) < this->vectors.size(), ExcInternalError());
 
             new_multi_vec->vectors[i] = std::make_shared<VectorType>();
 
@@ -855,15 +822,10 @@ namespace TrilinosWrappers
 
         for (unsigned int i = 0; i < index.size(); ++i)
           {
-            AssertThrow(static_cast<unsigned int>(index[i]) <
-                          this->vectors.size(),
-                        ExcInternalError());
+            AssertThrow(static_cast<unsigned int>(index[i]) < this->vectors.size(), ExcInternalError());
 
-            new_multi_vec->vectors[i].reset(
-              this->vectors[index[i]].get(),
-              [](
-                auto
-                  *) { /*Nothing to do, since we are creating only a view.*/ });
+            new_multi_vec->vectors[i].reset(this->vectors[index[i]].get(),
+                                            [](auto *) { /*Nothing to do, since we are creating only a view.*/ });
           }
 
         return new_multi_vec;
@@ -883,15 +845,10 @@ namespace TrilinosWrappers
 
         for (unsigned int i = 0; i < index.size(); ++i)
           {
-            AssertThrow(static_cast<unsigned int>(index[i]) <
-                          this->vectors.size(),
-                        ExcInternalError());
+            AssertThrow(static_cast<unsigned int>(index[i]) < this->vectors.size(), ExcInternalError());
 
-            new_multi_vec->vectors[i].reset(
-              this->vectors[index[i]].get(),
-              [](
-                auto
-                  *) { /*Nothing to do, since we are creating only a view.*/ });
+            new_multi_vec->vectors[i].reset(this->vectors[index[i]].get(),
+                                            [](auto *) { /*Nothing to do, since we are creating only a view.*/ });
           }
 
         return new_multi_vec;
@@ -925,7 +882,7 @@ namespace TrilinosWrappers
        */
       virtual void
       MvTimesMatAddMv(const value_type                                   alpha,
-                      const Belos::MultiVec<value_type> &                A_,
+                      const Belos::MultiVec<value_type>                 &A_,
                       const Teuchos::SerialDenseMatrix<int, value_type> &B,
                       const value_type                                   beta)
       {
@@ -934,10 +891,8 @@ namespace TrilinosWrappers
         const unsigned int n_rows = B.numRows();
         const unsigned int n_cols = B.numCols();
 
-        AssertThrow(n_rows == static_cast<unsigned int>(A.GetNumberVecs()),
-                    ExcInternalError());
-        AssertThrow(n_cols == static_cast<unsigned int>(this->GetNumberVecs()),
-                    ExcInternalError());
+        AssertThrow(n_rows == static_cast<unsigned int>(A.GetNumberVecs()), ExcInternalError());
+        AssertThrow(n_cols == static_cast<unsigned int>(this->GetNumberVecs()), ExcInternalError());
 
         for (unsigned int i = 0; i < n_cols; ++i)
           (*this->vectors[i]) *= beta;
@@ -959,10 +914,8 @@ namespace TrilinosWrappers
         const auto &A = try_to_get_underlying_vector(A_);
         const auto &B = try_to_get_underlying_vector(B_);
 
-        AssertThrow(this->vectors.size() == A.vectors.size(),
-                    ExcInternalError());
-        AssertThrow(this->vectors.size() == B.vectors.size(),
-                    ExcInternalError());
+        AssertThrow(this->vectors.size() == A.vectors.size(), ExcInternalError());
+        AssertThrow(this->vectors.size() == B.vectors.size(), ExcInternalError());
 
         for (unsigned int i = 0; i < this->vectors.size(); ++i)
           {
@@ -997,7 +950,7 @@ namespace TrilinosWrappers
        */
       virtual void
       MvTransMv(const value_type                             alpha,
-                const Belos::MultiVec<value_type> &          A_,
+                const Belos::MultiVec<value_type>           &A_,
                 Teuchos::SerialDenseMatrix<int, value_type> &B) const
       {
         const auto &A = try_to_get_underlying_vector(A_);
@@ -1005,10 +958,8 @@ namespace TrilinosWrappers
         const unsigned int n_rows = B.numRows();
         const unsigned int n_cols = B.numCols();
 
-        AssertThrow(n_rows == static_cast<unsigned int>(A.GetNumberVecs()),
-                    ExcInternalError());
-        AssertThrow(n_cols == static_cast<unsigned int>(this->GetNumberVecs()),
-                    ExcInternalError());
+        AssertThrow(n_rows == static_cast<unsigned int>(A.GetNumberVecs()), ExcInternalError());
+        AssertThrow(n_cols == static_cast<unsigned int>(this->GetNumberVecs()), ExcInternalError());
 
         for (unsigned int i = 0; i < n_rows; ++i)
           for (unsigned int j = 0; j < n_cols; ++j)
@@ -1020,13 +971,11 @@ namespace TrilinosWrappers
        * corresponding column of A.
        */
       virtual void
-      MvDot(const Belos::MultiVec<value_type> &A_,
-            std::vector<value_type> &          b) const
+      MvDot(const Belos::MultiVec<value_type> &A_, std::vector<value_type> &b) const
       {
         const auto &A = try_to_get_underlying_vector(A_);
 
-        AssertThrow(this->vectors.size() == A.vectors.size(),
-                    ExcInternalError());
+        AssertThrow(this->vectors.size() == A.vectors.size(), ExcInternalError());
         AssertThrow(this->vectors.size() == b.size(), ExcInternalError());
 
         for (unsigned int i = 0; i < this->vectors.size(); ++i)
@@ -1037,10 +986,8 @@ namespace TrilinosWrappers
        * Compute the norm of each vector in *this.
        */
       virtual void
-      MvNorm(
-        std::vector<typename Teuchos::ScalarTraits<value_type>::magnitudeType>
-          &             normvec,
-        Belos::NormType type = Belos::TwoNorm) const
+      MvNorm(std::vector<typename Teuchos::ScalarTraits<value_type>::magnitudeType> &normvec,
+             Belos::NormType                                                         type = Belos::TwoNorm) const
       {
         AssertThrow(type == Belos::TwoNorm, ExcNotImplemented());
         AssertThrow(this->vectors.size() == normvec.size(), ExcInternalError());
@@ -1053,8 +1000,7 @@ namespace TrilinosWrappers
        * Copy the vectors in A to a set of vectors in *this.
        */
       virtual void
-      SetBlock(const Belos::MultiVec<value_type> &A,
-               const std::vector<int> &           index)
+      SetBlock(const Belos::MultiVec<value_type> &A, const std::vector<int> &index)
       {
         AssertThrow(false, ExcNotImplemented());
         (void)A;
@@ -1141,17 +1087,14 @@ namespace TrilinosWrappers
 
 #      ifdef HAVE_BELOS_TSQR
       virtual void
-      factorExplicit(Belos::MultiVec<value_type> &,
-                     Teuchos::SerialDenseMatrix<int, value_type> &,
-                     const bool = false)
+      factorExplicit(Belos::MultiVec<value_type> &, Teuchos::SerialDenseMatrix<int, value_type> &, const bool = false)
       {
         Assert(false, ExcNotImplemented());
       }
 
       virtual int
-      revealRank(
-        Teuchos::SerialDenseMatrix<int, value_type> &,
-        const typename Teuchos::ScalarTraits<value_type>::magnitudeType &)
+      revealRank(Teuchos::SerialDenseMatrix<int, value_type> &,
+                 const typename Teuchos::ScalarTraits<value_type>::magnitudeType &)
       {
         Assert(false, ExcNotImplemented());
       }
@@ -1178,8 +1121,7 @@ namespace TrilinosWrappers
      * https://docs.trilinos.org/latest-release/packages/belos/doc/html/classBelos_1_1Operator.html.
      */
     template <typename OperatorType, typename VectorType>
-    class OperatorWrapper
-      : public Belos::Operator<typename VectorType::value_type>
+    class OperatorWrapper : public Belos::Operator<typename VectorType::value_type>
     {
     public:
       /**
@@ -1213,16 +1155,14 @@ namespace TrilinosWrappers
        */
       virtual void
       Apply(const Belos::MultiVec<value_type> &x,
-            Belos::MultiVec<value_type> &      y,
+            Belos::MultiVec<value_type>       &y,
             Belos::ETrans                      trans = Belos::NOTRANS) const
       {
         // TODO: check for Tvmult
         AssertThrow(trans == Belos::NOTRANS, ExcNotImplemented());
 
-        op.vmult(MultiVecWrapper<VectorType>::try_to_get_underlying_vector(y)
-                   .genericVector(),
-                 MultiVecWrapper<VectorType>::try_to_get_underlying_vector(x)
-                   .genericVector());
+        op.vmult(MultiVecWrapper<VectorType>::try_to_get_underlying_vector(y).genericVector(),
+                 MultiVecWrapper<VectorType>::try_to_get_underlying_vector(x).genericVector());
       }
 
       /**
@@ -1247,10 +1187,9 @@ namespace TrilinosWrappers
 
 
   template <typename VectorType>
-  SolverBelos<VectorType>::SolverBelos(
-    SolverControl &                             solver_control,
-    const AdditionalData &                      additional_data,
-    const Teuchos::RCP<Teuchos::ParameterList> &belos_parameters)
+  SolverBelos<VectorType>::SolverBelos(SolverControl                              &solver_control,
+                                       const AdditionalData                       &additional_data,
+                                       const Teuchos::RCP<Teuchos::ParameterList> &belos_parameters)
     : solver_control(solver_control)
     , additional_data(additional_data)
     , belos_parameters(belos_parameters)
@@ -1261,9 +1200,9 @@ namespace TrilinosWrappers
   template <typename VectorType>
   template <typename OperatorType, typename PreconditionerType>
   void
-  SolverBelos<VectorType>::solve(const OperatorType &      A_dealii,
-                                 VectorType &              x_dealii,
-                                 const VectorType &        b_dealii,
+  SolverBelos<VectorType>::solve(const OperatorType       &A_dealii,
+                                 VectorType               &x_dealii,
+                                 const VectorType         &b_dealii,
                                  const PreconditionerType &P_dealii)
   {
     using value_type = typename VectorType::value_type;
@@ -1271,14 +1210,10 @@ namespace TrilinosWrappers
     using MV = Belos::MultiVec<value_type>;
     using OP = Belos::Operator<value_type>;
 
-    Teuchos::RCP<OP> A = Teuchos::rcp(
-      new internal::OperatorWrapper<OperatorType, VectorType>(A_dealii));
-    Teuchos::RCP<OP> P = Teuchos::rcp(
-      new internal::OperatorWrapper<PreconditionerType, VectorType>(P_dealii));
-    Teuchos::RCP<MV> X =
-      Teuchos::rcp(new internal::MultiVecWrapper<VectorType>(x_dealii));
-    Teuchos::RCP<MV> B =
-      Teuchos::rcp(new internal::MultiVecWrapper<VectorType>(b_dealii));
+    Teuchos::RCP<OP> A = Teuchos::rcp(new internal::OperatorWrapper<OperatorType, VectorType>(A_dealii));
+    Teuchos::RCP<OP> P = Teuchos::rcp(new internal::OperatorWrapper<PreconditionerType, VectorType>(P_dealii));
+    Teuchos::RCP<MV> X = Teuchos::rcp(new internal::MultiVecWrapper<VectorType>(x_dealii));
+    Teuchos::RCP<MV> B = Teuchos::rcp(new internal::MultiVecWrapper<VectorType>(b_dealii));
 
     Teuchos::RCP<Belos::LinearProblem<value_type, MV, OP>> problem =
       Teuchos::rcp(new Belos::LinearProblem<value_type, MV, OP>(A, X, B));
@@ -1301,34 +1236,24 @@ namespace TrilinosWrappers
     if (solver_control.check(0, norm_0) != SolverControl::iterate)
       return;
 
-    double relative_tolerance_to_be_achieved =
-      solver_control.tolerance() / norm_0;
-    const unsigned int max_steps = solver_control.max_steps();
+    double             relative_tolerance_to_be_achieved = solver_control.tolerance() / norm_0;
+    const unsigned int max_steps                         = solver_control.max_steps();
 
-    if (const auto *reduction_control =
-          dynamic_cast<ReductionControl *>(&solver_control))
-      relative_tolerance_to_be_achieved =
-        std::max(relative_tolerance_to_be_achieved,
-                 reduction_control->reduction());
+    if (const auto *reduction_control = dynamic_cast<ReductionControl *>(&solver_control))
+      relative_tolerance_to_be_achieved = std::max(relative_tolerance_to_be_achieved, reduction_control->reduction());
 
     Teuchos::RCP<Teuchos::ParameterList> belos_parameters_copy(
       Teuchos::rcp(new Teuchos::ParameterList(*belos_parameters)));
 
-    belos_parameters_copy->set("Convergence Tolerance",
-                               relative_tolerance_to_be_achieved);
-    belos_parameters_copy->set("Maximum Iterations",
-                               static_cast<int>(max_steps));
+    belos_parameters_copy->set("Convergence Tolerance", relative_tolerance_to_be_achieved);
+    belos_parameters_copy->set("Maximum Iterations", static_cast<int>(max_steps));
 
     Teuchos::RCP<Belos::SolverManager<value_type, MV, OP>> solver;
 
     if (additional_data.solver_name == SolverName::cg)
-      solver = Teuchos::rcp(
-        new Belos::BlockCGSolMgr<value_type, MV, OP>(problem,
-                                                     belos_parameters_copy));
+      solver = Teuchos::rcp(new Belos::BlockCGSolMgr<value_type, MV, OP>(problem, belos_parameters_copy));
     else if (additional_data.solver_name == SolverName::gmres)
-      solver = Teuchos::rcp(
-        new Belos::BlockGmresSolMgr<value_type, MV, OP>(problem,
-                                                        belos_parameters_copy));
+      solver = Teuchos::rcp(new Belos::BlockGmresSolMgr<value_type, MV, OP>(problem, belos_parameters_copy));
     else
       AssertThrow(false, ExcNotImplemented());
 
@@ -1337,11 +1262,9 @@ namespace TrilinosWrappers
     solver_control.check(solver->getNumIters(), solver->achievedTol() * norm_0);
 
     AssertThrow(flag == Belos::ReturnType::Converged ||
-                  ((dynamic_cast<IterationNumberControl *>(&solver_control) !=
-                    nullptr) &&
+                  ((dynamic_cast<IterationNumberControl *>(&solver_control) != nullptr) &&
                    (solver_control.last_step() == max_steps)),
-                SolverControl::NoConvergence(solver_control.last_step(),
-                                             solver_control.last_value()));
+                SolverControl::NoConvergence(solver_control.last_step(), solver_control.last_value()));
   }
 
 } // namespace TrilinosWrappers

@@ -107,8 +107,7 @@ namespace internal
        * documentation.
        */
       void
-      set_combined_orientation(const unsigned int  object,
-                               const unsigned char value);
+      set_combined_orientation(const unsigned int object, const unsigned char value);
 
       /**
        * Set the orientation bit of the object.
@@ -158,8 +157,7 @@ namespace internal
 
 
 
-    inline TriaObjectsOrientations::TriaObjectsOrientations(
-      const unsigned int n_objects)
+    inline TriaObjectsOrientations::TriaObjectsOrientations(const unsigned int n_objects)
     {
       reinit(n_objects);
     }
@@ -171,8 +169,7 @@ namespace internal
     {
       n_stored_objects = n_objects;
       // Assign to the default orientation
-      flags.assign(n_objects,
-                   ReferenceCell::default_combined_face_orientation());
+      flags.assign(n_objects, ReferenceCell::default_combined_face_orientation());
     }
 
 
@@ -180,8 +177,7 @@ namespace internal
     inline void
     TriaObjectsOrientations::resize(const unsigned int n_objects)
     {
-      flags.resize(n_objects,
-                   ReferenceCell::default_combined_face_orientation());
+      flags.resize(n_objects, ReferenceCell::default_combined_face_orientation());
       n_stored_objects = n_objects;
     }
 
@@ -190,8 +186,7 @@ namespace internal
     inline std::size_t
     TriaObjectsOrientations::memory_consumption() const
     {
-      return MemoryConsumption::memory_consumption(n_stored_objects) +
-             MemoryConsumption::memory_consumption(flags);
+      return MemoryConsumption::memory_consumption(n_stored_objects) + MemoryConsumption::memory_consumption(flags);
     }
 
 
@@ -205,8 +200,7 @@ namespace internal
 
 
     inline unsigned char
-    TriaObjectsOrientations::get_combined_orientation(
-      const unsigned int object) const
+    TriaObjectsOrientations::get_combined_orientation(const unsigned int object) const
     {
       AssertIndexRange(object, n_stored_objects);
       return flags[object];
@@ -242,8 +236,7 @@ namespace internal
 
 
     inline void
-    TriaObjectsOrientations::set_combined_orientation(const unsigned int object,
-                                                      const unsigned char value)
+    TriaObjectsOrientations::set_combined_orientation(const unsigned int object, const unsigned char value)
     {
       AssertIndexRange(object, n_stored_objects);
       flags[object] = value;
@@ -252,8 +245,7 @@ namespace internal
 
 
     inline void
-    TriaObjectsOrientations::set_orientation(const unsigned int object,
-                                             const bool         value)
+    TriaObjectsOrientations::set_orientation(const unsigned int object, const bool value)
     {
       AssertIndexRange(object, n_stored_objects);
       Utilities::set_bit(flags[object], 0, value);
@@ -262,8 +254,7 @@ namespace internal
 
 
     inline void
-    TriaObjectsOrientations::set_rotation(const unsigned int object,
-                                          const bool         value)
+    TriaObjectsOrientations::set_rotation(const unsigned int object, const bool value)
     {
       AssertIndexRange(object, n_stored_objects);
       Utilities::set_bit(flags[object], 1, value);
@@ -272,8 +263,7 @@ namespace internal
 
 
     inline void
-    TriaObjectsOrientations::set_flip(const unsigned int object,
-                                      const bool         value)
+    TriaObjectsOrientations::set_flip(const unsigned int object, const bool value)
     {
       AssertIndexRange(object, n_stored_objects);
       Utilities::set_bit(flags[object], 2, value);

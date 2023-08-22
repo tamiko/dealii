@@ -23,17 +23,16 @@ namespace FunctionTools
 {
   template <int dim>
   void
-  taylor_estimate_function_bounds(
-    const Function<dim> &                       function,
-    const BoundingBox<dim> &                    box,
-    std::pair<double, double> &                 value_bounds,
-    std::array<std::pair<double, double>, dim> &gradient_bounds,
-    const unsigned int                          component)
+  taylor_estimate_function_bounds(const Function<dim>                        &function,
+                                  const BoundingBox<dim>                     &box,
+                                  std::pair<double, double>                  &value_bounds,
+                                  std::array<std::pair<double, double>, dim> &gradient_bounds,
+                                  const unsigned int                          component)
   {
-    const Point<dim>     center   = box.center();
-    const double         value    = function.value(center, component);
-    const Tensor<1, dim> gradient = function.gradient(center, component);
-    const SymmetricTensor<2, dim> hessian = function.hessian(center, component);
+    const Point<dim>              center   = box.center();
+    const double                  value    = function.value(center, component);
+    const Tensor<1, dim>          gradient = function.gradient(center, component);
+    const SymmetricTensor<2, dim> hessian  = function.hessian(center, component);
 
     // Deviation from function value at the center, based on the
     // Taylor-expansion: |f'| * dx + 1/2 * |f''| * dx^2,   (in 1d). dx is half

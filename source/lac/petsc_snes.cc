@@ -30,26 +30,15 @@ namespace PETScWrappers
   NonlinearSolverData::add_parameters(ParameterHandler &prm)
   {
     prm.enter_subsection("Running parameters");
-    prm.add_parameter(
-      "options prefix",
-      options_prefix,
-      "The string indicating the options prefix for command line customization.");
-    prm.add_parameter("solver type",
-                      snes_type,
-                      "The string indicating the PETSc SNES type.");
-    prm.add_parameter("linesearch type",
-                      snes_linesearch_type,
-                      "The string indicating the PETSc linesearch type.");
-    prm.add_parameter("absolute error tolerance",
-                      absolute_tolerance,
-                      "Absolute error tolerance.");
-    prm.add_parameter("relative error tolerance",
-                      relative_tolerance,
-                      "Relative error tolerance.");
+    prm.add_parameter("options prefix",
+                      options_prefix,
+                      "The string indicating the options prefix for command line customization.");
+    prm.add_parameter("solver type", snes_type, "The string indicating the PETSc SNES type.");
+    prm.add_parameter("linesearch type", snes_linesearch_type, "The string indicating the PETSc linesearch type.");
+    prm.add_parameter("absolute error tolerance", absolute_tolerance, "Absolute error tolerance.");
+    prm.add_parameter("relative error tolerance", relative_tolerance, "Relative error tolerance.");
     prm.add_parameter("step tolerance", step_tolerance, "Step tolerance.");
-    prm.add_parameter("maximum iterations",
-                      maximum_non_linear_iterations,
-                      "Maximum number of iterations allowed.");
+    prm.add_parameter("maximum iterations", maximum_non_linear_iterations, "Maximum number of iterations allowed.");
     prm.add_parameter("maximum function evaluations",
                       max_n_function_evaluations,
                       "Maximum number of function evaluations allowed.");
@@ -61,11 +50,8 @@ namespace PETScWrappers
 template class PETScWrappers::NonlinearSolver<>;
 template class PETScWrappers::NonlinearSolver<PETScWrappers::MPI::Vector>;
 template class PETScWrappers::NonlinearSolver<PETScWrappers::MPI::BlockVector>;
-template class PETScWrappers::NonlinearSolver<PETScWrappers::MPI::Vector,
-                                              PETScWrappers::MPI::SparseMatrix>;
-template class PETScWrappers::NonlinearSolver<
-  PETScWrappers::MPI::BlockVector,
-  PETScWrappers::MPI::BlockSparseMatrix>;
+template class PETScWrappers::NonlinearSolver<PETScWrappers::MPI::Vector, PETScWrappers::MPI::SparseMatrix>;
+template class PETScWrappers::NonlinearSolver<PETScWrappers::MPI::BlockVector, PETScWrappers::MPI::BlockSparseMatrix>;
 
 
 DEAL_II_NAMESPACE_CLOSE

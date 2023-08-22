@@ -107,8 +107,7 @@ LaplaceProblem<dim>::setup_system()
   solution.reinit(dof_handler.n_dofs());
   system_rhs.reinit(dof_handler.n_dofs());
 
-  const IndexSet boundary_dofs =
-    DoFTools::extract_boundary_dofs(dof_handler, ComponentMask(1, true));
+  const IndexSet boundary_dofs = DoFTools::extract_boundary_dofs(dof_handler, ComponentMask(1, true));
 
   const unsigned int first_boundary_dof = *boundary_dofs.begin();
 
@@ -133,29 +132,25 @@ template <int dim>
 void
 LaplaceProblem<dim>::assemble_and_solve()
 {
-  const unsigned int gauss_degree = std::max(
-    static_cast<unsigned int>(std::ceil(
-      1. * (static_cast<const MappingQ<dim> &>(mapping[0]).get_degree() + 1) /
-      2)),
-    2U);
+  const unsigned int gauss_degree =
+    std::max(static_cast<unsigned int>(
+               std::ceil(1. * (static_cast<const MappingQ<dim> &>(mapping[0]).get_degree() + 1) / 2)),
+             2U);
   MatrixTools::create_laplace_matrix(mapping,
                                      dof_handler,
-                                     hp::QCollection<dim>(
-                                       QGauss<dim>(gauss_degree)),
+                                     hp::QCollection<dim>(QGauss<dim>(gauss_degree)),
                                      system_matrix);
   VectorTools::create_right_hand_side(mapping,
                                       dof_handler,
-                                      hp::QCollection<dim>(
-                                        QGauss<dim>(gauss_degree)),
+                                      hp::QCollection<dim>(QGauss<dim>(gauss_degree)),
                                       Functions::ConstantFunction<dim>(-2),
                                       system_rhs);
   Vector<double> tmp(system_rhs.size());
-  VectorTools::create_boundary_right_hand_side(
-    mapping,
-    dof_handler,
-    hp::QCollection<dim - 1>(QGauss<dim - 1>(gauss_degree)),
-    Functions::ConstantFunction<dim>(1),
-    tmp);
+  VectorTools::create_boundary_right_hand_side(mapping,
+                                               dof_handler,
+                                               hp::QCollection<dim - 1>(QGauss<dim - 1>(gauss_degree)),
+                                               Functions::ConstantFunction<dim>(1),
+                                               tmp);
   system_rhs += tmp;
 
   mean_value_constraints.condense(system_matrix);
@@ -170,8 +165,7 @@ LaplaceProblem<dim>::assemble_and_solve()
                                     solution,
                                     Functions::ZeroFunction<dim>(),
                                     norm_per_cell,
-                                    hp::QCollection<dim>(
-                                      QGauss<dim>(gauss_degree + 1)),
+                                    hp::QCollection<dim>(QGauss<dim>(gauss_degree + 1)),
                                     VectorTools::H1_seminorm);
   const double norm = norm_per_cell.l2_norm();
 
@@ -205,8 +199,7 @@ LaplaceProblem<dim>::run()
   static const SphericalManifold<dim> boundary;
   triangulation.set_manifold(0, boundary);
 
-  for (unsigned int cycle = 0; cycle < 6;
-       ++cycle, triangulation.refine_global(1))
+  for (unsigned int cycle = 0; cycle < 6; ++cycle, triangulation.refine_global(1))
     {
       setup_system();
       assemble_and_solve();
@@ -228,33 +221,24 @@ main()
       initlog();
       deallog << std::setprecision(2);
 
-      for (unsigned int mapping_degree = 1; mapping_degree <= 3;
-           ++mapping_degree)
+      for (unsigned int mapping_degree = 1; mapping_degree <= 3; ++mapping_degree)
         LaplaceProblem<2>(mapping_degree).run();
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     };
 

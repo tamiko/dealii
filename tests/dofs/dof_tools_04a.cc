@@ -53,8 +53,7 @@ check_this(const DoFHandler<dim> &dof_handler)
   IndexSet locally_relevant_dofs;
   DoFTools::extract_locally_relevant_dofs(dof_handler, locally_relevant_dofs);
 
-  const IndexSet is_hanging_node_constrained =
-    DoFTools::extract_hanging_node_dofs(dof_handler);
+  const IndexSet is_hanging_node_constrained = DoFTools::extract_hanging_node_dofs(dof_handler);
 
   AffineConstraints<double> constraints(locally_relevant_dofs);
   DoFTools::make_hanging_node_constraints(dof_handler, constraints);
@@ -64,9 +63,7 @@ check_this(const DoFHandler<dim> &dof_handler)
     if (is_hanging_node_constrained.is_element(dof))
       AssertThrow(constraints.is_constrained(dof), ExcInternalError());
 
-  AssertThrow(is_hanging_node_constrained.n_elements() ==
-                constraints.n_constraints(),
-              ExcInternalError());
+  AssertThrow(is_hanging_node_constrained.n_elements() == constraints.n_constraints(), ExcInternalError());
 
   deallog << "OK" << std::endl;
 }
@@ -88,8 +85,7 @@ check(const FiniteElement<dim> &fe, const std::string &name)
   for (unsigned int ref = 0; ref < 2; ++ref)
     {
       for (auto &cell : tria.active_cell_iterators())
-        if (cell->is_locally_owned() && cell->center()(0) < .5 &&
-            cell->center()(1) < .5)
+        if (cell->is_locally_owned() && cell->center()(0) < .5 && cell->center()(1) < .5)
           cell->set_refine_flag();
       tria.execute_coarsening_and_refinement();
     }

@@ -49,9 +49,7 @@ main(int argc, char **argv)
   // N random points in the box.
   const unsigned int    N = 100;
   std::vector<Point<2>> points(N);
-  std::generate(points.begin(), points.end(), []() {
-    return random_point<2>();
-  });
+  std::generate(points.begin(), points.end(), []() { return random_point<2>(); });
 
   LinearPointRtree<2> linear_tree;
   linear_tree.insert(points.begin(), points.end());
@@ -75,17 +73,14 @@ main(int argc, char **argv)
   std::vector<Point<2>> nearest_rstar;
 
   linear_tree.query(bgi::nearest(p, k), std::back_inserter(nearest_linear));
-  quadratic_tree.query(bgi::nearest(p, k),
-                       std::back_inserter(nearest_quadratic));
+  quadratic_tree.query(bgi::nearest(p, k), std::back_inserter(nearest_quadratic));
   rstar_tree.query(bgi::nearest(p, k), std::back_inserter(nearest_rstar));
 
   AssertDimension(nearest_linear.size(), k);
   AssertDimension(nearest_quadratic.size(), k);
   AssertDimension(nearest_rstar.size(), k);
 
-  if (std::equal(nearest_linear.begin(),
-                 nearest_linear.end(),
-                 nearest_quadratic.begin()))
+  if (std::equal(nearest_linear.begin(), nearest_linear.end(), nearest_quadratic.begin()))
     deallog << "OK";
   else
     {
@@ -93,9 +88,7 @@ main(int argc, char **argv)
               << to_string(nearest_linear) << std::endl
               << to_string(nearest_quadratic) << std::endl;
     }
-  if (std::equal(nearest_linear.begin(),
-                 nearest_linear.end(),
-                 nearest_rstar.begin()))
+  if (std::equal(nearest_linear.begin(), nearest_linear.end(), nearest_rstar.begin()))
     deallog << "OK";
   else
     {

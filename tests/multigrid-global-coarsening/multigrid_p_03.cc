@@ -23,9 +23,7 @@
 
 template <int dim, typename Number = double>
 void
-test(const unsigned int n_refinements,
-     const unsigned int level,
-     const unsigned int fe_degree_fine)
+test(const unsigned int n_refinements, const unsigned int level, const unsigned int fe_degree_fine)
 {
   using VectorType = LinearAlgebra::distributed::Vector<Number>;
 
@@ -36,20 +34,16 @@ test(const unsigned int n_refinements,
   GridGenerator::subdivided_hyper_cube(tria, 2);
   tria.refine_global(n_refinements);
 
-  const auto level_degrees =
-    MGTransferGlobalCoarseningTools::create_polynomial_coarsening_sequence(
-      fe_degree_fine,
-      MGTransferGlobalCoarseningTools::PolynomialCoarseningSequenceType::
-        bisect);
+  const auto level_degrees = MGTransferGlobalCoarseningTools::create_polynomial_coarsening_sequence(
+    fe_degree_fine, MGTransferGlobalCoarseningTools::PolynomialCoarseningSequenceType::bisect);
 
   const unsigned int min_level = 0;
   const unsigned int max_level = level_degrees.size() - 1;
 
-  MGLevelObject<DoFHandler<dim>> dof_handlers(min_level, max_level, tria);
-  MGLevelObject<AffineConstraints<Number>> constraints(min_level, max_level);
-  MGLevelObject<MGTwoLevelTransfer<dim, VectorType>> transfers(min_level,
-                                                               max_level);
-  MGLevelObject<Operator<dim, Number>> operators(min_level, max_level);
+  MGLevelObject<DoFHandler<dim>>                     dof_handlers(min_level, max_level, tria);
+  MGLevelObject<AffineConstraints<Number>>           constraints(min_level, max_level);
+  MGLevelObject<MGTwoLevelTransfer<dim, VectorType>> transfers(min_level, max_level);
+  MGLevelObject<Operator<dim, Number>>               operators(min_level, max_level);
 
   std::unique_ptr<Mapping<dim>> mapping_;
 
@@ -79,13 +73,10 @@ test(const unsigned int n_refinements,
       const std::set<types::boundary_id> dirichlet_boundary = {0};
       MGConstrainedDoFs                  mg_constrained_dofs;
       mg_constrained_dofs.initialize(dof_handler);
-      mg_constrained_dofs.make_zero_boundary_constraints(dof_handler,
-                                                         dirichlet_boundary);
+      mg_constrained_dofs.make_zero_boundary_constraints(dof_handler, dirichlet_boundary);
 
       IndexSet relevant_dofs;
-      DoFTools::extract_locally_relevant_level_dofs(dof_handler,
-                                                    level,
-                                                    relevant_dofs);
+      DoFTools::extract_locally_relevant_level_dofs(dof_handler, level, relevant_dofs);
       constraint.reinit(relevant_dofs);
       constraint.add_lines(mg_constrained_dofs.get_boundary_indices(level));
       constraint.close();
@@ -98,16 +89,11 @@ test(const unsigned int n_refinements,
 
   // set up transfer operator
   for (unsigned int l = min_level; l < max_level; ++l)
-    transfers[l + 1].reinit(dof_handlers[l + 1],
-                            dof_handlers[l],
-                            constraints[l + 1],
-                            constraints[l],
-                            level,
-                            level);
+    transfers[l + 1].reinit(dof_handlers[l + 1], dof_handlers[l], constraints[l + 1], constraints[l], level, level);
 
-  MGTransferGlobalCoarsening<dim, VectorType> transfer(
-    transfers,
-    [&](const auto l, auto &vec) { operators[l].initialize_dof_vector(vec); });
+  MGTransferGlobalCoarsening<dim, VectorType> transfer(transfers, [&](const auto l, auto &vec) {
+    operators[l].initialize_dof_vector(vec);
+  });
 
   GMGParameters mg_data; // TODO
 
@@ -117,23 +103,14 @@ test(const unsigned int n_refinements,
 
   operators[max_level].rhs(src);
 
-  ReductionControl solver_control(
-    mg_data.maxiter, mg_data.abstol, mg_data.reltol, false, false);
+  ReductionControl solver_control(mg_data.maxiter, mg_data.abstol, mg_data.reltol, false, false);
 
-  mg_solve(solver_control,
-           dst,
-           src,
-           mg_data,
-           dof_handlers[max_level],
-           operators[max_level],
-           operators,
-           transfer);
+  mg_solve(solver_control, dst, src, mg_data, dof_handlers[max_level], operators[max_level], operators, transfer);
 
   constraints[max_level].distribute(dst);
 
-  deallog << dim << ' ' << fe_degree_fine << ' ' << n_refinements << ' '
-          << level << ' ' << dst.size() << ' ' << solver_control.last_step()
-          << std::endl;
+  deallog << dim << ' ' << fe_degree_fine << ' ' << n_refinements << ' ' << level << ' ' << dst.size() << ' '
+          << solver_control.last_step() << std::endl;
 
   return;
 
@@ -148,14 +125,10 @@ test(const unsigned int n_refinements,
       DataOut<dim> data_out;
 
       data_out.attach_dof_handler(dof_handlers[l]);
-      data_out.add_data_vector(
-        results[l],
-        "solution",
-        DataOut_DoFData<dim, dim>::DataVectorType::type_dof_data);
+      data_out.add_data_vector(results[l], "solution", DataOut_DoFData<dim, dim>::DataVectorType::type_dof_data);
       data_out.build_patches(*mapping_, 2);
 
-      std::ofstream output("test." + std::to_string(dim) + "." +
-                           std::to_string(counter) + "." + std::to_string(l) +
+      std::ofstream output("test." + std::to_string(dim) + "." + std::to_string(counter) + "." + std::to_string(l) +
                            ".vtk");
       data_out.write_vtk(output);
     }

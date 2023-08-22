@@ -41,10 +41,7 @@ calculate_volume_and_surface_area()
   Triangulation<dim> triangulation;
   const int          n_subdivisions = 12;
   const double       gridsize       = 2.07;
-  GridGenerator::subdivided_hyper_cube(triangulation,
-                                       n_subdivisions,
-                                       -gridsize / 2,
-                                       gridsize / 2);
+  GridGenerator::subdivided_hyper_cube(triangulation, n_subdivisions, -gridsize / 2, gridsize / 2);
 
 
   // Description of the immersed domain.
@@ -60,17 +57,15 @@ calculate_volume_and_surface_area()
     {
       // Create a box corresponding to the cell.
       std::pair<Point<dim>, Point<dim>> lower_upper_corner;
-      lower_upper_corner.first = cell->vertex(0);
-      lower_upper_corner.second =
-        cell->vertex(GeometryInfo<dim>::vertices_per_cell - 1);
+      lower_upper_corner.first  = cell->vertex(0);
+      lower_upper_corner.second = cell->vertex(GeometryInfo<dim>::vertices_per_cell - 1);
       const BoundingBox<dim> box(lower_upper_corner);
 
       // Generate immersed quadrature rules.
       quadrature_generator.generate(level_set, box);
 
       // Get the quadrature rules.
-      const Quadrature<dim> &inside_quadrature =
-        quadrature_generator.get_inside_quadrature();
+      const Quadrature<dim> &inside_quadrature = quadrature_generator.get_inside_quadrature();
       const NonMatching::ImmersedSurfaceQuadrature<dim> &surface_quadrature =
         quadrature_generator.get_surface_quadrature();
 

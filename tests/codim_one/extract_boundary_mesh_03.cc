@@ -36,14 +36,12 @@
 template <int s_dim, int spacedim>
 void
 test_vertices_orientation(
-  const Triangulation<s_dim, spacedim> &boundary_mesh,
+  const Triangulation<s_dim, spacedim>                                 &boundary_mesh,
   std::map<typename Triangulation<s_dim, spacedim>::cell_iterator,
-           typename Triangulation<s_dim + 1, spacedim>::face_iterator>
-    &surface_to_volume_mapping)
+           typename Triangulation<s_dim + 1, spacedim>::face_iterator> &surface_to_volume_mapping)
 {
-  typename Triangulation<s_dim, spacedim>::active_cell_iterator
-    cell = boundary_mesh.begin_active(),
-    endc = boundary_mesh.end();
+  typename Triangulation<s_dim, spacedim>::active_cell_iterator cell = boundary_mesh.begin_active(),
+                                                                endc = boundary_mesh.end();
   typename Triangulation<s_dim + 1, spacedim>::face_iterator face;
 
   for (; cell != endc; ++cell)
@@ -55,25 +53,20 @@ test_vertices_orientation(
       for (const unsigned int k : GeometryInfo<s_dim>::vertex_indices())
         {
           deallog << "  " << cell->vertex(k) << std::endl;
-          Assert(std::fabs(cell->vertex(k).distance(Point<spacedim>()) - 1) <
-                   1e-12,
-                 ExcInternalError());
+          Assert(std::fabs(cell->vertex(k).distance(Point<spacedim>()) - 1) < 1e-12, ExcInternalError());
         }
 
       deallog << "Volume face: " << face << " with vertices:" << std::endl;
       for (const unsigned int k : GeometryInfo<s_dim>::vertex_indices())
         {
           deallog << "  " << face->vertex(k) << std::endl;
-          Assert(std::fabs(face->vertex(k).distance(Point<spacedim>()) - 1) <
-                   1e-12,
-                 ExcInternalError());
+          Assert(std::fabs(face->vertex(k).distance(Point<spacedim>()) - 1) < 1e-12, ExcInternalError());
         }
 
 
       Point<spacedim> diff(face->center());
       diff -= cell->center();
-      AssertThrow(diff.square() < 1.e-15 * face->center().square(),
-                  ExcInternalError());
+      AssertThrow(diff.square() < 1.e-15 * face->center().square(), ExcInternalError());
     }
 }
 
@@ -98,16 +91,12 @@ main()
     const int dim = 3;
     deallog << "Testing hyper_ball in dim: " << dim << "..." << std::endl;
 
-    std::map<Triangulation<dim - 1, dim>::cell_iterator,
-             Triangulation<dim, dim>::face_iterator>
+    std::map<Triangulation<dim - 1, dim>::cell_iterator, Triangulation<dim, dim>::face_iterator>
                                  surface_to_volume_mapping;
     const SphericalManifold<dim> boundary_description;
     Triangulation<dim>           volume_mesh;
     GridGenerator::hyper_ball(volume_mesh);
-    for (Triangulation<dim>::active_cell_iterator cell =
-           volume_mesh.begin_active();
-         cell != volume_mesh.end();
-         ++cell)
+    for (Triangulation<dim>::active_cell_iterator cell = volume_mesh.begin_active(); cell != volume_mesh.end(); ++cell)
       for (const unsigned int f : GeometryInfo<dim>::face_indices())
         if (cell->at_boundary(f))
           cell->face(f)->set_all_boundary_ids(1);
@@ -119,8 +108,7 @@ main()
     Triangulation<dim - 1, dim>           boundary_mesh;
     boundary_mesh.set_manifold(1, surface_description);
 
-    surface_to_volume_mapping =
-      GridGenerator::extract_boundary_mesh(volume_mesh, boundary_mesh);
+    surface_to_volume_mapping = GridGenerator::extract_boundary_mesh(volume_mesh, boundary_mesh);
     deallog << volume_mesh.n_active_cells() << std::endl;
     deallog << boundary_mesh.n_active_cells() << std::endl;
     save_mesh(boundary_mesh);

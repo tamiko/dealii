@@ -65,8 +65,7 @@ check_support_points(const FiniteElement<dim> &fe)
               const double sf = fe.shape_value_component(i, p, d);
               deallog << ' ' << (int)rint(60 * sf);
 
-              const double diff =
-                std::abs(sf - vals.shape_value_component(i, k, d));
+              const double diff = std::abs(sf - vals.shape_value_component(i, k, d));
               if (diff > 1.e-12)
                 deallog << "Error values" << std::endl;
               Tensor<1, dim> grad = fe.shape_grad_component(i, p, d);

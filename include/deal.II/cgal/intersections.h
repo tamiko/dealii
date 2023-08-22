@@ -52,12 +52,11 @@ namespace CGALWrappers
    */
   template <int dim0, int dim1, int spacedim>
   std::vector<std::array<Point<spacedim>, dim1 + 1>>
-  compute_intersection_of_cells(
-    const typename Triangulation<dim0, spacedim>::cell_iterator &cell0,
-    const typename Triangulation<dim1, spacedim>::cell_iterator &cell1,
-    const Mapping<dim0, spacedim> &                              mapping0,
-    const Mapping<dim1, spacedim> &                              mapping1,
-    const double                                                 tol = 1e-9);
+  compute_intersection_of_cells(const typename Triangulation<dim0, spacedim>::cell_iterator &cell0,
+                                const typename Triangulation<dim1, spacedim>::cell_iterator &cell1,
+                                const Mapping<dim0, spacedim>                               &mapping0,
+                                const Mapping<dim1, spacedim>                               &mapping1,
+                                const double                                                 tol = 1e-9);
 
 
   /**
@@ -70,10 +69,9 @@ namespace CGALWrappers
    */
   template <int dim0, int dim1, int spacedim>
   std::vector<std::array<Point<spacedim>, dim1 + 1>>
-  compute_intersection_of_cells(
-    const ArrayView<const Point<spacedim>> &vertices0,
-    const ArrayView<const Point<spacedim>> &vertices1,
-    const double                            tol = 1e-9);
+  compute_intersection_of_cells(const ArrayView<const Point<spacedim>> &vertices0,
+                                const ArrayView<const Point<spacedim>> &vertices1,
+                                const double                            tol = 1e-9);
 
 } // namespace CGALWrappers
 

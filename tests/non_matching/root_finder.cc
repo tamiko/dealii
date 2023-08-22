@@ -35,8 +35,7 @@ using namespace NonMatching::internal::QuadratureGeneratorImplementation;
 // Use RootFinder to find the roots of the incoming functions over the interval
 // [0, 1]. Print the roots to deallog.
 void
-find_and_print_roots(
-  const std::vector<std::reference_wrapper<const Function<1>>> &functions)
+find_and_print_roots(const std::vector<std::reference_wrapper<const Function<1>>> &functions)
 {
   const BoundingBox<1> interval = create_unit_bounding_box<1>();
 
@@ -74,12 +73,11 @@ test_roots_sorted_not_duplicated()
       Tensor<1, 1> normal;
       normal[0] = 1;
       const Point<1> point(roots.at(i));
-      linear_functions.push_back(
-        Functions::SignedDistance::Plane<1>(point, normal));
+      linear_functions.push_back(Functions::SignedDistance::Plane<1>(point, normal));
     }
 
-  const std::vector<std::reference_wrapper<const Function<1>>> functions(
-    linear_functions.begin(), linear_functions.end());
+  const std::vector<std::reference_wrapper<const Function<1>>> functions(linear_functions.begin(),
+                                                                         linear_functions.end());
 
   find_and_print_roots(functions);
 }
@@ -106,8 +104,7 @@ public:
   };
 
   Tensor<1, 1>
-  gradient(const Point<1> &   point,
-           const unsigned int component = 0) const override
+  gradient(const Point<1> &point, const unsigned int component = 0) const override
   {
     Tensor<1, 1> grad;
     grad[0] = 2 * C * (point(0) - x_0);
@@ -116,8 +113,7 @@ public:
   };
 
   SymmetricTensor<2, 1>
-  hessian(const Point<1> &   point,
-          const unsigned int component = 0) const override
+  hessian(const Point<1> &point, const unsigned int component = 0) const override
   {
     SymmetricTensor<2, 1> grad;
     grad[0][0] = 2 * C;

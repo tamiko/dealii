@@ -45,8 +45,7 @@ test()
 
   // ghosts
   IndexSet local_relevant(global_size);
-  local_relevant.add_range(((myid + 1) % numproc + offset) * size,
-                           ((myid + 1) % numproc + offset + 1) * size);
+  local_relevant.add_range(((myid + 1) % numproc + offset) * size, ((myid + 1) % numproc + offset + 1) * size);
 
   deallog << "local" << std::endl;
   local_owned.print(deallog);
@@ -54,16 +53,14 @@ test()
   local_relevant.print(deallog);
 
   {
-    std::vector<unsigned int> owning_ranks_of_ghosts(
-      local_relevant.n_elements());
+    std::vector<unsigned int> owning_ranks_of_ghosts(local_relevant.n_elements());
 
-    Utilities::MPI::internal::ComputeIndexOwner::ConsensusAlgorithmsPayload
-      process(local_owned, local_relevant, comm, owning_ranks_of_ghosts, true);
+    Utilities::MPI::internal::ComputeIndexOwner::ConsensusAlgorithmsPayload process(
+      local_owned, local_relevant, comm, owning_ranks_of_ghosts, true);
 
-    Utilities::MPI::ConsensusAlgorithms::Selector<
-      std::vector<std::pair<types::global_dof_index, types::global_dof_index>>,
-      std::vector<unsigned int>>
-      consensus_algorithm;
+    Utilities::MPI::ConsensusAlgorithms::
+      Selector<std::vector<std::pair<types::global_dof_index, types::global_dof_index>>, std::vector<unsigned int>>
+        consensus_algorithm;
     consensus_algorithm.run(process, comm);
 
     deallog << "owning_ranks_of_ghosts:" << std::endl;

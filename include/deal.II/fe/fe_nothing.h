@@ -147,9 +147,7 @@ public:
    * $Q_1$ field will be forced to become zero at this interface. See also the
    * discussion in the general documentation of this class.
    */
-  FE_Nothing(const ReferenceCell &type,
-             const unsigned int   n_components = 1,
-             const bool           dominate     = false);
+  FE_Nothing(const ReferenceCell &type, const unsigned int n_components = 1, const bool dominate = false);
 
   /**
    * Same as above but for a hypercube reference-cell type.
@@ -191,48 +189,39 @@ public:
 
   virtual void
   fill_fe_values(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const CellSimilarity::Similarity                            cell_similarity,
-    const Quadrature<dim> &                                     quadrature,
-    const Mapping<dim, spacedim> &                              mapping,
-    const typename Mapping<dim, spacedim>::InternalDataBase &mapping_internal,
-    const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &                                                            mapping_data,
-    const typename FiniteElement<dim, spacedim>::InternalDataBase &fe_internal,
-    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim,
-                                                                       spacedim>
-      &output_data) const override;
+    const typename Triangulation<dim, spacedim>::cell_iterator                        &cell,
+    const CellSimilarity::Similarity                                                   cell_similarity,
+    const Quadrature<dim>                                                             &quadrature,
+    const Mapping<dim, spacedim>                                                      &mapping,
+    const typename Mapping<dim, spacedim>::InternalDataBase                           &mapping_internal,
+    const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>         &mapping_data,
+    const typename FiniteElement<dim, spacedim>::InternalDataBase                     &fe_internal,
+    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> &output_data) const override;
 
   using FiniteElement<dim, spacedim>::fill_fe_face_values;
 
   virtual void
   fill_fe_face_values(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const unsigned int                                          face_no,
-    const hp::QCollection<dim - 1> &                            quadrature,
-    const Mapping<dim, spacedim> &                              mapping,
-    const typename Mapping<dim, spacedim>::InternalDataBase &mapping_internal,
-    const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &                                                            mapping_data,
-    const typename FiniteElement<dim, spacedim>::InternalDataBase &fe_internal,
-    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim,
-                                                                       spacedim>
-      &output_data) const override;
+    const typename Triangulation<dim, spacedim>::cell_iterator                        &cell,
+    const unsigned int                                                                 face_no,
+    const hp::QCollection<dim - 1>                                                    &quadrature,
+    const Mapping<dim, spacedim>                                                      &mapping,
+    const typename Mapping<dim, spacedim>::InternalDataBase                           &mapping_internal,
+    const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>         &mapping_data,
+    const typename FiniteElement<dim, spacedim>::InternalDataBase                     &fe_internal,
+    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> &output_data) const override;
 
   virtual void
   fill_fe_subface_values(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const unsigned int                                          face_no,
-    const unsigned int                                          sub_no,
-    const Quadrature<dim - 1> &                                 quadrature,
-    const Mapping<dim, spacedim> &                              mapping,
-    const typename Mapping<dim, spacedim>::InternalDataBase &mapping_internal,
-    const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &                                                            mapping_data,
-    const typename FiniteElement<dim, spacedim>::InternalDataBase &fe_internal,
-    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim,
-                                                                       spacedim>
-      &output_data) const override;
+    const typename Triangulation<dim, spacedim>::cell_iterator                        &cell,
+    const unsigned int                                                                 face_no,
+    const unsigned int                                                                 sub_no,
+    const Quadrature<dim - 1>                                                         &quadrature,
+    const Mapping<dim, spacedim>                                                      &mapping,
+    const typename Mapping<dim, spacedim>::InternalDataBase                           &mapping_internal,
+    const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>         &mapping_data,
+    const typename FiniteElement<dim, spacedim>::InternalDataBase                     &fe_internal,
+    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> &output_data) const override;
 
   /**
    * Prepare internal data structures and fill in values independent of the
@@ -243,15 +232,12 @@ public:
    * In the current case, this function just returns a default pointer, since
    * no meaningful data exists for this element.
    */
-  virtual std::unique_ptr<
-    typename FiniteElement<dim, spacedim>::InternalDataBase>
+  virtual std::unique_ptr<typename FiniteElement<dim, spacedim>::InternalDataBase>
   get_data(
-    const UpdateFlags             update_flags,
-    const Mapping<dim, spacedim> &mapping,
-    const Quadrature<dim> &       quadrature,
-    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim,
-                                                                       spacedim>
-      &output_data) const override;
+    const UpdateFlags                                                                  update_flags,
+    const Mapping<dim, spacedim>                                                      &mapping,
+    const Quadrature<dim>                                                             &quadrature,
+    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> &output_data) const override;
 
   /**
    * @copydoc FiniteElement::compare_for_domination()
@@ -265,21 +251,18 @@ public:
    */
   virtual FiniteElementDomination::Domination
   compare_for_domination(const FiniteElement<dim, spacedim> &fe_other,
-                         const unsigned int codim = 0) const override final;
+                         const unsigned int                  codim = 0) const override final;
 
 
 
   virtual std::vector<std::pair<unsigned int, unsigned int>>
-  hp_vertex_dof_identities(
-    const FiniteElement<dim, spacedim> &fe_other) const override;
+  hp_vertex_dof_identities(const FiniteElement<dim, spacedim> &fe_other) const override;
 
   virtual std::vector<std::pair<unsigned int, unsigned int>>
-  hp_line_dof_identities(
-    const FiniteElement<dim, spacedim> &fe_other) const override;
+  hp_line_dof_identities(const FiniteElement<dim, spacedim> &fe_other) const override;
 
   virtual std::vector<std::pair<unsigned int, unsigned int>>
-  hp_quad_dof_identities(const FiniteElement<dim, spacedim> &fe_other,
-                         const unsigned int face_no = 0) const override;
+  hp_quad_dof_identities(const FiniteElement<dim, spacedim> &fe_other, const unsigned int face_no = 0) const override;
 
   virtual bool
   hp_constraints_are_implemented() const override;
@@ -290,9 +273,8 @@ public:
    * the interpolation matrix is necessarily empty.
    */
   virtual void
-  get_interpolation_matrix(
-    const FiniteElement<dim, spacedim> &source_fe,
-    FullMatrix<double> &                interpolation_matrix) const override;
+  get_interpolation_matrix(const FiniteElement<dim, spacedim> &source_fe,
+                           FullMatrix<double>                 &interpolation_matrix) const override;
 
   /**
    * Return the matrix interpolating from a face of one element to the face
@@ -305,8 +287,8 @@ public:
 
   virtual void
   get_face_interpolation_matrix(const FiniteElement<dim, spacedim> &source_fe,
-                                FullMatrix<double> &interpolation_matrix,
-                                const unsigned int  face_no = 0) const override;
+                                FullMatrix<double>                 &interpolation_matrix,
+                                const unsigned int                  face_no = 0) const override;
 
 
   /**
@@ -319,11 +301,10 @@ public:
    */
 
   virtual void
-  get_subface_interpolation_matrix(
-    const FiniteElement<dim, spacedim> &source_fe,
-    const unsigned int                  index,
-    FullMatrix<double> &                interpolation_matrix,
-    const unsigned int                  face_no = 0) const override;
+  get_subface_interpolation_matrix(const FiniteElement<dim, spacedim> &source_fe,
+                                   const unsigned int                  index,
+                                   FullMatrix<double>                 &interpolation_matrix,
+                                   const unsigned int                  face_no = 0) const override;
 
   /**
    * Return a list of constant modes of the element.

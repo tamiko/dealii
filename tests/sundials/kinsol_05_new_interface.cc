@@ -76,8 +76,7 @@ main()
   kinsol.reinit_vector = [N](VectorType &v) { v.reinit(N); };
 
   kinsol.residual = [](const VectorType &u, VectorType &F) {
-    deallog << "Evaluating the solution at u=(" << u[0] << ',' << u[1] << ')'
-            << std::endl;
+    deallog << "Evaluating the solution at u=(" << u[0] << ',' << u[1] << ')' << std::endl;
 
     F(0) = std::cos(u[0] + u[1]) - 1 + 2 * u[0];
     F(1) = std::sin(u[0] - u[1]) + 2 * u[1];
@@ -96,12 +95,10 @@ main()
 
   FullMatrix<double> J_inverse(2, 2);
 
-  kinsol.setup_jacobian = [&J_inverse](const VectorType &u,
-                                       const VectorType &F) {
+  kinsol.setup_jacobian = [&J_inverse](const VectorType &u, const VectorType &F) {
     // We don't do any kind of set-up in this program, but we can at least
     // say that we're here
-    deallog << "Setting up Jacobian system at u=(" << u[0] << ',' << u[1] << ')'
-            << std::endl;
+    deallog << "Setting up Jacobian system at u=(" << u[0] << ',' << u[1] << ')' << std::endl;
 
     FullMatrix<double> J(2, 2);
     J(0, 0) = -std::sin(u[0] + u[1]) + 2;
@@ -113,11 +110,8 @@ main()
   };
 
 
-  kinsol.solve_with_jacobian = [&J_inverse](const VectorType &rhs,
-                                            VectorType &      dst,
-                                            const double /*tolerance*/) {
-    deallog << "Solving Jacobian system with rhs=(" << rhs[0] << ',' << rhs[1]
-            << ')' << std::endl;
+  kinsol.solve_with_jacobian = [&J_inverse](const VectorType &rhs, VectorType &dst, const double /*tolerance*/) {
+    deallog << "Solving Jacobian system with rhs=(" << rhs[0] << ',' << rhs[1] << ')' << std::endl;
 
     J_inverse.vmult(dst, rhs);
   };

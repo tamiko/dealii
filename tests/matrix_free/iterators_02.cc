@@ -68,19 +68,16 @@ test()
     {
       const auto mf_index = matrix_free.get_matrix_free_cell_index(cell);
 
-      AssertThrow(cell == matrix_free.get_cell_iterator(
-                            mf_index / VectorizedArrayType::size(),
-                            mf_index % VectorizedArrayType::size()),
+      AssertThrow(cell == matrix_free.get_cell_iterator(mf_index / VectorizedArrayType::size(),
+                                                        mf_index % VectorizedArrayType::size()),
                   ExcInternalError());
     }
 
   deallog << "OK!" << std::endl;
 
   for (unsigned int i = 0; i < matrix_free.n_cell_batches(); ++i)
-    for (unsigned int v = 0; v < matrix_free.n_active_entries_per_cell_batch(i);
-         ++v)
-      AssertDimension(matrix_free.get_matrix_free_cell_index(
-                        matrix_free.get_cell_iterator(i, v)),
+    for (unsigned int v = 0; v < matrix_free.n_active_entries_per_cell_batch(i); ++v)
+      AssertDimension(matrix_free.get_matrix_free_cell_index(matrix_free.get_cell_iterator(i, v)),
                       i * VectorizedArrayType::size() + v);
 
   deallog << "OK!" << std::endl;

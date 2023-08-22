@@ -53,15 +53,13 @@ namespace internal
     double
     mu_or(double left, double right)
     {
-      return static_cast<double>((mu_round(left) != 0) ||
-                                 (mu_round(right) != 0));
+      return static_cast<double>((mu_round(left) != 0) || (mu_round(right) != 0));
     }
 
     double
     mu_and(double left, double right)
     {
-      return static_cast<double>((mu_round(left) != 0) &&
-                                 (mu_round(right) != 0));
+      return static_cast<double>((mu_round(left) != 0) && (mu_round(right) != 0));
     }
 
     double
@@ -151,8 +149,8 @@ namespace internal
       static std::mutex                rand_mutex;
       std::lock_guard<std::mutex>      lock(rand_mutex);
       std::uniform_real_distribution<> uniform_distribution(0., 1.);
-      const unsigned int  seed = static_cast<unsigned long>(std::time(nullptr));
-      static std::mt19937 rng(seed);
+      const unsigned int               seed = static_cast<unsigned long>(std::time(nullptr));
+      static std::mt19937              rng(seed);
       return uniform_distribution(rng);
     }
 
@@ -233,11 +231,10 @@ namespace internal
 
     template <int dim, typename Number>
     void
-    ParserImplementation<dim, Number>::initialize(
-      const std::string &                  variables,
-      const std::vector<std::string> &     expressions,
-      const std::map<std::string, double> &constants,
-      const bool                           time_dependent)
+    ParserImplementation<dim, Number>::initialize(const std::string                   &variables,
+                                                  const std::vector<std::string>      &expressions,
+                                                  const std::map<std::string, double> &constants,
+                                                  const bool                           time_dependent)
     {
       this->parser_data.clear(); // this will reset all thread-local objects
 
@@ -325,29 +322,21 @@ namespace internal
 
               for (const auto &current_function_name : get_function_names())
                 {
-                  const unsigned int function_name_length =
-                    current_function_name.size();
+                  const unsigned int function_name_length = current_function_name.size();
 
                   std::string::size_type pos = 0;
                   while (true)
                     {
                       // try to find any occurrences of the function name
-                      pos =
-                        transformed_expression.find(current_function_name, pos);
+                      pos = transformed_expression.find(current_function_name, pos);
                       if (pos == std::string::npos)
                         break;
 
                       // replace whitespace until there no longer is any
-                      while (
-                        (pos + function_name_length <
-                         transformed_expression.size()) &&
-                        ((transformed_expression[pos + function_name_length] ==
-                          ' ') ||
-                         (transformed_expression[pos + function_name_length] ==
-                          '\t')))
-                        transformed_expression.erase(
-                          transformed_expression.begin() + pos +
-                          function_name_length);
+                      while ((pos + function_name_length < transformed_expression.size()) &&
+                             ((transformed_expression[pos + function_name_length] == ' ') ||
+                              (transformed_expression[pos + function_name_length] == '\t')))
+                        transformed_expression.erase(transformed_expression.begin() + pos + function_name_length);
 
                       // move the current search position by the size of the
                       // actual function name
@@ -375,9 +364,7 @@ namespace internal
 
     template <int dim, typename Number>
     Number
-    ParserImplementation<dim, Number>::do_value(const Point<dim> &p,
-                                                const double      time,
-                                                unsigned int component) const
+    ParserImplementation<dim, Number>::do_value(const Point<dim> &p, const double time, unsigned int component) const
     {
 #ifdef DEAL_II_WITH_MUPARSER
       Assert(this->initialized == true, ExcNotInitialized());
@@ -395,8 +382,7 @@ namespace internal
 
       try
         {
-          Assert(dynamic_cast<Parser *>(data.parsers[component].get()),
-                 ExcInternalError());
+          Assert(dynamic_cast<Parser *>(data.parsers[component].get()), ExcInternalError());
           // NOLINTNEXTLINE don't warn about using static_cast once we check
           mu::Parser &parser = static_cast<Parser &>(*data.parsers[component]);
           return parser.Eval();
@@ -422,10 +408,9 @@ namespace internal
 
     template <int dim, typename Number>
     void
-    ParserImplementation<dim, Number>::do_all_values(
-      const Point<dim> & p,
-      const double       time,
-      ArrayView<Number> &values) const
+    ParserImplementation<dim, Number>::do_all_values(const Point<dim>  &p,
+                                                     const double       time,
+                                                     ArrayView<Number> &values) const
     {
 #ifdef DEAL_II_WITH_MUPARSER
       Assert(this->initialized == true, ExcNotInitialized());
@@ -444,11 +429,9 @@ namespace internal
       AssertDimension(values.size(), data.parsers.size());
       try
         {
-          for (unsigned int component = 0; component < data.parsers.size();
-               ++component)
+          for (unsigned int component = 0; component < data.parsers.size(); ++component)
             {
-              Assert(dynamic_cast<Parser *>(data.parsers[component].get()),
-                     ExcInternalError());
+              Assert(dynamic_cast<Parser *>(data.parsers[component].get()), ExcInternalError());
               mu::Parser &parser =
                 // We just checked that the pointer is valid so suppress the
                 // clang-tidy check

@@ -68,8 +68,7 @@ test(std::ostream &out)
           // No colorize
           try
             {
-              GridGenerator::hyper_cube_with_cylindrical_hole(
-                tr, radii[i], radiiext[i], Ls[k], Nzs[l], false);
+              GridGenerator::hyper_cube_with_cylindrical_hole(tr, radii[i], radiiext[i], Ls[k], Nzs[l], false);
             }
           catch (...)
             {
@@ -83,8 +82,7 @@ test(std::ostream &out)
           out << "Colorize       ====================" << std::endl;
           try
             {
-              GridGenerator::hyper_cube_with_cylindrical_hole(
-                tr, radii[i], radiiext[i], Ls[k], Nzs[l], true);
+              GridGenerator::hyper_cube_with_cylindrical_hole(tr, radii[i], radiiext[i], Ls[k], Nzs[l], true);
             }
           catch (...)
             {

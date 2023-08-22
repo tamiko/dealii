@@ -29,14 +29,10 @@ test()
   const std::vector<double> values = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 
   // Check for Tensor<1,dim>
-  deallog << Tensor<1, dim>(
-               make_array_view(values.begin(), values.begin() + dim))
-          << std::endl;
+  deallog << Tensor<1, dim>(make_array_view(values.begin(), values.begin() + dim)) << std::endl;
 
   // Check for Tensor<2,dim>
-  deallog << Tensor<2, dim>(
-               make_array_view(values.begin(), values.begin() + dim * dim))
-          << std::endl;
+  deallog << Tensor<2, dim>(make_array_view(values.begin(), values.begin() + dim * dim)) << std::endl;
 }
 
 int

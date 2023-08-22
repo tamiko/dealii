@@ -43,34 +43,26 @@ check()
   for (unsigned int i = 0; i < estimated_error_per_cell.size(); ++i)
     estimated_error_per_cell(i) = i + 1;
 
-  GridRefinement::refine_and_coarsen_fixed_number(tria,
-                                                  estimated_error_per_cell,
-                                                  0.2,
-                                                  0.1);
+  GridRefinement::refine_and_coarsen_fixed_number(tria, estimated_error_per_cell, 0.2, 0.1);
 
   std::vector<bool> refined_cells(tria.n_active_cells() * dim);
   tria.save_refine_flags(refined_cells);
-  int n_refined_cells =
-    std::count(refined_cells.begin(), refined_cells.end(), true);
+  int n_refined_cells = std::count(refined_cells.begin(), refined_cells.end(), true);
 
   std::vector<bool> coarsened_cells(tria.n_active_cells() * dim);
   tria.save_coarsen_flags(coarsened_cells);
-  int n_coarsened_cells =
-    std::count(coarsened_cells.begin(), coarsened_cells.end(), true);
+  int n_coarsened_cells = std::count(coarsened_cells.begin(), coarsened_cells.end(), true);
 
   tria.execute_coarsening_and_refinement();
   int n_cells = tria.n_active_cells();
 
-  if (Utilities::MPI::max(n_refined_cells, MPI_COMM_WORLD) ==
-      Utilities::MPI::min(n_refined_cells, MPI_COMM_WORLD))
+  if (Utilities::MPI::max(n_refined_cells, MPI_COMM_WORLD) == Utilities::MPI::min(n_refined_cells, MPI_COMM_WORLD))
     deallog << "OK" << std::endl;
 
-  if (Utilities::MPI::max(n_coarsened_cells, MPI_COMM_WORLD) ==
-      Utilities::MPI::min(n_coarsened_cells, MPI_COMM_WORLD))
+  if (Utilities::MPI::max(n_coarsened_cells, MPI_COMM_WORLD) == Utilities::MPI::min(n_coarsened_cells, MPI_COMM_WORLD))
     deallog << "OK" << std::endl;
 
-  if (Utilities::MPI::max(n_cells, MPI_COMM_WORLD) ==
-      Utilities::MPI::min(n_cells, MPI_COMM_WORLD))
+  if (Utilities::MPI::max(n_cells, MPI_COMM_WORLD) == Utilities::MPI::min(n_cells, MPI_COMM_WORLD))
     deallog << "OK" << std::endl;
 }
 

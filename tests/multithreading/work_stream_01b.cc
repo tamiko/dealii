@@ -37,9 +37,7 @@ struct CopyData
 using IteratorType      = typename std::vector<unsigned int>::iterator;
 using IteratorRangeType = IteratorRange<IteratorType>;
 
-static_assert(
-  std::is_same_v<typename IteratorRangeType::iterator, IteratorType>,
-  "Iterator types not the same");
+static_assert(std::is_same_v<typename IteratorRangeType::iterator, IteratorType>, "Iterator types not the same");
 
 struct X
 {
@@ -67,8 +65,7 @@ test()
   const IteratorRangeType iterator_range(v.begin(), v.end());
 
   X x;
-  WorkStream::run(
-    iterator_range, x, &X::worker, &X::copier, ScratchData(), CopyData());
+  WorkStream::run(iterator_range, x, &X::worker, &X::copier, ScratchData(), CopyData());
 }
 
 

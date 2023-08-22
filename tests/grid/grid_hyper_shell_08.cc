@@ -56,8 +56,7 @@ check(double r1, double r2, unsigned int n)
 
   deallog << "Number of vertices at inner radius: " << n_r1 << std::endl;
   deallog << "Number of vertices at outer radius: " << n_r2 << std::endl;
-  deallog << "Number of vertices at other radius: " << n_other_radius
-          << std::endl;
+  deallog << "Number of vertices at other radius: " << n_other_radius << std::endl;
   deallog << std::endl;
 }
 

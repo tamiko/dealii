@@ -39,8 +39,7 @@ template <int dim>
 void
 test()
 {
-  Triangulation<dim> triangulation(
-    Triangulation<dim>::limit_level_difference_at_vertices);
+  Triangulation<dim> triangulation(Triangulation<dim>::limit_level_difference_at_vertices);
 
   GridGenerator::hyper_cube(triangulation);
   triangulation.refine_global(1);
@@ -56,23 +55,20 @@ test()
 
 
   unsigned int index = 0;
-  for (typename Triangulation<dim>::active_cell_iterator cell =
-         triangulation.begin_active();
+  for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
        cell != triangulation.end();
        ++cell, ++index)
     {
-      std::vector<typename Triangulation<dim>::active_cell_iterator>
-        patch_cells =
-          GridTools::get_patch_around_cell<Triangulation<dim>>(cell);
+      std::vector<typename Triangulation<dim>::active_cell_iterator> patch_cells =
+        GridTools::get_patch_around_cell<Triangulation<dim>>(cell);
 
-      Triangulation<dim> local_triangulation(
-        Triangulation<dim>::limit_level_difference_at_vertices);
-      std::map<typename Triangulation<dim>::active_cell_iterator,
-               typename Triangulation<dim>::active_cell_iterator>
+      Triangulation<dim> local_triangulation(Triangulation<dim>::limit_level_difference_at_vertices);
+      std::map<typename Triangulation<dim>::active_cell_iterator, typename Triangulation<dim>::active_cell_iterator>
         patch_to_global_tria_map;
 
-      GridTools::build_triangulation_from_patch<Triangulation<dim>>(
-        patch_cells, local_triangulation, patch_to_global_tria_map);
+      GridTools::build_triangulation_from_patch<Triangulation<dim>>(patch_cells,
+                                                                    local_triangulation,
+                                                                    patch_to_global_tria_map);
 
       deallog << "patch_cells " << cell << ": ";
       for (unsigned int i = 0; i < patch_cells.size(); ++i)
@@ -82,13 +78,11 @@ test()
       deallog << "local_triangulation " << cell << ": ";
       for (const auto &tria_cell : local_triangulation.active_cell_iterators())
         {
-          deallog << "   " << tria_cell << " user flag check:  "
-                  << (tria_cell->user_flag_set() ? " (+) " : " (-) ")
+          deallog << "   " << tria_cell << " user flag check:  " << (tria_cell->user_flag_set() ? " (+) " : " (-) ")
                   << std::endl;
           for (const unsigned int v : GeometryInfo<dim>::vertex_indices())
             {
-              deallog << "  vertices for cell  " << tria_cell << " : "
-                      << tria_cell->vertex(v) << std::endl;
+              deallog << "  vertices for cell  " << tria_cell << " : " << tria_cell->vertex(v) << std::endl;
             }
         }
     }

@@ -30,26 +30,23 @@ test(const MPI_Comm comm)
   using T1 = std::vector<unsigned int>;
   using T2 = std::vector<unsigned int>;
 
-  const auto sources =
-    dealii::Utilities::MPI::ConsensusAlgorithms::selector<T1, T2>(
-      /* target_processes: */
-      std::vector<unsigned int>{(my_rank + 1) % n_rank},
-      /* create_request: */
-      [my_rank](const unsigned int) { return T1({my_rank}); },
-      /* answer_request: */
-      [my_rank](const unsigned int other_rank, const T1 &request) {
-        AssertDimension(other_rank, request.front());
-        deallog << "ConsensusAlgorithmProcess::answer_request() passed!"
-                << std::endl;
-        return T2({my_rank});
-      },
-      /* process_answer: */
-      [](const unsigned int other_rank, const T2 &answer) {
-        AssertDimension(other_rank, answer.front());
-        deallog << "ConsensusAlgorithmProcess::function_read_answer() passed!"
-                << std::endl;
-      },
-      comm);
+  const auto sources = dealii::Utilities::MPI::ConsensusAlgorithms::selector<T1, T2>(
+    /* target_processes: */
+    std::vector<unsigned int>{(my_rank + 1) % n_rank},
+    /* create_request: */
+    [my_rank](const unsigned int) { return T1({my_rank}); },
+    /* answer_request: */
+    [my_rank](const unsigned int other_rank, const T1 &request) {
+      AssertDimension(other_rank, request.front());
+      deallog << "ConsensusAlgorithmProcess::answer_request() passed!" << std::endl;
+      return T2({my_rank});
+    },
+    /* process_answer: */
+    [](const unsigned int other_rank, const T2 &answer) {
+      AssertDimension(other_rank, answer.front());
+      deallog << "ConsensusAlgorithmProcess::function_read_answer() passed!" << std::endl;
+    },
+    comm);
 
   for (const auto &i : sources)
     deallog << i << ' ';

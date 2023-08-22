@@ -45,10 +45,7 @@
 
 
 
-template <int dim,
-          int fe_degree,
-          int n_q_points_1d = fe_degree + 1,
-          typename Number   = double>
+template <int dim, int fe_degree, int n_q_points_1d = fe_degree + 1, typename Number = double>
 class MatrixFreeTest
 {
 public:
@@ -66,35 +63,30 @@ public:
   void
   operator()(const MatrixFree<dim, Number> &data,
              VectorType &,
-             const VectorType &                           src,
+             const VectorType                            &src,
              const std::pair<unsigned int, unsigned int> &cell_range) const
   {
-    FEEvaluation<dim, fe_degree, fe_degree + 1, 1, Number> fe_eval0(data, 0, 0);
-    FEEvaluation<dim, fe_degree + 1, fe_degree + 2, 1, Number> fe_eval1(data,
-                                                                        1,
-                                                                        1);
-    std::vector<double>         reference_values0(fe_eval0.n_q_points);
-    std::vector<Tensor<1, dim>> reference_grads0(fe_eval0.n_q_points);
-    std::vector<Tensor<2, dim>> reference_hess0(fe_eval0.n_q_points);
-    std::vector<double>         reference_values1(fe_eval1.n_q_points);
-    std::vector<Tensor<1, dim>> reference_grads1(fe_eval1.n_q_points);
-    std::vector<Tensor<2, dim>> reference_hess1(fe_eval1.n_q_points);
+    FEEvaluation<dim, fe_degree, fe_degree + 1, 1, Number>     fe_eval0(data, 0, 0);
+    FEEvaluation<dim, fe_degree + 1, fe_degree + 2, 1, Number> fe_eval1(data, 1, 1);
+    std::vector<double>                                        reference_values0(fe_eval0.n_q_points);
+    std::vector<Tensor<1, dim>>                                reference_grads0(fe_eval0.n_q_points);
+    std::vector<Tensor<2, dim>>                                reference_hess0(fe_eval0.n_q_points);
+    std::vector<double>                                        reference_values1(fe_eval1.n_q_points);
+    std::vector<Tensor<1, dim>>                                reference_grads1(fe_eval1.n_q_points);
+    std::vector<Tensor<2, dim>>                                reference_hess1(fe_eval1.n_q_points);
     for (unsigned int cell = cell_range.first; cell < cell_range.second; ++cell)
       {
         fe_eval0.reinit(cell);
         fe_eval0.read_dof_values(src[0]);
-        fe_eval0.evaluate(EvaluationFlags::values | EvaluationFlags::gradients |
-                          EvaluationFlags::hessians);
+        fe_eval0.evaluate(EvaluationFlags::values | EvaluationFlags::gradients | EvaluationFlags::hessians);
 
         fe_eval1.reinit(cell);
         fe_eval1.read_dof_values(src[1]);
-        fe_eval1.evaluate(EvaluationFlags::values | EvaluationFlags::gradients |
-                          EvaluationFlags::hessians);
+        fe_eval1.evaluate(EvaluationFlags::values | EvaluationFlags::gradients | EvaluationFlags::hessians);
 
         // compare values with the ones the FEValues
         // gives us. Those are seen as reference
-        for (unsigned int j = 0; j < data.n_active_entries_per_cell_batch(cell);
-             ++j)
+        for (unsigned int j = 0; j < data.n_active_entries_per_cell_batch(cell); ++j)
           {
             // FE 0
             fe_val0.reinit(data.get_cell_iterator(cell, j, 0));
@@ -104,13 +96,10 @@ public:
 
             for (int q = 0; q < (int)fe_eval0.n_q_points; ++q)
               {
-                errors[0] +=
-                  std::fabs(fe_eval0.get_value(q)[j] - reference_values0[q]);
+                errors[0] += std::fabs(fe_eval0.get_value(q)[j] - reference_values0[q]);
                 for (unsigned int d = 0; d < dim; ++d)
-                  errors[1] += std::fabs(fe_eval0.get_gradient(q)[d][j] -
-                                         reference_grads0[q][d]);
-                errors[2] += std::fabs(fe_eval0.get_laplacian(q)[j] -
-                                       trace(reference_hess0[q]));
+                  errors[1] += std::fabs(fe_eval0.get_gradient(q)[d][j] - reference_grads0[q][d]);
+                errors[2] += std::fabs(fe_eval0.get_laplacian(q)[j] - trace(reference_hess0[q]));
                 total[0] += std::fabs(reference_values0[q]);
                 for (unsigned int d = 0; d < dim; ++d)
                   total[1] += std::fabs(reference_grads0[q][d]);
@@ -125,13 +114,10 @@ public:
 
             for (int q = 0; q < (int)fe_eval1.n_q_points; ++q)
               {
-                errors[3] +=
-                  std::fabs(fe_eval1.get_value(q)[j] - reference_values1[q]);
+                errors[3] += std::fabs(fe_eval1.get_value(q)[j] - reference_values1[q]);
                 for (unsigned int d = 0; d < dim; ++d)
-                  errors[4] += std::fabs(fe_eval1.get_gradient(q)[d][j] -
-                                         reference_grads1[q][d]);
-                errors[5] += std::fabs(fe_eval1.get_laplacian(q)[j] -
-                                       trace(reference_hess1[q]));
+                  errors[4] += std::fabs(fe_eval1.get_gradient(q)[d][j] - reference_grads1[q][d]);
+                errors[5] += std::fabs(fe_eval1.get_laplacian(q)[j] - trace(reference_hess1[q]));
                 total[3] += std::fabs(reference_values1[q]);
                 for (unsigned int d = 0; d < dim; ++d)
                   total[4] += std::fabs(reference_grads1[q][d]);
@@ -150,11 +136,7 @@ public:
         total[i]  = 0;
       }
     VectorType dst_dummy;
-    data.cell_loop(
-      &MatrixFreeTest<dim, fe_degree, n_q_points_1d, Number>::operator(),
-      this,
-      dst_dummy,
-      src);
+    data.cell_loop(&MatrixFreeTest<dim, fe_degree, n_q_points_1d, Number>::operator(), this, dst_dummy, src);
 
     // for doubles, use a stricter condition then
     // for floats for the relative error size
@@ -162,10 +144,8 @@ public:
       {
         if (std::is_same_v<Number, double> == true)
           {
-            deallog << "Error function values FE " << i << ": "
-                    << errors[i * 3 + 0] / total[i * 3 + 0] << std::endl;
-            deallog << "Error function gradients FE " << i << ": "
-                    << errors[i * 3 + 1] / total[i * 3 + 1] << std::endl;
+            deallog << "Error function values FE " << i << ": " << errors[i * 3 + 0] / total[i * 3 + 0] << std::endl;
+            deallog << "Error function gradients FE " << i << ": " << errors[i * 3 + 1] / total[i * 3 + 1] << std::endl;
 
             // need to set quite a loose tolerance because
             // FEValues approximates Hessians with finite
@@ -175,21 +155,15 @@ public:
             // some elements, it might also be zero
             // (linear elements on quadrilaterals), so
             // need to check for division by 0, too.
-            const double output2 =
-              total[i * 3 + 2] == 0 ? 0. : errors[i * 3 + 2] / total[i * 3 + 2];
-            deallog << "Error function Laplacians FE " << i << ": " << output2
-                    << std::endl;
+            const double output2 = total[i * 3 + 2] == 0 ? 0. : errors[i * 3 + 2] / total[i * 3 + 2];
+            deallog << "Error function Laplacians FE " << i << ": " << output2 << std::endl;
           }
         else if (std::is_same_v<Number, float> == true)
           {
-            deallog << "Error function values FE " << i << ": "
-                    << errors[i * 3 + 0] / total[i * 3 + 0] << std::endl;
-            deallog << "Error function gradients FE " << i << ": "
-                    << errors[i * 3 + 1] / total[i * 3 + 1] << std::endl;
-            const double output2 =
-              total[i * 3 + 2] == 0 ? 0. : errors[i * 3 + 2] / total[i * 3 + 2];
-            deallog << "Error function Laplacians FE " << i << ": " << output2
-                    << std::endl;
+            deallog << "Error function values FE " << i << ": " << errors[i * 3 + 0] / total[i * 3 + 0] << std::endl;
+            deallog << "Error function gradients FE " << i << ": " << errors[i * 3 + 1] / total[i * 3 + 1] << std::endl;
+            const double output2 = total[i * 3 + 2] == 0 ? 0. : errors[i * 3 + 2] / total[i * 3 + 2];
+            deallog << "Error function Laplacians FE " << i << ": " << output2 << std::endl;
           }
       }
   };
@@ -233,8 +207,7 @@ test()
   dof[0] = &dof0;
   dof[1] = &dof1;
 
-  deallog << "Testing " << fe0.get_name() << " and " << fe1.get_name()
-          << std::endl;
+  deallog << "Testing " << fe0.get_name() << " and " << fe1.get_name() << std::endl;
   // std::cout << "Number of cells: " << tria.n_active_cells() << std::endl;
 
   std::vector<Vector<double>> src(dof.size());
@@ -280,8 +253,7 @@ test()
                    dof,
                    constraints,
                    quad,
-                   typename MatrixFree<dim, number>::AdditionalData(
-                     MatrixFree<dim, number>::AdditionalData::none));
+                   typename MatrixFree<dim, number>::AdditionalData(MatrixFree<dim, number>::AdditionalData::none));
   }
 
   MatrixFreeTest<dim, fe_degree, fe_degree + 1, number> mf(mf_data);

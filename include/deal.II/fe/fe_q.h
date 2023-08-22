@@ -621,16 +621,15 @@ public:
    * be vectors of length 1.
    */
   virtual void
-  convert_generalized_support_point_values_to_dof_values(
-    const std::vector<Vector<double>> &support_point_values,
-    std::vector<double> &              nodal_values) const override;
+  convert_generalized_support_point_values_to_dof_values(const std::vector<Vector<double>> &support_point_values,
+                                                         std::vector<double> &nodal_values) const override;
 
   /**
    * @copydoc FiniteElement::compare_for_domination()
    */
   virtual FiniteElementDomination::Domination
   compare_for_domination(const FiniteElement<dim, spacedim> &fe_other,
-                         const unsigned int codim = 0) const override final;
+                         const unsigned int                  codim = 0) const override final;
 };
 
 

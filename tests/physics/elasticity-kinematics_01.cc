@@ -59,9 +59,7 @@ test_kinematic_tensors()
   Vector<double> soln_t(dof_handler.n_dofs());
   Vector<double> soln_t1(dof_handler.n_dofs());
 
-  for (typename DoFHandler<dim>::active_cell_iterator cell =
-         dof_handler.begin_active();
-       cell != dof_handler.end();
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(); cell != dof_handler.end();
        ++cell)
     {
       for (const unsigned int v : GeometryInfo<dim>::vertex_indices())
@@ -84,9 +82,7 @@ test_kinematic_tensors()
   MappingQEulerian<dim> q1_mapping(1, dof_handler, soln_t);
   FEValues<dim>         fe_values_mapped(q1_mapping, fe, qf, update_gradients);
 
-  for (typename DoFHandler<dim>::active_cell_iterator cell =
-         dof_handler.begin_active();
-       cell != dof_handler.end();
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(); cell != dof_handler.end();
        ++cell)
     {
       fe_values.reinit(cell);
@@ -102,8 +98,7 @@ test_kinematic_tensors()
       fe_values[u_fe].get_function_gradients(soln_t1, qp_Grad_u_t1);
       fe_values[u_fe].get_function_gradients(dot_soln_t, qp_dot_Grad_u_t);
 
-      fe_values_mapped[u_fe].get_function_gradients(dot_soln_t,
-                                                    qp_dot_grad_u_t);
+      fe_values_mapped[u_fe].get_function_gradients(dot_soln_t, qp_dot_grad_u_t);
 
       for (unsigned int q_point = 0; q_point < n_q_points; ++q_point)
         {
@@ -117,54 +112,40 @@ test_kinematic_tensors()
 
           // Deformation gradient tensor
           const Tensor<2, dim> F_t1 = Kinematics::F(Grad_u_t1);
-          Assert((F_t1 - unit_symmetric_tensor<dim>()).norm() < tol,
-                 ExcMessage("Incorrect computation of F_t1"));
+          Assert((F_t1 - unit_symmetric_tensor<dim>()).norm() < tol, ExcMessage("Incorrect computation of F_t1"));
           const Tensor<2, dim> F = Kinematics::F(Grad_u);
-          Assert((F -
-                  (static_cast<Tensor<2, dim>>(unit_symmetric_tensor<dim>()) +
-                   Grad_u))
-                     .norm() < tol,
+          Assert((F - (static_cast<Tensor<2, dim>>(unit_symmetric_tensor<dim>()) + Grad_u)).norm() < tol,
                  ExcMessage("Incorrect computation of F"));
 
           // Volumetric / isochoric split of deformation gradient
-          Assert(determinant(F) != 1.0,
-                 ExcMessage("No volume change - cannot test vol/iso split"));
-          Assert(std::abs(determinant(Kinematics::F_iso(F)) - 1.0) < tol,
-                 ExcMessage("F_iso is not volume preserving"));
-          Assert(std::abs(determinant(Kinematics::F_vol(F)) - determinant(F)) <
-                   tol,
+          Assert(determinant(F) != 1.0, ExcMessage("No volume change - cannot test vol/iso split"));
+          Assert(std::abs(determinant(Kinematics::F_iso(F)) - 1.0) < tol, ExcMessage("F_iso is not volume preserving"));
+          Assert(std::abs(determinant(Kinematics::F_vol(F)) - determinant(F)) < tol,
                  ExcMessage("F_vol has no dilatating action"));
 
           // Right Cauchy-Green tensor
-          Assert((static_cast<Tensor<2, dim>>(Kinematics::C(F)) -
-                  transpose(F) * F)
-                     .norm() < tol,
+          Assert((static_cast<Tensor<2, dim>>(Kinematics::C(F)) - transpose(F) * F).norm() < tol,
                  ExcMessage("Incorrect computation of C"));
 
           // Left Cauchy-Green tensor
-          Assert((static_cast<Tensor<2, dim>>(Kinematics::b(F)) -
-                  F * transpose(F))
-                     .norm() < tol,
+          Assert((static_cast<Tensor<2, dim>>(Kinematics::b(F)) - F * transpose(F)).norm() < tol,
                  ExcMessage("Incorrect computation of b"));
 
           // Small strain tensor
-          Assert((static_cast<Tensor<2, dim>>(Kinematics::epsilon(Grad_u)) -
-                  0.5 * (Grad_u + transpose(Grad_u)))
+          Assert((static_cast<Tensor<2, dim>>(Kinematics::epsilon(Grad_u)) - 0.5 * (Grad_u + transpose(Grad_u)))
                      .norm() < tol,
                  ExcMessage("Incorrect computation of epsilon"));
 
           // Green-Lagrange strain tensor
           Assert((static_cast<Tensor<2, dim>>(Kinematics::E(F)) -
-                  0.5 *
-                    (Grad_u + transpose(Grad_u) + transpose(Grad_u) * Grad_u))
+                  0.5 * (Grad_u + transpose(Grad_u) + transpose(Grad_u) * Grad_u))
                      .norm() < tol,
                  ExcMessage("Incorrect computation of E"));
 
           // Almansi strain tensor
           // Holzapfel 2.82
           Assert((static_cast<Tensor<2, dim>>(Kinematics::e(F)) -
-                  transpose(invert(F)) *
-                    static_cast<Tensor<2, dim>>(Kinematics::E(F)) * invert(F))
+                  transpose(invert(F)) * static_cast<Tensor<2, dim>>(Kinematics::E(F)) * invert(F))
                      .norm() < tol,
                  ExcMessage("Incorrect computation of e"));
 
@@ -181,20 +162,16 @@ test_kinematic_tensors()
           const Tensor<2, dim> &dot_grad_u = qp_dot_grad_u_t[q_point];
 
           // Spatial velocity gradient
-          Assert((static_cast<Tensor<2, dim>>(Kinematics::l(F, F_dot)) -
-                  dot_grad_u)
-                     .norm() < tol,
+          Assert((static_cast<Tensor<2, dim>>(Kinematics::l(F, F_dot)) - dot_grad_u).norm() < tol,
                  ExcMessage("Incorrect computation of l"));
 
           // Rate of deformation tensor
-          Assert((static_cast<Tensor<2, dim>>(Kinematics::d(F, F_dot)) -
-                  0.5 * (dot_grad_u + transpose(dot_grad_u)))
+          Assert((static_cast<Tensor<2, dim>>(Kinematics::d(F, F_dot)) - 0.5 * (dot_grad_u + transpose(dot_grad_u)))
                      .norm() < tol,
                  ExcMessage("Incorrect computation of d"));
 
           // Rate of spin tensor
-          Assert((static_cast<Tensor<2, dim>>(Kinematics::w(F, F_dot)) -
-                  0.5 * (dot_grad_u - transpose(dot_grad_u)))
+          Assert((static_cast<Tensor<2, dim>>(Kinematics::w(F, F_dot)) - 0.5 * (dot_grad_u - transpose(dot_grad_u)))
                      .norm() < tol,
                  ExcMessage("Incorrect computation of w"));
         }

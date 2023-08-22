@@ -60,9 +60,7 @@ test()
     fe.push_back(FE_Q<dim>(QIterated<1>(QTrapezoid<1>(), i)));
 
   DoFHandler<dim> dof_handler(tr);
-  for (typename DoFHandler<dim>::cell_iterator cell = dof_handler.begin();
-       cell != dof_handler.end();
-       ++cell)
+  for (typename DoFHandler<dim>::cell_iterator cell = dof_handler.begin(); cell != dof_handler.end(); ++cell)
     if (cell->has_children() == false)
       cell->set_active_fe_index(cell->index() % fe.size());
 
@@ -79,9 +77,7 @@ test()
   cell->set_dof_values_by_interpolation(local, solution, 0);
 
   // for comparison purposes, also output the values of DoFs on all cells
-  for (typename DoFHandler<dim>::active_cell_iterator cell =
-         dof_handler.begin_active();
-       cell != dof_handler.end();
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(); cell != dof_handler.end();
        ++cell)
     {
       Vector<double> x(cell->get_fe().dofs_per_cell);

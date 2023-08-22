@@ -41,16 +41,15 @@ namespace internal
 {
   namespace FEPointEvaluation
   {
-    DeclException1(
-      ExcFEPointEvaluationAccessToUninitializedMappingField,
-      std::string,
-      << "You are requesting information from an FEPointEvaluation "
-      << "object for which this kind of information has not been computed. "
-      << "What information these objects compute is determined by the update_* "
-      << "flags you pass to MappingInfo() in the Constructor. Here, "
-      << "the operation you are attempting requires the <" << arg1
-      << "> flag to be set, but it was apparently not specified "
-      << "upon initialization.");
+    DeclException1(ExcFEPointEvaluationAccessToUninitializedMappingField,
+                   std::string,
+                   << "You are requesting information from an FEPointEvaluation "
+                   << "object for which this kind of information has not been computed. "
+                   << "What information these objects compute is determined by the update_* "
+                   << "flags you pass to MappingInfo() in the Constructor. Here, "
+                   << "the operation you are attempting requires the <" << arg1
+                   << "> flag to be set, but it was apparently not specified "
+                   << "upon initialization.");
 
     /**
      * Struct to distinguish between the value and gradient types of different
@@ -59,36 +58,25 @@ namespace internal
     template <int dim, int n_components, typename Number>
     struct EvaluatorTypeTraits
     {
-      using ScalarNumber =
-        typename internal::VectorizedArrayTrait<Number>::value_type;
-      using VectorizedArrayType =
-        typename dealii::internal::VectorizedArrayTrait<
-          Number>::vectorized_value_type;
-      using value_type        = Tensor<1, n_components, Number>;
-      using scalar_value_type = Tensor<1, n_components, ScalarNumber>;
-      using vectorized_value_type =
-        Tensor<1, n_components, VectorizedArrayType>;
-      using gradient_type = Tensor<1, n_components, Tensor<1, dim, Number>>;
-      using scalar_gradient_type =
-        Tensor<1, n_components, Tensor<1, dim, ScalarNumber>>;
-      using vectorized_gradient_type =
-        Tensor<1, n_components, Tensor<1, dim, VectorizedArrayType>>;
-      using interface_vectorized_gradient_type =
-        Tensor<1, dim, Tensor<1, n_components, VectorizedArrayType>>;
+      using ScalarNumber             = typename internal::VectorizedArrayTrait<Number>::value_type;
+      using VectorizedArrayType      = typename dealii::internal::VectorizedArrayTrait<Number>::vectorized_value_type;
+      using value_type               = Tensor<1, n_components, Number>;
+      using scalar_value_type        = Tensor<1, n_components, ScalarNumber>;
+      using vectorized_value_type    = Tensor<1, n_components, VectorizedArrayType>;
+      using gradient_type            = Tensor<1, n_components, Tensor<1, dim, Number>>;
+      using scalar_gradient_type     = Tensor<1, n_components, Tensor<1, dim, ScalarNumber>>;
+      using vectorized_gradient_type = Tensor<1, n_components, Tensor<1, dim, VectorizedArrayType>>;
+      using interface_vectorized_gradient_type = Tensor<1, dim, Tensor<1, n_components, VectorizedArrayType>>;
 
       static void
-      read_value(const ScalarNumber vector_entry,
-                 const unsigned int component,
-                 scalar_value_type &result)
+      read_value(const ScalarNumber vector_entry, const unsigned int component, scalar_value_type &result)
       {
         AssertIndexRange(component, n_components);
         result[component] = vector_entry;
       }
 
       static void
-      write_value(VectorizedArrayType &        vector_entry,
-                  const unsigned int           component,
-                  const vectorized_value_type &result)
+      write_value(VectorizedArrayType &vector_entry, const unsigned int component, const vectorized_value_type &result)
       {
         AssertIndexRange(component, n_components);
         vector_entry = result[component];
@@ -97,24 +85,21 @@ namespace internal
       static void
       set_gradient(const interface_vectorized_gradient_type &value,
                    const unsigned int                        vector_lane,
-                   gradient_type &                           result)
+                   gradient_type                            &result)
       {
         for (unsigned int i = 0; i < n_components; ++i)
           for (unsigned int d = 0; d < dim; ++d)
-            result[i][d] =
-              internal::VectorizedArrayTrait<Number>::get_from_vectorized(
-                value[d][i], vector_lane);
+            result[i][d] = internal::VectorizedArrayTrait<Number>::get_from_vectorized(value[d][i], vector_lane);
       }
 
       static void
       get_gradient(interface_vectorized_gradient_type &value,
                    const unsigned int                  vector_lane,
-                   const gradient_type &               result)
+                   const gradient_type                &result)
       {
         for (unsigned int i = 0; i < n_components; ++i)
           for (unsigned int d = 0; d < dim; ++d)
-            internal::VectorizedArrayTrait<Number>::get_from_vectorized(
-              value[d][i], vector_lane) = result[i][d];
+            internal::VectorizedArrayTrait<Number>::get_from_vectorized(value[d][i], vector_lane) = result[i][d];
       }
 
       static void
@@ -122,40 +107,31 @@ namespace internal
       {
         for (unsigned int i = 0; i < n_components; ++i)
           for (unsigned int d = 0; d < dim; ++d)
-            internal::VectorizedArrayTrait<Number>::get(value[i][d],
-                                                        vector_lane) = 0.;
+            internal::VectorizedArrayTrait<Number>::get(value[i][d], vector_lane) = 0.;
       }
 
       static void
-      set_value(const vectorized_value_type &value,
-                const unsigned int           vector_lane,
-                scalar_value_type &          result)
+      set_value(const vectorized_value_type &value, const unsigned int vector_lane, scalar_value_type &result)
       {
         for (unsigned int i = 0; i < n_components; ++i)
           result[i] = value[i][vector_lane];
       }
 
       static void
-      set_value(const vectorized_value_type &value,
-                const unsigned int,
-                vectorized_value_type &result)
+      set_value(const vectorized_value_type &value, const unsigned int, vectorized_value_type &result)
       {
         result = value;
       }
 
       static void
-      get_value(vectorized_value_type &  value,
-                const unsigned int       vector_lane,
-                const scalar_value_type &result)
+      get_value(vectorized_value_type &value, const unsigned int vector_lane, const scalar_value_type &result)
       {
         for (unsigned int i = 0; i < n_components; ++i)
           value[i][vector_lane] = result[i];
       }
 
       static void
-      get_value(vectorized_value_type &value,
-                const unsigned int,
-                const vectorized_value_type &result)
+      get_value(vectorized_value_type &value, const unsigned int, const vectorized_value_type &result)
       {
         value = result;
       }
@@ -164,51 +140,40 @@ namespace internal
       set_zero_value(value_type &value, const unsigned int vector_lane)
       {
         for (unsigned int i = 0; i < n_components; ++i)
-          internal::VectorizedArrayTrait<Number>::get(value[i], vector_lane) =
-            0.;
+          internal::VectorizedArrayTrait<Number>::get(value[i], vector_lane) = 0.;
       }
 
       static void
-      access(value_type &        value,
+      access(value_type         &value,
              const unsigned int  vector_lane,
              const unsigned int  component,
              const ScalarNumber &shape_value)
       {
-        internal::VectorizedArrayTrait<Number>::get(value[component],
-                                                    vector_lane) += shape_value;
+        internal::VectorizedArrayTrait<Number>::get(value[component], vector_lane) += shape_value;
       }
 
       static ScalarNumber
-      access(const value_type & value,
-             const unsigned int vector_lane,
-             const unsigned int component)
+      access(const value_type &value, const unsigned int vector_lane, const unsigned int component)
       {
-        return internal::VectorizedArrayTrait<Number>::get(value[component],
-                                                           vector_lane);
+        return internal::VectorizedArrayTrait<Number>::get(value[component], vector_lane);
       }
 
       static void
-      access(gradient_type &                     value,
+      access(gradient_type                      &value,
              const unsigned int                  vector_lane,
              const unsigned int                  component,
              const Tensor<1, dim, ScalarNumber> &shape_gradient)
       {
         for (unsigned int d = 0; d < dim; ++d)
-          internal::VectorizedArrayTrait<Number>::get(value[component][d],
-                                                      vector_lane) +=
-            shape_gradient[d];
+          internal::VectorizedArrayTrait<Number>::get(value[component][d], vector_lane) += shape_gradient[d];
       }
 
       static Tensor<1, dim, ScalarNumber>
-      access(const gradient_type &value,
-             const unsigned int   vector_lane,
-             const unsigned int   component)
+      access(const gradient_type &value, const unsigned int vector_lane, const unsigned int component)
       {
         Tensor<1, dim, ScalarNumber> result;
         for (unsigned int d = 0; d < dim; ++d)
-          result[d] =
-            internal::VectorizedArrayTrait<Number>::get(value[component][d],
-                                                        vector_lane);
+          result[d] = internal::VectorizedArrayTrait<Number>::get(value[component][d], vector_lane);
         return result;
       }
     };
@@ -216,11 +181,8 @@ namespace internal
     template <int dim, typename Number>
     struct EvaluatorTypeTraits<dim, 1, Number>
     {
-      using ScalarNumber =
-        typename internal::VectorizedArrayTrait<Number>::value_type;
-      using VectorizedArrayType =
-        typename dealii::internal::VectorizedArrayTrait<
-          Number>::vectorized_value_type;
+      using ScalarNumber             = typename internal::VectorizedArrayTrait<Number>::value_type;
+      using VectorizedArrayType      = typename dealii::internal::VectorizedArrayTrait<Number>::vectorized_value_type;
       using value_type               = Number;
       using scalar_value_type        = ScalarNumber;
       using vectorized_value_type    = VectorizedArrayType;
@@ -230,51 +192,39 @@ namespace internal
       using interface_vectorized_gradient_type = vectorized_gradient_type;
 
       static void
-      read_value(const ScalarNumber vector_entry,
-                 const unsigned int,
-                 scalar_value_type &result)
+      read_value(const ScalarNumber vector_entry, const unsigned int, scalar_value_type &result)
       {
         result = vector_entry;
       }
 
       static void
-      write_value(VectorizedArrayType &vector_entry,
-                  const unsigned int,
-                  const vectorized_value_type &result)
+      write_value(VectorizedArrayType &vector_entry, const unsigned int, const vectorized_value_type &result)
       {
         vector_entry = result;
       }
 
       static void
-      set_gradient(const vectorized_gradient_type &value,
-                   const unsigned int              vector_lane,
-                   scalar_gradient_type &          result)
+      set_gradient(const vectorized_gradient_type &value, const unsigned int vector_lane, scalar_gradient_type &result)
       {
         for (unsigned int d = 0; d < dim; ++d)
           result[d] = value[d][vector_lane];
       }
 
       static void
-      set_gradient(const vectorized_gradient_type &value,
-                   const unsigned int,
-                   vectorized_gradient_type &result)
+      set_gradient(const vectorized_gradient_type &value, const unsigned int, vectorized_gradient_type &result)
       {
         result = value;
       }
 
       static void
-      get_gradient(vectorized_gradient_type &  value,
-                   const unsigned int          vector_lane,
-                   const scalar_gradient_type &result)
+      get_gradient(vectorized_gradient_type &value, const unsigned int vector_lane, const scalar_gradient_type &result)
       {
         for (unsigned int d = 0; d < dim; ++d)
           value[d][vector_lane] = result[d];
       }
 
       static void
-      get_gradient(vectorized_gradient_type &value,
-                   const unsigned int,
-                   const vectorized_gradient_type &result)
+      get_gradient(vectorized_gradient_type &value, const unsigned int, const vectorized_gradient_type &result)
       {
         value = result;
       }
@@ -283,38 +233,29 @@ namespace internal
       set_zero_gradient(gradient_type &value, const unsigned int vector_lane)
       {
         for (unsigned int d = 0; d < dim; ++d)
-          internal::VectorizedArrayTrait<Number>::get(value[d], vector_lane) =
-            0.;
+          internal::VectorizedArrayTrait<Number>::get(value[d], vector_lane) = 0.;
       }
 
       static void
-      set_value(const vectorized_value_type &value,
-                const unsigned int           vector_lane,
-                scalar_value_type &          result)
+      set_value(const vectorized_value_type &value, const unsigned int vector_lane, scalar_value_type &result)
       {
         result = value[vector_lane];
       }
 
       static void
-      set_value(const vectorized_value_type &value,
-                const unsigned int,
-                vectorized_value_type &result)
+      set_value(const vectorized_value_type &value, const unsigned int, vectorized_value_type &result)
       {
         result = value;
       }
 
       static void
-      get_value(vectorized_value_type &  value,
-                const unsigned int       vector_lane,
-                const scalar_value_type &result)
+      get_value(vectorized_value_type &value, const unsigned int vector_lane, const scalar_value_type &result)
       {
         value[vector_lane] = result;
       }
 
       static void
-      get_value(vectorized_value_type &value,
-                const unsigned int,
-                const vectorized_value_type &result)
+      get_value(vectorized_value_type &value, const unsigned int, const vectorized_value_type &result)
       {
         value = result;
       }
@@ -326,43 +267,33 @@ namespace internal
       }
 
       static void
-      access(value_type &       value,
-             const unsigned int vector_lane,
-             const unsigned int,
-             const ScalarNumber &shape_value)
+      access(value_type &value, const unsigned int vector_lane, const unsigned int, const ScalarNumber &shape_value)
       {
-        internal::VectorizedArrayTrait<Number>::get(value, vector_lane) +=
-          shape_value;
+        internal::VectorizedArrayTrait<Number>::get(value, vector_lane) += shape_value;
       }
 
       static ScalarNumber
-      access(const value_type & value,
-             const unsigned int vector_lane,
-             const unsigned int)
+      access(const value_type &value, const unsigned int vector_lane, const unsigned int)
       {
         return internal::VectorizedArrayTrait<Number>::get(value, vector_lane);
       }
 
       static void
-      access(gradient_type &    value,
+      access(gradient_type     &value,
              const unsigned int vector_lane,
              const unsigned int,
              const scalar_gradient_type &shape_gradient)
       {
         for (unsigned int d = 0; d < dim; ++d)
-          internal::VectorizedArrayTrait<Number>::get(value[d], vector_lane) +=
-            shape_gradient[d];
+          internal::VectorizedArrayTrait<Number>::get(value[d], vector_lane) += shape_gradient[d];
       }
 
       static scalar_gradient_type
-      access(const gradient_type &value,
-             const unsigned int   vector_lane,
-             const unsigned int)
+      access(const gradient_type &value, const unsigned int vector_lane, const unsigned int)
       {
         scalar_gradient_type result;
         for (unsigned int d = 0; d < dim; ++d)
-          result[d] =
-            internal::VectorizedArrayTrait<Number>::get(value[d], vector_lane);
+          result[d] = internal::VectorizedArrayTrait<Number>::get(value[d], vector_lane);
         return result;
       }
     };
@@ -370,32 +301,24 @@ namespace internal
     template <int dim, typename Number>
     struct EvaluatorTypeTraits<dim, dim, Number>
     {
-      using ScalarNumber =
-        typename internal::VectorizedArrayTrait<Number>::value_type;
-      using VectorizedArrayType =
-        typename dealii::internal::VectorizedArrayTrait<
-          Number>::vectorized_value_type;
+      using ScalarNumber             = typename internal::VectorizedArrayTrait<Number>::value_type;
+      using VectorizedArrayType      = typename dealii::internal::VectorizedArrayTrait<Number>::vectorized_value_type;
       using value_type               = Tensor<1, dim, Number>;
       using scalar_value_type        = Tensor<1, dim, ScalarNumber>;
       using vectorized_value_type    = Tensor<1, dim, VectorizedArrayType>;
       using gradient_type            = Tensor<2, dim, Number>;
       using scalar_gradient_type     = Tensor<2, dim, ScalarNumber>;
       using vectorized_gradient_type = Tensor<2, dim, VectorizedArrayType>;
-      using interface_vectorized_gradient_type =
-        Tensor<1, dim, Tensor<1, dim, VectorizedArrayType>>;
+      using interface_vectorized_gradient_type = Tensor<1, dim, Tensor<1, dim, VectorizedArrayType>>;
 
       static void
-      read_value(const ScalarNumber vector_entry,
-                 const unsigned int component,
-                 scalar_value_type &result)
+      read_value(const ScalarNumber vector_entry, const unsigned int component, scalar_value_type &result)
       {
         result[component] = vector_entry;
       }
 
       static void
-      write_value(VectorizedArrayType &        vector_entry,
-                  const unsigned int           component,
-                  const vectorized_value_type &result)
+      write_value(VectorizedArrayType &vector_entry, const unsigned int component, const vectorized_value_type &result)
       {
         vector_entry = result[component];
       }
@@ -403,24 +326,21 @@ namespace internal
       static void
       set_gradient(const interface_vectorized_gradient_type &value,
                    const unsigned int                        vector_lane,
-                   gradient_type &                           result)
+                   gradient_type                            &result)
       {
         for (unsigned int i = 0; i < dim; ++i)
           for (unsigned int d = 0; d < dim; ++d)
-            result[i][d] =
-              internal::VectorizedArrayTrait<Number>::get_from_vectorized(
-                value[d][i], vector_lane);
+            result[i][d] = internal::VectorizedArrayTrait<Number>::get_from_vectorized(value[d][i], vector_lane);
       }
 
       static void
       get_gradient(interface_vectorized_gradient_type &value,
                    const unsigned int                  vector_lane,
-                   const gradient_type &               result)
+                   const gradient_type                &result)
       {
         for (unsigned int i = 0; i < dim; ++i)
           for (unsigned int d = 0; d < dim; ++d)
-            internal::VectorizedArrayTrait<Number>::get_from_vectorized(
-              value[d][i], vector_lane) = result[i][d];
+            internal::VectorizedArrayTrait<Number>::get_from_vectorized(value[d][i], vector_lane) = result[i][d];
       }
 
       static void
@@ -428,40 +348,31 @@ namespace internal
       {
         for (unsigned int i = 0; i < dim; ++i)
           for (unsigned int d = 0; d < dim; ++d)
-            internal::VectorizedArrayTrait<Number>::get(value[i][d],
-                                                        vector_lane) = 0.;
+            internal::VectorizedArrayTrait<Number>::get(value[i][d], vector_lane) = 0.;
       }
 
       static void
-      set_value(const vectorized_value_type &value,
-                const unsigned int           vector_lane,
-                scalar_value_type &          result)
+      set_value(const vectorized_value_type &value, const unsigned int vector_lane, scalar_value_type &result)
       {
         for (unsigned int i = 0; i < dim; ++i)
           result[i] = value[i][vector_lane];
       }
 
       static void
-      set_value(const vectorized_value_type &value,
-                const unsigned int,
-                vectorized_value_type &result)
+      set_value(const vectorized_value_type &value, const unsigned int, vectorized_value_type &result)
       {
         result = value;
       }
 
       static void
-      get_value(vectorized_value_type &  value,
-                const unsigned int       vector_lane,
-                const scalar_value_type &result)
+      get_value(vectorized_value_type &value, const unsigned int vector_lane, const scalar_value_type &result)
       {
         for (unsigned int i = 0; i < dim; ++i)
           value[i][vector_lane] = result[i];
       }
 
       static void
-      get_value(vectorized_value_type &value,
-                const unsigned int,
-                const vectorized_value_type &result)
+      get_value(vectorized_value_type &value, const unsigned int, const vectorized_value_type &result)
       {
         value = result;
       }
@@ -470,51 +381,40 @@ namespace internal
       set_zero_value(value_type &value, const unsigned int vector_lane)
       {
         for (unsigned int i = 0; i < dim; ++i)
-          internal::VectorizedArrayTrait<Number>::get(value[i], vector_lane) =
-            0.;
+          internal::VectorizedArrayTrait<Number>::get(value[i], vector_lane) = 0.;
       }
 
       static void
-      access(value_type &        value,
+      access(value_type         &value,
              const unsigned int  vector_lane,
              const unsigned int  component,
              const ScalarNumber &shape_value)
       {
-        internal::VectorizedArrayTrait<Number>::get(value[component],
-                                                    vector_lane) += shape_value;
+        internal::VectorizedArrayTrait<Number>::get(value[component], vector_lane) += shape_value;
       }
 
       static ScalarNumber
-      access(const value_type & value,
-             const unsigned int vector_lane,
-             const unsigned int component)
+      access(const value_type &value, const unsigned int vector_lane, const unsigned int component)
       {
-        return internal::VectorizedArrayTrait<Number>::get(value[component],
-                                                           vector_lane);
+        return internal::VectorizedArrayTrait<Number>::get(value[component], vector_lane);
       }
 
       static void
-      access(gradient_type &                     value,
+      access(gradient_type                      &value,
              const unsigned int                  vector_lane,
              const unsigned int                  component,
              const Tensor<1, dim, ScalarNumber> &shape_gradient)
       {
         for (unsigned int d = 0; d < dim; ++d)
-          internal::VectorizedArrayTrait<Number>::get(value[component][d],
-                                                      vector_lane) +=
-            shape_gradient[d];
+          internal::VectorizedArrayTrait<Number>::get(value[component][d], vector_lane) += shape_gradient[d];
       }
 
       static Tensor<1, dim, ScalarNumber>
-      access(const gradient_type &value,
-             const unsigned int   vector_lane,
-             const unsigned int   component)
+      access(const gradient_type &value, const unsigned int vector_lane, const unsigned int component)
       {
         Tensor<1, dim, ScalarNumber> result;
         for (unsigned int d = 0; d < dim; ++d)
-          result[d] =
-            internal::VectorizedArrayTrait<Number>::get(value[component][d],
-                                                        vector_lane);
+          result[d] = internal::VectorizedArrayTrait<Number>::get(value[component][d], vector_lane);
         return result;
       }
     };
@@ -522,11 +422,8 @@ namespace internal
     template <typename Number>
     struct EvaluatorTypeTraits<1, 1, Number>
     {
-      using ScalarNumber =
-        typename internal::VectorizedArrayTrait<Number>::value_type;
-      using VectorizedArrayType =
-        typename dealii::internal::VectorizedArrayTrait<
-          Number>::vectorized_value_type;
+      using ScalarNumber             = typename internal::VectorizedArrayTrait<Number>::value_type;
+      using VectorizedArrayType      = typename dealii::internal::VectorizedArrayTrait<Number>::vectorized_value_type;
       using value_type               = Number;
       using scalar_value_type        = ScalarNumber;
       using vectorized_value_type    = VectorizedArrayType;
@@ -536,49 +433,37 @@ namespace internal
       using interface_vectorized_gradient_type = vectorized_gradient_type;
 
       static void
-      read_value(const ScalarNumber vector_entry,
-                 const unsigned int,
-                 scalar_value_type &result)
+      read_value(const ScalarNumber vector_entry, const unsigned int, scalar_value_type &result)
       {
         result = vector_entry;
       }
 
       static void
-      write_value(VectorizedArrayType &vector_entry,
-                  const unsigned int,
-                  const vectorized_value_type &result)
+      write_value(VectorizedArrayType &vector_entry, const unsigned int, const vectorized_value_type &result)
       {
         vector_entry = result;
       }
 
       static void
-      set_gradient(const vectorized_gradient_type &value,
-                   const unsigned int              vector_lane,
-                   scalar_gradient_type &          result)
+      set_gradient(const vectorized_gradient_type &value, const unsigned int vector_lane, scalar_gradient_type &result)
       {
         result[0] = value[0][vector_lane];
       }
 
       static void
-      set_gradient(const vectorized_gradient_type &value,
-                   const unsigned int,
-                   vectorized_gradient_type &result)
+      set_gradient(const vectorized_gradient_type &value, const unsigned int, vectorized_gradient_type &result)
       {
         result = value;
       }
 
       static void
-      get_gradient(vectorized_gradient_type &  value,
-                   const unsigned int          vector_lane,
-                   const scalar_gradient_type &result)
+      get_gradient(vectorized_gradient_type &value, const unsigned int vector_lane, const scalar_gradient_type &result)
       {
         value[0][vector_lane] = result[0];
       }
 
       static void
-      get_gradient(vectorized_gradient_type &value,
-                   const unsigned int,
-                   const vectorized_gradient_type &result)
+      get_gradient(vectorized_gradient_type &value, const unsigned int, const vectorized_gradient_type &result)
       {
         value = result;
       }
@@ -590,33 +475,25 @@ namespace internal
       }
 
       static void
-      set_value(const vectorized_value_type &value,
-                const unsigned int           vector_lane,
-                scalar_value_type &          result)
+      set_value(const vectorized_value_type &value, const unsigned int vector_lane, scalar_value_type &result)
       {
         result = value[vector_lane];
       }
 
       static void
-      set_value(const vectorized_value_type &value,
-                const unsigned int,
-                vectorized_value_type &result)
+      set_value(const vectorized_value_type &value, const unsigned int, vectorized_value_type &result)
       {
         result = value;
       }
 
       static void
-      get_value(vectorized_value_type &  value,
-                const unsigned int       vector_lane,
-                const scalar_value_type &result)
+      get_value(vectorized_value_type &value, const unsigned int vector_lane, const scalar_value_type &result)
       {
         value[vector_lane] = result;
       }
 
       static void
-      get_value(vectorized_value_type &value,
-                const unsigned int,
-                const vectorized_value_type &result)
+      get_value(vectorized_value_type &value, const unsigned int, const vectorized_value_type &result)
       {
         value = result;
       }
@@ -628,49 +505,38 @@ namespace internal
       }
 
       static void
-      access(value_type &       value,
-             const unsigned int vector_lane,
-             const unsigned int,
-             const ScalarNumber &shape_value)
+      access(value_type &value, const unsigned int vector_lane, const unsigned int, const ScalarNumber &shape_value)
       {
-        internal::VectorizedArrayTrait<Number>::get(value, vector_lane) +=
-          shape_value;
+        internal::VectorizedArrayTrait<Number>::get(value, vector_lane) += shape_value;
       }
 
       static ScalarNumber
-      access(const value_type & value,
-             const unsigned int vector_lane,
-             const unsigned int)
+      access(const value_type &value, const unsigned int vector_lane, const unsigned int)
       {
         return internal::VectorizedArrayTrait<Number>::get(value, vector_lane);
       }
 
       static void
-      access(gradient_type &    value,
+      access(gradient_type     &value,
              const unsigned int vector_lane,
              const unsigned int,
              const scalar_gradient_type &shape_gradient)
       {
-        internal::VectorizedArrayTrait<Number>::get(value[0], vector_lane) +=
-          shape_gradient[0];
+        internal::VectorizedArrayTrait<Number>::get(value[0], vector_lane) += shape_gradient[0];
       }
 
       static scalar_gradient_type
-      access(const gradient_type &value,
-             const unsigned int   vector_lane,
-             const unsigned int)
+      access(const gradient_type &value, const unsigned int vector_lane, const unsigned int)
       {
         scalar_gradient_type result;
-        result[0] =
-          internal::VectorizedArrayTrait<Number>::get(value[0], vector_lane);
+        result[0] = internal::VectorizedArrayTrait<Number>::get(value[0], vector_lane);
         return result;
       }
     };
 
     template <int dim, int spacedim>
     bool
-    is_fast_path_supported(const FiniteElement<dim, spacedim> &fe,
-                           const unsigned int base_element_number);
+    is_fast_path_supported(const FiniteElement<dim, spacedim> &fe, const unsigned int base_element_number);
 
     template <int dim, int spacedim>
     bool
@@ -714,10 +580,7 @@ namespace internal
  * by this class is similar (or sometimes even somewhat lower) than using
  * `FEValues::reinit(cell)` followed by `FEValues::get_function_gradients`.
  */
-template <int n_components_,
-          int dim,
-          int spacedim    = dim,
-          typename Number = double>
+template <int n_components_, int dim, int spacedim = dim, typename Number = double>
 class FEPointEvaluation
 {
 public:
@@ -726,18 +589,14 @@ public:
 
   using number_type = Number;
 
-  using ScalarNumber =
-    typename internal::VectorizedArrayTrait<Number>::value_type;
-  using VectorizedArrayType = typename dealii::internal::VectorizedArrayTrait<
-    Number>::vectorized_value_type;
-  using ETT = typename internal::FEPointEvaluation::
-    EvaluatorTypeTraits<dim, n_components, Number>;
+  using ScalarNumber          = typename internal::VectorizedArrayTrait<Number>::value_type;
+  using VectorizedArrayType   = typename dealii::internal::VectorizedArrayTrait<Number>::vectorized_value_type;
+  using ETT                   = typename internal::FEPointEvaluation::EvaluatorTypeTraits<dim, n_components, Number>;
   using value_type            = typename ETT::value_type;
   using scalar_value_type     = typename ETT::scalar_value_type;
   using vectorized_value_type = typename ETT::vectorized_value_type;
   using gradient_type         = typename ETT::gradient_type;
-  using interface_vectorized_gradient_type =
-    typename ETT::interface_vectorized_gradient_type;
+  using interface_vectorized_gradient_type = typename ETT::interface_vectorized_gradient_type;
 
   /**
    * Constructor.
@@ -757,7 +616,7 @@ public:
    * objects, this parameter allows to select a range of `n_components`
    * components starting from this parameter.
    */
-  FEPointEvaluation(const Mapping<dim> &      mapping,
+  FEPointEvaluation(const Mapping<dim>       &mapping,
                     const FiniteElement<dim> &fe,
                     const UpdateFlags         update_flags,
                     const unsigned int        first_selected_component = 0);
@@ -778,10 +637,9 @@ public:
    * objects, this parameter allows to select a range of `n_components`
    * components starting from this parameter.
    */
-  FEPointEvaluation(
-    NonMatching::MappingInfo<dim, spacedim, Number> &mapping_info,
-    const FiniteElement<dim> &                       fe,
-    const unsigned int first_selected_component = 0);
+  FEPointEvaluation(NonMatching::MappingInfo<dim, spacedim, Number> &mapping_info,
+                    const FiniteElement<dim>                        &fe,
+                    const unsigned int                               first_selected_component = 0);
 
   /**
    * Copy constructor.
@@ -811,7 +669,7 @@ public:
    */
   void
   reinit(const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-         const ArrayView<const Point<dim>> &unit_points);
+         const ArrayView<const Point<dim>>                          &unit_points);
 
   /**
    * Reinitialize the evaluator to point to the correct precomputed mapping of
@@ -846,7 +704,7 @@ public:
    * evaluated at the points.
    */
   void
-  evaluate(const ArrayView<const ScalarNumber> &   solution_values,
+  evaluate(const ArrayView<const ScalarNumber>    &solution_values,
            const EvaluationFlags::EvaluationFlags &evaluation_flags);
 
   /**
@@ -868,8 +726,7 @@ public:
    *
    */
   void
-  integrate(const ArrayView<ScalarNumber> &         solution_values,
-            const EvaluationFlags::EvaluationFlags &integration_flags);
+  integrate(const ArrayView<ScalarNumber> &solution_values, const EvaluationFlags::EvaluationFlags &integration_flags);
 
   /**
    * This function multiplies the quantities passed in by previous
@@ -894,7 +751,7 @@ public:
    *
    */
   void
-  test_and_sum(const ArrayView<ScalarNumber> &         solution_values,
+  test_and_sum(const ArrayView<ScalarNumber>          &solution_values,
                const EvaluationFlags::EvaluationFlags &integration_flags);
 
   /**
@@ -1009,12 +866,9 @@ public:
   quadrature_point_indices() const;
 
 private:
-  static constexpr std::size_t n_lanes_user_interface =
-    internal::VectorizedArrayTrait<Number>::width();
-  static constexpr std::size_t n_lanes_internal =
-    internal::VectorizedArrayTrait<VectorizedArrayType>::width();
-  static constexpr std::size_t stride =
-    internal::VectorizedArrayTrait<Number>::stride();
+  static constexpr std::size_t n_lanes_user_interface = internal::VectorizedArrayTrait<Number>::width();
+  static constexpr std::size_t n_lanes_internal       = internal::VectorizedArrayTrait<VectorizedArrayType>::width();
+  static constexpr std::size_t stride                 = internal::VectorizedArrayTrait<Number>::stride();
 
   /**
    * Common setup function for both constructors. Does the setup for both fast
@@ -1040,34 +894,32 @@ private:
    * Interpolates onto face if face path is selected.
    */
   void
-  prepare_evaluate_fast(
-    const ArrayView<const ScalarNumber> &   solution_values,
-    const EvaluationFlags::EvaluationFlags &evaluation_flags);
+  prepare_evaluate_fast(const ArrayView<const ScalarNumber>    &solution_values,
+                        const EvaluationFlags::EvaluationFlags &evaluation_flags);
 
   /**
    * Evaluates the actual interpolation on the cell or face for a quadrature
    * batch.
    */
   void
-  compute_evaluate_fast(
-    const EvaluationFlags::EvaluationFlags &evaluation_flags,
-    const unsigned int                      n_shapes,
-    const unsigned int                      qb,
-    vectorized_value_type &                 value,
-    interface_vectorized_gradient_type &    gradient);
+  compute_evaluate_fast(const EvaluationFlags::EvaluationFlags &evaluation_flags,
+                        const unsigned int                      n_shapes,
+                        const unsigned int                      qb,
+                        vectorized_value_type                  &value,
+                        interface_vectorized_gradient_type     &gradient);
 
   /**
    * Fast path of the evaluate function.
    */
   void
-  evaluate_fast(const ArrayView<const ScalarNumber> &   solution_values,
+  evaluate_fast(const ArrayView<const ScalarNumber>    &solution_values,
                 const EvaluationFlags::EvaluationFlags &evaluation_flags);
 
   /**
    * Slow path of the evaluate function using FEValues.
    */
   void
-  evaluate_slow(const ArrayView<const ScalarNumber> &   solution_values,
+  evaluate_slow(const ArrayView<const ScalarNumber>    &solution_values,
                 const EvaluationFlags::EvaluationFlags &evaluation_flags);
 
   /**
@@ -1076,12 +928,11 @@ private:
    * cell or face for a given quadrature batch.
    */
   void
-  compute_integrate_fast(
-    const EvaluationFlags::EvaluationFlags &  integration_flags,
-    const unsigned int                        n_shapes,
-    const unsigned int                        qb,
-    const vectorized_value_type &             value,
-    const interface_vectorized_gradient_type &gradient);
+  compute_integrate_fast(const EvaluationFlags::EvaluationFlags   &integration_flags,
+                         const unsigned int                        n_shapes,
+                         const unsigned int                        qb,
+                         const vectorized_value_type              &value,
+                         const interface_vectorized_gradient_type &gradient);
 
   /**
    * Addition across the lanes of VectorizedArray as accumulated by the
@@ -1089,16 +940,15 @@ private:
    * Applies face contributions to cell contributions for face path.
    */
   void
-  finish_integrate_fast(
-    const ArrayView<ScalarNumber> &         solution_values,
-    const EvaluationFlags::EvaluationFlags &integration_flags);
+  finish_integrate_fast(const ArrayView<ScalarNumber>          &solution_values,
+                        const EvaluationFlags::EvaluationFlags &integration_flags);
 
   /**
    * Fast path of the integrate function.
    */
   template <bool do_JxW>
   void
-  integrate_fast(const ArrayView<ScalarNumber> &         solution_values,
+  integrate_fast(const ArrayView<ScalarNumber>          &solution_values,
                  const EvaluationFlags::EvaluationFlags &integration_flags);
 
   /**
@@ -1106,7 +956,7 @@ private:
    */
   template <bool do_JxW>
   void
-  integrate_slow(const ArrayView<ScalarNumber> &         solution_values,
+  integrate_slow(const ArrayView<ScalarNumber>          &solution_values,
                  const EvaluationFlags::EvaluationFlags &integration_flags);
 
   /**
@@ -1114,7 +964,7 @@ private:
    */
   template <bool do_JxW>
   void
-  do_integrate(const ArrayView<ScalarNumber> &         solution_values,
+  do_integrate(const ArrayView<ScalarNumber>          &solution_values,
                const EvaluationFlags::EvaluationFlags &integration_flags);
 
   /**
@@ -1283,8 +1133,7 @@ private:
   /**
    * Pointer to mapping info on the fly computed during reinit.
    */
-  std::unique_ptr<NonMatching::MappingInfo<dim, spacedim, Number>>
-    mapping_info_on_the_fly;
+  std::unique_ptr<NonMatching::MappingInfo<dim, spacedim, Number>> mapping_info_on_the_fly;
 
   /**
    * Pointer to currently used mapping info (either on the fly or external
@@ -1335,11 +1184,10 @@ private:
 
 
 template <int n_components_, int dim, int spacedim, typename Number>
-FEPointEvaluation<n_components_, dim, spacedim, Number>::FEPointEvaluation(
-  const Mapping<dim> &      mapping,
-  const FiniteElement<dim> &fe,
-  const UpdateFlags         update_flags,
-  const unsigned int        first_selected_component)
+FEPointEvaluation<n_components_, dim, spacedim, Number>::FEPointEvaluation(const Mapping<dim>       &mapping,
+                                                                           const FiniteElement<dim> &fe,
+                                                                           const UpdateFlags         update_flags,
+                                                                           const unsigned int first_selected_component)
   : n_q_points(numbers::invalid_unsigned_int)
   , n_q_points_scalar(numbers::invalid_unsigned_int)
   , mapping(&mapping)
@@ -1347,10 +1195,7 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::FEPointEvaluation(
   , JxW_ptr(nullptr)
   , use_face_path(false)
   , update_flags(update_flags)
-  , mapping_info_on_the_fly(
-      std::make_unique<NonMatching::MappingInfo<dim, spacedim, Number>>(
-        mapping,
-        update_flags))
+  , mapping_info_on_the_fly(std::make_unique<NonMatching::MappingInfo<dim, spacedim, Number>>(mapping, update_flags))
   , mapping_info(mapping_info_on_the_fly.get())
   , current_cell_index(numbers::invalid_unsigned_int)
   , current_face_number(numbers::invalid_unsigned_int)
@@ -1364,7 +1209,7 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::FEPointEvaluation(
 template <int n_components_, int dim, int spacedim, typename Number>
 FEPointEvaluation<n_components_, dim, spacedim, Number>::FEPointEvaluation(
   NonMatching::MappingInfo<dim, spacedim, Number> &mapping_info,
-  const FiniteElement<dim> &                       fe,
+  const FiniteElement<dim>                        &fe,
   const unsigned int                               first_selected_component)
   : n_q_points(numbers::invalid_unsigned_int)
   , n_q_points_scalar(numbers::invalid_unsigned_int)
@@ -1379,8 +1224,7 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::FEPointEvaluation(
   , is_reinitialized(false)
 {
   setup(first_selected_component);
-  connection_is_reinitialized = mapping_info.connect_is_reinitialized(
-    [this]() { this->is_reinitialized = false; });
+  connection_is_reinitialized = mapping_info.connect_is_reinitialized([this]() { this->is_reinitialized = false; });
 }
 
 
@@ -1409,9 +1253,7 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::FEPointEvaluation(
   , fe_values(other.fe_values)
   , mapping_info_on_the_fly(
       other.mapping_info_on_the_fly ?
-        std::make_unique<NonMatching::MappingInfo<dim, spacedim, Number>>(
-          *mapping,
-          update_flags) :
+        std::make_unique<NonMatching::MappingInfo<dim, spacedim, Number>>(*mapping, update_flags) :
         nullptr)
   , mapping_info(other.mapping_info)
   , current_cell_index(other.current_cell_index)
@@ -1421,8 +1263,7 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::FEPointEvaluation(
   , shapes(other.shapes)
   , shapes_faces(other.shapes_faces)
 {
-  connection_is_reinitialized = mapping_info->connect_is_reinitialized(
-    [this]() { this->is_reinitialized = false; });
+  connection_is_reinitialized = mapping_info->connect_is_reinitialized([this]() { this->is_reinitialized = false; });
 }
 
 
@@ -1458,8 +1299,7 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::FEPointEvaluation(
   , shapes(other.shapes)
   , shapes_faces(other.shapes_faces)
 {
-  connection_is_reinitialized = mapping_info->connect_is_reinitialized(
-    [this]() { this->is_reinitialized = false; });
+  connection_is_reinitialized = mapping_info->connect_is_reinitialized([this]() { this->is_reinitialized = false; });
 }
 
 
@@ -1474,11 +1314,9 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::~FEPointEvaluation()
 
 template <int n_components_, int dim, int spacedim, typename Number>
 void
-FEPointEvaluation<n_components_, dim, spacedim, Number>::setup(
-  const unsigned int first_selected_component)
+FEPointEvaluation<n_components_, dim, spacedim, Number>::setup(const unsigned int first_selected_component)
 {
-  AssertIndexRange(first_selected_component + n_components,
-                   fe->n_components() + 1);
+  AssertIndexRange(first_selected_component + n_components, fe->n_components() + 1);
 
   shapes.reserve(100);
 
@@ -1487,11 +1325,9 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::setup(
   component_in_base_element        = 0;
   unsigned int component           = 0;
   for (; base_element_number < fe->n_base_elements(); ++base_element_number)
-    if (component + fe->element_multiplicity(base_element_number) >
-        first_selected_component)
+    if (component + fe->element_multiplicity(base_element_number) > first_selected_component)
       {
-        if (first_selected_component + n_components >
-            component + fe->element_multiplicity(base_element_number))
+        if (first_selected_component + n_components > component + fe->element_multiplicity(base_element_number))
           same_base_element = false;
         component_in_base_element = first_selected_component - component;
         break;
@@ -1500,16 +1336,13 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::setup(
       component += fe->element_multiplicity(base_element_number);
 
   if (internal::FEPointEvaluation::is_fast_path_supported(*mapping) &&
-      internal::FEPointEvaluation::is_fast_path_supported(
-        *fe, base_element_number) &&
-      same_base_element)
+      internal::FEPointEvaluation::is_fast_path_supported(*fe, base_element_number) && same_base_element)
     {
       shape_info.reinit(QMidpoint<1>(), *fe, base_element_number);
       renumber                = shape_info.lexicographic_numbering;
       dofs_per_component      = shape_info.dofs_per_component_on_cell;
       dofs_per_component_face = shape_info.dofs_per_component_on_face;
-      poly = internal::FEPointEvaluation::get_polynomial_space(
-        fe->base_element(base_element_number));
+      poly = internal::FEPointEvaluation::get_polynomial_space(fe->base_element(base_element_number));
 
       bool is_lexicographic = true;
       for (unsigned int i = 0; i < renumber.size(); ++i)
@@ -1519,10 +1352,8 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::setup(
       if (is_lexicographic)
         renumber.clear();
 
-      polynomials_are_hat_functions =
-        (poly.size() == 2 && poly[0].value(0.) == 1. &&
-         poly[0].value(1.) == 0. && poly[1].value(0.) == 0. &&
-         poly[1].value(1.) == 1.);
+      polynomials_are_hat_functions = (poly.size() == 2 && poly[0].value(0.) == 1. && poly[0].value(1.) == 0. &&
+                                       poly[1].value(0.) == 0. && poly[1].value(1.) == 1.);
 
       const unsigned int size_face = 2 * dofs_per_component_face;
       const unsigned int size_cell = dofs_per_component;
@@ -1538,14 +1369,11 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::setup(
           const unsigned int component = first_selected_component + d;
           for (unsigned int i = 0; i < fe->n_dofs_per_cell(); ++i)
             {
-              const bool is_primitive =
-                fe->is_primitive() || fe->is_primitive(i);
+              const bool is_primitive = fe->is_primitive() || fe->is_primitive(i);
               if (is_primitive)
-                nonzero_shape_function_component[i][d] =
-                  (component == fe->system_to_component_index(i).first);
+                nonzero_shape_function_component[i][d] = (component == fe->system_to_component_index(i).first);
               else
-                nonzero_shape_function_component[i][d] =
-                  (fe->get_nonzero_components(i)[component] == true);
+                nonzero_shape_function_component[i][d] = (fe->get_nonzero_components(i)[component] == true);
             }
         }
 
@@ -1559,7 +1387,7 @@ template <int n_components_, int dim, int spacedim, typename Number>
 void
 FEPointEvaluation<n_components_, dim, spacedim, Number>::reinit(
   const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-  const ArrayView<const Point<dim>> &                         unit_points)
+  const ArrayView<const Point<dim>>                          &unit_points)
 {
   // reinit is only allowed for mapping computation on the fly
   AssertThrow(mapping_info_on_the_fly.get() != nullptr, ExcNotImplemented());
@@ -1569,11 +1397,7 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::reinit(
   if (!fast_path)
     {
       fe_values = std::make_shared<FEValues<dim, spacedim>>(
-        *mapping,
-        *fe,
-        Quadrature<dim>(
-          std::vector<Point<dim>>(unit_points.begin(), unit_points.end())),
-        update_flags);
+        *mapping, *fe, Quadrature<dim>(std::vector<Point<dim>>(unit_points.begin(), unit_points.end())), update_flags);
       fe_values->reinit(cell);
     }
 
@@ -1596,8 +1420,7 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::reinit()
 
 template <int n_components_, int dim, int spacedim, typename Number>
 void
-FEPointEvaluation<n_components_, dim, spacedim, Number>::reinit(
-  const unsigned int cell_index)
+FEPointEvaluation<n_components_, dim, spacedim, Number>::reinit(const unsigned int cell_index)
 {
   current_cell_index  = cell_index;
   current_face_number = numbers::invalid_unsigned_int;
@@ -1609,9 +1432,8 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::reinit(
 
 template <int n_components_, int dim, int spacedim, typename Number>
 void
-FEPointEvaluation<n_components_, dim, spacedim, Number>::reinit(
-  const unsigned int cell_index,
-  const unsigned int face_number)
+FEPointEvaluation<n_components_, dim, spacedim, Number>::reinit(const unsigned int cell_index,
+                                                                const unsigned int face_number)
 {
   current_cell_index  = cell_index;
   current_face_number = face_number;
@@ -1626,12 +1448,10 @@ inline void
 FEPointEvaluation<n_components_, dim, spacedim, Number>::do_reinit()
 {
   const_cast<unsigned int &>(n_q_points_scalar) =
-    mapping_info->get_n_q_points_unvectorized(current_cell_index,
-                                              current_face_number);
+    mapping_info->get_n_q_points_unvectorized(current_cell_index, current_face_number);
 
   // round up n_points_scalar / n_lanes_user_interface
-  const_cast<unsigned int &>(n_q_points) =
-    (n_q_points_scalar + n_lanes_user_interface - 1) / n_lanes_user_interface;
+  const_cast<unsigned int &>(n_q_points) = (n_q_points_scalar + n_lanes_user_interface - 1) / n_lanes_user_interface;
 
   if (update_flags & update_values)
     values.resize(n_q_points, numbers::signaling_nan<value_type>());
@@ -1650,21 +1470,16 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::do_reinit()
 
   // set unit point pointer
   const unsigned int unit_point_offset =
-    mapping_info->compute_unit_point_index_offset(current_cell_index,
-                                                  current_face_number);
+    mapping_info->compute_unit_point_index_offset(current_cell_index, current_face_number);
 
   if (use_face_path)
-    unit_point_faces_ptr =
-      mapping_info->get_unit_point_faces(unit_point_offset);
+    unit_point_faces_ptr = mapping_info->get_unit_point_faces(unit_point_offset);
   else
     unit_point_ptr = mapping_info->get_unit_point(unit_point_offset);
 
   // set data pointers
-  const UpdateFlags update_flags_mapping =
-    mapping_info->get_update_flags_mapping();
-  const unsigned int data_offset =
-    mapping_info->compute_data_index_offset(current_cell_index,
-                                            current_face_number);
+  const UpdateFlags  update_flags_mapping = mapping_info->get_update_flags_mapping();
+  const unsigned int data_offset = mapping_info->compute_data_index_offset(current_cell_index, current_face_number);
   if (update_flags_mapping & UpdateFlags::update_quadrature_points)
     real_point_ptr = mapping_info->get_real_point(data_offset);
   if (update_flags_mapping & UpdateFlags::update_jacobians)
@@ -1679,9 +1494,8 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::do_reinit()
   if (fast_path && !polynomials_are_hat_functions)
     {
       // round up n_q_points_scalar / n_lanes_internal
-      const std::size_t n_batches =
-        (n_q_points_scalar + n_lanes_internal - 1) / n_lanes_internal;
-      const std::size_t n_shapes = poly.size();
+      const std::size_t n_batches = (n_q_points_scalar + n_lanes_internal - 1) / n_lanes_internal;
+      const std::size_t n_shapes  = poly.size();
 
       for (unsigned int qb = 0; qb < n_batches; ++qb)
         if (use_face_path)
@@ -1689,21 +1503,19 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::do_reinit()
             if (dim > 1)
               {
                 shapes_faces.resize_fast(n_batches * n_shapes);
-                internal::compute_values_of_array(
-                  shapes_faces.data() + qb * n_shapes,
-                  poly,
-                  unit_point_faces_ptr[qb],
-                  update_flags & UpdateFlags::update_gradients ? 1 : 0);
+                internal::compute_values_of_array(shapes_faces.data() + qb * n_shapes,
+                                                  poly,
+                                                  unit_point_faces_ptr[qb],
+                                                  update_flags & UpdateFlags::update_gradients ? 1 : 0);
               }
           }
         else
           {
             shapes.resize_fast(n_batches * n_shapes);
-            internal::compute_values_of_array(
-              shapes.data() + qb * n_shapes,
-              poly,
-              unit_point_ptr[qb],
-              update_flags & UpdateFlags::update_gradients ? 1 : 0);
+            internal::compute_values_of_array(shapes.data() + qb * n_shapes,
+                                              poly,
+                                              unit_point_ptr[qb],
+                                              update_flags & UpdateFlags::update_gradients ? 1 : 0);
           }
     }
 
@@ -1715,7 +1527,7 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::do_reinit()
 template <int n_components_, int dim, int spacedim, typename Number>
 inline void
 FEPointEvaluation<n_components_, dim, spacedim, Number>::prepare_evaluate_fast(
-  const ArrayView<const ScalarNumber> &   solution_values,
+  const ArrayView<const ScalarNumber>    &solution_values,
   const EvaluationFlags::EvaluationFlags &evaluation_flags)
 {
   if (use_face_path)
@@ -1730,8 +1542,7 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::prepare_evaluate_fast(
     }
   for (unsigned int comp = 0; comp < n_components; ++comp)
     {
-      const std::size_t offset =
-        (component_in_base_element + comp) * dofs_per_component;
+      const std::size_t offset = (component_in_base_element + comp) * dofs_per_component;
 
       if (use_face_path)
         {
@@ -1750,16 +1561,10 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::prepare_evaluate_fast(
               input = scratch_data_scalar.data();
             }
 
-          ScalarNumber *output =
-            scratch_data_scalar.begin() + dofs_per_component;
+          ScalarNumber *output = scratch_data_scalar.begin() + dofs_per_component;
 
-          internal::FEFaceNormalEvaluationImpl<dim, -1, ScalarNumber>::
-            template interpolate<true, false>(1,
-                                              evaluation_flags,
-                                              shape_info,
-                                              input,
-                                              output,
-                                              current_face_number);
+          internal::FEFaceNormalEvaluationImpl<dim, -1, ScalarNumber>::template interpolate<true, false>(
+            1, evaluation_flags, shape_info, input, output, current_face_number);
 
           for (unsigned int i = 0; i < 2 * dofs_per_component_face; ++i)
             ETT::read_value(output[i], comp, solution_renumbered[i]);
@@ -1769,17 +1574,13 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::prepare_evaluate_fast(
           if (renumber.empty())
             {
               for (unsigned int i = 0; i < dofs_per_component; ++i)
-                ETT::read_value(solution_values[i + offset],
-                                comp,
-                                solution_renumbered[i]);
+                ETT::read_value(solution_values[i + offset], comp, solution_renumbered[i]);
             }
           else
             {
               const unsigned int *renumber_ptr = renumber.data() + offset;
               for (unsigned int i = 0; i < dofs_per_component; ++i)
-                ETT::read_value(solution_values[renumber_ptr[i]],
-                                comp,
-                                solution_renumbered[i]);
+                ETT::read_value(solution_values[renumber_ptr[i]], comp, solution_renumbered[i]);
             }
         }
     }
@@ -1797,8 +1598,8 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::compute_evaluate_fast(
   const EvaluationFlags::EvaluationFlags &evaluation_flags,
   const unsigned int                      n_shapes,
   const unsigned int                      qb,
-  vectorized_value_type &                 value,
-  interface_vectorized_gradient_type &    gradient)
+  vectorized_value_type                  &value,
+  interface_vectorized_gradient_type     &gradient)
 {
   if (use_face_path)
     {
@@ -1806,21 +1607,16 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::compute_evaluate_fast(
         {
           const std::array<vectorized_value_type, dim + 1> interpolated_value =
             polynomials_are_hat_functions ?
-              internal::evaluate_tensor_product_value_and_gradient_linear<
-                dim - 1,
-                scalar_value_type,
-                VectorizedArrayType,
-                2>(n_shapes,
-                   solution_renumbered.data(),
-                   unit_point_faces_ptr[qb]) :
-              internal::evaluate_tensor_product_value_and_gradient_shapes<
-                dim - 1,
-                scalar_value_type,
-                VectorizedArrayType,
-                2,
-                false>(shapes_faces.data() + qb * n_shapes,
-                       n_shapes,
-                       solution_renumbered.data());
+              internal::
+                evaluate_tensor_product_value_and_gradient_linear<dim - 1, scalar_value_type, VectorizedArrayType, 2>(
+                  n_shapes, solution_renumbered.data(), unit_point_faces_ptr[qb]) :
+              internal::evaluate_tensor_product_value_and_gradient_shapes<dim - 1,
+                                                                          scalar_value_type,
+                                                                          VectorizedArrayType,
+                                                                          2,
+                                                                          false>(shapes_faces.data() + qb * n_shapes,
+                                                                                 n_shapes,
+                                                                                 solution_renumbered.data());
 
           value = interpolated_value[dim - 1];
           // reorder derivative from tangential/normal derivatives into tensor
@@ -1863,20 +1659,12 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::compute_evaluate_fast(
         }
       else
         {
-          value = polynomials_are_hat_functions ?
-                    internal::evaluate_tensor_product_value_linear<
-                      dim - 1,
-                      scalar_value_type,
-                      VectorizedArrayType>(n_shapes,
-                                           solution_renumbered.data(),
-                                           unit_point_faces_ptr[qb]) :
-                    internal::evaluate_tensor_product_value_shapes<
-                      dim - 1,
-                      scalar_value_type,
-                      VectorizedArrayType,
-                      false>(shapes_faces.data() + qb * n_shapes,
-                             n_shapes,
-                             solution_renumbered.data());
+          value =
+            polynomials_are_hat_functions ?
+              internal::evaluate_tensor_product_value_linear<dim - 1, scalar_value_type, VectorizedArrayType>(
+                n_shapes, solution_renumbered.data(), unit_point_faces_ptr[qb]) :
+              internal::evaluate_tensor_product_value_shapes<dim - 1, scalar_value_type, VectorizedArrayType, false>(
+                shapes_faces.data() + qb * n_shapes, n_shapes, solution_renumbered.data());
         }
     }
   else
@@ -1885,16 +1673,16 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::compute_evaluate_fast(
         {
           const std::array<vectorized_value_type, dim + 1> result =
             polynomials_are_hat_functions ?
-              internal::evaluate_tensor_product_value_and_gradient_linear(
-                n_shapes, solution_renumbered.data(), unit_point_ptr[qb]) :
-              internal::evaluate_tensor_product_value_and_gradient_shapes<
-                dim,
-                scalar_value_type,
-                VectorizedArrayType,
-                1,
-                false>(shapes.data() + qb * n_shapes,
-                       n_shapes,
-                       solution_renumbered.data());
+              internal::evaluate_tensor_product_value_and_gradient_linear(n_shapes,
+                                                                          solution_renumbered.data(),
+                                                                          unit_point_ptr[qb]) :
+              internal::evaluate_tensor_product_value_and_gradient_shapes<dim,
+                                                                          scalar_value_type,
+                                                                          VectorizedArrayType,
+                                                                          1,
+                                                                          false>(shapes.data() + qb * n_shapes,
+                                                                                 n_shapes,
+                                                                                 solution_renumbered.data());
           gradient[0] = result[0];
           if (dim > 1)
             gradient[1] = result[1];
@@ -1906,15 +1694,9 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::compute_evaluate_fast(
         {
           value =
             polynomials_are_hat_functions ?
-              internal::evaluate_tensor_product_value_linear(
-                n_shapes, solution_renumbered.data(), unit_point_ptr[qb]) :
-              internal::evaluate_tensor_product_value_shapes<
-                dim,
-                scalar_value_type,
-                VectorizedArrayType,
-                false>(shapes.data() + qb * n_shapes,
-                       n_shapes,
-                       solution_renumbered.data());
+              internal::evaluate_tensor_product_value_linear(n_shapes, solution_renumbered.data(), unit_point_ptr[qb]) :
+              internal::evaluate_tensor_product_value_shapes<dim, scalar_value_type, VectorizedArrayType, false>(
+                shapes.data() + qb * n_shapes, n_shapes, solution_renumbered.data());
         }
     }
 }
@@ -1924,7 +1706,7 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::compute_evaluate_fast(
 template <int n_components_, int dim, int spacedim, typename Number>
 inline void
 FEPointEvaluation<n_components_, dim, spacedim, Number>::evaluate_fast(
-  const ArrayView<const ScalarNumber> &   solution_values,
+  const ArrayView<const ScalarNumber>    &solution_values,
   const EvaluationFlags::EvaluationFlags &evaluation_flags)
 {
   prepare_evaluate_fast(solution_values, evaluation_flags);
@@ -1933,33 +1715,25 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::evaluate_fast(
   const unsigned int                 n_shapes = poly.size();
   vectorized_value_type              value;
   interface_vectorized_gradient_type gradient;
-  for (unsigned int qb = 0, q = 0; q < n_q_points_scalar;
-       ++qb, q += n_lanes_internal)
+  for (unsigned int qb = 0, q = 0; q < n_q_points_scalar; ++qb, q += n_lanes_internal)
     {
       compute_evaluate_fast(evaluation_flags, n_shapes, qb, value, gradient);
 
       if (evaluation_flags & EvaluationFlags::values)
         {
-          for (unsigned int v = 0;
-               v < stride && (stride == 1 || q + v < n_q_points_scalar);
-               ++v)
+          for (unsigned int v = 0; v < stride && (stride == 1 || q + v < n_q_points_scalar); ++v)
             ETT::set_value(value, v, values[qb * stride + v]);
         }
       if (evaluation_flags & EvaluationFlags::gradients)
         {
-          Assert(update_flags & update_gradients ||
-                   update_flags & update_inverse_jacobians,
-                 ExcNotInitialized());
+          Assert(update_flags & update_gradients || update_flags & update_inverse_jacobians, ExcNotInitialized());
 
-          for (unsigned int v = 0;
-               v < stride && (stride == 1 || q + v < n_q_points_scalar);
-               ++v)
+          for (unsigned int v = 0; v < stride && (stride == 1 || q + v < n_q_points_scalar); ++v)
             {
               const unsigned int offset = qb * stride + v;
               ETT::set_gradient(gradient, v, unit_gradients[offset]);
               gradients[offset] =
-                apply_transformation(inverse_jacobian_ptr[offset].transpose(),
-                                     unit_gradients[offset]);
+                apply_transformation(inverse_jacobian_ptr[offset].transpose(), unit_gradients[offset]);
             }
         }
     }
@@ -1970,13 +1744,11 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::evaluate_fast(
 template <int n_components_, int dim, int spacedim, typename Number>
 inline void
 FEPointEvaluation<n_components_, dim, spacedim, Number>::evaluate_slow(
-  const ArrayView<const ScalarNumber> &   solution_values,
+  const ArrayView<const ScalarNumber>    &solution_values,
   const EvaluationFlags::EvaluationFlags &evaluation_flags)
 {
   // slow path with FEValues
-  Assert(fe_values.get() != nullptr,
-         ExcMessage(
-           "Not initialized. Please call FEPointEvaluation::reinit()!"));
+  Assert(fe_values.get() != nullptr, ExcMessage("Not initialized. Please call FEPointEvaluation::reinit()!"));
 
   const std::size_t n_points = fe_values->get_quadrature().size();
 
@@ -1988,28 +1760,14 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::evaluate_slow(
         {
           const ScalarNumber value = solution_values[i];
           for (unsigned int d = 0; d < n_components; ++d)
-            if (nonzero_shape_function_component[i][d] &&
-                (fe->is_primitive(i) || fe->is_primitive()))
-              for (unsigned int qb = 0, q = 0; q < n_points;
-                   ++qb, q += n_lanes_user_interface)
-                for (unsigned int v = 0;
-                     v < n_lanes_user_interface && q + v < n_points;
-                     ++v)
-                  ETT::access(values[qb],
-                              v,
-                              d,
-                              fe_values->shape_value(i, q + v) * value);
+            if (nonzero_shape_function_component[i][d] && (fe->is_primitive(i) || fe->is_primitive()))
+              for (unsigned int qb = 0, q = 0; q < n_points; ++qb, q += n_lanes_user_interface)
+                for (unsigned int v = 0; v < n_lanes_user_interface && q + v < n_points; ++v)
+                  ETT::access(values[qb], v, d, fe_values->shape_value(i, q + v) * value);
             else if (nonzero_shape_function_component[i][d])
-              for (unsigned int qb = 0, q = 0; q < n_points;
-                   ++qb, q += n_lanes_user_interface)
-                for (unsigned int v = 0;
-                     v < n_lanes_user_interface && q + v < n_points;
-                     ++v)
-                  ETT::access(values[qb],
-                              v,
-                              d,
-                              fe_values->shape_value_component(i, q + v, d) *
-                                value);
+              for (unsigned int qb = 0, q = 0; q < n_points; ++qb, q += n_lanes_user_interface)
+                for (unsigned int v = 0; v < n_lanes_user_interface && q + v < n_points; ++v)
+                  ETT::access(values[qb], v, d, fe_values->shape_value_component(i, q + v, d) * value);
         }
     }
 
@@ -2021,28 +1779,14 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::evaluate_slow(
         {
           const ScalarNumber value = solution_values[i];
           for (unsigned int d = 0; d < n_components; ++d)
-            if (nonzero_shape_function_component[i][d] &&
-                (fe->is_primitive(i) || fe->is_primitive()))
-              for (unsigned int qb = 0, q = 0; q < n_points;
-                   ++qb, q += n_lanes_user_interface)
-                for (unsigned int v = 0;
-                     v < n_lanes_user_interface && q + v < n_points;
-                     ++v)
-                  ETT::access(gradients[qb],
-                              v,
-                              d,
-                              fe_values->shape_grad(i, q + v) * value);
+            if (nonzero_shape_function_component[i][d] && (fe->is_primitive(i) || fe->is_primitive()))
+              for (unsigned int qb = 0, q = 0; q < n_points; ++qb, q += n_lanes_user_interface)
+                for (unsigned int v = 0; v < n_lanes_user_interface && q + v < n_points; ++v)
+                  ETT::access(gradients[qb], v, d, fe_values->shape_grad(i, q + v) * value);
             else if (nonzero_shape_function_component[i][d])
-              for (unsigned int qb = 0, q = 0; q < n_points;
-                   ++qb, q += n_lanes_user_interface)
-                for (unsigned int v = 0;
-                     v < n_lanes_user_interface && q + v < n_points;
-                     ++v)
-                  ETT::access(gradients[qb],
-                              v,
-                              d,
-                              fe_values->shape_grad_component(i, q + v, d) *
-                                value);
+              for (unsigned int qb = 0, q = 0; q < n_points; ++qb, q += n_lanes_user_interface)
+                for (unsigned int v = 0; v < n_lanes_user_interface && q + v < n_points; ++v)
+                  ETT::access(gradients[qb], v, d, fe_values->shape_grad_component(i, q + v, d) * value);
         }
     }
 }
@@ -2052,7 +1796,7 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::evaluate_slow(
 template <int n_components_, int dim, int spacedim, typename Number>
 void
 FEPointEvaluation<n_components_, dim, spacedim, Number>::evaluate(
-  const ArrayView<const ScalarNumber> &   solution_values,
+  const ArrayView<const ScalarNumber>    &solution_values,
   const EvaluationFlags::EvaluationFlags &evaluation_flags)
 {
   if (!is_reinitialized)
@@ -2079,10 +1823,10 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::evaluate(
 template <int n_components_, int dim, int spacedim, typename Number>
 inline void
 FEPointEvaluation<n_components_, dim, spacedim, Number>::compute_integrate_fast(
-  const EvaluationFlags::EvaluationFlags &  integration_flags,
+  const EvaluationFlags::EvaluationFlags   &integration_flags,
   const unsigned int                        n_shapes,
   const unsigned int                        qb,
-  const vectorized_value_type &             value,
+  const vectorized_value_type              &value,
   const interface_vectorized_gradient_type &gradient)
 {
   if (use_face_path)
@@ -2131,23 +1875,18 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::compute_integrate_fast(
           else
             Assert(false, ExcInternalError());
 
-          internal::integrate_tensor_product_value_and_gradient<
-            dim - 1,
-            VectorizedArrayType,
-            vectorized_value_type,
-            2>(shapes_faces.data() + qb * n_shapes,
-               n_shapes,
-               value_face.data(),
-               gradient_in_face,
-               solution_renumbered_vectorized.data(),
-               unit_point_faces_ptr[qb],
-               polynomials_are_hat_functions,
-               qb != 0);
+          internal::integrate_tensor_product_value_and_gradient<dim - 1, VectorizedArrayType, vectorized_value_type, 2>(
+            shapes_faces.data() + qb * n_shapes,
+            n_shapes,
+            value_face.data(),
+            gradient_in_face,
+            solution_renumbered_vectorized.data(),
+            unit_point_faces_ptr[qb],
+            polynomials_are_hat_functions,
+            qb != 0);
         }
       else
-        internal::integrate_tensor_product_value<dim - 1,
-                                                 VectorizedArrayType,
-                                                 vectorized_value_type>(
+        internal::integrate_tensor_product_value<dim - 1, VectorizedArrayType, vectorized_value_type>(
           shapes_faces.data() + qb * n_shapes,
           n_shapes,
           value,
@@ -2159,21 +1898,17 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::compute_integrate_fast(
   else
     {
       if (integration_flags & EvaluationFlags::gradients)
-        internal::integrate_tensor_product_value_and_gradient<
-          dim,
-          VectorizedArrayType,
-          vectorized_value_type>(shapes.data() + qb * n_shapes,
-                                 n_shapes,
-                                 &value,
-                                 gradient,
-                                 solution_renumbered_vectorized.data(),
-                                 unit_point_ptr[qb],
-                                 polynomials_are_hat_functions,
-                                 qb != 0);
+        internal::integrate_tensor_product_value_and_gradient<dim, VectorizedArrayType, vectorized_value_type>(
+          shapes.data() + qb * n_shapes,
+          n_shapes,
+          &value,
+          gradient,
+          solution_renumbered_vectorized.data(),
+          unit_point_ptr[qb],
+          polynomials_are_hat_functions,
+          qb != 0);
       else
-        internal::integrate_tensor_product_value<dim,
-                                                 VectorizedArrayType,
-                                                 vectorized_value_type>(
+        internal::integrate_tensor_product_value<dim, VectorizedArrayType, vectorized_value_type>(
           shapes.data() + qb * n_shapes,
           n_shapes,
           value,
@@ -2189,37 +1924,29 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::compute_integrate_fast(
 template <int n_components_, int dim, int spacedim, typename Number>
 inline void
 FEPointEvaluation<n_components_, dim, spacedim, Number>::finish_integrate_fast(
-  const ArrayView<ScalarNumber> &         solution_values,
+  const ArrayView<ScalarNumber>          &solution_values,
   const EvaluationFlags::EvaluationFlags &integration_flags)
 {
   std::fill(solution_values.begin(), solution_values.end(), ScalarNumber());
   for (unsigned int comp = 0; comp < n_components; ++comp)
     {
-      const std::size_t offset =
-        (component_in_base_element + comp) * dofs_per_component;
+      const std::size_t offset = (component_in_base_element + comp) * dofs_per_component;
 
       if (use_face_path)
         {
           const unsigned int size_input = 2 * dofs_per_component_face;
-          ScalarNumber *     input      = scratch_data_scalar.begin();
-          ScalarNumber *     output     = input + size_input;
+          ScalarNumber      *input      = scratch_data_scalar.begin();
+          ScalarNumber      *output     = input + size_input;
 
           for (unsigned int i = 0; i < 2 * dofs_per_component_face; ++i)
             {
               VectorizedArrayType vectorized_input;
-              ETT::write_value(vectorized_input,
-                               comp,
-                               solution_renumbered_vectorized[i]);
+              ETT::write_value(vectorized_input, comp, solution_renumbered_vectorized[i]);
               input[i] = vectorized_input.sum();
             }
 
-          internal::FEFaceNormalEvaluationImpl<dim, -1, ScalarNumber>::
-            template interpolate<false, false>(1,
-                                               integration_flags,
-                                               shape_info,
-                                               input,
-                                               output,
-                                               current_face_number);
+          internal::FEFaceNormalEvaluationImpl<dim, -1, ScalarNumber>::template interpolate<false, false>(
+            1, integration_flags, shape_info, input, output, current_face_number);
 
           if (renumber.empty())
             for (unsigned int i = 0; i < dofs_per_component; ++i)
@@ -2234,18 +1961,14 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::finish_integrate_fast(
             for (unsigned int i = 0; i < dofs_per_component; ++i)
               {
                 VectorizedArrayType result;
-                ETT::write_value(result,
-                                 comp,
-                                 solution_renumbered_vectorized[i]);
+                ETT::write_value(result, comp, solution_renumbered_vectorized[i]);
                 solution_values[i + offset] = result.sum();
               }
           else
             for (unsigned int i = 0; i < dofs_per_component; ++i)
               {
                 VectorizedArrayType result;
-                ETT::write_value(result,
-                                 comp,
-                                 solution_renumbered_vectorized[i]);
+                ETT::write_value(result, comp, solution_renumbered_vectorized[i]);
                 solution_values[renumber[i + offset]] = result.sum();
               }
         }
@@ -2258,7 +1981,7 @@ template <int n_components_, int dim, int spacedim, typename Number>
 template <bool do_JxW>
 inline void
 FEPointEvaluation<n_components_, dim, spacedim, Number>::integrate_fast(
-  const ArrayView<ScalarNumber> &         solution_values,
+  const ArrayView<ScalarNumber>          &solution_values,
   const EvaluationFlags::EvaluationFlags &integration_flags)
 {
   // fast path with tensor product integration
@@ -2275,11 +1998,9 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::integrate_fast(
 
   // loop over quadrature batches qb / points q
   const unsigned int n_shapes = poly.size();
-  for (unsigned int qb = 0, q = 0; q < n_q_points_scalar;
-       ++qb, q += n_lanes_internal)
+  for (unsigned int qb = 0, q = 0; q < n_q_points_scalar; ++qb, q += n_lanes_internal)
     {
-      const bool incomplete_last_batch =
-        q + n_lanes_user_interface > n_q_points_scalar;
+      const bool incomplete_last_batch = q + n_lanes_user_interface > n_q_points_scalar;
 
       vectorized_value_type                 value = {};
       Tensor<1, dim, vectorized_value_type> gradient;
@@ -2289,17 +2010,12 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::integrate_fast(
           // zero out lanes of incomplete last quadrature point batch
           if (incomplete_last_batch)
             {
-              const unsigned int n_filled_lanes_last_batch =
-                n_q_points_scalar % n_lanes_internal;
-              for (unsigned int v = n_filled_lanes_last_batch;
-                   v < n_lanes_internal;
-                   ++v)
+              const unsigned int n_filled_lanes_last_batch = n_q_points_scalar % n_lanes_internal;
+              for (unsigned int v = n_filled_lanes_last_batch; v < n_lanes_internal; ++v)
                 ETT::set_zero_value(values[qb], v);
             }
 
-          for (unsigned int v = 0;
-               v < stride && (stride == 1 || q + v < n_q_points_scalar);
-               ++v)
+          for (unsigned int v = 0; v < stride && (stride == 1 || q + v < n_q_points_scalar); ++v)
             {
               const unsigned int offset = qb * stride + v;
               if (do_JxW)
@@ -2312,26 +2028,17 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::integrate_fast(
           // zero out lanes of incomplete last quadrature point batch
           if (incomplete_last_batch)
             {
-              const unsigned int n_filled_lanes_last_batch =
-                n_q_points_scalar % n_lanes_internal;
-              for (unsigned int v = n_filled_lanes_last_batch;
-                   v < n_lanes_internal;
-                   ++v)
+              const unsigned int n_filled_lanes_last_batch = n_q_points_scalar % n_lanes_internal;
+              for (unsigned int v = n_filled_lanes_last_batch; v < n_lanes_internal; ++v)
                 ETT::set_zero_gradient(gradients[qb], v);
             }
 
-          for (unsigned int v = 0;
-               v < stride && (stride == 1 || q + v < n_q_points_scalar);
-               ++v)
+          for (unsigned int v = 0; v < stride && (stride == 1 || q + v < n_q_points_scalar); ++v)
             {
               const unsigned int offset = qb * stride + v;
               if (do_JxW)
                 gradients[offset] *= JxW_ptr[offset];
-              ETT::get_gradient(
-                gradient,
-                v,
-                apply_transformation(inverse_jacobian_ptr[offset],
-                                     gradients[offset]));
+              ETT::get_gradient(gradient, v, apply_transformation(inverse_jacobian_ptr[offset], gradients[offset]));
             }
         }
 
@@ -2348,13 +2055,11 @@ template <int n_components_, int dim, int spacedim, typename Number>
 template <bool do_JxW>
 inline void
 FEPointEvaluation<n_components_, dim, spacedim, Number>::integrate_slow(
-  const ArrayView<ScalarNumber> &         solution_values,
+  const ArrayView<ScalarNumber>          &solution_values,
   const EvaluationFlags::EvaluationFlags &integration_flags)
 {
   // slow path with FEValues
-  Assert(fe_values.get() != nullptr,
-         ExcMessage(
-           "Not initialized. Please call FEPointEvaluation::reinit()!"));
+  Assert(fe_values.get() != nullptr, ExcMessage("Not initialized. Please call FEPointEvaluation::reinit()!"));
   std::fill(solution_values.begin(), solution_values.end(), 0.0);
 
   const std::size_t n_points = fe_values->get_quadrature().size();
@@ -2365,26 +2070,16 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::integrate_slow(
       for (unsigned int i = 0; i < fe->n_dofs_per_cell(); ++i)
         {
           for (unsigned int d = 0; d < n_components; ++d)
-            if (nonzero_shape_function_component[i][d] &&
-                (fe->is_primitive(i) || fe->is_primitive()))
-              for (unsigned int qb = 0, q = 0; q < n_points;
-                   ++qb, q += n_lanes_user_interface)
-                for (unsigned int v = 0;
-                     v < n_lanes_user_interface && q + v < n_points;
-                     ++v)
-                  solution_values[i] += fe_values->shape_value(i, q + v) *
-                                        ETT::access(values[qb], v, d) *
+            if (nonzero_shape_function_component[i][d] && (fe->is_primitive(i) || fe->is_primitive()))
+              for (unsigned int qb = 0, q = 0; q < n_points; ++qb, q += n_lanes_user_interface)
+                for (unsigned int v = 0; v < n_lanes_user_interface && q + v < n_points; ++v)
+                  solution_values[i] += fe_values->shape_value(i, q + v) * ETT::access(values[qb], v, d) *
                                         (do_JxW ? fe_values->JxW(q + v) : 1.);
             else if (nonzero_shape_function_component[i][d])
-              for (unsigned int qb = 0, q = 0; q < n_points;
-                   ++qb, q += n_lanes_user_interface)
-                for (unsigned int v = 0;
-                     v < n_lanes_user_interface && q + v < n_points;
-                     ++v)
-                  solution_values[i] +=
-                    fe_values->shape_value_component(i, q + v, d) *
-                    ETT::access(values[qb], v, d) *
-                    (do_JxW ? fe_values->JxW(q + v) : 1.);
+              for (unsigned int qb = 0, q = 0; q < n_points; ++qb, q += n_lanes_user_interface)
+                for (unsigned int v = 0; v < n_lanes_user_interface && q + v < n_points; ++v)
+                  solution_values[i] += fe_values->shape_value_component(i, q + v, d) * ETT::access(values[qb], v, d) *
+                                        (do_JxW ? fe_values->JxW(q + v) : 1.);
         }
     }
 
@@ -2394,26 +2089,16 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::integrate_slow(
       for (unsigned int i = 0; i < fe->n_dofs_per_cell(); ++i)
         {
           for (unsigned int d = 0; d < n_components; ++d)
-            if (nonzero_shape_function_component[i][d] &&
-                (fe->is_primitive(i) || fe->is_primitive()))
-              for (unsigned int qb = 0, q = 0; q < n_points;
-                   ++qb, q += n_lanes_user_interface)
-                for (unsigned int v = 0;
-                     v < n_lanes_user_interface && q + v < n_points;
-                     ++v)
-                  solution_values[i] += fe_values->shape_grad(i, q + v) *
-                                        ETT::access(gradients[qb], v, d) *
+            if (nonzero_shape_function_component[i][d] && (fe->is_primitive(i) || fe->is_primitive()))
+              for (unsigned int qb = 0, q = 0; q < n_points; ++qb, q += n_lanes_user_interface)
+                for (unsigned int v = 0; v < n_lanes_user_interface && q + v < n_points; ++v)
+                  solution_values[i] += fe_values->shape_grad(i, q + v) * ETT::access(gradients[qb], v, d) *
                                         (do_JxW ? fe_values->JxW(q + v) : 1.);
             else if (nonzero_shape_function_component[i][d])
-              for (unsigned int qb = 0, q = 0; q < n_points;
-                   ++qb, q += n_lanes_user_interface)
-                for (unsigned int v = 0;
-                     v < n_lanes_user_interface && q + v < n_points;
-                     ++v)
-                  solution_values[i] +=
-                    fe_values->shape_grad_component(i, q + v, d) *
-                    ETT::access(gradients[qb], v, d) *
-                    (do_JxW ? fe_values->JxW(q + v) : 1.);
+              for (unsigned int qb = 0, q = 0; q < n_points; ++qb, q += n_lanes_user_interface)
+                for (unsigned int v = 0; v < n_lanes_user_interface && q + v < n_points; ++v)
+                  solution_values[i] += fe_values->shape_grad_component(i, q + v, d) *
+                                        ETT::access(gradients[qb], v, d) * (do_JxW ? fe_values->JxW(q + v) : 1.);
         }
     }
 }
@@ -2424,7 +2109,7 @@ template <int n_components_, int dim, int spacedim, typename Number>
 template <bool do_JxW>
 void
 FEPointEvaluation<n_components_, dim, spacedim, Number>::do_integrate(
-  const ArrayView<ScalarNumber> &         solution_values,
+  const ArrayView<ScalarNumber>          &solution_values,
   const EvaluationFlags::EvaluationFlags &integration_flags)
 {
   if (!is_reinitialized)
@@ -2439,17 +2124,14 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::do_integrate(
   Assert(!(integration_flags & EvaluationFlags::hessians), ExcNotImplemented());
 
   if (!((integration_flags & EvaluationFlags::values) ||
-        (integration_flags &
-         EvaluationFlags::gradients))) // no integration flags
+        (integration_flags & EvaluationFlags::gradients))) // no integration flags
     {
       std::fill(solution_values.begin(), solution_values.end(), 0.0);
       return;
     }
 
-  Assert(
-    !do_JxW || JxW_ptr != nullptr,
-    ExcMessage(
-      "JxW pointer is not set! If you do not want to integrate() use test_and_sum()"));
+  Assert(!do_JxW || JxW_ptr != nullptr,
+         ExcMessage("JxW pointer is not set! If you do not want to integrate() use test_and_sum()"));
 
   AssertDimension(solution_values.size(), fe->dofs_per_cell);
   if (fast_path)
@@ -2463,7 +2145,7 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::do_integrate(
 template <int n_components_, int dim, int spacedim, typename Number>
 void
 FEPointEvaluation<n_components_, dim, spacedim, Number>::integrate(
-  const ArrayView<ScalarNumber> &         solution_values,
+  const ArrayView<ScalarNumber>          &solution_values,
   const EvaluationFlags::EvaluationFlags &integration_flags)
 {
   do_integrate<true>(solution_values, integration_flags);
@@ -2474,7 +2156,7 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::integrate(
 template <int n_components_, int dim, int spacedim, typename Number>
 void
 FEPointEvaluation<n_components_, dim, spacedim, Number>::test_and_sum(
-  const ArrayView<ScalarNumber> &         solution_values,
+  const ArrayView<ScalarNumber>          &solution_values,
   const EvaluationFlags::EvaluationFlags &integration_flags)
 {
   do_integrate<false>(solution_values, integration_flags);
@@ -2483,10 +2165,8 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::test_and_sum(
 
 
 template <int n_components_, int dim, int spacedim, typename Number>
-inline const typename FEPointEvaluation<n_components_, dim, spacedim, Number>::
-  value_type &
-  FEPointEvaluation<n_components_, dim, spacedim, Number>::get_value(
-    const unsigned int point_index) const
+inline const typename FEPointEvaluation<n_components_, dim, spacedim, Number>::value_type &
+FEPointEvaluation<n_components_, dim, spacedim, Number>::get_value(const unsigned int point_index) const
 {
   AssertIndexRange(point_index, values.size());
   return values[point_index];
@@ -2495,10 +2175,8 @@ inline const typename FEPointEvaluation<n_components_, dim, spacedim, Number>::
 
 
 template <int n_components_, int dim, int spacedim, typename Number>
-inline const typename FEPointEvaluation<n_components_, dim, spacedim, Number>::
-  gradient_type &
-  FEPointEvaluation<n_components_, dim, spacedim, Number>::get_gradient(
-    const unsigned int point_index) const
+inline const typename FEPointEvaluation<n_components_, dim, spacedim, Number>::gradient_type &
+FEPointEvaluation<n_components_, dim, spacedim, Number>::get_gradient(const unsigned int point_index) const
 {
   AssertIndexRange(point_index, gradients.size());
   return gradients[point_index];
@@ -2507,10 +2185,8 @@ inline const typename FEPointEvaluation<n_components_, dim, spacedim, Number>::
 
 
 template <int n_components_, int dim, int spacedim, typename Number>
-inline const typename FEPointEvaluation<n_components_, dim, spacedim, Number>::
-  gradient_type &
-  FEPointEvaluation<n_components_, dim, spacedim, Number>::get_unit_gradient(
-    const unsigned int point_index) const
+inline const typename FEPointEvaluation<n_components_, dim, spacedim, Number>::gradient_type &
+FEPointEvaluation<n_components_, dim, spacedim, Number>::get_unit_gradient(const unsigned int point_index) const
 {
   Assert(fast_path,
          ExcMessage("Unit gradients are currently only implemented for tensor "
@@ -2524,9 +2200,8 @@ inline const typename FEPointEvaluation<n_components_, dim, spacedim, Number>::
 
 template <int n_components_, int dim, int spacedim, typename Number>
 inline void
-FEPointEvaluation<n_components_, dim, spacedim, Number>::submit_value(
-  const value_type & value,
-  const unsigned int point_index)
+FEPointEvaluation<n_components_, dim, spacedim, Number>::submit_value(const value_type  &value,
+                                                                      const unsigned int point_index)
 {
   AssertIndexRange(point_index, n_q_points);
   values[point_index] = value;
@@ -2536,9 +2211,8 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::submit_value(
 
 template <int n_components_, int dim, int spacedim, typename Number>
 inline void
-FEPointEvaluation<n_components_, dim, spacedim, Number>::submit_gradient(
-  const gradient_type &gradient,
-  const unsigned int   point_index)
+FEPointEvaluation<n_components_, dim, spacedim, Number>::submit_gradient(const gradient_type &gradient,
+                                                                         const unsigned int   point_index)
 {
   AssertIndexRange(point_index, n_q_points);
   gradients[point_index] = gradient;
@@ -2548,14 +2222,11 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::submit_gradient(
 
 template <int n_components_, int dim, int spacedim, typename Number>
 inline DerivativeForm<1, dim, spacedim, Number>
-FEPointEvaluation<n_components_, dim, spacedim, Number>::jacobian(
-  const unsigned int point_index) const
+FEPointEvaluation<n_components_, dim, spacedim, Number>::jacobian(const unsigned int point_index) const
 {
   AssertIndexRange(point_index, n_q_points);
   Assert(jacobian_ptr != nullptr,
-         internal::FEPointEvaluation::
-           ExcFEPointEvaluationAccessToUninitializedMappingField(
-             "update_jacobians"));
+         internal::FEPointEvaluation::ExcFEPointEvaluationAccessToUninitializedMappingField("update_jacobians"));
   return jacobian_ptr[point_index];
 }
 
@@ -2563,14 +2234,12 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::jacobian(
 
 template <int n_components_, int dim, int spacedim, typename Number>
 inline DerivativeForm<1, spacedim, dim, Number>
-FEPointEvaluation<n_components_, dim, spacedim, Number>::inverse_jacobian(
-  const unsigned int point_index) const
+FEPointEvaluation<n_components_, dim, spacedim, Number>::inverse_jacobian(const unsigned int point_index) const
 {
   AssertIndexRange(point_index, n_q_points);
   Assert(inverse_jacobian_ptr != nullptr,
-         internal::FEPointEvaluation::
-           ExcFEPointEvaluationAccessToUninitializedMappingField(
-             "update_inverse_jacobians"));
+         internal::FEPointEvaluation::ExcFEPointEvaluationAccessToUninitializedMappingField(
+           "update_inverse_jacobians"));
   return inverse_jacobian_ptr[point_index];
 }
 
@@ -2578,14 +2247,11 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::inverse_jacobian(
 
 template <int n_components_, int dim, int spacedim, typename Number>
 inline Number
-FEPointEvaluation<n_components_, dim, spacedim, Number>::JxW(
-  const unsigned int point_index) const
+FEPointEvaluation<n_components_, dim, spacedim, Number>::JxW(const unsigned int point_index) const
 {
   AssertIndexRange(point_index, n_q_points);
   Assert(JxW_ptr != nullptr,
-         internal::FEPointEvaluation::
-           ExcFEPointEvaluationAccessToUninitializedMappingField(
-             "update_JxW_values"));
+         internal::FEPointEvaluation::ExcFEPointEvaluationAccessToUninitializedMappingField("update_JxW_values"));
   return JxW_ptr[point_index];
 }
 
@@ -2593,14 +2259,11 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::JxW(
 
 template <int n_components_, int dim, int spacedim, typename Number>
 inline Tensor<1, spacedim, Number>
-FEPointEvaluation<n_components_, dim, spacedim, Number>::normal_vector(
-  const unsigned int point_index) const
+FEPointEvaluation<n_components_, dim, spacedim, Number>::normal_vector(const unsigned int point_index) const
 {
   AssertIndexRange(point_index, n_q_points);
   Assert(normal_ptr != nullptr,
-         internal::FEPointEvaluation::
-           ExcFEPointEvaluationAccessToUninitializedMappingField(
-             "update_normal_vectors"));
+         internal::FEPointEvaluation::ExcFEPointEvaluationAccessToUninitializedMappingField("update_normal_vectors"));
   return normal_ptr[point_index];
 }
 
@@ -2608,14 +2271,12 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::normal_vector(
 
 template <int n_components_, int dim, int spacedim, typename Number>
 inline Point<spacedim, Number>
-FEPointEvaluation<n_components_, dim, spacedim, Number>::real_point(
-  const unsigned int point_index) const
+FEPointEvaluation<n_components_, dim, spacedim, Number>::real_point(const unsigned int point_index) const
 {
   AssertIndexRange(point_index, n_q_points);
   Assert(real_point_ptr != nullptr,
-         internal::FEPointEvaluation::
-           ExcFEPointEvaluationAccessToUninitializedMappingField(
-             "update_quadrature_points"));
+         internal::FEPointEvaluation::ExcFEPointEvaluationAccessToUninitializedMappingField(
+           "update_quadrature_points"));
   return real_point_ptr[point_index];
 }
 
@@ -2623,15 +2284,14 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::real_point(
 
 template <int n_components_, int dim, int spacedim, typename Number>
 inline Point<dim, Number>
-FEPointEvaluation<n_components_, dim, spacedim, Number>::unit_point(
-  const unsigned int point_index) const
+FEPointEvaluation<n_components_, dim, spacedim, Number>::unit_point(const unsigned int point_index) const
 {
   AssertIndexRange(point_index, n_q_points);
   Assert(unit_point_ptr != nullptr, ExcMessage("unit_point_ptr is not set!"));
   Point<dim, Number> unit_point;
   for (unsigned int d = 0; d < dim; ++d)
-    unit_point[d] = internal::VectorizedArrayTrait<Number>::get_from_vectorized(
-      unit_point_ptr[point_index / stride][d], point_index % stride);
+    unit_point[d] = internal::VectorizedArrayTrait<Number>::get_from_vectorized(unit_point_ptr[point_index / stride][d],
+                                                                                point_index % stride);
   return unit_point;
 }
 
@@ -2639,8 +2299,7 @@ FEPointEvaluation<n_components_, dim, spacedim, Number>::unit_point(
 
 template <int n_components_, int dim, int spacedim, typename Number>
 inline std_cxx20::ranges::iota_view<unsigned int, unsigned int>
-FEPointEvaluation<n_components_, dim, spacedim, Number>::
-  quadrature_point_indices() const
+FEPointEvaluation<n_components_, dim, spacedim, Number>::quadrature_point_indices() const
 {
   return {0U, n_q_points};
 }

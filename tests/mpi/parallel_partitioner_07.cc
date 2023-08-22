@@ -53,22 +53,13 @@ test()
   local_owned.add_range(my_start, my_start + local_size);
   IndexSet local_relevant_1(global_size), local_relevant_2(global_size);
   local_relevant_1                          = local_owned;
-  types::global_dof_index ghost_indices[10] = {1,
-                                               2,
-                                               13,
-                                               set - 2,
-                                               set - 1,
-                                               set,
-                                               set + 1,
-                                               2 * set,
-                                               2 * set + 1,
-                                               2 * set + 3};
+  types::global_dof_index ghost_indices[10] = {
+    1, 2, 13, set - 2, set - 1, set, set + 1, 2 * set, 2 * set + 1, 2 * set + 3};
   local_relevant_1.add_indices(&ghost_indices[0], ghost_indices + 10);
   if (myid > 0)
     local_relevant_1.add_range(my_start - 10, my_start);
   if (myid < numproc - 1)
-    local_relevant_1.add_range(my_start + local_size,
-                               my_start + local_size + 10);
+    local_relevant_1.add_range(my_start + local_size, my_start + local_size + 10);
 
   local_relevant_2 = local_owned;
   local_relevant_2.add_indices(&ghost_indices[0], ghost_indices + 10);
@@ -99,17 +90,13 @@ test()
   // send the full array
   {
     std::vector<unsigned int> ghosts(ghost_array);
-    v.import_from_ghosted_array_start(VectorOperation::add,
-                                      3,
-                                      make_array_view(ghosts),
-                                      make_array_view(temp_array),
-                                      requests);
-    v.import_from_ghosted_array_finish(
-      VectorOperation::add,
-      ArrayView<const unsigned int>(temp_array.data(), temp_array.size()),
-      make_array_view(locally_owned_array),
-      make_array_view(ghosts),
-      requests);
+    v.import_from_ghosted_array_start(
+      VectorOperation::add, 3, make_array_view(ghosts), make_array_view(temp_array), requests);
+    v.import_from_ghosted_array_finish(VectorOperation::add,
+                                       ArrayView<const unsigned int>(temp_array.data(), temp_array.size()),
+                                       make_array_view(locally_owned_array),
+                                       make_array_view(ghosts),
+                                       requests);
     // check that the ghost entries are zeroed out in these calls
     for (unsigned int i = 0; i < v.n_ghost_indices(); ++i)
       AssertDimension(ghosts[i], 0);
@@ -124,17 +111,13 @@ test()
   temp_array.resize(w.n_import_indices());
   {
     std::vector<unsigned int> ghosts(ghost_array);
-    w.import_from_ghosted_array_start(VectorOperation::add,
-                                      3,
-                                      make_array_view(ghosts),
-                                      make_array_view(temp_array),
-                                      requests);
-    w.import_from_ghosted_array_finish(
-      VectorOperation::add,
-      ArrayView<const unsigned int>(temp_array.data(), temp_array.size()),
-      make_array_view(locally_owned_array),
-      make_array_view(ghosts),
-      requests);
+    w.import_from_ghosted_array_start(
+      VectorOperation::add, 3, make_array_view(ghosts), make_array_view(temp_array), requests);
+    w.import_from_ghosted_array_finish(VectorOperation::add,
+                                       ArrayView<const unsigned int>(temp_array.data(), temp_array.size()),
+                                       make_array_view(locally_owned_array),
+                                       make_array_view(ghosts),
+                                       requests);
 
     // check that the ghost entries are zeroed out in these calls
     for (unsigned int i = 0; i < w.n_ghost_indices(); ++i)
@@ -150,17 +133,13 @@ test()
   temp_array.resize(x.n_import_indices());
   {
     std::vector<unsigned int> ghosts(ghost_array);
-    x.import_from_ghosted_array_start(VectorOperation::add,
-                                      3,
-                                      make_array_view(ghosts),
-                                      make_array_view(temp_array),
-                                      requests);
-    x.import_from_ghosted_array_finish(
-      VectorOperation::add,
-      ArrayView<const unsigned int>(temp_array.data(), temp_array.size()),
-      make_array_view(locally_owned_array),
-      make_array_view(ghosts),
-      requests);
+    x.import_from_ghosted_array_start(
+      VectorOperation::add, 3, make_array_view(ghosts), make_array_view(temp_array), requests);
+    x.import_from_ghosted_array_finish(VectorOperation::add,
+                                       ArrayView<const unsigned int>(temp_array.data(), temp_array.size()),
+                                       make_array_view(locally_owned_array),
+                                       make_array_view(ghosts),
+                                       requests);
 
     // check that the ghost entries are zeroed out in these calls
     for (unsigned int i = 0; i < x.n_ghost_indices(); ++i)
@@ -173,17 +152,13 @@ test()
 
   // now send a tight array from x and add into the existing entries
   std::vector<unsigned int> ghosts(x.n_ghost_indices(), 1);
-  x.import_from_ghosted_array_start(VectorOperation::add,
-                                    3,
-                                    make_array_view(ghosts),
-                                    make_array_view(temp_array),
-                                    requests);
-  x.import_from_ghosted_array_finish(
-    VectorOperation::add,
-    ArrayView<const unsigned int>(temp_array.data(), temp_array.size()),
-    make_array_view(locally_owned_array),
-    make_array_view(ghosts),
-    requests);
+  x.import_from_ghosted_array_start(
+    VectorOperation::add, 3, make_array_view(ghosts), make_array_view(temp_array), requests);
+  x.import_from_ghosted_array_finish(VectorOperation::add,
+                                     ArrayView<const unsigned int>(temp_array.data(), temp_array.size()),
+                                     make_array_view(locally_owned_array),
+                                     make_array_view(ghosts),
+                                     requests);
   deallog << "From tight reduced ghosts 2: ";
   for (unsigned int i = 0; i < locally_owned_array.size(); ++i)
     deallog << locally_owned_array[i] << ' ';

@@ -48,8 +48,7 @@ test(const MPI_Comm comm, const bool do_revert, const unsigned int dir)
 
   const unsigned int n_procs = Utilities::MPI::n_mpi_processes(comm);
   const unsigned int my_rank =
-    do_revert ? (n_procs - 1 - Utilities::MPI::this_mpi_process(comm)) :
-                Utilities::MPI::this_mpi_process(comm);
+    do_revert ? (n_procs - 1 - Utilities::MPI::this_mpi_process(comm)) : Utilities::MPI::this_mpi_process(comm);
 
   parallel::distributed::Triangulation<dim> tria(comm);
 
@@ -71,8 +70,7 @@ test(const MPI_Comm comm, const bool do_revert, const unsigned int dir)
     if (dim == 2)
       return std::floor(c[0]) + n_cells_1D * std::floor(c[1]);
     else
-      return std::floor(c[0]) + n_cells_1D * std::floor(c[1]) +
-             n_cells_1D * n_cells_1D * std::floor(c[2]);
+      return std::floor(c[0]) + n_cells_1D * std::floor(c[1]) + n_cells_1D * n_cells_1D * std::floor(c[2]);
   };
 
   // ... has (symm)
@@ -85,9 +83,7 @@ test(const MPI_Comm comm, const bool do_revert, const unsigned int dir)
 
         const auto lid = static_cast<unsigned int>(norm_point_to_lex(c));
 
-        for (unsigned int i = lid * n_points_cell;
-             i < (lid + 1) * n_points_cell;
-             i++)
+        for (unsigned int i = lid * n_points_cell; i < (lid + 1) * n_points_cell; i++)
           indices_has.push_back(i);
       }
 
@@ -126,8 +122,7 @@ test(const MPI_Comm comm, const bool do_revert, const unsigned int dir)
 
   AlignedVector<double> dst(indices_want.size());
 
-  vector.export_to_ghosted_array(ArrayView<const double>(src.data(),
-                                                         src.size()),
+  vector.export_to_ghosted_array(ArrayView<const double>(src.data(), src.size()),
                                  ArrayView<double>(dst.data(), dst.size()));
 
   for (size_t i = 0; i < src.size(); ++i)

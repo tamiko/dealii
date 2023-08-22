@@ -28,9 +28,8 @@ DEAL_II_NAMESPACE_OPEN
 namespace Algorithms
 {
   template <typename VectorType, int dim, int spacedim>
-  DoFOutputOperator<VectorType, dim, spacedim>::DoFOutputOperator(
-    const std::string &filename_base,
-    const unsigned int digits)
+  DoFOutputOperator<VectorType, dim, spacedim>::DoFOutputOperator(const std::string &filename_base,
+                                                                  const unsigned int digits)
     : filename_base(filename_base)
     , digits(digits)
   {
@@ -40,8 +39,7 @@ namespace Algorithms
 
   template <typename VectorType, int dim, int spacedim>
   void
-  DoFOutputOperator<VectorType, dim, spacedim>::parse_parameters(
-    ParameterHandler &param)
+  DoFOutputOperator<VectorType, dim, spacedim>::parse_parameters(ParameterHandler &param)
   {
     out.parse_parameters(param);
   }
@@ -61,8 +59,7 @@ namespace Algorithms
           }
       }
     std::ostringstream streamOut;
-    streamOut << filename_base << std::setw(digits) << std::setfill('0')
-              << this->step << out.default_suffix();
+    streamOut << filename_base << std::setw(digits) << std::setfill('0') << this->step << out.default_suffix();
     std::ofstream out_filename(streamOut.str());
     out.build_patches();
     out.write(out_filename);

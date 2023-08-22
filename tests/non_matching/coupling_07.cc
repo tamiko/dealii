@@ -59,8 +59,7 @@ test()
   FE_Q<dim, spacedim>      fe(1);
   FE_Q<spacedim, spacedim> space_fe(1);
 
-  deallog << "FE      : " << fe.get_name() << std::endl
-          << "Space FE: " << space_fe.get_name() << std::endl;
+  deallog << "FE      : " << fe.get_name() << std::endl << "Space FE: " << space_fe.get_name() << std::endl;
 
   DoFHandler<dim, spacedim>      dh(tria);
   DoFHandler<spacedim, spacedim> space_dh(space_tria);
@@ -83,13 +82,11 @@ test()
   SparsityPattern sparsity;
   {
     DynamicSparsityPattern dsp(space_dh.n_dofs(), dh.n_dofs());
-    NonMatching::create_coupling_sparsity_pattern(
-      space_dh, dh, quad, dsp, constraints);
+    NonMatching::create_coupling_sparsity_pattern(space_dh, dh, quad, dsp, constraints);
     sparsity.copy_from(dsp);
   }
   SparseMatrix<double> coupling(sparsity);
-  NonMatching::create_coupling_mass_matrix(
-    space_dh, dh, quad, coupling, constraints);
+  NonMatching::create_coupling_mass_matrix(space_dh, dh, quad, coupling, constraints);
 
   SparsityPattern mass_sparsity;
   {

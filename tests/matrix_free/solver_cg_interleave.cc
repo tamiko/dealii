@@ -65,8 +65,7 @@ public:
   print_n_calls_special()
   {
     if (n_calls_vmult > 0)
-      deallog << "Number of calls to special vmult: " << n_calls_vmult
-              << std::endl;
+      deallog << "Number of calls to special vmult: " << n_calls_vmult << std::endl;
   }
 
   void
@@ -78,11 +77,10 @@ public:
   void
   vmult(VectorType &dst, const VectorType &src) const
   {
-    const std::function<
-      void(const MatrixFree<dim, typename VectorType::value_type> &,
-           VectorType &,
-           const VectorType &,
-           const std::pair<unsigned int, unsigned int> &)>
+    const std::function<void(const MatrixFree<dim, typename VectorType::value_type> &,
+                             VectorType &,
+                             const VectorType &,
+                             const std::pair<unsigned int, unsigned int> &)>
       function = helmholtz_operator<dim, -1, VectorType, 0>;
     data.cell_loop(function, dst, src, true);
     for (const unsigned int i : data.get_constrained_dofs())
@@ -90,22 +88,18 @@ public:
   }
 
   void
-  vmult(VectorType &      dst,
-        const VectorType &src,
-        const std::function<void(const unsigned int, const unsigned int)>
-          &operation_before_loop,
-        const std::function<void(const unsigned int, const unsigned int)>
-          &operation_after_loop) const
+  vmult(VectorType                                                        &dst,
+        const VectorType                                                  &src,
+        const std::function<void(const unsigned int, const unsigned int)> &operation_before_loop,
+        const std::function<void(const unsigned int, const unsigned int)> &operation_after_loop) const
   {
     ++n_calls_vmult;
-    const std::function<
-      void(const MatrixFree<dim, typename VectorType::value_type> &,
-           VectorType &,
-           const VectorType &,
-           const std::pair<unsigned int, unsigned int> &)>
+    const std::function<void(const MatrixFree<dim, typename VectorType::value_type> &,
+                             VectorType &,
+                             const VectorType &,
+                             const std::pair<unsigned int, unsigned int> &)>
       function = helmholtz_operator<dim, -1, VectorType, 0>;
-    data.cell_loop(
-      function, dst, src, operation_before_loop, operation_after_loop);
+    data.cell_loop(function, dst, src, operation_before_loop, operation_after_loop);
     for (const unsigned int i : data.get_constrained_dofs())
       dst.local_element(i) = src.local_element(i);
   }
@@ -126,8 +120,7 @@ struct MyDiagonalMatrix
   {}
 
   void
-  vmult(LinearAlgebra::distributed::Vector<Number> &      dst,
-        const LinearAlgebra::distributed::Vector<Number> &src) const
+  vmult(LinearAlgebra::distributed::Vector<Number> &dst, const LinearAlgebra::distributed::Vector<Number> &src) const
   {
     dst = src;
     dst.scale(vec);
@@ -147,8 +140,7 @@ struct DiagonalMatrixSubrange
   {}
 
   void
-  vmult(LinearAlgebra::distributed::Vector<Number> &      dst,
-        const LinearAlgebra::distributed::Vector<Number> &src) const
+  vmult(LinearAlgebra::distributed::Vector<Number> &dst, const LinearAlgebra::distributed::Vector<Number> &src) const
   {
     dst = src;
     dst.scale(vec);
@@ -157,20 +149,18 @@ struct DiagonalMatrixSubrange
   void
   apply_to_subrange(const unsigned int begin_range,
                     const unsigned int end_range,
-                    const Number *     src_pointer_to_current_range,
-                    Number *           dst_pointer_to_current_range) const
+                    const Number      *src_pointer_to_current_range,
+                    Number            *dst_pointer_to_current_range) const
   {
-    AssertIndexRange(begin_range,
-                     vec.locally_owned_elements().n_elements() + 1);
+    AssertIndexRange(begin_range, vec.locally_owned_elements().n_elements() + 1);
     AssertIndexRange(end_range, vec.locally_owned_elements().n_elements() + 1);
 
-    const Number *     diagonal_entry = vec.begin() + begin_range;
+    const Number      *diagonal_entry = vec.begin() + begin_range;
     const unsigned int length         = end_range - begin_range;
 
     DEAL_II_OPENMP_SIMD_PRAGMA
     for (unsigned int i = 0; i < length; ++i)
-      dst_pointer_to_current_range[i] =
-        diagonal_entry[i] * src_pointer_to_current_range[i];
+      dst_pointer_to_current_range[i] = diagonal_entry[i] * src_pointer_to_current_range[i];
   }
 
   const LinearAlgebra::distributed::Vector<Number> &vec;
@@ -193,12 +183,11 @@ test(const unsigned int fe_degree)
   DoFHandler<dim> dof(tria);
   dof.distribute_dofs(fe);
 
-  IndexSet                  owned_set = dof.locally_owned_dofs();
-  IndexSet                  relevant_set;
-  AffineConstraints<double> constraints(relevant_set);
+  IndexSet                                         owned_set = dof.locally_owned_dofs();
+  IndexSet                                         relevant_set;
+  AffineConstraints<double>                        constraints(relevant_set);
   typename MatrixFree<dim, number>::AdditionalData addit_data;
-  addit_data.tasks_parallel_scheme =
-    MatrixFree<dim, number>::AdditionalData::none;
+  addit_data.tasks_parallel_scheme = MatrixFree<dim, number>::AdditionalData::none;
 
   {
     DoFTools::extract_locally_relevant_dofs(dof, relevant_set);
@@ -275,10 +264,9 @@ test(const unsigned int fe_degree)
             << "preconditioner working on subrange" << std::endl;
     sol = 0;
     HelmholtzOperator<dim, number> matrix(mf_data);
-    DiagonalMatrixSubrange<number> diagonal_subrange(
-      preconditioner.get_vector());
-    SolverControl        control(200, 1e-2 * rhs.l2_norm());
-    SolverCG<VectorType> solver(control);
+    DiagonalMatrixSubrange<number> diagonal_subrange(preconditioner.get_vector());
+    SolverControl                  control(200, 1e-2 * rhs.l2_norm());
+    SolverCG<VectorType>           solver(control);
     solver.solve(matrix, sol, rhs, diagonal_subrange);
     deallog << "Norm of the solution: " << sol.l2_norm() << std::endl;
     matrix.print_n_calls_special();

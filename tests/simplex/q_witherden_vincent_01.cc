@@ -36,11 +36,9 @@ print(const unsigned int n_points_1D)
 
 template <int dim>
 void
-check_accuracy_1D(const unsigned int n_points_1D,
-                  const bool         use_odd_order = true)
+check_accuracy_1D(const unsigned int n_points_1D, const bool use_odd_order = true)
 {
-  const unsigned int accuracy =
-    use_odd_order ? 2 * n_points_1D - 1 : 2 * n_points_1D;
+  const unsigned int accuracy = use_odd_order ? 2 * n_points_1D - 1 : 2 * n_points_1D;
 
   Tensor<1, dim> monomial_powers;
   unsigned int   sum = 0;

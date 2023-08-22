@@ -74,13 +74,11 @@ test()
   MatrixFree<dim, double>                          mf_data;
   const QGauss<1>                                  quad(fe_degree + 1);
   typename MatrixFree<dim, double>::AdditionalData data;
-  data.tasks_parallel_scheme = MatrixFree<dim, double>::AdditionalData::none;
-  data.tasks_block_size      = 3;
-  data.mapping_update_flags_inner_faces =
-    (update_gradients | update_JxW_values);
-  data.mapping_update_flags_boundary_faces =
-    (update_gradients | update_JxW_values);
-  data.hold_all_faces_to_owned_cells = true;
+  data.tasks_parallel_scheme               = MatrixFree<dim, double>::AdditionalData::none;
+  data.tasks_block_size                    = 3;
+  data.mapping_update_flags_inner_faces    = (update_gradients | update_JxW_values);
+  data.mapping_update_flags_boundary_faces = (update_gradients | update_JxW_values);
+  data.hold_all_faces_to_owned_cells       = true;
 
   mf_data.reinit(mapping, dof, constraints, quad, data);
 
@@ -95,12 +93,7 @@ test()
       in.local_element(i) = entry;
     }
 
-  MatrixFreeTest<dim,
-                 fe_degree,
-                 fe_degree + 1,
-                 double,
-                 LinearAlgebra::distributed::Vector<double>>
-    mf(mf_data);
+  MatrixFreeTest<dim, fe_degree, fe_degree + 1, double, LinearAlgebra::distributed::Vector<double>> mf(mf_data);
   mf.vmult(out, in);
 
   deallog << "Norm of result:          " << out.l2_norm() << std::endl;

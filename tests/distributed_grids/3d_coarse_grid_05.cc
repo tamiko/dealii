@@ -99,23 +99,19 @@ create_disconnected_mesh(Triangulation<dim> &tria)
     switch (dim)
       {
         case 2:
-          vertices[GeometryInfo<dim>::vertices_per_cell + 0] =
-            vertices[GeometryInfo<dim>::vertices_per_cell + 1] = p1;
-          vertices[GeometryInfo<dim>::vertices_per_cell + 2] =
-            vertices[GeometryInfo<dim>::vertices_per_cell + 3] = p2;
+          vertices[GeometryInfo<dim>::vertices_per_cell + 0] = vertices[GeometryInfo<dim>::vertices_per_cell + 1] = p1;
+          vertices[GeometryInfo<dim>::vertices_per_cell + 2] = vertices[GeometryInfo<dim>::vertices_per_cell + 3] = p2;
 
           vertices[GeometryInfo<dim>::vertices_per_cell + 1](0) = p2(0);
           vertices[GeometryInfo<dim>::vertices_per_cell + 2](0) = p1(0);
           break;
         case 3:
-          vertices[GeometryInfo<dim>::vertices_per_cell + 0] =
-            vertices[GeometryInfo<dim>::vertices_per_cell + 1] =
-              vertices[GeometryInfo<dim>::vertices_per_cell + 2] =
-                vertices[GeometryInfo<dim>::vertices_per_cell + 3] = p1;
-          vertices[GeometryInfo<dim>::vertices_per_cell + 4] =
-            vertices[GeometryInfo<dim>::vertices_per_cell + 5] =
-              vertices[GeometryInfo<dim>::vertices_per_cell + 6] =
-                vertices[GeometryInfo<dim>::vertices_per_cell + 7] = p2;
+          vertices[GeometryInfo<dim>::vertices_per_cell + 0]   = vertices[GeometryInfo<dim>::vertices_per_cell + 1] =
+            vertices[GeometryInfo<dim>::vertices_per_cell + 2] = vertices[GeometryInfo<dim>::vertices_per_cell + 3] =
+              p1;
+          vertices[GeometryInfo<dim>::vertices_per_cell + 4]   = vertices[GeometryInfo<dim>::vertices_per_cell + 5] =
+            vertices[GeometryInfo<dim>::vertices_per_cell + 6] = vertices[GeometryInfo<dim>::vertices_per_cell + 7] =
+              p2;
 
           vertices[GeometryInfo<dim>::vertices_per_cell + 1](0) = p2(0);
           vertices[GeometryInfo<dim>::vertices_per_cell + 2](1) = p2(1);
@@ -148,9 +144,7 @@ void
 test(std::ostream & /*out*/)
 {
   parallel::distributed::Triangulation<dim> tr(
-    MPI_COMM_WORLD,
-    Triangulation<dim>::none,
-    parallel::distributed::Triangulation<dim>::communicate_vertices_to_p4est);
+    MPI_COMM_WORLD, Triangulation<dim>::none, parallel::distributed::Triangulation<dim>::communicate_vertices_to_p4est);
 
   create_disconnected_mesh(tr);
 

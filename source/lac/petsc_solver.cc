@@ -81,10 +81,7 @@ namespace PETScWrappers
 
 
   void
-  SolverBase::solve(const MatrixBase &      A,
-                    VectorBase &            x,
-                    const VectorBase &      b,
-                    const PreconditionBase &preconditioner)
+  SolverBase::solve(const MatrixBase &A, VectorBase &x, const VectorBase &b, const PreconditionBase &preconditioner)
   {
     // first create a solver object if this
     // is necessary
@@ -129,11 +126,8 @@ namespace PETScWrappers
 
     // in case of failure: throw
     // exception
-    if (solver_control &&
-        solver_control->last_check() != SolverControl::success)
-      AssertThrow(false,
-                  SolverControl::NoConvergence(solver_control->last_step(),
-                                               solver_control->last_value()));
+    if (solver_control && solver_control->last_check() != SolverControl::success)
+      AssertThrow(false, SolverControl::NoConvergence(solver_control->last_step(), solver_control->last_value()));
     // otherwise exit as normal
   }
 
@@ -168,14 +162,12 @@ namespace PETScWrappers
                                const PetscInt      iteration,
                                const PetscReal     residual_norm,
                                KSPConvergedReason *reason,
-                               void *              solver_control_x)
+                               void               *solver_control_x)
   {
     PetscFunctionBeginUser;
-    SolverControl &solver_control =
-      *reinterpret_cast<SolverControl *>(solver_control_x);
+    SolverControl &solver_control = *reinterpret_cast<SolverControl *>(solver_control_x);
 
-    const SolverControl::State state =
-      solver_control.check(iteration, residual_norm);
+    const SolverControl::State state = solver_control.check(iteration, residual_norm);
 
     switch (state)
       {
@@ -223,8 +215,7 @@ namespace PETScWrappers
   SolverBase::perhaps_set_convergence_test() const
   {
     if (ksp && solver_control)
-      AssertPETSc(
-        KSPSetConvergenceTest(ksp, &convergence_test, solver_control, nullptr));
+      AssertPETSc(KSPSetConvergenceTest(ksp, &convergence_test, solver_control, nullptr));
   }
 
 
@@ -254,17 +245,14 @@ namespace PETScWrappers
 
 
 
-  SolverRichardson::SolverRichardson(SolverControl &       cn,
-                                     const AdditionalData &data)
+  SolverRichardson::SolverRichardson(SolverControl &cn, const AdditionalData &data)
     : SolverBase(cn)
     , additional_data(data)
   {}
 
 
 
-  SolverRichardson::SolverRichardson(SolverControl &cn,
-                                     const MPI_Comm,
-                                     const AdditionalData &data)
+  SolverRichardson::SolverRichardson(SolverControl &cn, const MPI_Comm, const AdditionalData &data)
     : SolverRichardson(cn, data)
   {}
 
@@ -295,26 +283,20 @@ namespace PETScWrappers
     // the Richardson iteration,
     // where no residual is
     // available.
-    AssertPETSc(KSPSetTolerances(ksp,
-                                 PETSC_DEFAULT,
-                                 this->solver_control->tolerance(),
-                                 PETSC_DEFAULT,
-                                 this->solver_control->max_steps() + 1));
+    AssertPETSc(KSPSetTolerances(
+      ksp, PETSC_DEFAULT, this->solver_control->tolerance(), PETSC_DEFAULT, this->solver_control->max_steps() + 1));
   }
 
 
   /* ---------------------- SolverChebychev ------------------------ */
 
-  SolverChebychev::SolverChebychev(SolverControl &       cn,
-                                   const AdditionalData &data)
+  SolverChebychev::SolverChebychev(SolverControl &cn, const AdditionalData &data)
     : SolverBase(cn)
     , additional_data(data)
   {}
 
 
-  SolverChebychev::SolverChebychev(SolverControl &cn,
-                                   const MPI_Comm,
-                                   const AdditionalData &data)
+  SolverChebychev::SolverChebychev(SolverControl &cn, const MPI_Comm, const AdditionalData &data)
     : SolverChebychev(cn, data)
   {}
 
@@ -339,9 +321,7 @@ namespace PETScWrappers
   {}
 
 
-  SolverCG::SolverCG(SolverControl &cn,
-                     const MPI_Comm,
-                     const AdditionalData &data)
+  SolverCG::SolverCG(SolverControl &cn, const MPI_Comm, const AdditionalData &data)
     : SolverCG(cn, data)
   {}
 
@@ -366,9 +346,7 @@ namespace PETScWrappers
   {}
 
 
-  SolverBiCG::SolverBiCG(SolverControl &cn,
-                         const MPI_Comm,
-                         const AdditionalData &data)
+  SolverBiCG::SolverBiCG(SolverControl &cn, const MPI_Comm, const AdditionalData &data)
     : SolverBiCG(cn, data)
   {}
 
@@ -387,9 +365,7 @@ namespace PETScWrappers
 
   /* ---------------------- SolverGMRES ------------------------ */
 
-  SolverGMRES::AdditionalData::AdditionalData(
-    const unsigned int restart_parameter,
-    const bool         right_preconditioning)
+  SolverGMRES::AdditionalData::AdditionalData(const unsigned int restart_parameter, const bool right_preconditioning)
     : restart_parameter(restart_parameter)
     , right_preconditioning(right_preconditioning)
   {}
@@ -402,9 +378,7 @@ namespace PETScWrappers
   {}
 
 
-  SolverGMRES::SolverGMRES(SolverControl &cn,
-                           const MPI_Comm,
-                           const AdditionalData &data)
+  SolverGMRES::SolverGMRES(SolverControl &cn, const MPI_Comm, const AdditionalData &data)
     : SolverGMRES(cn, data)
   {}
 
@@ -437,9 +411,7 @@ namespace PETScWrappers
   {}
 
 
-  SolverBicgstab::SolverBicgstab(SolverControl &cn,
-                                 const MPI_Comm,
-                                 const AdditionalData &data)
+  SolverBicgstab::SolverBicgstab(SolverControl &cn, const MPI_Comm, const AdditionalData &data)
     : SolverBicgstab(cn, data)
   {}
 
@@ -464,9 +436,7 @@ namespace PETScWrappers
   {}
 
 
-  SolverCGS::SolverCGS(SolverControl &cn,
-                       const MPI_Comm,
-                       const AdditionalData &data)
+  SolverCGS::SolverCGS(SolverControl &cn, const MPI_Comm, const AdditionalData &data)
     : SolverCGS(cn, data)
   {}
 
@@ -491,9 +461,7 @@ namespace PETScWrappers
   {}
 
 
-  SolverTFQMR::SolverTFQMR(SolverControl &cn,
-                           const MPI_Comm,
-                           const AdditionalData &data)
+  SolverTFQMR::SolverTFQMR(SolverControl &cn, const MPI_Comm, const AdditionalData &data)
     : SolverTFQMR(cn, data)
   {}
 
@@ -518,9 +486,7 @@ namespace PETScWrappers
   {}
 
 
-  SolverTCQMR::SolverTCQMR(SolverControl &cn,
-                           const MPI_Comm,
-                           const AdditionalData &data)
+  SolverTCQMR::SolverTCQMR(SolverControl &cn, const MPI_Comm, const AdditionalData &data)
     : SolverTCQMR(cn, data)
   {}
 
@@ -545,9 +511,7 @@ namespace PETScWrappers
   {}
 
 
-  SolverCR::SolverCR(SolverControl &cn,
-                     const MPI_Comm,
-                     const AdditionalData &data)
+  SolverCR::SolverCR(SolverControl &cn, const MPI_Comm, const AdditionalData &data)
     : SolverCR(cn, data)
   {}
 
@@ -573,9 +537,7 @@ namespace PETScWrappers
 
 
 
-  SolverLSQR::SolverLSQR(SolverControl &cn,
-                         const MPI_Comm,
-                         const AdditionalData &data)
+  SolverLSQR::SolverLSQR(SolverControl &cn, const MPI_Comm, const AdditionalData &data)
     : SolverLSQR(cn, data)
   {}
 
@@ -608,9 +570,7 @@ namespace PETScWrappers
   {}
 
 
-  SolverPreOnly::SolverPreOnly(SolverControl &cn,
-                               const MPI_Comm,
-                               const AdditionalData &data)
+  SolverPreOnly::SolverPreOnly(SolverControl &cn, const MPI_Comm, const AdditionalData &data)
     : SolverPreOnly(cn, data)
   {}
 
@@ -639,8 +599,7 @@ namespace PETScWrappers
 
   /* ---------------------- SparseDirectMUMPS------------------------ */
 
-  SparseDirectMUMPS::SparseDirectMUMPS(SolverControl &       cn,
-                                       const AdditionalData &data)
+  SparseDirectMUMPS::SparseDirectMUMPS(SolverControl &cn, const AdditionalData &data)
     : SolverBase(cn)
     , additional_data(data)
     , symmetric_mode(false)
@@ -648,9 +607,7 @@ namespace PETScWrappers
 
 
 
-  SparseDirectMUMPS::SparseDirectMUMPS(SolverControl &cn,
-                                       const MPI_Comm,
-                                       const AdditionalData &data)
+  SparseDirectMUMPS::SparseDirectMUMPS(SolverControl &cn, const MPI_Comm, const AdditionalData &data)
     : SparseDirectMUMPS(cn, data)
   {}
 
@@ -682,9 +639,7 @@ namespace PETScWrappers
   }
 
   void
-  SparseDirectMUMPS::solve(const MatrixBase &A,
-                           VectorBase &      x,
-                           const VectorBase &b)
+  SparseDirectMUMPS::solve(const MatrixBase &A, VectorBase &x, const VectorBase &b)
   {
 #  ifdef DEAL_II_PETSC_WITH_MUMPS
     /*
@@ -785,22 +740,17 @@ namespace PETScWrappers
     /*
      * in case of failure throw exception
      */
-    if (solver_control &&
-        solver_control->last_check() != SolverControl::success)
+    if (solver_control && solver_control->last_check() != SolverControl::success)
       {
-        AssertThrow(false,
-                    SolverControl::NoConvergence(solver_control->last_step(),
-                                                 solver_control->last_value()));
+        AssertThrow(false, SolverControl::NoConvergence(solver_control->last_step(), solver_control->last_value()));
       }
 
 #  else // DEAL_II_PETSC_WITH_MUMPS
-    Assert(
-      false,
-      ExcMessage(
-        "Your PETSc installation does not include a copy of "
-        "the MUMPS package necessary for this solver. You will need to configure "
-        "PETSc so that it includes MUMPS, recompile it, and then re-configure "
-        "and recompile deal.II as well."));
+    Assert(false,
+           ExcMessage("Your PETSc installation does not include a copy of "
+                      "the MUMPS package necessary for this solver. You will need to configure "
+                      "PETSc so that it includes MUMPS, recompile it, and then re-configure "
+                      "and recompile deal.II as well."));
 
     // Cast to void to silence compiler warnings
     (void)A;

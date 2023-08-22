@@ -29,15 +29,11 @@ DEAL_II_NAMESPACE_OPEN
 
 template <typename VectorType>
 void
-Multigrid<VectorType>::reinit(const unsigned int min_level,
-                              const unsigned int max_level)
+Multigrid<VectorType>::reinit(const unsigned int min_level, const unsigned int max_level)
 {
-  Assert(min_level >= matrix->get_minlevel(),
-         ExcLowerRangeType<unsigned int>(min_level, matrix->get_minlevel()));
-  Assert(max_level <= matrix->get_maxlevel(),
-         ExcLowerRangeType<unsigned int>(matrix->get_maxlevel(), max_level));
-  Assert(min_level <= max_level,
-         ExcLowerRangeType<unsigned int>(max_level, min_level));
+  Assert(min_level >= matrix->get_minlevel(), ExcLowerRangeType<unsigned int>(min_level, matrix->get_minlevel()));
+  Assert(max_level <= matrix->get_maxlevel(), ExcLowerRangeType<unsigned int>(matrix->get_maxlevel(), max_level));
+  Assert(min_level <= max_level, ExcLowerRangeType<unsigned int>(max_level, min_level));
   minlevel = min_level;
   maxlevel = max_level;
   // solution, t and defect2 are resized in cycle()
@@ -76,9 +72,8 @@ Multigrid<VectorType>::set_cycle(typename Multigrid<VectorType>::Cycle c)
 
 template <typename VectorType>
 void
-Multigrid<VectorType>::set_edge_matrices(
-  const MGMatrixBase<VectorType> &edge_out,
-  const MGMatrixBase<VectorType> &edge_in)
+Multigrid<VectorType>::set_edge_matrices(const MGMatrixBase<VectorType> &edge_out,
+                                         const MGMatrixBase<VectorType> &edge_in)
 {
   this->edge_out = &edge_out;
   this->edge_in  = &edge_in;
@@ -88,8 +83,7 @@ Multigrid<VectorType>::set_edge_matrices(
 
 template <typename VectorType>
 void
-Multigrid<VectorType>::set_edge_in_matrix(
-  const MGMatrixBase<VectorType> &edge_in)
+Multigrid<VectorType>::set_edge_in_matrix(const MGMatrixBase<VectorType> &edge_in)
 {
   this->edge_out = nullptr;
   this->edge_in  = &edge_in;
@@ -99,9 +93,8 @@ Multigrid<VectorType>::set_edge_in_matrix(
 
 template <typename VectorType>
 void
-Multigrid<VectorType>::set_edge_flux_matrices(
-  const MGMatrixBase<VectorType> &edge_down,
-  const MGMatrixBase<VectorType> &edge_up)
+Multigrid<VectorType>::set_edge_flux_matrices(const MGMatrixBase<VectorType> &edge_down,
+                                              const MGMatrixBase<VectorType> &edge_up)
 {
   this->edge_down = &edge_down;
   this->edge_up   = &edge_up;
@@ -276,8 +269,7 @@ Multigrid<VectorType>::cycle()
       solution.resize(minlevel, maxlevel);
       t.resize(minlevel, maxlevel);
     }
-  if (cycle_type != v_cycle &&
-      (defect2.min_level() != minlevel || defect2.max_level() != maxlevel))
+  if (cycle_type != v_cycle && (defect2.min_level() != minlevel || defect2.max_level() != maxlevel))
     defect2.resize(minlevel, maxlevel);
 
   // And now we go and reinit the vectors on the levels.
@@ -324,8 +316,7 @@ Multigrid<VectorType>::vcycle()
 
 template <typename VectorType>
 boost::signals2::connection
-Multigrid<VectorType>::connect_coarse_solve(
-  const std::function<void(const bool, const unsigned int)> &slot)
+Multigrid<VectorType>::connect_coarse_solve(const std::function<void(const bool, const unsigned int)> &slot)
 {
   return this->signals.coarse_solve.connect(slot);
 }
@@ -334,8 +325,7 @@ Multigrid<VectorType>::connect_coarse_solve(
 
 template <typename VectorType>
 boost::signals2::connection
-Multigrid<VectorType>::connect_restriction(
-  const std::function<void(const bool, const unsigned int)> &slot)
+Multigrid<VectorType>::connect_restriction(const std::function<void(const bool, const unsigned int)> &slot)
 {
   return this->signals.restriction.connect(slot);
 }
@@ -344,8 +334,7 @@ Multigrid<VectorType>::connect_restriction(
 
 template <typename VectorType>
 boost::signals2::connection
-Multigrid<VectorType>::connect_prolongation(
-  const std::function<void(const bool, const unsigned int)> &slot)
+Multigrid<VectorType>::connect_prolongation(const std::function<void(const bool, const unsigned int)> &slot)
 {
   return this->signals.prolongation.connect(slot);
 }
@@ -354,8 +343,7 @@ Multigrid<VectorType>::connect_prolongation(
 
 template <typename VectorType>
 boost::signals2::connection
-Multigrid<VectorType>::connect_pre_smoother_step(
-  const std::function<void(const bool, const unsigned int)> &slot)
+Multigrid<VectorType>::connect_pre_smoother_step(const std::function<void(const bool, const unsigned int)> &slot)
 {
   return this->signals.pre_smoother_step.connect(slot);
 }
@@ -364,8 +352,7 @@ Multigrid<VectorType>::connect_pre_smoother_step(
 
 template <typename VectorType>
 boost::signals2::connection
-Multigrid<VectorType>::connect_post_smoother_step(
-  const std::function<void(const bool, const unsigned int)> &slot)
+Multigrid<VectorType>::connect_post_smoother_step(const std::function<void(const bool, const unsigned int)> &slot)
 {
   return this->signals.post_smoother_step.connect(slot);
 }
@@ -374,8 +361,7 @@ Multigrid<VectorType>::connect_post_smoother_step(
 
 template <typename VectorType>
 boost::signals2::connection
-Multigrid<VectorType>::connect_residual_step(
-  const std::function<void(const bool, const unsigned int)> &slot)
+Multigrid<VectorType>::connect_residual_step(const std::function<void(const bool, const unsigned int)> &slot)
 {
   return this->signals.residual_step.connect(slot);
 }
@@ -384,8 +370,7 @@ Multigrid<VectorType>::connect_residual_step(
 
 template <typename VectorType>
 boost::signals2::connection
-Multigrid<VectorType>::connect_edge_prolongation(
-  const std::function<void(const bool, const unsigned int)> &slot)
+Multigrid<VectorType>::connect_edge_prolongation(const std::function<void(const bool, const unsigned int)> &slot)
 {
   return this->signals.edge_prolongation.connect(slot);
 }

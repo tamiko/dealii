@@ -65,10 +65,8 @@ test_compute_pt_loc(unsigned int n_points)
 
   // Creating a dummy vector/fe_field_function in order to use FEFieldFunction
   Vector<double>                  dummy;
-  Functions::FEFieldFunction<dim> fe_function(
-    dof_handler, dummy, StaticMappingQ1<dim, dim>::mapping);
-  std::size_t n_cells =
-    fe_function.compute_point_locations(points, cells, qpoints, maps);
+  Functions::FEFieldFunction<dim> fe_function(dof_handler, dummy, StaticMappingQ1<dim, dim>::mapping);
+  std::size_t                     n_cells = fe_function.compute_point_locations(points, cells, qpoints, maps);
 
   deallog << "Points found in " << n_cells << " cells" << std::endl;
 
@@ -90,10 +88,8 @@ test_compute_pt_loc(unsigned int n_points)
         {
           // Check if points are the same as real points
           if (real_quad[q].distance(points[local_map[q]]) > 1e-10)
-            deallog << "Error on cell : " << cell << " at local point " << i
-                    << ", corresponding to real point " << points[local_map[q]]
-                    << ", that got transformed to " << real_quad[q]
-                    << " instead." << std::endl;
+            deallog << "Error on cell : " << cell << " at local point " << i << ", corresponding to real point "
+                    << points[local_map[q]] << ", that got transformed to " << real_quad[q] << " instead." << std::endl;
         }
     }
   deallog << "Test finished" << std::endl;

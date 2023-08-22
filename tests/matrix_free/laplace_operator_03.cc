@@ -55,8 +55,7 @@ test()
   parallel::distributed::Triangulation<dim> tria(MPI_COMM_WORLD);
   GridGenerator::hyper_cube(tria);
   tria.refine_global(1);
-  for (const auto &cell :
-       tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     if (cell->center().norm() < 0.2)
       cell->set_refine_flag();
   tria.execute_coarsening_and_refinement();
@@ -72,8 +71,7 @@ test()
   for (unsigned int i = 0; i < 10 - 3 * dim; ++i)
     {
       unsigned int counter = 0;
-      for (const auto &cell :
-           tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+      for (const auto &cell : tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
         if (counter++ % (7 - i) == 0)
           cell->set_refine_flag();
       tria.execute_coarsening_and_refinement();
@@ -89,10 +87,7 @@ test()
 
   AffineConstraints<double> constraints(relevant_set);
   DoFTools::make_hanging_node_constraints(dof, constraints);
-  VectorTools::interpolate_boundary_values(dof,
-                                           0,
-                                           Functions::ZeroFunction<dim>(),
-                                           constraints);
+  VectorTools::interpolate_boundary_values(dof, 0, Functions::ZeroFunction<dim>(), constraints);
   constraints.close();
 
   deallog << "Testing " << dof.get_fe().get_name() << std::endl;
@@ -101,15 +96,13 @@ test()
   // std::endl; std::cout << "Number of constraints: " <<
   // constraints.n_constraints() << std::endl;
 
-  std::shared_ptr<MatrixFree<dim, number>> mf_data(
-    new MatrixFree<dim, number>());
+  std::shared_ptr<MatrixFree<dim, number>> mf_data(new MatrixFree<dim, number>());
   {
     const QGauss<1>                                  quad(fe_degree + 1);
     typename MatrixFree<dim, number>::AdditionalData data;
     data.tasks_parallel_scheme = MatrixFree<dim, number>::AdditionalData::none;
     data.tasks_block_size      = 7;
-    data.mapping_update_flags =
-      update_quadrature_points | update_gradients | update_JxW_values;
+    data.mapping_update_flags  = update_quadrature_points | update_gradients | update_JxW_values;
     mf_data->reinit(MappingQ1<dim>{}, dof, constraints, quad, data);
   }
 
@@ -118,21 +111,12 @@ test()
   {
     coefficient->reinit(mf_data->n_cell_batches(), 1);
     for (unsigned int cell = 0; cell < mf_data->n_cell_batches(); ++cell)
-      for (unsigned int v = 0;
-           v < mf_data->n_active_entries_per_cell_batch(cell);
-           ++v)
+      for (unsigned int v = 0; v < mf_data->n_active_entries_per_cell_batch(cell); ++v)
         (*coefficient)(cell, 0)[v] =
-          1. + std::sqrt(static_cast<double>(
-                 mf_data->get_cell_iterator(cell, v)->active_cell_index()));
+          1. + std::sqrt(static_cast<double>(mf_data->get_cell_iterator(cell, v)->active_cell_index()));
   }
 
-  MatrixFreeOperators::LaplaceOperator<
-    dim,
-    fe_degree,
-    fe_degree + 1,
-    1,
-    LinearAlgebra::distributed::Vector<number>>
-    mf;
+  MatrixFreeOperators::LaplaceOperator<dim, fe_degree, fe_degree + 1, 1, LinearAlgebra::distributed::Vector<number>> mf;
   mf.initialize(mf_data);
   mf.set_coefficient(coefficient);
   mf.compute_diagonal();
@@ -157,12 +141,7 @@ test()
   TrilinosWrappers::SparseMatrix sparse_matrix;
   {
     TrilinosWrappers::SparsityPattern csp(owned_set, MPI_COMM_WORLD);
-    DoFTools::make_sparsity_pattern(dof,
-                                    csp,
-                                    constraints,
-                                    true,
-                                    Utilities::MPI::this_mpi_process(
-                                      MPI_COMM_WORLD));
+    DoFTools::make_sparsity_pattern(dof, csp, constraints, true, Utilities::MPI::this_mpi_process(MPI_COMM_WORLD));
     csp.compress();
     sparse_matrix.reinit(csp);
   }
@@ -171,39 +150,33 @@ test()
 
     FEValues<dim> fe_values(dof.get_fe(),
                             quadrature_formula,
-                            update_gradients | update_JxW_values |
-                              update_quadrature_points);
+                            update_gradients | update_JxW_values | update_quadrature_points);
 
     const unsigned int dofs_per_cell = dof.get_fe().dofs_per_cell;
     const unsigned int n_q_points    = quadrature_formula.size();
 
-    FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
+    FullMatrix<double>                   cell_matrix(dofs_per_cell, dofs_per_cell);
     std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
 
-    typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(),
-                                                   endc = dof.end();
+    typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(), endc = dof.end();
     for (; cell != endc; ++cell)
       if (cell->is_locally_owned())
         {
           cell_matrix = 0;
           fe_values.reinit(cell);
 
-          const double coefficient =
-            1. + std::sqrt(static_cast<double>(cell->active_cell_index()));
+          const double coefficient = 1. + std::sqrt(static_cast<double>(cell->active_cell_index()));
 
           for (unsigned int q_point = 0; q_point < n_q_points; ++q_point)
             for (unsigned int i = 0; i < dofs_per_cell; ++i)
               {
                 for (unsigned int j = 0; j < dofs_per_cell; ++j)
-                  cell_matrix(i, j) += (fe_values.shape_grad(i, q_point) *
-                                        fe_values.shape_grad(j, q_point)) *
+                  cell_matrix(i, j) += (fe_values.shape_grad(i, q_point) * fe_values.shape_grad(j, q_point)) *
                                        coefficient * fe_values.JxW(q_point);
               }
 
           cell->get_dof_indices(local_dof_indices);
-          constraints.distribute_local_to_global(cell_matrix,
-                                                 local_dof_indices,
-                                                 sparse_matrix);
+          constraints.distribute_local_to_global(cell_matrix, local_dof_indices, sparse_matrix);
         }
   }
   sparse_matrix.compress(VectorOperation::add);

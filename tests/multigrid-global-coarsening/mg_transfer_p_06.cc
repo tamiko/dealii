@@ -67,8 +67,7 @@ do_test(const FiniteElement<dim> &fe_fine, const FiniteElement<dim> &fe_coarse)
     parallel::distributed::Triangulation<dim>::construct_multigrid_hierarchy);
 
   // create grid
-  GridGenerator::subdivided_hyper_cube(tria,
-                                       Utilities::pow<unsigned int>(2, 2));
+  GridGenerator::subdivided_hyper_cube(tria, Utilities::pow<unsigned int>(2, 2));
 
   // setup dof-handlers
   DoFHandler<dim> dof_handler_fine(tria);
@@ -79,8 +78,7 @@ do_test(const FiniteElement<dim> &fe_fine, const FiniteElement<dim> &fe_coarse)
         cell->set_active_fe_index(1);
     }
 
-  dof_handler_fine.distribute_dofs(
-    hp::FECollection<dim>(fe_fine, FE_Nothing<dim>(1)));
+  dof_handler_fine.distribute_dofs(hp::FECollection<dim>(fe_fine, FE_Nothing<dim>(1)));
 
   DoFHandler<dim> dof_handler_coarse(tria);
   dof_handler_coarse.distribute_dofs(fe_coarse);
@@ -94,12 +92,8 @@ do_test(const FiniteElement<dim> &fe_fine, const FiniteElement<dim> &fe_coarse)
   // setup transfer operator
   {
     deallog.push("active");
-    MGTwoLevelTransfer<dim, LinearAlgebra::distributed::Vector<Number>>
-      transfer;
-    transfer.reinit(dof_handler_fine,
-                    dof_handler_coarse,
-                    constraint_fine,
-                    constraint_coarse);
+    MGTwoLevelTransfer<dim, LinearAlgebra::distributed::Vector<Number>> transfer;
+    transfer.reinit(dof_handler_fine, dof_handler_coarse, constraint_fine, constraint_coarse);
 
     test_transfer_operator(transfer, dof_handler_fine, dof_handler_coarse);
     deallog.pop();
@@ -115,22 +109,19 @@ test(int fe_degree_fine, int fe_degree_coarse)
 
   {
     deallog.push("CG<2>(" + str_fine + ")<->CG<2>(" + str_coarse + ")");
-    do_test<dim, Number>(FE_Q<dim>(fe_degree_fine),
-                         FE_Q<dim>(fe_degree_coarse));
+    do_test<dim, Number>(FE_Q<dim>(fe_degree_fine), FE_Q<dim>(fe_degree_coarse));
     deallog.pop();
   }
 
   {
     deallog.push("DG<2>(" + str_fine + ")<->CG<2>(" + str_coarse + ")");
-    do_test<dim, Number>(FE_DGQ<dim>(fe_degree_fine),
-                         FE_Q<dim>(fe_degree_coarse));
+    do_test<dim, Number>(FE_DGQ<dim>(fe_degree_fine), FE_Q<dim>(fe_degree_coarse));
     deallog.pop();
   }
 
   {
     deallog.push("DG<2>(" + str_fine + ")<->DG<2>(" + str_coarse + ")");
-    do_test<dim, Number>(FE_DGQ<dim>(fe_degree_fine),
-                         FE_DGQ<dim>(fe_degree_coarse));
+    do_test<dim, Number>(FE_DGQ<dim>(fe_degree_fine), FE_DGQ<dim>(fe_degree_coarse));
     deallog.pop();
   }
 }
@@ -144,7 +135,6 @@ main(int argc, char **argv)
   deallog.precision(8);
 
   for (unsigned int fe_degree_fine = 1; fe_degree_fine <= 5; ++fe_degree_fine)
-    for (unsigned int fe_degree_coarse = 1; fe_degree_coarse <= fe_degree_fine;
-         fe_degree_coarse++)
+    for (unsigned int fe_degree_coarse = 1; fe_degree_coarse <= fe_degree_fine; fe_degree_coarse++)
       test<2, double>(fe_degree_fine, fe_degree_coarse);
 }

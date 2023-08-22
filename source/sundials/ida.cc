@@ -68,10 +68,7 @@ namespace SUNDIALS
     // initialized. Hence, work around that by just not providing a
     // communicator in that case.
 #  if DEAL_II_SUNDIALS_VERSION_GTE(6, 0, 0)
-    const int status =
-      SUNContext_Create(mpi_communicator == MPI_COMM_SELF ? nullptr :
-                                                            &mpi_communicator,
-                        &ida_ctx);
+    const int status = SUNContext_Create(mpi_communicator == MPI_COMM_SELF ? nullptr : &mpi_communicator, &ida_ctx);
     (void)status;
     AssertIDA(status);
 #  endif
@@ -180,8 +177,8 @@ namespace SUNDIALS
   void
   IDA<VectorType>::reset(const double current_time,
                          const double current_time_step,
-                         VectorType & solution,
-                         VectorType & solution_dot)
+                         VectorType  &solution,
+                         VectorType  &solution_dot)
   {
     bool first_step = (current_time == data.initial_time);
 
@@ -193,10 +190,7 @@ namespace SUNDIALS
     AssertIDA(status);
 
     // Same comment applies as in class constructor:
-    status =
-      SUNContext_Create(mpi_communicator == MPI_COMM_SELF ? nullptr :
-                                                            &mpi_communicator,
-                        &ida_ctx);
+    status = SUNContext_Create(mpi_communicator == MPI_COMM_SELF ? nullptr : &mpi_communicator, &ida_ctx);
     AssertIDA(status);
 #  endif
 
@@ -227,8 +221,7 @@ namespace SUNDIALS
 
     status = IDAInit(
       ida_mem,
-      [](realtype tt, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data)
-        -> int {
+      [](realtype tt, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data) -> int {
         IDA<VectorType> &solver = *static_cast<IDA<VectorType> *>(user_data);
 
         auto *src_yy   = internal::unwrap_nvector_const<VectorType>(yy);
@@ -236,12 +229,7 @@ namespace SUNDIALS
         auto *residual = internal::unwrap_nvector<VectorType>(rr);
 
         return Utilities::call_and_possibly_capture_exception(
-          solver.residual,
-          solver.pending_exception,
-          tt,
-          *src_yy,
-          *src_yp,
-          *residual);
+          solver.residual, solver.pending_exception, tt, *src_yy, *src_yp, *residual);
       },
       current_time,
       yy,
@@ -260,9 +248,7 @@ namespace SUNDIALS
       }
     else
       {
-        status = IDASStolerances(ida_mem,
-                                 data.relative_tolerance,
-                                 data.absolute_tolerance);
+        status = IDASStolerances(ida_mem, data.relative_tolerance, data.absolute_tolerance);
         AssertIDA(status);
       }
 
@@ -272,8 +258,7 @@ namespace SUNDIALS
     status = IDASetUserData(ida_mem, this);
     AssertIDA(status);
 
-    if (data.ic_type == AdditionalData::use_y_diff ||
-        data.reset_type == AdditionalData::use_y_diff ||
+    if (data.ic_type == AdditionalData::use_y_diff || data.reset_type == AdditionalData::use_y_diff ||
         data.ignore_algebraic_terms_for_errors)
       {
         VectorType diff_comp_vector(solution);
@@ -337,23 +322,14 @@ namespace SUNDIALS
       return 0;
     };
 
-    AssertThrow(solve_with_jacobian,
-                ExcFunctionNotProvided("solve_with_jacobian"));
-    LS->ops->solve = [](SUNLinearSolver LS,
-                        SUNMatrix /*ignored*/,
-                        N_Vector x,
-                        N_Vector b,
-                        realtype tol) -> int {
+    AssertThrow(solve_with_jacobian, ExcFunctionNotProvided("solve_with_jacobian"));
+    LS->ops->solve = [](SUNLinearSolver LS, SUNMatrix /*ignored*/, N_Vector x, N_Vector b, realtype tol) -> int {
       IDA<VectorType> &solver = *static_cast<IDA<VectorType> *>(LS->content);
 
       auto *src_b = internal::unwrap_nvector_const<VectorType>(b);
       auto *dst_x = internal::unwrap_nvector<VectorType>(x);
       return Utilities::call_and_possibly_capture_exception(
-        solver.solve_with_jacobian,
-        solver.pending_exception,
-        *src_b,
-        *dst_x,
-        tol);
+        solver.solve_with_jacobian, solver.pending_exception, *src_b, *dst_x, tol);
     };
 
     // When we set an iterative solver IDA requires that resid is provided. From
@@ -363,9 +339,7 @@ namespace SUNDIALS
     // sufficiently accurate), then this optional routine may be called by the
     // SUNDIALS package. This routine should return the N_Vector containing the
     // preconditioned initial residual vector.
-    LS->ops->resid = [](SUNLinearSolver /*ignored*/) -> N_Vector {
-      return nullptr;
-    };
+    LS->ops->resid = [](SUNLinearSolver /*ignored*/) -> N_Vector { return nullptr; };
     // When we set an iterative solver IDA requires that last number of
     // iteration is provided. Since we can't know what kind of solver the user
     // has provided we set 1. This is clearly suboptimal.
@@ -382,9 +356,7 @@ namespace SUNDIALS
 #  endif
     J->content = this;
 
-    J->ops->getid = [](SUNMatrix /*ignored*/) -> SUNMatrix_ID {
-      return SUNMATRIX_CUSTOM;
-    };
+    J->ops->getid = [](SUNMatrix /*ignored*/) -> SUNMatrix_ID { return SUNMATRIX_CUSTOM; };
 
     J->ops->destroy = [](SUNMatrix A) {
       if (A->content)
@@ -409,32 +381,26 @@ namespace SUNDIALS
     // Finally tell IDA about
     // it as well. The manual says that this must happen *after*
     // calling IDASetLinearSolver
-    status = IDASetJacFn(
-      ida_mem,
-      [](realtype tt,
-         realtype cj,
-         N_Vector yy,
-         N_Vector yp,
-         N_Vector /* residual */,
-         SUNMatrix /* ignored */,
-         void *user_data,
-         N_Vector /* tmp1 */,
-         N_Vector /* tmp2 */,
-         N_Vector /* tmp3 */) -> int {
-        Assert(user_data != nullptr, ExcInternalError());
-        IDA<VectorType> &solver = *static_cast<IDA<VectorType> *>(user_data);
+    status = IDASetJacFn(ida_mem,
+                         [](realtype tt,
+                            realtype cj,
+                            N_Vector yy,
+                            N_Vector yp,
+                            N_Vector /* residual */,
+                            SUNMatrix /* ignored */,
+                            void *user_data,
+                            N_Vector /* tmp1 */,
+                            N_Vector /* tmp2 */,
+                            N_Vector /* tmp3 */) -> int {
+                           Assert(user_data != nullptr, ExcInternalError());
+                           IDA<VectorType> &solver = *static_cast<IDA<VectorType> *>(user_data);
 
-        auto *src_yy = internal::unwrap_nvector_const<VectorType>(yy);
-        auto *src_yp = internal::unwrap_nvector_const<VectorType>(yp);
+                           auto *src_yy = internal::unwrap_nvector_const<VectorType>(yy);
+                           auto *src_yp = internal::unwrap_nvector_const<VectorType>(yp);
 
-        return Utilities::call_and_possibly_capture_exception(
-          solver.setup_jacobian,
-          solver.pending_exception,
-          tt,
-          *src_yy,
-          *src_yp,
-          cj);
-      });
+                           return Utilities::call_and_possibly_capture_exception(
+                             solver.setup_jacobian, solver.pending_exception, tt, *src_yy, *src_yp, cj);
+                         });
     AssertIDA(status);
     status = IDASetMaxOrd(ida_mem, data.maximum_order);
     AssertIDA(status);
@@ -445,15 +411,13 @@ namespace SUNDIALS
     else
       type = data.reset_type;
 
-    status =
-      IDASetMaxNumItersIC(ida_mem, data.maximum_non_linear_iterations_ic);
+    status = IDASetMaxNumItersIC(ida_mem, data.maximum_non_linear_iterations_ic);
     AssertIDA(status);
 
     if (type == AdditionalData::use_y_dot)
       {
         // (re)initialization of the vectors
-        status =
-          IDACalcIC(ida_mem, IDA_Y_INIT, current_time + current_time_step);
+        status = IDACalcIC(ida_mem, IDA_Y_INIT, current_time + current_time_step);
         AssertIDA(status);
 
         status = IDAGetConsistentIC(ida_mem, yy, yp);
@@ -461,8 +425,7 @@ namespace SUNDIALS
       }
     else if (type == AdditionalData::use_y_diff)
       {
-        status =
-          IDACalcIC(ida_mem, IDA_YA_YDP_INIT, current_time + current_time_step);
+        status = IDACalcIC(ida_mem, IDA_YA_YDP_INIT, current_time + current_time_step);
         AssertIDA(status);
 
         status = IDAGetConsistentIC(ida_mem, yy, yp);
@@ -474,27 +437,18 @@ namespace SUNDIALS
   void
   IDA<VectorType>::set_functions_to_trigger_an_assert()
   {
-    reinit_vector = [](VectorType &) {
-      AssertThrow(false, ExcFunctionNotProvided("reinit_vector"));
-    };
+    reinit_vector = [](VectorType &) { AssertThrow(false, ExcFunctionNotProvided("reinit_vector")); };
 
-    residual = [](const double,
-                  const VectorType &,
-                  const VectorType &,
-                  VectorType &) -> int {
+    residual = [](const double, const VectorType &, const VectorType &, VectorType &) -> int {
       int ret = 0;
       AssertThrow(false, ExcFunctionNotProvided("residual"));
       return ret;
     };
 
 
-    output_step = [](const double,
-                     const VectorType &,
-                     const VectorType &,
-                     const unsigned int) { return; };
+    output_step = [](const double, const VectorType &, const VectorType &, const unsigned int) { return; };
 
-    solver_should_restart =
-      [](const double, VectorType &, VectorType &) -> bool { return false; };
+    solver_should_restart = [](const double, VectorType &, VectorType &) -> bool { return false; };
 
     differential_components = [&]() -> IndexSet {
       GrowingVectorMemory<VectorType>            mem;

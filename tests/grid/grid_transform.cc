@@ -60,8 +60,7 @@ main()
   const Point<dim> n_center(0, -1);
   const double     n_radius = 0.5;
 
-  Triangulation<dim>::cell_iterator cell = tria.begin_active(),
-                                    endc = tria.end();
+  Triangulation<dim>::cell_iterator cell = tria.begin_active(), endc = tria.end();
   Triangulation<dim>::face_iterator face;
   for (; cell != endc; ++cell)
     {
@@ -70,9 +69,7 @@ main()
           {
             face = cell->face(face_no);
             if (face->at_boundary())
-              for (unsigned int vertex_no = 0;
-                   vertex_no < GeometryInfo<dim>::vertices_per_face;
-                   ++vertex_no)
+              for (unsigned int vertex_no = 0; vertex_no < GeometryInfo<dim>::vertices_per_face; ++vertex_no)
                 {
                   const Point<dim> &v = face->vertex(vertex_no);
                   if (std::fabs(std::sqrt(v.square()) - outer_radius) < 1e-12)
@@ -81,12 +78,10 @@ main()
                       // point, where
                       // they are.
                       new_points.insert(
-                        std::pair<types::global_dof_index, Point<dim>>(
-                          face->vertex_index(vertex_no), v));
+                        std::pair<types::global_dof_index, Point<dim>>(face->vertex_index(vertex_no), v));
                       face->set_manifold_id(0);
                     }
-                  else if (std::fabs(std::sqrt(v.square()) - inner_radius) <
-                           1e-12)
+                  else if (std::fabs(std::sqrt(v.square()) - inner_radius) < 1e-12)
                     {
                       // move the
                       // center of
@@ -98,9 +93,8 @@ main()
                       // of the
                       // circle.
                       new_points.insert(
-                        std::pair<types::global_dof_index, Point<dim>>(
-                          face->vertex_index(vertex_no),
-                          n_radius / inner_radius * v + n_center));
+                        std::pair<types::global_dof_index, Point<dim>>(face->vertex_index(vertex_no),
+                                                                       n_radius / inner_radius * v + n_center));
                       face->set_manifold_id(1);
                     }
                   else

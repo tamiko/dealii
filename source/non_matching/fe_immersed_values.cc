@@ -24,16 +24,11 @@ DEAL_II_NAMESPACE_OPEN
 namespace NonMatching
 {
   template <int dim>
-  FEImmersedSurfaceValues<dim>::FEImmersedSurfaceValues(
-    const Mapping<dim> &                  mapping,
-    const FiniteElement<dim> &            element,
-    const ImmersedSurfaceQuadrature<dim> &quadrature,
-    const UpdateFlags                     update_flags)
-    : FEValuesBase<dim, dim>(quadrature.size(),
-                             element.dofs_per_cell,
-                             update_default,
-                             mapping,
-                             element)
+  FEImmersedSurfaceValues<dim>::FEImmersedSurfaceValues(const Mapping<dim>                   &mapping,
+                                                        const FiniteElement<dim>             &element,
+                                                        const ImmersedSurfaceQuadrature<dim> &quadrature,
+                                                        const UpdateFlags                     update_flags)
+    : FEValuesBase<dim, dim>(quadrature.size(), element.dofs_per_cell, update_default, mapping, element)
     , quadrature(quadrature)
   {
     initialize(update_flags);
@@ -43,22 +38,17 @@ namespace NonMatching
 
   template <int dim>
   void
-  FEImmersedSurfaceValues<dim>::reinit(
-    const typename Triangulation<dim>::cell_iterator &cell)
+  FEImmersedSurfaceValues<dim>::reinit(const typename Triangulation<dim>::cell_iterator &cell)
   {
     // Check that mapping and reference cell type are compatible:
     Assert(this->get_mapping().is_compatible_with(cell->reference_cell()),
-           ExcMessage(
-             "You are trying to call FEImmersedSurfaceValues::reinit() with "
-             " a cell of type " +
-             cell->reference_cell().to_string() +
-             " with a Mapping that is not compatible with it."));
+           ExcMessage("You are trying to call FEImmersedSurfaceValues::reinit() with "
+                      " a cell of type " +
+                      cell->reference_cell().to_string() + " with a Mapping that is not compatible with it."));
 
     // No FE in this cell, so no assertion necessary here.
-    Assert(
-      this->present_cell.is_initialized() == false,
-      ExcMessage(
-        "FEImmersedSurfaceValues::reinit() can only be used for one cell!"));
+    Assert(this->present_cell.is_initialized() == false,
+           ExcMessage("FEImmersedSurfaceValues::reinit() can only be used for one cell!"));
 
     this->present_cell = {cell};
 
@@ -72,16 +62,13 @@ namespace NonMatching
   template <int dim>
   template <bool level_dof_access>
   void
-  FEImmersedSurfaceValues<dim>::reinit(
-    const TriaIterator<DoFCellAccessor<dim, dim, level_dof_access>> &cell)
+  FEImmersedSurfaceValues<dim>::reinit(const TriaIterator<DoFCellAccessor<dim, dim, level_dof_access>> &cell)
   {
     // Check that mapping and reference cell type are compatible:
     Assert(this->get_mapping().is_compatible_with(cell->reference_cell()),
-           ExcMessage(
-             "You are trying to call FEImmersedSurfaceValues::reinit() with "
-             "a cell of type " +
-             cell->reference_cell().to_string() +
-             " with a Mapping that is not compatible with it."));
+           ExcMessage("You are trying to call FEImmersedSurfaceValues::reinit() with "
+                      "a cell of type " +
+                      cell->reference_cell().to_string() + " with a Mapping that is not compatible with it."));
 
     // Assert that the finite elements passed to the constructor and used by the
     // DoFHandler used by this cell, are the same
@@ -89,10 +76,8 @@ namespace NonMatching
              static_cast<const FiniteElementData<dim> &>(cell->get_fe()),
            (typename FEValuesBase<dim>::ExcFEDontMatch()));
 
-    Assert(
-      this->present_cell.is_initialized() == false,
-      ExcMessage(
-        "FEImmersedSurfaceValues::reinit() can only be used for one cell!"));
+    Assert(this->present_cell.is_initialized() == false,
+           ExcMessage("FEImmersedSurfaceValues::reinit() can only be used for one cell!"));
 
     this->present_cell = {cell};
 
@@ -111,11 +96,10 @@ namespace NonMatching
     // mapping.
     if (this->update_flags & update_mapping)
       {
-        this->get_mapping().fill_fe_immersed_surface_values(
-          this->present_cell,
-          quadrature,
-          *this->mapping_data,
-          this->mapping_output);
+        this->get_mapping().fill_fe_immersed_surface_values(this->present_cell,
+                                                            quadrature,
+                                                            *this->mapping_data,
+                                                            this->mapping_output);
       }
 
     // Call the finite element and, with the data already filled by the mapping,
@@ -135,28 +119,23 @@ namespace NonMatching
 
   template <int dim>
   Tensor<1, dim>
-  FEImmersedSurfaceValues<dim>::shape_surface_grad(
-    const unsigned int function_no,
-    const unsigned int quadrature_point) const
+  FEImmersedSurfaceValues<dim>::shape_surface_grad(const unsigned int function_no,
+                                                   const unsigned int quadrature_point) const
   {
     const unsigned int component = 0;
-    return shape_surface_grad_component(function_no,
-                                        quadrature_point,
-                                        component);
+    return shape_surface_grad_component(function_no, quadrature_point, component);
   }
 
 
 
   template <int dim>
   Tensor<1, dim>
-  FEImmersedSurfaceValues<dim>::shape_surface_grad_component(
-    const unsigned int function_no,
-    const unsigned int quadrature_point,
-    const unsigned int component) const
+  FEImmersedSurfaceValues<dim>::shape_surface_grad_component(const unsigned int function_no,
+                                                             const unsigned int quadrature_point,
+                                                             const unsigned int component) const
   {
-    const Tensor<1, dim> gradient =
-      this->shape_grad_component(function_no, quadrature_point, component);
-    const Tensor<1, dim> &normal = this->normal_vector(quadrature_point);
+    const Tensor<1, dim>  gradient = this->shape_grad_component(function_no, quadrature_point, component);
+    const Tensor<1, dim> &normal   = this->normal_vector(quadrature_point);
 
     return gradient - (normal * gradient) * normal;
   }
@@ -184,29 +163,22 @@ namespace NonMatching
     // Initialize the base classes.
     if ((flags & update_mapping) != 0u)
       this->mapping_output.initialize(this->n_quadrature_points, flags);
-    this->finite_element_output.initialize(this->n_quadrature_points,
-                                           *this->fe,
-                                           flags);
+    this->finite_element_output.initialize(this->n_quadrature_points, *this->fe, flags);
 
     // Then get objects into which the FE and the Mapping can store
     // intermediate data used across calls to reinit. We can do this in
     // parallel.
-    Threads::Task<
-      std::unique_ptr<typename FiniteElement<dim, dim>::InternalDataBase>>
-      fe_get_data = Threads::new_task(&FiniteElement<dim, dim>::get_data,
-                                      *this->fe,
-                                      flags,
-                                      *this->mapping,
-                                      this->quadrature,
-                                      this->finite_element_output);
+    Threads::Task<std::unique_ptr<typename FiniteElement<dim, dim>::InternalDataBase>> fe_get_data =
+      Threads::new_task(&FiniteElement<dim, dim>::get_data,
+                        *this->fe,
+                        flags,
+                        *this->mapping,
+                        this->quadrature,
+                        this->finite_element_output);
 
-    Threads::Task<std::unique_ptr<typename Mapping<dim>::InternalDataBase>>
-      mapping_get_data;
+    Threads::Task<std::unique_ptr<typename Mapping<dim>::InternalDataBase>> mapping_get_data;
     if ((flags & update_mapping) != 0u)
-      mapping_get_data = Threads::new_task(&Mapping<dim>::get_data,
-                                           *this->mapping,
-                                           flags,
-                                           this->quadrature);
+      mapping_get_data = Threads::new_task(&Mapping<dim>::get_data, *this->mapping, flags, this->quadrature);
 
     this->update_flags = flags;
 
@@ -215,8 +187,7 @@ namespace NonMatching
     if ((flags & update_mapping) != 0u)
       this->mapping_data = std::move(mapping_get_data.return_value());
     else
-      this->mapping_data =
-        std::make_unique<typename Mapping<dim>::InternalDataBase>();
+      this->mapping_data = std::make_unique<typename Mapping<dim>::InternalDataBase>();
   }
 
 

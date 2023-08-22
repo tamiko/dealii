@@ -43,9 +43,7 @@ test()
     MappingQ<dim>      mapping(1);
     const unsigned int n_properties_per_particle = 3;
 
-    Particles::ParticleHandler<dim> particle_handler(tr,
-                                                     mapping,
-                                                     n_properties_per_particle);
+    Particles::ParticleHandler<dim> particle_handler(tr, mapping, n_properties_per_particle);
 
     Point<dim> position;
     position(0) = 0.3;
@@ -66,14 +64,11 @@ test()
     Particles::Particle<dim> particle(position, reference_position, index);
 
     // Insert two identical particles
-    Particles::ParticleIterator<dim> particle_it =
-      particle_handler.insert_particle(particle, tr.begin());
-    particle_it->set_properties(
-      ArrayView<double>(&properties[0], properties.size()));
+    Particles::ParticleIterator<dim> particle_it = particle_handler.insert_particle(particle, tr.begin());
+    particle_it->set_properties(ArrayView<double>(&properties[0], properties.size()));
 
     particle_it = particle_handler.insert_particle(particle, tr.begin());
-    particle_it->set_properties(
-      ArrayView<double>(&properties[0], properties.size()));
+    particle_it->set_properties(ArrayView<double>(&properties[0], properties.size()));
 
     // Modify the properties of the second particle
     particle_it->get_properties()[0] = 0.05;
@@ -82,9 +77,7 @@ test()
       {
         deallog << "Particle position: " << particle.get_location() << std::endl
                 << "Particle properties: "
-                << std::vector<double>(particle.get_properties().begin(),
-                                       particle.get_properties().end())
-                << std::endl;
+                << std::vector<double>(particle.get_properties().begin(), particle.get_properties().end()) << std::endl;
       }
   }
 

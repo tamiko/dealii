@@ -40,48 +40,33 @@
 
 template <int dim, int spacedim>
 void
-print_result(const unsigned int                  mapping_degree,
-             const Triangulation<dim, spacedim> &tria,
-             const Point<dim>                    p)
+print_result(const unsigned int mapping_degree, const Triangulation<dim, spacedim> &tria, const Point<dim> p)
 {
   deallog << "Testing " << dim << "D with point " << p << std::endl;
 
   FE_Q<dim>     dummy(mapping_degree);
   MappingQ<dim> mapping(mapping_degree);
 
-  FEValues<dim> fe_values(mapping,
-                          dummy,
-                          Quadrature<dim>(dummy.get_unit_support_points()),
-                          update_quadrature_points);
+  FEValues<dim> fe_values(mapping, dummy, Quadrature<dim>(dummy.get_unit_support_points()), update_quadrature_points);
 
-  std::vector<Point<1>> mapping_points(
-    QGaussLobatto<1>(mapping_degree + 1).get_points());
-  std::vector<unsigned int> renumber =
-    FETools::lexicographic_to_hierarchic_numbering<dim>(mapping_degree);
-  std::vector<Point<dim>> mapping_unit_support_points =
-    internal::MappingQImplementation::unit_support_points<dim>(mapping_points,
-                                                               renumber);
+  std::vector<Point<1>>     mapping_points(QGaussLobatto<1>(mapping_degree + 1).get_points());
+  std::vector<unsigned int> renumber = FETools::lexicographic_to_hierarchic_numbering<dim>(mapping_degree);
+  std::vector<Point<dim>>   mapping_unit_support_points =
+    internal::MappingQImplementation::unit_support_points<dim>(mapping_points, renumber);
 
   for (const auto &cell : tria.active_cell_iterators())
     {
       fe_values.reinit(cell);
       try
         {
-          const Point<dim> p_unit =
-            mapping.transform_real_to_unit_cell(cell, p);
-          deallog << "Testing on cell " << cell->id() << " with center "
-                  << cell->center(true) << std::endl;
+          const Point<dim> p_unit = mapping.transform_real_to_unit_cell(cell, p);
+          deallog << "Testing on cell " << cell->id() << " with center " << cell->center(true) << std::endl;
           deallog << "Exact inverse:                   " << p_unit << std::endl;
-          deallog << "Affine approximation:            "
-                  << cell->real_to_unit_cell_affine_approximation(p)
+          deallog << "Affine approximation:            " << cell->real_to_unit_cell_affine_approximation(p)
                   << std::endl;
-          internal::MappingQImplementation::
-            InverseQuadraticApproximation<dim, spacedim>
-              approx(fe_values.get_quadrature_points(),
-                     mapping_unit_support_points);
-          deallog << "Inverse quadratic approximation: " << approx.compute(p)
-                  << std::endl
-                  << std::endl;
+          internal::MappingQImplementation::InverseQuadraticApproximation<dim, spacedim> approx(
+            fe_values.get_quadrature_points(), mapping_unit_support_points);
+          deallog << "Inverse quadratic approximation: " << approx.compute(p) << std::endl << std::endl;
         }
       catch (typename Mapping<dim, spacedim>::ExcTransformationFailed &)
         {}

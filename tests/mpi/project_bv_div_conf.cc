@@ -62,11 +62,9 @@ namespace ResFlow
 
   template <int dim>
   void
-  FluxBoundaryValues<dim>::vector_value(const Point<dim> &p,
-                                        Vector<double> &  bdry_flux) const
+  FluxBoundaryValues<dim>::vector_value(const Point<dim> &p, Vector<double> &bdry_flux) const
   {
-    Assert(bdry_flux.size() == dim,
-           ExcDimensionMismatch(bdry_flux.size(), dim));
+    Assert(bdry_flux.size() == dim, ExcDimensionMismatch(bdry_flux.size(), dim));
 
     const double alpha = 0.3;
     const double beta  = 1;
@@ -114,8 +112,7 @@ namespace ResFlow
     , fe(FE_RaviartThomas<dim>(degree), 1, FE_DGQ<dim>(degree), 1)
     , triangulation(mpi_communicator)
     , dof_handler(triangulation)
-    , pcout(std::cout,
-            (Utilities::MPI::this_mpi_process(mpi_communicator) == 0))
+    , pcout(std::cout, (Utilities::MPI::this_mpi_process(mpi_communicator) == 0))
   {}
 
   template <int dim>
@@ -151,8 +148,7 @@ namespace ResFlow
         p2 = Point<dim>(1., 1., 1.);
       }
 
-    GridGenerator::subdivided_hyper_rectangle(
-      triangulation, elem_dim, p1, p2, colorize);
+    GridGenerator::subdivided_hyper_rectangle(triangulation, elem_dim, p1, p2, colorize);
     triangulation.refine_global(2);
   } // end make_grid
 
@@ -170,20 +166,18 @@ namespace ResFlow
       DoFTools::count_dofs_per_fe_block(dof_handler, resflow_sub_blocks);
 
     const unsigned int n_u = dofs_per_block[0], n_p = dofs_per_block[1];
-    pcout << "   Number of degrees of freedom: " << dof_handler.n_dofs() << " ("
-          << n_u << '+' << n_p << ')' << std::endl;
+    pcout << "   Number of degrees of freedom: " << dof_handler.n_dofs() << " (" << n_u << '+' << n_p << ')'
+          << std::endl;
 
     // We split up the IndexSet for locally owned and locally relevant DoFs
     // into two IndexSets based on how we want to create the block matrices
     // and vectors.
     owned_partitioning.resize(2);
     owned_partitioning[0] = dof_handler.locally_owned_dofs().get_view(0, n_u);
-    owned_partitioning[1] =
-      dof_handler.locally_owned_dofs().get_view(n_u, n_u + n_p);
+    owned_partitioning[1] = dof_handler.locally_owned_dofs().get_view(n_u, n_u + n_p);
 
-    pcout << "Number of Owned dofs: " << dof_handler.n_locally_owned_dofs()
-          << " (" << owned_partitioning[0].n_elements() << '+'
-          << owned_partitioning[1].n_elements() << ')' << std::endl
+    pcout << "Number of Owned dofs: " << dof_handler.n_locally_owned_dofs() << " ("
+          << owned_partitioning[0].n_elements() << '+' << owned_partitioning[1].n_elements() << ')' << std::endl
           << std::endl;
 
     IndexSet locally_relevant_dofs;
@@ -192,9 +186,8 @@ namespace ResFlow
     relevant_partitioning[0] = locally_relevant_dofs.get_view(0, n_u);
     relevant_partitioning[1] = locally_relevant_dofs.get_view(n_u, n_u + n_p);
 
-    pcout << "Number of Relevant dofs: " << locally_relevant_dofs.n_elements()
-          << " (" << relevant_partitioning[0].n_elements() << '+'
-          << relevant_partitioning[1].n_elements() << ')' << std::endl
+    pcout << "Number of Relevant dofs: " << locally_relevant_dofs.n_elements() << " ("
+          << relevant_partitioning[0].n_elements() << '+' << relevant_partitioning[1].n_elements() << ')' << std::endl
           << std::endl;
 
     {
@@ -204,12 +197,7 @@ namespace ResFlow
       DoFTools::make_hanging_node_constraints(dof_handler, constraints);
 
       VectorTools::project_boundary_values_div_conforming(
-        dof_handler,
-        0,
-        FluxBoundaryValues<dim>(),
-        0,
-        constraints,
-        StaticMappingQ1<dim>::mapping);
+        dof_handler, 0, FluxBoundaryValues<dim>(), 0, constraints, StaticMappingQ1<dim>::mapping);
 
       deallog << "Constraints" << std::endl;
       constraints.print(deallog.get_file_stream());
@@ -222,9 +210,7 @@ namespace ResFlow
   void
   ResFlowProblem<dim>::run()
   {
-    pcout << "Running with "
-          << Utilities::MPI::n_mpi_processes(mpi_communicator)
-          << " MPI rank(s)..." << std::endl;
+    pcout << "Running with " << Utilities::MPI::n_mpi_processes(mpi_communicator) << " MPI rank(s)..." << std::endl;
 
     make_grid();
     pcout << "Grid made." << std::endl;
@@ -253,28 +239,20 @@ main(int argc, char *argv[])
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
 

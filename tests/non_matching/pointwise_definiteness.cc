@@ -43,11 +43,9 @@ test_with_positive_functions()
   functions.push_back(Functions::ConstantFunction<dim>(1));
   functions.push_back(Functions::ConstantFunction<dim>(1));
 
-  const std::vector<std::reference_wrapper<const Function<dim>>> function_refs(
-    functions.begin(), functions.end());
+  const std::vector<std::reference_wrapper<const Function<dim>>> function_refs(functions.begin(), functions.end());
 
-  const Definiteness definiteness =
-    pointwise_definiteness(function_refs, Point<dim>());
+  const Definiteness definiteness = pointwise_definiteness(function_refs, Point<dim>());
 
   AssertThrow(definiteness == Definiteness::positive, ExcInternalError());
 }
@@ -66,11 +64,9 @@ test_with_negative_functions()
   functions.push_back(Functions::ConstantFunction<dim>(-1));
   functions.push_back(Functions::ConstantFunction<dim>(-1));
 
-  const std::vector<std::reference_wrapper<const Function<dim>>> function_refs(
-    functions.begin(), functions.end());
+  const std::vector<std::reference_wrapper<const Function<dim>>> function_refs(functions.begin(), functions.end());
 
-  const Definiteness definiteness =
-    pointwise_definiteness(function_refs, Point<dim>());
+  const Definiteness definiteness = pointwise_definiteness(function_refs, Point<dim>());
 
   AssertThrow(definiteness == Definiteness::negative, ExcInternalError());
 }
@@ -89,11 +85,9 @@ test_with_functions_of_different_sign()
   functions.push_back(Functions::ConstantFunction<dim>(-1));
   functions.push_back(Functions::ConstantFunction<dim>(1));
 
-  const std::vector<std::reference_wrapper<const Function<dim>>> function_refs(
-    functions.begin(), functions.end());
+  const std::vector<std::reference_wrapper<const Function<dim>>> function_refs(functions.begin(), functions.end());
 
-  const Definiteness definiteness =
-    pointwise_definiteness(function_refs, Point<dim>());
+  const Definiteness definiteness = pointwise_definiteness(function_refs, Point<dim>());
 
   AssertThrow(definiteness == Definiteness::indefinite, ExcInternalError());
 }
@@ -115,8 +109,7 @@ test_first_function_zero()
   std::vector<std::reference_wrapper<const Function<dim>>> function_refs;
   function_refs.push_back(zero_function);
 
-  const Definiteness definiteness =
-    pointwise_definiteness(function_refs, Point<dim>());
+  const Definiteness definiteness = pointwise_definiteness(function_refs, Point<dim>());
 
   AssertThrow(definiteness == Definiteness::indefinite, ExcInternalError());
 }

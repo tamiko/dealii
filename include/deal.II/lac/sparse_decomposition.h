@@ -104,8 +104,7 @@ DEAL_II_NAMESPACE_OPEN
  * get_strengthen_diagonal() method.
  */
 template <typename number>
-class SparseLUDecomposition : protected SparseMatrix<number>,
-                              public virtual Subscriptor
+class SparseLUDecomposition : protected SparseMatrix<number>, public virtual Subscriptor
 {
 protected:
   /**
@@ -144,10 +143,10 @@ public:
     /**
      * Constructor. For the parameters' description, see below.
      */
-    explicit AdditionalData(const double       strengthen_diagonal   = 0.,
-                            const unsigned int extra_off_diagonals   = 0,
-                            const bool         use_previous_sparsity = false,
-                            const SparsityPattern *use_this_sparsity = nullptr);
+    explicit AdditionalData(const double           strengthen_diagonal   = 0.,
+                            const unsigned int     extra_off_diagonals   = 0,
+                            const bool             use_previous_sparsity = false,
+                            const SparsityPattern *use_this_sparsity     = nullptr);
 
     /**
      * <code>strengthen_diag</code> times the sum of absolute row entries is
@@ -209,8 +208,7 @@ public:
    */
   template <typename somenumber>
   void
-  initialize(const SparseMatrix<somenumber> &matrix,
-             const AdditionalData            parameters);
+  initialize(const SparseMatrix<somenumber> &matrix, const AdditionalData parameters);
 
   /**
    * Return whether the object is empty. It calls the inherited
@@ -273,8 +271,7 @@ public:
    */
   DeclException1(ExcInvalidStrengthening,
                  double,
-                 << "The strengthening parameter " << arg1
-                 << " is not greater or equal than zero!");
+                 << "The strengthening parameter " << arg1 << " is not greater or equal than zero!");
   /** @} */
 protected:
   /**
@@ -344,9 +341,7 @@ private:
 
 template <typename number>
 inline number
-SparseLUDecomposition<number>::get_strengthen_diagonal(
-  const number /*rowsum*/,
-  const size_type /*row*/) const
+SparseLUDecomposition<number>::get_strengthen_diagonal(const number /*rowsum*/, const size_type /*row*/) const
 {
   return strengthen_diagonal;
 }
@@ -383,8 +378,7 @@ SparseLUDecomposition<number>::n() const
 template <typename number>
 template <class OutVector, class InVector>
 inline void
-SparseLUDecomposition<number>::vmult_add(OutVector &     dst,
-                                         const InVector &src) const
+SparseLUDecomposition<number>::vmult_add(OutVector &dst, const InVector &src) const
 {
   OutVector tmp;
   tmp.reinit(dst);
@@ -399,8 +393,7 @@ SparseLUDecomposition<number>::vmult_add(OutVector &     dst,
 template <typename number>
 template <class OutVector, class InVector>
 inline void
-SparseLUDecomposition<number>::Tvmult_add(OutVector &     dst,
-                                          const InVector &src) const
+SparseLUDecomposition<number>::Tvmult_add(OutVector &dst, const InVector &src) const
 {
   OutVector tmp;
   tmp.reinit(dst);
@@ -412,11 +405,10 @@ SparseLUDecomposition<number>::Tvmult_add(OutVector &     dst,
 
 
 template <typename number>
-SparseLUDecomposition<number>::AdditionalData::AdditionalData(
-  const double           strengthen_diag,
-  const unsigned int     extra_off_diag,
-  const bool             use_prev_sparsity,
-  const SparsityPattern *use_this_spars)
+SparseLUDecomposition<number>::AdditionalData::AdditionalData(const double           strengthen_diag,
+                                                              const unsigned int     extra_off_diag,
+                                                              const bool             use_prev_sparsity,
+                                                              const SparsityPattern *use_this_spars)
   : strengthen_diagonal(strengthen_diag)
   , extra_off_diagonals(extra_off_diag)
   , use_previous_sparsity(use_prev_sparsity)

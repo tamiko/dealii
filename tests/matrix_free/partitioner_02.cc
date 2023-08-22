@@ -39,9 +39,7 @@
 #include "../tests.h"
 
 
-template <int dim,
-          typename Number              = double,
-          typename VectorizedArrayType = VectorizedArray<Number>>
+template <int dim, typename Number = double, typename VectorizedArrayType = VectorizedArray<Number>>
 void
 test(const std::vector<FiniteElement<dim, dim> *> &finite_elements)
 {
@@ -49,9 +47,8 @@ test(const std::vector<FiniteElement<dim, dim> *> &finite_elements)
   GridGenerator::hyper_cube(tria);
   tria.refine_global(2);
 
-  std::vector<std::shared_ptr<DoFHandler<dim, dim>>> dof_handlers(
-    finite_elements.size());
-  std::vector<const DoFHandler<dim, dim> *> dof_handlers_(dof_handlers.size());
+  std::vector<std::shared_ptr<DoFHandler<dim, dim>>> dof_handlers(finite_elements.size());
+  std::vector<const DoFHandler<dim, dim> *>          dof_handlers_(dof_handlers.size());
 
   for (unsigned int i = 0; i < dof_handlers.size(); ++i)
     {
@@ -68,30 +65,22 @@ test(const std::vector<FiniteElement<dim, dim> *> &finite_elements)
   AffineConstraints<Number> constraint;
   constraint.close();
 
-  std::vector<const AffineConstraints<Number> *> constraints(
-    dof_handlers.size());
+  std::vector<const AffineConstraints<Number> *> constraints(dof_handlers.size());
   for (unsigned int i = 0; i < dof_handlers.size(); ++i)
     constraints[i] = &constraint;
 
 
-  typename MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData
-    additional_data;
-  additional_data.tasks_parallel_scheme =
-    MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData::none;
-  additional_data.mapping_update_flags =
-    update_gradients | update_JxW_values | update_quadrature_points;
-  additional_data.mapping_update_flags_inner_faces =
-    update_gradients | update_JxW_values | update_quadrature_points;
-  additional_data.mapping_update_flags_boundary_faces =
-    update_gradients | update_JxW_values | update_quadrature_points;
-  additional_data.mapping_update_flags_faces_by_cells =
-    update_gradients | update_JxW_values | update_quadrature_points;
-  additional_data.hold_all_faces_to_owned_cells = true;
+  typename MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData additional_data;
+  additional_data.tasks_parallel_scheme            = MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData::none;
+  additional_data.mapping_update_flags             = update_gradients | update_JxW_values | update_quadrature_points;
+  additional_data.mapping_update_flags_inner_faces = update_gradients | update_JxW_values | update_quadrature_points;
+  additional_data.mapping_update_flags_boundary_faces = update_gradients | update_JxW_values | update_quadrature_points;
+  additional_data.mapping_update_flags_faces_by_cells = update_gradients | update_JxW_values | update_quadrature_points;
+  additional_data.hold_all_faces_to_owned_cells       = true;
 
   MatrixFree<dim, Number, VectorizedArrayType> matrix_free;
 
-  matrix_free.reinit(
-    mapping, dof_handlers_, constraints, quads, additional_data);
+  matrix_free.reinit(mapping, dof_handlers_, constraints, quads, additional_data);
 
   deallog << "OK!" << std::endl;
 }

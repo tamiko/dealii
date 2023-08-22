@@ -67,8 +67,7 @@ public:
    * Constructor. This takes the degree of the space, @p deg from the finite element
    * class, and @p n, the number of polynomials for the space.
    */
-  ScalarPolynomialsBase(const unsigned int deg,
-                        const unsigned int n_polynomials);
+  ScalarPolynomialsBase(const unsigned int deg, const unsigned int n_polynomials);
 
   /**
    * Move constructor.
@@ -99,8 +98,8 @@ public:
    * in a loop over all tensor product polynomials.
    */
   virtual void
-  evaluate(const Point<dim> &           unit_point,
-           std::vector<double> &        values,
+  evaluate(const Point<dim>            &unit_point,
+           std::vector<double>         &values,
            std::vector<Tensor<1, dim>> &grads,
            std::vector<Tensor<2, dim>> &grad_grads,
            std::vector<Tensor<3, dim>> &third_derivatives,
@@ -179,8 +178,7 @@ public:
    * Consider using evaluate() instead.
    */
   virtual Tensor<2, dim>
-  compute_grad_grad(const unsigned int /*i*/,
-                    const Point<dim> & /*p*/) const = 0;
+  compute_grad_grad(const unsigned int /*i*/, const Point<dim> & /*p*/) const = 0;
 
   /**
    * Return the number of polynomials.
@@ -256,8 +254,7 @@ ScalarPolynomialsBase<dim>::degree() const
 template <int dim>
 template <int order>
 inline Tensor<order, dim>
-ScalarPolynomialsBase<dim>::compute_derivative(const unsigned int i,
-                                               const Point<dim> & p) const
+ScalarPolynomialsBase<dim>::compute_derivative(const unsigned int i, const Point<dim> &p) const
 {
   if (order == 1)
     {

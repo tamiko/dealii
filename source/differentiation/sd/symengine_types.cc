@@ -37,8 +37,7 @@ namespace Differentiation
       namespace internal
       {
         bool
-        ExpressionKeyLess::operator()(const SD::Expression &lhs,
-                                      const SD::Expression &rhs) const
+        ExpressionKeyLess::operator()(const SD::Expression &lhs, const SD::Expression &rhs) const
         {
           return SE::RCPBasicKeyLess()(lhs.get_RCP(), rhs.get_RCP());
         }

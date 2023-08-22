@@ -26,8 +26,7 @@ namespace
   get_unique_component_names(const std::vector<std::string> &component_names)
   {
     auto elements = component_names;
-    elements.erase(std::unique(elements.begin(), elements.end()),
-                   elements.end());
+    elements.erase(std::unique(elements.begin(), elements.end()), elements.end());
     return elements;
   }
 
@@ -36,14 +35,12 @@ namespace
   std::vector<ComponentMask>
   get_unique_component_masks(const std::vector<std::string> &component_names)
   {
-    const auto unique_component_names =
-      get_unique_component_names(component_names);
+    const auto unique_component_names = get_unique_component_names(component_names);
 
     std::vector<ComponentMask> masks;
 
-    std::vector<std::vector<bool>> bools(
-      unique_component_names.size(),
-      std::vector<bool>(component_names.size(), false));
+    std::vector<std::vector<bool>> bools(unique_component_names.size(),
+                                         std::vector<bool>(component_names.size(), false));
 
     unsigned int j = 0;
     for (unsigned int i = 0; i < component_names.size(); ++i)
@@ -60,9 +57,8 @@ namespace
 
 
 
-ParsedConvergenceTable::ParsedConvergenceTable(
-  const std::vector<std::string> &                    solution_names,
-  const std::vector<std::set<VectorTools::NormType>> &list_of_error_norms)
+ParsedConvergenceTable::ParsedConvergenceTable(const std::vector<std::string>                     &solution_names,
+                                               const std::vector<std::set<VectorTools::NormType>> &list_of_error_norms)
   : ParsedConvergenceTable(solution_names,
                            list_of_error_norms,
                            2.0,
@@ -76,16 +72,15 @@ ParsedConvergenceTable::ParsedConvergenceTable(
 
 
 
-ParsedConvergenceTable::ParsedConvergenceTable(
-  const std::vector<std::string> &                    component_names,
-  const std::vector<std::set<VectorTools::NormType>> &list_of_error_norms,
-  const double                                        exponent,
-  const std::set<std::string> &                       extra_columns,
-  const std::string &                                 rate_key,
-  const std::string &                                 rate_mode,
-  const std::string &                                 error_file_name,
-  const unsigned int                                  precision,
-  const bool                                          compute_error)
+ParsedConvergenceTable::ParsedConvergenceTable(const std::vector<std::string>                     &component_names,
+                                               const std::vector<std::set<VectorTools::NormType>> &list_of_error_norms,
+                                               const double                                        exponent,
+                                               const std::set<std::string>                        &extra_columns,
+                                               const std::string                                  &rate_key,
+                                               const std::string                                  &rate_mode,
+                                               const std::string                                  &error_file_name,
+                                               const unsigned int                                  precision,
+                                               const bool                                          compute_error)
   : component_names(component_names)
   , unique_component_names(get_unique_component_names(component_names))
   , unique_component_masks(get_unique_component_masks(component_names))
@@ -98,8 +93,7 @@ ParsedConvergenceTable::ParsedConvergenceTable(
   , error_file_name(error_file_name)
   , compute_error(compute_error)
 {
-  AssertDimension(norms_per_unique_component.size(),
-                  unique_component_names.size());
+  AssertDimension(norms_per_unique_component.size(), unique_component_names.size());
 }
 
 
@@ -122,13 +116,12 @@ ParsedConvergenceTable::add_parameters(ParameterHandler &prm)
                     "or .tex to enable writing the convergence table to a "
                     "file.");
 
-  prm.add_parameter(
-    "List of error norms to compute",
-    norms_per_unique_component,
-    "Each component is separated by a semicolon "
-    "and each norm by a comma. See the documentation of VectorTools::NormType "
-    "for a list of implemented norms. If you want to skip a component, leave "
-    "its entry empty.");
+  prm.add_parameter("List of error norms to compute",
+                    norms_per_unique_component,
+                    "Each component is separated by a semicolon "
+                    "and each norm by a comma. See the documentation of VectorTools::NormType "
+                    "for a list of implemented norms. If you want to skip a component, leave "
+                    "its entry empty.");
 
 
   prm.add_parameter("Exponent for p-norms",
@@ -152,8 +145,7 @@ ParsedConvergenceTable::add_parameters(ParameterHandler &prm)
                     rate_mode,
                     "What type of error rate to compute. Available options are "
                     "reduction_rate_log2, reduction_rate, and none.",
-                    Patterns::Selection(
-                      "reduction_rate|reduction_rate_log2|none"));
+                    Patterns::Selection("reduction_rate|reduction_rate_log2|none"));
 }
 
 
@@ -181,18 +173,15 @@ ParsedConvergenceTable::prepare_table_for_output()
               {
                 if (rate_key == extra_col.first)
                   has_key = true;
-                table.omit_column_from_convergence_rate_evaluation(
-                  extra_col.first);
+                table.omit_column_from_convergence_rate_evaluation(extra_col.first);
               }
 
           if (has_key)
             {
               if (rate_mode == "reduction_rate_log2")
-                table.evaluate_all_convergence_rates(
-                  rate_key, ConvergenceTable::reduction_rate_log2);
+                table.evaluate_all_convergence_rates(rate_key, ConvergenceTable::reduction_rate_log2);
               else if (rate_mode == "reduction_rate")
-                table.evaluate_all_convergence_rates(
-                  rate_key, ConvergenceTable::reduction_rate);
+                table.evaluate_all_convergence_rates(rate_key, ConvergenceTable::reduction_rate);
               else
                 {
                   Assert(rate_mode != "none", ExcInternalError());
@@ -201,10 +190,9 @@ ParsedConvergenceTable::prepare_table_for_output()
           else
             {
               AssertThrow(rate_key != "",
-                          ExcMessage(
-                            "You specified the key <" + rate_key +
-                            "> to compute convergence rates, but that key does "
-                            "not exist in the current table."));
+                          ExcMessage("You specified the key <" + rate_key +
+                                     "> to compute convergence rates, but that key does "
+                                     "not exist in the current table."));
             }
         }
     }
@@ -232,8 +220,7 @@ ParsedConvergenceTable::output_table()
     {
       prepare_table_for_output();
 
-      const std::string error_file_format =
-        error_file_name.substr(error_file_name.find_last_of('.') + 1);
+      const std::string error_file_format = error_file_name.substr(error_file_name.find_last_of('.') + 1);
 
       std::ofstream table_file(error_file_name);
 
@@ -242,16 +229,12 @@ ParsedConvergenceTable::output_table()
       else if (error_file_format == "txt")
         table.write_text(table_file);
       else if (error_file_format == "gpl")
-        table.write_text(table_file,
-                         TableHandler::table_with_separate_column_description);
+        table.write_text(table_file, TableHandler::table_with_separate_column_description);
       else if (error_file_format == "org")
         table.write_text(table_file, TableHandler::org_mode_table);
       else
         {
-          AssertThrow(false,
-                      ExcInternalError(
-                        std::string("Unrecognized file format: ") +
-                        error_file_format));
+          AssertThrow(false, ExcInternalError(std::string("Unrecognized file format: ") + error_file_format));
         }
       table_file.close();
     }
@@ -260,10 +243,9 @@ ParsedConvergenceTable::output_table()
 
 
 void
-ParsedConvergenceTable::add_extra_column(
-  const std::string &            column_name,
-  const std::function<double()> &custom_function,
-  const bool                     compute_rate)
+ParsedConvergenceTable::add_extra_column(const std::string             &column_name,
+                                         const std::function<double()> &custom_function,
+                                         const bool                     compute_rate)
 {
   extra_column_functions[column_name] = {custom_function, compute_rate};
 }

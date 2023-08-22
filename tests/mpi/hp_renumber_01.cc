@@ -47,8 +47,8 @@ template <int dim>
 void
 test()
 {
-  parallel::distributed::Triangulation<dim> triangulation(
-    MPI_COMM_WORLD, Triangulation<dim>::limit_level_difference_at_vertices);
+  parallel::distributed::Triangulation<dim> triangulation(MPI_COMM_WORLD,
+                                                          Triangulation<dim>::limit_level_difference_at_vertices);
 
   std::vector<unsigned int> reps(dim, 1U);
   reps[0] = 2;
@@ -56,10 +56,7 @@ test()
   Point<dim> top_right;
   for (unsigned int d = 0; d < dim; ++d)
     top_right[d] = (d == 0 ? 2 : 1);
-  GridGenerator::subdivided_hyper_rectangle(triangulation,
-                                            reps,
-                                            Point<dim>(),
-                                            top_right);
+  GridGenerator::subdivided_hyper_rectangle(triangulation, reps, Point<dim>(), top_right);
   Assert(triangulation.n_global_active_cells() == 4, ExcInternalError());
   Assert(triangulation.n_active_cells() == 4, ExcInternalError());
 
@@ -86,29 +83,25 @@ test()
   dof_handler.distribute_dofs(fe);
 
   // now do the identity renumbering
-  const IndexSet locally_owned_dofs = dof_handler.locally_owned_dofs();
-  std::vector<types::global_dof_index> new_indices(
-    locally_owned_dofs.n_elements());
+  const IndexSet                       locally_owned_dofs = dof_handler.locally_owned_dofs();
+  std::vector<types::global_dof_index> new_indices(locally_owned_dofs.n_elements());
   for (unsigned int i = 0; i < new_indices.size(); ++i)
     new_indices[i] = locally_owned_dofs.nth_index_in_set(i);
   dof_handler.renumber_dofs(new_indices);
 
-  deallog << "Processor: " << Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)
-          << std::endl;
+  deallog << "Processor: " << Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) << std::endl;
   for (auto &cell : dof_handler.active_cell_iterators())
     {
       deallog << "  Cell: " << cell << std::endl;
 
-      std::vector<types::global_dof_index> dof_indices(
-        cell->get_fe().dofs_per_cell);
+      std::vector<types::global_dof_index> dof_indices(cell->get_fe().dofs_per_cell);
       cell->get_dof_indices(dof_indices);
       deallog << "    ";
       for (auto i : dof_indices)
         deallog << i << ' ';
       deallog << std::endl;
     }
-  deallog << "  n_locally_owned_dofs: " << dof_handler.n_locally_owned_dofs()
-          << std::endl;
+  deallog << "  n_locally_owned_dofs: " << dof_handler.n_locally_owned_dofs() << std::endl;
   deallog << "  n_global_dofs: " << dof_handler.n_dofs() << std::endl;
 }
 

@@ -59,19 +59,14 @@ test(unsigned int n_ref, unsigned int n_points)
   auto v_to_c   = GridTools::vertex_to_cell_map(tria);
   auto v_to_c_d = GridTools::vertex_to_cell_centers_directions(tria, v_to_c);
 
-  auto &mapping = tria.get_reference_cells()
-                    .front()
-                    .template get_default_linear_mapping<dim, spacedim>();
-  auto cell = tria.begin_active();
+  auto &mapping = tria.get_reference_cells().front().template get_default_linear_mapping<dim, spacedim>();
+  auto  cell    = tria.begin_active();
   for (auto &p : points)
     {
-      auto c_and_p = GridTools::find_active_cell_around_point(
-        mapping, tria, p, v_to_c, v_to_c_d);
-      auto p2 =
-        mapping.transform_unit_to_real_cell(c_and_p.first, c_and_p.second);
+      auto c_and_p = GridTools::find_active_cell_around_point(mapping, tria, p, v_to_c, v_to_c_d);
+      auto p2      = mapping.transform_unit_to_real_cell(c_and_p.first, c_and_p.second);
       if (p2.distance(p) > 1e-10)
-        deallog << "NOT OK!" << p << ", " << p2 << ", " << c_and_p.first
-                << std::endl;
+        deallog << "NOT OK!" << p << ", " << p2 << ", " << c_and_p.first << std::endl;
       cell = c_and_p.first;
     }
   deallog << "OK" << std::endl;

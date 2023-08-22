@@ -28,14 +28,13 @@ class TestPattern : public SparsityPatternBase
   using SparsityPatternBase::size_type;
 
   virtual void
-  add_row_entries(const size_type &                 row,
+  add_row_entries(const size_type                  &row,
                   const ArrayView<const size_type> &columns,
-                  const bool indices_are_sorted = false) override
+                  const bool                        indices_are_sorted = false) override
   {
     deallog << "row = " << row;
 
-    AssertThrow(std::is_sorted(columns.begin(), columns.end()),
-                ExcInternalError());
+    AssertThrow(std::is_sorted(columns.begin(), columns.end()), ExcInternalError());
 
     for (const auto &col : columns)
       deallog << "    " << col;
@@ -51,9 +50,7 @@ main()
 {
   initlog();
 
-  std::vector<
-    std::pair<SparsityPatternBase::size_type, SparsityPatternBase::size_type>>
-    entries;
+  std::vector<std::pair<SparsityPatternBase::size_type, SparsityPatternBase::size_type>> entries;
 
   for (unsigned int i = 0; i < 100; ++i)
     {

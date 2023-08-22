@@ -46,8 +46,7 @@ public:
   double
   value(const Point<dim> &point, const unsigned int compontent) const
   {
-    return std::sin(point[compontent] * 0.5 * numbers::PI) -
-           (is_displacement_function ? point[compontent] : 0.0);
+    return std::sin(point[compontent] * 0.5 * numbers::PI) - (is_displacement_function ? point[compontent] : 0.0);
   }
 
 private:
@@ -58,16 +57,12 @@ static int counter = 0;
 
 template <int dim, typename Fu>
 void
-do_test(const unsigned int degree,
-        const unsigned int mapping_degree,
-        const Fu &         fu,
-        const bool         is_displacement_function)
+do_test(const unsigned int degree, const unsigned int mapping_degree, const Fu &fu, const bool is_displacement_function)
 {
   parallel::distributed::Triangulation<dim> tria(
     MPI_COMM_WORLD,
     Triangulation<dim>::MeshSmoothing::none,
-    parallel::distributed::Triangulation<
-      dim>::Settings::construct_multigrid_hierarchy);
+    parallel::distributed::Triangulation<dim>::Settings::construct_multigrid_hierarchy);
   GridGenerator::subdivided_hyper_cube(tria, 4);
   tria.refine_global(1);
 
@@ -78,20 +73,16 @@ do_test(const unsigned int degree,
 
   IndexSet locally_relevant_dofs;
   DoFTools::extract_locally_relevant_dofs(dof_handler, locally_relevant_dofs);
-  LinearAlgebra::distributed::Vector<double> vector(
-    dof_handler.locally_owned_dofs(),
-    locally_relevant_dofs,
-    dof_handler.get_communicator());
+  LinearAlgebra::distributed::Vector<double> vector(dof_handler.locally_owned_dofs(),
+                                                    locally_relevant_dofs,
+                                                    dof_handler.get_communicator());
 
   VectorTools::interpolate(dof_handler, fu, vector);
 
   {
     MappingQ<dim>      mapping(mapping_degree);
     MappingQCache<dim> mapping_cache(mapping_degree);
-    mapping_cache.initialize(mapping,
-                             dof_handler,
-                             vector,
-                             is_displacement_function);
+    mapping_cache.initialize(mapping, dof_handler, vector, is_displacement_function);
 
     DataOut<dim> data_out;
 
@@ -101,9 +92,7 @@ do_test(const unsigned int degree,
 
     data_out.attach_triangulation(tria);
 
-    data_out.build_patches(mapping_cache,
-                           2,
-                           DataOut<dim>::CurvedCellRegion::curved_inner_cells);
+    data_out.build_patches(mapping_cache, 2, DataOut<dim>::CurvedCellRegion::curved_inner_cells);
 
 #if false
     std::ofstream output("test." + std::to_string(counter++) + "." + std::to_string(Utilities::MPI::this_mpi_process (MPI_COMM_WORLD)) + ".vtk");
@@ -114,18 +103,14 @@ do_test(const unsigned int degree,
   }
 
   {
-    MGLevelObject<LinearAlgebra::distributed::Vector<double>> vectors(
-      0, tria.n_global_levels() - 1);
-    MGTransferMatrixFree<dim, double> transfer;
+    MGLevelObject<LinearAlgebra::distributed::Vector<double>> vectors(0, tria.n_global_levels() - 1);
+    MGTransferMatrixFree<dim, double>                         transfer;
     transfer.build(dof_handler);
     transfer.interpolate_to_mg(dof_handler, vectors, vector);
 
     MappingQ<dim>      mapping(mapping_degree);
     MappingQCache<dim> mapping_cache(mapping_degree);
-    mapping_cache.initialize(mapping,
-                             dof_handler,
-                             vectors,
-                             is_displacement_function);
+    mapping_cache.initialize(mapping, dof_handler, vectors, is_displacement_function);
 
     const unsigned int rank = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
 
@@ -139,18 +124,13 @@ do_test(const unsigned int degree,
 
         data_out.attach_triangulation(tria);
 
-        data_out.set_cell_selection(
-          [&](const typename Triangulation<dim>::cell_iterator &cell) {
-            return (cell->level_subdomain_id() == rank) &&
-                   (static_cast<unsigned int>(cell->level()) == lvl);
-          });
-        data_out.build_patches(mapping_cache,
-                               2,
-                               DataOut<dim>::curved_inner_cells);
+        data_out.set_cell_selection([&](const typename Triangulation<dim>::cell_iterator &cell) {
+          return (cell->level_subdomain_id() == rank) && (static_cast<unsigned int>(cell->level()) == lvl);
+        });
+        data_out.build_patches(mapping_cache, 2, DataOut<dim>::curved_inner_cells);
 
 #if true
-        data_out.write_vtu_with_pvtu_record(
-          "./", "mg_solution", lvl, MPI_COMM_WORLD, 1, 1);
+        data_out.write_vtu_with_pvtu_record("./", "mg_solution", lvl, MPI_COMM_WORLD, 1, 1);
 #else
         data_out.write_vtk(deallog.get_file_stream());
 #endif

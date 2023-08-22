@@ -44,16 +44,15 @@ public:
   TestIntegrator(){};
 
   void
-  cell(MeshWorker::DoFInfo<dim, spacedim> &                 dinfo,
-       typename MeshWorker::IntegrationInfo<dim, spacedim> &info) const {};
+  cell(MeshWorker::DoFInfo<dim, spacedim> &dinfo, typename MeshWorker::IntegrationInfo<dim, spacedim> &info) const {};
 
   void
-  boundary(MeshWorker::DoFInfo<dim, spacedim> &                 dinfo,
+  boundary(MeshWorker::DoFInfo<dim, spacedim>                  &dinfo,
            typename MeshWorker::IntegrationInfo<dim, spacedim> &info) const {};
 
   void
-  face(MeshWorker::DoFInfo<dim, spacedim> &                 dinfo1,
-       MeshWorker::DoFInfo<dim, spacedim> &                 dinfo2,
+  face(MeshWorker::DoFInfo<dim, spacedim>                  &dinfo1,
+       MeshWorker::DoFInfo<dim, spacedim>                  &dinfo2,
        typename MeshWorker::IntegrationInfo<dim, spacedim> &info1,
        typename MeshWorker::IntegrationInfo<dim, spacedim> &info2) const {};
 };
@@ -84,14 +83,9 @@ test()
 
   TestIntegrator<dim, spacedim> integrator;
 
-  MeshWorker::integration_loop<dim, spacedim>(dof_handler.begin_active(),
-                                              dof_handler.end(),
-                                              dof_info,
-                                              info_box,
-                                              integrator,
-                                              assembler);
-  deallog << "dim = " << dim << ", spacedim = " << spacedim << ": OK"
-          << std::endl;
+  MeshWorker::integration_loop<dim, spacedim>(
+    dof_handler.begin_active(), dof_handler.end(), dof_info, info_box, integrator, assembler);
+  deallog << "dim = " << dim << ", spacedim = " << spacedim << ": OK" << std::endl;
 }
 
 

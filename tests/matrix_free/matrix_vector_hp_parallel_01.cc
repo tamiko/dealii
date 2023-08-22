@@ -59,17 +59,16 @@ public:
     : data(data_in){};
 
   void
-  local_apply(const MatrixFree<dim, Number> &                   data,
-              LinearAlgebra::distributed::Vector<Number> &      dst,
+  local_apply(const MatrixFree<dim, Number>                    &data,
+              LinearAlgebra::distributed::Vector<Number>       &dst,
               const LinearAlgebra::distributed::Vector<Number> &src,
-              const std::pair<unsigned int, unsigned int> &cell_range) const
+              const std::pair<unsigned int, unsigned int>      &cell_range) const
   {
     helmholtz_operator_no_template<dim>(data, dst, src, cell_range);
   }
 
   void
-  vmult(LinearAlgebra::distributed::Vector<Number> &      dst,
-        const LinearAlgebra::distributed::Vector<Number> &src) const
+  vmult(LinearAlgebra::distributed::Vector<Number> &dst, const LinearAlgebra::distributed::Vector<Number> &src) const
   {
     dst = 0;
     data.cell_loop(&MatrixFreeTestHP<dim, Number>::local_apply, this, dst, src);
@@ -139,14 +138,10 @@ test()
   dof.distribute_dofs(fe_collection);
   AffineConstraints<double> constraints;
   DoFTools::make_hanging_node_constraints(dof, constraints);
-  VectorTools::interpolate_boundary_values(dof,
-                                           0,
-                                           Functions::ZeroFunction<dim>(),
-                                           constraints);
+  VectorTools::interpolate_boundary_values(dof, 0, Functions::ZeroFunction<dim>(), constraints);
   constraints.close();
 
-  TrilinosWrappers::SparsityPattern dsp(dof.locally_owned_dofs(),
-                                        MPI_COMM_WORLD);
+  TrilinosWrappers::SparsityPattern dsp(dof.locally_owned_dofs(), MPI_COMM_WORLD);
   DoFTools::make_sparsity_pattern(dof, dsp, constraints, false);
   dsp.compress();
 
@@ -162,8 +157,7 @@ test()
   MatrixFree<dim, number>                          mf_data;
   typename MatrixFree<dim, number>::AdditionalData data;
   data.tasks_parallel_scheme = MatrixFree<dim, number>::AdditionalData::none;
-  mf_data.reinit(
-    MappingQ1<dim>{}, dof, constraints, quadrature_collection_mf, data);
+  mf_data.reinit(MappingQ1<dim>{}, dof, constraints, quadrature_collection_mf, data);
   MatrixFreeTestHP<dim, number> mf(mf_data);
 
   // assemble sparse matrix with (\nabla v,
@@ -171,8 +165,7 @@ test()
   {
     hp::FEValues<dim>                    hp_fe_values(fe_collection,
                                    quadrature_collection,
-                                   update_values | update_gradients |
-                                     update_JxW_values);
+                                   update_values | update_gradients | update_JxW_values);
     FullMatrix<double>                   cell_matrix;
     std::vector<types::global_dof_index> local_dof_indices;
 
@@ -188,23 +181,18 @@ test()
         hp_fe_values.reinit(cell);
         const FEValues<dim> &fe_values = hp_fe_values.get_present_fe_values();
 
-        for (unsigned int q_point = 0; q_point < fe_values.n_quadrature_points;
-             ++q_point)
+        for (unsigned int q_point = 0; q_point < fe_values.n_quadrature_points; ++q_point)
           for (unsigned int i = 0; i < dofs_per_cell; ++i)
             {
               for (unsigned int j = 0; j < dofs_per_cell; ++j)
-                cell_matrix(i, j) += ((fe_values.shape_grad(i, q_point) *
-                                         fe_values.shape_grad(j, q_point) +
-                                       10. * fe_values.shape_value(i, q_point) *
-                                         fe_values.shape_value(j, q_point)) *
+                cell_matrix(i, j) += ((fe_values.shape_grad(i, q_point) * fe_values.shape_grad(j, q_point) +
+                                       10. * fe_values.shape_value(i, q_point) * fe_values.shape_value(j, q_point)) *
                                       fe_values.JxW(q_point));
             }
         local_dof_indices.resize(dofs_per_cell);
         cell->get_dof_indices(local_dof_indices);
 
-        constraints.distribute_local_to_global(cell_matrix,
-                                               local_dof_indices,
-                                               system_matrix);
+        constraints.distribute_local_to_global(cell_matrix, local_dof_indices, system_matrix);
       }
   }
   system_matrix.compress(VectorOperation::values::add);
@@ -219,8 +207,7 @@ test()
 
   for (unsigned int i = 0; i < dof.n_locally_owned_dofs(); ++i)
     {
-      if (constraints.is_constrained(
-            src.get_partitioner()->local_to_global(i)) == false)
+      if (constraints.is_constrained(src.get_partitioner()->local_to_global(i)) == false)
         src.local_element(i) = random_value<double>();
     }
 

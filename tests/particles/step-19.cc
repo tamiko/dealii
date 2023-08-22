@@ -147,9 +147,8 @@ namespace Step19
     void
     move_particles();
     void
-    track_lost_particle(
-      const typename Particles::ParticleIterator<dim> &        particle,
-      const typename Triangulation<dim>::active_cell_iterator &cell);
+    track_lost_particle(const typename Particles::ParticleIterator<dim>         &particle,
+                        const typename Triangulation<dim>::active_cell_iterator &cell);
 
 
     void
@@ -223,7 +222,7 @@ namespace Step19
     , time(0, 1e-4)
   {
     particle_handler.signals.particle_lost.connect(
-      [this](const typename Particles::ParticleIterator<dim> &        particle,
+      [this](const typename Particles::ParticleIterator<dim>         &particle,
              const typename Triangulation<dim>::active_cell_iterator &cell) {
         this->track_lost_particle(particle, cell);
       });
@@ -262,8 +261,7 @@ namespace Step19
   void
   CathodeRaySimulator<dim>::make_grid()
   {
-    static_assert(dim == 2,
-                  "This function is currently only implemented for 2d.");
+    static_assert(dim == 2, "This function is currently only implemented for 2d.");
 
     const double       delta = 0.5;
     const unsigned int nx    = 5;
@@ -287,16 +285,15 @@ namespace Step19
          {4, 2}};
     AssertDimension(vertices.size(), nx * ny);
 
-    const std::vector<unsigned int> cell_vertices[(nx - 1) * (ny - 1)] = {
-      {0, 1, nx + 0, nx + 1},
-      {1, 2, nx + 1, nx + 2},
-      {2, 3, nx + 2, nx + 3},
-      {3, 4, nx + 3, nx + 4},
+    const std::vector<unsigned int> cell_vertices[(nx - 1) * (ny - 1)] = {{0, 1, nx + 0, nx + 1},
+                                                                          {1, 2, nx + 1, nx + 2},
+                                                                          {2, 3, nx + 2, nx + 3},
+                                                                          {3, 4, nx + 3, nx + 4},
 
-      {5, nx + 1, 2 * nx + 0, 2 * nx + 1},
-      {nx + 1, nx + 2, 2 * nx + 1, 2 * nx + 2},
-      {nx + 2, nx + 3, 2 * nx + 2, 2 * nx + 3},
-      {nx + 3, nx + 4, 2 * nx + 3, 2 * nx + 4}};
+                                                                          {5, nx + 1, 2 * nx + 0, 2 * nx + 1},
+                                                                          {nx + 1, nx + 2, 2 * nx + 1, 2 * nx + 2},
+                                                                          {nx + 2, nx + 3, 2 * nx + 2, 2 * nx + 3},
+                                                                          {nx + 3, nx + 4, 2 * nx + 3, 2 * nx + 4}};
 
     // With these arrays out of the way, we can move to slightly higher
     // higher-level data structures. We create a vector of CellData
@@ -314,10 +311,8 @@ namespace Step19
         cells[i].material_id = 0;
       }
 
-    triangulation.create_triangulation(
-      vertices,
-      cells,
-      SubCellData()); // No boundary information
+    triangulation.create_triangulation(vertices, cells,
+                                       SubCellData()); // No boundary information
 
     triangulation.refine_global(2);
 
@@ -331,13 +326,12 @@ namespace Step19
       for (auto &face : cell->face_iterators())
         if (face->at_boundary())
           {
-            if ((face->center()[0] > 0) && (face->center()[0] < 0.5) &&
-                (face->center()[1] > 0) && (face->center()[1] < 2))
+            if ((face->center()[0] > 0) && (face->center()[0] < 0.5) && (face->center()[1] > 0) &&
+                (face->center()[1] < 2))
               face->set_boundary_id(BoundaryIds::cathode);
             else if ((face->center()[0] > 0) && (face->center()[0] < 2))
               face->set_boundary_id(BoundaryIds::focus_element);
-            else if ((face->center()[0] > 4 - 1e-12) &&
-                     ((face->center()[1] > 1.5) || (face->center()[1] < 0.5)))
+            else if ((face->center()[0] > 4 - 1e-12) && ((face->center()[1] > 1.5) || (face->center()[1] < 0.5)))
               face->set_boundary_id(BoundaryIds::anode);
             else
               face->set_boundary_id(BoundaryIds::open);
@@ -367,18 +361,15 @@ namespace Step19
 
     VectorTools::interpolate_boundary_values(dof_handler,
                                              BoundaryIds::cathode,
-                                             Functions::ConstantFunction<dim>(
-                                               -Constants::V0),
+                                             Functions::ConstantFunction<dim>(-Constants::V0),
                                              constraints);
     VectorTools::interpolate_boundary_values(dof_handler,
                                              BoundaryIds::focus_element,
-                                             Functions::ConstantFunction<dim>(
-                                               -Constants::V0),
+                                             Functions::ConstantFunction<dim>(-Constants::V0),
                                              constraints);
     VectorTools::interpolate_boundary_values(dof_handler,
                                              BoundaryIds::anode,
-                                             Functions::ConstantFunction<dim>(
-                                               +Constants::V0),
+                                             Functions::ConstantFunction<dim>(+Constants::V0),
                                              constraints);
     constraints.close();
 
@@ -409,8 +400,7 @@ namespace Step19
 
     FEValues<dim> fe_values(fe,
                             quadrature_formula,
-                            update_values | update_gradients |
-                              update_quadrature_points | update_JxW_values);
+                            update_values | update_gradients | update_quadrature_points | update_JxW_values);
 
     const unsigned int dofs_per_cell = fe.dofs_per_cell;
 
@@ -430,10 +420,9 @@ namespace Step19
           for (const unsigned int i : fe_values.dof_indices())
             {
               for (const unsigned int j : fe_values.dof_indices())
-                cell_matrix(i, j) +=
-                  (fe_values.shape_grad(i, q_index) * // grad phi_i(x_q)
-                   fe_values.shape_grad(j, q_index) * // grad phi_j(x_q)
-                   fe_values.JxW(q_index));           // dx
+                cell_matrix(i, j) += (fe_values.shape_grad(i, q_index) * // grad phi_i(x_q)
+                                      fe_values.shape_grad(j, q_index) * // grad phi_j(x_q)
+                                      fe_values.JxW(q_index));           // dx
             }
 
         // The only interesting part of this function is how it forms the right
@@ -487,24 +476,20 @@ namespace Step19
         if (particle_handler.n_particles_in_cell(cell) > 0)
           for (const auto &particle : particle_handler.particles_in_cell(cell))
             {
-              deallog << "Evaluating particle " << particle.get_id() << " at "
-                      << particle.get_location() << " with reference location "
-                      << particle.get_reference_location() << std::endl;
+              deallog << "Evaluating particle " << particle.get_id() << " at " << particle.get_location()
+                      << " with reference location " << particle.get_reference_location() << std::endl;
 
-              const Point<dim> reference_location =
-                particle.get_reference_location();
+              const Point<dim> reference_location = particle.get_reference_location();
               for (const unsigned int i : fe_values.dof_indices())
-                cell_rhs(i) +=
-                  (fe.shape_value(i, reference_location) * // phi_i(x_p)
-                   (-Constants::electrons_per_particle *   // N
-                    Constants::electron_charge));          // e
+                cell_rhs(i) += (fe.shape_value(i, reference_location) * // phi_i(x_p)
+                                (-Constants::electrons_per_particle *   // N
+                                 Constants::electron_charge));          // e
             }
 
         // Finally, we can copy the contributions of this cell into
         // the global matrix and right hand side vector:
         cell->get_dof_indices(local_dof_indices);
-        constraints.distribute_local_to_global(
-          cell_matrix, cell_rhs, local_dof_indices, system_matrix, system_rhs);
+        constraints.distribute_local_to_global(cell_matrix, cell_rhs, local_dof_indices, system_matrix, system_rhs);
       }
   }
 
@@ -543,16 +528,10 @@ namespace Step19
   {
     Vector<float> estimated_error_per_cell(triangulation.n_active_cells());
 
-    KellyErrorEstimator<dim>::estimate(dof_handler,
-                                       QGauss<dim - 1>(fe.degree + 1),
-                                       {},
-                                       solution,
-                                       estimated_error_per_cell);
+    KellyErrorEstimator<dim>::estimate(
+      dof_handler, QGauss<dim - 1>(fe.degree + 1), {}, solution, estimated_error_per_cell);
 
-    GridRefinement::refine_and_coarsen_fixed_number(triangulation,
-                                                    estimated_error_per_cell,
-                                                    0.1,
-                                                    0.03);
+    GridRefinement::refine_and_coarsen_fixed_number(triangulation, estimated_error_per_cell, 0.1, 0.03);
 
     triangulation.execute_coarsening_and_refinement();
   }
@@ -584,17 +563,13 @@ namespace Step19
   {
     FEFaceValues<dim> fe_face_values(fe,
                                      QMidpoint<dim - 1>(),
-                                     update_quadrature_points |
-                                       update_gradients |
-                                       update_normal_vectors);
+                                     update_quadrature_points | update_gradients | update_normal_vectors);
 
-    std::vector<Tensor<1, dim>> solution_gradients(
-      fe_face_values.n_quadrature_points);
+    std::vector<Tensor<1, dim>> solution_gradients(fe_face_values.n_quadrature_points);
 
     for (const auto &cell : dof_handler.active_cell_iterators())
       for (const auto &face : cell->face_iterators())
-        if (face->at_boundary() &&
-            (face->boundary_id() == BoundaryIds::cathode))
+        if (face->at_boundary() && (face->boundary_id() == BoundaryIds::cathode))
           {
             fe_face_values.reinit(cell, face);
 
@@ -605,10 +580,8 @@ namespace Step19
             // discussed in the
             // @ref vector_valued "vector-valued problems" documentation module.
             const FEValuesExtractors::Scalar electric_potential(0);
-            fe_face_values[electric_potential].get_function_gradients(
-              solution, solution_gradients);
-            for (const unsigned int q_point :
-                 fe_face_values.quadrature_point_indices())
+            fe_face_values[electric_potential].get_function_gradients(solution, solution_gradients);
+            for (const unsigned int q_point : fe_face_values.quadrature_point_indices())
               {
                 const Tensor<1, dim> E = solution_gradients[q_point];
 
@@ -634,30 +607,25 @@ namespace Step19
                 // do this over and over, we determine these coordinates once
                 // and for all and then store these reference coordinates
                 // directly with the particle.
-                if ((E * fe_face_values.normal_vector(q_point) < 0) &&
-                    (E.norm() > Constants::E_threshold))
+                if ((E * fe_face_values.normal_vector(q_point) < 0) && (E.norm() > Constants::E_threshold))
                   {
-                    const Point<dim> location =
-                      fe_face_values.quadrature_point(q_point);
+                    const Point<dim> location = fe_face_values.quadrature_point(q_point);
 
                     Particles::Particle<dim> new_particle;
                     new_particle.set_location(location);
-                    new_particle.set_reference_location(
-                      mapping.transform_real_to_unit_cell(cell, location));
+                    new_particle.set_reference_location(mapping.transform_real_to_unit_cell(cell, location));
                     new_particle.set_id(next_unused_particle_id);
 
                     ++next_unused_particle_id;
 
-                    deallog << "Creating particle " << new_particle.get_id()
-                            << " at " << new_particle.get_location()
+                    deallog << "Creating particle " << new_particle.get_id() << " at " << new_particle.get_location()
                             << " with properties ";
 
                     // for (const auto x : new_particle.get_properties())
                     //   deallog << x << ' ';
                     //                   deallog << std::endl;
 
-                    const auto x_p =
-                      particle_handler.insert_particle(new_particle, cell);
+                    const auto x_p = particle_handler.insert_particle(new_particle, cell);
                     for (const auto x : x_p->get_properties())
                       deallog << x << ' ';
                     deallog << std::endl;
@@ -693,8 +661,7 @@ namespace Step19
     for (const auto &cell : dof_handler.active_cell_iterators())
       if (particle_handler.n_particles_in_cell(cell) > 0)
         {
-          const typename Particles::ParticleHandler<
-            dim>::particle_iterator_range particles_in_cell =
+          const typename Particles::ParticleHandler<dim>::particle_iterator_range particles_in_cell =
             particle_handler.particles_in_cell(cell);
 
           std::vector<Point<dim>> particle_positions;
@@ -702,31 +669,22 @@ namespace Step19
             particle_positions.push_back(particle.get_reference_location());
 
           const Quadrature<dim> quadrature_formula(particle_positions);
-          FEValues<dim>         particle_position_fe_values(mapping,
-                                                    fe,
-                                                    quadrature_formula,
-                                                    update_gradients);
+          FEValues<dim>         particle_position_fe_values(mapping, fe, quadrature_formula, update_gradients);
 
           particle_position_fe_values.reinit(cell);
 
           // Then we can ask the FEValues object for the gradients of the
           // solution (i.e., the electric field $\mathbf E$) at these locations
           // and loop over the individual particles:
-          std::vector<Tensor<1, dim>> field_gradients(
-            quadrature_formula.size());
-          particle_position_fe_values.get_function_gradients(solution,
-                                                             field_gradients);
+          std::vector<Tensor<1, dim>> field_gradients(quadrature_formula.size());
+          particle_position_fe_values.get_function_gradients(solution, field_gradients);
 
           {
-            typename Particles::ParticleHandler<dim>::particle_iterator
-              particle = particles_in_cell.begin();
-            for (unsigned int particle_index = 0;
-                 particle != particles_in_cell.end();
-                 ++particle, ++particle_index)
+            typename Particles::ParticleHandler<dim>::particle_iterator particle = particles_in_cell.begin();
+            for (unsigned int particle_index = 0; particle != particles_in_cell.end(); ++particle, ++particle_index)
               {
                 const Tensor<1, dim> E = field_gradients[particle_index];
-                deallog << "Evaluating E for particle " << particle->get_id()
-                        << ": " << E << std::endl;
+                deallog << "Evaluating E for particle " << particle->get_id() << ": " << E << std::endl;
 
                 // Having now obtained the electric field at the location of one
                 // of the particles, we use this to update first the velocity
@@ -744,27 +702,21 @@ namespace Step19
                 //          {\Delta t} &= {\mathbf v}_i^{(n)}.
                 // @f}
                 const Tensor<1, dim> old_velocity(particle->get_properties());
-                deallog << "Getting old velocity of particle "
-                        << particle->get_id() << ": " << old_velocity
+                deallog << "Getting old velocity of particle " << particle->get_id() << ": " << old_velocity
                         << std::endl;
 
-                const Tensor<1, dim> acceleration =
-                  Constants::electron_charge / Constants::electron_mass * E;
+                const Tensor<1, dim> acceleration = Constants::electron_charge / Constants::electron_mass * E;
 
-                const Tensor<1, dim> new_velocity =
-                  old_velocity + acceleration * dt;
+                const Tensor<1, dim> new_velocity = old_velocity + acceleration * dt;
 
-                deallog << "Setting new velocity of particle "
-                        << particle->get_id() << ": " << new_velocity
+                deallog << "Setting new velocity of particle " << particle->get_id() << ": " << new_velocity
                         << std::endl;
                 particle->set_properties(make_array_view(new_velocity));
 
                 // With the new velocity, we can then also update the location
                 // of the particle and tell the particle about it.
-                const Point<dim> new_location =
-                  particle->get_location() + dt * new_velocity;
-                deallog << "Setting location of particle " << particle->get_id()
-                        << ": " << new_location << std::endl;
+                const Point<dim> new_location = particle->get_location() + dt * new_velocity;
+                deallog << "Setting location of particle " << particle->get_id() << ": " << new_location << std::endl;
                 particle->set_location(new_location);
               }
           }
@@ -800,9 +752,8 @@ namespace Step19
   // the hole and increment a counter.
   template <int dim>
   void
-  CathodeRaySimulator<dim>::track_lost_particle(
-    const typename Particles::ParticleIterator<dim> &        particle,
-    const typename Triangulation<dim>::active_cell_iterator &cell)
+  CathodeRaySimulator<dim>::track_lost_particle(const typename Particles::ParticleIterator<dim>         &particle,
+                                                const typename Triangulation<dim>::active_cell_iterator &cell)
   {
     ++n_recently_lost_particles;
     ++n_total_lost_particles;
@@ -813,14 +764,11 @@ namespace Step19
     if ((approximate_previous_location[0] < 4) && (current_location[0] > 4))
       {
         const Tensor<1, dim> direction =
-          (current_location - approximate_previous_location) /
-          (current_location[0] - approximate_previous_location[0]);
+          (current_location - approximate_previous_location) / (current_location[0] - approximate_previous_location[0]);
 
         const double right_boundary_intercept =
-          approximate_previous_location[1] +
-          (4 - approximate_previous_location[0]) * direction[1];
-        if ((right_boundary_intercept > 0.5) &&
-            (right_boundary_intercept < 1.5))
+          approximate_previous_location[1] + (4 - approximate_previous_location[0]) * direction[1];
+        if ((right_boundary_intercept > 0.5) && (right_boundary_intercept < 1.5))
           ++n_particles_lost_through_anode;
       }
   }
@@ -852,23 +800,18 @@ namespace Step19
 
               double max_particle_velocity(0.0);
 
-              for (const auto &particle :
-                   particle_handler.particles_in_cell(cell))
+              for (const auto &particle : particle_handler.particles_in_cell(cell))
                 {
                   const Tensor<1, dim> velocity(particle.get_properties());
-                  max_particle_velocity =
-                    std::max(max_particle_velocity, velocity.norm());
+                  max_particle_velocity = std::max(max_particle_velocity, velocity.norm());
                 }
 
               if (max_particle_velocity > 0)
-                min_cell_size_over_velocity =
-                  std::min(min_cell_size_over_velocity,
-                           cell_size / max_particle_velocity);
+                min_cell_size_over_velocity = std::min(min_cell_size_over_velocity, cell_size / max_particle_velocity);
             }
 
         constexpr double c_safety = 0.5;
-        time.set_desired_next_step_size(c_safety * 0.5 *
-                                        min_cell_size_over_velocity);
+        time.set_desired_next_step_size(c_safety * 0.5 * min_cell_size_over_velocity);
       }
     // As mentioned in the introduction, we have to treat the very first
     // time step differently since there, particles are not available yet or
@@ -878,7 +821,7 @@ namespace Step19
     else
       {
         const QTrapezoid<dim> vertex_quadrature;
-        FEValues<dim> fe_values(fe, vertex_quadrature, update_gradients);
+        FEValues<dim>         fe_values(fe, vertex_quadrature, update_gradients);
 
         std::vector<Tensor<1, dim>> field_gradients(vertex_quadrature.size());
 
@@ -899,9 +842,7 @@ namespace Step19
               if (max_E > 0)
                 min_timestep =
                   std::min(min_timestep,
-                           std::sqrt(0.5 * cell_size *
-                                     Constants::electron_mass /
-                                     Constants::electron_charge / max_E));
+                           std::sqrt(0.5 * cell_size * Constants::electron_mass / Constants::electron_charge / max_E));
             }
 
         time.set_desired_next_step_size(min_timestep);
@@ -939,12 +880,10 @@ namespace Step19
     {}
 
     virtual void
-    evaluate_scalar_field(
-      const DataPostprocessorInputs::Scalar<dim> &input_data,
-      std::vector<Vector<double>> &computed_quantities) const override
+    evaluate_scalar_field(const DataPostprocessorInputs::Scalar<dim> &input_data,
+                          std::vector<Vector<double>>                &computed_quantities) const override
     {
-      AssertDimension(input_data.solution_gradients.size(),
-                      computed_quantities.size());
+      AssertDimension(input_data.solution_gradients.size(), computed_quantities.size());
 
       for (unsigned int p = 0; p < input_data.solution_gradients.size(); ++p)
         {
@@ -976,12 +915,9 @@ namespace Step19
       data_out.add_data_vector(solution, electric_field);
       data_out.build_patches();
 
-      data_out.set_flags(
-        DataOutBase::VtkFlags(time.get_current_time(), time.get_step_number()));
+      data_out.set_flags(DataOutBase::VtkFlags(time.get_current_time(), time.get_step_number()));
 
-      std::ofstream output("solution-" +
-                           Utilities::int_to_string(time.get_step_number(), 4) +
-                           ".vtu");
+      std::ofstream output("solution-" + Utilities::int_to_string(time.get_step_number(), 4) + ".vtu");
       data_out.write_vtu(output);
     }
 
@@ -993,18 +929,14 @@ namespace Step19
     // than as `dim` scalar properties. The rest is then the same as above:
     {
       Particles::DataOut<dim, dim> particle_out;
-      particle_out.build_patches(
-        particle_handler,
-        std::vector<std::string>(dim, "velocity"),
-        std::vector<DataComponentInterpretation::DataComponentInterpretation>(
-          dim, DataComponentInterpretation::component_is_part_of_vector));
+      particle_out.build_patches(particle_handler,
+                                 std::vector<std::string>(dim, "velocity"),
+                                 std::vector<DataComponentInterpretation::DataComponentInterpretation>(
+                                   dim, DataComponentInterpretation::component_is_part_of_vector));
 
-      particle_out.set_flags(
-        DataOutBase::VtkFlags(time.get_current_time(), time.get_step_number()));
+      particle_out.set_flags(DataOutBase::VtkFlags(time.get_current_time(), time.get_step_number()));
 
-      std::ofstream output("particles-" +
-                           Utilities::int_to_string(time.get_step_number(), 4) +
-                           ".vtu");
+      std::ofstream output("particles-" + Utilities::int_to_string(time.get_step_number(), 4) + ".vtu");
       particle_out.write_vtu(output);
     }
   }
@@ -1024,9 +956,7 @@ namespace Step19
 
     // do a few refinement cycles up front
     const unsigned int n_pre_refinement_cycles = 0;
-    for (unsigned int refinement_cycle = 0;
-         refinement_cycle < n_pre_refinement_cycles;
-         ++refinement_cycle)
+    for (unsigned int refinement_cycle = 0; refinement_cycle < n_pre_refinement_cycles; ++refinement_cycle)
       {
         setup_system();
         assemble_system();
@@ -1050,13 +980,11 @@ namespace Step19
     do
       {
         deallog << "Timestep " << time.get_step_number() + 1 << std::endl;
-        deallog << "  Field degrees of freedom:                 "
-                << dof_handler.n_dofs() << std::endl;
+        deallog << "  Field degrees of freedom:                 " << dof_handler.n_dofs() << std::endl;
 
         for (const auto &particle : particle_handler)
           {
-            deallog << "Particle " << particle.get_id() << ", at "
-                    << particle.get_location() << '/'
+            deallog << "Particle " << particle.get_id() << ", at " << particle.get_location() << '/'
                     << particle.get_reference_location() << " with properties ";
             for (const auto x : particle.get_properties())
               deallog << x << ' ';
@@ -1067,8 +995,7 @@ namespace Step19
         solve_field();
 
         create_particles();
-        deallog << "  Total number of particles in simulation:  "
-                << particle_handler.n_global_particles() << std::endl;
+        deallog << "  Total number of particles in simulation:  " << particle_handler.n_global_particles() << std::endl;
 
         n_recently_lost_particles = 0;
         update_timestep_size();
@@ -1078,17 +1005,14 @@ namespace Step19
 
         // output_results();
 
-        deallog << "  Number of particles lost this time step:  "
-                << n_recently_lost_particles << std::endl;
+        deallog << "  Number of particles lost this time step:  " << n_recently_lost_particles << std::endl;
         if (n_total_lost_particles > 0)
           deallog << "  Fraction of particles lost through anode: "
-                  << 1. * n_particles_lost_through_anode /
-                       n_total_lost_particles
-                  << std::endl;
+                  << 1. * n_particles_lost_through_anode / n_total_lost_particles << std::endl;
 
         deallog << std::endl
-                << "  Now at t=" << time.get_current_time()
-                << ", dt=" << time.get_previous_step_size() << '.' << std::endl
+                << "  Now at t=" << time.get_current_time() << ", dt=" << time.get_previous_step_size() << '.'
+                << std::endl
                 << std::endl;
       }
     while (time.is_at_end() == false && time.get_step_number() < 6);
@@ -1096,8 +1020,7 @@ namespace Step19
     // Output particle locations
     for (const auto &p : particle_handler)
       {
-        deallog << p.get_id() << ' ' << p.get_location() << ' '
-                << p.get_reference_location() << std::endl
+        deallog << p.get_id() << ' ' << p.get_location() << ' ' << p.get_reference_location() << std::endl
                 << p.get_id() << " properties: ";
         for (const auto x : p.get_properties())
           deallog << x << ' ';
@@ -1126,28 +1049,20 @@ main()
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
   return 0;

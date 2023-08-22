@@ -54,10 +54,7 @@ test()
   GridGenerator::hyper_shell(tr, Point<dim>(), 0.5, 1.0, 12, true);
 
   int ind = 0;
-  for (typename Triangulation<dim>::active_cell_iterator cell =
-         tr.begin_active();
-       cell != tr.end();
-       ++cell, ++ind)
+  for (typename Triangulation<dim>::active_cell_iterator cell = tr.begin_active(); cell != tr.end(); ++cell, ++ind)
     if (!cell->is_artificial())
       {
         if (myid == 0 && (ind == 4 || ind == 5 || ind == 6 || ind == 8))

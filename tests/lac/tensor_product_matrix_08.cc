@@ -40,8 +40,8 @@ template <int dim, typename Number>
 void
 do_test_mesh(const Mapping<dim> &mapping, const Triangulation<dim> &tria)
 {
-  using VectorizedArrayTrait = dealii::internal::VectorizedArrayTrait<Number>;
-  using ScalarNumber         = typename VectorizedArrayTrait::value_type;
+  using VectorizedArrayTrait         = dealii::internal::VectorizedArrayTrait<Number>;
+  using ScalarNumber                 = typename VectorizedArrayTrait::value_type;
   static constexpr std::size_t width = VectorizedArrayTrait::width();
 
   using FDM = TensorProductMatrixSymmetricSumCollection<dim, Number>;
@@ -54,8 +54,7 @@ do_test_mesh(const Mapping<dim> &mapping, const Triangulation<dim> &tria)
   QGauss<1>       quadrature_1D(fe_degree + 1);
   QGauss<dim - 1> quadrature_face(fe_degree + 1);
 
-  const auto harmonic_patch_extent =
-    GridTools::compute_harmonic_patch_extent(mapping, tria, quadrature_face);
+  const auto harmonic_patch_extent = GridTools::compute_harmonic_patch_extent(mapping, tria, quadrature_face);
 
   FDM collection_0(typename FDM::AdditionalData(true, false));
   FDM collection_1(typename FDM::AdditionalData(false, false));
@@ -78,18 +77,11 @@ do_test_mesh(const Mapping<dim> &mapping, const Triangulation<dim> &tria)
 
       for (unsigned int v = 0; (v < width) && (cell != tria.end()); ++v, ++cell)
         {
-          const auto &patch_extent =
-            harmonic_patch_extent[cell->active_cell_index()];
+          const auto &patch_extent = harmonic_patch_extent[cell->active_cell_index()];
 
-          const auto M_and_K_scalar = TensorProductMatrixCreator::
-            create_laplace_tensor_product_matrix<dim, ScalarNumber>(
-              cell,
-              std::set<unsigned int>{0},
-              std::set<unsigned int>{},
-              fe_1D,
-              quadrature_1D,
-              patch_extent,
-              n_overlap);
+          const auto M_and_K_scalar =
+            TensorProductMatrixCreator::create_laplace_tensor_product_matrix<dim, ScalarNumber>(
+              cell, std::set<unsigned int>{0}, std::set<unsigned int>{}, fe_1D, quadrature_1D, patch_extent, n_overlap);
 
           const auto Ms_scalar = M_and_K_scalar.first;
           const auto Ks_scalar = M_and_K_scalar.second;
@@ -104,13 +96,11 @@ do_test_mesh(const Mapping<dim> &mapping, const Triangulation<dim> &tria)
 
               for (unsigned int i = 0; i < Ms_scalar[d].size(0); ++i)
                 for (unsigned int j = 0; j < Ms_scalar[d].size(0); ++j)
-                  VectorizedArrayTrait::get(Ms[d][i][j], v) =
-                    Ms_scalar[d][i][j];
+                  VectorizedArrayTrait::get(Ms[d][i][j], v) = Ms_scalar[d][i][j];
 
               for (unsigned int i = 0; i < Ks_scalar[d].size(0); ++i)
                 for (unsigned int j = 0; j < Ks_scalar[d].size(0); ++j)
-                  VectorizedArrayTrait::get(Ks[d][i][j], v) =
-                    Ks_scalar[d][i][j];
+                  VectorizedArrayTrait::get(Ks[d][i][j], v) = Ks_scalar[d][i][j];
             }
         }
 
@@ -125,8 +115,7 @@ do_test_mesh(const Mapping<dim> &mapping, const Triangulation<dim> &tria)
   collection_2.finalize();
   collection_3.finalize();
 
-  deallog << "Storage sizes: " << collection_0.storage_size() << " "
-          << collection_1.storage_size() << std::endl;
+  deallog << "Storage sizes: " << collection_0.storage_size() << " " << collection_1.storage_size() << std::endl;
 
   AlignedVector<Number> src(fe.n_dofs_per_cell());
   AlignedVector<Number> dst(fe.n_dofs_per_cell());
@@ -170,14 +159,11 @@ do_test_mesh(const Mapping<dim> &mapping, const Triangulation<dim> &tria)
 
       FloatingPointComparator<Number> comp(1e-5, true);
 
-      Assert((comp.compare(matrix_0, matrix_1) ==
-              FloatingPointComparator<Number>::ComparisonResult::equal),
+      Assert((comp.compare(matrix_0, matrix_1) == FloatingPointComparator<Number>::ComparisonResult::equal),
              ExcInternalError());
-      Assert((comp.compare(matrix_0, matrix_2) ==
-              FloatingPointComparator<Number>::ComparisonResult::equal),
+      Assert((comp.compare(matrix_0, matrix_2) == FloatingPointComparator<Number>::ComparisonResult::equal),
              ExcInternalError());
-      Assert((comp.compare(matrix_0, matrix_3) ==
-              FloatingPointComparator<Number>::ComparisonResult::equal),
+      Assert((comp.compare(matrix_0, matrix_3) == FloatingPointComparator<Number>::ComparisonResult::equal),
              ExcInternalError());
     }
 
@@ -196,12 +182,10 @@ do_test()
 
   const std::vector<std::tuple<unsigned int, bool, bool>> settings = {
     std::tuple<unsigned int, bool, bool>{0, false, false}, // hyper-cube
-    std::tuple<unsigned int, bool, bool>{0, true, false}, // hyper-cube with PBC
+    std::tuple<unsigned int, bool, bool>{0, true, false},  // hyper-cube with PBC
     std::tuple<unsigned int, bool, bool>{1, false, false}, // hyper-rectangle
-    std::tuple<unsigned int, bool, bool>{1,
-                                         true,
-                                         false}, // hyper-rectangle with PBC
-    std::tuple<unsigned int, bool, bool>{0, false, true} // deformed hyper-cube
+    std::tuple<unsigned int, bool, bool>{1, true, false},  // hyper-rectangle with PBC
+    std::tuple<unsigned int, bool, bool>{0, false, true}   // deformed hyper-cube
   };
 
   for (const auto setting : settings)
@@ -216,8 +200,7 @@ do_test()
             GridGenerator::hyper_cube(tria, 0.0, 1.0, do_pbc);
             break;
           case 1:
-            GridGenerator::subdivided_hyper_rectangle(
-              tria, {1, 2}, {0, 0}, {1.0, 1.0}, do_pbc);
+            GridGenerator::subdivided_hyper_rectangle(tria, {1, 2}, {0, 0}, {1.0, 1.0}, do_pbc);
             break;
           default:
             AssertThrow(false, ExcNotImplemented());
@@ -225,12 +208,9 @@ do_test()
 
       if (do_pbc)
         {
-          std::vector<GridTools::PeriodicFacePair<
-            typename Triangulation<dim>::cell_iterator>>
-            periodic_faces;
+          std::vector<GridTools::PeriodicFacePair<typename Triangulation<dim>::cell_iterator>> periodic_faces;
           for (unsigned int d = 0; d < dim; ++d)
-            GridTools::collect_periodic_faces(
-              tria, 2 * d, 2 * d + 1, d, periodic_faces);
+            GridTools::collect_periodic_faces(tria, 2 * d, 2 * d + 1, d, periodic_faces);
           tria.add_periodicity(periodic_faces);
         }
 
@@ -241,16 +221,14 @@ do_test()
       mapping.initialize(
         MappingQ1<dim>(),
         tria,
-        [&](const typename Triangulation<dim>::cell_iterator &,
-            const Point<dim> &point) -> Point<dim> {
+        [&](const typename Triangulation<dim>::cell_iterator &, const Point<dim> &point) -> Point<dim> {
           Point<dim> result;
 
           if (std::get<2>(setting) == false) // Cartesian mesh
             return result;
 
           for (unsigned int d = 0; d < dim; ++d)
-            result[d] = std::pow(point[d], d + 0.9) *
-                        std::pow(point[(d + 1) % dim], d + 1.1);
+            result[d] = std::pow(point[d], d + 0.9) * std::pow(point[(d + 1) % dim], d + 1.1);
 
           return result;
         },

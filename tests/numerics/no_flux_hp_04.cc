@@ -102,9 +102,8 @@ test(const Triangulation<dim> &tr, const hp::FECollection<dim> &fe)
   DataOut<dim> data_out;
   data_out.attach_dof_handler(dh);
 
-  std::vector<DataComponentInterpretation::DataComponentInterpretation>
-    data_component_interpretation(
-      dim, DataComponentInterpretation::component_is_part_of_vector);
+  std::vector<DataComponentInterpretation::DataComponentInterpretation> data_component_interpretation(
+    dim, DataComponentInterpretation::component_is_part_of_vector);
 
   data_out.add_data_vector(v,
 
@@ -132,8 +131,7 @@ test_hyper_sphere()
 
   for (unsigned int degree = 1; degree < 6 - dim; ++degree)
     {
-      hp::FECollection<dim> fe(
-        FESystem<dim>(FE_Q<dim>(QIterated<1>(QTrapezoid<1>(), degree)), dim));
+      hp::FECollection<dim> fe(FESystem<dim>(FE_Q<dim>(QIterated<1>(QTrapezoid<1>(), degree)), dim));
       test(tr, fe);
     }
 }

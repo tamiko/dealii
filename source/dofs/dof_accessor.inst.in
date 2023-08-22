@@ -15,60 +15,38 @@
 
 
 
-for (deal_II_struct_dimension : DIMENSIONS; deal_II_dimension : DIMENSIONS;
-     deal_II_space_dimension : DIMENSIONS;
+for (deal_II_struct_dimension : DIMENSIONS; deal_II_dimension : DIMENSIONS; deal_II_space_dimension : DIMENSIONS;
      lda : BOOL)
   {
-#if deal_II_struct_dimension <= deal_II_dimension && \
-  deal_II_dimension <= deal_II_space_dimension
-    template class DoFAccessor<deal_II_struct_dimension,
-                               deal_II_dimension,
-                               deal_II_space_dimension,
-                               lda>;
-    template class TriaRawIterator<DoFAccessor<deal_II_struct_dimension,
-                                               deal_II_dimension,
-                                               deal_II_space_dimension,
-                                               lda>>;
-    template class TriaIterator<DoFAccessor<deal_II_struct_dimension,
-                                            deal_II_dimension,
-                                            deal_II_space_dimension,
-                                            lda>>;
-    template class TriaActiveIterator<DoFAccessor<deal_II_struct_dimension,
-                                                  deal_II_dimension,
-                                                  deal_II_space_dimension,
-                                                  lda>>;
+#if deal_II_struct_dimension <= deal_II_dimension && deal_II_dimension <= deal_II_space_dimension
+    template class DoFAccessor<deal_II_struct_dimension, deal_II_dimension, deal_II_space_dimension, lda>;
+    template class TriaRawIterator<
+      DoFAccessor<deal_II_struct_dimension, deal_II_dimension, deal_II_space_dimension, lda>>;
+    template class TriaIterator<DoFAccessor<deal_II_struct_dimension, deal_II_dimension, deal_II_space_dimension, lda>>;
+    template class TriaActiveIterator<
+      DoFAccessor<deal_II_struct_dimension, deal_II_dimension, deal_II_space_dimension, lda>>;
 #endif
   }
 
 
-for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : DIMENSIONS;
-     lda : BOOL)
+for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : DIMENSIONS; lda : BOOL)
   {
 #if deal_II_dimension <= deal_II_space_dimension
-    template class DoFCellAccessor<deal_II_dimension,
-                                   deal_II_space_dimension,
-                                   lda>;
-    template class TriaRawIterator<
-      DoFCellAccessor<deal_II_dimension, deal_II_space_dimension, lda>>;
-    template class TriaIterator<
-      DoFCellAccessor<deal_II_dimension, deal_II_space_dimension, lda>>;
-    template class TriaActiveIterator<
-      DoFCellAccessor<deal_II_dimension, deal_II_space_dimension, lda>>;
+    template class DoFCellAccessor<deal_II_dimension, deal_II_space_dimension, lda>;
+    template class TriaRawIterator<DoFCellAccessor<deal_II_dimension, deal_II_space_dimension, lda>>;
+    template class TriaIterator<DoFCellAccessor<deal_II_dimension, deal_II_space_dimension, lda>>;
+    template class TriaActiveIterator<DoFCellAccessor<deal_II_dimension, deal_II_space_dimension, lda>>;
 
-    template void internal::DoFAccessorImplementation::
-      get_cell_dof_indices<deal_II_dimension, deal_II_space_dimension, lda>(
-        const dealii::
-          DoFCellAccessor<deal_II_dimension, deal_II_space_dimension, lda> &,
-        boost::container::small_vector<types::global_dof_index, 27> &,
-        const unsigned int);
+    template void
+    internal::DoFAccessorImplementation::get_cell_dof_indices<deal_II_dimension, deal_II_space_dimension, lda>(
+      const dealii::DoFCellAccessor<deal_II_dimension, deal_II_space_dimension, lda> &,
+      boost::container::small_vector<types::global_dof_index, 27> &,
+      const unsigned int);
 #endif
   }
 
 
-for (deal_II_struct_dimension : DIMENSIONS; deal_II_dimension : DIMENSIONS;
-     deal_II_space_dimension : DIMENSIONS)
+for (deal_II_struct_dimension : DIMENSIONS; deal_II_dimension : DIMENSIONS; deal_II_space_dimension : DIMENSIONS)
   {
-    template class DoFInvalidAccessor<deal_II_struct_dimension,
-                                      deal_II_dimension,
-                                      deal_II_space_dimension>;
+    template class DoFInvalidAccessor<deal_II_struct_dimension, deal_II_dimension, deal_II_space_dimension>;
   }

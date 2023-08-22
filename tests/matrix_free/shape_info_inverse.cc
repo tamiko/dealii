@@ -35,32 +35,24 @@
 
 template <int dim>
 void
-test(const FiniteElement<dim> &fe,
-     const Quadrature<1> &     quad,
-     const std::string &       quadrature_name)
+test(const FiniteElement<dim> &fe, const Quadrature<1> &quad, const std::string &quadrature_name)
 {
   internal::MatrixFreeFunctions::ShapeInfo<double> shape_info;
   shape_info.reinit(quad, fe, 0);
-  deallog << "Testing " << fe.get_name() << " with " << quadrature_name << '('
-          << quad.size() << ')' << std::endl;
+  deallog << "Testing " << fe.get_name() << " with " << quadrature_name << '(' << quad.size() << ')' << std::endl;
   deallog << "shape values: " << std::endl;
   const auto &univariate_shape_data = shape_info.get_shape_data(0, 0);
   for (unsigned int i = 0; i < univariate_shape_data.fe_degree + 1; ++i)
     {
       for (unsigned int q = 0; q < quad.size(); ++q)
-        deallog << std::setw(15)
-                << univariate_shape_data.shape_values[i * quad.size() + q]
-                << ' ';
+        deallog << std::setw(15) << univariate_shape_data.shape_values[i * quad.size() + q] << ' ';
       deallog << std::endl;
     }
   deallog << "inverse shape values: " << std::endl;
   for (unsigned int i = 0; i < univariate_shape_data.fe_degree + 1; ++i)
     {
       for (unsigned int q = 0; q < quad.size(); ++q)
-        deallog
-          << std::setw(15)
-          << univariate_shape_data.inverse_shape_values[i * quad.size() + q]
-          << ' ';
+        deallog << std::setw(15) << univariate_shape_data.inverse_shape_values[i * quad.size() + q] << ' ';
       deallog << std::endl;
     }
   deallog << "inverse shapes' * shapes: " << std::endl;
@@ -70,9 +62,8 @@ test(const FiniteElement<dim> &fe,
         {
           double sum = 0;
           for (unsigned int k = 0; k < univariate_shape_data.fe_degree + 1; ++k)
-            sum +=
-              univariate_shape_data.inverse_shape_values[k * quad.size() + i] *
-              univariate_shape_data.shape_values[k * quad.size() + j];
+            sum += univariate_shape_data.inverse_shape_values[k * quad.size() + i] *
+                   univariate_shape_data.shape_values[k * quad.size() + j];
           deallog << std::setw(15) << sum << ' ';
         }
       deallog << std::endl;
@@ -84,9 +75,8 @@ test(const FiniteElement<dim> &fe,
         {
           double sum = 0;
           for (unsigned int k = 0; k < quad.size(); ++k)
-            sum +=
-              univariate_shape_data.inverse_shape_values[i * quad.size() + k] *
-              univariate_shape_data.shape_values[j * quad.size() + k];
+            sum += univariate_shape_data.inverse_shape_values[i * quad.size() + k] *
+                   univariate_shape_data.shape_values[j * quad.size() + k];
           deallog << std::setw(15) << sum << ' ';
         }
       deallog << std::endl;

@@ -63,8 +63,7 @@ struct IncompressibleNeoHookean
   static SymmetricTensor<2, dim, NumberType>
   dpsi_dC(const SymmetricTensor<2, dim, NumberType> &C)
   {
-    const SymmetricTensor<2, dim, NumberType> I =
-      unit_symmetric_tensor<dim, NumberType>();
+    const SymmetricTensor<2, dim, NumberType> I = unit_symmetric_tensor<dim, NumberType>();
     return 0.5 * mu() * (I - invert(C));
   }
 
@@ -78,8 +77,7 @@ struct IncompressibleNeoHookean
       for (unsigned int B = A; B < dim; ++B)
         for (unsigned int C = 0; C < dim; ++C)
           for (unsigned int D = C; D < dim; ++D)
-            dC_inv_dC[A][B][C][D] -=
-              0.5 * (C_inv[A][C] * C_inv[B][D] + C_inv[A][D] * C_inv[B][C]);
+            dC_inv_dC[A][B][C][D] -= 0.5 * (C_inv[A][C] * C_inv[B][D] + C_inv[A][D] * C_inv[B][C]);
 
     return -0.5 * mu() * dC_inv_dC;
   }
@@ -106,20 +104,17 @@ struct IncompressibleNeoHookeanPrincipalStretches
   //  }
 
   static SymmetricTensor<2, dim, NumberType>
-  dpsi_dC(const std::array<std::pair<NumberType, Tensor<1, dim, NumberType>>,
-                           dim> eig_C)
+  dpsi_dC(const std::array<std::pair<NumberType, Tensor<1, dim, NumberType>>, dim> eig_C)
   {
     SymmetricTensor<2, dim, NumberType> C_inv;
     for (unsigned int d = 0; d < dim; ++d)
       {
-        const NumberType &                lambda_squared = eig_C[d].first;
+        const NumberType                 &lambda_squared = eig_C[d].first;
         const Tensor<1, dim, NumberType> &N              = eig_C[d].second;
-        C_inv +=
-          NumberType(1.0 / lambda_squared) * symmetrize(outer_product(N, N));
+        C_inv += NumberType(1.0 / lambda_squared) * symmetrize(outer_product(N, N));
       }
 
-    const SymmetricTensor<2, dim, NumberType> I =
-      unit_symmetric_tensor<dim, NumberType>();
+    const SymmetricTensor<2, dim, NumberType> I = unit_symmetric_tensor<dim, NumberType>();
     return 0.5 * mu() * (I - C_inv);
   }
 };
@@ -135,8 +130,7 @@ test_NH(const bool nontrivial_initial_values)
   std::cout << "*** Standard definition of incompressible NeoHookean material, "
             << "dim = " << Utilities::to_string(dim) << ", "
             << "Type code: " << static_cast<int>(ad_type_code) << ", "
-            << "Nontrivial initial values: " << std::boolalpha
-            << nontrivial_initial_values << std::endl;
+            << "Nontrivial initial values: " << std::boolalpha << nontrivial_initial_values << std::endl;
 
   // Values computed from the AD energy function
   ScalarNumberType             psi;
@@ -149,29 +143,24 @@ test_NH(const bool nontrivial_initial_values)
   // Setup the variable components and choose a value at which to
   // evaluate the tape
   const FEValuesExtractors::SymmetricTensor<2> C_dof(0);
-  const unsigned int                           n_AD_components =
-    SymmetricTensor<2, dim>::n_independent_components;
-  ADHelper ad_helper(n_AD_components);
+  const unsigned int                           n_AD_components = SymmetricTensor<2, dim>::n_independent_components;
+  ADHelper                                     ad_helper(n_AD_components);
   ad_helper.set_tape_buffer_sizes(); // Increase the buffer size from the
                                      // default values
 
-  SymmetricTensor<2, dim, ScalarNumberType> C =
-    unit_symmetric_tensor<dim, ScalarNumberType>();
+  SymmetricTensor<2, dim, ScalarNumberType> C = unit_symmetric_tensor<dim, ScalarNumberType>();
   if (nontrivial_initial_values)
     for (unsigned int i = 0; i < C.n_independent_components; ++i)
       C[C.unrolled_to_component_indices(i)] += 0.12 * (i + 0.02);
 
   const int  tape_no = 1;
   const bool is_recording =
-    ad_helper.start_recording_operations(tape_no /*material_id*/,
-                                         true /*overwrite_tape*/,
-                                         true /*keep*/);
+    ad_helper.start_recording_operations(tape_no /*material_id*/, true /*overwrite_tape*/, true /*keep*/);
   if (is_recording == true)
     {
       ad_helper.register_independent_variable(C, C_dof);
 
-      const SymmetricTensor<2, dim, ADNumberType> C_ad =
-        ad_helper.get_sensitive_variables(C_dof);
+      const SymmetricTensor<2, dim, ADNumberType> C_ad = ad_helper.get_sensitive_variables(C_dof);
 
       const ADNumberType psi(func_ad::psi(C_ad));
 
@@ -194,9 +183,7 @@ test_NH(const bool nontrivial_initial_values)
   // Set a new evaluation point
   if (AD::ADNumberTraits<ADNumberType>::is_taped == true)
     {
-      std::cout
-        << "Using tape with different values for independent variables..."
-        << std::endl;
+      std::cout << "Using tape with different values for independent variables..." << std::endl;
       ad_helper.activate_recorded_tape(tape_no);
       C *= 1.15;
       ad_helper.set_independent_variable(C, C_dof);
@@ -225,28 +212,22 @@ test_NH(const bool nontrivial_initial_values)
     }
 
   // Extract components of the solution
-  const SymmetricTensor<2, dim, ScalarNumberType> dpsi_dC =
-    ad_helper.extract_gradient_component(Dpsi, C_dof);
+  const SymmetricTensor<2, dim, ScalarNumberType> dpsi_dC = ad_helper.extract_gradient_component(Dpsi, C_dof);
 
   // Verify the result
-  using func = IncompressibleNeoHookean<dim, ScalarNumberType>;
-  static const ScalarNumberType tol =
-    1e5 * std::numeric_limits<ScalarNumberType>::epsilon();
+  using func                        = IncompressibleNeoHookean<dim, ScalarNumberType>;
+  static const ScalarNumberType tol = 1e5 * std::numeric_limits<ScalarNumberType>::epsilon();
   std::cout << "psi:              " << psi << std::endl;
   std::cout << "func::psi(C):     " << func::psi(C) << std::endl;
-  Assert(std::abs(psi - func::psi(C)) < tol,
-         ExcMessage("No match for function value."));
+  Assert(std::abs(psi - func::psi(C)) < tol, ExcMessage("No match for function value."));
   std::cout << "dpsi_dC:              " << dpsi_dC << std::endl;
   std::cout << "func::dpsi_dC(C):     " << func::dpsi_dC(C) << std::endl;
-  Assert(std::abs((dpsi_dC - func::dpsi_dC(C)).norm()) < tol,
-         ExcMessage("No match for first derivative."));
+  Assert(std::abs((dpsi_dC - func::dpsi_dC(C)).norm()) < tol, ExcMessage("No match for first derivative."));
   if (AD::ADNumberTraits<ADNumberType>::n_supported_derivative_levels >= 2)
     {
-      const Tensor<4, dim, ScalarNumberType> d2psi_dC_dC =
-        ad_helper.extract_hessian_component(D2psi, C_dof, C_dof);
+      const Tensor<4, dim, ScalarNumberType> d2psi_dC_dC = ad_helper.extract_hessian_component(D2psi, C_dof, C_dof);
       std::cout << "d2psi_dC_dC:          " << d2psi_dC_dC << std::endl;
-      std::cout << "func::d2psi_dC_dC(C): " << func::d2psi_dC_dC(C)
-                << std::endl;
+      std::cout << "func::d2psi_dC_dC(C): " << func::d2psi_dC_dC(C) << std::endl;
       Assert(std::abs((d2psi_dC_dC - func::d2psi_dC_dC(C)).norm()) < tol,
              ExcMessage("No match for second derivative."));
     }
@@ -258,20 +239,17 @@ test_NH(const bool nontrivial_initial_values)
 
 template <int dim, typename number_t, enum AD::NumberTypes ad_type_code>
 void
-test_NH_eigen_stress(const enum SymmetricTensorEigenvectorMethod method,
-                     const bool nontrivial_initial_values)
+test_NH_eigen_stress(const enum SymmetricTensorEigenvectorMethod method, const bool nontrivial_initial_values)
 {
   using ADHelper         = AD::VectorFunction<dim, ad_type_code, number_t>;
   using ADNumberType     = typename ADHelper::ad_type;
   using ScalarNumberType = typename ADHelper::scalar_type;
 
-  std::cout
-    << "*** Principal stretch definition of incompressible NeoHookean material (from stress), "
-    << "dim = " << Utilities::to_string(dim) << ", "
-    << "Type code: " << static_cast<int>(ad_type_code) << ", "
-    << "Eig method: " << static_cast<int>(method) << ", "
-    << "Nontrivial initial values: " << std::boolalpha
-    << nontrivial_initial_values << std::endl;
+  std::cout << "*** Principal stretch definition of incompressible NeoHookean material (from stress), "
+            << "dim = " << Utilities::to_string(dim) << ", "
+            << "Type code: " << static_cast<int>(ad_type_code) << ", "
+            << "Eig method: " << static_cast<int>(method) << ", "
+            << "Nontrivial initial values: " << std::boolalpha << nontrivial_initial_values << std::endl;
 
   // Values computed from the AD energy function
   // ScalarNumberType psi;
@@ -284,40 +262,32 @@ test_NH_eigen_stress(const enum SymmetricTensorEigenvectorMethod method,
   // Setup the variable components and choose a value at which to
   // evaluate the tape
   const FEValuesExtractors::SymmetricTensor<2> C_dof(0);
-  const unsigned int                           n_AD_independent_components =
-    SymmetricTensor<2, dim>::n_independent_components;
-  const unsigned int n_AD_dependent_components =
-    SymmetricTensor<2, dim>::n_independent_components;
-  ADHelper ad_helper(n_AD_independent_components, n_AD_dependent_components);
+  const unsigned int n_AD_independent_components = SymmetricTensor<2, dim>::n_independent_components;
+  const unsigned int n_AD_dependent_components   = SymmetricTensor<2, dim>::n_independent_components;
+  ADHelper           ad_helper(n_AD_independent_components, n_AD_dependent_components);
   ad_helper.set_tape_buffer_sizes(); // Increase the buffer size from the
                                      // default values
 
-  SymmetricTensor<2, dim, ScalarNumberType> C =
-    unit_symmetric_tensor<dim, ScalarNumberType>();
+  SymmetricTensor<2, dim, ScalarNumberType> C = unit_symmetric_tensor<dim, ScalarNumberType>();
   if (nontrivial_initial_values)
     for (unsigned int i = 0; i < C.n_independent_components; ++i)
       C[C.unrolled_to_component_indices(i)] += 0.12 * (i + 0.02);
 
   const int  tape_no = 1;
   const bool is_recording =
-    ad_helper.start_recording_operations(tape_no /*material_id*/,
-                                         true /*overwrite_tape*/,
-                                         true /*keep*/);
+    ad_helper.start_recording_operations(tape_no /*material_id*/, true /*overwrite_tape*/, true /*keep*/);
   if (is_recording == true)
     {
       ad_helper.register_independent_variable(C, C_dof);
 
-      const SymmetricTensor<2, dim, ADNumberType> C_ad =
-        ad_helper.get_sensitive_variables(C_dof);
-      const auto eig_C_ad = eigenvectors(C_ad, method);
+      const SymmetricTensor<2, dim, ADNumberType> C_ad     = ad_helper.get_sensitive_variables(C_dof);
+      const auto                                  eig_C_ad = eigenvectors(C_ad, method);
 
       for (unsigned int d = 0; d < dim; ++d)
-        std::cout << "  Direction: " << d
-                  << "  Eigenvalue: " << eig_C_ad[d].first
+        std::cout << "  Direction: " << d << "  Eigenvalue: " << eig_C_ad[d].first
                   << "  Eigenvector: " << eig_C_ad[d].second << std::endl;
 
-      const SymmetricTensor<2, dim, ADNumberType> dpsi_dC(
-        func_ad::dpsi_dC(eig_C_ad));
+      const SymmetricTensor<2, dim, ADNumberType> dpsi_dC(func_ad::dpsi_dC(eig_C_ad));
 
       ad_helper.register_dependent_variable(dpsi_dC, C_dof);
       ad_helper.stop_recording_operations(false /*write_tapes_to_file*/);
@@ -338,9 +308,7 @@ test_NH_eigen_stress(const enum SymmetricTensorEigenvectorMethod method,
   // Set a new evaluation point
   if (AD::ADNumberTraits<ADNumberType>::is_taped == true)
     {
-      std::cout
-        << "Using tape with different values for independent variables..."
-        << std::endl;
+      std::cout << "Using tape with different values for independent variables..." << std::endl;
       ad_helper.activate_recorded_tape(tape_no);
       C *= 1.15;
       ad_helper.set_independent_variable(C, C_dof);
@@ -369,19 +337,14 @@ test_NH_eigen_stress(const enum SymmetricTensorEigenvectorMethod method,
     }
 
   // Extract components of the solution
-  const SymmetricTensor<2, dim, ScalarNumberType> dpsi_dC =
-    ad_helper.extract_value_component(Dpsi, C_dof);
+  const SymmetricTensor<2, dim, ScalarNumberType> dpsi_dC = ad_helper.extract_value_component(Dpsi, C_dof);
 
   // Verify the result
   using func = IncompressibleNeoHookean<dim, ScalarNumberType>;
   static const ScalarNumberType tol_val =
-    (nontrivial_initial_values ?
-       1e-4 :
-       1e6 * std::numeric_limits<ScalarNumberType>::epsilon());
+    (nontrivial_initial_values ? 1e-4 : 1e6 * std::numeric_limits<ScalarNumberType>::epsilon());
   static const ScalarNumberType tol_jac =
-    (nontrivial_initial_values ?
-       2.5e-3 :
-       1e6 * std::numeric_limits<ScalarNumberType>::epsilon());
+    (nontrivial_initial_values ? 2.5e-3 : 1e6 * std::numeric_limits<ScalarNumberType>::epsilon());
   //  std::cout << "psi:              " << psi << std::endl;
   //  std::cout << "func::psi(C):     " << func::psi(C) << std::endl;
   //  Assert(std::abs(psi - func::psi(C)) < tol, ExcMessage("No match for
@@ -390,15 +353,13 @@ test_NH_eigen_stress(const enum SymmetricTensorEigenvectorMethod method,
   std::cout << "func::dpsi_dC(C):     " << func::dpsi_dC(C) << std::endl;
   //  std::cout << "DIFF NORM: " << std::abs((dpsi_dC -
   //  func::dpsi_dC(C)).norm()) << std::endl;
-  Assert(std::abs((dpsi_dC - func::dpsi_dC(C)).norm()) < tol_val,
-         ExcMessage("No match for first derivative."));
+  Assert(std::abs((dpsi_dC - func::dpsi_dC(C)).norm()) < tol_val, ExcMessage("No match for first derivative."));
   if (AD::ADNumberTraits<ADNumberType>::n_supported_derivative_levels >= 1)
     {
       const SymmetricTensor<4, dim, ScalarNumberType> d2psi_dC_dC =
         ad_helper.extract_jacobian_component(D2psi, C_dof, C_dof);
       std::cout << "d2psi_dC_dC:          " << d2psi_dC_dC << std::endl;
-      std::cout << "func::d2psi_dC_dC(C): " << func::d2psi_dC_dC(C)
-                << std::endl;
+      std::cout << "func::d2psi_dC_dC(C): " << func::d2psi_dC_dC(C) << std::endl;
       //      std::cout << "DIFF: " << (d2psi_dC_dC - func::d2psi_dC_dC(C)) <<
       //      std::endl; std::cout << "DIFF NORM: " << std::abs((d2psi_dC_dC -
       //      func::d2psi_dC_dC(C)).norm()) << std::endl;
@@ -425,13 +386,12 @@ test_symmetric_tensor()
     // First verify that all manual calculations are correct
     test_NH<dim, number_t, ad_type_code>(nontrivial_initial_values);
 
-    test_NH_eigen_stress<dim, number_t, ad_type_code>(
-      SymmetricTensorEigenvectorMethod::hybrid, nontrivial_initial_values);
-    test_NH_eigen_stress<dim, number_t, ad_type_code>(
-      SymmetricTensorEigenvectorMethod::ql_implicit_shifts,
-      nontrivial_initial_values);
-    test_NH_eigen_stress<dim, number_t, ad_type_code>(
-      SymmetricTensorEigenvectorMethod::jacobi, nontrivial_initial_values);
+    test_NH_eigen_stress<dim, number_t, ad_type_code>(SymmetricTensorEigenvectorMethod::hybrid,
+                                                      nontrivial_initial_values);
+    test_NH_eigen_stress<dim, number_t, ad_type_code>(SymmetricTensorEigenvectorMethod::ql_implicit_shifts,
+                                                      nontrivial_initial_values);
+    test_NH_eigen_stress<dim, number_t, ad_type_code>(SymmetricTensorEigenvectorMethod::jacobi,
+                                                      nontrivial_initial_values);
   }
   // Trivial initial values (equal eigenvalues):
   {
@@ -442,10 +402,9 @@ test_symmetric_tensor()
 
     //    test_NH_eigen_stress<dim,number_t,ad_type_code>(SymmetricTensorEigenvectorMethod::hybrid,nontrivial_initial_values);
     //    // This will never work.
-    test_NH_eigen_stress<dim, number_t, ad_type_code>(
-      SymmetricTensorEigenvectorMethod::ql_implicit_shifts,
-      nontrivial_initial_values);
-    test_NH_eigen_stress<dim, number_t, ad_type_code>(
-      SymmetricTensorEigenvectorMethod::jacobi, nontrivial_initial_values);
+    test_NH_eigen_stress<dim, number_t, ad_type_code>(SymmetricTensorEigenvectorMethod::ql_implicit_shifts,
+                                                      nontrivial_initial_values);
+    test_NH_eigen_stress<dim, number_t, ad_type_code>(SymmetricTensorEigenvectorMethod::jacobi,
+                                                      nontrivial_initial_values);
   }
 }

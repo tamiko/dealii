@@ -53,13 +53,9 @@ do_test()
   for (const auto &cell : dof_handler.active_cell_iterators())
     {
       Vector<Number> dealii_vector(std_vector.begin(), std_vector.end());
-      cell->distribute_local_to_global(dealii_vector.begin(),
-                                       dealii_vector.end(),
-                                       vector1);
+      cell->distribute_local_to_global(dealii_vector.begin(), dealii_vector.end(), vector1);
 
-      cell->distribute_local_to_global(std_vector.begin(),
-                                       std_vector.end(),
-                                       vector2);
+      cell->distribute_local_to_global(std_vector.begin(), std_vector.end(), vector2);
     }
 
   // check if both vectors are the same

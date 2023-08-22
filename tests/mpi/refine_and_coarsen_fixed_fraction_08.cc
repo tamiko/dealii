@@ -44,13 +44,10 @@ count_flags(const parallel::distributed::Triangulation<dim> &tria)
           ++n_coarsen;
       }
 
-  const unsigned int n_refine_global =
-                       Utilities::MPI::sum(n_refine, MPI_COMM_WORLD),
-                     n_coarsen_global =
-                       Utilities::MPI::sum(n_coarsen, MPI_COMM_WORLD);
+  const unsigned int n_refine_global  = Utilities::MPI::sum(n_refine, MPI_COMM_WORLD),
+                     n_coarsen_global = Utilities::MPI::sum(n_coarsen, MPI_COMM_WORLD);
 
-  deallog << "n_refine_flags: " << n_refine_global
-          << ", n_coarsen_flags: " << n_coarsen_global;
+  deallog << "n_refine_flags: " << n_refine_global << ", n_coarsen_flags: " << n_coarsen_global;
 }
 
 
@@ -65,12 +62,10 @@ test()
 
   Vector<float> indicator(tria.n_active_cells());
   // assign each cell a globally unique cellid
-  for (const auto &cell :
-       tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     {
-      const std::string  cellid = cell->id().to_string();
-      const unsigned int fine_cellid =
-        std::stoul(cellid.substr(cellid.find(':') + 1, std::string::npos));
+      const std::string  cellid      = cell->id().to_string();
+      const unsigned int fine_cellid = std::stoul(cellid.substr(cellid.find(':') + 1, std::string::npos));
 
       indicator[cell->active_cell_index()] = fine_cellid + 1;
     }
@@ -82,8 +77,7 @@ test()
   deallog << std::endl;
 
   // reset refinement flags
-  for (const auto &cell :
-       tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     {
       cell->clear_refine_flag();
       cell->clear_coarsen_flag();

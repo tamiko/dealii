@@ -305,8 +305,7 @@ namespace FEValuesExtractors
 
 
   template <int rank>
-  inline SymmetricTensor<rank>::SymmetricTensor(
-    const unsigned int first_tensor_component)
+  inline SymmetricTensor<rank>::SymmetricTensor(const unsigned int first_tensor_component)
     : first_tensor_component(first_tensor_component)
   {}
 

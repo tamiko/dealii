@@ -54,10 +54,7 @@ test()
   {
     Triangulation<3, 3>       tr3;
     std::vector<unsigned int> reps3 = {2, 2, 2};
-    GridGenerator::subdivided_hyper_rectangle(tr3,
-                                              reps3,
-                                              Point<3>(-0.7, -0.5, -1.5),
-                                              Point<3>(0.5, 0.5, 2.));
+    GridGenerator::subdivided_hyper_rectangle(tr3, reps3, Point<3>(-0.7, -0.5, -1.5), Point<3>(0.5, 0.5, 2.));
     Triangulation<3, 3> res3;
     GridGenerator::replicate_triangulation(tr3, reps3, res3);
     deallog << "3d triangulation has the following cell centers:" << std::endl;

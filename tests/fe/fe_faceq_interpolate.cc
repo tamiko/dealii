@@ -42,9 +42,7 @@ test()
   dof_handler.distribute_dofs(fe);
   Vector<double> solution(dof_handler.n_dofs());
 
-  VectorTools::interpolate(dof_handler,
-                           Functions::ZeroFunction<dim>(),
-                           solution);
+  VectorTools::interpolate(dof_handler, Functions::ZeroFunction<dim>(), solution);
   deallog << "Success, dim = " << dim << std::endl;
 }
 

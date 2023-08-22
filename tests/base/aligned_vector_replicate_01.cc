@@ -26,13 +26,11 @@ test()
 {
   const MPI_Comm     communicator = MPI_COMM_WORLD;
   const unsigned int root         = 1;
-  Assert(root < Utilities::MPI::n_mpi_processes(communicator),
-         ExcInternalError());
+  Assert(root < Utilities::MPI::n_mpi_processes(communicator), ExcInternalError());
 
   // Create a vector of differing sizes on all processes, but only on
   // the root process do we put something useful into it
-  AlignedVector<int> avec(
-    Utilities::MPI::this_mpi_process(communicator) == root ? 10 : 5);
+  AlignedVector<int> avec(Utilities::MPI::this_mpi_process(communicator) == root ? 10 : 5);
   if (Utilities::MPI::this_mpi_process(communicator) == root)
     {
       avec[2] = 2;
@@ -49,8 +47,7 @@ test()
   avec.replicate_across_communicator(communicator, root);
 
   // Final step, let every process output what it now has
-  deallog << "On process " << Utilities::MPI::this_mpi_process(communicator)
-          << ": " << std::endl;
+  deallog << "On process " << Utilities::MPI::this_mpi_process(communicator) << ": " << std::endl;
   for (const auto i : avec)
     deallog << i << ' ';
   deallog << std::endl;

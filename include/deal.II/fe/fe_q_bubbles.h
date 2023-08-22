@@ -123,9 +123,8 @@ public:
 
   // documentation inherited from the base class
   virtual void
-  convert_generalized_support_point_values_to_dof_values(
-    const std::vector<Vector<double>> &support_point_values,
-    std::vector<double> &              nodal_values) const override;
+  convert_generalized_support_point_values_to_dof_values(const std::vector<Vector<double>> &support_point_values,
+                                                         std::vector<double> &nodal_values) const override;
 
   /**
    * Return the matrix interpolating from the given finite element to the
@@ -137,18 +136,13 @@ public:
    * FiniteElement<dim,spacedim>::ExcInterpolationNotImplemented is thrown.
    */
   virtual void
-  get_interpolation_matrix(const FiniteElement<dim, spacedim> &source,
-                           FullMatrix<double> &matrix) const override;
+  get_interpolation_matrix(const FiniteElement<dim, spacedim> &source, FullMatrix<double> &matrix) const override;
 
   virtual const FullMatrix<double> &
-  get_prolongation_matrix(
-    const unsigned int         child,
-    const RefinementCase<dim> &refinement_case) const override;
+  get_prolongation_matrix(const unsigned int child, const RefinementCase<dim> &refinement_case) const override;
 
   virtual const FullMatrix<double> &
-  get_restriction_matrix(
-    const unsigned int         child,
-    const RefinementCase<dim> &refinement_case) const override;
+  get_restriction_matrix(const unsigned int child, const RefinementCase<dim> &refinement_case) const override;
 
   /**
    * Check for non-zero values on a face.
@@ -159,8 +153,7 @@ public:
    * Implementation of the interface in FiniteElement
    */
   virtual bool
-  has_support_on_face(const unsigned int shape_index,
-                      const unsigned int face_index) const override;
+  has_support_on_face(const unsigned int shape_index, const unsigned int face_index) const override;
 
   virtual std::unique_ptr<FiniteElement<dim, spacedim>>
   clone() const override;
@@ -170,7 +163,7 @@ public:
    */
   virtual FiniteElementDomination::Domination
   compare_for_domination(const FiniteElement<dim, spacedim> &fe_other,
-                         const unsigned int codim = 0) const override final;
+                         const unsigned int                  codim = 0) const override final;
 
 private:
   /**

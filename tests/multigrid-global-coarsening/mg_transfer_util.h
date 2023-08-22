@@ -30,28 +30,23 @@ using namespace dealii;
 template <typename MeshType, typename Number>
 void
 initialize_dof_vector(LinearAlgebra::distributed::Vector<Number> &vec,
-                      const MeshType &                            dof_handler,
+                      const MeshType                             &dof_handler,
                       const unsigned int                          level)
 {
   IndexSet locally_relevant_dofs;
   if (level == numbers::invalid_unsigned_int)
     DoFTools::extract_locally_relevant_dofs(dof_handler, locally_relevant_dofs);
   else
-    DoFTools::extract_locally_relevant_level_dofs(dof_handler,
-                                                  level,
-                                                  locally_relevant_dofs);
+    DoFTools::extract_locally_relevant_level_dofs(dof_handler, level, locally_relevant_dofs);
 
 
   const parallel::TriangulationBase<MeshType::dimension> *dist_tria =
-    dynamic_cast<const parallel::TriangulationBase<MeshType::dimension> *>(
-      &(dof_handler.get_triangulation()));
+    dynamic_cast<const parallel::TriangulationBase<MeshType::dimension> *>(&(dof_handler.get_triangulation()));
 
-  MPI_Comm comm =
-    dist_tria != nullptr ? dist_tria->get_communicator() : MPI_COMM_SELF;
+  MPI_Comm comm = dist_tria != nullptr ? dist_tria->get_communicator() : MPI_COMM_SELF;
 
-  vec.reinit(level == numbers::invalid_unsigned_int ?
-               dof_handler.locally_owned_dofs() :
-               dof_handler.locally_owned_mg_dofs(level),
+  vec.reinit(level == numbers::invalid_unsigned_int ? dof_handler.locally_owned_dofs() :
+                                                      dof_handler.locally_owned_mg_dofs(level),
              locally_relevant_dofs,
              comm);
 }
@@ -68,13 +63,11 @@ print(const LinearAlgebra::distributed::Vector<Number> &vec)
 
 template <int dim, typename Number, typename MeshType>
 void
-test_transfer_operator(
-  const MGTwoLevelTransfer<dim, LinearAlgebra::distributed::Vector<Number>>
-    &                transfer,
-  const MeshType &   dof_handler_fine,
-  const MeshType &   dof_handler_coarse,
-  const unsigned int mg_level_fine   = numbers::invalid_unsigned_int,
-  const unsigned int mg_level_coarse = numbers::invalid_unsigned_int)
+test_transfer_operator(const MGTwoLevelTransfer<dim, LinearAlgebra::distributed::Vector<Number>> &transfer,
+                       const MeshType                                                            &dof_handler_fine,
+                       const MeshType                                                            &dof_handler_coarse,
+                       const unsigned int mg_level_fine   = numbers::invalid_unsigned_int,
+                       const unsigned int mg_level_coarse = numbers::invalid_unsigned_int)
 {
   AffineConstraints<Number> constraint_fine;
   DoFTools::make_hanging_node_constraints(dof_handler_fine, constraint_fine);
@@ -126,8 +119,7 @@ test_transfer_operator(
               prolongation_matrix[j][i] = dst[j];
           }
 
-        prolongation_matrix.print_formatted(
-          deallog.get_file_stream(), 2, false, 5, "", 1, 1e-5);
+        prolongation_matrix.print_formatted(deallog.get_file_stream(), 2, false, 5, "", 1, 1e-5);
       }
   }
 
@@ -166,8 +158,7 @@ test_transfer_operator(
               restriction_matrix[j][i] = src[j];
           }
 
-        restriction_matrix.print_formatted(
-          deallog.get_file_stream(), 2, false, 5, "", 1, 1e-5);
+        restriction_matrix.print_formatted(deallog.get_file_stream(), 2, false, 5, "", 1, 1e-5);
       }
   }
 }
@@ -176,16 +167,12 @@ test_transfer_operator(
 
 template <int dim, typename Number, typename MeshType>
 void
-test_non_nested_transfer(
-  const MGTwoLevelTransferNonNested<dim,
-                                    LinearAlgebra::distributed::Vector<Number>>
-    &                          transfer,
-  const MeshType &             dof_handler_fine,
-  const MeshType &             dof_handler_coarse,
-  const Function<dim, Number> &function =
-    Functions::ZeroFunction<dim, Number>(),
-  const unsigned int mg_level_fine   = numbers::invalid_unsigned_int,
-  const unsigned int mg_level_coarse = numbers::invalid_unsigned_int)
+test_non_nested_transfer(const MGTwoLevelTransferNonNested<dim, LinearAlgebra::distributed::Vector<Number>> &transfer,
+                         const MeshType              &dof_handler_fine,
+                         const MeshType              &dof_handler_coarse,
+                         const Function<dim, Number> &function        = Functions::ZeroFunction<dim, Number>(),
+                         const unsigned int           mg_level_fine   = numbers::invalid_unsigned_int,
+                         const unsigned int           mg_level_coarse = numbers::invalid_unsigned_int)
 {
   AffineConstraints<Number> constraint_fine;
   DoFTools::make_hanging_node_constraints(dof_handler_fine, constraint_fine);
@@ -237,8 +224,7 @@ test_non_nested_transfer(
               prolongation_matrix[j][i] = dst[j];
           }
 
-        prolongation_matrix.print_formatted(
-          deallog.get_file_stream(), 2, false, 5, "", 1, 1e-5);
+        prolongation_matrix.print_formatted(deallog.get_file_stream(), 2, false, 5, "", 1, 1e-5);
       }
   }
 
@@ -277,8 +263,7 @@ test_non_nested_transfer(
               restriction_matrix[j][i] = src[j];
           }
 
-        restriction_matrix.print_formatted(
-          deallog.get_file_stream(), 2, false, 5, "", 1, 1e-5);
+        restriction_matrix.print_formatted(deallog.get_file_stream(), 2, false, 5, "", 1, 1e-5);
       }
   }
 }

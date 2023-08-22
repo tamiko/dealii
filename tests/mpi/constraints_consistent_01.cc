@@ -66,15 +66,11 @@ check(parallel::distributed::Triangulation<dim> &tria)
 
   for (unsigned int id = 0; id < 1; ++id)
     dealii::VectorTools::interpolate_boundary_values(
-      dof_handler,
-      id,
-      Functions::ConstantFunction<dim>(static_cast<double>(id) + 42.0, dim),
-      constraints);
+      dof_handler, id, Functions::ConstantFunction<dim>(static_cast<double>(id) + 42.0, dim), constraints);
 
   VectorTools::compute_no_normal_flux_constraints(dof_handler,
                                                   0, /*first component*/
-                                                  std::set<types::boundary_id>{
-                                                    2},
+                                                  std::set<types::boundary_id>{2},
                                                   constraints);
 
   constraints.close();
@@ -83,12 +79,11 @@ check(parallel::distributed::Triangulation<dim> &tria)
   deallog << "constraints:" << std::endl;
   constraints.print(deallog.get_file_stream());
   deallog << "consistent? "
-          << constraints.is_consistent_in_parallel(
-               Utilities::MPI::all_gather(MPI_COMM_WORLD,
-                                          dof_handler.locally_owned_dofs()),
-               locally_active_dofs,
-               MPI_COMM_WORLD,
-               true)
+          << constraints.is_consistent_in_parallel(Utilities::MPI::all_gather(MPI_COMM_WORLD,
+                                                                              dof_handler.locally_owned_dofs()),
+                                                   locally_active_dofs,
+                                                   MPI_COMM_WORLD,
+                                                   true)
           << std::endl;
 }
 
@@ -127,8 +122,7 @@ test()
     check(tr);
   }
   {
-    deallog << "this should be inconsistent with more than one rank:"
-            << std::endl;
+    deallog << "this should be inconsistent with more than one rank:" << std::endl;
     parallel::distributed::Triangulation<dim> tr(MPI_COMM_WORLD);
     GridGenerator::hyper_cube(tr, 0.0, 1.0, false);
     tr.refine_global(2);
@@ -138,8 +132,7 @@ test()
         {
           for (unsigned int f(0); f < GeometryInfo<2>::faces_per_cell; ++f)
             {
-              if (cell->face(f)->at_boundary() &&
-                  cell->face(f)->center()[0] < 1e-10)
+              if (cell->face(f)->at_boundary() && cell->face(f)->center()[0] < 1e-10)
                 cell->face(f)->set_all_boundary_ids(1);
             }
         }

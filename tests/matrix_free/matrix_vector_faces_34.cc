@@ -35,35 +35,33 @@ void
 generate_grid(Triangulation<3> &triangulation, int orientation)
 {
   Point<3>              vertices_1[] = {Point<3>(-1., -1., -3.),
-                           Point<3>(+1., -1., -3.),
-                           Point<3>(-1., +1., -3.),
-                           Point<3>(+1., +1., -3.),
-                           Point<3>(-1., -1., -1.),
-                           Point<3>(+1., -1., -1.),
-                           Point<3>(-1., +1., -1.),
-                           Point<3>(+1., +1., -1.),
-                           Point<3>(-1., -1., +1.),
-                           Point<3>(+1., -1., +1.),
-                           Point<3>(-1., +1., +1.),
-                           Point<3>(+1., +1., +1.)};
+                                        Point<3>(+1., -1., -3.),
+                                        Point<3>(-1., +1., -3.),
+                                        Point<3>(+1., +1., -3.),
+                                        Point<3>(-1., -1., -1.),
+                                        Point<3>(+1., -1., -1.),
+                                        Point<3>(-1., +1., -1.),
+                                        Point<3>(+1., +1., -1.),
+                                        Point<3>(-1., -1., +1.),
+                                        Point<3>(+1., -1., +1.),
+                                        Point<3>(-1., +1., +1.),
+                                        Point<3>(+1., +1., +1.)};
   std::vector<Point<3>> vertices(&vertices_1[0], &vertices_1[12]);
 
   std::vector<CellData<3>> cells(2, CellData<3>());
 
   /* cell 0 */
-  int cell_vertices_0[GeometryInfo<3>::vertices_per_cell] = {
-    0, 1, 2, 3, 4, 5, 6, 7};
+  int cell_vertices_0[GeometryInfo<3>::vertices_per_cell] = {0, 1, 2, 3, 4, 5, 6, 7};
 
   /* cell 1 */
-  int cell_vertices_1[8][GeometryInfo<3>::vertices_per_cell] = {
-    {4, 5, 6, 7, 8, 9, 10, 11},
-    {5, 7, 4, 6, 9, 11, 8, 10},
-    {7, 6, 5, 4, 11, 10, 9, 8},
-    {6, 4, 7, 5, 10, 8, 11, 9},
-    {9, 8, 11, 10, 5, 4, 7, 6},
-    {8, 10, 9, 11, 4, 6, 5, 7},
-    {10, 11, 8, 9, 6, 7, 4, 5},
-    {11, 9, 10, 8, 7, 5, 6, 4}};
+  int cell_vertices_1[8][GeometryInfo<3>::vertices_per_cell] = {{4, 5, 6, 7, 8, 9, 10, 11},
+                                                                {5, 7, 4, 6, 9, 11, 8, 10},
+                                                                {7, 6, 5, 4, 11, 10, 9, 8},
+                                                                {6, 4, 7, 5, 10, 8, 11, 9},
+                                                                {9, 8, 11, 10, 5, 4, 7, 6},
+                                                                {8, 10, 9, 11, 4, 6, 5, 7},
+                                                                {10, 11, 8, 9, 6, 7, 4, 5},
+                                                                {11, 9, 10, 8, 7, 5, 6, 4}};
 
   for (const unsigned int j : GeometryInfo<3>::vertex_indices())
     {
@@ -79,8 +77,7 @@ generate_grid(Triangulation<3> &triangulation, int orientation)
   const unsigned int face_no = orientation < 4 ? 4 : 5;
   const auto         cell    = ++(triangulation.begin());
   deallog << "Orientation index within MatrixFree: "
-          << (!cell->face_orientation(face_no) + 2 * cell->face_flip(face_no) +
-              4 * cell->face_rotation(face_no))
+          << (!cell->face_orientation(face_no) + 2 * cell->face_flip(face_no) + 4 * cell->face_rotation(face_no))
           << std::endl;
 }
 
@@ -101,14 +98,12 @@ run_test(const unsigned int fe_degree)
           if (refine == 0)
             {
               tria.begin()->set_refine_flag();
-              deallog << "Standard cell refined, oriented cell unrefined"
-                      << std::endl;
+              deallog << "Standard cell refined, oriented cell unrefined" << std::endl;
             }
           else
             {
               (++tria.begin())->set_refine_flag();
-              deallog << "Standard cell unrefined, oriented cell refined"
-                      << std::endl;
+              deallog << "Standard cell unrefined, oriented cell refined" << std::endl;
             }
           tria.execute_coarsening_and_refinement();
 
@@ -149,8 +144,7 @@ run_test(const unsigned int fe_degree)
               }
               matrix.reinit(sparsity);
               MeshWorker::IntegrationInfoBox<3> info_box;
-              UpdateFlags                       update_flags =
-                update_values | update_gradients | update_jacobians;
+              UpdateFlags                       update_flags = update_values | update_gradients | update_jacobians;
               info_box.add_update_flags_all(update_flags);
               info_box.initialize_gauss_quadrature(dof.get_fe().degree + 1,
                                                    dof.get_fe().degree + 1,
@@ -159,31 +153,23 @@ run_test(const unsigned int fe_degree)
 
               MeshWorker::DoFInfo<3> dof_info(dof);
 
-              MeshWorker::Assembler::MatrixSimple<SparseMatrix<double>>
-                assembler;
+              MeshWorker::Assembler::MatrixSimple<SparseMatrix<double>> assembler;
               assembler.initialize(matrix);
 
               MatrixIntegrator<3> integrator;
-              MeshWorker::integration_loop<3, 3>(dof.begin_active(),
-                                                 dof.end(),
-                                                 dof_info,
-                                                 info_box,
-                                                 integrator,
-                                                 assembler);
+              MeshWorker::integration_loop<3, 3>(
+                dof.begin_active(), dof.end(), dof_info, info_box, integrator, assembler);
 
               matrix.vmult(out, in);
             }
 
-          MatrixFree<3, double> mf_data;
-          const QGauss<1>       quad(dof.get_fe().degree + 1);
+          MatrixFree<3, double>                          mf_data;
+          const QGauss<1>                                quad(dof.get_fe().degree + 1);
           typename MatrixFree<3, double>::AdditionalData data;
-          data.tasks_parallel_scheme =
-            MatrixFree<3, double>::AdditionalData::none;
-          data.tasks_block_size = 3;
-          data.mapping_update_flags_inner_faces =
-            (update_gradients | update_JxW_values);
-          data.mapping_update_flags_boundary_faces =
-            (update_gradients | update_JxW_values);
+          data.tasks_parallel_scheme               = MatrixFree<3, double>::AdditionalData::none;
+          data.tasks_block_size                    = 3;
+          data.mapping_update_flags_inner_faces    = (update_gradients | update_JxW_values);
+          data.mapping_update_flags_boundary_faces = (update_gradients | update_JxW_values);
 
           mf_data.reinit(mapping, dof, constraints, quad, data);
 
@@ -194,10 +180,8 @@ run_test(const unsigned int fe_degree)
             if (fe_degree < 3)
               {
                 out_dist -= out;
-                const double diff_norm =
-                  out_dist.linfty_norm() / out.linfty_norm();
-                deallog << "Norm of difference basic:           " << diff_norm
-                        << std::endl;
+                const double diff_norm = out_dist.linfty_norm() / out.linfty_norm();
+                deallog << "Norm of difference basic:           " << diff_norm << std::endl;
               }
             else
               {
@@ -208,14 +192,12 @@ run_test(const unsigned int fe_degree)
           }
 
           {
-            MatrixFreeVariant<3, -1, 0, double, Vector<double>, 3> mf(mf_data,
-                                                                      true);
+            MatrixFreeVariant<3, -1, 0, double, Vector<double>, 3> mf(mf_data, true);
             mf.vmult(out_dist, in);
 
             out_dist -= out;
             const double diff_norm = out_dist.linfty_norm() / out.linfty_norm();
-            deallog << "Norm of difference gather_evaluate: " << diff_norm
-                    << std::endl;
+            deallog << "Norm of difference gather_evaluate: " << diff_norm << std::endl;
           }
         }
     }

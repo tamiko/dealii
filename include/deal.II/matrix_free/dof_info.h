@@ -164,8 +164,7 @@ namespace internal
        * in hp-mode, it returns numbers::invalid_unsigned_int.
        */
       unsigned int
-      fe_index_from_degree(const unsigned int first_selected_component,
-                           const unsigned int fe_degree) const;
+      fe_index_from_degree(const unsigned int first_selected_component, const unsigned int fe_degree) const;
 
       /**
        * Populate the vector @p local_indices with locally owned degrees of freedom
@@ -189,7 +188,7 @@ namespace internal
       void
       get_dof_indices_on_cell_batch(std::vector<unsigned int> &local_indices,
                                     const unsigned int         cell_batch,
-                                    const bool with_constraints = true) const;
+                                    const bool                 with_constraints = true) const;
 
       /**
        * This internal method takes the local indices on a cell (two versions:
@@ -202,14 +201,13 @@ namespace internal
        */
       template <typename number>
       void
-      read_dof_indices(
-        const std::vector<types::global_dof_index> &local_indices_resolved,
-        const std::vector<types::global_dof_index> &local_indices,
-        const bool                                  cell_has_hanging_nodes,
-        const dealii::AffineConstraints<number> &   constraints,
-        const unsigned int                          cell_number,
-        ConstraintValues<double> &                  constraint_values,
-        bool &                                      cell_at_boundary);
+      read_dof_indices(const std::vector<types::global_dof_index> &local_indices_resolved,
+                       const std::vector<types::global_dof_index> &local_indices,
+                       const bool                                  cell_has_hanging_nodes,
+                       const dealii::AffineConstraints<number>    &constraints,
+                       const unsigned int                          cell_number,
+                       ConstraintValues<double>                   &constraint_values,
+                       bool                                       &cell_at_boundary);
 
       /**
        * For a given cell, determine if it has hanging node constraints. If yes,
@@ -217,12 +215,11 @@ namespace internal
        */
       template <int dim>
       bool
-      process_hanging_node_constraints(
-        const HangingNodes<dim> &                     hanging_nodes,
-        const std::vector<std::vector<unsigned int>> &lexicographic_mapping,
-        const unsigned int                            cell_number,
-        const TriaIterator<DoFCellAccessor<dim, dim, false>> &cell,
-        std::vector<types::global_dof_index> &                dof_indices);
+      process_hanging_node_constraints(const HangingNodes<dim>                              &hanging_nodes,
+                                       const std::vector<std::vector<unsigned int>>         &lexicographic_mapping,
+                                       const unsigned int                                    cell_number,
+                                       const TriaIterator<DoFCellAccessor<dim, dim, false>> &cell,
+                                       std::vector<types::global_dof_index>                 &dof_indices);
 
       /**
        * This method assigns the correct indices to ghost indices from the
@@ -234,7 +231,7 @@ namespace internal
       void
       assign_ghosts(const std::vector<unsigned int> &boundary_cells,
                     const MPI_Comm                   communicator_sm,
-                    const bool use_vector_data_exchanger_full);
+                    const bool                       use_vector_data_exchanger_full);
 
       /**
        * This method reorders the way cells are gone through based on a given
@@ -243,9 +240,9 @@ namespace internal
        * vectorization.
        */
       void
-      reorder_cells(const TaskInfo &                  task_info,
-                    const std::vector<unsigned int> & renumbering,
-                    const std::vector<unsigned int> & constraint_pool_row_index,
+      reorder_cells(const TaskInfo                   &task_info,
+                    const std::vector<unsigned int>  &renumbering,
+                    const std::vector<unsigned int>  &constraint_pool_row_index,
                     const std::vector<unsigned char> &irregular_cells);
 
       /**
@@ -253,8 +250,7 @@ namespace internal
        * increased efficiency. Run at the end of reorder_cells.
        */
       void
-      compute_cell_index_compression(
-        const std::vector<unsigned char> &irregular_cells);
+      compute_cell_index_compression(const std::vector<unsigned char> &irregular_cells);
 
       /**
        * Finds possible compression for the face indices that we can apply for
@@ -262,8 +258,7 @@ namespace internal
        */
       template <int length>
       void
-      compute_face_index_compression(
-        const std::vector<FaceToCellTopology<length>> &faces);
+      compute_face_index_compression(const std::vector<FaceToCellTopology<length>> &faces);
 
       /**
        * This function computes the connectivity of the currently stored
@@ -271,9 +266,9 @@ namespace internal
        * fills the structure into a sparsity pattern.
        */
       void
-      make_connectivity_graph(const TaskInfo &                 task_info,
+      make_connectivity_graph(const TaskInfo                  &task_info,
                               const std::vector<unsigned int> &renumbering,
-                              DynamicSparsityPattern &connectivity) const;
+                              DynamicSparsityPattern          &connectivity) const;
 
       /**
        * In case face integrals are enabled, find out whether certain loops
@@ -281,15 +276,14 @@ namespace internal
        * in the main partitioner.
        */
       void
-      compute_tight_partitioners(
-        const Table<2, ShapeInfo<double>> &       shape_info,
-        const unsigned int                        n_owned_cells,
-        const unsigned int                        n_lanes,
-        const std::vector<FaceToCellTopology<1>> &inner_faces,
-        const std::vector<FaceToCellTopology<1>> &ghosted_faces,
-        const bool                                fill_cell_centric,
-        const MPI_Comm                            communicator_sm,
-        const bool use_vector_data_exchanger_full);
+      compute_tight_partitioners(const Table<2, ShapeInfo<double>>        &shape_info,
+                                 const unsigned int                        n_owned_cells,
+                                 const unsigned int                        n_lanes,
+                                 const std::vector<FaceToCellTopology<1>> &inner_faces,
+                                 const std::vector<FaceToCellTopology<1>> &ghosted_faces,
+                                 const bool                                fill_cell_centric,
+                                 const MPI_Comm                            communicator_sm,
+                                 const bool                                use_vector_data_exchanger_full);
 
       /**
        * Given @p cell_indices_contiguous_sm containing the local index of
@@ -298,8 +292,7 @@ namespace internal
        */
       void
       compute_shared_memory_contiguous_indices(
-        std::array<std::vector<std::pair<unsigned int, unsigned int>>, 3>
-          &cell_indices_contiguous_sm);
+        std::array<std::vector<std::pair<unsigned int, unsigned int>>, 3> &cell_indices_contiguous_sm);
 
       /**
        * Compute a renumbering of the degrees of freedom to improve the data
@@ -312,8 +305,7 @@ namespace internal
        * value of this function.
        */
       void
-      compute_dof_renumbering(
-        std::vector<types::global_dof_index> &renumbering);
+      compute_dof_renumbering(std::vector<types::global_dof_index> &renumbering);
 
       /**
        * Fills the array that defines how to zero selected ranges in the result
@@ -326,9 +318,8 @@ namespace internal
        */
       template <int length>
       void
-      compute_vector_zero_access_pattern(
-        const TaskInfo &                               task_info,
-        const std::vector<FaceToCellTopology<length>> &faces);
+      compute_vector_zero_access_pattern(const TaskInfo                                &task_info,
+                                         const std::vector<FaceToCellTopology<length>> &faces);
 
       /**
        * Return the memory consumption in bytes of this class.
@@ -342,8 +333,7 @@ namespace internal
        */
       template <typename StreamType>
       void
-      print_memory_consumption(StreamType &    out,
-                               const TaskInfo &size_info) const;
+      print_memory_consumption(StreamType &out, const TaskInfo &size_info) const;
 
       /**
        * Prints a representation of the indices in the class to the given
@@ -351,9 +341,9 @@ namespace internal
        */
       template <typename Number>
       void
-      print(const std::vector<Number> &      constraint_pool_data,
+      print(const std::vector<Number>       &constraint_pool_data,
             const std::vector<unsigned int> &constraint_pool_row_index,
-            std::ostream &                   out) const;
+            std::ostream                    &out) const;
 
       /**
        * Enum for various storage variants of the indices. This storage format
@@ -534,8 +524,7 @@ namespace internal
        * from or writing to a vector. The second number stores the index of
        * the constraint weights, stored in the variable constraint_pool_data.
        */
-      std::vector<std::pair<unsigned short, unsigned short>>
-        constraint_indicator;
+      std::vector<std::pair<unsigned short, unsigned short>> constraint_indicator;
 
       /**
        * Reordered index storage for `IndexStorageVariants::interleaved`.
@@ -560,8 +549,7 @@ namespace internal
        * @note This data structure is only set up if all entries in
        *   index_storage_variants[2] are IndexStorageVariants::contiguous.
        */
-      std::array<std::vector<std::pair<unsigned int, unsigned int>>, 3>
-        dof_indices_contiguous_sm;
+      std::array<std::vector<std::pair<unsigned int, unsigned int>>, 3> dof_indices_contiguous_sm;
 
       /**
        * Compressed index storage for faster access than through @p
@@ -595,9 +583,7 @@ namespace internal
       /**
        * Vector exchanger compatible with vector_partitioner.
        */
-      std::shared_ptr<
-        const internal::MatrixFreeFunctions::VectorDataExchange::Base>
-        vector_exchanger;
+      std::shared_ptr<const internal::MatrixFreeFunctions::VectorDataExchange::Base> vector_exchanger;
 
       /**
        * Vector exchanger compatible with partitioners that select a subset of
@@ -618,10 +604,7 @@ namespace internal
        *   values and the gradients on all faces adjacent to the locally owned
        *   cells.
        */
-      std::array<
-        std::shared_ptr<
-          const internal::MatrixFreeFunctions::VectorDataExchange::Base>,
-        5>
+      std::array<std::shared_ptr<const internal::MatrixFreeFunctions::VectorDataExchange::Base>, 5>
         vector_exchanger_face_variants;
 
       /**
@@ -775,8 +758,7 @@ namespace internal
 
 
     inline unsigned int
-    DoFInfo::fe_index_from_degree(const unsigned int first_selected_component,
-                                  const unsigned int fe_degree) const
+    DoFInfo::fe_index_from_degree(const unsigned int first_selected_component, const unsigned int fe_degree) const
     {
       const unsigned int n_indices = fe_index_conversion.size();
       if (n_indices <= 1)

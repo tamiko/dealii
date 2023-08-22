@@ -39,11 +39,10 @@ test()
   using Number              = double;
   using VectorizedArrayType = VectorizedArray<Number>;
 
-  parallel::shared::Triangulation<dim> tria(
-    MPI_COMM_WORLD,
-    ::Triangulation<dim>::none,
-    true,
-    parallel::shared::Triangulation<dim>::partition_custom_signal);
+  parallel::shared::Triangulation<dim> tria(MPI_COMM_WORLD,
+                                            ::Triangulation<dim>::none,
+                                            true,
+                                            parallel::shared::Triangulation<dim>::partition_custom_signal);
 
   tria.signals.create.connect([&]() {
     for (const auto &cell : tria.active_cell_iterators())
@@ -53,10 +52,7 @@ test()
         cell->set_subdomain_id(1);
   });
 
-  GridGenerator::subdivided_hyper_rectangle(tria,
-                                            {10, 10},
-                                            {0.0, 0.0},
-                                            {1.0, 1.0});
+  GridGenerator::subdivided_hyper_rectangle(tria, {10, 10}, {0.0, 0.0}, {1.0, 1.0});
 
   // caterorization - not strict
   {
@@ -64,14 +60,13 @@ test()
     dof_handler.distribute_dofs(FE_Q<dim>(1));
 
     typename MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData data;
-    data.tasks_parallel_scheme = MatrixFree<dim, double>::AdditionalData::none;
-    data.mapping_update_flags  = update_quadrature_points;
+    data.tasks_parallel_scheme               = MatrixFree<dim, double>::AdditionalData::none;
+    data.mapping_update_flags                = update_quadrature_points;
     data.mapping_update_flags_boundary_faces = update_quadrature_points;
     data.mapping_update_flags_inner_faces    = update_quadrature_points;
     data.hold_all_faces_to_owned_cells       = true;
 
-    std::vector<unsigned int> cell_vectorization_category(
-      tria.n_active_cells());
+    std::vector<unsigned int> cell_vectorization_category(tria.n_active_cells());
     for (unsigned int i = 0; i < cell_vectorization_category.size(); ++i)
       cell_vectorization_category[i] = i % 10;
 
@@ -79,25 +74,16 @@ test()
     data.cell_vectorization_categories_strict = false;
 
     MatrixFree<dim, Number, VectorizedArrayType> matrix_free;
-    matrix_free.reinit(MappingQ1<dim>(),
-                       dof_handler,
-                       AffineConstraints<Number>(),
-                       QGauss<dim>(2),
-                       data);
+    matrix_free.reinit(MappingQ1<dim>(), dof_handler, AffineConstraints<Number>(), QGauss<dim>(2), data);
 
     for (unsigned int cell = matrix_free.n_cell_batches();
-         cell <
-         matrix_free.n_cell_batches() + matrix_free.n_ghost_cell_batches();
+         cell < matrix_free.n_cell_batches() + matrix_free.n_ghost_cell_batches();
          ++cell)
       {
         unsigned int category = 0;
-        for (unsigned int v = 0;
-             v < matrix_free.n_active_entries_per_cell_batch(cell);
-             ++v)
-          category = std::max(
-            category,
-            cell_vectorization_category[matrix_free.get_cell_iterator(cell, v)
-                                          ->active_cell_index()]);
+        for (unsigned int v = 0; v < matrix_free.n_active_entries_per_cell_batch(cell); ++v)
+          category = std::max(category,
+                              cell_vectorization_category[matrix_free.get_cell_iterator(cell, v)->active_cell_index()]);
 
         AssertDimension(category, matrix_free.get_cell_category(cell));
       }
@@ -110,14 +96,13 @@ test()
     dof_handler.distribute_dofs(FE_Q<dim>(1));
 
     typename MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData data;
-    data.tasks_parallel_scheme = MatrixFree<dim, double>::AdditionalData::none;
-    data.mapping_update_flags  = update_quadrature_points;
+    data.tasks_parallel_scheme               = MatrixFree<dim, double>::AdditionalData::none;
+    data.mapping_update_flags                = update_quadrature_points;
     data.mapping_update_flags_boundary_faces = update_quadrature_points;
     data.mapping_update_flags_inner_faces    = update_quadrature_points;
     data.hold_all_faces_to_owned_cells       = true;
 
-    std::vector<unsigned int> cell_vectorization_category(
-      tria.n_active_cells());
+    std::vector<unsigned int> cell_vectorization_category(tria.n_active_cells());
     for (unsigned int i = 0; i < cell_vectorization_category.size(); ++i)
       cell_vectorization_category[i] = i % 10;
 
@@ -125,24 +110,15 @@ test()
     data.cell_vectorization_categories_strict = true;
 
     MatrixFree<dim, Number, VectorizedArrayType> matrix_free;
-    matrix_free.reinit(MappingQ1<dim>(),
-                       dof_handler,
-                       AffineConstraints<Number>(),
-                       QGauss<dim>(2),
-                       data);
+    matrix_free.reinit(MappingQ1<dim>(), dof_handler, AffineConstraints<Number>(), QGauss<dim>(2), data);
 
     for (unsigned int cell = matrix_free.n_cell_batches();
-         cell <
-         matrix_free.n_cell_batches() + matrix_free.n_ghost_cell_batches();
+         cell < matrix_free.n_cell_batches() + matrix_free.n_ghost_cell_batches();
          ++cell)
       {
-        for (unsigned int v = 0;
-             v < matrix_free.n_active_entries_per_cell_batch(cell);
-             ++v)
-          AssertDimension(
-            cell_vectorization_category[matrix_free.get_cell_iterator(cell, v)
-                                          ->active_cell_index()],
-            matrix_free.get_cell_category(cell));
+        for (unsigned int v = 0; v < matrix_free.n_active_entries_per_cell_batch(cell); ++v)
+          AssertDimension(cell_vectorization_category[matrix_free.get_cell_iterator(cell, v)->active_cell_index()],
+                          matrix_free.get_cell_category(cell));
       }
   }
   deallog << "OK" << std::endl;
@@ -165,30 +141,22 @@ test()
     dof_handler.distribute_dofs(fe_collection);
 
     typename MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData data;
-    data.tasks_parallel_scheme = MatrixFree<dim, double>::AdditionalData::none;
-    data.mapping_update_flags  = update_quadrature_points;
+    data.tasks_parallel_scheme               = MatrixFree<dim, double>::AdditionalData::none;
+    data.mapping_update_flags                = update_quadrature_points;
     data.mapping_update_flags_boundary_faces = update_quadrature_points;
     data.mapping_update_flags_inner_faces    = update_quadrature_points;
     data.hold_all_faces_to_owned_cells       = true;
 
     MatrixFree<dim, Number, VectorizedArrayType> matrix_free;
-    matrix_free.reinit(MappingQ1<dim>(),
-                       dof_handler,
-                       AffineConstraints<Number>(),
-                       QGauss<dim>(2),
-                       data);
+    matrix_free.reinit(MappingQ1<dim>(), dof_handler, AffineConstraints<Number>(), QGauss<dim>(2), data);
 
     for (unsigned int cell = matrix_free.n_cell_batches();
-         cell <
-         matrix_free.n_cell_batches() + matrix_free.n_ghost_cell_batches();
+         cell < matrix_free.n_cell_batches() + matrix_free.n_ghost_cell_batches();
          ++cell)
       {
-        for (unsigned int v = 0;
-             v < matrix_free.n_active_entries_per_cell_batch(cell);
-             ++v)
-          AssertDimension(
-            matrix_free.get_cell_iterator(cell, v)->active_fe_index(),
-            matrix_free.get_cell_category(cell));
+        for (unsigned int v = 0; v < matrix_free.n_active_entries_per_cell_batch(cell); ++v)
+          AssertDimension(matrix_free.get_cell_iterator(cell, v)->active_fe_index(),
+                          matrix_free.get_cell_category(cell));
       }
   }
   deallog << "OK" << std::endl;

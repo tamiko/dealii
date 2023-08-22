@@ -42,10 +42,8 @@ main()
   tria.refine_global(6);
 
   namespace bgi = boost::geometry::index;
-  std::vector<
-    std::pair<BoundingBox<2>, typename Triangulation<2>::active_cell_iterator>>
-               boxes(tria.n_active_cells());
-  unsigned int i = 0;
+  std::vector<std::pair<BoundingBox<2>, typename Triangulation<2>::active_cell_iterator>> boxes(tria.n_active_cells());
+  unsigned int                                                                            i = 0;
   for (const auto &cell : tria.active_cell_iterators())
     boxes[i++] = std::make_pair(mapping.get_bounding_box(cell), cell);
 
@@ -53,8 +51,7 @@ main()
   for (const unsigned int level : {0, 1, 2})
     {
       const auto bboxes = extract_rtree_level(tree, level + 1);
-      deallog << "LEVEL " + std::to_string(level + 1) + "  N boxes: "
-              << bboxes.size() << std::endl;
+      deallog << "LEVEL " + std::to_string(level + 1) + "  N boxes: " << bboxes.size() << std::endl;
 
       const auto   boxes_in_boxes = extract_children_of_level(tree, level);
       unsigned int total_bboxes   = 0;
@@ -63,17 +60,13 @@ main()
 
       if (level == 2)
         {
-          Assert(boxes_in_boxes.size() == 0,
-                 ExcMessage("Leafs have no children."));
+          Assert(boxes_in_boxes.size() == 0, ExcMessage("Leafs have no children."));
         }
       else
         {
           Assert(total_bboxes == bboxes.size(),
-                 ExcMessage(
-                   "The number of total children of level " +
-                   std::to_string(level) +
-                   " should be equal to the number of boxes on level " +
-                   std::to_string(level + 1)));
+                 ExcMessage("The number of total children of level " + std::to_string(level) +
+                            " should be equal to the number of boxes on level " + std::to_string(level + 1)));
         }
 
       deallog << "OK" << std::endl;

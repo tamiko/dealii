@@ -438,9 +438,9 @@ namespace HDF5
      * Create dataset. This is an internal constructor. The function
      * Group::create_dataset() should be used to create a dataset.
      */
-    DataSet(const std::string &           name,
-            const hid_t &                 parent_group_id,
-            const std::vector<hsize_t> &  dimensions,
+    DataSet(const std::string            &name,
+            const hid_t                  &parent_group_id,
+            const std::vector<hsize_t>   &dimensions,
             const std::shared_ptr<hid_t> &t_type,
             const bool                    mpi);
 
@@ -540,8 +540,7 @@ namespace HDF5
     // clang-format on
     template <typename Container>
     Container
-    read_hyperslab(const std::vector<hsize_t> &offset,
-                   const std::vector<hsize_t> &count);
+    read_hyperslab(const std::vector<hsize_t> &offset, const std::vector<hsize_t> &count);
 
     /**
      * Writes a data hyperslab to the dataset. The parameters are summarized
@@ -650,8 +649,7 @@ namespace HDF5
      */
     template <typename Container>
     void
-    write_selection(const Container &           data,
-                    const std::vector<hsize_t> &coordinates);
+    write_selection(const Container &data, const std::vector<hsize_t> &coordinates);
 
     // clang-format off
     /**
@@ -682,9 +680,7 @@ namespace HDF5
     // clang-format on
     template <typename Container>
     void
-    write_hyperslab(const Container &           data,
-                    const std::vector<hsize_t> &offset,
-                    const std::vector<hsize_t> &count);
+    write_hyperslab(const Container &data, const std::vector<hsize_t> &offset, const std::vector<hsize_t> &count);
 
     /**
      * Writes a data hyperslab to the dataset. The parameters are summarized
@@ -720,7 +716,7 @@ namespace HDF5
      */
     template <typename Container>
     void
-    write_hyperslab(const Container &           data,
+    write_hyperslab(const Container            &data,
                     const std::vector<hsize_t> &data_dimensions,
                     const std::vector<hsize_t> &offset,
                     const std::vector<hsize_t> &stride,
@@ -999,10 +995,7 @@ namespace HDF5
      * create_group() of the current class should be used to open or create a
      * group.
      */
-    Group(const std::string &   name,
-          const Group &         parent_group,
-          const bool            mpi,
-          const GroupAccessMode mode);
+    Group(const std::string &name, const Group &parent_group, const bool mpi, const GroupAccessMode mode);
 
     /**
      * Internal constructor used by File. The constructor sets the protected
@@ -1042,8 +1035,7 @@ namespace HDF5
      */
     template <typename number>
     DataSet
-    create_dataset(const std::string &         name,
-                   const std::vector<hsize_t> &dimensions) const;
+    create_dataset(const std::string &name, const std::vector<hsize_t> &dimensions) const;
 
     /**
      * Create and write data to a dataset. @p number can be `float`, `double`,
@@ -1103,9 +1095,7 @@ namespace HDF5
      * defines the processes that participate in this call; `MPI_COMM_WORLD` is
      * a common value for the MPI communicator.
      */
-    File(const std::string &  name,
-         const FileAccessMode mode,
-         const MPI_Comm       mpi_communicator);
+    File(const std::string &name, const FileAccessMode mode, const MPI_Comm mpi_communicator);
 
   private:
     /**
@@ -1115,10 +1105,7 @@ namespace HDF5
      * File(const std::string &, const Mode)
      * should be used to open or create HDF5 files.
      */
-    File(const std::string &  name,
-         const FileAccessMode mode,
-         const bool           mpi,
-         const MPI_Comm       mpi_communicator);
+    File(const std::string &name, const FileAccessMode mode, const bool mpi, const MPI_Comm mpi_communicator);
   };
 
   namespace internal
@@ -1210,27 +1197,21 @@ namespace HDF5
      * of the FullMatrix will be FullMatrix(dim_0,dim_2)
      */
     template <typename Container>
-    std::enable_if_t<
-      std::is_same_v<Container, std::vector<typename Container::value_type>>,
-      Container>
+    std::enable_if_t<std::is_same_v<Container, std::vector<typename Container::value_type>>, Container>
     initialize_container(const std::vector<hsize_t> &dimensions);
 
     /**
      * Same as above.
      */
     template <typename Container>
-    std::enable_if_t<
-      std::is_same_v<Container, Vector<typename Container::value_type>>,
-      Container>
+    std::enable_if_t<std::is_same_v<Container, Vector<typename Container::value_type>>, Container>
     initialize_container(const std::vector<hsize_t> &dimensions);
 
     /**
      * Same as above.
      */
     template <typename Container>
-    std::enable_if_t<
-      std::is_same_v<Container, FullMatrix<typename Container::value_type>>,
-      Container>
+    std::enable_if_t<std::is_same_v<Container, FullMatrix<typename Container::value_type>>, Container>
     initialize_container(const std::vector<hsize_t> &dimensions);
 
     /**
@@ -1251,10 +1232,10 @@ namespace HDF5
      * been collective.
      */
     inline void
-    release_plist(hid_t &                    plist,
+    release_plist(hid_t                     &plist,
                   H5D_mpio_actual_io_mode_t &io_mode,
-                  std::uint32_t &            local_no_collective_cause,
-                  std::uint32_t &            global_no_collective_cause,
+                  std::uint32_t             &local_no_collective_cause,
+                  std::uint32_t             &global_no_collective_cause,
                   const bool                 mpi,
                   const bool                 query_io_mode);
 
@@ -1275,13 +1256,9 @@ namespace HDF5
     std::shared_ptr<hid_t>
     get_hdf5_datatype()
     {
-      static_assert(std::is_same_v<number, float> ||
-                      std::is_same_v<number, double> ||
-                      std::is_same_v<number, int> ||
-                      std::is_same_v<number, bool> ||
-                      std::is_same_v<number, unsigned int> ||
-                      std::is_same_v<number, std::complex<float>> ||
-                      std::is_same_v<number, std::complex<double>>,
+      static_assert(std::is_same_v<number, float> || std::is_same_v<number, double> || std::is_same_v<number, int> ||
+                      std::is_same_v<number, bool> || std::is_same_v<number, unsigned int> ||
+                      std::is_same_v<number, std::complex<float>> || std::is_same_v<number, std::complex<double>>,
                     "The data type you are trying to get the HDF5 tag for "
                     "is not supported by this function.");
 
@@ -1307,14 +1284,13 @@ namespace HDF5
         }
       else if (std::is_same_v<number, std::complex<float>>)
         {
-          std::shared_ptr<hid_t> t_type =
-            std::shared_ptr<hid_t>(new hid_t, [](hid_t *pointer) {
-              // Release the HDF5 resource
-              const herr_t ret = H5Tclose(*pointer);
-              AssertNothrow(ret >= 0, ExcInternalError());
-              (void)ret;
-              delete pointer;
-            });
+          std::shared_ptr<hid_t> t_type = std::shared_ptr<hid_t>(new hid_t, [](hid_t *pointer) {
+            // Release the HDF5 resource
+            const herr_t ret = H5Tclose(*pointer);
+            AssertNothrow(ret >= 0, ExcInternalError());
+            (void)ret;
+            delete pointer;
+          });
 
           *t_type = H5Tcreate(H5T_COMPOUND, sizeof(std::complex<float>));
           //  The C++ standards committee agreed to mandate that the storage
@@ -1330,15 +1306,14 @@ namespace HDF5
         }
       else if (std::is_same_v<number, std::complex<double>>)
         {
-          std::shared_ptr<hid_t> t_type =
-            std::shared_ptr<hid_t>(new hid_t, [](hid_t *pointer) {
-              // Release the HDF5 resource
-              const herr_t ret = H5Tclose(*pointer);
-              AssertNothrow(ret >= 0, ExcInternalError());
-              (void)ret;
-              delete pointer;
-            });
-          *t_type = H5Tcreate(H5T_COMPOUND, sizeof(std::complex<double>));
+          std::shared_ptr<hid_t> t_type = std::shared_ptr<hid_t>(new hid_t, [](hid_t *pointer) {
+            // Release the HDF5 resource
+            const herr_t ret = H5Tclose(*pointer);
+            AssertNothrow(ret >= 0, ExcInternalError());
+            (void)ret;
+            delete pointer;
+          });
+          *t_type                       = H5Tcreate(H5T_COMPOUND, sizeof(std::complex<double>));
           //  The C++ standards committee agreed to mandate that the storage
           //  format used for the std::complex type be binary-compatible with
           //  the C99 type, i.e. an array T[2] with consecutive real [0] and
@@ -1416,33 +1391,25 @@ namespace HDF5
 
 
     template <typename Container>
-    std::enable_if_t<
-      std::is_same_v<Container, std::vector<typename Container::value_type>>,
-      Container>
+    std::enable_if_t<std::is_same_v<Container, std::vector<typename Container::value_type>>, Container>
     initialize_container(const std::vector<hsize_t> &dimensions)
     {
-      return Container(std::accumulate(
-        dimensions.begin(), dimensions.end(), 1, std::multiplies<int>()));
+      return Container(std::accumulate(dimensions.begin(), dimensions.end(), 1, std::multiplies<int>()));
     }
 
 
 
     template <typename Container>
-    std::enable_if_t<
-      std::is_same_v<Container, Vector<typename Container::value_type>>,
-      Container>
+    std::enable_if_t<std::is_same_v<Container, Vector<typename Container::value_type>>, Container>
     initialize_container(const std::vector<hsize_t> &dimensions)
     {
-      return Container(std::accumulate(
-        dimensions.begin(), dimensions.end(), 1, std::multiplies<int>()));
+      return Container(std::accumulate(dimensions.begin(), dimensions.end(), 1, std::multiplies<int>()));
     }
 
 
 
     template <typename Container>
-    std::enable_if_t<
-      std::is_same_v<Container, FullMatrix<typename Container::value_type>>,
-      Container>
+    std::enable_if_t<std::is_same_v<Container, FullMatrix<typename Container::value_type>>, Container>
     initialize_container(const std::vector<hsize_t> &dimensions)
     {
       // If the rank is higher than 2, then remove single-dimensional entries
@@ -1495,10 +1462,10 @@ namespace HDF5
 
 
     inline void
-    release_plist(hid_t &                    plist,
+    release_plist(hid_t                     &plist,
                   H5D_mpio_actual_io_mode_t &io_mode,
-                  std::uint32_t &            local_no_collective_cause,
-                  std::uint32_t &            global_no_collective_cause,
+                  std::uint32_t             &local_no_collective_cause,
+                  std::uint32_t             &global_no_collective_cause,
                   const bool                 mpi,
                   const bool                 query_io_mode)
     {
@@ -1511,10 +1478,7 @@ namespace HDF5
             {
               ret = H5Pget_mpio_actual_io_mode(plist, &io_mode);
               Assert(ret >= 0, ExcInternalError());
-              ret =
-                H5Pget_mpio_no_collective_cause(plist,
-                                                &local_no_collective_cause,
-                                                &global_no_collective_cause);
+              ret = H5Pget_mpio_no_collective_cause(plist, &local_no_collective_cause, &global_no_collective_cause);
               Assert(ret >= 0, ExcInternalError());
             }
           ret = H5Pclose(plist);
@@ -1632,7 +1596,7 @@ namespace HDF5
     // Todo:
     // - Use H5Dvlen_reclaim instead of free
 
-    char * string_out;
+    char  *string_out;
     hid_t  attr;
     hid_t  type;
     herr_t ret;
@@ -1686,12 +1650,7 @@ namespace HDF5
      */
     aid = H5Screate(H5S_SCALAR);
     Assert(aid >= 0, ExcMessage("Error at H5Screate"));
-    attr = H5Acreate2(*hdf5_reference,
-                      attr_name.data(),
-                      *t_type,
-                      aid,
-                      H5P_DEFAULT,
-                      H5P_DEFAULT);
+    attr = H5Acreate2(*hdf5_reference, attr_name.data(), *t_type, aid, H5P_DEFAULT, H5P_DEFAULT);
     Assert(attr >= 0, ExcMessage("Error at H5Acreate2"));
 
     /*
@@ -1741,8 +1700,7 @@ namespace HDF5
      */
     aid = H5Screate(H5S_SCALAR);
     Assert(aid >= 0, ExcMessage("Error at H5Screate"));
-    attr = H5Acreate2(
-      *hdf5_reference, attr_name.data(), t_type, aid, H5P_DEFAULT, H5P_DEFAULT);
+    attr = H5Acreate2(*hdf5_reference, attr_name.data(), t_type, aid, H5P_DEFAULT, H5P_DEFAULT);
     Assert(attr >= 0, ExcMessage("Error at H5Acreate2"));
 
     /*
@@ -1769,30 +1727,19 @@ namespace HDF5
   Container
   DataSet::read()
   {
-    const std::shared_ptr<hid_t> t_type =
-      internal::get_hdf5_datatype<typename Container::value_type>();
-    hid_t  plist;
-    herr_t ret;
+    const std::shared_ptr<hid_t> t_type = internal::get_hdf5_datatype<typename Container::value_type>();
+    hid_t                        plist;
+    herr_t                       ret;
 
     Container data = internal::initialize_container<Container>(dimensions);
 
     internal::set_plist(plist, mpi);
 
-    ret = H5Dread(*hdf5_reference,
-                  *t_type,
-                  H5S_ALL,
-                  H5S_ALL,
-                  plist,
-                  make_array_view(data).data());
+    ret = H5Dread(*hdf5_reference, *t_type, H5S_ALL, H5S_ALL, plist, make_array_view(data).data());
     Assert(ret >= 0, ExcInternalError());
 
 
-    internal::release_plist(plist,
-                            io_mode,
-                            local_no_collective_cause,
-                            global_no_collective_cause,
-                            mpi,
-                            query_io_mode);
+    internal::release_plist(plist, io_mode, local_no_collective_cause, global_no_collective_cause, mpi, query_io_mode);
 
     (void)ret;
     return data;
@@ -1804,44 +1751,27 @@ namespace HDF5
   Container
   DataSet::read_selection(const std::vector<hsize_t> &coordinates)
   {
-    Assert(coordinates.size() % rank == 0,
-           ExcMessage(
-             "The dimension of coordinates has to be divisible by the rank"));
-    const std::shared_ptr<hid_t> t_type =
-      internal::get_hdf5_datatype<typename Container::value_type>();
-    hid_t  plist;
-    hid_t  memory_dataspace;
-    herr_t ret;
+    Assert(coordinates.size() % rank == 0, ExcMessage("The dimension of coordinates has to be divisible by the rank"));
+    const std::shared_ptr<hid_t> t_type = internal::get_hdf5_datatype<typename Container::value_type>();
+    hid_t                        plist;
+    hid_t                        memory_dataspace;
+    herr_t                       ret;
 
-    std::vector<hsize_t> data_dimensions{
-      static_cast<hsize_t>(coordinates.size() / rank)};
+    std::vector<hsize_t> data_dimensions{static_cast<hsize_t>(coordinates.size() / rank)};
 
     Container data = internal::initialize_container<Container>(data_dimensions);
 
     memory_dataspace = H5Screate_simple(1, data_dimensions.data(), nullptr);
     Assert(memory_dataspace >= 0, ExcMessage("Error at H5Screate_simple"));
-    ret = H5Sselect_elements(*dataspace,
-                             H5S_SELECT_SET,
-                             data.size(),
-                             coordinates.data());
+    ret = H5Sselect_elements(*dataspace, H5S_SELECT_SET, data.size(), coordinates.data());
     Assert(ret >= 0, ExcMessage("Error at H5Sselect_elements"));
 
     internal::set_plist(plist, mpi);
 
-    ret = H5Dread(*hdf5_reference,
-                  *t_type,
-                  memory_dataspace,
-                  *dataspace,
-                  plist,
-                  make_array_view(data).data());
+    ret = H5Dread(*hdf5_reference, *t_type, memory_dataspace, *dataspace, plist, make_array_view(data).data());
     Assert(ret >= 0, ExcMessage("Error at H5Dread"));
 
-    internal::release_plist(plist,
-                            io_mode,
-                            local_no_collective_cause,
-                            global_no_collective_cause,
-                            mpi,
-                            query_io_mode);
+    internal::release_plist(plist, io_mode, local_no_collective_cause, global_no_collective_cause, mpi, query_io_mode);
 
     ret = H5Sclose(memory_dataspace);
     Assert(ret >= 0, ExcMessage("Error at H5SClose"));
@@ -1854,14 +1784,12 @@ namespace HDF5
 
   template <typename Container>
   Container
-  DataSet::read_hyperslab(const std::vector<hsize_t> &offset,
-                          const std::vector<hsize_t> &count)
+  DataSet::read_hyperslab(const std::vector<hsize_t> &offset, const std::vector<hsize_t> &count)
   {
-    const std::shared_ptr<hid_t> t_type =
-      internal::get_hdf5_datatype<typename Container::value_type>();
-    hid_t  plist;
-    hid_t  memory_dataspace;
-    herr_t ret;
+    const std::shared_ptr<hid_t> t_type = internal::get_hdf5_datatype<typename Container::value_type>();
+    hid_t                        plist;
+    hid_t                        memory_dataspace;
+    herr_t                       ret;
 
     // In this particular overload of read_hyperslab the data_dimensions are
     // the same as count
@@ -1869,33 +1797,17 @@ namespace HDF5
 
     Container data = internal::initialize_container<Container>(data_dimensions);
 
-    memory_dataspace =
-      H5Screate_simple(data_dimensions.size(), data_dimensions.data(), nullptr);
+    memory_dataspace = H5Screate_simple(data_dimensions.size(), data_dimensions.data(), nullptr);
     Assert(memory_dataspace >= 0, ExcMessage("Error at H5Screate_simple"));
-    ret = H5Sselect_hyperslab(*dataspace,
-                              H5S_SELECT_SET,
-                              offset.data(),
-                              nullptr,
-                              count.data(),
-                              nullptr);
+    ret = H5Sselect_hyperslab(*dataspace, H5S_SELECT_SET, offset.data(), nullptr, count.data(), nullptr);
     Assert(ret >= 0, ExcMessage("Error at H5Sselect_hyperslab"));
 
     internal::set_plist(plist, mpi);
 
-    ret = H5Dread(*hdf5_reference,
-                  *t_type,
-                  memory_dataspace,
-                  *dataspace,
-                  plist,
-                  make_array_view(data).data());
+    ret = H5Dread(*hdf5_reference, *t_type, memory_dataspace, *dataspace, plist, make_array_view(data).data());
     Assert(ret >= 0, ExcMessage("Error at H5Dread"));
 
-    internal::release_plist(plist,
-                            io_mode,
-                            local_no_collective_cause,
-                            global_no_collective_cause,
-                            mpi,
-                            query_io_mode);
+    internal::release_plist(plist, io_mode, local_no_collective_cause, global_no_collective_cause, mpi, query_io_mode);
 
     ret = H5Sclose(memory_dataspace);
     Assert(ret >= 0, ExcMessage("Error at H5SClose"));
@@ -1914,41 +1826,24 @@ namespace HDF5
                           const std::vector<hsize_t> &count,
                           const std::vector<hsize_t> &block)
   {
-    const std::shared_ptr<hid_t> t_type =
-      internal::get_hdf5_datatype<typename Container::value_type>();
-    hid_t  plist;
-    hid_t  memory_dataspace;
-    herr_t ret;
+    const std::shared_ptr<hid_t> t_type = internal::get_hdf5_datatype<typename Container::value_type>();
+    hid_t                        plist;
+    hid_t                        memory_dataspace;
+    herr_t                       ret;
 
     Container data = internal::initialize_container<Container>(data_dimensions);
 
-    memory_dataspace =
-      H5Screate_simple(data_dimensions.size(), data_dimensions.data(), nullptr);
+    memory_dataspace = H5Screate_simple(data_dimensions.size(), data_dimensions.data(), nullptr);
     Assert(memory_dataspace >= 0, ExcMessage("Error at H5Screate_simple"));
-    ret = H5Sselect_hyperslab(*dataspace,
-                              H5S_SELECT_SET,
-                              offset.data(),
-                              stride.data(),
-                              count.data(),
-                              block.data());
+    ret = H5Sselect_hyperslab(*dataspace, H5S_SELECT_SET, offset.data(), stride.data(), count.data(), block.data());
     Assert(ret >= 0, ExcMessage("Error at H5Sselect_hyperslab"));
 
     internal::set_plist(plist, mpi);
 
-    ret = H5Dread(*hdf5_reference,
-                  *t_type,
-                  memory_dataspace,
-                  *dataspace,
-                  plist,
-                  make_array_view(data).data());
+    ret = H5Dread(*hdf5_reference, *t_type, memory_dataspace, *dataspace, plist, make_array_view(data).data());
     Assert(ret >= 0, ExcMessage("Error at H5Dread"));
 
-    internal::release_plist(plist,
-                            io_mode,
-                            local_no_collective_cause,
-                            global_no_collective_cause,
-                            mpi,
-                            query_io_mode);
+    internal::release_plist(plist, io_mode, local_no_collective_cause, global_no_collective_cause, mpi, query_io_mode);
 
     ret = H5Sclose(memory_dataspace);
     Assert(ret >= 0, ExcMessage("Error at H5SClose"));
@@ -1963,7 +1858,7 @@ namespace HDF5
   void
   DataSet::read_none()
   {
-    const std::shared_ptr<hid_t> t_type = internal::get_hdf5_datatype<number>();
+    const std::shared_ptr<hid_t> t_type          = internal::get_hdf5_datatype<number>();
     const std::vector<hsize_t>   data_dimensions = {0};
 
     hid_t  memory_dataspace;
@@ -1980,16 +1875,10 @@ namespace HDF5
     // The pointer of data can safely be nullptr, see the discussion at the HDF5
     // forum:
     // https://forum.hdfgroup.org/t/parallel-i-o-does-not-support-filters-yet/884/17
-    ret = H5Dread(
-      *hdf5_reference, *t_type, memory_dataspace, *dataspace, plist, nullptr);
+    ret = H5Dread(*hdf5_reference, *t_type, memory_dataspace, *dataspace, plist, nullptr);
     Assert(ret >= 0, ExcMessage("Error at H5Dread"));
 
-    internal::release_plist(plist,
-                            io_mode,
-                            local_no_collective_cause,
-                            global_no_collective_cause,
-                            mpi,
-                            query_io_mode);
+    internal::release_plist(plist, io_mode, local_no_collective_cause, global_no_collective_cause, mpi, query_io_mode);
 
     ret = H5Sclose(memory_dataspace);
     Assert(ret >= 0, ExcMessage("Error at H5SClose"));
@@ -2004,27 +1893,16 @@ namespace HDF5
   DataSet::write(const Container &data)
   {
     AssertDimension(size, internal::get_container_size(data));
-    const std::shared_ptr<hid_t> t_type =
-      internal::get_hdf5_datatype<typename Container::value_type>();
-    hid_t  plist;
-    herr_t ret;
+    const std::shared_ptr<hid_t> t_type = internal::get_hdf5_datatype<typename Container::value_type>();
+    hid_t                        plist;
+    herr_t                       ret;
 
     internal::set_plist(plist, mpi);
 
-    ret = H5Dwrite(*hdf5_reference,
-                   *t_type,
-                   H5S_ALL,
-                   H5S_ALL,
-                   plist,
-                   make_array_view(data).data());
+    ret = H5Dwrite(*hdf5_reference, *t_type, H5S_ALL, H5S_ALL, plist, make_array_view(data).data());
     Assert(ret >= 0, ExcMessage("Error at H5Dwrite"));
 
-    internal::release_plist(plist,
-                            io_mode,
-                            local_no_collective_cause,
-                            global_no_collective_cause,
-                            mpi,
-                            query_io_mode);
+    internal::release_plist(plist, io_mode, local_no_collective_cause, global_no_collective_cause, mpi, query_io_mode);
 
     (void)ret;
   }
@@ -2033,14 +1911,11 @@ namespace HDF5
 
   template <typename Container>
   void
-  DataSet::write_selection(const Container &           data,
-                           const std::vector<hsize_t> &coordinates)
+  DataSet::write_selection(const Container &data, const std::vector<hsize_t> &coordinates)
   {
     AssertDimension(coordinates.size(), data.size() * rank);
-    const std::shared_ptr<hid_t> t_type =
-      internal::get_hdf5_datatype<typename Container::value_type>();
-    const std::vector<hsize_t> data_dimensions =
-      internal::get_container_dimensions(data);
+    const std::shared_ptr<hid_t> t_type          = internal::get_hdf5_datatype<typename Container::value_type>();
+    const std::vector<hsize_t>   data_dimensions = internal::get_container_dimensions(data);
 
     hid_t  memory_dataspace;
     hid_t  plist;
@@ -2049,28 +1924,15 @@ namespace HDF5
 
     memory_dataspace = H5Screate_simple(1, data_dimensions.data(), nullptr);
     Assert(memory_dataspace >= 0, ExcMessage("Error at H5Screate_simple"));
-    ret = H5Sselect_elements(*dataspace,
-                             H5S_SELECT_SET,
-                             data.size(),
-                             coordinates.data());
+    ret = H5Sselect_elements(*dataspace, H5S_SELECT_SET, data.size(), coordinates.data());
     Assert(ret >= 0, ExcMessage("Error at H5Sselect_elements"));
 
     internal::set_plist(plist, mpi);
 
-    ret = H5Dwrite(*hdf5_reference,
-                   *t_type,
-                   memory_dataspace,
-                   *dataspace,
-                   plist,
-                   make_array_view(data).data());
+    ret = H5Dwrite(*hdf5_reference, *t_type, memory_dataspace, *dataspace, plist, make_array_view(data).data());
     Assert(ret >= 0, ExcMessage("Error at H5Dwrite"));
 
-    internal::release_plist(plist,
-                            io_mode,
-                            local_no_collective_cause,
-                            global_no_collective_cause,
-                            mpi,
-                            query_io_mode);
+    internal::release_plist(plist, io_mode, local_no_collective_cause, global_no_collective_cause, mpi, query_io_mode);
 
     ret = H5Sclose(memory_dataspace);
     Assert(ret >= 0, ExcMessage("Error at H5SClose"));
@@ -2082,17 +1944,11 @@ namespace HDF5
 
   template <typename Container>
   void
-  DataSet::write_hyperslab(const Container &           data,
-                           const std::vector<hsize_t> &offset,
-                           const std::vector<hsize_t> &count)
+  DataSet::write_hyperslab(const Container &data, const std::vector<hsize_t> &offset, const std::vector<hsize_t> &count)
   {
-    AssertDimension(std::accumulate(count.begin(),
-                                    count.end(),
-                                    1,
-                                    std::multiplies<unsigned int>()),
+    AssertDimension(std::accumulate(count.begin(), count.end(), 1, std::multiplies<unsigned int>()),
                     internal::get_container_size(data));
-    const std::shared_ptr<hid_t> t_type =
-      internal::get_hdf5_datatype<typename Container::value_type>();
+    const std::shared_ptr<hid_t> t_type = internal::get_hdf5_datatype<typename Container::value_type>();
     // In this particular overload of write_hyperslab the data_dimensions are
     // the same as count
     const std::vector<hsize_t> &data_dimensions = count;
@@ -2101,33 +1957,17 @@ namespace HDF5
     hid_t  plist;
     herr_t ret;
 
-    memory_dataspace =
-      H5Screate_simple(data_dimensions.size(), data_dimensions.data(), nullptr);
+    memory_dataspace = H5Screate_simple(data_dimensions.size(), data_dimensions.data(), nullptr);
     Assert(memory_dataspace >= 0, ExcMessage("Error at H5Screate_simple"));
-    ret = H5Sselect_hyperslab(*dataspace,
-                              H5S_SELECT_SET,
-                              offset.data(),
-                              nullptr,
-                              count.data(),
-                              nullptr);
+    ret = H5Sselect_hyperslab(*dataspace, H5S_SELECT_SET, offset.data(), nullptr, count.data(), nullptr);
     Assert(ret >= 0, ExcMessage("Error at H5Sselect_hyperslab"));
 
     internal::set_plist(plist, mpi);
 
-    ret = H5Dwrite(*hdf5_reference,
-                   *t_type,
-                   memory_dataspace,
-                   *dataspace,
-                   plist,
-                   make_array_view(data).data());
+    ret = H5Dwrite(*hdf5_reference, *t_type, memory_dataspace, *dataspace, plist, make_array_view(data).data());
     Assert(ret >= 0, ExcMessage("Error at H5Dwrite"));
 
-    internal::release_plist(plist,
-                            io_mode,
-                            local_no_collective_cause,
-                            global_no_collective_cause,
-                            mpi,
-                            query_io_mode);
+    internal::release_plist(plist, io_mode, local_no_collective_cause, global_no_collective_cause, mpi, query_io_mode);
 
     ret = H5Sclose(memory_dataspace);
     Assert(ret >= 0, ExcMessage("Error at H5Sclose"));
@@ -2139,47 +1979,30 @@ namespace HDF5
 
   template <typename Container>
   void
-  DataSet::write_hyperslab(const Container &           data,
+  DataSet::write_hyperslab(const Container            &data,
                            const std::vector<hsize_t> &data_dimensions,
                            const std::vector<hsize_t> &offset,
                            const std::vector<hsize_t> &stride,
                            const std::vector<hsize_t> &count,
                            const std::vector<hsize_t> &block)
   {
-    const std::shared_ptr<hid_t> t_type =
-      internal::get_hdf5_datatype<typename Container::value_type>();
+    const std::shared_ptr<hid_t> t_type = internal::get_hdf5_datatype<typename Container::value_type>();
 
     hid_t  memory_dataspace;
     hid_t  plist;
     herr_t ret;
 
-    memory_dataspace =
-      H5Screate_simple(data_dimensions.size(), data_dimensions.data(), nullptr);
+    memory_dataspace = H5Screate_simple(data_dimensions.size(), data_dimensions.data(), nullptr);
     Assert(memory_dataspace >= 0, ExcMessage("Error at H5Screate_simple"));
-    ret = H5Sselect_hyperslab(*dataspace,
-                              H5S_SELECT_SET,
-                              offset.data(),
-                              stride.data(),
-                              count.data(),
-                              block.data());
+    ret = H5Sselect_hyperslab(*dataspace, H5S_SELECT_SET, offset.data(), stride.data(), count.data(), block.data());
     Assert(ret >= 0, ExcMessage("Error at H5Sselect_hyperslab"));
 
     internal::set_plist(plist, mpi);
 
-    ret = H5Dwrite(*hdf5_reference,
-                   *t_type,
-                   memory_dataspace,
-                   *dataspace,
-                   plist,
-                   make_array_view(data).data());
+    ret = H5Dwrite(*hdf5_reference, *t_type, memory_dataspace, *dataspace, plist, make_array_view(data).data());
     Assert(ret >= 0, ExcMessage("Error at H5Dwrite"));
 
-    internal::release_plist(plist,
-                            io_mode,
-                            local_no_collective_cause,
-                            global_no_collective_cause,
-                            mpi,
-                            query_io_mode);
+    internal::release_plist(plist, io_mode, local_no_collective_cause, global_no_collective_cause, mpi, query_io_mode);
 
     ret = H5Sclose(memory_dataspace);
     Assert(ret >= 0, ExcMessage("Error at H5Sclose"));
@@ -2193,7 +2016,7 @@ namespace HDF5
   void
   DataSet::write_none()
   {
-    std::shared_ptr<hid_t> t_type = internal::get_hdf5_datatype<number>();
+    std::shared_ptr<hid_t> t_type          = internal::get_hdf5_datatype<number>();
     std::vector<hsize_t>   data_dimensions = {0};
 
     hid_t  memory_dataspace;
@@ -2210,16 +2033,10 @@ namespace HDF5
     // The pointer of data can safely be nullptr, see the discussion at the HDF5
     // forum:
     // https://forum.hdfgroup.org/t/parallel-i-o-does-not-support-filters-yet/884/17
-    ret = H5Dwrite(
-      *hdf5_reference, *t_type, memory_dataspace, *dataspace, plist, nullptr);
+    ret = H5Dwrite(*hdf5_reference, *t_type, memory_dataspace, *dataspace, plist, nullptr);
     Assert(ret >= 0, ExcMessage("Error at H5Dwrite"));
 
-    internal::release_plist(plist,
-                            io_mode,
-                            local_no_collective_cause,
-                            global_no_collective_cause,
-                            mpi,
-                            query_io_mode);
+    internal::release_plist(plist, io_mode, local_no_collective_cause, global_no_collective_cause, mpi, query_io_mode);
 
     ret = H5Sclose(memory_dataspace);
     Assert(ret >= 0, ExcMessage("Error at H5Sclose"));
@@ -2231,8 +2048,7 @@ namespace HDF5
 
   template <typename number>
   DataSet
-  Group::create_dataset(const std::string &         name,
-                        const std::vector<hsize_t> &dimensions) const
+  Group::create_dataset(const std::string &name, const std::vector<hsize_t> &dimensions) const
   {
     std::shared_ptr<hid_t> t_type = internal::get_hdf5_datatype<number>();
     return {name, *hdf5_reference, dimensions, t_type, mpi};
@@ -2245,8 +2061,7 @@ namespace HDF5
   Group::write_dataset(const std::string &name, const Container &data) const
   {
     std::vector<hsize_t> dimensions = internal::get_container_dimensions(data);
-    auto                 dataset =
-      create_dataset<typename Container::value_type>(name, dimensions);
+    auto                 dataset    = create_dataset<typename Container::value_type>(name, dimensions);
     dataset.write(data);
   }
 } // namespace HDF5

@@ -61,15 +61,13 @@ test(Utilities::CUDA::Handle &cuda_handle)
   for (unsigned int i = 0; i < size; ++i)
     rw_vector[i] = static_cast<double>(i);
   rhs_dev.import_elements(rw_vector, VectorOperation::insert);
-  SolverBicgstab<LinearAlgebra::CUDAWrappers::Vector<double>> bicgstab_dev(
-    control);
+  SolverBicgstab<LinearAlgebra::CUDAWrappers::Vector<double>> bicgstab_dev(control);
   bicgstab_dev.solve(A_dev, sol_dev, rhs_dev, prec_no);
 
   // Check the result
   rw_vector.import_elements(sol_dev, VectorOperation::insert);
   for (unsigned int i = 0; i < size; ++i)
-    AssertThrow(std::fabs(rw_vector[i] - sol_host[i]) < 1e-8,
-                ExcInternalError());
+    AssertThrow(std::fabs(rw_vector[i] - sol_host[i]) < 1e-8, ExcInternalError());
 }
 
 int

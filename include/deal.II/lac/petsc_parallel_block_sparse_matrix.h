@@ -21,7 +21,6 @@
 
 #include <deal.II/lac/petsc_block_sparse_matrix.h>
 
-DEAL_II_WARNING(
-  "This file is deprecated. Use deal.II/lac/petsc_block_sparse_matrix.h instead!")
+DEAL_II_WARNING("This file is deprecated. Use deal.II/lac/petsc_block_sparse_matrix.h instead!")
 
 #endif // dealii_petsc_parallel_block_sparse_matrix_h

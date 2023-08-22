@@ -59,12 +59,9 @@ test()
   DoFTools::make_hanging_node_constraints(dh, constraints);
   constraints.close();
 
-  deallog << "Total constraints:          " << constraints.n_constraints()
-          << std::endl
-          << "  Inhomogenous constraints: " << constraints.n_inhomogeneities()
-          << std::endl
-          << "  Identity constraints:     " << constraints.n_identities()
-          << std::endl;
+  deallog << "Total constraints:          " << constraints.n_constraints() << std::endl
+          << "  Inhomogenous constraints: " << constraints.n_inhomogeneities() << std::endl
+          << "  Identity constraints:     " << constraints.n_identities() << std::endl;
 }
 
 

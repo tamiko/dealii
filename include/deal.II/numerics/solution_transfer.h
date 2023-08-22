@@ -413,8 +413,7 @@ public:
    * thrown.
    */
   void
-  interpolate(const std::vector<VectorType> &all_in,
-              std::vector<VectorType> &      all_out) const;
+  interpolate(const std::vector<VectorType> &all_in, std::vector<VectorType> &all_out) const;
 
   /**
    * Same as the previous function. It interpolates only one function. It
@@ -448,30 +447,26 @@ public:
   /**
    * Exception
    */
-  DeclExceptionMsg(
-    ExcAlreadyPrepForRef,
-    "You are attempting to call one of the prepare_*() functions "
-    "of this object to prepare it for an operation for which it "
-    "is already prepared. Specifically, the object was "
-    "previously prepared for pure refinement.");
+  DeclExceptionMsg(ExcAlreadyPrepForRef,
+                   "You are attempting to call one of the prepare_*() functions "
+                   "of this object to prepare it for an operation for which it "
+                   "is already prepared. Specifically, the object was "
+                   "previously prepared for pure refinement.");
 
   /**
    * Exception
    */
-  DeclExceptionMsg(
-    ExcAlreadyPrepForCoarseAndRef,
-    "You are attempting to call one of the prepare_*() functions "
-    "of this object to prepare it for an operation for which it "
-    "is already prepared. Specifically, the object was "
-    "previously prepared for both coarsening and refinement.");
+  DeclExceptionMsg(ExcAlreadyPrepForCoarseAndRef,
+                   "You are attempting to call one of the prepare_*() functions "
+                   "of this object to prepare it for an operation for which it "
+                   "is already prepared. Specifically, the object was "
+                   "previously prepared for both coarsening and refinement.");
 
 private:
   /**
    * Pointer to the degree of freedom handler to work with.
    */
-  SmartPointer<const DoFHandler<dim, spacedim>,
-               SolutionTransfer<dim, VectorType, spacedim>>
-    dof_handler;
+  SmartPointer<const DoFHandler<dim, spacedim>, SolutionTransfer<dim, VectorType, spacedim>> dof_handler;
 
   /**
    * Stores the number of DoFs before the refinement and/or coarsening.
@@ -530,15 +525,13 @@ private:
       , dof_values_ptr(nullptr)
       , active_fe_index(0)
     {}
-    Pointerstruct(std::vector<types::global_dof_index> *indices_ptr_in,
-                  const unsigned int                    active_fe_index_in = 0)
+    Pointerstruct(std::vector<types::global_dof_index> *indices_ptr_in, const unsigned int active_fe_index_in = 0)
       : indices_ptr(indices_ptr_in)
       , dof_values_ptr(nullptr)
       , active_fe_index(active_fe_index_in)
     {}
-    Pointerstruct(
-      std::vector<Vector<typename VectorType::value_type>> *dof_values_ptr_in,
-      const unsigned int active_fe_index_in = 0)
+    Pointerstruct(std::vector<Vector<typename VectorType::value_type>> *dof_values_ptr_in,
+                  const unsigned int                                    active_fe_index_in = 0)
       : indices_ptr(nullptr)
       , dof_values_ptr(dof_values_ptr_in)
       , active_fe_index(active_fe_index_in)
@@ -546,7 +539,7 @@ private:
     std::size_t
     memory_consumption() const;
 
-    std::vector<types::global_dof_index> *                indices_ptr;
+    std::vector<types::global_dof_index>                 *indices_ptr;
     std::vector<Vector<typename VectorType::value_type>> *dof_values_ptr;
     unsigned int                                          active_fe_index;
   };
@@ -563,8 +556,7 @@ private:
    * Is used for @p prepare_for_refining_and_coarsening The interpolated dof
    * values of all cells that'll be coarsened will be stored in this vector.
    */
-  std::vector<std::vector<Vector<typename VectorType::value_type>>>
-    dof_values_on_cell;
+  std::vector<std::vector<Vector<typename VectorType::value_type>>> dof_values_on_cell;
 };
 
 

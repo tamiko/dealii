@@ -32,17 +32,14 @@ namespace internal
   template <int dim, typename Number, typename VectorizedArrayType>
   void
   FEEvaluationHangingNodesFactory<dim, Number, VectorizedArrayType>::apply(
-    const unsigned int                                         n_components,
-    const unsigned int                                         fe_degree,
-    const MatrixFreeFunctions::ShapeInfo<VectorizedArrayType> &shape_info,
-    const bool                                                 transpose,
-    const std::array<MatrixFreeFunctions::compressed_constraint_kind,
-                     VectorizedArrayType::size()> &            c_mask,
-    VectorizedArrayType *                                      values)
+    const unsigned int                                                                              n_components,
+    const unsigned int                                                                              fe_degree,
+    const MatrixFreeFunctions::ShapeInfo<VectorizedArrayType>                                      &shape_info,
+    const bool                                                                                      transpose,
+    const std::array<MatrixFreeFunctions::compressed_constraint_kind, VectorizedArrayType::size()> &c_mask,
+    VectorizedArrayType                                                                            *values)
   {
-    instantiation_helper_degree_run<
-      1,
-      FEEvaluationImplHangingNodes<dim, VectorizedArrayType>>(
+    instantiation_helper_degree_run<1, FEEvaluationImplHangingNodes<dim, VectorizedArrayType>>(
       fe_degree, n_components, shape_info, transpose, c_mask, values);
   }
 } // end of namespace internal

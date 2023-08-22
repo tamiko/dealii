@@ -73,15 +73,9 @@ test()
   static const SphericalManifold<dim> spherical_manifold;
   tr.set_manifold(99, spherical_manifold);
 
-  for (typename Triangulation<dim>::active_cell_iterator cell =
-         tr.begin_active();
-       cell != tr.end();
-       ++cell)
+  for (typename Triangulation<dim>::active_cell_iterator cell = tr.begin_active(); cell != tr.end(); ++cell)
     cell->set_all_manifold_ids(99);
-  for (typename Triangulation<dim>::active_cell_iterator cell =
-         tr.begin_active();
-       cell != tr.end();
-       ++cell)
+  for (typename Triangulation<dim>::active_cell_iterator cell = tr.begin_active(); cell != tr.end(); ++cell)
     for (const unsigned int f : GeometryInfo<dim>::face_indices())
       if (cell->at_boundary(f))
         cell->face(f)->set_all_manifold_ids(numbers::flat_manifold_id);
@@ -95,8 +89,7 @@ test()
   DoFHandler<dim> dofh(tr);
   dofh.distribute_dofs(fe);
 
-  TrilinosWrappers::MPI::Vector interpolated(dofh.locally_owned_dofs(),
-                                             MPI_COMM_WORLD);
+  TrilinosWrappers::MPI::Vector interpolated(dofh.locally_owned_dofs(), MPI_COMM_WORLD);
   VectorTools::interpolate(dofh, LinearFunction<dim>(), interpolated);
 
   IndexSet relevant_set;
@@ -104,16 +97,12 @@ test()
   TrilinosWrappers::MPI::Vector x_rel(relevant_set, MPI_COMM_WORLD);
   x_rel = interpolated;
 
-  Functions::FEFieldFunction<dim, TrilinosWrappers::MPI::Vector> field_function(
-    dofh, x_rel);
+  Functions::FEFieldFunction<dim, TrilinosWrappers::MPI::Vector> field_function(dofh, x_rel);
 
 
   std::vector<Point<dim>> points;
 
-  for (typename Triangulation<dim>::active_cell_iterator cell =
-         tr.begin_active();
-       cell != tr.end();
-       ++cell)
+  for (typename Triangulation<dim>::active_cell_iterator cell = tr.begin_active(); cell != tr.end(); ++cell)
     {
       if (cell->is_artificial())
         continue;
@@ -125,33 +114,28 @@ test()
 
       {
         Point<dim> p = cell->center();
-        Assert(std::abs(field_function.value(p) - (p[0] + 2.)) < 1e-10,
-               ExcInternalError());
+        Assert(std::abs(field_function.value(p) - (p[0] + 2.)) < 1e-10, ExcInternalError());
 
         Tensor<1, dim> gradient = field_function.gradient(p);
         Tensor<1, dim> exact_gradient;
         exact_gradient[0] = 1.0;
         Assert((gradient - exact_gradient).norm() < 1e-10, ExcInternalError());
 
-        Assert(std::abs(field_function.laplacian(p)) < 1e-10,
-               ExcInternalError());
+        Assert(std::abs(field_function.laplacian(p)) < 1e-10, ExcInternalError());
       }
 
       if (cell->is_locally_owned())
         {
           // more evil: use a corner so we can end up in a different cell
           Point<dim> p = cell->vertex(0);
-          Assert(std::abs(field_function.value(p) - (p[0] + 2.)) < 1e-10,
-                 ExcInternalError());
+          Assert(std::abs(field_function.value(p) - (p[0] + 2.)) < 1e-10, ExcInternalError());
 
           Tensor<1, dim> gradient = field_function.gradient(p);
           Tensor<1, dim> exact_gradient;
           exact_gradient[0] = 1.0;
-          Assert((gradient - exact_gradient).norm() < 1e-10,
-                 ExcInternalError());
+          Assert((gradient - exact_gradient).norm() < 1e-10, ExcInternalError());
 
-          Assert(std::abs(field_function.laplacian(p)) < 1e-10,
-                 ExcInternalError());
+          Assert(std::abs(field_function.laplacian(p)) < 1e-10, ExcInternalError());
         }
     }
 

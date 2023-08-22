@@ -201,7 +201,7 @@ public:
   FEValuesBase(const unsigned int                  n_q_points,
                const unsigned int                  dofs_per_cell,
                const UpdateFlags                   update_flags,
-               const Mapping<dim, spacedim> &      mapping,
+               const Mapping<dim, spacedim>       &mapping,
                const FiniteElement<dim, spacedim> &fe);
 
   /**
@@ -272,9 +272,7 @@ public:
    * @dealiiRequiresUpdateFlags{update_values}
    */
   double
-  shape_value_component(const unsigned int i,
-                        const unsigned int q_point,
-                        const unsigned int component) const;
+  shape_value_component(const unsigned int i, const unsigned int q_point, const unsigned int component) const;
 
   /**
    * Compute the gradient of the <tt>i</tt>th shape function at the
@@ -321,9 +319,7 @@ public:
    * @dealiiRequiresUpdateFlags{update_gradients}
    */
   Tensor<1, spacedim>
-  shape_grad_component(const unsigned int i,
-                       const unsigned int q_point,
-                       const unsigned int component) const;
+  shape_grad_component(const unsigned int i, const unsigned int q_point, const unsigned int component) const;
 
   /**
    * Second derivatives of the <tt>i</tt>th shape function at the
@@ -364,9 +360,7 @@ public:
    * @dealiiRequiresUpdateFlags{update_hessians}
    */
   Tensor<2, spacedim>
-  shape_hessian_component(const unsigned int i,
-                          const unsigned int q_point,
-                          const unsigned int component) const;
+  shape_hessian_component(const unsigned int i, const unsigned int q_point, const unsigned int component) const;
 
   /**
    * Third derivatives of the <tt>i</tt>th shape function at the
@@ -407,9 +401,7 @@ public:
    * @dealiiRequiresUpdateFlags{update_3rd_derivatives}
    */
   Tensor<3, spacedim>
-  shape_3rd_derivative_component(const unsigned int i,
-                                 const unsigned int q_point,
-                                 const unsigned int component) const;
+  shape_3rd_derivative_component(const unsigned int i, const unsigned int q_point, const unsigned int component) const;
 
   /** @} */
   /// @name Access to values of global finite element fields
@@ -461,8 +453,7 @@ public:
    */
   template <typename Number>
   void
-  get_function_values(const ReadVector<Number> &fe_function,
-                      std::vector<Number> &     values) const;
+  get_function_values(const ReadVector<Number> &fe_function, std::vector<Number> &values) const;
 
   /**
    * This function does the same as the other get_function_values(), but
@@ -479,8 +470,7 @@ public:
    */
   template <typename Number>
   void
-  get_function_values(const ReadVector<Number> &   fe_function,
-                      std::vector<Vector<Number>> &values) const;
+  get_function_values(const ReadVector<Number> &fe_function, std::vector<Vector<Number>> &values) const;
 
   /**
    * Generate function values from an arbitrary vector. This function
@@ -540,9 +530,9 @@ public:
    */
   template <typename Number>
   void
-  get_function_values(const ReadVector<Number> &fe_function,
+  get_function_values(const ReadVector<Number>                       &fe_function,
                       const ArrayView<const types::global_dof_index> &indices,
-                      std::vector<Number> &values) const;
+                      std::vector<Number>                            &values) const;
 
   /**
    * Generate vector function values from an arbitrary vector.
@@ -554,9 +544,9 @@ public:
    */
   template <typename Number>
   void
-  get_function_values(const ReadVector<Number> &fe_function,
+  get_function_values(const ReadVector<Number>                       &fe_function,
                       const ArrayView<const types::global_dof_index> &indices,
-                      std::vector<Vector<Number>> &values) const;
+                      std::vector<Vector<Number>>                    &values) const;
 
 
   /**
@@ -582,10 +572,10 @@ public:
    */
   template <typename Number>
   void
-  get_function_values(const ReadVector<Number> &fe_function,
+  get_function_values(const ReadVector<Number>                       &fe_function,
                       const ArrayView<const types::global_dof_index> &indices,
                       ArrayView<std::vector<Number>>                  values,
-                      const bool quadrature_points_fastest) const;
+                      const bool                                      quadrature_points_fastest) const;
 
   /** @} */
   /// @name Access to derivatives of global finite element fields
@@ -635,9 +625,8 @@ public:
    */
   template <typename Number>
   void
-  get_function_gradients(
-    const ReadVector<Number> &                fe_function,
-    std::vector<Tensor<1, spacedim, Number>> &gradients) const;
+  get_function_gradients(const ReadVector<Number>                 &fe_function,
+                         std::vector<Tensor<1, spacedim, Number>> &gradients) const;
 
   /**
    * This function does the same as the other get_function_gradients(), but
@@ -657,9 +646,8 @@ public:
    */
   template <typename Number>
   void
-  get_function_gradients(
-    const ReadVector<Number> &                             fe_function,
-    std::vector<std::vector<Tensor<1, spacedim, Number>>> &gradients) const;
+  get_function_gradients(const ReadVector<Number>                              &fe_function,
+                         std::vector<std::vector<Tensor<1, spacedim, Number>>> &gradients) const;
 
   /**
    * This function relates to the first of the get_function_gradients() function
@@ -671,10 +659,9 @@ public:
    */
   template <typename Number>
   void
-  get_function_gradients(
-    const ReadVector<Number> &                      fe_function,
-    const ArrayView<const types::global_dof_index> &indices,
-    std::vector<Tensor<1, spacedim, Number>> &      gradients) const;
+  get_function_gradients(const ReadVector<Number>                       &fe_function,
+                         const ArrayView<const types::global_dof_index> &indices,
+                         std::vector<Tensor<1, spacedim, Number>>       &gradients) const;
 
   /**
    * This function relates to the first of the get_function_gradients() function
@@ -686,11 +673,10 @@ public:
    */
   template <typename Number>
   void
-  get_function_gradients(
-    const ReadVector<Number> &                          fe_function,
-    const ArrayView<const types::global_dof_index> &    indices,
-    ArrayView<std::vector<Tensor<1, spacedim, Number>>> gradients,
-    const bool quadrature_points_fastest = false) const;
+  get_function_gradients(const ReadVector<Number>                           &fe_function,
+                         const ArrayView<const types::global_dof_index>     &indices,
+                         ArrayView<std::vector<Tensor<1, spacedim, Number>>> gradients,
+                         const bool                                          quadrature_points_fastest = false) const;
 
   /** @} */
   /// @name Access to second derivatives
@@ -737,9 +723,8 @@ public:
    */
   template <typename Number>
   void
-  get_function_hessians(
-    const ReadVector<Number> &                fe_function,
-    std::vector<Tensor<2, spacedim, Number>> &hessians) const;
+  get_function_hessians(const ReadVector<Number>                 &fe_function,
+                        std::vector<Tensor<2, spacedim, Number>> &hessians) const;
 
   /**
    * This function does the same as the other get_function_hessians(), but
@@ -760,10 +745,9 @@ public:
    */
   template <typename Number>
   void
-  get_function_hessians(
-    const ReadVector<Number> &                             fe_function,
-    std::vector<std::vector<Tensor<2, spacedim, Number>>> &hessians,
-    const bool quadrature_points_fastest = false) const;
+  get_function_hessians(const ReadVector<Number>                              &fe_function,
+                        std::vector<std::vector<Tensor<2, spacedim, Number>>> &hessians,
+                        const bool                                             quadrature_points_fastest = false) const;
 
   /**
    * This function relates to the first of the get_function_hessians() function
@@ -775,10 +759,9 @@ public:
    */
   template <typename Number>
   void
-  get_function_hessians(
-    const ReadVector<Number> &                      fe_function,
-    const ArrayView<const types::global_dof_index> &indices,
-    std::vector<Tensor<2, spacedim, Number>> &      hessians) const;
+  get_function_hessians(const ReadVector<Number>                       &fe_function,
+                        const ArrayView<const types::global_dof_index> &indices,
+                        std::vector<Tensor<2, spacedim, Number>>       &hessians) const;
 
   /**
    * This function relates to the first of the get_function_hessians() function
@@ -790,11 +773,10 @@ public:
    */
   template <typename Number>
   void
-  get_function_hessians(
-    const ReadVector<Number> &                          fe_function,
-    const ArrayView<const types::global_dof_index> &    indices,
-    ArrayView<std::vector<Tensor<2, spacedim, Number>>> hessians,
-    const bool quadrature_points_fastest = false) const;
+  get_function_hessians(const ReadVector<Number>                           &fe_function,
+                        const ArrayView<const types::global_dof_index>     &indices,
+                        ArrayView<std::vector<Tensor<2, spacedim, Number>>> hessians,
+                        const bool                                          quadrature_points_fastest = false) const;
 
   /**
    * Compute the (scalar) Laplacian (i.e. the trace of the tensor of second
@@ -838,8 +820,7 @@ public:
    */
   template <typename Number>
   void
-  get_function_laplacians(const ReadVector<Number> &fe_function,
-                          std::vector<Number> &     laplacians) const;
+  get_function_laplacians(const ReadVector<Number> &fe_function, std::vector<Number> &laplacians) const;
 
   /**
    * This function does the same as the other get_function_laplacians(), but
@@ -862,8 +843,7 @@ public:
    */
   template <typename Number>
   void
-  get_function_laplacians(const ReadVector<Number> &   fe_function,
-                          std::vector<Vector<Number>> &laplacians) const;
+  get_function_laplacians(const ReadVector<Number> &fe_function, std::vector<Vector<Number>> &laplacians) const;
 
   /**
    * This function relates to the first of the get_function_laplacians()
@@ -875,10 +855,9 @@ public:
    */
   template <typename Number>
   void
-  get_function_laplacians(
-    const ReadVector<Number> &                      fe_function,
-    const ArrayView<const types::global_dof_index> &indices,
-    std::vector<Number> &                           laplacians) const;
+  get_function_laplacians(const ReadVector<Number>                       &fe_function,
+                          const ArrayView<const types::global_dof_index> &indices,
+                          std::vector<Number>                            &laplacians) const;
 
   /**
    * This function relates to the first of the get_function_laplacians()
@@ -890,10 +869,9 @@ public:
    */
   template <typename Number>
   void
-  get_function_laplacians(
-    const ReadVector<Number> &                      fe_function,
-    const ArrayView<const types::global_dof_index> &indices,
-    std::vector<Vector<Number>> &                   laplacians) const;
+  get_function_laplacians(const ReadVector<Number>                       &fe_function,
+                          const ArrayView<const types::global_dof_index> &indices,
+                          std::vector<Vector<Number>>                    &laplacians) const;
 
   /**
    * This function relates to the first of the get_function_laplacians()
@@ -905,11 +883,10 @@ public:
    */
   template <typename Number>
   void
-  get_function_laplacians(
-    const ReadVector<Number> &                      fe_function,
-    const ArrayView<const types::global_dof_index> &indices,
-    std::vector<std::vector<Number>> &              laplacians,
-    const bool quadrature_points_fastest = false) const;
+  get_function_laplacians(const ReadVector<Number>                       &fe_function,
+                          const ArrayView<const types::global_dof_index> &indices,
+                          std::vector<std::vector<Number>>               &laplacians,
+                          const bool                                      quadrature_points_fastest = false) const;
 
   /** @} */
   /// @name Access to third derivatives of global finite element fields
@@ -955,9 +932,8 @@ public:
    */
   template <typename Number>
   void
-  get_function_third_derivatives(
-    const ReadVector<Number> &                fe_function,
-    std::vector<Tensor<3, spacedim, Number>> &third_derivatives) const;
+  get_function_third_derivatives(const ReadVector<Number>                 &fe_function,
+                                 std::vector<Tensor<3, spacedim, Number>> &third_derivatives) const;
 
   /**
    * This function does the same as the other
@@ -979,10 +955,9 @@ public:
    */
   template <typename Number>
   void
-  get_function_third_derivatives(
-    const ReadVector<Number> &                             fe_function,
-    std::vector<std::vector<Tensor<3, spacedim, Number>>> &third_derivatives,
-    const bool quadrature_points_fastest = false) const;
+  get_function_third_derivatives(const ReadVector<Number>                              &fe_function,
+                                 std::vector<std::vector<Tensor<3, spacedim, Number>>> &third_derivatives,
+                                 const bool quadrature_points_fastest = false) const;
 
   /**
    * This function relates to the first of the get_function_third_derivatives()
@@ -994,10 +969,9 @@ public:
    */
   template <typename Number>
   void
-  get_function_third_derivatives(
-    const ReadVector<Number> &                      fe_function,
-    const ArrayView<const types::global_dof_index> &indices,
-    std::vector<Tensor<3, spacedim, Number>> &      third_derivatives) const;
+  get_function_third_derivatives(const ReadVector<Number>                       &fe_function,
+                                 const ArrayView<const types::global_dof_index> &indices,
+                                 std::vector<Tensor<3, spacedim, Number>>       &third_derivatives) const;
 
   /**
    * This function relates to the first of the get_function_third_derivatives()
@@ -1009,11 +983,10 @@ public:
    */
   template <typename Number>
   void
-  get_function_third_derivatives(
-    const ReadVector<Number> &                          fe_function,
-    const ArrayView<const types::global_dof_index> &    indices,
-    ArrayView<std::vector<Tensor<3, spacedim, Number>>> third_derivatives,
-    const bool quadrature_points_fastest = false) const;
+  get_function_third_derivatives(const ReadVector<Number>                           &fe_function,
+                                 const ArrayView<const types::global_dof_index>     &indices,
+                                 ArrayView<std::vector<Tensor<3, spacedim, Number>>> third_derivatives,
+                                 const bool quadrature_points_fastest = false) const;
   /** @} */
 
   /// @name Cell degrees of freedom
@@ -1474,24 +1447,21 @@ public:
    *
    * @ingroup Exceptions
    */
-  DeclException1(
-    ExcAccessToUninitializedField,
-    std::string,
-    << "You are requesting information from an FEValues/FEFaceValues/FESubfaceValues "
-    << "object for which this kind of information has not been computed. What "
-    << "information these objects compute is determined by the update_* flags you "
-    << "pass to the constructor. Here, the operation you are attempting requires "
-    << "the <" << arg1
-    << "> flag to be set, but it was apparently not specified "
-    << "upon construction.");
+  DeclException1(ExcAccessToUninitializedField,
+                 std::string,
+                 << "You are requesting information from an FEValues/FEFaceValues/FESubfaceValues "
+                 << "object for which this kind of information has not been computed. What "
+                 << "information these objects compute is determined by the update_* flags you "
+                 << "pass to the constructor. Here, the operation you are attempting requires "
+                 << "the <" << arg1 << "> flag to be set, but it was apparently not specified "
+                 << "upon construction.");
 
   /**
    * FEValues::reinit() has not been called for any cell.
    *
    * @ingroup Exceptions
    */
-  DeclExceptionMsg(ExcNotReinited,
-                   "FEValues object is not reinit'ed to any cell");
+  DeclExceptionMsg(ExcNotReinited, "FEValues object is not reinit'ed to any cell");
 
   /**
    * Mismatch between the FEValues FiniteElement and
@@ -1499,10 +1469,9 @@ public:
    *
    * @ingroup Exceptions
    */
-  DeclExceptionMsg(
-    ExcFEDontMatch,
-    "The FiniteElement you provided to FEValues and the FiniteElement that belongs "
-    "to the DoFHandler that provided the cell iterator do not match.");
+  DeclExceptionMsg(ExcFEDontMatch,
+                   "The FiniteElement you provided to FEValues and the FiniteElement that belongs "
+                   "to the DoFHandler that provided the cell iterator do not match.");
   /**
    * A given shape function is not primitive, but it needs to be.
    *
@@ -1510,8 +1479,7 @@ public:
    */
   DeclException1(ExcShapeFunctionNotPrimitive,
                  int,
-                 << "The shape function with index " << arg1
-                 << " is not primitive, i.e. it is vector-valued and "
+                 << "The shape function with index " << arg1 << " is not primitive, i.e. it is vector-valued and "
                  << "has more than one non-zero vector component. This "
                  << "function cannot be called for these shape functions. "
                  << "Maybe you want to use the same function with the "
@@ -1523,10 +1491,9 @@ public:
    *
    * @ingroup Exceptions
    */
-  DeclExceptionMsg(
-    ExcFENotPrimitive,
-    "The given FiniteElement is not a primitive element but the requested operation "
-    "only works for those. See FiniteElement::is_primitive() for more information.");
+  DeclExceptionMsg(ExcFENotPrimitive,
+                   "The given FiniteElement is not a primitive element but the requested operation "
+                   "only works for those. See FiniteElement::is_primitive() for more information.");
 
 protected:
   /**
@@ -1538,15 +1505,14 @@ protected:
   class CellIteratorContainer
   {
   public:
-    DeclExceptionMsg(
-      ExcNeedsDoFHandler,
-      "You have previously called the FEValues::reinit() function with a "
-      "cell iterator of type Triangulation<dim,spacedim>::cell_iterator. However, "
-      "when you do this, you cannot call some functions in the FEValues "
-      "class, such as the get_function_values/gradients/hessians/third_derivatives "
-      "functions. If you need these functions, then you need to call "
-      "FEValues::reinit() with an iterator type that allows to extract "
-      "degrees of freedom, such as DoFHandler<dim,spacedim>::cell_iterator.");
+    DeclExceptionMsg(ExcNeedsDoFHandler,
+                     "You have previously called the FEValues::reinit() function with a "
+                     "cell iterator of type Triangulation<dim,spacedim>::cell_iterator. However, "
+                     "when you do this, you cannot call some functions in the FEValues "
+                     "class, such as the get_function_values/gradients/hessians/third_derivatives "
+                     "functions. If you need these functions, then you need to call "
+                     "FEValues::reinit() with an iterator type that allows to extract "
+                     "degrees of freedom, such as DoFHandler<dim,spacedim>::cell_iterator.");
 
     /**
      * Constructor.
@@ -1557,14 +1523,12 @@ protected:
      * Constructor.
      */
     template <bool lda>
-    CellIteratorContainer(
-      const TriaIterator<DoFCellAccessor<dim, spacedim, lda>> &cell);
+    CellIteratorContainer(const TriaIterator<DoFCellAccessor<dim, spacedim, lda>> &cell);
 
     /**
      * Constructor.
      */
-    CellIteratorContainer(
-      const typename Triangulation<dim, spacedim>::cell_iterator &cell);
+    CellIteratorContainer(const typename Triangulation<dim, spacedim>::cell_iterator &cell);
 
     /**
      * Indicate whether FEValues::reinit() was called.
@@ -1593,21 +1557,19 @@ protected:
      */
     template <typename Number>
     void
-    get_interpolated_dof_values(const ReadVector<Number> &in,
-                                Vector<Number> &          out) const;
+    get_interpolated_dof_values(const ReadVector<Number> &in, Vector<Number> &out) const;
 
     /**
      * Call @p get_interpolated_dof_values of the iterator with the
      * given arguments.
      */
     void
-    get_interpolated_dof_values(const IndexSet &              in,
-                                Vector<IndexSet::value_type> &out) const;
+    get_interpolated_dof_values(const IndexSet &in, Vector<IndexSet::value_type> &out) const;
 
   private:
     bool                                                 initialized;
     typename Triangulation<dim, spacedim>::cell_iterator cell;
-    const DoFHandler<dim, spacedim> *                    dof_handler;
+    const DoFHandler<dim, spacedim>                     *dof_handler;
     bool                                                 level_dof_access;
   };
 
@@ -1654,53 +1616,44 @@ protected:
    * this function.
    */
   void
-  maybe_invalidate_previous_present_cell(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell);
+  maybe_invalidate_previous_present_cell(const typename Triangulation<dim, spacedim>::cell_iterator &cell);
 
   /**
    * A pointer to the mapping object associated with this FEValues object.
    */
-  const SmartPointer<const Mapping<dim, spacedim>, FEValuesBase<dim, spacedim>>
-    mapping;
+  const SmartPointer<const Mapping<dim, spacedim>, FEValuesBase<dim, spacedim>> mapping;
 
   /**
    * A pointer to the internal data object of mapping, obtained from
    * Mapping::get_data(), Mapping::get_face_data(), or
    * Mapping::get_subface_data().
    */
-  std::unique_ptr<typename Mapping<dim, spacedim>::InternalDataBase>
-    mapping_data;
+  std::unique_ptr<typename Mapping<dim, spacedim>::InternalDataBase> mapping_data;
 
   /**
    * An object into which the Mapping::fill_fe_values() and similar functions
    * place their output.
    */
-  internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-    mapping_output;
+  internal::FEValuesImplementation::MappingRelatedData<dim, spacedim> mapping_output;
 
   /**
    * A pointer to the finite element object associated with this FEValues
    * object.
    */
-  const SmartPointer<const FiniteElement<dim, spacedim>,
-                     FEValuesBase<dim, spacedim>>
-    fe;
+  const SmartPointer<const FiniteElement<dim, spacedim>, FEValuesBase<dim, spacedim>> fe;
 
   /**
    * A pointer to the internal data object of finite element, obtained from
    * FiniteElement::get_data(), Mapping::get_face_data(), or
    * FiniteElement::get_subface_data().
    */
-  std::unique_ptr<typename FiniteElement<dim, spacedim>::InternalDataBase>
-    fe_data;
+  std::unique_ptr<typename FiniteElement<dim, spacedim>::InternalDataBase> fe_data;
 
   /**
    * An object into which the FiniteElement::fill_fe_values() and similar
    * functions place their output.
    */
-  dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim,
-                                                                     spacedim>
-    finite_element_output;
+  dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> finite_element_output;
 
 
   /**
@@ -1732,8 +1685,7 @@ protected:
    * e.g. the derivatives of the basis functions in real space, shape_grad.
    */
   void
-  check_cell_similarity(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell);
+  check_cell_similarity(const typename Triangulation<dim, spacedim>::cell_iterator &cell);
 
 private:
   /**
@@ -1759,9 +1711,8 @@ private:
 
 template <int dim, int spacedim>
 template <bool lda>
-inline FEValuesBase<dim, spacedim>::CellIteratorContainer::
-  CellIteratorContainer(
-    const TriaIterator<DoFCellAccessor<dim, spacedim, lda>> &cell)
+inline FEValuesBase<dim, spacedim>::CellIteratorContainer::CellIteratorContainer(
+  const TriaIterator<DoFCellAccessor<dim, spacedim, lda>> &cell)
   : initialized(true)
   , cell(cell)
   , dof_handler(&cell->get_dof_handler())
@@ -1772,8 +1723,7 @@ inline FEValuesBase<dim, spacedim>::CellIteratorContainer::
 
 template <int dim, int spacedim>
 inline const FEValuesViews::Scalar<dim, spacedim> &
-FEValuesBase<dim, spacedim>::operator[](
-  const FEValuesExtractors::Scalar &scalar) const
+FEValuesBase<dim, spacedim>::operator[](const FEValuesExtractors::Scalar &scalar) const
 {
   AssertIndexRange(scalar.component, fe_values_views_cache.scalars.size());
 
@@ -1784,11 +1734,9 @@ FEValuesBase<dim, spacedim>::operator[](
 
 template <int dim, int spacedim>
 inline const FEValuesViews::Vector<dim, spacedim> &
-FEValuesBase<dim, spacedim>::operator[](
-  const FEValuesExtractors::Vector &vector) const
+FEValuesBase<dim, spacedim>::operator[](const FEValuesExtractors::Vector &vector) const
 {
-  AssertIndexRange(vector.first_vector_component,
-                   fe_values_views_cache.vectors.size());
+  AssertIndexRange(vector.first_vector_component, fe_values_views_cache.vectors.size());
 
   return fe_values_views_cache.vectors[vector.first_vector_component];
 }
@@ -1797,44 +1745,33 @@ FEValuesBase<dim, spacedim>::operator[](
 
 template <int dim, int spacedim>
 inline const FEValuesViews::SymmetricTensor<2, dim, spacedim> &
-FEValuesBase<dim, spacedim>::operator[](
-  const FEValuesExtractors::SymmetricTensor<2> &tensor) const
+FEValuesBase<dim, spacedim>::operator[](const FEValuesExtractors::SymmetricTensor<2> &tensor) const
 {
-  Assert(
-    tensor.first_tensor_component <
-      fe_values_views_cache.symmetric_second_order_tensors.size(),
-    ExcIndexRange(tensor.first_tensor_component,
-                  0,
-                  fe_values_views_cache.symmetric_second_order_tensors.size()));
+  Assert(tensor.first_tensor_component < fe_values_views_cache.symmetric_second_order_tensors.size(),
+         ExcIndexRange(tensor.first_tensor_component, 0, fe_values_views_cache.symmetric_second_order_tensors.size()));
 
-  return fe_values_views_cache
-    .symmetric_second_order_tensors[tensor.first_tensor_component];
+  return fe_values_views_cache.symmetric_second_order_tensors[tensor.first_tensor_component];
 }
 
 
 
 template <int dim, int spacedim>
 inline const FEValuesViews::Tensor<2, dim, spacedim> &
-FEValuesBase<dim, spacedim>::operator[](
-  const FEValuesExtractors::Tensor<2> &tensor) const
+FEValuesBase<dim, spacedim>::operator[](const FEValuesExtractors::Tensor<2> &tensor) const
 {
-  AssertIndexRange(tensor.first_tensor_component,
-                   fe_values_views_cache.second_order_tensors.size());
+  AssertIndexRange(tensor.first_tensor_component, fe_values_views_cache.second_order_tensors.size());
 
-  return fe_values_views_cache
-    .second_order_tensors[tensor.first_tensor_component];
+  return fe_values_views_cache.second_order_tensors[tensor.first_tensor_component];
 }
 
 
 
 template <int dim, int spacedim>
 inline const double &
-FEValuesBase<dim, spacedim>::shape_value(const unsigned int i,
-                                         const unsigned int q_point) const
+FEValuesBase<dim, spacedim>::shape_value(const unsigned int i, const unsigned int q_point) const
 {
   AssertIndexRange(i, fe->n_dofs_per_cell());
-  Assert(this->update_flags & update_values,
-         ExcAccessToUninitializedField("update_values"));
+  Assert(this->update_flags & update_values, ExcAccessToUninitializedField("update_values"));
   Assert(fe->is_primitive(i), ExcShapeFunctionNotPrimitive(i));
   Assert(present_cell.is_initialized(), ExcNotReinited());
   // if the entire FE is primitive,
@@ -1853,8 +1790,7 @@ FEValuesBase<dim, spacedim>::shape_value(const unsigned int i,
       // system_to_component_index
       const unsigned int row =
         this->finite_element_output
-          .shape_function_to_row_table[i * fe->n_components() +
-                                       fe->system_to_component_index(i).first];
+          .shape_function_to_row_table[i * fe->n_components() + fe->system_to_component_index(i).first];
       return this->finite_element_output.shape_values(row, q_point);
     }
 }
@@ -1863,14 +1799,12 @@ FEValuesBase<dim, spacedim>::shape_value(const unsigned int i,
 
 template <int dim, int spacedim>
 inline double
-FEValuesBase<dim, spacedim>::shape_value_component(
-  const unsigned int i,
-  const unsigned int q_point,
-  const unsigned int component) const
+FEValuesBase<dim, spacedim>::shape_value_component(const unsigned int i,
+                                                   const unsigned int q_point,
+                                                   const unsigned int component) const
 {
   AssertIndexRange(i, fe->n_dofs_per_cell());
-  Assert(this->update_flags & update_values,
-         ExcAccessToUninitializedField("update_values"));
+  Assert(this->update_flags & update_values, ExcAccessToUninitializedField("update_values"));
   AssertIndexRange(component, fe->n_components());
   Assert(present_cell.is_initialized(), ExcNotReinited());
 
@@ -1883,9 +1817,7 @@ FEValuesBase<dim, spacedim>::shape_value_component(
   // look up the right row in the
   // table and take the data from
   // there
-  const unsigned int row =
-    this->finite_element_output
-      .shape_function_to_row_table[i * fe->n_components() + component];
+  const unsigned int row = this->finite_element_output.shape_function_to_row_table[i * fe->n_components() + component];
   return this->finite_element_output.shape_values(row, q_point);
 }
 
@@ -1893,12 +1825,10 @@ FEValuesBase<dim, spacedim>::shape_value_component(
 
 template <int dim, int spacedim>
 inline const Tensor<1, spacedim> &
-FEValuesBase<dim, spacedim>::shape_grad(const unsigned int i,
-                                        const unsigned int q_point) const
+FEValuesBase<dim, spacedim>::shape_grad(const unsigned int i, const unsigned int q_point) const
 {
   AssertIndexRange(i, fe->n_dofs_per_cell());
-  Assert(this->update_flags & update_gradients,
-         ExcAccessToUninitializedField("update_gradients"));
+  Assert(this->update_flags & update_gradients, ExcAccessToUninitializedField("update_gradients"));
   Assert(fe->is_primitive(i), ExcShapeFunctionNotPrimitive(i));
   Assert(present_cell.is_initialized(), ExcNotReinited());
   // if the entire FE is primitive,
@@ -1917,8 +1847,7 @@ FEValuesBase<dim, spacedim>::shape_grad(const unsigned int i,
       // system_to_component_index
       const unsigned int row =
         this->finite_element_output
-          .shape_function_to_row_table[i * fe->n_components() +
-                                       fe->system_to_component_index(i).first];
+          .shape_function_to_row_table[i * fe->n_components() + fe->system_to_component_index(i).first];
       return this->finite_element_output.shape_gradients[row][q_point];
     }
 }
@@ -1927,14 +1856,12 @@ FEValuesBase<dim, spacedim>::shape_grad(const unsigned int i,
 
 template <int dim, int spacedim>
 inline Tensor<1, spacedim>
-FEValuesBase<dim, spacedim>::shape_grad_component(
-  const unsigned int i,
-  const unsigned int q_point,
-  const unsigned int component) const
+FEValuesBase<dim, spacedim>::shape_grad_component(const unsigned int i,
+                                                  const unsigned int q_point,
+                                                  const unsigned int component) const
 {
   AssertIndexRange(i, fe->n_dofs_per_cell());
-  Assert(this->update_flags & update_gradients,
-         ExcAccessToUninitializedField("update_gradients"));
+  Assert(this->update_flags & update_gradients, ExcAccessToUninitializedField("update_gradients"));
   AssertIndexRange(component, fe->n_components());
   Assert(present_cell.is_initialized(), ExcNotReinited());
   // check whether the shape function
@@ -1946,9 +1873,7 @@ FEValuesBase<dim, spacedim>::shape_grad_component(
   // look up the right row in the
   // table and take the data from
   // there
-  const unsigned int row =
-    this->finite_element_output
-      .shape_function_to_row_table[i * fe->n_components() + component];
+  const unsigned int row = this->finite_element_output.shape_function_to_row_table[i * fe->n_components() + component];
   return this->finite_element_output.shape_gradients[row][q_point];
 }
 
@@ -1956,12 +1881,10 @@ FEValuesBase<dim, spacedim>::shape_grad_component(
 
 template <int dim, int spacedim>
 inline const Tensor<2, spacedim> &
-FEValuesBase<dim, spacedim>::shape_hessian(const unsigned int i,
-                                           const unsigned int q_point) const
+FEValuesBase<dim, spacedim>::shape_hessian(const unsigned int i, const unsigned int q_point) const
 {
   AssertIndexRange(i, fe->n_dofs_per_cell());
-  Assert(this->update_flags & update_hessians,
-         ExcAccessToUninitializedField("update_hessians"));
+  Assert(this->update_flags & update_hessians, ExcAccessToUninitializedField("update_hessians"));
   Assert(fe->is_primitive(i), ExcShapeFunctionNotPrimitive(i));
   Assert(present_cell.is_initialized(), ExcNotReinited());
   // if the entire FE is primitive,
@@ -1980,8 +1903,7 @@ FEValuesBase<dim, spacedim>::shape_hessian(const unsigned int i,
       // system_to_component_index
       const unsigned int row =
         this->finite_element_output
-          .shape_function_to_row_table[i * fe->n_components() +
-                                       fe->system_to_component_index(i).first];
+          .shape_function_to_row_table[i * fe->n_components() + fe->system_to_component_index(i).first];
       return this->finite_element_output.shape_hessians[row][q_point];
     }
 }
@@ -1990,14 +1912,12 @@ FEValuesBase<dim, spacedim>::shape_hessian(const unsigned int i,
 
 template <int dim, int spacedim>
 inline Tensor<2, spacedim>
-FEValuesBase<dim, spacedim>::shape_hessian_component(
-  const unsigned int i,
-  const unsigned int q_point,
-  const unsigned int component) const
+FEValuesBase<dim, spacedim>::shape_hessian_component(const unsigned int i,
+                                                     const unsigned int q_point,
+                                                     const unsigned int component) const
 {
   AssertIndexRange(i, fe->n_dofs_per_cell());
-  Assert(this->update_flags & update_hessians,
-         ExcAccessToUninitializedField("update_hessians"));
+  Assert(this->update_flags & update_hessians, ExcAccessToUninitializedField("update_hessians"));
   AssertIndexRange(component, fe->n_components());
   Assert(present_cell.is_initialized(), ExcNotReinited());
   // check whether the shape function
@@ -2009,9 +1929,7 @@ FEValuesBase<dim, spacedim>::shape_hessian_component(
   // look up the right row in the
   // table and take the data from
   // there
-  const unsigned int row =
-    this->finite_element_output
-      .shape_function_to_row_table[i * fe->n_components() + component];
+  const unsigned int row = this->finite_element_output.shape_function_to_row_table[i * fe->n_components() + component];
   return this->finite_element_output.shape_hessians[row][q_point];
 }
 
@@ -2019,13 +1937,10 @@ FEValuesBase<dim, spacedim>::shape_hessian_component(
 
 template <int dim, int spacedim>
 inline const Tensor<3, spacedim> &
-FEValuesBase<dim, spacedim>::shape_3rd_derivative(
-  const unsigned int i,
-  const unsigned int q_point) const
+FEValuesBase<dim, spacedim>::shape_3rd_derivative(const unsigned int i, const unsigned int q_point) const
 {
   AssertIndexRange(i, fe->n_dofs_per_cell());
-  Assert(this->update_flags & update_3rd_derivatives,
-         ExcAccessToUninitializedField("update_3rd_derivatives"));
+  Assert(this->update_flags & update_3rd_derivatives, ExcAccessToUninitializedField("update_3rd_derivatives"));
   Assert(fe->is_primitive(i), ExcShapeFunctionNotPrimitive(i));
   Assert(present_cell.is_initialized(), ExcNotReinited());
   // if the entire FE is primitive,
@@ -2044,8 +1959,7 @@ FEValuesBase<dim, spacedim>::shape_3rd_derivative(
       // system_to_component_index
       const unsigned int row =
         this->finite_element_output
-          .shape_function_to_row_table[i * fe->n_components() +
-                                       fe->system_to_component_index(i).first];
+          .shape_function_to_row_table[i * fe->n_components() + fe->system_to_component_index(i).first];
       return this->finite_element_output.shape_3rd_derivatives[row][q_point];
     }
 }
@@ -2054,14 +1968,12 @@ FEValuesBase<dim, spacedim>::shape_3rd_derivative(
 
 template <int dim, int spacedim>
 inline Tensor<3, spacedim>
-FEValuesBase<dim, spacedim>::shape_3rd_derivative_component(
-  const unsigned int i,
-  const unsigned int q_point,
-  const unsigned int component) const
+FEValuesBase<dim, spacedim>::shape_3rd_derivative_component(const unsigned int i,
+                                                            const unsigned int q_point,
+                                                            const unsigned int component) const
 {
   AssertIndexRange(i, fe->n_dofs_per_cell());
-  Assert(this->update_flags & update_3rd_derivatives,
-         ExcAccessToUninitializedField("update_3rd_derivatives"));
+  Assert(this->update_flags & update_3rd_derivatives, ExcAccessToUninitializedField("update_3rd_derivatives"));
   AssertIndexRange(component, fe->n_components());
   Assert(present_cell.is_initialized(), ExcNotReinited());
   // check whether the shape function
@@ -2073,9 +1985,7 @@ FEValuesBase<dim, spacedim>::shape_3rd_derivative_component(
   // look up the right row in the
   // table and take the data from
   // there
-  const unsigned int row =
-    this->finite_element_output
-      .shape_function_to_row_table[i * fe->n_components() + component];
+  const unsigned int row = this->finite_element_output.shape_function_to_row_table[i * fe->n_components() + component];
   return this->finite_element_output.shape_3rd_derivatives[row][q_point];
 }
 
@@ -2112,8 +2022,7 @@ template <int dim, int spacedim>
 inline const std::vector<Point<spacedim>> &
 FEValuesBase<dim, spacedim>::get_quadrature_points() const
 {
-  Assert(this->update_flags & update_quadrature_points,
-         ExcAccessToUninitializedField("update_quadrature_points"));
+  Assert(this->update_flags & update_quadrature_points, ExcAccessToUninitializedField("update_quadrature_points"));
   Assert(present_cell.is_initialized(), ExcNotReinited());
   return this->mapping_output.quadrature_points;
 }
@@ -2124,8 +2033,7 @@ template <int dim, int spacedim>
 inline const std::vector<double> &
 FEValuesBase<dim, spacedim>::get_JxW_values() const
 {
-  Assert(this->update_flags & update_JxW_values,
-         ExcAccessToUninitializedField("update_JxW_values"));
+  Assert(this->update_flags & update_JxW_values, ExcAccessToUninitializedField("update_JxW_values"));
   Assert(present_cell.is_initialized(), ExcNotReinited());
   return this->mapping_output.JxW_values;
 }
@@ -2136,8 +2044,7 @@ template <int dim, int spacedim>
 inline const std::vector<DerivativeForm<1, dim, spacedim>> &
 FEValuesBase<dim, spacedim>::get_jacobians() const
 {
-  Assert(this->update_flags & update_jacobians,
-         ExcAccessToUninitializedField("update_jacobians"));
+  Assert(this->update_flags & update_jacobians, ExcAccessToUninitializedField("update_jacobians"));
   Assert(present_cell.is_initialized(), ExcNotReinited());
   return this->mapping_output.jacobians;
 }
@@ -2148,8 +2055,7 @@ template <int dim, int spacedim>
 inline const std::vector<DerivativeForm<2, dim, spacedim>> &
 FEValuesBase<dim, spacedim>::get_jacobian_grads() const
 {
-  Assert(this->update_flags & update_jacobian_grads,
-         ExcAccessToUninitializedField("update_jacobians_grads"));
+  Assert(this->update_flags & update_jacobian_grads, ExcAccessToUninitializedField("update_jacobians_grads"));
   Assert(present_cell.is_initialized(), ExcNotReinited());
   return this->mapping_output.jacobian_grads;
 }
@@ -2158,8 +2064,7 @@ FEValuesBase<dim, spacedim>::get_jacobian_grads() const
 
 template <int dim, int spacedim>
 inline const Tensor<3, spacedim> &
-FEValuesBase<dim, spacedim>::jacobian_pushed_forward_grad(
-  const unsigned int q_point) const
+FEValuesBase<dim, spacedim>::jacobian_pushed_forward_grad(const unsigned int q_point) const
 {
   Assert(this->update_flags & update_jacobian_pushed_forward_grads,
          ExcAccessToUninitializedField("update_jacobian_pushed_forward_grads"));
@@ -2183,8 +2088,7 @@ FEValuesBase<dim, spacedim>::get_jacobian_pushed_forward_grads() const
 
 template <int dim, int spacedim>
 inline const DerivativeForm<3, dim, spacedim> &
-FEValuesBase<dim, spacedim>::jacobian_2nd_derivative(
-  const unsigned int q_point) const
+FEValuesBase<dim, spacedim>::jacobian_2nd_derivative(const unsigned int q_point) const
 {
   Assert(this->update_flags & update_jacobian_2nd_derivatives,
          ExcAccessToUninitializedField("update_jacobian_2nd_derivatives"));
@@ -2208,12 +2112,10 @@ FEValuesBase<dim, spacedim>::get_jacobian_2nd_derivatives() const
 
 template <int dim, int spacedim>
 inline const Tensor<4, spacedim> &
-FEValuesBase<dim, spacedim>::jacobian_pushed_forward_2nd_derivative(
-  const unsigned int q_point) const
+FEValuesBase<dim, spacedim>::jacobian_pushed_forward_2nd_derivative(const unsigned int q_point) const
 {
   Assert(this->update_flags & update_jacobian_pushed_forward_2nd_derivatives,
-         ExcAccessToUninitializedField(
-           "update_jacobian_pushed_forward_2nd_derivatives"));
+         ExcAccessToUninitializedField("update_jacobian_pushed_forward_2nd_derivatives"));
   Assert(present_cell.is_initialized(), ExcNotReinited());
   return this->mapping_output.jacobian_pushed_forward_2nd_derivatives[q_point];
 }
@@ -2225,8 +2127,7 @@ inline const std::vector<Tensor<4, spacedim>> &
 FEValuesBase<dim, spacedim>::get_jacobian_pushed_forward_2nd_derivatives() const
 {
   Assert(this->update_flags & update_jacobian_pushed_forward_2nd_derivatives,
-         ExcAccessToUninitializedField(
-           "update_jacobian_pushed_forward_2nd_derivatives"));
+         ExcAccessToUninitializedField("update_jacobian_pushed_forward_2nd_derivatives"));
   Assert(present_cell.is_initialized(), ExcNotReinited());
   return this->mapping_output.jacobian_pushed_forward_2nd_derivatives;
 }
@@ -2235,8 +2136,7 @@ FEValuesBase<dim, spacedim>::get_jacobian_pushed_forward_2nd_derivatives() const
 
 template <int dim, int spacedim>
 inline const DerivativeForm<4, dim, spacedim> &
-FEValuesBase<dim, spacedim>::jacobian_3rd_derivative(
-  const unsigned int q_point) const
+FEValuesBase<dim, spacedim>::jacobian_3rd_derivative(const unsigned int q_point) const
 {
   Assert(this->update_flags & update_jacobian_3rd_derivatives,
          ExcAccessToUninitializedField("update_jacobian_3rd_derivatives"));
@@ -2260,12 +2160,10 @@ FEValuesBase<dim, spacedim>::get_jacobian_3rd_derivatives() const
 
 template <int dim, int spacedim>
 inline const Tensor<5, spacedim> &
-FEValuesBase<dim, spacedim>::jacobian_pushed_forward_3rd_derivative(
-  const unsigned int q_point) const
+FEValuesBase<dim, spacedim>::jacobian_pushed_forward_3rd_derivative(const unsigned int q_point) const
 {
   Assert(this->update_flags & update_jacobian_pushed_forward_3rd_derivatives,
-         ExcAccessToUninitializedField(
-           "update_jacobian_pushed_forward_3rd_derivatives"));
+         ExcAccessToUninitializedField("update_jacobian_pushed_forward_3rd_derivatives"));
   Assert(present_cell.is_initialized(), ExcNotReinited());
   return this->mapping_output.jacobian_pushed_forward_3rd_derivatives[q_point];
 }
@@ -2277,8 +2175,7 @@ inline const std::vector<Tensor<5, spacedim>> &
 FEValuesBase<dim, spacedim>::get_jacobian_pushed_forward_3rd_derivatives() const
 {
   Assert(this->update_flags & update_jacobian_pushed_forward_3rd_derivatives,
-         ExcAccessToUninitializedField(
-           "update_jacobian_pushed_forward_3rd_derivatives"));
+         ExcAccessToUninitializedField("update_jacobian_pushed_forward_3rd_derivatives"));
   Assert(present_cell.is_initialized(), ExcNotReinited());
   return this->mapping_output.jacobian_pushed_forward_3rd_derivatives;
 }
@@ -2289,8 +2186,7 @@ template <int dim, int spacedim>
 inline const std::vector<DerivativeForm<1, spacedim, dim>> &
 FEValuesBase<dim, spacedim>::get_inverse_jacobians() const
 {
-  Assert(this->update_flags & update_inverse_jacobians,
-         ExcAccessToUninitializedField("update_inverse_jacobians"));
+  Assert(this->update_flags & update_inverse_jacobians, ExcAccessToUninitializedField("update_inverse_jacobians"));
   Assert(present_cell.is_initialized(), ExcNotReinited());
   return this->mapping_output.inverse_jacobians;
 }
@@ -2308,11 +2204,9 @@ FEValuesBase<dim, spacedim>::dof_indices() const
 
 template <int dim, int spacedim>
 inline std_cxx20::ranges::iota_view<unsigned int, unsigned int>
-FEValuesBase<dim, spacedim>::dof_indices_starting_at(
-  const unsigned int start_dof_index) const
+FEValuesBase<dim, spacedim>::dof_indices_starting_at(const unsigned int start_dof_index) const
 {
-  Assert(start_dof_index <= dofs_per_cell,
-         ExcIndexRange(start_dof_index, 0, dofs_per_cell + 1));
+  Assert(start_dof_index <= dofs_per_cell, ExcIndexRange(start_dof_index, 0, dofs_per_cell + 1));
   return {start_dof_index, dofs_per_cell};
 }
 
@@ -2320,11 +2214,9 @@ FEValuesBase<dim, spacedim>::dof_indices_starting_at(
 
 template <int dim, int spacedim>
 inline std_cxx20::ranges::iota_view<unsigned int, unsigned int>
-FEValuesBase<dim, spacedim>::dof_indices_ending_at(
-  const unsigned int end_dof_index) const
+FEValuesBase<dim, spacedim>::dof_indices_ending_at(const unsigned int end_dof_index) const
 {
-  Assert(end_dof_index < dofs_per_cell,
-         ExcIndexRange(end_dof_index, 0, dofs_per_cell));
+  Assert(end_dof_index < dofs_per_cell, ExcIndexRange(end_dof_index, 0, dofs_per_cell));
   return {0U, end_dof_index + 1};
 }
 
@@ -2343,8 +2235,7 @@ template <int dim, int spacedim>
 inline const Point<spacedim> &
 FEValuesBase<dim, spacedim>::quadrature_point(const unsigned int q_point) const
 {
-  Assert(this->update_flags & update_quadrature_points,
-         ExcAccessToUninitializedField("update_quadrature_points"));
+  Assert(this->update_flags & update_quadrature_points, ExcAccessToUninitializedField("update_quadrature_points"));
   AssertIndexRange(q_point, this->mapping_output.quadrature_points.size());
   Assert(present_cell.is_initialized(), ExcNotReinited());
 
@@ -2357,8 +2248,7 @@ template <int dim, int spacedim>
 inline double
 FEValuesBase<dim, spacedim>::JxW(const unsigned int q_point) const
 {
-  Assert(this->update_flags & update_JxW_values,
-         ExcAccessToUninitializedField("update_JxW_values"));
+  Assert(this->update_flags & update_JxW_values, ExcAccessToUninitializedField("update_JxW_values"));
   AssertIndexRange(q_point, this->mapping_output.JxW_values.size());
   Assert(present_cell.is_initialized(), ExcNotReinited());
 
@@ -2371,8 +2261,7 @@ template <int dim, int spacedim>
 inline const DerivativeForm<1, dim, spacedim> &
 FEValuesBase<dim, spacedim>::jacobian(const unsigned int q_point) const
 {
-  Assert(this->update_flags & update_jacobians,
-         ExcAccessToUninitializedField("update_jacobians"));
+  Assert(this->update_flags & update_jacobians, ExcAccessToUninitializedField("update_jacobians"));
   AssertIndexRange(q_point, this->mapping_output.jacobians.size());
   Assert(present_cell.is_initialized(), ExcNotReinited());
 
@@ -2385,8 +2274,7 @@ template <int dim, int spacedim>
 inline const DerivativeForm<2, dim, spacedim> &
 FEValuesBase<dim, spacedim>::jacobian_grad(const unsigned int q_point) const
 {
-  Assert(this->update_flags & update_jacobian_grads,
-         ExcAccessToUninitializedField("update_jacobians_grads"));
+  Assert(this->update_flags & update_jacobian_grads, ExcAccessToUninitializedField("update_jacobians_grads"));
   AssertIndexRange(q_point, this->mapping_output.jacobian_grads.size());
   Assert(present_cell.is_initialized(), ExcNotReinited());
 
@@ -2399,8 +2287,7 @@ template <int dim, int spacedim>
 inline const DerivativeForm<1, spacedim, dim> &
 FEValuesBase<dim, spacedim>::inverse_jacobian(const unsigned int q_point) const
 {
-  Assert(this->update_flags & update_inverse_jacobians,
-         ExcAccessToUninitializedField("update_inverse_jacobians"));
+  Assert(this->update_flags & update_inverse_jacobians, ExcAccessToUninitializedField("update_inverse_jacobians"));
   AssertIndexRange(q_point, this->mapping_output.inverse_jacobians.size());
   Assert(present_cell.is_initialized(), ExcNotReinited());
 
@@ -2414,8 +2301,7 @@ inline const Tensor<1, spacedim> &
 FEValuesBase<dim, spacedim>::normal_vector(const unsigned int q_point) const
 {
   Assert(this->update_flags & update_normal_vectors,
-         (typename FEValuesBase<dim, spacedim>::ExcAccessToUninitializedField(
-           "update_normal_vectors")));
+         (typename FEValuesBase<dim, spacedim>::ExcAccessToUninitializedField("update_normal_vectors")));
   AssertIndexRange(q_point, this->mapping_output.normal_vectors.size());
   Assert(present_cell.is_initialized(), ExcNotReinited());
 

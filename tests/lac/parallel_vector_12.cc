@@ -28,10 +28,7 @@
 
 #include "../tests.h"
 
-DeclException2(ExcNonEqual,
-               double,
-               double,
-               << "Left compare: " << arg1 << ", right compare: " << arg2);
+DeclException2(ExcNonEqual, double, double, << "Left compare: " << arg1 << ", right compare: " << arg2);
 
 void
 test()
@@ -45,24 +42,22 @@ test()
   // vector 0:
   // global size: 20, local_size: 3 as long as
   // less than 20
-  const unsigned int local_size0  = 3;
-  const unsigned int global_size0 = std::min(20U, local_size0 * numproc);
-  const unsigned int my_start0    = std::min(local_size0 * myid, global_size0);
-  const unsigned int my_end0 = std::min(local_size0 * (myid + 1), global_size0);
+  const unsigned int local_size0        = 3;
+  const unsigned int global_size0       = std::min(20U, local_size0 * numproc);
+  const unsigned int my_start0          = std::min(local_size0 * myid, global_size0);
+  const unsigned int my_end0            = std::min(local_size0 * (myid + 1), global_size0);
   const unsigned int actual_local_size0 = my_end0 - my_start0;
 
   IndexSet local_owned0(global_size0);
   if (my_end0 > my_start0)
-    local_owned0.add_range(static_cast<unsigned int>(my_start0),
-                           static_cast<unsigned int>(my_end0));
+    local_owned0.add_range(static_cast<unsigned int>(my_start0), static_cast<unsigned int>(my_end0));
   IndexSet local_relevant0(global_size0);
   local_relevant0 = local_owned0;
   local_relevant0.add_index(2);
   if (numproc > 2)
     local_relevant0.add_index(8);
 
-  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> v0(
-    local_owned0, local_relevant0, MPI_COMM_WORLD);
+  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> v0(local_owned0, local_relevant0, MPI_COMM_WORLD);
 
   // vector1: local size 4
   const unsigned int local_size1  = 4;
@@ -71,8 +66,7 @@ test()
   const int          my_end1      = local_size1 * (myid + 1);
 
   IndexSet local_owned1(global_size1);
-  local_owned1.add_range(static_cast<unsigned int>(my_start1),
-                         static_cast<unsigned int>(my_end1));
+  local_owned1.add_range(static_cast<unsigned int>(my_start1), static_cast<unsigned int>(my_end1));
   IndexSet local_relevant1(global_size1);
   local_relevant1 = local_owned1;
   local_relevant1.add_index(0);
@@ -83,8 +77,7 @@ test()
       local_relevant1.add_index(10);
     }
 
-  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> v1(
-    local_owned1, local_relevant1, MPI_COMM_WORLD);
+  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> v1(local_owned1, local_relevant1, MPI_COMM_WORLD);
 
   v0 = 1;
   v1 = 2;
@@ -94,11 +87,9 @@ test()
   LinearAlgebra::ReadWriteVector<double> v1_rw(local_owned1);
   v1_rw.import_elements(v1, VectorOperation::insert);
   for (unsigned int i = 0; i < v0.locally_owned_size(); ++i)
-    AssertThrow(v0_rw.local_element(i) == 1.,
-                ExcNonEqual(v0_rw.local_element(i), 1.));
+    AssertThrow(v0_rw.local_element(i) == 1., ExcNonEqual(v0_rw.local_element(i), 1.));
   for (unsigned int i = 0; i < v1.locally_owned_size(); ++i)
-    AssertThrow(v1_rw.local_element(i) == 2.,
-                ExcNonEqual(v1_rw.local_element(i), 2.));
+    AssertThrow(v1_rw.local_element(i) == 2., ExcNonEqual(v1_rw.local_element(i), 2.));
 
   // check ghost elements in initial state
   v0.update_ghost_values();
@@ -129,12 +120,10 @@ test()
   AssertDimension(v1.size(), global_size0);
   v1_rw.import_elements(v0, VectorOperation::insert);
   for (unsigned int i = 0; i < local_size1; ++i)
-    AssertThrow(v1_rw.local_element(i) == 2.,
-                ExcNonEqual(v1_rw.local_element(i), 2.));
+    AssertThrow(v1_rw.local_element(i) == 2., ExcNonEqual(v1_rw.local_element(i), 2.));
   v0_rw.import_elements(v1, VectorOperation::insert);
   for (unsigned int i = 0; i < actual_local_size0; ++i)
-    AssertThrow(v0_rw.local_element(i) == 1.,
-                ExcNonEqual(v0_rw.local_element(i), 1.));
+    AssertThrow(v0_rw.local_element(i) == 1., ExcNonEqual(v0_rw.local_element(i), 1.));
   MPI_Barrier(MPI_COMM_WORLD);
   if (myid == 0)
     deallog << "First swap OK" << std::endl;
@@ -210,8 +199,7 @@ test()
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   unsigned int myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
   deallog.push(Utilities::int_to_string(myid));

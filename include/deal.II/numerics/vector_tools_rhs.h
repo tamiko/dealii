@@ -61,14 +61,13 @@ namespace VectorTools
    */
   template <int dim, int spacedim, typename VectorType>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
-  void create_right_hand_side(
-    const Mapping<dim, spacedim> &                             mapping,
-    const DoFHandler<dim, spacedim> &                          dof,
-    const Quadrature<dim> &                                    q,
-    const Function<spacedim, typename VectorType::value_type> &rhs,
-    VectorType &                                               rhs_vector,
-    const AffineConstraints<typename VectorType::value_type> & constraints =
-      AffineConstraints<typename VectorType::value_type>());
+  void create_right_hand_side(const Mapping<dim, spacedim>                              &mapping,
+                              const DoFHandler<dim, spacedim>                           &dof,
+                              const Quadrature<dim>                                     &q,
+                              const Function<spacedim, typename VectorType::value_type> &rhs,
+                              VectorType                                                &rhs_vector,
+                              const AffineConstraints<typename VectorType::value_type>  &constraints =
+                                AffineConstraints<typename VectorType::value_type>());
 
   /**
    * Call the create_right_hand_side() function, see above, with
@@ -78,13 +77,12 @@ namespace VectorTools
    */
   template <int dim, int spacedim, typename VectorType>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
-  void create_right_hand_side(
-    const DoFHandler<dim, spacedim> &                          dof,
-    const Quadrature<dim> &                                    q,
-    const Function<spacedim, typename VectorType::value_type> &rhs,
-    VectorType &                                               rhs_vector,
-    const AffineConstraints<typename VectorType::value_type> & constraints =
-      AffineConstraints<typename VectorType::value_type>());
+  void create_right_hand_side(const DoFHandler<dim, spacedim>                           &dof,
+                              const Quadrature<dim>                                     &q,
+                              const Function<spacedim, typename VectorType::value_type> &rhs,
+                              VectorType                                                &rhs_vector,
+                              const AffineConstraints<typename VectorType::value_type>  &constraints =
+                                AffineConstraints<typename VectorType::value_type>());
 
   /**
    * Like the previous set of functions, but for hp-objects.
@@ -93,14 +91,13 @@ namespace VectorTools
    */
   template <int dim, int spacedim, typename VectorType>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
-  void create_right_hand_side(
-    const hp::MappingCollection<dim, spacedim> &               mapping,
-    const DoFHandler<dim, spacedim> &                          dof,
-    const hp::QCollection<dim> &                               q,
-    const Function<spacedim, typename VectorType::value_type> &rhs,
-    VectorType &                                               rhs_vector,
-    const AffineConstraints<typename VectorType::value_type> & constraints =
-      AffineConstraints<typename VectorType::value_type>());
+  void create_right_hand_side(const hp::MappingCollection<dim, spacedim>                &mapping,
+                              const DoFHandler<dim, spacedim>                           &dof,
+                              const hp::QCollection<dim>                                &q,
+                              const Function<spacedim, typename VectorType::value_type> &rhs,
+                              VectorType                                                &rhs_vector,
+                              const AffineConstraints<typename VectorType::value_type>  &constraints =
+                                AffineConstraints<typename VectorType::value_type>());
 
   /**
    * Like the previous set of functions, but for hp-objects.
@@ -109,13 +106,12 @@ namespace VectorTools
    */
   template <int dim, int spacedim, typename VectorType>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
-  void create_right_hand_side(
-    const DoFHandler<dim, spacedim> &                          dof,
-    const hp::QCollection<dim> &                               q,
-    const Function<spacedim, typename VectorType::value_type> &rhs,
-    VectorType &                                               rhs_vector,
-    const AffineConstraints<typename VectorType::value_type> & constraints =
-      AffineConstraints<typename VectorType::value_type>());
+  void create_right_hand_side(const DoFHandler<dim, spacedim>                           &dof,
+                              const hp::QCollection<dim>                                &q,
+                              const Function<spacedim, typename VectorType::value_type> &rhs,
+                              VectorType                                                &rhs_vector,
+                              const AffineConstraints<typename VectorType::value_type>  &constraints =
+                                AffineConstraints<typename VectorType::value_type>());
 
   /**
    * Create a right hand side vector from boundary forces. Prior content of
@@ -131,13 +127,12 @@ namespace VectorTools
   template <int dim, int spacedim, typename VectorType>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
   void create_boundary_right_hand_side(
-    const Mapping<dim, spacedim> &                             mapping,
-    const DoFHandler<dim, spacedim> &                          dof,
-    const Quadrature<dim - 1> &                                q,
+    const Mapping<dim, spacedim>                              &mapping,
+    const DoFHandler<dim, spacedim>                           &dof,
+    const Quadrature<dim - 1>                                 &q,
     const Function<spacedim, typename VectorType::value_type> &rhs,
-    VectorType &                                               rhs_vector,
-    const std::set<types::boundary_id> &                       boundary_ids =
-      std::set<types::boundary_id>());
+    VectorType                                                &rhs_vector,
+    const std::set<types::boundary_id>                        &boundary_ids = std::set<types::boundary_id>());
 
   /**
    * Call the create_boundary_right_hand_side() function, see above, with
@@ -151,12 +146,11 @@ namespace VectorTools
   template <int dim, int spacedim, typename VectorType>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
   void create_boundary_right_hand_side(
-    const DoFHandler<dim, spacedim> &                          dof,
-    const Quadrature<dim - 1> &                                q,
+    const DoFHandler<dim, spacedim>                           &dof,
+    const Quadrature<dim - 1>                                 &q,
     const Function<spacedim, typename VectorType::value_type> &rhs,
-    VectorType &                                               rhs_vector,
-    const std::set<types::boundary_id> &                       boundary_ids =
-      std::set<types::boundary_id>());
+    VectorType                                                &rhs_vector,
+    const std::set<types::boundary_id>                        &boundary_ids = std::set<types::boundary_id>());
 
   /**
    * Same as the set of functions above, but for hp-objects.
@@ -169,13 +163,12 @@ namespace VectorTools
   template <int dim, int spacedim, typename VectorType>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
   void create_boundary_right_hand_side(
-    const hp::MappingCollection<dim, spacedim> &               mapping,
-    const DoFHandler<dim, spacedim> &                          dof,
-    const hp::QCollection<dim - 1> &                           q,
+    const hp::MappingCollection<dim, spacedim>                &mapping,
+    const DoFHandler<dim, spacedim>                           &dof,
+    const hp::QCollection<dim - 1>                            &q,
     const Function<spacedim, typename VectorType::value_type> &rhs,
-    VectorType &                                               rhs_vector,
-    const std::set<types::boundary_id> &                       boundary_ids =
-      std::set<types::boundary_id>());
+    VectorType                                                &rhs_vector,
+    const std::set<types::boundary_id>                        &boundary_ids = std::set<types::boundary_id>());
 
   /**
    * Call the create_boundary_right_hand_side() function, see above, with a
@@ -190,12 +183,11 @@ namespace VectorTools
   template <int dim, int spacedim, typename VectorType>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
   void create_boundary_right_hand_side(
-    const DoFHandler<dim, spacedim> &                          dof,
-    const hp::QCollection<dim - 1> &                           q,
+    const DoFHandler<dim, spacedim>                           &dof,
+    const hp::QCollection<dim - 1>                            &q,
     const Function<spacedim, typename VectorType::value_type> &rhs,
-    VectorType &                                               rhs_vector,
-    const std::set<types::boundary_id> &                       boundary_ids =
-      std::set<types::boundary_id>());
+    VectorType                                                &rhs_vector,
+    const std::set<types::boundary_id>                        &boundary_ids = std::set<types::boundary_id>());
   /** @} */
 } // namespace VectorTools
 

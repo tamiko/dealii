@@ -32,8 +32,7 @@
 
 template <int dim, int spacedim>
 void
-process(const std::vector<Point<spacedim>> &vertices,
-        const std::vector<CellData<dim>> &  cells)
+process(const std::vector<Point<spacedim>> &vertices, const std::vector<CellData<dim>> &cells)
 {
   Triangulation<dim, spacedim> tria;
   tria.create_triangulation(vertices, cells, SubCellData());
@@ -51,8 +50,7 @@ process(const std::vector<Point<spacedim>> &vertices,
   else
     AssertThrow(false, ExcNotImplemented());
 
-  const Quadrature<dim> quad =
-    reference_cells.front().template get_gauss_type_quadrature<dim>(2);
+  const Quadrature<dim>     quad = reference_cells.front().template get_gauss_type_quadrature<dim>(2);
   FE_Nothing<dim, spacedim> fe(reference_cells.front());
   FEValues<dim, spacedim>   fe_values(*mapping, fe, quad, update_JxW_values);
 
@@ -60,9 +58,7 @@ process(const std::vector<Point<spacedim>> &vertices,
   for (const auto &cell : tria.active_cell_iterators())
     {
       fe_values.reinit(cell);
-      const double measure = std::accumulate(fe_values.get_JxW_values().begin(),
-                                             fe_values.get_JxW_values().end(),
-                                             0.0);
+      const double measure = std::accumulate(fe_values.get_JxW_values().begin(), fe_values.get_JxW_values().end(), 0.0);
 
       deallog << "measure: " << cell->measure() << std::endl;
       deallog << "measure (via quadrature): " << measure << std::endl;
@@ -72,10 +68,8 @@ process(const std::vector<Point<spacedim>> &vertices,
         deallog << "barycenter " << cell->barycenter() << std::endl;
     }
 
-  deallog << "diameter_min " << GridTools::minimal_cell_diameter(tria, *mapping)
-          << std::endl;
-  deallog << "diameter_max " << GridTools::maximal_cell_diameter(tria, *mapping)
-          << std::endl;
+  deallog << "diameter_min " << GridTools::minimal_cell_diameter(tria, *mapping) << std::endl;
+  deallog << "diameter_max " << GridTools::maximal_cell_diameter(tria, *mapping) << std::endl;
   deallog << std::endl;
 }
 

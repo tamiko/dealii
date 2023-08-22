@@ -25,8 +25,7 @@ template <typename VectorizedArrayType>
 void
 do_test()
 {
-  deallog << "  test " << VectorizedArrayType::size() << " array elements"
-          << std::endl;
+  deallog << "  test " << VectorizedArrayType::size() << " array elements" << std::endl;
 
   VectorizedArrayType left;
   for (unsigned int i = 0; i < VectorizedArrayType::size(); ++i)
@@ -36,36 +35,22 @@ do_test()
   VectorizedArrayType true_values(1.);
   VectorizedArrayType false_values(-1.);
 
-  auto result = compare_and_apply_mask<SIMDComparison::equal>(left,
-                                                              right,
-                                                              true_values,
-                                                              false_values);
+  auto result = compare_and_apply_mask<SIMDComparison::equal>(left, right, true_values, false_values);
   deallog << result << std::endl;
 
-  result = compare_and_apply_mask<SIMDComparison::not_equal>(left,
-                                                             right,
-                                                             true_values,
-                                                             false_values);
+  result = compare_and_apply_mask<SIMDComparison::not_equal>(left, right, true_values, false_values);
   deallog << result << std::endl;
 
-  result = compare_and_apply_mask<SIMDComparison::less_than>(left,
-                                                             right,
-                                                             true_values,
-                                                             false_values);
+  result = compare_and_apply_mask<SIMDComparison::less_than>(left, right, true_values, false_values);
   deallog << result << std::endl;
 
-  result = compare_and_apply_mask<SIMDComparison::less_than_or_equal>(
-    left, right, true_values, false_values);
+  result = compare_and_apply_mask<SIMDComparison::less_than_or_equal>(left, right, true_values, false_values);
   deallog << result << std::endl;
 
-  result = compare_and_apply_mask<SIMDComparison::greater_than>(left,
-                                                                right,
-                                                                true_values,
-                                                                false_values);
+  result = compare_and_apply_mask<SIMDComparison::greater_than>(left, right, true_values, false_values);
   deallog << result << std::endl;
 
-  result = compare_and_apply_mask<SIMDComparison::greater_than_or_equal>(
-    left, right, true_values, false_values);
+  result = compare_and_apply_mask<SIMDComparison::greater_than_or_equal>(left, right, true_values, false_values);
   deallog << result << std::endl;
 }
 

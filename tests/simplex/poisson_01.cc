@@ -87,8 +87,7 @@ template <int dim, int spacedim>
 MPI_Comm
 get_communicator(const Triangulation<dim, spacedim> &tria)
 {
-  if (auto tria_ =
-        dynamic_cast<const parallel::TriangulationBase<dim, spacedim> *>(&tria))
+  if (auto tria_ = dynamic_cast<const parallel::TriangulationBase<dim, spacedim> *>(&tria))
     return tria_->get_communicator();
 
   return MPI_COMM_SELF;
@@ -98,33 +97,26 @@ template <int dim, int spacedim = dim>
 void
 test(const Triangulation<dim, spacedim> &tria,
      const FiniteElement<dim, spacedim> &fe,
-     const Quadrature<dim> &             quad,
-     const hp::QCollection<dim - 1> &    face_quad,
-     const Mapping<dim, spacedim> &      mapping,
+     const Quadrature<dim>              &quad,
+     const hp::QCollection<dim - 1>     &face_quad,
+     const Mapping<dim, spacedim>       &mapping,
      const double                        r_boundary,
      const bool                          do_use_fe_face_values = true)
 {
-  std::string label =
-    (dynamic_cast<const parallel::shared::Triangulation<dim, spacedim> *>(
-       &tria) ?
-       "parallel::shared::Triangulation" :
-       (dynamic_cast<
-          const parallel::fullydistributed::Triangulation<dim, spacedim> *>(
-          &tria) ?
-          "parallel::fullydistributed::Triangulation" :
-          (dynamic_cast<
-             const parallel::distributed::Triangulation<dim, spacedim> *>(
-             &tria) ?
-             "parallel::distributed::Triangulation" :
-             "Triangulation")));
+  std::string label = (dynamic_cast<const parallel::shared::Triangulation<dim, spacedim> *>(&tria) ?
+                         "parallel::shared::Triangulation" :
+                         (dynamic_cast<const parallel::fullydistributed::Triangulation<dim, spacedim> *>(&tria) ?
+                            "parallel::fullydistributed::Triangulation" :
+                            (dynamic_cast<const parallel::distributed::Triangulation<dim, spacedim> *>(&tria) ?
+                               "parallel::distributed::Triangulation" :
+                               "Triangulation")));
 
   deallog << "   on " << label << std::endl;
 
 
   for (const auto &cell : tria.active_cell_iterators())
     for (const auto &face : cell->face_iterators())
-      if (face->at_boundary() &&
-          (std::abs(face->center()[0] - r_boundary) < 1e-6))
+      if (face->at_boundary() && (std::abs(face->center()[0] - r_boundary) < 1e-6))
         face->set_boundary_id(1);
       else if (face->at_boundary() && face->center()[1] == 0.0)
         face->set_boundary_id(2);
@@ -178,33 +170,27 @@ test(const Triangulation<dim, spacedim> &tria,
   system_matrix.reinit(dsp);
 
 
-  solution.reinit(dof_handler.locally_owned_dofs(),
-                  locally_relevant_dofs,
-                  comm);
-  system_rhs.reinit(dof_handler.locally_owned_dofs(),
-                    locally_relevant_dofs,
-                    comm);
+  solution.reinit(dof_handler.locally_owned_dofs(), locally_relevant_dofs, comm);
+  system_rhs.reinit(dof_handler.locally_owned_dofs(), locally_relevant_dofs, comm);
 #else
   sparsity_pattern.copy_from(dsp);
   system_matrix.reinit(sparsity_pattern);
 #endif
 
-  const UpdateFlags flag = update_JxW_values | update_values |
-                           update_gradients | update_quadrature_points;
+  const UpdateFlags       flag = update_JxW_values | update_values | update_gradients | update_quadrature_points;
   FEValues<dim, spacedim> fe_values(mapping, fe, quad, flag);
 
   std::shared_ptr<FEFaceValues<dim, spacedim>> fe_face_values;
 
   if (do_use_fe_face_values)
-    fe_face_values.reset(
-      new FEFaceValues<dim, spacedim>(mapping, fe, face_quad, flag));
+    fe_face_values.reset(new FEFaceValues<dim, spacedim>(mapping, fe, face_quad, flag));
 
   const unsigned int dofs_per_cell = fe.dofs_per_cell;
   const unsigned int n_q_points    = quad.size();
 
   std::vector<types::global_dof_index> dof_indices(dofs_per_cell);
-  FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
-  Vector<double>     cell_rhs(dofs_per_cell);
+  FullMatrix<double>                   cell_matrix(dofs_per_cell, dofs_per_cell);
+  Vector<double>                       cell_rhs(dofs_per_cell);
 
   for (const auto &cell : dof_handler.cell_iterators())
     {
@@ -219,13 +205,12 @@ test(const Triangulation<dim, spacedim> &tria,
         for (unsigned int i = 0; i < dofs_per_cell; ++i)
           {
             for (unsigned int j = 0; j < dofs_per_cell; ++j)
-              cell_matrix(i, j) +=
-                (fe_values.shape_grad(i, q_index) * // grad phi_i(x_q)
-                 fe_values.shape_grad(j, q_index) * // grad phi_j(x_q)
-                 fe_values.JxW(q_index));           // dx
-            cell_rhs(i) += (fe_values.shape_value(i, q_index) * // phi_i(x_q)
-                            1.0 *                               // 1.0
-                            fe_values.JxW(q_index));            // dx
+              cell_matrix(i, j) += (fe_values.shape_grad(i, q_index) * // grad phi_i(x_q)
+                                    fe_values.shape_grad(j, q_index) * // grad phi_j(x_q)
+                                    fe_values.JxW(q_index));           // dx
+            cell_rhs(i) += (fe_values.shape_value(i, q_index) *        // phi_i(x_q)
+                            1.0 *                                      // 1.0
+                            fe_values.JxW(q_index));                   // dx
           }
 
       if (fe_face_values)
@@ -235,16 +220,14 @@ test(const Triangulation<dim, spacedim> &tria,
               fe_face_values->reinit(cell, face);
               for (const auto q : fe_face_values->quadrature_point_indices())
                 for (unsigned int i = 0; i < dofs_per_cell; ++i)
-                  cell_rhs(i) +=
-                    (1.0 *                               // 1.0
-                     fe_face_values->shape_value(i, q) * // phi_i(x_q)
-                     fe_face_values->JxW(q));            // dx
+                  cell_rhs(i) += (1.0 *                               // 1.0
+                                  fe_face_values->shape_value(i, q) * // phi_i(x_q)
+                                  fe_face_values->JxW(q));            // dx
             }
 
       cell->get_dof_indices(dof_indices);
 
-      constraint_matrix.distribute_local_to_global(
-        cell_matrix, cell_rhs, dof_indices, system_matrix, system_rhs);
+      constraint_matrix.distribute_local_to_global(cell_matrix, cell_rhs, dof_indices, system_matrix, system_rhs);
     }
 
   system_matrix.compress(VectorOperation::add);
@@ -290,11 +273,10 @@ test(const Triangulation<dim, spacedim> &tria,
   else
     Assert(false, ExcInternalError());
 
-  check_solver_within_range(
-    solver.solve(system_matrix, solution, system_rhs, PreconditionIdentity()),
-    solver_control.last_step(),
-    lower,
-    upper);
+  check_solver_within_range(solver.solve(system_matrix, solution, system_rhs, PreconditionIdentity()),
+                            solver_control.last_step(),
+                            lower,
+                            upper);
 
   // system_rhs.print(std::cout);
   // solution.print(std::cout);
@@ -319,9 +301,7 @@ test(const Triangulation<dim, spacedim> &tria,
                                         quad,
                                         VectorTools::NormType::L2_norm);
 
-      deallog << VectorTools::compute_global_error(
-                   tria, difference, VectorTools::NormType::L2_norm)
-              << std::endl;
+      deallog << VectorTools::compute_global_error(tria, difference, VectorTools::NormType::L2_norm) << std::endl;
       DataOut<dim> data_out;
 
       data_out.attach_dof_handler(dof_handler);
@@ -349,16 +329,13 @@ test_tet(const MPI_Comm comm, const Parameters<dim> &params)
   Triangulation<dim, spacedim> tr_1;
 
   // b) shared triangulation (with artificial cells)
-  parallel::shared::Triangulation<dim> tr_2(
-    MPI_COMM_WORLD,
-    ::Triangulation<dim>::none,
-    true,
-    parallel::shared::Triangulation<dim>::partition_custom_signal);
+  parallel::shared::Triangulation<dim> tr_2(MPI_COMM_WORLD,
+                                            ::Triangulation<dim>::none,
+                                            true,
+                                            parallel::shared::Triangulation<dim>::partition_custom_signal);
 
-  tr_2.signals.create.connect([&]() {
-    GridTools::partition_triangulation(Utilities::MPI::n_mpi_processes(comm),
-                                       tr_2);
-  });
+  tr_2.signals.create.connect(
+    [&]() { GridTools::partition_triangulation(Utilities::MPI::n_mpi_processes(comm), tr_2); });
 
   // c) distributed triangulation
   parallel::fullydistributed::Triangulation<dim> tr_3(comm);
@@ -374,8 +351,7 @@ test_tet(const MPI_Comm comm, const Parameters<dim> &params)
   if (params.use_grid_generator)
     {
       // ...via GridGenerator
-      GridGenerator::subdivided_hyper_rectangle_with_simplices(
-        *tria, params.repetitions, params.p1, params.p2, false);
+      GridGenerator::subdivided_hyper_rectangle_with_simplices(*tria, params.repetitions, params.p1, params.p2, false);
     }
   else
     {
@@ -391,11 +367,9 @@ test_tet(const MPI_Comm comm, const Parameters<dim> &params)
   // ... partition serial triangulation and create distributed triangulation
   if (tria_type == 0 || tria_type == 2)
     {
-      GridTools::partition_triangulation(Utilities::MPI::n_mpi_processes(comm),
-                                         tr_1);
+      GridTools::partition_triangulation(Utilities::MPI::n_mpi_processes(comm), tr_1);
 
-      auto construction_data = TriangulationDescription::Utilities::
-        create_description_from_triangulation(tr_1, comm);
+      auto construction_data = TriangulationDescription::Utilities::create_description_from_triangulation(tr_1, comm);
 
       tr_3.create_triangulation(construction_data);
 
@@ -404,9 +378,7 @@ test_tet(const MPI_Comm comm, const Parameters<dim> &params)
 
   // 2) Output generated triangulation via GridOut
   GridOut       grid_out;
-  std::ofstream out(params.file_name_out + "." +
-                    std::to_string(Utilities::MPI::this_mpi_process(comm)) +
-                    ".vtk");
+  std::ofstream out(params.file_name_out + "." + std::to_string(Utilities::MPI::this_mpi_process(comm)) + ".vtk");
   grid_out.write_vtk(*tria, out);
 
   // 3) Select components
@@ -433,8 +405,7 @@ test_hex(const MPI_Comm comm, const Parameters<dim> &params)
   if (params.use_grid_generator)
     {
       // ...via GridGenerator
-      GridGenerator::subdivided_hyper_rectangle(
-        tria, params.repetitions, params.p1, params.p2, false);
+      GridGenerator::subdivided_hyper_rectangle(tria, params.repetitions, params.p1, params.p2, false);
     }
   else
     {
@@ -447,9 +418,7 @@ test_hex(const MPI_Comm comm, const Parameters<dim> &params)
 
   // 2) Output generated triangulation via GridOut
   GridOut       grid_out;
-  std::ofstream out(params.file_name_out + "." +
-                    std::to_string(Utilities::MPI::this_mpi_process(comm)) +
-                    ".vtk");
+  std::ofstream out(params.file_name_out + "." + std::to_string(Utilities::MPI::this_mpi_process(comm)) + ".vtk");
   grid_out.write_vtk(tria, out);
 
   // 3) Select components
@@ -478,16 +447,13 @@ test_wedge(const MPI_Comm comm, const Parameters<dim> &params)
   Triangulation<dim, spacedim> tr_1;
 
   // b) shared triangulation (with artificial cells)
-  parallel::shared::Triangulation<dim> tr_2(
-    MPI_COMM_WORLD,
-    ::Triangulation<dim>::none,
-    true,
-    parallel::shared::Triangulation<dim>::partition_custom_signal);
+  parallel::shared::Triangulation<dim> tr_2(MPI_COMM_WORLD,
+                                            ::Triangulation<dim>::none,
+                                            true,
+                                            parallel::shared::Triangulation<dim>::partition_custom_signal);
 
-  tr_2.signals.create.connect([&]() {
-    GridTools::partition_triangulation(Utilities::MPI::n_mpi_processes(comm),
-                                       tr_2);
-  });
+  tr_2.signals.create.connect(
+    [&]() { GridTools::partition_triangulation(Utilities::MPI::n_mpi_processes(comm), tr_2); });
 
   // c) distributed triangulation
   parallel::fullydistributed::Triangulation<dim> tr_3(comm);
@@ -503,8 +469,7 @@ test_wedge(const MPI_Comm comm, const Parameters<dim> &params)
   if (params.use_grid_generator)
     {
       // ...via GridGenerator
-      GridGenerator::subdivided_hyper_rectangle_with_wedges(
-        *tria, params.repetitions, params.p1, params.p2, false);
+      GridGenerator::subdivided_hyper_rectangle_with_wedges(*tria, params.repetitions, params.p1, params.p2, false);
     }
   else
     {
@@ -520,11 +485,9 @@ test_wedge(const MPI_Comm comm, const Parameters<dim> &params)
   // ... partition serial triangulation and create distributed triangulation
   if (tria_type == 0 || tria_type == 2)
     {
-      GridTools::partition_triangulation(Utilities::MPI::n_mpi_processes(comm),
-                                         tr_1);
+      GridTools::partition_triangulation(Utilities::MPI::n_mpi_processes(comm), tr_1);
 
-      auto construction_data = TriangulationDescription::Utilities::
-        create_description_from_triangulation(tr_1, comm);
+      auto construction_data = TriangulationDescription::Utilities::create_description_from_triangulation(tr_1, comm);
 
       tr_3.create_triangulation(construction_data);
 
@@ -533,9 +496,7 @@ test_wedge(const MPI_Comm comm, const Parameters<dim> &params)
 
   // 2) Output generated triangulation via GridOut
   GridOut       grid_out;
-  std::ofstream out(params.file_name_out + "." +
-                    std::to_string(Utilities::MPI::this_mpi_process(comm)) +
-                    ".vtk");
+  std::ofstream out(params.file_name_out + "." + std::to_string(Utilities::MPI::this_mpi_process(comm)) + ".vtk");
   grid_out.write_vtk(*tria, out);
 
   // 3) Select components
@@ -569,16 +530,13 @@ test_pyramid(const MPI_Comm comm, const Parameters<dim> &params)
   Triangulation<dim, spacedim> tr_1;
 
   // b) shared triangulation (with artificial cells)
-  parallel::shared::Triangulation<dim> tr_2(
-    MPI_COMM_WORLD,
-    ::Triangulation<dim>::none,
-    true,
-    parallel::shared::Triangulation<dim>::partition_custom_signal);
+  parallel::shared::Triangulation<dim> tr_2(MPI_COMM_WORLD,
+                                            ::Triangulation<dim>::none,
+                                            true,
+                                            parallel::shared::Triangulation<dim>::partition_custom_signal);
 
-  tr_2.signals.create.connect([&]() {
-    GridTools::partition_triangulation(Utilities::MPI::n_mpi_processes(comm),
-                                       tr_2);
-  });
+  tr_2.signals.create.connect(
+    [&]() { GridTools::partition_triangulation(Utilities::MPI::n_mpi_processes(comm), tr_2); });
 
   // c) distributed triangulation
   parallel::fullydistributed::Triangulation<dim> tr_3(comm);
@@ -594,8 +552,7 @@ test_pyramid(const MPI_Comm comm, const Parameters<dim> &params)
   if (params.use_grid_generator)
     {
       // ...via GridGenerator
-      GridGenerator::subdivided_hyper_rectangle_with_pyramids(
-        *tria, params.repetitions, params.p1, params.p2, false);
+      GridGenerator::subdivided_hyper_rectangle_with_pyramids(*tria, params.repetitions, params.p1, params.p2, false);
     }
   else
     {
@@ -611,11 +568,9 @@ test_pyramid(const MPI_Comm comm, const Parameters<dim> &params)
   // ... partition serial triangulation and create distributed triangulation
   if (tria_type == 0 || tria_type == 2)
     {
-      GridTools::partition_triangulation(Utilities::MPI::n_mpi_processes(comm),
-                                         tr_1);
+      GridTools::partition_triangulation(Utilities::MPI::n_mpi_processes(comm), tr_1);
 
-      auto construction_data = TriangulationDescription::Utilities::
-        create_description_from_triangulation(tr_1, comm);
+      auto construction_data = TriangulationDescription::Utilities::create_description_from_triangulation(tr_1, comm);
 
       tr_3.create_triangulation(construction_data);
 
@@ -624,9 +579,7 @@ test_pyramid(const MPI_Comm comm, const Parameters<dim> &params)
 
   // 2) Output generated triangulation via GridOut
   GridOut       grid_out;
-  std::ofstream out(params.file_name_out + "." +
-                    std::to_string(Utilities::MPI::this_mpi_process(comm)) +
-                    ".vtk");
+  std::ofstream out(params.file_name_out + "." + std::to_string(Utilities::MPI::this_mpi_process(comm)) + ".vtk");
   grid_out.write_vtk(*tria, out);
 
   // 3) Select components

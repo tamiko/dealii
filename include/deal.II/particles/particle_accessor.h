@@ -88,10 +88,8 @@ namespace Particles
       /**
        * Construct from a vector of particles and a cell iterator.
        */
-      ParticlesInCell(
-        const std::vector<typename PropertyPool<dim, spacedim>::Handle>
-          &particles,
-        const typename Triangulation<dim, spacedim>::active_cell_iterator &cell)
+      ParticlesInCell(const std::vector<typename PropertyPool<dim, spacedim>::Handle>   &particles,
+                      const typename Triangulation<dim, spacedim>::active_cell_iterator &cell)
         : particles(particles)
         , cell(cell)
       {}
@@ -351,8 +349,7 @@ namespace Particles
      */
     DEAL_II_DEPRECATED
     const typename Triangulation<dim, spacedim>::cell_iterator &
-    get_surrounding_cell(
-      const Triangulation<dim, spacedim> &triangulation) const;
+    get_surrounding_cell(const Triangulation<dim, spacedim> &triangulation) const;
 
     /**
      * Write the data of this object to a stream for the purpose of
@@ -433,10 +430,9 @@ namespace Particles
      * This constructor is `private` so that it can only be accessed by
      * friend classes.
      */
-    ParticleAccessor(
-      const typename particle_container::iterator particles_in_cell,
-      const PropertyPool<dim, spacedim> &         property_pool,
-      const unsigned int                          particle_index_within_cell);
+    ParticleAccessor(const typename particle_container::iterator particles_in_cell,
+                     const PropertyPool<dim, spacedim>          &property_pool,
+                     const unsigned int                          particle_index_within_cell);
 
     /**
      * Returns a reference to the current Particle. Because the
@@ -485,9 +481,9 @@ namespace Particles
   {
     unsigned int n_properties = 0;
 
-    Point<spacedim>       location;
-    Point<dim>            reference_location;
-    types::particle_index id;
+    Point<spacedim>                       location;
+    Point<dim>                            reference_location;
+    types::particle_index                 id;
     ar &location &reference_location &id &n_properties;
 
     set_location(location);
@@ -497,14 +493,11 @@ namespace Particles
     if (n_properties > 0)
       {
         ArrayView<double> properties(get_properties());
-        Assert(
-          properties.size() == n_properties,
-          ExcMessage(
-            "This particle was serialized with " +
-            std::to_string(n_properties) +
-            " properties, but the new property handler provides space for " +
-            std::to_string(properties.size()) +
-            " properties. Deserializing a particle only works for matching property sizes."));
+        Assert(properties.size() == n_properties,
+               ExcMessage("This particle was serialized with " + std::to_string(n_properties) +
+                          " properties, but the new property handler provides space for " +
+                          std::to_string(properties.size()) +
+                          " properties. Deserializing a particle only works for matching property sizes."));
 
         ar &boost::serialization::make_array(properties.data(), n_properties);
       }
@@ -518,8 +511,7 @@ namespace Particles
   ParticleAccessor<dim, spacedim>::save(Archive &ar, const unsigned int) const
   {
     unsigned int n_properties = 0;
-    if ((property_pool != nullptr) &&
-        (get_handle() != PropertyPool<dim, spacedim>::invalid_handle))
+    if ((property_pool != nullptr) && (get_handle() != PropertyPool<dim, spacedim>::invalid_handle))
       n_properties = get_properties().size();
 
     Point<spacedim>       location           = get_location();
@@ -529,8 +521,7 @@ namespace Particles
     ar &location &reference_location &id &n_properties;
 
     if (n_properties > 0)
-      ar &boost::serialization::make_array(get_properties().data(),
-                                           n_properties);
+      ar &boost::serialization::make_array(get_properties().data(), n_properties);
   }
 
 
@@ -548,7 +539,7 @@ namespace Particles
   template <int dim, int spacedim>
   inline ParticleAccessor<dim, spacedim>::ParticleAccessor(
     const typename particle_container::iterator particles_in_cell,
-    const PropertyPool<dim, spacedim> &         property_pool,
+    const PropertyPool<dim, spacedim>          &property_pool,
     const unsigned int                          particle_index_within_cell)
     : particles_in_cell(particles_in_cell)
     , property_pool(const_cast<PropertyPool<dim, spacedim> *>(&property_pool))
@@ -559,13 +550,11 @@ namespace Particles
 
   template <int dim, int spacedim>
   inline const void *
-  ParticleAccessor<dim, spacedim>::read_particle_data_from_memory(
-    const void *data)
+  ParticleAccessor<dim, spacedim>::read_particle_data_from_memory(const void *data)
   {
     Assert(state() == IteratorState::valid, ExcInternalError());
 
-    const types::particle_index *id_data =
-      static_cast<const types::particle_index *>(data);
+    const types::particle_index *id_data = static_cast<const types::particle_index *>(data);
     set_id(*id_data++);
     const double *pdata = reinterpret_cast<const double *>(id_data);
 
@@ -582,9 +571,8 @@ namespace Particles
     // See if there are properties to load
     if (has_properties())
       {
-        const ArrayView<double> particle_properties =
-          property_pool->get_properties(get_handle());
-        const unsigned int size = particle_properties.size();
+        const ArrayView<double> particle_properties = property_pool->get_properties(get_handle());
+        const unsigned int      size                = particle_properties.size();
         for (unsigned int i = 0; i < size; ++i)
           particle_properties[i] = *pdata++;
       }
@@ -596,8 +584,7 @@ namespace Particles
 
   template <int dim, int spacedim>
   inline void *
-  ParticleAccessor<dim, spacedim>::write_particle_data_to_memory(
-    void *data) const
+  ParticleAccessor<dim, spacedim>::write_particle_data_to_memory(void *data) const
   {
     Assert(state() == IteratorState::valid, ExcInternalError());
 
@@ -617,8 +604,7 @@ namespace Particles
     // Write properties
     if (has_properties())
       {
-        const ArrayView<double> particle_properties =
-          property_pool->get_properties(get_handle());
+        const ArrayView<double> particle_properties = property_pool->get_properties(get_handle());
         for (unsigned int i = 0; i < particle_properties.size(); ++i, ++pdata)
           *pdata = particle_properties[i];
       }
@@ -652,8 +638,7 @@ namespace Particles
 
   template <int dim, int spacedim>
   inline void
-  ParticleAccessor<dim, spacedim>::set_reference_location(
-    const Point<dim> &new_loc)
+  ParticleAccessor<dim, spacedim>::set_reference_location(const Point<dim> &new_loc)
   {
     Assert(state() == IteratorState::valid, ExcInternalError());
 
@@ -717,8 +702,7 @@ namespace Particles
     // The only way a particle can have no valid handle if it has
     // been moved-from -- but that leaves an object in an invalid
     // state, and so we can just assert that that can't be the case.
-    Assert((get_handle() != PropertyPool<dim, spacedim>::invalid_handle),
-           ExcInternalError());
+    Assert((get_handle() != PropertyPool<dim, spacedim>::invalid_handle), ExcInternalError());
     return (property_pool->n_properties_per_slot() > 0);
   }
 
@@ -726,48 +710,38 @@ namespace Particles
 
   template <int dim, int spacedim>
   inline void
-  ParticleAccessor<dim, spacedim>::set_properties(
-    const std::vector<double> &new_properties)
+  ParticleAccessor<dim, spacedim>::set_properties(const std::vector<double> &new_properties)
   {
     Assert(state() == IteratorState::valid, ExcInternalError());
 
-    set_properties(
-      ArrayView<const double>(new_properties.data(), new_properties.size()));
+    set_properties(ArrayView<const double>(new_properties.data(), new_properties.size()));
   }
 
 
 
   template <int dim, int spacedim>
   inline void
-  ParticleAccessor<dim, spacedim>::set_properties(
-    const ArrayView<const double> &new_properties)
+  ParticleAccessor<dim, spacedim>::set_properties(const ArrayView<const double> &new_properties)
   {
     Assert(state() == IteratorState::valid, ExcInternalError());
 
-    const ArrayView<double> property_values =
-      property_pool->get_properties(get_handle());
+    const ArrayView<double> property_values = property_pool->get_properties(get_handle());
 
     Assert(new_properties.size() == property_values.size(),
-           ExcMessage(
-             "You are trying to assign properties with an incompatible length. "
-             "The particle has space to store " +
-             std::to_string(property_values.size()) +
-             " properties, but you are trying to assign " +
-             std::to_string(new_properties.size()) +
-             " properties. This is not allowed."));
+           ExcMessage("You are trying to assign properties with an incompatible length. "
+                      "The particle has space to store " +
+                      std::to_string(property_values.size()) + " properties, but you are trying to assign " +
+                      std::to_string(new_properties.size()) + " properties. This is not allowed."));
 
     if (property_values.size() > 0)
-      std::copy(new_properties.begin(),
-                new_properties.end(),
-                property_values.begin());
+      std::copy(new_properties.begin(), new_properties.end(), property_values.begin());
   }
 
 
 
   template <int dim, int spacedim>
   inline void
-  ParticleAccessor<dim, spacedim>::set_properties(
-    const Tensor<1, dim> &new_properties)
+  ParticleAccessor<dim, spacedim>::set_properties(const Tensor<1, dim> &new_properties)
   {
     Assert(state() == IteratorState::valid, ExcInternalError());
 
@@ -796,8 +770,7 @@ namespace Particles
 
   template <int dim, int spacedim>
   inline void
-  ParticleAccessor<dim, spacedim>::set_property_pool(
-    PropertyPool<dim, spacedim> &new_property_pool)
+  ParticleAccessor<dim, spacedim>::set_property_pool(PropertyPool<dim, spacedim> &new_property_pool)
   {
     Assert(&new_property_pool == property_pool, ExcInternalError());
     (void)new_property_pool;
@@ -810,8 +783,7 @@ namespace Particles
   ParticleAccessor<dim, spacedim>::get_surrounding_cell() const
   {
     Assert(state() == IteratorState::valid, ExcInternalError());
-    Assert(particles_in_cell->cell.state() == IteratorState::valid,
-           ExcInternalError());
+    Assert(particles_in_cell->cell.state() == IteratorState::valid, ExcInternalError());
 
     return particles_in_cell->cell;
   }
@@ -820,12 +792,10 @@ namespace Particles
 
   template <int dim, int spacedim>
   inline const typename Triangulation<dim, spacedim>::cell_iterator &
-  ParticleAccessor<dim, spacedim>::get_surrounding_cell(
-    const Triangulation<dim, spacedim> & /*triangulation*/) const
+  ParticleAccessor<dim, spacedim>::get_surrounding_cell(const Triangulation<dim, spacedim> & /*triangulation*/) const
   {
     Assert(state() == IteratorState::valid, ExcInternalError());
-    Assert(particles_in_cell->cell.state() == IteratorState::valid,
-           ExcInternalError());
+    Assert(particles_in_cell->cell.state() == IteratorState::valid, ExcInternalError());
 
     return particles_in_cell->cell;
   }
@@ -849,8 +819,7 @@ namespace Particles
   {
     Assert(state() == IteratorState::valid, ExcInternalError());
 
-    std::size_t size = sizeof(get_id()) + sizeof(get_location()) +
-                       sizeof(get_reference_location());
+    std::size_t size = sizeof(get_id()) + sizeof(get_location()) + sizeof(get_reference_location());
 
     if (has_properties())
       {
@@ -889,9 +858,7 @@ namespace Particles
     else
       {
         --particles_in_cell;
-        particle_index_within_cell = particles_in_cell->particles.empty() ?
-                                       0 :
-                                       particles_in_cell->particles.size() - 1;
+        particle_index_within_cell = particles_in_cell->particles.empty() ? 0 : particles_in_cell->particles.size() - 1;
       }
   }
 
@@ -899,8 +866,7 @@ namespace Particles
 
   template <int dim, int spacedim>
   inline bool
-  ParticleAccessor<dim, spacedim>::operator!=(
-    const ParticleAccessor<dim, spacedim> &other) const
+  ParticleAccessor<dim, spacedim>::operator!=(const ParticleAccessor<dim, spacedim> &other) const
   {
     return !(*this == other);
   }
@@ -909,11 +875,9 @@ namespace Particles
 
   template <int dim, int spacedim>
   inline bool
-  ParticleAccessor<dim, spacedim>::operator==(
-    const ParticleAccessor<dim, spacedim> &other) const
+  ParticleAccessor<dim, spacedim>::operator==(const ParticleAccessor<dim, spacedim> &other) const
   {
-    return (property_pool == other.property_pool) &&
-           (particles_in_cell == other.particles_in_cell) &&
+    return (property_pool == other.property_pool) && (particles_in_cell == other.particles_in_cell) &&
            (particle_index_within_cell == other.particle_index_within_cell);
   }
 
@@ -923,12 +887,10 @@ namespace Particles
   inline IteratorState::IteratorStates
   ParticleAccessor<dim, spacedim>::state() const
   {
-    if (property_pool != nullptr &&
-        particles_in_cell->cell.state() == IteratorState::valid &&
+    if (property_pool != nullptr && particles_in_cell->cell.state() == IteratorState::valid &&
         particle_index_within_cell < particles_in_cell->particles.size())
       return IteratorState::valid;
-    else if (property_pool != nullptr &&
-             particles_in_cell->cell.state() == IteratorState::past_the_end &&
+    else if (property_pool != nullptr && particles_in_cell->cell.state() == IteratorState::past_the_end &&
              particle_index_within_cell == 0)
       return IteratorState::past_the_end;
     else
@@ -983,8 +945,7 @@ namespace boost
         using result_type = const dealii::Point<spacedim> &;
 
         result_type
-        operator()(const dealii::Particles::ParticleAccessor<dim, spacedim>
-                     &accessor) const
+        operator()(const dealii::Particles::ParticleAccessor<dim, spacedim> &accessor) const
         {
           return accessor.get_location();
         }

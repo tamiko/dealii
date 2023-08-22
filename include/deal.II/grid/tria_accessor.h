@@ -219,8 +219,7 @@ namespace TriaAccessorExceptions
                  int,
                  << "You can only set the child index if the cell does not "
                  << "currently have children registered; or you can clear it. "
-                 << "The given index was " << arg1
-                 << " (-1 means: clear children).");
+                 << "The given index was " << arg1 << " (-1 means: clear children).");
   /**
    * @ingroup Exceptions
    */
@@ -232,9 +231,7 @@ namespace TriaAccessorExceptions
                  << "index=" << arg1.index() << ", state="
                  << (arg1.state() == IteratorState::valid ?
                        "valid" :
-                       (arg1.state() == IteratorState::past_the_end ?
-                          "past_the_end" :
-                          "invalid")));
+                       (arg1.state() == IteratorState::past_the_end ? "past_the_end" : "invalid")));
   /**
    * @ingroup Exceptions
    */
@@ -271,11 +268,10 @@ namespace TriaAccessorExceptions
   /**
    * @ingroup Exceptions
    */
-  DeclException1(
-    ExcSetOnlyEvenChildren,
-    int,
-    << "You can only set the child index of an even numbered child."
-    << "The number of the child given was " << arg1 << '.');
+  DeclException1(ExcSetOnlyEvenChildren,
+                 int,
+                 << "You can only set the child index of an even numbered child."
+                 << "The number of the child given was " << arg1 << '.');
 } // namespace TriaAccessorExceptions
 
 
@@ -356,7 +352,7 @@ protected:
   TriaAccessorBase(const Triangulation<dim, spacedim> *parent = nullptr,
                    const int                           level  = -1,
                    const int                           index  = -1,
-                   const AccessorData *                       = nullptr);
+                   const AccessorData                       * = nullptr);
 
   /**
    * Copy constructor. Creates an object with exactly the same data.
@@ -525,8 +521,7 @@ protected:
    * The level if this is a cell (<tt>structdim==dim</tt>). Else, contains
    * zero.
    */
-  typename dealii::internal::TriaAccessorImplementation::
-    PresentLevelType<structdim, dim>::type present_level;
+  typename dealii::internal::TriaAccessorImplementation::PresentLevelType<structdim, dim>::type present_level;
 
   /**
    * Used to store the index of the element presently pointed to on the level
@@ -610,7 +605,7 @@ public:
    * semantic sense, and we generate an exception when such an object is
    * actually generated.
    */
-  InvalidAccessor(const void *        parent     = nullptr,
+  InvalidAccessor(const void         *parent     = nullptr,
                   const int           level      = -1,
                   const int           index      = -1,
                   const AccessorData *local_data = nullptr);
@@ -760,8 +755,7 @@ public:
   /**
    * Propagate alias from base class to this class.
    */
-  using AccessorData =
-    typename TriaAccessorBase<structdim, dim, spacedim>::AccessorData;
+  using AccessorData = typename TriaAccessorBase<structdim, dim, spacedim>::AccessorData;
 
   /**
    * Constructor.
@@ -769,7 +763,7 @@ public:
   TriaAccessor(const Triangulation<dim, spacedim> *parent     = nullptr,
                const int                           level      = -1,
                const int                           index      = -1,
-               const AccessorData *                local_data = nullptr);
+               const AccessorData                 *local_data = nullptr);
 
   /**
    * The copy constructor is not deleted but copied constructed elements should
@@ -911,9 +905,8 @@ public:
   /**
    * Pointer to the @p ith line bounding this object.
    */
-  typename dealii::internal::TriangulationImplementation::
-    Iterators<dim, spacedim>::line_iterator
-    line(const unsigned int i) const;
+  typename dealii::internal::TriangulationImplementation::Iterators<dim, spacedim>::line_iterator
+  line(const unsigned int i) const;
 
   /**
    * Line index of the @p ith line bounding this object.
@@ -927,9 +920,8 @@ public:
   /**
    * Pointer to the @p ith quad bounding this object.
    */
-  typename dealii::internal::TriangulationImplementation::
-    Iterators<dim, spacedim>::quad_iterator
-    quad(const unsigned int i) const;
+  typename dealii::internal::TriangulationImplementation::Iterators<dim, spacedim>::quad_iterator
+  quad(const unsigned int i) const;
 
   /**
    * Quad index of the @p ith quad bounding this object.
@@ -1078,8 +1070,7 @@ public:
    * inverse function of TriaAccessor::child().
    */
   unsigned int
-  child_iterator_to_index(
-    const TriaIterator<TriaAccessor<structdim, dim, spacedim>> &child) const;
+  child_iterator_to_index(const TriaIterator<TriaAccessor<structdim, dim, spacedim>> &child) const;
 
   /**
    * Return an iterator to that object that is identical to the ith child for
@@ -1650,8 +1641,7 @@ public:
    * cell.
    */
   Point<spacedim>
-  center(const bool respect_manifold             = false,
-         const bool interpolate_from_surrounding = false) const;
+  center(const bool respect_manifold = false, const bool interpolate_from_surrounding = false) const;
 
   /**
    * Return the barycenter (also called centroid)
@@ -1721,8 +1711,7 @@ public:
    * current function, whether two objects are translations of each other.
    */
   bool
-  is_translation_of(
-    const TriaIterator<TriaAccessor<structdim, dim, spacedim>> &o) const;
+  is_translation_of(const TriaIterator<TriaAccessor<structdim, dim, spacedim>> &o) const;
 
   /**
    * Reference cell type of the current object.
@@ -1797,15 +1786,13 @@ private:
    * denotes the indices of the vertices that bound it. And so on.
    */
   void
-  set_bounding_object_indices(
-    const std::initializer_list<int> &new_indices) const;
+  set_bounding_object_indices(const std::initializer_list<int> &new_indices) const;
 
   /**
    * The same as above but for `unsigned int`.
    */
   void
-  set_bounding_object_indices(
-    const std::initializer_list<unsigned int> &new_indices) const;
+  set_bounding_object_indices(const std::initializer_list<unsigned int> &new_indices) const;
 
   /**
    * Set the flag indicating, what <code>line_orientation()</code> will
@@ -1827,8 +1814,7 @@ private:
    * @ingroup reordering
    */
   void
-  set_combined_face_orientation(const unsigned int  face,
-                                const unsigned char combined_orientation) const;
+  set_combined_face_orientation(const unsigned int face, const unsigned char combined_orientation) const;
 
   /**
    * Set the @p used flag. Only for internal use in the library.
@@ -1883,8 +1869,7 @@ private:
   friend class Triangulation<dim, spacedim>;
 
   friend struct dealii::internal::TriangulationImplementation::Implementation;
-  friend struct dealii::internal::TriangulationImplementation::
-    ImplementationMixedMesh;
+  friend struct dealii::internal::TriangulationImplementation::ImplementationMixedMesh;
   friend struct dealii::internal::TriaAccessorImplementation::Implementation;
 };
 
@@ -1942,8 +1927,7 @@ public:
    * Constructor. The second argument is the global index of the vertex we
    * point to.
    */
-  TriaAccessor(const Triangulation<dim, spacedim> *tria,
-               const unsigned int                  vertex_index);
+  TriaAccessor(const Triangulation<dim, spacedim> *tria, const unsigned int vertex_index);
 
   /**
    * Constructor. This constructor exists in order to maintain interface
@@ -1953,7 +1937,7 @@ public:
   TriaAccessor(const Triangulation<dim, spacedim> *tria  = nullptr,
                const int                           level = 0,
                const int                           index = 0,
-               const AccessorData *                      = nullptr);
+               const AccessorData                      * = nullptr);
 
   /**
    * Constructor. Should never be called and thus produces an error.
@@ -2065,8 +2049,8 @@ public:
    * Pointer to the @p ith line bounding this object. Will point to an invalid
    * object.
    */
-  typename dealii::internal::TriangulationImplementation::
-    Iterators<dim, spacedim>::line_iterator static line(const unsigned int);
+  typename dealii::internal::TriangulationImplementation::Iterators<dim, spacedim>::line_iterator static line(
+    const unsigned int);
 
   /**
    * Line index of the @p ith line bounding this object. Throws an exception.
@@ -2077,9 +2061,8 @@ public:
   /**
    * Pointer to the @p ith quad bounding this object.
    */
-  static typename dealii::internal::TriangulationImplementation::
-    Iterators<dim, spacedim>::quad_iterator
-    quad(const unsigned int i);
+  static typename dealii::internal::TriangulationImplementation::Iterators<dim, spacedim>::quad_iterator
+  quad(const unsigned int i);
 
   /**
    * Quad index of the @p ith quad bounding this object. Throws an exception.
@@ -2123,8 +2106,7 @@ public:
    * <code>TriaAccessor<structdim,dim,spacedim></code>.
    */
   Point<spacedim>
-  center(const bool respect_manifold             = false,
-         const bool interpolate_from_surrounding = false) const;
+  center(const bool respect_manifold = false, const bool interpolate_from_surrounding = false) const;
 
   /**
    * Compute the dim-dimensional measure of the object. For a dim-dimensional
@@ -2381,9 +2363,7 @@ public:
    *
    * The third argument is the global index of the vertex we point to.
    */
-  TriaAccessor(const Triangulation<1, spacedim> *tria,
-               const VertexKind                  vertex_kind,
-               const unsigned int                vertex_index);
+  TriaAccessor(const Triangulation<1, spacedim> *tria, const VertexKind vertex_kind, const unsigned int vertex_index);
 
   /**
    * Constructor. This constructor exists in order to maintain interface
@@ -2393,7 +2373,7 @@ public:
   TriaAccessor(const Triangulation<1, spacedim> *tria = nullptr,
                const int                              = 0,
                const int                              = 0,
-               const AccessorData *                   = nullptr);
+               const AccessorData                   * = nullptr);
 
   /**
    * Constructor. Should never be called and thus produces an error.
@@ -2541,8 +2521,8 @@ public:
    * Pointer to the @p ith line bounding this object. Will point to an invalid
    * object.
    */
-  typename dealii::internal::TriangulationImplementation::
-    Iterators<1, spacedim>::line_iterator static line(const unsigned int);
+  typename dealii::internal::TriangulationImplementation::Iterators<1, spacedim>::line_iterator static line(
+    const unsigned int);
 
   /**
    * Line index of the @p ith line bounding this object.
@@ -2556,9 +2536,8 @@ public:
   /**
    * Pointer to the @p ith quad bounding this object.
    */
-  static typename dealii::internal::TriangulationImplementation::
-    Iterators<1, spacedim>::quad_iterator
-    quad(const unsigned int i);
+  static typename dealii::internal::TriangulationImplementation::Iterators<1, spacedim>::quad_iterator
+  quad(const unsigned int i);
 
   /**
    * Quad index of the @p ith quad bounding this object.
@@ -3095,7 +3074,7 @@ public:
   CellAccessor(const Triangulation<dim, spacedim> *parent     = nullptr,
                const int                           level      = -1,
                const int                           index      = -1,
-               const AccessorData *                local_data = nullptr);
+               const AccessorData                 *local_data = nullptr);
 
   /**
    * Copy constructor.
@@ -3193,8 +3172,7 @@ public:
    * @p dof_handler.
    */
   TriaIterator<DoFCellAccessor<dim, spacedim, true>>
-  as_dof_handler_level_iterator(
-    const DoFHandler<dim, spacedim> &dof_handler) const;
+  as_dof_handler_level_iterator(const DoFHandler<dim, spacedim> &dof_handler) const;
 
 
   /**
@@ -3218,8 +3196,7 @@ public:
   /**
    * Return an array of iterators to all children of this cell.
    */
-  boost::container::small_vector<TriaIterator<CellAccessor<dim, spacedim>>,
-                                 GeometryInfo<dim>::max_children_per_cell>
+  boost::container::small_vector<TriaIterator<CellAccessor<dim, spacedim>>, GeometryInfo<dim>::max_children_per_cell>
   child_iterators() const;
 
   /**
@@ -3233,15 +3210,12 @@ public:
    * inverse function of TriaAccessor::face().
    */
   unsigned int
-  face_iterator_to_index(
-    const TriaIterator<TriaAccessor<dim - 1, dim, spacedim>> &face) const;
+  face_iterator_to_index(const TriaIterator<TriaAccessor<dim - 1, dim, spacedim>> &face) const;
 
   /**
    * Return an array of iterators to all faces of this cell.
    */
-  boost::container::small_vector<
-    TriaIterator<TriaAccessor<dim - 1, dim, spacedim>>,
-    GeometryInfo<dim>::faces_per_cell>
+  boost::container::small_vector<TriaIterator<TriaAccessor<dim - 1, dim, spacedim>>, GeometryInfo<dim>::faces_per_cell>
   face_iterators() const;
 
   /**
@@ -3304,8 +3278,7 @@ public:
    * ordering of the given face.
    */
   TriaIterator<CellAccessor<dim, spacedim>>
-  neighbor_child_on_subface(const unsigned int face_no,
-                            const unsigned int subface_no) const;
+  neighbor_child_on_subface(const unsigned int face_no, const unsigned int subface_no) const;
 
   /**
    * Return an iterator to the neighboring cell on the other side of the face
@@ -3473,8 +3446,7 @@ public:
    * and subface_num, we get an iterator to @c cell1.
    */
   TriaIterator<CellAccessor<dim, spacedim>>
-  periodic_neighbor_child_on_subface(const unsigned int face_no,
-                                     const unsigned int subface_no) const;
+  periodic_neighbor_child_on_subface(const unsigned int face_no, const unsigned int subface_no) const;
 
   /**
    * This function is a generalization of
@@ -3624,8 +3596,7 @@ public:
    * space it lives in.
    */
   void
-  set_refine_flag(const RefinementCase<dim> ref_case =
-                    RefinementCase<dim>::isotropic_refinement) const;
+  set_refine_flag(const RefinementCase<dim> ref_case = RefinementCase<dim>::isotropic_refinement) const;
 
   /**
    * Clear the refinement flag.
@@ -3643,8 +3614,7 @@ public:
   bool
   flag_for_face_refinement(
     const unsigned int             face_no,
-    const RefinementCase<dim - 1> &face_refinement_case =
-      RefinementCase<dim - 1>::isotropic_refinement) const;
+    const RefinementCase<dim - 1> &face_refinement_case = RefinementCase<dim - 1>::isotropic_refinement) const;
 
   /**
    * Modify the refinement flag of the cell to ensure that line
@@ -3794,8 +3764,7 @@ public:
    * multigrid.
    */
   void
-  set_level_subdomain_id(
-    const types::subdomain_id new_level_subdomain_id) const;
+  set_level_subdomain_id(const types::subdomain_id new_level_subdomain_id) const;
 
 
   /**
@@ -3814,8 +3783,7 @@ public:
    * is implicitly defined by which processor you're on.
    */
   void
-  recursively_set_subdomain_id(
-    const types::subdomain_id new_subdomain_id) const;
+  recursively_set_subdomain_id(const types::subdomain_id new_subdomain_id) const;
   /**
    * @}
    */
@@ -4070,8 +4038,7 @@ public:
    * from application codes.
    */
   void
-  set_neighbor(const unsigned int                               i,
-               const TriaIterator<CellAccessor<dim, spacedim>> &pointer) const;
+  set_neighbor(const unsigned int i, const TriaIterator<CellAccessor<dim, spacedim>> &pointer) const;
 
   /**
    * Return a unique ID for the current cell. This ID is constructed from the
@@ -4185,8 +4152,7 @@ private:
   friend class parallel::TriangulationBase<dim, spacedim>;
 
   friend struct dealii::internal::TriangulationImplementation::Implementation;
-  friend struct dealii::internal::TriangulationImplementation::
-    ImplementationMixedMesh;
+  friend struct dealii::internal::TriangulationImplementation::ImplementationMixedMesh;
 };
 
 
@@ -4196,8 +4162,7 @@ private:
 
 template <int structdim, int dim, int spacedim>
 template <typename OtherAccessor>
-InvalidAccessor<structdim, dim, spacedim>::InvalidAccessor(
-  const OtherAccessor &)
+InvalidAccessor<structdim, dim, spacedim>::InvalidAccessor(const OtherAccessor &)
 {
   Assert(false,
          ExcMessage("You are attempting an illegal conversion between "
@@ -4211,8 +4176,7 @@ InvalidAccessor<structdim, dim, spacedim>::InvalidAccessor(
 
 template <int structdim, int dim, int spacedim>
 template <int structdim2, int dim2, int spacedim2>
-TriaAccessor<structdim, dim, spacedim>::TriaAccessor(
-  const InvalidAccessor<structdim2, dim2, spacedim2> &)
+TriaAccessor<structdim, dim, spacedim>::TriaAccessor(const InvalidAccessor<structdim2, dim2, spacedim2> &)
 {
   Assert(false,
          ExcMessage("You are attempting an illegal conversion between "
@@ -4226,8 +4190,7 @@ TriaAccessor<structdim, dim, spacedim>::TriaAccessor(
 
 template <int dim, int spacedim>
 template <int structdim2, int dim2, int spacedim2>
-CellAccessor<dim, spacedim>::CellAccessor(
-  const InvalidAccessor<structdim2, dim2, spacedim2> &)
+CellAccessor<dim, spacedim>::CellAccessor(const InvalidAccessor<structdim2, dim2, spacedim2> &)
 {
   Assert(false,
          ExcMessage("You are attempting an illegal conversion between "
@@ -4241,8 +4204,7 @@ CellAccessor<dim, spacedim>::CellAccessor(
 
 template <int structdim, int dim, int spacedim>
 template <int structdim2, int dim2, int spacedim2>
-TriaAccessor<structdim, dim, spacedim>::TriaAccessor(
-  const TriaAccessor<structdim2, dim2, spacedim2> &)
+TriaAccessor<structdim, dim, spacedim>::TriaAccessor(const TriaAccessor<structdim2, dim2, spacedim2> &)
 {
   Assert(false,
          ExcMessage("You are attempting an illegal conversion between "
@@ -4256,8 +4218,7 @@ TriaAccessor<structdim, dim, spacedim>::TriaAccessor(
 
 template <int dim, int spacedim>
 template <int structdim2, int dim2, int spacedim2>
-CellAccessor<dim, spacedim>::CellAccessor(
-  const TriaAccessor<structdim2, dim2, spacedim2> &)
+CellAccessor<dim, spacedim>::CellAccessor(const TriaAccessor<structdim2, dim2, spacedim2> &)
 {
   Assert(false,
          ExcMessage("You are attempting an illegal conversion between "

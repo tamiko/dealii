@@ -30,15 +30,13 @@ test()
   FE_Q<dim> fe4(4);
   test_with_hanging_nodes<1, 2, dim>({{&fe1, &fe2}}, 1, 0); // take first
   test_with_hanging_nodes<2, 3, dim>({{&fe1, &fe2}}, 2, 1); // take second
-  test_with_hanging_nodes<2, 6, dim>(
-    {{&fe2, &fe4}}, 2, 0); // take first with non-standard n_q_points_1d
+  test_with_hanging_nodes<2, 6, dim>({{&fe2, &fe4}}, 2, 0); // take first with non-standard n_q_points_1d
 }
 
 int
 main(int argc, char *argv[])
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, numbers::invalid_unsigned_int);
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, numbers::invalid_unsigned_int);
 
   initlog();
 

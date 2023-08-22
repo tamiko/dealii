@@ -58,13 +58,11 @@
 
 
 void
-laplace_solve(const SparseMatrix<double> &     S,
-              const AffineConstraints<double> &constraints,
-              Vector<double> &                 u)
+laplace_solve(const SparseMatrix<double> &S, const AffineConstraints<double> &constraints, Vector<double> &u)
 {
-  const unsigned int n_dofs = S.n();
-  const auto         op     = linear_operator(S);
-  const auto constrained_op = constrained_linear_operator(constraints, op);
+  const unsigned int n_dofs         = S.n();
+  const auto         op             = linear_operator(S);
+  const auto         constrained_op = constrained_linear_operator(constraints, op);
 
   SolverControl                       control(10000, 1.e-10, false, false);
   GrowingVectorMemory<Vector<double>> mem;
@@ -109,7 +107,7 @@ curved_grid(std::ostream &out)
       {
         const unsigned int p     = i + j * n_phi;
         const double       alpha = i * 2 * numbers::PI / n_phi;
-        vertices[p] = Point<2>(r[j] * cos(alpha), r[j] * sin(alpha));
+        vertices[p]              = Point<2>(r[j] * cos(alpha), r[j] * sin(alpha));
       }
   // create connectivity
   std::vector<CellData<2>> cells(n_phi * n_r);
@@ -176,9 +174,7 @@ curved_grid(std::ostream &out)
                     {
                       m[i].add_line(face->dof_index(0));
                       m[i].set_inhomogeneity(face->dof_index(0),
-                                             (face->center() *
-                                              (r_i / face->center().norm() -
-                                               1))(i));
+                                             (face->center() * (r_i / face->center().norm() - 1))(i));
                     }
                 else if (std::fabs(face->vertex(1).norm() - r_a) < eps)
                   for (unsigned int i = 0; i < 2; ++i)
@@ -199,10 +195,7 @@ curved_grid(std::ostream &out)
   // solve linear systems in parallel
   std::vector<std::thread> threads;
   for (unsigned int i = 0; i < 2; ++i)
-    threads.emplace_back(&laplace_solve,
-                         std::ref(S),
-                         std::ref(m[i]),
-                         std::ref(us[i]));
+    threads.emplace_back(&laplace_solve, std::ref(S), std::ref(m[i]), std::ref(us[i]));
   threads[0].join();
   threads[1].join();
   // create a new DoFHandler for the combined
@@ -210,11 +203,8 @@ curved_grid(std::ostream &out)
   FESystem<2>   cfe(FE_Q<2>(2), 2);
   DoFHandler<2> cdh(triangulation);
   cdh.distribute_dofs(cfe);
-  Vector<double> displacements(cdh.n_dofs()), dx(fe.dofs_per_cell),
-    dy(fe.dofs_per_cell), dxy(cfe.dofs_per_cell);
-  DoFHandler<2>::active_cell_iterator component_cell =
-                                        dof_handler.begin_active(),
-                                      end_c         = dof_handler.end(),
+  Vector<double> displacements(cdh.n_dofs()), dx(fe.dofs_per_cell), dy(fe.dofs_per_cell), dxy(cfe.dofs_per_cell);
+  DoFHandler<2>::active_cell_iterator component_cell = dof_handler.begin_active(), end_c = dof_handler.end(),
                                       combined_cell = cdh.begin_active();
   for (; component_cell != end_c; ++component_cell, ++combined_cell)
     {

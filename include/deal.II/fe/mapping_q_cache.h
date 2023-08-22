@@ -92,8 +92,7 @@ public:
    * Triangulation::Signals::any_change of the underlying triangulation.
    */
   void
-  initialize(const Mapping<dim, spacedim> &      mapping,
-             const Triangulation<dim, spacedim> &triangulation);
+  initialize(const Mapping<dim, spacedim> &mapping, const Triangulation<dim, spacedim> &triangulation);
 
   /**
    * Initialize the data cache by letting the function given as an argument
@@ -117,10 +116,10 @@ public:
    * Triangulation::Signals::any_change of the underlying triangulation.
    */
   void
-  initialize(const Triangulation<dim, spacedim> &triangulation,
-             const std::function<std::vector<Point<spacedim>>(
-               const typename Triangulation<dim, spacedim>::cell_iterator &)>
-               &compute_points_on_cell);
+  initialize(
+    const Triangulation<dim, spacedim> &triangulation,
+    const std::function<std::vector<Point<spacedim>>(const typename Triangulation<dim, spacedim>::cell_iterator &)>
+      &compute_points_on_cell);
 
   /**
    * Initialize the data cache by computing the mapping support points for all
@@ -140,21 +139,20 @@ public:
    * Triangulation::Signals::any_change of the underlying triangulation.
    */
   void
-  initialize(const Mapping<dim, spacedim> &      mapping,
-             const Triangulation<dim, spacedim> &tria,
-             const std::function<Point<spacedim>(
-               const typename Triangulation<dim, spacedim>::cell_iterator &,
-               const Point<spacedim> &)> &       transformation_function,
-             const bool function_describes_relative_displacement);
+  initialize(const Mapping<dim, spacedim>                                  &mapping,
+             const Triangulation<dim, spacedim>                            &tria,
+             const std::function<Point<spacedim>(const typename Triangulation<dim, spacedim>::cell_iterator &,
+                                                 const Point<spacedim> &)> &transformation_function,
+             const bool                                                     function_describes_relative_displacement);
 
   /**
    * The same as above but taking a dealii::Function object.
    */
   void
-  initialize(const Mapping<dim, spacedim> &      mapping,
+  initialize(const Mapping<dim, spacedim>       &mapping,
              const Triangulation<dim, spacedim> &tria,
-             const Function<spacedim> &          transformation_function,
-             const bool function_describes_relative_displacement);
+             const Function<spacedim>           &transformation_function,
+             const bool                          function_describes_relative_displacement);
 
   /**
    * Initialize the data cache of the active cells by a discrete field
@@ -169,10 +167,10 @@ public:
    */
   template <typename VectorType>
   void
-  initialize(const Mapping<dim, spacedim> &   mapping,
+  initialize(const Mapping<dim, spacedim>    &mapping,
              const DoFHandler<dim, spacedim> &dof_handler,
-             const VectorType &               vector,
-             const bool vector_describes_relative_displacement);
+             const VectorType                &vector,
+             const bool                       vector_describes_relative_displacement);
 
   /**
    * Initialize the data cache of all non-artificial cells by a solution
@@ -187,18 +185,16 @@ public:
    */
   template <typename VectorType>
   void
-  initialize(const Mapping<dim, spacedim> &   mapping,
+  initialize(const Mapping<dim, spacedim>    &mapping,
              const DoFHandler<dim, spacedim> &dof_handler,
              const MGLevelObject<VectorType> &vectors,
-             const bool vector_describes_relative_displacement);
+             const bool                       vector_describes_relative_displacement);
 
   /**
    * @copydoc Mapping<dim,spacedim>::get_vertices()
    */
-  virtual boost::container::small_vector<Point<spacedim>,
-                                         GeometryInfo<dim>::vertices_per_cell>
-  get_vertices(const typename Triangulation<dim, spacedim>::cell_iterator &cell)
-    const override;
+  virtual boost::container::small_vector<Point<spacedim>, GeometryInfo<dim>::vertices_per_cell>
+  get_vertices(const typename Triangulation<dim, spacedim>::cell_iterator &cell) const override;
 
   /**
    * Return the memory consumption (in bytes) of the cache.
@@ -211,9 +207,7 @@ protected:
    * This is the main function overridden from the base class MappingQ.
    */
   virtual std::vector<Point<spacedim>>
-  compute_mapping_support_points(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell)
-    const override;
+  compute_mapping_support_points(const typename Triangulation<dim, spacedim>::cell_iterator &cell) const override;
 
 private:
   /**
@@ -221,8 +215,7 @@ private:
    * pointer to allow several instances (created via clone()) to share this
    * cache.
    */
-  std::shared_ptr<std::vector<std::vector<std::vector<Point<spacedim>>>>>
-    support_point_cache;
+  std::shared_ptr<std::vector<std::vector<std::vector<Point<spacedim>>>>> support_point_cache;
 
   /**
    * The connection to Triangulation::signals::any that must be reset once

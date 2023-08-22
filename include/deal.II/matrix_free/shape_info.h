@@ -291,9 +291,7 @@ namespace internal
        * Same as above but stored in a scalar format independent of the type of
        * Number
        */
-      std::array<AlignedVector<typename dealii::internal::VectorizedArrayTrait<
-                   Number>::value_type>,
-                 2>
+      std::array<AlignedVector<typename dealii::internal::VectorizedArrayTrait<Number>::value_type>, 2>
         subface_interpolation_matrices_scalar;
 
       /**
@@ -364,7 +362,7 @@ namespace internal
        * Constructor that initializes the data fields using the reinit method.
        */
       template <int dim, int spacedim, int dim_q>
-      ShapeInfo(const Quadrature<dim_q> &           quad,
+      ShapeInfo(const Quadrature<dim_q>            &quad,
                 const FiniteElement<dim, spacedim> &fe,
                 const unsigned int                  base_element = 0);
 
@@ -378,7 +376,7 @@ namespace internal
        */
       template <int dim, int spacedim, int dim_q>
       void
-      reinit(const Quadrature<dim_q> &           quad,
+      reinit(const Quadrature<dim_q>            &quad,
              const FiniteElement<dim, spacedim> &fe_dim,
              const unsigned int                  base_element = 0);
 
@@ -416,8 +414,7 @@ namespace internal
        * finite element.
        */
       const UnivariateShapeData<Number> &
-      get_shape_data(const unsigned int dimension = 0,
-                     const unsigned int component = 0) const;
+      get_shape_data(const unsigned int dimension = 0, const unsigned int component = 0) const;
 
       /**
        * Return the memory consumption of this class in bytes.
@@ -585,8 +582,7 @@ namespace internal
        * also fill the shape_???_eo fields.
        */
       bool
-      check_1d_shapes_symmetric(
-        UnivariateShapeData<Number> &univariate_shape_data);
+      check_1d_shapes_symmetric(UnivariateShapeData<Number> &univariate_shape_data);
 
       /**
        * Check whether symmetric 1d basis functions are such that the shape
@@ -595,8 +591,7 @@ namespace internal
        * that save some operations in the evaluation.
        */
       bool
-      check_1d_shapes_collocation(
-        const UnivariateShapeData<Number> &univariate_shape_data) const;
+      check_1d_shapes_collocation(const UnivariateShapeData<Number> &univariate_shape_data) const;
     };
 
 
@@ -605,8 +600,7 @@ namespace internal
 
     template <typename Number>
     inline const UnivariateShapeData<Number> &
-    ShapeInfo<Number>::get_shape_data(const unsigned int dimension,
-                                      const unsigned int component) const
+    ShapeInfo<Number>::get_shape_data(const unsigned int dimension, const unsigned int component) const
     {
       AssertDimension(n_dimensions, data_access.size(0));
       AssertDimension(n_components, data_access.size(1));

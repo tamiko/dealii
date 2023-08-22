@@ -64,8 +64,7 @@ public:
 
 template <>
 void
-ImposedDisplacement<2>::vector_value(const Point<2> &p,
-                                     Vector<double> &value) const
+ImposedDisplacement<2>::vector_value(const Point<2> &p, Vector<double> &value) const
 {
   double radius = 1 + (sqrt(5) - 1) * p(0);
   double angle  = 0.5 * numbers::PI * (1 - p(1));
@@ -142,9 +141,7 @@ MappingTest<dim>::compute_area()
 
   long double area = 0.;
 
-  typename DoFHandler<dim>::active_cell_iterator cell =
-                                                   dof_handler.begin_active(),
-                                                 endc = dof_handler.end();
+  typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
 
   for (; cell != endc; ++cell)
     {
@@ -167,16 +164,12 @@ MappingTest<dim>::run_test()
 
   ConvergenceTable table;
 
-  for (unsigned int ref_level = 0; ref_level < (degree < 4 ? 5 : 3);
-       ++ref_level, triangulation.refine_global(1))
+  for (unsigned int ref_level = 0; ref_level < (degree < 4 ? 5 : 3); ++ref_level, triangulation.refine_global(1))
     {
       dof_handler.distribute_dofs(fe);
       displacements.reinit(dof_handler.n_dofs());
 
-      VectorTools::interpolate(MappingQ<dim>(1),
-                               dof_handler,
-                               imposed_displacement,
-                               displacements);
+      VectorTools::interpolate(MappingQ<dim>(1), dof_handler, imposed_displacement, displacements);
 
 
       table.add_value("cells", triangulation.n_active_cells());
@@ -192,8 +185,7 @@ MappingTest<dim>::run_test()
   table.set_precision("area", 8);
   table.set_precision("error", 4);
   table.set_scientific("error", true);
-  table.evaluate_convergence_rates("error",
-                                   ConvergenceTable::reduction_rate_log2);
+  table.evaluate_convergence_rates("error", ConvergenceTable::reduction_rate_log2);
   table.write_text(deallog.get_file_stream());
   deallog << std::endl;
 }
@@ -208,9 +200,7 @@ MappingTest<dim>::explicitly_move_mesh()
   std::vector<bool> moved(triangulation.n_vertices(), false);
   unsigned int      vpc = GeometryInfo<dim>::vertices_per_cell;
 
-  typename DoFHandler<dim>::active_cell_iterator cell =
-                                                   dof_handler.begin_active(),
-                                                 endc = dof_handler.end();
+  typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
 
   for (; cell != endc; ++cell)
     {
@@ -244,10 +234,7 @@ MappingTest<dim>::graphical_output()
   dof_handler.distribute_dofs(fe);
   displacements.reinit(dof_handler.n_dofs());
 
-  VectorTools::interpolate(MappingQ<dim>(1),
-                           dof_handler,
-                           imposed_displacement,
-                           displacements);
+  VectorTools::interpolate(MappingQ<dim>(1), dof_handler, imposed_displacement, displacements);
 
   explicitly_move_mesh();
 }

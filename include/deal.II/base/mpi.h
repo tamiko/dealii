@@ -84,10 +84,9 @@ namespace Utilities
    * return the @p my_partition_id 's IndexSet.
    */
   IndexSet
-  create_evenly_distributed_partitioning(
-    const unsigned int            my_partition_id,
-    const unsigned int            n_partitions,
-    const types::global_dof_index total_size);
+  create_evenly_distributed_partitioning(const unsigned int            my_partition_id,
+                                         const unsigned int            n_partitions,
+                                         const types::global_dof_index total_size);
 
   /**
    * A namespace for utility functions that abstract certain operations using
@@ -155,8 +154,7 @@ namespace Utilities
      * processes specified by @p comm_small.
      */
     std::vector<unsigned int>
-    mpi_processes_within_communicator(const MPI_Comm comm_large,
-                                      const MPI_Comm comm_small);
+    mpi_processes_within_communicator(const MPI_Comm comm_large, const MPI_Comm comm_small);
 
     /**
      * Consider an unstructured communication pattern where every process in
@@ -180,9 +178,8 @@ namespace Utilities
      * destination more than once in their destinations list.
      */
     std::vector<unsigned int>
-    compute_point_to_point_communication_pattern(
-      const MPI_Comm                   mpi_comm,
-      const std::vector<unsigned int> &destinations);
+    compute_point_to_point_communication_pattern(const MPI_Comm                   mpi_comm,
+                                                 const std::vector<unsigned int> &destinations);
 
     /**
      * Simplified (for efficiency) version of the
@@ -204,9 +201,7 @@ namespace Utilities
      * processor.
      */
     unsigned int
-    compute_n_point_to_point_communications(
-      const MPI_Comm                   mpi_comm,
-      const std::vector<unsigned int> &destinations);
+    compute_n_point_to_point_communications(const MPI_Comm mpi_comm, const std::vector<unsigned int> &destinations);
 
     /**
      * Given a
@@ -573,10 +568,7 @@ namespace Utilities
      */
 #ifdef DEAL_II_WITH_MPI
     DEAL_II_DEPRECATED int
-    create_group(const MPI_Comm   comm,
-                 const MPI_Group &group,
-                 const int        tag,
-                 MPI_Comm *       new_comm);
+    create_group(const MPI_Comm comm, const MPI_Group &group, const int tag, MPI_Comm *new_comm);
 #endif
 
     /**
@@ -588,9 +580,7 @@ namespace Utilities
      * starts at the index one larger than the last one stored on process p.
      */
     std::vector<IndexSet>
-    create_ascending_partitioning(
-      const MPI_Comm                comm,
-      const types::global_dof_index locally_owned_size);
+    create_ascending_partitioning(const MPI_Comm comm, const types::global_dof_index locally_owned_size);
 
     /**
      * Given the total number of elements @p total_size, create an evenly
@@ -600,9 +590,7 @@ namespace Utilities
      * @p create_evenly_distributed_partitioning() function above.
      */
     IndexSet
-    create_evenly_distributed_partitioning(
-      const MPI_Comm                comm,
-      const types::global_dof_index total_size);
+    create_evenly_distributed_partitioning(const MPI_Comm comm, const types::global_dof_index total_size);
 
 #ifdef DEAL_II_WITH_MPI
     /**
@@ -622,9 +610,7 @@ namespace Utilities
      */
     template <class Iterator, typename Number = long double>
     std::pair<Number, typename numbers::NumberTraits<Number>::real_type>
-    mean_and_standard_deviation(const Iterator begin,
-                                const Iterator end,
-                                const MPI_Comm comm);
+    mean_and_standard_deviation(const Iterator begin, const Iterator end, const MPI_Comm comm);
 #endif
 
 
@@ -725,9 +711,7 @@ namespace Utilities
      */
     template <typename T>
     void
-    sum(const ArrayView<const T> &values,
-        const MPI_Comm            mpi_communicator,
-        const ArrayView<T> &      sums);
+    sum(const ArrayView<const T> &values, const MPI_Comm mpi_communicator, const ArrayView<T> &sums);
 
     /**
      * Perform an MPI sum of the entries of a symmetric tensor.
@@ -736,8 +720,7 @@ namespace Utilities
      */
     template <int rank, int dim, typename Number>
     SymmetricTensor<rank, dim, Number>
-    sum(const SymmetricTensor<rank, dim, Number> &local,
-        const MPI_Comm                            mpi_communicator);
+    sum(const SymmetricTensor<rank, dim, Number> &local, const MPI_Comm mpi_communicator);
 
     /**
      * Perform an MPI sum of the entries of a tensor.
@@ -746,8 +729,7 @@ namespace Utilities
      */
     template <int rank, int dim, typename Number>
     Tensor<rank, dim, Number>
-    sum(const Tensor<rank, dim, Number> &local,
-        const MPI_Comm                   mpi_communicator);
+    sum(const Tensor<rank, dim, Number> &local, const MPI_Comm mpi_communicator);
 
     /**
      * Perform an MPI sum of the entries of a SparseMatrix.
@@ -759,9 +741,7 @@ namespace Utilities
      */
     template <typename Number>
     void
-    sum(const SparseMatrix<Number> &local,
-        const MPI_Comm              mpi_communicator,
-        SparseMatrix<Number> &      global);
+    sum(const SparseMatrix<Number> &local, const MPI_Comm mpi_communicator, SparseMatrix<Number> &global);
 
     /**
      * Return the maximum over all processors of the value @p t. This function
@@ -810,9 +790,7 @@ namespace Utilities
      */
     template <typename T>
     void
-    max(const ArrayView<const T> &values,
-        const MPI_Comm            mpi_communicator,
-        const ArrayView<T> &      maxima);
+    max(const ArrayView<const T> &values, const MPI_Comm mpi_communicator, const ArrayView<T> &maxima);
 
     /**
      * Return the minimum over all processors of the value @p t. This function
@@ -861,9 +839,7 @@ namespace Utilities
      */
     template <typename T>
     void
-    min(const ArrayView<const T> &values,
-        const MPI_Comm            mpi_communicator,
-        const ArrayView<T> &      minima);
+    min(const ArrayView<const T> &values, const MPI_Comm mpi_communicator, const ArrayView<T> &minima);
 
     /**
      * Performs a <i>logical or</i> operation over all processors of the value
@@ -921,9 +897,7 @@ namespace Utilities
      */
     template <typename T>
     void
-    logical_or(const ArrayView<const T> &values,
-               const MPI_Comm            mpi_communicator,
-               const ArrayView<T> &      results);
+    logical_or(const ArrayView<const T> &values, const MPI_Comm mpi_communicator, const ArrayView<T> &results);
 
     /**
      * A data structure to store the result of the min_max_avg() function.
@@ -1015,8 +989,7 @@ namespace Utilities
      * @pre Size of the input vector has to be the same on all processes.
      */
     std::vector<MinMaxAvg>
-    min_max_avg(const std::vector<double> &my_value,
-                const MPI_Comm             mpi_communicator);
+    min_max_avg(const std::vector<double> &my_value, const MPI_Comm mpi_communicator);
 
 
     /**
@@ -1033,7 +1006,7 @@ namespace Utilities
      */
     void
     min_max_avg(const ArrayView<const double> &my_values,
-                const ArrayView<MinMaxAvg> &   result,
+                const ArrayView<MinMaxAvg>    &result,
                 const MPI_Comm                 mpi_communicator);
 
 
@@ -1128,10 +1101,7 @@ namespace Utilities
        * create an object of this type is also at or close to the top of
        * <code>main()</code>.
        */
-      MPI_InitFinalize(
-        int &              argc,
-        char **&           argv,
-        const unsigned int max_num_threads = numbers::invalid_unsigned_int);
+      MPI_InitFinalize(int &argc, char **&argv, const unsigned int max_num_threads = numbers::invalid_unsigned_int);
 
       /**
        * Destructor. Calls <tt>MPI_Finalize()</tt> in case this class owns the
@@ -1244,8 +1214,7 @@ namespace Utilities
      */
     template <typename T>
     std::map<unsigned int, T>
-    some_to_some(const MPI_Comm                   comm,
-                 const std::map<unsigned int, T> &objects_to_send);
+    some_to_some(const MPI_Comm comm, const std::map<unsigned int, T> &objects_to_send);
 
     /**
      * A generalization of the classic MPI_Allgather function, that accepts
@@ -1281,9 +1250,7 @@ namespace Utilities
      */
     template <typename T>
     std::vector<T>
-    gather(const MPI_Comm     comm,
-           const T &          object_to_send,
-           const unsigned int root_process = 0);
+    gather(const MPI_Comm comm, const T &object_to_send, const unsigned int root_process = 0);
 
     /**
      * A generalization of the classic MPI_Scatter function, that accepts
@@ -1301,9 +1268,7 @@ namespace Utilities
      */
     template <typename T>
     T
-    scatter(const MPI_Comm        comm,
-            const std::vector<T> &objects_to_send,
-            const unsigned int    root_process = 0);
+    scatter(const MPI_Comm comm, const std::vector<T> &objects_to_send, const unsigned int root_process = 0);
 
     /**
      * This function sends an object @p object_to_send from the process @p root_process
@@ -1342,9 +1307,7 @@ namespace Utilities
      */
     template <typename T>
     std::enable_if_t<is_mpi_type<T> == false, T>
-    broadcast(const MPI_Comm     comm,
-              const T &          object_to_send,
-              const unsigned int root_process = 0);
+    broadcast(const MPI_Comm comm, const T &object_to_send, const unsigned int root_process = 0);
 
     /**
      * This function sends an object @p object_to_send from the process @p root_process
@@ -1370,9 +1333,7 @@ namespace Utilities
      */
     template <typename T>
     std::enable_if_t<is_mpi_type<T> == true, T>
-    broadcast(const MPI_Comm     comm,
-              const T &          object_to_send,
-              const unsigned int root_process = 0);
+    broadcast(const MPI_Comm comm, const T &object_to_send, const unsigned int root_process = 0);
 
     /**
      * Broadcast the information in @p buffer from @p root to all
@@ -1392,10 +1353,7 @@ namespace Utilities
      */
     template <typename T>
     void
-    broadcast(T *                buffer,
-              const size_t       count,
-              const unsigned int root,
-              const MPI_Comm     comm);
+    broadcast(T *buffer, const size_t count, const unsigned int root, const MPI_Comm comm);
 
     /**
      * A function that combines values @p local_value from all processes
@@ -1411,7 +1369,7 @@ namespace Utilities
      */
     template <typename T>
     T
-    reduce(const T &                                     local_value,
+    reduce(const T                                      &local_value,
            const MPI_Comm                                comm,
            const std::function<T(const T &, const T &)> &combiner,
            const unsigned int                            root_process = 0);
@@ -1427,9 +1385,7 @@ namespace Utilities
      */
     template <typename T>
     T
-    all_reduce(const T &                                     local_value,
-               const MPI_Comm                                comm,
-               const std::function<T(const T &, const T &)> &combiner);
+    all_reduce(const T &local_value, const MPI_Comm comm, const std::function<T(const T &, const T &)> &combiner);
 
 
     /**
@@ -1454,10 +1410,7 @@ namespace Utilities
      */
     template <typename T>
     Future<void>
-    isend(const T &          object,
-          MPI_Comm           communicator,
-          const unsigned int target_rank,
-          const unsigned int mpi_tag = 0);
+    isend(const T &object, MPI_Comm communicator, const unsigned int target_rank, const unsigned int mpi_tag = 0);
 
 
     /**
@@ -1478,9 +1431,7 @@ namespace Utilities
      */
     template <typename T>
     Future<T>
-    irecv(MPI_Comm           communicator,
-          const unsigned int source_rank,
-          const unsigned int mpi_tag = 0);
+    irecv(MPI_Comm communicator, const unsigned int source_rank, const unsigned int mpi_tag = 0);
 
 
     /**
@@ -1526,9 +1477,7 @@ namespace Utilities
      *         within the ElementIterator.
      */
     std::vector<unsigned int>
-    compute_index_owner(const IndexSet &owned_indices,
-                        const IndexSet &indices_to_look_up,
-                        const MPI_Comm  comm);
+    compute_index_owner(const IndexSet &owned_indices, const IndexSet &indices_to_look_up, const MPI_Comm comm);
 
     /**
      * Compute the union of the input vectors @p vec of all processes in the
@@ -1728,9 +1677,8 @@ namespace Utilities
      * not satisfied.
      */
     template <typename T>
-    const MPI_Datatype
-      mpi_type_id_for_type = internal::MPIDataTypes::mpi_type_id(
-        static_cast<std::remove_cv_t<std::remove_reference_t<T>> *>(nullptr));
+    const MPI_Datatype mpi_type_id_for_type =
+      internal::MPIDataTypes::mpi_type_id(static_cast<std::remove_cv_t<std::remove_reference_t<T>> *>(nullptr));
 #endif
 
 #ifndef DOXYGEN
@@ -1739,10 +1687,10 @@ namespace Utilities
       // declaration for an internal function that lives in mpi.templates.h
       template <typename T>
       void
-      all_reduce(const MPI_Op &            mpi_op,
+      all_reduce(const MPI_Op             &mpi_op,
                  const ArrayView<const T> &values,
                  const MPI_Comm            mpi_communicator,
-                 const ArrayView<T> &      output);
+                 const ArrayView<T>       &output);
     } // namespace internal
 
 
@@ -1791,9 +1739,7 @@ namespace Utilities
     T
     Future<T>::get()
     {
-      Assert(get_was_called == false,
-             ExcMessage(
-               "You can't call get() more than once on a Future object."));
+      Assert(get_was_called == false, ExcMessage("You can't call get() more than once on a Future object."));
       get_was_called = true;
 
       wait();
@@ -1806,10 +1752,7 @@ namespace Utilities
     void
     sum(const T (&values)[N], const MPI_Comm mpi_communicator, T (&sums)[N])
     {
-      internal::all_reduce(MPI_SUM,
-                           ArrayView<const T>(values, N),
-                           mpi_communicator,
-                           ArrayView<T>(sums, N));
+      internal::all_reduce(MPI_SUM, ArrayView<const T>(values, N), mpi_communicator, ArrayView<T>(sums, N));
     }
 
 
@@ -1818,10 +1761,7 @@ namespace Utilities
     void
     max(const T (&values)[N], const MPI_Comm mpi_communicator, T (&maxima)[N])
     {
-      internal::all_reduce(MPI_MAX,
-                           ArrayView<const T>(values, N),
-                           mpi_communicator,
-                           ArrayView<T>(maxima, N));
+      internal::all_reduce(MPI_MAX, ArrayView<const T>(values, N), mpi_communicator, ArrayView<T>(maxima, N));
     }
 
 
@@ -1830,42 +1770,30 @@ namespace Utilities
     void
     min(const T (&values)[N], const MPI_Comm mpi_communicator, T (&minima)[N])
     {
-      internal::all_reduce(MPI_MIN,
-                           ArrayView<const T>(values, N),
-                           mpi_communicator,
-                           ArrayView<T>(minima, N));
+      internal::all_reduce(MPI_MIN, ArrayView<const T>(values, N), mpi_communicator, ArrayView<T>(minima, N));
     }
 
 
 
     template <typename T, unsigned int N>
     void
-    logical_or(const T (&values)[N],
-               const MPI_Comm mpi_communicator,
-               T (&results)[N])
+    logical_or(const T (&values)[N], const MPI_Comm mpi_communicator, T (&results)[N])
     {
-      static_assert(std::is_integral_v<T>,
-                    "The MPI_LOR operation only allows integral data types.");
+      static_assert(std::is_integral_v<T>, "The MPI_LOR operation only allows integral data types.");
 
-      internal::all_reduce(MPI_LOR,
-                           ArrayView<const T>(values, N),
-                           mpi_communicator,
-                           ArrayView<T>(results, N));
+      internal::all_reduce(MPI_LOR, ArrayView<const T>(values, N), mpi_communicator, ArrayView<T>(results, N));
     }
 
 
 
     template <typename T>
     std::map<unsigned int, T>
-    some_to_some(const MPI_Comm                   comm,
-                 const std::map<unsigned int, T> &objects_to_send)
+    some_to_some(const MPI_Comm comm, const std::map<unsigned int, T> &objects_to_send)
     {
 #  ifndef DEAL_II_WITH_MPI
       (void)comm;
-      Assert(objects_to_send.size() < 2,
-             ExcMessage("Cannot send to more than one processor."));
-      Assert(objects_to_send.find(0) != objects_to_send.end() ||
-               objects_to_send.empty(),
+      Assert(objects_to_send.size() < 2, ExcMessage("Cannot send to more than one processor."));
+      Assert(objects_to_send.find(0) != objects_to_send.end() || objects_to_send.empty(),
              ExcMessage("Can only send to myself or to nobody."));
       return objects_to_send;
 #  else
@@ -1895,8 +1823,7 @@ namespace Utilities
       if (send_to.empty() && n_expected_incoming_messages == 0)
         return received_objects;
 
-      const int mpi_tag =
-        internal::Tags::compute_point_to_point_communication_pattern;
+      const int mpi_tag = internal::Tags::compute_point_to_point_communication_pattern;
 
       // Sending buffers
       std::vector<std::vector<char>> buffers_to_send(send_to.size());
@@ -1942,27 +1869,17 @@ namespace Utilities
             const unsigned int rank = status.MPI_SOURCE;
 
             // Actually receive the message
-            ierr = MPI_Recv(buffer.data(),
-                            len,
-                            MPI_CHAR,
-                            status.MPI_SOURCE,
-                            status.MPI_TAG,
-                            comm,
-                            MPI_STATUS_IGNORE);
+            ierr = MPI_Recv(buffer.data(), len, MPI_CHAR, status.MPI_SOURCE, status.MPI_TAG, comm, MPI_STATUS_IGNORE);
             AssertThrowMPI(ierr);
             Assert(received_objects.find(rank) == received_objects.end(),
-                   ExcInternalError(
-                     "I should not receive again from this rank"));
-            received_objects[rank] =
-              Utilities::unpack<T>(buffer,
-                                   /*allow_compression=*/false);
+                   ExcInternalError("I should not receive again from this rank"));
+            received_objects[rank] = Utilities::unpack<T>(buffer,
+                                                          /*allow_compression=*/false);
           }
       }
 
       // Wait to have sent all objects.
-      const int ierr = MPI_Waitall(send_to.size(),
-                                   buffer_send_requests.data(),
-                                   MPI_STATUSES_IGNORE);
+      const int ierr = MPI_Waitall(send_to.size(), buffer_send_requests.data(), MPI_STATUSES_IGNORE);
       AssertThrowMPI(ierr);
 
       return received_objects;
@@ -1993,8 +1910,7 @@ namespace Utilities
       std::vector<int> size_all_data(n_procs, 0);
 
       // Exchanging the size of each buffer
-      int ierr = MPI_Allgather(
-        &n_local_data, 1, MPI_INT, size_all_data.data(), 1, MPI_INT, comm);
+      int ierr = MPI_Allgather(&n_local_data, 1, MPI_INT, size_all_data.data(), 1, MPI_INT, comm);
       AssertThrowMPI(ierr);
 
       // Now computing the displacement, relative to recvbuf,
@@ -2005,8 +1921,7 @@ namespace Utilities
         rdispls[i] = rdispls[i - 1] + size_all_data[i - 1];
 
       // Step 3: exchange the buffer:
-      std::vector<char> received_unrolled_buffer(rdispls.back() +
-                                                 size_all_data.back());
+      std::vector<char> received_unrolled_buffer(rdispls.back() + size_all_data.back());
 
       ierr = MPI_Allgatherv(buffer.data(),
                             n_local_data,
@@ -2021,10 +1936,8 @@ namespace Utilities
       std::vector<T> received_objects(n_procs);
       for (unsigned int i = 0; i < n_procs; ++i)
         {
-          std::vector<char> local_buffer(received_unrolled_buffer.begin() +
-                                           rdispls[i],
-                                         received_unrolled_buffer.begin() +
-                                           rdispls[i] + size_all_data[i]);
+          std::vector<char> local_buffer(received_unrolled_buffer.begin() + rdispls[i],
+                                         received_unrolled_buffer.begin() + rdispls[i] + size_all_data[i]);
           received_objects[i] = Utilities::unpack<T>(local_buffer);
         }
 
@@ -2036,9 +1949,7 @@ namespace Utilities
 
     template <typename T>
     std::vector<T>
-    gather(const MPI_Comm     comm,
-           const T &          object_to_send,
-           const unsigned int root_process)
+    gather(const MPI_Comm comm, const T &object_to_send, const unsigned int root_process)
     {
 #  ifndef DEAL_II_WITH_MPI
       (void)comm;
@@ -2061,14 +1972,7 @@ namespace Utilities
         size_all_data.resize(n_procs, 0);
 
       // Exchanging the size of each buffer
-      int ierr = MPI_Gather(&n_local_data,
-                            1,
-                            MPI_INT,
-                            size_all_data.data(),
-                            1,
-                            MPI_INT,
-                            root_process,
-                            comm);
+      int ierr = MPI_Gather(&n_local_data, 1, MPI_INT, size_all_data.data(), 1, MPI_INT, root_process, comm);
       AssertThrowMPI(ierr);
 
       // Now computing the displacement, relative to recvbuf,
@@ -2104,10 +2008,8 @@ namespace Utilities
 
           for (unsigned int i = 0; i < n_procs; ++i)
             {
-              const std::vector<char> local_buffer(
-                received_unrolled_buffer.begin() + rdispls[i],
-                received_unrolled_buffer.begin() + rdispls[i] +
-                  size_all_data[i]);
+              const std::vector<char> local_buffer(received_unrolled_buffer.begin() + rdispls[i],
+                                                   received_unrolled_buffer.begin() + rdispls[i] + size_all_data[i]);
               received_objects[i] = Utilities::unpack<T>(local_buffer);
             }
         }
@@ -2119,9 +2021,7 @@ namespace Utilities
 
     template <typename T>
     T
-    scatter(const MPI_Comm        comm,
-            const std::vector<T> &objects_to_send,
-            const unsigned int    root_process)
+    scatter(const MPI_Comm comm, const std::vector<T> &objects_to_send, const unsigned int root_process)
     {
 #  ifndef DEAL_II_WITH_MPI
       (void)comm;
@@ -2135,11 +2035,8 @@ namespace Utilities
       const auto my_rank = dealii::Utilities::MPI::this_mpi_process(comm);
 
       AssertIndexRange(root_process, n_procs);
-      AssertThrow(
-        (my_rank != root_process && objects_to_send.empty()) ||
-          objects_to_send.size() == n_procs,
-        ExcMessage(
-          "The number of objects to be scattered must correspond to the number processes."));
+      AssertThrow((my_rank != root_process && objects_to_send.empty()) || objects_to_send.size() == n_procs,
+                  ExcMessage("The number of objects to be scattered must correspond to the number processes."));
 
       std::vector<char> send_buffer;
       std::vector<int>  send_counts;
@@ -2153,9 +2050,7 @@ namespace Utilities
           for (unsigned int i = 0; i < n_procs; ++i)
             {
               const auto packed_data = Utilities::pack(objects_to_send[i]);
-              send_buffer.insert(send_buffer.end(),
-                                 packed_data.begin(),
-                                 packed_data.end());
+              send_buffer.insert(send_buffer.end(), packed_data.begin(), packed_data.end());
               send_counts[i] = packed_data.size();
             }
 
@@ -2164,14 +2059,7 @@ namespace Utilities
         }
 
       int n_local_data;
-      int ierr = MPI_Scatter(send_counts.data(),
-                             1,
-                             MPI_INT,
-                             &n_local_data,
-                             1,
-                             MPI_INT,
-                             root_process,
-                             comm);
+      int ierr = MPI_Scatter(send_counts.data(), 1, MPI_INT, &n_local_data, 1, MPI_INT, root_process, comm);
       AssertThrowMPI(ierr);
 
       std::vector<char> recv_buffer(n_local_data);
@@ -2194,10 +2082,7 @@ namespace Utilities
 
     template <typename T>
     void
-    broadcast(T *                buffer,
-              const size_t       count,
-              const unsigned int root,
-              const MPI_Comm     comm)
+    broadcast(T *buffer, const size_t count, const unsigned int root, const MPI_Comm comm)
     {
 #  ifndef DEAL_II_WITH_MPI
       (void)buffer;
@@ -2205,8 +2090,7 @@ namespace Utilities
       (void)root;
       (void)comm;
 #  else
-      Assert(root < n_mpi_processes(comm),
-             ExcMessage("Invalid root rank specified."));
+      Assert(root < n_mpi_processes(comm), ExcMessage("Invalid root rank specified."));
 
       // MPI_Bcast's count is a signed int, so send at most 2^31 in each
       // iteration:
@@ -2215,14 +2099,10 @@ namespace Utilities
       size_t total_sent_count = 0;
       while (total_sent_count < count)
         {
-          const size_t current_count =
-            std::min(count - total_sent_count, max_send_count);
+          const size_t current_count = std::min(count - total_sent_count, max_send_count);
 
-          const int ierr = MPI_Bcast(buffer + total_sent_count,
-                                     current_count,
-                                     mpi_type_id_for_type<decltype(*buffer)>,
-                                     root,
-                                     comm);
+          const int ierr =
+            MPI_Bcast(buffer + total_sent_count, current_count, mpi_type_id_for_type<decltype(*buffer)>, root, comm);
           AssertThrowMPI(ierr);
           total_sent_count += current_count;
         }
@@ -2233,9 +2113,7 @@ namespace Utilities
 
     template <typename T>
     std::enable_if_t<is_mpi_type<T> == false, T>
-    broadcast(const MPI_Comm     comm,
-              const T &          object_to_send,
-              const unsigned int root_process)
+    broadcast(const MPI_Comm comm, const T &object_to_send, const unsigned int root_process)
     {
 #  ifndef DEAL_II_WITH_MPI
       (void)comm;
@@ -2258,11 +2136,7 @@ namespace Utilities
         }
 
       // Exchange the size of buffer
-      int ierr = MPI_Bcast(&buffer_size,
-                           1,
-                           mpi_type_id_for_type<decltype(buffer_size)>,
-                           root_process,
-                           comm);
+      int ierr = MPI_Bcast(&buffer_size, 1, mpi_type_id_for_type<decltype(buffer_size)>, root_process, comm);
       AssertThrowMPI(ierr);
 
       // If not on the root process, correctly size the buffer to
@@ -2283,9 +2157,7 @@ namespace Utilities
 
     template <typename T>
     std::enable_if_t<is_mpi_type<T> == true, T>
-    broadcast(const MPI_Comm     comm,
-              const T &          object_to_send,
-              const unsigned int root_process)
+    broadcast(const MPI_Comm comm, const T &object_to_send, const unsigned int root_process)
     {
 #  ifndef DEAL_II_WITH_MPI
       (void)comm;
@@ -2294,8 +2166,7 @@ namespace Utilities
 #  else
 
       T   object = object_to_send;
-      int ierr =
-        MPI_Bcast(&object, 1, mpi_type_id_for_type<T>, root_process, comm);
+      int ierr   = MPI_Bcast(&object, 1, mpi_type_id_for_type<T>, root_process, comm);
       AssertThrowMPI(ierr);
 
       return object;
@@ -2305,10 +2176,7 @@ namespace Utilities
 
     template <typename T>
     Future<void>
-    isend(const T &          object,
-          MPI_Comm           communicator,
-          const unsigned int target_rank,
-          const unsigned int mpi_tag)
+    isend(const T &object, MPI_Comm communicator, const unsigned int target_rank, const unsigned int mpi_tag)
     {
 #  ifndef DEAL_II_WITH_MPI
       Assert(false, ExcNeedsMPI());
@@ -2337,14 +2205,13 @@ namespace Utilities
       // Now start the send, and store the result in a request object that
       // we can then wait for later:
       MPI_Request request;
-      const int   ierr =
-        MPI_Isend(send_buffer->data(),
-                  send_buffer->size(),
-                  mpi_type_id_for_type<decltype(*send_buffer->data())>,
-                  target_rank,
-                  mpi_tag,
-                  communicator,
-                  &request);
+      const int   ierr = MPI_Isend(send_buffer->data(),
+                                 send_buffer->size(),
+                                 mpi_type_id_for_type<decltype(*send_buffer->data())>,
+                                 target_rank,
+                                 mpi_tag,
+                                 communicator,
+                                 &request);
       AssertThrowMPI(ierr);
 
       // Then return a std::future-like object that has a wait()
@@ -2364,9 +2231,7 @@ namespace Utilities
         const int ierr = MPI_Wait(&request, MPI_STATUS_IGNORE);
         AssertThrowMPI(ierr);
       };
-      auto cleanup = [send_buffer = std::move(send_buffer)]() {
-        send_buffer->clear();
-      };
+      auto cleanup = [send_buffer = std::move(send_buffer)]() { send_buffer->clear(); };
       return Future<void>(wait, cleanup);
 #  endif
     }
@@ -2375,9 +2240,7 @@ namespace Utilities
 
     template <typename T>
     Future<T>
-    irecv(MPI_Comm           communicator,
-          const unsigned int source_rank,
-          const unsigned int mpi_tag)
+    irecv(MPI_Comm communicator, const unsigned int source_rank, const unsigned int mpi_tag)
     {
 #  ifndef DEAL_II_WITH_MPI
       Assert(false, ExcNeedsMPI());
@@ -2404,8 +2267,7 @@ namespace Utilities
       std::shared_ptr<MPI_Status>  status  = std::make_shared<MPI_Status>();
 
       auto wait = [source_rank, mpi_tag, communicator, message, status]() {
-        const int ierr = MPI_Mprobe(
-          source_rank, mpi_tag, communicator, message.get(), status.get());
+        const int ierr = MPI_Mprobe(source_rank, mpi_tag, communicator, message.get(), status.get());
         AssertThrowMPI(ierr);
       };
 
@@ -2441,9 +2303,7 @@ namespace Utilities
 #  ifdef DEAL_II_WITH_MPI
     template <class Iterator, typename Number>
     std::pair<Number, typename numbers::NumberTraits<Number>::real_type>
-    mean_and_standard_deviation(const Iterator begin,
-                                const Iterator end,
-                                const MPI_Comm comm)
+    mean_and_standard_deviation(const Iterator begin, const Iterator end, const MPI_Comm comm)
     {
       // below we do simple and straight-forward implementation. More elaborate
       // options are:
@@ -2455,15 +2315,13 @@ namespace Utilities
 
       const auto size = Utilities::MPI::sum(std::distance(begin, end), comm);
       Assert(size > 0, ExcDivideByZero());
-      const Number mean =
-        Utilities::MPI::sum(sum, comm) / static_cast<Std>(size);
-      Std sq_sum = 0.;
+      const Number mean   = Utilities::MPI::sum(sum, comm) / static_cast<Std>(size);
+      Std          sq_sum = 0.;
       std::for_each(begin, end, [&mean, &sq_sum](const Number &v) {
         sq_sum += numbers::NumberTraits<Number>::abs_square(v - mean);
       });
       sq_sum = Utilities::MPI::sum(sq_sum, comm);
-      return std::make_pair(mean,
-                            std::sqrt(sq_sum / static_cast<Std>(size - 1)));
+      return std::make_pair(mean, std::sqrt(sq_sum / static_cast<Std>(size - 1)));
     }
 #  endif
 

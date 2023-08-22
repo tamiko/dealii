@@ -48,7 +48,7 @@ namespace PETScWrappers
 
   void
   CommunicationPattern::reinit(const types::global_dof_index local_size,
-                               const IndexSet &              ghost_indices,
+                               const IndexSet               &ghost_indices,
                                const MPI_Comm                communicator)
   {
     clear();
@@ -73,8 +73,7 @@ namespace PETScWrappers
     AssertPETSc(ISGetIndices(is, &idxs));
 
     AssertPETSc(PetscSFCreate(communicator, &sf));
-    AssertPETSc(
-      PetscSFSetGraphLayout(sf, layout, n, nullptr, PETSC_OWN_POINTER, idxs));
+    AssertPETSc(PetscSFSetGraphLayout(sf, layout, n, nullptr, PETSC_OWN_POINTER, idxs));
     AssertPETSc(PetscSFSetUp(sf));
 
     AssertPETSc(ISRestoreIndices(is, &idxs));
@@ -105,10 +104,9 @@ namespace PETScWrappers
 
 
   void
-  CommunicationPattern::reinit(
-    const std::vector<types::global_dof_index> &indices_has,
-    const std::vector<types::global_dof_index> &indices_want,
-    const MPI_Comm                              communicator)
+  CommunicationPattern::reinit(const std::vector<types::global_dof_index> &indices_has,
+                               const std::vector<types::global_dof_index> &indices_want,
+                               const MPI_Comm                              communicator)
   {
     // Clean vectors from numbers::invalid_dof_index (indicating padding)
     std::vector<PetscInt> indices_has_clean, indices_has_loc;
@@ -150,11 +148,7 @@ namespace PETScWrappers
     if (!has_invalid)
       indices_want_loc.clear();
 
-    this->do_reinit(indices_has_clean,
-                    indices_has_loc,
-                    indices_want_clean,
-                    indices_want_loc,
-                    communicator);
+    this->do_reinit(indices_has_clean, indices_has_loc, indices_want_clean, indices_want_loc, communicator);
   }
 
 
@@ -186,11 +180,10 @@ namespace PETScWrappers
     PetscInt lN = n > 0 ? *std::max_element(inidx.begin(), inidx.end()) : -1;
     PetscInt N, nl;
 
-    Utilities::MPI::internal::all_reduce<PetscInt>(
-      MPI_MAX,
-      ArrayView<const PetscInt>(&lN, 1),
-      communicator,
-      ArrayView<PetscInt>(&N, 1));
+    Utilities::MPI::internal::all_reduce<PetscInt>(MPI_MAX,
+                                                   ArrayView<const PetscInt>(&lN, 1),
+                                                   communicator,
+                                                   ArrayView<PetscInt>(&N, 1));
 
     PetscSFNode *remotes;
     AssertPETSc(PetscMalloc1(n, &remotes));
@@ -222,8 +215,7 @@ namespace PETScWrappers
     AssertPETSc(PetscSFSetGraph(sf2,
                                 nl,
                                 n,
-                                const_cast<PetscInt *>(
-                                  inloc.size() > 0 ? inloc.data() : nullptr),
+                                const_cast<PetscInt *>(inloc.size() > 0 ? inloc.data() : nullptr),
                                 PETSC_COPY_VALUES,
                                 remotes,
                                 PETSC_OWN_POINTER));
@@ -235,13 +227,12 @@ namespace PETScWrappers
     // Now create the SF from the contiguous space to the local output space
     n = static_cast<PetscInt>(outidx.size());
     AssertPETSc(PetscSFCreate(communicator, &sf2));
-    AssertPETSc(PetscSFSetGraphLayout(
-      sf2,
-      layout,
-      n,
-      const_cast<PetscInt *>(outloc.size() > 0 ? outloc.data() : nullptr),
-      PETSC_COPY_VALUES,
-      const_cast<PetscInt *>(n > 0 ? outidx.data() : nullptr)));
+    AssertPETSc(PetscSFSetGraphLayout(sf2,
+                                      layout,
+                                      n,
+                                      const_cast<PetscInt *>(outloc.size() > 0 ? outloc.data() : nullptr),
+                                      PETSC_COPY_VALUES,
+                                      const_cast<PetscInt *>(n > 0 ? outidx.data() : nullptr)));
     AssertPETSc(PetscSFSetUp(sf2));
 
     // The final SF is the composition of the two
@@ -273,17 +264,15 @@ namespace PETScWrappers
 
   template <typename Number>
   void
-  CommunicationPattern::export_to_ghosted_array_start(
-    const ArrayView<const Number> &src,
-    const ArrayView<Number> &      dst) const
+  CommunicationPattern::export_to_ghosted_array_start(const ArrayView<const Number> &src,
+                                                      const ArrayView<Number>       &dst) const
   {
     auto datatype = Utilities::MPI::mpi_type_id_for_type<Number>;
 
 #  if DEAL_II_PETSC_VERSION_LT(3, 15, 0)
     AssertPETSc(PetscSFBcastBegin(sf, datatype, src.data(), dst.data()));
 #  else
-    AssertPETSc(
-      PetscSFBcastBegin(sf, datatype, src.data(), dst.data(), MPI_REPLACE));
+    AssertPETSc(PetscSFBcastBegin(sf, datatype, src.data(), dst.data(), MPI_REPLACE));
 #  endif
   }
 
@@ -291,17 +280,15 @@ namespace PETScWrappers
 
   template <typename Number>
   void
-  CommunicationPattern::export_to_ghosted_array_finish(
-    const ArrayView<const Number> &src,
-    const ArrayView<Number> &      dst) const
+  CommunicationPattern::export_to_ghosted_array_finish(const ArrayView<const Number> &src,
+                                                       const ArrayView<Number>       &dst) const
   {
     auto datatype = Utilities::MPI::mpi_type_id_for_type<Number>;
 
 #  if DEAL_II_PETSC_VERSION_LT(3, 15, 0)
     AssertPETSc(PetscSFBcastEnd(sf, datatype, src.data(), dst.data()));
 #  else
-    AssertPETSc(
-      PetscSFBcastEnd(sf, datatype, src.data(), dst.data(), MPI_REPLACE));
+    AssertPETSc(PetscSFBcastEnd(sf, datatype, src.data(), dst.data(), MPI_REPLACE));
 #  endif
   }
 
@@ -309,9 +296,7 @@ namespace PETScWrappers
 
   template <typename Number>
   void
-  CommunicationPattern::export_to_ghosted_array(
-    const ArrayView<const Number> &src,
-    const ArrayView<Number> &      dst) const
+  CommunicationPattern::export_to_ghosted_array(const ArrayView<const Number> &src, const ArrayView<Number> &dst) const
   {
     export_to_ghosted_array_start(src, dst);
     export_to_ghosted_array_finish(src, dst);
@@ -321,26 +306,23 @@ namespace PETScWrappers
 
   template <typename Number>
   void
-  CommunicationPattern::import_from_ghosted_array_start(
-    const VectorOperation::values  op,
-    const ArrayView<const Number> &src,
-    const ArrayView<Number> &      dst) const
+  CommunicationPattern::import_from_ghosted_array_start(const VectorOperation::values  op,
+                                                        const ArrayView<const Number> &src,
+                                                        const ArrayView<Number>       &dst) const
   {
     MPI_Op mpiop    = (op == VectorOperation::insert) ? MPI_REPLACE : MPI_SUM;
     auto   datatype = Utilities::MPI::mpi_type_id_for_type<Number>;
 
-    AssertPETSc(
-      PetscSFReduceBegin(sf, datatype, src.data(), dst.data(), mpiop));
+    AssertPETSc(PetscSFReduceBegin(sf, datatype, src.data(), dst.data(), mpiop));
   }
 
 
 
   template <typename Number>
   void
-  CommunicationPattern::import_from_ghosted_array_finish(
-    const VectorOperation::values  op,
-    const ArrayView<const Number> &src,
-    const ArrayView<Number> &      dst) const
+  CommunicationPattern::import_from_ghosted_array_finish(const VectorOperation::values  op,
+                                                         const ArrayView<const Number> &src,
+                                                         const ArrayView<Number>       &dst) const
   {
     MPI_Op mpiop    = (op == VectorOperation::insert) ? MPI_REPLACE : MPI_SUM;
     auto   datatype = Utilities::MPI::mpi_type_id_for_type<Number>;
@@ -352,10 +334,9 @@ namespace PETScWrappers
 
   template <typename Number>
   void
-  CommunicationPattern::import_from_ghosted_array(
-    const VectorOperation::values  op,
-    const ArrayView<const Number> &src,
-    const ArrayView<Number> &      dst) const
+  CommunicationPattern::import_from_ghosted_array(const VectorOperation::values  op,
+                                                  const ArrayView<const Number> &src,
+                                                  const ArrayView<Number>       &dst) const
   {
     import_from_ghosted_array_start(op, src, dst);
     import_from_ghosted_array_finish(op, src, dst);
@@ -376,9 +357,7 @@ namespace PETScWrappers
 
 
   void
-  Partitioner::reinit(const IndexSet &locally_owned_indices,
-                      const IndexSet &ghost_indices,
-                      const MPI_Comm  communicator)
+  Partitioner::reinit(const IndexSet &locally_owned_indices, const IndexSet &ghost_indices, const MPI_Comm communicator)
   {
     ghost_indices_data = ghost_indices;
     ghost_indices_data.subtract_set(locally_owned_indices);
@@ -404,14 +383,14 @@ namespace PETScWrappers
     ghost_indices_data.subtract_set(locally_owned_indices);
     ghost_indices_data.compress();
 
-    std::vector<types::global_dof_index> expanded_ghost_indices(
-      larger_ghost_indices.n_elements(), numbers::invalid_dof_index);
+    std::vector<types::global_dof_index> expanded_ghost_indices(larger_ghost_indices.n_elements(),
+                                                                numbers::invalid_dof_index);
     for (auto index : ghost_indices_data)
       {
         Assert(larger_ghost_indices.is_element(index),
                ExcMessage("The given larger ghost index set must contain "
                           "all indices in the actual index set."));
-        auto tmp_index = larger_ghost_indices.index_within_set(index);
+        auto tmp_index                    = larger_ghost_indices.index_within_set(index);
         expanded_ghost_indices[tmp_index] = index;
       }
 
@@ -429,8 +408,7 @@ namespace PETScWrappers
 
   template <typename Number>
   void
-  Partitioner::export_to_ghosted_array_start(const ArrayView<const Number> &src,
-                                             const ArrayView<Number> &dst) const
+  Partitioner::export_to_ghosted_array_start(const ArrayView<const Number> &src, const ArrayView<Number> &dst) const
   {
     if (dst.size() == n_ghost_indices_larger)
       {
@@ -444,9 +422,7 @@ namespace PETScWrappers
 
   template <typename Number>
   void
-  Partitioner::export_to_ghosted_array_finish(
-    const ArrayView<const Number> &src,
-    const ArrayView<Number> &      dst) const
+  Partitioner::export_to_ghosted_array_finish(const ArrayView<const Number> &src, const ArrayView<Number> &dst) const
   {
     if (dst.size() == n_ghost_indices_larger)
       {
@@ -460,8 +436,7 @@ namespace PETScWrappers
 
   template <typename Number>
   void
-  Partitioner::export_to_ghosted_array(const ArrayView<const Number> &src,
-                                       const ArrayView<Number> &      dst) const
+  Partitioner::export_to_ghosted_array(const ArrayView<const Number> &src, const ArrayView<Number> &dst) const
   {
     export_to_ghosted_array_start(src, dst);
     export_to_ghosted_array_finish(src, dst);
@@ -469,10 +444,9 @@ namespace PETScWrappers
 
   template <typename Number>
   void
-  Partitioner::import_from_ghosted_array_start(
-    const VectorOperation::values  op,
-    const ArrayView<const Number> &src,
-    const ArrayView<Number> &      dst) const
+  Partitioner::import_from_ghosted_array_start(const VectorOperation::values  op,
+                                               const ArrayView<const Number> &src,
+                                               const ArrayView<Number>       &dst) const
   {
     if (src.size() == n_ghost_indices_larger)
       {
@@ -486,10 +460,9 @@ namespace PETScWrappers
 
   template <typename Number>
   void
-  Partitioner::import_from_ghosted_array_finish(
-    const VectorOperation::values  op,
-    const ArrayView<const Number> &src,
-    const ArrayView<Number> &      dst) const
+  Partitioner::import_from_ghosted_array_finish(const VectorOperation::values  op,
+                                                const ArrayView<const Number> &src,
+                                                const ArrayView<Number>       &dst) const
   {
     if (src.size() == n_ghost_indices_larger)
       {
@@ -505,7 +478,7 @@ namespace PETScWrappers
   void
   Partitioner::import_from_ghosted_array(const VectorOperation::values  op,
                                          const ArrayView<const Number> &src,
-                                         const ArrayView<Number> &dst) const
+                                         const ArrayView<Number>       &dst) const
   {
     import_from_ghosted_array_start(op, src, dst);
     import_from_ghosted_array_finish(op, src, dst);

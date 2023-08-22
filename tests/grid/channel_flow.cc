@@ -29,10 +29,8 @@ test()
   Triangulation<dim> triangulation;
   GridGenerator::channel_with_cylinder(triangulation, 0.03, 4, 2.0, true);
 
-  std::map<types::manifold_id, std::vector<Point<dim>>>
-    manifold_to_face_centers;
-  std::map<types::boundary_id, std::vector<Point<dim>>>
-    boundary_to_face_centers;
+  std::map<types::manifold_id, std::vector<Point<dim>>> manifold_to_face_centers;
+  std::map<types::boundary_id, std::vector<Point<dim>>> boundary_to_face_centers;
 
   for (const auto &face : triangulation.active_face_iterators())
     {
@@ -41,8 +39,7 @@ test()
     }
 
   deallog << "face centers:" << std::endl;
-  for (std::pair<const types::manifold_id, std::vector<Point<dim>>> &key :
-       manifold_to_face_centers)
+  for (std::pair<const types::manifold_id, std::vector<Point<dim>>> &key : manifold_to_face_centers)
     {
       if (key.first == numbers::flat_manifold_id)
         continue;
@@ -55,8 +52,7 @@ test()
           deallog << std::endl;
         }
     }
-  for (std::pair<const types::boundary_id, std::vector<Point<dim>>> &key :
-       boundary_to_face_centers)
+  for (std::pair<const types::boundary_id, std::vector<Point<dim>>> &key : boundary_to_face_centers)
     {
       if (key.first == numbers::internal_face_boundary_id)
         continue;

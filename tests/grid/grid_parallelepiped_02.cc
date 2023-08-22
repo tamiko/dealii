@@ -74,22 +74,16 @@ check_nd_parallelepiped_by_comparison(bool log)
   GridGenerator::parallelepiped(triangulation_parallelepiped, corners, false);
 
   Triangulation<dim> triangulation_subdivided_parallelepiped;
-  GridGenerator::subdivided_parallelepiped(
-    triangulation_subdivided_parallelepiped, 1, corners, false);
+  GridGenerator::subdivided_parallelepiped(triangulation_subdivided_parallelepiped, 1, corners, false);
 
   if (log)
     {
-      deallog << "check " << dim
-              << "d parallelepiped (subdivided_parallelepiped):";
-      if (GridTools::have_same_coarse_mesh(
-            triangulation_parallelepiped,
-            triangulation_subdivided_parallelepiped))
+      deallog << "check " << dim << "d parallelepiped (subdivided_parallelepiped):";
+      if (GridTools::have_same_coarse_mesh(triangulation_parallelepiped, triangulation_subdivided_parallelepiped))
         deallog << "OK" << std::endl;
 
       else
-        deallog
-          << "not OK... coarse grids are different but they should be the same"
-          << std::endl;
+        deallog << "not OK... coarse grids are different but they should be the same" << std::endl;
     }
 }
 

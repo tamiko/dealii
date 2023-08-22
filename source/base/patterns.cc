@@ -251,8 +251,7 @@ namespace Patterns
               {
                 std::ostringstream description;
 
-                description << description_init << " range " << lower_bound
-                            << "..." << upper_bound << " (inclusive)]";
+                description << description_init << " range " << lower_bound << "..." << upper_bound << " (inclusive)]";
                 return description.str();
               }
             else
@@ -266,8 +265,7 @@ namespace Patterns
               {
                 std::ostringstream description;
 
-                description << "An integer n such that " << lower_bound
-                            << " <= n <= " << upper_bound;
+                description << "An integer n such that " << lower_bound << " <= n <= " << upper_bound;
 
                 return description.str();
               }
@@ -280,8 +278,7 @@ namespace Patterns
               {
                 std::ostringstream description;
 
-                description << "An integer $n$ such that $" << lower_bound
-                            << "\\leq n \\leq " << upper_bound << "$";
+                description << "An integer $n$ such that $" << lower_bound << "\\leq n \\leq " << upper_bound << "$";
 
                 return description.str();
               }
@@ -309,9 +306,7 @@ namespace Patterns
   std::unique_ptr<Integer>
   Integer::create(const std::string &description)
   {
-    if (description.compare(0,
-                            std::strlen(description_init),
-                            description_init) == 0)
+    if (description.compare(0, std::strlen(description_init), description_init) == 0)
       {
         std::istringstream is(description);
 
@@ -392,16 +387,12 @@ namespace Patterns
                 description << description_init << " ";
                 // We really want to compare with ==, but -Wfloat-equal would
                 // create a warning here, so work around it.
-                if (0 == std::memcmp(&lower_bound,
-                                     &min_double_value,
-                                     sizeof(lower_bound)))
+                if (0 == std::memcmp(&lower_bound, &min_double_value, sizeof(lower_bound)))
                   description << "-MAX_DOUBLE";
                 else
                   description << lower_bound;
                 description << "...";
-                if (0 == std::memcmp(&upper_bound,
-                                     &max_double_value,
-                                     sizeof(upper_bound)))
+                if (0 == std::memcmp(&upper_bound, &max_double_value, sizeof(upper_bound)))
                   description << "MAX_DOUBLE";
                 else
                   description << upper_bound;
@@ -422,16 +413,12 @@ namespace Patterns
                 std::ostringstream description;
 
                 description << "A floating point number v such that ";
-                if (0 == std::memcmp(&lower_bound,
-                                     &min_double_value,
-                                     sizeof(lower_bound)))
+                if (0 == std::memcmp(&lower_bound, &min_double_value, sizeof(lower_bound)))
                   description << "-MAX_DOUBLE";
                 else
                   description << lower_bound;
                 description << " <= v <= ";
-                if (0 == std::memcmp(&upper_bound,
-                                     &max_double_value,
-                                     sizeof(upper_bound)))
+                if (0 == std::memcmp(&upper_bound, &max_double_value, sizeof(upper_bound)))
                   description << "MAX_DOUBLE";
                 else
                   description << upper_bound;
@@ -448,16 +435,12 @@ namespace Patterns
                 std::ostringstream description;
 
                 description << "A floating point number $v$ such that $";
-                if (0 == std::memcmp(&lower_bound,
-                                     &min_double_value,
-                                     sizeof(lower_bound)))
+                if (0 == std::memcmp(&lower_bound, &min_double_value, sizeof(lower_bound)))
                   description << "-\\text{MAX\\_DOUBLE}";
                 else
                   description << lower_bound;
                 description << " \\leq v \\leq ";
-                if (0 == std::memcmp(&upper_bound,
-                                     &max_double_value,
-                                     sizeof(upper_bound)))
+                if (0 == std::memcmp(&upper_bound, &max_double_value, sizeof(upper_bound)))
                   description << "\\text{MAX\\_DOUBLE}";
                 else
                   description << upper_bound;
@@ -489,9 +472,7 @@ namespace Patterns
   Double::create(const std::string &description)
   {
     const std::string description_init_str = description_init;
-    if (description.compare(0,
-                            description_init_str.size(),
-                            description_init_str) != 0)
+    if (description.compare(0, description_init_str.size(), description_init_str) != 0)
       return std::unique_ptr<Double>();
     if (*description.rbegin() != ']')
       return std::unique_ptr<Double>();
@@ -590,10 +571,7 @@ namespace Patterns
           {
             std::ostringstream description;
 
-            description << "Any one of "
-                        << internal::escape(
-                             Utilities::replace_in_string(sequence, "|", ", "),
-                             style);
+            description << "Any one of " << internal::escape(Utilities::replace_in_string(sequence, "|", ", "), style);
 
             return description.str();
           }
@@ -617,8 +595,7 @@ namespace Patterns
   std::size_t
   Selection::memory_consumption() const
   {
-    return (sizeof(PatternBase) +
-            MemoryConsumption::memory_consumption(sequence));
+    return (sizeof(PatternBase) + MemoryConsumption::memory_consumption(sequence));
   }
 
 
@@ -626,9 +603,7 @@ namespace Patterns
   std::unique_ptr<Selection>
   Selection::create(const std::string &description)
   {
-    if (description.compare(0,
-                            std::strlen(description_init),
-                            description_init) == 0)
+    if (description.compare(0, std::strlen(description_init), description_init) == 0)
       {
         std::string sequence(description);
 
@@ -643,8 +618,7 @@ namespace Patterns
 
 
 
-  const unsigned int List::max_int_value =
-    std::numeric_limits<unsigned int>::max();
+  const unsigned int List::max_int_value = std::numeric_limits<unsigned int>::max();
 
   const char *List::description_init = "[List";
 
@@ -658,10 +632,8 @@ namespace Patterns
     , max_elements(max_elements)
     , separator(separator)
   {
-    Assert(min_elements <= max_elements,
-           ExcInvalidRange(min_elements, max_elements));
-    Assert(separator.size() > 0,
-           ExcMessage("The separator must have a non-zero length."));
+    Assert(min_elements <= max_elements, ExcInvalidRange(min_elements, max_elements));
+    Assert(separator.size() > 0, ExcMessage("The separator must have a non-zero length."));
   }
 
 
@@ -693,11 +665,9 @@ namespace Patterns
   bool
   List::match(const std::string &test_string_list) const
   {
-    const std::vector<std::string> split_list =
-      Utilities::split_string_list(test_string_list, separator);
+    const std::vector<std::string> split_list = Utilities::split_string_list(test_string_list, separator);
 
-    if ((split_list.size() < min_elements) ||
-        (split_list.size() > max_elements))
+    if ((split_list.size() < min_elements) || (split_list.size() > max_elements))
       return false;
 
     // check the different possibilities
@@ -719,10 +689,8 @@ namespace Patterns
           {
             std::ostringstream description;
 
-            description << description_init << " of <"
-                        << pattern->description(style) << ">"
-                        << " of length " << min_elements << "..."
-                        << max_elements << " (inclusive)";
+            description << description_init << " of <" << pattern->description(style) << ">"
+                        << " of length " << min_elements << "..." << max_elements << " (inclusive)";
             if (separator != ",")
               description << " separated by <" << separator << ">";
             description << "]";
@@ -734,13 +702,10 @@ namespace Patterns
           {
             std::ostringstream description;
 
-            description << "A list of " << min_elements << " to "
-                        << max_elements << " elements ";
+            description << "A list of " << min_elements << " to " << max_elements << " elements ";
             if (separator != ",")
-              description << "separated by <"
-                          << internal::escape(separator, style) << "> ";
-            description << "where each element is ["
-                        << pattern->description(style) << "]";
+              description << "separated by <" << internal::escape(separator, style) << "> ";
+            description << "where each element is [" << pattern->description(style) << "]";
 
             return description.str();
           }
@@ -757,8 +722,7 @@ namespace Patterns
   std::unique_ptr<PatternBase>
   List::clone() const
   {
-    return std::unique_ptr<PatternBase>(
-      new List(*pattern, min_elements, max_elements, separator));
+    return std::unique_ptr<PatternBase>(new List(*pattern, min_elements, max_elements, separator));
   }
 
 
@@ -774,26 +738,18 @@ namespace Patterns
   std::unique_ptr<List>
   List::create(const std::string &description)
   {
-    if (description.compare(0,
-                            std::strlen(description_init),
-                            description_init) == 0)
+    if (description.compare(0, std::strlen(description_init), description_init) == 0)
       {
         unsigned int min_elements = 0, max_elements = 0;
 
-        std::string::const_iterator it = description.begin() +
-                                         std::strlen(description_init) +
-                                         std::strlen(" of <");
+        std::string::const_iterator it = description.begin() + std::strlen(description_init) + std::strlen(" of <");
 
         int  n_open_angular = 1;
         auto tmp_it         = it - 1;
         while (n_open_angular > 0)
           {
-            tmp_it = std::find_if(tmp_it + 1, description.end(), [](char c) {
-              return (c == '>' || c == '<');
-            });
-            AssertThrow(tmp_it != description.end(),
-                        ExcMessage(
-                          "Couldn't find a closing '>' in description!"));
+            tmp_it = std::find_if(tmp_it + 1, description.end(), [](char c) { return (c == '>' || c == '<'); });
+            AssertThrow(tmp_it != description.end(), ExcMessage("Couldn't find a closing '>' in description!"));
             if (*tmp_it == '<')
               ++n_open_angular;
             else
@@ -801,11 +757,9 @@ namespace Patterns
           }
 
         std::string                  base_pattern_string(it, tmp_it);
-        std::unique_ptr<PatternBase> base_pattern(
-          pattern_factory(base_pattern_string));
+        std::unique_ptr<PatternBase> base_pattern(pattern_factory(base_pattern_string));
 
-        std::istringstream is(
-          std::string(tmp_it + std::strlen(" of length "), description.end()));
+        std::istringstream is(std::string(tmp_it + std::strlen(" of length "), description.end()));
         if (!(is >> min_elements))
           return std::make_unique<List>(*base_pattern);
 
@@ -820,10 +774,7 @@ namespace Patterns
         else
           separator = ",";
 
-        return std::make_unique<List>(*base_pattern,
-                                      min_elements,
-                                      max_elements,
-                                      separator);
+        return std::make_unique<List>(*base_pattern, min_elements, max_elements, separator);
       }
     else
       return std::unique_ptr<List>();
@@ -831,8 +782,7 @@ namespace Patterns
 
 
 
-  const unsigned int Map::max_int_value =
-    std::numeric_limits<unsigned int>::max();
+  const unsigned int Map::max_int_value = std::numeric_limits<unsigned int>::max();
 
   const char *Map::description_init = "[Map";
 
@@ -850,17 +800,13 @@ namespace Patterns
     , separator(separator)
     , key_value_separator(key_value_separator)
   {
-    Assert(min_elements <= max_elements,
-           ExcInvalidRange(min_elements, max_elements));
-    Assert(separator.size() > 0,
-           ExcMessage("The separator must have a non-zero length."));
-    Assert(key_value_separator.size() > 0,
-           ExcMessage("The key_value_separator must have a non-zero length."));
+    Assert(min_elements <= max_elements, ExcInvalidRange(min_elements, max_elements));
+    Assert(separator.size() > 0, ExcMessage("The separator must have a non-zero length."));
+    Assert(key_value_separator.size() > 0, ExcMessage("The key_value_separator must have a non-zero length."));
     Assert(separator != key_value_separator,
-           ExcMessage(
-             "The separator can not be the same of the key_value_separator "
-             "since that is used as the separator between the two elements "
-             "of <key:value> pairs"));
+           ExcMessage("The separator can not be the same of the key_value_separator "
+                      "since that is used as the separator between the two elements "
+                      "of <key:value> pairs"));
   }
 
 
@@ -879,16 +825,13 @@ namespace Patterns
   bool
   Map::match(const std::string &test_string_list) const
   {
-    std::vector<std::string> split_list =
-      Utilities::split_string_list(test_string_list, separator);
-    if ((split_list.size() < min_elements) ||
-        (split_list.size() > max_elements))
+    std::vector<std::string> split_list = Utilities::split_string_list(test_string_list, separator);
+    if ((split_list.size() < min_elements) || (split_list.size() > max_elements))
       return false;
 
     for (const auto &key_value_pair : split_list)
       {
-        std::vector<std::string> pair =
-          Utilities::split_string_list(key_value_pair, key_value_separator);
+        std::vector<std::string> pair = Utilities::split_string_list(key_value_pair, key_value_separator);
 
         // Check that we have in fact two matches
         if (pair.size() != 2)
@@ -915,12 +858,9 @@ namespace Patterns
           {
             std::ostringstream description;
 
-            description << description_init << " of <"
-                        << key_pattern->description(style) << ">"
-                        << key_value_separator << "<"
-                        << value_pattern->description(style) << ">"
-                        << " of length " << min_elements << "..."
-                        << max_elements << " (inclusive)";
+            description << description_init << " of <" << key_pattern->description(style) << ">" << key_value_separator
+                        << "<" << value_pattern->description(style) << ">"
+                        << " of length " << min_elements << "..." << max_elements << " (inclusive)";
             if (separator != ",")
               description << " separated by <" << separator << ">";
             description << "]";
@@ -932,17 +872,12 @@ namespace Patterns
           {
             std::ostringstream description;
 
-            description << "A key"
-                        << internal::escape(key_value_separator, style)
-                        << "value map of " << min_elements << " to "
-                        << max_elements << " elements ";
+            description << "A key" << internal::escape(key_value_separator, style) << "value map of " << min_elements
+                        << " to " << max_elements << " elements ";
             if (separator != ",")
-              description << " separated by <"
-                          << internal::escape(separator, style) << "> ";
-            description << " where each key is ["
-                        << key_pattern->description(style) << "]"
-                        << " and each value is ["
-                        << value_pattern->description(style) << "]";
+              description << " separated by <" << internal::escape(separator, style) << "> ";
+            description << " where each key is [" << key_pattern->description(style) << "]"
+                        << " and each value is [" << value_pattern->description(style) << "]";
 
             return description.str();
           }
@@ -959,22 +894,16 @@ namespace Patterns
   std::unique_ptr<PatternBase>
   Map::clone() const
   {
-    return std::unique_ptr<PatternBase>(new Map(*key_pattern,
-                                                *value_pattern,
-                                                min_elements,
-                                                max_elements,
-                                                separator,
-                                                key_value_separator));
+    return std::unique_ptr<PatternBase>(
+      new Map(*key_pattern, *value_pattern, min_elements, max_elements, separator, key_value_separator));
   }
 
 
   std::size_t
   Map::memory_consumption() const
   {
-    return (sizeof(*this) +
-            MemoryConsumption::memory_consumption(*key_pattern) +
-            MemoryConsumption::memory_consumption(*value_pattern) +
-            MemoryConsumption::memory_consumption(separator) +
+    return (sizeof(*this) + MemoryConsumption::memory_consumption(*key_pattern) +
+            MemoryConsumption::memory_consumption(*value_pattern) + MemoryConsumption::memory_consumption(separator) +
             MemoryConsumption::memory_consumption(key_value_separator));
   }
 
@@ -983,9 +912,7 @@ namespace Patterns
   std::unique_ptr<Map>
   Map::create(const std::string &description)
   {
-    if (description.compare(0,
-                            std::strlen(description_init),
-                            description_init) == 0)
+    if (description.compare(0, std::strlen(description_init), description_init) == 0)
       {
         unsigned int min_elements = 0, max_elements = 0;
 
@@ -1011,9 +938,7 @@ namespace Patterns
 
         is.ignore(std::strlen("..."));
         if (!(is >> max_elements))
-          return std::make_unique<Map>(*key_pattern,
-                                       *value_pattern,
-                                       min_elements);
+          return std::make_unique<Map>(*key_pattern, *value_pattern, min_elements);
 
         is.ignore(std::strlen(" (inclusive) separated by <"));
         std::string separator;
@@ -1022,12 +947,8 @@ namespace Patterns
         else
           separator = ",";
 
-        return std::make_unique<Map>(*key_pattern,
-                                     *value_pattern,
-                                     min_elements,
-                                     max_elements,
-                                     separator,
-                                     key_value_separator);
+        return std::make_unique<Map>(
+          *key_pattern, *value_pattern, min_elements, max_elements, separator, key_value_separator);
       }
     else
       return std::unique_ptr<Map>();
@@ -1069,14 +990,11 @@ namespace Patterns
   const char *Tuple::description_init = "[Tuple";
 
 
-  Tuple::Tuple(const std::vector<std::unique_ptr<PatternBase>> &ps,
-               const std::string &                              separator)
+  Tuple::Tuple(const std::vector<std::unique_ptr<PatternBase>> &ps, const std::string &separator)
     : separator(separator)
   {
-    Assert(ps.size() > 0,
-           ExcMessage("The Patterns list must have a non-zero length."));
-    Assert(separator.size() > 0,
-           ExcMessage("The separator must have a non-zero length."));
+    Assert(ps.size() > 0, ExcMessage("The Patterns list must have a non-zero length."));
+    Assert(separator.size() > 0, ExcMessage("The separator must have a non-zero length."));
     patterns.resize(ps.size());
     for (unsigned int i = 0; i < ps.size(); ++i)
       patterns[i] = ps[i]->clone();
@@ -1084,8 +1002,7 @@ namespace Patterns
 
 
 
-  Tuple::Tuple(const std::vector<std::unique_ptr<PatternBase>> &ps,
-               const char *                                     separator)
+  Tuple::Tuple(const std::vector<std::unique_ptr<PatternBase>> &ps, const char *separator)
     : Tuple(ps, std::string(separator))
   {}
 
@@ -1104,8 +1021,7 @@ namespace Patterns
   bool
   Tuple::match(const std::string &test_string_list) const
   {
-    std::vector<std::string> split_list =
-      Utilities::split_string_list(test_string_list, separator);
+    std::vector<std::string> split_list = Utilities::split_string_list(test_string_list, separator);
     if (split_list.size() != patterns.size())
       return false;
 
@@ -1129,9 +1045,8 @@ namespace Patterns
           {
             std::ostringstream description;
 
-            description << description_init << " of <" << patterns.size()
-                        << "> elements <" << patterns[0]->description(style)
-                        << ">";
+            description << description_init << " of <" << patterns.size() << "> elements <"
+                        << patterns[0]->description(style) << ">";
             for (unsigned int i = 1; i < patterns.size(); ++i)
               description << ", <" << patterns[i]->description(style) << ">";
 
@@ -1148,14 +1063,11 @@ namespace Patterns
 
             description << "A Tuple of " << patterns.size() << " elements ";
             if (separator != ":")
-              description << " separated by <"
-                          << internal::escape(separator, style) << "> ";
-            description << " where each element is ["
-                        << patterns[0]->description(style) << "]";
+              description << " separated by <" << internal::escape(separator, style) << "> ";
+            description << " where each element is [" << patterns[0]->description(style) << "]";
             for (unsigned int i = 1; i < patterns.size(); ++i)
               {
-                description << internal::escape(separator, style) << "["
-                            << patterns[i]->description(style) << "]";
+                description << internal::escape(separator, style) << "[" << patterns[i]->description(style) << "]";
               }
             return description.str();
           }
@@ -1189,9 +1101,7 @@ namespace Patterns
   std::unique_ptr<Tuple>
   Tuple::create(const std::string &description)
   {
-    if (description.compare(0,
-                            std::strlen(description_init),
-                            description_init) == 0)
+    if (description.compare(0, std::strlen(description_init), description_init) == 0)
       {
         std::vector<std::unique_ptr<PatternBase>> patterns;
 
@@ -1201,8 +1111,7 @@ namespace Patterns
         std::string len;
         std::getline(is, len, '>');
         const unsigned int n_elements = Utilities::string_to_int(len);
-        Assert(n_elements > 0,
-               ExcMessage("Provide at least 1 element in the tuple."));
+        Assert(n_elements > 0, ExcMessage("Provide at least 1 element in the tuple."));
         patterns.resize(n_elements);
 
         is.ignore(std::strlen(" elements <"));
@@ -1255,8 +1164,7 @@ namespace Patterns
 
   MultipleSelection::MultipleSelection(const std::string &seq)
   {
-    Assert(seq.find(',') == std::string::npos,
-           ExcCommasNotAllowed(seq.find(',')));
+    Assert(seq.find(',') == std::string::npos, ExcCommasNotAllowed(seq.find(',')));
 
     sequence = seq;
     while (sequence.find(" |") != std::string::npos)
@@ -1349,9 +1257,7 @@ namespace Patterns
             std::ostringstream description;
 
             description << "A comma-separated list of any of "
-                        << internal::escape(
-                             Utilities::replace_in_string(sequence, "|", ", "),
-                             style);
+                        << internal::escape(Utilities::replace_in_string(sequence, "|", ", "), style);
 
             return description.str();
           }
@@ -1375,8 +1281,7 @@ namespace Patterns
   std::size_t
   MultipleSelection::memory_consumption() const
   {
-    return (sizeof(PatternBase) +
-            MemoryConsumption::memory_consumption(sequence));
+    return (sizeof(PatternBase) + MemoryConsumption::memory_consumption(sequence));
   }
 
 
@@ -1384,9 +1289,7 @@ namespace Patterns
   std::unique_ptr<MultipleSelection>
   MultipleSelection::create(const std::string &description)
   {
-    if (description.compare(0,
-                            std::strlen(description_init),
-                            description_init) == 0)
+    if (description.compare(0, std::strlen(description_init), description_init) == 0)
       {
         std::string sequence(description);
 
@@ -1449,9 +1352,7 @@ namespace Patterns
   std::unique_ptr<Bool>
   Bool::create(const std::string &description)
   {
-    if (description.compare(0,
-                            std::strlen(description_init),
-                            description_init) == 0)
+    if (description.compare(0, std::strlen(description_init), description_init) == 0)
       return std::make_unique<Bool>();
     else
       return std::unique_ptr<Bool>();
@@ -1510,9 +1411,7 @@ namespace Patterns
   std::unique_ptr<Anything>
   Anything::create(const std::string &description)
   {
-    if (description.compare(0,
-                            std::strlen(description_init),
-                            description_init) == 0)
+    if (description.compare(0, std::strlen(description_init), description_init) == 0)
       return std::make_unique<Anything>();
     else
       return std::unique_ptr<Anything>();
@@ -1584,9 +1483,7 @@ namespace Patterns
   std::unique_ptr<FileName>
   FileName::create(const std::string &description)
   {
-    if (description.compare(0,
-                            std::strlen(description_init),
-                            description_init) == 0)
+    if (description.compare(0, std::strlen(description_init), description_init) == 0)
       {
         std::istringstream is(description);
         std::string        file_type;
@@ -1660,9 +1557,7 @@ namespace Patterns
   std::unique_ptr<DirectoryName>
   DirectoryName::create(const std::string &description)
   {
-    if (description.compare(0,
-                            std::strlen(description_init),
-                            description_init) == 0)
+    if (description.compare(0, std::strlen(description_init), description_init) == 0)
       return std::make_unique<DirectoryName>();
     else
       return std::unique_ptr<DirectoryName>();

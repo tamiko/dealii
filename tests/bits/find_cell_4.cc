@@ -35,8 +35,7 @@ check(Triangulation<3> &tria)
 {
   Point<3> p(0.75, 0, 0);
 
-  Triangulation<3>::active_cell_iterator cell =
-    GridTools::find_active_cell_around_point(tria, p);
+  Triangulation<3>::active_cell_iterator cell = GridTools::find_active_cell_around_point(tria, p);
 
   deallog << cell << std::endl;
   for (const unsigned int v : GeometryInfo<3>::vertex_indices())
@@ -45,9 +44,7 @@ check(Triangulation<3> &tria)
 
   // Transform back and forth
   Point<3> pp = StaticMappingQ1<3>::mapping.transform_unit_to_real_cell(
-    cell,
-    GeometryInfo<3>::project_to_unit_cell(
-      StaticMappingQ1<3>::mapping.transform_real_to_unit_cell(cell, p)));
+    cell, GeometryInfo<3>::project_to_unit_cell(StaticMappingQ1<3>::mapping.transform_real_to_unit_cell(cell, p)));
 
   AssertThrow(p.distance(pp) < 1e-15, ExcInternalError());
 }

@@ -64,8 +64,7 @@ MGTransferBlock<number>::~MGTransferBlock()
 
 template <typename number>
 void
-MGTransferBlock<number>::initialize(const std::vector<number> &   f,
-                                    VectorMemory<Vector<number>> &mem)
+MGTransferBlock<number>::initialize(const std::vector<number> &f, VectorMemory<Vector<number>> &mem)
 {
   factors = f;
   memory  = &mem;
@@ -75,21 +74,17 @@ MGTransferBlock<number>::initialize(const std::vector<number> &   f,
 template <typename number>
 void
 MGTransferBlock<number>::prolongate(const unsigned int         to_level,
-                                    BlockVector<number> &      dst,
+                                    BlockVector<number>       &dst,
                                     const BlockVector<number> &src) const
 {
   Assert((to_level >= 1) && (to_level <= prolongation_matrices.size()),
          ExcIndexRange(to_level, 1, prolongation_matrices.size() + 1));
-  Assert(src.n_blocks() == this->n_mg_blocks,
-         ExcDimensionMismatch(src.n_blocks(), this->n_mg_blocks));
-  Assert(dst.n_blocks() == this->n_mg_blocks,
-         ExcDimensionMismatch(dst.n_blocks(), this->n_mg_blocks));
+  Assert(src.n_blocks() == this->n_mg_blocks, ExcDimensionMismatch(src.n_blocks(), this->n_mg_blocks));
+  Assert(dst.n_blocks() == this->n_mg_blocks, ExcDimensionMismatch(dst.n_blocks(), this->n_mg_blocks));
 
 #ifdef DEBUG
   if (this->mg_constrained_dofs != nullptr)
-    Assert(this->mg_constrained_dofs->get_user_constraint_matrix(to_level - 1)
-               .get_local_lines()
-               .size() == 0,
+    Assert(this->mg_constrained_dofs->get_user_constraint_matrix(to_level - 1).get_local_lines().size() == 0,
            ExcNotImplemented());
 #endif
 
@@ -99,8 +94,8 @@ MGTransferBlock<number>::prolongate(const unsigned int         to_level,
   for (unsigned int b = 0; b < this->mg_block.size(); ++b)
     {
       if (this->selected[b])
-        prolongation_matrices[to_level - 1]->block(b, b).vmult(
-          dst.block(this->mg_block[b]), src.block(this->mg_block[b]));
+        prolongation_matrices[to_level - 1]->block(b, b).vmult(dst.block(this->mg_block[b]),
+                                                               src.block(this->mg_block[b]));
     }
 }
 
@@ -108,15 +103,13 @@ MGTransferBlock<number>::prolongate(const unsigned int         to_level,
 template <typename number>
 void
 MGTransferBlock<number>::restrict_and_add(const unsigned int         from_level,
-                                          BlockVector<number> &      dst,
+                                          BlockVector<number>       &dst,
                                           const BlockVector<number> &src) const
 {
   Assert((from_level >= 1) && (from_level <= prolongation_matrices.size()),
          ExcIndexRange(from_level, 1, prolongation_matrices.size() + 1));
-  Assert(src.n_blocks() == this->n_mg_blocks,
-         ExcDimensionMismatch(src.n_blocks(), this->n_mg_blocks));
-  Assert(dst.n_blocks() == this->n_mg_blocks,
-         ExcDimensionMismatch(dst.n_blocks(), this->n_mg_blocks));
+  Assert(src.n_blocks() == this->n_mg_blocks, ExcDimensionMismatch(src.n_blocks(), this->n_mg_blocks));
+  Assert(dst.n_blocks() == this->n_mg_blocks, ExcDimensionMismatch(dst.n_blocks(), this->n_mg_blocks));
 
   for (unsigned int b = 0; b < this->mg_block.size(); ++b)
     {
@@ -127,16 +120,15 @@ MGTransferBlock<number>::restrict_and_add(const unsigned int         from_level,
               Assert(memory != nullptr, ExcNotInitialized());
               Vector<number> *aux = memory->alloc();
               aux->reinit(dst.block(this->mg_block[b]));
-              prolongation_matrices[from_level - 1]->block(b, b).Tvmult(
-                *aux, src.block(this->mg_block[b]));
+              prolongation_matrices[from_level - 1]->block(b, b).Tvmult(*aux, src.block(this->mg_block[b]));
 
               dst.block(this->mg_block[b]).add(factors[b], *aux);
               memory->free(aux);
             }
           else
             {
-              prolongation_matrices[from_level - 1]->block(b, b).Tvmult_add(
-                dst.block(this->mg_block[b]), src.block(this->mg_block[b]));
+              prolongation_matrices[from_level - 1]->block(b, b).Tvmult_add(dst.block(this->mg_block[b]),
+                                                                            src.block(this->mg_block[b]));
             }
         }
     }
@@ -148,19 +140,13 @@ std::size_t
 MGTransferComponentBase::memory_consumption() const
 {
   std::size_t result = sizeof(*this);
-  result += MemoryConsumption::memory_consumption(component_mask) -
-            sizeof(ComponentMask);
-  result += MemoryConsumption::memory_consumption(target_component) -
-            sizeof(mg_target_component);
+  result += MemoryConsumption::memory_consumption(component_mask) - sizeof(ComponentMask);
+  result += MemoryConsumption::memory_consumption(target_component) - sizeof(mg_target_component);
   result += MemoryConsumption::memory_consumption(sizes) - sizeof(sizes);
-  result += MemoryConsumption::memory_consumption(component_start) -
-            sizeof(component_start);
-  result += MemoryConsumption::memory_consumption(mg_component_start) -
-            sizeof(mg_component_start);
-  result += MemoryConsumption::memory_consumption(prolongation_sparsities) -
-            sizeof(prolongation_sparsities);
-  result += MemoryConsumption::memory_consumption(prolongation_matrices) -
-            sizeof(prolongation_matrices);
+  result += MemoryConsumption::memory_consumption(component_start) - sizeof(component_start);
+  result += MemoryConsumption::memory_consumption(mg_component_start) - sizeof(mg_component_start);
+  result += MemoryConsumption::memory_consumption(prolongation_sparsities) - sizeof(prolongation_sparsities);
+  result += MemoryConsumption::memory_consumption(prolongation_matrices) - sizeof(prolongation_matrices);
   // TODO:[GK] Add this.
   //   result += MemoryConsumption::memory_consumption(copy_to_and_from_indices)
   //          - sizeof(copy_to_and_from_indices);
@@ -176,14 +162,10 @@ MGTransferBlockBase::memory_consumption() const
   result += sizeof(unsigned int) * sizes.size();
   result += MemoryConsumption::memory_consumption(selected) - sizeof(selected);
   result += MemoryConsumption::memory_consumption(mg_block) - sizeof(mg_block);
-  result +=
-    MemoryConsumption::memory_consumption(block_start) - sizeof(block_start);
-  result += MemoryConsumption::memory_consumption(mg_block_start) -
-            sizeof(mg_block_start);
-  result += MemoryConsumption::memory_consumption(prolongation_sparsities) -
-            sizeof(prolongation_sparsities);
-  result += MemoryConsumption::memory_consumption(prolongation_matrices) -
-            sizeof(prolongation_matrices);
+  result += MemoryConsumption::memory_consumption(block_start) - sizeof(block_start);
+  result += MemoryConsumption::memory_consumption(mg_block_start) - sizeof(mg_block_start);
+  result += MemoryConsumption::memory_consumption(prolongation_sparsities) - sizeof(prolongation_sparsities);
+  result += MemoryConsumption::memory_consumption(prolongation_matrices) - sizeof(prolongation_matrices);
   // TODO:[GK] Add this.
   //   result += MemoryConsumption::memory_consumption(copy_indices)
   //          - sizeof(copy_indices);
@@ -211,16 +193,13 @@ MGTransferSelect<number>::MGTransferSelect(const AffineConstraints<double> &c)
 
 template <typename number>
 void
-MGTransferSelect<number>::prolongate(const unsigned int    to_level,
-                                     Vector<number> &      dst,
-                                     const Vector<number> &src) const
+MGTransferSelect<number>::prolongate(const unsigned int to_level, Vector<number> &dst, const Vector<number> &src) const
 {
   Assert((to_level >= 1) && (to_level <= prolongation_matrices.size()),
          ExcIndexRange(to_level, 1, prolongation_matrices.size() + 1));
 
   prolongation_matrices[to_level - 1]
-    ->block(mg_target_component[mg_selected_component],
-            mg_target_component[mg_selected_component])
+    ->block(mg_target_component[mg_selected_component], mg_target_component[mg_selected_component])
     .vmult(dst, src);
 }
 
@@ -229,15 +208,14 @@ MGTransferSelect<number>::prolongate(const unsigned int    to_level,
 template <typename number>
 void
 MGTransferSelect<number>::restrict_and_add(const unsigned int    from_level,
-                                           Vector<number> &      dst,
+                                           Vector<number>       &dst,
                                            const Vector<number> &src) const
 {
   Assert((from_level >= 1) && (from_level <= prolongation_matrices.size()),
          ExcIndexRange(from_level, 1, prolongation_matrices.size() + 1));
 
   prolongation_matrices[from_level - 1]
-    ->block(mg_target_component[mg_selected_component],
-            mg_target_component[mg_selected_component])
+    ->block(mg_target_component[mg_selected_component], mg_target_component[mg_selected_component])
     .Tvmult_add(dst, src);
 }
 
@@ -252,8 +230,7 @@ MGTransferBlockSelect<number>::MGTransferBlockSelect()
 
 
 template <typename number>
-MGTransferBlockSelect<number>::MGTransferBlockSelect(
-  const MGConstrainedDoFs &mg_c)
+MGTransferBlockSelect<number>::MGTransferBlockSelect(const MGConstrainedDoFs &mg_c)
   : MGTransferBlockBase(mg_c)
   , selected_block(0)
 {}
@@ -263,7 +240,7 @@ MGTransferBlockSelect<number>::MGTransferBlockSelect(
 template <typename number>
 void
 MGTransferBlockSelect<number>::prolongate(const unsigned int    to_level,
-                                          Vector<number> &      dst,
+                                          Vector<number>       &dst,
                                           const Vector<number> &src) const
 {
   Assert((to_level >= 1) && (to_level <= prolongation_matrices.size()),
@@ -271,30 +248,24 @@ MGTransferBlockSelect<number>::prolongate(const unsigned int    to_level,
 
 #ifdef DEBUG
   if (this->mg_constrained_dofs != nullptr)
-    Assert(this->mg_constrained_dofs->get_user_constraint_matrix(to_level - 1)
-               .get_local_lines()
-               .size() == 0,
+    Assert(this->mg_constrained_dofs->get_user_constraint_matrix(to_level - 1).get_local_lines().size() == 0,
            ExcNotImplemented());
 #endif
 
-  prolongation_matrices[to_level - 1]
-    ->block(selected_block, selected_block)
-    .vmult(dst, src);
+  prolongation_matrices[to_level - 1]->block(selected_block, selected_block).vmult(dst, src);
 }
 
 
 template <typename number>
 void
-MGTransferBlockSelect<number>::restrict_and_add(const unsigned int from_level,
-                                                Vector<number> &   dst,
+MGTransferBlockSelect<number>::restrict_and_add(const unsigned int    from_level,
+                                                Vector<number>       &dst,
                                                 const Vector<number> &src) const
 {
   Assert((from_level >= 1) && (from_level <= prolongation_matrices.size()),
          ExcIndexRange(from_level, 1, prolongation_matrices.size() + 1));
 
-  prolongation_matrices[from_level - 1]
-    ->block(selected_block, selected_block)
-    .Tvmult_add(dst, src);
+  prolongation_matrices[from_level - 1]->block(selected_block, selected_block).Tvmult_add(dst, src);
 }
 
 

@@ -51,10 +51,7 @@ namespace LocalIntegrators
      */
     template <int dim>
     void
-    cell_matrix(FullMatrix<double> &     M,
-                const FEValuesBase<dim> &fe,
-                const FEValuesBase<dim> &fetest,
-                double                   factor = 1.)
+    cell_matrix(FullMatrix<double> &M, const FEValuesBase<dim> &fe, const FEValuesBase<dim> &fetest, double factor = 1.)
     {
       const unsigned int n_dofs = fe.dofs_per_cell;
       const unsigned int t_dofs = fetest.dofs_per_cell;
@@ -90,16 +87,15 @@ namespace LocalIntegrators
      */
     template <int dim, typename number>
     void
-    cell_residual(Vector<number> &                                    result,
-                  const FEValuesBase<dim> &                           fetest,
+    cell_residual(Vector<number>                                     &result,
+                  const FEValuesBase<dim>                            &fetest,
                   const ArrayView<const std::vector<Tensor<1, dim>>> &input,
-                  const double factor = 1.)
+                  const double                                        factor = 1.)
     {
       AssertDimension(fetest.get_fe().n_components(), 1);
       AssertVectorVectorDimension(input, dim, fetest.n_quadrature_points);
       const unsigned int t_dofs = fetest.dofs_per_cell;
-      Assert(result.size() == t_dofs,
-             ExcDimensionMismatch(result.size(), t_dofs));
+      Assert(result.size() == t_dofs, ExcDimensionMismatch(result.size(), t_dofs));
 
       for (unsigned int k = 0; k < fetest.n_quadrature_points; ++k)
         {
@@ -123,16 +119,15 @@ namespace LocalIntegrators
      */
     template <int dim, typename number>
     void
-    cell_residual(Vector<number> &                            result,
-                  const FEValuesBase<dim> &                   fetest,
+    cell_residual(Vector<number>                             &result,
+                  const FEValuesBase<dim>                    &fetest,
                   const ArrayView<const std::vector<double>> &input,
                   const double                                factor = 1.)
     {
       AssertDimension(fetest.get_fe().n_components(), 1);
       AssertVectorVectorDimension(input, dim, fetest.n_quadrature_points);
       const unsigned int t_dofs = fetest.dofs_per_cell;
-      Assert(result.size() == t_dofs,
-             ExcDimensionMismatch(result.size(), t_dofs));
+      Assert(result.size() == t_dofs, ExcDimensionMismatch(result.size(), t_dofs));
 
       for (unsigned int k = 0; k < fetest.n_quadrature_points; ++k)
         {
@@ -154,7 +149,7 @@ namespace LocalIntegrators
      */
     template <int dim>
     void
-    gradient_matrix(FullMatrix<double> &     M,
+    gradient_matrix(FullMatrix<double>      &M,
                     const FEValuesBase<dim> &fe,
                     const FEValuesBase<dim> &fetest,
                     double                   factor = 1.)
@@ -194,16 +189,15 @@ namespace LocalIntegrators
      */
     template <int dim, typename number>
     void
-    gradient_residual(Vector<number> &                   result,
-                      const FEValuesBase<dim> &          fetest,
+    gradient_residual(Vector<number>                    &result,
+                      const FEValuesBase<dim>           &fetest,
                       const std::vector<Tensor<1, dim>> &input,
                       const double                       factor = 1.)
     {
       AssertDimension(fetest.get_fe().n_components(), dim);
       AssertDimension(input.size(), fetest.n_quadrature_points);
       const unsigned int t_dofs = fetest.dofs_per_cell;
-      Assert(result.size() == t_dofs,
-             ExcDimensionMismatch(result.size(), t_dofs));
+      Assert(result.size() == t_dofs, ExcDimensionMismatch(result.size(), t_dofs));
 
       for (unsigned int k = 0; k < fetest.n_quadrature_points; ++k)
         {
@@ -211,8 +205,7 @@ namespace LocalIntegrators
 
           for (unsigned int i = 0; i < t_dofs; ++i)
             for (unsigned int d = 0; d < dim; ++d)
-              result(i) +=
-                dx * input[k][d] * fetest.shape_value_component(i, k, d);
+              result(i) += dx * input[k][d] * fetest.shape_value_component(i, k, d);
         }
     }
 
@@ -227,16 +220,15 @@ namespace LocalIntegrators
      */
     template <int dim, typename number>
     void
-    gradient_residual(Vector<number> &           result,
-                      const FEValuesBase<dim> &  fetest,
+    gradient_residual(Vector<number>            &result,
+                      const FEValuesBase<dim>   &fetest,
                       const std::vector<double> &input,
                       const double               factor = 1.)
     {
       AssertDimension(fetest.get_fe().n_components(), dim);
       AssertDimension(input.size(), fetest.n_quadrature_points);
       const unsigned int t_dofs = fetest.dofs_per_cell;
-      Assert(result.size() == t_dofs,
-             ExcDimensionMismatch(result.size(), t_dofs));
+      Assert(result.size() == t_dofs, ExcDimensionMismatch(result.size(), t_dofs));
 
       for (unsigned int k = 0; k < fetest.n_quadrature_points; ++k)
         {
@@ -244,8 +236,7 @@ namespace LocalIntegrators
 
           for (unsigned int i = 0; i < t_dofs; ++i)
             for (unsigned int d = 0; d < dim; ++d)
-              result(i) -=
-                dx * input[k] * fetest.shape_grad_component(i, k, d)[d];
+              result(i) -= dx * input[k] * fetest.shape_grad_component(i, k, d)[d];
         }
     }
 
@@ -256,7 +247,7 @@ namespace LocalIntegrators
      */
     template <int dim>
     void
-    u_dot_n_matrix(FullMatrix<double> &     M,
+    u_dot_n_matrix(FullMatrix<double>      &M,
                    const FEValuesBase<dim> &fe,
                    const FEValuesBase<dim> &fetest,
                    double                   factor = 1.)
@@ -275,8 +266,7 @@ namespace LocalIntegrators
           for (unsigned int i = 0; i < t_dofs; ++i)
             for (unsigned int j = 0; j < n_dofs; ++j)
               for (unsigned int d = 0; d < dim; ++d)
-                M(i, j) += ndx[d] * fe.shape_value_component(j, k, d) *
-                           fetest.shape_value(i, k);
+                M(i, j) += ndx[d] * fe.shape_value_component(j, k, d) * fetest.shape_value(i, k);
         }
     }
 
@@ -289,9 +279,9 @@ namespace LocalIntegrators
      */
     template <int dim, typename number>
     void
-    u_dot_n_residual(Vector<number> &                            result,
-                     const FEValuesBase<dim> &                   fe,
-                     const FEValuesBase<dim> &                   fetest,
+    u_dot_n_residual(Vector<number>                             &result,
+                     const FEValuesBase<dim>                    &fe,
+                     const FEValuesBase<dim>                    &fetest,
                      const ArrayView<const std::vector<double>> &data,
                      double                                      factor = 1.)
     {
@@ -321,8 +311,8 @@ namespace LocalIntegrators
      */
     template <int dim, typename number>
     void
-    u_times_n_residual(Vector<number> &           result,
-                       const FEValuesBase<dim> &  fetest,
+    u_times_n_residual(Vector<number>            &result,
+                       const FEValuesBase<dim>   &fetest,
                        const std::vector<double> &data,
                        double                     factor = 1.)
     {
@@ -334,13 +324,11 @@ namespace LocalIntegrators
 
       for (unsigned int k = 0; k < fetest.n_quadrature_points; ++k)
         {
-          const Tensor<1, dim> ndx =
-            factor * fetest.normal_vector(k) * fetest.JxW(k);
+          const Tensor<1, dim> ndx = factor * fetest.normal_vector(k) * fetest.JxW(k);
 
           for (unsigned int i = 0; i < t_dofs; ++i)
             for (unsigned int d = 0; d < dim; ++d)
-              result(i) +=
-                ndx[d] * fetest.shape_value_component(i, k, d) * data[k];
+              result(i) += ndx[d] * fetest.shape_value_component(i, k, d) * data[k];
         }
     }
 
@@ -355,10 +343,10 @@ namespace LocalIntegrators
      */
     template <int dim>
     void
-    u_dot_n_matrix(FullMatrix<double> &     M11,
-                   FullMatrix<double> &     M12,
-                   FullMatrix<double> &     M21,
-                   FullMatrix<double> &     M22,
+    u_dot_n_matrix(FullMatrix<double>      &M11,
+                   FullMatrix<double>      &M12,
+                   FullMatrix<double>      &M21,
+                   FullMatrix<double>      &M22,
                    const FEValuesBase<dim> &fe1,
                    const FEValuesBase<dim> &fe2,
                    const FEValuesBase<dim> &fetest1,
@@ -388,12 +376,10 @@ namespace LocalIntegrators
             for (unsigned int j = 0; j < n_dofs; ++j)
               for (unsigned int d = 0; d < dim; ++d)
                 {
-                  const double un1 = fe1.shape_value_component(j, k, d) *
-                                     fe1.normal_vector(k)[d];
-                  const double un2 = -fe2.shape_value_component(j, k, d) *
-                                     fe1.normal_vector(k)[d];
-                  const double v1 = fetest1.shape_value(i, k);
-                  const double v2 = fetest2.shape_value(i, k);
+                  const double un1 = fe1.shape_value_component(j, k, d) * fe1.normal_vector(k)[d];
+                  const double un2 = -fe2.shape_value_component(j, k, d) * fe1.normal_vector(k)[d];
+                  const double v1  = fetest1.shape_value(i, k);
+                  const double v2  = fetest2.shape_value(i, k);
 
                   M11(i, j) += .5 * dx * un1 * v1;
                   M12(i, j) += .5 * dx * un2 * v1;
@@ -414,10 +400,10 @@ namespace LocalIntegrators
      */
     template <int dim>
     void
-    u_dot_n_jump_matrix(FullMatrix<double> &     M11,
-                        FullMatrix<double> &     M12,
-                        FullMatrix<double> &     M21,
-                        FullMatrix<double> &     M22,
+    u_dot_n_jump_matrix(FullMatrix<double>      &M11,
+                        FullMatrix<double>      &M12,
+                        FullMatrix<double>      &M21,
+                        FullMatrix<double>      &M22,
                         const FEValuesBase<dim> &fe1,
                         const FEValuesBase<dim> &fe2,
                         double                   factor = 1.)
@@ -442,14 +428,10 @@ namespace LocalIntegrators
             for (unsigned int j = 0; j < n_dofs; ++j)
               for (unsigned int d = 0; d < dim; ++d)
                 {
-                  const double un1 = fe1.shape_value_component(j, k, d) *
-                                     fe1.normal_vector(k)[d];
-                  const double un2 = -fe2.shape_value_component(j, k, d) *
-                                     fe1.normal_vector(k)[d];
-                  const double vn1 = fe1.shape_value_component(i, k, d) *
-                                     fe1.normal_vector(k)[d];
-                  const double vn2 = -fe2.shape_value_component(i, k, d) *
-                                     fe1.normal_vector(k)[d];
+                  const double un1 = fe1.shape_value_component(j, k, d) * fe1.normal_vector(k)[d];
+                  const double un2 = -fe2.shape_value_component(j, k, d) * fe1.normal_vector(k)[d];
+                  const double vn1 = fe1.shape_value_component(i, k, d) * fe1.normal_vector(k)[d];
+                  const double vn2 = -fe2.shape_value_component(i, k, d) * fe1.normal_vector(k)[d];
 
                   M11(i, j) += dx * un1 * vn1;
                   M12(i, j) += dx * un2 * vn1;
@@ -469,8 +451,7 @@ namespace LocalIntegrators
      */
     template <int dim>
     double
-    norm(const FEValuesBase<dim> &                           fe,
-         const ArrayView<const std::vector<Tensor<1, dim>>> &Du)
+    norm(const FEValuesBase<dim> &fe, const ArrayView<const std::vector<Tensor<1, dim>>> &Du)
     {
       AssertDimension(fe.get_fe().n_components(), dim);
       AssertVectorVectorDimension(Du, dim, fe.n_quadrature_points);

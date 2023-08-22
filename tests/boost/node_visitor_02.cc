@@ -45,25 +45,20 @@ test(const unsigned int ref = 6, const unsigned int level = 0)
   GridGenerator::hyper_ball(tria);
   tria.refine_global(ref);
 
-  std::vector<
-    std::pair<BoundingBox<spacedim>,
-              typename Triangulation<dim, spacedim>::active_cell_iterator>>
-               boxes(tria.n_active_cells());
+  std::vector<std::pair<BoundingBox<spacedim>, typename Triangulation<dim, spacedim>::active_cell_iterator>> boxes(
+    tria.n_active_cells());
   unsigned int i = 0;
   for (const auto &cell : tria.active_cell_iterators())
     boxes[i++] = std::make_pair(mapping.get_bounding_box(cell), cell);
 
   const auto tree = pack_rtree<bgi::linear<max_elem_per_node>>(boxes);
-  Assert(n_levels(tree) == 2,
-         ExcMessage("Two levels are needed for this test."));
+  Assert(n_levels(tree) == 2, ExcMessage("Two levels are needed for this test."));
   const auto boxes_in_level = extract_rtree_level(tree, level);
-  deallog << "N Boxes in level " + std::to_string(level) + " "
-          << boxes_in_level.size() << std::endl;
+  deallog << "N Boxes in level " + std::to_string(level) + " " << boxes_in_level.size() << std::endl;
   const auto boxes_in_boxes = extract_children_of_level(tree, level);
 
   for (unsigned int i = 0; i < boxes_in_boxes.size(); ++i)
-    deallog << "boxes_in_boxes[" << i
-            << "] has size: " << boxes_in_boxes[i].size() << std::endl;
+    deallog << "boxes_in_boxes[" << i << "] has size: " << boxes_in_boxes[i].size() << std::endl;
 
   // Uncomment to display the partition
   // {

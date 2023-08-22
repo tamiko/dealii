@@ -45,10 +45,7 @@ namespace
     const Point<dim> center;
     const double     radius = 1;
 
-    const Functions::SignedDistance::ZalesakDisk<dim> level_set(center,
-                                                                radius,
-                                                                radius * 0.5,
-                                                                0.75 * radius);
+    const Functions::SignedDistance::ZalesakDisk<dim> level_set(center, radius, radius * 0.5, 0.75 * radius);
 
     {
       Point<dim> p;

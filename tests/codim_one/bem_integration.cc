@@ -30,7 +30,7 @@
 #include <deal.II/dofs/dof_tools.h>
 
 #include <deal.II/fe/fe_dgp.h>
-//#include <deal.II/fe/fe_q.h>
+// #include <deal.II/fe/fe_q.h>
 #include <deal.II/base/smartpointer.h>
 
 #include <deal.II/fe/fe_tools.h>
@@ -71,10 +71,9 @@ public:
   run();
 
   void
-  compute_SD_integral_on_cell(
-    std::vector<double> &                                    dst,
-    typename DoFHandler<dim, dim + 1>::active_cell_iterator &cell,
-    const Point<dim + 1> &                                   point);
+  compute_SD_integral_on_cell(std::vector<double>                                     &dst,
+                              typename DoFHandler<dim, dim + 1>::active_cell_iterator &cell,
+                              const Point<dim + 1>                                    &point);
 
 private:
   double
@@ -82,7 +81,7 @@ private:
          const Tensor<1, 3> &a1,
          const Tensor<1, 3> &a2,
          const Tensor<1, 3> &n,
-         const double &      rn_c);
+         const double       &rn_c);
 
   double
   term_D(const Tensor<1, 3> &r, const Tensor<1, 3> &a1, const Tensor<1, 3> &a2);
@@ -102,8 +101,7 @@ LaplaceKernelIntegration<2>::LaplaceKernelIntegration()
   qps[4] = Point<2>(.5, .5);
   std::vector<double>  ws(5, 1.);
   static Quadrature<2> quadrature(qps, ws);
-  fe_values = new FEValues<2, 3>(
-    fe, quadrature, update_values | update_jacobians | update_normal_vectors);
+  fe_values = new FEValues<2, 3>(fe, quadrature, update_values | update_jacobians | update_normal_vectors);
 }
 
 template <int dim>
@@ -117,15 +115,14 @@ LaplaceKernelIntegration<dim>::~LaplaceKernelIntegration()
 
 template <>
 void
-LaplaceKernelIntegration<2>::compute_SD_integral_on_cell(
-  std::vector<double> &                   dst,
-  DoFHandler<2, 3>::active_cell_iterator &cell,
-  const Point<3> &                        point)
+LaplaceKernelIntegration<2>::compute_SD_integral_on_cell(std::vector<double>                    &dst,
+                                                         DoFHandler<2, 3>::active_cell_iterator &cell,
+                                                         const Point<3>                         &point)
 {
   Assert(dst.size() == 2, ExcDimensionMismatch(dst.size(), 2));
   fe_values->reinit(cell);
   std::vector<DerivativeForm<1, 2, 3>> jacobians = fe_values->get_jacobians();
-  std::vector<Tensor<1, 3>> normals = fe_values->get_normal_vectors();
+  std::vector<Tensor<1, 3>>            normals   = fe_values->get_normal_vectors();
 
   Tensor<1, 3> n, n_c;
   Tensor<1, 3> r_c = point - cell->center();
@@ -153,7 +150,7 @@ LaplaceKernelIntegration<dim>::term_S(const Tensor<1, 3> &r,
                                       const Tensor<1, 3> &a1,
                                       const Tensor<1, 3> &a2,
                                       const Tensor<1, 3> &n,
-                                      const double &      rn_c)
+                                      const double       &rn_c)
 {
   Tensor<1, 3> ra1 = cross_product_3d(r, a1);
   Tensor<1, 3> ra2 = cross_product_3d(r, a2);
@@ -161,24 +158,20 @@ LaplaceKernelIntegration<dim>::term_S(const Tensor<1, 3> &r,
 
   double integral = -1. / 2. / numbers::PI *
                     (-ra1 * n / a1.norm() * asinh(r * a1 / ra1.norm()) +
-                     ra2 * n / a2.norm() * asinh(r * a2 / ra2.norm()) +
-                     rn_c * atan2(ra1 * ra2, r.norm() * (r * a12)));
+                     ra2 * n / a2.norm() * asinh(r * a2 / ra2.norm()) + rn_c * atan2(ra1 * ra2, r.norm() * (r * a12)));
 
   return integral;
 }
 
 template <int dim>
 double
-LaplaceKernelIntegration<dim>::term_D(const Tensor<1, 3> &r,
-                                      const Tensor<1, 3> &a1,
-                                      const Tensor<1, 3> &a2)
+LaplaceKernelIntegration<dim>::term_D(const Tensor<1, 3> &r, const Tensor<1, 3> &a1, const Tensor<1, 3> &a2)
 {
   Tensor<1, 3> ra1 = cross_product_3d(r, a1);
   Tensor<1, 3> ra2 = cross_product_3d(r, a2);
   Tensor<1, 3> a12 = cross_product_3d(a1, a2);
 
-  double integral =
-    1. / 2. / numbers::PI * atan2(ra1 * ra2, (r.norm() * (r * a12)));
+  double integral = 1. / 2. / numbers::PI * atan2(ra1 * ra2, (r.norm() * (r * a12)));
 
   return integral;
 }
@@ -212,18 +205,15 @@ main()
 
   Point<3> point(.5, .5, 0);
   double   true_result = -3.163145629 / numbers::PI;
-  deallog << "Error on  " << point << " : " << integration(point) - true_result
-          << std::endl;
+  deallog << "Error on  " << point << " : " << integration(point) - true_result << std::endl;
 
   point       = Point<3>(3, 3, 0);
   true_result = -.2306783616;
-  deallog << "Error on  " << point << " : " << integration(point) - true_result
-          << std::endl;
+  deallog << "Error on  " << point << " : " << integration(point) - true_result << std::endl;
 
   point       = Point<3>(1.5, .5, 0);
   true_result = -1.006860525;
-  deallog << "Error on  " << point << " : " << integration(point) - true_result
-          << std::endl;
+  deallog << "Error on  " << point << " : " << integration(point) - true_result << std::endl;
 
   return 0;
 }

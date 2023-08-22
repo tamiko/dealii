@@ -56,10 +56,7 @@ test()
     GridGenerator::hyper_cube(tr);
 
     tr.refine_global(2);
-    for (typename Triangulation<dim>::active_cell_iterator cell =
-           tr.begin_active();
-         cell != tr.end();
-         ++cell)
+    for (typename Triangulation<dim>::active_cell_iterator cell = tr.begin_active(); cell != tr.end(); ++cell)
       if (!cell->is_ghost() && !cell->is_artificial())
         if (cell->center().norm() < 0.3)
           {

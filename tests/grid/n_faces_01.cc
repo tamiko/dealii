@@ -37,8 +37,7 @@ test()
   (std::next((tria.begin_active())))->set_coarsen_flag();
   tria.execute_coarsening_and_refinement();
 
-  std::map<typename Triangulation<dim, spacedim>::face_iterator, unsigned int>
-    mymap;
+  std::map<typename Triangulation<dim, spacedim>::face_iterator, unsigned int> mymap;
 
   unsigned int face_counter = 0;
   for (auto &cell : tria.active_cell_iterators())
@@ -56,10 +55,8 @@ test()
         }
     }
 
-  deallog << "Counted: " << face_counter
-          << ", active: " << tria.n_active_faces()
-          << ", total: " << tria.n_faces() << ", raw: " << tria.n_raw_faces()
-          << std::endl;
+  deallog << "Counted: " << face_counter << ", active: " << tria.n_active_faces() << ", total: " << tria.n_faces()
+          << ", raw: " << tria.n_raw_faces() << std::endl;
 }
 
 int

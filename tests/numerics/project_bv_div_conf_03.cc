@@ -51,12 +51,10 @@ public:
   {}
 
   virtual double
-  value(const Point<dim> & point,
-        const unsigned int component = 0) const override
+  value(const Point<dim> &point, const unsigned int component = 0) const override
   {
     Assert(component < dim, ExcNotImplemented());
-    return std::sin(10 * point[component] +
-                    point[component == 0 ? 1 : component - 1]);
+    return std::sin(10 * point[component] + point[component == 0 ? 1 : component - 1]);
   }
 };
 
@@ -69,12 +67,10 @@ public:
   {}
 
   virtual double
-  value(const Point<dim> & point,
-        const unsigned int component = 0) const override
+  value(const Point<dim> &point, const unsigned int component = 0) const override
   {
     Assert(component < dim, ExcNotImplemented());
-    return std::cos(10 * point[component] +
-                    point[component == 0 ? 1 : component - 1]);
+    return std::cos(10 * point[component] + point[component == 0 ? 1 : component - 1]);
   }
 };
 
@@ -89,8 +85,7 @@ public:
   // To make interpolate_boundary_values happy, the pressure is assigned to
   // the 2*dim + 1th component
   virtual double
-  value(const Point<dim> & point,
-        const unsigned int component = 0) const override
+  value(const Point<dim> &point, const unsigned int component = 0) const override
   {
     if (component != 2 * dim)
       return std::numeric_limits<double>::quiet_NaN();
@@ -131,25 +126,20 @@ test_boundary_values(const FiniteElement<dim> &fe)
 
       std::map<types::boundary_id, const Function<dim> *> boundary_functions;
       boundary_functions[0] = &boundary_function_pres;
-      VectorTools::interpolate_boundary_values(mapping,
-                                               dof_handler,
-                                               boundary_functions,
-                                               constraints,
-                                               fe.component_mask(pressure));
-      VectorTools::project_boundary_values_div_conforming(
-        dof_handler,
-        0, /*first_vector_component*/
-        boundary_function_disp,
-        0, /*bdry_id*/
-        constraints,
-        mapping);
-      VectorTools::project_boundary_values_div_conforming(
-        dof_handler,
-        dim, /*first_vector_component*/
-        boundary_function_velo,
-        0, /*bdry_id*/
-        constraints,
-        mapping);
+      VectorTools::interpolate_boundary_values(
+        mapping, dof_handler, boundary_functions, constraints, fe.component_mask(pressure));
+      VectorTools::project_boundary_values_div_conforming(dof_handler,
+                                                          0, /*first_vector_component*/
+                                                          boundary_function_disp,
+                                                          0, /*bdry_id*/
+                                                          constraints,
+                                                          mapping);
+      VectorTools::project_boundary_values_div_conforming(dof_handler,
+                                                          dim, /*first_vector_component*/
+                                                          boundary_function_velo,
+                                                          0, /*bdry_id*/
+                                                          constraints,
+                                                          mapping);
       constraints.close();
       Vector<double> solution(dof_handler.n_dofs());
       constraints.distribute(solution);
@@ -157,8 +147,7 @@ test_boundary_values(const FiniteElement<dim> &fe)
       FEFaceValues<dim> face_values(mapping,
                                     fe,
                                     face_quadrature,
-                                    update_values | update_normal_vectors |
-                                      update_quadrature_points);
+                                    update_values | update_normal_vectors | update_quadrature_points);
       double            max_disp_error = 0.0;
       double            max_velo_error = 0.0;
       double            max_pres_error = 0.0;
@@ -174,47 +163,30 @@ test_boundary_values(const FiniteElement<dim> &fe)
               if (face->at_boundary())
                 {
                   face_values.reinit(cell, face_n);
-                  face_values[displacements].get_function_values(
-                    solution, cell_disp_values);
-                  face_values[velocities].get_function_values(solution,
-                                                              cell_velo_values);
-                  face_values[pressure].get_function_values(solution,
-                                                            cell_pres_values);
+                  face_values[displacements].get_function_values(solution, cell_disp_values);
+                  face_values[velocities].get_function_values(solution, cell_velo_values);
+                  face_values[pressure].get_function_values(solution, cell_pres_values);
 
-                  for (unsigned int q_point_n = 0;
-                       q_point_n < face_quadrature.size();
-                       ++q_point_n)
+                  for (unsigned int q_point_n = 0; q_point_n < face_quadrature.size(); ++q_point_n)
                     {
-                      const Point<dim> q_point =
-                        face_values.quadrature_point(q_point_n);
-                      const Tensor<1, dim> n_vector =
-                        face_values.normal_vector(q_point_n);
-                      Tensor<1, dim> exact_disp;
-                      Tensor<1, dim> exact_velo;
+                      const Point<dim>     q_point  = face_values.quadrature_point(q_point_n);
+                      const Tensor<1, dim> n_vector = face_values.normal_vector(q_point_n);
+                      Tensor<1, dim>       exact_disp;
+                      Tensor<1, dim>       exact_velo;
                       for (unsigned int dim_n = 0; dim_n < dim; ++dim_n)
                         {
-                          exact_disp[dim_n] =
-                            boundary_function_disp.value(q_point, dim_n);
-                          exact_velo[dim_n] =
-                            boundary_function_velo.value(q_point, dim_n);
+                          exact_disp[dim_n] = boundary_function_disp.value(q_point, dim_n);
+                          exact_velo[dim_n] = boundary_function_velo.value(q_point, dim_n);
                         }
-                      const double exact_pres =
-                        boundary_function_pres.value(q_point, 2 * dim);
+                      const double exact_pres = boundary_function_pres.value(q_point, 2 * dim);
 
                       max_disp_error =
-                        std::max(std::abs(cell_disp_values[q_point_n] *
-                                            n_vector -
-                                          exact_disp * n_vector),
+                        std::max(std::abs(cell_disp_values[q_point_n] * n_vector - exact_disp * n_vector),
                                  max_disp_error);
                       max_velo_error =
-                        std::max(std::abs(cell_velo_values[q_point_n] *
-                                            n_vector -
-                                          exact_velo * n_vector),
+                        std::max(std::abs(cell_velo_values[q_point_n] * n_vector - exact_velo * n_vector),
                                  max_velo_error);
-                      max_pres_error =
-                        std::max(std::abs(cell_pres_values[q_point_n] -
-                                          exact_pres),
-                                 max_pres_error);
+                      max_pres_error = std::max(std::abs(cell_pres_values[q_point_n] - exact_pres), max_pres_error);
                     }
                 }
             }
@@ -223,12 +195,9 @@ test_boundary_values(const FiniteElement<dim> &fe)
       if (refinement_n != 0)
         {
           deallog << std::endl;
-          deallog << "disp ratio: " << old_max_disp_error / max_disp_error
-                  << std::endl;
-          deallog << "velo ratio: " << old_max_velo_error / max_velo_error
-                  << std::endl;
-          deallog << "pres ratio: " << old_max_pres_error / max_pres_error
-                  << std::endl;
+          deallog << "disp ratio: " << old_max_disp_error / max_disp_error << std::endl;
+          deallog << "velo ratio: " << old_max_velo_error / max_velo_error << std::endl;
+          deallog << "pres ratio: " << old_max_pres_error / max_pres_error << std::endl;
         }
 
       old_max_disp_error = max_disp_error;

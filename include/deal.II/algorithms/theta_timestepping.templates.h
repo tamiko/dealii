@@ -31,8 +31,7 @@ DEAL_II_NAMESPACE_OPEN
 namespace Algorithms
 {
   template <typename VectorType>
-  ThetaTimestepping<VectorType>::ThetaTimestepping(OperatorBase &e,
-                                                   OperatorBase &i)
+  ThetaTimestepping<VectorType>::ThetaTimestepping(OperatorBase &e, OperatorBase &i)
     : vtheta(0.5)
     , adaptive(false)
     , op_explicit(&e)
@@ -85,8 +84,8 @@ namespace Algorithms
 
     LogStream::Prefix prefix("Theta");
 
-    VectorType &                    solution = *out.entry<VectorType *>(0);
-    GrowingVectorMemory<VectorType> mem;
+    VectorType                                &solution = *out.entry<VectorType *>(0);
+    GrowingVectorMemory<VectorType>            mem;
     typename VectorMemory<VectorType>::Pointer aux(mem);
     aux->reinit(solution);
 

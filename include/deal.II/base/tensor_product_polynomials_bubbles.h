@@ -106,8 +106,8 @@ public:
    * over all tensor product polynomials.
    */
   void
-  evaluate(const Point<dim> &           unit_point,
-           std::vector<double> &        values,
+  evaluate(const Point<dim>            &unit_point,
+           std::vector<double>         &values,
            std::vector<Tensor<1, dim>> &grads,
            std::vector<Tensor<2, dim>> &grad_grads,
            std::vector<Tensor<3, dim>> &third_derivatives,
@@ -148,29 +148,25 @@ public:
    * @copydoc ScalarPolynomialsBase::compute_1st_derivative()
    */
   virtual Tensor<1, dim>
-  compute_1st_derivative(const unsigned int i,
-                         const Point<dim> & p) const override;
+  compute_1st_derivative(const unsigned int i, const Point<dim> &p) const override;
 
   /**
    * @copydoc ScalarPolynomialsBase::compute_2nd_derivative()
    */
   virtual Tensor<2, dim>
-  compute_2nd_derivative(const unsigned int i,
-                         const Point<dim> & p) const override;
+  compute_2nd_derivative(const unsigned int i, const Point<dim> &p) const override;
 
   /**
    * @copydoc ScalarPolynomialsBase::compute_3rd_derivative()
    */
   virtual Tensor<3, dim>
-  compute_3rd_derivative(const unsigned int i,
-                         const Point<dim> & p) const override;
+  compute_3rd_derivative(const unsigned int i, const Point<dim> &p) const override;
 
   /**
    * @copydoc ScalarPolynomialsBase::compute_4th_derivative()
    */
   virtual Tensor<4, dim>
-  compute_4th_derivative(const unsigned int i,
-                         const Point<dim> & p) const override;
+  compute_4th_derivative(const unsigned int i, const Point<dim> &p) const override;
 
   /**
    * Compute the grad of the <tt>i</tt>th tensor product polynomial at
@@ -250,15 +246,11 @@ private:
 
 template <int dim>
 template <class Pol>
-inline TensorProductPolynomialsBubbles<dim>::TensorProductPolynomialsBubbles(
-  const std::vector<Pol> &pols)
-  : ScalarPolynomialsBase<dim>(1,
-                               Utilities::fixed_power<dim>(pols.size()) + dim)
+inline TensorProductPolynomialsBubbles<dim>::TensorProductPolynomialsBubbles(const std::vector<Pol> &pols)
+  : ScalarPolynomialsBase<dim>(1, Utilities::fixed_power<dim>(pols.size()) + dim)
   , tensor_polys(pols)
-  , index_map(tensor_polys.n() +
-              ((tensor_polys.polynomials.size() <= 2) ? 1 : dim))
-  , index_map_inverse(tensor_polys.n() +
-                      ((tensor_polys.polynomials.size() <= 2) ? 1 : dim))
+  , index_map(tensor_polys.n() + ((tensor_polys.polynomials.size() <= 2) ? 1 : dim))
+  , index_map_inverse(tensor_polys.n() + ((tensor_polys.polynomials.size() <= 2) ? 1 : dim))
 {
   const unsigned int q_degree  = tensor_polys.polynomials.size() - 1;
   const unsigned int n_bubbles = ((q_degree <= 1) ? 1 : dim);
@@ -314,14 +306,11 @@ TensorProductPolynomialsBubbles<dim>::name() const
 template <int dim>
 template <int order>
 Tensor<order, dim>
-TensorProductPolynomialsBubbles<dim>::compute_derivative(
-  const unsigned int i,
-  const Point<dim> & p) const
+TensorProductPolynomialsBubbles<dim>::compute_derivative(const unsigned int i, const Point<dim> &p) const
 {
   const unsigned int q_degree      = tensor_polys.polynomials.size() - 1;
   const unsigned int max_q_indices = tensor_polys.n();
-  Assert(i < max_q_indices + /* n_bubbles= */ ((q_degree <= 1) ? 1 : dim),
-         ExcInternalError());
+  Assert(i < max_q_indices + /* n_bubbles= */ ((q_degree <= 1) ? 1 : dim), ExcInternalError());
 
   // treat the regular basis functions
   if (i < max_q_indices)
@@ -334,16 +323,14 @@ TensorProductPolynomialsBubbles<dim>::compute_derivative(
     {
       case 1:
         {
-          Tensor<1, dim> &derivative_1 =
-            *reinterpret_cast<Tensor<1, dim> *>(&derivative);
+          Tensor<1, dim> &derivative_1 = *reinterpret_cast<Tensor<1, dim> *>(&derivative);
 
           for (unsigned int d = 0; d < dim; ++d)
             {
               derivative_1[d] = 1.;
               // compute grad(4*\prod_{i=1}^d (x_i(1-x_i)))(p)
               for (unsigned j = 0; j < dim; ++j)
-                derivative_1[d] *=
-                  (d == j ? 4 * (1 - 2 * p(j)) : 4 * p(j) * (1 - p(j)));
+                derivative_1[d] *= (d == j ? 4 * (1 - 2 * p(j)) : 4 * p(j) * (1 - p(j)));
               // and multiply with (2*x_i-1)^{r-1}
               for (unsigned int i = 0; i < q_degree - 1; ++i)
                 derivative_1[d] *= 2 * p(comp) - 1;
@@ -366,8 +353,7 @@ TensorProductPolynomialsBubbles<dim>::compute_derivative(
         }
       case 2:
         {
-          Tensor<2, dim> &derivative_2 =
-            *reinterpret_cast<Tensor<2, dim> *>(&derivative);
+          Tensor<2, dim> &derivative_2 = *reinterpret_cast<Tensor<2, dim> *>(&derivative);
 
           double v[dim + 1][3];
           {
@@ -446,8 +432,7 @@ TensorProductPolynomialsBubbles<dim>::compute_derivative(
 
           for (unsigned int d1 = 0; d1 < dim; ++d1)
             for (unsigned int d2 = 0; d2 < dim; ++d2)
-              derivative_2[d1][d2] =
-                grad_grad_1[d1][d2] + grad_grad_2[d1][d2] + grad_grad_3[d1][d2];
+              derivative_2[d1][d2] = grad_grad_1[d1][d2] + grad_grad_2[d1][d2] + grad_grad_3[d1][d2];
           derivative_2[comp][comp] += psi_value * v[dim][2];
 
           return derivative;
@@ -464,9 +449,7 @@ TensorProductPolynomialsBubbles<dim>::compute_derivative(
 
 template <int dim>
 inline Tensor<1, dim>
-TensorProductPolynomialsBubbles<dim>::compute_1st_derivative(
-  const unsigned int i,
-  const Point<dim> & p) const
+TensorProductPolynomialsBubbles<dim>::compute_1st_derivative(const unsigned int i, const Point<dim> &p) const
 {
   return compute_derivative<1>(i, p);
 }
@@ -475,9 +458,7 @@ TensorProductPolynomialsBubbles<dim>::compute_1st_derivative(
 
 template <int dim>
 inline Tensor<2, dim>
-TensorProductPolynomialsBubbles<dim>::compute_2nd_derivative(
-  const unsigned int i,
-  const Point<dim> & p) const
+TensorProductPolynomialsBubbles<dim>::compute_2nd_derivative(const unsigned int i, const Point<dim> &p) const
 {
   return compute_derivative<2>(i, p);
 }
@@ -486,9 +467,7 @@ TensorProductPolynomialsBubbles<dim>::compute_2nd_derivative(
 
 template <int dim>
 inline Tensor<3, dim>
-TensorProductPolynomialsBubbles<dim>::compute_3rd_derivative(
-  const unsigned int i,
-  const Point<dim> & p) const
+TensorProductPolynomialsBubbles<dim>::compute_3rd_derivative(const unsigned int i, const Point<dim> &p) const
 {
   return compute_derivative<3>(i, p);
 }
@@ -497,9 +476,7 @@ TensorProductPolynomialsBubbles<dim>::compute_3rd_derivative(
 
 template <int dim>
 inline Tensor<4, dim>
-TensorProductPolynomialsBubbles<dim>::compute_4th_derivative(
-  const unsigned int i,
-  const Point<dim> & p) const
+TensorProductPolynomialsBubbles<dim>::compute_4th_derivative(const unsigned int i, const Point<dim> &p) const
 {
   return compute_derivative<4>(i, p);
 }

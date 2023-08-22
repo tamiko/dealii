@@ -55,29 +55,19 @@ test()
             position[1](i) = 0.525;
           }
 
-        Particles::Particle<dim, spacedim> particle1(position[0],
-                                                     reference_position[0],
-                                                     0);
-        Particles::Particle<dim, spacedim> particle2(position[1],
-                                                     reference_position[1],
-                                                     1);
+        Particles::Particle<dim, spacedim> particle1(position[0], reference_position[0], 0);
+        Particles::Particle<dim, spacedim> particle2(position[1], reference_position[1], 1);
 
-        typename Triangulation<dim, spacedim>::active_cell_iterator cell1(&tr,
-                                                                          2,
-                                                                          0);
-        typename Triangulation<dim, spacedim>::active_cell_iterator cell2(&tr,
-                                                                          2,
-                                                                          0);
+        typename Triangulation<dim, spacedim>::active_cell_iterator cell1(&tr, 2, 0);
+        typename Triangulation<dim, spacedim>::active_cell_iterator cell2(&tr, 2, 0);
 
         particle_handler.insert_particle(particle1, cell1);
         particle_handler.insert_particle(particle2, cell2);
 
         for (const auto &particle : particle_handler)
-          deallog << "Before sort particle id " << particle.get_id()
-                  << " is in cell " << particle.get_surrounding_cell(tr)
-                  << " on process "
-                  << Utilities::MPI::this_mpi_process(tr.get_communicator())
-                  << std::flush << std::endl;
+          deallog << "Before sort particle id " << particle.get_id() << " is in cell "
+                  << particle.get_surrounding_cell(tr) << " on process "
+                  << Utilities::MPI::this_mpi_process(tr.get_communicator()) << std::flush << std::endl;
       }
 
 
@@ -85,11 +75,8 @@ test()
     particle_handler.sort_particles_into_subdomains_and_cells();
 
     for (const auto &particle : particle_handler)
-      deallog << "After sort particle id " << particle.get_id()
-              << " is in cell " << particle.get_surrounding_cell(tr)
-              << " on process "
-              << Utilities::MPI::this_mpi_process(tr.get_communicator())
-              << std::flush << std::endl;
+      deallog << "After sort particle id " << particle.get_id() << " is in cell " << particle.get_surrounding_cell(tr)
+              << " on process " << Utilities::MPI::this_mpi_process(tr.get_communicator()) << std::flush << std::endl;
 
     // Move all points up by 0.5. This will change cell for particle 1, and will
     // move particle 2 out of the domain. Note that we need to change the
@@ -101,11 +88,8 @@ test()
 
     particle_handler.sort_particles_into_subdomains_and_cells();
     for (const auto &particle : particle_handler)
-      deallog << "After shift particle id " << particle.get_id()
-              << " is in cell " << particle.get_surrounding_cell(tr)
-              << " on process "
-              << Utilities::MPI::this_mpi_process(tr.get_communicator())
-              << std::flush << std::endl;
+      deallog << "After shift particle id " << particle.get_id() << " is in cell " << particle.get_surrounding_cell(tr)
+              << " on process " << Utilities::MPI::this_mpi_process(tr.get_communicator()) << std::flush << std::endl;
   }
 
   deallog << "OK" << std::endl;

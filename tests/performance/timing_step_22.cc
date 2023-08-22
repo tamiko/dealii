@@ -143,11 +143,9 @@ public:
 
 template <int dim>
 double
-BoundaryValues<dim>::value(const Point<dim> & p,
-                           const unsigned int component) const
+BoundaryValues<dim>::value(const Point<dim> &p, const unsigned int component) const
 {
-  Assert(component < this->n_components,
-         ExcIndexRange(component, 0, this->n_components));
+  Assert(component < this->n_components, ExcIndexRange(component, 0, this->n_components));
 
   if (component == 0)
     return (p[0] < 0 ? -1 : (p[0] > 0 ? 1 : 0));
@@ -157,8 +155,7 @@ BoundaryValues<dim>::value(const Point<dim> & p,
 
 template <int dim>
 void
-BoundaryValues<dim>::vector_value(const Point<dim> &p,
-                                  Vector<double> &  values) const
+BoundaryValues<dim>::vector_value(const Point<dim> &p, Vector<double> &values) const
 {
   for (unsigned int c = 0; c < this->n_components; ++c)
     values(c) = BoundaryValues<dim>::value(p, c);
@@ -177,8 +174,7 @@ public:
   value(const Point<dim> &p) const override;
 
   virtual void
-  value_list(const std::vector<Point<dim>> &p,
-             std::vector<Tensor<1, dim>> &  value) const override;
+  value_list(const std::vector<Point<dim>> &p, std::vector<Tensor<1, dim>> &value) const override;
 };
 
 
@@ -192,8 +188,7 @@ RightHandSide<dim>::value(const Point<dim> & /*p*/) const
 
 template <int dim>
 void
-RightHandSide<dim>::value_list(const std::vector<Point<dim>> &vp,
-                               std::vector<Tensor<1, dim>> &  values) const
+RightHandSide<dim>::value_list(const std::vector<Point<dim>> &vp, std::vector<Tensor<1, dim>> &values) const
 {
   for (unsigned int c = 0; c < vp.size(); ++c)
     {
@@ -218,9 +213,8 @@ private:
 
 
 template <class MatrixType, class PreconditionerType>
-InverseMatrix<MatrixType, PreconditionerType>::InverseMatrix(
-  const MatrixType &        m,
-  const PreconditionerType &preconditioner)
+InverseMatrix<MatrixType, PreconditionerType>::InverseMatrix(const MatrixType         &m,
+                                                             const PreconditionerType &preconditioner)
   : matrix(&m)
   , preconditioner(&preconditioner)
 {}
@@ -228,9 +222,7 @@ InverseMatrix<MatrixType, PreconditionerType>::InverseMatrix(
 
 template <class MatrixType, class PreconditionerType>
 void
-InverseMatrix<MatrixType, PreconditionerType>::vmult(
-  Vector<double> &      dst,
-  const Vector<double> &src) const
+InverseMatrix<MatrixType, PreconditionerType>::vmult(Vector<double> &dst, const Vector<double> &src) const
 {
   SolverControl            solver_control(src.size(), 1e-6 * src.l2_norm());
   SolverCG<Vector<double>> cg(solver_control);
@@ -245,18 +237,15 @@ template <class PreconditionerType>
 class SchurComplement : public Subscriptor
 {
 public:
-  SchurComplement(
-    const BlockSparseMatrix<double> &system_matrix,
-    const InverseMatrix<SparseMatrix<double>, PreconditionerType> &A_inverse);
+  SchurComplement(const BlockSparseMatrix<double>                               &system_matrix,
+                  const InverseMatrix<SparseMatrix<double>, PreconditionerType> &A_inverse);
 
   void
   vmult(Vector<double> &dst, const Vector<double> &src) const;
 
 private:
-  const SmartPointer<const BlockSparseMatrix<double>> system_matrix;
-  const SmartPointer<
-    const InverseMatrix<SparseMatrix<double>, PreconditionerType>>
-    A_inverse;
+  const SmartPointer<const BlockSparseMatrix<double>>                               system_matrix;
+  const SmartPointer<const InverseMatrix<SparseMatrix<double>, PreconditionerType>> A_inverse;
 
   mutable Vector<double> tmp1, tmp2;
 };
@@ -264,7 +253,7 @@ private:
 
 template <class PreconditionerType>
 SchurComplement<PreconditionerType>::SchurComplement(
-  const BlockSparseMatrix<double> &                              system_matrix,
+  const BlockSparseMatrix<double>                               &system_matrix,
   const InverseMatrix<SparseMatrix<double>, PreconditionerType> &A_inverse)
   : system_matrix(&system_matrix)
   , A_inverse(&A_inverse)
@@ -275,8 +264,7 @@ SchurComplement<PreconditionerType>::SchurComplement(
 
 template <class PreconditionerType>
 void
-SchurComplement<PreconditionerType>::vmult(Vector<double> &      dst,
-                                           const Vector<double> &src) const
+SchurComplement<PreconditionerType>::vmult(Vector<double> &dst, const Vector<double> &src) const
 {
   system_matrix->block(0, 1).vmult(tmp1, src);
   A_inverse->vmult(tmp2, tmp1);
@@ -313,11 +301,8 @@ StokesProblem<dim>::setup_dofs()
 
     const FEValuesExtractors::Vector velocities(0);
     DoFTools::make_hanging_node_constraints(dof_handler, constraints);
-    VectorTools::interpolate_boundary_values(dof_handler,
-                                             1,
-                                             BoundaryValues<dim>(),
-                                             constraints,
-                                             fe.component_mask(velocities));
+    VectorTools::interpolate_boundary_values(
+      dof_handler, 1, BoundaryValues<dim>(), constraints, fe.component_mask(velocities));
   }
 
   constraints.close();
@@ -327,10 +312,9 @@ StokesProblem<dim>::setup_dofs()
   const types::global_dof_index n_u = dofs_per_block[0];
   const types::global_dof_index n_p = dofs_per_block[1];
 
-  debug_output << "   Number of active cells: "
-               << triangulation.n_active_cells() << std::endl
-               << "   Number of degrees of freedom: " << dof_handler.n_dofs()
-               << " (" << n_u << '+' << n_p << ')' << std::endl;
+  debug_output << "   Number of active cells: " << triangulation.n_active_cells() << std::endl
+               << "   Number of degrees of freedom: " << dof_handler.n_dofs() << " (" << n_u << '+' << n_p << ')'
+               << std::endl;
 
   {
     BlockDynamicSparsityPattern dsp(dofs_per_block, dofs_per_block);
@@ -343,15 +327,13 @@ StokesProblem<dim>::setup_dofs()
         else
           coupling[c][d] = DoFTools::none;
 
-    DoFTools::make_sparsity_pattern(
-      dof_handler, coupling, dsp, constraints, false);
+    DoFTools::make_sparsity_pattern(dof_handler, coupling, dsp, constraints, false);
 
     sparsity_pattern.copy_from(dsp);
   }
 
   {
-    BlockDynamicSparsityPattern preconditioner_dsp(dofs_per_block,
-                                                   dofs_per_block);
+    BlockDynamicSparsityPattern preconditioner_dsp(dofs_per_block, dofs_per_block);
 
     Table<2, DoFTools::Coupling> preconditioner_coupling(dim + 1, dim + 1);
     for (unsigned int c = 0; c < dim + 1; ++c)
@@ -361,11 +343,7 @@ StokesProblem<dim>::setup_dofs()
         else
           preconditioner_coupling[c][d] = DoFTools::none;
 
-    DoFTools::make_sparsity_pattern(dof_handler,
-                                    preconditioner_coupling,
-                                    preconditioner_dsp,
-                                    constraints,
-                                    false);
+    DoFTools::make_sparsity_pattern(dof_handler, preconditioner_coupling, preconditioner_dsp, constraints, false);
 
     preconditioner_sparsity_pattern.copy_from(preconditioner_dsp);
   }
@@ -390,8 +368,7 @@ StokesProblem<dim>::assemble_system()
 
   FEValues<dim> fe_values(fe,
                           quadrature_formula,
-                          update_values | update_quadrature_points |
-                            update_JxW_values | update_gradients);
+                          update_values | update_quadrature_points | update_JxW_values | update_gradients);
 
   const unsigned int dofs_per_cell = fe.n_dofs_per_cell();
 
@@ -437,15 +414,13 @@ StokesProblem<dim>::assemble_system()
             {
               for (unsigned int j = 0; j <= i; ++j)
                 {
-                  local_matrix(i, j) +=
-                    (2 * (symgrad_phi_u[i] * symgrad_phi_u[j]) // (1)
-                     - div_phi_u[i] * phi_p[j]                 // (2)
-                     - phi_p[i] * div_phi_u[j])                // (3)
-                    * fe_values.JxW(q);                        // * dx
+                  local_matrix(i, j) += (2 * (symgrad_phi_u[i] * symgrad_phi_u[j]) // (1)
+                                         - div_phi_u[i] * phi_p[j]                 // (2)
+                                         - phi_p[i] * div_phi_u[j])                // (3)
+                                        * fe_values.JxW(q);                        // * dx
 
-                  local_preconditioner_matrix(i, j) +=
-                    (phi_p[i] * phi_p[j]) // (4)
-                    * fe_values.JxW(q);   // * dx
+                  local_preconditioner_matrix(i, j) += (phi_p[i] * phi_p[j]) // (4)
+                                                       * fe_values.JxW(q);   // * dx
                 }
               local_rhs(i) += phi_u[i]            // phi_u_i(x_q)
                               * rhs_values[q]     // * f(x_q)
@@ -456,26 +431,19 @@ StokesProblem<dim>::assemble_system()
       for (unsigned int i = 0; i < dofs_per_cell; ++i)
         for (unsigned int j = i + 1; j < dofs_per_cell; ++j)
           {
-            local_matrix(i, j) = local_matrix(j, i);
-            local_preconditioner_matrix(i, j) =
-              local_preconditioner_matrix(j, i);
+            local_matrix(i, j)                = local_matrix(j, i);
+            local_preconditioner_matrix(i, j) = local_preconditioner_matrix(j, i);
           }
 
       cell->get_dof_indices(local_dof_indices);
-      constraints.distribute_local_to_global(
-        local_matrix, local_rhs, local_dof_indices, system_matrix, system_rhs);
-      constraints.distribute_local_to_global(local_preconditioner_matrix,
-                                             local_dof_indices,
-                                             preconditioner_matrix);
+      constraints.distribute_local_to_global(local_matrix, local_rhs, local_dof_indices, system_matrix, system_rhs);
+      constraints.distribute_local_to_global(local_preconditioner_matrix, local_dof_indices, preconditioner_matrix);
     }
 
   debug_output << "   Computing preconditioner..." << std::endl << std::flush;
 
-  A_preconditioner =
-    std::make_shared<typename InnerPreconditioner<dim>::type>();
-  A_preconditioner->initialize(
-    system_matrix.block(0, 0),
-    typename InnerPreconditioner<dim>::type::AdditionalData());
+  A_preconditioner = std::make_shared<typename InnerPreconditioner<dim>::type>();
+  A_preconditioner->initialize(system_matrix.block(0, 0), typename InnerPreconditioner<dim>::type::AdditionalData());
 }
 
 
@@ -483,10 +451,10 @@ template <int dim>
 void
 StokesProblem<dim>::solve()
 {
-  const InverseMatrix<SparseMatrix<double>,
-                      typename InnerPreconditioner<dim>::type>
-                 A_inverse(system_matrix.block(0, 0), *A_preconditioner);
-  Vector<double> tmp(solution.block(0).size());
+  const InverseMatrix<SparseMatrix<double>, typename InnerPreconditioner<dim>::type> A_inverse(system_matrix.block(0,
+                                                                                                                   0),
+                                                                                               *A_preconditioner);
+  Vector<double>                                                                     tmp(solution.block(0).size());
 
   {
     Vector<double> schur_rhs(solution.block(1).size());
@@ -494,26 +462,21 @@ StokesProblem<dim>::solve()
     system_matrix.block(1, 0).vmult(schur_rhs, tmp);
     schur_rhs -= system_rhs.block(1);
 
-    SchurComplement<typename InnerPreconditioner<dim>::type> schur_complement(
-      system_matrix, A_inverse);
+    SchurComplement<typename InnerPreconditioner<dim>::type> schur_complement(system_matrix, A_inverse);
 
-    SolverControl            solver_control(solution.block(1).size(),
-                                 1e-6 * schur_rhs.l2_norm());
+    SolverControl            solver_control(solution.block(1).size(), 1e-6 * schur_rhs.l2_norm());
     SolverCG<Vector<double>> cg(solver_control);
 
     SparseILU<double> preconditioner;
-    preconditioner.initialize(preconditioner_matrix.block(1, 1),
-                              SparseILU<double>::AdditionalData());
+    preconditioner.initialize(preconditioner_matrix.block(1, 1), SparseILU<double>::AdditionalData());
 
-    InverseMatrix<SparseMatrix<double>, SparseILU<double>> m_inverse(
-      preconditioner_matrix.block(1, 1), preconditioner);
+    InverseMatrix<SparseMatrix<double>, SparseILU<double>> m_inverse(preconditioner_matrix.block(1, 1), preconditioner);
 
     cg.solve(schur_complement, solution.block(1), schur_rhs, m_inverse);
 
     constraints.distribute(solution);
 
-    debug_output << "  " << solver_control.last_step()
-                 << " outer CG Schur complement iterations for pressure"
+    debug_output << "  " << solver_control.last_step() << " outer CG Schur complement iterations for pressure"
                  << std::endl;
   }
 
@@ -531,24 +494,18 @@ StokesProblem<dim>::solve()
 
 template <int dim>
 void
-StokesProblem<dim>::output_results(
-  const unsigned int /*refinement_cycle*/) const
+StokesProblem<dim>::output_results(const unsigned int /*refinement_cycle*/) const
 {
   std::vector<std::string> solution_names(dim, "velocity");
   solution_names.emplace_back("pressure");
 
-  std::vector<DataComponentInterpretation::DataComponentInterpretation>
-    data_component_interpretation(
-      dim, DataComponentInterpretation::component_is_part_of_vector);
-  data_component_interpretation.push_back(
-    DataComponentInterpretation::component_is_scalar);
+  std::vector<DataComponentInterpretation::DataComponentInterpretation> data_component_interpretation(
+    dim, DataComponentInterpretation::component_is_part_of_vector);
+  data_component_interpretation.push_back(DataComponentInterpretation::component_is_scalar);
 
   DataOut<dim> data_out;
   data_out.attach_dof_handler(dof_handler);
-  data_out.add_data_vector(solution,
-                           solution_names,
-                           DataOut<dim>::type_dof_data,
-                           data_component_interpretation);
+  data_out.add_data_vector(solution, solution_names, DataOut<dim>::type_dof_data, data_component_interpretation);
   data_out.build_patches();
 }
 
@@ -560,18 +517,14 @@ StokesProblem<dim>::refine_mesh()
   Vector<float> estimated_error_per_cell(triangulation.n_active_cells());
 
   const FEValuesExtractors::Scalar pressure(dim);
-  KellyErrorEstimator<dim>::estimate(
-    dof_handler,
-    QGauss<dim - 1>(degree + 1),
-    std::map<types::boundary_id, const Function<dim> *>(),
-    solution,
-    estimated_error_per_cell,
-    fe.component_mask(pressure));
+  KellyErrorEstimator<dim>::estimate(dof_handler,
+                                     QGauss<dim - 1>(degree + 1),
+                                     std::map<types::boundary_id, const Function<dim> *>(),
+                                     solution,
+                                     estimated_error_per_cell,
+                                     fe.component_mask(pressure));
 
-  GridRefinement::refine_and_coarsen_fixed_number(triangulation,
-                                                  estimated_error_per_cell,
-                                                  0.3,
-                                                  0.0);
+  GridRefinement::refine_and_coarsen_fixed_number(triangulation, estimated_error_per_cell, 0.3, 0.0);
   triangulation.execute_coarsening_and_refinement();
 }
 
@@ -594,10 +547,7 @@ StokesProblem<dim>::run()
                                     Point<dim>(2, 0) :    // 2d case
                                     Point<dim>(2, 1, 0)); // 3d case
 
-    GridGenerator::subdivided_hyper_rectangle(triangulation,
-                                              subdivisions,
-                                              bottom_left,
-                                              top_right);
+    GridGenerator::subdivided_hyper_rectangle(triangulation, subdivisions, bottom_left, top_right);
   }
 
   for (const auto &cell : triangulation.active_cell_iterators())
@@ -618,8 +568,7 @@ StokesProblem<dim>::run()
         break;
     }
 
-  for (unsigned int refinement_cycle = 0; refinement_cycle < 6;
-       ++refinement_cycle)
+  for (unsigned int refinement_cycle = 0; refinement_cycle < 6; ++refinement_cycle)
     {
       debug_output << "Refinement cycle " << refinement_cycle << std::endl;
 
@@ -660,13 +609,7 @@ StokesProblem<dim>::run()
 std::tuple<Metric, unsigned int, std::vector<std::string>>
 describe_measurements()
 {
-  return {Metric::timing,
-          4,
-          {"refinement",
-           "setup_system",
-           "assemble_system",
-           "solve",
-           "output_results"}};
+  return {Metric::timing, 4, {"refinement", "setup_system", "assemble_system", "solve", "output_results"}};
 }
 
 

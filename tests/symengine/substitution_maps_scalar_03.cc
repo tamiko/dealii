@@ -39,38 +39,32 @@ main()
 
   const SD::types::substitution_map substitution_map_1 =
     SD::make_substitution_map(SD::Expression("x1"), SD::Expression(1));
-  const SD::types::substitution_map substitution_map_2 =
-    SD::make_substitution_map(SD::Expression("x3"), 3.0);
+  const SD::types::substitution_map substitution_map_2 = SD::make_substitution_map(SD::Expression("x3"), 3.0);
   const SD::types::substitution_map substitution_map_3 =
-    SD::make_substitution_map(SD::types::symbol_vector{SD::Expression("x6"),
-                                                       SD::Expression("x7")},
+    SD::make_substitution_map(SD::types::symbol_vector{SD::Expression("x6"), SD::Expression("x7")},
                               std::vector<int>{6, 7});
-  const SD::types::substitution_map substitution_map_4{
-    {SD::Expression("x8"), SD::Expression(8.0)},
-    {SD::Expression("x9"), SD::Expression(9.0f)},
-    {SD::Expression("x10"), SD::Expression(10u)}};
+  const SD::types::substitution_map substitution_map_4{{SD::Expression("x8"), SD::Expression(8.0)},
+                                                       {SD::Expression("x9"), SD::Expression(9.0f)},
+                                                       {SD::Expression("x10"), SD::Expression(10u)}};
   const SD::types::substitution_map substitution_map_5 =
     SD::make_substitution_map(std::make_pair(SD::Expression("x11"), 11));
   const SD::types::substitution_map substitution_map_6 =
-    SD::make_substitution_map(std::vector<std::pair<SD::Expression, int>>{
-      std::make_pair(SD::Expression("x12"), 12),
-      std::make_pair(SD::Expression("x13"), 13)});
+    SD::make_substitution_map(std::vector<std::pair<SD::Expression, int>>{std::make_pair(SD::Expression("x12"), 12),
+                                                                          std::make_pair(SD::Expression("x13"), 13)});
   const SD::types::substitution_map substitution_map_7 =
     SD::make_substitution_map(std::make_pair(SD::Expression("x14"), 14.0f),
                               std::make_pair(SD::Expression("x15"), 15),
                               std::make_pair(SD::Expression("x16"), 16.0),
-                              SD::types::substitution_map{
-                                {SD::Expression("x17"), SD::Expression(17.0)},
-                                {SD::Expression("x18"),
-                                 SD::Expression(std::complex<double>(18.0))}});
-  const SD::types::substitution_map substitution_map =
-    SD::merge_substitution_maps(substitution_map_1,
-                                substitution_map_2,
-                                substitution_map_3,
-                                substitution_map_4,
-                                substitution_map_5,
-                                substitution_map_6,
-                                substitution_map_7);
+                              SD::types::substitution_map{{SD::Expression("x17"), SD::Expression(17.0)},
+                                                          {SD::Expression("x18"),
+                                                           SD::Expression(std::complex<double>(18.0))}});
+  const SD::types::substitution_map substitution_map = SD::merge_substitution_maps(substitution_map_1,
+                                                                                   substitution_map_2,
+                                                                                   substitution_map_3,
+                                                                                   substitution_map_4,
+                                                                                   substitution_map_5,
+                                                                                   substitution_map_6,
+                                                                                   substitution_map_7);
 
   SD::Utilities::print_substitution_map(deallog, substitution_map);
 

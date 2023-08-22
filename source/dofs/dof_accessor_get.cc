@@ -42,14 +42,12 @@ DEAL_II_NAMESPACE_OPEN
 template <int dim, int spacedim, bool lda>
 template <typename Number>
 void
-DoFCellAccessor<dim, spacedim, lda>::get_interpolated_dof_values(
-  const ReadVector<Number> &values,
-  Vector<Number> &          interpolated_values,
-  const types::fe_index     fe_index_) const
+DoFCellAccessor<dim, spacedim, lda>::get_interpolated_dof_values(const ReadVector<Number> &values,
+                                                                 Vector<Number>           &interpolated_values,
+                                                                 const types::fe_index     fe_index_) const
 {
   const types::fe_index fe_index =
-    (this->dof_handler->hp_capability_enabled == false &&
-     fe_index_ == numbers::invalid_fe_index) ?
+    (this->dof_handler->hp_capability_enabled == false && fe_index_ == numbers::invalid_fe_index) ?
       DoFHandler<dim, spacedim>::default_fe_index :
       fe_index_;
 
@@ -62,8 +60,7 @@ DoFCellAccessor<dim, spacedim, lda>::get_interpolated_dof_values(
           // for hp-DoFHandlers, we need to require that on
           // active cells, you either don't specify an fe_index,
           // or that you specify the correct one
-          (fe_index == this->active_fe_index()) ||
-          (fe_index == numbers::invalid_fe_index))
+          (fe_index == this->active_fe_index()) || (fe_index == numbers::invalid_fe_index))
         this->get_dof_values(values, interpolated_values);
       else
         {
@@ -80,11 +77,9 @@ DoFCellAccessor<dim, spacedim, lda>::get_interpolated_dof_values(
               Vector<Number> tmp(dofs_per_cell);
               this->get_dof_values(values, tmp);
 
-              FullMatrix<double> interpolation(
-                this->dof_handler->get_fe(fe_index).n_dofs_per_cell(),
-                this->get_fe().n_dofs_per_cell());
-              this->dof_handler->get_fe(fe_index).get_interpolation_matrix(
-                this->get_fe(), interpolation);
+              FullMatrix<double> interpolation(this->dof_handler->get_fe(fe_index).n_dofs_per_cell(),
+                                               this->get_fe().n_dofs_per_cell());
+              this->dof_handler->get_fe(fe_index).get_interpolation_matrix(this->get_fe(), interpolation);
               interpolation.vmult(interpolated_values, tmp);
             }
         }
@@ -100,26 +95,20 @@ DoFCellAccessor<dim, spacedim, lda>::get_interpolated_dof_values(
       // mesh). consequently, we cannot interpolate from children's FE
       // space to this cell's (unknown) FE space unless an explicit
       // fe_index is given
-      Assert((this->dof_handler->hp_capability_enabled == false) ||
-               (fe_index != numbers::invalid_fe_index),
-             ExcMessage(
-               "You cannot call this function on non-active cells "
-               "of DoFHandler objects unless you provide an explicit "
-               "finite element index because they do not have naturally "
-               "associated finite element spaces associated: degrees "
-               "of freedom are only distributed on active cells for which "
-               "the active FE index has been set."));
+      Assert((this->dof_handler->hp_capability_enabled == false) || (fe_index != numbers::invalid_fe_index),
+             ExcMessage("You cannot call this function on non-active cells "
+                        "of DoFHandler objects unless you provide an explicit "
+                        "finite element index because they do not have naturally "
+                        "associated finite element spaces associated: degrees "
+                        "of freedom are only distributed on active cells for which "
+                        "the active FE index has been set."));
 
-      const FiniteElement<dim, spacedim> &fe =
-        this->get_dof_handler().get_fe(fe_index);
-      const unsigned int dofs_per_cell = fe.n_dofs_per_cell();
+      const FiniteElement<dim, spacedim> &fe            = this->get_dof_handler().get_fe(fe_index);
+      const unsigned int                  dofs_per_cell = fe.n_dofs_per_cell();
 
-      Assert(this->dof_handler != nullptr,
-             typename BaseClass::ExcInvalidObject());
-      Assert(interpolated_values.size() == dofs_per_cell,
-             typename BaseClass::ExcVectorDoesNotMatch());
-      Assert(values.size() == this->dof_handler->n_dofs(),
-             typename BaseClass::ExcVectorDoesNotMatch());
+      Assert(this->dof_handler != nullptr, typename BaseClass::ExcInvalidObject());
+      Assert(interpolated_values.size() == dofs_per_cell, typename BaseClass::ExcVectorDoesNotMatch());
+      Assert(values.size() == this->dof_handler->n_dofs(), typename BaseClass::ExcVectorDoesNotMatch());
 
 
       // see if the finite element we have on the current cell has any
@@ -165,12 +154,9 @@ DoFCellAccessor<dim, spacedim, lda>::get_interpolated_dof_values(
               // interpolation itself either from its own children or
               // by interpolating from the finite element on an active
               // child to the finite element space requested here
-              this->child(child)->get_interpolated_dof_values(values,
-                                                              tmp1,
-                                                              fe_index);
+              this->child(child)->get_interpolated_dof_values(values, tmp1, fe_index);
               // interpolate these to the mother cell
-              fe.get_restriction_matrix(child, this->refinement_case())
-                .vmult(tmp2, tmp1);
+              fe.get_restriction_matrix(child, this->refinement_case()).vmult(tmp2, tmp1);
 
               // and add up or set them in the output vector
               for (unsigned int i = 0; i < dofs_per_cell; ++i)

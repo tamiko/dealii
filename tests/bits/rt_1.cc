@@ -47,11 +47,8 @@ test(const unsigned int degree, const unsigned int q_order)
   dof_handler.distribute_dofs(fe);
 
   QGauss<dim - 1>   q(q_order);
-  FEFaceValues<dim> fe_values(fe,
-                              q,
-                              update_values | update_gradients |
-                                update_hessians | update_quadrature_points |
-                                update_jacobians);
+  FEFaceValues<dim> fe_values(
+    fe, q, update_values | update_gradients | update_hessians | update_quadrature_points | update_jacobians);
   fe_values.reinit(dof_handler.begin_active(), 0);
 
   deallog << "OK" << std::endl;

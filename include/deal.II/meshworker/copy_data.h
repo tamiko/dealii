@@ -69,10 +69,9 @@ namespace MeshWorker
     /**
      * For every object, specify the size they should have.
      */
-    explicit CopyData(
-      const ndarray<unsigned int, n_matrices, 2> &   matrix_sizes,
-      const std::array<unsigned int, n_vectors> &    vector_sizes,
-      const std::array<unsigned int, n_dof_indices> &dof_indices_sizes);
+    explicit CopyData(const ndarray<unsigned int, n_matrices, 2>    &matrix_sizes,
+                      const std::array<unsigned int, n_vectors>     &vector_sizes,
+                      const std::array<unsigned int, n_dof_indices> &dof_indices_sizes);
 
     /**
      * Copy constructor.
@@ -120,9 +119,7 @@ namespace MeshWorker
      * then an error will be thrown.
      */
     void
-    reinit(const unsigned int index,
-           const unsigned int size_rows,
-           const unsigned int size_columns);
+    reinit(const unsigned int index, const unsigned int size_rows, const unsigned int size_columns);
 
     /**
      * An array of local matrices.
@@ -137,8 +134,7 @@ namespace MeshWorker
     /**
      * An array of local degrees of freedom indices.
      */
-    std::array<std::vector<types::global_dof_index>, n_dof_indices>
-      local_dof_indices;
+    std::array<std::vector<types::global_dof_index>, n_dof_indices> local_dof_indices;
   };
 
 
@@ -146,25 +142,18 @@ namespace MeshWorker
   //
   // Template definitions
   //
-  template <int n_matrices,
-            int n_vectors,
-            int n_dof_indices,
-            typename ScalarType>
-  CopyData<n_matrices, n_vectors, n_dof_indices, ScalarType>::CopyData(
-    const unsigned int size)
+  template <int n_matrices, int n_vectors, int n_dof_indices, typename ScalarType>
+  CopyData<n_matrices, n_vectors, n_dof_indices, ScalarType>::CopyData(const unsigned int size)
   {
     reinit(size);
   }
 
 
 
-  template <int n_matrices,
-            int n_vectors,
-            int n_dof_indices,
-            typename ScalarType>
+  template <int n_matrices, int n_vectors, int n_dof_indices, typename ScalarType>
   CopyData<n_matrices, n_vectors, n_dof_indices, ScalarType>::CopyData(
-    const ndarray<unsigned int, n_matrices, 2> &   matrix_sizes,
-    const std::array<unsigned int, n_vectors> &    vector_sizes,
+    const ndarray<unsigned int, n_matrices, 2>    &matrix_sizes,
+    const std::array<unsigned int, n_vectors>     &vector_sizes,
     const std::array<unsigned int, n_dof_indices> &dof_indices_sizes)
   {
     for (unsigned int i = 0; i < n_matrices; ++i)
@@ -179,13 +168,9 @@ namespace MeshWorker
 
 
 
-  template <int n_matrices,
-            int n_vectors,
-            int n_dof_indices,
-            typename ScalarType>
+  template <int n_matrices, int n_vectors, int n_dof_indices, typename ScalarType>
   void
-  CopyData<n_matrices, n_vectors, n_dof_indices, ScalarType>::reinit(
-    const unsigned int size)
+  CopyData<n_matrices, n_vectors, n_dof_indices, ScalarType>::reinit(const unsigned int size)
   {
     for (auto &m : matrices)
       m.reinit({size, size});
@@ -197,34 +182,24 @@ namespace MeshWorker
 
 
 
-  template <int n_matrices,
-            int n_vectors,
-            int n_dof_indices,
-            typename ScalarType>
+  template <int n_matrices, int n_vectors, int n_dof_indices, typename ScalarType>
   void
-  CopyData<n_matrices, n_vectors, n_dof_indices, ScalarType>::reinit(
-    const unsigned int index,
-    const unsigned int size)
+  CopyData<n_matrices, n_vectors, n_dof_indices, ScalarType>::reinit(const unsigned int index, const unsigned int size)
   {
     reinit(index, size, size);
   }
 
 
 
-  template <int n_matrices,
-            int n_vectors,
-            int n_dof_indices,
-            typename ScalarType>
+  template <int n_matrices, int n_vectors, int n_dof_indices, typename ScalarType>
   void
-  CopyData<n_matrices, n_vectors, n_dof_indices, ScalarType>::reinit(
-    const unsigned int index,
-    const unsigned int size_rows,
-    const unsigned int size_columns)
+  CopyData<n_matrices, n_vectors, n_dof_indices, ScalarType>::reinit(const unsigned int index,
+                                                                     const unsigned int size_rows,
+                                                                     const unsigned int size_columns)
   {
     // We permit different numbers of matrices, vectors and DoF index vectors.
     // So we have to be a bit permissive here.
-    constexpr const int max_index =
-      std::max(std::max(n_matrices, n_vectors), n_dof_indices);
+    constexpr const int max_index = std::max(std::max(n_matrices, n_vectors), n_dof_indices);
     (void)max_index;
     Assert(index < max_index, ExcIndexRange(index, 0, max_index));
 

@@ -92,8 +92,7 @@ filter_out_xml_key(std::istream &in, const std::string &key, std::ostream &out)
   const std::string closing = "</" + key;
   while (std::getline(in, line))
     {
-      if (line.find(opening) != std::string::npos &&
-          line.find("binary") != std::string::npos)
+      if (line.find(opening) != std::string::npos && line.find("binary") != std::string::npos)
         {
           found = true;
           // remove everything after ">" but keep things after "</"
@@ -218,9 +217,8 @@ namespace Testing
 
         for (int i = 34; i < 344; ++i)
           {
-            r[k % 32] =
-              nonoverflow_add(r[(k + 32 - 31) % 32], r[(k + 32 - 3) % 32]);
-            k = (k + 1) % 32;
+            r[k % 32] = nonoverflow_add(r[(k + 32 - 31) % 32], r[(k + 32 - 3) % 32]);
+            k         = (k + 1) % 32;
           }
         inited = true;
         if (reseed == true)
@@ -248,8 +246,7 @@ template <typename T = double>
 T
 random_value(const T &min = static_cast<T>(0), const T &max = static_cast<T>(1))
 {
-  return min + (max - min) *
-                 (static_cast<T>(Testing::rand()) / static_cast<T>(RAND_MAX));
+  return min + (max - min) * (static_cast<T>(Testing::rand()) / static_cast<T>(RAND_MAX));
 }
 
 
@@ -276,8 +273,7 @@ inline BoundingBox<dim>
 random_box(const double &min = 0.0, const double &max = 1.0)
 {
   Assert(max >= min, ExcMessage("Make sure max>=min"));
-  std::vector<Point<dim>> p = {random_point<dim>(min, max),
-                               random_point<dim>(min, max)};
+  std::vector<Point<dim>> p = {random_point<dim>(min, max), random_point<dim>(min, max)};
   return BoundingBox<dim>(p);
 }
 
@@ -309,8 +305,7 @@ cat_file(const char *filename)
 void
 sort_file_contents(const std::string &filename)
 {
-  int error = std::system(
-    (std::string("LC_ALL=C sort ") + filename + " -o " + filename).c_str());
+  int error = std::system((std::string("LC_ALL=C sort ") + filename + " -o " + filename).c_str());
   AssertThrow(error == 0, ExcInternalError());
 }
 
@@ -371,30 +366,25 @@ unify_pretty_function(const std::string &text)
  * steps.
  */
 
-#define check_solver_within_range(SolverType_COMMAND,                \
-                                  CONTROL_COMMAND,                   \
-                                  MIN_ALLOWED,                       \
-                                  MAX_ALLOWED)                       \
-  {                                                                  \
-    const unsigned int previous_depth = deallog.depth_file(0);       \
-    try                                                              \
-      {                                                              \
-        SolverType_COMMAND;                                          \
-      }                                                              \
-    catch (SolverControl::NoConvergence & exc)                       \
-      {}                                                             \
-    deallog.depth_file(previous_depth);                              \
-    const unsigned int steps = CONTROL_COMMAND;                      \
-    if (steps >= MIN_ALLOWED && steps <= MAX_ALLOWED)                \
-      {                                                              \
-        deallog << "Solver stopped within " << MIN_ALLOWED << " - "  \
-                << MAX_ALLOWED << " iterations" << std::endl;        \
-      }                                                              \
-    else                                                             \
-      {                                                              \
-        deallog << "Solver stopped after " << steps << " iterations" \
-                << std::endl;                                        \
-      }                                                              \
+#define check_solver_within_range(SolverType_COMMAND, CONTROL_COMMAND, MIN_ALLOWED, MAX_ALLOWED)                  \
+  {                                                                                                               \
+    const unsigned int previous_depth = deallog.depth_file(0);                                                    \
+    try                                                                                                           \
+      {                                                                                                           \
+        SolverType_COMMAND;                                                                                       \
+      }                                                                                                           \
+    catch (SolverControl::NoConvergence & exc)                                                                    \
+      {}                                                                                                          \
+    deallog.depth_file(previous_depth);                                                                           \
+    const unsigned int steps = CONTROL_COMMAND;                                                                   \
+    if (steps >= MIN_ALLOWED && steps <= MAX_ALLOWED)                                                             \
+      {                                                                                                           \
+        deallog << "Solver stopped within " << MIN_ALLOWED << " - " << MAX_ALLOWED << " iterations" << std::endl; \
+      }                                                                                                           \
+    else                                                                                                          \
+      {                                                                                                           \
+        deallog << "Solver stopped after " << steps << " iterations" << std::endl;                                \
+      }                                                                                                           \
   }
 
 /*
@@ -470,9 +460,7 @@ namespace
     // I don't quite understand petsc and it looks like
     // stageLog->stageInfo->classLog->classInfo[i].id is always -1, so we look
     // it up in stageLog->classLog, make sure it has the same number of entries:
-    Assert(stageLog->stageInfo->classLog->numClasses ==
-             stageLog->classLog->numClasses,
-           dealii::ExcInternalError());
+    Assert(stageLog->stageInfo->classLog->numClasses == stageLog->classLog->numClasses, dealii::ExcInternalError());
 
     bool errors = false;
     for (int i = 0; i < stageLog->stageInfo->classLog->numClasses; ++i)
@@ -481,14 +469,9 @@ namespace
             stageLog->stageInfo->classLog->classInfo[i].creations)
           {
             errors = true;
-            std::cerr
-              << "ERROR: PETSc objects leaking of type '"
-              << stageLog->classLog->classInfo[i].name << "'"
-              << " with "
-              << stageLog->stageInfo->classLog->classInfo[i].creations
-              << " creations and only "
-              << stageLog->stageInfo->classLog->classInfo[i].destructions
-              << " destructions." << std::endl;
+            std::cerr << "ERROR: PETSc objects leaking of type '" << stageLog->classLog->classInfo[i].name << "'"
+                      << " with " << stageLog->stageInfo->classLog->classInfo[i].creations << " creations and only "
+                      << stageLog->stageInfo->classLog->classInfo[i].destructions << " destructions." << std::endl;
           }
       }
 
@@ -511,9 +494,7 @@ std::string   deallogname;
 std::ofstream deallogfile;
 
 void
-initlog(const bool                    console = false,
-        const std::ios_base::fmtflags flags   = std::ios::showpoint |
-                                              std::ios::left)
+initlog(const bool console = false, const std::ios_base::fmtflags flags = std::ios::showpoint | std::ios::left)
 {
   deallogname = "output";
   deallogfile.open(deallogname);
@@ -523,9 +504,7 @@ initlog(const bool                    console = false,
 
 
 inline void
-mpi_initlog(const bool                    console = false,
-            const std::ios_base::fmtflags flags   = std::ios::showpoint |
-                                                  std::ios::left)
+mpi_initlog(const bool console = false, const std::ios_base::fmtflags flags = std::ios::showpoint | std::ios::left)
 {
 #ifdef DEAL_II_WITH_MPI
   unsigned int myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
@@ -554,9 +533,7 @@ mpi_initlog(const bool                    console = false,
  */
 struct MPILogInitAll
 {
-  MPILogInitAll(const bool                    console = false,
-                const std::ios_base::fmtflags flags   = std::ios::showpoint |
-                                                      std::ios::left)
+  MPILogInitAll(const bool console = false, const std::ios_base::fmtflags flags = std::ios::showpoint | std::ios::left)
   {
 #ifdef DEAL_II_WITH_MPI
     const unsigned int myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
@@ -631,10 +608,9 @@ init_cuda(const bool use_mpi = false)
 #  ifndef DEAL_II_WITH_MPI
   Assert(use_mpi == false, ExcInternalError());
 #  endif
-  const unsigned int my_id =
-    use_mpi ? Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) : 0;
-  int         n_devices       = 0;
-  cudaError_t cuda_error_code = cudaGetDeviceCount(&n_devices);
+  const unsigned int my_id           = use_mpi ? Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) : 0;
+  int                n_devices       = 0;
+  cudaError_t        cuda_error_code = cudaGetDeviceCount(&n_devices);
   AssertCuda(cuda_error_code);
   const int device_id = my_id % n_devices;
   cuda_error_code     = cudaSetDevice(device_id);
@@ -691,15 +667,11 @@ DEAL_II_NAMESPACE_CLOSE
 
 
 void
-new_tbb_assertion_handler(const char *file,
-                          int         line,
-                          const char *expr,
-                          const char *comment)
+new_tbb_assertion_handler(const char *file, int line, const char *expr, const char *comment)
 {
   // Print out the original assertion message
   std::cerr << "TBB assertion:" << std::endl;
-  std::cerr << "Assertion " << expr << " failed on line " << line << " of file "
-            << file << std::endl;
+  std::cerr << "Assertion " << expr << " failed on line " << line << " of file " << file << std::endl;
   std::cerr << "Detailed description: " << comment << std::endl;
 
   // Reenable abort and stacktraces:

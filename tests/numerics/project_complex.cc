@@ -48,16 +48,15 @@ using Position      = dealii::Point<3, double>;
 
 
 template void
-dealii::VectorTools::project<3, dealii::Vector<ComplexNumber>, 3>(
-  const dealii::Mapping<3, 3> &,
-  const dealii::DoFHandler<3, 3> &,
-  const Constraints &,
-  const dealii::Quadrature<3> &,
-  const dealii::Function<3, ComplexNumber> &,
-  dealii::Vector<ComplexNumber> &,
-  const bool,
-  const dealii::Quadrature<2> &,
-  const bool);
+dealii::VectorTools::project<3, dealii::Vector<ComplexNumber>, 3>(const dealii::Mapping<3, 3> &,
+                                                                  const dealii::DoFHandler<3, 3> &,
+                                                                  const Constraints &,
+                                                                  const dealii::Quadrature<3> &,
+                                                                  const dealii::Function<3, ComplexNumber> &,
+                                                                  dealii::Vector<ComplexNumber> &,
+                                                                  const bool,
+                                                                  const dealii::Quadrature<2> &,
+                                                                  const bool);
 
 class Field : public dealii::Function<3, ComplexNumber>
 {
@@ -86,8 +85,7 @@ main()
   repetitions.push_back(5);
   dealii::Point<3, double> l(0, 0, 0);
   dealii::Point<3, double> r(1, 1, 1);
-  dealii::GridGenerator::subdivided_hyper_rectangle(
-    triangulation, repetitions, l, r, false);
+  dealii::GridGenerator::subdivided_hyper_rectangle(triangulation, repetitions, l, r, false);
 
   FE_Q<3>               fe(1);
   dealii::DoFHandler<3> dof_handler(triangulation);
@@ -98,15 +96,13 @@ main()
   dealii::QGauss<3>             quadrature(2);
   dealii::Vector<ComplexNumber> projected_solution(dof_handler.n_dofs());
   dealii::Vector<ComplexNumber> interpolated_solution(dof_handler.n_dofs());
-  VectorTools::project(
-    dof_handler, local_constraints, quadrature, f, projected_solution);
+  VectorTools::project(dof_handler, local_constraints, quadrature, f, projected_solution);
 
   VectorTools::interpolate(dof_handler, f, interpolated_solution);
 
   projected_solution -= interpolated_solution;
 
   deallog << "Relative difference between project and interpolate: "
-          << projected_solution.l2_norm() / interpolated_solution.l2_norm()
-          << std::endl;
+          << projected_solution.l2_norm() / interpolated_solution.l2_norm() << std::endl;
   deallog << "OK" << std::endl;
 }

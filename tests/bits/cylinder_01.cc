@@ -52,8 +52,7 @@ check<2>()
   GridGenerator::cylinder(triangulation);
   triangulation.refine_global(2);
 
-  for (typename Triangulation<dim>::active_cell_iterator cell =
-         triangulation.begin_active();
+  for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
        cell != triangulation.end();
        ++cell)
     for (const unsigned int i : GeometryInfo<dim>::vertex_indices())
@@ -72,8 +71,7 @@ check<3>()
   triangulation.set_manifold(0, boundary);
   triangulation.refine_global(2);
 
-  for (typename Triangulation<dim>::active_cell_iterator cell =
-         triangulation.begin_active();
+  for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
        cell != triangulation.end();
        ++cell)
     for (const unsigned int i : GeometryInfo<dim>::vertex_indices())

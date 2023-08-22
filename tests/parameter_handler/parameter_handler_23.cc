@@ -24,9 +24,7 @@
 #include "../tests.h"
 
 void
-log_entry(const ParameterHandler &       prm,
-          const std::vector<std::string> path,
-          const std::string &            entry)
+log_entry(const ParameterHandler &prm, const std::vector<std::string> path, const std::string &entry)
 {
   for (unsigned int i = 0; i < path.size(); ++i)
     {
@@ -262,15 +260,14 @@ test_getting_types()
 void
 test_weird_strings()
 {
-  const std::vector<std::string> weird_strings = {
-    ".,/<[\"';:=-_)*&~\t`/.\\",
-    "$.7.%...  =   . -",
-    "`/=/a/!",
-    "<<>>>]]]\t\n\n   ",
-    "****&//&%.^$!.$@$%@^*&(*)_/*-`~",
-    ".,/<[\"';:=-_)*&~\t`/.\\",
-    "value",
-    " set value = 5 \n\n."};
+  const std::vector<std::string> weird_strings = {".,/<[\"';:=-_)*&~\t`/.\\",
+                                                  "$.7.%...  =   . -",
+                                                  "`/=/a/!",
+                                                  "<<>>>]]]\t\n\n   ",
+                                                  "****&//&%.^$!.$@$%@^*&(*)_/*-`~",
+                                                  ".,/<[\"';:=-_)*&~\t`/.\\",
+                                                  "value",
+                                                  " set value = 5 \n\n."};
 
   ParameterHandler prm;
 
@@ -310,28 +307,20 @@ main()
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 

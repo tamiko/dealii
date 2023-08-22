@@ -48,8 +48,7 @@ test()
       GridGenerator::hyper_cube(tr);
       tr.refine_global(1);
 
-      while (tr.n_active_cells() <
-             20000 / Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD))
+      while (tr.n_active_cells() < 20000 / Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD))
         {
           if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
             deallog << "refine_loop..." << std::endl;
@@ -68,9 +67,7 @@ test()
           unsigned int index  = 0;
           unsigned int locals = 0;
 
-          for (typename Triangulation<dim>::active_cell_iterator cell =
-                 tr.begin_active();
-               cell != tr.end();
+          for (typename Triangulation<dim>::active_cell_iterator cell = tr.begin_active(); cell != tr.end();
                ++cell, ++index)
             if (flags[index])
               {
@@ -82,10 +79,7 @@ test()
           // and at least one cell:
           if (!locals)
             {
-              for (typename Triangulation<dim>::active_cell_iterator cell =
-                     tr.begin_active();
-                   cell != tr.end();
-                   ++cell)
+              for (typename Triangulation<dim>::active_cell_iterator cell = tr.begin_active(); cell != tr.end(); ++cell)
                 if (cell->subdomain_id() == myid)
                   {
                     cell->set_refine_flag();

@@ -38,9 +38,7 @@
 
 template <int dim>
 inline void
-plot_derivatives(Mapping<dim> &      mapping,
-                 FiniteElement<dim> &finel,
-                 const char *        name)
+plot_derivatives(Mapping<dim> &mapping, FiniteElement<dim> &finel, const char *name)
 {
   deallog.push(name);
 
@@ -52,10 +50,7 @@ plot_derivatives(Mapping<dim> &      mapping,
 
   QGauss<dim - 1> q(1);
   //  QIterated<dim> q(q_trapez, div);
-  FEFaceValues<dim> fe(mapping,
-                       finel,
-                       q,
-                       UpdateFlags(update_gradients | update_hessians));
+  FEFaceValues<dim> fe(mapping, finel, q, UpdateFlags(update_gradients | update_hessians));
   for (const unsigned int face : GeometryInfo<dim>::face_indices())
     {
       fe.reinit(c, face);

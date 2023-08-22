@@ -37,9 +37,7 @@ struct CopyData
 
 
 void
-worker(const std::vector<unsigned int>::iterator &i,
-       ScratchData &,
-       CopyData &ad)
+worker(const std::vector<unsigned int>::iterator &i, ScratchData &, CopyData &ad)
 {
   ad.computed = *i * 2;
 }
@@ -78,8 +76,7 @@ test()
   WorkStream::run(GraphColoring::make_graph_coloring(
                     v.begin(),
                     v.end(),
-                    std::function<std::vector<types::global_dof_index>(
-                      const std::vector<unsigned int>::iterator &)>(
+                    std::function<std::vector<types::global_dof_index>(const std::vector<unsigned int>::iterator &)>(
                       &conflictor)),
                   &worker,
                   &copier,

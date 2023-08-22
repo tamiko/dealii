@@ -83,11 +83,10 @@ namespace parallel
     /**
      * Constructor.
      */
-    TriangulationBase(
-      const MPI_Comm mpi_communicator,
-      const typename dealii::Triangulation<dim, spacedim>::MeshSmoothing
-                 smooth_grid = (dealii::Triangulation<dim, spacedim>::none),
-      const bool check_for_distorted_cells = false);
+    TriangulationBase(const MPI_Comm                                                     mpi_communicator,
+                      const typename dealii::Triangulation<dim, spacedim>::MeshSmoothing smooth_grid =
+                        (dealii::Triangulation<dim, spacedim>::none),
+                      const bool check_for_distorted_cells = false);
 
     /**
      * Destructor.
@@ -115,8 +114,7 @@ namespace parallel
      * with.
      */
     virtual void
-    copy_triangulation(
-      const dealii::Triangulation<dim, spacedim> &old_tria) override;
+    copy_triangulation(const dealii::Triangulation<dim, spacedim> &old_tria) override;
 
     /**
      * Return the number of active cells in the triangulation that are locally
@@ -207,8 +205,7 @@ namespace parallel
     global_active_cell_index_partitioner() const override;
 
     std::weak_ptr<const Utilities::MPI::Partitioner>
-    global_level_cell_index_partitioner(
-      const unsigned int level) const override;
+    global_level_cell_index_partitioner(const unsigned int level) const override;
 
     /**
      * @copydoc dealii::Triangulation::get_boundary_ids()
@@ -281,8 +278,7 @@ namespace parallel
      * GridTools::distort_random().
      */
     void
-    communicate_locally_moved_vertices(
-      const std::vector<bool> &vertex_locally_moved);
+    communicate_locally_moved_vertices(const std::vector<bool> &vertex_locally_moved);
 
     virtual types::coarse_cell_id
     n_global_coarse_cells() const override;
@@ -350,14 +346,12 @@ namespace parallel
       /**
        * Partitioner for the global active cell indices.
        */
-      std::shared_ptr<const Utilities::MPI::Partitioner>
-        active_cell_index_partitioner;
+      std::shared_ptr<const Utilities::MPI::Partitioner> active_cell_index_partitioner;
 
       /**
        * Partitioner for the global level cell indices for each level.
        */
-      std::vector<std::shared_ptr<const Utilities::MPI::Partitioner>>
-        level_cell_index_partitioners;
+      std::vector<std::shared_ptr<const Utilities::MPI::Partitioner>> level_cell_index_partitioners;
 
       NumberCache();
     };
@@ -433,18 +427,16 @@ namespace parallel
    */
   template <int dim, int spacedim = dim>
   DEAL_II_CXX20_REQUIRES((concepts::is_valid_dim_spacedim<dim, spacedim>))
-  class DistributedTriangulationBase
-    : public dealii::parallel::TriangulationBase<dim, spacedim>
+  class DistributedTriangulationBase : public dealii::parallel::TriangulationBase<dim, spacedim>
   {
   public:
     /**
      * Constructor.
      */
-    DistributedTriangulationBase(
-      const MPI_Comm mpi_communicator,
-      const typename dealii::Triangulation<dim, spacedim>::MeshSmoothing
-                 smooth_grid = (dealii::Triangulation<dim, spacedim>::none),
-      const bool check_for_distorted_cells = false);
+    DistributedTriangulationBase(const MPI_Comm                                                     mpi_communicator,
+                                 const typename dealii::Triangulation<dim, spacedim>::MeshSmoothing smooth_grid =
+                                   (dealii::Triangulation<dim, spacedim>::none),
+                                 const bool check_for_distorted_cells = false);
 
     /**
      * Reset this triangulation into a virgin state by deleting all data.
@@ -455,8 +447,7 @@ namespace parallel
     virtual void
     clear() override;
 
-    using cell_iterator =
-      typename dealii::Triangulation<dim, spacedim>::cell_iterator;
+    using cell_iterator = typename dealii::Triangulation<dim, spacedim>::cell_iterator;
 
     /**
      * Return true if the triangulation has hanging nodes.

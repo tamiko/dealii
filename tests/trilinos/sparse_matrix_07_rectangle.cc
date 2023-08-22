@@ -32,8 +32,7 @@
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   initlog();
 
@@ -46,8 +45,7 @@ main(int argc, char **argv)
   SparseMatrix<double> matrix(sparsity);
   {
     double value = 1;
-    for (SparseMatrix<double>::iterator p = matrix.begin(); p != matrix.end();
-         ++p, ++value)
+    for (SparseMatrix<double>::iterator p = matrix.begin(); p != matrix.end(); ++p, ++value)
       p->value() = value;
   }
   deallog << "Original:" << std::endl;
@@ -66,8 +64,7 @@ main(int argc, char **argv)
   const auto                     local_rows = complete_index_set(4);
   const auto                     local_cols = complete_index_set(5);
   TrilinosWrappers::SparseMatrix tmatrix;
-  tmatrix.reinit(
-    local_rows, local_cols, matrix, MPI_COMM_SELF, 0, true, &xsparsity);
+  tmatrix.reinit(local_rows, local_cols, matrix, MPI_COMM_SELF, 0, true, &xsparsity);
 
   deallog << "Copy structure only:" << std::endl;
   tmatrix.print(deallog.get_file_stream());

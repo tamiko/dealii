@@ -55,9 +55,7 @@ public:
   virtual std::complex<double>
   value(const Point<dim> &p, const unsigned int component) const
   {
-    return std::complex<double>(100 * (component + 1) * p.square() *
-                                  std::sin(p.square()),
-                                0);
+    return std::complex<double>(100 * (component + 1) * p.square() * std::sin(p.square()), 0);
   }
 
   virtual void
@@ -81,10 +79,7 @@ boundary_q(const DoFHandler<dim> &)
 void
 write_map(const std::map<types::global_dof_index, std::complex<double>> &bv)
 {
-  for (std::map<types::global_dof_index, std::complex<double>>::const_iterator
-         i = bv.begin();
-       i != bv.end();
-       ++i)
+  for (std::map<types::global_dof_index, std::complex<double>>::const_iterator i = bv.begin(); i != bv.end(); ++i)
     deallog << i->first << ' ' << i->second << std::endl;
 }
 
@@ -100,9 +95,7 @@ check()
       GridGenerator::hyper_ball(tr, Point<dim>(), 1);
     }
   else
-    GridGenerator::hyper_cube(tr,
-                              -1. / std::sqrt(static_cast<double>(dim)),
-                              1. / std::sqrt(static_cast<double>(dim)));
+    GridGenerator::hyper_cube(tr, -1. / std::sqrt(static_cast<double>(dim)), 1. / std::sqrt(static_cast<double>(dim)));
   GridTools::copy_boundary_to_manifold_id(tr);
   static const SphericalManifold<dim> boundary;
   if (dim != 1)
@@ -137,9 +130,7 @@ check()
   // FE2: a linear element, to make
   // things simple
   fe_list.push_back(new FE_Q<dim>(1));
-  function_list.push_back(
-    new Functions::ConstantFunction<dim, std::complex<double>>(
-      std::complex<double>(1, 0)));
+  function_list.push_back(new Functions::ConstantFunction<dim, std::complex<double>>(std::complex<double>(1, 0)));
 
   // check all of them
   for (unsigned int i = 0; i < fe_list.size(); ++i)
@@ -150,15 +141,13 @@ check()
       DoFHandler<dim> dof(tr);
       dof.distribute_dofs(fe);
 
-      std::map<types::boundary_id, const Function<dim, std::complex<double>> *>
-        function_map;
+      std::map<types::boundary_id, const Function<dim, std::complex<double>> *> function_map;
       function_map[0] = function_list[i];
 
       // interpolate boundary values
       deallog << "Interpolated boundary values" << std::endl;
       std::map<types::global_dof_index, std::complex<double>> interpolated_bv;
-      VectorTools::interpolate_boundary_values(
-        mappings, dof, function_map, interpolated_bv, ComponentMask());
+      VectorTools::interpolate_boundary_values(mappings, dof, function_map, interpolated_bv, ComponentMask());
       write_map(interpolated_bv);
     }
 

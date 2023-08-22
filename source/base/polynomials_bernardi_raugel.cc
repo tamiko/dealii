@@ -68,20 +68,16 @@ PolynomialsBernardiRaugel<dim>::create_polynomials_Q()
 
 template <int dim>
 void
-PolynomialsBernardiRaugel<dim>::evaluate(
-  const Point<dim> &           unit_point,
-  std::vector<Tensor<1, dim>> &values,
-  std::vector<Tensor<2, dim>> &grads,
-  std::vector<Tensor<3, dim>> &grad_grads,
-  std::vector<Tensor<4, dim>> &third_derivatives,
-  std::vector<Tensor<5, dim>> &fourth_derivatives) const
+PolynomialsBernardiRaugel<dim>::evaluate(const Point<dim>            &unit_point,
+                                         std::vector<Tensor<1, dim>> &values,
+                                         std::vector<Tensor<2, dim>> &grads,
+                                         std::vector<Tensor<3, dim>> &grad_grads,
+                                         std::vector<Tensor<4, dim>> &third_derivatives,
+                                         std::vector<Tensor<5, dim>> &fourth_derivatives) const
 {
-  Assert(values.size() == this->n() || values.empty(),
-         ExcDimensionMismatch(values.size(), this->n()));
-  Assert(grads.size() == this->n() || grads.empty(),
-         ExcDimensionMismatch(grads.size(), this->n()));
-  Assert(grad_grads.size() == this->n() || grad_grads.empty(),
-         ExcDimensionMismatch(grad_grads.size(), this->n()));
+  Assert(values.size() == this->n() || values.empty(), ExcDimensionMismatch(values.size(), this->n()));
+  Assert(grads.size() == this->n() || grads.empty(), ExcDimensionMismatch(grads.size(), this->n()));
+  Assert(grad_grads.size() == this->n() || grad_grads.empty(), ExcDimensionMismatch(grad_grads.size(), this->n()));
   Assert(third_derivatives.size() == this->n() || third_derivatives.empty(),
          ExcDimensionMismatch(third_derivatives.size(), this->n()));
   Assert(fourth_derivatives.size() == this->n() || fourth_derivatives.empty(),
@@ -98,9 +94,8 @@ PolynomialsBernardiRaugel<dim>::evaluate(
   std::vector<Tensor<3, dim>> bubble_third_derivatives;
   std::vector<Tensor<4, dim>> bubble_fourth_derivatives;
 
-  constexpr int n_bubbles =
-    Utilities::pow(3, dim);     // size for create_polynomials_bubble
-  constexpr int n_q = 1 << dim; // size for create_polynomials_q
+  constexpr int n_bubbles = Utilities::pow(3, dim); // size for create_polynomials_bubble
+  constexpr int n_q       = 1 << dim;               // size for create_polynomials_q
 
   // don't resize if the provided vector has 0 length
   Q_values.resize((values.empty()) ? 0 : n_q);
@@ -112,8 +107,7 @@ PolynomialsBernardiRaugel<dim>::evaluate(
   bubble_grads.resize((grads.empty()) ? 0 : n_bubbles);
   bubble_grad_grads.resize((grad_grads.empty()) ? 0 : n_bubbles);
   bubble_third_derivatives.resize((third_derivatives.empty()) ? 0 : n_bubbles);
-  bubble_fourth_derivatives.resize((fourth_derivatives.empty()) ? 0 :
-                                                                  n_bubbles);
+  bubble_fourth_derivatives.resize((fourth_derivatives.empty()) ? 0 : n_bubbles);
 
   // 1 normal vector per face, ordering consistent with GeometryInfo
   // Normal vectors point in the +x, +y, and +z directions for
@@ -155,18 +149,9 @@ PolynomialsBernardiRaugel<dim>::evaluate(
       aniso_indices.push_back(17);
     }
 
-  polynomial_space_bubble.evaluate(unit_point,
-                                   bubble_values,
-                                   bubble_grads,
-                                   bubble_grad_grads,
-                                   bubble_third_derivatives,
-                                   bubble_fourth_derivatives);
-  polynomial_space_Q.evaluate(unit_point,
-                              Q_values,
-                              Q_grads,
-                              Q_grad_grads,
-                              Q_third_derivatives,
-                              Q_fourth_derivatives);
+  polynomial_space_bubble.evaluate(
+    unit_point, bubble_values, bubble_grads, bubble_grad_grads, bubble_third_derivatives, bubble_fourth_derivatives);
+  polynomial_space_Q.evaluate(unit_point, Q_values, Q_grads, Q_grad_grads, Q_third_derivatives, Q_fourth_derivatives);
 
   // first dim*vertices_per_cell functions are Q_1^2 functions
   for (unsigned int i = 0; i < dim * GeometryInfo<dim>::vertices_per_cell; ++i)
@@ -185,26 +170,20 @@ PolynomialsBernardiRaugel<dim>::evaluate(
         }
       if (third_derivatives.size() != 0)
         {
-          third_derivatives[i] =
-            outer_product(units[i % dim], Q_third_derivatives[i / dim]);
+          third_derivatives[i] = outer_product(units[i % dim], Q_third_derivatives[i / dim]);
         }
       if (fourth_derivatives.size() != 0)
         {
-          fourth_derivatives[i] =
-            outer_product(units[i % dim], Q_fourth_derivatives[i / dim]);
+          fourth_derivatives[i] = outer_product(units[i % dim], Q_fourth_derivatives[i / dim]);
         }
     }
 
   // last faces_per_cell functions are bubble functions
   for (unsigned int i = dim * GeometryInfo<dim>::vertices_per_cell;
-       i < dim * GeometryInfo<dim>::vertices_per_cell +
-             GeometryInfo<dim>::faces_per_cell;
+       i < dim * GeometryInfo<dim>::vertices_per_cell + GeometryInfo<dim>::faces_per_cell;
        ++i)
     {
-      unsigned int j =
-        i -
-        dim *
-          GeometryInfo<dim>::vertices_per_cell; // ranges 0 to faces_per_cell-1
+      unsigned int j = i - dim * GeometryInfo<dim>::vertices_per_cell; // ranges 0 to faces_per_cell-1
       if (values.size() != 0)
         {
           values[i] = normals[j] * bubble_values[aniso_indices[j]];
@@ -215,20 +194,15 @@ PolynomialsBernardiRaugel<dim>::evaluate(
         }
       if (grad_grads.size() != 0)
         {
-          grad_grads[i] =
-            outer_product(normals[j], bubble_grad_grads[aniso_indices[j]]);
+          grad_grads[i] = outer_product(normals[j], bubble_grad_grads[aniso_indices[j]]);
         }
       if (third_derivatives.size() != 0)
         {
-          third_derivatives[i] =
-            outer_product(normals[j],
-                          bubble_third_derivatives[aniso_indices[j]]);
+          third_derivatives[i] = outer_product(normals[j], bubble_third_derivatives[aniso_indices[j]]);
         }
       if (fourth_derivatives.size() != 0)
         {
-          fourth_derivatives[i] =
-            outer_product(normals[j],
-                          bubble_fourth_derivatives[aniso_indices[j]]);
+          fourth_derivatives[i] = outer_product(normals[j], bubble_fourth_derivatives[aniso_indices[j]]);
         }
     }
 }
@@ -240,8 +214,7 @@ PolynomialsBernardiRaugel<dim>::n_polynomials(const unsigned int k)
   (void)k;
   Assert(k == 1, ExcNotImplemented());
   if (dim == 2 || dim == 3)
-    return dim * GeometryInfo<dim>::vertices_per_cell +
-           GeometryInfo<dim>::faces_per_cell;
+    return dim * GeometryInfo<dim>::vertices_per_cell + GeometryInfo<dim>::faces_per_cell;
   // 2*4+4=12 polynomials in 2d and 3*8+6=30 polynomials in 3d
 
   Assert(false, ExcNotImplemented());

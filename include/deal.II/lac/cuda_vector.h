@@ -139,19 +139,17 @@ namespace LinearAlgebra
        */
       void
       import_elements(
-        const ReadWriteVector<Number> &V,
-        const VectorOperation::values  operation,
-        const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase>
-          &communication_pattern = {});
+        const ReadWriteVector<Number>                                         &V,
+        const VectorOperation::values                                          operation,
+        const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase> &communication_pattern = {});
 
       /**
        * @deprecated Use import_elements() instead.
        */
       DEAL_II_DEPRECATED void
-      import(const ReadWriteVector<Number> &V,
-             VectorOperation::values        operation,
-             std::shared_ptr<const Utilities::MPI::CommunicationPatternBase>
-               communication_pattern = {})
+      import(const ReadWriteVector<Number>                                  &V,
+             VectorOperation::values                                         operation,
+             std::shared_ptr<const Utilities::MPI::CommunicationPatternBase> communication_pattern = {})
       {
         import_elements(V, operation, communication_pattern);
       }
@@ -209,10 +207,7 @@ namespace LinearAlgebra
        * Multiple additions of scaled vectors, i.e. <tt>*this += a*V+b*W</tt>.
        */
       void
-      add(const Number          a,
-          const Vector<Number> &V,
-          const Number          b,
-          const Vector<Number> &W);
+      add(const Number a, const Vector<Number> &V, const Number b, const Vector<Number> &W);
 
       /**
        * Scaling and simple addition of a multiple of a vector, i.e. <tt>*this
@@ -294,9 +289,7 @@ namespace LinearAlgebra
        * implemented as $\left<v,w\right>=\sum_i v_i \bar{w_i}$.
        */
       Number
-      add_and_dot(const Number          a,
-                  const Vector<Number> &V,
-                  const Vector<Number> &W);
+      add_and_dot(const Number a, const Vector<Number> &V, const Vector<Number> &W);
 
       /**
        * Return the pointer to the underlying array. Ownership still resides
@@ -322,7 +315,7 @@ namespace LinearAlgebra
        * Print the vector to the output stream @p out.
        */
       void
-      print(std::ostream &     out,
+      print(std::ostream      &out,
             const unsigned int precision  = 2,
             const bool         scientific = true,
             const bool         across     = true) const;
@@ -365,8 +358,7 @@ namespace LinearAlgebra
  */
 template <typename Number>
 inline void
-swap(LinearAlgebra::CUDAWrappers::Vector<Number> &u,
-     LinearAlgebra::CUDAWrappers::Vector<Number> &v)
+swap(LinearAlgebra::CUDAWrappers::Vector<Number> &u, LinearAlgebra::CUDAWrappers::Vector<Number> &v)
 {
   u.swap(v);
 }

@@ -60,8 +60,7 @@ test()
     for (const auto &face : cell->face_iterators())
       if (face->at_boundary() == false)
         {
-          Assert(face->boundary_id() == numbers::internal_face_boundary_id,
-                 ExcInternalError());
+          Assert(face->boundary_id() == numbers::internal_face_boundary_id, ExcInternalError());
           deallog << "Face " << face << std::endl;
           deallog << "  center = " << face->center() << std::endl;
           deallog << "  manifold id = " << face->manifold_id() << std::endl;
@@ -70,12 +69,9 @@ test()
             for (unsigned int l = 0; l < face->n_lines(); ++l)
               if (face->line(l)->at_boundary() == false)
                 {
-                  Assert(face->line(l)->boundary_id() ==
-                           numbers::internal_face_boundary_id,
-                         ExcInternalError());
+                  Assert(face->line(l)->boundary_id() == numbers::internal_face_boundary_id, ExcInternalError());
                   deallog << "  Edge " << face->line(l) << std::endl;
-                  deallog << "    manifold id = "
-                          << face->line(l)->manifold_id() << std::endl;
+                  deallog << "    manifold id = " << face->line(l)->manifold_id() << std::endl;
                 }
         }
 

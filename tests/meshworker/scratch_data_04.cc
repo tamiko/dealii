@@ -72,8 +72,7 @@ test()
 
   QGauss<dim> quad(3);
 
-  UpdateFlags cell_flags = update_values | update_gradients |
-                           update_quadrature_points | update_JxW_values;
+  UpdateFlags cell_flags = update_values | update_gradients | update_quadrature_points | update_JxW_values;
 
   using ScratchData = ScratchData<dim, spacedim>;
   struct CopyData
@@ -92,9 +91,7 @@ test()
   using Iterator = decltype(cell);
 
 
-  auto cell_integrator = [&H1_norm, &solution, &scalar](const Iterator &cell,
-                                                        ScratchData &   s,
-                                                        CopyData &      c) {
+  auto cell_integrator = [&H1_norm, &solution, &scalar](const Iterator &cell, ScratchData &s, CopyData &c) {
     const auto &fev = s.reinit(cell);
     const auto &JxW = s.get_JxW_values();
 
@@ -109,13 +106,7 @@ test()
 
   const auto empty_copyer = [](const CopyData &) {};
 
-  mesh_loop(cell,
-            endc,
-            cell_integrator,
-            empty_copyer,
-            scratch,
-            copy,
-            assemble_own_cells);
+  mesh_loop(cell, endc, cell_integrator, empty_copyer, scratch, copy, assemble_own_cells);
 
   deallog << "H1 norm: " << std::sqrt(H1_norm) << std::endl;
 }

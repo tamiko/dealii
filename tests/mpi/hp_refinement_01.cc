@@ -41,11 +41,10 @@ void
 test()
 {
   // ------ setup ------
-  parallel::shared::Triangulation<dim> tria(
-    MPI_COMM_WORLD,
-    ::Triangulation<dim>::none,
-    false,
-    parallel::shared::Triangulation<dim>::partition_zoltan);
+  parallel::shared::Triangulation<dim> tria(MPI_COMM_WORLD,
+                                            ::Triangulation<dim>::none,
+                                            false,
+                                            parallel::shared::Triangulation<dim>::partition_zoltan);
 
   GridGenerator::subdivided_hyper_cube(tria, 2);
   tria.refine_global(1);
@@ -67,8 +66,7 @@ test()
       // set refinement/coarsening flags
       if (cell->id().to_string() == "0_1:0")
         cell->set_refine_flag();
-      else if (cell->parent()->id().to_string() ==
-               ((dim == 2) ? "3_0:" : "7_0:"))
+      else if (cell->parent()->id().to_string() == ((dim == 2) ? "3_0:" : "7_0:"))
         cell->set_coarsen_flag();
 
       if (cell->is_locally_owned())
@@ -78,8 +76,7 @@ test()
             i = 0;
           cell->set_active_fe_index(i++);
 
-          deallog << " cellid=" << cell->id()
-                  << " fe_index=" << cell->active_fe_index()
+          deallog << " cellid=" << cell->id() << " fe_index=" << cell->active_fe_index()
                   << " feq_degree=" << max_degree - cell->active_fe_index();
           if (cell->coarsen_flag_set())
             deallog << " coarsening";
@@ -102,10 +99,8 @@ test()
   // check if all children adopted the correct id
   for (auto &cell : dh.active_cell_iterators())
     if (cell->is_locally_owned())
-      deallog << " cellid=" << cell->id()
-              << " fe_index=" << cell->active_fe_index()
-              << " feq_degree=" << max_degree - cell->active_fe_index()
-              << std::endl;
+      deallog << " cellid=" << cell->id() << " fe_index=" << cell->active_fe_index()
+              << " feq_degree=" << max_degree - cell->active_fe_index() << std::endl;
 
   // make sure no processor is hanging
   MPI_Barrier(MPI_COMM_WORLD);

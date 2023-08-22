@@ -18,15 +18,9 @@ for (deal_II_dimension : DIMENSIONS)
   {
     namespace hp
     \{
-      template class FEValuesBase<deal_II_dimension,
-                                  deal_II_dimension,
-                                  dealii::FEValues<deal_II_dimension>>;
-      template class FEValuesBase<deal_II_dimension,
-                                  deal_II_dimension - 1,
-                                  dealii::FEFaceValues<deal_II_dimension>>;
-      template class FEValuesBase<deal_II_dimension,
-                                  deal_II_dimension - 1,
-                                  dealii::FESubfaceValues<deal_II_dimension>>;
+      template class FEValuesBase<deal_II_dimension, deal_II_dimension, dealii::FEValues<deal_II_dimension>>;
+      template class FEValuesBase<deal_II_dimension, deal_II_dimension - 1, dealii::FEFaceValues<deal_II_dimension>>;
+      template class FEValuesBase<deal_II_dimension, deal_II_dimension - 1, dealii::FESubfaceValues<deal_II_dimension>>;
     \}
 
     namespace hp
@@ -42,18 +36,15 @@ for (deal_II_dimension : DIMENSIONS)
 
     namespace hp
     \{
-      template class FEValuesBase<
-        deal_II_dimension,
-        deal_II_dimension,
-        dealii::FEValues<deal_II_dimension, deal_II_dimension + 1>>;
-      template class FEValuesBase<
-        deal_II_dimension,
-        deal_II_dimension - 1,
-        dealii::FEFaceValues<deal_II_dimension, deal_II_dimension + 1>>;
-      template class FEValuesBase<
-        deal_II_dimension,
-        deal_II_dimension - 1,
-        dealii::FESubfaceValues<deal_II_dimension, deal_II_dimension + 1>>;
+      template class FEValuesBase<deal_II_dimension,
+                                  deal_II_dimension,
+                                  dealii::FEValues<deal_II_dimension, deal_II_dimension + 1>>;
+      template class FEValuesBase<deal_II_dimension,
+                                  deal_II_dimension - 1,
+                                  dealii::FEFaceValues<deal_II_dimension, deal_II_dimension + 1>>;
+      template class FEValuesBase<deal_II_dimension,
+                                  deal_II_dimension - 1,
+                                  dealii::FESubfaceValues<deal_II_dimension, deal_II_dimension + 1>>;
     \}
 
     namespace hp
@@ -82,8 +73,7 @@ for (deal_II_dimension : DIMENSIONS)
 #endif
   }
 
-for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS;
-     lda : BOOL)
+for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS; lda : BOOL)
   {
     namespace hp
     \{
@@ -91,32 +81,27 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS;
 
       template void
       FEValues<deal_II_dimension, deal_II_space_dimension>::reinit(
-        const TriaIterator<
-          DoFCellAccessor<deal_II_dimension, deal_II_space_dimension, lda>> &,
+        const TriaIterator<DoFCellAccessor<deal_II_dimension, deal_II_space_dimension, lda>> &,
         unsigned int,
         unsigned int,
         unsigned int);
       template void
       FEFaceValues<deal_II_dimension, deal_II_space_dimension>::reinit(
-        const TriaIterator<
-          DoFCellAccessor<deal_II_dimension, deal_II_space_dimension, lda>> &,
+        const TriaIterator<DoFCellAccessor<deal_II_dimension, deal_II_space_dimension, lda>> &,
         unsigned int,
         unsigned int,
         unsigned int,
         unsigned int);
       template void
       FEFaceValues<deal_II_dimension, deal_II_space_dimension>::reinit(
-        const TriaIterator<
-          DoFCellAccessor<deal_II_dimension, deal_II_space_dimension, lda>> &,
-        const Triangulation<deal_II_dimension,
-                            deal_II_space_dimension>::face_iterator &,
+        const TriaIterator<DoFCellAccessor<deal_II_dimension, deal_II_space_dimension, lda>> &,
+        const Triangulation<deal_II_dimension, deal_II_space_dimension>::face_iterator &,
         unsigned int,
         unsigned int,
         unsigned int);
       template void
       FESubfaceValues<deal_II_dimension, deal_II_space_dimension>::reinit(
-        const TriaIterator<
-          DoFCellAccessor<deal_II_dimension, deal_II_space_dimension, lda>> &,
+        const TriaIterator<DoFCellAccessor<deal_II_dimension, deal_II_space_dimension, lda>> &,
         unsigned int,
         unsigned int,
         unsigned int,

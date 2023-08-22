@@ -20,9 +20,8 @@ DEAL_II_NAMESPACE_OPEN
 namespace MGTransferGlobalCoarseningTools
 {
   unsigned int
-  create_next_polynomial_coarsening_degree(
-    const unsigned int                      previous_fe_degree,
-    const PolynomialCoarseningSequenceType &p_sequence)
+  create_next_polynomial_coarsening_degree(const unsigned int                      previous_fe_degree,
+                                           const PolynomialCoarseningSequenceType &p_sequence)
   {
     switch (p_sequence)
       {
@@ -41,15 +40,13 @@ namespace MGTransferGlobalCoarseningTools
 
 
   std::vector<unsigned int>
-  create_polynomial_coarsening_sequence(
-    const unsigned int                      max_degree,
-    const PolynomialCoarseningSequenceType &p_sequence)
+  create_polynomial_coarsening_sequence(const unsigned int                      max_degree,
+                                        const PolynomialCoarseningSequenceType &p_sequence)
   {
     std::vector<unsigned int> degrees{max_degree};
 
     while (degrees.back() > 1)
-      degrees.push_back(
-        create_next_polynomial_coarsening_degree(degrees.back(), p_sequence));
+      degrees.push_back(create_next_polynomial_coarsening_degree(degrees.back(), p_sequence));
 
     std::reverse(degrees.begin(), degrees.end());
 

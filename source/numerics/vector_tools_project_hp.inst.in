@@ -14,16 +14,14 @@
 // ---------------------------------------------------------------------
 
 
-for (VEC : REAL_VECTOR_TYPES; deal_II_dimension : DIMENSIONS;
-     deal_II_space_dimension : SPACE_DIMENSIONS)
+for (VEC : REAL_VECTOR_TYPES; deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS)
   {
 #if deal_II_dimension <= deal_II_space_dimension
     namespace VectorTools
     \{
 
       template void
-      project(const hp::MappingCollection<deal_II_dimension,
-                                          deal_II_space_dimension> &,
+      project(const hp::MappingCollection<deal_II_dimension, deal_II_space_dimension> &,
               const DoFHandler<deal_II_dimension, deal_II_space_dimension> &,
               const AffineConstraints<VEC::value_type> &,
               const hp::QCollection<deal_II_dimension> &,

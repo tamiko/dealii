@@ -39,25 +39,18 @@ main()
     {
       const double eps = std::pow(10., -j);
 
-      std::vector<Point<3>> points_ref{{-.1, -.1, .5},
-                                       {.1, -.1, .5},
-                                       {-.1, .1, .5},
-                                       {.1, .1, .5}};
+      std::vector<Point<3>> points_ref{{-.1, -.1, .5}, {.1, -.1, .5}, {-.1, .1, .5}, {.1, .1, .5}};
       std::vector<double>   weights_ref{.25, .25, .25, .25};
 
-      const Point<3> new_point_ref =
-        manifold.get_new_point(make_array_view(points_ref),
+      const Point<3> new_point_ref = manifold.get_new_point(make_array_view(points_ref),
 
-                               make_array_view(weights_ref));
+                                                            make_array_view(weights_ref));
 
       double max_difference = 0.;
 
       for (unsigned int i = 0; i < n_iterations; ++i)
         {
-          std::vector<Point<3>> points  = {{-.1, -.1, .5},
-                                          {.1, -.1, .5},
-                                          {-.1, .1, .5},
-                                          {.1, .1, .5}};
+          std::vector<Point<3>> points  = {{-.1, -.1, .5}, {.1, -.1, .5}, {-.1, .1, .5}, {.1, .1, .5}};
           std::vector<double>   weights = {.25, .25, .25, .25};
 
           for (Point<3> &point : points)
@@ -70,17 +63,14 @@ main()
           for (double &weight : weights)
             weight += distribution(generator) * eps;
 
-          const Point<3> new_point =
-            manifold.get_new_point(make_array_view(points),
-                                   make_array_view(weights));
-          const Tensor<1, 3> difference      = new_point - new_point_ref;
+          const Point<3>     new_point  = manifold.get_new_point(make_array_view(points), make_array_view(weights));
+          const Tensor<1, 3> difference = new_point - new_point_ref;
           const double       difference_norm = difference.norm();
-          max_difference = std::max(difference_norm, max_difference);
+          max_difference                     = std::max(difference_norm, max_difference);
         }
 
       if (max_difference / eps > 5)
-        deallog << "Distortion: " << eps
-                << " max difference: " << max_difference << std::endl;
+        deallog << "Distortion: " << eps << " max difference: " << max_difference << std::endl;
       else
         deallog << "Distortion " << eps << " OK" << std::endl;
     }

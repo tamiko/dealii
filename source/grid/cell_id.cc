@@ -29,15 +29,12 @@ CellId::CellId()
   // initialize the child indices to invalid values
   // (the only allowed values are between zero and
   // GeometryInfo<dim>::max_children_per_cell)
-  std::fill(child_indices.begin(),
-            child_indices.end(),
-            std::numeric_limits<char>::max());
+  std::fill(child_indices.begin(), child_indices.end(), std::numeric_limits<char>::max());
 }
 
 
 
-CellId::CellId(const types::coarse_cell_id      coarse_cell_id,
-               const std::vector<std::uint8_t> &id)
+CellId::CellId(const types::coarse_cell_id coarse_cell_id, const std::vector<std::uint8_t> &id)
   : coarse_cell_id(coarse_cell_id)
   , n_child_indices(id.size())
 {
@@ -47,9 +44,7 @@ CellId::CellId(const types::coarse_cell_id      coarse_cell_id,
 
 
 
-CellId::CellId(const types::coarse_cell_id coarse_cell_id,
-               const unsigned int          n_child_indices,
-               const std::uint8_t *        id)
+CellId::CellId(const types::coarse_cell_id coarse_cell_id, const unsigned int n_child_indices, const std::uint8_t *id)
   : coarse_cell_id(coarse_cell_id)
   , n_child_indices(n_child_indices)
 {
@@ -73,9 +68,8 @@ CellId::CellId(const CellId::binary_type &binary_representation)
   Assert(n_child_indices < child_indices.size(), ExcInternalError());
 
   // Each child requires 'dim' bits to store its index
-  const unsigned int children_per_value =
-    sizeof(binary_type::value_type) * 8 / dim;
-  const unsigned int child_mask = (1 << dim) - 1;
+  const unsigned int children_per_value = sizeof(binary_type::value_type) * 8 / dim;
+  const unsigned int child_mask         = (1 << dim) - 1;
 
   // Loop until all child indices have been read
   unsigned int child_level  = 0;
@@ -86,8 +80,7 @@ CellId::CellId(const CellId::binary_type &binary_representation)
         {
           // Read the current child index by shifting to the current
           // index's position and doing a bitwise-and with the child_mask.
-          child_indices[child_level] =
-            (binary_representation[binary_entry] >> (dim * j)) & child_mask;
+          child_indices[child_level] = (binary_representation[binary_entry] >> (dim * j)) & child_mask;
           ++child_level;
           if (child_level == n_child_indices)
             break;
@@ -124,10 +117,9 @@ CellId::to_binary() const
   binary_representation[1] |= dim;
 
   // Each child requires 'dim' bits to store its index
-  const unsigned int children_per_value =
-    sizeof(binary_type::value_type) * 8 / dim;
-  unsigned int child_level  = 0;
-  unsigned int binary_entry = 2;
+  const unsigned int children_per_value = sizeof(binary_type::value_type) * 8 / dim;
+  unsigned int       child_level        = 0;
+  unsigned int       binary_entry       = 2;
 
   // Loop until all child indices have been written
   while (child_level < n_child_indices)
@@ -136,8 +128,7 @@ CellId::to_binary() const
 
       for (unsigned int j = 0; j < children_per_value; ++j)
         {
-          const unsigned int child_index =
-            static_cast<unsigned int>(child_indices[child_level]);
+          const unsigned int child_index = static_cast<unsigned int>(child_indices[child_level]);
           // Shift the child index to its position in the unsigned int and store
           // it
           binary_representation[binary_entry] |= (child_index << (j * dim));

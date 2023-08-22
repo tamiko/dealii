@@ -46,7 +46,6 @@ main()
   exp.set_arguments(Point<2>(.3, .3), 2.0, 5);
   exp();
 
-  auto exp1 =
-    Utilities::mutable_bind(example_function, Point<2>(.8, .8), 4.0, 10);
+  auto exp1 = Utilities::mutable_bind(example_function, Point<2>(.8, .8), 4.0, 10);
   exp1();
 }

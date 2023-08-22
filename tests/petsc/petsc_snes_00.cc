@@ -78,9 +78,7 @@ main(int argc, char **argv)
     };
 
     // Test attaching a user-defined monitoring routine
-    solver.monitor = [&](const VectorType & X,
-                         const unsigned int step,
-                         const real_type    fval) -> void {
+    solver.monitor = [&](const VectorType &X, const unsigned int step, const real_type fval) -> void {
       out << "#    " << step << ": " << fval << std::endl;
     };
 
@@ -114,13 +112,11 @@ main(int argc, char **argv)
     // The intermediate callbacks used to pass from PETSc to deal.II
     // will handle the case of users requesting Jacobian-free Newton
     // Krylov (i.e. using -snes_mf_operator)
-    solver.jacobian =
-      [&](const VectorType &X, MatrixType &A, MatrixType &P) -> void {
+    solver.jacobian = [&](const VectorType &X, MatrixType &A, MatrixType &P) -> void {
       auto x    = X[0];
       auto y    = X[1];
       auto f0_x = 3 * std::pow(x - std::pow(y, 3) + 1, 2);
-      auto f0_y = -9 * std::pow(x - std::pow(y, 3) + 1, 2) * std::pow(y, 2) -
-                  3 * std::pow(y, 2);
+      auto f0_y = -9 * std::pow(x - std::pow(y, 3) + 1, 2) * std::pow(y, 2) - 3 * std::pow(y, 2);
       P.set(0, 0, f0_x);
       P.set(0, 1, f0_y);
       P.set(1, 0, 1);
@@ -161,11 +157,10 @@ main(int argc, char **argv)
     FullMatrix<double> Jinv(2, 2);
 
     solver.setup_jacobian = [&](const VectorType &X) -> void {
-      auto x    = X[0];
-      auto y    = X[1];
-      auto f0_x = 3 * std::pow(x - std::pow(y, 3) + 1, 2);
-      auto f0_y = -9 * std::pow(x - std::pow(y, 3) + 1, 2) * std::pow(y, 2) -
-                  3 * std::pow(y, 2);
+      auto               x    = X[0];
+      auto               y    = X[1];
+      auto               f0_x = 3 * std::pow(x - std::pow(y, 3) + 1, 2);
+      auto               f0_y = -9 * std::pow(x - std::pow(y, 3) + 1, 2) * std::pow(y, 2) - 3 * std::pow(y, 2);
       FullMatrix<double> J(2, 2);
       J(0, 0) = f0_x;
       J(0, 1) = f0_y;
@@ -178,8 +173,7 @@ main(int argc, char **argv)
     // within a preconditioner only Krylov solve. Other Krylov
     // solvers can still be used in a Jacobian-free way and selected at command
     // line or within user code.
-    solver.solve_with_jacobian = [&](const VectorType &src,
-                                     VectorType &      dst) -> void {
+    solver.solve_with_jacobian = [&](const VectorType &src, VectorType &dst) -> void {
       dst(0) = Jinv(0, 0) * src(0) + Jinv(0, 1) * src(1);
       dst(1) = Jinv(1, 0) * src(0) + Jinv(1, 1) * src(1);
       dst.compress(VectorOperation::insert);

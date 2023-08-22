@@ -107,14 +107,11 @@ namespace Step40
   LaplaceProblem<dim>::LaplaceProblem()
     : mpi_communicator(MPI_COMM_WORLD)
     , triangulation(mpi_communicator,
-                    typename Triangulation<dim>::MeshSmoothing(
-                      Triangulation<dim>::smoothing_on_refinement |
-                      Triangulation<dim>::smoothing_on_coarsening))
+                    typename Triangulation<dim>::MeshSmoothing(Triangulation<dim>::smoothing_on_refinement |
+                                                               Triangulation<dim>::smoothing_on_coarsening))
     , fe(2)
     , dof_handler(triangulation)
-    , pcout(Utilities::MPI::this_mpi_process(mpi_communicator) == 0 ?
-              deallog.get_file_stream() :
-              std::cout,
+    , pcout(Utilities::MPI::this_mpi_process(mpi_communicator) == 0 ? deallog.get_file_stream() : std::cout,
             (Utilities::MPI::this_mpi_process(mpi_communicator) == 0))
   {}
 
@@ -127,18 +124,13 @@ namespace Step40
     locally_owned_dofs = dof_handler.locally_owned_dofs();
     DoFTools::extract_locally_relevant_dofs(dof_handler, locally_relevant_dofs);
 
-    locally_relevant_solution.reinit(locally_owned_dofs,
-                                     locally_relevant_dofs,
-                                     mpi_communicator);
+    locally_relevant_solution.reinit(locally_owned_dofs, locally_relevant_dofs, mpi_communicator);
     system_rhs.reinit(locally_owned_dofs, mpi_communicator);
 
     constraints.clear();
     constraints.reinit(locally_relevant_dofs);
     DoFTools::make_hanging_node_constraints(dof_handler, constraints);
-    VectorTools::interpolate_boundary_values(dof_handler,
-                                             0,
-                                             Functions::ZeroFunction<dim>(),
-                                             constraints);
+    VectorTools::interpolate_boundary_values(dof_handler, 0, Functions::ZeroFunction<dim>(), constraints);
     constraints.close();
 
     DynamicSparsityPattern dsp(locally_relevant_dofs);
@@ -149,10 +141,7 @@ namespace Step40
                                                mpi_communicator,
                                                locally_relevant_dofs);
 
-    system_matrix.reinit(locally_owned_dofs,
-                         locally_owned_dofs,
-                         dsp,
-                         mpi_communicator);
+    system_matrix.reinit(locally_owned_dofs, locally_owned_dofs, dsp, mpi_communicator);
   }
 
   template <int dim>
@@ -163,8 +152,7 @@ namespace Step40
 
     FEValues<dim> fe_values(fe,
                             quadrature_formula,
-                            update_values | update_gradients |
-                              update_quadrature_points | update_JxW_values);
+                            update_values | update_gradients | update_quadrature_points | update_JxW_values);
 
     const unsigned int dofs_per_cell = fe.dofs_per_cell;
     const unsigned int n_q_points    = quadrature_formula.size();
@@ -174,8 +162,7 @@ namespace Step40
 
     std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
 
-    for (const auto &cell : dof_handler.active_cell_iterators() |
-                              IteratorFilters::LocallyOwnedCell())
+    for (const auto &cell : dof_handler.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
       {
         cell_matrix = 0.;
         cell_rhs    = 0.;
@@ -186,18 +173,15 @@ namespace Step40
           {
             const double rhs_value =
               (fe_values.quadrature_point(q_point)[1] >
-                   0.5 +
-                     0.25 * std::sin(4.0 * numbers::PI *
-                                     fe_values.quadrature_point(q_point)[0]) ?
+                   0.5 + 0.25 * std::sin(4.0 * numbers::PI * fe_values.quadrature_point(q_point)[0]) ?
                  1. :
                  -1.);
 
             for (unsigned int i = 0; i < dofs_per_cell; ++i)
               {
                 for (unsigned int j = 0; j < dofs_per_cell; ++j)
-                  cell_matrix(i, j) += fe_values.shape_grad(i, q_point) *
-                                       fe_values.shape_grad(j, q_point) *
-                                       fe_values.JxW(q_point);
+                  cell_matrix(i, j) +=
+                    fe_values.shape_grad(i, q_point) * fe_values.shape_grad(j, q_point) * fe_values.JxW(q_point);
 
                 cell_rhs(i) += rhs_value *                         //
                                fe_values.shape_value(i, q_point) * //
@@ -206,8 +190,7 @@ namespace Step40
           }
 
         cell->get_dof_indices(local_dof_indices);
-        constraints.distribute_local_to_global(
-          cell_matrix, cell_rhs, local_dof_indices, system_matrix, system_rhs);
+        constraints.distribute_local_to_global(cell_matrix, cell_rhs, local_dof_indices, system_matrix, system_rhs);
       }
 
     system_matrix.compress(VectorOperation::add);
@@ -218,8 +201,7 @@ namespace Step40
   void
   LaplaceProblem<dim>::solve()
   {
-    TrilinosWrappers::MPI::Vector completely_distributed_solution(
-      locally_owned_dofs, mpi_communicator);
+    TrilinosWrappers::MPI::Vector completely_distributed_solution(locally_owned_dofs, mpi_communicator);
 
     SolverControl solver_control(dof_handler.n_dofs(), 1e-12, false, false);
 
@@ -234,14 +216,9 @@ namespace Step40
     auto K     = linear_operator<TrilinosWrappers::MPI::Vector>(system_matrix);
     auto K_inv = inverse_operator(K, solver, preconditioner);
 
-    check_solver_within_range(completely_distributed_solution =
-                                K_inv * system_rhs,
-                              solver_control.last_step(),
-                              20,
-                              25);
+    check_solver_within_range(completely_distributed_solution = K_inv * system_rhs, solver_control.last_step(), 20, 25);
 
-    pcout << "   Solved in " << solver_control.last_step() << " iterations."
-          << std::endl;
+    pcout << "   Solved in " << solver_control.last_step() << " iterations." << std::endl;
 
     constraints.distribute(completely_distributed_solution);
 
@@ -274,28 +251,16 @@ namespace Step40
 
         setup_system();
 
-        pcout << "   Number of active cells:       "
-              << triangulation.n_global_active_cells() << std::endl
-              << "      ";
+        pcout << "   Number of active cells:       " << triangulation.n_global_active_cells() << std::endl << "      ";
         const auto n_locally_owned_active_cells_per_processor =
-          Utilities::MPI::all_gather(
-            triangulation.get_communicator(),
-            triangulation.n_locally_owned_active_cells());
-        for (unsigned int i = 0;
-             i < Utilities::MPI::n_mpi_processes(mpi_communicator);
-             ++i)
+          Utilities::MPI::all_gather(triangulation.get_communicator(), triangulation.n_locally_owned_active_cells());
+        for (unsigned int i = 0; i < Utilities::MPI::n_mpi_processes(mpi_communicator); ++i)
           pcout << n_locally_owned_active_cells_per_processor[i] << '+';
         pcout << std::endl;
 
-        pcout << "   Number of degrees of freedom: " << dof_handler.n_dofs()
-              << std::endl
-              << "      ";
-        for (unsigned int i = 0;
-             i < Utilities::MPI::n_mpi_processes(mpi_communicator);
-             ++i)
-          pcout << Utilities::MPI::all_gather(
-                     MPI_COMM_WORLD, dof_handler.n_locally_owned_dofs())[i]
-                << '+';
+        pcout << "   Number of degrees of freedom: " << dof_handler.n_dofs() << std::endl << "      ";
+        for (unsigned int i = 0; i < Utilities::MPI::n_mpi_processes(mpi_communicator); ++i)
+          pcout << Utilities::MPI::all_gather(MPI_COMM_WORLD, dof_handler.n_locally_owned_dofs())[i] << '+';
         pcout << std::endl;
 
         assemble_system();
@@ -322,28 +287,20 @@ test_mpi()
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
 

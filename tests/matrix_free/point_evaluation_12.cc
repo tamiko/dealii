@@ -72,38 +72,27 @@ test(const unsigned int degree)
 
   Tensor<1, dim> exponents;
   exponents[0] = 1.;
-  VectorTools::interpolate(mapping,
-                           dof_handler,
-                           Functions::Monomial<dim>(exponents),
-                           vector);
+  VectorTools::interpolate(mapping, dof_handler, Functions::Monomial<dim>(exponents), vector);
 
   FEPointEvaluation<1, dim> evaluator(mapping,
                                       fe,
-                                      update_values | update_gradients |
-                                        update_quadrature_points |
-                                        update_jacobians);
+                                      update_values | update_gradients | update_quadrature_points | update_jacobians);
   std::vector<double>       solution_values(fe.dofs_per_cell);
 
   for (const auto &cell : dof_handler.active_cell_iterators())
     {
-      cell->get_dof_values(vector,
-                           solution_values.begin(),
-                           solution_values.end());
+      cell->get_dof_values(vector, solution_values.begin(), solution_values.end());
 
       evaluator.reinit(cell, unit_points);
-      evaluator.evaluate(solution_values,
-                         EvaluationFlags::values | EvaluationFlags::gradients);
+      evaluator.evaluate(solution_values, EvaluationFlags::values | EvaluationFlags::gradients);
 
       deallog << "Cell with center " << cell->center(true) << std::endl;
       for (unsigned int i = 0; i < unit_points.size(); ++i)
         deallog << "unit point " << unit_points[i] << std::endl
-                << "unit point via evaluator: " << evaluator.unit_point(i)
-                << std::endl
+                << "unit point via evaluator: " << evaluator.unit_point(i) << std::endl
                 << "real point: " << evaluator.real_point(i) << std::endl
-                << "jacobian: " << Tensor<2, dim>(evaluator.jacobian(i))
-                << std::endl
-                << "inverse jacobian: "
-                << Tensor<2, dim>(evaluator.inverse_jacobian(i)) << std::endl
+                << "jacobian: " << Tensor<2, dim>(evaluator.jacobian(i)) << std::endl
+                << "inverse jacobian: " << Tensor<2, dim>(evaluator.inverse_jacobian(i)) << std::endl
                 << std::endl;
     }
 }

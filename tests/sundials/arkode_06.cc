@@ -95,40 +95,31 @@ main()
   };
 
 
-  ode.jacobian_times_setup =
-    [&](realtype t, const VectorType &y, const VectorType &fy) {
-      J       = 0;
-      J(2, 2) = -1.0 / eps;
-    };
+  ode.jacobian_times_setup = [&](realtype t, const VectorType &y, const VectorType &fy) {
+    J       = 0;
+    J(2, 2) = -1.0 / eps;
+  };
 
-  ode.jacobian_times_vector = [&](const VectorType &v,
-                                  VectorType &      Jv,
-                                  double            t,
-                                  const VectorType &y,
-                                  const VectorType &fy) { J.vmult(Jv, v); };
+  ode.jacobian_times_vector =
+    [&](const VectorType &v, VectorType &Jv, double t, const VectorType &y, const VectorType &fy) { J.vmult(Jv, v); };
 
-  ode.solve_linearized_system =
-    [&](SUNDIALS::SundialsOperator<VectorType> &op,
-        SUNDIALS::SundialsPreconditioner<VectorType> &,
-        VectorType &      x,
-        const VectorType &b,
-        double            tol) {
-      ReductionControl     control;
-      SolverCG<VectorType> solver_cg(control);
-      solver_cg.solve(op, x, b, PreconditionIdentity());
-    };
+  ode.solve_linearized_system = [&](SUNDIALS::SundialsOperator<VectorType> &op,
+                                    SUNDIALS::SundialsPreconditioner<VectorType> &,
+                                    VectorType       &x,
+                                    const VectorType &b,
+                                    double            tol) {
+    ReductionControl     control;
+    SolverCG<VectorType> solver_cg(control);
+    solver_cg.solve(op, x, b, PreconditionIdentity());
+  };
 
-  ode.output_step =
-    [&](const double t, const VectorType &sol, const unsigned int step_number) {
-      deallog << t << ' ' << sol[0] << ' ' << sol[1] << ' ' << sol[2]
-              << std::endl;
-    };
+  ode.output_step = [&](const double t, const VectorType &sol, const unsigned int step_number) {
+    deallog << t << ' ' << sol[0] << ' ' << sol[1] << ' ' << sol[2] << std::endl;
+  };
 
   // after 5.2.0 a special interpolation mode should be used for stiff problems
 #if DEAL_II_SUNDIALS_VERSION_GTE(5, 2, 0)
-  ode.custom_setup = [&](void *arkode_mem) {
-    ARKStepSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE);
-  };
+  ode.custom_setup = [&](void *arkode_mem) { ARKStepSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE); };
 #endif
 
   Vector<double> y(3);

@@ -28,17 +28,14 @@
 
 template <int dim>
 void
-check_found(const Triangulation<dim> &     tria,
-            const GridTools::Cache<dim> &  cache,
-            const std::vector<Point<dim>> &points)
+check_found(const Triangulation<dim> &tria, const GridTools::Cache<dim> &cache, const std::vector<Point<dim>> &points)
 {
-  auto cell_qpoint_map =
-    GridTools::compute_point_locations_try_all(cache, points);
-  const auto &cells   = std::get<0>(cell_qpoint_map);
-  const auto &qpoints = std::get<1>(cell_qpoint_map);
-  const auto &indices = std::get<2>(cell_qpoint_map);
-  const auto &other_p = std::get<3>(cell_qpoint_map);
-  size_t      n_cells = cells.size();
+  auto        cell_qpoint_map = GridTools::compute_point_locations_try_all(cache, points);
+  const auto &cells           = std::get<0>(cell_qpoint_map);
+  const auto &qpoints         = std::get<1>(cell_qpoint_map);
+  const auto &indices         = std::get<2>(cell_qpoint_map);
+  const auto &other_p         = std::get<3>(cell_qpoint_map);
+  size_t      n_cells         = cells.size();
 
   deallog << "Points found in " << n_cells << " cells" << std::endl;
 
@@ -47,8 +44,7 @@ check_found(const Triangulation<dim> &     tria,
       deallog << "On cell " << cells[i]->id() << " found:" << std::endl;
       unsigned int j = 0;
       for (const Point<dim> &p : qpoints[i])
-        deallog << "real " << points[indices[i][j++]] << " unit " << p
-                << std::endl;
+        deallog << "real " << points[indices[i][j++]] << " unit " << p << std::endl;
     }
   deallog << "Points not found: ";
   for (const auto i : other_p)
@@ -73,8 +69,7 @@ main()
   GridTools::Cache<dim> cache(triangulation, mapping);
 
   // Point is outside by 1e-16
-  Point<dim> p0(-0.299999999999999989, -0.247168783648703205),
-    p1(-0.300000000000000044, -0.102831216351296786);
+  Point<dim> p0(-0.299999999999999989, -0.247168783648703205), p1(-0.300000000000000044, -0.102831216351296786);
 
   check_found(triangulation, cache, {{p0, p1}});
 

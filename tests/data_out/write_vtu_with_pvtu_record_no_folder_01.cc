@@ -95,8 +95,7 @@ main(int argc, char *argv[])
 
   try
     {
-      data_out.write_vtu_with_pvtu_record(
-        "./folder/", "file", 0, comm, 1, Utilities::MPI::n_mpi_processes(comm));
+      data_out.write_vtu_with_pvtu_record("./folder/", "file", 0, comm, 1, Utilities::MPI::n_mpi_processes(comm));
     }
   catch (const std::exception &exc)
     {

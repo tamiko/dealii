@@ -221,8 +221,7 @@ namespace internal
        */
       template <int dim, int spacedim>
       typename Triangulation<dim, spacedim>::raw_hex_iterator
-      next_free_hex(const Triangulation<dim, spacedim> &tria,
-                    const unsigned int                  level);
+      next_free_hex(const Triangulation<dim, spacedim> &tria, const unsigned int level);
 
       /**
        * Access to user pointers.
@@ -387,8 +386,7 @@ namespace internal
     {
       // assume that each cell has the same number of faces
       const unsigned int faces_per_cell = 2 * this->structdim;
-      return ArrayView<int>(cells.data() + index * faces_per_cell,
-                            faces_per_cell);
+      return ArrayView<int>(cells.data() + index * faces_per_cell, faces_per_cell);
     }
 
 
@@ -410,8 +408,7 @@ namespace internal
 
     template <class Archive>
     void
-    TriaObjects::BoundaryOrMaterialId::serialize(Archive &ar,
-                                                 const unsigned int /*version*/)
+    TriaObjects::BoundaryOrMaterialId::serialize(Archive &ar, const unsigned int /*version*/)
     {
       // serialize this
       // structure by
@@ -431,8 +428,7 @@ namespace internal
     inline void *&
     TriaObjects::user_pointer(const unsigned int i)
     {
-      Assert(user_data_type == data_unknown || user_data_type == data_pointer,
-             ExcPointerIndexClash());
+      Assert(user_data_type == data_unknown || user_data_type == data_pointer, ExcPointerIndexClash());
       user_data_type = data_pointer;
 
       AssertIndexRange(i, user_data.size());
@@ -443,8 +439,7 @@ namespace internal
     inline const void *
     TriaObjects::user_pointer(const unsigned int i) const
     {
-      Assert(user_data_type == data_unknown || user_data_type == data_pointer,
-             ExcPointerIndexClash());
+      Assert(user_data_type == data_unknown || user_data_type == data_pointer, ExcPointerIndexClash());
       user_data_type = data_pointer;
 
       AssertIndexRange(i, user_data.size());
@@ -455,8 +450,7 @@ namespace internal
     inline unsigned int &
     TriaObjects::user_index(const unsigned int i)
     {
-      Assert(user_data_type == data_unknown || user_data_type == data_index,
-             ExcPointerIndexClash());
+      Assert(user_data_type == data_unknown || user_data_type == data_index, ExcPointerIndexClash());
       user_data_type = data_index;
 
       AssertIndexRange(i, user_data.size());
@@ -493,8 +487,7 @@ namespace internal
     inline unsigned int
     TriaObjects::user_index(const unsigned int i) const
     {
-      Assert(user_data_type == data_unknown || user_data_type == data_index,
-             ExcPointerIndexClash());
+      Assert(user_data_type == data_unknown || user_data_type == data_index, ExcPointerIndexClash());
       user_data_type = data_index;
 
       AssertIndexRange(i, user_data.size());
@@ -532,15 +525,15 @@ namespace internal
     void
     TriaObjects::serialize(Archive &ar, const unsigned int)
     {
-      ar &structdim;
-      ar &cells &children;
-      ar &       refinement_cases;
-      ar &       used;
-      ar &       user_flags;
-      ar &       boundary_or_material_id;
-      ar &       manifold_id;
+      ar                                   &structdim;
+      ar &cells                            &children;
+      ar                                   &refinement_cases;
+      ar                                   &used;
+      ar                                   &user_flags;
+      ar                                   &boundary_or_material_id;
+      ar                                   &manifold_id;
       ar &next_free_single &next_free_pair &reverse_order_next_free_single;
-      ar &user_data &user_data_type;
+      ar &user_data                        &user_data_type;
     }
 
 
@@ -548,8 +541,7 @@ namespace internal
 
     template <int structdim_, int dim, int spacedim>
     dealii::TriaRawIterator<dealii::TriaAccessor<structdim_, dim, spacedim>>
-    TriaObjects::next_free_single_object(
-      const Triangulation<dim, spacedim> &tria)
+    TriaObjects::next_free_single_object(const Triangulation<dim, spacedim> &tria)
     {
       // TODO: Think of a way to ensure that we are using the correct
       // triangulation, i.e. the one containing *this.
@@ -590,12 +582,10 @@ namespace internal
             next_free_single = pos - 1;
           else
             // no valid single object anymore
-            return dealii::TriaRawIterator<
-              dealii::TriaAccessor<structdim_, dim, spacedim>>(&tria, -1, -1);
+            return dealii::TriaRawIterator<dealii::TriaAccessor<structdim_, dim, spacedim>>(&tria, -1, -1);
         }
 
-      return dealii::TriaRawIterator<
-        dealii::TriaAccessor<structdim_, dim, spacedim>>(&tria, 0, pos);
+      return dealii::TriaRawIterator<dealii::TriaAccessor<structdim_, dim, spacedim>>(&tria, 0, pos);
     }
 
 
@@ -620,13 +610,11 @@ namespace internal
             }
       if (pos >= last)
         // no free slot
-        return dealii::TriaRawIterator<
-          dealii::TriaAccessor<structdim_, dim, spacedim>>(&tria, -1, -1);
+        return dealii::TriaRawIterator<dealii::TriaAccessor<structdim_, dim, spacedim>>(&tria, -1, -1);
       else
         next_free_pair = pos + 2;
 
-      return dealii::TriaRawIterator<
-        dealii::TriaAccessor<structdim_, dim, spacedim>>(&tria, 0, pos);
+      return dealii::TriaRawIterator<dealii::TriaAccessor<structdim_, dim, spacedim>>(&tria, 0, pos);
     }
   } // namespace TriangulationImplementation
 } // namespace internal

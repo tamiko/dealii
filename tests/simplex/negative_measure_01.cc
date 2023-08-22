@@ -56,8 +56,7 @@ test()
       cells[2].vertices = {1, 3, 5, 7, 9};
 
       SubCellData       subcelldata;
-      const std::size_t n_cells_inverted =
-        GridTools::invert_cells_with_negative_measure(vertices, cells);
+      const std::size_t n_cells_inverted = GridTools::invert_cells_with_negative_measure(vertices, cells);
 
       deallog << "We inverted " << n_cells_inverted << " cell(s)." << std::endl;
     }
@@ -93,8 +92,7 @@ test()
     cells[2].vertices = {5, 1, 7, 3, 9};
 
     SubCellData       subcelldata;
-    const std::size_t n_cells_inverted =
-      GridTools::invert_cells_with_negative_measure(vertices, cells);
+    const std::size_t n_cells_inverted = GridTools::invert_cells_with_negative_measure(vertices, cells);
 
     deallog << "We inverted " << n_cells_inverted << " cell(s)." << std::endl;
 
@@ -102,9 +100,7 @@ test()
     tria.create_triangulation(vertices, cells, subcelldata);
 
     std::ostream &logfile = deallog.get_file_stream();
-    logfile << "---------------------------------------------" << std::endl
-            << std::endl
-            << std::endl;
+    logfile << "---------------------------------------------" << std::endl << std::endl << std::endl;
     GridOut grid_out;
     grid_out.write_vtk(tria, logfile);
   }
@@ -137,8 +133,7 @@ test()
     cells[2].vertices = {1, 10, 3, 5, 11, 7};
 
     SubCellData       subcelldata;
-    const std::size_t n_cells_inverted =
-      GridTools::invert_cells_with_negative_measure(vertices, cells);
+    const std::size_t n_cells_inverted = GridTools::invert_cells_with_negative_measure(vertices, cells);
 
     deallog << "We inverted " << n_cells_inverted << " cell(s)." << std::endl;
 
@@ -146,9 +141,7 @@ test()
     tria.create_triangulation(vertices, cells, subcelldata);
 
     std::ostream &logfile = deallog.get_file_stream();
-    logfile << "---------------------------------------------" << std::endl
-            << std::endl
-            << std::endl;
+    logfile << "---------------------------------------------" << std::endl << std::endl << std::endl;
     GridOut grid_out;
     grid_out.write_vtk(tria, logfile);
   }

@@ -32,14 +32,7 @@ test()
   const unsigned int dim      = 2;
   const unsigned int spacedim = 3;
 
-  XDMFEntry entry1(mesh_filename,
-                   solution_filename,
-                   time,
-                   nodes,
-                   cells,
-                   dim,
-                   spacedim,
-                   ReferenceCells::Quadrilateral);
+  XDMFEntry entry1(mesh_filename, solution_filename, time, nodes, cells, dim, spacedim, ReferenceCells::Quadrilateral);
   XDMFEntry entry2;
 
   // save data to archive
@@ -57,13 +50,9 @@ test()
     ia >> entry2;
   }
 
-  deallog << "XDMFEntry before serialization: " << std::endl
-          << std::endl
-          << entry1.get_xdmf_content(0) << std::endl;
+  deallog << "XDMFEntry before serialization: " << std::endl << std::endl << entry1.get_xdmf_content(0) << std::endl;
 
-  deallog << "XDMFEntry after de-serialization: " << std::endl
-          << std::endl
-          << entry2.get_xdmf_content(0) << std::endl;
+  deallog << "XDMFEntry after de-serialization: " << std::endl << std::endl << entry2.get_xdmf_content(0) << std::endl;
 }
 
 

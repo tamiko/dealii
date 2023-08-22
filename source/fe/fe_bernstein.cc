@@ -36,39 +36,29 @@ DEAL_II_NAMESPACE_OPEN
 
 template <int dim, int spacedim>
 FE_Bernstein<dim, spacedim>::FE_Bernstein(const unsigned int degree)
-  : FE_Q_Base<dim, spacedim>(this->renumber_bases(degree),
-                             FiniteElementData<dim>(this->get_dpo_vector(
-                                                      degree),
-                                                    1,
-                                                    degree,
-                                                    FiniteElementData<dim>::H1),
-                             std::vector<bool>(1, false))
+  : FE_Q_Base<dim, spacedim>(
+      this->renumber_bases(degree),
+      FiniteElementData<dim>(this->get_dpo_vector(degree), 1, degree, FiniteElementData<dim>::H1),
+      std::vector<bool>(1, false))
 {}
 
 
 
 template <int dim, int spacedim>
 void
-FE_Bernstein<dim, spacedim>::get_interpolation_matrix(
-  const FiniteElement<dim, spacedim> &,
-  FullMatrix<double> &) const
+FE_Bernstein<dim, spacedim>::get_interpolation_matrix(const FiniteElement<dim, spacedim> &, FullMatrix<double> &) const
 {
   // no interpolation possible. throw exception, as documentation says
-  AssertThrow(
-    false,
-    (typename FiniteElement<dim, spacedim>::ExcInterpolationNotImplemented()));
+  AssertThrow(false, (typename FiniteElement<dim, spacedim>::ExcInterpolationNotImplemented()));
 }
 
 
 
 template <int dim, int spacedim>
 const FullMatrix<double> &
-FE_Bernstein<dim, spacedim>::get_restriction_matrix(
-  const unsigned int,
-  const RefinementCase<dim> &) const
+FE_Bernstein<dim, spacedim>::get_restriction_matrix(const unsigned int, const RefinementCase<dim> &) const
 {
-  AssertThrow(false,
-              (typename FiniteElement<dim, spacedim>::ExcProjectionVoid()));
+  AssertThrow(false, (typename FiniteElement<dim, spacedim>::ExcProjectionVoid()));
   // return dummy, nothing will happen because the base class FE_Q_Base
   // implements lazy evaluation of those matrices
   return this->restriction[0][0];
@@ -78,12 +68,9 @@ FE_Bernstein<dim, spacedim>::get_restriction_matrix(
 
 template <int dim, int spacedim>
 const FullMatrix<double> &
-FE_Bernstein<dim, spacedim>::get_prolongation_matrix(
-  const unsigned int,
-  const RefinementCase<dim> &) const
+FE_Bernstein<dim, spacedim>::get_prolongation_matrix(const unsigned int, const RefinementCase<dim> &) const
 {
-  AssertThrow(false,
-              (typename FiniteElement<dim, spacedim>::ExcEmbeddingVoid()));
+  AssertThrow(false, (typename FiniteElement<dim, spacedim>::ExcEmbeddingVoid()));
   // return dummy, nothing will happen because the base class FE_Q_Base
   // implements lazy evaluation of those matrices
   return this->prolongation[0][0];
@@ -93,59 +80,47 @@ FE_Bernstein<dim, spacedim>::get_prolongation_matrix(
 
 template <int dim, int spacedim>
 void
-FE_Bernstein<dim, spacedim>::get_face_interpolation_matrix(
-  const FiniteElement<dim, spacedim> &source_fe,
-  FullMatrix<double> &                interpolation_matrix,
-  const unsigned int                  face_no) const
+FE_Bernstein<dim, spacedim>::get_face_interpolation_matrix(const FiniteElement<dim, spacedim> &source_fe,
+                                                           FullMatrix<double>                 &interpolation_matrix,
+                                                           const unsigned int                  face_no) const
 {
-  get_subface_interpolation_matrix(source_fe,
-                                   numbers::invalid_unsigned_int,
-                                   interpolation_matrix,
-                                   face_no);
+  get_subface_interpolation_matrix(source_fe, numbers::invalid_unsigned_int, interpolation_matrix, face_no);
 }
 
 
 template <int dim, int spacedim>
 void
-FE_Bernstein<dim, spacedim>::get_subface_interpolation_matrix(
-  const FiniteElement<dim, spacedim> &x_source_fe,
-  const unsigned int                  subface,
-  FullMatrix<double> &                interpolation_matrix,
-  const unsigned int                  face_no) const
+FE_Bernstein<dim, spacedim>::get_subface_interpolation_matrix(const FiniteElement<dim, spacedim> &x_source_fe,
+                                                              const unsigned int                  subface,
+                                                              FullMatrix<double>                 &interpolation_matrix,
+                                                              const unsigned int                  face_no) const
 {
   Assert(interpolation_matrix.m() == x_source_fe.n_dofs_per_face(face_no),
-         ExcDimensionMismatch(interpolation_matrix.m(),
-                              x_source_fe.n_dofs_per_face(face_no)));
+         ExcDimensionMismatch(interpolation_matrix.m(), x_source_fe.n_dofs_per_face(face_no)));
 
   // see if source is a Bernstein element
-  if (const FE_Bernstein<dim, spacedim> *source_fe =
-        dynamic_cast<const FE_Bernstein<dim, spacedim> *>(&x_source_fe))
+  if (const FE_Bernstein<dim, spacedim> *source_fe = dynamic_cast<const FE_Bernstein<dim, spacedim> *>(&x_source_fe))
     {
       // have this test in here since a table of size 2x0 reports its size as
       // 0x0
       Assert(interpolation_matrix.n() == this->n_dofs_per_face(face_no),
-             ExcDimensionMismatch(interpolation_matrix.n(),
-                                  this->n_dofs_per_face(face_no)));
+             ExcDimensionMismatch(interpolation_matrix.n(), this->n_dofs_per_face(face_no)));
 
       // Make sure that the element for which the DoFs should be constrained
       // is the one with the higher polynomial degree.  Actually the procedure
       // will work also if this assertion is not satisfied. But the matrices
       // produced in that case might lead to problems in the hp-procedures,
       // which use this method.
-      Assert(
-        this->n_dofs_per_face(face_no) <= source_fe->n_dofs_per_face(face_no),
-        (typename FiniteElement<dim,
-                                spacedim>::ExcInterpolationNotImplemented()));
+      Assert(this->n_dofs_per_face(face_no) <= source_fe->n_dofs_per_face(face_no),
+             (typename FiniteElement<dim, spacedim>::ExcInterpolationNotImplemented()));
 
       const Quadrature<dim - 1> quad_face_support(
-        FE_Q<dim, spacedim>(QIterated<1>(QTrapezoid<1>(), source_fe->degree))
-          .get_unit_face_support_points(face_no));
+        FE_Q<dim, spacedim>(QIterated<1>(QTrapezoid<1>(), source_fe->degree)).get_unit_face_support_points(face_no));
 
       // Rule of thumb for FP accuracy, that can be expected for a given
       // polynomial degree.  This value is used to cut off values close to
       // zero.
-      const double eps = 2e-13 * std::max(this->degree, source_fe->degree) *
-                         std::max(dim - 1, 1);
+      const double eps = 2e-13 * std::max(this->degree, source_fe->degree) * std::max(dim - 1, 1);
 
       // compute the interpolation matrix by simply taking the value at the
       // support points.
@@ -154,21 +129,15 @@ FE_Bernstein<dim, spacedim>::get_subface_interpolation_matrix(
       // be done for the face orientation flag in 3d.
       const Quadrature<dim> subface_quadrature =
         subface == numbers::invalid_unsigned_int ?
-          QProjector<dim>::project_to_face(this->reference_cell(),
-                                           quad_face_support,
-                                           0) :
-          QProjector<dim>::project_to_subface(this->reference_cell(),
-                                              quad_face_support,
-                                              0,
-                                              subface);
+          QProjector<dim>::project_to_face(this->reference_cell(), quad_face_support, 0) :
+          QProjector<dim>::project_to_subface(this->reference_cell(), quad_face_support, 0, subface);
 
       for (unsigned int i = 0; i < source_fe->n_dofs_per_face(face_no); ++i)
         {
           const Point<dim> &p = subface_quadrature.point(i);
           for (unsigned int j = 0; j < this->n_dofs_per_face(face_no); ++j)
             {
-              double matrix_entry =
-                this->shape_value(this->face_to_cell_index(j, 0), p);
+              double matrix_entry = this->shape_value(this->face_to_cell_index(j, 0), p);
 
               // Correct the interpolated value. I.e. if it is close to 1 or
               // 0, make it exactly 1 or 0. Unfortunately, this is required to
@@ -200,8 +169,7 @@ FE_Bernstein<dim, spacedim>::get_subface_interpolation_matrix(
     {
       // When the incoming element is not FE_Bernstein we can just delegate to
       // the base class to create the interpolation matrix.
-      FE_Q_Base<dim, spacedim>::get_subface_interpolation_matrix(
-        x_source_fe, subface, interpolation_matrix, face_no);
+      FE_Q_Base<dim, spacedim>::get_subface_interpolation_matrix(x_source_fe, subface, interpolation_matrix, face_no);
     }
 }
 
@@ -217,8 +185,7 @@ FE_Bernstein<dim, spacedim>::hp_constraints_are_implemented() const
 
 template <int dim, int spacedim>
 std::vector<std::pair<unsigned int, unsigned int>>
-FE_Bernstein<dim, spacedim>::hp_vertex_dof_identities(
-  const FiniteElement<dim, spacedim> &fe_other) const
+FE_Bernstein<dim, spacedim>::hp_vertex_dof_identities(const FiniteElement<dim, spacedim> &fe_other) const
 {
   // we can presently only compute these identities if both FEs are
   // FE_Bernsteins or if the other one is an FE_Nothing. in the first case,
@@ -226,8 +193,7 @@ FE_Bernstein<dim, spacedim>::hp_vertex_dof_identities(
   // should have identical value
   if (dynamic_cast<const FE_Bernstein<dim, spacedim> *>(&fe_other) != nullptr)
     {
-      return std::vector<std::pair<unsigned int, unsigned int>>(
-        1, std::make_pair(0U, 0U));
+      return std::vector<std::pair<unsigned int, unsigned int>>(1, std::make_pair(0U, 0U));
     }
   else if (dynamic_cast<const FE_Nothing<dim> *>(&fe_other) != nullptr)
     {
@@ -256,8 +222,7 @@ FE_Bernstein<dim, spacedim>::hp_vertex_dof_identities(
 
 template <int dim, int spacedim>
 std::vector<std::pair<unsigned int, unsigned int>>
-FE_Bernstein<dim, spacedim>::hp_line_dof_identities(
-  const FiniteElement<dim, spacedim> &) const
+FE_Bernstein<dim, spacedim>::hp_line_dof_identities(const FiniteElement<dim, spacedim> &) const
 {
   // Since this FE is not interpolatory but on the vertices, we can
   // not identify dofs on lines and on quads even if there are dofs
@@ -271,9 +236,7 @@ FE_Bernstein<dim, spacedim>::hp_line_dof_identities(
 
 template <int dim, int spacedim>
 std::vector<std::pair<unsigned int, unsigned int>>
-FE_Bernstein<dim, spacedim>::hp_quad_dof_identities(
-  const FiniteElement<dim, spacedim> &,
-  const unsigned int) const
+FE_Bernstein<dim, spacedim>::hp_quad_dof_identities(const FiniteElement<dim, spacedim> &, const unsigned int) const
 {
   // Since this FE is not interpolatory but on the vertices, we can
   // not identify dofs on lines and on quads even if there are dofs
@@ -287,9 +250,8 @@ FE_Bernstein<dim, spacedim>::hp_quad_dof_identities(
 
 template <int dim, int spacedim>
 FiniteElementDomination::Domination
-FE_Bernstein<dim, spacedim>::compare_for_domination(
-  const FiniteElement<dim, spacedim> &fe_other,
-  const unsigned int                  codim) const
+FE_Bernstein<dim, spacedim>::compare_for_domination(const FiniteElement<dim, spacedim> &fe_other,
+                                                    const unsigned int                  codim) const
 {
   Assert(codim <= dim, ExcImpossibleInDim(dim));
 
@@ -305,8 +267,7 @@ FE_Bernstein<dim, spacedim>::compare_for_domination(
   // (if fe_other is not derived from FE_DGQ)
   // & cell domination
   // ----------------------------------------
-  if (const FE_Bernstein<dim, spacedim> *fe_b_other =
-        dynamic_cast<const FE_Bernstein<dim, spacedim> *>(&fe_other))
+  if (const FE_Bernstein<dim, spacedim> *fe_b_other = dynamic_cast<const FE_Bernstein<dim, spacedim> *>(&fe_other))
     {
       if (this->degree < fe_b_other->degree)
         return FiniteElementDomination::this_element_dominates;
@@ -315,8 +276,7 @@ FE_Bernstein<dim, spacedim>::compare_for_domination(
       else
         return FiniteElementDomination::other_element_dominates;
     }
-  else if (const FE_Nothing<dim, spacedim> *fe_nothing =
-             dynamic_cast<const FE_Nothing<dim, spacedim> *>(&fe_other))
+  else if (const FE_Nothing<dim, spacedim> *fe_nothing = dynamic_cast<const FE_Nothing<dim, spacedim> *>(&fe_other))
     {
       if (fe_nothing->is_dominating())
         return FiniteElementDomination::other_element_dominates;
@@ -373,8 +333,7 @@ template <int dim, int spacedim>
 TensorProductPolynomials<dim>
 FE_Bernstein<dim, spacedim>::renumber_bases(const unsigned int deg)
 {
-  TensorProductPolynomials<dim> tpp(
-    dealii::generate_complete_bernstein_basis<double>(deg));
+  TensorProductPolynomials<dim> tpp(dealii::generate_complete_bernstein_basis<double>(deg));
   tpp.set_numbering(FETools::hierarchic_to_lexicographic_numbering<dim>(deg));
   return tpp;
 }

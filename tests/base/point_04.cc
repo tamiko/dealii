@@ -27,9 +27,7 @@ namespace bg = boost::geometry;
 void
 check3d()
 {
-  bg::model::point<double, 3, boost::geometry::cs::cartesian> point(-1.0,
-                                                                    2.0,
-                                                                    0.15);
+  bg::model::point<double, 3, boost::geometry::cs::cartesian> point(-1.0, 2.0, 0.15);
 
   Point<3> p(point);
 

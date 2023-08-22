@@ -41,11 +41,9 @@ test_in_unit_cube(const std::vector<Point<dim>> &points)
 
   MappingFE<dim> mapping(FE_SimplexP<dim>(1));
 
-  const auto tria_cache =
-    std::make_unique<GridTools::Cache<dim>>(tria, mapping);
+  const auto tria_cache = std::make_unique<GridTools::Cache<dim>>(tria, mapping);
 
-  const auto point_locations =
-    GridTools::compute_point_locations(*tria_cache, points);
+  const auto point_locations = GridTools::compute_point_locations(*tria_cache, points);
 
   const auto cells   = std::get<0>(point_locations);
   const auto qpoints = std::get<1>(point_locations);
@@ -58,13 +56,9 @@ test_in_unit_cube(const std::vector<Point<dim>> &points)
       for (unsigned int j = 0; j < qpoints[i].size(); ++j)
         {
           deallog << "    qpoints " << j << ": " << std::endl;
-          deallog << "        reference position  : (" << qpoints[i][j] << ')'
-                  << std::endl;
-          deallog << "        physical position   : (" << points[indices[i][j]]
-                  << ')' << std::endl;
-          deallog << "        FE mapping position : ("
-                  << mapping.transform_unit_to_real_cell(cells[i],
-                                                         qpoints[i][j])
+          deallog << "        reference position  : (" << qpoints[i][j] << ')' << std::endl;
+          deallog << "        physical position   : (" << points[indices[i][j]] << ')' << std::endl;
+          deallog << "        FE mapping position : (" << mapping.transform_unit_to_real_cell(cells[i], qpoints[i][j])
                   << ')' << std::endl;
         }
     }

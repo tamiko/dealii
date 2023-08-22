@@ -115,9 +115,7 @@ namespace Particles
      * in the coordinate system of the reference cell.
      * @param[in] id Globally unique ID number of particle.
      */
-    Particle(const Point<spacedim> &     location,
-             const Point<dim> &          reference_location,
-             const types::particle_index id);
+    Particle(const Point<spacedim> &location, const Point<dim> &reference_location, const types::particle_index id);
 
     /**
      * Copy-constructor for Particle. This function creates a particle with
@@ -152,8 +150,7 @@ namespace Particles
      * succeed if a property pool is provided as second argument that is able to
      * store the correct number of properties per particle.
      */
-    Particle(const void *&                      begin_data,
-             PropertyPool<dim, spacedim> *const property_pool = nullptr);
+    Particle(const void *&begin_data, PropertyPool<dim, spacedim> *const property_pool = nullptr);
 
     /**
      * Move constructor for Particle, creates a particle from an existing
@@ -469,9 +466,9 @@ namespace Particles
   {
     unsigned int n_properties = 0;
 
-    Point<spacedim>       location;
-    Point<dim>            reference_location;
-    types::particle_index id;
+    Point<spacedim>                       location;
+    Point<dim>                            reference_location;
+    types::particle_index                 id;
     ar &location &reference_location &id &n_properties;
 
     set_location(location);
@@ -481,14 +478,11 @@ namespace Particles
     if (n_properties > 0)
       {
         ArrayView<double> properties(get_properties());
-        Assert(
-          properties.size() == n_properties,
-          ExcMessage(
-            "This particle was serialized with " +
-            std::to_string(n_properties) +
-            " properties, but the new property handler provides space for " +
-            std::to_string(properties.size()) +
-            " properties. Deserializing a particle only works for matching property sizes."));
+        Assert(properties.size() == n_properties,
+               ExcMessage("This particle was serialized with " + std::to_string(n_properties) +
+                          " properties, but the new property handler provides space for " +
+                          std::to_string(properties.size()) +
+                          " properties. Deserializing a particle only works for matching property sizes."));
 
         ar &boost::serialization::make_array(properties.data(), n_properties);
       }
@@ -502,8 +496,7 @@ namespace Particles
   Particle<dim, spacedim>::save(Archive &ar, const unsigned int) const
   {
     unsigned int n_properties = 0;
-    if ((property_pool != nullptr) &&
-        (property_pool_handle != PropertyPool<dim, spacedim>::invalid_handle))
+    if ((property_pool != nullptr) && (property_pool_handle != PropertyPool<dim, spacedim>::invalid_handle))
       n_properties = get_properties().size();
 
     Point<spacedim>       location           = get_location();
@@ -513,8 +506,7 @@ namespace Particles
     ar &location &reference_location &id &n_properties;
 
     if (n_properties > 0)
-      ar &boost::serialization::make_array(get_properties().data(),
-                                           n_properties);
+      ar &boost::serialization::make_array(get_properties().data(), n_properties);
   }
 
 
@@ -575,8 +567,7 @@ namespace Particles
 
   template <int dim, int spacedim>
   inline void
-  Particle<dim, spacedim>::set_property_pool(
-    PropertyPool<dim, spacedim> &new_property_pool)
+  Particle<dim, spacedim>::set_property_pool(PropertyPool<dim, spacedim> &new_property_pool)
   {
     // First, we do want to save any properties that may
     // have previously been set, and copy them over to the memory allocated
@@ -589,8 +580,7 @@ namespace Particles
     // there is simply nothing to transfer -- but the register_particle()
     // call here will make sure that the newly allocated properties are
     // zero-initialized.
-    const typename PropertyPool<dim, spacedim>::Handle new_handle =
-      new_property_pool.register_particle();
+    const typename PropertyPool<dim, spacedim>::Handle new_handle = new_property_pool.register_particle();
 
     const Point<spacedim>       location           = get_location();
     const Point<dim>            reference_location = get_reference_location();
@@ -599,11 +589,8 @@ namespace Particles
     if (/* old pool */ has_properties())
       {
         ArrayView<const double> old_properties = this->get_properties();
-        ArrayView<double>       new_properties =
-          new_property_pool.get_properties(new_handle);
-        std::copy(old_properties.cbegin(),
-                  old_properties.cend(),
-                  new_properties.begin());
+        ArrayView<double>       new_properties = new_property_pool.get_properties(new_handle);
+        std::copy(old_properties.cbegin(), old_properties.cend(), new_properties.begin());
       }
 
     // Now release the old memory handle
@@ -644,9 +631,7 @@ namespace Particles
     // The only way a particle can have no valid handle if it has
     // been moved-from -- but that leaves an object in an invalid
     // state, and so we can just assert that that can't be the case.
-    Assert((property_pool_handle !=
-            PropertyPool<dim, spacedim>::invalid_handle),
-           ExcInternalError());
+    Assert((property_pool_handle != PropertyPool<dim, spacedim>::invalid_handle), ExcInternalError());
     return (property_pool->n_properties_per_slot() > 0);
   }
 
@@ -678,8 +663,7 @@ namespace boost
         using result_type = const dealii::Point<spacedim> &;
 
         result_type
-        operator()(
-          const dealii::Particles::Particle<dim, spacedim> &particle) const
+        operator()(const dealii::Particles::Particle<dim, spacedim> &particle) const
         {
           return particle.get_location();
         }

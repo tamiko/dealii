@@ -52,24 +52,20 @@ write_dof_data(DoFHandler<dim> &dof_handler)
   for (unsigned int lvl = 0; lvl < n_levels; ++lvl)
     {
       std::vector<IndexSet> dof_index_per_proc =
-        Utilities::MPI::all_gather(MPI_COMM_WORLD,
-                                   dof_handler.locally_owned_mg_dofs(lvl));
+        Utilities::MPI::all_gather(MPI_COMM_WORLD, dof_handler.locally_owned_mg_dofs(lvl));
       for (unsigned int i = 0; i < dof_index_per_proc.size(); ++i)
         dof_index_per_proc[i].print(deallog);
 
 
-      typename DoFHandler<dim>::cell_iterator cell = dof_handler.begin(lvl),
-                                              endc = dof_handler.end(lvl);
+      typename DoFHandler<dim>::cell_iterator cell = dof_handler.begin(lvl), endc = dof_handler.end(lvl);
       for (; cell != endc; ++cell)
         {
           if (cell->level_subdomain_id() == numbers::artificial_subdomain_id)
             continue;
 
-          std::vector<types::global_dof_index> local_mg_dof_indices(
-            fe.dofs_per_cell);
+          std::vector<types::global_dof_index> local_mg_dof_indices(fe.dofs_per_cell);
           cell->get_mg_dof_indices(local_mg_dof_indices);
-          deallog << "proc " << Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)
-                  << ", "
+          deallog << "proc " << Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) << ", "
                   << "cell " << cell->id() << ", mg_dof_indices: ";
           for (unsigned int i = 0; i < fe.dofs_per_cell; ++i)
             deallog << local_mg_dof_indices[i] << ' ';
@@ -84,14 +80,13 @@ template <int dim>
 void
 test()
 {
-  parallel::shared::Triangulation<dim> tria(
-    MPI_COMM_WORLD,
-    typename Triangulation<dim>::MeshSmoothing(
-      Triangulation<dim>::limit_level_difference_at_vertices),
-    true,
-    typename parallel::shared::Triangulation<dim>::Settings(
-      parallel::shared::Triangulation<dim>::partition_zorder |
-      parallel::shared::Triangulation<dim>::construct_multigrid_hierarchy));
+  parallel::shared::Triangulation<dim> tria(MPI_COMM_WORLD,
+                                            typename Triangulation<dim>::MeshSmoothing(
+                                              Triangulation<dim>::limit_level_difference_at_vertices),
+                                            true,
+                                            typename parallel::shared::Triangulation<dim>::Settings(
+                                              parallel::shared::Triangulation<dim>::partition_zorder |
+                                              parallel::shared::Triangulation<dim>::construct_multigrid_hierarchy));
 
   DoFHandler<dim> dof_handler(tria);
 
@@ -99,10 +94,7 @@ test()
 
   tria.refine_global(1);
 
-  for (typename Triangulation<dim>::active_cell_iterator cell =
-         tria.begin_active();
-       cell != tria.end();
-       ++cell)
+  for (typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(); cell != tria.end(); ++cell)
     {
       if (dim == 2)
         if (cell->center()[0] < 0)
@@ -113,10 +105,8 @@ test()
     }
   tria.execute_coarsening_and_refinement();
 
-  deallog << "proc " << Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)
-          << ", level_ghost_owners: ";
-  for (std::set<types::subdomain_id>::iterator it =
-         tria.level_ghost_owners().begin();
+  deallog << "proc " << Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) << ", level_ghost_owners: ";
+  for (std::set<types::subdomain_id>::iterator it = tria.level_ghost_owners().begin();
        it != tria.level_ghost_owners().end();
        ++it)
     deallog << *it << ' ';

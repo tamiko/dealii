@@ -39,11 +39,10 @@
 
 template <typename SolverType, typename MatrixType, typename VectorType>
 void
-check_solve(const MatrixType &                         A,
-            VectorType &                               u,
-            VectorType &                               f,
-            const typename SolverType::AdditionalData &additional_data =
-              typename SolverType::AdditionalData())
+check_solve(const MatrixType                          &A,
+            VectorType                                &u,
+            VectorType                                &f,
+            const typename SolverType::AdditionalData &additional_data = typename SolverType::AdditionalData())
 {
   GrowingVectorMemory<> mem;
   SolverControl         control(100, 1.e-3);
@@ -96,8 +95,7 @@ main()
       check_solve<SolverQMRS<>>(A, u, f);
 
       // test use_default_residual=false case
-      check_solve<SolverGMRES<>>(
-        A, u, f, SolverGMRES<>::AdditionalData(30, false, false));
+      check_solve<SolverGMRES<>>(A, u, f, SolverGMRES<>::AdditionalData(30, false, false));
 
       deallog.pop();
     }

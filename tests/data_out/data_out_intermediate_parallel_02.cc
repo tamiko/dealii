@@ -56,20 +56,16 @@ check()
 
   DataOut<dim> data_out;
   data_out.attach_dof_handler(dof_handler);
-  data_out.add_data_vector(cell_data,
-                           "cell_data",
-                           DataOut<dim>::type_cell_data);
+  data_out.add_data_vector(cell_data, "cell_data", DataOut<dim>::type_cell_data);
   data_out.add_data_vector(x, "solution");
 
   data_out.build_patches();
 
-  data_out.write_deal_II_intermediate_in_parallel(
-    "test.pd2",
-    MPI_COMM_WORLD,
-    DataOutBase::CompressionLevel::best_compression);
+  data_out.write_deal_II_intermediate_in_parallel("test.pd2",
+                                                  MPI_COMM_WORLD,
+                                                  DataOutBase::CompressionLevel::best_compression);
 
-  const unsigned int my_rank =
-    dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  const unsigned int my_rank = dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
   if (my_rank == 0)
     {
       // Read the data back in and dump it into the deallog:

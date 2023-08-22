@@ -46,15 +46,9 @@ main()
   // things with strange characters
   prm.enter_subsection("Testing%testing");
   {
-    prm.declare_entry("string&list",
-                      "< & > ; /",
-                      Patterns::Anything(),
-                      "docs 1");
+    prm.declare_entry("string&list", "< & > ; /", Patterns::Anything(), "docs 1");
     prm.declare_entry("int*int", "2", Patterns::Integer());
-    prm.declare_entry("double+double",
-                      "6.1415926",
-                      Patterns::Double(),
-                      "docs 3");
+    prm.declare_entry("double+double", "6.1415926", Patterns::Double(), "docs 3");
   }
   prm.leave_subsection();
 
@@ -64,8 +58,7 @@ main()
   deallog.get_file_stream() << std::left << 42 << std::endl;
 
   // now let ParameterHandler output its state
-  prm.print_parameters(deallog.get_file_stream(),
-                       ParameterHandler::Description);
+  prm.print_parameters(deallog.get_file_stream(), ParameterHandler::Description);
 
   // verify that the special fill char is still available (i.e., that
   // print_parameters() has saved and restored the stream flags)

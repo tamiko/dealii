@@ -56,10 +56,7 @@ test()
     GridGenerator::hyper_cube(tr);
 
     tr.refine_global(2);
-    for (typename Triangulation<dim>::active_cell_iterator cell =
-           tr.begin_active();
-         cell != tr.end();
-         ++cell)
+    for (typename Triangulation<dim>::active_cell_iterator cell = tr.begin_active(); cell != tr.end(); ++cell)
       if (!cell->is_ghost() && !cell->is_artificial())
         if (cell->center().norm() < 0.3)
           {
@@ -79,12 +76,9 @@ test()
     DoFTools::extract_locally_relevant_dofs(dh, locally_relevant_dofs);
 
     PETScWrappers::MPI::Vector x(locally_owned_dofs, MPI_COMM_WORLD);
-    PETScWrappers::MPI::Vector solution(locally_owned_dofs,
-                                        locally_relevant_dofs,
-                                        MPI_COMM_WORLD);
+    PETScWrappers::MPI::Vector solution(locally_owned_dofs, locally_relevant_dofs, MPI_COMM_WORLD);
 
-    parallel::distributed::SolutionTransfer<dim, PETScWrappers::MPI::Vector>
-      soltrans(dh);
+    parallel::distributed::SolutionTransfer<dim, PETScWrappers::MPI::Vector> soltrans(dh);
 
     for (unsigned int i = 0; i < locally_owned_dofs.n_elements(); ++i)
       {
@@ -126,8 +120,7 @@ test()
     DoFTools::extract_locally_relevant_dofs(dh, locally_relevant_dofs);
 
     PETScWrappers::MPI::Vector solution(locally_owned_dofs, MPI_COMM_WORLD);
-    parallel::distributed::SolutionTransfer<dim, PETScWrappers::MPI::Vector>
-      soltrans(dh);
+    parallel::distributed::SolutionTransfer<dim, PETScWrappers::MPI::Vector> soltrans(dh);
     solution = 2;
     soltrans.deserialize(solution);
 
@@ -135,8 +128,7 @@ test()
       {
         unsigned int idx = locally_owned_dofs.nth_index_in_set(i);
         // std::cout << '[' << idx << ']' << ' ' << solution(idx) << std::endl;
-        Assert(idx == get_real_assert_zero_imag(solution(idx)),
-               ExcInternalError());
+        Assert(idx == get_real_assert_zero_imag(solution(idx)), ExcInternalError());
       }
 
     double norm = solution.l1_norm();

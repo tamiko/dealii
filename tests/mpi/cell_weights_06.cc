@@ -45,15 +45,12 @@ unsigned int n_global_active_cells;
 
 template <int dim>
 unsigned int
-cell_weight(
-  const typename parallel::distributed::Triangulation<dim>::cell_iterator &cell,
-  const CellStatus status)
+cell_weight(const typename parallel::distributed::Triangulation<dim>::cell_iterator &cell, const CellStatus status)
 {
   unsigned int weight = 1;
 
   // one cell in bottom left corner has more weight than all others together
-  if ((cell->center()[0] < 1) && (cell->center()[1] < 1) &&
-      (dim == 3 ? (cell->center()[2] < 1) : true))
+  if ((cell->center()[0] < 1) && (cell->center()[1] < 1) && (dim == 3 ? (cell->center()[2] < 1) : true))
     weight += n_global_active_cells;
 
   return weight;
@@ -66,10 +63,9 @@ test()
   unsigned int myid    = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
   unsigned int numproc = Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
 
-  parallel::distributed::Triangulation<dim> tr(
-    MPI_COMM_WORLD,
-    dealii::Triangulation<dim>::none,
-    parallel::distributed::Triangulation<dim>::no_automatic_repartitioning);
+  parallel::distributed::Triangulation<dim> tr(MPI_COMM_WORLD,
+                                               dealii::Triangulation<dim>::none,
+                                               parallel::distributed::Triangulation<dim>::no_automatic_repartitioning);
 
   // create a 16x16 or 16x16x16 mesh where each cell has size 1x1 ir 1x1x1
   GridGenerator::subdivided_hyper_cube(tr, 8, 0, 16);
@@ -81,26 +77,21 @@ test()
   tr.repartition();
 
   const auto n_locally_owned_active_cells_per_processor =
-    Utilities::MPI::all_gather(tr.get_communicator(),
-                               tr.n_locally_owned_active_cells());
+    Utilities::MPI::all_gather(tr.get_communicator(), tr.n_locally_owned_active_cells());
   if (myid == 0)
     for (unsigned int p = 0; p < numproc; ++p)
-      deallog << "processor " << p << ": "
-              << n_locally_owned_active_cells_per_processor[p]
+      deallog << "processor " << p << ": " << n_locally_owned_active_cells_per_processor[p]
               << " locally owned active cells" << std::endl;
 
   // let each processor sum up its weights
   std::vector<unsigned int> integrated_weights(numproc, 0);
-  for (const auto &cell :
-       tr.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
-    integrated_weights[myid] +=
-      cell_weight<dim>(cell, CellStatus::cell_will_persist);
+  for (const auto &cell : tr.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+    integrated_weights[myid] += cell_weight<dim>(cell, CellStatus::cell_will_persist);
 
   Utilities::MPI::sum(integrated_weights, MPI_COMM_WORLD, integrated_weights);
   if (myid == 0)
     for (unsigned int p = 0; p < numproc; ++p)
-      deallog << "processor " << p << ": " << integrated_weights[p] << " weight"
-              << std::endl;
+      deallog << "processor " << p << ": " << integrated_weights[p] << " weight" << std::endl;
 }
 
 

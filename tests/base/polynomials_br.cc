@@ -80,8 +80,7 @@ check_poly_q(const PolynomialsBernardiRaugel<dim> &poly)
       grads2.clear();
       thirds.clear();
       fourths.clear();
-      values.resize(dim * GeometryInfo<dim>::vertices_per_cell +
-                    GeometryInfo<dim>::faces_per_cell);
+      values.resize(dim * GeometryInfo<dim>::vertices_per_cell + GeometryInfo<dim>::faces_per_cell);
 
       deallog << "BR1<" << dim << "> point " << i << " (" << points[i][0];
       for (unsigned int d = 1; d < dim; ++d)
@@ -91,8 +90,7 @@ check_poly_q(const PolynomialsBernardiRaugel<dim> &poly)
       poly.evaluate(points[i], values, grads, grads2, thirds, fourths);
 
       // loop through the Q_1^d shape functions
-      for (unsigned int j = 0; j < dim * GeometryInfo<dim>::vertices_per_cell;
-           ++j)
+      for (unsigned int j = 0; j < dim * GeometryInfo<dim>::vertices_per_cell; ++j)
         {
           deallog << "BR1<" << dim << "> shape fxn " << j << ": ";
           for (unsigned int d = 0; d < dim; ++d)
@@ -138,12 +136,9 @@ check_poly_bubble(const PolynomialsBernardiRaugel<dim> &poly)
       grads2.clear();
       thirds.clear();
       fourths.clear();
-      values.resize(dim * GeometryInfo<dim>::vertices_per_cell +
-                    GeometryInfo<dim>::faces_per_cell);
+      values.resize(dim * GeometryInfo<dim>::vertices_per_cell + GeometryInfo<dim>::faces_per_cell);
 
-      deallog << "BR1<" << dim << "> point "
-              << (i + GeometryInfo<dim>::vertices_per_cell) << " ("
-              << points[i][0];
+      deallog << "BR1<" << dim << "> point " << (i + GeometryInfo<dim>::vertices_per_cell) << " (" << points[i][0];
       for (unsigned int d = 1; d < dim; ++d)
         deallog << ", " << points[i][d];
       deallog << ')' << std::endl;
@@ -152,8 +147,7 @@ check_poly_bubble(const PolynomialsBernardiRaugel<dim> &poly)
 
       // loop through the bubble shape functions
       for (unsigned int j = dim * GeometryInfo<dim>::vertices_per_cell;
-           j < dim * GeometryInfo<dim>::vertices_per_cell +
-                 GeometryInfo<dim>::faces_per_cell;
+           j < dim * GeometryInfo<dim>::vertices_per_cell + GeometryInfo<dim>::faces_per_cell;
            ++j)
         {
           deallog << "BR1<" << dim << "> shape fxn " << j << ": ";

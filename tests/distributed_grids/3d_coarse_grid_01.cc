@@ -42,8 +42,7 @@ test(std::ostream & /*out*/)
       parallel::distributed::Triangulation<dim> tr(
         MPI_COMM_WORLD,
         Triangulation<dim>::none,
-        parallel::distributed::Triangulation<
-          dim>::communicate_vertices_to_p4est);
+        parallel::distributed::Triangulation<dim>::communicate_vertices_to_p4est);
 
       GridGenerator::hyper_cube(tr);
       write_vtk(tr, "1");
@@ -57,8 +56,7 @@ test(std::ostream & /*out*/)
       parallel::distributed::Triangulation<dim> tr(
         MPI_COMM_WORLD,
         Triangulation<dim>::none,
-        parallel::distributed::Triangulation<
-          dim>::communicate_vertices_to_p4est);
+        parallel::distributed::Triangulation<dim>::communicate_vertices_to_p4est);
 
       GridGenerator::hyper_ball(tr, Point<dim>(), 3.);
       write_vtk(tr, "2");
@@ -71,8 +69,7 @@ test(std::ostream & /*out*/)
       parallel::distributed::Triangulation<dim> tr(
         MPI_COMM_WORLD,
         Triangulation<dim>::none,
-        parallel::distributed::Triangulation<
-          dim>::communicate_vertices_to_p4est);
+        parallel::distributed::Triangulation<dim>::communicate_vertices_to_p4est);
 
       GridGenerator::half_hyper_ball(tr, Point<dim>(), 3.);
       write_vtk(tr, "3");

@@ -95,9 +95,7 @@ check()
   for (unsigned int i = 1; i < 7 - dim; ++i)
     element.push_back(FE_Q<dim>(QIterated<1>(QTrapezoid<1>(), i)));
   DoFHandler<dim> dof(tr);
-  for (typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active();
-       cell != dof.end();
-       ++cell)
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(); cell != dof.end(); ++cell)
     cell->set_active_fe_index(Testing::rand() % element.size());
 
   dof.distribute_dofs(element);
@@ -115,10 +113,7 @@ check()
     quadrature.push_back(QGauss<dim - 1>(3 + i));
 
   Vector<double> rhs(dof.n_dofs());
-  VectorTools::create_boundary_right_hand_side(dof,
-                                               quadrature,
-                                               MySquareFunction<dim>(),
-                                               rhs);
+  VectorTools::create_boundary_right_hand_side(dof, quadrature, MySquareFunction<dim>(), rhs);
   for (unsigned int i = 0; i < rhs.size(); ++i)
     deallog << rhs(i) << std::endl;
 }

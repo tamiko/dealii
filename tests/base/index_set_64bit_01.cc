@@ -27,8 +27,7 @@ print(const IndexSet &s)
   deallog << "IndexSet: size " << s.size() << "\n"
           << "n_elements " << s.n_elements() << "\n"
           << "n_intervals " << s.n_intervals() << "\n"
-          << "largest_range_starting_index " << s.largest_range_starting_index()
-          << "\n"
+          << "largest_range_starting_index " << s.largest_range_starting_index() << "\n"
           << "is_element(1) " << s.is_element(1) << "\n";
 
   deallog << "contents:" << std::endl;
@@ -65,8 +64,7 @@ test()
     print(s);
 
     IndexSet::size_type x = s.index_within_set(large + 1);
-    deallog << "global: " << large + 1 << " index_within_set: " << x
-            << std::endl;
+    deallog << "global: " << large + 1 << " index_within_set: " << x << std::endl;
     IndexSet::size_type y = s.nth_index_in_set(3);
     deallog << "local: " << 3 << " nth_index_in_set: " << y << std::endl;
   }
@@ -88,8 +86,7 @@ test()
     print(s);
 
     IndexSet::size_type x = s.index_within_set(large2 + 1);
-    deallog << "global: " << large2 + 1 << " index_within_set: " << x
-            << std::endl;
+    deallog << "global: " << large2 + 1 << " index_within_set: " << x << std::endl;
     IndexSet::size_type y = s.nth_index_in_set(x);
     deallog << "local: " << x << " nth_index_in_set: " << y << std::endl;
   }

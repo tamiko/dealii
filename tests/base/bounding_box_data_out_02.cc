@@ -31,7 +31,7 @@ test()
   const unsigned int N = 3;
   // Use a non-trivial object, convertible to BoundingBox by boost:
   std::vector<std::pair<BoundingBox<dim>, unsigned int>> boxes(N);
-  auto unit = create_unit_bounding_box<dim>();
+  auto                                                   unit = create_unit_bounding_box<dim>();
 
   Point<dim> ones;
   for (unsigned int i = 0; i < dim; ++i)
@@ -42,9 +42,7 @@ test()
     {
       const auto c = random_point<dim>();
       const auto d = random_value();
-      box          = std::make_pair(BoundingBox<dim>({Point<dim>(c - d * ones),
-                                             Point<dim>(c + d * ones)}),
-                           i++);
+      box          = std::make_pair(BoundingBox<dim>({Point<dim>(c - d * ones), Point<dim>(c + d * ones)}), i++);
     }
 
   const auto tree = pack_rtree(boxes);

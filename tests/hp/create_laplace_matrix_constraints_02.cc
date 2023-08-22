@@ -73,9 +73,7 @@ check()
 
   DoFHandler<dim> dof(tr);
 
-  for (typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active();
-       cell != dof.end();
-       ++cell)
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(); cell != dof.end(); ++cell)
     cell->set_active_fe_index(Testing::rand() % element.size());
 
   dof.distribute_dofs(element);
@@ -89,8 +87,7 @@ check()
 
   AffineConstraints<double> constraints;
   DoFTools::make_hanging_node_constraints(dof, constraints);
-  VectorTools::interpolate_boundary_values(
-    dof, 0, Functions::ConstantFunction<dim>(1., 2), constraints);
+  VectorTools::interpolate_boundary_values(dof, 0, Functions::ConstantFunction<dim>(1., 2), constraints);
   constraints.close();
 
   // create sparsity pattern. note
@@ -114,12 +111,8 @@ check()
 
   Vector<double> rhs(dof.n_dofs()), rhs_ref(dof.n_dofs());
 
-  MatrixTools::create_laplace_matrix(hp::MappingCollection<dim>(mapping),
-                                     dof,
-                                     hp::QCollection<dim>(quadrature),
-                                     matrix_ref,
-                                     rhs_function,
-                                     rhs_ref);
+  MatrixTools::create_laplace_matrix(
+    hp::MappingCollection<dim>(mapping), dof, hp::QCollection<dim>(quadrature), matrix_ref, rhs_function, rhs_ref);
   constraints.condense(matrix_ref, rhs_ref);
 
   const Function<dim> *const dummy = nullptr;

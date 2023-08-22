@@ -45,12 +45,8 @@ check_this(Triangulation<3> &tria)
 {
   QTrapezoid<2>   quadrature;
   FE_Q<3>         fe(1);
-  FEFaceValues<3> fe_face_values1(fe,
-                                  quadrature,
-                                  update_quadrature_points | update_JxW_values);
-  FEFaceValues<3> fe_face_values2(fe,
-                                  quadrature,
-                                  update_quadrature_points | update_JxW_values);
+  FEFaceValues<3> fe_face_values1(fe, quadrature, update_quadrature_points | update_JxW_values);
+  FEFaceValues<3> fe_face_values2(fe, quadrature, update_quadrature_points | update_JxW_values);
 
   DoFHandler<3> dof_handler(tria);
   dof_handler.distribute_dofs(fe);
@@ -59,9 +55,7 @@ check_this(Triangulation<3> &tria)
 
   // look at all faces, not only
   // active ones
-  for (DoFHandler<3>::cell_iterator cell = dof_handler.begin();
-       cell != dof_handler.end();
-       ++cell)
+  for (DoFHandler<3>::cell_iterator cell = dof_handler.begin(); cell != dof_handler.end(); ++cell)
     for (const unsigned int f : GeometryInfo<3>::face_indices())
       if (!cell->at_boundary(f))
         {
@@ -85,17 +79,12 @@ check_this(Triangulation<3> &tria)
               // be ok, I guess
               if (global_datum++ % 17 * 17 == 0)
                 deallog << "Cell " << cell << ", face " << f << std::endl
-                        << "  " << fe_face_values1.quadrature_point(q) << ", "
-                        << fe_face_values1.JxW(q) << std::endl;
+                        << "  " << fe_face_values1.quadrature_point(q) << ", " << fe_face_values1.JxW(q) << std::endl;
 
-              Assert((fe_face_values1.quadrature_point(q) -
-                      fe_face_values2.quadrature_point(q))
-                         .norm_square() < 1e-20,
+              Assert((fe_face_values1.quadrature_point(q) - fe_face_values2.quadrature_point(q)).norm_square() < 1e-20,
                      ExcInternalError());
 
-              Assert(std::fabs(fe_face_values1.JxW(q) -
-                               fe_face_values2.JxW(q)) < 1e-15,
-                     ExcInternalError());
+              Assert(std::fabs(fe_face_values1.JxW(q) - fe_face_values2.JxW(q)) < 1e-15, ExcInternalError());
             }
         }
 }

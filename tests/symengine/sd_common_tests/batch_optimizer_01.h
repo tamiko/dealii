@@ -514,8 +514,7 @@ test_functions()
   // Pure SD differentiation
   number_t             psi_sd_sd = 0.0;
   Vector<number_t>     Dpsi_sd_sd(n_independent_variables);
-  FullMatrix<number_t> D2psi_sd_sd(n_independent_variables,
-                                   n_independent_variables);
+  FullMatrix<number_t> D2psi_sd_sd(n_independent_variables, n_independent_variables);
   {
     using SDNumberType = SD::Expression;
 
@@ -532,16 +531,12 @@ test_functions()
     deallog.pop();
 
     deallog.push("Symbolic computation: Differentiation");
-    const SDNumberType symb_dpsi_ds0 = symb_psi.differentiate(symb_s0);
-    const SDNumberType symb_dpsi_ds1 = symb_psi.differentiate(symb_s1);
-    const SDNumberType symb_d2psi_ds0_ds0 =
-      symb_dpsi_ds0.differentiate(symb_s0);
-    const SDNumberType symb_d2psi_ds1_ds0 =
-      symb_dpsi_ds0.differentiate(symb_s1);
-    const SDNumberType symb_d2psi_ds0_ds1 =
-      symb_dpsi_ds1.differentiate(symb_s0);
-    const SDNumberType symb_d2psi_ds1_ds1 =
-      symb_dpsi_ds1.differentiate(symb_s1);
+    const SDNumberType symb_dpsi_ds0      = symb_psi.differentiate(symb_s0);
+    const SDNumberType symb_dpsi_ds1      = symb_psi.differentiate(symb_s1);
+    const SDNumberType symb_d2psi_ds0_ds0 = symb_dpsi_ds0.differentiate(symb_s0);
+    const SDNumberType symb_d2psi_ds1_ds0 = symb_dpsi_ds0.differentiate(symb_s1);
+    const SDNumberType symb_d2psi_ds0_ds1 = symb_dpsi_ds1.differentiate(symb_s0);
+    const SDNumberType symb_d2psi_ds1_ds1 = symb_dpsi_ds1.differentiate(symb_s1);
     deallog << "symb_dpsi_ds0: " << symb_dpsi_ds0 << std::endl;
     deallog << "symb_dpsi_ds1: " << symb_dpsi_ds1 << std::endl;
     deallog << "symb_d2psi_ds0_ds0: " << symb_d2psi_ds0_ds0 << std::endl;
@@ -556,16 +551,14 @@ test_functions()
     SD::types::substitution_map sub_vals_optim;
     SD::add_to_symbol_map(sub_vals_optim, symb_s0, symb_s1);
     optimizer.register_symbols(sub_vals_optim); // Independent symbols
-    optimizer.register_functions(
-      symb_psi,
-      symb_dpsi_ds0,
-      symb_dpsi_ds1,
-      symb_d2psi_ds0_ds0,
-      symb_d2psi_ds1_ds0,
-      symb_d2psi_ds0_ds1,
-      symb_d2psi_ds1_ds1); // Dependent symbolic functions
-    std::cout << FunctionStruct<number_t>::name() << ": About to optimise... "
-              << std::flush;
+    optimizer.register_functions(symb_psi,
+                                 symb_dpsi_ds0,
+                                 symb_dpsi_ds1,
+                                 symb_d2psi_ds0_ds0,
+                                 symb_d2psi_ds1_ds0,
+                                 symb_d2psi_ds0_ds1,
+                                 symb_d2psi_ds1_ds1); // Dependent symbolic functions
+    std::cout << FunctionStruct<number_t>::name() << ": About to optimise... " << std::flush;
     optimizer.optimize();
     std::cout << "done." << std::endl;
     deallog.pop();
@@ -576,47 +569,36 @@ test_functions()
     SD::add_to_substitution_map(sub_vals, symb_s1, s2);
 
     // Perform substitution of symbols
-    std::cout << FunctionStruct<number_t>::name() << ": About to substitute... "
-              << std::flush;
+    std::cout << FunctionStruct<number_t>::name() << ": About to substitute... " << std::flush;
     optimizer.substitute(sub_vals);
     std::cout << "done." << std::endl;
     // optimizer.print(std::cout);
 
     // Evaluate
     deallog << "subs_psi: " << optimizer.evaluate(symb_psi) << std::endl;
-    deallog << "subs_dpsi_ds0: " << optimizer.evaluate(symb_dpsi_ds0)
-            << std::endl;
-    deallog << "subs_dpsi_ds1: " << optimizer.evaluate(symb_dpsi_ds1)
-            << std::endl;
-    deallog << "subs_d2psi_ds0_ds0: " << optimizer.evaluate(symb_d2psi_ds0_ds0)
-            << std::endl;
-    deallog << "subs_d2psi_ds1_ds0: " << optimizer.evaluate(symb_d2psi_ds1_ds0)
-            << std::endl;
-    deallog << "subs_d2psi_ds0_ds1: " << optimizer.evaluate(symb_d2psi_ds0_ds1)
-            << std::endl;
-    deallog << "subs_d2psi_ds1_ds1: " << optimizer.evaluate(symb_d2psi_ds1_ds1)
-            << std::endl;
+    deallog << "subs_dpsi_ds0: " << optimizer.evaluate(symb_dpsi_ds0) << std::endl;
+    deallog << "subs_dpsi_ds1: " << optimizer.evaluate(symb_dpsi_ds1) << std::endl;
+    deallog << "subs_d2psi_ds0_ds0: " << optimizer.evaluate(symb_d2psi_ds0_ds0) << std::endl;
+    deallog << "subs_d2psi_ds1_ds0: " << optimizer.evaluate(symb_d2psi_ds1_ds0) << std::endl;
+    deallog << "subs_d2psi_ds0_ds1: " << optimizer.evaluate(symb_d2psi_ds0_ds1) << std::endl;
+    deallog << "subs_d2psi_ds1_ds1: " << optimizer.evaluate(symb_d2psi_ds1_ds1) << std::endl;
     deallog.pop();
   }
 
   deallog.pop();
 }
 
-template <typename number_t,
-          enum SD::OptimizerType     opt_method,
-          enum SD::OptimizationFlags opt_flags>
+template <typename number_t, enum SD::OptimizerType opt_method, enum SD::OptimizationFlags opt_flags>
 void
 test_all_functions()
 {
   const bool skip_non_implemented_functions =
     (numbers::NumberTraits<number_t>::is_complex &&
-     (opt_method == SD::OptimizerType::dictionary ||
-      opt_method == SD::OptimizerType::lambda));
+     (opt_method == SD::OptimizerType::dictionary || opt_method == SD::OptimizerType::lambda));
 
   std::cout << "Optimisation method: " << opt_method << "\n"
             << "Optimisation flags: " << opt_flags << "\n"
-            << "Skip non-implemented functions: "
-            << skip_non_implemented_functions << std::endl;
+            << "Skip non-implemented functions: " << skip_non_implemented_functions << std::endl;
 
   test_functions<number_t, opt_method, opt_flags, FunctionAdd>();
   test_functions<number_t, opt_method, opt_flags, FunctionSub>();
@@ -658,8 +640,7 @@ test_all_functions()
   deallog << "OK" << std::endl;
 }
 
-template <enum SD::OptimizerType     opt_method,
-          enum SD::OptimizationFlags opt_flags>
+template <enum SD::OptimizerType opt_method, enum SD::OptimizationFlags opt_flags>
 void
 run_tests(const int n_runs = 1)
 {

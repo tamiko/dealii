@@ -70,12 +70,11 @@ check()
 
   DataOut<dim> data_out;
   data_out.attach_dof_handler(dof_handler);
-  data_out.add_data_vector(
-    v,
-    std::vector<std::string>(dim * dim, "tensor_field"),
-    DataOut<dim>::type_dof_data,
-    std::vector<DataComponentInterpretation::DataComponentInterpretation>(
-      dim * dim, DataComponentInterpretation::component_is_part_of_tensor));
+  data_out.add_data_vector(v,
+                           std::vector<std::string>(dim * dim, "tensor_field"),
+                           DataOut<dim>::type_dof_data,
+                           std::vector<DataComponentInterpretation::DataComponentInterpretation>(
+                             dim * dim, DataComponentInterpretation::component_is_part_of_tensor));
   data_out.build_patches();
 
   data_out.write_gnuplot(deallog.get_file_stream());
@@ -96,27 +95,19 @@ main()
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     }
 }

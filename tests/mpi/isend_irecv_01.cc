@@ -29,16 +29,12 @@ test(const MPI_Comm comm)
 
   // First post a bunch of receives before we start working on the
   // sends. We expect ten sends from each other process.
-  std::multimap<unsigned int, Utilities::MPI::Future<MessageType>>
-    receive_futures;
-  for (unsigned int rank = 0; rank < Utilities::MPI::n_mpi_processes(comm);
-       ++rank)
+  std::multimap<unsigned int, Utilities::MPI::Future<MessageType>> receive_futures;
+  for (unsigned int rank = 0; rank < Utilities::MPI::n_mpi_processes(comm); ++rank)
     if (rank != Utilities::MPI::this_mpi_process(comm))
       for (unsigned int message = 0; message < 10; ++message)
         {
-          receive_futures.emplace(rank,
-                                  Utilities::MPI::irecv<MessageType>(comm,
-                                                                     rank));
+          receive_futures.emplace(rank, Utilities::MPI::irecv<MessageType>(comm, rank));
         }
 
   // Wait a bit -- make sure all of those std::future-like objects are
@@ -49,13 +45,11 @@ test(const MPI_Comm comm)
   // packet is simply an unsigned integer with that other process's
   // rank.
   std::vector<Utilities::MPI::Future<void>> send_futures;
-  for (unsigned int rank = 0; rank < Utilities::MPI::n_mpi_processes(comm);
-       ++rank)
+  for (unsigned int rank = 0; rank < Utilities::MPI::n_mpi_processes(comm); ++rank)
     if (rank != Utilities::MPI::this_mpi_process(comm))
       for (unsigned int message = 0; message < 10; ++message)
         {
-          send_futures.emplace_back(
-            Utilities::MPI::isend(MessageType(rank), comm, rank));
+          send_futures.emplace_back(Utilities::MPI::isend(MessageType(rank), comm, rank));
         }
 
   // Finally wait for the receives to be done as well.
@@ -65,10 +59,8 @@ test(const MPI_Comm comm)
       // it is what we expected:
       const MessageType message = receive_future.second.get();
       Assert(message == Utilities::MPI::this_mpi_process(comm),
-             ExcMessage("On process " +
-                        std::to_string(Utilities::MPI::this_mpi_process(comm)) +
-                        ", we were expected a message from process " +
-                        std::to_string(receive_future.first) +
+             ExcMessage("On process " + std::to_string(Utilities::MPI::this_mpi_process(comm)) +
+                        ", we were expected a message from process " + std::to_string(receive_future.first) +
                         " with a message value equal to the destination "
                         "process (that is, our own rank). But we got " +
                         std::to_string(message)));

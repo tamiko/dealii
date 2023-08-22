@@ -22,14 +22,11 @@
 using namespace dealii;
 
 void
-test(
-  const MGTransferGlobalCoarseningTools::PolynomialCoarseningSequenceType type)
+test(const MGTransferGlobalCoarseningTools::PolynomialCoarseningSequenceType type)
 {
   for (unsigned int i = 1; i <= 15; ++i)
     {
-      const auto sequence =
-        MGTransferGlobalCoarseningTools::create_polynomial_coarsening_sequence(
-          i, type);
+      const auto sequence = MGTransferGlobalCoarseningTools::create_polynomial_coarsening_sequence(i, type);
 
       for (const auto i : sequence)
         deallog << i << ' ';
@@ -43,10 +40,7 @@ main()
 {
   initlog();
 
-  test(
-    MGTransferGlobalCoarseningTools::PolynomialCoarseningSequenceType::bisect);
-  test(MGTransferGlobalCoarseningTools::PolynomialCoarseningSequenceType::
-         decrease_by_one);
-  test(MGTransferGlobalCoarseningTools::PolynomialCoarseningSequenceType::
-         go_to_one);
+  test(MGTransferGlobalCoarseningTools::PolynomialCoarseningSequenceType::bisect);
+  test(MGTransferGlobalCoarseningTools::PolynomialCoarseningSequenceType::decrease_by_one);
+  test(MGTransferGlobalCoarseningTools::PolynomialCoarseningSequenceType::go_to_one);
 }

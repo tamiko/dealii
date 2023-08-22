@@ -25,13 +25,9 @@ template <int dim, int spacedim, typename Extractor>
 void
 test(const Extractor &)
 {
-  typename FEValuesViews::View<dim, spacedim, Extractor>::
-    template solution_value_type<double>
-      t1{};
+  typename FEValuesViews::View<dim, spacedim, Extractor>::template solution_value_type<double> t1{};
 
-  typename FEValuesViews::View<dim, spacedim, Extractor>::
-    template solution_gradient_type<double>
-      t2{};
+  typename FEValuesViews::View<dim, spacedim, Extractor>::template solution_gradient_type<double> t2{};
 
   deallog << "Test<" << Utilities::dim_string(dim, spacedim) << '>' << std::endl
           << Utilities::type_to_string(t1) << std::endl

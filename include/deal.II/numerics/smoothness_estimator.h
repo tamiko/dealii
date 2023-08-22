@@ -160,13 +160,12 @@ namespace SmoothnessEstimator
     template <int dim, int spacedim, typename VectorType>
     void
     coefficient_decay(FESeries::Legendre<dim, spacedim> &fe_legendre,
-                      const DoFHandler<dim, spacedim> &  dof_handler,
-                      const VectorType &                 solution,
-                      Vector<float> &                    smoothness_indicators,
-                      const VectorTools::NormType        regression_strategy =
-                        VectorTools::Linfty_norm,
-                      const double smallest_abs_coefficient = 1e-10,
-                      const bool   only_flagged_cells       = false);
+                      const DoFHandler<dim, spacedim>   &dof_handler,
+                      const VectorType                  &solution,
+                      Vector<float>                     &smoothness_indicators,
+                      const VectorTools::NormType        regression_strategy      = VectorTools::Linfty_norm,
+                      const double                       smallest_abs_coefficient = 1e-10,
+                      const bool                         only_flagged_cells       = false);
 
     /**
      * In this variant of the estimation strategy for higher dimensions, we only
@@ -215,14 +214,13 @@ namespace SmoothnessEstimator
      */
     template <int dim, int spacedim, typename VectorType>
     void
-    coefficient_decay_per_direction(
-      FESeries::Legendre<dim, spacedim> &fe_legendre,
-      const DoFHandler<dim, spacedim> &  dof_handler,
-      const VectorType &                 solution,
-      Vector<float> &                    smoothness_indicators,
-      const ComponentMask &              coefficients_predicate   = {},
-      const double                       smallest_abs_coefficient = 1e-10,
-      const bool                         only_flagged_cells       = false);
+    coefficient_decay_per_direction(FESeries::Legendre<dim, spacedim> &fe_legendre,
+                                    const DoFHandler<dim, spacedim>   &dof_handler,
+                                    const VectorType                  &solution,
+                                    Vector<float>                     &smoothness_indicators,
+                                    const ComponentMask               &coefficients_predicate   = {},
+                                    const double                       smallest_abs_coefficient = 1e-10,
+                                    const bool                         only_flagged_cells       = false);
 
     /**
      * Returns a FESeries::Legendre object for Legendre series expansions with
@@ -246,9 +244,8 @@ namespace SmoothnessEstimator
      */
     template <int dim, int spacedim>
     FESeries::Legendre<dim, spacedim>
-    default_fe_series(
-      const hp::FECollection<dim, spacedim> &fe_collection,
-      const unsigned int component = numbers::invalid_unsigned_int);
+    default_fe_series(const hp::FECollection<dim, spacedim> &fe_collection,
+                      const unsigned int                     component = numbers::invalid_unsigned_int);
   } // namespace Legendre
 
 
@@ -405,13 +402,12 @@ namespace SmoothnessEstimator
     template <int dim, int spacedim, typename VectorType>
     void
     coefficient_decay(FESeries::Fourier<dim, spacedim> &fe_fourier,
-                      const DoFHandler<dim, spacedim> & dof_handler,
-                      const VectorType &                solution,
-                      Vector<float> &                   smoothness_indicators,
-                      const VectorTools::NormType       regression_strategy =
-                        VectorTools::Linfty_norm,
-                      const double smallest_abs_coefficient = 1e-10,
-                      const bool   only_flagged_cells       = false);
+                      const DoFHandler<dim, spacedim>  &dof_handler,
+                      const VectorType                 &solution,
+                      Vector<float>                    &smoothness_indicators,
+                      const VectorTools::NormType       regression_strategy      = VectorTools::Linfty_norm,
+                      const double                      smallest_abs_coefficient = 1e-10,
+                      const bool                        only_flagged_cells       = false);
 
     /**
      * In this variant of the estimation strategy for higher dimensions, we only
@@ -453,14 +449,13 @@ namespace SmoothnessEstimator
      */
     template <int dim, int spacedim, typename VectorType>
     void
-    coefficient_decay_per_direction(
-      FESeries::Fourier<dim, spacedim> &fe_fourier,
-      const DoFHandler<dim, spacedim> & dof_handler,
-      const VectorType &                solution,
-      Vector<float> &                   smoothness_indicators,
-      const ComponentMask &             coefficients_predicate   = {},
-      const double                      smallest_abs_coefficient = 1e-10,
-      const bool                        only_flagged_cells       = false);
+    coefficient_decay_per_direction(FESeries::Fourier<dim, spacedim> &fe_fourier,
+                                    const DoFHandler<dim, spacedim>  &dof_handler,
+                                    const VectorType                 &solution,
+                                    Vector<float>                    &smoothness_indicators,
+                                    const ComponentMask              &coefficients_predicate   = {},
+                                    const double                      smallest_abs_coefficient = 1e-10,
+                                    const bool                        only_flagged_cells       = false);
 
     /**
      * Returns a FESeries::Fourier object for Fourier series expansions with
@@ -484,9 +479,8 @@ namespace SmoothnessEstimator
      */
     template <int dim, int spacedim>
     FESeries::Fourier<dim, spacedim>
-    default_fe_series(
-      const hp::FECollection<dim, spacedim> &fe_collection,
-      const unsigned int component = numbers::invalid_unsigned_int);
+    default_fe_series(const hp::FECollection<dim, spacedim> &fe_collection,
+                      const unsigned int                     component = numbers::invalid_unsigned_int);
   } // namespace Fourier
 } // namespace SmoothnessEstimator
 

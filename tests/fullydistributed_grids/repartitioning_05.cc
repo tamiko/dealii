@@ -63,24 +63,23 @@ create_sub_comm(const MPI_Comm comm, const unsigned int size)
 
 template <int dim, int spacedim>
 LinearAlgebra::distributed::Vector<double>
-partition_distributed_triangulation(const Triangulation<dim, spacedim> &tria_in,
-                                    const MPI_Comm                      comm)
+partition_distributed_triangulation(const Triangulation<dim, spacedim> &tria_in, const MPI_Comm comm)
 {
   const auto comm_tria = tria_in.get_communicator();
 
-  const auto n_global_active_cells = Utilities::MPI::max(
-    comm_tria == MPI_COMM_SELF ? 0 : tria_in.n_global_active_cells(), comm);
+  const auto n_global_active_cells =
+    Utilities::MPI::max(comm_tria == MPI_COMM_SELF ? 0 : tria_in.n_global_active_cells(), comm);
 
   if (comm_tria == MPI_COMM_SELF)
     {
-      LinearAlgebra::distributed::Vector<double> partition{
-        IndexSet(n_global_active_cells), IndexSet(n_global_active_cells), comm};
+      LinearAlgebra::distributed::Vector<double> partition{IndexSet(n_global_active_cells),
+                                                           IndexSet(n_global_active_cells),
+                                                           comm};
       partition.update_ghost_values();
       return partition;
     }
 
-  const auto tria =
-    dynamic_cast<const parallel::TriangulationBase<dim, spacedim> *>(&tria_in);
+  const auto tria = dynamic_cast<const parallel::TriangulationBase<dim, spacedim> *>(&tria_in);
 
   Assert(tria, ExcNotImplemented());
 
@@ -91,11 +90,9 @@ partition_distributed_triangulation(const Triangulation<dim, spacedim> &tria_in,
 
   const unsigned int n_partitions = Utilities::MPI::n_mpi_processes(comm);
 
-  for (const auto &cell :
-       tria_in.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : tria_in.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     partition[cell->global_active_cell_index()] =
-      cell->global_active_cell_index() * n_partitions /
-      tria_in.n_global_active_cells();
+      cell->global_active_cell_index() * n_partitions / tria_in.n_global_active_cells();
 
   partition.update_ghost_values();
 
@@ -122,8 +119,7 @@ test(const MPI_Comm comm, const unsigned int n_partitions)
 
   // repartition triangulation
   const auto construction_data =
-    TriangulationDescription::Utilities::create_description_from_triangulation(
-      tria, partition_new);
+    TriangulationDescription::Utilities::create_description_from_triangulation(tria, partition_new);
 
   parallel::fullydistributed::Triangulation<dim> tria_pft(comm);
   tria_pft.create_triangulation(construction_data);
@@ -159,7 +155,6 @@ main(int argc, char **argv)
 
   // test that we can eliminate processes
   deallog.push("reduced");
-  test<2>(comm,
-          std::max<unsigned int>(1, Utilities::MPI::n_mpi_processes(comm) / 2));
+  test<2>(comm, std::max<unsigned int>(1, Utilities::MPI::n_mpi_processes(comm) / 2));
   deallog.pop();
 }

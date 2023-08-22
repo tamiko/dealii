@@ -41,8 +41,7 @@ struct FunctionsTestSymmetricTensor
       for (unsigned int j = i; j < dim; ++j)
         for (unsigned int k = 0; k < dim; ++k)
           for (unsigned int l = k; l < dim; ++l)
-            dt_inv_dt[i][j][k][l] =
-              -0.5 * (t_inv[i][k] * t_inv[j][l] + t_inv[i][l] * t_inv[j][k]);
+            dt_inv_dt[i][j][k][l] = -0.5 * (t_inv[i][k] * t_inv[j][l] + t_inv[i][l] * t_inv[j][k]);
     return dt_inv_dt;
   }
 
@@ -51,30 +50,25 @@ struct FunctionsTestSymmetricTensor
   {
     // Previously, the invert function would hang for nested Sacado::Fad::DFad
     const SymmetricTensor<2, dim, NumberType> t_inv = invert(t);
-    const SymmetricTensor<2, dim, NumberType> I =
-      unit_symmetric_tensor<dim, NumberType>();
+    const SymmetricTensor<2, dim, NumberType> I     = unit_symmetric_tensor<dim, NumberType>();
     return 3.0 * scalar_product(t_inv, I);
   }
 
   static SymmetricTensor<2, dim, NumberType>
   dpsi_dt(const SymmetricTensor<2, dim, NumberType> &t)
   {
-    const SymmetricTensor<2, dim, NumberType> t_inv = invert(t);
-    const SymmetricTensor<4, dim, NumberType> dt_inv_dt =
-      FunctionsTestSymmetricTensor::dt_inv_dt(t_inv);
-    const SymmetricTensor<2, dim, NumberType> I =
-      unit_symmetric_tensor<dim, NumberType>();
+    const SymmetricTensor<2, dim, NumberType> t_inv     = invert(t);
+    const SymmetricTensor<4, dim, NumberType> dt_inv_dt = FunctionsTestSymmetricTensor::dt_inv_dt(t_inv);
+    const SymmetricTensor<2, dim, NumberType> I         = unit_symmetric_tensor<dim, NumberType>();
     return 3.0 * (I * dt_inv_dt);
   }
 
   static Tensor<4, dim, NumberType>
   d2psi_dt_dt(const SymmetricTensor<2, dim, NumberType> &t)
   {
-    const SymmetricTensor<2, dim, NumberType> t_inv = invert(t);
-    const SymmetricTensor<4, dim, NumberType> dt_inv_dt =
-      FunctionsTestSymmetricTensor::dt_inv_dt(t_inv);
-    const SymmetricTensor<2, dim, NumberType> I =
-      unit_symmetric_tensor<dim, NumberType>();
+    const SymmetricTensor<2, dim, NumberType> t_inv     = invert(t);
+    const SymmetricTensor<4, dim, NumberType> dt_inv_dt = FunctionsTestSymmetricTensor::dt_inv_dt(t_inv);
+    const SymmetricTensor<2, dim, NumberType> I         = unit_symmetric_tensor<dim, NumberType>();
 
     SymmetricTensor<4, dim, NumberType> d2psi_dt_dt;
     for (unsigned int i = 0; i < dim; ++i)
@@ -85,10 +79,8 @@ struct FunctionsTestSymmetricTensor
               for (unsigned int l = k; l < dim; ++l)
                 d2psi_dt_dt[i][j][m][n] +=
                   -3.0 * (0.5 * I[k][l] *
-                          (dt_inv_dt[i][k][m][n] * t_inv[j][l] +
-                           dt_inv_dt[i][l][m][n] * t_inv[j][k] +
-                           t_inv[i][k] * dt_inv_dt[j][l][m][n] +
-                           t_inv[i][l] * dt_inv_dt[j][k][m][n]));
+                          (dt_inv_dt[i][k][m][n] * t_inv[j][l] + dt_inv_dt[i][l][m][n] * t_inv[j][k] +
+                           t_inv[i][k] * dt_inv_dt[j][l][m][n] + t_inv[i][l] * dt_inv_dt[j][k][m][n]));
 
     return d2psi_dt_dt;
   }
@@ -120,28 +112,23 @@ test_symmetric_tensor()
   // Setup the variable components and choose a value at which to
   // evaluate the tape
   const FEValuesExtractors::SymmetricTensor<2> t_dof(0);
-  const unsigned int                           n_AD_components =
-    SymmetricTensor<2, dim>::n_independent_components;
-  ADHelper ad_helper(n_AD_components);
+  const unsigned int                           n_AD_components = SymmetricTensor<2, dim>::n_independent_components;
+  ADHelper                                     ad_helper(n_AD_components);
   ad_helper.set_tape_buffer_sizes(); // Increase the buffer size from the
                                      // default values
 
-  SymmetricTensor<2, dim, ScalarNumberType> t =
-    unit_symmetric_tensor<dim, ScalarNumberType>();
+  SymmetricTensor<2, dim, ScalarNumberType> t = unit_symmetric_tensor<dim, ScalarNumberType>();
   for (unsigned int i = 0; i < t.n_independent_components; ++i)
     t[t.unrolled_to_component_indices(i)] += 0.12 * (i + 0.02);
 
   const int  tape_no = 1;
   const bool is_recording =
-    ad_helper.start_recording_operations(tape_no /*material_id*/,
-                                         true /*overwrite_tape*/,
-                                         true /*keep*/);
+    ad_helper.start_recording_operations(tape_no /*material_id*/, true /*overwrite_tape*/, true /*keep*/);
   if (is_recording == true)
     {
       ad_helper.register_independent_variable(t, t_dof);
 
-      const SymmetricTensor<2, dim, ADNumberType> t_ad =
-        ad_helper.get_sensitive_variables(t_dof);
+      const SymmetricTensor<2, dim, ADNumberType> t_ad = ad_helper.get_sensitive_variables(t_dof);
 
       const ADNumberType psi(func_ad::psi(t_ad));
 
@@ -164,9 +151,7 @@ test_symmetric_tensor()
   // Set a new evaluation point
   if (AD::ADNumberTraits<ADNumberType>::is_taped == true)
     {
-      std::cout
-        << "Using tape with different values for independent variables..."
-        << std::endl;
+      std::cout << "Using tape with different values for independent variables..." << std::endl;
       ad_helper.activate_recorded_tape(tape_no);
       t *= 1.15;
       ad_helper.set_independent_variable(t, t_dof);
@@ -195,28 +180,22 @@ test_symmetric_tensor()
     }
 
   // Extract components of the solution
-  const SymmetricTensor<2, dim, ScalarNumberType> dpsi_dt =
-    ad_helper.extract_gradient_component(Dpsi, t_dof);
+  const SymmetricTensor<2, dim, ScalarNumberType> dpsi_dt = ad_helper.extract_gradient_component(Dpsi, t_dof);
 
   // Verify the result
-  using func = FunctionsTestSymmetricTensor<dim, ScalarNumberType>;
-  static const ScalarNumberType tol =
-    1e5 * std::numeric_limits<ScalarNumberType>::epsilon();
+  using func                        = FunctionsTestSymmetricTensor<dim, ScalarNumberType>;
+  static const ScalarNumberType tol = 1e5 * std::numeric_limits<ScalarNumberType>::epsilon();
   std::cout << "psi:              " << psi << std::endl;
   std::cout << "func::psi(t):     " << func::psi(t) << std::endl;
-  Assert(std::abs(psi - func::psi(t)) < tol,
-         ExcMessage("No match for function value."));
+  Assert(std::abs(psi - func::psi(t)) < tol, ExcMessage("No match for function value."));
   std::cout << "dpsi_dt:              " << dpsi_dt << std::endl;
   std::cout << "func::dpsi_dt(t):     " << func::dpsi_dt(t) << std::endl;
-  Assert(std::abs((dpsi_dt - func::dpsi_dt(t)).norm()) < tol,
-         ExcMessage("No match for first derivative."));
+  Assert(std::abs((dpsi_dt - func::dpsi_dt(t)).norm()) < tol, ExcMessage("No match for first derivative."));
   if (AD::ADNumberTraits<ADNumberType>::n_supported_derivative_levels >= 2)
     {
-      const Tensor<4, dim, ScalarNumberType> d2psi_dt_dt =
-        ad_helper.extract_hessian_component(D2psi, t_dof, t_dof);
+      const Tensor<4, dim, ScalarNumberType> d2psi_dt_dt = ad_helper.extract_hessian_component(D2psi, t_dof, t_dof);
       std::cout << "d2psi_dt_dt:          " << d2psi_dt_dt << std::endl;
-      std::cout << "func::d2psi_dt_dt(t): " << func::d2psi_dt_dt(t)
-                << std::endl;
+      std::cout << "func::d2psi_dt_dt(t): " << func::d2psi_dt_dt(t) << std::endl;
       Assert(std::abs((d2psi_dt_dt - func::d2psi_dt_dt(t)).norm()) < tol,
              ExcMessage("No match for second derivative."));
     }

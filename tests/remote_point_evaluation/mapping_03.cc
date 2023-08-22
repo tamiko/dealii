@@ -58,24 +58,14 @@ test(const bool enforce_unique_map)
   Utilities::MPI::RemotePointEvaluation<dim> eval(1e-6, enforce_unique_map);
 
   const auto result_avg =
-    VectorTools::point_values<1>(mapping,
-                                 dof_handler,
-                                 vec,
-                                 evaluation_points,
-                                 eval,
-                                 VectorTools::EvaluationFlags::avg);
-  const auto result_min = VectorTools::point_values<1>(
-    eval, dof_handler, vec, VectorTools::EvaluationFlags::min);
-  const auto result_max = VectorTools::point_values<1>(
-    eval, dof_handler, vec, VectorTools::EvaluationFlags::max);
-  const auto result_insert = VectorTools::point_values<1>(
-    eval, dof_handler, vec, VectorTools::EvaluationFlags::insert);
+    VectorTools::point_values<1>(mapping, dof_handler, vec, evaluation_points, eval, VectorTools::EvaluationFlags::avg);
+  const auto result_min    = VectorTools::point_values<1>(eval, dof_handler, vec, VectorTools::EvaluationFlags::min);
+  const auto result_max    = VectorTools::point_values<1>(eval, dof_handler, vec, VectorTools::EvaluationFlags::max);
+  const auto result_insert = VectorTools::point_values<1>(eval, dof_handler, vec, VectorTools::EvaluationFlags::insert);
 
   for (unsigned int i = 0; i < evaluation_points.size(); ++i)
-    deallog << "1e-" << (i + 1) << ' ' << result_avg[i] << ' ' << result_min[i]
-            << ' ' << result_max[i] << ' ' << result_insert[i] << ' '
-            << eval.get_point_ptrs()[i + 1] - eval.get_point_ptrs()[i]
-            << std::endl;
+    deallog << "1e-" << (i + 1) << ' ' << result_avg[i] << ' ' << result_min[i] << ' ' << result_max[i] << ' '
+            << result_insert[i] << ' ' << eval.get_point_ptrs()[i + 1] - eval.get_point_ptrs()[i] << std::endl;
 }
 
 

@@ -114,9 +114,7 @@ public:
   bool
   operator==(const VectorizedArrayIterator<T> &other) const
   {
-    Assert(this->data == other.data,
-           ExcMessage(
-             "You are trying to compare iterators into different arrays."));
+    Assert(this->data == other.data, ExcMessage("You are trying to compare iterators into different arrays."));
     return this->lane == other.lane;
   }
 
@@ -126,9 +124,7 @@ public:
   bool
   operator!=(const VectorizedArrayIterator<T> &other) const
   {
-    Assert(this->data == other.data,
-           ExcMessage(
-             "You are trying to compare iterators into different arrays."));
+    Assert(this->data == other.data, ExcMessage("You are trying to compare iterators into different arrays."));
     return this->lane != other.lane;
   }
 
@@ -195,10 +191,7 @@ public:
   VectorizedArrayIterator<T> &
   operator--()
   {
-    Assert(
-      lane > 0,
-      ExcMessage(
-        "You can't decrement an iterator that is already at the beginning of the range."));
+    Assert(lane > 0, ExcMessage("You can't decrement an iterator that is already at the beginning of the range."));
     --lane;
     return *this;
   }
@@ -219,8 +212,7 @@ public:
   std::ptrdiff_t
   operator-(const VectorizedArrayIterator<T> &other) const
   {
-    return static_cast<std::ptrdiff_t>(lane) -
-           static_cast<ptrdiff_t>(other.lane);
+    return static_cast<std::ptrdiff_t>(lane) - static_cast<ptrdiff_t>(other.lane);
   }
 
 private:
@@ -266,10 +258,7 @@ public:
 
     for (; i1 != list.end(); ++i0, ++i1)
       {
-        Assert(
-          i0 != this->end(),
-          ExcMessage(
-            "Initializer list exceeds size of this VectorizedArray object."));
+        Assert(i0 != this->end(), ExcMessage("Initializer list exceeds size of this VectorizedArray object."));
 
         *i0 = *i1;
       }
@@ -324,8 +313,7 @@ public:
   VectorizedArrayIterator<const T>
   end() const
   {
-    return VectorizedArrayIterator<const T>(static_cast<const T &>(*this),
-                                            width);
+    return VectorizedArrayIterator<const T>(static_cast<const T &>(*this), width);
   }
 };
 
@@ -416,8 +404,7 @@ public:
  *                architecture is used)
  */
 template <typename Number, std::size_t width>
-class VectorizedArray
-  : public VectorizedArrayBase<VectorizedArray<Number, width>, 1>
+class VectorizedArray : public VectorizedArrayBase<VectorizedArray<Number, width>, 1>
 {
 public:
   /**
@@ -425,8 +412,7 @@ public:
    */
   using value_type = Number;
 
-  static_assert(width == 1,
-                "You specified an illegal width that is not supported.");
+  static_assert(width == 1, "You specified an illegal width that is not supported.");
 
   /**
    * Default empty constructor, leaving the data in an uninitialized state
@@ -736,12 +722,10 @@ private:
   std::abs(const VectorizedArray<Number2, width2> &);
   template <typename Number2, std::size_t width2>
   friend VectorizedArray<Number2, width2>
-  std::max(const VectorizedArray<Number2, width2> &,
-           const VectorizedArray<Number2, width2> &);
+  std::max(const VectorizedArray<Number2, width2> &, const VectorizedArray<Number2, width2> &);
   template <typename Number2, std::size_t width2>
   friend VectorizedArray<Number2, width2>
-  std::min(const VectorizedArray<Number2, width2> &,
-           const VectorizedArray<Number2, width2> &);
+  std::min(const VectorizedArray<Number2, width2> &, const VectorizedArray<Number2, width2> &);
 };
 
 
@@ -757,9 +741,7 @@ private:
  *
  * @relatesalso VectorizedArray
  */
-template <typename Number,
-          std::size_t width =
-            internal::VectorizedArrayWidthSpecifier<Number>::max_width>
+template <typename Number, std::size_t width = internal::VectorizedArrayWidthSpecifier<Number>::max_width>
 inline DEAL_II_ALWAYS_INLINE VectorizedArray<Number, width>
                              make_vectorized_array(const Number &u)
 {
@@ -779,11 +761,9 @@ template <typename VectorizedArrayType>
 inline DEAL_II_ALWAYS_INLINE VectorizedArrayType
 make_vectorized_array(const typename VectorizedArrayType::value_type &u)
 {
-  static_assert(
-    std::is_same_v<VectorizedArrayType,
-                   VectorizedArray<typename VectorizedArrayType::value_type,
-                                   VectorizedArrayType::size()>>,
-    "VectorizedArrayType is not a VectorizedArray.");
+  static_assert(std::is_same_v<VectorizedArrayType,
+                               VectorizedArray<typename VectorizedArrayType::value_type, VectorizedArrayType::size()>>,
+                "VectorizedArrayType is not a VectorizedArray.");
 
   VectorizedArrayType result = u;
   return result;
@@ -804,9 +784,7 @@ make_vectorized_array(const typename VectorizedArrayType::value_type &u)
  */
 template <typename Number, std::size_t width>
 inline DEAL_II_ALWAYS_INLINE void
-gather(VectorizedArray<Number, width> &   out,
-       const std::array<Number *, width> &ptrs,
-       const unsigned int                 offset)
+gather(VectorizedArray<Number, width> &out, const std::array<Number *, width> &ptrs, const unsigned int offset)
 {
   for (unsigned int v = 0; v < width; ++v)
     out.data[v] = ptrs[v][offset];
@@ -842,8 +820,8 @@ gather(VectorizedArray<Number, width> &   out,
 template <typename Number, std::size_t width>
 inline DEAL_II_ALWAYS_INLINE void
 vectorized_load_and_transpose(const unsigned int              n_entries,
-                              const Number *                  in,
-                              const unsigned int *            offsets,
+                              const Number                   *in,
+                              const unsigned int             *offsets,
                               VectorizedArray<Number, width> *out)
 {
   for (unsigned int i = 0; i < n_entries; ++i)
@@ -867,7 +845,7 @@ template <typename Number, std::size_t width>
 inline DEAL_II_ALWAYS_INLINE void
 vectorized_load_and_transpose(const unsigned int                 n_entries,
                               const std::array<Number *, width> &in,
-                              VectorizedArray<Number, width> *   out)
+                              VectorizedArray<Number, width>    *out)
 {
   for (unsigned int i = 0; i < n_entries; ++i)
     for (unsigned int v = 0; v < VectorizedArray<Number, width>::size(); ++v)
@@ -919,8 +897,8 @@ inline DEAL_II_ALWAYS_INLINE void
 vectorized_transpose_and_store(const bool                            add_into,
                                const unsigned int                    n_entries,
                                const VectorizedArray<Number, width> *in,
-                               const unsigned int *                  offsets,
-                               Number *                              out)
+                               const unsigned int                   *offsets,
+                               Number                               *out)
 {
   if (add_into)
     for (unsigned int i = 0; i < n_entries; ++i)
@@ -949,7 +927,7 @@ inline DEAL_II_ALWAYS_INLINE void
 vectorized_transpose_and_store(const bool                            add_into,
                                const unsigned int                    n_entries,
                                const VectorizedArray<Number, width> *in,
-                               std::array<Number *, width> &         out)
+                               std::array<Number *, width>          &out)
 {
   if (add_into)
     for (unsigned int i = 0; i < n_entries; ++i)
@@ -972,8 +950,7 @@ vectorized_transpose_and_store(const bool                            add_into,
  * Specialization for double and SSE2.
  */
 template <>
-class VectorizedArray<double, 2>
-  : public VectorizedArrayBase<VectorizedArray<double, 2>, 2>
+class VectorizedArray<double, 2> : public VectorizedArrayBase<VectorizedArray<double, 2>, 2>
 {
 public:
   /**
@@ -1155,8 +1132,7 @@ public:
   void
   streaming_store(double *ptr) const
   {
-    Assert(reinterpret_cast<std::size_t>(ptr) % 16 == 0,
-           ExcMessage("Memory not aligned"));
+    Assert(reinterpret_cast<std::size_t>(ptr) % 16 == 0, ExcMessage("Memory not aligned"));
     _mm_stream_pd(ptr, data);
   }
 
@@ -1286,12 +1262,10 @@ private:
   std::abs(const VectorizedArray<Number2, width2> &);
   template <typename Number2, std::size_t width2>
   friend VectorizedArray<Number2, width2>
-  std::max(const VectorizedArray<Number2, width2> &,
-           const VectorizedArray<Number2, width2> &);
+  std::max(const VectorizedArray<Number2, width2> &, const VectorizedArray<Number2, width2> &);
   template <typename Number2, std::size_t width2>
   friend VectorizedArray<Number2, width2>
-  std::min(const VectorizedArray<Number2, width2> &,
-           const VectorizedArray<Number2, width2> &);
+  std::min(const VectorizedArray<Number2, width2> &, const VectorizedArray<Number2, width2> &);
 };
 
 
@@ -1302,8 +1276,8 @@ private:
 template <>
 inline DEAL_II_ALWAYS_INLINE void
 vectorized_load_and_transpose(const unsigned int          n_entries,
-                              const double *              in,
-                              const unsigned int *        offsets,
+                              const double               *in,
+                              const unsigned int         *offsets,
                               VectorizedArray<double, 2> *out)
 {
   const unsigned int n_chunks = n_entries / 2;
@@ -1330,7 +1304,7 @@ template <>
 inline DEAL_II_ALWAYS_INLINE void
 vectorized_load_and_transpose(const unsigned int             n_entries,
                               const std::array<double *, 2> &in,
-                              VectorizedArray<double, 2> *   out)
+                              VectorizedArray<double, 2>    *out)
 {
   // see the comments in the vectorized_load_and_transpose above
 
@@ -1358,8 +1332,8 @@ inline DEAL_II_ALWAYS_INLINE void
 vectorized_transpose_and_store(const bool                        add_into,
                                const unsigned int                n_entries,
                                const VectorizedArray<double, 2> *in,
-                               const unsigned int *              offsets,
-                               double *                          out)
+                               const unsigned int               *offsets,
+                               double                           *out)
 {
   const unsigned int n_chunks = n_entries / 2;
   if (add_into)
@@ -1370,12 +1344,8 @@ vectorized_transpose_and_store(const bool                        add_into,
           __m128d u1   = in[2 * i + 1].data;
           __m128d res0 = _mm_unpacklo_pd(u0, u1);
           __m128d res1 = _mm_unpackhi_pd(u0, u1);
-          _mm_storeu_pd(out + 2 * i + offsets[0],
-                        _mm_add_pd(_mm_loadu_pd(out + 2 * i + offsets[0]),
-                                   res0));
-          _mm_storeu_pd(out + 2 * i + offsets[1],
-                        _mm_add_pd(_mm_loadu_pd(out + 2 * i + offsets[1]),
-                                   res1));
+          _mm_storeu_pd(out + 2 * i + offsets[0], _mm_add_pd(_mm_loadu_pd(out + 2 * i + offsets[0]), res0));
+          _mm_storeu_pd(out + 2 * i + offsets[1], _mm_add_pd(_mm_loadu_pd(out + 2 * i + offsets[1]), res1));
         }
       // remainder loop of work that does not divide by 2
       for (unsigned int i = 2 * n_chunks; i < n_entries; ++i)
@@ -1410,7 +1380,7 @@ inline DEAL_II_ALWAYS_INLINE void
 vectorized_transpose_and_store(const bool                        add_into,
                                const unsigned int                n_entries,
                                const VectorizedArray<double, 2> *in,
-                               std::array<double *, 2> &         out)
+                               std::array<double *, 2>          &out)
 {
   // see the comments in the vectorized_transpose_and_store above
 
@@ -1423,10 +1393,8 @@ vectorized_transpose_and_store(const bool                        add_into,
           __m128d u1   = in[2 * i + 1].data;
           __m128d res0 = _mm_unpacklo_pd(u0, u1);
           __m128d res1 = _mm_unpackhi_pd(u0, u1);
-          _mm_storeu_pd(out[0] + 2 * i,
-                        _mm_add_pd(_mm_loadu_pd(out[0] + 2 * i), res0));
-          _mm_storeu_pd(out[1] + 2 * i,
-                        _mm_add_pd(_mm_loadu_pd(out[1] + 2 * i), res1));
+          _mm_storeu_pd(out[0] + 2 * i, _mm_add_pd(_mm_loadu_pd(out[0] + 2 * i), res0));
+          _mm_storeu_pd(out[1] + 2 * i, _mm_add_pd(_mm_loadu_pd(out[1] + 2 * i), res1));
         }
 
       for (unsigned int i = 2 * n_chunks; i < n_entries; ++i)
@@ -1457,8 +1425,7 @@ vectorized_transpose_and_store(const bool                        add_into,
  * Specialization for float and SSE2.
  */
 template <>
-class VectorizedArray<float, 4>
-  : public VectorizedArrayBase<VectorizedArray<float, 4>, 4>
+class VectorizedArray<float, 4> : public VectorizedArrayBase<VectorizedArray<float, 4>, 4>
 {
 public:
   /**
@@ -1623,8 +1590,7 @@ public:
   void
   streaming_store(float *ptr) const
   {
-    Assert(reinterpret_cast<std::size_t>(ptr) % 16 == 0,
-           ExcMessage("Memory not aligned"));
+    Assert(reinterpret_cast<std::size_t>(ptr) % 16 == 0, ExcMessage("Memory not aligned"));
     _mm_stream_ps(ptr, data);
   }
 
@@ -1755,12 +1721,10 @@ private:
   std::abs(const VectorizedArray<Number2, width2> &);
   template <typename Number2, std::size_t width2>
   friend VectorizedArray<Number2, width2>
-  std::max(const VectorizedArray<Number2, width2> &,
-           const VectorizedArray<Number2, width2> &);
+  std::max(const VectorizedArray<Number2, width2> &, const VectorizedArray<Number2, width2> &);
   template <typename Number2, std::size_t width2>
   friend VectorizedArray<Number2, width2>
-  std::min(const VectorizedArray<Number2, width2> &,
-           const VectorizedArray<Number2, width2> &);
+  std::min(const VectorizedArray<Number2, width2> &, const VectorizedArray<Number2, width2> &);
 };
 
 
@@ -1771,8 +1735,8 @@ private:
 template <>
 inline DEAL_II_ALWAYS_INLINE void
 vectorized_load_and_transpose(const unsigned int         n_entries,
-                              const float *              in,
-                              const unsigned int *       offsets,
+                              const float               *in,
+                              const unsigned int        *offsets,
                               VectorizedArray<float, 4> *out)
 {
   const unsigned int n_chunks = n_entries / 4;
@@ -1807,7 +1771,7 @@ template <>
 inline DEAL_II_ALWAYS_INLINE void
 vectorized_load_and_transpose(const unsigned int            n_entries,
                               const std::array<float *, 4> &in,
-                              VectorizedArray<float, 4> *   out)
+                              VectorizedArray<float, 4>    *out)
 {
   // see the comments in the vectorized_load_and_transpose above
 
@@ -1843,8 +1807,8 @@ inline DEAL_II_ALWAYS_INLINE void
 vectorized_transpose_and_store(const bool                       add_into,
                                const unsigned int               n_entries,
                                const VectorizedArray<float, 4> *in,
-                               const unsigned int *             offsets,
-                               float *                          out)
+                               const unsigned int              *offsets,
+                               float                           *out)
 {
   const unsigned int n_chunks = n_entries / 4;
   for (unsigned int i = 0; i < n_chunks; ++i)
@@ -1906,7 +1870,7 @@ inline DEAL_II_ALWAYS_INLINE void
 vectorized_transpose_and_store(const bool                       add_into,
                                const unsigned int               n_entries,
                                const VectorizedArray<float, 4> *in,
-                               std::array<float *, 4> &         out)
+                               std::array<float *, 4>          &out)
 {
   // see the comments in the vectorized_transpose_and_store above
 
@@ -1966,8 +1930,7 @@ vectorized_transpose_and_store(const bool                       add_into,
  * Specialization of VectorizedArray class for double and AVX.
  */
 template <>
-class VectorizedArray<double, 4>
-  : public VectorizedArrayBase<VectorizedArray<double, 4>, 4>
+class VectorizedArray<double, 4> : public VectorizedArrayBase<VectorizedArray<double, 4>, 4>
 {
 public:
   /**
@@ -2149,8 +2112,7 @@ public:
   void
   streaming_store(double *ptr) const
   {
-    Assert(reinterpret_cast<std::size_t>(ptr) % 32 == 0,
-           ExcMessage("Memory not aligned"));
+    Assert(reinterpret_cast<std::size_t>(ptr) % 32 == 0, ExcMessage("Memory not aligned"));
     _mm256_stream_pd(ptr, data);
   }
 
@@ -2174,9 +2136,8 @@ public:
     // unfortunately, there does not appear to be a 128 bit integer load, so
     // do it by some reinterpret casts here. this is allowed because the Intel
     // API allows aliasing between different vector types.
-    const __m128 index_val =
-      _mm_loadu_ps(reinterpret_cast<const float *>(offsets));
-    const __m128i index = *reinterpret_cast<const __m128i *>(&index_val);
+    const __m128  index_val = _mm_loadu_ps(reinterpret_cast<const float *>(offsets));
+    const __m128i index     = *reinterpret_cast<const __m128i *>(&index_val);
 
     // work around a warning with gcc-12 about an uninitialized initial state
     // for gather by starting with a zero guess, even though all lanes will be
@@ -2317,12 +2278,10 @@ private:
   std::abs(const VectorizedArray<Number2, width2> &);
   template <typename Number2, std::size_t width2>
   friend VectorizedArray<Number2, width2>
-  std::max(const VectorizedArray<Number2, width2> &,
-           const VectorizedArray<Number2, width2> &);
+  std::max(const VectorizedArray<Number2, width2> &, const VectorizedArray<Number2, width2> &);
   template <typename Number2, std::size_t width2>
   friend VectorizedArray<Number2, width2>
-  std::min(const VectorizedArray<Number2, width2> &,
-           const VectorizedArray<Number2, width2> &);
+  std::min(const VectorizedArray<Number2, width2> &, const VectorizedArray<Number2, width2> &);
 };
 
 
@@ -2333,15 +2292,15 @@ private:
 template <>
 inline DEAL_II_ALWAYS_INLINE void
 vectorized_load_and_transpose(const unsigned int          n_entries,
-                              const double *              in,
-                              const unsigned int *        offsets,
+                              const double               *in,
+                              const unsigned int         *offsets,
                               VectorizedArray<double, 4> *out)
 {
   const unsigned int n_chunks = n_entries / 4;
-  const double *     in0      = in + offsets[0];
-  const double *     in1      = in + offsets[1];
-  const double *     in2      = in + offsets[2];
-  const double *     in3      = in + offsets[3];
+  const double      *in0      = in + offsets[0];
+  const double      *in1      = in + offsets[1];
+  const double      *in2      = in + offsets[2];
+  const double      *in3      = in + offsets[3];
 
   for (unsigned int i = 0; i < n_chunks; ++i)
     {
@@ -2373,15 +2332,15 @@ template <>
 inline DEAL_II_ALWAYS_INLINE void
 vectorized_load_and_transpose(const unsigned int             n_entries,
                               const std::array<double *, 4> &in,
-                              VectorizedArray<double, 4> *   out)
+                              VectorizedArray<double, 4>    *out)
 {
   // see the comments in the vectorized_load_and_transpose above
 
   const unsigned int n_chunks = n_entries / 4;
-  const double *     in0      = in[0];
-  const double *     in1      = in[1];
-  const double *     in2      = in[2];
-  const double *     in3      = in[3];
+  const double      *in0      = in[0];
+  const double      *in1      = in[1];
+  const double      *in2      = in[2];
+  const double      *in3      = in[3];
 
   for (unsigned int i = 0; i < n_chunks; ++i)
     {
@@ -2413,14 +2372,14 @@ inline DEAL_II_ALWAYS_INLINE void
 vectorized_transpose_and_store(const bool                        add_into,
                                const unsigned int                n_entries,
                                const VectorizedArray<double, 4> *in,
-                               const unsigned int *              offsets,
-                               double *                          out)
+                               const unsigned int               *offsets,
+                               double                           *out)
 {
   const unsigned int n_chunks = n_entries / 4;
-  double *           out0     = out + offsets[0];
-  double *           out1     = out + offsets[1];
-  double *           out2     = out + offsets[2];
-  double *           out3     = out + offsets[3];
+  double            *out0     = out + offsets[0];
+  double            *out1     = out + offsets[1];
+  double            *out2     = out + offsets[2];
+  double            *out3     = out + offsets[3];
   for (unsigned int i = 0; i < n_chunks; ++i)
     {
       __m256d u0   = in[4 * i + 0].data;
@@ -2480,15 +2439,15 @@ inline DEAL_II_ALWAYS_INLINE void
 vectorized_transpose_and_store(const bool                        add_into,
                                const unsigned int                n_entries,
                                const VectorizedArray<double, 4> *in,
-                               std::array<double *, 4> &         out)
+                               std::array<double *, 4>          &out)
 {
   // see the comments in the vectorized_transpose_and_store above
 
   const unsigned int n_chunks = n_entries / 4;
-  double *           out0     = out[0];
-  double *           out1     = out[1];
-  double *           out2     = out[2];
-  double *           out3     = out[3];
+  double            *out0     = out[0];
+  double            *out1     = out[1];
+  double            *out2     = out[2];
+  double            *out3     = out[3];
   for (unsigned int i = 0; i < n_chunks; ++i)
     {
       __m256d u0   = in[4 * i + 0].data;
@@ -2544,8 +2503,7 @@ vectorized_transpose_and_store(const bool                        add_into,
  * Specialization for float and AVX.
  */
 template <>
-class VectorizedArray<float, 8>
-  : public VectorizedArrayBase<VectorizedArray<float, 8>, 8>
+class VectorizedArray<float, 8> : public VectorizedArrayBase<VectorizedArray<float, 8>, 8>
 {
 public:
   /**
@@ -2713,8 +2671,7 @@ public:
   void
   streaming_store(float *ptr) const
   {
-    Assert(reinterpret_cast<std::size_t>(ptr) % 32 == 0,
-           ExcMessage("Memory not aligned"));
+    Assert(reinterpret_cast<std::size_t>(ptr) % 32 == 0, ExcMessage("Memory not aligned"));
     _mm256_stream_ps(ptr, data);
   }
 
@@ -2738,9 +2695,8 @@ public:
     // unfortunately, there does not appear to be a 256 bit integer load, so
     // do it by some reinterpret casts here. this is allowed because the Intel
     // API allows aliasing between different vector types.
-    const __m256 index_val =
-      _mm256_loadu_ps(reinterpret_cast<const float *>(offsets));
-    const __m256i index = *reinterpret_cast<const __m256i *>(&index_val);
+    const __m256  index_val = _mm256_loadu_ps(reinterpret_cast<const float *>(offsets));
+    const __m256i index     = *reinterpret_cast<const __m256i *>(&index_val);
 
     // work around a warning with gcc-12 about an uninitialized initial state
     // for gather by starting with a zero guess, even though all lanes will be
@@ -2881,12 +2837,10 @@ private:
   std::abs(const VectorizedArray<Number2, width2> &);
   template <typename Number2, std::size_t width2>
   friend VectorizedArray<Number2, width2>
-  std::max(const VectorizedArray<Number2, width2> &,
-           const VectorizedArray<Number2, width2> &);
+  std::max(const VectorizedArray<Number2, width2> &, const VectorizedArray<Number2, width2> &);
   template <typename Number2, std::size_t width2>
   friend VectorizedArray<Number2, width2>
-  std::min(const VectorizedArray<Number2, width2> &,
-           const VectorizedArray<Number2, width2> &);
+  std::min(const VectorizedArray<Number2, width2> &, const VectorizedArray<Number2, width2> &);
 };
 
 
@@ -2897,8 +2851,8 @@ private:
 template <>
 inline DEAL_II_ALWAYS_INLINE void
 vectorized_load_and_transpose(const unsigned int         n_entries,
-                              const float *              in,
-                              const unsigned int *       offsets,
+                              const float               *in,
+                              const unsigned int        *offsets,
                               VectorizedArray<float, 8> *out)
 {
   const unsigned int n_chunks = n_entries / 4;
@@ -2940,7 +2894,7 @@ template <>
 inline DEAL_II_ALWAYS_INLINE void
 vectorized_load_and_transpose(const unsigned int            n_entries,
                               const std::array<float *, 8> &in,
-                              VectorizedArray<float, 8> *   out)
+                              VectorizedArray<float, 8>    *out)
 {
   // see the comments in the vectorized_load_and_transpose above
 
@@ -2981,8 +2935,8 @@ inline DEAL_II_ALWAYS_INLINE void
 vectorized_transpose_and_store(const bool                       add_into,
                                const unsigned int               n_entries,
                                const VectorizedArray<float, 8> *in,
-                               const unsigned int *             offsets,
-                               float *                          out)
+                               const unsigned int              *offsets,
+                               float                           *out)
 {
   const unsigned int n_chunks = n_entries / 4;
   for (unsigned int i = 0; i < n_chunks; ++i)
@@ -3064,7 +3018,7 @@ inline DEAL_II_ALWAYS_INLINE void
 vectorized_transpose_and_store(const bool                       add_into,
                                const unsigned int               n_entries,
                                const VectorizedArray<float, 8> *in,
-                               std::array<float *, 8> &         out)
+                               std::array<float *, 8>          &out)
 {
   // see the comments in the vectorized_transpose_and_store above
 
@@ -3145,8 +3099,7 @@ vectorized_transpose_and_store(const bool                       add_into,
  * Specialization of VectorizedArray class for double and AVX-512.
  */
 template <>
-class VectorizedArray<double, 8>
-  : public VectorizedArrayBase<VectorizedArray<double, 8>, 8>
+class VectorizedArray<double, 8> : public VectorizedArrayBase<VectorizedArray<double, 8>, 8>
 {
 public:
   /**
@@ -3329,8 +3282,7 @@ public:
   void
   streaming_store(double *ptr) const
   {
-    Assert(reinterpret_cast<std::size_t>(ptr) % 64 == 0,
-           ExcMessage("Memory not aligned"));
+    Assert(reinterpret_cast<std::size_t>(ptr) % 64 == 0, ExcMessage("Memory not aligned"));
     _mm512_stream_pd(ptr, data);
   }
 
@@ -3354,9 +3306,8 @@ public:
     // unfortunately, there does not appear to be a 256 bit integer load, so
     // do it by some reinterpret casts here. this is allowed because the Intel
     // API allows aliasing between different vector types.
-    const __m256 index_val =
-      _mm256_loadu_ps(reinterpret_cast<const float *>(offsets));
-    const __m256i index = *reinterpret_cast<const __m256i *>(&index_val);
+    const __m256  index_val = _mm256_loadu_ps(reinterpret_cast<const float *>(offsets));
+    const __m256i index     = *reinterpret_cast<const __m256i *>(&index_val);
 
     // work around a warning with gcc-12 about an uninitialized initial state
     // for gather by starting with a zero guess, even though all lanes will be
@@ -3397,9 +3348,8 @@ public:
     // unfortunately, there does not appear to be a 256 bit integer load, so
     // do it by some reinterpret casts here. this is allowed because the Intel
     // API allows aliasing between different vector types.
-    const __m256 index_val =
-      _mm256_loadu_ps(reinterpret_cast<const float *>(offsets));
-    const __m256i index = *reinterpret_cast<const __m256i *>(&index_val);
+    const __m256  index_val = _mm256_loadu_ps(reinterpret_cast<const float *>(offsets));
+    const __m256i index     = *reinterpret_cast<const __m256i *>(&index_val);
     _mm512_i32scatter_pd(base_ptr, index, data, 8);
 #    else
     for (unsigned int i = 0; i < 8; ++i)
@@ -3475,9 +3425,8 @@ private:
     // is a bitwise operation so the data type does not matter)
     __m512d         mask = _mm512_set1_pd(-0.);
     VectorizedArray res;
-    res.data = reinterpret_cast<__m512d>(
-      _mm512_andnot_epi64(reinterpret_cast<__m512i>(mask),
-                          reinterpret_cast<__m512i>(data)));
+    res.data =
+      reinterpret_cast<__m512d>(_mm512_andnot_epi64(reinterpret_cast<__m512i>(mask), reinterpret_cast<__m512i>(data)));
     return res;
   }
 
@@ -3516,12 +3465,10 @@ private:
   std::abs(const VectorizedArray<Number2, width2> &);
   template <typename Number2, std::size_t width2>
   friend VectorizedArray<Number2, width2>
-  std::max(const VectorizedArray<Number2, width2> &,
-           const VectorizedArray<Number2, width2> &);
+  std::max(const VectorizedArray<Number2, width2> &, const VectorizedArray<Number2, width2> &);
   template <typename Number2, std::size_t width2>
   friend VectorizedArray<Number2, width2>
-  std::min(const VectorizedArray<Number2, width2> &,
-           const VectorizedArray<Number2, width2> &);
+  std::min(const VectorizedArray<Number2, width2> &, const VectorizedArray<Number2, width2> &);
 };
 
 
@@ -3532,8 +3479,8 @@ private:
 template <>
 inline DEAL_II_ALWAYS_INLINE void
 vectorized_load_and_transpose(const unsigned int          n_entries,
-                              const double *              in,
-                              const unsigned int *        offsets,
+                              const double               *in,
+                              const unsigned int         *offsets,
                               VectorizedArray<double, 8> *out)
 {
   // do not do full transpose because the code is long and will most
@@ -3578,7 +3525,7 @@ template <>
 inline DEAL_II_ALWAYS_INLINE void
 vectorized_load_and_transpose(const unsigned int             n_entries,
                               const std::array<double *, 8> &in,
-                              VectorizedArray<double, 8> *   out)
+                              VectorizedArray<double, 8>    *out)
 {
   const unsigned int n_chunks = n_entries / 4;
   for (unsigned int i = 0; i < n_chunks; ++i)
@@ -3618,14 +3565,14 @@ inline DEAL_II_ALWAYS_INLINE void
 vectorized_transpose_and_store(const bool                        add_into,
                                const unsigned int                n_entries,
                                const VectorizedArray<double, 8> *in,
-                               const unsigned int *              offsets,
-                               double *                          out)
+                               const unsigned int               *offsets,
+                               double                           *out)
 {
   // as for the load, we split the store operations into 256 bit units to
   // better balance between code size, shuffle instructions, and stores
   const unsigned int n_chunks = n_entries / 4;
-  __m512i mask1 = _mm512_set_epi64(0xd, 0xc, 0x5, 0x4, 0x9, 0x8, 0x1, 0x0);
-  __m512i mask2 = _mm512_set_epi64(0xf, 0xe, 0x7, 0x6, 0xb, 0xa, 0x3, 0x2);
+  __m512i            mask1    = _mm512_set_epi64(0xd, 0xc, 0x5, 0x4, 0x9, 0x8, 0x1, 0x0);
+  __m512i            mask2    = _mm512_set_epi64(0xf, 0xe, 0x7, 0x6, 0xb, 0xa, 0x3, 0x2);
   for (unsigned int i = 0; i < n_chunks; ++i)
     {
       __m512d t0   = _mm512_unpacklo_pd(in[i * 4].data, in[i * 4 + 1].data);
@@ -3701,13 +3648,13 @@ inline DEAL_II_ALWAYS_INLINE void
 vectorized_transpose_and_store(const bool                        add_into,
                                const unsigned int                n_entries,
                                const VectorizedArray<double, 8> *in,
-                               std::array<double *, 8> &         out)
+                               std::array<double *, 8>          &out)
 {
   // see the comments in the vectorized_transpose_and_store above
 
   const unsigned int n_chunks = n_entries / 4;
-  __m512i mask1 = _mm512_set_epi64(0xd, 0xc, 0x5, 0x4, 0x9, 0x8, 0x1, 0x0);
-  __m512i mask2 = _mm512_set_epi64(0xf, 0xe, 0x7, 0x6, 0xb, 0xa, 0x3, 0x2);
+  __m512i            mask1    = _mm512_set_epi64(0xd, 0xc, 0x5, 0x4, 0x9, 0x8, 0x1, 0x0);
+  __m512i            mask2    = _mm512_set_epi64(0xf, 0xe, 0x7, 0x6, 0xb, 0xa, 0x3, 0x2);
   for (unsigned int i = 0; i < n_chunks; ++i)
     {
       __m512d t0   = _mm512_unpacklo_pd(in[i * 4].data, in[i * 4 + 1].data);
@@ -3775,8 +3722,7 @@ vectorized_transpose_and_store(const bool                        add_into,
  * Specialization for float and AVX512.
  */
 template <>
-class VectorizedArray<float, 16>
-  : public VectorizedArrayBase<VectorizedArray<float, 16>, 16>
+class VectorizedArray<float, 16> : public VectorizedArrayBase<VectorizedArray<float, 16>, 16>
 {
 public:
   /**
@@ -3944,8 +3890,7 @@ public:
   void
   streaming_store(float *ptr) const
   {
-    Assert(reinterpret_cast<std::size_t>(ptr) % 64 == 0,
-           ExcMessage("Memory not aligned"));
+    Assert(reinterpret_cast<std::size_t>(ptr) % 64 == 0, ExcMessage("Memory not aligned"));
     _mm512_stream_ps(ptr, data);
   }
 
@@ -3969,9 +3914,8 @@ public:
     // unfortunately, there does not appear to be a 512 bit integer load, so
     // do it by some reinterpret casts here. this is allowed because the Intel
     // API allows aliasing between different vector types.
-    const __m512 index_val =
-      _mm512_loadu_ps(reinterpret_cast<const float *>(offsets));
-    const __m512i index = *reinterpret_cast<const __m512i *>(&index_val);
+    const __m512  index_val = _mm512_loadu_ps(reinterpret_cast<const float *>(offsets));
+    const __m512i index     = *reinterpret_cast<const __m512i *>(&index_val);
 
     // work around a warning with gcc-12 about an uninitialized initial state
     // for gather by starting with a zero guess, even though all lanes will be
@@ -4012,9 +3956,8 @@ public:
     // unfortunately, there does not appear to be a 512 bit integer load, so
     // do it by some reinterpret casts here. this is allowed because the Intel
     // API allows aliasing between different vector types.
-    const __m512 index_val =
-      _mm512_loadu_ps(reinterpret_cast<const float *>(offsets));
-    const __m512i index = *reinterpret_cast<const __m512i *>(&index_val);
+    const __m512  index_val = _mm512_loadu_ps(reinterpret_cast<const float *>(offsets));
+    const __m512i index     = *reinterpret_cast<const __m512i *>(&index_val);
     _mm512_i32scatter_ps(base_ptr, index, data, 4);
 #    else
     for (unsigned int i = 0; i < 16; ++i)
@@ -4090,9 +4033,8 @@ private:
     // is a bitwise operation so the data type does not matter)
     __m512          mask = _mm512_set1_ps(-0.f);
     VectorizedArray res;
-    res.data = reinterpret_cast<__m512>(
-      _mm512_andnot_epi32(reinterpret_cast<__m512i>(mask),
-                          reinterpret_cast<__m512i>(data)));
+    res.data =
+      reinterpret_cast<__m512>(_mm512_andnot_epi32(reinterpret_cast<__m512i>(mask), reinterpret_cast<__m512i>(data)));
     return res;
   }
 
@@ -4131,12 +4073,10 @@ private:
   std::abs(const VectorizedArray<Number2, width2> &);
   template <typename Number2, std::size_t width2>
   friend VectorizedArray<Number2, width2>
-  std::max(const VectorizedArray<Number2, width2> &,
-           const VectorizedArray<Number2, width2> &);
+  std::max(const VectorizedArray<Number2, width2> &, const VectorizedArray<Number2, width2> &);
   template <typename Number2, std::size_t width2>
   friend VectorizedArray<Number2, width2>
-  std::min(const VectorizedArray<Number2, width2> &,
-           const VectorizedArray<Number2, width2> &);
+  std::min(const VectorizedArray<Number2, width2> &, const VectorizedArray<Number2, width2> &);
 };
 
 
@@ -4147,8 +4087,8 @@ private:
 template <>
 inline DEAL_II_ALWAYS_INLINE void
 vectorized_load_and_transpose(const unsigned int          n_entries,
-                              const float *               in,
-                              const unsigned int *        offsets,
+                              const float                *in,
+                              const unsigned int         *offsets,
                               VectorizedArray<float, 16> *out)
 {
   // Similar to the double case, we perform the work on smaller entities. In
@@ -4210,7 +4150,7 @@ template <>
 inline DEAL_II_ALWAYS_INLINE void
 vectorized_load_and_transpose(const unsigned int             n_entries,
                               const std::array<float *, 16> &in,
-                              VectorizedArray<float, 16> *   out)
+                              VectorizedArray<float, 16>    *out)
 {
   // see the comments in the vectorized_load_and_transpose above
 
@@ -4263,18 +4203,16 @@ inline DEAL_II_ALWAYS_INLINE void
 vectorized_transpose_and_store(const bool                        add_into,
                                const unsigned int                n_entries,
                                const VectorizedArray<float, 16> *in,
-                               const unsigned int *              offsets,
-                               float *                           out)
+                               const unsigned int               *offsets,
+                               float                            *out)
 {
   const unsigned int n_chunks = n_entries / 4;
   for (unsigned int i = 0; i < n_chunks; ++i)
     {
       __m512 t0 = _mm512_shuffle_ps(in[4 * i].data, in[1 + 4 * i].data, 0x44);
       __m512 t1 = _mm512_shuffle_ps(in[4 * i].data, in[1 + 4 * i].data, 0xee);
-      __m512 t2 =
-        _mm512_shuffle_ps(in[2 + 4 * i].data, in[3 + 4 * i].data, 0x44);
-      __m512 t3 =
-        _mm512_shuffle_ps(in[2 + 4 * i].data, in[3 + 4 * i].data, 0xee);
+      __m512 t2 = _mm512_shuffle_ps(in[2 + 4 * i].data, in[3 + 4 * i].data, 0x44);
+      __m512 t3 = _mm512_shuffle_ps(in[2 + 4 * i].data, in[3 + 4 * i].data, 0xee);
       __m512 u0 = _mm512_shuffle_ps(t0, t2, 0x88);
       __m512 u1 = _mm512_shuffle_ps(t0, t2, 0xdd);
       __m512 u2 = _mm512_shuffle_ps(t1, t3, 0x88);
@@ -4377,7 +4315,7 @@ inline DEAL_II_ALWAYS_INLINE void
 vectorized_transpose_and_store(const bool                        add_into,
                                const unsigned int                n_entries,
                                const VectorizedArray<float, 16> *in,
-                               std::array<float *, 16> &         out)
+                               std::array<float *, 16>          &out)
 {
   // see the comments in the vectorized_transpose_and_store above
 
@@ -4386,10 +4324,8 @@ vectorized_transpose_and_store(const bool                        add_into,
     {
       __m512 t0 = _mm512_shuffle_ps(in[4 * i].data, in[1 + 4 * i].data, 0x44);
       __m512 t1 = _mm512_shuffle_ps(in[4 * i].data, in[1 + 4 * i].data, 0xee);
-      __m512 t2 =
-        _mm512_shuffle_ps(in[2 + 4 * i].data, in[3 + 4 * i].data, 0x44);
-      __m512 t3 =
-        _mm512_shuffle_ps(in[2 + 4 * i].data, in[3 + 4 * i].data, 0xee);
+      __m512 t2 = _mm512_shuffle_ps(in[2 + 4 * i].data, in[3 + 4 * i].data, 0x44);
+      __m512 t3 = _mm512_shuffle_ps(in[2 + 4 * i].data, in[3 + 4 * i].data, 0xee);
       __m512 u0 = _mm512_shuffle_ps(t0, t2, 0x88);
       __m512 u1 = _mm512_shuffle_ps(t0, t2, 0xdd);
       __m512 u2 = _mm512_shuffle_ps(t1, t3, 0x88);
@@ -4480,12 +4416,10 @@ vectorized_transpose_and_store(const bool                        add_into,
 
 #  endif
 
-#  if DEAL_II_VECTORIZATION_WIDTH_IN_BITS >= 128 && defined(__ALTIVEC__) && \
-    defined(__VSX__)
+#  if DEAL_II_VECTORIZATION_WIDTH_IN_BITS >= 128 && defined(__ALTIVEC__) && defined(__VSX__)
 
 template <>
-class VectorizedArray<double, 2>
-  : public VectorizedArrayBase<VectorizedArray<double, 2>, 2>
+class VectorizedArray<double, 2> : public VectorizedArrayBase<VectorizedArray<double, 2>, 2>
 {
 public:
   /**
@@ -4728,19 +4662,16 @@ private:
   std::abs(const VectorizedArray<Number2, width2> &);
   template <typename Number2, std::size_t width2>
   friend VectorizedArray<Number2, width2>
-  std::max(const VectorizedArray<Number2, width2> &,
-           const VectorizedArray<Number2, width2> &);
+  std::max(const VectorizedArray<Number2, width2> &, const VectorizedArray<Number2, width2> &);
   template <typename Number2, std::size_t width2>
   friend VectorizedArray<Number2, width2>
-  std::min(const VectorizedArray<Number2, width2> &,
-           const VectorizedArray<Number2, width2> &);
+  std::min(const VectorizedArray<Number2, width2> &, const VectorizedArray<Number2, width2> &);
 };
 
 
 
 template <>
-class VectorizedArray<float, 4>
-  : public VectorizedArrayBase<VectorizedArray<float, 4>, 4>
+class VectorizedArray<float, 4> : public VectorizedArrayBase<VectorizedArray<float, 4>, 4>
 {
 public:
   /**
@@ -4983,12 +4914,10 @@ private:
   std::abs(const VectorizedArray<Number2, width2> &);
   template <typename Number2, std::size_t width2>
   friend VectorizedArray<Number2, width2>
-  std::max(const VectorizedArray<Number2, width2> &,
-           const VectorizedArray<Number2, width2> &);
+  std::max(const VectorizedArray<Number2, width2> &, const VectorizedArray<Number2, width2> &);
   template <typename Number2, std::size_t width2>
   friend VectorizedArray<Number2, width2>
-  std::min(const VectorizedArray<Number2, width2> &,
-           const VectorizedArray<Number2, width2> &);
+  std::min(const VectorizedArray<Number2, width2> &, const VectorizedArray<Number2, width2> &);
 };
 
 #  endif // if DEAL_II_VECTORIZATION_LEVEL >=1 && defined(__ALTIVEC__) &&
@@ -5011,8 +4940,7 @@ private:
  */
 template <typename Number, std::size_t width>
 inline DEAL_II_ALWAYS_INLINE bool
-operator==(const VectorizedArray<Number, width> &lhs,
-           const VectorizedArray<Number, width> &rhs)
+operator==(const VectorizedArray<Number, width> &lhs, const VectorizedArray<Number, width> &rhs)
 {
   for (unsigned int i = 0; i < VectorizedArray<Number, width>::size(); ++i)
     if (lhs[i] != rhs[i])
@@ -5029,8 +4957,7 @@ operator==(const VectorizedArray<Number, width> &lhs,
  */
 template <typename Number, std::size_t width>
 inline DEAL_II_ALWAYS_INLINE VectorizedArray<Number, width>
-                             operator+(const VectorizedArray<Number, width> &u,
-          const VectorizedArray<Number, width> &v)
+                             operator+(const VectorizedArray<Number, width> &u, const VectorizedArray<Number, width> &v)
 {
   VectorizedArray<Number, width> tmp = u;
   return tmp += v;
@@ -5043,8 +4970,7 @@ inline DEAL_II_ALWAYS_INLINE VectorizedArray<Number, width>
  */
 template <typename Number, std::size_t width>
 inline DEAL_II_ALWAYS_INLINE VectorizedArray<Number, width>
-                             operator-(const VectorizedArray<Number, width> &u,
-          const VectorizedArray<Number, width> &v)
+                             operator-(const VectorizedArray<Number, width> &u, const VectorizedArray<Number, width> &v)
 {
   VectorizedArray<Number, width> tmp = u;
   return tmp -= v;
@@ -5057,8 +4983,7 @@ inline DEAL_II_ALWAYS_INLINE VectorizedArray<Number, width>
  */
 template <typename Number, std::size_t width>
 inline DEAL_II_ALWAYS_INLINE VectorizedArray<Number, width>
-                             operator*(const VectorizedArray<Number, width> &u,
-          const VectorizedArray<Number, width> &v)
+                             operator*(const VectorizedArray<Number, width> &u, const VectorizedArray<Number, width> &v)
 {
   VectorizedArray<Number, width> tmp = u;
   return tmp *= v;
@@ -5071,8 +4996,7 @@ inline DEAL_II_ALWAYS_INLINE VectorizedArray<Number, width>
  */
 template <typename Number, std::size_t width>
 inline DEAL_II_ALWAYS_INLINE VectorizedArray<Number, width>
-                             operator/(const VectorizedArray<Number, width> &u,
-          const VectorizedArray<Number, width> &v)
+                             operator/(const VectorizedArray<Number, width> &u, const VectorizedArray<Number, width> &v)
 {
   VectorizedArray<Number, width> tmp = u;
   return tmp /= v;
@@ -5086,7 +5010,7 @@ inline DEAL_II_ALWAYS_INLINE VectorizedArray<Number, width>
  */
 template <typename Number, std::size_t width>
 inline DEAL_II_ALWAYS_INLINE VectorizedArray<Number, width>
-operator+(const Number &u, const VectorizedArray<Number, width> &v)
+                             operator+(const Number &u, const VectorizedArray<Number, width> &v)
 {
   VectorizedArray<Number, width> tmp = u;
   return tmp += v;
@@ -5102,7 +5026,7 @@ operator+(const Number &u, const VectorizedArray<Number, width> &v)
  */
 template <std::size_t width>
 inline DEAL_II_ALWAYS_INLINE VectorizedArray<float, width>
-operator+(const double u, const VectorizedArray<float, width> &v)
+                             operator+(const double u, const VectorizedArray<float, width> &v)
 {
   VectorizedArray<float, width> tmp = u;
   return tmp += v;
@@ -5116,7 +5040,7 @@ operator+(const double u, const VectorizedArray<float, width> &v)
  */
 template <typename Number, std::size_t width>
 inline DEAL_II_ALWAYS_INLINE VectorizedArray<Number, width>
-operator+(const VectorizedArray<Number, width> &v, const Number &u)
+                             operator+(const VectorizedArray<Number, width> &v, const Number &u)
 {
   return u + v;
 }
@@ -5131,7 +5055,7 @@ operator+(const VectorizedArray<Number, width> &v, const Number &u)
  */
 template <std::size_t width>
 inline DEAL_II_ALWAYS_INLINE VectorizedArray<float, width>
-operator+(const VectorizedArray<float, width> &v, const double u)
+                             operator+(const VectorizedArray<float, width> &v, const double u)
 {
   return u + v;
 }
@@ -5144,7 +5068,7 @@ operator+(const VectorizedArray<float, width> &v, const double u)
  */
 template <typename Number, std::size_t width>
 inline DEAL_II_ALWAYS_INLINE VectorizedArray<Number, width>
-operator-(const Number &u, const VectorizedArray<Number, width> &v)
+                             operator-(const Number &u, const VectorizedArray<Number, width> &v)
 {
   VectorizedArray<Number, width> tmp = u;
   return tmp -= v;
@@ -5160,7 +5084,7 @@ operator-(const Number &u, const VectorizedArray<Number, width> &v)
  */
 template <std::size_t width>
 inline DEAL_II_ALWAYS_INLINE VectorizedArray<float, width>
-operator-(const double u, const VectorizedArray<float, width> &v)
+                             operator-(const double u, const VectorizedArray<float, width> &v)
 {
   VectorizedArray<float, width> tmp = static_cast<float>(u);
   return tmp -= v;
@@ -5174,7 +5098,7 @@ operator-(const double u, const VectorizedArray<float, width> &v)
  */
 template <typename Number, std::size_t width>
 inline DEAL_II_ALWAYS_INLINE VectorizedArray<Number, width>
-operator-(const VectorizedArray<Number, width> &v, const Number &u)
+                             operator-(const VectorizedArray<Number, width> &v, const Number &u)
 {
   VectorizedArray<Number, width> tmp = u;
   return v - tmp;
@@ -5190,7 +5114,7 @@ operator-(const VectorizedArray<Number, width> &v, const Number &u)
  */
 template <std::size_t width>
 inline DEAL_II_ALWAYS_INLINE VectorizedArray<float, width>
-operator-(const VectorizedArray<float, width> &v, const double u)
+                             operator-(const VectorizedArray<float, width> &v, const double u)
 {
   VectorizedArray<float, width> tmp = static_cast<float>(u);
   return v - tmp;
@@ -5204,7 +5128,7 @@ operator-(const VectorizedArray<float, width> &v, const double u)
  */
 template <typename Number, std::size_t width>
 inline DEAL_II_ALWAYS_INLINE VectorizedArray<Number, width>
-operator*(const Number &u, const VectorizedArray<Number, width> &v)
+                             operator*(const Number &u, const VectorizedArray<Number, width> &v)
 {
   VectorizedArray<Number, width> tmp = u;
   return tmp *= v;
@@ -5220,7 +5144,7 @@ operator*(const Number &u, const VectorizedArray<Number, width> &v)
  */
 template <std::size_t width>
 inline DEAL_II_ALWAYS_INLINE VectorizedArray<float, width>
-operator*(const double u, const VectorizedArray<float, width> &v)
+                             operator*(const double u, const VectorizedArray<float, width> &v)
 {
   VectorizedArray<float, width> tmp = static_cast<float>(u);
   return tmp *= v;
@@ -5234,7 +5158,7 @@ operator*(const double u, const VectorizedArray<float, width> &v)
  */
 template <typename Number, std::size_t width>
 inline DEAL_II_ALWAYS_INLINE VectorizedArray<Number, width>
-operator*(const VectorizedArray<Number, width> &v, const Number &u)
+                             operator*(const VectorizedArray<Number, width> &v, const Number &u)
 {
   return u * v;
 }
@@ -5249,7 +5173,7 @@ operator*(const VectorizedArray<Number, width> &v, const Number &u)
  */
 template <std::size_t width>
 inline DEAL_II_ALWAYS_INLINE VectorizedArray<float, width>
-operator*(const VectorizedArray<float, width> &v, const double u)
+                             operator*(const VectorizedArray<float, width> &v, const double u)
 {
   return u * v;
 }
@@ -5262,7 +5186,7 @@ operator*(const VectorizedArray<float, width> &v, const double u)
  */
 template <typename Number, std::size_t width>
 inline DEAL_II_ALWAYS_INLINE VectorizedArray<Number, width>
-operator/(const Number &u, const VectorizedArray<Number, width> &v)
+                             operator/(const Number &u, const VectorizedArray<Number, width> &v)
 {
   VectorizedArray<Number, width> tmp = u;
   return tmp /= v;
@@ -5278,7 +5202,7 @@ operator/(const Number &u, const VectorizedArray<Number, width> &v)
  */
 template <std::size_t width>
 inline DEAL_II_ALWAYS_INLINE VectorizedArray<float, width>
-operator/(const double u, const VectorizedArray<float, width> &v)
+                             operator/(const double u, const VectorizedArray<float, width> &v)
 {
   VectorizedArray<float, width> tmp = static_cast<float>(u);
   return tmp /= v;
@@ -5292,7 +5216,7 @@ operator/(const double u, const VectorizedArray<float, width> &v)
  */
 template <typename Number, std::size_t width>
 inline DEAL_II_ALWAYS_INLINE VectorizedArray<Number, width>
-operator/(const VectorizedArray<Number, width> &v, const Number &u)
+                             operator/(const VectorizedArray<Number, width> &v, const Number &u)
 {
   VectorizedArray<Number, width> tmp = u;
   return v / tmp;
@@ -5308,7 +5232,7 @@ operator/(const VectorizedArray<Number, width> &v, const Number &u)
  */
 template <std::size_t width>
 inline DEAL_II_ALWAYS_INLINE VectorizedArray<float, width>
-operator/(const VectorizedArray<float, width> &v, const double u)
+                             operator/(const VectorizedArray<float, width> &v, const double u)
 {
   VectorizedArray<float, width> tmp = static_cast<float>(u);
   return v / tmp;
@@ -5456,10 +5380,7 @@ enum class SIMDComparison : int
  */
 template <SIMDComparison predicate, typename Number>
 DEAL_II_ALWAYS_INLINE inline Number
-compare_and_apply_mask(const Number &left,
-                       const Number &right,
-                       const Number &true_value,
-                       const Number &false_value)
+compare_and_apply_mask(const Number &left, const Number &right, const Number &true_value, const Number &false_value)
 {
   bool mask;
   switch (predicate)
@@ -5500,10 +5421,7 @@ compare_and_apply_mask(const VectorizedArray<Number, 1> &left,
                        const VectorizedArray<Number, 1> &false_value)
 {
   VectorizedArray<Number, 1> result;
-  result.data = compare_and_apply_mask<predicate, Number>(left.data,
-                                                          right.data,
-                                                          true_value.data,
-                                                          false_value.data);
+  result.data = compare_and_apply_mask<predicate, Number>(left.data, right.data, true_value.data, false_value.data);
   return result;
 }
 
@@ -5519,8 +5437,7 @@ compare_and_apply_mask(const VectorizedArray<float, 16> &left,
                        const VectorizedArray<float, 16> &true_values,
                        const VectorizedArray<float, 16> &false_values)
 {
-  const __mmask16 mask =
-    _mm512_cmp_ps_mask(left.data, right.data, static_cast<int>(predicate));
+  const __mmask16            mask = _mm512_cmp_ps_mask(left.data, right.data, static_cast<int>(predicate));
   VectorizedArray<float, 16> result;
   result.data = _mm512_mask_mov_ps(false_values.data, mask, true_values.data);
   return result;
@@ -5535,8 +5452,7 @@ compare_and_apply_mask(const VectorizedArray<double, 8> &left,
                        const VectorizedArray<double, 8> &true_values,
                        const VectorizedArray<double, 8> &false_values)
 {
-  const __mmask16 mask =
-    _mm512_cmp_pd_mask(left.data, right.data, static_cast<int>(predicate));
+  const __mmask16            mask = _mm512_cmp_pd_mask(left.data, right.data, static_cast<int>(predicate));
   VectorizedArray<double, 8> result;
   result.data = _mm512_mask_mov_pd(false_values.data, mask, true_values.data);
   return result;
@@ -5553,8 +5469,7 @@ compare_and_apply_mask(const VectorizedArray<float, 8> &left,
                        const VectorizedArray<float, 8> &true_values,
                        const VectorizedArray<float, 8> &false_values)
 {
-  const auto mask =
-    _mm256_cmp_ps(left.data, right.data, static_cast<int>(predicate));
+  const auto mask = _mm256_cmp_ps(left.data, right.data, static_cast<int>(predicate));
 
   VectorizedArray<float, 8> result;
   result.data = _mm256_blendv_ps(false_values.data, true_values.data, mask);
@@ -5569,8 +5484,7 @@ compare_and_apply_mask(const VectorizedArray<double, 4> &left,
                        const VectorizedArray<double, 4> &true_values,
                        const VectorizedArray<double, 4> &false_values)
 {
-  const auto mask =
-    _mm256_cmp_pd(left.data, right.data, static_cast<int>(predicate));
+  const auto mask = _mm256_cmp_pd(left.data, right.data, static_cast<int>(predicate));
 
   VectorizedArray<double, 4> result;
   result.data = _mm256_blendv_pd(false_values.data, true_values.data, mask);
@@ -5612,8 +5526,7 @@ compare_and_apply_mask(const VectorizedArray<float, 4> &left,
     }
 
   VectorizedArray<float, 4> result;
-  result.data = _mm_or_ps(_mm_and_ps(mask, true_values.data),
-                          _mm_andnot_ps(mask, false_values.data));
+  result.data = _mm_or_ps(_mm_and_ps(mask, true_values.data), _mm_andnot_ps(mask, false_values.data));
 
   return result;
 }
@@ -5650,8 +5563,7 @@ compare_and_apply_mask(const VectorizedArray<double, 2> &left,
     }
 
   VectorizedArray<double, 2> result;
-  result.data = _mm_or_pd(_mm_and_pd(mask, true_values.data),
-                          _mm_andnot_pd(mask, false_values.data));
+  result.data = _mm_or_pd(_mm_and_pd(mask, true_values.data), _mm_andnot_pd(mask, false_values.data));
 
   return result;
 }
@@ -5856,8 +5768,7 @@ namespace std
     // optimization bug in gcc-4.6 with SSE2 (see also deal.II developers list
     // from April 2014, topic "matrix_free/step-48 Test").
     Number values[::dealii::VectorizedArray<Number, width>::size()];
-    for (unsigned int i = 0; i < dealii::VectorizedArray<Number, width>::size();
-         ++i)
+    for (unsigned int i = 0; i < dealii::VectorizedArray<Number, width>::size(); ++i)
       values[i] = std::sin(x[i]);
     ::dealii::VectorizedArray<Number, width> out;
     out.load(&values[0]);
@@ -5878,8 +5789,7 @@ namespace std
   cos(const ::dealii::VectorizedArray<Number, width> &x)
   {
     Number values[::dealii::VectorizedArray<Number, width>::size()];
-    for (unsigned int i = 0; i < dealii::VectorizedArray<Number, width>::size();
-         ++i)
+    for (unsigned int i = 0; i < dealii::VectorizedArray<Number, width>::size(); ++i)
       values[i] = std::cos(x[i]);
     ::dealii::VectorizedArray<Number, width> out;
     out.load(&values[0]);
@@ -5900,8 +5810,7 @@ namespace std
   tan(const ::dealii::VectorizedArray<Number, width> &x)
   {
     Number values[::dealii::VectorizedArray<Number, width>::size()];
-    for (unsigned int i = 0; i < dealii::VectorizedArray<Number, width>::size();
-         ++i)
+    for (unsigned int i = 0; i < dealii::VectorizedArray<Number, width>::size(); ++i)
       values[i] = std::tan(x[i]);
     ::dealii::VectorizedArray<Number, width> out;
     out.load(&values[0]);
@@ -5922,8 +5831,7 @@ namespace std
   exp(const ::dealii::VectorizedArray<Number, width> &x)
   {
     Number values[::dealii::VectorizedArray<Number, width>::size()];
-    for (unsigned int i = 0; i < dealii::VectorizedArray<Number, width>::size();
-         ++i)
+    for (unsigned int i = 0; i < dealii::VectorizedArray<Number, width>::size(); ++i)
       values[i] = std::exp(x[i]);
     ::dealii::VectorizedArray<Number, width> out;
     out.load(&values[0]);
@@ -5944,8 +5852,7 @@ namespace std
   log(const ::dealii::VectorizedArray<Number, width> &x)
   {
     Number values[::dealii::VectorizedArray<Number, width>::size()];
-    for (unsigned int i = 0; i < dealii::VectorizedArray<Number, width>::size();
-         ++i)
+    for (unsigned int i = 0; i < dealii::VectorizedArray<Number, width>::size(); ++i)
       values[i] = std::log(x[i]);
     ::dealii::VectorizedArray<Number, width> out;
     out.load(&values[0]);
@@ -5982,8 +5889,7 @@ namespace std
   pow(const ::dealii::VectorizedArray<Number, width> &x, const Number p)
   {
     Number values[::dealii::VectorizedArray<Number, width>::size()];
-    for (unsigned int i = 0; i < dealii::VectorizedArray<Number, width>::size();
-         ++i)
+    for (unsigned int i = 0; i < dealii::VectorizedArray<Number, width>::size(); ++i)
       values[i] = std::pow(x[i], p);
     ::dealii::VectorizedArray<Number, width> out;
     out.load(&values[0]);
@@ -6002,12 +5908,10 @@ namespace std
    */
   template <typename Number, std::size_t width>
   inline ::dealii::VectorizedArray<Number, width>
-  pow(const ::dealii::VectorizedArray<Number, width> &x,
-      const ::dealii::VectorizedArray<Number, width> &p)
+  pow(const ::dealii::VectorizedArray<Number, width> &x, const ::dealii::VectorizedArray<Number, width> &p)
   {
     Number values[::dealii::VectorizedArray<Number, width>::size()];
-    for (unsigned int i = 0; i < dealii::VectorizedArray<Number, width>::size();
-         ++i)
+    for (unsigned int i = 0; i < dealii::VectorizedArray<Number, width>::size(); ++i)
       values[i] = std::pow(x[i], p[i]);
     ::dealii::VectorizedArray<Number, width> out;
     out.load(&values[0]);
@@ -6041,8 +5945,7 @@ namespace std
    */
   template <typename Number, std::size_t width>
   inline ::dealii::VectorizedArray<Number, width>
-  max(const ::dealii::VectorizedArray<Number, width> &x,
-      const ::dealii::VectorizedArray<Number, width> &y)
+  max(const ::dealii::VectorizedArray<Number, width> &x, const ::dealii::VectorizedArray<Number, width> &y)
   {
     return x.get_max(y);
   }
@@ -6058,8 +5961,7 @@ namespace std
    */
   template <typename Number, std::size_t width>
   inline ::dealii::VectorizedArray<Number, width>
-  min(const ::dealii::VectorizedArray<Number, width> &x,
-      const ::dealii::VectorizedArray<Number, width> &y)
+  min(const ::dealii::VectorizedArray<Number, width> &x, const ::dealii::VectorizedArray<Number, width> &y)
   {
     return x.get_min(y);
   }

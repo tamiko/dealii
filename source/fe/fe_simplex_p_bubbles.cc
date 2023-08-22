@@ -88,21 +88,17 @@ namespace FE_P_BubblesImplementation
                 for (const auto &face_no : reference_cell.face_indices())
                   {
                     Point<dim> midpoint;
-                    for (const auto face_vertex_no :
-                         reference_cell.face_reference_cell(0).vertex_indices())
+                    for (const auto face_vertex_no : reference_cell.face_reference_cell(0).vertex_indices())
                       {
                         const auto vertex_no =
-                          reference_cell.face_to_cell_vertices(
-                            face_no,
-                            face_vertex_no,
-                            ReferenceCell::default_combined_face_orientation());
+                          reference_cell.face_to_cell_vertices(face_no,
+                                                               face_vertex_no,
+                                                               ReferenceCell::default_combined_face_orientation());
 
-                        midpoint +=
-                          reference_cell.template vertex<dim>(vertex_no);
+                        midpoint += reference_cell.template vertex<dim>(vertex_no);
                       }
 
-                    midpoint /=
-                      reference_cell.face_reference_cell(0).n_vertices();
+                    midpoint /= reference_cell.face_reference_cell(0).n_vertices();
                     points.push_back(midpoint);
                   }
 
@@ -136,9 +132,7 @@ namespace FE_P_BubblesImplementation
     const auto       reference_cell = ReferenceCells::get_simplex<dim>();
     const Point<dim> centroid       = reference_cell.template barycenter<dim>();
 
-    auto M = [](const unsigned int d) {
-      return BarycentricPolynomial<dim, double>::monomial(d);
-    };
+    auto M = [](const unsigned int d) { return BarycentricPolynomial<dim, double>::monomial(d); };
 
     switch (degree)
       {
@@ -148,8 +142,7 @@ namespace FE_P_BubblesImplementation
           return BarycentricPolynomials<dim>::get_fe_p_basis(degree);
         case 2:
           {
-            const auto fe_p =
-              BarycentricPolynomials<dim>::get_fe_p_basis(degree);
+            const auto fe_p = BarycentricPolynomials<dim>::get_fe_p_basis(degree);
             // no further work is needed in 1d
             if (dim == 1)
               return fe_p;
@@ -173,18 +166,13 @@ namespace FE_P_BubblesImplementation
                 for (const auto &face_no : reference_cell.face_indices())
                   {
                     std::vector<unsigned int> vertices;
-                    for (const auto face_vertex_no :
-                         reference_cell.face_reference_cell(0).vertex_indices())
+                    for (const auto face_vertex_no : reference_cell.face_reference_cell(0).vertex_indices())
                       vertices.push_back(reference_cell.face_to_cell_vertices(
-                        face_no,
-                        face_vertex_no,
-                        ReferenceCell::default_combined_face_orientation()));
+                        face_no, face_vertex_no, ReferenceCell::default_combined_face_orientation()));
 
                     Assert(vertices.size() == 3, ExcInternalError());
-                    auto b =
-                      27.0 * M(vertices[0]) * M(vertices[1]) * M(vertices[2]);
-                    bubble_functions.push_back(b -
-                                               b.value(centroid) * c_bubble);
+                    auto b = 27.0 * M(vertices[0]) * M(vertices[1]) * M(vertices[2]);
+                    bubble_functions.push_back(b - b.value(centroid) * c_bubble);
                   }
 
                 bubble_functions.push_back(c_bubble);
@@ -192,12 +180,10 @@ namespace FE_P_BubblesImplementation
 
             // Extract out the support points for the extra bubble (both
             // volume and face) functions:
-            const std::vector<Point<dim>> support_points =
-              unit_support_points<dim>(degree);
-            const std::vector<Point<dim>> bubble_support_points(
-              support_points.begin() + fe_p.n(), support_points.end());
-            Assert(bubble_support_points.size() == bubble_functions.size(),
-                   ExcInternalError());
+            const std::vector<Point<dim>> support_points = unit_support_points<dim>(degree);
+            const std::vector<Point<dim>> bubble_support_points(support_points.begin() + fe_p.n(),
+                                                                support_points.end());
+            Assert(bubble_support_points.size() == bubble_functions.size(), ExcInternalError());
             const unsigned int n_bubbles = bubble_support_points.size();
 
             // Assemble the final basis:
@@ -208,8 +194,7 @@ namespace FE_P_BubblesImplementation
 
                 for (unsigned int j = 0; j < n_bubbles; ++j)
                   {
-                    p = p -
-                        p.value(bubble_support_points[j]) * bubble_functions[j];
+                    p = p - p.value(bubble_support_points[j]) * bubble_functions[j];
                   }
 
                 lump_polys.push_back(p);
@@ -227,8 +212,7 @@ namespace FE_P_BubblesImplementation
             Point<dim> test;
             for (unsigned int d = 0; d < dim; ++d)
               test[d] = 2.0;
-            Assert(std::abs(unity.value(test) - 1.0) < 1e-10,
-                   ExcInternalError());
+            Assert(std::abs(unity.value(test) - 1.0) < 1e-10, ExcInternalError());
 #endif
 
             return BarycentricPolynomials<dim>(lump_polys);
@@ -263,15 +247,13 @@ namespace FE_P_BubblesImplementation
 
 
 template <int dim, int spacedim>
-FE_SimplexP_Bubbles<dim, spacedim>::FE_SimplexP_Bubbles(
-  const unsigned int degree)
-  : FE_SimplexPoly<dim, spacedim>(
-      FE_P_BubblesImplementation::get_basis<dim>(degree),
-      FE_P_BubblesImplementation::get_fe_data<dim>(degree),
-      FE_P_BubblesImplementation::unit_support_points<dim>(degree),
-      {FE_P_BubblesImplementation::unit_support_points<dim - 1>(degree)},
-      // Interface constraints are not yet implemented
-      FullMatrix<double>())
+FE_SimplexP_Bubbles<dim, spacedim>::FE_SimplexP_Bubbles(const unsigned int degree)
+  : FE_SimplexPoly<dim, spacedim>(FE_P_BubblesImplementation::get_basis<dim>(degree),
+                                  FE_P_BubblesImplementation::get_fe_data<dim>(degree),
+                                  FE_P_BubblesImplementation::unit_support_points<dim>(degree),
+                                  {FE_P_BubblesImplementation::unit_support_points<dim - 1>(degree)},
+                                  // Interface constraints are not yet implemented
+                                  FullMatrix<double>())
   , approximation_degree(degree)
 {}
 
@@ -281,8 +263,8 @@ template <int dim, int spacedim>
 std::string
 FE_SimplexP_Bubbles<dim, spacedim>::get_name() const
 {
-  return "FE_SimplexP_Bubbles<" + Utilities::dim_string(dim, spacedim) + ">" +
-         "(" + std::to_string(approximation_degree) + ")";
+  return "FE_SimplexP_Bubbles<" + Utilities::dim_string(dim, spacedim) + ">" + "(" +
+         std::to_string(approximation_degree) + ")";
 }
 
 

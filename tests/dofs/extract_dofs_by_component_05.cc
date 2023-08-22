@@ -48,19 +48,11 @@ check()
   GridGenerator::hyper_cube(tr, -1, 1);
   tr.refine_global(1);
 
-  FESystem<dim>   element(FE_Q<dim>(1),
-                        1,
-                        FE_RaviartThomas<dim>(0),
-                        1,
-                        FE_Q<dim>(1),
-                        1,
-                        FE_Nedelec<dim>(0),
-                        1);
+  FESystem<dim>   element(FE_Q<dim>(1), 1, FE_RaviartThomas<dim>(0), 1, FE_Q<dim>(1), 1, FE_Nedelec<dim>(0), 1);
   DoFHandler<dim> dof(tr);
   dof.distribute_dofs(element);
 
-  const std::vector<types::global_dof_index> count =
-    DoFTools::count_dofs_per_fe_component(dof, false);
+  const std::vector<types::global_dof_index> count = DoFTools::count_dofs_per_fe_component(dof, false);
 
   for (unsigned int d = 0; d < count.size(); ++d)
     deallog << count[d] << std::endl;

@@ -57,13 +57,11 @@ test()
   std::vector<unsigned int> cell_ids_pre(tria.n_active_cells());
   for (auto &cell : tria.active_cell_iterators())
     {
-      const std::string  parent_cellid = cell->parent()->id().to_string();
-      const unsigned int parent_coarse_cell_id =
-        static_cast<unsigned int>(std::stoul(parent_cellid));
-      cell_ids_pre[cell->active_cell_index()] = parent_coarse_cell_id;
+      const std::string  parent_cellid         = cell->parent()->id().to_string();
+      const unsigned int parent_coarse_cell_id = static_cast<unsigned int>(std::stoul(parent_cellid));
+      cell_ids_pre[cell->active_cell_index()]  = parent_coarse_cell_id;
 
-      deallog << "cellid=" << cell->id()
-              << " parentid=" << cell_ids_pre[cell->active_cell_index()];
+      deallog << "cellid=" << cell->id() << " parentid=" << cell_ids_pre[cell->active_cell_index()];
       if (cell->coarsen_flag_set())
         deallog << " coarsening";
       else if (cell->refine_flag_set())
@@ -72,8 +70,7 @@ test()
     }
 
   // ----- transfer -----
-  CellDataTransfer<dim, spacedim, std::vector<unsigned int>> cell_data_transfer(
-    tria);
+  CellDataTransfer<dim, spacedim, std::vector<unsigned int>> cell_data_transfer(tria);
 
   cell_data_transfer.prepare_for_coarsening_and_refinement();
   tria.execute_coarsening_and_refinement();
@@ -85,9 +82,7 @@ test()
   // ------ verify ------
   // check if all children adopted the correct id
   for (auto &cell : tria.active_cell_iterators())
-    deallog << "cellid=" << cell->id()
-            << " parentid=" << cell_ids_post[(cell->active_cell_index())]
-            << std::endl;
+    deallog << "cellid=" << cell->id() << " parentid=" << cell_ids_post[(cell->active_cell_index())] << std::endl;
 
   deallog << "OK" << std::endl;
 }

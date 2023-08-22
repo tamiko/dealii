@@ -45,8 +45,7 @@ template <int dim, int spacedim>
 void
 test()
 {
-  const unsigned int my_mpi_id =
-    Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  const unsigned int my_mpi_id = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
 
   // Create a triangulation with a non-trivial number of degree of freedom
   parallel::distributed::Triangulation<dim, spacedim> tria(MPI_COMM_WORLD);
@@ -57,8 +56,9 @@ test()
   // Generate particles at the gauss points where the field will be interpolated
   Particles::ParticleHandler<dim, spacedim> particle_handler(tria, mapping);
 
-  Particles::Generators::regular_reference_locations<dim, spacedim>(
-    tria, QGauss<dim>(2).get_points(), particle_handler);
+  Particles::Generators::regular_reference_locations<dim, spacedim>(tria,
+                                                                    QGauss<dim>(2).get_points(),
+                                                                    particle_handler);
 
 
   FE_Q<dim, spacedim> fe(1);
@@ -75,34 +75,24 @@ test()
 
   if (my_mpi_id == 0)
     deallog << "dim: " << dim << ", spacedim: " << spacedim << std::endl
-            << "Total number of particles: "
-            << particle_handler.n_global_particles() << std::endl;
+            << "Total number of particles: " << particle_handler.n_global_particles() << std::endl;
 
-  const auto n_local_particles_dofs =
-    particle_handler.n_locally_owned_particles() * n_comps;
+  const auto n_local_particles_dofs = particle_handler.n_locally_owned_particles() * n_comps;
 
-  auto particle_sizes =
-    Utilities::MPI::all_gather(MPI_COMM_WORLD, n_local_particles_dofs);
+  auto particle_sizes = Utilities::MPI::all_gather(MPI_COMM_WORLD, n_local_particles_dofs);
 
-  const auto my_start = std::accumulate(particle_sizes.begin(),
-                                        particle_sizes.begin() + my_mpi_id,
-                                        0u);
+  const auto my_start = std::accumulate(particle_sizes.begin(), particle_sizes.begin() + my_mpi_id, 0u);
 
-  IndexSet local_particle_index_set(particle_handler.n_global_particles() *
-                                    n_comps);
+  IndexSet local_particle_index_set(particle_handler.n_global_particles() * n_comps);
 
-  local_particle_index_set.add_range(my_start,
-                                     my_start + n_local_particles_dofs);
+  local_particle_index_set.add_range(my_start, my_start + n_local_particles_dofs);
 
-  auto global_particles_index_set =
-    Utilities::MPI::all_gather(MPI_COMM_WORLD, n_local_particles_dofs);
+  auto global_particles_index_set = Utilities::MPI::all_gather(MPI_COMM_WORLD, n_local_particles_dofs);
 
   // Create dofs and particle vectors
   TrilinosWrappers::MPI::Vector field_owned(locally_owned_dofs, MPI_COMM_WORLD);
-  TrilinosWrappers::MPI::Vector field_relevant(locally_relevant_dofs,
-                                               MPI_COMM_WORLD);
-  TrilinosWrappers::MPI::Vector interpolation_on_particles(
-    local_particle_index_set, MPI_COMM_WORLD);
+  TrilinosWrappers::MPI::Vector field_relevant(locally_relevant_dofs, MPI_COMM_WORLD);
+  TrilinosWrappers::MPI::Vector interpolation_on_particles(local_particle_index_set, MPI_COMM_WORLD);
 
   // Create interpolation function
   Tensor<1, spacedim> exponents;
@@ -113,8 +103,10 @@ test()
   // Interpolate function to vector than interpolate field to particles
   VectorTools::interpolate(space_dh, linear, field_owned);
   field_relevant = field_owned;
-  Particles::Utilities::interpolate_field_on_particles(
-    space_dh, particle_handler, field_relevant, interpolation_on_particles);
+  Particles::Utilities::interpolate_field_on_particles(space_dh,
+                                                       particle_handler,
+                                                       field_relevant,
+                                                       interpolation_on_particles);
 
   Vector<double> values(mask.size());
 
@@ -125,8 +117,7 @@ test()
       linear.vector_value(location, values);
       for (unsigned int i = 0, j = 0; i < values.size(); ++i)
         if (mask[i])
-          if (std::abs(values[i] - interpolation_on_particles(id * n_comps +
-                                                              (j++))) > 1e-10)
+          if (std::abs(values[i] - interpolation_on_particles(id * n_comps + (j++))) > 1e-10)
             deallog << "NOT OK" << std::endl;
     }
 }

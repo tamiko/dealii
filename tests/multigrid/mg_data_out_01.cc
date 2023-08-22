@@ -33,12 +33,10 @@ print(DataOut<dim> &data_out, const Triangulation<dim> &tria)
 {
   auto p = data_out.get_cell_selection();
 
-  for (auto cell = p.first(tria); cell.state() == IteratorState::valid;
-       cell      = p.second(tria, cell))
+  for (auto cell = p.first(tria); cell.state() == IteratorState::valid; cell = p.second(tria, cell))
     {
-      deallog << " cell lvl=" << cell->level()
-              << " active=" << cell->is_active()
-              << " id=" << cell->id().to_string() << std::endl;
+      deallog << " cell lvl=" << cell->level() << " active=" << cell->is_active() << " id=" << cell->id().to_string()
+              << std::endl;
     }
 }
 
@@ -46,15 +44,13 @@ template <int dim>
 void
 do_test()
 {
-  Triangulation<dim> triangulation(
-    Triangulation<dim>::limit_level_difference_at_vertices);
+  Triangulation<dim> triangulation(Triangulation<dim>::limit_level_difference_at_vertices);
   GridGenerator::hyper_cube(triangulation);
   triangulation.refine_global(1);
   triangulation.begin_active()->set_refine_flag();
   triangulation.execute_coarsening_and_refinement();
 
-  deallog << "dim= " << dim << " cells=" << triangulation.n_cells()
-          << std::endl;
+  deallog << "dim= " << dim << " cells=" << triangulation.n_cells() << std::endl;
 
   DataOut<dim> data_out;
   data_out.attach_triangulation(triangulation);
@@ -62,17 +58,12 @@ do_test()
   print(data_out, triangulation);
 
   deallog << "* all cells:" << std::endl;
-  data_out.set_cell_selection(
-    [](const typename Triangulation<dim>::cell_iterator &cell) {
-      return true;
-    });
+  data_out.set_cell_selection([](const typename Triangulation<dim>::cell_iterator &cell) { return true; });
   print(data_out, triangulation);
 
   deallog << "* all cells with level <=1:" << std::endl;
   data_out.set_cell_selection(
-    [](const typename Triangulation<dim>::cell_iterator &cell) {
-      return (cell->level() <= 1);
-    });
+    [](const typename Triangulation<dim>::cell_iterator &cell) { return (cell->level() <= 1); });
   print(data_out, triangulation);
 
   for (unsigned int level = 0; level < triangulation.n_levels(); ++level)

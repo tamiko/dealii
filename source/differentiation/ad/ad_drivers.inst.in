@@ -24,17 +24,13 @@ for (number : REAL_SCALARS)
 
         // -------------------------- TapedDrivers ----------------------
 
-        template struct TapedDrivers<typename Differentiation::AD::NumberTraits<
-                                       number,
-                                       NumberTypes::none>::ad_type,
+        template struct TapedDrivers<typename Differentiation::AD::NumberTraits<number, NumberTypes::none>::ad_type,
                                      number>;
 
         // -------------------------- TapelessDrivers ----------------------
 
-        template struct TapelessDrivers<
-          typename Differentiation::AD::
-            NumberTraits<number, NumberTypes::none>::ad_type,
-          number>;
+        template struct TapelessDrivers<typename Differentiation::AD::NumberTraits<number, NumberTypes::none>::ad_type,
+                                        number>;
 
       \}
     \}
@@ -50,15 +46,11 @@ for ()
 
         // -------------------------- Types ----------------------
 
-        template struct Types<typename Differentiation::AD::NumberTraits<
-          double,
-          NumberTypes::none>::ad_type>;
+        template struct Types<typename Differentiation::AD::NumberTraits<double, NumberTypes::none>::ad_type>;
 
         // -------------------------- Numbers ----------------------
 
-        template struct Numbers<typename Differentiation::AD::NumberTraits<
-          double,
-          NumberTypes::none>::ad_type>;
+        template struct Numbers<typename Differentiation::AD::NumberTraits<double, NumberTypes::none>::ad_type>;
 
       \}
     \}

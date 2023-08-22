@@ -59,10 +59,7 @@ test(const unsigned int degree)
       mf_data.mg_level = level;
 
       {
-        const auto renumber =
-          DoFRenumbering::compute_matrix_free_data_locality(dof,
-                                                            constraints,
-                                                            mf_data);
+        const auto renumber = DoFRenumbering::compute_matrix_free_data_locality(dof, constraints, mf_data);
 
         deallog << "Level " << level << std::endl;
         deallog << "Renumbering no constraints: " << std::endl;

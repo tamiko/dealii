@@ -45,21 +45,13 @@ check(const Triangulation<dim> &tria)
 
   QGauss<dim - 1> q_face(3);
 
-  FEFaceValues<dim>    fe_face_values(fe,
-                                   q_face,
-                                   update_normal_vectors |
-                                     update_quadrature_points |
-                                     update_JxW_values);
+  FEFaceValues<dim>    fe_face_values(fe, q_face, update_normal_vectors | update_quadrature_points | update_JxW_values);
   FESubfaceValues<dim> fe_subface_values(fe,
                                          q_face,
-                                         update_normal_vectors |
-                                           update_quadrature_points |
-                                           update_JxW_values);
+                                         update_normal_vectors | update_quadrature_points | update_JxW_values);
 
   double v1 = 0, v2 = 0;
-  for (typename DoFHandler<dim>::active_cell_iterator cell =
-         dof_handler.begin_active();
-       cell != dof_handler.end();
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(); cell != dof_handler.end();
        ++cell)
     {
       // first integrate over faces
@@ -71,23 +63,18 @@ check(const Triangulation<dim> &tria)
           {
             fe_face_values.reinit(cell, f);
             for (unsigned int q = 0; q < q_face.size(); ++q)
-              v1 += (fe_face_values.normal_vector(q) *
-                     fe_face_values.quadrature_point(q)) *
-                    fe_face_values.JxW(q);
+              v1 += (fe_face_values.normal_vector(q) * fe_face_values.quadrature_point(q)) * fe_face_values.JxW(q);
           }
 
       // now same for subface
       // integration
       for (const unsigned int f : GeometryInfo<dim>::face_indices())
         if (cell->at_boundary(f))
-          for (unsigned int sf = 0;
-               sf < GeometryInfo<dim>::max_children_per_face;
-               ++sf)
+          for (unsigned int sf = 0; sf < GeometryInfo<dim>::max_children_per_face; ++sf)
             {
               fe_subface_values.reinit(cell, f, sf);
               for (unsigned int q = 0; q < q_face.size(); ++q)
-                v2 += (fe_subface_values.normal_vector(q) *
-                       fe_subface_values.quadrature_point(q)) *
+                v2 += (fe_subface_values.normal_vector(q) * fe_subface_values.quadrature_point(q)) *
                       fe_subface_values.JxW(q);
             }
     }

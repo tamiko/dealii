@@ -30,15 +30,12 @@
 
 template <int dim>
 void
-verify(Triangulation<dim> & tr,
+verify(Triangulation<dim>  &tr,
        const Vector<float> &criteria,
        const float          refinement_fraction,
        const float          coarsening_fraction)
 {
-  GridRefinement::refine_and_coarsen_fixed_number(tr,
-                                                  criteria,
-                                                  refinement_fraction,
-                                                  coarsening_fraction);
+  GridRefinement::refine_and_coarsen_fixed_number(tr, criteria, refinement_fraction, coarsening_fraction);
 
   unsigned int n_refine_flags = 0, n_coarsen_flags = 0;
   for (const auto &cell : tr.active_cell_iterators())
@@ -55,10 +52,9 @@ verify(Triangulation<dim> & tr,
         }
     }
 
-  deallog << "  refinement_fraction:" << refinement_fraction
-          << " coarsening_fraction:" << coarsening_fraction << std::endl
-          << "    n_refine_flags:" << n_refine_flags
-          << " n_coarsen_flags:" << n_coarsen_flags << std::endl;
+  deallog << "  refinement_fraction:" << refinement_fraction << " coarsening_fraction:" << coarsening_fraction
+          << std::endl
+          << "    n_refine_flags:" << n_refine_flags << " n_coarsen_flags:" << n_coarsen_flags << std::endl;
 }
 
 

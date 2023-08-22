@@ -28,9 +28,7 @@
 
 
 void
-my_check_this(const DoFHandler<3> &,
-              const Vector<double> &,
-              const Vector<double> &)
+my_check_this(const DoFHandler<3> &, const Vector<double> &, const Vector<double> &)
 {
   // nothing to check in 3d
 }
@@ -38,9 +36,7 @@ my_check_this(const DoFHandler<3> &,
 
 template <int dim>
 void
-my_check_this(const DoFHandler<dim> &dof_handler,
-              const Vector<double> & v_node_x,
-              const Vector<double> & v_cell_x)
+my_check_this(const DoFHandler<dim> &dof_handler, const Vector<double> &v_node_x, const Vector<double> &v_cell_x)
 {
   BlockVector<double> v_node, v_cell;
   make_block_vector(v_node_x, v_node);
@@ -48,12 +44,8 @@ my_check_this(const DoFHandler<dim> &dof_handler,
 
   DataOutRotation<dim> data_out_rotation;
   data_out_rotation.attach_dof_handler(dof_handler);
-  data_out_rotation.add_data_vector(v_node,
-                                    "node_data",
-                                    DataOutRotation<dim>::type_dof_data);
-  data_out_rotation.add_data_vector(v_cell,
-                                    "cell_data",
-                                    DataOutRotation<dim>::type_cell_data);
+  data_out_rotation.add_data_vector(v_node, "node_data", DataOutRotation<dim>::type_dof_data);
+  data_out_rotation.add_data_vector(v_cell, "cell_data", DataOutRotation<dim>::type_cell_data);
   data_out_rotation.build_patches(4);
 
   data_out_rotation.write_dx(deallog.get_file_stream());
@@ -77,9 +69,7 @@ my_check_this(const DoFHandler<dim> &dof_handler,
 
 template <int dim>
 void
-check_this(const DoFHandler<dim> &dof_handler,
-           const Vector<double> & v_node,
-           const Vector<double> & v_cell)
+check_this(const DoFHandler<dim> &dof_handler, const Vector<double> &v_node, const Vector<double> &v_cell)
 {
   // since we can't forward declare
   // check_this in this file (it is forward

@@ -50,8 +50,7 @@ main()
   FullMatrix<double> local_matrix(2);
   local_matrix(1, 0) = local_matrix(0, 1) = 1.;
   Vector<double> local_vector(2);
-  constraints.distribute_local_to_global(
-    local_matrix, local_vector, {0, 1}, global_matrix, global_vector, true);
+  constraints.distribute_local_to_global(local_matrix, local_vector, {0, 1}, global_matrix, global_vector, true);
   // output result
   for (unsigned int m = 0; m < global_matrix.m(); ++m)
     {
@@ -64,8 +63,7 @@ main()
   // second test: add matrix with all entries zero
   global_matrix = 0.;
   local_matrix  = 0.;
-  constraints.distribute_local_to_global(
-    local_matrix, local_vector, {0, 1}, global_matrix, global_vector, true);
+  constraints.distribute_local_to_global(local_matrix, local_vector, {0, 1}, global_matrix, global_vector, true);
   // output result
   for (unsigned int m = 0; m < global_matrix.m(); ++m)
     {

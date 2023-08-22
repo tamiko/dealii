@@ -64,9 +64,7 @@ ladutenko_circle(dealii::Triangulation<dim> &triangulation,
 
 template <int dim>
 std::shared_ptr<Manifold<dim>>
-ladutenko_circle(Triangulation<dim> &triangulation,
-                 const Point<dim>    center,
-                 const double        radius)
+ladutenko_circle(Triangulation<dim> &triangulation, const Point<dim> center, const double radius)
 {
   std::shared_ptr<Manifold<dim>> boundary(new SphericalManifold<dim>(center));
   GridGenerator::hyper_ball(triangulation, center, radius);
@@ -81,18 +79,14 @@ ladutenko_circle(Triangulation<dim> &triangulation,
   // Step 2: set the central cell to have a straight manifold
   // and
   // Step 3: Refine all cells except the central one
-  typename Triangulation<dim>::active_cell_iterator cell = triangulation
-                                                             .begin_active(),
-                                                    endc = triangulation.end();
+  typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active(), endc = triangulation.end();
   for (; cell != endc; ++cell)
     {
       if (cell->center().distance(center) < 1e-10)
         {
-          for (const unsigned int vertex_n :
-               GeometryInfo<dim>::vertex_indices())
+          for (const unsigned int vertex_n : GeometryInfo<dim>::vertex_indices())
             {
-              cell->vertex(vertex_n) *=
-                core_radius / center.distance(cell->vertex(vertex_n));
+              cell->vertex(vertex_n) *= core_radius / center.distance(cell->vertex(vertex_n));
             }
           cell->set_all_manifold_ids(straight_manifold_id);
         }
@@ -148,15 +142,12 @@ public:
 
 
 template <int dim>
-QuadraticTimeCircle<dim>::QuadraticTimeCircle(
-  const unsigned int n_global_refines)
+QuadraticTimeCircle<dim>::QuadraticTimeCircle(const unsigned int n_global_refines)
   : n_global_refines(n_global_refines)
   , dof_handler(triangulation)
 {
-  boundary_manifold = ladutenko_circle(triangulation);
-  typename Triangulation<dim>::active_cell_iterator cell = triangulation
-                                                             .begin_active(),
-                                                    endc = triangulation.end();
+  boundary_manifold                                      = ladutenko_circle(triangulation);
+  typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active(), endc = triangulation.end();
   for (; cell != endc; ++cell)
     {
       // do not use any curved cells on the interior.
@@ -179,9 +170,7 @@ QuadraticTimeCircle<dim>::setup_dofs()
 {
   deallog << "Number of cells: " << triangulation.n_active_cells() << std::endl;
 
-  typename DoFHandler<dim>::active_cell_iterator cell =
-                                                   dof_handler.begin_active(),
-                                                 endc = dof_handler.end();
+  typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
   {
     cell->set_active_fe_index(0);
   }

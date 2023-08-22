@@ -82,10 +82,8 @@ main(int argc, char **argv)
     // repartition triangulation so that it has strided partitioning
     const auto construction_data =
       partition_new.size() == 0 ?
-        TriangulationDescription::Utilities::
-          create_description_from_triangulation(tria, comm) :
-        TriangulationDescription::Utilities::
-          create_description_from_triangulation(tria, partition_new);
+        TriangulationDescription::Utilities::create_description_from_triangulation(tria, comm) :
+        TriangulationDescription::Utilities::create_description_from_triangulation(tria, partition_new);
 
     parallel::fullydistributed::Triangulation<dim> tria_pft(comm);
     tria_pft.create_triangulation(construction_data);
@@ -105,14 +103,10 @@ main(int argc, char **argv)
   test(RepartitioningPolicyTools::DefaultPolicy<dim>(), "grid_policy_default");
 
   // first-child policy
-  test(RepartitioningPolicyTools::FirstChildPolicy<dim>(tria),
-       "grid_policy_first");
+  test(RepartitioningPolicyTools::FirstChildPolicy<dim>(tria), "grid_policy_first");
 
   // first-child policy
-  test(RepartitioningPolicyTools::MinimalGranularityPolicy<dim>(4),
-       "grid_policy_minimal_4");
-  test(RepartitioningPolicyTools::MinimalGranularityPolicy<dim>(100),
-       "grid_policy_minimal_100");
-  test(RepartitioningPolicyTools::MinimalGranularityPolicy<dim>(500),
-       "grid_policy_minimal_500");
+  test(RepartitioningPolicyTools::MinimalGranularityPolicy<dim>(4), "grid_policy_minimal_4");
+  test(RepartitioningPolicyTools::MinimalGranularityPolicy<dim>(100), "grid_policy_minimal_100");
+  test(RepartitioningPolicyTools::MinimalGranularityPolicy<dim>(500), "grid_policy_minimal_500");
 }

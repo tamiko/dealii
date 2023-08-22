@@ -130,8 +130,7 @@ namespace Differentiation
      */
     template <int dim>
     Tensor<1, dim, Expression>
-    make_vector_of_symbolic_functions(const std::string &            symbol,
-                                      const types::substitution_map &arguments);
+    make_vector_of_symbolic_functions(const std::string &symbol, const types::substitution_map &arguments);
 
     /**
      * Return a tensor of Expression representing a tensorial symbolic
@@ -155,8 +154,7 @@ namespace Differentiation
      */
     template <int rank, int dim>
     Tensor<rank, dim, Expression>
-    make_tensor_of_symbolic_functions(const std::string &            symbol,
-                                      const types::substitution_map &arguments);
+    make_tensor_of_symbolic_functions(const std::string &symbol, const types::substitution_map &arguments);
 
     /**
      * Return a symmetric tensor of Expression representing a tensorial
@@ -180,9 +178,7 @@ namespace Differentiation
      */
     template <int rank, int dim>
     SymmetricTensor<rank, dim, Expression>
-    make_symmetric_tensor_of_symbolic_functions(
-      const std::string &            symbol,
-      const types::substitution_map &arguments);
+    make_symmetric_tensor_of_symbolic_functions(const std::string &symbol, const types::substitution_map &arguments);
 
     /** @} */
 
@@ -215,8 +211,7 @@ namespace Differentiation
      */
     template <int rank, int dim>
     SymmetricTensor<rank, dim, Expression>
-    differentiate(const Expression &                            f,
-                  const SymmetricTensor<rank, dim, Expression> &S);
+    differentiate(const Expression &f, const SymmetricTensor<rank, dim, Expression> &S);
 
     /**
      * Return the symbolic result of computing the partial derivative of the
@@ -229,8 +224,7 @@ namespace Differentiation
      */
     template <int rank, int dim>
     Tensor<rank, dim, Expression>
-    differentiate(const Tensor<0, dim, Expression> &   f,
-                  const Tensor<rank, dim, Expression> &T);
+    differentiate(const Tensor<0, dim, Expression> &f, const Tensor<rank, dim, Expression> &T);
 
     /**
      * Return the symbolic result of computing the partial derivative of the
@@ -243,8 +237,7 @@ namespace Differentiation
      */
     template <int rank, int dim>
     SymmetricTensor<rank, dim, Expression>
-    differentiate(const Tensor<0, dim, Expression> &            f,
-                  const SymmetricTensor<rank, dim, Expression> &S);
+    differentiate(const Tensor<0, dim, Expression> &f, const SymmetricTensor<rank, dim, Expression> &S);
 
     /**
      * Return the symbolic result of computing the partial derivative of the
@@ -271,8 +264,7 @@ namespace Differentiation
      */
     template <int rank, int dim>
     SymmetricTensor<rank, dim, Expression>
-    differentiate(const SymmetricTensor<rank, dim, Expression> &S,
-                  const Expression &                            x);
+    differentiate(const SymmetricTensor<rank, dim, Expression> &S, const Expression &x);
 
     /**
      * Return the symbolic result of computing the partial derivative of the
@@ -286,8 +278,7 @@ namespace Differentiation
      */
     template <int rank, int dim>
     Tensor<rank, dim, Expression>
-    differentiate(const Tensor<rank, dim, Expression> &T,
-                  const Tensor<0, dim, Expression> &   x);
+    differentiate(const Tensor<rank, dim, Expression> &T, const Tensor<0, dim, Expression> &x);
 
     /**
      * Return the symbolic result of computing the partial derivative of the
@@ -302,8 +293,7 @@ namespace Differentiation
      */
     template <int rank, int dim>
     SymmetricTensor<rank, dim, Expression>
-    differentiate(const SymmetricTensor<rank, dim, Expression> &S,
-                  const Tensor<0, dim, Expression> &            x);
+    differentiate(const SymmetricTensor<rank, dim, Expression> &S, const Tensor<0, dim, Expression> &x);
 
     /**
      * Return the symbolic result of computing the partial derivative of the
@@ -317,8 +307,7 @@ namespace Differentiation
      */
     template <int rank_1, int rank_2, int dim>
     Tensor<rank_1 + rank_2, dim, Expression>
-    differentiate(const Tensor<rank_1, dim, Expression> &T1,
-                  const Tensor<rank_2, dim, Expression> &T2);
+    differentiate(const Tensor<rank_1, dim, Expression> &T1, const Tensor<rank_2, dim, Expression> &T2);
 
     /**
      * Return the symbolic result of computing the partial derivative of the
@@ -349,8 +338,7 @@ namespace Differentiation
      */
     template <int rank_1, int rank_2, int dim>
     Tensor<rank_1 + rank_2, dim, Expression>
-    differentiate(const Tensor<rank_1, dim, Expression> &         T,
-                  const SymmetricTensor<rank_2, dim, Expression> &S);
+    differentiate(const Tensor<rank_1, dim, Expression> &T, const SymmetricTensor<rank_2, dim, Expression> &S);
 
     /**
      * Return the symbolic result of computing the partial derivative of the
@@ -364,8 +352,7 @@ namespace Differentiation
      */
     template <int rank_1, int rank_2, int dim>
     Tensor<rank_1 + rank_2, dim, Expression>
-    differentiate(const SymmetricTensor<rank_1, dim, Expression> &S,
-                  const Tensor<rank_2, dim, Expression> &         T);
+    differentiate(const SymmetricTensor<rank_1, dim, Expression> &S, const Tensor<rank_2, dim, Expression> &T);
 
     /** @} */
 
@@ -404,8 +391,7 @@ namespace Differentiation
               int dim,
               typename SymbolicType>
     void
-    add_to_symbol_map(types::substitution_map &              symbol_map,
-                      const Tensor<rank, dim, SymbolicType> &symbol_tensor);
+    add_to_symbol_map(types::substitution_map &symbol_map, const Tensor<rank, dim, SymbolicType> &symbol_tensor);
 
     /**
      * A convenience function for adding empty entries, with the key values
@@ -437,9 +423,8 @@ namespace Differentiation
               int dim,
               typename SymbolicType>
     void
-    add_to_symbol_map(
-      types::substitution_map &                       symbol_map,
-      const SymmetricTensor<rank, dim, SymbolicType> &symbol_tensor);
+    add_to_symbol_map(types::substitution_map                        &symbol_map,
+                      const SymmetricTensor<rank, dim, SymbolicType> &symbol_tensor);
 
     /**
      * Find the input @p symbols in the @p substitution_map and set the entries
@@ -463,10 +448,9 @@ namespace Differentiation
      */
     template <int rank, int dim, typename SymbolicType, typename ValueType>
     void
-    set_value_in_symbol_map(
-      types::substitution_map &              substitution_map,
-      const Tensor<rank, dim, SymbolicType> &symbol_tensor,
-      const Tensor<rank, dim, ValueType> &   value_tensor);
+    set_value_in_symbol_map(types::substitution_map               &substitution_map,
+                            const Tensor<rank, dim, SymbolicType> &symbol_tensor,
+                            const Tensor<rank, dim, ValueType>    &value_tensor);
 
     /**
      * Find the input @p symbols in the @p substitution_map and set the entries
@@ -490,10 +474,9 @@ namespace Differentiation
      */
     template <int rank, int dim, typename SymbolicType, typename ValueType>
     void
-    set_value_in_symbol_map(
-      types::substitution_map &                       substitution_map,
-      const SymmetricTensor<rank, dim, SymbolicType> &symbol_tensor,
-      const SymmetricTensor<rank, dim, ValueType> &   value_tensor);
+    set_value_in_symbol_map(types::substitution_map                        &substitution_map,
+                            const SymmetricTensor<rank, dim, SymbolicType> &symbol_tensor,
+                            const SymmetricTensor<rank, dim, ValueType>    &value_tensor);
 
     /** @} */
 
@@ -525,9 +508,8 @@ namespace Differentiation
      */
     template <int rank, int dim, typename ExpressionType, typename ValueType>
     types::substitution_map
-    make_substitution_map(
-      const Tensor<rank, dim, ExpressionType> &symbol_tensor,
-      const Tensor<rank, dim, ValueType> &     value_tensor);
+    make_substitution_map(const Tensor<rank, dim, ExpressionType> &symbol_tensor,
+                          const Tensor<rank, dim, ValueType>      &value_tensor);
 
     /**
      * Return a substitution map that has the entry keys given by the
@@ -552,9 +534,8 @@ namespace Differentiation
      */
     template <int rank, int dim, typename ExpressionType, typename ValueType>
     types::substitution_map
-    make_substitution_map(
-      const SymmetricTensor<rank, dim, ExpressionType> &symbol_tensor,
-      const SymmetricTensor<rank, dim, ValueType> &     value_tensor);
+    make_substitution_map(const SymmetricTensor<rank, dim, ExpressionType> &symbol_tensor,
+                          const SymmetricTensor<rank, dim, ValueType>      &value_tensor);
 
     /** @} */
 
@@ -589,16 +570,11 @@ namespace Differentiation
      *         expression type or be a special type that a user-defined
      *         @p ExpressionType can be constructed from.
      */
-    template <bool ignore_invalid_symbols = false,
-              int  rank,
-              int  dim,
-              typename ExpressionType,
-              typename ValueType>
+    template <bool ignore_invalid_symbols = false, int rank, int dim, typename ExpressionType, typename ValueType>
     void
-    add_to_substitution_map(
-      types::substitution_map &                substitution_map,
-      const Tensor<rank, dim, ExpressionType> &symbol_tensor,
-      const Tensor<rank, dim, ValueType> &     value_tensor);
+    add_to_substitution_map(types::substitution_map                 &substitution_map,
+                            const Tensor<rank, dim, ExpressionType> &symbol_tensor,
+                            const Tensor<rank, dim, ValueType>      &value_tensor);
 
     /**
      * A convenience function for adding an entry to the @p substitution_map.
@@ -625,16 +601,11 @@ namespace Differentiation
      *         expression type or be a special type that a user-defined
      *         @p ExpressionType can be constructed from.
      */
-    template <bool ignore_invalid_symbols = false,
-              int  rank,
-              int  dim,
-              typename ExpressionType,
-              typename ValueType>
+    template <bool ignore_invalid_symbols = false, int rank, int dim, typename ExpressionType, typename ValueType>
     void
-    add_to_substitution_map(
-      types::substitution_map &                         substitution_map,
-      const SymmetricTensor<rank, dim, ExpressionType> &symbol_tensor,
-      const SymmetricTensor<rank, dim, ValueType> &     value_tensor);
+    add_to_substitution_map(types::substitution_map                          &substitution_map,
+                            const SymmetricTensor<rank, dim, ExpressionType> &symbol_tensor,
+                            const SymmetricTensor<rank, dim, ValueType>      &value_tensor);
 
     /** @} */
 
@@ -664,8 +635,7 @@ namespace Differentiation
      */
     template <int rank, int dim>
     Tensor<rank, dim, Expression>
-    substitute(const Tensor<rank, dim, Expression> &expression_tensor,
-               const types::substitution_map &      substitution_map);
+    substitute(const Tensor<rank, dim, Expression> &expression_tensor, const types::substitution_map &substitution_map);
 
     /**
      * Perform a single substitution sweep of a set of symbols into the given
@@ -689,7 +659,7 @@ namespace Differentiation
     template <int rank, int dim>
     SymmetricTensor<rank, dim, Expression>
     substitute(const SymmetricTensor<rank, dim, Expression> &expression_tensor,
-               const types::substitution_map &               substitution_map);
+               const types::substitution_map                &substitution_map);
 
     /**
      * Perform a single substitution sweep of a set of symbols into the given
@@ -719,9 +689,8 @@ namespace Differentiation
      */
     template <typename ValueType, int rank, int dim>
     Tensor<rank, dim, ValueType>
-    substitute_and_evaluate(
-      const Tensor<rank, dim, Expression> &expression_tensor,
-      const types::substitution_map &      substitution_map);
+    substitute_and_evaluate(const Tensor<rank, dim, Expression> &expression_tensor,
+                            const types::substitution_map       &substitution_map);
 
     /**
      * Perform a single substitution sweep of a set of symbols into the given
@@ -751,9 +720,8 @@ namespace Differentiation
      */
     template <typename ValueType, int rank, int dim>
     SymmetricTensor<rank, dim, ValueType>
-    substitute_and_evaluate(
-      const SymmetricTensor<rank, dim, Expression> &expression_tensor,
-      const types::substitution_map &               substitution_map);
+    substitute_and_evaluate(const SymmetricTensor<rank, dim, Expression> &expression_tensor,
+                            const types::substitution_map                &substitution_map);
 
     /** @} */
 
@@ -777,24 +745,17 @@ namespace Differentiation
     {
       template <int dim>
       TableIndices<4>
-      make_rank_4_tensor_indices(const unsigned int idx_i,
-                                 const unsigned int idx_j)
+      make_rank_4_tensor_indices(const unsigned int idx_i, const unsigned int idx_j)
       {
-        const TableIndices<2> indices_i(
-          SymmetricTensor<2, dim>::unrolled_to_component_indices(idx_i));
-        const TableIndices<2> indices_j(
-          SymmetricTensor<2, dim>::unrolled_to_component_indices(idx_j));
-        return TableIndices<4>(indices_i[0],
-                               indices_i[1],
-                               indices_j[0],
-                               indices_j[1]);
+        const TableIndices<2> indices_i(SymmetricTensor<2, dim>::unrolled_to_component_indices(idx_i));
+        const TableIndices<2> indices_j(SymmetricTensor<2, dim>::unrolled_to_component_indices(idx_j));
+        return TableIndices<4>(indices_i[0], indices_i[1], indices_j[0], indices_j[1]);
       }
 
 
       template <int rank_1, int rank_2>
       TableIndices<rank_1 + rank_2>
-      concatenate_indices(const TableIndices<rank_1> &indices_1,
-                          const TableIndices<rank_2> &indices_2)
+      concatenate_indices(const TableIndices<rank_1> &indices_1, const TableIndices<rank_2> &indices_2)
       {
         TableIndices<rank_1 + rank_2> indices_out;
         for (unsigned int i = 0; i < rank_1; ++i)
@@ -823,8 +784,7 @@ namespace Differentiation
 
       template <int rank, int dim, typename ValueType>
       bool
-      is_symmetric_component(const TableIndices<rank> &,
-                             const Tensor<rank, dim, ValueType> &)
+      is_symmetric_component(const TableIndices<rank> &, const Tensor<rank, dim, ValueType> &)
       {
         return false;
       }
@@ -832,51 +792,38 @@ namespace Differentiation
 
       template <int rank, int dim, typename ValueType>
       bool
-      is_symmetric_component(const TableIndices<rank> &,
-                             const SymmetricTensor<rank, dim, ValueType> &)
+      is_symmetric_component(const TableIndices<rank> &, const SymmetricTensor<rank, dim, ValueType> &)
       {
-        static_assert(
-          rank == 0 || rank == 2,
-          "Querying symmetric component for non rank-2 symmetric tensor index is not allowed.");
+        static_assert(rank == 0 || rank == 2,
+                      "Querying symmetric component for non rank-2 symmetric tensor index is not allowed.");
         return false;
       }
 
 
       template <int dim, typename ValueType>
       bool
-      is_symmetric_component(const TableIndices<2> &table_indices,
-                             const SymmetricTensor<2, dim, ValueType> &)
+      is_symmetric_component(const TableIndices<2> &table_indices, const SymmetricTensor<2, dim, ValueType> &)
       {
         return table_indices[0] != table_indices[1];
       }
 
 
-      template <int dim,
-                typename ValueType = Expression,
-                template <int, int, typename>
-                class TensorType>
+      template <int dim, typename ValueType = Expression, template <int, int, typename> class TensorType>
       TensorType<0, dim, ValueType>
-      scalar_diff_tensor(const ValueType &                    func,
-                         const TensorType<0, dim, ValueType> &op)
+      scalar_diff_tensor(const ValueType &func, const TensorType<0, dim, ValueType> &op)
       {
         return differentiate(func, op);
       }
 
 
-      template <int rank,
-                int dim,
-                typename ValueType = Expression,
-                template <int, int, typename>
-                class TensorType>
+      template <int rank, int dim, typename ValueType = Expression, template <int, int, typename> class TensorType>
       TensorType<rank, dim, ValueType>
-      scalar_diff_tensor(const ValueType &                       func,
-                         const TensorType<rank, dim, ValueType> &op)
+      scalar_diff_tensor(const ValueType &func, const TensorType<rank, dim, ValueType> &op)
       {
         TensorType<rank, dim, ValueType> out;
         for (unsigned int i = 0; i < out.n_independent_components; ++i)
           {
-            const TableIndices<rank> indices(
-              out.unrolled_to_component_indices(i));
+            const TableIndices<rank> indices(out.unrolled_to_component_indices(i));
             out[indices] = differentiate(func, op[indices]);
 
             if (is_symmetric_component(indices, op))
@@ -887,20 +834,14 @@ namespace Differentiation
 
 
       // Specialization for rank-0 tensor
-      template <int rank,
-                int dim,
-                typename ValueType = Expression,
-                template <int, int, typename>
-                class TensorType>
+      template <int rank, int dim, typename ValueType = Expression, template <int, int, typename> class TensorType>
       TensorType<rank, dim, ValueType>
-      tensor_diff_tensor(const TensorType<0, dim, ValueType> &   func,
-                         const TensorType<rank, dim, ValueType> &op)
+      tensor_diff_tensor(const TensorType<0, dim, ValueType> &func, const TensorType<rank, dim, ValueType> &op)
       {
         TensorType<rank, dim, ValueType> out;
         for (unsigned int i = 0; i < out.n_independent_components; ++i)
           {
-            const TableIndices<rank> indices(
-              out.unrolled_to_component_indices(i));
+            const TableIndices<rank> indices(out.unrolled_to_component_indices(i));
             out[indices] = differentiate(func, op[indices]);
 
             if (is_symmetric_component(indices, op))
@@ -910,20 +851,14 @@ namespace Differentiation
       }
 
 
-      template <int rank,
-                int dim,
-                typename ValueType = Expression,
-                template <int, int, typename>
-                class TensorType>
+      template <int rank, int dim, typename ValueType = Expression, template <int, int, typename> class TensorType>
       TensorType<rank, dim, ValueType>
-      tensor_diff_scalar(const TensorType<rank, dim, ValueType> &funcs,
-                         const ValueType &                       op)
+      tensor_diff_scalar(const TensorType<rank, dim, ValueType> &funcs, const ValueType &op)
       {
         TensorType<rank, dim, ValueType> out;
         for (unsigned int i = 0; i < out.n_independent_components; ++i)
           {
-            const TableIndices<rank> indices(
-              out.unrolled_to_component_indices(i));
+            const TableIndices<rank> indices(out.unrolled_to_component_indices(i));
             out[indices] = differentiate(funcs[indices], op);
           }
         return out;
@@ -931,20 +866,14 @@ namespace Differentiation
 
 
       // Specialization for rank-0 tensor
-      template <int rank,
-                int dim,
-                typename ValueType = Expression,
-                template <int, int, typename>
-                class TensorType>
+      template <int rank, int dim, typename ValueType = Expression, template <int, int, typename> class TensorType>
       TensorType<rank, dim, ValueType>
-      tensor_diff_tensor(const TensorType<rank, dim, ValueType> &funcs,
-                         const TensorType<0, dim, ValueType> &   op)
+      tensor_diff_tensor(const TensorType<rank, dim, ValueType> &funcs, const TensorType<0, dim, ValueType> &op)
       {
         TensorType<rank, dim, ValueType> out;
         for (unsigned int i = 0; i < out.n_independent_components; ++i)
           {
-            const TableIndices<rank> indices(
-              out.unrolled_to_component_indices(i));
+            const TableIndices<rank> indices(out.unrolled_to_component_indices(i));
             out[indices] = differentiate(funcs[indices], op);
           }
         return out;
@@ -959,23 +888,18 @@ namespace Differentiation
                 template <int, int, typename>
                 class TensorType>
       TensorType<rank_1 + rank_2, dim, ValueType>
-      tensor_diff_tensor(const TensorType<rank_1, dim, ValueType> &funcs,
-                         const TensorType<rank_2, dim, ValueType> &op)
+      tensor_diff_tensor(const TensorType<rank_1, dim, ValueType> &funcs, const TensorType<rank_2, dim, ValueType> &op)
       {
         TensorType<rank_1 + rank_2, dim, ValueType> out;
         for (unsigned int i = 0; i < funcs.n_independent_components; ++i)
           {
-            const TableIndices<rank_1> indices_i(
-              funcs.unrolled_to_component_indices(i));
+            const TableIndices<rank_1> indices_i(funcs.unrolled_to_component_indices(i));
             for (unsigned int j = 0; j < op.n_independent_components; ++j)
               {
-                const TableIndices<rank_2> indices_j(
-                  op.unrolled_to_component_indices(j));
-                const TableIndices<rank_1 + rank_2> indices_out =
-                  concatenate_indices(indices_i, indices_j);
+                const TableIndices<rank_2>          indices_j(op.unrolled_to_component_indices(j));
+                const TableIndices<rank_1 + rank_2> indices_out = concatenate_indices(indices_i, indices_j);
 
-                out[indices_out] =
-                  differentiate(funcs[indices_i], op[indices_j]);
+                out[indices_out] = differentiate(funcs[indices_i], op[indices_j]);
 
                 if (is_symmetric_component(indices_j, op))
                   out[indices_out] *= 0.5;
@@ -1004,48 +928,38 @@ namespace Differentiation
         Tensor<rank_1 + rank_2, dim, ValueType> out;
         for (unsigned int i = 0; i < funcs.n_independent_components; ++i)
           {
-            const TableIndices<rank_1> indices_i(
-              funcs.unrolled_to_component_indices(i));
+            const TableIndices<rank_1> indices_i(funcs.unrolled_to_component_indices(i));
             for (unsigned int j = 0; j < op.n_independent_components; ++j)
               {
-                const TableIndices<rank_2> indices_j(
-                  op.unrolled_to_component_indices(j));
-                const TableIndices<rank_1 + rank_2> indices_out =
-                  concatenate_indices(indices_i, indices_j);
+                const TableIndices<rank_2>          indices_j(op.unrolled_to_component_indices(j));
+                const TableIndices<rank_1 + rank_2> indices_out = concatenate_indices(indices_i, indices_j);
 
-                out[indices_out] =
-                  differentiate(funcs[indices_i], op[indices_j]);
+                out[indices_out] = differentiate(funcs[indices_i], op[indices_j]);
 
                 if (is_symmetric_component(indices_j, op))
                   out[indices_out] *= 0.5;
 
                 // TODO: Implement for SymmetricTensor<4,dim,...>
-                if (std::is_same_v<
-                      TensorType_1<rank_1, dim, ValueType>,
-                      SymmetricTensor<2, dim, ValueType>>) // Symmetric function
+                if (std::is_same_v<TensorType_1<rank_1, dim, ValueType>,
+                                   SymmetricTensor<2, dim, ValueType>>) // Symmetric function
                   {
                     const TableIndices<rank_1 + rank_2> indices_out_t =
-                      concatenate_indices(transpose_indices(indices_i),
-                                          indices_j);
+                      concatenate_indices(transpose_indices(indices_i), indices_j);
                     out[indices_out_t] = out[indices_out];
                   }
-                else if (std::is_same_v<
-                           TensorType_2<rank_2, dim, ValueType>,
-                           SymmetricTensor<2, dim, ValueType>>) // Symmetric
-                                                                // operator
+                else if (std::is_same_v<TensorType_2<rank_2, dim, ValueType>,
+                                        SymmetricTensor<2, dim, ValueType>>) // Symmetric
+                                                                             // operator
                   {
                     const TableIndices<rank_1 + rank_2> indices_out_t =
-                      concatenate_indices(indices_i,
-                                          transpose_indices(indices_j));
+                      concatenate_indices(indices_i, transpose_indices(indices_j));
                     out[indices_out_t] = out[indices_out];
                   }
                 else
                   {
-                    Assert(
-                      false,
-                      ExcMessage(
-                        "Expect mixed tensor differentiation to have at least "
-                        "one component stemming from a symmetric tensor."));
+                    Assert(false,
+                           ExcMessage("Expect mixed tensor differentiation to have at least "
+                                      "one component stemming from a symmetric tensor."));
                   }
               }
           }
@@ -1057,8 +971,7 @@ namespace Differentiation
 
     template <int rank, int dim>
     Tensor<rank, dim, Expression>
-    differentiate(const Expression &                   func,
-                  const Tensor<rank, dim, Expression> &op)
+    differentiate(const Expression &func, const Tensor<rank, dim, Expression> &op)
     {
       return internal::scalar_diff_tensor(func, op);
     }
@@ -1066,8 +979,7 @@ namespace Differentiation
 
     template <int rank, int dim>
     SymmetricTensor<rank, dim, Expression>
-    differentiate(const Expression &                            func,
-                  const SymmetricTensor<rank, dim, Expression> &op)
+    differentiate(const Expression &func, const SymmetricTensor<rank, dim, Expression> &op)
     {
       return internal::scalar_diff_tensor(func, op);
     }
@@ -1075,8 +987,7 @@ namespace Differentiation
 
     template <int rank, int dim>
     Tensor<rank, dim, Expression>
-    differentiate(const Tensor<0, dim, Expression> &   func,
-                  const Tensor<rank, dim, Expression> &op)
+    differentiate(const Tensor<0, dim, Expression> &func, const Tensor<rank, dim, Expression> &op)
     {
       return internal::scalar_diff_tensor(func, op);
     }
@@ -1084,8 +995,7 @@ namespace Differentiation
 
     template <int rank, int dim>
     SymmetricTensor<rank, dim, Expression>
-    differentiate(const Tensor<0, dim, Expression> &            func,
-                  const SymmetricTensor<rank, dim, Expression> &op)
+    differentiate(const Tensor<0, dim, Expression> &func, const SymmetricTensor<rank, dim, Expression> &op)
     {
       // Ensure that this returns a symmetric tensor by
       // invoking the scalar value function
@@ -1096,8 +1006,7 @@ namespace Differentiation
 
     template <int rank, int dim>
     Tensor<rank, dim, Expression>
-    differentiate(const Tensor<rank, dim, Expression> &symbol_tensor,
-                  const Expression &                   op)
+    differentiate(const Tensor<rank, dim, Expression> &symbol_tensor, const Expression &op)
     {
       return internal::tensor_diff_scalar(symbol_tensor, op);
     }
@@ -1105,8 +1014,7 @@ namespace Differentiation
 
     template <int rank, int dim>
     Tensor<rank, dim, Expression>
-    differentiate(const Tensor<rank, dim, Expression> &symbol_tensor,
-                  const Tensor<0, dim, Expression> &   op)
+    differentiate(const Tensor<rank, dim, Expression> &symbol_tensor, const Tensor<0, dim, Expression> &op)
     {
       return internal::tensor_diff_scalar(symbol_tensor, op);
     }
@@ -1114,8 +1022,7 @@ namespace Differentiation
 
     template <int rank, int dim>
     SymmetricTensor<rank, dim, Expression>
-    differentiate(const SymmetricTensor<rank, dim, Expression> &symbol_tensor,
-                  const Expression &                            op)
+    differentiate(const SymmetricTensor<rank, dim, Expression> &symbol_tensor, const Expression &op)
     {
       return internal::tensor_diff_scalar(symbol_tensor, op);
     }
@@ -1123,8 +1030,7 @@ namespace Differentiation
 
     template <int rank, int dim>
     SymmetricTensor<rank, dim, Expression>
-    differentiate(const SymmetricTensor<rank, dim, Expression> &symbol_tensor,
-                  const Tensor<0, dim, Expression> &            op)
+    differentiate(const SymmetricTensor<rank, dim, Expression> &symbol_tensor, const Tensor<0, dim, Expression> &op)
     {
       return internal::tensor_diff_scalar(symbol_tensor, op);
     }
@@ -1132,8 +1038,7 @@ namespace Differentiation
 
     template <int rank_1, int rank_2, int dim>
     Tensor<rank_1 + rank_2, dim, Expression>
-    differentiate(const Tensor<rank_1, dim, Expression> &symbol_tensor,
-                  const Tensor<rank_2, dim, Expression> &op)
+    differentiate(const Tensor<rank_1, dim, Expression> &symbol_tensor, const Tensor<rank_2, dim, Expression> &op)
     {
       return internal::tensor_diff_tensor(symbol_tensor, op);
     }
@@ -1150,7 +1055,7 @@ namespace Differentiation
 
     template <int rank_1, int rank_2, int dim>
     Tensor<rank_1 + rank_2, dim, Expression>
-    differentiate(const Tensor<rank_1, dim, Expression> &         symbol_tensor,
+    differentiate(const Tensor<rank_1, dim, Expression>          &symbol_tensor,
                   const SymmetricTensor<rank_2, dim, Expression> &op)
     {
       return internal::tensor_diff_tensor(symbol_tensor, op);
@@ -1160,7 +1065,7 @@ namespace Differentiation
     template <int rank_1, int rank_2, int dim>
     Tensor<rank_1 + rank_2, dim, Expression>
     differentiate(const SymmetricTensor<rank_1, dim, Expression> &symbol_tensor,
-                  const Tensor<rank_2, dim, Expression> &         op)
+                  const Tensor<rank_2, dim, Expression>          &op)
     {
       return internal::tensor_diff_tensor(symbol_tensor, op);
     }
@@ -1178,102 +1083,74 @@ namespace Differentiation
                 template <int, int, typename>
                 class TensorType>
       void
-      set_tensor_value_in_symbol_map(
-        types::substitution_map &                  substitution_map,
-        const TensorType<rank, dim, SymbolicType> &symbol_tensor,
-        const TensorType<rank, dim, ValueType> &   value_tensor)
+      set_tensor_value_in_symbol_map(types::substitution_map                   &substitution_map,
+                                     const TensorType<rank, dim, SymbolicType> &symbol_tensor,
+                                     const TensorType<rank, dim, ValueType>    &value_tensor)
       {
         TensorType<rank, dim, Expression> out;
         for (unsigned int i = 0; i < out.n_independent_components; ++i)
           {
-            const TableIndices<rank> indices(
-              out.unrolled_to_component_indices(i));
-            set_value_in_symbol_map(substitution_map,
-                                    symbol_tensor[indices],
-                                    value_tensor[indices]);
+            const TableIndices<rank> indices(out.unrolled_to_component_indices(i));
+            set_value_in_symbol_map(substitution_map, symbol_tensor[indices], value_tensor[indices]);
           }
       }
 
 
       template <typename SymbolicType, typename ValueType, int dim>
       void
-      set_tensor_value_in_symbol_map(
-        types::substitution_map &                    substitution_map,
-        const SymmetricTensor<4, dim, SymbolicType> &symbol_tensor,
-        const SymmetricTensor<4, dim, ValueType> &   value_tensor)
+      set_tensor_value_in_symbol_map(types::substitution_map                     &substitution_map,
+                                     const SymmetricTensor<4, dim, SymbolicType> &symbol_tensor,
+                                     const SymmetricTensor<4, dim, ValueType>    &value_tensor)
       {
         SymmetricTensor<4, dim, Expression> out;
-        for (unsigned int i = 0;
-             i < SymmetricTensor<2, dim>::n_independent_components;
-             ++i)
-          for (unsigned int j = 0;
-               j < SymmetricTensor<2, dim>::n_independent_components;
-               ++j)
+        for (unsigned int i = 0; i < SymmetricTensor<2, dim>::n_independent_components; ++i)
+          for (unsigned int j = 0; j < SymmetricTensor<2, dim>::n_independent_components; ++j)
             {
-              const TableIndices<4> indices =
-                make_rank_4_tensor_indices<dim>(i, j);
-              set_value_in_symbol_map(substitution_map,
-                                      symbol_tensor[indices],
-                                      value_tensor[indices]);
+              const TableIndices<4> indices = make_rank_4_tensor_indices<dim>(i, j);
+              set_value_in_symbol_map(substitution_map, symbol_tensor[indices], value_tensor[indices]);
             }
       }
     } // namespace internal
 
 
-    template <bool ignore_invalid_symbols,
-              typename ValueType,
-              int rank,
-              int dim,
-              typename SymbolicType>
+    template <bool ignore_invalid_symbols, typename ValueType, int rank, int dim, typename SymbolicType>
     void
-    add_to_symbol_map(types::substitution_map &              symbol_map,
-                      const Tensor<rank, dim, SymbolicType> &symbol_tensor)
+    add_to_symbol_map(types::substitution_map &symbol_map, const Tensor<rank, dim, SymbolicType> &symbol_tensor)
     {
       // Call the above function
-      add_to_substitution_map<ignore_invalid_symbols>(
-        symbol_map, symbol_tensor, Tensor<rank, dim, ValueType>());
+      add_to_substitution_map<ignore_invalid_symbols>(symbol_map, symbol_tensor, Tensor<rank, dim, ValueType>());
     }
 
 
-    template <bool ignore_invalid_symbols,
-              typename ValueType,
-              int rank,
-              int dim,
-              typename SymbolicType>
+    template <bool ignore_invalid_symbols, typename ValueType, int rank, int dim, typename SymbolicType>
     void
-    add_to_symbol_map(
-      types::substitution_map &                       symbol_map,
-      const SymmetricTensor<rank, dim, SymbolicType> &symbol_tensor)
+    add_to_symbol_map(types::substitution_map                        &symbol_map,
+                      const SymmetricTensor<rank, dim, SymbolicType> &symbol_tensor)
     {
       // Call the above function
-      add_to_substitution_map<ignore_invalid_symbols>(
-        symbol_map, symbol_tensor, SymmetricTensor<rank, dim, ValueType>());
+      add_to_substitution_map<ignore_invalid_symbols>(symbol_map,
+                                                      symbol_tensor,
+                                                      SymmetricTensor<rank, dim, ValueType>());
     }
 
 
     template <int rank, int dim, typename SymbolicType, typename ValueType>
     void
-    set_value_in_symbol_map(
-      types::substitution_map &              substitution_map,
-      const Tensor<rank, dim, SymbolicType> &symbol_tensor,
-      const Tensor<rank, dim, ValueType> &   value_tensor)
+    set_value_in_symbol_map(types::substitution_map               &substitution_map,
+                            const Tensor<rank, dim, SymbolicType> &symbol_tensor,
+                            const Tensor<rank, dim, ValueType>    &value_tensor)
     {
-      internal::set_tensor_value_in_symbol_map(substitution_map,
-                                               symbol_tensor,
-                                               value_tensor);
+      internal::set_tensor_value_in_symbol_map(substitution_map, symbol_tensor, value_tensor);
     }
 
 
     template <int rank, int dim, typename SymbolicType, typename ValueType>
     void
-    set_value_in_symbol_map(
-      types::substitution_map &                       substitution_map,
-      const SymmetricTensor<rank, dim, SymbolicType> &symbol_tensor,
-      const SymmetricTensor<rank, dim, ValueType> &   value_tensor)
+    set_value_in_symbol_map(types::substitution_map                        &substitution_map,
+                            const SymmetricTensor<rank, dim, SymbolicType> &symbol_tensor,
+                            const SymmetricTensor<rank, dim, ValueType>    &value_tensor)
     {
-      internal::set_tensor_value_in_symbol_map(substitution_map,
-                                               symbol_tensor,
-                                               value_tensor);
+      internal::set_tensor_value_in_symbol_map(substitution_map, symbol_tensor, value_tensor);
     }
 
 
@@ -1282,9 +1159,8 @@ namespace Differentiation
 
     template <int rank, int dim, typename ExpressionType, typename ValueType>
     types::substitution_map
-    make_substitution_map(
-      const Tensor<rank, dim, ExpressionType> &symbol_tensor,
-      const Tensor<rank, dim, ValueType> &     value_tensor)
+    make_substitution_map(const Tensor<rank, dim, ExpressionType> &symbol_tensor,
+                          const Tensor<rank, dim, ValueType>      &value_tensor)
     {
       types::substitution_map substitution_map;
       add_to_substitution_map(substitution_map, symbol_tensor, value_tensor);
@@ -1294,9 +1170,8 @@ namespace Differentiation
 
     template <int rank, int dim, typename ExpressionType, typename ValueType>
     types::substitution_map
-    make_substitution_map(
-      const SymmetricTensor<rank, dim, ExpressionType> &symbol_tensor,
-      const SymmetricTensor<rank, dim, ValueType> &     value_tensor)
+    make_substitution_map(const SymmetricTensor<rank, dim, ExpressionType> &symbol_tensor,
+                          const SymmetricTensor<rank, dim, ValueType>      &value_tensor)
     {
       types::substitution_map substitution_map;
       add_to_substitution_map(substitution_map, symbol_tensor, value_tensor);
@@ -1316,18 +1191,14 @@ namespace Differentiation
                 template <int, int, typename>
                 class TensorType>
       std::vector<std::pair<ExpressionType, ValueType>>
-      make_tensor_entries_for_substitution_map(
-        const TensorType<rank, dim, ExpressionType> &symbol_tensor,
-        const TensorType<rank, dim, ValueType> &     value_tensor)
+      make_tensor_entries_for_substitution_map(const TensorType<rank, dim, ExpressionType> &symbol_tensor,
+                                               const TensorType<rank, dim, ValueType>      &value_tensor)
       {
         std::vector<std::pair<ExpressionType, ValueType>> symbol_values;
-        for (unsigned int i = 0; i < symbol_tensor.n_independent_components;
-             ++i)
+        for (unsigned int i = 0; i < symbol_tensor.n_independent_components; ++i)
           {
-            const TableIndices<rank> indices(
-              symbol_tensor.unrolled_to_component_indices(i));
-            symbol_values.push_back(
-              std::make_pair(symbol_tensor[indices], value_tensor[indices]));
+            const TableIndices<rank> indices(symbol_tensor.unrolled_to_component_indices(i));
+            symbol_values.push_back(std::make_pair(symbol_tensor[indices], value_tensor[indices]));
           }
         return symbol_values;
       }
@@ -1335,73 +1206,53 @@ namespace Differentiation
 
       template <int dim, typename ExpressionType, typename ValueType>
       std::vector<std::pair<ExpressionType, ValueType>>
-      make_tensor_entries_for_substitution_map(
-        const Tensor<0, dim, ExpressionType> &symbol_tensor,
-        const Tensor<0, dim, ValueType> &     value_tensor)
+      make_tensor_entries_for_substitution_map(const Tensor<0, dim, ExpressionType> &symbol_tensor,
+                                               const Tensor<0, dim, ValueType>      &value_tensor)
       {
         const ExpressionType &expression = symbol_tensor;
-        const ValueType &     value      = value_tensor;
+        const ValueType      &value      = value_tensor;
         return {std::make_pair(expression, value)};
       }
 
 
       template <int dim, typename ExpressionType, typename ValueType>
       std::vector<std::pair<ExpressionType, ValueType>>
-      make_tensor_entries_for_substitution_map(
-        const SymmetricTensor<4, dim, ExpressionType> &symbol_tensor,
-        const SymmetricTensor<4, dim, ValueType> &     value_tensor)
+      make_tensor_entries_for_substitution_map(const SymmetricTensor<4, dim, ExpressionType> &symbol_tensor,
+                                               const SymmetricTensor<4, dim, ValueType>      &value_tensor)
       {
         std::vector<std::pair<ExpressionType, ValueType>> symbol_values;
-        for (unsigned int i = 0;
-             i < SymmetricTensor<2, dim>::n_independent_components;
-             ++i)
-          for (unsigned int j = 0;
-               j < SymmetricTensor<2, dim>::n_independent_components;
-               ++j)
+        for (unsigned int i = 0; i < SymmetricTensor<2, dim>::n_independent_components; ++i)
+          for (unsigned int j = 0; j < SymmetricTensor<2, dim>::n_independent_components; ++j)
             {
-              const TableIndices<4> indices =
-                make_rank_4_tensor_indices<dim>(i, j);
-              symbol_values.push_back(
-                std::make_pair(symbol_tensor[indices], value_tensor[indices]));
+              const TableIndices<4> indices = make_rank_4_tensor_indices<dim>(i, j);
+              symbol_values.push_back(std::make_pair(symbol_tensor[indices], value_tensor[indices]));
             }
         return symbol_values;
       }
     } // namespace internal
 
 
-    template <bool ignore_invalid_symbols,
-              int  rank,
-              int  dim,
-              typename ExpressionType,
-              typename ValueType>
+    template <bool ignore_invalid_symbols, int rank, int dim, typename ExpressionType, typename ValueType>
     void
-    add_to_substitution_map(
-      types::substitution_map &                substitution_map,
-      const Tensor<rank, dim, ExpressionType> &symbol_tensor,
-      const Tensor<rank, dim, ValueType> &     value_tensor)
+    add_to_substitution_map(types::substitution_map                 &substitution_map,
+                            const Tensor<rank, dim, ExpressionType> &symbol_tensor,
+                            const Tensor<rank, dim, ValueType>      &value_tensor)
     {
-      add_to_substitution_map<ignore_invalid_symbols>(
-        substitution_map,
-        internal::make_tensor_entries_for_substitution_map(symbol_tensor,
-                                                           value_tensor));
+      add_to_substitution_map<ignore_invalid_symbols>(substitution_map,
+                                                      internal::make_tensor_entries_for_substitution_map(symbol_tensor,
+                                                                                                         value_tensor));
     }
 
 
-    template <bool ignore_invalid_symbols,
-              int  rank,
-              int  dim,
-              typename ExpressionType,
-              typename ValueType>
+    template <bool ignore_invalid_symbols, int rank, int dim, typename ExpressionType, typename ValueType>
     void
-    add_to_substitution_map(
-      types::substitution_map &                         substitution_map,
-      const SymmetricTensor<rank, dim, ExpressionType> &symbol_tensor,
-      const SymmetricTensor<rank, dim, ValueType> &     value_tensor)
+    add_to_substitution_map(types::substitution_map                          &substitution_map,
+                            const SymmetricTensor<rank, dim, ExpressionType> &symbol_tensor,
+                            const SymmetricTensor<rank, dim, ValueType>      &value_tensor)
     {
-      add_to_substitution_map<ignore_invalid_symbols>(
-        substitution_map,
-        internal::make_tensor_entries_for_substitution_map(symbol_tensor,
-                                                           value_tensor));
+      add_to_substitution_map<ignore_invalid_symbols>(substitution_map,
+                                                      internal::make_tensor_entries_for_substitution_map(symbol_tensor,
+                                                                                                         value_tensor));
     }
 
 
@@ -1410,22 +1261,16 @@ namespace Differentiation
 
     namespace internal
     {
-      template <int rank,
-                int dim,
-                template <int, int, typename>
-                class TensorType>
+      template <int rank, int dim, template <int, int, typename> class TensorType>
       TensorType<rank, dim, Expression>
-      substitute_tensor(
-        const TensorType<rank, dim, Expression> &expression_tensor,
-        const types::substitution_map &          substitution_map)
+      substitute_tensor(const TensorType<rank, dim, Expression> &expression_tensor,
+                        const types::substitution_map           &substitution_map)
       {
         TensorType<rank, dim, Expression> out;
         for (unsigned int i = 0; i < out.n_independent_components; ++i)
           {
-            const TableIndices<rank> indices(
-              out.unrolled_to_component_indices(i));
-            out[indices] =
-              substitute(expression_tensor[indices], substitution_map);
+            const TableIndices<rank> indices(out.unrolled_to_component_indices(i));
+            out[indices] = substitute(expression_tensor[indices], substitution_map);
           }
         return out;
       }
@@ -1434,7 +1279,7 @@ namespace Differentiation
       template <int dim>
       Tensor<0, dim, Expression>
       substitute_tensor(const Tensor<0, dim, Expression> &expression_tensor,
-                        const types::substitution_map &   substitution_map)
+                        const types::substitution_map    &substitution_map)
       {
         const Expression &expression = expression_tensor;
         return substitute(expression, substitution_map);
@@ -1443,45 +1288,30 @@ namespace Differentiation
 
       template <int dim>
       SymmetricTensor<4, dim, Expression>
-      substitute_tensor(
-        const SymmetricTensor<4, dim, Expression> &expression_tensor,
-        const types::substitution_map &            substitution_map)
+      substitute_tensor(const SymmetricTensor<4, dim, Expression> &expression_tensor,
+                        const types::substitution_map             &substitution_map)
       {
         SymmetricTensor<4, dim, Expression> out;
-        for (unsigned int i = 0;
-             i < SymmetricTensor<2, dim>::n_independent_components;
-             ++i)
-          for (unsigned int j = 0;
-               j < SymmetricTensor<2, dim>::n_independent_components;
-               ++j)
+        for (unsigned int i = 0; i < SymmetricTensor<2, dim>::n_independent_components; ++i)
+          for (unsigned int j = 0; j < SymmetricTensor<2, dim>::n_independent_components; ++j)
             {
-              const TableIndices<4> indices =
-                make_rank_4_tensor_indices<dim>(i, j);
-              out[indices] =
-                substitute(expression_tensor[indices], substitution_map);
+              const TableIndices<4> indices = make_rank_4_tensor_indices<dim>(i, j);
+              out[indices]                  = substitute(expression_tensor[indices], substitution_map);
             }
         return out;
       }
 
 
-      template <typename ValueType,
-                int rank,
-                int dim,
-                template <int, int, typename>
-                class TensorType>
+      template <typename ValueType, int rank, int dim, template <int, int, typename> class TensorType>
       TensorType<rank, dim, ValueType>
-      substitute_and_evaluate_tensor(
-        const TensorType<rank, dim, Expression> &expression_tensor,
-        const types::substitution_map &          substitution_map)
+      substitute_and_evaluate_tensor(const TensorType<rank, dim, Expression> &expression_tensor,
+                                     const types::substitution_map           &substitution_map)
       {
         TensorType<rank, dim, ValueType> out;
         for (unsigned int i = 0; i < out.n_independent_components; ++i)
           {
-            const TableIndices<rank> indices(
-              out.unrolled_to_component_indices(i));
-            out[indices] =
-              substitute_and_evaluate<ValueType>(expression_tensor[indices],
-                                                 substitution_map);
+            const TableIndices<rank> indices(out.unrolled_to_component_indices(i));
+            out[indices] = substitute_and_evaluate<ValueType>(expression_tensor[indices], substitution_map);
           }
         return out;
       }
@@ -1489,9 +1319,8 @@ namespace Differentiation
 
       template <typename ValueType, int dim>
       Tensor<0, dim, ValueType>
-      substitute_and_evaluate_tensor(
-        const Tensor<0, dim, Expression> &expression_tensor,
-        const types::substitution_map &   substitution_map)
+      substitute_and_evaluate_tensor(const Tensor<0, dim, Expression> &expression_tensor,
+                                     const types::substitution_map    &substitution_map)
       {
         const Expression &expression = expression_tensor;
         return substitute_and_evaluate<ValueType>(expression, substitution_map);
@@ -1500,23 +1329,15 @@ namespace Differentiation
 
       template <typename ValueType, int dim>
       SymmetricTensor<4, dim, ValueType>
-      substitute_and_evaluate_tensor(
-        const SymmetricTensor<4, dim, Expression> &expression_tensor,
-        const types::substitution_map &            substitution_map)
+      substitute_and_evaluate_tensor(const SymmetricTensor<4, dim, Expression> &expression_tensor,
+                                     const types::substitution_map             &substitution_map)
       {
         SymmetricTensor<4, dim, ValueType> out;
-        for (unsigned int i = 0;
-             i < SymmetricTensor<2, dim>::n_independent_components;
-             ++i)
-          for (unsigned int j = 0;
-               j < SymmetricTensor<2, dim>::n_independent_components;
-               ++j)
+        for (unsigned int i = 0; i < SymmetricTensor<2, dim>::n_independent_components; ++i)
+          for (unsigned int j = 0; j < SymmetricTensor<2, dim>::n_independent_components; ++j)
             {
-              const TableIndices<4> indices =
-                make_rank_4_tensor_indices<dim>(i, j);
-              out[indices] =
-                substitute_and_evaluate<ValueType>(expression_tensor[indices],
-                                                   substitution_map);
+              const TableIndices<4> indices = make_rank_4_tensor_indices<dim>(i, j);
+              out[indices] = substitute_and_evaluate<ValueType>(expression_tensor[indices], substitution_map);
             }
         return out;
       }
@@ -1525,8 +1346,7 @@ namespace Differentiation
 
     template <int rank, int dim>
     Tensor<rank, dim, Expression>
-    substitute(const Tensor<rank, dim, Expression> &expression_tensor,
-               const types::substitution_map &      substitution_map)
+    substitute(const Tensor<rank, dim, Expression> &expression_tensor, const types::substitution_map &substitution_map)
     {
       return internal::substitute_tensor(expression_tensor, substitution_map);
     }
@@ -1535,7 +1355,7 @@ namespace Differentiation
     template <int rank, int dim>
     SymmetricTensor<rank, dim, Expression>
     substitute(const SymmetricTensor<rank, dim, Expression> &expression_tensor,
-               const types::substitution_map &               substitution_map)
+               const types::substitution_map                &substitution_map)
     {
       return internal::substitute_tensor(expression_tensor, substitution_map);
     }
@@ -1543,23 +1363,19 @@ namespace Differentiation
 
     template <typename ValueType, int rank, int dim>
     Tensor<rank, dim, ValueType>
-    substitute_and_evaluate(
-      const Tensor<rank, dim, Expression> &expression_tensor,
-      const types::substitution_map &      substitution_map)
+    substitute_and_evaluate(const Tensor<rank, dim, Expression> &expression_tensor,
+                            const types::substitution_map       &substitution_map)
     {
-      return internal::substitute_and_evaluate_tensor<ValueType>(
-        expression_tensor, substitution_map);
+      return internal::substitute_and_evaluate_tensor<ValueType>(expression_tensor, substitution_map);
     }
 
 
     template <typename ValueType, int rank, int dim>
     SymmetricTensor<rank, dim, ValueType>
-    substitute_and_evaluate(
-      const SymmetricTensor<rank, dim, Expression> &expression_tensor,
-      const types::substitution_map &               substitution_map)
+    substitute_and_evaluate(const SymmetricTensor<rank, dim, Expression> &expression_tensor,
+                            const types::substitution_map                &substitution_map)
     {
-      return internal::substitute_and_evaluate_tensor<ValueType>(
-        expression_tensor, substitution_map);
+      return internal::substitute_and_evaluate_tensor<ValueType>(expression_tensor, substitution_map);
     }
 
 

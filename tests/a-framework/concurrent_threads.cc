@@ -22,7 +22,6 @@
 int
 main()
 {
-  std::cout << "Number of threads " << dealii::MultithreadInfo::n_threads()
-            << std::endl;
+  std::cout << "Number of threads " << dealii::MultithreadInfo::n_threads() << std::endl;
   return 0;
 }

@@ -48,8 +48,7 @@ check_select(const FiniteElement<dim> &fe,
              std::vector<unsigned int> target_component,
              std::vector<unsigned int> mg_target_component)
 {
-  deallog << fe.get_name() << " select " << selected << " (global) and "
-          << mg_selected << " (mg)" << std::endl;
+  deallog << fe.get_name() << " select " << selected << " (global) and " << mg_selected << " (mg)" << std::endl;
 
   Triangulation<dim> tr(Triangulation<dim>::limit_level_difference_at_vertices);
   GridGenerator::hyper_cube(tr);
@@ -61,16 +60,12 @@ check_select(const FiniteElement<dim> &fe,
   DoFRenumbering::component_wise(mgdof, target_component);
   const std::vector<types::global_dof_index> ndofs =
     DoFTools::count_dofs_per_fe_component(mgdof, true, target_component);
-  Assert(ndofs.size() ==
-           *std::max_element(target_component.begin(), target_component.end()) +
-             1,
-         ExcInternalError());
+  Assert(ndofs.size() == *std::max_element(target_component.begin(), target_component.end()) + 1, ExcInternalError());
 
   for (unsigned int l = 0; l < tr.n_levels(); ++l)
     DoFRenumbering::component_wise(mgdof, l, mg_target_component);
 
-  std::vector<std::vector<types::global_dof_index>> mg_ndofs(
-    mgdof.get_triangulation().n_levels());
+  std::vector<std::vector<types::global_dof_index>> mg_ndofs(mgdof.get_triangulation().n_levels());
   MGTools::count_dofs_per_component(mgdof, mg_ndofs, true, mg_target_component);
 
   deallog << "Global  dofs:";
@@ -87,8 +82,7 @@ check_select(const FiniteElement<dim> &fe,
 
 
   MGTransferSelect<double> transfer;
-  transfer.build(
-    mgdof, selected, mg_selected, target_component, mg_target_component);
+  transfer.build(mgdof, selected, mg_selected, target_component, mg_target_component);
 
   Vector<double> u2(mg_ndofs[2][mg_selected]);
   Vector<double> u1(mg_ndofs[1][mg_selected]);
@@ -105,8 +99,7 @@ check_select(const FiniteElement<dim> &fe,
   u0 = 0.;
   transfer.restrict_and_add(2, u1, u2);
   transfer.restrict_and_add(1, u0, u1);
-  deallog << "u1\t" << (int)(u1 * u1 + .5) << std::endl
-          << "u0\t" << (int)(u0 * u0 + .5) << std::endl;
+  deallog << "u1\t" << (int)(u1 * u1 + .5) << std::endl << "u0\t" << (int)(u0 * u0 + .5) << std::endl;
   // Check copy to mg and back
   BlockVector<double> u;
   u.reinit(ndofs);

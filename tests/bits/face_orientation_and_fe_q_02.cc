@@ -120,11 +120,7 @@ do_project(const Triangulation<dim> &triangulation,
   for (unsigned int q = 0; q <= p + 2 - order_difference; ++q)
     {
       // project the function
-      VectorTools::project(dof_handler,
-                           constraints,
-                           QGauss<dim>(p + 2),
-                           F<dim>(q, fe.n_components()),
-                           projection);
+      VectorTools::project(dof_handler, constraints, QGauss<dim>(p + 2), F<dim>(q, fe.n_components()), projection);
       // just to make sure it doesn't get
       // forgotten: handle hanging node
       // constraints
@@ -137,14 +133,11 @@ do_project(const Triangulation<dim> &triangulation,
                                         error,
                                         QGauss<dim>(std::max(p, q) + 1),
                                         VectorTools::L2_norm);
-      deallog << fe.get_name() << ", P_" << q
-              << ", rel. error=" << error.l2_norm() / projection.l2_norm()
-              << std::endl;
+      deallog << fe.get_name() << ", P_" << q << ", rel. error=" << error.l2_norm() / projection.l2_norm() << std::endl;
 
       if (q <= p - order_difference)
         AssertThrow(error.l2_norm() <= 1e-10 * projection.l2_norm(),
-                    ExcFailedProjection(error.l2_norm() /
-                                        projection.l2_norm()));
+                    ExcFailedProjection(error.l2_norm() / projection.l2_norm()));
     }
 }
 
@@ -177,13 +170,11 @@ test_with_wrong_face_orientation(const FiniteElement<dim> &fe,
       {
         Triangulation<dim> triangulation;
         GridGenerator::moebius(triangulation, 7, j, 1.0, 0.2);
-        typename Triangulation<dim>::active_cell_iterator cell =
-          triangulation.begin_active();
+        typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
         if (i == 0)
           {
             std::advance(cell, 6);
-            deallog << "face_rotation=" << cell->face_rotation(2)
-                    << ", face_flip=" << cell->face_flip(2) << std::endl;
+            deallog << "face_rotation=" << cell->face_rotation(2) << ", face_flip=" << cell->face_flip(2) << std::endl;
             cell = triangulation.begin_active();
           }
         std::advance(cell, i * 6);

@@ -54,8 +54,7 @@ namespace PETScWrappers
   inline void
   set_option_value(const std::string &name, const std::string &value)
   {
-    const PetscErrorCode ierr =
-      PetscOptionsSetValue(nullptr, name.c_str(), value.c_str());
+    const PetscErrorCode ierr = PetscOptionsSetValue(nullptr, name.c_str(), value.c_str());
     AssertThrow(ierr == 0, ExcPETScError(ierr));
   }
 
@@ -69,9 +68,7 @@ namespace PETScWrappers
    * before 3.0.0 since the corresponding function did not take this argument.
    */
   inline void
-  set_matrix_option(Mat &           matrix,
-                    const MatOption option_name,
-                    const PetscBool option_value = PETSC_FALSE)
+  set_matrix_option(Mat &matrix, const MatOption option_name, const PetscBool option_value = PETSC_FALSE)
   {
     const PetscErrorCode ierr = MatSetOption(matrix, option_name, option_value);
     AssertThrow(ierr == 0, ExcPETScError(ierr));

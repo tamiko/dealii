@@ -23,17 +23,15 @@
 
 // TODO: Several functions are commented out since implementations are missing
 
-#define WRITE(type)                                                       \
-  {                                                                       \
-    out << "Writing " #type " dimensions " << dim << ',' << spacedim      \
-        << std::endl;                                                     \
-    DataOutBase::write_##type(patches, names, vectors, type##flags, out); \
+#define WRITE(type)                                                                \
+  {                                                                                \
+    out << "Writing " #type " dimensions " << dim << ',' << spacedim << std::endl; \
+    DataOutBase::write_##type(patches, names, vectors, type##flags, out);          \
   }
 
 template <int dim, int spacedim>
 void
-write_patches(const std::vector<DataOutBase::Patch<dim, spacedim>> &patches,
-              std::ostream &                                        out)
+write_patches(const std::vector<DataOutBase::Patch<dim, spacedim>> &patches, std::ostream &out)
 {
   std::vector<std::string> names(2);
   names[0] = std::string("first name");
@@ -49,10 +47,7 @@ write_patches(const std::vector<DataOutBase::Patch<dim, spacedim>> &patches,
   DataOutBase::Deal_II_IntermediateFlags deal_II_intermediateflags;
 
   std::vector<
-    std::tuple<unsigned int,
-               unsigned int,
-               std::string,
-               DataComponentInterpretation::DataComponentInterpretation>>
+    std::tuple<unsigned int, unsigned int, std::string, DataComponentInterpretation::DataComponentInterpretation>>
     vectors;
 
   WRITE(dx);
@@ -74,8 +69,7 @@ struct PatchInfo
 {
   static double vertices[GeometryInfo<dim>::vertices_per_cell][3];
   static double offsets[GeometryInfo<dim>::vertices_per_cell][3];
-  static int    neighbors[GeometryInfo<dim>::vertices_per_cell]
-                      [GeometryInfo<dim>::faces_per_cell];
+  static int    neighbors[GeometryInfo<dim>::vertices_per_cell][GeometryInfo<dim>::faces_per_cell];
 };
 
 
@@ -83,21 +77,12 @@ template <>
 double PatchInfo<1>::vertices[2][3] = {{0, 0, 0}, {3, 6, 9}};
 
 template <>
-double PatchInfo<2>::vertices[4][3] = {{0, 0, 0},
-                                       {3, 0, 3},
-                                       {3, 0, 3},
-                                       {3, 3, 6}};
+double PatchInfo<2>::vertices[4][3] = {{0, 0, 0}, {3, 0, 3}, {3, 0, 3}, {3, 3, 6}};
 
 
 template <>
-double PatchInfo<3>::vertices[8][3] = {{0, 0, 0},
-                                       {3, 0, 0},
-                                       {0, 3, 0},
-                                       {3, 3, 0},
-                                       {0, 0, 3},
-                                       {3, 0, 3},
-                                       {0, 3, 3},
-                                       {3, 3, 3}};
+double PatchInfo<3>::vertices[8][3] =
+  {{0, 0, 0}, {3, 0, 0}, {0, 3, 0}, {3, 3, 0}, {0, 0, 3}, {3, 0, 3}, {0, 3, 3}, {3, 3, 3}};
 
 
 template <>
@@ -106,10 +91,7 @@ int PatchInfo<1>::neighbors[2][2] = {{-1, 1}, {0, -1}};
 
 
 template <>
-int PatchInfo<2>::neighbors[4][4] = {{-1, 1, 2, -1},
-                                     {-1, -1, 3, 0},
-                                     {0, 3, -1, -1},
-                                     {1, -1, -1, 2}};
+int PatchInfo<2>::neighbors[4][4] = {{-1, 1, 2, -1}, {-1, -1, 3, 0}, {0, 3, -1, -1}, {1, -1, -1, 2}};
 
 
 
@@ -129,21 +111,12 @@ double PatchInfo<1>::offsets[2][3] = {{0, 0, 0}, {3, 0, 0}};
 
 
 template <>
-double PatchInfo<2>::offsets[4][3] = {{0, 0, 0},
-                                      {3, 0, 0},
-                                      {0, 3, 0},
-                                      {3, 3, 0}};
+double PatchInfo<2>::offsets[4][3] = {{0, 0, 0}, {3, 0, 0}, {0, 3, 0}, {3, 3, 0}};
 
 
 template <>
-double PatchInfo<3>::offsets[8][3] = {{0, 0, 0},
-                                      {3, 0, 0},
-                                      {0, 3, 0},
-                                      {3, 3, 0},
-                                      {0, 0, 3},
-                                      {3, 0, 3},
-                                      {0, 3, 3},
-                                      {3, 3, 3}};
+double PatchInfo<3>::offsets[8][3] =
+  {{0, 0, 0}, {3, 0, 0}, {0, 3, 0}, {3, 3, 0}, {0, 0, 3}, {3, 0, 3}, {0, 3, 3}, {3, 3, 3}};
 
 
 
@@ -161,12 +134,11 @@ create_patches(std::vector<DataOutBase::Patch<dim, spacedim>> &patches)
       DataOutBase::Patch<dim, spacedim> &p = patches[c];
       p.patch_index                        = c;
       p.n_subdivisions                     = nsub;
-      p.reference_cell = ReferenceCells::get_hypercube<dim>();
+      p.reference_cell                     = ReferenceCells::get_hypercube<dim>();
 
       for (unsigned int i = 0; i < ncells; ++i)
         for (unsigned int j = 0; j < spacedim; ++j)
-          p.vertices[i](j) =
-            PatchInfo<dim>::vertices[i][j] + PatchInfo<dim>::offsets[c][j];
+          p.vertices[i](j) = PatchInfo<dim>::vertices[i][j] + PatchInfo<dim>::offsets[c][j];
 
       for (const unsigned int i : GeometryInfo<dim>::face_indices())
         p.neighbors[i] = (unsigned int)PatchInfo<dim>::neighbors[c][i];

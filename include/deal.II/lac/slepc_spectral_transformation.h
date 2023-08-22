@@ -144,8 +144,7 @@ namespace SLEPcWrappers
     /**
      * Constructor.
      */
-    explicit TransformationShift(const MPI_Comm        mpi_communicator,
-                                 const AdditionalData &data = AdditionalData());
+    explicit TransformationShift(const MPI_Comm mpi_communicator, const AdditionalData &data = AdditionalData());
 
 
   protected:
@@ -184,9 +183,7 @@ namespace SLEPcWrappers
     /**
      * Constructor.
      */
-    explicit TransformationShiftInvert(
-      const MPI_Comm        mpi_communicator,
-      const AdditionalData &data = AdditionalData());
+    explicit TransformationShiftInvert(const MPI_Comm mpi_communicator, const AdditionalData &data = AdditionalData());
 
   protected:
     /**
@@ -209,8 +206,7 @@ namespace SLEPcWrappers
    *
    * @ingroup SLEPcWrappers
    */
-  class DEAL_II_DEPRECATED TransformationSpectrumFolding
-    : public TransformationBase
+  class DEAL_II_DEPRECATED TransformationSpectrumFolding : public TransformationBase
   {
   public:
     /**
@@ -233,9 +229,8 @@ namespace SLEPcWrappers
     /**
      * Constructor.
      */
-    explicit TransformationSpectrumFolding(
-      const MPI_Comm        mpi_communicator,
-      const AdditionalData &data = AdditionalData());
+    explicit TransformationSpectrumFolding(const MPI_Comm        mpi_communicator,
+                                           const AdditionalData &data = AdditionalData());
 
   protected:
     /**
@@ -260,8 +255,7 @@ namespace SLEPcWrappers
       /**
        * Constructor. Requires two shift parameters
        */
-      explicit AdditionalData(const double shift_parameter     = 0,
-                              const double antishift_parameter = 0);
+      explicit AdditionalData(const double shift_parameter = 0, const double antishift_parameter = 0);
 
       /**
        * Shift parameter.
@@ -278,9 +272,7 @@ namespace SLEPcWrappers
     /**
      * Constructor.
      */
-    explicit TransformationCayley(
-      const MPI_Comm        mpi_communicator,
-      const AdditionalData &data = AdditionalData());
+    explicit TransformationCayley(const MPI_Comm mpi_communicator, const AdditionalData &data = AdditionalData());
 
   protected:
     /**

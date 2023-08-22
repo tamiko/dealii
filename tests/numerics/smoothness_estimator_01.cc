@@ -79,8 +79,7 @@ Lh(const Point<dim> &x_q, const TableIndices<dim> &indices)
   for (unsigned int d = 0; d < dim; ++d)
     {
       const double x = 2.0 * (x_q[d] - 0.5);
-      Assert((x_q[d] <= 1.0) && (x_q[d] >= 0.),
-             ExcMessage("x_q is not in [0,1]" + Utilities::to_string(x_q[d])));
+      Assert((x_q[d] <= 1.0) && (x_q[d] >= 0.), ExcMessage("x_q is not in [0,1]" + Utilities::to_string(x_q[d])));
       const unsigned int ind = indices[d];
       res *= sqrt(2.0) * std_cxx17::legendre(ind, x);
     }
@@ -91,8 +90,7 @@ Lh(const Point<dim> &x_q, const TableIndices<dim> &indices)
 
 template <>
 double
-LegendreFunction<2>::value(const dealii::Point<2> &point,
-                           const unsigned int) const
+LegendreFunction<2>::value(const dealii::Point<2> &point, const unsigned int) const
 {
   double f = 0.0;
 
@@ -105,8 +103,7 @@ LegendreFunction<2>::value(const dealii::Point<2> &point,
 
 template <>
 double
-LegendreFunction<3>::value(const dealii::Point<3> &point,
-                           const unsigned int) const
+LegendreFunction<3>::value(const dealii::Point<3> &point, const unsigned int) const
 {
   double f = 0.0;
 
@@ -128,9 +125,7 @@ compare(const Table<2, double> &coeff1, const Table<2, double> &coeff2)
     for (unsigned int j = 0; j < coeff1.size(1); ++j)
       linf = std::max(linf, std::abs(coeff1(i, j) - coeff2(i, j)));
 
-  deallog << "Linf norm in exact and calculate Legendre coefficients:"
-          << std::endl
-          << linf << std::endl;
+  deallog << "Linf norm in exact and calculate Legendre coefficients:" << std::endl << linf << std::endl;
 }
 
 void
@@ -142,9 +137,7 @@ compare(const Table<3, double> &coeff1, const Table<3, double> &coeff2)
       for (unsigned int k = 0; k < coeff1.size(2); ++k)
         linf = std::max(linf, std::abs(coeff1(i, j, k) - coeff2(i, j, k)));
 
-  deallog << "Linf norm in exact and calculate Legendre coefficients:"
-          << std::endl
-          << linf << std::endl;
+  deallog << "Linf norm in exact and calculate Legendre coefficients:" << std::endl << linf << std::endl;
 }
 
 
@@ -172,8 +165,7 @@ test(const LegendreFunction<dim> &func, const unsigned int poly_degree)
 {
   const unsigned int max_poly = poly_degree + 3;
   deallog << "-----------------------------------" << std::endl;
-  deallog << dim << "d, p=" << poly_degree << ", max_p=" << max_poly
-          << std::endl;
+  deallog << dim << "d, p=" << poly_degree << ", max_p=" << max_poly << std::endl;
   deallog << "-----------------------------------" << std::endl;
 
   // add some extra FEs in fe_collection
@@ -181,12 +173,10 @@ test(const LegendreFunction<dim> &func, const unsigned int poly_degree)
   for (unsigned int p = 1; p <= max_poly; ++p)
     fe_collection.push_back(FE_Q<dim>(p));
 
-  FESeries::Legendre<dim> legendre =
-    SmoothnessEstimator::Legendre::default_fe_series(fe_collection);
+  FESeries::Legendre<dim> legendre = SmoothnessEstimator::Legendre::default_fe_series(fe_collection);
 
   const unsigned int fe_index = poly_degree - 1;
-  const unsigned int n_modes =
-    legendre.get_n_coefficients_per_direction(fe_index);
+  const unsigned int n_modes  = legendre.get_n_coefficients_per_direction(fe_index);
 
   // custom predicate:
   // p-ref for linear elements and use j=1,...,pe otherwise.
@@ -209,8 +199,7 @@ test(const LegendreFunction<dim> &func, const unsigned int poly_degree)
 
   Vector<double> local_dof_values;
 
-  typename DoFHandler<dim>::active_cell_iterator cell =
-    dof_handler.begin_active();
+  typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active();
   {
     const unsigned int cell_n_dofs          = cell->get_fe().dofs_per_cell;
     const unsigned int cell_active_fe_index = cell->active_fe_index();
@@ -225,14 +214,13 @@ test(const LegendreFunction<dim> &func, const unsigned int poly_degree)
 
   // finally test smoothness estimator:
   Vector<float> smoothness(1);
-  SmoothnessEstimator::Legendre::coefficient_decay_per_direction(
-    legendre,
-    dof_handler,
-    values,
-    smoothness,
-    coefficients_predicate,
-    /*smallest_abs_coefficient=*/1e-10,
-    /*only_flagged_cells=*/false);
+  SmoothnessEstimator::Legendre::coefficient_decay_per_direction(legendre,
+                                                                 dof_handler,
+                                                                 values,
+                                                                 smoothness,
+                                                                 coefficients_predicate,
+                                                                 /*smallest_abs_coefficient=*/1e-10,
+                                                                 /*only_flagged_cells=*/false);
 
   deallog << "smoothness:" << std::endl << smoothness[0] << std::endl;
 
@@ -261,8 +249,7 @@ main()
 
     LegendreFunction<dim> function(coeff_in);
     test(function, p);
-    deallog << "expected smoothness:" << std::endl
-            << std::numeric_limits<float>::infinity() << std::endl;
+    deallog << "expected smoothness:" << std::endl << std::numeric_limits<float>::infinity() << std::endl;
   }
 
   // for quadratic we can already assign exponential decay:   a_i = C exp ( -k
@@ -288,8 +275,7 @@ main()
     LegendreFunction<dim> function(coeff_in);
     test(function, p);
 
-    deallog << "expected smoothness:" << std::endl
-            << std::min(k1, k2) << std::endl;
+    deallog << "expected smoothness:" << std::endl << std::min(k1, k2) << std::endl;
   }
 
   // linear elements in 3D (expect zero output)
@@ -306,8 +292,7 @@ main()
 
     LegendreFunction<dim> function(coeff_in);
     test(function, p);
-    deallog << "expected smoothness:" << std::endl
-            << std::numeric_limits<float>::infinity() << std::endl;
+    deallog << "expected smoothness:" << std::endl << std::numeric_limits<float>::infinity() << std::endl;
   }
 
   // cubic in 3D
@@ -334,8 +319,7 @@ main()
     LegendreFunction<dim> function(coeff_in);
     test(function, p);
 
-    deallog << "expected smoothness:" << std::endl
-            << std::min(k1, std::min(k2, k3)) << std::endl;
+    deallog << "expected smoothness:" << std::endl << std::min(k1, std::min(k2, k3)) << std::endl;
   }
 
 
@@ -379,8 +363,7 @@ main()
     LegendreFunction<dim> function(coeff_in);
     test(function, p);
 
-    deallog << "expected smoothness:" << std::endl
-            << std::numeric_limits<float>::infinity() << std::endl;
+    deallog << "expected smoothness:" << std::endl << std::numeric_limits<float>::infinity() << std::endl;
   }
 
   dealii::deallog << "Ok" << std::endl;

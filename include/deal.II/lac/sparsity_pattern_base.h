@@ -62,8 +62,7 @@ public:
   /**
    * Move constructor.
    */
-  SparsityPatternBase(SparsityPatternBase &&sparsity_pattern) noexcept =
-    default;
+  SparsityPatternBase(SparsityPatternBase &&sparsity_pattern) noexcept = default;
 
   /**
    * Assignment operator.
@@ -95,9 +94,9 @@ public:
    * Optimized function for adding new entries to a given row.
    */
   virtual void
-  add_row_entries(const size_type &                 row,
+  add_row_entries(const size_type                  &row,
                   const ArrayView<const size_type> &columns,
-                  const bool indices_are_sorted = false) = 0;
+                  const bool                        indices_are_sorted = false) = 0;
 
   /**
    * General function for adding new entries from an unsorted list of pairs.
@@ -143,8 +142,7 @@ inline SparsityPatternBase::SparsityPatternBase()
 
 
 
-inline SparsityPatternBase::SparsityPatternBase(const size_type rows,
-                                                const size_type cols)
+inline SparsityPatternBase::SparsityPatternBase(const size_type rows, const size_type cols)
   : rows(rows)
   , cols(cols)
 {}

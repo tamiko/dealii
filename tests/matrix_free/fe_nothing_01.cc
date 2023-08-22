@@ -53,8 +53,7 @@ test()
   AffineConstraints<double> constraints;
   constraints.close();
 
-  deallog << "Testing reinit for FE_Nothing + " << dof.get_fe().get_name()
-          << std::endl;
+  deallog << "Testing reinit for FE_Nothing + " << dof.get_fe().get_name() << std::endl;
   deallog << "# local dofs: " << dof.n_locally_owned_dofs() << std::endl;
 
   using number = double;
@@ -64,13 +63,8 @@ test()
     typename MatrixFree<dim, number>::AdditionalData data;
     data.tasks_parallel_scheme = MatrixFree<dim, number>::AdditionalData::none;
     data.mapping_update_flags =
-      (dealii::update_values | dealii::update_gradients |
-       dealii::update_JxW_values | dealii::update_quadrature_points);
-    mf_data.reinit(MappingQ<dim>(fe_degree),
-                   dof,
-                   constraints,
-                   hp::QCollection<dim>(quad, quad),
-                   data);
+      (dealii::update_values | dealii::update_gradients | dealii::update_JxW_values | dealii::update_quadrature_points);
+    mf_data.reinit(MappingQ<dim>(fe_degree), dof, constraints, hp::QCollection<dim>(quad, quad), data);
   }
 }
 

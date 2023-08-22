@@ -82,8 +82,7 @@ test(const unsigned int n_refinements, const unsigned int geometry_type)
   using MF = MatrixFree<dim, Number, VectorizedArrayType>;
 
   typename MF::AdditionalData additional_data;
-  additional_data.mapping_update_flags =
-    update_values | update_quadrature_points;
+  additional_data.mapping_update_flags  = update_values | update_quadrature_points;
   additional_data.tasks_parallel_scheme = MF::AdditionalData::none;
 
   MF matrix_free;
@@ -94,18 +93,13 @@ test(const unsigned int n_refinements, const unsigned int geometry_type)
   matrix_free.initialize_dof_vector(src);
   matrix_free.initialize_dof_vector(dst);
 
-  VectorTools::interpolate(mapping,
-                           dof_handler,
-                           RightHandSideFunction<dim>(1),
-                           src);
+  VectorTools::interpolate(mapping, dof_handler, RightHandSideFunction<dim>(1), src);
 
   std::vector<std::tuple<unsigned int, unsigned int, unsigned int>> indices;
 
   for (unsigned int cell = 0; cell < matrix_free.n_cell_batches(); ++cell)
     {
-      for (unsigned int i = 0;
-           i < matrix_free.n_active_entries_per_cell_batch(cell);
-           ++i)
+      for (unsigned int i = 0; i < matrix_free.n_active_entries_per_cell_batch(cell); ++i)
         indices.emplace_back(indices.size(), cell, i);
     }
 
@@ -127,17 +121,14 @@ test(const unsigned int n_refinements, const unsigned int geometry_type)
 
   matrix_free.template cell_loop<VectorType, VectorType>(
     [&](const auto &matrix_free, auto &dst, const auto &src, auto range) {
-      FEEvaluation<dim, fe_degree, n_points, 1, Number, VectorizedArrayType>
-        phi(matrix_free);
+      FEEvaluation<dim, fe_degree, n_points, 1, Number, VectorizedArrayType> phi(matrix_free);
 
       for (unsigned int cell = range.first; cell < range.second; ++cell)
         {
           phi.reinit(cell);
           phi.read_dof_values(src);
 
-          for (unsigned int v = 0;
-               v < matrix_free.n_active_entries_per_cell_batch(cell);
-               ++v)
+          for (unsigned int v = 0; v < matrix_free.n_active_entries_per_cell_batch(cell); ++v)
             {
               std::vector<Point<dim>> points;
 
@@ -167,22 +158,18 @@ test(const unsigned int n_refinements, const unsigned int geometry_type)
 
   // test variable reinit() function
   {
-    FEEvaluation<dim, fe_degree, n_points, 1, Number, VectorizedArrayType> phi(
-      matrix_free);
+    FEEvaluation<dim, fe_degree, n_points, 1, Number, VectorizedArrayType> phi(matrix_free);
 
-    for (unsigned int v = 0; v < indices.size();
-         v += VectorizedArrayType::size())
+    for (unsigned int v = 0; v < indices.size(); v += VectorizedArrayType::size())
       {
         std::array<unsigned int, VectorizedArrayType::size()> indices_;
 
         indices_.fill(numbers::invalid_unsigned_int);
 
-        const unsigned int n_lanes_filled =
-          std::min(v + VectorizedArrayType::size(), indices.size()) - v;
+        const unsigned int n_lanes_filled = std::min(v + VectorizedArrayType::size(), indices.size()) - v;
 
         for (unsigned int i = v, c = 0; i < v + n_lanes_filled; ++i, ++c)
-          indices_[c] = std::get<1>(indices[i]) * VectorizedArrayType::size() +
-                        std::get<2>(indices[i]);
+          indices_[c] = std::get<1>(indices[i]) * VectorizedArrayType::size() + std::get<2>(indices[i]);
 
         phi.reinit(indices_);
         phi.read_dof_values(src);
@@ -204,8 +191,7 @@ test(const unsigned int n_refinements, const unsigned int geometry_type)
 
             // perform comparison
 
-            Assert(points == quadrature_points_ref[std::get<0>(indices[i])],
-                   ExcInternalError());
+            Assert(points == quadrature_points_ref[std::get<0>(indices[i])], ExcInternalError());
 
             std::vector<Number> values;
 
@@ -213,8 +199,7 @@ test(const unsigned int n_refinements, const unsigned int geometry_type)
               values.emplace_back(phi.get_dof_value(i)[c]);
 
             // perform comparison
-            Assert(values == values_ref[std::get<0>(indices[i])],
-                   ExcInternalError());
+            Assert(values == values_ref[std::get<0>(indices[i])], ExcInternalError());
           }
       }
   }

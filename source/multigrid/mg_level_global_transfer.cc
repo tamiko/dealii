@@ -48,23 +48,17 @@ DEAL_II_NAMESPACE_OPEN
 template <typename VectorType>
 template <int dim, int spacedim>
 void
-MGLevelGlobalTransfer<VectorType>::fill_and_communicate_copy_indices(
-  const DoFHandler<dim, spacedim> &mg_dof)
+MGLevelGlobalTransfer<VectorType>::fill_and_communicate_copy_indices(const DoFHandler<dim, spacedim> &mg_dof)
 {
-  internal::MGTransfer::fill_copy_indices(mg_dof,
-                                          mg_constrained_dofs,
-                                          copy_indices,
-                                          copy_indices_global_mine,
-                                          copy_indices_level_mine);
+  internal::MGTransfer::fill_copy_indices(
+    mg_dof, mg_constrained_dofs, copy_indices, copy_indices_global_mine, copy_indices_level_mine);
 
   // check if we can run a plain copy operation between the global DoFs and
   // the finest level.
   bool my_perform_plain_copy =
     (copy_indices.back().size() == mg_dof.locally_owned_dofs().n_elements()) &&
     (mg_dof.locally_owned_dofs().n_elements() ==
-     mg_dof
-       .locally_owned_mg_dofs(mg_dof.get_triangulation().n_global_levels() - 1)
-       .n_elements());
+     mg_dof.locally_owned_mg_dofs(mg_dof.get_triangulation().n_global_levels() - 1).n_elements());
   if (my_perform_plain_copy)
     {
       AssertDimension(copy_indices_global_mine.back().size(), 0);
@@ -84,10 +78,8 @@ MGLevelGlobalTransfer<VectorType>::fill_and_communicate_copy_indices(
   // now do a global reduction over all processors to see what operation
   // they can agree upon
   if (const parallel::TriangulationBase<dim, spacedim> *ptria =
-        dynamic_cast<const parallel::TriangulationBase<dim, spacedim> *>(
-          &mg_dof.get_triangulation()))
-    perform_plain_copy = (Utilities::MPI::min(my_perform_plain_copy ? 1 : 0,
-                                              ptria->get_communicator()) == 1);
+        dynamic_cast<const parallel::TriangulationBase<dim, spacedim> *>(&mg_dof.get_triangulation()))
+    perform_plain_copy = (Utilities::MPI::min(my_perform_plain_copy ? 1 : 0, ptria->get_communicator()) == 1);
   else
     perform_plain_copy = my_perform_plain_copy;
 }
@@ -116,22 +108,20 @@ MGLevelGlobalTransfer<VectorType>::print_indices(std::ostream &os) const
   for (unsigned int level = 0; level < copy_indices.size(); ++level)
     {
       for (unsigned int i = 0; i < copy_indices[level].size(); ++i)
-        os << "copy_indices[" << level << "]\t" << copy_indices[level][i].first
-           << '\t' << copy_indices[level][i].second << std::endl;
+        os << "copy_indices[" << level << "]\t" << copy_indices[level][i].first << '\t' << copy_indices[level][i].second
+           << std::endl;
     }
 
   for (unsigned int level = 0; level < copy_indices_level_mine.size(); ++level)
     {
       for (unsigned int i = 0; i < copy_indices_level_mine[level].size(); ++i)
-        os << "copy_ifrom  [" << level << "]\t"
-           << copy_indices_level_mine[level][i].first << '\t'
+        os << "copy_ifrom  [" << level << "]\t" << copy_indices_level_mine[level][i].first << '\t'
            << copy_indices_level_mine[level][i].second << std::endl;
     }
   for (unsigned int level = 0; level < copy_indices_global_mine.size(); ++level)
     {
       for (unsigned int i = 0; i < copy_indices_global_mine[level].size(); ++i)
-        os << "copy_ito    [" << level << "]\t"
-           << copy_indices_global_mine[level][i].first << '\t'
+        os << "copy_ito    [" << level << "]\t" << copy_indices_global_mine[level][i].first << '\t'
            << copy_indices_global_mine[level][i].second << std::endl;
     }
 }
@@ -159,28 +149,20 @@ namespace
 {
   template <int dim, int spacedim, typename Number>
   void
-  fill_internal(
-    const DoFHandler<dim, spacedim> &           mg_dof,
-    SmartPointer<const MGConstrainedDoFs>       mg_constrained_dofs,
-    const MPI_Comm                              mpi_communicator,
-    const bool                                  transfer_solution_vectors,
-    std::vector<Table<2, unsigned int>> &       copy_indices,
-    std::vector<Table<2, unsigned int>> &       copy_indices_global_mine,
-    std::vector<Table<2, unsigned int>> &       copy_indices_level_mine,
-    LinearAlgebra::distributed::Vector<Number> &ghosted_global_vector,
-    MGLevelObject<LinearAlgebra::distributed::Vector<Number>>
-      &ghosted_level_vector)
+  fill_internal(const DoFHandler<dim, spacedim>                           &mg_dof,
+                SmartPointer<const MGConstrainedDoFs>                      mg_constrained_dofs,
+                const MPI_Comm                                             mpi_communicator,
+                const bool                                                 transfer_solution_vectors,
+                std::vector<Table<2, unsigned int>>                       &copy_indices,
+                std::vector<Table<2, unsigned int>>                       &copy_indices_global_mine,
+                std::vector<Table<2, unsigned int>>                       &copy_indices_level_mine,
+                LinearAlgebra::distributed::Vector<Number>                &ghosted_global_vector,
+                MGLevelObject<LinearAlgebra::distributed::Vector<Number>> &ghosted_level_vector)
   {
     // first go to the usual routine...
-    std::vector<
-      std::vector<std::pair<types::global_dof_index, types::global_dof_index>>>
-      my_copy_indices;
-    std::vector<
-      std::vector<std::pair<types::global_dof_index, types::global_dof_index>>>
-      my_copy_indices_global_mine;
-    std::vector<
-      std::vector<std::pair<types::global_dof_index, types::global_dof_index>>>
-      my_copy_indices_level_mine;
+    std::vector<std::vector<std::pair<types::global_dof_index, types::global_dof_index>>> my_copy_indices;
+    std::vector<std::vector<std::pair<types::global_dof_index, types::global_dof_index>>> my_copy_indices_global_mine;
+    std::vector<std::vector<std::pair<types::global_dof_index, types::global_dof_index>>> my_copy_indices_level_mine;
 
     internal::MGTransfer::fill_copy_indices(mg_dof,
                                             mg_constrained_dofs,
@@ -198,15 +180,11 @@ namespace
     // ghost indices of the respective vectors (due to construction, these are
     // precisely the indices that we need)
 
-    IndexSet index_set(mg_dof.locally_owned_dofs().size());
+    IndexSet                             index_set(mg_dof.locally_owned_dofs().size());
     std::vector<types::global_dof_index> accessed_indices;
-    ghosted_level_vector.resize(0,
-                                mg_dof.get_triangulation().n_global_levels() -
-                                  1);
-    std::vector<IndexSet> level_index_set(
-      mg_dof.get_triangulation().n_global_levels());
-    for (unsigned int l = 0; l < mg_dof.get_triangulation().n_global_levels();
-         ++l)
+    ghosted_level_vector.resize(0, mg_dof.get_triangulation().n_global_levels() - 1);
+    std::vector<IndexSet> level_index_set(mg_dof.get_triangulation().n_global_levels());
+    for (unsigned int l = 0; l < mg_dof.get_triangulation().n_global_levels(); ++l)
       {
         for (const auto &indices : my_copy_indices_level_mine[l])
           accessed_indices.push_back(indices.first);
@@ -215,49 +193,34 @@ namespace
           accessed_level_indices.push_back(indices.second);
         std::sort(accessed_level_indices.begin(), accessed_level_indices.end());
         level_index_set[l].set_size(mg_dof.locally_owned_mg_dofs(l).size());
-        level_index_set[l].add_indices(accessed_level_indices.begin(),
-                                       accessed_level_indices.end());
+        level_index_set[l].add_indices(accessed_level_indices.begin(), accessed_level_indices.end());
         level_index_set[l].compress();
-        ghosted_level_vector[l].reinit(mg_dof.locally_owned_mg_dofs(l),
-                                       level_index_set[l],
-                                       mpi_communicator);
+        ghosted_level_vector[l].reinit(mg_dof.locally_owned_mg_dofs(l), level_index_set[l], mpi_communicator);
       }
     std::sort(accessed_indices.begin(), accessed_indices.end());
     index_set.add_indices(accessed_indices.begin(), accessed_indices.end());
     index_set.compress();
-    ghosted_global_vector.reinit(mg_dof.locally_owned_dofs(),
-                                 index_set,
-                                 mpi_communicator);
+    ghosted_global_vector.reinit(mg_dof.locally_owned_dofs(), index_set, mpi_communicator);
 
     // localize the copy indices for faster access. Since all access will be
     // through the ghosted vector in 'data', we can use this (much faster)
     // option
     copy_indices.resize(mg_dof.get_triangulation().n_global_levels());
-    copy_indices_level_mine.resize(
-      mg_dof.get_triangulation().n_global_levels());
-    copy_indices_global_mine.resize(
-      mg_dof.get_triangulation().n_global_levels());
-    for (unsigned int level = 0;
-         level < mg_dof.get_triangulation().n_global_levels();
-         ++level)
+    copy_indices_level_mine.resize(mg_dof.get_triangulation().n_global_levels());
+    copy_indices_global_mine.resize(mg_dof.get_triangulation().n_global_levels());
+    for (unsigned int level = 0; level < mg_dof.get_triangulation().n_global_levels(); ++level)
       {
-        const Utilities::MPI::Partitioner &global_partitioner =
-          *ghosted_global_vector.get_partitioner();
-        const Utilities::MPI::Partitioner &level_partitioner =
-          *ghosted_level_vector[level].get_partitioner();
+        const Utilities::MPI::Partitioner &global_partitioner = *ghosted_global_vector.get_partitioner();
+        const Utilities::MPI::Partitioner &level_partitioner  = *ghosted_level_vector[level].get_partitioner();
 
         auto translate_indices =
-          [&](const std::vector<
-                std::pair<types::global_dof_index, types::global_dof_index>>
-                &                     global_copy_indices,
-              Table<2, unsigned int> &local_copy_indices) {
+          [&](const std::vector<std::pair<types::global_dof_index, types::global_dof_index>> &global_copy_indices,
+              Table<2, unsigned int>                                                         &local_copy_indices) {
             local_copy_indices.reinit(2, global_copy_indices.size());
             for (unsigned int i = 0; i < global_copy_indices.size(); ++i)
               {
-                local_copy_indices(0, i) = global_partitioner.global_to_local(
-                  global_copy_indices[i].first);
-                local_copy_indices(1, i) = level_partitioner.global_to_local(
-                  global_copy_indices[i].second);
+                local_copy_indices(0, i) = global_partitioner.global_to_local(global_copy_indices[i].first);
+                local_copy_indices(1, i) = level_partitioner.global_to_local(global_copy_indices[i].second);
               }
           };
 
@@ -265,12 +228,10 @@ namespace
         translate_indices(my_copy_indices[level], copy_indices[level]);
 
         // remote-owned case
-        translate_indices(my_copy_indices_level_mine[level],
-                          copy_indices_level_mine[level]);
+        translate_indices(my_copy_indices_level_mine[level], copy_indices_level_mine[level]);
 
         // owned-remote case
-        translate_indices(my_copy_indices_global_mine[level],
-                          copy_indices_global_mine[level]);
+        translate_indices(my_copy_indices_global_mine[level], copy_indices_global_mine[level]);
       }
   }
 } // namespace
@@ -278,8 +239,8 @@ namespace
 template <typename Number>
 template <int dim, int spacedim>
 void
-MGLevelGlobalTransfer<LinearAlgebra::distributed::Vector<Number>>::
-  fill_and_communicate_copy_indices(const DoFHandler<dim, spacedim> &mg_dof)
+MGLevelGlobalTransfer<LinearAlgebra::distributed::Vector<Number>>::fill_and_communicate_copy_indices(
+  const DoFHandler<dim, spacedim> &mg_dof)
 {
   const MPI_Comm mpi_communicator = mg_dof.get_communicator();
 
@@ -299,11 +260,8 @@ MGLevelGlobalTransfer<LinearAlgebra::distributed::Vector<Number>>::
   // indices of the standard transfer.
   int have_refinement_edge_dofs = 0;
   if (mg_constrained_dofs != nullptr)
-    for (unsigned int level = 0;
-         level < mg_dof.get_triangulation().n_global_levels();
-         ++level)
-      if (mg_constrained_dofs->get_refinement_edge_indices(level).n_elements() >
-          0)
+    for (unsigned int level = 0; level < mg_dof.get_triangulation().n_global_levels(); ++level)
+      if (mg_constrained_dofs->get_refinement_edge_indices(level).n_elements() > 0)
         {
           have_refinement_edge_dofs = 1;
           break;
@@ -311,9 +269,8 @@ MGLevelGlobalTransfer<LinearAlgebra::distributed::Vector<Number>>::
   if (Utilities::MPI::max(have_refinement_edge_dofs, mpi_communicator) == 1)
     {
       // note: variables not needed
-      std::vector<Table<2, unsigned int>> solution_copy_indices_global_mine;
-      MGLevelObject<LinearAlgebra::distributed::Vector<Number>>
-        solution_ghosted_level_vector;
+      std::vector<Table<2, unsigned int>>                       solution_copy_indices_global_mine;
+      MGLevelObject<LinearAlgebra::distributed::Vector<Number>> solution_ghosted_level_vector;
 
       fill_internal(mg_dof,
                     mg_constrained_dofs,
@@ -339,10 +296,8 @@ MGLevelGlobalTransfer<LinearAlgebra::distributed::Vector<Number>>::
   // copy_indices (so no adaptive refinement) and b) all processors
   // agree on the choice (see below).
   const bool my_perform_renumbered_plain_copy =
-    (this->copy_indices.back().n_cols() ==
-     mg_dof.locally_owned_dofs().n_elements()) &&
-    (this->copy_indices_global_mine.back().n_rows() == 0) &&
-    (this->copy_indices_level_mine.back().n_rows() == 0);
+    (this->copy_indices.back().n_cols() == mg_dof.locally_owned_dofs().n_elements()) &&
+    (this->copy_indices_global_mine.back().n_rows() == 0) && (this->copy_indices_level_mine.back().n_rows() == 0);
 
   bool my_perform_plain_copy = false;
   if (my_perform_renumbered_plain_copy)
@@ -361,12 +316,9 @@ MGLevelGlobalTransfer<LinearAlgebra::distributed::Vector<Number>>::
 
   // now do a global reduction over all processors to see what operation
   // they can agree upon
-  perform_plain_copy =
-    Utilities::MPI::min(static_cast<int>(my_perform_plain_copy),
-                        mpi_communicator);
+  perform_plain_copy = Utilities::MPI::min(static_cast<int>(my_perform_plain_copy), mpi_communicator);
   perform_renumbered_plain_copy =
-    Utilities::MPI::min(static_cast<int>(my_perform_renumbered_plain_copy),
-                        mpi_communicator);
+    Utilities::MPI::min(static_cast<int>(my_perform_renumbered_plain_copy), mpi_communicator);
 
   // if we do a plain copy, no need to hold additional ghosted vectors
   if (perform_renumbered_plain_copy)
@@ -406,29 +358,25 @@ MGLevelGlobalTransfer<LinearAlgebra::distributed::Vector<Number>>::clear()
 
 template <typename Number>
 void
-MGLevelGlobalTransfer<LinearAlgebra::distributed::Vector<Number>>::
-  print_indices(std::ostream &os) const
+MGLevelGlobalTransfer<LinearAlgebra::distributed::Vector<Number>>::print_indices(std::ostream &os) const
 {
   for (unsigned int level = 0; level < copy_indices.size(); ++level)
     {
       for (unsigned int i = 0; i < copy_indices[level].n_cols(); ++i)
-        os << "copy_indices[" << level << "]\t" << copy_indices[level](0, i)
-           << '\t' << copy_indices[level](1, i) << std::endl;
+        os << "copy_indices[" << level << "]\t" << copy_indices[level](0, i) << '\t' << copy_indices[level](1, i)
+           << std::endl;
     }
 
   for (unsigned int level = 0; level < copy_indices_level_mine.size(); ++level)
     {
       for (unsigned int i = 0; i < copy_indices_level_mine[level].n_cols(); ++i)
-        os << "copy_ifrom  [" << level << "]\t"
-           << copy_indices_level_mine[level](0, i) << '\t'
+        os << "copy_ifrom  [" << level << "]\t" << copy_indices_level_mine[level](0, i) << '\t'
            << copy_indices_level_mine[level](1, i) << std::endl;
     }
   for (unsigned int level = 0; level < copy_indices_global_mine.size(); ++level)
     {
-      for (unsigned int i = 0; i < copy_indices_global_mine[level].n_cols();
-           ++i)
-        os << "copy_ito    [" << level << "]\t"
-           << copy_indices_global_mine[level](0, i) << '\t'
+      for (unsigned int i = 0; i < copy_indices_global_mine[level].n_cols(); ++i)
+        os << "copy_ito    [" << level << "]\t" << copy_indices_global_mine[level](0, i) << '\t'
            << copy_indices_global_mine[level](1, i) << std::endl;
     }
 }
@@ -437,8 +385,7 @@ MGLevelGlobalTransfer<LinearAlgebra::distributed::Vector<Number>>::
 
 template <typename Number>
 std::size_t
-MGLevelGlobalTransfer<
-  LinearAlgebra::distributed::Vector<Number>>::memory_consumption() const
+MGLevelGlobalTransfer<LinearAlgebra::distributed::Vector<Number>>::memory_consumption() const
 {
   std::size_t result = sizeof(*this);
   result += MemoryConsumption::memory_consumption(sizes);
@@ -446,9 +393,7 @@ MGLevelGlobalTransfer<
   result += MemoryConsumption::memory_consumption(copy_indices_global_mine);
   result += MemoryConsumption::memory_consumption(copy_indices_level_mine);
   result += ghosted_global_vector.memory_consumption();
-  for (unsigned int i = ghosted_level_vector.min_level();
-       i <= ghosted_level_vector.max_level();
-       ++i)
+  for (unsigned int i = ghosted_level_vector.min_level(); i <= ghosted_level_vector.max_level(); ++i)
     result += ghosted_level_vector[i].memory_consumption();
 
   return result;

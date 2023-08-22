@@ -38,17 +38,11 @@ main()
   const Point<2> p(1, 2);
   const Point<2> p2(2, 3);
 
-  Utilities::MutableBind<void,
-                         std::reference_wrapper<const Point<2>>,
-                         double,
-                         unsigned int>
-    exp(std::bind(example_function,
-                  std::placeholders::_1,
-                  std::placeholders::_2,
-                  std::placeholders::_3),
-        std::cref(p),
-        3.0,
-        4);
+  Utilities::MutableBind<void, std::reference_wrapper<const Point<2>>, double, unsigned int> exp(
+    std::bind(example_function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
+    std::cref(p),
+    3.0,
+    4);
 
   exp.set_arguments(std::cref(p), 3.0, 4);
   exp(); // executes example_function(p, 3.0, 4);

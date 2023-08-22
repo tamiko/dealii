@@ -53,8 +53,7 @@ test()
   cells[1].vertices[3] = 5;
 
   SubCellData       subcelldata;
-  const std::size_t n_cells_inverted =
-    GridTools::invert_cells_with_negative_measure<>(vertices, cells);
+  const std::size_t n_cells_inverted = GridTools::invert_cells_with_negative_measure<>(vertices, cells);
 
   deallog << "We inverted " << n_cells_inverted << " cells." << std::endl;
 
@@ -65,9 +64,7 @@ test()
   tria.create_triangulation(vertices, cells, subcelldata);
 
   std::ostream &logfile = deallog.get_file_stream();
-  logfile << "---------------------------------------------" << std::endl
-          << std::endl
-          << std::endl;
+  logfile << "---------------------------------------------" << std::endl << std::endl << std::endl;
 
   GridOut grid_out;
   grid_out.set_flags(GridOutFlags::Ucd(true));

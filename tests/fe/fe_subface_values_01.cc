@@ -53,9 +53,7 @@ run(unsigned int degree, unsigned int n_q_points)
   tria.begin_active()->face(3)->set_boundary_id(13);
 
   // Add periodic boundary conds
-  std::vector<
-    GridTools::PeriodicFacePair<typename Triangulation<dim>::cell_iterator>>
-    periodic_faces;
+  std::vector<GridTools::PeriodicFacePair<typename Triangulation<dim>::cell_iterator>> periodic_faces;
   GridTools::collect_periodic_faces(tria, 10, 11, 0, periodic_faces);
   GridTools::collect_periodic_faces(tria, 12, 13, 1, periodic_faces);
   tria.add_periodicity(periodic_faces);

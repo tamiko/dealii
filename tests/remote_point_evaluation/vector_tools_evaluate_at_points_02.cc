@@ -53,13 +53,11 @@ template <typename MeshType>
 MPI_Comm
 get_mpi_comm(const MeshType &mesh)
 {
-  const auto *tria_parallel = dynamic_cast<
-    const parallel::TriangulationBase<MeshType::dimension,
-                                      MeshType::space_dimension> *>(
-    &(mesh.get_triangulation()));
+  const auto *tria_parallel =
+    dynamic_cast<const parallel::TriangulationBase<MeshType::dimension, MeshType::space_dimension> *>(
+      &(mesh.get_triangulation()));
 
-  return tria_parallel != nullptr ? tria_parallel->get_communicator() :
-                                    MPI_COMM_SELF;
+  return tria_parallel != nullptr ? tria_parallel->get_communicator() : MPI_COMM_SELF;
 }
 
 template <int dim, int spacedim>
@@ -70,17 +68,16 @@ create_partitioner(const DoFHandler<dim, spacedim> &dof_handler)
 
   DoFTools::extract_locally_relevant_dofs(dof_handler, locally_relevant_dofs);
 
-  return std::make_shared<const Utilities::MPI::Partitioner>(
-    dof_handler.locally_owned_dofs(),
-    locally_relevant_dofs,
-    get_mpi_comm(dof_handler));
+  return std::make_shared<const Utilities::MPI::Partitioner>(dof_handler.locally_owned_dofs(),
+                                                             locally_relevant_dofs,
+                                                             get_mpi_comm(dof_handler));
 }
 
 
 template <int dim>
 void
-print(const Mapping<dim> &                              mapping,
-      const DoFHandler<dim> &                           dof_handler,
+print(const Mapping<dim>                               &mapping,
+      const DoFHandler<dim>                            &dof_handler,
       const LinearAlgebra::distributed::Vector<double> &result,
       const unsigned int                                counter)
 {
@@ -96,17 +93,13 @@ print(const Mapping<dim> &                              mapping,
   const auto &tria = dof_handler.get_triangulation();
 
   Vector<double> ranks(tria.n_active_cells());
-  for (const auto &cell :
-       tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     ranks(cell->active_cell_index()) = cell->subdomain_id();
   data_out.add_data_vector(ranks, "rank");
   data_out.add_data_vector(result, "result");
 
-  data_out.build_patches(
-    mapping,
-    std::min<unsigned int>(2, dof_handler.get_fe().tensor_degree() + 1));
-  data_out.write_vtu_with_pvtu_record(
-    "./", "example-2", counter, MPI_COMM_WORLD, 1, 1);
+  data_out.build_patches(mapping, std::min<unsigned int>(2, dof_handler.get_fe().tensor_degree() + 1));
+  data_out.write_vtu_with_pvtu_record("./", "example-2", counter, MPI_COMM_WORLD, 1, 1);
 
   result.zero_out_ghost_values();
 }
@@ -117,9 +110,9 @@ class PoissonProblem
 public:
   PoissonProblem(const Triangulation<dim> &tria,
                  const unsigned int        id,
-                 const Mapping<dim> &      mapping,
+                 const Mapping<dim>       &mapping,
                  const FiniteElement<dim> &fe,
-                 const Quadrature<dim> &   quad)
+                 const Quadrature<dim>    &quad)
     : id(id)
     , mapping(mapping)
     , fe(fe)
@@ -134,17 +127,15 @@ public:
   }
 
   void
-  solve(const DoFHandler<dim> &                           dof_handler_other,
+  solve(const DoFHandler<dim>                            &dof_handler_other,
         const LinearAlgebra::distributed::Vector<double> &solution_other,
-        const Mapping<dim> &                              mapping_other)
+        const Mapping<dim>                               &mapping_other)
   {
     AffineConstraints<double> constraints;
     {
       std::map<types::global_dof_index, Point<dim>> support_points;
 
-      DoFTools::map_dofs_to_support_points(mapping,
-                                           dof_handler,
-                                           support_points);
+      DoFTools::map_dofs_to_support_points(mapping, dof_handler, support_points);
 
       std::vector<types::global_dof_index> global_ids;
 
@@ -158,19 +149,15 @@ public:
               if (face->at_boundary() == false)
                 continue;
 
-              std::vector<types::global_dof_index> dofs_on_face(
-                dof_handler.get_fe().n_dofs_per_face());
+              std::vector<types::global_dof_index> dofs_on_face(dof_handler.get_fe().n_dofs_per_face());
               face->get_dof_indices(dofs_on_face);
 
-              global_ids.insert(global_ids.end(),
-                                dofs_on_face.begin(),
-                                dofs_on_face.end());
+              global_ids.insert(global_ids.end(), dofs_on_face.begin(), dofs_on_face.end());
             }
         }
 
       std::sort(global_ids.begin(), global_ids.end());
-      global_ids.erase(unique(global_ids.begin(), global_ids.end()),
-                       global_ids.end());
+      global_ids.erase(unique(global_ids.begin(), global_ids.end()), global_ids.end());
 
       std::vector<Point<dim>> evaluation_points;
       evaluation_points.reserve(global_ids.size());
@@ -180,12 +167,8 @@ public:
 
       solution_other.update_ghost_values();
       Utilities::MPI::RemotePointEvaluation<dim> evaluation_cache;
-      const auto                                 evaluation_point_results =
-        VectorTools::point_values<1>(mapping_other,
-                                     dof_handler_other,
-                                     solution_other,
-                                     evaluation_points,
-                                     evaluation_cache);
+      const auto                                 evaluation_point_results = VectorTools::point_values<1>(
+        mapping_other, dof_handler_other, solution_other, evaluation_points, evaluation_cache);
       solution_other.zero_out_ghost_values();
       for (unsigned int i = 0; i < evaluation_points.size(); ++i)
         {
@@ -193,8 +176,7 @@ public:
             continue;
 
           constraints.add_line(global_ids[i]);
-          constraints.set_inhomogeneity(global_ids[i],
-                                        evaluation_point_results[i]);
+          constraints.set_inhomogeneity(global_ids[i], evaluation_point_results[i]);
         }
     }
     constraints.close();
@@ -206,18 +188,13 @@ public:
 
       TrilinosWrappers::SparseMatrix A;
 
-      TrilinosWrappers::SparsityPattern dsp(dof_handler.locally_owned_dofs(),
-                                            get_mpi_comm(dof_handler));
+      TrilinosWrappers::SparsityPattern dsp(dof_handler.locally_owned_dofs(), get_mpi_comm(dof_handler));
       DoFTools::make_sparsity_pattern(dof_handler, dsp, constraints, false);
       dsp.compress();
       A.reinit(dsp);
 
       // assemble right-hand side and system matrix
-      FEValues<dim> fe_values(mapping,
-                              fe,
-                              quad,
-                              update_values | update_gradients |
-                                update_JxW_values);
+      FEValues<dim> fe_values(mapping, fe, quad, update_values | update_gradients | update_JxW_values);
 
       FullMatrix<double>                   cell_matrix;
       Vector<double>                       cell_rhs;
@@ -240,10 +217,9 @@ public:
             {
               for (const auto i : fe_values.dof_indices())
                 for (const auto j : fe_values.dof_indices())
-                  cell_matrix(i, j) +=
-                    (fe_values.shape_grad(i, q) * // grad phi_i(x_q)
-                     fe_values.shape_grad(j, q) * // grad phi_j(x_q)
-                     fe_values.JxW(q));           // dx
+                  cell_matrix(i, j) += (fe_values.shape_grad(i, q) * // grad phi_i(x_q)
+                                        fe_values.shape_grad(j, q) * // grad phi_j(x_q)
+                                        fe_values.JxW(q));           // dx
 
               for (const unsigned int i : fe_values.dof_indices())
                 cell_rhs(i) += (fe_values.shape_value(i, q) * // phi_i(x_q)
@@ -254,23 +230,19 @@ public:
           local_dof_indices.resize(cell->get_fe().dofs_per_cell);
           cell->get_dof_indices(local_dof_indices);
 
-          constraints.distribute_local_to_global(
-            cell_matrix, cell_rhs, local_dof_indices, A, b);
+          constraints.distribute_local_to_global(cell_matrix, cell_rhs, local_dof_indices, A, b);
         }
 
       b.compress(VectorOperation::values::add);
       A.compress(VectorOperation::values::add);
 
       // solve linear equation system
-      ReductionControl reduction_control(1000, 1e-12, 1e-10);
-      SolverCG<LinearAlgebra::distributed::Vector<double>> solver(
-        reduction_control);
+      ReductionControl                                     reduction_control(1000, 1e-12, 1e-10);
+      SolverCG<LinearAlgebra::distributed::Vector<double>> solver(reduction_control);
       solver.solve(A, solution, b, PreconditionIdentity());
 
-      if (false && Utilities::MPI::this_mpi_process(
-                     get_mpi_comm(dof_handler.get_triangulation())) == 0)
-        deallog << "Solved in " << reduction_control.last_step()
-                << " iterations." << std::endl;
+      if (false && Utilities::MPI::this_mpi_process(get_mpi_comm(dof_handler.get_triangulation())) == 0)
+        deallog << "Solved in " << reduction_control.last_step() << " iterations." << std::endl;
 
       constraints.distribute(solution);
     }
@@ -280,9 +252,9 @@ public:
 
 public:
   const unsigned int                                 id;
-  const Mapping<dim> &                               mapping;
-  const FiniteElement<dim> &                         fe;
-  const Quadrature<dim> &                            quad;
+  const Mapping<dim>                                &mapping;
+  const FiniteElement<dim>                          &fe;
+  const Quadrature<dim>                             &quad;
   DoFHandler<dim>                                    dof_handler;
   std::shared_ptr<const Utilities::MPI::Partitioner> partitioner;
   LinearAlgebra::distributed::Vector<double>         solution;

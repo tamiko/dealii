@@ -53,28 +53,19 @@ test(std::ostream &out)
 
   // extract triangulation of boundary
   Triangulation<spacedim - 1, spacedim> tria_boundary;
-  auto                                  map_boundary_to_domain =
-    GridGenerator::extract_boundary_mesh(triaDomain, tria_boundary);
+  auto map_boundary_to_domain = GridGenerator::extract_boundary_mesh(triaDomain, tria_boundary);
 
   // output of vertex positions
   out << "Vertex positions, center difference:" << std::endl;
-  for (auto cell_pair = map_boundary_to_domain.begin();
-       cell_pair != map_boundary_to_domain.end();
-       ++cell_pair)
+  for (auto cell_pair = map_boundary_to_domain.begin(); cell_pair != map_boundary_to_domain.end(); ++cell_pair)
     {
-      for (unsigned int vertex = 0;
-           vertex < GeometryInfo<spacedim>::vertices_per_face;
-           vertex++)
+      for (unsigned int vertex = 0; vertex < GeometryInfo<spacedim>::vertices_per_face; vertex++)
         out << cell_pair->first->vertex(vertex) << std::endl;
       out << "-----------------------" << std::endl;
-      for (unsigned int vertex = 0;
-           vertex < GeometryInfo<spacedim>::vertices_per_face;
-           vertex++)
+      for (unsigned int vertex = 0; vertex < GeometryInfo<spacedim>::vertices_per_face; vertex++)
         out << cell_pair->second->vertex(vertex) << std::endl;
       out << "-----------------------" << std::endl;
-      out << cell_pair->first->center() - cell_pair->second->center()
-          << std::endl
-          << std::endl;
+      out << cell_pair->first->center() - cell_pair->second->center() << std::endl << std::endl;
     }
 
   // output of boundary triangulation

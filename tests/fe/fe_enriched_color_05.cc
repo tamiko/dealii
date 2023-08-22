@@ -43,7 +43,7 @@
 #include "../tests.h"
 
 // uncomment when debugging
-//#define DATA_OUT_FE_ENRICHED
+// #define DATA_OUT_FE_ENRICHED
 
 /*
  * Predicate function needed by ColorEnriched::internal::color_predicates
@@ -87,8 +87,7 @@ private:
  * ColorEnriched::internal::color_predicates.
  */
 template <int dim>
-using predicate_function =
-  std::function<bool(const typename Triangulation<dim>::cell_iterator &)>;
+using predicate_function = std::function<bool(const typename Triangulation<dim>::cell_iterator &)>;
 
 
 
@@ -96,8 +95,7 @@ template <int dim>
 void
 plot_shape_function(DoFHandler<dim> &dof_handler, unsigned int patches = 5)
 {
-  std::cout << "n_cells: " << dof_handler.get_triangulation().n_active_cells()
-            << std::endl;
+  std::cout << "n_cells: " << dof_handler.get_triangulation().n_active_cells() << std::endl;
 
   AffineConstraints<double> constraints;
   constraints.clear();
@@ -116,13 +114,11 @@ plot_shape_function(DoFHandler<dim> &dof_handler, unsigned int patches = 5)
       // if the dof is constrained, first output unconstrained vector
       if (constraints.is_constrained(s))
         {
-          names.push_back(std::string("UN_") +
-                          dealii::Utilities::int_to_string(s, 2));
+          names.push_back(std::string("UN_") + dealii::Utilities::int_to_string(s, 2));
           shape_functions.push_back(shape_function);
         }
 
-      names.push_back(std::string("N_") +
-                      dealii::Utilities::int_to_string(s, 2));
+      names.push_back(std::string("N_") + dealii::Utilities::int_to_string(s, 2));
 
       // make continuous/constrain:
       constraints.distribute(shape_function);
@@ -133,10 +129,8 @@ plot_shape_function(DoFHandler<dim> &dof_handler, unsigned int patches = 5)
   data_out.attach_dof_handler(dof_handler);
 
   // get material ids:
-  Vector<float> fe_index(dof_handler.get_triangulation().n_active_cells());
-  typename DoFHandler<dim>::active_cell_iterator cell =
-                                                   dof_handler.begin_active(),
-                                                 endc = dof_handler.end();
+  Vector<float>                                  fe_index(dof_handler.get_triangulation().n_active_cells());
+  typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
   for (unsigned int index = 0; cell != endc; ++cell, ++index)
     {
       fe_index[index] = cell->active_fe_index();
@@ -148,8 +142,7 @@ plot_shape_function(DoFHandler<dim> &dof_handler, unsigned int patches = 5)
 
   data_out.build_patches(patches);
 
-  std::string filename =
-    "hp-shape_functions_" + dealii::Utilities::int_to_string(dim) + "D.vtu";
+  std::string   filename = "hp-shape_functions_" + dealii::Utilities::int_to_string(dim) + "D.vtu";
   std::ofstream output(filename);
   data_out.write_vtu(output);
 }
@@ -179,22 +172,14 @@ main(int argc, char **argv)
   // find colors for predicates
   std::vector<unsigned int> predicate_colors;
   predicate_colors.resize(vec_predicates.size());
-  unsigned int num_colors =
-    ColorEnriched::internal::color_predicates(dof_handler,
-                                              vec_predicates,
-                                              predicate_colors);
+  unsigned int num_colors = ColorEnriched::internal::color_predicates(dof_handler, vec_predicates, predicate_colors);
 
   // Make required objects to call function set_cellwise_color_set_and_fe_index
-  std::map<unsigned int, std::map<unsigned int, unsigned int>>
-                                      cellwise_color_predicate_map;
-  std::vector<std::set<unsigned int>> fe_sets;
+  std::map<unsigned int, std::map<unsigned int, unsigned int>> cellwise_color_predicate_map;
+  std::vector<std::set<unsigned int>>                          fe_sets;
 
   ColorEnriched::internal::set_cellwise_color_set_and_fe_index(
-    dof_handler,
-    vec_predicates,
-    predicate_colors,
-    cellwise_color_predicate_map,
-    fe_sets);
+    dof_handler, vec_predicates, predicate_colors, cellwise_color_predicate_map, fe_sets);
 
   // Construct vector of enrichment functions
   std::vector<std::shared_ptr<Function<dim>>> vec_enrichments;
@@ -203,14 +188,12 @@ main(int argc, char **argv)
     {
       // constant function.
       Functions::ConstantFunction<dim> func(10 + i); // constant function
-      vec_enrichments.push_back(
-        std::make_shared<Functions::ConstantFunction<dim>>(func));
+      vec_enrichments.push_back(std::make_shared<Functions::ConstantFunction<dim>>(func));
     }
 
   // Construct container for color enrichment functions needed
   // by function make_colorwise_enrichment_functions
-  std::vector<std::function<const Function<dim> *(
-    const typename Triangulation<dim>::cell_iterator &)>>
+  std::vector<std::function<const Function<dim> *(const typename Triangulation<dim>::cell_iterator &)>>
     color_enrichments;
 
   ColorEnriched::internal::make_colorwise_enrichment_functions<dim, dim>(
@@ -250,13 +233,11 @@ main(int argc, char **argv)
       deallog << "name:" << fe_collection[index].get_name() << std::endl;
       deallog << "n_blocks:" << fe_collection[index].n_blocks() << std::endl;
       deallog << "n_comp:" << fe_collection[index].n_components() << std::endl;
-      deallog << "n_dofs:" << fe_collection[index].n_dofs_per_cell()
-              << std::endl;
+      deallog << "n_dofs:" << fe_collection[index].n_dofs_per_cell() << std::endl;
     }
 
 #ifdef DATA_OUT_FE_ENRICHED
-  GridTools::partition_triangulation(Utilities::MPI::n_mpi_processes(
-                                       MPI_COMM_WORLD),
+  GridTools::partition_triangulation(Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD),
                                      triangulation,
                                      SparsityTools::Partitioner::zoltan);
   dof_handler.distribute_dofs(*fe_collection);

@@ -42,9 +42,7 @@ namespace python
      * Constructor. Takes a TriangulationWrapper, the level, and the index
      * associated to the cell.
      */
-    CellAccessorWrapper(TriangulationWrapper &triangulation_wrapper,
-                        const int             level,
-                        const int             index);
+    CellAccessorWrapper(TriangulationWrapper &triangulation_wrapper, const int level, const int index);
 
     /**
      * Constructor for an empty object.
@@ -90,8 +88,7 @@ namespace python
     /*! @copydoc TriaAccessor::center
      */
     PointWrapper
-    get_center(const bool respect_manifold             = false,
-               const bool interpolate_from_surrounding = false) const;
+    get_center(const bool respect_manifold = false, const bool interpolate_from_surrounding = false) const;
 
     /*! @copydoc CellAccessor::set_material_id
      */
@@ -211,15 +208,13 @@ namespace python
     DeclException2(ExcVertexDoesNotExist,
                    int,
                    int,
-                   << "Requested vertex number " << arg1
-                   << " does not exist. The largest vertex number "
+                   << "Requested vertex number " << arg1 << " does not exist. The largest vertex number "
                    << "acceptable is " << arg2 - 1);
 
     DeclException2(ExcNeighborDoesNotExist,
                    int,
                    int,
-                   << "Requested neighbor number " << arg1
-                   << " does not exist. The largest neighbor number "
+                   << "Requested neighbor number " << arg1 << " does not exist. The largest neighbor number "
                    << "acceptable is " << arg2 - 1);
 
   private:
@@ -259,9 +254,7 @@ namespace python
     neighbor_wrapper.dim      = dim_;
     neighbor_wrapper.spacedim = spacedim_;
     neighbor_wrapper.cell_accessor =
-      new CellAccessor<dim_, spacedim_>(&neighbor->get_triangulation(),
-                                        neighbor->level(),
-                                        neighbor->index());
+      new CellAccessor<dim_, spacedim_>(&neighbor->get_triangulation(), neighbor->level(), neighbor->index());
     return neighbor_wrapper;
   }
 } // namespace python

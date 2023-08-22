@@ -76,9 +76,8 @@ main(int argc, char *argv[])
   for (unsigned int i = 0; i < initial_n_dofs; ++i)
     solution[i] = old_value;
 
-  parallel::distributed::experimental::
-    FieldTransfer<2, LinearAlgebra::distributed::Vector<double>>
-      field_transfer(dof_handler);
+  parallel::distributed::experimental::FieldTransfer<2, LinearAlgebra::distributed::Vector<double>> field_transfer(
+    dof_handler);
   // Assign FE_Q to all the cells
   for (auto &cell : dof_handler.active_cell_iterators())
     {
@@ -92,15 +91,14 @@ main(int argc, char *argv[])
   triangulation.execute_coarsening_and_refinement();
 
   dof_handler.distribute_dofs(fe_collection);
-  const unsigned int dofs_per_cell =
-    dof_handler.get_fe_collection().max_dofs_per_cell();
+  const unsigned int dofs_per_cell = dof_handler.get_fe_collection().max_dofs_per_cell();
 
   AffineConstraints<double> affine_constraints;
   DoFTools::make_hanging_node_constraints(dof_handler, affine_constraints);
   affine_constraints.close();
   const double new_value = -1.;
 
-  const unsigned int final_n_dofs = dof_handler.n_dofs();
+  const unsigned int                         final_n_dofs = dof_handler.n_dofs();
   LinearAlgebra::distributed::Vector<double> new_solution(final_n_dofs);
   field_transfer.interpolate(new_value, affine_constraints, new_solution);
 

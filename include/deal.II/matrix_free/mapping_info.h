@@ -63,18 +63,17 @@ namespace internal
        * and several 1d quadrature formulas are given.
        */
       void
-      initialize(
-        const dealii::Triangulation<dim> &                        tria,
-        const std::vector<std::pair<unsigned int, unsigned int>> &cells,
-        const FaceInfo<VectorizedArrayType::size()> &             face_info,
-        const std::vector<unsigned int> &active_fe_index,
-        const std::shared_ptr<dealii::hp::MappingCollection<dim>> &mapping,
-        const std::vector<dealii::hp::QCollection<dim>> &          quad,
-        const UpdateFlags update_flags_cells,
-        const UpdateFlags update_flags_boundary_faces,
-        const UpdateFlags update_flags_inner_faces,
-        const UpdateFlags update_flags_faces_by_cells,
-        const bool        piola_transform);
+      initialize(const dealii::Triangulation<dim>                          &tria,
+                 const std::vector<std::pair<unsigned int, unsigned int>>  &cells,
+                 const FaceInfo<VectorizedArrayType::size()>               &face_info,
+                 const std::vector<unsigned int>                           &active_fe_index,
+                 const std::shared_ptr<dealii::hp::MappingCollection<dim>> &mapping,
+                 const std::vector<dealii::hp::QCollection<dim>>           &quad,
+                 const UpdateFlags                                          update_flags_cells,
+                 const UpdateFlags                                          update_flags_boundary_faces,
+                 const UpdateFlags                                          update_flags_inner_faces,
+                 const UpdateFlags                                          update_flags_faces_by_cells,
+                 const bool                                                 piola_transform);
 
       /**
        * Update the information in the given cells and faces that is the
@@ -83,12 +82,11 @@ namespace internal
        * valid if MappingInfo::initialize() has been called before.
        */
       void
-      update_mapping(
-        const dealii::Triangulation<dim> &                        tria,
-        const std::vector<std::pair<unsigned int, unsigned int>> &cells,
-        const FaceInfo<VectorizedArrayType::size()> &             face_info,
-        const std::vector<unsigned int> &active_fe_index,
-        const std::shared_ptr<dealii::hp::MappingCollection<dim>> &mapping);
+      update_mapping(const dealii::Triangulation<dim>                          &tria,
+                     const std::vector<std::pair<unsigned int, unsigned int>>  &cells,
+                     const FaceInfo<VectorizedArrayType::size()>               &face_info,
+                     const std::vector<unsigned int>                           &active_fe_index,
+                     const std::shared_ptr<dealii::hp::MappingCollection<dim>> &mapping);
 
       /**
        * Return the type of a given cell as detected during initialization.
@@ -114,8 +112,7 @@ namespace internal
        */
       template <typename StreamType>
       void
-      print_memory_consumption(StreamType &    out,
-                               const TaskInfo &task_info) const;
+      print_memory_consumption(StreamType &out, const TaskInfo &task_info) const;
 
       /**
        * The given update flags for computing the geometry on the cells.
@@ -164,8 +161,7 @@ namespace internal
        * type 3). Note that both the interior and exterior agree on the type
        * of the data structure, using the more general of the two.
        */
-      std::vector<std::array<GeometryType, GeometryInfo<dim>::faces_per_cell>>
-        faces_by_cells_type;
+      std::vector<std::array<GeometryType, GeometryInfo<dim>::faces_per_cell>> faces_by_cells_type;
 
       /**
        * The data cache for the cells.
@@ -175,15 +171,13 @@ namespace internal
       /**
        * The data cache for the faces.
        */
-      std::vector<MappingInfoStorage<dim - 1, dim, VectorizedArrayType>>
-        face_data;
+      std::vector<MappingInfoStorage<dim - 1, dim, VectorizedArrayType>> face_data;
 
       /**
        * The data cache for the face-associated-with-cell topology, following
        * the @p cell_type variable for the cell types.
        */
-      std::vector<MappingInfoStorage<dim - 1, dim, VectorizedArrayType>>
-        face_data_by_cells;
+      std::vector<MappingInfoStorage<dim - 1, dim, VectorizedArrayType>> face_data_by_cells;
 
       /**
        * The pointer to the underlying hp::MappingCollection object.
@@ -223,45 +217,40 @@ namespace internal
        * cells as filled in the MatrixFree class
        */
       void
-      compute_mapping_q(
-        const dealii::Triangulation<dim> &                        tria,
-        const std::vector<std::pair<unsigned int, unsigned int>> &cells,
-        const FaceInfo<VectorizedArrayType::size()> &             face_info);
+      compute_mapping_q(const dealii::Triangulation<dim>                         &tria,
+                        const std::vector<std::pair<unsigned int, unsigned int>> &cells,
+                        const FaceInfo<VectorizedArrayType::size()>              &face_info);
 
       /**
        * Computes the information in the given cells, called within
        * initialize.
        */
       void
-      initialize_cells(
-        const dealii::Triangulation<dim> &                        tria,
-        const std::vector<std::pair<unsigned int, unsigned int>> &cells,
-        const std::vector<unsigned int> &         active_fe_index,
-        const dealii::hp::MappingCollection<dim> &mapping);
+      initialize_cells(const dealii::Triangulation<dim>                         &tria,
+                       const std::vector<std::pair<unsigned int, unsigned int>> &cells,
+                       const std::vector<unsigned int>                          &active_fe_index,
+                       const dealii::hp::MappingCollection<dim>                 &mapping);
 
       /**
        * Computes the information in the given faces, called within
        * initialize.
        */
       void
-      initialize_faces(
-        const dealii::Triangulation<dim> &                        tria,
-        const std::vector<std::pair<unsigned int, unsigned int>> &cells,
-        const std::vector<FaceToCellTopology<VectorizedArrayType::size()>>
-          &                                       faces,
-        const std::vector<unsigned int> &         active_fe_index,
-        const dealii::hp::MappingCollection<dim> &mapping);
+      initialize_faces(const dealii::Triangulation<dim>                                   &tria,
+                       const std::vector<std::pair<unsigned int, unsigned int>>           &cells,
+                       const std::vector<FaceToCellTopology<VectorizedArrayType::size()>> &faces,
+                       const std::vector<unsigned int>                                    &active_fe_index,
+                       const dealii::hp::MappingCollection<dim>                           &mapping);
 
       /**
        * Computes the information in the given faces, called within
        * initialize.
        */
       void
-      initialize_faces_by_cells(
-        const dealii::Triangulation<dim> &                        tria,
-        const std::vector<std::pair<unsigned int, unsigned int>> &cells,
-        const FaceInfo<VectorizedArrayType::size()> &             face_info,
-        const dealii::hp::MappingCollection<dim> &                mapping);
+      initialize_faces_by_cells(const dealii::Triangulation<dim>                         &tria,
+                                const std::vector<std::pair<unsigned int, unsigned int>> &cells,
+                                const FaceInfo<VectorizedArrayType::size()>              &face_info,
+                                const dealii::hp::MappingCollection<dim>                 &mapping);
     };
 
 
@@ -277,8 +266,7 @@ namespace internal
     struct MappingInfoCellsOrFaces<dim, Number, false, VectorizedArrayType>
     {
       static const MappingInfoStorage<dim, dim, VectorizedArrayType> &
-      get(const MappingInfo<dim, Number, VectorizedArrayType> &mapping_info,
-          const unsigned int                                   quad_no)
+      get(const MappingInfo<dim, Number, VectorizedArrayType> &mapping_info, const unsigned int quad_no)
       {
         AssertIndexRange(quad_no, mapping_info.cell_data.size());
         return mapping_info.cell_data[quad_no];
@@ -289,8 +277,7 @@ namespace internal
     struct MappingInfoCellsOrFaces<dim, Number, true, VectorizedArrayType>
     {
       static const MappingInfoStorage<dim - 1, dim, VectorizedArrayType> &
-      get(const MappingInfo<dim, Number, VectorizedArrayType> &mapping_info,
-          const unsigned int                                   quad_no)
+      get(const MappingInfo<dim, Number, VectorizedArrayType> &mapping_info, const unsigned int quad_no)
       {
         AssertIndexRange(quad_no, mapping_info.face_data.size());
         return mapping_info.face_data[quad_no];
@@ -302,8 +289,7 @@ namespace internal
 
     template <int dim, typename Number, typename VectorizedArrayType>
     inline GeometryType
-    MappingInfo<dim, Number, VectorizedArrayType>::get_cell_type(
-      const unsigned int cell_no) const
+    MappingInfo<dim, Number, VectorizedArrayType>::get_cell_type(const unsigned int cell_no) const
     {
       AssertIndexRange(cell_no, cell_type.size());
       return cell_type[cell_no];

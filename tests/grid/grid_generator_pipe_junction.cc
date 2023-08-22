@@ -40,8 +40,7 @@ refine_and_write(Triangulation<dim, spacedim> &tria,
   deallog << "name: " << name << std::endl;
 
   const auto output = [&](const unsigned int n) {
-    deallog << "  n: " << n << ", volume: " << GridTools::volume(tria)
-            << std::endl;
+    deallog << "  n: " << n << ", volume: " << GridTools::volume(tria) << std::endl;
   };
 
   output(0);
@@ -70,9 +69,7 @@ test_selection()
   // y-pipe in plane
   {
     const std::vector<std::pair<Point<spacedim>, double>> openings = {
-      {{{-2., 0., 0.}, 1.},
-       {{1., std::sqrt(3), 0.}, 1.},
-       {{1., -std::sqrt(3), 0.}, 1.}}};
+      {{{-2., 0., 0.}, 1.}, {{1., std::sqrt(3), 0.}, 1.}, {{1., -std::sqrt(3), 0.}, 1.}}};
 
     const std::pair<Point<spacedim>, double> bifurcation = {{0., 0., 0.}, 1.};
 

@@ -60,7 +60,7 @@ x * Cheb2(3,L(ev)) / Cheb2(3,L(aL));
 
  */
 
-//#define EXTRA_OUTPUT
+// #define EXTRA_OUTPUT
 
 
 #include <deal.II/lac/diagonal_matrix.h>
@@ -95,8 +95,7 @@ check(const int          degree,
       const unsigned int size  = 1000)
 {
   deallog << "Degree " << degree << std::endl;
-  LinearAlgebra::distributed::Vector<double> ev(size), x(size), y(size),
-    exact(size), diff(size);
+  LinearAlgebra::distributed::Vector<double>                      ev(size), x(size), y(size), exact(size), diff(size);
   GrowingVectorMemory<LinearAlgebra::distributed::Vector<double>> vector_memory;
 
   for (unsigned int i = 0; i < size; ++i)
@@ -137,14 +136,12 @@ check(const int          degree,
 
   const double g_ = (scale ? a_L : std::numeric_limits<double>::infinity());
   y               = x;
-  Utilities::LinearAlgebra::chebyshev_filter(
-    y, mat, degree, std::make_pair(a, b), g_, vector_memory);
+  Utilities::LinearAlgebra::chebyshev_filter(y, mat, degree, std::make_pair(a, b), g_, vector_memory);
   diff = y;
   diff -= exact;
 
   deallog << " Filter [" << a << ',' << b << ']' << std::endl;
-  deallog << " Error: " << diff.linfty_norm() / exact.linfty_norm()
-          << std::endl;
+  deallog << " Error: " << diff.linfty_norm() / exact.linfty_norm() << std::endl;
 
 #ifdef EXTRA_OUTPUT
   // extra output for debugging:

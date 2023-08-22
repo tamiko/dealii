@@ -47,18 +47,15 @@ check(const Triangulation<dim> &tria)
 
   QGauss<dim> quadrature(1);
 
-  UpdateFlags update_flags =
-    update_quadrature_points | update_JxW_values | update_jacobians |
-    update_jacobian_grads | update_jacobian_pushed_forward_grads |
-    update_jacobian_2nd_derivatives |
-    update_jacobian_pushed_forward_2nd_derivatives |
-    update_jacobian_3rd_derivatives |
-    update_jacobian_pushed_forward_3rd_derivatives | update_inverse_jacobians |
-    // Transformation dependence
-    update_covariant_transformation | update_contravariant_transformation |
-    update_transformation_values | update_transformation_gradients |
-    // Volume data
-    update_volume_elements;
+  UpdateFlags update_flags = update_quadrature_points | update_JxW_values | update_jacobians | update_jacobian_grads |
+                             update_jacobian_pushed_forward_grads | update_jacobian_2nd_derivatives |
+                             update_jacobian_pushed_forward_2nd_derivatives | update_jacobian_3rd_derivatives |
+                             update_jacobian_pushed_forward_3rd_derivatives | update_inverse_jacobians |
+                             // Transformation dependence
+                             update_covariant_transformation | update_contravariant_transformation |
+                             update_transformation_values | update_transformation_gradients |
+                             // Volume data
+                             update_volume_elements;
 
   FEValues<dim> fe_values(mapping, fe, quadrature, update_flags);
 

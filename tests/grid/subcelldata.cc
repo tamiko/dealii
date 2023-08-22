@@ -25,12 +25,7 @@
 #include "../test_grids.h"
 
 
-static unsigned subcells[6][4] = {{0, 1, 2, 3},
-                                  {4, 5, 6, 7},
-                                  {0, 1, 5, 4},
-                                  {1, 5, 6, 2},
-                                  {3, 2, 6, 7},
-                                  {0, 4, 7, 3}};
+static unsigned subcells[6][4] = {{0, 1, 2, 3}, {4, 5, 6, 7}, {0, 1, 5, 4}, {1, 5, 6, 2}, {3, 2, 6, 7}, {0, 4, 7, 3}};
 
 
 
@@ -87,8 +82,7 @@ test()
       subcelldata.boundary_quads.resize(GeometryInfo<dim>::faces_per_cell);
       for (const unsigned int f : GeometryInfo<dim>::face_indices())
         {
-          for (unsigned int i = 0; i < GeometryInfo<dim>::vertices_per_face;
-               ++i)
+          for (unsigned int i = 0; i < GeometryInfo<dim>::vertices_per_face; ++i)
             subcelldata.boundary_quads[f].vertices[i] = subcells[f][i];
           subcelldata.boundary_quads[f].material_id = 10 * f + 1;
         }

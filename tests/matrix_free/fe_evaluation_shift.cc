@@ -37,93 +37,56 @@
 
 namespace dealii
 {
-  template <int dim,
-            int fe_degree,
-            int n_q_points_1d,
-            int n_components_,
-            typename Number,
-            typename VectorizedArrayType>
-  class FEEvaluationShift : public FEEvaluation<dim,
-                                                fe_degree,
-                                                n_q_points_1d,
-                                                n_components_,
-                                                Number,
-                                                VectorizedArrayType>
+  template <int dim, int fe_degree, int n_q_points_1d, int n_components_, typename Number, typename VectorizedArrayType>
+  class FEEvaluationShift
+    : public FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number, VectorizedArrayType>
   {
   public:
-    using BaseClass = FEEvaluation<dim,
-                                   fe_degree,
-                                   n_q_points_1d,
-                                   n_components_,
-                                   Number,
-                                   VectorizedArrayType>;
+    using BaseClass = FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number, VectorizedArrayType>;
 
-    explicit FEEvaluationShift(
-      const MatrixFree<dim, Number, VectorizedArrayType> &matrix_free,
-      const unsigned int                                  dof_no  = 0,
-      const unsigned int                                  quad_no = 0,
-      const unsigned int first_selected_component                 = 0,
-      const unsigned int active_fe_index   = numbers::invalid_unsigned_int,
-      const unsigned int active_quad_index = numbers::invalid_unsigned_int)
-      : BaseClass(matrix_free,
-                  dof_no,
-                  quad_no,
-                  first_selected_component,
-                  active_fe_index,
-                  active_quad_index)
+    explicit FEEvaluationShift(const MatrixFree<dim, Number, VectorizedArrayType> &matrix_free,
+                               const unsigned int                                  dof_no                   = 0,
+                               const unsigned int                                  quad_no                  = 0,
+                               const unsigned int                                  first_selected_component = 0,
+                               const unsigned int active_fe_index   = numbers::invalid_unsigned_int,
+                               const unsigned int active_quad_index = numbers::invalid_unsigned_int)
+      : BaseClass(matrix_free, dof_no, quad_no, first_selected_component, active_fe_index, active_quad_index)
       , shape_info_base(this->data){
 
         };
 
-    const internal::MatrixFreeFunctions::ShapeInfo<VectorizedArrayType>
-      *shape_info_base;
+    const internal::MatrixFreeFunctions::ShapeInfo<VectorizedArrayType> *shape_info_base;
 
     void
-    reinit(unsigned int cell_batch_index,
-           const internal::MatrixFreeFunctions::ShapeInfo<VectorizedArrayType>
-             *shape_info = nullptr);
+    reinit(unsigned int                                                         cell_batch_index,
+           const internal::MatrixFreeFunctions::ShapeInfo<VectorizedArrayType> *shape_info = nullptr);
 
     void
-    reinit(unsigned int cell_batch_index,
-           unsigned int face_number,
-           const internal::MatrixFreeFunctions::ShapeInfo<VectorizedArrayType>
-             *shape_info = nullptr);
+    reinit(unsigned int                                                         cell_batch_index,
+           unsigned int                                                         face_number,
+           const internal::MatrixFreeFunctions::ShapeInfo<VectorizedArrayType> *shape_info = nullptr);
   };
 
-  template <int dim,
-            int fe_degree,
-            int n_q_points_1d,
-            int n_components_,
-            typename Number,
-            typename VectorizedArrayType>
+  template <int dim, int fe_degree, int n_q_points_1d, int n_components_, typename Number, typename VectorizedArrayType>
   inline void
-  FEEvaluationShift<dim,
-                    fe_degree,
-                    n_q_points_1d,
-                    n_components_,
-                    Number,
-                    VectorizedArrayType>::
-    reinit(const unsigned int cell_batch_index,
-           const internal::MatrixFreeFunctions::ShapeInfo<VectorizedArrayType>
-             *shape_info)
+  FEEvaluationShift<dim, fe_degree, n_q_points_1d, n_components_, Number, VectorizedArrayType>::reinit(
+    const unsigned int                                                   cell_batch_index,
+    const internal::MatrixFreeFunctions::ShapeInfo<VectorizedArrayType> *shape_info)
   {
     Assert(this->mapped_geometry == nullptr,
-           ExcMessage(
-             "FEEvaluation was initialized without a matrix-free object."
-             " Integer indexing is not possible"));
+           ExcMessage("FEEvaluation was initialized without a matrix-free object."
+                      " Integer indexing is not possible"));
     if (this->mapped_geometry != nullptr)
       return;
 
     Assert(this->dof_info != nullptr, ExcNotInitialized());
     Assert(this->mapping_data != nullptr, ExcNotInitialized());
-    this->cell = cell_batch_index;
-    this->cell_type =
-      this->matrix_free->get_mapping_info().get_cell_type(cell_batch_index);
+    this->cell      = cell_batch_index;
+    this->cell_type = this->matrix_free->get_mapping_info().get_cell_type(cell_batch_index);
 
-    const unsigned int offsets =
-      this->mapping_data->data_index_offsets[cell_batch_index];
-    this->jacobian = &this->mapping_data->jacobians[0][offsets];
-    this->J_value  = &this->mapping_data->JxW_values[offsets];
+    const unsigned int offsets = this->mapping_data->data_index_offsets[cell_batch_index];
+    this->jacobian             = &this->mapping_data->jacobians[0][offsets];
+    this->J_value              = &this->mapping_data->JxW_values[offsets];
 
     for (unsigned int i = 0; i < VectorizedArrayType::size(); ++i)
       this->cell_ids[i] = cell_batch_index * VectorizedArrayType::size() + i;
@@ -133,8 +96,7 @@ namespace dealii
     if (shape_info != nullptr)
       {
         AssertDimension(shape_info->n_q_points, this->data->n_q_points);
-        AssertDimension(shape_info->dofs_per_component_on_cell,
-                        this->data->dofs_per_component_on_cell);
+        AssertDimension(shape_info->dofs_per_component_on_cell, this->data->dofs_per_component_on_cell);
         this->data = shape_info;
       }
     else
@@ -149,71 +111,49 @@ namespace dealii
 #endif
   }
 
-  template <int dim,
-            int fe_degree,
-            int n_q_points_1d,
-            int n_components_,
-            typename Number,
-            typename VectorizedArrayType>
+  template <int dim, int fe_degree, int n_q_points_1d, int n_components_, typename Number, typename VectorizedArrayType>
   inline void
-  FEEvaluationShift<dim,
-                    fe_degree,
-                    n_q_points_1d,
-                    n_components_,
-                    Number,
-                    VectorizedArrayType>::
-    reinit(const unsigned int cell_batch_index,
-           const unsigned int face_number,
-           const internal::MatrixFreeFunctions::ShapeInfo<VectorizedArrayType>
-             *shape_info)
+  FEEvaluationShift<dim, fe_degree, n_q_points_1d, n_components_, Number, VectorizedArrayType>::reinit(
+    const unsigned int                                                   cell_batch_index,
+    const unsigned int                                                   face_number,
+    const internal::MatrixFreeFunctions::ShapeInfo<VectorizedArrayType> *shape_info)
   {
     Assert(
-      this->quad_no <
-        this->matrix_free->get_mapping_info().face_data_by_cells.size(),
+      this->quad_no < this->matrix_free->get_mapping_info().face_data_by_cells.size(),
       ExcMessage(
         "You must set MatrixFree::AdditionalData::mapping_update_flags_faces_by_cells to use the present reinit method."));
     AssertIndexRange(face_number, GeometryInfo<dim>::faces_per_cell);
-    AssertIndexRange(cell_batch_index,
-                     this->matrix_free->get_mapping_info().cell_type.size());
+    AssertIndexRange(cell_batch_index, this->matrix_free->get_mapping_info().cell_type.size());
     Assert(this->mapped_geometry == nullptr,
-           ExcMessage(
-             "FEEvaluation was initialized without a matrix-free object."
-             " Integer indexing is not possible"));
+           ExcMessage("FEEvaluation was initialized without a matrix-free object."
+                      " Integer indexing is not possible"));
     if (this->mapped_geometry != nullptr)
       return;
     Assert(this->matrix_free != nullptr, ExcNotInitialized());
 
-    this->cell_type =
-      this->matrix_free->get_mapping_info().cell_type[cell_batch_index];
+    this->cell_type            = this->matrix_free->get_mapping_info().cell_type[cell_batch_index];
     this->cell                 = numbers::invalid_unsigned_int;
     this->face_orientations[0] = 0;
     this->subface_index        = GeometryInfo<dim>::max_children_per_cell;
     this->face_numbers[0]      = face_number;
-    this->dof_access_index =
-      internal::MatrixFreeFunctions::DoFInfo::dof_access_cell;
+    this->dof_access_index     = internal::MatrixFreeFunctions::DoFInfo::dof_access_cell;
 
     this->interior_face = false;
 
-    const unsigned int offsets =
-      this->mapping_data->data_index_offsets[cell_batch_index];
-    this->jacobian = &this->mapping_data->jacobians[0][offsets];
-    this->J_value  = &this->mapping_data->JxW_values[offsets];
+    const unsigned int offsets = this->mapping_data->data_index_offsets[cell_batch_index];
+    this->jacobian             = &this->mapping_data->jacobians[0][offsets];
+    this->J_value              = &this->mapping_data->JxW_values[offsets];
 
     unsigned int n_lanes = VectorizedArrayType::size();
-    for (unsigned int i = 0;
-         i <
-         this->matrix_free->n_active_entries_per_cell_batch(cell_batch_index);
-         ++i)
+    for (unsigned int i = 0; i < this->matrix_free->n_active_entries_per_cell_batch(cell_batch_index); ++i)
       {
         // compute actual (non vectorized) cell ID
         const unsigned int cell_this = cell_batch_index * n_lanes + i;
         // compute face ID
         unsigned int face_index =
-          this->matrix_free->get_cell_and_face_to_plain_faces()(
-            cell_batch_index, face_number, i);
+          this->matrix_free->get_cell_and_face_to_plain_faces()(cell_batch_index, face_number, i);
 
-        const auto &faces =
-          this->matrix_free->get_face_info(face_index / n_lanes);
+        const auto &faces = this->matrix_free->get_face_info(face_index / n_lanes);
         // get cell ID on both sides of face
         auto cell_m = faces.cells_interior[face_index % n_lanes];
         auto cell_p = faces.cells_exterior[face_index % n_lanes];
@@ -238,8 +178,7 @@ namespace dealii
     if (shape_info != nullptr)
       {
         AssertDimension(shape_info->n_q_points, this->data->n_q_points);
-        AssertDimension(shape_info->dofs_per_component_on_cell,
-                        this->data->dofs_per_component_on_cell);
+        AssertDimension(shape_info->dofs_per_component_on_cell, this->data->dofs_per_component_on_cell);
         this->data = shape_info;
       }
     else
@@ -288,15 +227,10 @@ test(const dealii::FE_Poly<dim> &fe)
   unsigned int x_repetitions = 4;
 
   Triangulation<dim> tria;
-  GridGenerator::subdivided_hyper_rectangle(tria,
-                                            {x_repetitions, 1},
-                                            Point<dim>(0.0, 0.0),
-                                            Point<dim>(1. * x_repetitions, 1.0),
-                                            true);
+  GridGenerator::subdivided_hyper_rectangle(
+    tria, {x_repetitions, 1}, Point<dim>(0.0, 0.0), Point<dim>(1. * x_repetitions, 1.0), true);
 
-  std::vector<dealii::GridTools::PeriodicFacePair<
-    typename dealii::Triangulation<dim>::cell_iterator>>
-    periodic_faces;
+  std::vector<dealii::GridTools::PeriodicFacePair<typename dealii::Triangulation<dim>::cell_iterator>> periodic_faces;
 
   if (dim >= 1)
     dealii::GridTools::collect_periodic_faces(tria, 0, 1, 0, periodic_faces);
@@ -314,20 +248,15 @@ test(const dealii::FE_Poly<dim> &fe)
 
   AffineConstraints<Number> constraint;
 
-  std::vector<dealii::GridTools::PeriodicFacePair<
-    typename dealii::DoFHandler<dim>::cell_iterator>>
-    periodic_faces_dof;
+  std::vector<dealii::GridTools::PeriodicFacePair<typename dealii::DoFHandler<dim>::cell_iterator>> periodic_faces_dof;
 
   if (dim >= 1)
-    dealii::GridTools::collect_periodic_faces(
-      dof_handler, 0, 1, 0, periodic_faces_dof);
+    dealii::GridTools::collect_periodic_faces(dof_handler, 0, 1, 0, periodic_faces_dof);
 
   if (dim >= 2)
-    dealii::GridTools::collect_periodic_faces(
-      dof_handler, 2, 3, 1, periodic_faces_dof);
+    dealii::GridTools::collect_periodic_faces(dof_handler, 2, 3, 1, periodic_faces_dof);
 
-  DoFTools::make_periodicity_constraints<dim, dim, Number>(periodic_faces_dof,
-                                                           constraint);
+  DoFTools::make_periodicity_constraints<dim, dim, Number>(periodic_faces_dof, constraint);
   constraint.close();
 
   using MF = MatrixFree<dim, Number, VectorizedArrayType>;
@@ -346,31 +275,25 @@ test(const dealii::FE_Poly<dim> &fe)
 
   matrix_free.initialize_dof_vector(dst);
 
-  std::array<internal::MatrixFreeFunctions::ShapeInfo<VectorizedArrayType>,
-             2 * dim>
-    shape_info_shift;
+  std::array<internal::MatrixFreeFunctions::ShapeInfo<VectorizedArrayType>, 2 * dim> shape_info_shift;
 
   const QGauss<1> quadrature_1D(n_points);
 
-  const Quadrature<1> quadrature_1D_shift_minus =
-    shift_1d_quadrature(quadrature_1D, -1.);
-  const Quadrature<1> quadrature_1D_shift_plus =
-    shift_1d_quadrature(quadrature_1D, +1.);
+  const Quadrature<1> quadrature_1D_shift_minus = shift_1d_quadrature(quadrature_1D, -1.);
+  const Quadrature<1> quadrature_1D_shift_plus  = shift_1d_quadrature(quadrature_1D, +1.);
 
-  dealii::internal::MatrixFreeFunctions::ShapeInfo<VectorizedArrayType>
-    shape_info_base(quadrature_1D, fe);
-  dealii::internal::MatrixFreeFunctions::ShapeInfo<VectorizedArrayType>
-    shape_info_shift_plus(quadrature_1D_shift_plus, fe);
-  dealii::internal::MatrixFreeFunctions::ShapeInfo<VectorizedArrayType>
-    shape_info_shift_minus(quadrature_1D_shift_minus, fe);
+  dealii::internal::MatrixFreeFunctions::ShapeInfo<VectorizedArrayType> shape_info_base(quadrature_1D, fe);
+  dealii::internal::MatrixFreeFunctions::ShapeInfo<VectorizedArrayType> shape_info_shift_plus(quadrature_1D_shift_plus,
+                                                                                              fe);
+  dealii::internal::MatrixFreeFunctions::ShapeInfo<VectorizedArrayType> shape_info_shift_minus(
+    quadrature_1D_shift_minus, fe);
 
   for (unsigned int f = 0; f < 2 * dim; ++f)
     {
       shape_info_shift[f].data.assign(dim, shape_info_base.data[0]);
 
-      shape_info_shift[f].n_q_points = shape_info_base.n_q_points;
-      shape_info_shift[f].dofs_per_component_on_cell =
-        shape_info_base.dofs_per_component_on_cell;
+      shape_info_shift[f].n_q_points                 = shape_info_base.n_q_points;
+      shape_info_shift[f].dofs_per_component_on_cell = shape_info_base.dofs_per_component_on_cell;
 
       switch (f)
         {
@@ -397,10 +320,8 @@ test(const dealii::FE_Poly<dim> &fe)
         }
     }
 
-  FEEvaluationShift<dim, fe_degree, n_points, 1, Number, VectorizedArrayType>
-    phi_m(matrix_free);
-  FEEvaluationShift<dim, fe_degree, n_points, 1, Number, VectorizedArrayType>
-    phi_p(matrix_free);
+  FEEvaluationShift<dim, fe_degree, n_points, 1, Number, VectorizedArrayType> phi_m(matrix_free);
+  FEEvaluationShift<dim, fe_degree, n_points, 1, Number, VectorizedArrayType> phi_p(matrix_free);
 
   // fill dst vector
   matrix_free.template cell_loop<VectorType, VectorType>(
@@ -408,9 +329,7 @@ test(const dealii::FE_Poly<dim> &fe)
       for (unsigned int cell = range.first; cell < range.second; ++cell)
         {
           phi_m.reinit(cell);
-          for (unsigned int v = 0;
-               v < matrix_free.n_active_entries_per_cell_batch(cell);
-               ++v)
+          for (unsigned int v = 0; v < matrix_free.n_active_entries_per_cell_batch(cell); ++v)
             {
               const auto cell_no = cell * VectorizedArrayType::size() + v;
               for (unsigned int i = 0; i < phi_m.static_dofs_per_component; ++i)
@@ -441,8 +360,7 @@ test(const dealii::FE_Poly<dim> &fe)
               deallog << std::endl;
             }
 
-          for (unsigned int face = 0; face < GeometryInfo<dim>::faces_per_cell;
-               face++)
+          for (unsigned int face = 0; face < GeometryInfo<dim>::faces_per_cell; face++)
             {
               deallog << "face " << face << std::endl;
               phi_p.reinit(cell, face);
@@ -451,8 +369,7 @@ test(const dealii::FE_Poly<dim> &fe)
               for (unsigned int v = 0; v < VectorizedArrayType::size(); ++v)
                 {
                   deallog << "lane " << v << std::endl;
-                  for (unsigned int i = 0; i < phi_p.static_dofs_per_component;
-                       ++i)
+                  for (unsigned int i = 0; i < phi_p.static_dofs_per_component; ++i)
                     deallog << phi_p.begin_dof_values()[i][v] << " ";
                   deallog << std::endl;
 
@@ -468,8 +385,7 @@ test(const dealii::FE_Poly<dim> &fe)
               for (unsigned int v = 0; v < VectorizedArrayType::size(); ++v)
                 {
                   deallog << "lane " << v << std::endl;
-                  for (unsigned int i = 0; i < phi_m.static_dofs_per_component;
-                       ++i)
+                  for (unsigned int i = 0; i < phi_m.static_dofs_per_component; ++i)
                     deallog << phi_m.begin_dof_values()[i][v] << " ";
                   deallog << std::endl;
                 }
@@ -480,8 +396,7 @@ test(const dealii::FE_Poly<dim> &fe)
               for (unsigned int v = 0; v < VectorizedArrayType::size(); ++v)
                 {
                   deallog << "lane " << v << std::endl;
-                  for (unsigned int i = 0; i < phi_p.static_dofs_per_component;
-                       ++i)
+                  for (unsigned int i = 0; i < phi_p.static_dofs_per_component; ++i)
                     deallog << phi_p.begin_dof_values()[i][v] << " ";
                   deallog << std::endl;
 
@@ -512,17 +427,12 @@ main()
        degree,
        n_q_points,
        double,
-       VectorizedArray<double,
-                       VectorizedArray<double>::size() < 2 ?
-                         VectorizedArray<double>::size() :
-                         2>>(FE_Q<2>(1));
+       VectorizedArray<double, VectorizedArray<double>::size() < 2 ? VectorizedArray<double>::size() : 2>>(FE_Q<2>(1));
 
   test<dim,
        degree,
        n_q_points,
        double,
-       VectorizedArray<double,
-                       VectorizedArray<double>::size() < 2 ?
-                         VectorizedArray<double>::size() :
-                         2>>(FE_DGQ<2>(1));
+       VectorizedArray<double, VectorizedArray<double>::size() < 2 ? VectorizedArray<double>::size() : 2>>(
+    FE_DGQ<2>(1));
 }

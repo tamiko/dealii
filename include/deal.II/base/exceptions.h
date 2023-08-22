@@ -79,11 +79,7 @@ public:
    * function also populates the stacktrace.
    */
   void
-  set_fields(const char *file,
-             const int   line,
-             const char *function,
-             const char *cond,
-             const char *exc_name);
+  set_fields(const char *file, const int line, const char *function, const char *cond, const char *exc_name);
 
 
   /**
@@ -366,32 +362,29 @@ private:
  *
  * @ingroup Exceptions
  */
-#  define DeclException4(Exception4, type1, type2, type3, type4, outsequence) \
-    class Exception4 : public dealii::ExceptionBase                           \
-    {                                                                         \
-    public:                                                                   \
-      Exception4(type1 const &a1,                                             \
-                 type2 const &a2,                                             \
-                 type3 const &a3,                                             \
-                 type4 const &a4)                                             \
-        : arg1(a1)                                                            \
-        , arg2(a2)                                                            \
-        , arg3(a3)                                                            \
-        , arg4(a4)                                                            \
-      {}                                                                      \
-      virtual ~Exception4() noexcept                                          \
-      {}                                                                      \
-      virtual void                                                            \
-      print_info(std::ostream &out) const override                            \
-      {                                                                       \
-        out << "    " outsequence << std::endl;                               \
-      }                                                                       \
-                                                                              \
-    private:                                                                  \
-      type1 const arg1;                                                       \
-      type2 const arg2;                                                       \
-      type3 const arg3;                                                       \
-      type4 const arg4;                                                       \
+#  define DeclException4(Exception4, type1, type2, type3, type4, outsequence)        \
+    class Exception4 : public dealii::ExceptionBase                                  \
+    {                                                                                \
+    public:                                                                          \
+      Exception4(type1 const &a1, type2 const &a2, type3 const &a3, type4 const &a4) \
+        : arg1(a1)                                                                   \
+        , arg2(a2)                                                                   \
+        , arg3(a3)                                                                   \
+        , arg4(a4)                                                                   \
+      {}                                                                             \
+      virtual ~Exception4() noexcept                                                 \
+      {}                                                                             \
+      virtual void                                                                   \
+      print_info(std::ostream &out) const override                                   \
+      {                                                                              \
+        out << "    " outsequence << std::endl;                                      \
+      }                                                                              \
+                                                                                     \
+    private:                                                                         \
+      type1 const arg1;                                                              \
+      type2 const arg2;                                                              \
+      type3 const arg3;                                                              \
+      type4 const arg4;                                                              \
     }
 
 
@@ -412,36 +405,31 @@ private:
  *
  * @ingroup Exceptions
  */
-#  define DeclException5(                                       \
-    Exception5, type1, type2, type3, type4, type5, outsequence) \
-    class Exception5 : public dealii::ExceptionBase             \
-    {                                                           \
-    public:                                                     \
-      Exception5(type1 const &a1,                               \
-                 type2 const &a2,                               \
-                 type3 const &a3,                               \
-                 type4 const &a4,                               \
-                 type5 const &a5)                               \
-        : arg1(a1)                                              \
-        , arg2(a2)                                              \
-        , arg3(a3)                                              \
-        , arg4(a4)                                              \
-        , arg5(a5)                                              \
-      {}                                                        \
-      virtual ~Exception5() noexcept                            \
-      {}                                                        \
-      virtual void                                              \
-      print_info(std::ostream &out) const override              \
-      {                                                         \
-        out << "    " outsequence << std::endl;                 \
-      }                                                         \
-                                                                \
-    private:                                                    \
-      type1 const arg1;                                         \
-      type2 const arg2;                                         \
-      type3 const arg3;                                         \
-      type4 const arg4;                                         \
-      type5 const arg5;                                         \
+#  define DeclException5(Exception5, type1, type2, type3, type4, type5, outsequence)                  \
+    class Exception5 : public dealii::ExceptionBase                                                   \
+    {                                                                                                 \
+    public:                                                                                           \
+      Exception5(type1 const &a1, type2 const &a2, type3 const &a3, type4 const &a4, type5 const &a5) \
+        : arg1(a1)                                                                                    \
+        , arg2(a2)                                                                                    \
+        , arg3(a3)                                                                                    \
+        , arg4(a4)                                                                                    \
+        , arg5(a5)                                                                                    \
+      {}                                                                                              \
+      virtual ~Exception5() noexcept                                                                  \
+      {}                                                                                              \
+      virtual void                                                                                    \
+      print_info(std::ostream &out) const override                                                    \
+      {                                                                                               \
+        out << "    " outsequence << std::endl;                                                       \
+      }                                                                                               \
+                                                                                                      \
+    private:                                                                                          \
+      type1 const arg1;                                                                               \
+      type2 const arg2;                                                                               \
+      type3 const arg3;                                                                               \
+      type4 const arg4;                                                                               \
+      type5 const arg5;                                                                               \
     }
 
 #else /*ifndef DOXYGEN*/
@@ -581,10 +569,7 @@ private:
 #  define DeclException4(Exception4, type1, type2, type3, type4, outsequence) \
     /** @ingroup Exceptions */                                                \
     /** @dealiiExceptionMessage{outsequence} */                               \
-    static dealii::ExceptionBase &Exception4(type1 arg1,                      \
-                                             type2 arg2,                      \
-                                             type3 arg3,                      \
-                                             type4 arg4)
+    static dealii::ExceptionBase &Exception4(type1 arg1, type2 arg2, type3 arg3, type4 arg4)
 
 
 /**
@@ -604,12 +589,10 @@ private:
  *
  * @ingroup Exceptions
  */
-#  define DeclException5(                                       \
-    Exception5, type1, type2, type3, type4, type5, outsequence) \
-    /** @ingroup Exceptions */                                  \
-    /** @dealiiExceptionMessage{outsequence} */                 \
-    static dealii::ExceptionBase &Exception5(                   \
-      type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5)
+#  define DeclException5(Exception5, type1, type2, type3, type4, type5, outsequence) \
+    /** @ingroup Exceptions */                                                       \
+    /** @dealiiExceptionMessage{outsequence} */                                      \
+    static dealii::ExceptionBase &Exception5(type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5)
 
 #endif /*ifndef DOXYGEN*/
 
@@ -649,37 +632,36 @@ namespace StandardExceptions
    * The exception uses std::complex as its argument to ensure that we can use
    * it for all scalar arguments (real or complex-valued).
    */
-  DeclException1(
-    ExcNumberNotFinite,
-    std::complex<double>,
-    << "In a significant number of places, deal.II checks that some intermediate "
-    << "value is a finite number (as opposed to plus or minus infinity, or "
-    << "NaN/Not a Number). In the current function, we encountered a number "
-    << "that is not finite (its value is " << arg1 << " and therefore "
-    << "violates the current assertion).\n\n"
-    << "This may be due to the fact that some operation in this function "
-    << "created such a value, or because one of the arguments you passed "
-    << "to the function already had this value from some previous "
-    << "operation. In the latter case, this function only triggered the "
-    << "error but may not actually be responsible for the computation of "
-    << "the number that is not finite.\n\n"
-    << "There are two common cases where this situation happens. First, your "
-    << "code (or something in deal.II) divides by zero in a place where this "
-    << "should not happen. Or, you are trying to solve a linear system "
-    << "with an unsuitable solver (such as an indefinite or non-symmetric "
-    << "linear system using a Conjugate Gradient solver); such attempts "
-    << "oftentimes yield an operation somewhere that tries to divide "
-    << "by zero or take the square root of a negative value.\n\n"
-    << "In any case, when trying to find the source of the error, "
-    << "recall that the location where you are getting this error is "
-    << "simply the first place in the program where there is a check "
-    << "that a number (e.g., an element of a solution vector) is in fact "
-    << "finite, but that the actual error that computed the number "
-    << "may have happened far earlier. To find this location, you "
-    << "may want to add checks for finiteness in places of your "
-    << "program visited before the place where this error is produced. "
-    << "One way to check for finiteness is to use the 'AssertIsFinite' "
-    << "macro.");
+  DeclException1(ExcNumberNotFinite,
+                 std::complex<double>,
+                 << "In a significant number of places, deal.II checks that some intermediate "
+                 << "value is a finite number (as opposed to plus or minus infinity, or "
+                 << "NaN/Not a Number). In the current function, we encountered a number "
+                 << "that is not finite (its value is " << arg1 << " and therefore "
+                 << "violates the current assertion).\n\n"
+                 << "This may be due to the fact that some operation in this function "
+                 << "created such a value, or because one of the arguments you passed "
+                 << "to the function already had this value from some previous "
+                 << "operation. In the latter case, this function only triggered the "
+                 << "error but may not actually be responsible for the computation of "
+                 << "the number that is not finite.\n\n"
+                 << "There are two common cases where this situation happens. First, your "
+                 << "code (or something in deal.II) divides by zero in a place where this "
+                 << "should not happen. Or, you are trying to solve a linear system "
+                 << "with an unsuitable solver (such as an indefinite or non-symmetric "
+                 << "linear system using a Conjugate Gradient solver); such attempts "
+                 << "oftentimes yield an operation somewhere that tries to divide "
+                 << "by zero or take the square root of a negative value.\n\n"
+                 << "In any case, when trying to find the source of the error, "
+                 << "recall that the location where you are getting this error is "
+                 << "simply the first place in the program where there is a check "
+                 << "that a number (e.g., an element of a solution vector) is in fact "
+                 << "finite, but that the actual error that computed the number "
+                 << "may have happened far earlier. To find this location, you "
+                 << "may want to add checks for finiteness in places of your "
+                 << "program visited before the place where this error is produced. "
+                 << "One way to check for finiteness is to use the 'AssertIsFinite' "
+                 << "macro.");
 
   /**
    * Trying to allocate a new object failed due to lack of free memory.
@@ -701,10 +683,7 @@ namespace StandardExceptions
    * A memory handler reached a point where all allocated objects should have
    * been released. Since this exception is thrown, some were still allocated.
    */
-  DeclException1(ExcMemoryLeak,
-                 int,
-                 << "Destroying memory handler while " << arg1
-                 << " objects are still allocated.");
+  DeclException1(ExcMemoryLeak, int, << "Destroying memory handler while " << arg1 << " objects are still allocated.");
 
   /**
    * An error occurred reading or writing a file.
@@ -817,65 +796,62 @@ namespace StandardExceptions
    * be used anyway, even though the respective function may only be called if
    * a derived class is used.
    */
-  DeclExceptionMsg(
-    ExcPureFunctionCalled,
-    "You (or a place in the library) are trying to call a "
-    "function that is declared as a virtual function in a "
-    "base class but that has not been overridden in your "
-    "derived class."
-    "\n\n"
-    "This exception happens in cases where the base class "
-    "cannot provide a useful default implementation for "
-    "the virtual function, but where we also do not want "
-    "to mark the function as abstract (i.e., with '=0' at the end) "
-    "because the function is not essential to the class in many "
-    "contexts. In cases like this, the base class provides "
-    "a dummy implementation that makes the compiler happy, but "
-    "that then throws the current exception."
-    "\n\n"
-    "A concrete example would be the 'Function' class. It declares "
-    "the existence of 'value()' and 'gradient()' member functions, "
-    "and both are marked as 'virtual'. Derived classes have to "
-    "override these functions for the values and gradients of a "
-    "particular function. On the other hand, not every function "
-    "has a gradient, and even for those that do, not every program "
-    "actually needs to evaluate it. Consequently, there is no "
-    "*requirement* that a derived class actually override the "
-    "'gradient()' function (as there would be had it been marked "
-    "as abstract). But, since the base class cannot know how to "
-    "compute the gradient, if a derived class does not override "
-    "the 'gradient()' function and it is called anyway, then the "
-    "default implementation in the base class will simply throw "
-    "an exception."
-    "\n\n"
-    "The exception you see is what happens in cases such as the "
-    "one just illustrated. To fix the problem, you need to "
-    "investigate whether the function being called should indeed have "
-    "been called; if the answer is 'yes', then you need to "
-    "implement the missing override in your class.");
+  DeclExceptionMsg(ExcPureFunctionCalled,
+                   "You (or a place in the library) are trying to call a "
+                   "function that is declared as a virtual function in a "
+                   "base class but that has not been overridden in your "
+                   "derived class."
+                   "\n\n"
+                   "This exception happens in cases where the base class "
+                   "cannot provide a useful default implementation for "
+                   "the virtual function, but where we also do not want "
+                   "to mark the function as abstract (i.e., with '=0' at the end) "
+                   "because the function is not essential to the class in many "
+                   "contexts. In cases like this, the base class provides "
+                   "a dummy implementation that makes the compiler happy, but "
+                   "that then throws the current exception."
+                   "\n\n"
+                   "A concrete example would be the 'Function' class. It declares "
+                   "the existence of 'value()' and 'gradient()' member functions, "
+                   "and both are marked as 'virtual'. Derived classes have to "
+                   "override these functions for the values and gradients of a "
+                   "particular function. On the other hand, not every function "
+                   "has a gradient, and even for those that do, not every program "
+                   "actually needs to evaluate it. Consequently, there is no "
+                   "*requirement* that a derived class actually override the "
+                   "'gradient()' function (as there would be had it been marked "
+                   "as abstract). But, since the base class cannot know how to "
+                   "compute the gradient, if a derived class does not override "
+                   "the 'gradient()' function and it is called anyway, then the "
+                   "default implementation in the base class will simply throw "
+                   "an exception."
+                   "\n\n"
+                   "The exception you see is what happens in cases such as the "
+                   "one just illustrated. To fix the problem, you need to "
+                   "investigate whether the function being called should indeed have "
+                   "been called; if the answer is 'yes', then you need to "
+                   "implement the missing override in your class.");
 
   /**
    * This exception is used if some user function is not provided.
    */
   DeclException1(ExcFunctionNotProvided,
                  std::string,
-                 << "Please provide an implementation for the function \""
-                 << arg1 << "\"");
+                 << "Please provide an implementation for the function \"" << arg1 << "\"");
 
   /**
    * This exception is used if some user function returns nonzero exit codes.
    */
-  DeclException2(
-    ExcFunctionNonzeroReturn,
-    std::string,
-    int,
-    << "The function \"" << arg1 << "\" returned the nonzero value " << arg2
-    << ", but the calling site expected the return value to be zero. "
-       "This error often happens when the function in question is a 'callback', "
-       "that is a user-provided function called from somewhere within deal.II "
-       "or within an external library such as PETSc, Trilinos, SUNDIALS, etc., "
-       "that expect these callbacks to indicate errors via nonzero return "
-       "codes.");
+  DeclException2(ExcFunctionNonzeroReturn,
+                 std::string,
+                 int,
+                 << "The function \"" << arg1 << "\" returned the nonzero value " << arg2
+                 << ", but the calling site expected the return value to be zero. "
+                    "This error often happens when the function in question is a 'callback', "
+                    "that is a user-provided function called from somewhere within deal.II "
+                    "or within an external library such as PETSc, Trilinos, SUNDIALS, etc., "
+                    "that expect these callbacks to indicate errors via nonzero return "
+                    "codes.");
 
   /**
    * This exception is used if some object is found uninitialized.
@@ -896,8 +872,7 @@ namespace StandardExceptions
   DeclException1(ExcImpossibleInDim,
                  int,
                  << "You are trying to execute functionality that is "
-                 << "impossible in " << arg1
-                 << "d or simply does not make any sense.");
+                 << "impossible in " << arg1 << "d or simply does not make any sense.");
 
   /**
    * This exception is raised if a functionality is not possible in the given
@@ -910,8 +885,7 @@ namespace StandardExceptions
                  int,
                  int,
                  << "You are trying to execute functionality that is "
-                 << "impossible in dimensions <" << arg1 << ',' << arg2
-                 << "> or simply does not make any sense.");
+                 << "impossible in dimensions <" << arg1 << ',' << arg2 << "> or simply does not make any sense.");
 
 
   /**
@@ -954,8 +928,7 @@ namespace StandardExceptions
                  std::size_t,
                  std::size_t,
                  std::size_t,
-                 << "The size or dimension of one object, " << arg1
-                 << " was supposed to be "
+                 << "The size or dimension of one object, " << arg1 << " was supposed to be "
                  << "equal to one of two values, but isn't. The two possible "
                  << "values are " << arg2 << " and " << arg3 << '.');
 
@@ -971,19 +944,16 @@ namespace StandardExceptions
    * <li> the upper bound plus one
    * </ol>
    */
-  DeclException3(
-    ExcIndexRange,
-    std::size_t,
-    std::size_t,
-    std::size_t,
-    << "Index " << arg1 << " is not in the half-open range [" << arg2 << ','
-    << arg3 << ")."
-    << (arg2 == arg3 ?
-          " In the current case, this half-open range is in fact empty, "
-          "suggesting that you are accessing an element of an empty "
-          "collection such as a vector that has not been set to the "
-          "correct size." :
-          ""));
+  DeclException3(ExcIndexRange,
+                 std::size_t,
+                 std::size_t,
+                 std::size_t,
+                 << "Index " << arg1 << " is not in the half-open range [" << arg2 << ',' << arg3 << ")."
+                 << (arg2 == arg3 ? " In the current case, this half-open range is in fact empty, "
+                                    "suggesting that you are accessing an element of an empty "
+                                    "collection such as a vector that has not been set to the "
+                                    "correct size." :
+                                    ""));
 
   /**
    * This exception indicates that an index is not within the expected range.
@@ -1001,38 +971,27 @@ namespace StandardExceptions
    * the type of indices.
    */
   template <typename T>
-  DeclException3(
-    ExcIndexRangeType,
-    T,
-    T,
-    T,
-    << "Index " << arg1 << " is not in the half-open range [" << arg2 << ','
-    << arg3 << ")."
-    << (arg2 == arg3 ?
-          " In the current case, this half-open range is in fact empty, "
-          "suggesting that you are accessing an element of an empty "
-          "collection such as a vector that has not been set to the "
-          "correct size." :
-          ""));
+  DeclException3(ExcIndexRangeType,
+                 T,
+                 T,
+                 T,
+                 << "Index " << arg1 << " is not in the half-open range [" << arg2 << ',' << arg3 << ")."
+                 << (arg2 == arg3 ? " In the current case, this half-open range is in fact empty, "
+                                    "suggesting that you are accessing an element of an empty "
+                                    "collection such as a vector that has not been set to the "
+                                    "correct size." :
+                                    ""));
 
   /**
    * A number is too small.
    */
-  DeclException2(ExcLowerRange,
-                 int,
-                 int,
-                 << "Number " << arg1 << " must be larger than or equal "
-                 << arg2 << '.');
+  DeclException2(ExcLowerRange, int, int, << "Number " << arg1 << " must be larger than or equal " << arg2 << '.');
 
   /**
    * A generic exception definition for the ExcLowerRange above.
    */
   template <typename T>
-  DeclException2(ExcLowerRangeType,
-                 T,
-                 T,
-                 << "Number " << arg1 << " must be larger than or equal "
-                 << arg2 << '.');
+  DeclException2(ExcLowerRangeType, T, T, << "Number " << arg1 << " must be larger than or equal " << arg2 << '.');
 
   /**
    * This exception indicates that the first argument should be an integer
@@ -1041,8 +1000,7 @@ namespace StandardExceptions
   DeclException2(ExcNotMultiple,
                  int,
                  int,
-                 << "Division " << arg1 << " by " << arg2
-                 << " has remainder different from zero.");
+                 << "Division " << arg1 << " by " << arg2 << " has remainder different from zero.");
 
   /**
    * This exception is thrown if the iterator you access has corrupted data.
@@ -1103,8 +1061,7 @@ namespace StandardExceptions
    */
   DeclException1(ExcGridHasInvalidCell,
                  int,
-                 << "Something went wrong when making cell " << arg1
-                 << ". Read the docs and the source code "
+                 << "Something went wrong when making cell " << arg1 << ". Read the docs and the source code "
                  << "for more information.");
 
   /**
@@ -1129,48 +1086,43 @@ namespace StandardExceptions
   /**
    * This function requires support for the LAPACK library.
    */
-  DeclExceptionMsg(
-    ExcNeedsLAPACK,
-    "You are attempting to use functionality that is only available "
-    "if deal.II was configured to use LAPACK, but cmake did not "
-    "find a valid LAPACK library.");
+  DeclExceptionMsg(ExcNeedsLAPACK,
+                   "You are attempting to use functionality that is only available "
+                   "if deal.II was configured to use LAPACK, but cmake did not "
+                   "find a valid LAPACK library.");
 
   /**
    * This function requires support for the HDF5 library.
    */
-  DeclExceptionMsg(
-    ExcNeedsHDF5,
-    "You are attempting to use functionality that requires that deal.II is configured "
-    "with HDF5 support. However, when you called 'cmake', HDF5 support "
-    "was not detected.");
+  DeclExceptionMsg(ExcNeedsHDF5,
+                   "You are attempting to use functionality that requires that deal.II is configured "
+                   "with HDF5 support. However, when you called 'cmake', HDF5 support "
+                   "was not detected.");
 
   /**
    * This function requires support for the MPI library.
    */
-  DeclExceptionMsg(
-    ExcNeedsMPI,
-    "You are attempting to use functionality that is only available "
-    "if deal.II was configured to use MPI.");
+  DeclExceptionMsg(ExcNeedsMPI,
+                   "You are attempting to use functionality that is only available "
+                   "if deal.II was configured to use MPI.");
 
   /**
    * This function requires support for the FunctionParser library.
    */
-  DeclExceptionMsg(
-    ExcNeedsFunctionparser,
-    "You are attempting to use functionality that is only available "
-    "if deal.II was configured to use the function parser which "
-    "relies on the muparser library, but cmake did not "
-    "find a valid muparser library on your system and also did "
-    "not choose the one that comes bundled with deal.II.");
+  DeclExceptionMsg(ExcNeedsFunctionparser,
+                   "You are attempting to use functionality that is only available "
+                   "if deal.II was configured to use the function parser which "
+                   "relies on the muparser library, but cmake did not "
+                   "find a valid muparser library on your system and also did "
+                   "not choose the one that comes bundled with deal.II.");
 
   /**
    * This function requires support for the Assimp library.
    */
-  DeclExceptionMsg(
-    ExcNeedsAssimp,
-    "You are attempting to use functionality that is only available "
-    "if deal.II was configured to use Assimp, but cmake did not "
-    "find a valid Assimp library.");
+  DeclExceptionMsg(ExcNeedsAssimp,
+                   "You are attempting to use functionality that is only available "
+                   "if deal.II was configured to use Assimp, but cmake did not "
+                   "find a valid Assimp library.");
 
 #ifdef DEAL_II_WITH_CUDA
   /**
@@ -1183,29 +1135,25 @@ namespace StandardExceptions
   /**
    * This exception is raised if an error happened in a cuSPARSE function.
    */
-  DeclException1(ExcCusparseError,
-                 std::string,
-                 << "There was an error in a cuSPARSE function: " << arg1);
+  DeclException1(ExcCusparseError, std::string, << "There was an error in a cuSPARSE function: " << arg1);
 #endif
   /** @} */
 
   /**
    * This function requires support for the Exodus II library.
    */
-  DeclExceptionMsg(
-    ExcNeedsExodusII,
-    "You are attempting to use functionality that is only available if deal.II "
-    "was configured to use Trilinos' SEACAS library (which provides ExodusII), "
-    "but cmake did not find a valid SEACAS library.");
+  DeclExceptionMsg(ExcNeedsExodusII,
+                   "You are attempting to use functionality that is only available if deal.II "
+                   "was configured to use Trilinos' SEACAS library (which provides ExodusII), "
+                   "but cmake did not find a valid SEACAS library.");
 
   /**
    * This function requires support for the CGAL library.
    */
-  DeclExceptionMsg(
-    ExcNeedsCGAL,
-    "You are attempting to use functionality that is only available "
-    "if deal.II was configured to use CGAL, but cmake did not "
-    "find a valid CGAL library.");
+  DeclExceptionMsg(ExcNeedsCGAL,
+                   "You are attempting to use functionality that is only available "
+                   "if deal.II was configured to use CGAL, but cmake did not "
+                   "find a valid CGAL library.");
 
 #ifdef DEAL_II_WITH_MPI
   /**
@@ -1279,14 +1227,13 @@ namespace StandardExceptions
    * An exception to be thrown in user call-backs. See the glossary entry
    * on user call-back functions for more information.
    */
-  DeclExceptionMsg(
-    RecoverableUserCallbackError,
-    "A user call-back function encountered a recoverable error, "
-    "but the underlying library that called the call-back did not "
-    "manage to recover from the error and aborted its operation."
-    "\n\n"
-    "See the glossary entry on user call-back functions for more "
-    "information.");
+  DeclExceptionMsg(RecoverableUserCallbackError,
+                   "A user call-back function encountered a recoverable error, "
+                   "but the underlying library that called the call-back did not "
+                   "manage to recover from the error and aborted its operation."
+                   "\n\n"
+                   "See the glossary entry on user call-back functions for more "
+                   "information.");
 } /*namespace StandardExceptions*/
 
 
@@ -1426,11 +1373,11 @@ namespace deal_II_exceptions
     template <typename ExceptionType>
     [[noreturn]] void
     issue_error_noreturn(ExceptionHandling handling,
-                         const char *      file,
+                         const char       *file,
                          int               line,
-                         const char *      function,
-                         const char *      cond,
-                         const char *      exc_name,
+                         const char       *function,
+                         const char       *cond,
+                         const char       *exc_name,
                          ExceptionType     e)
     {
       // Fill the fields of the exception object
@@ -1440,8 +1387,7 @@ namespace deal_II_exceptions
         {
           case ExceptionHandling::abort_or_throw_on_exception:
             {
-              if (dealii::deal_II_exceptions::internals::
-                    allow_abort_on_exception)
+              if (dealii::deal_II_exceptions::internals::allow_abort_on_exception)
                 internals::abort(e);
               else
                 {
@@ -1475,11 +1421,11 @@ namespace deal_II_exceptions
      */
     template <typename ExceptionType>
     void
-    issue_error_nothrow(const char *  file,
+    issue_error_nothrow(const char   *file,
                         int           line,
-                        const char *  function,
-                        const char *  cond,
-                        const char *  exc_name,
+                        const char   *function,
+                        const char   *cond,
+                        const char   *exc_name,
                         ExceptionType e) noexcept
     {
       static_assert(std::is_base_of_v<ExceptionBase, ExceptionType>,
@@ -1541,75 +1487,71 @@ namespace deal_II_exceptions
 #ifdef DEBUG
 #  if KOKKOS_VERSION >= 30600
 #    ifdef DEAL_II_HAVE_BUILTIN_EXPECT
-#      define Assert(cond, exc)                                              \
-        {                                                                    \
-          KOKKOS_IF_ON_HOST(({                                               \
-            if (__builtin_expect(!(cond), false))                            \
-              ::dealii::deal_II_exceptions::internals::issue_error_noreturn( \
-                ::dealii::deal_II_exceptions::internals::ExceptionHandling:: \
-                  abort_or_throw_on_exception,                               \
-                __FILE__,                                                    \
-                __LINE__,                                                    \
-                __PRETTY_FUNCTION__,                                         \
-                #cond,                                                       \
-                #exc,                                                        \
-                exc);                                                        \
-          }))                                                                \
-          KOKKOS_IF_ON_DEVICE(({                                             \
-            if (!(cond))                                                     \
-              Kokkos::abort(#cond);                                          \
-          }))                                                                \
+#      define Assert(cond, exc)                                                                          \
+        {                                                                                                \
+          KOKKOS_IF_ON_HOST(({                                                                           \
+            if (__builtin_expect(!(cond), false))                                                        \
+              ::dealii::deal_II_exceptions::internals::issue_error_noreturn(                             \
+                ::dealii::deal_II_exceptions::internals::ExceptionHandling::abort_or_throw_on_exception, \
+                __FILE__,                                                                                \
+                __LINE__,                                                                                \
+                __PRETTY_FUNCTION__,                                                                     \
+                #cond,                                                                                   \
+                #exc,                                                                                    \
+                exc);                                                                                    \
+          }))                                                                                            \
+          KOKKOS_IF_ON_DEVICE(({                                                                         \
+            if (!(cond))                                                                                 \
+              Kokkos::abort(#cond);                                                                      \
+          }))                                                                                            \
         }
 #    else /*ifdef DEAL_II_HAVE_BUILTIN_EXPECT*/
-#      define Assert(cond, exc)                                              \
-        {                                                                    \
-          KOKKOS_IF_ON_HOST(({                                               \
-            if (!(cond))                                                     \
-              ::dealii::deal_II_exceptions::internals::issue_error_noreturn( \
-                ::dealii::deal_II_exceptions::internals::ExceptionHandling:: \
-                  abort_or_throw_on_exception,                               \
-                __FILE__,                                                    \
-                __LINE__,                                                    \
-                __PRETTY_FUNCTION__,                                         \
-                #cond,                                                       \
-                #exc,                                                        \
-                exc);                                                        \
-          }))                                                                \
-          KOKKOS_IF_ON_DEVICE(({                                             \
-            if (!(cond))                                                     \
-              Kokkos::abort(#cond);                                          \
-          }))                                                                \
+#      define Assert(cond, exc)                                                                          \
+        {                                                                                                \
+          KOKKOS_IF_ON_HOST(({                                                                           \
+            if (!(cond))                                                                                 \
+              ::dealii::deal_II_exceptions::internals::issue_error_noreturn(                             \
+                ::dealii::deal_II_exceptions::internals::ExceptionHandling::abort_or_throw_on_exception, \
+                __FILE__,                                                                                \
+                __LINE__,                                                                                \
+                __PRETTY_FUNCTION__,                                                                     \
+                #cond,                                                                                   \
+                #exc,                                                                                    \
+                exc);                                                                                    \
+          }))                                                                                            \
+          KOKKOS_IF_ON_DEVICE(({                                                                         \
+            if (!(cond))                                                                                 \
+              Kokkos::abort(#cond);                                                                      \
+          }))                                                                                            \
         }
 #    endif /*ifdef DEAL_II_HAVE_BUILTIN_EXPECT*/
 #  else    /*if KOKKOS_VERSION >= 30600*/
 #    ifdef KOKKOS_ACTIVE_EXECUTION_MEMORY_SPACE_HOST
 #      ifdef DEAL_II_HAVE_BUILTIN_EXPECT
-#        define Assert(cond, exc)                                            \
-          {                                                                  \
-            if (__builtin_expect(!(cond), false))                            \
-              ::dealii::deal_II_exceptions::internals::issue_error_noreturn( \
-                ::dealii::deal_II_exceptions::internals::ExceptionHandling:: \
-                  abort_or_throw_on_exception,                               \
-                __FILE__,                                                    \
-                __LINE__,                                                    \
-                __PRETTY_FUNCTION__,                                         \
-                #cond,                                                       \
-                #exc,                                                        \
-                exc);                                                        \
+#        define Assert(cond, exc)                                                                        \
+          {                                                                                              \
+            if (__builtin_expect(!(cond), false))                                                        \
+              ::dealii::deal_II_exceptions::internals::issue_error_noreturn(                             \
+                ::dealii::deal_II_exceptions::internals::ExceptionHandling::abort_or_throw_on_exception, \
+                __FILE__,                                                                                \
+                __LINE__,                                                                                \
+                __PRETTY_FUNCTION__,                                                                     \
+                #cond,                                                                                   \
+                #exc,                                                                                    \
+                exc);                                                                                    \
           }
 #      else /*ifdef DEAL_II_HAVE_BUILTIN_EXPECT*/
-#        define Assert(cond, exc)                                            \
-          {                                                                  \
-            if (!(cond))                                                     \
-              ::dealii::deal_II_exceptions::internals::issue_error_noreturn( \
-                ::dealii::deal_II_exceptions::internals::ExceptionHandling:: \
-                  abort_or_throw_on_exception,                               \
-                __FILE__,                                                    \
-                __LINE__,                                                    \
-                __PRETTY_FUNCTION__,                                         \
-                #cond,                                                       \
-                #exc,                                                        \
-                exc);                                                        \
+#        define Assert(cond, exc)                                                                        \
+          {                                                                                              \
+            if (!(cond))                                                                                 \
+              ::dealii::deal_II_exceptions::internals::issue_error_noreturn(                             \
+                ::dealii::deal_II_exceptions::internals::ExceptionHandling::abort_or_throw_on_exception, \
+                __FILE__,                                                                                \
+                __LINE__,                                                                                \
+                __PRETTY_FUNCTION__,                                                                     \
+                #cond,                                                                                   \
+                #exc,                                                                                    \
+                exc);                                                                                    \
           }
 #      endif /*ifdef DEAL_II_HAVE_BUILTIN_EXPECT*/
 #    else    /*#ifdef KOKKOS_ACTIVE_EXECUTION_MEMORY_SPACE_HOST*/
@@ -1702,32 +1644,30 @@ namespace deal_II_exceptions
  * @ingroup Exceptions
  */
 #ifdef DEAL_II_HAVE_BUILTIN_EXPECT
-#  define AssertThrow(cond, exc)                                       \
-    {                                                                  \
-      if (__builtin_expect(!(cond), false))                            \
-        ::dealii::deal_II_exceptions::internals::issue_error_noreturn( \
-          ::dealii::deal_II_exceptions::internals::ExceptionHandling:: \
-            throw_on_exception,                                        \
-          __FILE__,                                                    \
-          __LINE__,                                                    \
-          __PRETTY_FUNCTION__,                                         \
-          #cond,                                                       \
-          #exc,                                                        \
-          exc);                                                        \
+#  define AssertThrow(cond, exc)                                                          \
+    {                                                                                     \
+      if (__builtin_expect(!(cond), false))                                               \
+        ::dealii::deal_II_exceptions::internals::issue_error_noreturn(                    \
+          ::dealii::deal_II_exceptions::internals::ExceptionHandling::throw_on_exception, \
+          __FILE__,                                                                       \
+          __LINE__,                                                                       \
+          __PRETTY_FUNCTION__,                                                            \
+          #cond,                                                                          \
+          #exc,                                                                           \
+          exc);                                                                           \
     }
 #else /*ifdef DEAL_II_HAVE_BUILTIN_EXPECT*/
-#  define AssertThrow(cond, exc)                                       \
-    {                                                                  \
-      if (!(cond))                                                     \
-        ::dealii::deal_II_exceptions::internals::issue_error_noreturn( \
-          ::dealii::deal_II_exceptions::internals::ExceptionHandling:: \
-            throw_on_exception,                                        \
-          __FILE__,                                                    \
-          __LINE__,                                                    \
-          __PRETTY_FUNCTION__,                                         \
-          #cond,                                                       \
-          #exc,                                                        \
-          exc);                                                        \
+#  define AssertThrow(cond, exc)                                                          \
+    {                                                                                     \
+      if (!(cond))                                                                        \
+        ::dealii::deal_II_exceptions::internals::issue_error_noreturn(                    \
+          ::dealii::deal_II_exceptions::internals::ExceptionHandling::throw_on_exception, \
+          __FILE__,                                                                       \
+          __LINE__,                                                                       \
+          __PRETTY_FUNCTION__,                                                            \
+          #cond,                                                                          \
+          #exc,                                                                           \
+          exc);                                                                           \
     }
 #endif /*ifdef DEAL_II_HAVE_BUILTIN_EXPECT*/
 
@@ -1786,9 +1726,8 @@ namespace deal_II_exceptions
  *
  * @ingroup Exceptions
  */
-#define AssertDimension(dim1, dim2)                                           \
-  Assert(::dealii::deal_II_exceptions::internals::compare_for_equality(dim1,  \
-                                                                       dim2), \
+#define AssertDimension(dim1, dim2)                                                 \
+  Assert(::dealii::deal_II_exceptions::internals::compare_for_equality(dim1, dim2), \
          dealii::ExcDimensionMismatch((dim1), (dim2)))
 
 
@@ -1854,13 +1793,12 @@ namespace internal
  *
  * @ingroup Exceptions
  */
-#define AssertIndexRange(index, range)                                       \
-  Assert(::dealii::deal_II_exceptions::internals::compare_less_than(index,   \
-                                                                    range),  \
-         dealii::ExcIndexRangeType<::dealii::internal::argument_type_t<void( \
-           std::common_type_t<decltype(index), decltype(range)>)>>((index),  \
-                                                                   0,        \
-                                                                   (range)))
+#define AssertIndexRange(index, range)                                                                               \
+  Assert(::dealii::deal_II_exceptions::internals::compare_less_than(index, range),                                   \
+         dealii::ExcIndexRangeType<                                                                                  \
+           ::dealii::internal::argument_type_t<void(std::common_type_t<decltype(index), decltype(range)>)>>((index), \
+                                                                                                            0,       \
+                                                                                                            (range)))
 
 /**
  * An assertion that checks whether a number is finite or not. We explicitly
@@ -1881,9 +1819,8 @@ namespace internal
  *
  * @ingroup Exceptions
  */
-#define AssertIsFinite(number)               \
-  Assert(dealii::numbers::is_finite(number), \
-         dealii::ExcNumberNotFinite(std::complex<double>(number)))
+#define AssertIsFinite(number) \
+  Assert(dealii::numbers::is_finite(number), dealii::ExcNumberNotFinite(std::complex<double>(number)))
 
 /**
  * Assert that a geometric object is not used. This assertion is used when
@@ -1913,8 +1850,7 @@ namespace internal
  * @note Active only if deal.II is compiled with MPI
  * @ingroup Exceptions
  */
-#  define AssertThrowMPI(error_code) \
-    AssertThrow(error_code == MPI_SUCCESS, dealii::ExcMPI(error_code))
+#  define AssertThrowMPI(error_code) AssertThrow(error_code == MPI_SUCCESS, dealii::ExcMPI(error_code))
 #else
 #  define AssertThrowMPI(error_code) \
     {}
@@ -1939,9 +1875,8 @@ namespace internal
  * @ingroup Exceptions
  */
 #  ifdef DEBUG
-#    define AssertCuda(error_code)      \
-      Assert(error_code == cudaSuccess, \
-             dealii::ExcCudaError(cudaGetErrorString(error_code)))
+#    define AssertCuda(error_code) \
+      Assert(error_code == cudaSuccess, dealii::ExcCudaError(cudaGetErrorString(error_code)))
 #  else
 #    define AssertCuda(error_code) \
       {                            \
@@ -1966,9 +1901,8 @@ namespace internal
  * @ingroup Exceptions
  */
 #  ifdef DEBUG
-#    define AssertNothrowCuda(error_code)      \
-      AssertNothrow(error_code == cudaSuccess, \
-                    dealii::ExcCudaError(cudaGetErrorString(error_code)))
+#    define AssertNothrowCuda(error_code) \
+      AssertNothrow(error_code == cudaSuccess, dealii::ExcCudaError(cudaGetErrorString(error_code)))
 #  else
 #    define AssertNothrowCuda(error_code) \
       {                                   \
@@ -2024,12 +1958,9 @@ namespace internal
  * @ingroup Exceptions
  */
 #  ifdef DEBUG
-#    define AssertCusparse(error_code)                                      \
-      Assert(                                                               \
-        error_code == CUSPARSE_STATUS_SUCCESS,                              \
-        dealii::ExcCusparseError(                                           \
-          dealii::deal_II_exceptions::internals::get_cusparse_error_string( \
-            error_code)))
+#    define AssertCusparse(error_code)              \
+      Assert(error_code == CUSPARSE_STATUS_SUCCESS, \
+             dealii::ExcCusparseError(dealii::deal_II_exceptions::internals::get_cusparse_error_string(error_code)))
 #  else
 #    define AssertCusparse(error_code) \
       {                                \
@@ -2054,12 +1985,10 @@ namespace internal
  * @ingroup Exceptions
  */
 #  ifdef DEBUG
-#    define AssertNothrowCusparse(error_code)                               \
-      AssertNothrow(                                                        \
-        error_code == CUSPARSE_STATUS_SUCCESS,                              \
-        dealii::ExcCusparseError(                                           \
-          dealii::deal_II_exceptions::internals::get_cusparse_error_string( \
-            error_code)))
+#    define AssertNothrowCusparse(error_code)              \
+      AssertNothrow(error_code == CUSPARSE_STATUS_SUCCESS, \
+                    dealii::ExcCusparseError(              \
+                      dealii::deal_II_exceptions::internals::get_cusparse_error_string(error_code)))
 #  else
 #    define AssertNothrowCusparse(error_code) \
       {                                       \
@@ -2085,12 +2014,9 @@ namespace internal
  * @ingroup Exceptions
  */
 #  ifdef DEBUG
-#    define AssertCusolver(error_code)                                      \
-      Assert(                                                               \
-        error_code == CUSOLVER_STATUS_SUCCESS,                              \
-        dealii::ExcCusparseError(                                           \
-          dealii::deal_II_exceptions::internals::get_cusolver_error_string( \
-            error_code)))
+#    define AssertCusolver(error_code)              \
+      Assert(error_code == CUSOLVER_STATUS_SUCCESS, \
+             dealii::ExcCusparseError(dealii::deal_II_exceptions::internals::get_cusolver_error_string(error_code)))
 #  else
 #    define AssertCusolver(error_code) \
       {                                \
@@ -2119,8 +2045,7 @@ namespace internal
  * @ingroup Exceptions
  */
 #  define AssertThrowExodusII(error_code) \
-    AssertThrow(error_code == 0,          \
-                dealii::StandardExceptions::ExcExodusII(error_code));
+    AssertThrow(error_code == 0, dealii::StandardExceptions::ExcExodusII(error_code));
 #endif // DEAL_II_TRILINOS_WITH_SEACAS
 
 using namespace StandardExceptions;

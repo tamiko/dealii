@@ -83,9 +83,7 @@ check()
 
   DoFHandler<dim> dof(tr);
 
-  for (typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active();
-       cell != dof.end();
-       ++cell)
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(); cell != dof.end(); ++cell)
     cell->set_active_fe_index(Testing::rand() % element.size());
 
   dof.distribute_dofs(element);
@@ -113,11 +111,8 @@ check()
 
   Functions::ExpFunction<dim> coefficient;
 
-  MatrixTools::create_mass_matrix(hp::MappingCollection<dim>(mapping),
-                                  dof,
-                                  hp::QCollection<dim>(quadrature),
-                                  matrix,
-                                  &coefficient);
+  MatrixTools::create_mass_matrix(
+    hp::MappingCollection<dim>(mapping), dof, hp::QCollection<dim>(quadrature), matrix, &coefficient);
 
   // since we only generate
   // output with two digits after
@@ -127,9 +122,7 @@ check()
   // multiply matrix by 100 to
   // make test more sensitive
   deallog << "Matrix: " << std::endl;
-  for (SparseMatrix<double>::const_iterator p = matrix.begin();
-       p != matrix.end();
-       ++p)
+  for (SparseMatrix<double>::const_iterator p = matrix.begin(); p != matrix.end(); ++p)
     deallog << p->value() * 100 << std::endl;
 }
 

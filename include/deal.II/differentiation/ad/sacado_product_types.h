@@ -93,23 +93,20 @@ namespace internal
   template <typename T, typename U>
   struct ProductTypeImpl<Sacado::Fad::Expr<T>, U>
   {
-    using type =
-      typename ProductType<typename Sacado::Fad::Expr<T>::value_type, U>::type;
+    using type = typename ProductType<typename Sacado::Fad::Expr<T>::value_type, U>::type;
   };
 
   template <typename T, typename U>
   struct ProductTypeImpl<T, Sacado::Fad::Expr<U>>
   {
-    using type =
-      typename ProductType<T, typename Sacado::Fad::Expr<U>::value_type>::type;
+    using type = typename ProductType<T, typename Sacado::Fad::Expr<U>::value_type>::type;
   };
 
   template <typename T, typename U>
   struct ProductTypeImpl<Sacado::Fad::Expr<T>, Sacado::Fad::Expr<U>>
   {
     using type =
-      typename ProductType<typename Sacado::Fad::Expr<T>::value_type,
-                           typename Sacado::Fad::Expr<U>::value_type>::type;
+      typename ProductType<typename Sacado::Fad::Expr<T>::value_type, typename Sacado::Fad::Expr<U>::value_type>::type;
   };
 
 } // namespace internal

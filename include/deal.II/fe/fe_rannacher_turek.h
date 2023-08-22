@@ -89,8 +89,7 @@ public:
    *
    * The element is currently only implemented for order 0 in 2d.
    */
-  FE_RannacherTurek(const unsigned int order                 = 0,
-                    const unsigned int n_face_support_points = 2);
+  FE_RannacherTurek(const unsigned int order = 0, const unsigned int n_face_support_points = 2);
 
   virtual std::string
   get_name() const override;
@@ -100,9 +99,8 @@ public:
 
   // documentation inherited from the base class
   virtual void
-  convert_generalized_support_point_values_to_dof_values(
-    const std::vector<Vector<double>> &support_point_values,
-    std::vector<double> &              nodal_values) const override;
+  convert_generalized_support_point_values_to_dof_values(const std::vector<Vector<double>> &support_point_values,
+                                                         std::vector<double> &nodal_values) const override;
 
 private:
   /**

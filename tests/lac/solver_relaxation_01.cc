@@ -29,16 +29,9 @@
 
 #include "../testmatrix.h"
 
-template <typename SolverType,
-          typename MatrixType,
-          typename VectorType,
-          class PRECONDITION>
+template <typename SolverType, typename MatrixType, typename VectorType, class PRECONDITION>
 double
-check_solve(SolverType &        solver,
-            const MatrixType &  A,
-            VectorType &        u,
-            VectorType &        f,
-            const PRECONDITION &P)
+check_solve(SolverType &solver, const MatrixType &A, VectorType &u, VectorType &f, const PRECONDITION &P)
 {
   double result = 0.;
   u             = 0.;

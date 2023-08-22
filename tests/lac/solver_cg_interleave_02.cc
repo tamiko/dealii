@@ -34,20 +34,17 @@ struct MyDiagonalMatrix
   {}
 
   void
-  vmult(LinearAlgebra::distributed::Vector<double> &      dst,
-        const LinearAlgebra::distributed::Vector<double> &src) const
+  vmult(LinearAlgebra::distributed::Vector<double> &dst, const LinearAlgebra::distributed::Vector<double> &src) const
   {
     dst = src;
     dst.scale(diagonal);
   }
 
   void
-  vmult(
-    LinearAlgebra::distributed::Vector<double> &                       dst,
-    const LinearAlgebra::distributed::Vector<double> &                 src,
-    const std::function<void(const unsigned int, const unsigned int)> &before,
-    const std::function<void(const unsigned int, const unsigned int)> &after)
-    const
+  vmult(LinearAlgebra::distributed::Vector<double>                        &dst,
+        const LinearAlgebra::distributed::Vector<double>                  &src,
+        const std::function<void(const unsigned int, const unsigned int)> &before,
+        const std::function<void(const unsigned int, const unsigned int)> &after) const
   {
     before(0, dst.size());
     vmult(dst, src);
@@ -74,16 +71,14 @@ main()
     matrix_entries(i) = i + 1;
   MyDiagonalMatrix matrix(matrix_entries);
 
-  LinearAlgebra::distributed::Vector<double> rhs(unit_matrix.m()),
-    sol(unit_matrix.m());
+  LinearAlgebra::distributed::Vector<double> rhs(unit_matrix.m()), sol(unit_matrix.m());
   rhs = 1.;
 
   for (unsigned int n_iter = 1; n_iter < 12; ++n_iter)
     {
-      deallog << "Test solution accuracy with " << n_iter << " iterations"
-              << std::endl;
+      deallog << "Test solution accuracy with " << n_iter << " iterations" << std::endl;
       deallog << "Solve with PreconditionIdentity: " << std::endl;
-      IterationNumberControl control(n_iter, 1e-12);
+      IterationNumberControl                               control(n_iter, 1e-12);
       SolverCG<LinearAlgebra::distributed::Vector<double>> solver(control);
       sol = 0;
       solver.solve(matrix, sol, rhs, PreconditionIdentity());

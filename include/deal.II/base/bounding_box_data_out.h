@@ -60,8 +60,7 @@ public:
    */
   template <class ConvertibleToBoundingBoxIterator>
   void
-  build_patches(const ConvertibleToBoundingBoxIterator &begin,
-                const ConvertibleToBoundingBoxIterator &end);
+  build_patches(const ConvertibleToBoundingBoxIterator &begin, const ConvertibleToBoundingBoxIterator &end);
 
   /**
    * Generate patches from a container of objects that can be converted by boost
@@ -86,8 +85,7 @@ public:
    * @param[in] dataset_names The name of each component of the dataset
    */
   void
-  add_datasets(const std::vector<std::vector<double>> &datasets,
-               const std::vector<std::string> &        dataset_names);
+  add_datasets(const std::vector<std::vector<double>> &datasets, const std::vector<std::string> &dataset_names);
 
 protected:
   // Copy doc
@@ -116,33 +114,29 @@ private:
 template <int dim>
 template <class ConvertibleToBoundingBoxIterator>
 void
-BoundingBoxDataOut<dim>::build_patches(
-  const ConvertibleToBoundingBoxIterator &begin,
-  const ConvertibleToBoundingBoxIterator &end)
+BoundingBoxDataOut<dim>::build_patches(const ConvertibleToBoundingBoxIterator &begin,
+                                       const ConvertibleToBoundingBoxIterator &end)
 {
-  using Getter = boost::geometry::index::indexable<
-    typename ConvertibleToBoundingBoxIterator::value_type>;
+  using Getter = boost::geometry::index::indexable<typename ConvertibleToBoundingBoxIterator::value_type>;
   Getter                 getter;
-  constexpr unsigned int boxdim =
-    boost::geometry::dimension<typename Getter::result_type>::value;
-  const unsigned int N = std::distance(begin, end);
+  constexpr unsigned int boxdim = boost::geometry::dimension<typename Getter::result_type>::value;
+  const unsigned int     N      = std::distance(begin, end);
   static_assert(boxdim == dim, "Bounding boxes are of the wrong dimension!");
 
   dataset_names.clear();
   patches.resize(N);
 
   unsigned int i = 0;
-  for (const auto &value :
-       IteratorRange<ConvertibleToBoundingBoxIterator>(begin, end))
+  for (const auto &value : IteratorRange<ConvertibleToBoundingBoxIterator>(begin, end))
     {
       BoundingBox<dim> box;
       boost::geometry::convert(getter(*value), box);
       for (unsigned int v = 0; v < GeometryInfo<dim>::vertices_per_cell; ++v)
         {
-          patches[i].vertices[v]    = box.vertex(v);
-          patches[i].patch_index    = i;
-          patches[i].n_subdivisions = 1;
-          patches[i].reference_cell = ReferenceCells::get_hypercube<dim>();
+          patches[i].vertices[v]          = box.vertex(v);
+          patches[i].patch_index          = i;
+          patches[i].n_subdivisions       = 1;
+          patches[i].reference_cell       = ReferenceCells::get_hypercube<dim>();
           patches[i].points_are_available = false;
         }
       ++i;
@@ -163,17 +157,15 @@ BoundingBoxDataOut<dim>::build_patches(const Container &boxes)
 
 template <int dim>
 void
-BoundingBoxDataOut<dim>::add_datasets(
-  const std::vector<std::vector<double>> &datasets,
-  const std::vector<std::string> &        names)
+BoundingBoxDataOut<dim>::add_datasets(const std::vector<std::vector<double>> &datasets,
+                                      const std::vector<std::string>         &names)
 {
   AssertDimension(datasets.size(), patches.size());
   dataset_names = names;
   for (unsigned int i = 0; i < datasets.size(); ++i)
     {
       AssertDimension(datasets[i].size(), names.size());
-      patches[i].data.reinit(names.size(),
-                             GeometryInfo<dim>::vertices_per_cell);
+      patches[i].data.reinit(names.size(), GeometryInfo<dim>::vertices_per_cell);
       for (unsigned int j = 0; j < names.size(); ++j)
         for (unsigned int k = 0; k < GeometryInfo<dim>::vertices_per_cell; ++k)
           patches[i].data(j, k) = datasets[i][j];

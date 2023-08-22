@@ -53,16 +53,10 @@ do_test(const unsigned int n_refine, const bool overlap_communication)
 
   MatrixFree<dim>                          matrix_free;
   typename MatrixFree<dim>::AdditionalData add_data;
-  add_data.mapping_update_flags = update_values | update_gradients |
-                                  update_JxW_values | update_quadrature_points;
-  add_data.mapping_update_flags_boundary_faces =
-    update_values | update_JxW_values | update_quadrature_points;
-  add_data.overlap_communication_computation = overlap_communication;
-  matrix_free.reinit(MappingQ1<dim>{},
-                     dof_handler,
-                     constraints,
-                     QGauss<1>(fe.degree + 1),
-                     add_data);
+  add_data.mapping_update_flags = update_values | update_gradients | update_JxW_values | update_quadrature_points;
+  add_data.mapping_update_flags_boundary_faces = update_values | update_JxW_values | update_quadrature_points;
+  add_data.overlap_communication_computation   = overlap_communication;
+  matrix_free.reinit(MappingQ1<dim>{}, dof_handler, constraints, QGauss<1>(fe.degree + 1), add_data);
 
   LinearAlgebra::distributed::Vector<double> in, ref, test;
   matrix_free.initialize_dof_vector(in);
@@ -75,10 +69,10 @@ do_test(const unsigned int n_refine, const bool overlap_communication)
                      LinearAlgebra::distributed::Vector<double> &,
                      const LinearAlgebra::distributed::Vector<double> &,
                      const std::pair<unsigned int, unsigned int> &)>
-    cell_func = [](const MatrixFree<dim> &                           data,
-                   LinearAlgebra::distributed::Vector<double> &      out,
+    cell_func = [](const MatrixFree<dim>                            &data,
+                   LinearAlgebra::distributed::Vector<double>       &out,
                    const LinearAlgebra::distributed::Vector<double> &in,
-                   const std::pair<unsigned int, unsigned int> &range) -> void {
+                   const std::pair<unsigned int, unsigned int>      &range) -> void {
     FEEvaluation<dim, fe_degree> eval(data);
 
     for (unsigned int cell = range.first; cell < range.second; ++cell)
@@ -90,9 +84,7 @@ do_test(const unsigned int n_refine, const bool overlap_communication)
             eval.submit_gradient(eval.get_gradient(q), q);
             eval.submit_value(eval.quadrature_point(q).square(), q);
           }
-        eval.integrate_scatter(EvaluationFlags::values |
-                                 EvaluationFlags::gradients,
-                               out);
+        eval.integrate_scatter(EvaluationFlags::values | EvaluationFlags::gradients, out);
       }
   };
 
@@ -100,11 +92,10 @@ do_test(const unsigned int n_refine, const bool overlap_communication)
                      LinearAlgebra::distributed::Vector<double> &,
                      const LinearAlgebra::distributed::Vector<double> &,
                      const std::pair<unsigned int, unsigned int> &)>
-    boundary_func =
-      [](const MatrixFree<dim> &                           data,
-         LinearAlgebra::distributed::Vector<double> &      out,
-         const LinearAlgebra::distributed::Vector<double> &in,
-         const std::pair<unsigned int, unsigned int> &     range) -> void {
+    boundary_func = [](const MatrixFree<dim>                            &data,
+                       LinearAlgebra::distributed::Vector<double>       &out,
+                       const LinearAlgebra::distributed::Vector<double> &in,
+                       const std::pair<unsigned int, unsigned int>      &range) -> void {
     FEFaceEvaluation<dim, fe_degree> eval(data, true);
 
     for (unsigned int face = range.first; face < range.second; ++face)
@@ -113,9 +104,7 @@ do_test(const unsigned int n_refine, const bool overlap_communication)
         eval.gather_evaluate(in, EvaluationFlags::values);
         for (unsigned int q = 0; q < eval.n_q_points; ++q)
           {
-            eval.submit_value(eval.quadrature_point(q).square() -
-                                6. * eval.get_value(q),
-                              q);
+            eval.submit_value(eval.quadrature_point(q).square() - 6. * eval.get_value(q), q);
           }
         eval.integrate_scatter(EvaluationFlags::values, out);
       }
@@ -123,16 +112,12 @@ do_test(const unsigned int n_refine, const bool overlap_communication)
 
   // compute reference result
   in.update_ghost_values();
-  cell_func(matrix_free,
-            ref,
-            in,
-            std::make_pair(0U, matrix_free.n_cell_batches()));
+  cell_func(matrix_free, ref, in, std::make_pair(0U, matrix_free.n_cell_batches()));
   boundary_func(matrix_free,
                 ref,
                 in,
                 std::make_pair(matrix_free.n_inner_face_batches(),
-                               matrix_free.n_inner_face_batches() +
-                                 matrix_free.n_boundary_face_batches()));
+                               matrix_free.n_inner_face_batches() + matrix_free.n_boundary_face_batches()));
   ref.compress(VectorOperation::add);
   in.zero_out_ghost_values();
 
@@ -156,8 +141,7 @@ do_test(const unsigned int n_refine, const bool overlap_communication)
                    MatrixFree<dim>::DataAccessOnFaces::values);
 
   deallog << "Number of dofs: " << dof_handler.n_dofs()
-          << (overlap_communication ? " with overlap" : " without overlap")
-          << std::endl;
+          << (overlap_communication ? " with overlap" : " without overlap") << std::endl;
 
   test -= ref;
   deallog << "Error loop 1: " << test.linfty_norm() << std::endl;
@@ -205,10 +189,7 @@ do_test(const unsigned int n_refine, const bool overlap_communication)
   // compute again, now only cell loop
   ref = 0;
   in.update_ghost_values();
-  cell_func(matrix_free,
-            ref,
-            in,
-            std::make_pair(0U, matrix_free.n_cell_batches()));
+  cell_func(matrix_free, ref, in, std::make_pair(0U, matrix_free.n_cell_batches()));
   ref.compress(VectorOperation::add);
   in.zero_out_ghost_values();
 

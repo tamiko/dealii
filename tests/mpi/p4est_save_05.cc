@@ -36,10 +36,8 @@
 
 template <int dim>
 std::vector<char>
-pack_function(
-  const typename parallel::distributed::Triangulation<dim, dim>::cell_iterator
-    &              cell,
-  const CellStatus status)
+pack_function(const typename parallel::distributed::Triangulation<dim, dim>::cell_iterator &cell,
+              const CellStatus                                                              status)
 {
   static unsigned int       some_number = 1;
   std::vector<unsigned int> some_vector(some_number);
@@ -48,16 +46,13 @@ pack_function(
 
   std::vector<char> buffer;
   buffer.reserve(some_number * sizeof(unsigned int));
-  for (auto vector_it = some_vector.cbegin(); vector_it != some_vector.cend();
-       ++vector_it)
+  for (auto vector_it = some_vector.cbegin(); vector_it != some_vector.cend(); ++vector_it)
     {
       Utilities::pack(*vector_it, buffer, /*allow_compression=*/false);
     }
 
-  deallog << "packing cell " << cell->id()
-          << " with data size=" << buffer.size() << " accumulated data="
-          << std::accumulate(some_vector.begin(), some_vector.end(), 0)
-          << std::endl;
+  deallog << "packing cell " << cell->id() << " with data size=" << buffer.size()
+          << " accumulated data=" << std::accumulate(some_vector.begin(), some_vector.end(), 0) << std::endl;
 
   Assert((status == CellStatus::cell_will_persist), ExcInternalError());
 
@@ -69,33 +64,26 @@ pack_function(
 
 template <int dim>
 void
-unpack_function(
-  const typename parallel::distributed::Triangulation<dim, dim>::cell_iterator
-    &                                                             cell,
-  const CellStatus                                                status,
-  const boost::iterator_range<std::vector<char>::const_iterator> &data_range)
+unpack_function(const typename parallel::distributed::Triangulation<dim, dim>::cell_iterator &cell,
+                const CellStatus                                                              status,
+                const boost::iterator_range<std::vector<char>::const_iterator>               &data_range)
 {
-  const unsigned int data_in_bytes =
-    std::distance(data_range.begin(), data_range.end());
+  const unsigned int data_in_bytes = std::distance(data_range.begin(), data_range.end());
 
   std::vector<unsigned int> intdatavector(data_in_bytes / sizeof(unsigned int));
 
   auto vector_it = intdatavector.begin();
   auto data_it   = data_range.begin();
-  for (; data_it != data_range.end();
-       ++vector_it, data_it += sizeof(unsigned int))
+  for (; data_it != data_range.end(); ++vector_it, data_it += sizeof(unsigned int))
     {
-      *vector_it =
-        Utilities::unpack<unsigned int>(data_it,
-                                        data_it + sizeof(unsigned int),
-                                        /*allow_compression=*/false);
+      *vector_it = Utilities::unpack<unsigned int>(data_it,
+                                                   data_it + sizeof(unsigned int),
+                                                   /*allow_compression=*/false);
     }
 
-  deallog << "unpacking cell " << cell->id() << " with data size="
-          << std::distance(data_range.begin(), data_range.end())
-          << " accumulated data="
-          << std::accumulate(intdatavector.begin(), intdatavector.end(), 0)
-          << std::endl;
+  deallog << "unpacking cell " << cell->id()
+          << " with data size=" << std::distance(data_range.begin(), data_range.end())
+          << " accumulated data=" << std::accumulate(intdatavector.begin(), intdatavector.end(), 0) << std::endl;
 
   Assert((status == CellStatus::cell_will_persist), ExcInternalError());
 }
@@ -116,8 +104,7 @@ test()
   // write with small com
   if (myid < 3)
     {
-      deallog << "writing with " << Utilities::MPI::n_mpi_processes(com_small)
-              << std::endl;
+      deallog << "writing with " << Utilities::MPI::n_mpi_processes(com_small) << std::endl;
 
       parallel::distributed::Triangulation<dim> tr(com_small);
       GridGenerator::subdivided_hyper_cube(tr, 2);
@@ -136,9 +123,8 @@ test()
         }
       tr.execute_coarsening_and_refinement();
 
-      unsigned int handle =
-        tr.register_data_attach(pack_function<dim>,
-                                /*returns_variable_size_data=*/true);
+      unsigned int handle = tr.register_data_attach(pack_function<dim>,
+                                                    /*returns_variable_size_data=*/true);
 
       tr.save("file");
       deallog << "#cells = " << tr.n_global_active_cells() << std::endl;
@@ -147,8 +133,7 @@ test()
 
   MPI_Barrier(MPI_COMM_WORLD);
 
-  deallog << "reading with " << Utilities::MPI::n_mpi_processes(com_all)
-          << std::endl;
+  deallog << "reading with " << Utilities::MPI::n_mpi_processes(com_all) << std::endl;
 
   {
     parallel::distributed::Triangulation<dim> tr(com_all);
@@ -156,9 +141,8 @@ test()
     GridGenerator::subdivided_hyper_cube(tr, 2);
     tr.load("file");
 
-    unsigned int handle =
-      tr.register_data_attach(pack_function<dim>,
-                              /*returns_variable_size_data=*/true);
+    unsigned int handle = tr.register_data_attach(pack_function<dim>,
+                                                  /*returns_variable_size_data=*/true);
 
     tr.notify_ready_to_unpack(handle, unpack_function<dim>);
 

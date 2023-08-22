@@ -41,21 +41,17 @@ test()
   AffineConstraints<double> constraints;
   constraints.close();
 
-  do_test<dim, fe_degree, fe_degree + 1, double, VectorizedArray<double, 1>>(
-    dof, constraints, true);
+  do_test<dim, fe_degree, fe_degree + 1, double, VectorizedArray<double, 1>>(dof, constraints, true);
 
 #if DEAL_II_VECTORIZATION_WIDTH_IN_BITS >= 128
-  do_test<dim, fe_degree, fe_degree + 1, double, VectorizedArray<double, 2>>(
-    dof, constraints, true);
+  do_test<dim, fe_degree, fe_degree + 1, double, VectorizedArray<double, 2>>(dof, constraints, true);
 #endif
 
 #if DEAL_II_VECTORIZATION_WIDTH_IN_BITS >= 256
-  do_test<dim, fe_degree, fe_degree + 1, double, VectorizedArray<double, 4>>(
-    dof, constraints, true);
+  do_test<dim, fe_degree, fe_degree + 1, double, VectorizedArray<double, 4>>(dof, constraints, true);
 #endif
 
 #if DEAL_II_VECTORIZATION_WIDTH_IN_BITS >= 512
-  do_test<dim, fe_degree, fe_degree + 1, double, VectorizedArray<double, 8>>(
-    dof, constraints, true);
+  do_test<dim, fe_degree, fe_degree + 1, double, VectorizedArray<double, 8>>(dof, constraints, true);
 #endif
 }

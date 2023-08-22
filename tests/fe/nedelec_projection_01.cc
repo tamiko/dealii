@@ -47,8 +47,7 @@ public:
   {}
 
   void
-  vector_value_list(const std::vector<Point<dim>> &points,
-                    std::vector<Vector<double>> &  values) const override
+  vector_value_list(const std::vector<Point<dim>> &points, std::vector<Vector<double>> &values) const override
   {
     for (unsigned int i = 0; i < points.size(); ++i)
       {
@@ -90,13 +89,12 @@ test()
 
     AffineConstraints<double> constraints;
 
-    VectorTools::project_boundary_values_curl_conforming_l2(
-      dof_handler,
-      0, // starting component
-      BoundaryValues<dim>(),
-      1, // face ID1
-      constraints,
-      StaticMappingQ1<dim>::mapping);
+    VectorTools::project_boundary_values_curl_conforming_l2(dof_handler,
+                                                            0, // starting component
+                                                            BoundaryValues<dim>(),
+                                                            1, // face ID1
+                                                            constraints,
+                                                            StaticMappingQ1<dim>::mapping);
     constraints.close();
     constraints.print(deallog.get_file_stream());
   }
@@ -107,13 +105,12 @@ test()
 
     AffineConstraints<double> constraints;
 
-    VectorTools::project_boundary_values_curl_conforming_l2(
-      dof_handler,
-      dim, // starting component
-      BoundaryValues<dim>(),
-      1, // face ID1
-      constraints,
-      StaticMappingQ1<dim>::mapping);
+    VectorTools::project_boundary_values_curl_conforming_l2(dof_handler,
+                                                            dim, // starting component
+                                                            BoundaryValues<dim>(),
+                                                            1, // face ID1
+                                                            constraints,
+                                                            StaticMappingQ1<dim>::mapping);
     constraints.close();
     constraints.print(deallog.get_file_stream());
   }
@@ -124,20 +121,18 @@ test()
 
     AffineConstraints<double> constraints;
 
-    VectorTools::project_boundary_values_curl_conforming_l2(
-      dof_handler,
-      0, // starting component
-      BoundaryValues<dim>(),
-      1, // face ID1
-      constraints,
-      StaticMappingQ1<dim>::mapping);
-    VectorTools::project_boundary_values_curl_conforming_l2(
-      dof_handler,
-      dim, // starting component
-      BoundaryValues<dim>(),
-      1, // face ID1
-      constraints,
-      StaticMappingQ1<dim>::mapping);
+    VectorTools::project_boundary_values_curl_conforming_l2(dof_handler,
+                                                            0, // starting component
+                                                            BoundaryValues<dim>(),
+                                                            1, // face ID1
+                                                            constraints,
+                                                            StaticMappingQ1<dim>::mapping);
+    VectorTools::project_boundary_values_curl_conforming_l2(dof_handler,
+                                                            dim, // starting component
+                                                            BoundaryValues<dim>(),
+                                                            1, // face ID1
+                                                            constraints,
+                                                            StaticMappingQ1<dim>::mapping);
     constraints.close();
     constraints.print(deallog.get_file_stream());
   }

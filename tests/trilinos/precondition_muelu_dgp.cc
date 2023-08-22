@@ -53,58 +53,48 @@ class MatrixIntegrator : public MeshWorker::LocalIntegrator<dim>
 {
 public:
   void
-  cell(MeshWorker::DoFInfo<dim> &                 dinfo,
-       typename MeshWorker::IntegrationInfo<dim> &info) const;
+  cell(MeshWorker::DoFInfo<dim> &dinfo, typename MeshWorker::IntegrationInfo<dim> &info) const;
   void
-  boundary(MeshWorker::DoFInfo<dim> &                 dinfo,
-           typename MeshWorker::IntegrationInfo<dim> &info) const;
+  boundary(MeshWorker::DoFInfo<dim> &dinfo, typename MeshWorker::IntegrationInfo<dim> &info) const;
   void
-  face(MeshWorker::DoFInfo<dim> &                 dinfo1,
-       MeshWorker::DoFInfo<dim> &                 dinfo2,
+  face(MeshWorker::DoFInfo<dim>                  &dinfo1,
+       MeshWorker::DoFInfo<dim>                  &dinfo2,
        typename MeshWorker::IntegrationInfo<dim> &info1,
        typename MeshWorker::IntegrationInfo<dim> &info2) const;
 };
 
 template <int dim>
 void
-MatrixIntegrator<dim>::cell(
-  MeshWorker::DoFInfo<dim> &                 dinfo,
-  typename MeshWorker::IntegrationInfo<dim> &info) const
+MatrixIntegrator<dim>::cell(MeshWorker::DoFInfo<dim> &dinfo, typename MeshWorker::IntegrationInfo<dim> &info) const
 {
-  LocalIntegrators::Laplace::cell_matrix(dinfo.matrix(0, false).matrix,
-                                         info.fe_values());
+  LocalIntegrators::Laplace::cell_matrix(dinfo.matrix(0, false).matrix, info.fe_values());
 }
 
 template <int dim>
 void
-MatrixIntegrator<dim>::boundary(
-  MeshWorker::DoFInfo<dim> &                 dinfo,
-  typename MeshWorker::IntegrationInfo<dim> &info) const
+MatrixIntegrator<dim>::boundary(MeshWorker::DoFInfo<dim> &dinfo, typename MeshWorker::IntegrationInfo<dim> &info) const
 {
   const unsigned int deg = info.fe_values(0).get_fe().degree;
-  LocalIntegrators::Laplace::nitsche_matrix(
-    dinfo.matrix(0, false).matrix,
-    info.fe_values(0),
-    LocalIntegrators::Laplace::compute_penalty(dinfo, dinfo, deg, deg));
+  LocalIntegrators::Laplace::nitsche_matrix(dinfo.matrix(0, false).matrix,
+                                            info.fe_values(0),
+                                            LocalIntegrators::Laplace::compute_penalty(dinfo, dinfo, deg, deg));
 }
 
 template <int dim>
 void
-MatrixIntegrator<dim>::face(
-  MeshWorker::DoFInfo<dim> &                 dinfo1,
-  MeshWorker::DoFInfo<dim> &                 dinfo2,
-  typename MeshWorker::IntegrationInfo<dim> &info1,
-  typename MeshWorker::IntegrationInfo<dim> &info2) const
+MatrixIntegrator<dim>::face(MeshWorker::DoFInfo<dim>                  &dinfo1,
+                            MeshWorker::DoFInfo<dim>                  &dinfo2,
+                            typename MeshWorker::IntegrationInfo<dim> &info1,
+                            typename MeshWorker::IntegrationInfo<dim> &info2) const
 {
   const unsigned int deg = info1.fe_values(0).get_fe().degree;
-  LocalIntegrators::Laplace::ip_matrix(
-    dinfo1.matrix(0, false).matrix,
-    dinfo1.matrix(0, true).matrix,
-    dinfo2.matrix(0, true).matrix,
-    dinfo2.matrix(0, false).matrix,
-    info1.fe_values(0),
-    info2.fe_values(0),
-    LocalIntegrators::Laplace::compute_penalty(dinfo1, dinfo2, deg, deg));
+  LocalIntegrators::Laplace::ip_matrix(dinfo1.matrix(0, false).matrix,
+                                       dinfo1.matrix(0, true).matrix,
+                                       dinfo2.matrix(0, true).matrix,
+                                       dinfo2.matrix(0, false).matrix,
+                                       info1.fe_values(0),
+                                       info2.fe_values(0),
+                                       LocalIntegrators::Laplace::compute_penalty(dinfo1, dinfo2, deg, deg));
 }
 
 
@@ -168,20 +158,16 @@ Step4<dim>::setup_system()
 
   MappingQ<dim>                       mapping(1);
   MeshWorker::IntegrationInfoBox<dim> info_box;
-  UpdateFlags update_flags = update_values | update_gradients;
+  UpdateFlags                         update_flags = update_values | update_gradients;
   info_box.add_update_flags_all(update_flags);
   info_box.initialize(fe, mapping);
 
-  MeshWorker::DoFInfo<dim> dof_info(dof_handler);
+  MeshWorker::DoFInfo<dim>                                            dof_info(dof_handler);
   MeshWorker::Assembler::MatrixSimple<TrilinosWrappers::SparseMatrix> assembler;
   assembler.initialize(system_matrix);
   MatrixIntegrator<dim> integrator;
-  MeshWorker::integration_loop<dim, dim>(dof_handler.begin_active(),
-                                         dof_handler.end(),
-                                         dof_info,
-                                         info_box,
-                                         integrator,
-                                         assembler);
+  MeshWorker::integration_loop<dim, dim>(
+    dof_handler.begin_active(), dof_handler.end(), dof_info, info_box, integrator, assembler);
 
   system_matrix.compress(VectorOperation::add);
 
@@ -198,9 +184,7 @@ Step4<dim>::solve()
   deallog.push(Utilities::int_to_string(dof_handler.n_dofs(), 5));
   TrilinosWrappers::PreconditionAMGMueLu                 preconditioner;
   TrilinosWrappers::PreconditionAMGMueLu::AdditionalData data;
-  DoFTools::extract_constant_modes(dof_handler,
-                                   std::vector<bool>(1, true),
-                                   data.constant_modes);
+  DoFTools::extract_constant_modes(dof_handler, std::vector<bool>(1, true), data.constant_modes);
   data.smoother_sweeps = 2;
   {
     solution = 0;
@@ -208,11 +192,10 @@ Step4<dim>::solve()
     SolverCG<>    solver(solver_control);
     preconditioner.initialize(system_matrix, data);
 
-    check_solver_within_range(
-      solver.solve(system_matrix, solution, system_rhs, preconditioner),
-      solver_control.last_step(),
-      18,
-      32);
+    check_solver_within_range(solver.solve(system_matrix, solution, system_rhs, preconditioner),
+                              solver_control.last_step(),
+                              18,
+                              32);
   }
   deallog.pop();
 }
@@ -241,8 +224,7 @@ main(int argc, char **argv)
 {
   initlog();
 
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   try
     {
@@ -251,28 +233,20 @@ main(int argc, char **argv)
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

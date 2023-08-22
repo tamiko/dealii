@@ -26,10 +26,9 @@ main(int argc, char **argv)
 {
   initlog();
 
-  const unsigned int n_runs = 2; // Two runs to check for reuse of optimizer
+  const unsigned int               n_runs     = 2; // Two runs to check for reuse of optimizer
   const enum SD::OptimizerType     opt_method = SD::OptimizerType::lambda;
-  const enum SD::OptimizationFlags opt_flags =
-    SD::OptimizationFlags::optimize_all;
+  const enum SD::OptimizationFlags opt_flags  = SD::OptimizationFlags::optimize_all;
 
   run<2, opt_method, opt_flags>(n_runs);
   run<3, opt_method, opt_flags>(n_runs);

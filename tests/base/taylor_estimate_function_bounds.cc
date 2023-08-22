@@ -115,10 +115,7 @@ namespace
 
     std::pair<double, double>                  value_bounds;
     std::array<std::pair<double, double>, dim> gradient_bounds;
-    FunctionTools::taylor_estimate_function_bounds<dim>(function,
-                                                        box,
-                                                        value_bounds,
-                                                        gradient_bounds);
+    FunctionTools::taylor_estimate_function_bounds<dim>(function, box, value_bounds, gradient_bounds);
 
     deallog << "value: ";
     print_bounds(value_bounds);

@@ -38,41 +38,33 @@ public:
   DummyOperator() = default;
 
   DEAL_II_HOST_DEVICE void
-  operator()(
-    const unsigned int                                          cell,
-    const typename CUDAWrappers::MatrixFree<dim, double>::Data *gpu_data,
-    CUDAWrappers::SharedData<dim, double> *                     shared_data,
-    const double *                                              src,
-    double *                                                    dst) const;
+  operator()(const unsigned int                                          cell,
+             const typename CUDAWrappers::MatrixFree<dim, double>::Data *gpu_data,
+             CUDAWrappers::SharedData<dim, double>                      *shared_data,
+             const double                                               *src,
+             double                                                     *dst) const;
 
-  static const unsigned int n_dofs_1d = fe_degree + 1;
-  static const unsigned int n_local_dofs =
-    dealii::Utilities::pow(fe_degree + 1, dim);
-  static const unsigned int n_q_points =
-    dealii::Utilities::pow(fe_degree + 1, dim);
+  static const unsigned int n_dofs_1d    = fe_degree + 1;
+  static const unsigned int n_local_dofs = dealii::Utilities::pow(fe_degree + 1, dim);
+  static const unsigned int n_q_points   = dealii::Utilities::pow(fe_degree + 1, dim);
 };
 
 
 
 template <int dim, int fe_degree>
 DEAL_II_HOST_DEVICE void
-DummyOperator<dim, fe_degree>::operator()(
-  const unsigned int                                          cell,
-  const typename CUDAWrappers::MatrixFree<dim, double>::Data *gpu_data,
-  CUDAWrappers::SharedData<dim, double> *                     shared_data,
-  const double *,
-  double *dst) const
+DummyOperator<dim, fe_degree>::operator()(const unsigned int                                          cell,
+                                          const typename CUDAWrappers::MatrixFree<dim, double>::Data *gpu_data,
+                                          CUDAWrappers::SharedData<dim, double>                      *shared_data,
+                                          const double *,
+                                          double *dst) const
 {
-  Kokkos::parallel_for(
-    Kokkos::TeamThreadRange(shared_data->team_member, n_q_points),
-    [&](const int q_point) {
-      const unsigned int pos =
-        gpu_data->local_q_point_id(cell, n_q_points, q_point);
+  Kokkos::parallel_for(Kokkos::TeamThreadRange(shared_data->team_member, n_q_points), [&](const int q_point) {
+    const unsigned int pos = gpu_data->local_q_point_id(cell, n_q_points, q_point);
 
-      auto point = gpu_data->get_quadrature_point(cell, q_point);
-      dst[pos] =
-        dim == 2 ? point(0) + point(1) : point(0) + point(1) + point(2);
-    });
+    auto point = gpu_data->get_quadrature_point(cell, q_point);
+    dst[pos]   = dim == 2 ? point(0) + point(1) : point(0) + point(1) + point(2);
+  });
 }
 
 
@@ -81,31 +73,27 @@ template <int dim, int fe_degree>
 class DummyMatrixFree : public Subscriptor
 {
 public:
-  DummyMatrixFree(const CUDAWrappers::MatrixFree<dim, double> &data_in,
-                  const unsigned int                           size);
+  DummyMatrixFree(const CUDAWrappers::MatrixFree<dim, double> &data_in, const unsigned int size);
   void
-  eval(LinearAlgebra::distributed::Vector<double, MemorySpace::Default> &dst)
-    const;
+  eval(LinearAlgebra::distributed::Vector<double, MemorySpace::Default> &dst) const;
 
 private:
   const CUDAWrappers::MatrixFree<dim, double> &data;
 };
 
 template <int dim, int fe_degree>
-DummyMatrixFree<dim, fe_degree>::DummyMatrixFree(
-  const CUDAWrappers::MatrixFree<dim, double> &data_in,
-  const unsigned int                           size)
+DummyMatrixFree<dim, fe_degree>::DummyMatrixFree(const CUDAWrappers::MatrixFree<dim, double> &data_in,
+                                                 const unsigned int                           size)
   : data(data_in)
 {}
 
 
 template <int dim, int fe_degree>
 void
-DummyMatrixFree<dim, fe_degree>::eval(
-  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> &dst) const
+DummyMatrixFree<dim, fe_degree>::eval(LinearAlgebra::distributed::Vector<double, MemorySpace::Default> &dst) const
 {
   LinearAlgebra::distributed::Vector<double, MemorySpace::Default> src(dst);
-  DummyOperator<dim, fe_degree> dummy_operator;
+  DummyOperator<dim, fe_degree>                                    dummy_operator;
   data.cell_loop(dummy_operator, src, dst);
 }
 
@@ -124,26 +112,20 @@ test()
   constraints.close();
 
   // Computation on the device
-  MappingQ<dim>                         mapping(fe_degree);
-  CUDAWrappers::MatrixFree<dim, double> mf_data;
-  typename CUDAWrappers::MatrixFree<dim, double>::AdditionalData
-    additional_data;
-  additional_data.mapping_update_flags = update_values | update_gradients |
-                                         update_JxW_values |
-                                         update_quadrature_points;
+  MappingQ<dim>                                                  mapping(fe_degree);
+  CUDAWrappers::MatrixFree<dim, double>                          mf_data;
+  typename CUDAWrappers::MatrixFree<dim, double>::AdditionalData additional_data;
+  additional_data.mapping_update_flags =
+    update_values | update_gradients | update_JxW_values | update_quadrature_points;
   const QGauss<1> quad(fe_degree + 1);
   mf_data.reinit(mapping, dof, constraints, quad, additional_data);
-  constexpr unsigned int n_q_points_per_cell =
-    dealii::Utilities::pow(fe_degree + 1, dim);
+  constexpr unsigned int n_q_points_per_cell = dealii::Utilities::pow(fe_degree + 1, dim);
 
-  const unsigned int              n_dofs = dof.n_dofs();
-  DummyMatrixFree<dim, fe_degree> mf(mf_data,
-                                     tria.n_active_cells() *
-                                       n_q_points_per_cell);
-  const unsigned int size = tria.n_active_cells() * n_q_points_per_cell;
-  LinearAlgebra::ReadWriteVector<double>                           coef(size);
-  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> coef_device(
-    size);
+  const unsigned int                     n_dofs = dof.n_dofs();
+  DummyMatrixFree<dim, fe_degree>        mf(mf_data, tria.n_active_cells() * n_q_points_per_cell);
+  const unsigned int                     size = tria.n_active_cells() * n_q_points_per_cell;
+  LinearAlgebra::ReadWriteVector<double> coef(size);
+  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> coef_device(size);
 
   mf.eval(coef_device);
   Kokkos::fence();
@@ -151,24 +133,21 @@ test()
 
   // Computation the host
   auto               graph    = mf_data.get_colored_graph();
-  unsigned int const n_colors = graph.size();
+  const unsigned int n_colors = graph.size();
   for (unsigned int color = 0; color < n_colors; ++color)
     {
-      typename CUDAWrappers::MatrixFree<dim, double>::Data gpu_data =
-        mf_data.get_data(color);
-      unsigned int const n_cells = gpu_data.n_cells;
-      auto gpu_data_host = CUDAWrappers::copy_mf_data_to_host<dim, double>(
-        gpu_data, additional_data.mapping_update_flags);
+      typename CUDAWrappers::MatrixFree<dim, double>::Data gpu_data = mf_data.get_data(color);
+      const unsigned int                                   n_cells  = gpu_data.n_cells;
+      auto                                                 gpu_data_host =
+        CUDAWrappers::copy_mf_data_to_host<dim, double>(gpu_data, additional_data.mapping_update_flags);
       for (unsigned int cell_id = 0; cell_id < n_cells; ++cell_id)
         {
           for (unsigned int i = 0; i < n_q_points_per_cell; ++i)
             {
-              unsigned int const pos =
-                gpu_data_host.local_q_point_id(cell_id, n_q_points_per_cell, i);
-              auto         p = gpu_data_host.get_quadrature_point(cell_id, i);
-              const double p_val = dim == 2 ? p(0) + p(1) : p(0) + p(1) + p(2);
-              AssertThrow(std::abs(coef[pos] - p_val) < 1e-12,
-                          ExcInternalError());
+              const unsigned int pos   = gpu_data_host.local_q_point_id(cell_id, n_q_points_per_cell, i);
+              auto               p     = gpu_data_host.get_quadrature_point(cell_id, i);
+              const double       p_val = dim == 2 ? p(0) + p(1) : p(0) + p(1) + p(2);
+              AssertThrow(std::abs(coef[pos] - p_val) < 1e-12, ExcInternalError());
             }
         }
     }

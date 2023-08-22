@@ -78,8 +78,7 @@ public:
    * This function overrides the implementation from FE_Q_Base.
    */
   virtual void
-  get_interpolation_matrix(const FiniteElement<dim, spacedim> &source,
-                           FullMatrix<double> &matrix) const override;
+  get_interpolation_matrix(const FiniteElement<dim, spacedim> &source, FullMatrix<double> &matrix) const override;
 
   /**
    * FE_Bernstein is not interpolatory in the element interior, which prevents
@@ -91,8 +90,7 @@ public:
   virtual const FullMatrix<double> &
   get_restriction_matrix(
     const unsigned int         child,
-    const RefinementCase<dim> &refinement_case =
-      RefinementCase<dim>::isotropic_refinement) const override;
+    const RefinementCase<dim> &refinement_case = RefinementCase<dim>::isotropic_refinement) const override;
 
   /**
    * FE_Bernstein is not interpolatory in the element interior, which prevents
@@ -104,8 +102,7 @@ public:
   virtual const FullMatrix<double> &
   get_prolongation_matrix(
     const unsigned int         child,
-    const RefinementCase<dim> &refinement_case =
-      RefinementCase<dim>::isotropic_refinement) const override;
+    const RefinementCase<dim> &refinement_case = RefinementCase<dim>::isotropic_refinement) const override;
 
   /**
    * Return the matrix interpolating from a face of one element to the face of
@@ -118,8 +115,8 @@ public:
    */
   virtual void
   get_face_interpolation_matrix(const FiniteElement<dim, spacedim> &source,
-                                FullMatrix<double> &                matrix,
-                                const unsigned int face_no = 0) const override;
+                                FullMatrix<double>                 &matrix,
+                                const unsigned int                  face_no = 0) const override;
 
   /**
    * Return the matrix interpolating from a face of one element to the face of
@@ -131,11 +128,10 @@ public:
    * FiniteElement<dim,spacedim>::ExcInterpolationNotImplemented is thrown.
    */
   virtual void
-  get_subface_interpolation_matrix(
-    const FiniteElement<dim, spacedim> &source,
-    const unsigned int                  subface,
-    FullMatrix<double> &                matrix,
-    const unsigned int                  face_no = 0) const override;
+  get_subface_interpolation_matrix(const FiniteElement<dim, spacedim> &source,
+                                   const unsigned int                  subface,
+                                   FullMatrix<double>                 &matrix,
+                                   const unsigned int                  face_no = 0) const override;
 
   /**
    * Return whether this element implements its hanging node constraints in
@@ -160,31 +156,28 @@ public:
    * second is the corresponding index of the other finite element.
    */
   virtual std::vector<std::pair<unsigned int, unsigned int>>
-  hp_vertex_dof_identities(
-    const FiniteElement<dim, spacedim> &fe_other) const override;
+  hp_vertex_dof_identities(const FiniteElement<dim, spacedim> &fe_other) const override;
 
   /**
    * Same as hp_vertex_dof_indices(), except that the function treats degrees
    * of freedom on lines.
    */
   virtual std::vector<std::pair<unsigned int, unsigned int>>
-  hp_line_dof_identities(
-    const FiniteElement<dim, spacedim> &fe_other) const override;
+  hp_line_dof_identities(const FiniteElement<dim, spacedim> &fe_other) const override;
 
   /**
    * Same as hp_vertex_dof_indices(), except that the function treats degrees
    * of freedom on quads.
    */
   virtual std::vector<std::pair<unsigned int, unsigned int>>
-  hp_quad_dof_identities(const FiniteElement<dim, spacedim> &fe_other,
-                         const unsigned int face_no = 0) const override;
+  hp_quad_dof_identities(const FiniteElement<dim, spacedim> &fe_other, const unsigned int face_no = 0) const override;
 
   /**
    * @copydoc FiniteElement::compare_for_domination()
    */
   virtual FiniteElementDomination::Domination
   compare_for_domination(const FiniteElement<dim, spacedim> &fe_other,
-                         const unsigned int codim = 0) const override final;
+                         const unsigned int                  codim = 0) const override final;
 
   /**
    * Return a string that uniquely identifies a finite element. This class

@@ -67,8 +67,7 @@ public:
   /**
    * Constructor.
    */
-  SolverRelaxation(SolverControl &       cn,
-                   const AdditionalData &data = AdditionalData());
+  SolverRelaxation(SolverControl &cn, const AdditionalData &data = AdditionalData());
 
   /**
    * Solve the system $Ax = b$ using the relaxation method $x_{k+1} =
@@ -77,17 +76,13 @@ public:
    */
   template <typename MatrixType, typename RelaxationType>
   void
-  solve(const MatrixType &    A,
-        VectorType &          x,
-        const VectorType &    b,
-        const RelaxationType &R);
+  solve(const MatrixType &A, VectorType &x, const VectorType &b, const RelaxationType &R);
 };
 
 //----------------------------------------------------------------------//
 
 template <typename VectorType>
-SolverRelaxation<VectorType>::SolverRelaxation(SolverControl &cn,
-                                               const AdditionalData &)
+SolverRelaxation<VectorType>::SolverRelaxation(SolverControl &cn, const AdditionalData &)
   : SolverBase<VectorType>(cn)
 {}
 
@@ -96,20 +91,17 @@ SolverRelaxation<VectorType>::SolverRelaxation(SolverControl &cn,
 template <typename VectorType>
 template <typename MatrixType, typename RelaxationType>
 void
-SolverRelaxation<VectorType>::solve(const MatrixType &    A,
-                                    VectorType &          x,
-                                    const VectorType &    b,
-                                    const RelaxationType &R)
+SolverRelaxation<VectorType>::solve(const MatrixType &A, VectorType &x, const VectorType &b, const RelaxationType &R)
 {
   GrowingVectorMemory<VectorType> mem;
   SolverControl::State            conv = SolverControl::iterate;
 
   // Memory allocation
   typename VectorMemory<VectorType>::Pointer Vr(mem);
-  VectorType &                               r = *Vr;
+  VectorType                                &r = *Vr;
   r.reinit(x);
   typename VectorMemory<VectorType>::Pointer Vd(mem);
-  VectorType &                               d = *Vd;
+  VectorType                                &d = *Vd;
   d.reinit(x);
 
   LogStream::Prefix prefix("Relaxation");
@@ -134,8 +126,7 @@ SolverRelaxation<VectorType>::solve(const MatrixType &    A,
     }
 
   // in case of failure: throw exception
-  AssertThrow(conv == SolverControl::success,
-              SolverControl::NoConvergence(iter, r.l2_norm()));
+  AssertThrow(conv == SolverControl::success, SolverControl::NoConvergence(iter, r.l2_norm()));
   // otherwise exit as normal
 }
 

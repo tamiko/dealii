@@ -78,10 +78,7 @@ check()
 
   AffineConstraints<double> constraints;
   DoFTools::make_hanging_node_constraints(dof, constraints);
-  VectorTools::interpolate_boundary_values(dof,
-                                           0,
-                                           Functions::ZeroFunction<dim>(2),
-                                           constraints);
+  VectorTools::interpolate_boundary_values(dof, 0, Functions::ZeroFunction<dim>(2), constraints);
   constraints.close();
 
   // create sparsity pattern. note
@@ -104,12 +101,7 @@ check()
   MatrixTools::create_mass_matrix(mapping, dof, quadrature, matrix_ref);
   constraints.condense(matrix_ref);
 
-  MatrixTools::create_mass_matrix(mapping,
-                                  dof,
-                                  quadrature,
-                                  matrix,
-                                  (const Function<dim> *const) nullptr,
-                                  constraints);
+  MatrixTools::create_mass_matrix(mapping, dof, quadrature, matrix, (const Function<dim> *const)nullptr, constraints);
 
   // compute reference: need to cancel constrained entries as these will in
   // general get different values

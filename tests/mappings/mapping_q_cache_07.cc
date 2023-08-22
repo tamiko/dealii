@@ -56,8 +56,7 @@ test(const bool         vector_describes_relative_displacement,
   // set up base high-order mapping
   Vector<double> euler_vector_base(dof_handler_dim.n_dofs());
   VectorTools::get_position_vector(dof_handler_dim, euler_vector_base);
-  MappingFEField<dim, spacedim> mapping_base(dof_handler_dim,
-                                             euler_vector_base);
+  MappingFEField<dim, spacedim> mapping_base(dof_handler_dim, euler_vector_base);
 
   // clear manifold
   tria.reset_all_manifolds();
@@ -86,10 +85,7 @@ test(const bool         vector_describes_relative_displacement,
     data_out.set_flags(flags);
     data_out.attach_dof_handler(dof_handler);
 
-    data_out.build_patches(
-      mapping,
-      fe_degree + 1,
-      DataOut<dim, spacedim>::CurvedCellRegion::curved_inner_cells);
+    data_out.build_patches(mapping, fe_degree + 1, DataOut<dim, spacedim>::CurvedCellRegion::curved_inner_cells);
 
     static unsigned int counter = 0;
 

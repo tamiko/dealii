@@ -48,20 +48,16 @@ main()
   {
     Triangulation<spacedim> volume_mesh;
     GridGenerator::hyper_cube(volume_mesh);
-    Triangulation<spacedim>::active_cell_iterator cell =
-      volume_mesh.begin_active();
+    Triangulation<spacedim>::active_cell_iterator cell = volume_mesh.begin_active();
 
     cell->face(0)->set_all_boundary_ids(1);
     const std::set<types::boundary_id> boundary_ids = {0};
-    GridGenerator::extract_boundary_mesh(volume_mesh,
-                                         boundary_mesh,
-                                         boundary_ids);
+    GridGenerator::extract_boundary_mesh(volume_mesh, boundary_mesh, boundary_ids);
   }
   boundary_mesh.begin_active()->set_refine_flag();
   boundary_mesh.execute_coarsening_and_refinement();
 
-  Triangulation<dim, spacedim>::active_cell_iterator cell =
-    boundary_mesh.begin_active();
+  Triangulation<dim, spacedim>::active_cell_iterator cell = boundary_mesh.begin_active();
   for (; cell != boundary_mesh.end(); ++cell)
     {
       deallog << "Cell = " << cell << std::endl;
@@ -69,17 +65,13 @@ main()
 
       for (const unsigned int face : GeometryInfo<dim>::face_indices())
         {
-          deallog << "  face = " << face
-                  << "  (neighbor = " << cell->neighbor(face) << ')'
-                  << std::endl;
+          deallog << "  face = " << face << "  (neighbor = " << cell->neighbor(face) << ')' << std::endl;
 
           if (cell->face(face)->has_children())
             for (unsigned int c = 0; c < cell->face(face)->n_children(); ++c)
               {
                 deallog << "    subface = " << c << std::endl;
-                deallog << "              "
-                        << cell->neighbor_child_on_subface(face, c)
-                        << std::endl;
+                deallog << "              " << cell->neighbor_child_on_subface(face, c) << std::endl;
               }
         }
     }

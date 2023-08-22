@@ -64,8 +64,9 @@ test(TriangulationType &triangulation)
   using VectorType = LinearAlgebra::distributed::Vector<double>;
 
   std::shared_ptr<Utilities::MPI::Partitioner> partitioner =
-    std::make_shared<Utilities::MPI::Partitioner>(
-      dof_handler.locally_owned_dofs(), locally_relevant_dofs, MPI_COMM_WORLD);
+    std::make_shared<Utilities::MPI::Partitioner>(dof_handler.locally_owned_dofs(),
+                                                  locally_relevant_dofs,
+                                                  MPI_COMM_WORLD);
 
   VectorType vector(partitioner);
 
@@ -74,12 +75,10 @@ test(TriangulationType &triangulation)
 
   VectorType vector_loaded(partitioner);
 
-  const std::string filename =
-    "solution_transfer_" + std::to_string(dim) + "d_out";
+  const std::string filename = "solution_transfer_" + std::to_string(dim) + "d_out";
 
   {
-    parallel::distributed::SolutionTransfer<dim, VectorType> solution_transfer(
-      dof_handler);
+    parallel::distributed::SolutionTransfer<dim, VectorType> solution_transfer(dof_handler);
     solution_transfer.prepare_for_serialization(vector);
 
     triangulation.save(filename);
@@ -91,8 +90,7 @@ test(TriangulationType &triangulation)
     triangulation.load(filename);
     dof_handler.distribute_dofs(FE_Q<dim>(2));
 
-    parallel::distributed::SolutionTransfer<dim, VectorType> solution_transfer(
-      dof_handler);
+    parallel::distributed::SolutionTransfer<dim, VectorType> solution_transfer(dof_handler);
     solution_transfer.deserialize(vector_loaded);
 
     vector_loaded.update_ghost_values();
@@ -121,11 +119,10 @@ main(int argc, char **argv)
     GridGenerator::hyper_cube(triangulation);
     triangulation.refine_global(3);
 
-    const auto description = TriangulationDescription::Utilities::
-      create_description_from_triangulation(triangulation, MPI_COMM_WORLD);
+    const auto description =
+      TriangulationDescription::Utilities::create_description_from_triangulation(triangulation, MPI_COMM_WORLD);
 
-    parallel::fullydistributed::Triangulation<dim> triangulation_pft(
-      MPI_COMM_WORLD);
+    parallel::fullydistributed::Triangulation<dim> triangulation_pft(MPI_COMM_WORLD);
     triangulation_pft.create_triangulation(description);
 
     test<dim>(triangulation_pft);
@@ -140,11 +137,10 @@ main(int argc, char **argv)
     GridGenerator::hyper_cube(triangulation);
     triangulation.refine_global(3);
 
-    const auto description = TriangulationDescription::Utilities::
-      create_description_from_triangulation(triangulation, MPI_COMM_WORLD);
+    const auto description =
+      TriangulationDescription::Utilities::create_description_from_triangulation(triangulation, MPI_COMM_WORLD);
 
-    parallel::fullydistributed::Triangulation<dim> triangulation_pft(
-      MPI_COMM_WORLD);
+    parallel::fullydistributed::Triangulation<dim> triangulation_pft(MPI_COMM_WORLD);
     triangulation_pft.create_triangulation(description);
 
     test<dim>(triangulation_pft);

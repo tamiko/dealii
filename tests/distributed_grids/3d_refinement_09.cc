@@ -40,8 +40,7 @@ test(std::ostream & /*out*/)
 {
   const unsigned int max_level = internal::p4est::functions<dim>::max_level;
 
-  deallog << "The maximal level of p4est refinements is " << max_level
-          << std::endl;
+  deallog << "The maximal level of p4est refinements is " << max_level << std::endl;
 
   parallel::distributed::Triangulation<dim> tr(MPI_COMM_WORLD);
 
@@ -50,8 +49,7 @@ test(std::ostream & /*out*/)
   // limit we have to attempt to refine max_level times:
   for (unsigned int i = 0; i < max_level; ++i)
     {
-      deallog << "cells: " << tr.n_active_cells() << " level:" << tr.n_levels()
-              << std::endl;
+      deallog << "cells: " << tr.n_active_cells() << " level:" << tr.n_levels() << std::endl;
 
       typename parallel::distributed::Triangulation<dim>::cell_iterator it;
       it = tr.begin_active();

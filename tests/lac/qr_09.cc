@@ -236,9 +236,7 @@ test()
   V1.print(deallog.get_file_stream(), 6, false);
 
   // remove first column
-  auto update_factorization = [&](const unsigned int           i,
-                                  const unsigned int           k,
-                                  const std::array<number, 3> &csr) {
+  auto update_factorization = [&](const unsigned int i, const unsigned int k, const std::array<number, 3> &csr) {
     H1.apply_givens_rotation(csr, i, k, true);
     H1.apply_givens_rotation(csr, i, k, false);
     V1.apply_givens_rotation(csr, i, k);

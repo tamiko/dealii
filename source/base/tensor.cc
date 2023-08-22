@@ -27,8 +27,7 @@ namespace
 {
   template <int dim, typename Number>
   void
-  calculate_svd_in_place(Tensor<2, dim, Number> &A_in_VT_out,
-                         Tensor<2, dim, Number> &U)
+  calculate_svd_in_place(Tensor<2, dim, Number> &A_in_VT_out, Tensor<2, dim, Number> &U)
   {
     // inputs: A
     // outputs: V^T, U
@@ -46,9 +45,8 @@ namespace
     const types::blas_int     lwork = 5 * dim;
     std::array<Number, lwork> work;
     types::blas_int           info;
-    constexpr std::size_t     size =
-      Tensor<2, dim, Number>::n_independent_components;
-    std::array<Number, size> A_array;
+    constexpr std::size_t     size = Tensor<2, dim, Number>::n_independent_components;
+    std::array<Number, size>  A_array;
     A_in_VT_out.unroll(A_array.begin(), A_array.end());
     std::array<Number, size> U_array;
     U.unroll(U_array.begin(), U_array.end());
@@ -69,9 +67,8 @@ namespace
     Assert(info == 0, LAPACKSupport::ExcErrorCode("gesvd", info));
     Assert(S.back() / S.front() > 1.e-10, LACExceptions::ExcSingular());
 
-    A_in_VT_out =
-      Tensor<2, dim, Number>(make_array_view(A_array.begin(), A_array.end()));
-    U = Tensor<2, dim, Number>(make_array_view(U_array.begin(), U_array.end()));
+    A_in_VT_out = Tensor<2, dim, Number>(make_array_view(A_array.begin(), A_array.end()));
+    U           = Tensor<2, dim, Number>(make_array_view(U_array.begin(), U_array.end()));
   }
 } // namespace
 

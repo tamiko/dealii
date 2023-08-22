@@ -46,15 +46,12 @@ test()
   DoFHandler<dim, spacedim> dof_handler(tria);
   dof_handler.distribute_dofs(fe);
 
-  FEInterfaceValues<dim, spacedim> fe_interface_values(fe,
-                                                       quadrature,
-                                                       update_default);
-  const unsigned int invalid_subface = numbers::invalid_unsigned_int;
-  const unsigned int face_index      = 3;
+  FEInterfaceValues<dim, spacedim> fe_interface_values(fe, quadrature, update_default);
+  const unsigned int               invalid_subface = numbers::invalid_unsigned_int;
+  const unsigned int               face_index      = 3;
 
   for (const auto &cell :
-       filter_iterators(dof_handler.active_cell_iterators(),
-                        IteratorFilters::ActiveFEIndexEqualTo(0)))
+       filter_iterators(dof_handler.active_cell_iterators(), IteratorFilters::ActiveFEIndexEqualTo(0)))
     {
       if (cell == dof_handler.begin_active())
         {
@@ -77,8 +74,7 @@ test()
         }
     }
 
-  for (const auto &cell : dof_handler.active_cell_iterators() |
-                            IteratorFilters::ActiveFEIndexEqualTo(0))
+  for (const auto &cell : dof_handler.active_cell_iterators() | IteratorFilters::ActiveFEIndexEqualTo(0))
     {
       if (cell == dof_handler.begin_active())
         {

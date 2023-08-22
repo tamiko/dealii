@@ -56,30 +56,24 @@ test2cellsFESystem(const unsigned int p_feq = 2, const unsigned int p_feen = 1)
   {
     Triangulation<dim> triangulationL;
     Triangulation<dim> triangulationR;
-    GridGenerator::hyper_cube(triangulationL,
-                              -1,
+    GridGenerator::hyper_cube(triangulationL, -1,
                               0); // create a square [-1,0]^d domain
-    GridGenerator::hyper_cube(triangulationR,
-                              -1,
+    GridGenerator::hyper_cube(triangulationR, -1,
                               0); // create a square [-1,0]^d domain
     Point<dim> shift_vector;
     shift_vector[0] = 1.0;
     GridTools::shift(shift_vector, triangulationR);
-    GridGenerator::merge_triangulations(triangulationL,
-                                        triangulationR,
-                                        triangulation);
+    GridGenerator::merge_triangulations(triangulationL, triangulationR, triangulation);
   }
 
   DoFHandler<dim> dof_handler(triangulation);
 
   hp::FECollection<dim> fe_collection;
-  fe_collection.push_back(
-    FESystem<dim>(FE_Q<dim>(p_feq), 1, FE_Nothing<dim>(), 1));
+  fe_collection.push_back(FESystem<dim>(FE_Q<dim>(p_feq), 1, FE_Nothing<dim>(), 1));
   fe_collection.push_back(FESystem<dim>(FE_Q<dim>(p_feen), 1, FE_Q<dim>(1), 1));
 
   // push back to be able to resolve hp-constrains:
-  fe_collection.push_back(
-    FESystem<dim>(FE_Q<dim>(p_feen), 1, FE_Nothing<dim>(), 1));
+  fe_collection.push_back(FESystem<dim>(FE_Q<dim>(p_feen), 1, FE_Nothing<dim>(), 1));
 
   dof_handler.begin_active()->set_active_fe_index(1);
 
@@ -109,28 +103,20 @@ main(int argc, char **argv)
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

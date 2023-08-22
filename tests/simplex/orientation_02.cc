@@ -44,15 +44,12 @@ test(const unsigned int orientation)
   }
 
   {
-    const auto &face = dummy.begin()->face(face_no);
-    const auto  permuted =
-      ReferenceCell(ReferenceCells::Triangle)
-        .permute_according_orientation(std::array<unsigned int, 3>{{0, 1, 2}},
-                                       orientation);
+    const auto &face     = dummy.begin()->face(face_no);
+    const auto  permuted = ReferenceCell(ReferenceCells::Triangle)
+                            .permute_according_orientation(std::array<unsigned int, 3>{{0, 1, 2}}, orientation);
 
     auto direction =
-      cross_product_3d(vertices[permuted[1]] - vertices[permuted[0]],
-                       vertices[permuted[2]] - vertices[permuted[0]]);
+      cross_product_3d(vertices[permuted[1]] - vertices[permuted[0]], vertices[permuted[2]] - vertices[permuted[0]]);
     direction = direction / direction.norm();
 
     vertices.push_back(face->center() + direction);
@@ -75,8 +72,7 @@ test(const unsigned int orientation)
   cell++;
 
   // check orientation
-  deallog << "face orientation: " << orientation << ' '
-          << int(cell->combined_face_orientation(0)) << ' ' << std::endl;
+  deallog << "face orientation: " << orientation << ' ' << int(cell->combined_face_orientation(0)) << ' ' << std::endl;
 
   // check vertices
   {
@@ -96,22 +92,15 @@ test(const unsigned int orientation)
   // check lines
   for (const auto l : face->line_indices())
     {
-      const unsigned int l_ =
-        ReferenceCells::Tetrahedron.standard_to_real_face_line(l,
-                                                               face_no,
-                                                               orientation);
+      const unsigned int l_ = ReferenceCells::Tetrahedron.standard_to_real_face_line(l, face_no, orientation);
 
-      std::array<unsigned int, 2> a = {
-        {face->line(l_)->vertex_index(0), face->line(l_)->vertex_index(1)}};
+      std::array<unsigned int, 2> a = {{face->line(l_)->vertex_index(0), face->line(l_)->vertex_index(1)}};
       std::sort(a.begin(), a.end());
 
-      std::array<unsigned int, 2> b = {
-        {cells[1].vertices[l],
-         cells[1].vertices[(l + 1) % face->n_vertices()]}};
+      std::array<unsigned int, 2> b = {{cells[1].vertices[l], cells[1].vertices[(l + 1) % face->n_vertices()]}};
       std::sort(b.begin(), b.end());
 
-      deallog << a[0] << '-' << a[1] << " vs. " << b[0] << '-' << b[1]
-              << std::endl;
+      deallog << a[0] << '-' << a[1] << " vs. " << b[0] << '-' << b[1] << std::endl;
 
       AssertDimension(a[0], b[0]);
       AssertDimension(a[1], b[1]);

@@ -46,12 +46,10 @@ validate(const DoFHandler<dim> &dh)
   for (const auto &cell : dh.active_cell_iterators())
     if (!cell->is_artificial() && cell->is_locally_owned())
       {
-        const std::string  cellid = cell->id().to_string();
-        const unsigned int coarse_cellid =
-          std::stoul(cellid.substr(0, cellid.find("_")));
+        const std::string  cellid        = cell->id().to_string();
+        const unsigned int coarse_cellid = std::stoul(cellid.substr(0, cellid.find("_")));
 
-        deallog << " (" << coarse_cellid << ',' << cell->future_fe_index()
-                << ')';
+        deallog << " (" << coarse_cellid << ',' << cell->future_fe_index() << ')';
       }
   deallog << std::endl;
 }
@@ -73,9 +71,8 @@ setup(Triangulation<dim> &tria, const DoFHandler<dim> &dh)
       {
         cell->set_active_fe_index(1);
 
-        const std::string  cellid = cell->id().to_string();
-        const unsigned int coarse_cellid =
-          std::stoul(cellid.substr(0, cellid.find('_')));
+        const std::string  cellid        = cell->id().to_string();
+        const unsigned int coarse_cellid = std::stoul(cellid.substr(0, cellid.find('_')));
 
         if (coarse_cellid < 0.5 * tria.n_global_active_cells())
           cell->set_refine_flag();
@@ -112,9 +109,8 @@ test()
   for (const auto &cell : tria.active_cell_iterators())
     if (!cell->is_artificial() && cell->is_locally_owned())
       {
-        const std::string  cellid = cell->id().to_string();
-        const unsigned int coarse_cellid =
-          std::stoul(cellid.substr(0, cellid.find('_')));
+        const std::string  cellid        = cell->id().to_string();
+        const unsigned int coarse_cellid = std::stoul(cellid.substr(0, cellid.find('_')));
 
         if (coarse_cellid < .25 * tria.n_global_active_cells())
           indicators[cell->active_cell_index()] = 2.;

@@ -59,11 +59,10 @@ public:
   void
   vmult(VectorType &dst, const VectorType &src) const
   {
-    const std::function<
-      void(const MatrixFree<dim, typename VectorType::value_type> &,
-           VectorType &,
-           const VectorType &,
-           const std::pair<unsigned int, unsigned int> &)>
+    const std::function<void(const MatrixFree<dim, typename VectorType::value_type> &,
+                             VectorType &,
+                             const VectorType &,
+                             const std::pair<unsigned int, unsigned int> &)>
       wrap = helmholtz_operator<dim, fe_degree, VectorType, n_q_points_1d>;
     data.cell_loop(wrap, dst, src, true);
     for (auto i : data.get_constrained_dofs())
@@ -87,10 +86,7 @@ test()
   DoFHandler<dim> dof(tria);
   dof.distribute_dofs(fe);
   AffineConstraints<double> constraints;
-  VectorTools::interpolate_boundary_values(dof,
-                                           0,
-                                           Functions::ZeroFunction<dim>(),
-                                           constraints);
+  VectorTools::interpolate_boundary_values(dof, 0, Functions::ZeroFunction<dim>(), constraints);
   constraints.close();
 
   deallog << "Testing " << dof.get_fe().get_name() << std::endl;
@@ -105,14 +101,8 @@ test()
     mf_data.reinit(MappingQ1<dim>{}, dof, constraints, quad, data);
   }
 
-  MatrixFreeVariant<dim,
-                    fe_degree,
-                    number,
-                    LinearAlgebra::distributed::Vector<number>,
-                    fe_degree + 1>
-                                             mf(mf_data);
-  LinearAlgebra::distributed::Vector<number> in(dof.n_dofs()),
-    out(dof.n_dofs());
+  MatrixFreeVariant<dim, fe_degree, number, LinearAlgebra::distributed::Vector<number>, fe_degree + 1> mf(mf_data);
+  LinearAlgebra::distributed::Vector<number> in(dof.n_dofs()), out(dof.n_dofs());
   LinearAlgebra::distributed::Vector<number> out_dist(in);
 
   for (unsigned int i = 0; i < dof.n_dofs(); ++i)
@@ -135,19 +125,15 @@ test()
   {
     QGauss<dim> quadrature_formula(fe_degree + 1);
 
-    FEValues<dim> fe_values(dof.get_fe(),
-                            quadrature_formula,
-                            update_values | update_gradients |
-                              update_JxW_values);
+    FEValues<dim> fe_values(dof.get_fe(), quadrature_formula, update_values | update_gradients | update_JxW_values);
 
     const unsigned int dofs_per_cell = dof.get_fe().dofs_per_cell;
     const unsigned int n_q_points    = quadrature_formula.size();
 
-    FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
+    FullMatrix<double>                   cell_matrix(dofs_per_cell, dofs_per_cell);
     std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
 
-    typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(),
-                                                   endc = dof.end();
+    typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(), endc = dof.end();
     for (; cell != endc; ++cell)
       {
         cell_matrix = 0;
@@ -157,17 +143,13 @@ test()
           for (unsigned int i = 0; i < dofs_per_cell; ++i)
             {
               for (unsigned int j = 0; j < dofs_per_cell; ++j)
-                cell_matrix(i, j) += ((fe_values.shape_grad(i, q_point) *
-                                         fe_values.shape_grad(j, q_point) +
-                                       10. * fe_values.shape_value(i, q_point) *
-                                         fe_values.shape_value(j, q_point)) *
+                cell_matrix(i, j) += ((fe_values.shape_grad(i, q_point) * fe_values.shape_grad(j, q_point) +
+                                       10. * fe_values.shape_value(i, q_point) * fe_values.shape_value(j, q_point)) *
                                       fe_values.JxW(q_point));
             }
 
         cell->get_dof_indices(local_dof_indices);
-        constraints.distribute_local_to_global(cell_matrix,
-                                               local_dof_indices,
-                                               sparse_matrix);
+        constraints.distribute_local_to_global(cell_matrix, local_dof_indices, sparse_matrix);
       }
   }
   // set matrix entries to constrained rows to 1 for consistency with

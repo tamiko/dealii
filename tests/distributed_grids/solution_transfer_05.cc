@@ -47,10 +47,7 @@ main(int argc, char **argv)
   MPILogInitAll                    all;
 
   parallel::distributed::Triangulation<dim> tria(MPI_COMM_WORLD);
-  GridGenerator::subdivided_hyper_rectangle(tria,
-                                            {2, 1},
-                                            {0., 0.0},
-                                            {2.0, 1.0});
+  GridGenerator::subdivided_hyper_rectangle(tria, {2, 1}, {0., 0.0}, {2.0, 1.0});
   if (tria.create_cell_iterator(CellId("0_0:"))->is_locally_owned())
     tria.create_cell_iterator(CellId("0_0:"))->set_refine_flag();
   tria.execute_coarsening_and_refinement();
@@ -59,9 +56,7 @@ main(int argc, char **argv)
   dof_handler.distribute_dofs(FE_Q<dim>(degree));
 
   LinearAlgebra::distributed::Vector<Number> v;
-  v.reinit(dof_handler.locally_owned_dofs(),
-           DoFTools::extract_locally_relevant_dofs(dof_handler),
-           MPI_COMM_WORLD);
+  v.reinit(dof_handler.locally_owned_dofs(), DoFTools::extract_locally_relevant_dofs(dof_handler), MPI_COMM_WORLD);
 
   std::map<CellId, Vector<double>> values;
   values[CellId("1_0:")]  = Vector<double>{0.5, 0.5, 0.5, 0.5};
@@ -76,9 +71,8 @@ main(int argc, char **argv)
 
   v.print(deallog.get_file_stream());
 
-  parallel::distributed::
-    SolutionTransfer<dim, LinearAlgebra::distributed::Vector<Number>>
-      solution_trans(dof_handler, true /*enabling averaging*/);
+  parallel::distributed::SolutionTransfer<dim, LinearAlgebra::distributed::Vector<Number>> solution_trans(
+    dof_handler, true /*enabling averaging*/);
 
   v.update_ghost_values();
   solution_trans.prepare_for_coarsening_and_refinement(v);
@@ -88,9 +82,7 @@ main(int argc, char **argv)
   tria.execute_coarsening_and_refinement();
 
   dof_handler.distribute_dofs(FE_Q<dim>(degree));
-  v.reinit(dof_handler.locally_owned_dofs(),
-           DoFTools::extract_locally_relevant_dofs(dof_handler),
-           MPI_COMM_WORLD);
+  v.reinit(dof_handler.locally_owned_dofs(), DoFTools::extract_locally_relevant_dofs(dof_handler), MPI_COMM_WORLD);
   solution_trans.interpolate(v);
 
   v.print(deallog.get_file_stream());

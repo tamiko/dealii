@@ -99,13 +99,11 @@ namespace CallgrindWrapper
       return true;
     }();
 
-    AssertThrow(
-      is_initialized,
-      dealii::ExcMessage(
-        "CallgrindWrapper::start_instrumentation() can only be called when "
-        "the executable is run via \"valgrind --tool=callgrind -q "
-        "--combine-dumps=yes --instr-atstart=no "
-        "--callgrind-out-file=callgrind.out ./executable\""));
+    AssertThrow(is_initialized,
+                dealii::ExcMessage("CallgrindWrapper::start_instrumentation() can only be called when "
+                                   "the executable is run via \"valgrind --tool=callgrind -q "
+                                   "--combine-dumps=yes --instr-atstart=no "
+                                   "--callgrind-out-file=callgrind.out ./executable\""));
 
     CALLGRIND_ZERO_STATS;
     CALLGRIND_START_INSTRUMENTATION;

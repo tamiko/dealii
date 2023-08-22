@@ -45,8 +45,8 @@ template <int dim>
 void
 test()
 {
-  parallel::distributed::Triangulation<dim> triangulation(
-    MPI_COMM_WORLD, Triangulation<dim>::limit_level_difference_at_vertices);
+  parallel::distributed::Triangulation<dim> triangulation(MPI_COMM_WORLD,
+                                                          Triangulation<dim>::limit_level_difference_at_vertices);
   TestGrids::hyper_line(triangulation, 2);
   Assert(triangulation.n_active_cells() == 2, ExcInternalError());
 
@@ -55,8 +55,7 @@ test()
   fe.push_back(FESystem<dim>(FE_Q<dim>(2), 1, FE_Q<dim>(1), 1));
 
   DoFHandler<dim> dof_handler(triangulation);
-  for (const auto &cell : dof_handler.active_cell_iterators() |
-                            IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : dof_handler.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     {
       if (cell->id().to_string() == "0_0:")
         cell->set_active_fe_index(0);

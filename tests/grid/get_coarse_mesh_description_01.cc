@@ -27,17 +27,14 @@
 void
 setup_tria(Triangulation<1> &tria)
 {
-  GridGenerator::subdivided_hyper_rectangle(
-    tria, std::vector<unsigned int>(5u, 1), Point<1>(), Point<1>(1.5), true);
+  GridGenerator::subdivided_hyper_rectangle(tria, std::vector<unsigned int>(5u, 1), Point<1>(), Point<1>(1.5), true);
   for (auto &cell : tria.active_cell_iterators())
-    cell->set_material_id(
-      static_cast<types::material_id>(10.0 * (3.0 + cell->center()[0])));
+    cell->set_material_id(static_cast<types::material_id>(10.0 * (3.0 + cell->center()[0])));
   for (auto face : tria.active_face_iterators())
     if (0.5 < face->center()[0])
       face->set_all_manifold_ids(42);
   for (auto &cell : tria.active_cell_iterators())
-    cell->set_manifold_id(
-      static_cast<types::material_id>(10.0 * (2.0 + cell->center()[0])));
+    cell->set_manifold_id(static_cast<types::material_id>(10.0 * (2.0 + cell->center()[0])));
 }
 
 
@@ -56,8 +53,7 @@ setup_tria(Triangulation<dim> &tria)
     if (cell->center() != Point<dim>())
       {
         const double angle = std::atan2(cell->center()[0], cell->center()[1]);
-        cell->set_material_id(
-          static_cast<types::material_id>(360 + angle * 180.0 / numbers::PI));
+        cell->set_material_id(static_cast<types::material_id>(360 + angle * 180.0 / numbers::PI));
       }
   // Make the manifold id check more robust. This relies on the implementation
   // detail that unassigned manifolds are flat.
@@ -68,8 +64,7 @@ setup_tria(Triangulation<dim> &tria)
     if (cell->center() != Point<dim>())
       {
         const double angle = std::atan2(cell->center()[0], cell->center()[1]);
-        cell->set_manifold_id(
-          static_cast<types::material_id>(361 - angle * 180.0 / numbers::PI));
+        cell->set_manifold_id(static_cast<types::material_id>(361 - angle * 180.0 / numbers::PI));
       }
 }
 
@@ -86,8 +81,7 @@ test()
     std::vector<Point<dim>>    vertices;
     std::vector<CellData<dim>> cells;
     SubCellData                subcell_data;
-    std::tie(vertices, cells, subcell_data) =
-      GridTools::get_coarse_mesh_description(tria);
+    std::tie(vertices, cells, subcell_data) = GridTools::get_coarse_mesh_description(tria);
 
     Triangulation<dim> tria_2;
     tria_2.create_triangulation(vertices, cells, subcell_data);
@@ -96,8 +90,7 @@ test()
     GridOut grid_out;
     deallog << "Original Triangulation:" << std::endl;
     grid_out.write_vtk(tria, deallog.get_file_stream());
-    deallog << "Triangulation constructed from an unrefined Triangulation:"
-            << std::endl;
+    deallog << "Triangulation constructed from an unrefined Triangulation:" << std::endl;
     grid_out.write_vtk(tria_2, deallog.get_file_stream());
   }
 
@@ -121,16 +114,14 @@ test()
     std::vector<Point<dim>>    vertices;
     std::vector<CellData<dim>> cells;
     SubCellData                subcell_data;
-    std::tie(vertices, cells, subcell_data) =
-      GridTools::get_coarse_mesh_description(tria);
+    std::tie(vertices, cells, subcell_data) = GridTools::get_coarse_mesh_description(tria);
 
     Triangulation<dim> tria_2;
     tria_2.create_triangulation(vertices, cells, subcell_data);
     Assert(GridTools::have_same_coarse_mesh(tria, tria_2), ExcInternalError());
 
     GridOut grid_out;
-    deallog << "Triangulation constructed from a refined Triangulation:"
-            << std::endl;
+    deallog << "Triangulation constructed from a refined Triangulation:" << std::endl;
     grid_out.write_vtk(tria_2, deallog.get_file_stream());
   }
 
@@ -143,8 +134,7 @@ test()
     std::vector<Point<dim>>    vertices;
     std::vector<CellData<dim>> cells;
     SubCellData                subcell_data;
-    std::tie(vertices, cells, subcell_data) =
-      GridTools::get_coarse_mesh_description(tria);
+    std::tie(vertices, cells, subcell_data) = GridTools::get_coarse_mesh_description(tria);
 
     Triangulation<dim> tria_2;
     tria_2.create_triangulation(vertices, cells, subcell_data);
@@ -153,8 +143,7 @@ test()
     GridOut grid_out;
     deallog << "Original Triangulation:" << std::endl;
     grid_out.write_vtk(tria, deallog.get_file_stream());
-    deallog << "Triangulation constructed from an unrefined Triangulation:"
-            << std::endl;
+    deallog << "Triangulation constructed from an unrefined Triangulation:" << std::endl;
     grid_out.write_vtk(tria_2, deallog.get_file_stream());
   }
 }

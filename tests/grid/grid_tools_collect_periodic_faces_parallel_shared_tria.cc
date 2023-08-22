@@ -35,8 +35,7 @@ test(MPI_Comm comm)
   deallog << "dim = " << dim << std::endl;
   parallel::shared::Triangulation<dim> tria(comm);
 
-  std::vector<typename GridTools::PeriodicFacePair<
-    typename parallel::shared::Triangulation<dim>::cell_iterator>>
+  std::vector<typename GridTools::PeriodicFacePair<typename parallel::shared::Triangulation<dim>::cell_iterator>>
     matched_pairs;
 
   unsigned int              num_refinements = 1 << 4;

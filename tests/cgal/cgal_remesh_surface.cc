@@ -73,10 +73,7 @@ test()
   CGAL::Polygon_mesh_processing::triangulate_faces(surface_mesh0);
   CGAL::Polygon_mesh_processing::triangulate_faces(surface_mesh1);
 
-  compute_boolean_operation(surface_mesh0,
-                            surface_mesh1,
-                            BooleanOperation::compute_union,
-                            out_mesh);
+  compute_boolean_operation(surface_mesh0, surface_mesh1, BooleanOperation::compute_union, out_mesh);
   AdditionalData<3> data;
   data.edge_size      = .02;
   data.facet_angle    = 25;

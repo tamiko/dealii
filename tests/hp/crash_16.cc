@@ -67,9 +67,7 @@ test()
   DoFHandler<dim> dof_handler(triangulation);
 
   // distribute fe_indices randomly
-  for (typename DoFHandler<dim>::active_cell_iterator cell =
-         dof_handler.begin_active();
-       cell != dof_handler.end();
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(); cell != dof_handler.end();
        ++cell)
     cell->set_active_fe_index(Testing::rand() % fe.size());
   dof_handler.distribute_dofs(fe);
@@ -82,29 +80,23 @@ test()
 
   std::set<unsigned int> line_already_treated;
 
-  for (typename DoFHandler<dim>::active_cell_iterator cell =
-         dof_handler.begin_active();
-       cell != dof_handler.end();
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(); cell != dof_handler.end();
        ++cell)
     for (unsigned int l = 0; l < GeometryInfo<dim>::lines_per_cell; ++l)
-      if (line_already_treated.find(cell->line(l)->index()) ==
-          line_already_treated.end())
+      if (line_already_treated.find(cell->line(l)->index()) == line_already_treated.end())
         // line not yet treated
         {
-          const typename DoFHandler<dim>::active_line_iterator line =
-            cell->line(l);
+          const typename DoFHandler<dim>::active_line_iterator line = cell->line(l);
           deallog << "line=" << line << std::endl;
           line_already_treated.insert(line->index());
 
           for (unsigned int f = 0; f < line->n_active_fe_indices(); ++f)
             {
-              indices_1.resize(
-                fe[line->nth_active_fe_index(f)].dofs_per_line +
-                2 * fe[line->nth_active_fe_index(f)].dofs_per_vertex);
+              indices_1.resize(fe[line->nth_active_fe_index(f)].dofs_per_line +
+                               2 * fe[line->nth_active_fe_index(f)].dofs_per_vertex);
               line->get_dof_indices(indices_1, line->nth_active_fe_index(f));
 
-              deallog << "  fe index=" << line->nth_active_fe_index(f)
-                      << ", indices=";
+              deallog << "  fe index=" << line->nth_active_fe_index(f) << ", indices=";
               for (unsigned int i = 0; i < indices_1.size(); ++i)
                 deallog << indices_1[i] << ' ';
 
@@ -113,19 +105,15 @@ test()
 
           for (unsigned int f = 0; f < line->n_active_fe_indices(); ++f)
             {
-              indices_1.resize(
-                fe[line->nth_active_fe_index(f)].dofs_per_line +
-                2 * fe[line->nth_active_fe_index(f)].dofs_per_vertex);
+              indices_1.resize(fe[line->nth_active_fe_index(f)].dofs_per_line +
+                               2 * fe[line->nth_active_fe_index(f)].dofs_per_vertex);
               line->get_dof_indices(indices_1, line->nth_active_fe_index(f));
               for (unsigned int g = f + 1; g < line->n_active_fe_indices(); ++g)
-                if (fe[line->nth_active_fe_index(f)].dofs_per_line ==
-                    fe[line->nth_active_fe_index(g)].dofs_per_line)
+                if (fe[line->nth_active_fe_index(f)].dofs_per_line == fe[line->nth_active_fe_index(g)].dofs_per_line)
                   {
-                    indices_2.resize(
-                      fe[line->nth_active_fe_index(g)].dofs_per_line +
-                      2 * fe[line->nth_active_fe_index(g)].dofs_per_vertex);
-                    line->get_dof_indices(indices_2,
-                                          line->nth_active_fe_index(g));
+                    indices_2.resize(fe[line->nth_active_fe_index(g)].dofs_per_line +
+                                     2 * fe[line->nth_active_fe_index(g)].dofs_per_vertex);
+                    line->get_dof_indices(indices_2, line->nth_active_fe_index(g));
                     Assert(indices_1 == indices_2, ExcInternalError());
                   }
             }

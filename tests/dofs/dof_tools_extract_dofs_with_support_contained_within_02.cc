@@ -55,8 +55,7 @@ pred_d(const typename DoFHandler<dim>::active_cell_iterator &cell)
 std::string
 output_name(const unsigned int flag, const unsigned int subdomain)
 {
-  return "output" + Utilities::int_to_string(flag) + "_" +
-         Utilities::int_to_string(subdomain) + ".vtu";
+  return "output" + Utilities::int_to_string(flag) + "_" + Utilities::int_to_string(subdomain) + ".vtu";
 }
 
 
@@ -67,9 +66,7 @@ test(const unsigned int flag)
   // Setup system
   parallel::distributed::Triangulation<dim> triangulation(MPI_COMM_WORLD);
 
-  GridGenerator::hyper_rectangle(triangulation,
-                                 Point<dim>(0, 0),
-                                 Point<dim>(1, 1));
+  GridGenerator::hyper_rectangle(triangulation, Point<dim>(0, 0), Point<dim>(1, 1));
 
   if (flag == 0)
     triangulation.refine_global(2);
@@ -79,11 +76,8 @@ test(const unsigned int flag)
   DoFHandler<dim> dh(triangulation);
 
   // Extra refinement to generate hanging nodes
-  for (typename DoFHandler<dim>::active_cell_iterator cell = dh.begin_active();
-       cell != dh.end();
-       ++cell)
-    if (cell->is_locally_owned() &&
-        ((flag == 1 && pred_d<dim>(cell)) || (flag == 2 && !pred_d<dim>(cell))))
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dh.begin_active(); cell != dh.end(); ++cell)
+    if (cell->is_locally_owned() && ((flag == 1 && pred_d<dim>(cell)) || (flag == 2 && !pred_d<dim>(cell))))
       cell->set_refine_flag();
 
   triangulation.prepare_coarsening_and_refinement();
@@ -104,18 +98,14 @@ test(const unsigned int flag)
   cm.close();
 
   const IndexSet support = DoFTools::extract_dofs_with_support_contained_within(
-    dh,
-    std::function<bool(const typename DoFHandler<dim>::active_cell_iterator &)>(
-      &pred_d<dim>),
-    cm);
+    dh, std::function<bool(const typename DoFHandler<dim>::active_cell_iterator &)>(&pred_d<dim>), cm);
   const IndexSet support_local = support & dh.locally_owned_dofs();
 
   deallog << support.n_elements() << std::endl;
 
   // now accumulate the number of indices and make sure it's the same for
   // various runs with different number of MPI cores
-  const unsigned int dofs_support =
-    Utilities::MPI::sum(support_local.n_elements(), MPI_COMM_WORLD);
+  const unsigned int dofs_support = Utilities::MPI::sum(support_local.n_elements(), MPI_COMM_WORLD);
   if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
     {
       deallog << "accumulated: " << std::endl;
@@ -128,14 +118,11 @@ test(const unsigned int flag)
       DataOut<dim> data_out;
       data_out.attach_dof_handler(dh);
 
-      std::vector<LinearAlgebra::distributed::Vector<double>> shape_functions(
-        dh.n_dofs());
+      std::vector<LinearAlgebra::distributed::Vector<double>> shape_functions(dh.n_dofs());
       for (unsigned int i = 0; i < dh.n_dofs(); ++i)
         {
           LinearAlgebra::distributed::Vector<double> &s = shape_functions[i];
-          s.reinit(dh.locally_owned_dofs(),
-                   locally_relevant_set,
-                   MPI_COMM_WORLD);
+          s.reinit(dh.locally_owned_dofs(), locally_relevant_set, MPI_COMM_WORLD);
           s = 0.;
           if (dh.locally_owned_dofs().is_element(i))
             s[i] = 1.0;
@@ -143,9 +130,7 @@ test(const unsigned int flag)
           cm.distribute(s);
           s.update_ghost_values();
 
-          data_out.add_data_vector(s,
-                                   std::string("N_") +
-                                     Utilities::int_to_string(i));
+          data_out.add_data_vector(s, std::string("N_") + Utilities::int_to_string(i));
         }
 
       Vector<float> subdomain(triangulation.n_active_cells());
@@ -154,8 +139,7 @@ test(const unsigned int flag)
       data_out.add_data_vector(subdomain, "subdomain");
       data_out.build_patches();
 
-      const std::string filename =
-        output_name(flag, triangulation.locally_owned_subdomain());
+      const std::string filename = output_name(flag, triangulation.locally_owned_subdomain());
 
       std::ofstream output(filename);
       data_out.write_vtu(output);
@@ -163,14 +147,11 @@ test(const unsigned int flag)
       if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
         {
           std::vector<std::string> filenames;
-          for (unsigned int i = 0;
-               i < Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
-               ++i)
+          for (unsigned int i = 0; i < Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD); ++i)
             filenames.push_back(output_name(flag, i));
 
-          const std::string pvtu_filename =
-            "output" + Utilities::int_to_string(flag) + ".pvtu";
-          std::ofstream pvtu_output(pvtu_filename);
+          const std::string pvtu_filename = "output" + Utilities::int_to_string(flag) + ".pvtu";
+          std::ofstream     pvtu_output(pvtu_filename);
           data_out.write_pvtu_record(pvtu_output, filenames);
         }
     }
@@ -181,9 +162,8 @@ test(const unsigned int flag)
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
-  const unsigned int myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
+  const unsigned int               myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
 
   MPILogInitAll log;
 

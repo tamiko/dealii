@@ -137,16 +137,13 @@ public:
   /**
    * Constructor.
    */
-  SolverIDR(SolverControl &           cn,
-            VectorMemory<VectorType> &mem,
-            const AdditionalData &    data = AdditionalData());
+  SolverIDR(SolverControl &cn, VectorMemory<VectorType> &mem, const AdditionalData &data = AdditionalData());
 
   /**
    * Constructor. Use an object of type GrowingVectorMemory as a default to
    * allocate memory.
    */
-  explicit SolverIDR(SolverControl &       cn,
-                     const AdditionalData &data = AdditionalData());
+  explicit SolverIDR(SolverControl &cn, const AdditionalData &data = AdditionalData());
 
   /**
    * Virtual destructor.
@@ -158,10 +155,7 @@ public:
    */
   template <typename MatrixType, typename PreconditionerType>
   void
-  solve(const MatrixType &        A,
-        VectorType &              x,
-        const VectorType &        b,
-        const PreconditionerType &preconditioner);
+  solve(const MatrixType &A, VectorType &x, const VectorType &b, const PreconditionerType &preconditioner);
 
 protected:
   /**
@@ -170,10 +164,7 @@ protected:
    * for graphical output of the convergence history.
    */
   virtual void
-  print_vectors(const unsigned int step,
-                const VectorType & x,
-                const VectorType & r,
-                const VectorType & d) const;
+  print_vectors(const unsigned int step, const VectorType &x, const VectorType &r, const VectorType &d) const;
 
 private:
   /**
@@ -193,8 +184,7 @@ namespace internal
   namespace SolverIDRImplementation
   {
     template <typename VectorType>
-    inline TmpVectors<VectorType>::TmpVectors(const unsigned int        s_param,
-                                              VectorMemory<VectorType> &vmem)
+    inline TmpVectors<VectorType>::TmpVectors(const unsigned int s_param, VectorMemory<VectorType> &vmem)
       : mem(vmem)
       , data(s_param)
     {}
@@ -215,8 +205,7 @@ namespace internal
 
     template <typename VectorType>
     inline VectorType &
-    TmpVectors<VectorType>::operator()(const unsigned int i,
-                                       const VectorType & temp)
+    TmpVectors<VectorType>::operator()(const unsigned int i, const VectorType &temp)
     {
       AssertIndexRange(i, data.size());
       if (data[i] == nullptr)
@@ -229,9 +218,7 @@ namespace internal
 
 
 
-    template <typename VectorType,
-              std::enable_if_t<!IsBlockVector<VectorType>::value, VectorType>
-                * = nullptr>
+    template <typename VectorType, std::enable_if_t<!IsBlockVector<VectorType>::value, VectorType> * = nullptr>
     unsigned int
     n_blocks(const VectorType &)
     {
@@ -240,9 +227,7 @@ namespace internal
 
 
 
-    template <typename VectorType,
-              std::enable_if_t<IsBlockVector<VectorType>::value, VectorType> * =
-                nullptr>
+    template <typename VectorType, std::enable_if_t<IsBlockVector<VectorType>::value, VectorType> * = nullptr>
     unsigned int
     n_blocks(const VectorType &vector)
     {
@@ -251,9 +236,7 @@ namespace internal
 
 
 
-    template <typename VectorType,
-              std::enable_if_t<!IsBlockVector<VectorType>::value, VectorType>
-                * = nullptr>
+    template <typename VectorType, std::enable_if_t<!IsBlockVector<VectorType>::value, VectorType> * = nullptr>
     VectorType &
     block(VectorType &vector, const unsigned int b)
     {
@@ -264,9 +247,7 @@ namespace internal
 
 
 
-    template <typename VectorType,
-              std::enable_if_t<IsBlockVector<VectorType>::value, VectorType> * =
-                nullptr>
+    template <typename VectorType, std::enable_if_t<IsBlockVector<VectorType>::value, VectorType> * = nullptr>
     typename VectorType::BlockType &
     block(VectorType &vector, const unsigned int b)
     {
@@ -279,9 +260,7 @@ namespace internal
 
 
 template <typename VectorType>
-SolverIDR<VectorType>::SolverIDR(SolverControl &           cn,
-                                 VectorMemory<VectorType> &mem,
-                                 const AdditionalData &    data)
+SolverIDR<VectorType>::SolverIDR(SolverControl &cn, VectorMemory<VectorType> &mem, const AdditionalData &data)
   : SolverBase<VectorType>(cn, mem)
   , additional_data(data)
 {}
@@ -309,9 +288,9 @@ SolverIDR<VectorType>::print_vectors(const unsigned int,
 template <typename VectorType>
 template <typename MatrixType, typename PreconditionerType>
 void
-SolverIDR<VectorType>::solve(const MatrixType &        A,
-                             VectorType &              x,
-                             const VectorType &        b,
+SolverIDR<VectorType>::solve(const MatrixType         &A,
+                             VectorType               &x,
+                             const VectorType         &b,
                              const PreconditionerType &preconditioner)
 {
   LogStream::Prefix prefix("IDR(s)");
@@ -371,13 +350,9 @@ SolverIDR<VectorType>::solve(const MatrixType &        A,
       VectorType &tmp_q = Q(i, x);
       if (i != 0)
         {
-          for (unsigned int b = 0;
-               b < internal::SolverIDRImplementation::n_blocks(tmp_q);
-               ++b)
-            for (auto indx : internal::SolverIDRImplementation::block(tmp_q, b)
-                               .locally_owned_elements())
-              internal::SolverIDRImplementation::block(tmp_q, b)(indx) =
-                normal_distribution(rng);
+          for (unsigned int b = 0; b < internal::SolverIDRImplementation::n_blocks(tmp_q); ++b)
+            for (auto indx : internal::SolverIDRImplementation::block(tmp_q, b).locally_owned_elements())
+              internal::SolverIDRImplementation::block(tmp_q, b)(indx) = normal_distribution(rng);
           tmp_q.compress(VectorOperation::insert);
         }
       else
@@ -461,7 +436,7 @@ SolverIDR<VectorType>::solve(const MatrixType &        A,
               for (unsigned int i = 1; i < k; ++i)
                 {
                   const value_type alpha_old = alpha;
-                  alpha = G[k].add_and_dot(-alpha, G[i - 1], Q[i]) / M(i, i);
+                  alpha                      = G[k].add_and_dot(-alpha, G[i - 1], Q[i]) / M(i, i);
 
                   // update uhat every other iteration to reduce vector access
                   if (i % 2 == 1)

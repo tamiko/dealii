@@ -39,19 +39,15 @@ test(const unsigned int degree)
   for (unsigned int d = 0; d < dim; ++d)
     p[d] = std::sqrt(1. / dim) + 0.01 * d;
   for (unsigned i = 1; i < 21; ++i)
-    real_points.push_back(
-      (i % 2 ? 0.05 * (static_cast<double>(i) - 10.) : 0.05 * i) * p);
+    real_points.push_back((i % 2 ? 0.05 * (static_cast<double>(i) - 10.) : 0.05 * i) * p);
   std::vector<Point<dim>> unit_points(real_points.size());
   MappingQ<dim>           mapping(degree);
-  mapping.transform_points_real_to_unit_cell(tria.begin(),
-                                             real_points,
-                                             unit_points);
+  mapping.transform_points_real_to_unit_cell(tria.begin(), real_points, unit_points);
 
-  deallog << "Transform on cell with center: " << tria.begin()->center(true)
-          << " with mapping degree " << degree << std::endl;
+  deallog << "Transform on cell with center: " << tria.begin()->center(true) << " with mapping degree " << degree
+          << std::endl;
   for (unsigned int i = 0; i < real_points.size(); ++i)
-    deallog << "Transform " << real_points[i] << " gives " << unit_points[i]
-            << std::endl;
+    deallog << "Transform " << real_points[i] << " gives " << unit_points[i] << std::endl;
   deallog << "OK" << std::endl;
 }
 

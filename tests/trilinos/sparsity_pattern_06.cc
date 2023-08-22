@@ -51,9 +51,7 @@ test()
   // with reordered dofs by its components, such that the rows in the
   // final matrix are locally not in a contiguous set.
 
-  dealii::TrilinosWrappers::SparsityPattern sp(parallel_partitioning,
-                                               MPI_COMM_WORLD,
-                                               2);
+  dealii::TrilinosWrappers::SparsityPattern sp(parallel_partitioning, MPI_COMM_WORLD, 2);
 
   sp.add(MyPID, (NumProc + MyPID - 1) % NumProc);
   sp.add(MyPID, MyPID);
@@ -66,8 +64,7 @@ test()
 
   for (const auto &el : sp)
     {
-      deallog << "index: " << el.index() << " = " << '(' << el.row() << " , "
-              << el.column() << ')' << std::endl;
+      deallog << "index: " << el.index() << " = " << '(' << el.row() << " , " << el.column() << ')' << std::endl;
     }
 
   sp.compress();
@@ -75,8 +72,7 @@ test()
   deallog << "after compress:" << std::endl;
   for (const auto &el : sp)
     {
-      deallog << "index: " << el.index() << " = " << '(' << el.row() << " , "
-              << el.column() << ')' << std::endl;
+      deallog << "index: " << el.index() << " = " << '(' << el.row() << " , " << el.column() << ')' << std::endl;
     }
 }
 
@@ -85,8 +81,7 @@ test()
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   MPILogInitAll mpi_log;
 

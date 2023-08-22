@@ -73,17 +73,15 @@ main()
   TopoDS_Shape sh;
   for (unsigned int i = 0; i < points.size(); ++i)
     {
-      std::tuple<Point<3>, TopoDS_Shape, double, double> ref =
-        project_point_and_pull_back(edge, points[i]);
+      std::tuple<Point<3>, TopoDS_Shape, double, double> ref = project_point_and_pull_back(edge, points[i]);
 
       Point<3> pp = std::get<0>(ref);
       sh          = std::get<1>(ref);
       u           = std::get<2>(ref);
       v           = std::get<3>(ref);
 
-      deallog << "Origin: " << points[i] << ", on unit circle: " << pp
-              << ", with local coordinates (u, v): (" << u << ", " << v << ')'
-              << std::endl;
+      deallog << "Origin: " << points[i] << ", on unit circle: " << pp << ", with local coordinates (u, v): (" << u
+              << ", " << v << ')' << std::endl;
     }
   return 0;
 }

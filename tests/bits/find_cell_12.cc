@@ -56,11 +56,9 @@ test()
   n_cells.push_back(2);
 
 
-  GridGenerator::subdivided_hyper_rectangle(
-    triangulation, n_cells, left_bottom, right_top, true);
+  GridGenerator::subdivided_hyper_rectangle(triangulation, n_cells, left_bottom, right_top, true);
 
-  Triangulation<2>::active_cell_iterator cell = triangulation.begin_active(),
-                                         endc = triangulation.end();
+  Triangulation<2>::active_cell_iterator cell = triangulation.begin_active(), endc = triangulation.end();
   for (; cell != endc; ++cell)
     {
       Point<2> cell_center = cell->center();
@@ -74,13 +72,11 @@ test()
 
   Point<2> test_point(250, 195);
   std::cout << "Checking Point " << test_point << std::endl;
-  auto current_cell = GridTools::find_active_cell_around_point(MappingQ<2>(1),
-                                                               triangulation,
-                                                               test_point);
+  auto current_cell = GridTools::find_active_cell_around_point(MappingQ<2>(1), triangulation, test_point);
   if (current_cell.first.state() == IteratorState::valid)
     {
-      deallog << "cell: index = " << current_cell.first->index()
-              << " level = " << current_cell.first->level() << std::endl;
+      deallog << "cell: index = " << current_cell.first->index() << " level = " << current_cell.first->level()
+              << std::endl;
       deallog << " pos: " << current_cell.second << std::endl;
     }
   else

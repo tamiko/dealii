@@ -37,8 +37,7 @@ main(int argc, char **argv)
   const auto my_rank = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
 
   MPI_Comm sm_comm;
-  MPI_Comm_split_type(
-    MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, my_rank, MPI_INFO_NULL, &sm_comm);
+  MPI_Comm_split_type(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, my_rank, MPI_INFO_NULL, &sm_comm);
   AssertDimension(Utilities::MPI::n_mpi_processes(sm_comm), 4);
 
   MPI_Comm row_comm;
@@ -64,10 +63,7 @@ main(int argc, char **argv)
     }
 
   const auto test = [&](const auto sm_comm) {
-    const auto partitioner =
-      std::make_shared<Utilities::MPI::Partitioner>(is_local,
-                                                    is_ghost,
-                                                    row_comm);
+    const auto partitioner = std::make_shared<Utilities::MPI::Partitioner>(is_local, is_ghost, row_comm);
 
     LinearAlgebra::distributed::Vector<double> vector;
     vector.reinit(partitioner, sm_comm);
@@ -77,9 +73,8 @@ main(int argc, char **argv)
 
     vector.update_ghost_values();
 
-    const auto local_size =
-      partitioner->locally_owned_size() + partitioner->n_ghost_indices();
-    const auto sizes = Utilities::MPI::all_gather(sm_comm, local_size);
+    const auto local_size = partitioner->locally_owned_size() + partitioner->n_ghost_indices();
+    const auto sizes      = Utilities::MPI::all_gather(sm_comm, local_size);
 
     for (unsigned int i = 0; i < sizes.size(); ++i)
       {

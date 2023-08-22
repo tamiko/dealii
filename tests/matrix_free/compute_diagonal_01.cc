@@ -33,8 +33,7 @@ test()
 
   tria.refine_global();
   for (auto &cell : tria.active_cell_iterators())
-    if (cell->is_active() && cell->is_locally_owned() &&
-        cell->center()[0] < 0.0)
+    if (cell->is_active() && cell->is_locally_owned() && cell->center()[0] < 0.0)
       cell->set_refine_flag();
   tria.execute_coarsening_and_refinement();
 
@@ -50,14 +49,12 @@ test()
 
   VectorTools::interpolate_boundary_values(dof_handler,
                                            0,
-                                           Functions::ZeroFunction<dim, Number>(
-                                             n_components),
+                                           Functions::ZeroFunction<dim, Number>(n_components),
                                            constraint);
 
   constraint.close();
 
-  typename MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData
-    additional_data;
+  typename MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData additional_data;
   additional_data.mapping_update_flags = update_values | update_gradients;
 
   MappingQ<dim> mapping(1);
@@ -67,20 +64,15 @@ test()
   matrix_free.reinit(mapping, dof_handler, constraint, quad, additional_data);
 
 
-  Test<dim, fe_degree, n_points, n_components, Number, VectorizedArrayType>
-    test(matrix_free,
-         constraint,
-         [](FEEvaluation<dim,
-                         fe_degree,
-                         n_points,
-                         n_components,
-                         Number,
-                         VectorizedArrayType> &phi) {
-           phi.evaluate(EvaluationFlags::gradients);
-           for (unsigned int q = 0; q < phi.n_q_points; ++q)
-             phi.submit_gradient(phi.get_gradient(q), q);
-           phi.integrate(EvaluationFlags::gradients);
-         });
+  Test<dim, fe_degree, n_points, n_components, Number, VectorizedArrayType> test(
+    matrix_free,
+    constraint,
+    [](FEEvaluation<dim, fe_degree, n_points, n_components, Number, VectorizedArrayType> &phi) {
+      phi.evaluate(EvaluationFlags::gradients);
+      for (unsigned int q = 0; q < phi.n_q_points; ++q)
+        phi.submit_gradient(phi.get_gradient(q), q);
+      phi.integrate(EvaluationFlags::gradients);
+    });
 
   test.do_test();
 }

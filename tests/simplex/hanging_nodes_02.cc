@@ -58,10 +58,9 @@ main()
   {
     const unsigned int dim = 2;
 
-    const auto subdivided_hyper_cube_with_simplices =
-      [](Triangulation<dim> &tria) {
-        GridGenerator::subdivided_hyper_cube_with_simplices(tria, 1);
-      };
+    const auto subdivided_hyper_cube_with_simplices = [](Triangulation<dim> &tria) {
+      GridGenerator::subdivided_hyper_cube_with_simplices(tria, 1);
+    };
 
     test<dim>({0, 0},
               {0, 1},

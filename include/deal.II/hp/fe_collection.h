@@ -79,11 +79,9 @@ namespace hp
        * the hierarchy and thus we return the last value.
        */
       static unsigned int
-      next_index(const typename hp::FECollection<dim, spacedim> &fe_collection,
-                 const unsigned int                              fe_index)
+      next_index(const typename hp::FECollection<dim, spacedim> &fe_collection, const unsigned int fe_index)
       {
-        return ((fe_index + 1) < fe_collection.size()) ? fe_index + 1 :
-                                                         fe_index;
+        return ((fe_index + 1) < fe_collection.size()) ? fe_index + 1 : fe_index;
       }
 
       /**
@@ -93,9 +91,7 @@ namespace hp
        * the hierarchy and thus we return the first value.
        */
       static unsigned int
-      previous_index(
-        const typename hp::FECollection<dim, spacedim> &fe_collection,
-        const unsigned int                              fe_index)
+      previous_index(const typename hp::FECollection<dim, spacedim> &fe_collection, const unsigned int fe_index)
       {
         (void)fe_collection;
         return (fe_index > 0) ? fe_index - 1 : fe_index;
@@ -150,11 +146,10 @@ namespace hp
      * clang-tidy).
      */
     FECollection(FECollection<dim, spacedim> &&) noexcept(
-      std::is_nothrow_move_constructible<
-        std::vector<std::shared_ptr<const FiniteElement<dim, spacedim>>>>::value
-        &&std::is_nothrow_move_constructible<std::function<
-          unsigned int(const typename hp::FECollection<dim, spacedim> &,
-                       const unsigned int)>>::value) = default;
+      std::is_nothrow_move_constructible<std::vector<std::shared_ptr<const FiniteElement<dim, spacedim>>>>::value
+        &&std::is_nothrow_move_constructible<
+          std::function<unsigned int(const typename hp::FECollection<dim, spacedim> &, const unsigned int)>>::value) =
+      default;
 
     /**
      * Move assignment operator.
@@ -355,8 +350,7 @@ namespace hp
      * of freedom on quads.
      */
     std::vector<std::map<unsigned int, unsigned int>>
-    hp_quad_dof_identities(const std::set<unsigned int> &fes,
-                           const unsigned int            face_no = 0) const;
+    hp_quad_dof_identities(const std::set<unsigned int> &fes, const unsigned int face_no = 0) const;
 
 
     /**
@@ -381,8 +375,7 @@ namespace hp
      * FiniteElement::compare_for_domination() for more information.
      */
     std::set<unsigned int>
-    find_common_fes(const std::set<unsigned int> &fes,
-                    const unsigned int            codim = 0) const;
+    find_common_fes(const std::set<unsigned int> &fes, const unsigned int codim = 0) const;
 
     /**
      * Return the indices of finite elements in this FECollection that are
@@ -406,8 +399,7 @@ namespace hp
      * FiniteElement::compare_for_domination() for more information.
      */
     std::set<unsigned int>
-    find_enclosing_fes(const std::set<unsigned int> &fes,
-                       const unsigned int            codim = 0) const;
+    find_enclosing_fes(const std::set<unsigned int> &fes, const unsigned int codim = 0) const;
 
     /**
      * Return the index of a finite element from the provided set of indices @p fes
@@ -442,8 +434,7 @@ namespace hp
      * FiniteElement::compare_for_domination() for more information.
      */
     unsigned int
-    find_dominating_fe(const std::set<unsigned int> &fes,
-                       const unsigned int            codim = 0) const;
+    find_dominating_fe(const std::set<unsigned int> &fes, const unsigned int codim = 0) const;
 
     /**
      * Return the index of a finite element from the provided set of indices @p fes
@@ -478,8 +469,7 @@ namespace hp
      * FiniteElement::compare_for_domination() for more information.
      */
     unsigned int
-    find_dominated_fe(const std::set<unsigned int> &fes,
-                      const unsigned int            codim = 0) const;
+    find_dominated_fe(const std::set<unsigned int> &fes, const unsigned int codim = 0) const;
 
     /**
      * Return the index of a finite element from the provided set of indices @p fes
@@ -505,8 +495,7 @@ namespace hp
      * FiniteElement::compare_for_domination() for more information.
      */
     unsigned int
-    find_dominating_fe_extended(const std::set<unsigned int> &fes,
-                                const unsigned int            codim = 0) const;
+    find_dominating_fe_extended(const std::set<unsigned int> &fes, const unsigned int codim = 0) const;
 
     /**
      * Return the index of a finite element from the provided set of indices @p fes
@@ -531,8 +520,7 @@ namespace hp
      * FiniteElement::compare_for_domination() for more information.
      */
     unsigned int
-    find_dominated_fe_extended(const std::set<unsigned int> &fes,
-                               const unsigned int            codim = 0) const;
+    find_dominated_fe_extended(const std::set<unsigned int> &fes, const unsigned int codim = 0) const;
 
     /**
      * @}
@@ -559,12 +547,9 @@ namespace hp
      * range of this collection, i.e. within [0, size()).
      */
     void
-    set_hierarchy(const std::function<unsigned int(
-                    const typename hp::FECollection<dim, spacedim> &,
-                    const unsigned int)> &next,
-                  const std::function<unsigned int(
-                    const typename hp::FECollection<dim, spacedim> &,
-                    const unsigned int)> &prev);
+    set_hierarchy(
+      const std::function<unsigned int(const typename hp::FECollection<dim, spacedim> &, const unsigned int)> &next,
+      const std::function<unsigned int(const typename hp::FECollection<dim, spacedim> &, const unsigned int)> &prev);
 
     /**
      * Set the default hierarchy corresponding to the index of each finite
@@ -690,8 +675,7 @@ namespace hp
      * ones that corresponds to the argument.
      */
     ComponentMask
-    component_mask(
-      const FEValuesExtractors::SymmetricTensor<2> &sym_tensor) const;
+    component_mask(const FEValuesExtractors::SymmetricTensor<2> &sym_tensor) const;
 
     /**
      * Given a block mask (see
@@ -852,24 +836,19 @@ namespace hp
      * A linear mapping collection for all reference cell types of each index
      * of this object.
      */
-    std::shared_ptr<MappingCollection<dim, spacedim>>
-      reference_cell_default_linear_mapping;
+    std::shared_ptr<MappingCollection<dim, spacedim>> reference_cell_default_linear_mapping;
 
     /**
      * %Function returning the index of the finite element following the given
      * one in hierarchy.
      */
-    std::function<unsigned int(const typename hp::FECollection<dim, spacedim> &,
-                               const unsigned int)>
-      hierarchy_next;
+    std::function<unsigned int(const typename hp::FECollection<dim, spacedim> &, const unsigned int)> hierarchy_next;
 
     /**
      * %Function returning the index of the finite element preceding the given
      * one in hierarchy.
      */
-    std::function<unsigned int(const typename hp::FECollection<dim, spacedim> &,
-                               const unsigned int)>
-      hierarchy_prev;
+    std::function<unsigned int(const typename hp::FECollection<dim, spacedim> &, const unsigned int)> hierarchy_prev;
   };
 
 
@@ -880,16 +859,14 @@ namespace hp
   template <class... FETypes>
   FECollection<dim, spacedim>::FECollection(const FETypes &...fes)
   {
-    static_assert(
-      is_base_of_all<FiniteElement<dim, spacedim>, FETypes...>::value,
-      "Not all of the input arguments of this function "
-      "are derived from FiniteElement<dim, spacedim>!");
+    static_assert(is_base_of_all<FiniteElement<dim, spacedim>, FETypes...>::value,
+                  "Not all of the input arguments of this function "
+                  "are derived from FiniteElement<dim, spacedim>!");
 
     // loop over all of the given arguments and add the finite elements to
     // this collection. Inlining the definition of fe_pointers causes internal
     // compiler errors on GCC 7.1.1 so we define it separately:
-    const auto fe_pointers = {
-      (static_cast<const FiniteElement<dim, spacedim> *>(&fes))...};
+    const auto fe_pointers = {(static_cast<const FiniteElement<dim, spacedim> *>(&fes))...};
     for (const auto p : fe_pointers)
       push_back(*p);
   }
@@ -917,8 +894,7 @@ namespace hp
 
   template <int dim, int spacedim>
   inline bool
-  FECollection<dim, spacedim>::operator==(
-    const FECollection<dim, spacedim> &fe_collection) const
+  FECollection<dim, spacedim>::operator==(const FECollection<dim, spacedim> &fe_collection) const
   {
     const unsigned int n_elements = this->size();
     if (n_elements != fe_collection.size())
@@ -935,8 +911,7 @@ namespace hp
 
   template <int dim, int spacedim>
   inline bool
-  FECollection<dim, spacedim>::operator!=(
-    const FECollection<dim, spacedim> &fe_collection) const
+  FECollection<dim, spacedim>::operator!=(const FECollection<dim, spacedim> &fe_collection) const
   {
     return !(*this == fe_collection);
   }

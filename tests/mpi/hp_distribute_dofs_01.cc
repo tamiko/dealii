@@ -33,11 +33,10 @@ template <int dim>
 void
 test()
 {
-  parallel::distributed::Triangulation<dim> tria(
-    MPI_COMM_WORLD,
-    typename Triangulation<dim>::MeshSmoothing(
-      Triangulation<dim>::smoothing_on_refinement |
-      Triangulation<dim>::smoothing_on_coarsening));
+  parallel::distributed::Triangulation<dim> tria(MPI_COMM_WORLD,
+                                                 typename Triangulation<dim>::MeshSmoothing(
+                                                   Triangulation<dim>::smoothing_on_refinement |
+                                                   Triangulation<dim>::smoothing_on_coarsening));
 
   GridGenerator::hyper_cube(tria, -1.0, 1.0);
   tria.refine_global(1);

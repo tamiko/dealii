@@ -44,13 +44,12 @@
 void
 check_this(Triangulation<3> &tria)
 {
-  for (Triangulation<3>::cell_iterator cell = tria.begin(); cell != tria.end();
-       ++cell)
+  for (Triangulation<3>::cell_iterator cell = tria.begin(); cell != tria.end(); ++cell)
     for (const unsigned int f : GeometryInfo<3>::face_indices())
       if (!cell->at_boundary())
         {
           const Triangulation<3>::cell_iterator neighbor = cell->neighbor(f);
-          const unsigned int nb_nb = cell->neighbor_of_neighbor(f);
+          const unsigned int                    nb_nb    = cell->neighbor_of_neighbor(f);
 
           bool found = false;
           for (const unsigned int ff : GeometryInfo<3>::face_indices())
@@ -59,8 +58,7 @@ check_this(Triangulation<3> &tria)
                 AssertThrow(found == false, ExcInternalError());
                 AssertThrow(ff == nb_nb, ExcInternalError());
 
-                AssertThrow(cell->face(f) == neighbor->face(ff),
-                            ExcInternalError());
+                AssertThrow(cell->face(f) == neighbor->face(ff), ExcInternalError());
 
                 found = true;
 

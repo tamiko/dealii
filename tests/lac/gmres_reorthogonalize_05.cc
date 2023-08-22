@@ -69,15 +69,14 @@ test()
   for (unsigned int i = 0; i < n; ++i)
     matrix.diag_element(i) = (i + 1);
 
-  SolverControl control(1000, 1e2 * std::numeric_limits<number>::epsilon());
+  SolverControl                                        control(1000, 1e2 * std::numeric_limits<number>::epsilon());
   typename SolverGMRES<Vector<number>>::AdditionalData data;
   data.max_n_tmp_vectors          = 202;
   data.force_re_orthogonalization = true;
 
   SolverGMRES<Vector<number>> solver(control, data);
-  auto print_re_orthogonalization = [](int accumulated_iterations) {
-    deallog.get_file_stream() << "Re-orthogonalization enabled at step "
-                              << accumulated_iterations << std::endl;
+  auto                        print_re_orthogonalization = [](int accumulated_iterations) {
+    deallog.get_file_stream() << "Re-orthogonalization enabled at step " << accumulated_iterations << std::endl;
   };
   solver.connect_re_orthogonalization_slot(print_re_orthogonalization);
   solver.solve(matrix, sol, rhs, PreconditionIdentity());

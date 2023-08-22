@@ -37,8 +37,7 @@ test()
   GridGenerator::hyper_cube(tria);
   tria.refine_global(2);
 
-  Particles::ParticleHandler<dim, spacedim> particle_handler(
-    tria, StaticMappingQ1<dim, spacedim>::mapping);
+  Particles::ParticleHandler<dim, spacedim> particle_handler(tria, StaticMappingQ1<dim, spacedim>::mapping);
 
   const int                    n_particles = 10;
   std::vector<Point<spacedim>> particles(n_particles);
@@ -52,8 +51,8 @@ test()
 
   auto p = random_point<spacedim>();
   for (const auto &part : tree | bgi::adaptors::queried(bgi::nearest(p, 3)))
-    deallog << "Particle " << part.get_id() << " is close to " << p
-            << " (location = " << part.get_location() << ')' << std::endl;
+    deallog << "Particle " << part.get_id() << " is close to " << p << " (location = " << part.get_location() << ')'
+            << std::endl;
 }
 
 int

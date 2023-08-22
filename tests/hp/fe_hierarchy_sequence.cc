@@ -33,12 +33,10 @@ test()
 
   // register custom hierarchy with two sequences: odd and even indices
   fe_collection.set_hierarchy(
-    [](const hp::FECollection<dim> &fe_collection,
-       const unsigned int           fe_index) {
+    [](const hp::FECollection<dim> &fe_collection, const unsigned int fe_index) {
       return ((fe_index + 2) < fe_collection.size()) ? fe_index + 2 : fe_index;
     },
-    [](const hp::FECollection<dim> &fe_collection,
-       const unsigned int           fe_index) {
+    [](const hp::FECollection<dim> &fe_collection, const unsigned int fe_index) {
       return (fe_index > 1) ? fe_index - 2 : fe_index;
     });
 

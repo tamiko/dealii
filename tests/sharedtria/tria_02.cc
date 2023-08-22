@@ -34,22 +34,19 @@
 
 template <int dim, int spacedim>
 void
-write_mesh(const parallel::shared::Triangulation<dim, spacedim> &tria,
-           const char *                                          filename_)
+write_mesh(const parallel::shared::Triangulation<dim, spacedim> &tria, const char *filename_)
 {
   DataOut<dim> data_out;
   data_out.attach_triangulation(tria);
-  Vector<float> subdomain(tria.n_active_cells());
-  typename parallel::shared::Triangulation<dim>::active_cell_iterator it =
-    tria.begin_active();
+  Vector<float>                                                       subdomain(tria.n_active_cells());
+  typename parallel::shared::Triangulation<dim>::active_cell_iterator it = tria.begin_active();
   for (unsigned int i = 0; it != tria.end(); ++it, ++i)
     subdomain(i) = it->subdomain_id();
 
   data_out.add_data_vector(subdomain, "subdomain");
 
   data_out.build_patches();
-  const std::string filename =
-    (filename_ + Utilities::int_to_string(tria.locally_owned_subdomain(), 4));
+  const std::string filename = (filename_ + Utilities::int_to_string(tria.locally_owned_subdomain(), 4));
   {
     std::ofstream output(filename + ".vtu");
     data_out.write_vtu(output);
@@ -62,19 +59,16 @@ template <int dim>
 void
 test()
 {
-  parallel::shared::Triangulation<dim> tr(
-    MPI_COMM_WORLD,
-    ::Triangulation<dim>::none,
-    /*artificial*/ true,
-    parallel::shared::Triangulation<dim>::partition_metis);
+  parallel::shared::Triangulation<dim> tr(MPI_COMM_WORLD,
+                                          ::Triangulation<dim>::none,
+                                          /*artificial*/ true,
+                                          parallel::shared::Triangulation<dim>::partition_metis);
 
   AssertThrow(tr.with_artificial_cells() == true, ExcInternalError());
 
-  const std::vector<unsigned int> &true_subdomain_ids_of_cells =
-    tr.get_true_subdomain_ids_of_cells();
+  const std::vector<unsigned int> &true_subdomain_ids_of_cells = tr.get_true_subdomain_ids_of_cells();
 
-  AssertThrow(true_subdomain_ids_of_cells.size() == tr.n_active_cells(),
-              ExcInternalError());
+  AssertThrow(true_subdomain_ids_of_cells.size() == tr.n_active_cells(), ExcInternalError());
 
   GridGenerator::hyper_cube(tr);
   tr.refine_global();
@@ -83,8 +77,7 @@ test()
   tr.begin_active()->set_refine_flag();
   tr.execute_coarsening_and_refinement();
 
-  deallog << " locally_owned_subdomain(): " << tr.locally_owned_subdomain()
-          << "\n"
+  deallog << " locally_owned_subdomain(): " << tr.locally_owned_subdomain() << "\n"
           << " n_active_cells: " << tr.n_active_cells() << "\n"
           << " n_levels: " << tr.n_levels() << "\n"
           << " n_global_levels: " << tr.n_global_levels()
@@ -102,14 +95,12 @@ test()
 
   // until parmetis is stable, do not output partitioning
   // deallog << "subdomains: ";
-  typename parallel::shared::Triangulation<dim>::active_cell_iterator it =
-    tr.begin_active();
+  typename parallel::shared::Triangulation<dim>::active_cell_iterator it = tr.begin_active();
   for (unsigned int index = 0; it != tr.end(); ++it, ++index)
     {
       // check that true subdomain_ids are the same as those, stored in
       // cell->subdomain_id()
-      AssertThrow((it->is_artificial() == true) ||
-                    (true_subdomain_ids_of_cells[index] == it->subdomain_id()),
+      AssertThrow((it->is_artificial() == true) || (true_subdomain_ids_of_cells[index] == it->subdomain_id()),
                   ExcInternalError());
       // deallog << (int) it->subdomain_id() << ' ';
     }

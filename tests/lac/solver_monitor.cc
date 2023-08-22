@@ -35,9 +35,7 @@
 
 
 SolverControl::State
-monitor_norm(const unsigned int    iteration,
-             const double          check_value,
-             const Vector<double> &current_iterate)
+monitor_norm(const unsigned int iteration, const double check_value, const Vector<double> &current_iterate)
 {
   deallog << "   -- " << iteration << ' ' << check_value << std::endl;
   deallog << "   Norm=" << current_iterate.l2_norm() << std::endl;
@@ -46,9 +44,7 @@ monitor_norm(const unsigned int    iteration,
 
 
 SolverControl::State
-monitor_mean(const unsigned int    iteration,
-             const double          check_value,
-             const Vector<double> &current_iterate)
+monitor_mean(const unsigned int iteration, const double check_value, const Vector<double> &current_iterate)
 {
   deallog << "   Mean=" << current_iterate.mean_value() << std::endl;
   return SolverControl::success;
@@ -56,16 +52,9 @@ monitor_mean(const unsigned int    iteration,
 
 
 
-template <typename SolverType,
-          typename MatrixType,
-          typename VectorType,
-          class PRECONDITION>
+template <typename SolverType, typename MatrixType, typename VectorType, class PRECONDITION>
 void
-check_solve(SolverType &        solver,
-            const MatrixType &  A,
-            VectorType &        u,
-            VectorType &        f,
-            const PRECONDITION &P)
+check_solve(SolverType &solver, const MatrixType &A, VectorType &u, VectorType &f, const PRECONDITION &P)
 {
   u = 0.;
   f = 1.;
@@ -96,9 +85,7 @@ main()
   cg.connect(&monitor_norm);
   cg.connect(&monitor_mean);
 
-  SolverGMRES<> gmres(control,
-                      mem,
-                      SolverGMRES<>::AdditionalData(/*max_vecs=*/8));
+  SolverGMRES<> gmres(control, mem, SolverGMRES<>::AdditionalData(/*max_vecs=*/8));
   gmres.connect(&monitor_norm);
   gmres.connect(&monitor_mean);
 

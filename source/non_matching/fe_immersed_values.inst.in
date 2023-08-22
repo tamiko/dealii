@@ -21,6 +21,5 @@ for (deal_II_dimension : DIMENSIONS)
 for (deal_II_dimension : DIMENSIONS; lda : BOOL)
   {
     template void FEImmersedSurfaceValues<deal_II_dimension>::reinit(
-      const TriaIterator<
-        DoFCellAccessor<deal_II_dimension, deal_II_dimension, lda>> &);
+      const TriaIterator<DoFCellAccessor<deal_II_dimension, deal_II_dimension, lda>> &);
   }

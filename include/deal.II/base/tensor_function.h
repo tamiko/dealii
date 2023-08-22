@@ -53,9 +53,7 @@ DEAL_II_NAMESPACE_OPEN
  * @ingroup functions
  */
 template <int rank, int dim, typename Number = double>
-class TensorFunction
-  : public FunctionTime<typename numbers::NumberTraits<Number>::real_type>,
-    public Subscriptor
+class TensorFunction : public FunctionTime<typename numbers::NumberTraits<Number>::real_type>, public Subscriptor
 {
 public:
   /**
@@ -71,8 +69,7 @@ public:
   /**
    * The scalar-valued real type used for representing time.
    */
-  using time_type = typename FunctionTime<
-    typename numbers::NumberTraits<Number>::real_type>::time_type;
+  using time_type = typename FunctionTime<typename numbers::NumberTraits<Number>::real_type>::time_type;
 
   /**
    * Constructor. May take an initial value for the time variable, which
@@ -99,8 +96,7 @@ public:
    * right size, i.e.  the same size as the <tt>points</tt> array.
    */
   virtual void
-  value_list(const std::vector<Point<dim>> &points,
-             std::vector<value_type> &      values) const;
+  value_list(const std::vector<Point<dim>> &points, std::vector<value_type> &values) const;
 
   /**
    * Return the gradient of the function at the given point.
@@ -114,8 +110,7 @@ public:
    * right size, i.e.  the same size as the <tt>points</tt> array.
    */
   virtual void
-  gradient_list(const std::vector<Point<dim>> &points,
-                std::vector<gradient_type> &   gradients) const;
+  gradient_list(const std::vector<Point<dim>> &points, std::vector<gradient_type> &gradients) const;
 };
 
 
@@ -142,8 +137,7 @@ public:
    * An initial value for the time variable may be specified, otherwise it
    * defaults to zero.
    */
-  ConstantTensorFunction(const dealii::Tensor<rank, dim, Number> &value,
-                         const time_type initial_time = 0.0);
+  ConstantTensorFunction(const dealii::Tensor<rank, dim, Number> &value, const time_type initial_time = 0.0);
 
   virtual ~ConstantTensorFunction() override = default;
 
@@ -151,20 +145,16 @@ public:
   value(const Point<dim> &p) const override;
 
   virtual void
-  value_list(
-    const std::vector<Point<dim>> &points,
-    std::vector<typename dealii::TensorFunction<rank, dim, Number>::value_type>
-      &values) const override;
+  value_list(const std::vector<Point<dim>>                                               &points,
+             std::vector<typename dealii::TensorFunction<rank, dim, Number>::value_type> &values) const override;
 
   virtual typename dealii::TensorFunction<rank, dim, Number>::gradient_type
   gradient(const Point<dim> &p) const override;
 
   virtual void
   gradient_list(
-    const std::vector<Point<dim>> &points,
-    std::vector<
-      typename dealii::TensorFunction<rank, dim, Number>::gradient_type>
-      &gradients) const override;
+    const std::vector<Point<dim>>                                                  &points,
+    std::vector<typename dealii::TensorFunction<rank, dim, Number>::gradient_type> &gradients) const override;
 
 private:
   const dealii::Tensor<rank, dim, Number> _value;
@@ -185,8 +175,7 @@ public:
   /**
    * The scalar-valued real type used for representing time.
    */
-  using time_type =
-    typename ConstantTensorFunction<rank, dim, Number>::time_type;
+  using time_type = typename ConstantTensorFunction<rank, dim, Number>::time_type;
 
   /**
    * Constructor.

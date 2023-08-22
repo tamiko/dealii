@@ -100,7 +100,7 @@ check_quadrature(double *exact_monomials)
     {
       quadrature_type              quadrature(n);
       const std::vector<Point<1>> &points  = quadrature.get_points();
-      const std::vector<double> &  weights = quadrature.get_weights();
+      const std::vector<double>   &weights = quadrature.get_weights();
 
 
       for (unsigned int i = 0; i < 32; ++i)
@@ -117,8 +117,7 @@ check_quadrature(double *exact_monomials)
               quadrature_int += f * static_cast<long double>(weights[x]);
             }
           err = std::fabs(quadrature_int - exact_monomials[i]);
-          deallog << "Quadrature order " << n << ", polynomial of degree " << i
-                  << ": ";
+          deallog << "Quadrature order " << n << ", polynomial of degree " << i << ": ";
 
           if (err < 1.e-14)
             deallog << "exact." << std::endl;
@@ -134,9 +133,9 @@ check_GRC_right(double *exact_monomials)
 {
   for (unsigned int n = 1; n < 18; ++n)
     {
-      QGaussRadauChebyshev<1> quadrature(n, QGaussRadauChebyshev<1>::right);
+      QGaussRadauChebyshev<1>      quadrature(n, QGaussRadauChebyshev<1>::right);
       const std::vector<Point<1>> &points  = quadrature.get_points();
-      const std::vector<double> &  weights = quadrature.get_weights();
+      const std::vector<double>   &weights = quadrature.get_weights();
 
 
       for (unsigned int i = 0; i < 32; ++i)
@@ -153,8 +152,7 @@ check_GRC_right(double *exact_monomials)
               quadrature_int += f * static_cast<long double>(weights[x]);
             }
           err = std::fabs(quadrature_int - exact_monomials[i]);
-          deallog << "Quadrature order " << n << ", polynomial of degree " << i
-                  << ": ";
+          deallog << "Quadrature order " << n << ", polynomial of degree " << i << ": ";
 
           if (err < 2.e-15)
             deallog << "exact." << std::endl;

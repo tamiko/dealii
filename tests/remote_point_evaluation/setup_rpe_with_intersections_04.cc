@@ -35,9 +35,7 @@ using namespace dealii;
 
 template <int dim>
 std::vector<std::vector<BoundingBox<dim>>>
-get_global_bboxes(const Triangulation<dim> &tria,
-                  const Mapping<dim> &      mapping,
-                  const unsigned int        rtree_level = 0)
+get_global_bboxes(const Triangulation<dim> &tria, const Mapping<dim> &mapping, const unsigned int rtree_level = 0)
 {
   std::vector<dealii::BoundingBox<dim>> local_boxes;
   for (const auto &cell : tria.active_cell_iterators())
@@ -77,26 +75,16 @@ do_test(const unsigned int n_quad_points)
 
       const unsigned int      n_vertices = cell->n_vertices();
       std::vector<Point<dim>> vertices(n_vertices);
-      std::copy_n(mapping.get_vertices(cell).begin(),
-                  n_vertices,
-                  vertices.begin());
+      std::copy_n(mapping.get_vertices(cell).begin(), n_vertices, vertices.begin());
 
       intersection_requests.emplace_back(vertices);
     }
 
-  auto intersection_location =
-    GridTools::internal::distributed_compute_intersection_locations<structdim>(
-      cache,
-      intersection_requests,
-      get_global_bboxes<dim>(tria, mapping),
-      std::vector<bool>(),
-      1.0e-9);
+  auto intersection_location = GridTools::internal::distributed_compute_intersection_locations<structdim>(
+    cache, intersection_requests, get_global_bboxes<dim>(tria, mapping), std::vector<bool>(), 1.0e-9);
 
   auto rpe_intersection_data =
-    intersection_location
-      .convert_to_distributed_compute_point_locations_internal(n_quad_points,
-                                                               tria,
-                                                               mapping);
+    intersection_location.convert_to_distributed_compute_point_locations_internal(n_quad_points, tria, mapping);
 
   // setup rpe without additional search
   dealii::Utilities::MPI::RemotePointEvaluation<dim> rpe_intersections;
@@ -106,14 +94,13 @@ do_test(const unsigned int n_quad_points)
   // get quadrature points of intersections
   std::vector<Point<dim>> points;
 
-  const auto &recv_comps = intersection_location.recv_components;
+  const auto                    &recv_comps = intersection_location.recv_components;
   const QGaussSimplex<structdim> quadrature(n_quad_points);
   if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
     {
       for (const auto &rc : recv_comps)
         {
-          const Quadrature<dim> &quad =
-            quadrature.compute_affine_transformation(std::get<2>(rc));
+          const Quadrature<dim> &quad = quadrature.compute_affine_transformation(std::get<2>(rc));
 
           for (unsigned int q = 0; q < quad.size(); ++q)
             points.push_back(quad.point(q));
@@ -134,63 +121,53 @@ do_test(const unsigned int n_quad_points)
   deallog << "CellData().cells.size() OK" << std::endl;
   for (unsigned int i = 0; i < cell_data_inter.cells.size(); ++i)
     {
-      AssertThrow(cell_data_inter.cells[i].first ==
-                    cell_data_point.cells[i].first,
+      AssertThrow(cell_data_inter.cells[i].first == cell_data_point.cells[i].first,
                   ExcMessage("CellData().cells.first not OK"));
-      AssertThrow(cell_data_inter.cells[i].second ==
-                    cell_data_point.cells[i].second,
+      AssertThrow(cell_data_inter.cells[i].second == cell_data_point.cells[i].second,
                   ExcMessage("CellData().cells.second not OK"));
     }
   deallog << "CellData().cells OK" << std::endl;
 
-  AssertThrow(cell_data_inter.reference_point_ptrs.size() ==
-                cell_data_point.reference_point_ptrs.size(),
+  AssertThrow(cell_data_inter.reference_point_ptrs.size() == cell_data_point.reference_point_ptrs.size(),
               ExcMessage("CellData().reference_point_ptrs.size() not OK"));
   deallog << "CellData().reference_point_ptrs.size() OK" << std::endl;
   for (unsigned int i = 0; i < cell_data_inter.reference_point_ptrs.size(); ++i)
     {
-      AssertThrow(cell_data_inter.reference_point_ptrs[i] ==
-                    cell_data_point.reference_point_ptrs[i],
+      AssertThrow(cell_data_inter.reference_point_ptrs[i] == cell_data_point.reference_point_ptrs[i],
                   ExcMessage("CellData().reference_point_ptrs not OK"));
     }
   deallog << "CellData().reference_point_ptrs OK" << std::endl;
 
-  AssertThrow(cell_data_inter.reference_point_values.size() ==
-                cell_data_point.reference_point_values.size(),
+  AssertThrow(cell_data_inter.reference_point_values.size() == cell_data_point.reference_point_values.size(),
               ExcMessage("CellData().reference_point_values.size() not OK"));
   deallog << "CellData().reference_point_values.size() OK" << std::endl;
-  for (unsigned int i = 0; i < cell_data_inter.reference_point_values.size();
-       ++i)
+  for (unsigned int i = 0; i < cell_data_inter.reference_point_values.size(); ++i)
     {
-      AssertThrow(std::abs((cell_data_inter.reference_point_values[i] -
-                            cell_data_point.reference_point_values[i])
-                             .norm()) < 1.0e-9,
+      AssertThrow(std::abs(
+                    (cell_data_inter.reference_point_values[i] - cell_data_point.reference_point_values[i]).norm()) <
+                    1.0e-9,
                   ExcMessage("CellData().reference_point_values not OK"));
     }
   deallog << "CellData().reference_point_values OK" << std::endl;
   deallog << "CellData() OK" << std::endl;
 
   // check get_point_ptrs()
-  AssertThrow(rpe_intersections.get_point_ptrs().size() ==
-                rpe_points.get_point_ptrs().size(),
+  AssertThrow(rpe_intersections.get_point_ptrs().size() == rpe_points.get_point_ptrs().size(),
               ExcMessage("get_point_ptrs().size() not OK"));
   deallog << "get_point_ptrs().size() OK" << std::endl;
   for (unsigned int i = 0; i < rpe_intersections.get_point_ptrs().size(); ++i)
     {
-      AssertThrow(rpe_intersections.get_point_ptrs()[i] ==
-                    rpe_points.get_point_ptrs()[i],
+      AssertThrow(rpe_intersections.get_point_ptrs()[i] == rpe_points.get_point_ptrs()[i],
                   ExcMessage("get_point_ptrs() not OK"));
     }
   deallog << "get_point_ptrs() OK" << std::endl;
 
   // check is_map_unique()
-  AssertThrow(rpe_intersections.is_map_unique() == rpe_points.is_map_unique(),
-              ExcMessage("is_map_unique() not OK"));
+  AssertThrow(rpe_intersections.is_map_unique() == rpe_points.is_map_unique(), ExcMessage("is_map_unique() not OK"));
   deallog << "is_map_unique() OK" << std::endl;
 
   // check all_points_found()
-  AssertThrow(rpe_intersections.all_points_found() ==
-                rpe_points.all_points_found(),
+  AssertThrow(rpe_intersections.all_points_found() == rpe_points.all_points_found(),
               ExcMessage("all_points_found() not OK"));
   deallog << "all_points_found() OK" << std::endl;
 }
@@ -204,8 +181,7 @@ main(int argc, char **argv)
 
   for (unsigned int q = 1; q < 3; ++q)
     {
-      deallog << "Cell intersections 3D-3D with n_quadrature_points = " << q
-              << std::endl;
+      deallog << "Cell intersections 3D-3D with n_quadrature_points = " << q << std::endl;
       do_test<3, 3>(q);
     }
 }

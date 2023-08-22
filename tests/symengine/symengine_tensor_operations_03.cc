@@ -68,8 +68,7 @@ struct CoupledFunction
           for (unsigned int l = 0; l < dim; ++l)
             dt_inv_trans_dt[i][j][k][l] = -t_inv[l][i] * t_inv[j][k];
 
-    return det_t(t) * outer_product(transpose(t_inv), transpose(t_inv)) +
-           det_t(t) * dt_inv_trans_dt;
+    return det_t(t) * outer_product(transpose(t_inv), transpose(t_inv)) + det_t(t) * dt_inv_trans_dt;
   }
 
   static NumberType
@@ -95,8 +94,7 @@ struct CoupledFunction
       for (unsigned int j = i; j < dim; ++j)
         for (unsigned int k = 0; k < dim; ++k)
           for (unsigned int l = k; l < dim; ++l)
-            dt_inv_dt[i][j][k][l] =
-              -0.5 * (t_inv[i][k] * t_inv[j][l] + t_inv[i][l] * t_inv[j][k]);
+            dt_inv_dt[i][j][k][l] = -0.5 * (t_inv[i][k] * t_inv[j][l] + t_inv[i][l] * t_inv[j][k]);
 
     return det_t(t) * outer_product(t_inv, t_inv) + det_t(t) * dt_inv_dt;
   }
@@ -116,8 +114,7 @@ struct CoupledFunction
   static Tensor<2, dim, NumberType>
   d2v_squ_dv_dv(const Tensor<1, dim, NumberType> &v)
   {
-    static const Tensor<2, dim, NumberType> I(
-      unit_symmetric_tensor<dim, NumberType>());
+    static const Tensor<2, dim, NumberType> I(unit_symmetric_tensor<dim, NumberType>());
     return 2.0 * I;
   }
 
@@ -130,12 +127,11 @@ struct CoupledFunction
 
   static NumberType
   psi(const SymmetricTensor<2, dim, NumberType> &st,
-      const Tensor<2, dim, NumberType> &         t,
-      const Tensor<1, dim, NumberType> &         v,
-      const NumberType &                         s)
+      const Tensor<2, dim, NumberType>          &t,
+      const Tensor<1, dim, NumberType>          &v,
+      const NumberType                          &s)
   {
-    return std::pow(det_t(st), 2) * std::pow(det_t(t), 2) *
-           std::pow(v_squ(v), 3) * std::pow(s, sf);
+    return std::pow(det_t(st), 2) * std::pow(det_t(t), 2) * std::pow(v_squ(v), 3) * std::pow(s, sf);
   };
 
   // --------------------------------------------------------------------------
@@ -145,224 +141,208 @@ struct CoupledFunction
 
   static SymmetricTensor<2, dim, NumberType>
   dpsi_dst(const SymmetricTensor<2, dim, NumberType> &st,
-           const Tensor<2, dim, NumberType> &         t,
-           const Tensor<1, dim, NumberType> &         v,
-           const NumberType &                         s)
+           const Tensor<2, dim, NumberType>          &t,
+           const Tensor<1, dim, NumberType>          &v,
+           const NumberType                          &s)
   {
-    return 2.0 * std::pow(det_t(st), 1) * ddet_t_dt(st) *
-           std::pow(det_t(t), 2) * std::pow(v_squ(v), 3) * std::pow(s, sf);
+    return 2.0 * std::pow(det_t(st), 1) * ddet_t_dt(st) * std::pow(det_t(t), 2) * std::pow(v_squ(v), 3) *
+           std::pow(s, sf);
   };
 
   static Tensor<2, dim, NumberType>
   dpsi_dt(const SymmetricTensor<2, dim, NumberType> &st,
-          const Tensor<2, dim, NumberType> &         t,
-          const Tensor<1, dim, NumberType> &         v,
-          const NumberType &                         s)
+          const Tensor<2, dim, NumberType>          &t,
+          const Tensor<1, dim, NumberType>          &v,
+          const NumberType                          &s)
   {
-    return 2.0 * std::pow(det_t(st), 2) * std::pow(det_t(t), 1) * ddet_t_dt(t) *
-           std::pow(v_squ(v), 3) * std::pow(s, sf);
+    return 2.0 * std::pow(det_t(st), 2) * std::pow(det_t(t), 1) * ddet_t_dt(t) * std::pow(v_squ(v), 3) *
+           std::pow(s, sf);
   };
 
   static Tensor<1, dim, NumberType>
   dpsi_dv(const SymmetricTensor<2, dim, NumberType> &st,
-          const Tensor<2, dim, NumberType> &         t,
-          const Tensor<1, dim, NumberType> &         v,
-          const NumberType &                         s)
+          const Tensor<2, dim, NumberType>          &t,
+          const Tensor<1, dim, NumberType>          &v,
+          const NumberType                          &s)
   {
-    return std::pow(det_t(st), 2) * std::pow(det_t(t), 2) * 3.0 *
-           std::pow(v_squ(v), 2) * dv_squ_dv(v) * std::pow(s, sf);
+    return std::pow(det_t(st), 2) * std::pow(det_t(t), 2) * 3.0 * std::pow(v_squ(v), 2) * dv_squ_dv(v) *
+           std::pow(s, sf);
   };
 
   static NumberType
   dpsi_ds(const SymmetricTensor<2, dim, NumberType> &st,
-          const Tensor<2, dim, NumberType> &         t,
-          const Tensor<1, dim, NumberType> &         v,
-          const NumberType &                         s)
+          const Tensor<2, dim, NumberType>          &t,
+          const Tensor<1, dim, NumberType>          &v,
+          const NumberType                          &s)
   {
-    return std::pow(det_t(st), 2) * std::pow(det_t(t), 2) *
-           std::pow(v_squ(v), 3) * sf * std::pow(s, sf - 1.0);
+    return std::pow(det_t(st), 2) * std::pow(det_t(t), 2) * std::pow(v_squ(v), 3) * sf * std::pow(s, sf - 1.0);
   };
 
   static SymmetricTensor<4, dim, NumberType>
   d2psi_dst_x_dst(const SymmetricTensor<2, dim, NumberType> &st,
-                  const Tensor<2, dim, NumberType> &         t,
-                  const Tensor<1, dim, NumberType> &         v,
-                  const NumberType &                         s)
+                  const Tensor<2, dim, NumberType>          &t,
+                  const Tensor<1, dim, NumberType>          &v,
+                  const NumberType                          &s)
   {
     return 2.0 * std::pow(det_t(t), 2) * std::pow(v_squ(v), 3) *
-           (std::pow(det_t(st), 0) *
-              outer_product(ddet_t_dt(st), ddet_t_dt(st)) +
+           (std::pow(det_t(st), 0) * outer_product(ddet_t_dt(st), ddet_t_dt(st)) +
             std::pow(det_t(st), 1) * d2det_t_dt_dt(st)) *
            std::pow(s, sf);
   };
 
   static Tensor<4, dim, NumberType>
   d2psi_dst_x_dt(const SymmetricTensor<2, dim, NumberType> &st,
-                 const Tensor<2, dim, NumberType> &         t,
-                 const Tensor<1, dim, NumberType> &         v,
-                 const NumberType &                         s)
+                 const Tensor<2, dim, NumberType>          &t,
+                 const Tensor<1, dim, NumberType>          &v,
+                 const NumberType                          &s)
   {
     return 4.0 * std::pow(det_t(st), 1) * std::pow(det_t(t), 1) *
-           outer_product(Tensor<2, dim, NumberType>(ddet_t_dt(st)),
-                         ddet_t_dt(t)) *
-           std::pow(v_squ(v), 3) * std::pow(s, sf);
+           outer_product(Tensor<2, dim, NumberType>(ddet_t_dt(st)), ddet_t_dt(t)) * std::pow(v_squ(v), 3) *
+           std::pow(s, sf);
   };
 
   static Tensor<3, dim, NumberType>
   d2psi_dst_x_dv(const SymmetricTensor<2, dim, NumberType> &st,
-                 const Tensor<2, dim, NumberType> &         t,
-                 const Tensor<1, dim, NumberType> &         v,
-                 const NumberType &                         s)
+                 const Tensor<2, dim, NumberType>          &t,
+                 const Tensor<1, dim, NumberType>          &v,
+                 const NumberType                          &s)
   {
-    return 2.0 * std::pow(det_t(t), 2) * std::pow(det_t(st), 1) * 3.0 *
-           std::pow(v_squ(v), 2) *
-           outer_product(Tensor<2, dim, NumberType>(ddet_t_dt(st)),
-                         dv_squ_dv(v)) *
-           std::pow(s, sf);
+    return 2.0 * std::pow(det_t(t), 2) * std::pow(det_t(st), 1) * 3.0 * std::pow(v_squ(v), 2) *
+           outer_product(Tensor<2, dim, NumberType>(ddet_t_dt(st)), dv_squ_dv(v)) * std::pow(s, sf);
   };
 
   static SymmetricTensor<2, dim, NumberType>
   d2psi_dst_x_ds(const SymmetricTensor<2, dim, NumberType> &st,
-                 const Tensor<2, dim, NumberType> &         t,
-                 const Tensor<1, dim, NumberType> &         v,
-                 const NumberType &                         s)
+                 const Tensor<2, dim, NumberType>          &t,
+                 const Tensor<1, dim, NumberType>          &v,
+                 const NumberType                          &s)
   {
-    return 2.0 * std::pow(det_t(st), 1) * ddet_t_dt(st) *
-           std::pow(det_t(t), 2) * std::pow(v_squ(v), 3) * sf *
+    return 2.0 * std::pow(det_t(st), 1) * ddet_t_dt(st) * std::pow(det_t(t), 2) * std::pow(v_squ(v), 3) * sf *
            std::pow(s, sf - 1.0);
   };
 
   static Tensor<4, dim, NumberType>
   d2psi_dt_x_dst(const SymmetricTensor<2, dim, NumberType> &st,
-                 const Tensor<2, dim, NumberType> &         t,
-                 const Tensor<1, dim, NumberType> &         v,
-                 const NumberType &                         s)
+                 const Tensor<2, dim, NumberType>          &t,
+                 const Tensor<1, dim, NumberType>          &v,
+                 const NumberType                          &s)
   {
     return 4.0 * std::pow(det_t(st), 1) * std::pow(det_t(t), 1) *
-           outer_product(ddet_t_dt(t),
-                         Tensor<2, dim, NumberType>(ddet_t_dt(st))) *
-           std::pow(v_squ(v), 3) * std::pow(s, sf);
+           outer_product(ddet_t_dt(t), Tensor<2, dim, NumberType>(ddet_t_dt(st))) * std::pow(v_squ(v), 3) *
+           std::pow(s, sf);
   };
 
   static Tensor<4, dim, NumberType>
   d2psi_dt_x_dt(const SymmetricTensor<2, dim, NumberType> &st,
-                const Tensor<2, dim, NumberType> &         t,
-                const Tensor<1, dim, NumberType> &         v,
-                const NumberType &                         s)
+                const Tensor<2, dim, NumberType>          &t,
+                const Tensor<1, dim, NumberType>          &v,
+                const NumberType                          &s)
   {
     return 2.0 * std::pow(det_t(st), 2) * std::pow(v_squ(v), 3) *
-           (pow(det_t(t), 0) * outer_product(ddet_t_dt(t), ddet_t_dt(t)) +
-            std::pow(det_t(t), 1) * d2det_t_dt_dt(t)) *
+           (pow(det_t(t), 0) * outer_product(ddet_t_dt(t), ddet_t_dt(t)) + std::pow(det_t(t), 1) * d2det_t_dt_dt(t)) *
            std::pow(s, sf);
   };
 
   static Tensor<3, dim, NumberType>
   d2psi_dt_x_dv(const SymmetricTensor<2, dim, NumberType> &st,
-                const Tensor<2, dim, NumberType> &         t,
-                const Tensor<1, dim, NumberType> &         v,
-                const NumberType &                         s)
+                const Tensor<2, dim, NumberType>          &t,
+                const Tensor<1, dim, NumberType>          &v,
+                const NumberType                          &s)
   {
-    return 2.0 * std::pow(det_t(st), 2) * std::pow(det_t(t), 1) * 3.0 *
-           std::pow(v_squ(v), 2) * outer_product(ddet_t_dt(t), dv_squ_dv(v)) *
-           std::pow(s, sf);
+    return 2.0 * std::pow(det_t(st), 2) * std::pow(det_t(t), 1) * 3.0 * std::pow(v_squ(v), 2) *
+           outer_product(ddet_t_dt(t), dv_squ_dv(v)) * std::pow(s, sf);
   };
 
   static Tensor<2, dim, NumberType>
   d2psi_dt_x_ds(const SymmetricTensor<2, dim, NumberType> &st,
-                const Tensor<2, dim, NumberType> &         t,
-                const Tensor<1, dim, NumberType> &         v,
-                const NumberType &                         s)
+                const Tensor<2, dim, NumberType>          &t,
+                const Tensor<1, dim, NumberType>          &v,
+                const NumberType                          &s)
   {
-    return 2.0 * std::pow(det_t(st), 2) * std::pow(det_t(t), 1) * ddet_t_dt(t) *
-           std::pow(v_squ(v), 3) * sf * std::pow(s, sf - 1.0);
+    return 2.0 * std::pow(det_t(st), 2) * std::pow(det_t(t), 1) * ddet_t_dt(t) * std::pow(v_squ(v), 3) * sf *
+           std::pow(s, sf - 1.0);
   };
 
   static Tensor<3, dim, NumberType>
   d2psi_dv_x_dst(const SymmetricTensor<2, dim, NumberType> &st,
-                 const Tensor<2, dim, NumberType> &         t,
-                 const Tensor<1, dim, NumberType> &         v,
-                 const NumberType &                         s)
+                 const Tensor<2, dim, NumberType>          &t,
+                 const Tensor<1, dim, NumberType>          &v,
+                 const NumberType                          &s)
   {
-    return 2.0 * std::pow(det_t(t), 2) * std::pow(det_t(st), 1) * 3.0 *
-           std::pow(v_squ(v), 2) *
-           outer_product(dv_squ_dv(v),
-                         Tensor<2, dim, NumberType>(ddet_t_dt(st))) *
-           std::pow(s, sf);
+    return 2.0 * std::pow(det_t(t), 2) * std::pow(det_t(st), 1) * 3.0 * std::pow(v_squ(v), 2) *
+           outer_product(dv_squ_dv(v), Tensor<2, dim, NumberType>(ddet_t_dt(st))) * std::pow(s, sf);
   };
 
   static Tensor<3, dim, NumberType>
   d2psi_dv_x_dt(const SymmetricTensor<2, dim, NumberType> &st,
-                const Tensor<2, dim, NumberType> &         t,
-                const Tensor<1, dim, NumberType> &         v,
-                const NumberType &                         s)
+                const Tensor<2, dim, NumberType>          &t,
+                const Tensor<1, dim, NumberType>          &v,
+                const NumberType                          &s)
   {
-    return 2.0 * std::pow(det_t(st), 2) * std::pow(det_t(t), 1) * 3.0 *
-           std::pow(v_squ(v), 2) * outer_product(dv_squ_dv(v), ddet_t_dt(t)) *
-           std::pow(s, sf);
+    return 2.0 * std::pow(det_t(st), 2) * std::pow(det_t(t), 1) * 3.0 * std::pow(v_squ(v), 2) *
+           outer_product(dv_squ_dv(v), ddet_t_dt(t)) * std::pow(s, sf);
   };
 
   static Tensor<2, dim, NumberType>
   d2psi_dv_x_dv(const SymmetricTensor<2, dim, NumberType> &st,
-                const Tensor<2, dim, NumberType> &         t,
-                const Tensor<1, dim, NumberType> &         v,
-                const NumberType &                         s)
+                const Tensor<2, dim, NumberType>          &t,
+                const Tensor<1, dim, NumberType>          &v,
+                const NumberType                          &s)
   {
     return std::pow(det_t(st), 2) * std::pow(det_t(t), 2) * 3.0 *
-           (2.0 * std::pow(v_squ(v), 1) *
-              outer_product(dv_squ_dv(v), dv_squ_dv(v)) +
+           (2.0 * std::pow(v_squ(v), 1) * outer_product(dv_squ_dv(v), dv_squ_dv(v)) +
             std::pow(v_squ(v), 2) * d2v_squ_dv_dv(v)) *
            std::pow(s, sf);
   };
 
   static Tensor<1, dim, NumberType>
   d2psi_dv_x_ds(const SymmetricTensor<2, dim, NumberType> &st,
-                const Tensor<2, dim, NumberType> &         t,
-                const Tensor<1, dim, NumberType> &         v,
-                const NumberType &                         s)
+                const Tensor<2, dim, NumberType>          &t,
+                const Tensor<1, dim, NumberType>          &v,
+                const NumberType                          &s)
   {
-    return std::pow(det_t(st), 2) * std::pow(det_t(t), 2) * 3.0 *
-           std::pow(v_squ(v), 2) * dv_squ_dv(v) * sf * std::pow(s, sf - 1.0);
+    return std::pow(det_t(st), 2) * std::pow(det_t(t), 2) * 3.0 * std::pow(v_squ(v), 2) * dv_squ_dv(v) * sf *
+           std::pow(s, sf - 1.0);
   };
 
   static SymmetricTensor<2, dim, NumberType>
   d2psi_ds_x_dst(const SymmetricTensor<2, dim, NumberType> &st,
-                 const Tensor<2, dim, NumberType> &         t,
-                 const Tensor<1, dim, NumberType> &         v,
-                 const NumberType &                         s)
+                 const Tensor<2, dim, NumberType>          &t,
+                 const Tensor<1, dim, NumberType>          &v,
+                 const NumberType                          &s)
   {
-    return 2.0 * ddet_t_dt(st) * std::pow(det_t(t), 2) *
-           std::pow(det_t(st), 1) * std::pow(v_squ(v), 3) * sf *
+    return 2.0 * ddet_t_dt(st) * std::pow(det_t(t), 2) * std::pow(det_t(st), 1) * std::pow(v_squ(v), 3) * sf *
            std::pow(s, sf - 1.0);
   };
 
   static Tensor<2, dim, NumberType>
   d2psi_ds_x_dt(const SymmetricTensor<2, dim, NumberType> &st,
-                const Tensor<2, dim, NumberType> &         t,
-                const Tensor<1, dim, NumberType> &         v,
-                const NumberType &                         s)
+                const Tensor<2, dim, NumberType>          &t,
+                const Tensor<1, dim, NumberType>          &v,
+                const NumberType                          &s)
   {
-    return 2.0 * std::pow(det_t(st), 2) * std::pow(det_t(t), 1) * ddet_t_dt(t) *
-           std::pow(v_squ(v), 3) * sf * std::pow(s, sf - 1.0);
+    return 2.0 * std::pow(det_t(st), 2) * std::pow(det_t(t), 1) * ddet_t_dt(t) * std::pow(v_squ(v), 3) * sf *
+           std::pow(s, sf - 1.0);
   };
 
   static Tensor<1, dim, NumberType>
   d2psi_ds_x_dv(const SymmetricTensor<2, dim, NumberType> &st,
-                const Tensor<2, dim, NumberType> &         t,
-                const Tensor<1, dim, NumberType> &         v,
-                const NumberType &                         s)
+                const Tensor<2, dim, NumberType>          &t,
+                const Tensor<1, dim, NumberType>          &v,
+                const NumberType                          &s)
   {
-    return std::pow(det_t(st), 2) * std::pow(det_t(t), 2) * 3.0 *
-           std::pow(v_squ(v), 2) * dv_squ_dv(v) * sf * std::pow(s, sf - 1.0);
+    return std::pow(det_t(st), 2) * std::pow(det_t(t), 2) * 3.0 * std::pow(v_squ(v), 2) * dv_squ_dv(v) * sf *
+           std::pow(s, sf - 1.0);
   };
 
   static NumberType
   d2psi_ds_x_ds(const SymmetricTensor<2, dim, NumberType> &st,
-                const Tensor<2, dim, NumberType> &         t,
-                const Tensor<1, dim, NumberType> &         v,
-                const NumberType &                         s)
+                const Tensor<2, dim, NumberType>          &t,
+                const Tensor<1, dim, NumberType>          &v,
+                const NumberType                          &s)
   {
-    return std::pow(det_t(st), 2) * std::pow(det_t(t), 2) *
-           std::pow(v_squ(v), 3) * sf * (sf - 1.0) * std::pow(s, sf - 2.0);
+    return std::pow(det_t(st), 2) * std::pow(det_t(t), 2) * std::pow(v_squ(v), 3) * sf * (sf - 1.0) *
+           std::pow(s, sf - 2.0);
   };
 };
 
@@ -377,26 +357,20 @@ print(Stream &stream, const std::string &name, const NumberType &val)
 }
 template <typename Stream, int dim, typename NumberType>
 void
-print(Stream &                          stream,
-      const std::string &               name,
-      const Tensor<0, dim, NumberType> &val)
+print(Stream &stream, const std::string &name, const Tensor<0, dim, NumberType> &val)
 {
   stream << name << ": " << val << std::endl;
 }
 template <typename Stream, int dim, typename NumberType>
 void
-print(Stream &                          stream,
-      const std::string &               name,
-      const Tensor<1, dim, NumberType> &t)
+print(Stream &stream, const std::string &name, const Tensor<1, dim, NumberType> &t)
 {
   for (unsigned int i = 0; i < dim; ++i)
     stream << name << '[' << i << "]: " << t[i] << std::endl;
 }
 template <typename Stream, int dim, typename NumberType>
 void
-print(Stream &                          stream,
-      const std::string &               name,
-      const Tensor<2, dim, NumberType> &t)
+print(Stream &stream, const std::string &name, const Tensor<2, dim, NumberType> &t)
 {
   for (unsigned int i = 0; i < dim; ++i)
     for (unsigned int j = 0; j < dim; ++j)
@@ -404,47 +378,37 @@ print(Stream &                          stream,
 }
 template <typename Stream, int dim, typename NumberType>
 void
-print(Stream &                          stream,
-      const std::string &               name,
-      const Tensor<3, dim, NumberType> &t)
+print(Stream &stream, const std::string &name, const Tensor<3, dim, NumberType> &t)
 {
   for (unsigned int i = 0; i < dim; ++i)
     for (unsigned int j = 0; j < dim; ++j)
       for (unsigned int k = 0; k < dim; ++k)
-        stream << name << '[' << i << "][" << j << "][" << k
-               << "]: " << t[i][j][k] << std::endl;
+        stream << name << '[' << i << "][" << j << "][" << k << "]: " << t[i][j][k] << std::endl;
 }
 template <typename Stream, int dim, typename NumberType>
 void
-print(Stream &                          stream,
-      const std::string &               name,
-      const Tensor<4, dim, NumberType> &t)
+print(Stream &stream, const std::string &name, const Tensor<4, dim, NumberType> &t)
 {
   for (unsigned int i = 0; i < dim; ++i)
     for (unsigned int j = 0; j < dim; ++j)
       for (unsigned int k = 0; k < dim; ++k)
         for (unsigned int l = 0; l < dim; ++l)
-          stream << name << '[' << i << "][" << j << "][" << k << "][" << l
-                 << "]: " << t[i][j][k][l] << std::endl;
+          stream << name << '[' << i << "][" << j << "][" << k << "][" << l << "]: " << t[i][j][k][l] << std::endl;
 }
 
 template <int dim, typename number_t>
 void
-test_symmetric_tensor_tensor_vector_scalar_coupled(
-  const SymmetricTensor<2, dim, number_t> &st,
-  const Tensor<2, dim, number_t> &         t,
-  const Tensor<1, dim, number_t> &         v,
-  const number_t &                         s)
+test_symmetric_tensor_tensor_vector_scalar_coupled(const SymmetricTensor<2, dim, number_t> &st,
+                                                   const Tensor<2, dim, number_t>          &t,
+                                                   const Tensor<1, dim, number_t>          &v,
+                                                   const number_t                          &s)
 {
   using SDNumberType = SD::Expression;
 
-  const SymmetricTensor<2, dim, SDNumberType> symb_st(
-    SD::make_symmetric_tensor_of_symbols<2, dim>("st"));
-  const Tensor<2, dim, SDNumberType> symb_t(
-    SD::make_tensor_of_symbols<2, dim>("t"));
-  const Tensor<1, dim, SDNumberType> symb_v(
-    SD::make_vector_of_symbols<dim>("v"));
-  const SDNumberType symb_s(SD::make_symbol("s"));
+  const SymmetricTensor<2, dim, SDNumberType> symb_st(SD::make_symmetric_tensor_of_symbols<2, dim>("st"));
+  const Tensor<2, dim, SDNumberType>          symb_t(SD::make_tensor_of_symbols<2, dim>("t"));
+  const Tensor<1, dim, SDNumberType>          symb_v(SD::make_vector_of_symbols<dim>("v"));
+  const SDNumberType                          symb_s(SD::make_symbol("s"));
 
   // Value
   SDNumberType symb_psi;
@@ -587,74 +551,44 @@ test_symmetric_tensor_tensor_vector_scalar_coupled(
   Tensor<1, dim, number_t>          d2psi_ds_x_dv;
   number_t                          d2psi_ds_x_ds;
 
-  psi     = symb_psi.substitute_and_evaluate<number_t>(sub_vals);
-  dpsi_ds = symb_dpsi_ds.substitute_and_evaluate<number_t>(sub_vals);
-  d2psi_ds_x_ds =
-    symb_d2psi_ds_x_ds.substitute_and_evaluate<number_t>(sub_vals);
+  psi           = symb_psi.substitute_and_evaluate<number_t>(sub_vals);
+  dpsi_ds       = symb_dpsi_ds.substitute_and_evaluate<number_t>(sub_vals);
+  d2psi_ds_x_ds = symb_d2psi_ds_x_ds.substitute_and_evaluate<number_t>(sub_vals);
   for (unsigned int i = 0; i < dim; ++i)
     {
-      dpsi_dv[i] =
-        symb_dpsi_dv[i].template substitute_and_evaluate<number_t>(sub_vals);
-      d2psi_dv_x_ds[i] =
-        symb_d2psi_dv_x_ds[i].template substitute_and_evaluate<number_t>(
-          sub_vals);
-      d2psi_ds_x_dv[i] =
-        symb_d2psi_ds_x_dv[i].template substitute_and_evaluate<number_t>(
-          sub_vals);
+      dpsi_dv[i]       = symb_dpsi_dv[i].template substitute_and_evaluate<number_t>(sub_vals);
+      d2psi_dv_x_ds[i] = symb_d2psi_dv_x_ds[i].template substitute_and_evaluate<number_t>(sub_vals);
+      d2psi_ds_x_dv[i] = symb_d2psi_ds_x_dv[i].template substitute_and_evaluate<number_t>(sub_vals);
 
       for (unsigned int j = 0; j < dim; ++j)
         {
-          dpsi_dst[i][j] =
-            symb_dpsi_dst[i][j].template substitute_and_evaluate<number_t>(
-              sub_vals);
-          dpsi_dt[i][j] =
-            symb_dpsi_dt[i][j].template substitute_and_evaluate<number_t>(
-              sub_vals);
-          d2psi_dst_x_ds[i][j] =
-            symb_d2psi_dst_x_ds[i][j]
-              .template substitute_and_evaluate<number_t>(sub_vals);
-          d2psi_dt_x_ds[i][j] =
-            symb_d2psi_dt_x_ds[i][j].template substitute_and_evaluate<number_t>(
-              sub_vals);
-          d2psi_dv_x_dv[i][j] =
-            symb_d2psi_dv_x_dv[i][j].template substitute_and_evaluate<number_t>(
-              sub_vals);
-          d2psi_ds_x_dst[i][j] =
-            symb_d2psi_ds_x_dst[i][j]
-              .template substitute_and_evaluate<number_t>(sub_vals);
-          d2psi_ds_x_dt[i][j] =
-            symb_d2psi_ds_x_dt[i][j].template substitute_and_evaluate<number_t>(
-              sub_vals);
+          dpsi_dst[i][j]       = symb_dpsi_dst[i][j].template substitute_and_evaluate<number_t>(sub_vals);
+          dpsi_dt[i][j]        = symb_dpsi_dt[i][j].template substitute_and_evaluate<number_t>(sub_vals);
+          d2psi_dst_x_ds[i][j] = symb_d2psi_dst_x_ds[i][j].template substitute_and_evaluate<number_t>(sub_vals);
+          d2psi_dt_x_ds[i][j]  = symb_d2psi_dt_x_ds[i][j].template substitute_and_evaluate<number_t>(sub_vals);
+          d2psi_dv_x_dv[i][j]  = symb_d2psi_dv_x_dv[i][j].template substitute_and_evaluate<number_t>(sub_vals);
+          d2psi_ds_x_dst[i][j] = symb_d2psi_ds_x_dst[i][j].template substitute_and_evaluate<number_t>(sub_vals);
+          d2psi_ds_x_dt[i][j]  = symb_d2psi_ds_x_dt[i][j].template substitute_and_evaluate<number_t>(sub_vals);
 
           for (unsigned int k = 0; k < dim; ++k)
             {
               d2psi_dst_x_dv[i][j][k] =
-                symb_d2psi_dst_x_dv[i][j][k]
-                  .template substitute_and_evaluate<number_t>(sub_vals);
-              d2psi_dt_x_dv[i][j][k] =
-                symb_d2psi_dt_x_dv[i][j][k]
-                  .template substitute_and_evaluate<number_t>(sub_vals);
+                symb_d2psi_dst_x_dv[i][j][k].template substitute_and_evaluate<number_t>(sub_vals);
+              d2psi_dt_x_dv[i][j][k] = symb_d2psi_dt_x_dv[i][j][k].template substitute_and_evaluate<number_t>(sub_vals);
               d2psi_dv_x_dst[i][j][k] =
-                symb_d2psi_dv_x_dst[i][j][k]
-                  .template substitute_and_evaluate<number_t>(sub_vals);
-              d2psi_dv_x_dt[i][j][k] =
-                symb_d2psi_dv_x_dt[i][j][k]
-                  .template substitute_and_evaluate<number_t>(sub_vals);
+                symb_d2psi_dv_x_dst[i][j][k].template substitute_and_evaluate<number_t>(sub_vals);
+              d2psi_dv_x_dt[i][j][k] = symb_d2psi_dv_x_dt[i][j][k].template substitute_and_evaluate<number_t>(sub_vals);
 
               for (unsigned int l = 0; l < dim; ++l)
                 {
                   d2psi_dst_x_dst[i][j][k][l] =
-                    symb_d2psi_dst_x_dst[i][j][k][l]
-                      .template substitute_and_evaluate<number_t>(sub_vals);
+                    symb_d2psi_dst_x_dst[i][j][k][l].template substitute_and_evaluate<number_t>(sub_vals);
                   d2psi_dst_x_dt[i][j][k][l] =
-                    symb_d2psi_dst_x_dt[i][j][k][l]
-                      .template substitute_and_evaluate<number_t>(sub_vals);
+                    symb_d2psi_dst_x_dt[i][j][k][l].template substitute_and_evaluate<number_t>(sub_vals);
                   d2psi_dt_x_dst[i][j][k][l] =
-                    symb_d2psi_dt_x_dst[i][j][k][l]
-                      .template substitute_and_evaluate<number_t>(sub_vals);
+                    symb_d2psi_dt_x_dst[i][j][k][l].template substitute_and_evaluate<number_t>(sub_vals);
                   d2psi_dt_x_dt[i][j][k][l] =
-                    symb_d2psi_dt_x_dt[i][j][k][l]
-                      .template substitute_and_evaluate<number_t>(sub_vals);
+                    symb_d2psi_dt_x_dt[i][j][k][l].template substitute_and_evaluate<number_t>(sub_vals);
                 }
             }
         }
@@ -663,62 +597,42 @@ test_symmetric_tensor_tensor_vector_scalar_coupled(
   // Verify the result
   using func              = CoupledFunction<dim, number_t>;
   static const double tol = 1e-9;
-  Assert(std::abs(psi - func::psi(st, t, v, s)) < tol,
-         ExcMessage("No match for function value."));
+  Assert(std::abs(psi - func::psi(st, t, v, s)) < tol, ExcMessage("No match for function value."));
 
-  Assert(std::abs((dpsi_dst - func::dpsi_dst(st, t, v, s)).norm()) < tol,
-         ExcMessage("No match for first derivative."));
-  Assert(std::abs((dpsi_dt - func::dpsi_dt(st, t, v, s)).norm()) < tol,
-         ExcMessage("No match for first derivative."));
-  Assert(std::abs((dpsi_dv - func::dpsi_dv(st, t, v, s)).norm()) < tol,
-         ExcMessage("No match for first derivative."));
-  Assert(std::abs(dpsi_ds - func::dpsi_ds(st, t, v, s)) < tol,
-         ExcMessage("No match for first derivative."));
+  Assert(std::abs((dpsi_dst - func::dpsi_dst(st, t, v, s)).norm()) < tol, ExcMessage("No match for first derivative."));
+  Assert(std::abs((dpsi_dt - func::dpsi_dt(st, t, v, s)).norm()) < tol, ExcMessage("No match for first derivative."));
+  Assert(std::abs((dpsi_dv - func::dpsi_dv(st, t, v, s)).norm()) < tol, ExcMessage("No match for first derivative."));
+  Assert(std::abs(dpsi_ds - func::dpsi_ds(st, t, v, s)) < tol, ExcMessage("No match for first derivative."));
 
-  Assert(std::abs(
-           (d2psi_dst_x_dst - func::d2psi_dst_x_dst(st, t, v, s)).norm()) < tol,
+  Assert(std::abs((d2psi_dst_x_dst - func::d2psi_dst_x_dst(st, t, v, s)).norm()) < tol,
          ExcMessage("No match for second derivative."));
-  Assert(std::abs((d2psi_dst_x_dt - func::d2psi_dst_x_dt(st, t, v, s)).norm()) <
-           tol,
+  Assert(std::abs((d2psi_dst_x_dt - func::d2psi_dst_x_dt(st, t, v, s)).norm()) < tol,
          ExcMessage("No match for second derivative."));
-  Assert(std::abs((d2psi_dst_x_dv - func::d2psi_dst_x_dv(st, t, v, s)).norm()) <
-           tol,
+  Assert(std::abs((d2psi_dst_x_dv - func::d2psi_dst_x_dv(st, t, v, s)).norm()) < tol,
          ExcMessage("No match for second derivative."));
-  Assert(std::abs((d2psi_dst_x_ds - func::d2psi_dst_x_ds(st, t, v, s)).norm()) <
-           tol,
+  Assert(std::abs((d2psi_dst_x_ds - func::d2psi_dst_x_ds(st, t, v, s)).norm()) < tol,
          ExcMessage("No match for second derivative."));
-  Assert(std::abs((d2psi_dt_x_dst - func::d2psi_dt_x_dst(st, t, v, s)).norm()) <
-           tol,
+  Assert(std::abs((d2psi_dt_x_dst - func::d2psi_dt_x_dst(st, t, v, s)).norm()) < tol,
          ExcMessage("No match for second derivative."));
-  Assert(std::abs((d2psi_dt_x_dt - func::d2psi_dt_x_dt(st, t, v, s)).norm()) <
-           tol,
+  Assert(std::abs((d2psi_dt_x_dt - func::d2psi_dt_x_dt(st, t, v, s)).norm()) < tol,
          ExcMessage("No match for second derivative."));
-  Assert(std::abs((d2psi_dt_x_dv - func::d2psi_dt_x_dv(st, t, v, s)).norm()) <
-           tol,
+  Assert(std::abs((d2psi_dt_x_dv - func::d2psi_dt_x_dv(st, t, v, s)).norm()) < tol,
          ExcMessage("No match for second derivative."));
-  Assert(std::abs((d2psi_dt_x_ds - func::d2psi_dt_x_ds(st, t, v, s)).norm()) <
-           tol,
+  Assert(std::abs((d2psi_dt_x_ds - func::d2psi_dt_x_ds(st, t, v, s)).norm()) < tol,
          ExcMessage("No match for second derivative."));
-  Assert(std::abs((d2psi_dv_x_dst - func::d2psi_dv_x_dst(st, t, v, s)).norm()) <
-           tol,
+  Assert(std::abs((d2psi_dv_x_dst - func::d2psi_dv_x_dst(st, t, v, s)).norm()) < tol,
          ExcMessage("No match for second derivative."));
-  Assert(std::abs((d2psi_dv_x_dt - func::d2psi_dv_x_dt(st, t, v, s)).norm()) <
-           tol,
+  Assert(std::abs((d2psi_dv_x_dt - func::d2psi_dv_x_dt(st, t, v, s)).norm()) < tol,
          ExcMessage("No match for second derivative."));
-  Assert(std::abs((d2psi_dv_x_dv - func::d2psi_dv_x_dv(st, t, v, s)).norm()) <
-           tol,
+  Assert(std::abs((d2psi_dv_x_dv - func::d2psi_dv_x_dv(st, t, v, s)).norm()) < tol,
          ExcMessage("No match for second derivative."));
-  Assert(std::abs((d2psi_dv_x_ds - func::d2psi_dv_x_ds(st, t, v, s)).norm()) <
-           tol,
+  Assert(std::abs((d2psi_dv_x_ds - func::d2psi_dv_x_ds(st, t, v, s)).norm()) < tol,
          ExcMessage("No match for second derivative."));
-  Assert(std::abs((d2psi_ds_x_dst - func::d2psi_ds_x_dst(st, t, v, s)).norm()) <
-           tol,
+  Assert(std::abs((d2psi_ds_x_dst - func::d2psi_ds_x_dst(st, t, v, s)).norm()) < tol,
          ExcMessage("No match for second derivative."));
-  Assert(std::abs((d2psi_ds_x_dt - func::d2psi_ds_x_dt(st, t, v, s)).norm()) <
-           tol,
+  Assert(std::abs((d2psi_ds_x_dt - func::d2psi_ds_x_dt(st, t, v, s)).norm()) < tol,
          ExcMessage("No match for second derivative."));
-  Assert(std::abs((d2psi_ds_x_dv - func::d2psi_ds_x_dv(st, t, v, s)).norm()) <
-           tol,
+  Assert(std::abs((d2psi_ds_x_dv - func::d2psi_ds_x_dv(st, t, v, s)).norm()) < tol,
          ExcMessage("No match for second derivative."));
   Assert(std::abs(d2psi_ds_x_ds - func::d2psi_ds_x_ds(st, t, v, s)) < tol,
          ExcMessage("No match for second derivative."));
@@ -730,12 +644,10 @@ run()
 {
   deallog.push("dim " + Utilities::to_string(dim));
 
-  SymmetricTensor<2, dim, number_t> st =
-    SymmetricTensor<2, dim, number_t>(unit_symmetric_tensor<dim>());
-  Tensor<2, dim, number_t> t =
-    Tensor<2, dim, number_t>(unit_symmetric_tensor<dim>());
-  Tensor<1, dim, number_t> v;
-  double                   s = 0.57;
+  SymmetricTensor<2, dim, number_t> st = SymmetricTensor<2, dim, number_t>(unit_symmetric_tensor<dim>());
+  Tensor<2, dim, number_t>          t  = Tensor<2, dim, number_t>(unit_symmetric_tensor<dim>());
+  Tensor<1, dim, number_t>          v;
+  double                            s = 0.57;
   for (unsigned int i = 0; i < dim; ++i)
     {
       v[i] = 0.275 * (1.0 + i);
@@ -750,10 +662,7 @@ run()
   v *= 0.63;
   s *= 1.21;
 
-  test_symmetric_tensor_tensor_vector_scalar_coupled<dim, number_t>(st,
-                                                                    t,
-                                                                    v,
-                                                                    s);
+  test_symmetric_tensor_tensor_vector_scalar_coupled<dim, number_t>(st, t, v, s);
 
   deallog << "OK" << std::endl;
   deallog.pop();

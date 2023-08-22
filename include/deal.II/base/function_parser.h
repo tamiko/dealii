@@ -214,9 +214,8 @@ class Vector;
  * @ingroup functions
  */
 template <int dim>
-class FunctionParser
-  : public AutoDerivativeFunction<dim>,
-    protected internal::FunctionParser::ParserImplementation<dim, double>
+class FunctionParser : public AutoDerivativeFunction<dim>,
+                       protected internal::FunctionParser::ParserImplementation<dim, double>
 {
 public:
   /**
@@ -227,9 +226,7 @@ public:
    * function is made before the initialize() method has been called, then an
    * exception is thrown.
    */
-  FunctionParser(const unsigned int n_components = 1,
-                 const double       initial_time = 0.0,
-                 const double       h            = 1e-8);
+  FunctionParser(const unsigned int n_components = 1, const double initial_time = 0.0, const double h = 1e-8);
 
   /**
    * Constructor for parsed functions. Takes directly a semi-colon separated
@@ -239,9 +236,8 @@ public:
    */
   FunctionParser(const std::string &expression,
                  const std::string &constants      = "",
-                 const std::string &variable_names = default_variable_names() +
-                                                     ",t",
-                 const double h = 1e-8);
+                 const std::string &variable_names = default_variable_names() + ",t",
+                 const double       h              = 1e-8);
 
   /**
    * Copy constructor. Objects of this type can not be copied, and
@@ -309,9 +305,9 @@ public:
    * do not consider time.
    */
   virtual void
-  initialize(const std::string &             vars,
+  initialize(const std::string              &vars,
              const std::vector<std::string> &expressions,
-             const ConstMap &                constants,
+             const ConstMap                 &constants,
              const bool                      time_dependent = false) override;
 
   /**
@@ -324,7 +320,7 @@ public:
   void
   initialize(const std::string &vars,
              const std::string &expression,
-             const ConstMap &   constants,
+             const ConstMap    &constants,
              const bool         time_dependent = false);
 
   /**
@@ -358,14 +354,12 @@ public:
   DeclException2(ExcParseError,
                  int,
                  std::string,
-                 << "Parsing Error at Column " << arg1
-                 << ". The parser said: " << arg2);
+                 << "Parsing Error at Column " << arg1 << ". The parser said: " << arg2);
 
   DeclException2(ExcInvalidExpressionSize,
                  int,
                  int,
-                 << "The number of components (" << arg1
-                 << ") is not equal to the number of expressions (" << arg2
+                 << "The number of components (" << arg1 << ") is not equal to the number of expressions (" << arg2
                  << ").");
 
   /** @} */

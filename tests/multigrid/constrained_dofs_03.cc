@@ -61,16 +61,13 @@ check_fe(FiniteElement<dim> &fe, ComponentMask &component_mask)
   MGConstrainedDoFs                  mg_constrained_dofs;
   const std::set<types::boundary_id> boundary_indicators = {0};
   mg_constrained_dofs.initialize(dofh);
-  mg_constrained_dofs.make_zero_boundary_constraints(dofh,
-                                                     boundary_indicators,
-                                                     component_mask);
+  mg_constrained_dofs.make_zero_boundary_constraints(dofh, boundary_indicators, component_mask);
 
   const unsigned int n_levels = tr.n_global_levels();
   for (unsigned int level = 0; level < n_levels; ++level)
     {
       deallog << "Level " << level << ':' << std::endl;
-      IndexSet boundary_indices =
-        mg_constrained_dofs.get_boundary_indices(level);
+      IndexSet boundary_indices = mg_constrained_dofs.get_boundary_indices(level);
       boundary_indices.print(deallog);
     }
 }

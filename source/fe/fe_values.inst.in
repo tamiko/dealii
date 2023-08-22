@@ -28,52 +28,34 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS)
     \{
       namespace FEValuesImplementation
       \{
-        template class FiniteElementRelatedData<deal_II_dimension,
-                                                deal_II_space_dimension>;
+        template class FiniteElementRelatedData<deal_II_dimension, deal_II_space_dimension>;
       \}
     \}
 #  endif
   }
 
 
-for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS;
-     lda : BOOL)
+for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS; lda : BOOL)
   {
 #  if deal_II_dimension <= deal_II_space_dimension
     template void FEValues<deal_II_dimension, deal_II_space_dimension>::reinit(
-      const TriaIterator<
-        DoFCellAccessor<deal_II_dimension, deal_II_space_dimension, lda>> &);
-    template void
-    FEFaceValues<deal_II_dimension, deal_II_space_dimension>::reinit(
-      const TriaIterator<
-        DoFCellAccessor<deal_II_dimension, deal_II_space_dimension, lda>> &,
-      unsigned int);
+      const TriaIterator<DoFCellAccessor<deal_II_dimension, deal_II_space_dimension, lda>> &);
+    template void FEFaceValues<deal_II_dimension, deal_II_space_dimension>::reinit(
+      const TriaIterator<DoFCellAccessor<deal_II_dimension, deal_II_space_dimension, lda>> &, unsigned int);
 
-    template void
-    FEFaceValues<deal_II_dimension, deal_II_space_dimension>::reinit(
-      const TriaIterator<
-        DoFCellAccessor<deal_II_dimension, deal_II_space_dimension, lda>> &,
-      const TriaIterator<TriaAccessor<deal_II_dimension - 1,
-                                      deal_II_dimension,
-                                      deal_II_space_dimension>> &);
+    template void FEFaceValues<deal_II_dimension, deal_II_space_dimension>::reinit(
+      const TriaIterator<DoFCellAccessor<deal_II_dimension, deal_II_space_dimension, lda>> &,
+      const TriaIterator<TriaAccessor<deal_II_dimension - 1, deal_II_dimension, deal_II_space_dimension>> &);
 
-    template void
-    FESubfaceValues<deal_II_dimension, deal_II_space_dimension>::reinit(
-      const TriaIterator<
-        DoFCellAccessor<deal_II_dimension, deal_II_space_dimension, lda>> &,
+    template void FESubfaceValues<deal_II_dimension, deal_II_space_dimension>::reinit(
+      const TriaIterator<DoFCellAccessor<deal_II_dimension, deal_II_space_dimension, lda>> &,
       const unsigned int,
       const unsigned int);
 
-    template void
-    FESubfaceValues<deal_II_dimension, deal_II_space_dimension>::reinit(
-      const TriaIterator<
-        DoFCellAccessor<deal_II_dimension, deal_II_space_dimension, lda>> &,
-      const TriaIterator<TriaAccessor<deal_II_dimension - 1,
-                                      deal_II_dimension,
-                                      deal_II_space_dimension>> &,
-      const TriaIterator<TriaAccessor<deal_II_dimension - 1,
-                                      deal_II_dimension,
-                                      deal_II_space_dimension>> &);
+    template void FESubfaceValues<deal_II_dimension, deal_II_space_dimension>::reinit(
+      const TriaIterator<DoFCellAccessor<deal_II_dimension, deal_II_space_dimension, lda>> &,
+      const TriaIterator<TriaAccessor<deal_II_dimension - 1, deal_II_dimension, deal_II_space_dimension>> &,
+      const TriaIterator<TriaAccessor<deal_II_dimension - 1, deal_II_dimension, deal_II_space_dimension>> &);
 #  endif
   }
 #endif

@@ -37,9 +37,7 @@ test(const ReferenceCell &reference_cell)
 
   // sanity check: does the reference cell contain its own nodes?
   for (const unsigned int vertex_no : reference_cell.vertex_indices())
-    AssertThrow(reference_cell.contains_point(
-                  reference_cell.template vertex<dim>(vertex_no)),
-                ExcInternalError());
+    AssertThrow(reference_cell.contains_point(reference_cell.template vertex<dim>(vertex_no)), ExcInternalError());
 
   for (unsigned int n = 0; n < n_samples; ++n)
     {
@@ -59,12 +57,10 @@ test(const ReferenceCell &reference_cell)
   const double volume = 1. * n_samples_inside / n_samples * std::pow(2.0, dim);
 
   deallog << "ReferenceCell: " << reference_cell.to_string() << std::endl;
-  deallog << "  self-reported volume = " << reference_cell.volume()
-          << std::endl;
+  deallog << "  self-reported volume = " << reference_cell.volume() << std::endl;
   deallog << "  computed approximate volume = " << volume << std::endl;
 
-  Assert(std::fabs(volume - reference_cell.volume()) < 1e-2,
-         ExcInternalError());
+  Assert(std::fabs(volume - reference_cell.volume()) < 1e-2, ExcInternalError());
 }
 
 int

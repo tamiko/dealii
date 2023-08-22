@@ -54,25 +54,17 @@ test()
 
   for (unsigned int i = 0; i < dim; ++i)
     {
-      smoothness = 0.0;
-      FESeries::Fourier<dim> fourier =
-        SmoothnessEstimator::Fourier::default_fe_series(fe_collection, i);
-      SmoothnessEstimator::Fourier::coefficient_decay(fourier,
-                                                      dh,
-                                                      solution,
-                                                      smoothness);
+      smoothness                     = 0.0;
+      FESeries::Fourier<dim> fourier = SmoothnessEstimator::Fourier::default_fe_series(fe_collection, i);
+      SmoothnessEstimator::Fourier::coefficient_decay(fourier, dh, solution, smoothness);
     }
 
 
   for (unsigned int i = 0; i < dim; ++i)
     {
-      smoothness = 0.0;
-      FESeries::Legendre<dim> legendre =
-        SmoothnessEstimator::Legendre::default_fe_series(fe_collection, i);
-      SmoothnessEstimator::Legendre::coefficient_decay(legendre,
-                                                       dh,
-                                                       solution,
-                                                       smoothness);
+      smoothness                       = 0.0;
+      FESeries::Legendre<dim> legendre = SmoothnessEstimator::Legendre::default_fe_series(fe_collection, i);
+      SmoothnessEstimator::Legendre::coefficient_decay(legendre, dh, solution, smoothness);
     }
 
   deallog << "Ok" << std::endl;

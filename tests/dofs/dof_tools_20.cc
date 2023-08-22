@@ -32,9 +32,7 @@ check_this(const DoFHandler<dim> &dof_handler)
 
   // first with all components
   {
-    DoFTools::extract_dofs_with_support_on_boundary(dof_handler,
-                                                    component_select,
-                                                    boundary_dofs);
+    DoFTools::extract_dofs_with_support_on_boundary(dof_handler, component_select, boundary_dofs);
     output_bool_vector(boundary_dofs);
   }
 
@@ -43,9 +41,7 @@ check_this(const DoFHandler<dim> &dof_handler)
   for (unsigned int i = 1; i < component_select.size(); i += 2)
     component_select.set(i, false);
   {
-    DoFTools::extract_dofs_with_support_on_boundary(dof_handler,
-                                                    component_select,
-                                                    boundary_dofs);
+    DoFTools::extract_dofs_with_support_on_boundary(dof_handler, component_select, boundary_dofs);
     output_bool_vector(boundary_dofs);
   }
 
@@ -53,10 +49,7 @@ check_this(const DoFHandler<dim> &dof_handler)
   // boundary indicator 0
   {
     const std::set<types::boundary_id> boundary_ids = {0};
-    DoFTools::extract_dofs_with_support_on_boundary(dof_handler,
-                                                    component_select,
-                                                    boundary_dofs,
-                                                    boundary_ids);
+    DoFTools::extract_dofs_with_support_on_boundary(dof_handler, component_select, boundary_dofs, boundary_ids);
     output_bool_vector(boundary_dofs);
   }
 }

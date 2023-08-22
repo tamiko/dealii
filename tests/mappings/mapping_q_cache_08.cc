@@ -44,14 +44,9 @@ do_test(const unsigned int degree)
 
   FE_Q<dim> fe_q(degree);
 
-  const auto position_lambda =
-    [&](const typename Triangulation<dim>::cell_iterator &cell)
-    -> std::vector<Point<dim>> {
+  const auto position_lambda = [&](const typename Triangulation<dim>::cell_iterator &cell) -> std::vector<Point<dim>> {
     FE_Nothing<dim> fe;
-    FEValues<dim>   fe_values(mapping,
-                            fe,
-                            Quadrature<dim>(fe_q.get_unit_support_points()),
-                            update_quadrature_points);
+    FEValues<dim>   fe_values(mapping, fe, Quadrature<dim>(fe_q.get_unit_support_points()), update_quadrature_points);
 
     std::vector<Point<dim>> support_points_moved(fe_q.dofs_per_cell);
     fe_values.reinit(cell);

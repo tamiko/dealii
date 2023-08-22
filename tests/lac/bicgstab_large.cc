@@ -76,6 +76,5 @@ main()
   }
   solution.print(deallog.get_file_stream());
   M1.residual(res, solution, rhs);
-  deallog << "scaled residual=" << res.l2_norm() / 1e10 << " niter=" << n_iter
-          << std::endl;
+  deallog << "scaled residual=" << res.l2_norm() / 1e10 << " niter=" << n_iter << std::endl;
 }

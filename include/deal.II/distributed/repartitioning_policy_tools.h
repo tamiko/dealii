@@ -80,8 +80,7 @@ namespace RepartitioningPolicyTools
     DefaultPolicy(const bool tighten = false);
 
     virtual LinearAlgebra::distributed::Vector<double>
-    partition(
-      const Triangulation<dim, spacedim> &tria_coarse_in) const override;
+    partition(const Triangulation<dim, spacedim> &tria_coarse_in) const override;
 
   private:
     const bool tighten;
@@ -102,8 +101,7 @@ namespace RepartitioningPolicyTools
     FirstChildPolicy(const Triangulation<dim, spacedim> &tria_fine);
 
     virtual LinearAlgebra::distributed::Vector<double>
-    partition(
-      const Triangulation<dim, spacedim> &tria_coarse_in) const override;
+    partition(const Triangulation<dim, spacedim> &tria_coarse_in) const override;
 
   private:
     /**
@@ -160,10 +158,8 @@ namespace RepartitioningPolicyTools
     /**
      * Constructor taking a function that gives a weight to each cell.
      */
-    CellWeightPolicy(
-      const std::function<unsigned int(
-        const typename Triangulation<dim, spacedim>::cell_iterator &,
-        const CellStatus)> &weighting_function);
+    CellWeightPolicy(const std::function<unsigned int(const typename Triangulation<dim, spacedim>::cell_iterator &,
+                                                      const CellStatus)> &weighting_function);
 
     virtual LinearAlgebra::distributed::Vector<double>
     partition(const Triangulation<dim, spacedim> &tria_in) const override;
@@ -172,9 +168,7 @@ namespace RepartitioningPolicyTools
     /**
      * A function that gives a weight to each cell.
      */
-    const std::function<
-      unsigned int(const typename Triangulation<dim, spacedim>::cell_iterator &,
-                   const CellStatus)>
+    const std::function<unsigned int(const typename Triangulation<dim, spacedim>::cell_iterator &, const CellStatus)>
       weighting_function;
   };
 

@@ -39,9 +39,7 @@ void
 test(std::ostream & /*out*/)
 {
   parallel::distributed::Triangulation<dim> tr(
-    MPI_COMM_WORLD,
-    Triangulation<dim>::none,
-    parallel::distributed::Triangulation<dim>::communicate_vertices_to_p4est);
+    MPI_COMM_WORLD, Triangulation<dim>::none, parallel::distributed::Triangulation<dim>::communicate_vertices_to_p4est);
 
   GridIn<dim> gi;
   gi.attach_triangulation(tr);
@@ -53,8 +51,7 @@ test(std::ostream & /*out*/)
   catch (const typename Triangulation<dim>::DistortedCellList &distorted_cells)
     {
       // ignore distorted cells
-      deallog << distorted_cells.distorted_cells.size()
-              << " distorted cells after creating mesh." << std::endl;
+      deallog << distorted_cells.distorted_cells.size() << " distorted cells after creating mesh." << std::endl;
     }
 
   write_vtk(tr, "1");

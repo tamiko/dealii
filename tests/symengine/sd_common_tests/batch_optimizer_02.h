@@ -30,9 +30,7 @@
 using namespace dealii;
 namespace SD = Differentiation::SD;
 
-template <typename NumberType,
-          enum SD::OptimizerType     opt_method,
-          enum SD::OptimizationFlags opt_flags>
+template <typename NumberType, enum SD::OptimizerType opt_method, enum SD::OptimizationFlags opt_flags>
 void
 test_scalar(const int n_runs, TimerOutput &timer)
 {
@@ -45,8 +43,7 @@ test_scalar(const int n_runs, TimerOutput &timer)
   const SD_number_t x("x");
   const SD_number_t y("y");
   timer.enter_subsection("Value calculation");
-  const SD_number_t symb_s = a + NumberType(2.0) * std::pow(x, y) +
-                             a * y / std::log(x) + std::sin(x * y * y / a);
+  const SD_number_t symb_s = a + NumberType(2.0) * std::pow(x, y) + a * y / std::log(x) + std::sin(x * y * y / a);
   std::cout << "symb_s: " << symb_s << std::endl;
   timer.leave_subsection("Value calculation");
 
@@ -68,15 +65,13 @@ test_scalar(const int n_runs, TimerOutput &timer)
         const SD_number_t subs_ds_dx = SD::substitute(symb_ds_dx, sub_vals);
         if (i == 0)
           std::cout << "substitute: "
-                    << "  s: " << subs_s << "  ds_dx: " << subs_ds_dx
-                    << std::endl;
+                    << "  s: " << subs_s << "  ds_dx: " << subs_ds_dx << std::endl;
 
         const NumberType val_s     = static_cast<NumberType>(subs_s);
         const NumberType val_ds_dx = static_cast<NumberType>(subs_ds_dx);
         if (i == 0)
           std::cout << "evaluation: "
-                    << "  s: " << val_s << "  ds_dx: " << val_ds_dx
-                    << std::endl;
+                    << "  s: " << val_s << "  ds_dx: " << val_ds_dx << std::endl;
       }
   }
   deallog.pop();
@@ -87,11 +82,9 @@ test_scalar(const int n_runs, TimerOutput &timer)
     // a batch optimiser
     timer.enter_subsection("Optimisation");
     SD::BatchOptimizer<NumberType> optimizer(opt_method, opt_flags);
-    optimizer.register_symbols(sub_vals); // Independent symbols
-    optimizer.register_function(
-      symb_s); // Dependent symbolic expressions (scalar)
-    optimizer.register_function(
-      symb_ds_dx); // Dependent symbolic expressions (scalar)
+    optimizer.register_symbols(sub_vals);    // Independent symbols
+    optimizer.register_function(symb_s);     // Dependent symbolic expressions (scalar)
+    optimizer.register_function(symb_ds_dx); // Dependent symbolic expressions (scalar)
     optimizer.optimize();
     timer.leave_subsection("Optimisation");
 
@@ -104,8 +97,7 @@ test_scalar(const int n_runs, TimerOutput &timer)
         const NumberType val_ds_dx = optimizer.evaluate(symb_ds_dx);
         if (i == 0)
           std::cout << "evaluation: "
-                    << "  s: " << val_s << "  ds_dx: " << val_ds_dx
-                    << std::endl;
+                    << "  s: " << val_s << "  ds_dx: " << val_ds_dx << std::endl;
 
         // The result is not stable and depends on standard library, number
         // type, optimization parameters and compiler being used. However, we
@@ -116,10 +108,8 @@ test_scalar(const int n_runs, TimerOutput &timer)
           const NumberType blessed_val_s     = 11.2896853345;
           const NumberType blessed_val_ds_dx = 2.44062401526;
 
-          AssertThrow(std::abs(val_s - blessed_val_s) < tol,
-                      ExcMessage("No match for function value."));
-          AssertThrow(std::abs(val_ds_dx - blessed_val_ds_dx) < tol,
-                      ExcMessage("No match for first derivative."));
+          AssertThrow(std::abs(val_s - blessed_val_s) < tol, ExcMessage("No match for function value."));
+          AssertThrow(std::abs(val_ds_dx - blessed_val_ds_dx) < tol, ExcMessage("No match for first derivative."));
         }
       }
   }
@@ -128,10 +118,7 @@ test_scalar(const int n_runs, TimerOutput &timer)
   deallog << "OK" << std::endl;
 }
 
-template <int dim,
-          typename NumberType,
-          enum SD::OptimizerType     opt_method,
-          enum SD::OptimizationFlags opt_flags>
+template <int dim, typename NumberType, enum SD::OptimizerType opt_method, enum SD::OptimizationFlags opt_flags>
 void
 test_tensor(const int n_runs, TimerOutput &timer)
 {
@@ -149,10 +136,9 @@ test_tensor(const int n_runs, TimerOutput &timer)
   const SD_symm_tensor_t z(SD::make_symmetric_tensor_of_symbols<2, dim>("z"));
 
   timer.enter_subsection("Value calculation");
-  const SD_number_t symb_s =
-    a + NumberType(2.0) * std::pow(x, determinant(y)) +
-    a * determinant(y) * std::log((z * z) / determinant(y)) +
-    std::sin((z * symmetrize(y)) / a);
+  const SD_number_t symb_s = a + NumberType(2.0) * std::pow(x, determinant(y)) +
+                             a * determinant(y) * std::log((z * z) / determinant(y)) +
+                             std::sin((z * symmetrize(y)) / a);
   std::cout << "symb_s: " << symb_s << std::endl;
   timer.leave_subsection("Value calculation");
 
@@ -165,39 +151,32 @@ test_tensor(const int n_runs, TimerOutput &timer)
 
   SD::types::substitution_map sub_vals;
   SD::add_to_substitution_map(sub_vals, SD::make_substitution_map(x, 2.5));
-  SD::add_to_substitution_map(
-    sub_vals, SD::make_substitution_map(y, make_tensor<dim>(NumberType(2.2))));
-  SD::add_to_substitution_map(
-    sub_vals,
-    SD::make_substitution_map(z, make_symm_tensor<dim>(NumberType(3.7))));
+  SD::add_to_substitution_map(sub_vals, SD::make_substitution_map(y, make_tensor<dim>(NumberType(2.2))));
+  SD::add_to_substitution_map(sub_vals, SD::make_substitution_map(z, make_symm_tensor<dim>(NumberType(3.7))));
 
   deallog.push("Substitution");
   {
     TimerOutput::Scope timer_scope(timer, "Unoptimised substitution");
     for (unsigned int i = 0; i < n_runs; ++i)
       {
-        const SD_number_t subs_s     = SD::substitute(symb_s, sub_vals);
-        const SD_number_t subs_ds_dx = SD::substitute(symb_ds_dx, sub_vals);
-        const SD_tensor_t subs_ds_dy = SD::substitute(symb_ds_dy, sub_vals);
-        const SD_symm_tensor_t subs_ds_dz =
-          SD::substitute(symb_ds_dz, sub_vals);
+        const SD_number_t      subs_s     = SD::substitute(symb_s, sub_vals);
+        const SD_number_t      subs_ds_dx = SD::substitute(symb_ds_dx, sub_vals);
+        const SD_tensor_t      subs_ds_dy = SD::substitute(symb_ds_dy, sub_vals);
+        const SD_symm_tensor_t subs_ds_dz = SD::substitute(symb_ds_dz, sub_vals);
         if (i == 0)
           std::cout << "substitute: "
-                    << "  s: " << subs_s << "  ds_dx: " << subs_ds_dx
-                    << "  ds_dy: " << subs_ds_dy << "  ds_dz: " << subs_ds_dz
-                    << std::endl;
+                    << "  s: " << subs_s << "  ds_dx: " << subs_ds_dx << "  ds_dy: " << subs_ds_dy
+                    << "  ds_dz: " << subs_ds_dz << std::endl;
 
-        const NumberType val_s     = static_cast<NumberType>(subs_s);
-        const NumberType val_ds_dx = static_cast<NumberType>(subs_ds_dx);
-        const Tensor<2, dim, NumberType> val_ds_dy =
-          static_cast<Tensor<2, dim, NumberType>>(subs_ds_dy);
+        const NumberType                          val_s     = static_cast<NumberType>(subs_s);
+        const NumberType                          val_ds_dx = static_cast<NumberType>(subs_ds_dx);
+        const Tensor<2, dim, NumberType>          val_ds_dy = static_cast<Tensor<2, dim, NumberType>>(subs_ds_dy);
         const SymmetricTensor<2, dim, NumberType> val_ds_dz =
           static_cast<SymmetricTensor<2, dim, NumberType>>(subs_ds_dz);
         if (i == 0)
           std::cout << "evaluation: "
-                    << "  s: " << val_s << "  ds_dx: " << val_ds_dx
-                    << "  ds_dy: " << val_ds_dy << "  ds_dz: " << val_ds_dz
-                    << std::endl;
+                    << "  s: " << val_s << "  ds_dx: " << val_ds_dx << "  ds_dy: " << val_ds_dy
+                    << "  ds_dz: " << val_ds_dz << std::endl;
 
         // The result is not stable and depends on standard library, number
         // type, optimization parameters and compiler being used. However, we
@@ -209,21 +188,14 @@ test_tensor(const int n_runs, TimerOutput &timer)
             const NumberType                 blessed_val_s     = 733.145160811;
             const NumberType                 blessed_val_ds_dx = 1803.37488238;
             const Tensor<2, dim, NumberType> blessed_val_ds_dy(
-              {{4021.22068318, -2721.50003932},
-               {-2073.13387957, 2076.40954282}});
+              {{4021.22068318, -2721.50003932}, {-2073.13387957, 2076.40954282}});
             const SymmetricTensor<2, dim, NumberType> blessed_val_ds_dz =
-              symmetrize(
-                Tensor<2, dim, NumberType>({{1.67425190103, 1.97851016739},
-                                            {1.97851016739, 2.69685737073}}));
+              symmetrize(Tensor<2, dim, NumberType>({{1.67425190103, 1.97851016739}, {1.97851016739, 2.69685737073}}));
 
-            AssertThrow(std::abs(val_s - blessed_val_s) < tol,
-                        ExcMessage("No match for function value."));
-            AssertThrow(std::abs(val_ds_dx - blessed_val_ds_dx) < tol,
-                        ExcMessage("No match for first derivative."));
-            AssertThrow((val_ds_dy - blessed_val_ds_dy).norm() < tol,
-                        ExcMessage("No match for first derivative."));
-            AssertThrow((val_ds_dz - blessed_val_ds_dz).norm() < tol,
-                        ExcMessage("No match for first derivative."));
+            AssertThrow(std::abs(val_s - blessed_val_s) < tol, ExcMessage("No match for function value."));
+            AssertThrow(std::abs(val_ds_dx - blessed_val_ds_dx) < tol, ExcMessage("No match for first derivative."));
+            AssertThrow((val_ds_dy - blessed_val_ds_dy).norm() < tol, ExcMessage("No match for first derivative."));
+            AssertThrow((val_ds_dz - blessed_val_ds_dz).norm() < tol, ExcMessage("No match for first derivative."));
           }
         else
           {
@@ -239,15 +211,11 @@ test_tensor(const int n_runs, TimerOutput &timer)
     // a batch optimiser
     timer.enter_subsection("Optimisation");
     SD::BatchOptimizer<NumberType> optimizer(opt_method, opt_flags);
-    optimizer.register_symbols(sub_vals); // Independent symbols
-    optimizer.register_function(
-      symb_s); // Dependent symbolic expressions (scalar)
-    optimizer.register_function(
-      symb_ds_dx); // Dependent symbolic expressions (scalar)
-    optimizer.register_function(
-      symb_ds_dy); // Dependent symbolic expressions (tensor)
-    optimizer.register_function(
-      symb_ds_dz); // Dependent symbolic expressions (symm tensor)
+    optimizer.register_symbols(sub_vals);    // Independent symbols
+    optimizer.register_function(symb_s);     // Dependent symbolic expressions (scalar)
+    optimizer.register_function(symb_ds_dx); // Dependent symbolic expressions (scalar)
+    optimizer.register_function(symb_ds_dy); // Dependent symbolic expressions (tensor)
+    optimizer.register_function(symb_ds_dz); // Dependent symbolic expressions (symm tensor)
     optimizer.optimize();
 
     timer.leave_subsection("Optimisation");
@@ -258,18 +226,15 @@ test_tensor(const int n_runs, TimerOutput &timer)
       {
         optimizer.substitute(sub_vals);
 
-        const NumberType val_s     = optimizer.evaluate(symb_s);
-        const NumberType val_ds_dx = optimizer.evaluate(symb_ds_dx);
-        const Tensor<2, dim, NumberType> val_ds_dy =
-          optimizer.evaluate(symb_ds_dy);
-        const SymmetricTensor<2, dim, NumberType> val_ds_dz =
-          optimizer.evaluate(symb_ds_dz);
+        const NumberType                          val_s     = optimizer.evaluate(symb_s);
+        const NumberType                          val_ds_dx = optimizer.evaluate(symb_ds_dx);
+        const Tensor<2, dim, NumberType>          val_ds_dy = optimizer.evaluate(symb_ds_dy);
+        const SymmetricTensor<2, dim, NumberType> val_ds_dz = optimizer.evaluate(symb_ds_dz);
 
         if (i == 0)
           std::cout << "evaluation: "
-                    << "  s: " << val_s << "  ds_dx: " << val_ds_dx
-                    << "  ds_dy: " << val_ds_dy << "  ds_dz: " << val_ds_dz
-                    << std::endl;
+                    << "  s: " << val_s << "  ds_dx: " << val_ds_dx << "  ds_dy: " << val_ds_dy
+                    << "  ds_dz: " << val_ds_dz << std::endl;
       }
   }
   deallog.pop();
@@ -278,9 +243,7 @@ test_tensor(const int n_runs, TimerOutput &timer)
 }
 
 
-template <int                        dim,
-          enum SD::OptimizerType     opt_method,
-          enum SD::OptimizationFlags opt_flags>
+template <int dim, enum SD::OptimizerType opt_method, enum SD::OptimizationFlags opt_flags>
 void
 run_tests(const int n_runs)
 {

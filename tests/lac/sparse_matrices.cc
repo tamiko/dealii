@@ -48,9 +48,7 @@
 
 template <typename MatrixType>
 void
-check_vmult_quadratic(std::vector<double> &residuals,
-                      const MatrixType &   A,
-                      const char *         prefix)
+check_vmult_quadratic(std::vector<double> &residuals, const MatrixType &A, const char *prefix)
 {
   deallog.push(prefix);
 
@@ -59,19 +57,13 @@ check_vmult_quadratic(std::vector<double> &residuals,
   GrowingVectorMemory<> mem;
 
   SolverControl      control(10, 1.e-13, false);
-  SolverRichardson<> rich(control,
-                          mem,
-                          SolverRichardson<>::AdditionalData(/*omega=*/.01));
-  SolverRichardson<> prich(control,
-                           mem,
-                           SolverRichardson<>::AdditionalData(/*omega=*/1.));
+  SolverRichardson<> rich(control, mem, SolverRichardson<>::AdditionalData(/*omega=*/.01));
+  SolverRichardson<> prich(control, mem, SolverRichardson<>::AdditionalData(/*omega=*/1.));
 
-  const types::global_dof_index block_size =
-    (types::global_dof_index)std::sqrt(A.n() + .3);
-  const unsigned int n_blocks = A.n() / block_size;
+  const types::global_dof_index block_size = (types::global_dof_index)std::sqrt(A.n() + .3);
+  const unsigned int            n_blocks   = A.n() / block_size;
 
-  typename PreconditionBlock<MatrixType, float>::AdditionalData data(block_size,
-                                                                     1.2);
+  typename PreconditionBlock<MatrixType, float>::AdditionalData data(block_size, 1.2);
   std::vector<types::global_dof_index>                          perm(A.n());
   std::vector<types::global_dof_index>                          iperm(A.n());
   for (unsigned int i = 0; i < n_blocks; ++i)
@@ -129,24 +121,20 @@ check_vmult_quadratic(std::vector<double> &residuals,
   if (std::is_same_v<MatrixType, SparseMatrix<value_type>>)
     {
       deallog << "Vanka" << std::endl;
-      const SparseMatrix<value_type> &B =
-        reinterpret_cast<const SparseMatrix<value_type> &>(A);
+      const SparseMatrix<value_type> &B = reinterpret_cast<const SparseMatrix<value_type> &>(A);
 
       std::vector<bool> selected_dofs(B.m(), false);
       // tag every third dof for vanka
       for (unsigned int i = 0; i < B.m(); i += 3)
         selected_dofs[i] = true;
       SparseVanka<value_type> vanka;
-      vanka.initialize(
-        B, typename SparseVanka<value_type>::AdditionalData(selected_dofs));
+      vanka.initialize(B, typename SparseVanka<value_type>::AdditionalData(selected_dofs));
 
-      SparseBlockVanka<value_type> block_vanka_1(
-        B,
-        selected_dofs,
-        n_blocks,
-        SparseBlockVanka<value_type>::index_intervals);
-      SparseBlockVanka<value_type> block_vanka_2(
-        B, selected_dofs, n_blocks, SparseBlockVanka<value_type>::adaptive);
+      SparseBlockVanka<value_type> block_vanka_1(B,
+                                                 selected_dofs,
+                                                 n_blocks,
+                                                 SparseBlockVanka<value_type>::index_intervals);
+      SparseBlockVanka<value_type> block_vanka_2(B, selected_dofs, n_blocks, SparseBlockVanka<value_type>::adaptive);
 
       PREC_CHECK(prich, solve, vanka);
       PREC_CHECK(prich, solve, block_vanka_1);
@@ -168,9 +156,7 @@ check_vmult_quadratic(std::vector<double> &residuals,
 
 
 void
-check_vmult_quadratic(std::vector<double> &            residuals,
-                      const BlockSparseMatrix<double> &A,
-                      const char *                     prefix)
+check_vmult_quadratic(std::vector<double> &residuals, const BlockSparseMatrix<double> &A, const char *prefix)
 {
   deallog.push(prefix);
 
@@ -179,18 +165,13 @@ check_vmult_quadratic(std::vector<double> &            residuals,
   GrowingVectorMemory<> mem;
 
   SolverControl                                 control(10, 1.e-13, false);
-  SolverRichardson<>                            rich(control,
-                          mem,
-                          SolverRichardson<>::AdditionalData(/*omega=*/.01));
-  SolverRichardson<>                            prich(control,
-                           mem,
-                           SolverRichardson<>::AdditionalData(/*omega=*/1.));
+  SolverRichardson<>                            rich(control, mem, SolverRichardson<>::AdditionalData(/*omega=*/.01));
+  SolverRichardson<>                            prich(control, mem, SolverRichardson<>::AdditionalData(/*omega=*/1.));
   PreconditionIdentity                          identity;
   PreconditionJacobi<BlockSparseMatrix<double>> jacobi;
   jacobi.initialize(A, .5);
 
-  PreconditionBlock<BlockSparseMatrix<double>, float>::AdditionalData data(
-    (unsigned int)std::sqrt(A.n() + .3), 1.2);
+  PreconditionBlock<BlockSparseMatrix<double>, float>::AdditionalData data((unsigned int)std::sqrt(A.n() + .3), 1.2);
 
   PreconditionBlockJacobi<BlockSparseMatrix<double>, float> block_jacobi;
   block_jacobi.initialize(A, data);
@@ -228,8 +209,7 @@ check_iterator(const MatrixType &A)
         if (b == E)
           deallog << "Final" << std::endl;
         else
-          deallog << r << '\t' << b->row() << '\t' << b->column() << '\t'
-                  << b->value() << std::endl;
+          deallog << r << '\t' << b->row() << '\t' << b->column() << '\t' << b->value() << std::endl;
         typename MatrixType::const_iterator e = A.end(r);
         if (e == E)
           deallog << "Final" << std::endl;
@@ -242,12 +222,10 @@ check_iterator(const MatrixType &A)
         deallog << std::endl;
       }
   for (typename MatrixType::const_iterator i = A.begin(); i != A.end(); ++i)
-    deallog << '\t' << i->row() << '\t' << i->column() << '\t' << i->value()
-            << std::endl;
+    deallog << '\t' << i->row() << '\t' << i->column() << '\t' << i->value() << std::endl;
   deallog << "Repeat row 2" << std::endl;
   for (typename MatrixType::const_iterator i = A.begin(2); i != A.end(2); ++i)
-    deallog << '\t' << i->row() << '\t' << i->column() << '\t' << i->value()
-            << std::endl;
+    deallog << '\t' << i->row() << '\t' << i->column() << '\t' << i->value() << std::endl;
 
   //  deallog.pop();
 }
@@ -423,6 +401,5 @@ main()
   SparseMatrix<double>::const_iterator p = A.begin(), p_tmp = A_tmp.begin();
   for (; p != A.end(); ++p, ++p_tmp)
     if (std::fabs(p->value() - p_tmp->value()) <= std::fabs(1e-14 * p->value()))
-      deallog << "write/read-error at global position " << (p - A.begin())
-              << std::endl;
+      deallog << "write/read-error at global position " << (p - A.begin()) << std::endl;
 }

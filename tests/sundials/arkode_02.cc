@@ -73,14 +73,12 @@ main()
     ydot[1] = -kappa * kappa * y[0];
   };
 
-  ode.output_step =
-    [&](const double t, const VectorType &sol, const unsigned int step_number) {
-      // limit the output to every 10th step and increase the precision to make
-      // the test more robust
-      if (step_number % 10 == 0)
-        deallog << t << ' ' << std::setprecision(7) << sol[0] << ' ' << sol[1]
-                << std::endl;
-    };
+  ode.output_step = [&](const double t, const VectorType &sol, const unsigned int step_number) {
+    // limit the output to every 10th step and increase the precision to make
+    // the test more robust
+    if (step_number % 10 == 0)
+      deallog << t << ' ' << std::setprecision(7) << sol[0] << ' ' << sol[1] << std::endl;
+  };
 
   Vector<double> y(2);
   y[0] = 0;

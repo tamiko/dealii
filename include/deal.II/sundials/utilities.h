@@ -43,9 +43,7 @@ namespace SUNDIALS
      */
     template <typename F, typename... Args>
     int
-    call_and_possibly_capture_exception(const F &           f,
-                                        std::exception_ptr &eptr,
-                                        Args &&...args)
+    call_and_possibly_capture_exception(const F &f, std::exception_ptr &eptr, Args &&...args)
     {
       // See whether there is already something in the exception pointer
       // variable. This can only happen if we had previously had

@@ -47,9 +47,7 @@ test()
   local_relevant.add_range(1, 2);
 
   // create vector
-  LinearAlgebra::distributed::Vector<double> v(local_owned,
-                                               local_relevant,
-                                               MPI_COMM_WORLD);
+  LinearAlgebra::distributed::Vector<double> v(local_owned, local_relevant, MPI_COMM_WORLD);
 
   // the read write vector additionally has ghost elements
   IndexSet                               read_write_owned(numproc * 2);
@@ -81,8 +79,7 @@ test()
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   MPILogInitAll log;
 

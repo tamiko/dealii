@@ -41,17 +41,12 @@ test(unsigned int ref = 1)
 
   for (cell = tria.begin_active(); cell != tria.end(); ++cell)
     {
-      deallog << "C: " << cell << ", manifold_id: " << (int)cell->manifold_id()
-              << std::endl;
+      deallog << "C: " << cell << ", manifold_id: " << (int)cell->manifold_id() << std::endl;
       for (const unsigned int f : cell->face_indices())
-        deallog << "f: " << cell->face(f)
-                << ", manifold_id: " << (int)cell->face(f)->manifold_id()
-                << std::endl;
+        deallog << "f: " << cell->face(f) << ", manifold_id: " << (int)cell->face(f)->manifold_id() << std::endl;
       if (dim == 3)
         for (const unsigned int l : cell->line_indices())
-          deallog << "line: " << cell->line(l)
-                  << ", manifold_id: " << (int)cell->line(l)->manifold_id()
-                  << std::endl;
+          deallog << "line: " << cell->line(l) << ", manifold_id: " << (int)cell->line(l)->manifold_id() << std::endl;
     }
 
   const auto manifold_ids = tria.get_manifold_ids();

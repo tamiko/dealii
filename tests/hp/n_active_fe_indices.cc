@@ -38,9 +38,7 @@ template <int dim>
 void
 check_cells(const DoFHandler<dim> &dof_handler)
 {
-  for (typename DoFHandler<dim>::active_cell_iterator cell =
-         dof_handler.begin_active();
-       cell != dof_handler.end();
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(); cell != dof_handler.end();
        ++cell)
     {
       deallog << "cell=" << cell << std::endl;
@@ -64,17 +62,14 @@ template <int dim>
 void
 check_faces(const DoFHandler<dim> &dof_handler)
 {
-  for (typename DoFHandler<dim>::active_cell_iterator cell =
-         dof_handler.begin_active();
-       cell != dof_handler.end();
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(); cell != dof_handler.end();
        ++cell)
     for (const unsigned int f : GeometryInfo<dim>::face_indices())
       {
         deallog << "face=" << cell->face(f) << std::endl;
         deallog << "n=" << cell->face(f)->n_active_fe_indices() << std::endl;
         deallog << "x=";
-        for (unsigned int i = 0; i < dof_handler.get_fe_collection().size();
-             ++i)
+        for (unsigned int i = 0; i < dof_handler.get_fe_collection().size(); ++i)
           deallog << cell->face(f)->fe_index_is_active(i);
         deallog << std::endl;
 
@@ -98,24 +93,19 @@ template <int dim>
 void
 check_edges(const DoFHandler<dim> &dof_handler)
 {
-  for (typename DoFHandler<dim>::active_cell_iterator cell =
-         dof_handler.begin_active();
-       cell != dof_handler.end();
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(); cell != dof_handler.end();
        ++cell)
     for (unsigned int e = 0; e < GeometryInfo<dim>::lines_per_cell; ++e)
       {
         deallog << "edge=" << cell->line(e) << std::endl;
         deallog << "n=" << cell->line(e)->n_active_fe_indices() << std::endl;
         deallog << "x=";
-        for (unsigned int i = 0; i < dof_handler.get_fe_collection().size();
-             ++i)
+        for (unsigned int i = 0; i < dof_handler.get_fe_collection().size(); ++i)
           deallog << cell->line(e)->fe_index_is_active(i);
         deallog << std::endl;
 
         Assert(cell->line(e)->n_active_fe_indices() >= 1, ExcInternalError());
-        Assert(cell->line(e)->n_active_fe_indices() <=
-                 dof_handler.get_fe_collection().size(),
-               ExcInternalError());
+        Assert(cell->line(e)->n_active_fe_indices() <= dof_handler.get_fe_collection().size(), ExcInternalError());
       }
 }
 
@@ -140,9 +130,7 @@ test()
 
   DoFHandler<dim> dof_handler(tria);
 
-  for (typename DoFHandler<dim>::active_cell_iterator cell =
-         dof_handler.begin_active();
-       cell != dof_handler.end();
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(); cell != dof_handler.end();
        ++cell)
     cell->set_active_fe_index(Testing::rand() % fe_collection.size());
 

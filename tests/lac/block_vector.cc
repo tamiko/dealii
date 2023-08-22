@@ -45,8 +45,7 @@ test()
   for (unsigned int i = 0; i < i3.size(); ++i)
     deallog << i << '\t' << i3.local_to_global(i, 0) << std::endl;
   for (unsigned int i = 0; i < i3.total_size(); ++i)
-    deallog << i << '\t' << i3.global_to_local(i).first << '\t'
-            << i3.global_to_local(i).second << std::endl;
+    deallog << i << '\t' << i3.global_to_local(i).first << '\t' << i3.global_to_local(i).second << std::endl;
   deallog.pop();
 
 
@@ -57,12 +56,9 @@ test()
   unsigned int n = i1.total_size();
   for (unsigned int i = 0; i < n; ++i)
     {
-      deallog << i << '\t' << i1.global_to_local(i).first << '\t'
-              << i1.global_to_local(i).second << '\t'
-              << i2.global_to_local(i).first << '\t'
-              << i2.global_to_local(i).second << '\t'
-              << i3.global_to_local(i).first << '\t'
-              << i3.global_to_local(i).second << std::endl;
+      deallog << i << '\t' << i1.global_to_local(i).first << '\t' << i1.global_to_local(i).second << '\t'
+              << i2.global_to_local(i).first << '\t' << i2.global_to_local(i).second << '\t'
+              << i3.global_to_local(i).first << '\t' << i3.global_to_local(i).second << std::endl;
     }
 
   deallog.pop();
@@ -70,8 +66,7 @@ test()
   deallog.push("local->global");
   for (unsigned int i = 0; i < i1.size(); ++i)
     for (unsigned int j = 0; j < ivector[i]; ++j)
-      deallog << i << '\t' << j << '\t' << i1.local_to_global(i, j)
-              << std::endl;
+      deallog << i << '\t' << j << '\t' << i1.local_to_global(i, j) << std::endl;
 
   deallog.pop();
 
@@ -82,8 +77,7 @@ test()
   n = i1.total_size();
   for (unsigned int i = 0; i < n; ++i)
     {
-      deallog << i << '\t' << i1.global_to_local(i).first << '\t'
-              << i1.global_to_local(i).second << std::endl;
+      deallog << i << '\t' << i1.global_to_local(i).first << '\t' << i1.global_to_local(i).second << std::endl;
     }
   deallog << "---" << std::endl;
 
@@ -94,8 +88,7 @@ test()
   n = i1.total_size();
   for (unsigned int i = 0; i < n; ++i)
     {
-      deallog << i << '\t' << i1.global_to_local(i).first << '\t'
-              << i1.global_to_local(i).second << std::endl;
+      deallog << i << '\t' << i1.global_to_local(i).first << '\t' << i1.global_to_local(i).second << std::endl;
     }
   deallog.pop();
 
@@ -156,27 +149,19 @@ main()
     }
   catch (const std::exception &e)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << e.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       // abort
       return 0;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       // abort
       return 0;
     };

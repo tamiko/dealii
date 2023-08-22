@@ -218,8 +218,7 @@ namespace LinearAlgebraTrilinos
     /**
      * Typedef for the type used for compressed block sparsity pattern.
      */
-    using BlockCompressedSparsityPattern =
-      TrilinosWrappers::BlockSparsityPattern;
+    using BlockCompressedSparsityPattern = TrilinosWrappers::BlockSparsityPattern;
 
     /**
      * Typedef for the AMG preconditioner type.

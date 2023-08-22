@@ -63,8 +63,8 @@ namespace NonMatching
      * @note Currently this class is only implemented for MappingCartesian,
      * MappingQ and MappingFEField.
      */
-    FEImmersedSurfaceValues(const Mapping<dim> &                  mapping,
-                            const FiniteElement<dim> &            element,
+    FEImmersedSurfaceValues(const Mapping<dim>                   &mapping,
+                            const FiniteElement<dim>             &element,
                             const ImmersedSurfaceQuadrature<dim> &quadrature,
                             const UpdateFlags                     update_flags);
 
@@ -82,8 +82,7 @@ namespace NonMatching
      */
     template <bool level_dof_access>
     void
-    reinit(
-      const TriaIterator<DoFCellAccessor<dim, dim, level_dof_access>> &cell);
+    reinit(const TriaIterator<DoFCellAccessor<dim, dim, level_dof_access>> &cell);
 
     /**
      * Returns the surface gradient of the shape function with index
@@ -97,8 +96,7 @@ namespace NonMatching
      * @dealiiRequiresUpdateFlags{update_gradients | update_normal_vectors}
      */
     Tensor<1, dim>
-    shape_surface_grad(const unsigned int function_no,
-                       const unsigned int quadrature_point) const;
+    shape_surface_grad(const unsigned int function_no, const unsigned int quadrature_point) const;
 
     /**
      * Return one vector component of the surface gradient of the shape function

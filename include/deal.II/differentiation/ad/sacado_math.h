@@ -32,11 +32,9 @@ DEAL_II_NAMESPACE_OPEN
 /**
  * Implementation of the error function for real-valued Sacado numbers.
  */
-template <
-  typename ADNumberType,
-  typename = std::enable_if_t<
-    dealii::Differentiation::AD::is_sacado_number<ADNumberType>::value &&
-    dealii::Differentiation::AD::is_real_valued_ad_number<ADNumberType>::value>>
+template <typename ADNumberType,
+          typename = std::enable_if_t<dealii::Differentiation::AD::is_sacado_number<ADNumberType>::value &&
+                                      dealii::Differentiation::AD::is_real_valued_ad_number<ADNumberType>::value>>
 inline ADNumberType
 erf(ADNumberType x)
 {
@@ -61,15 +59,12 @@ erf(ADNumberType x)
   const double p  = 0.3275911;
 
   // Save the sign of x
-  const bool neg_val =
-    (x < dealii::internal::NumberType<ADNumberType>::value(0.0) ? true : false);
-  x = std::fabs(x);
+  const bool neg_val = (x < dealii::internal::NumberType<ADNumberType>::value(0.0) ? true : false);
+  x                  = std::fabs(x);
 
   // Abramowitz1972a equation 7.1.26
   const ADNumberType t = 1.0 / (1.0 + p * x);
-  const ADNumberType y =
-    1.0 -
-    (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * std::exp(-x * x);
+  const ADNumberType y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * std::exp(-x * x);
 
   if (!neg_val)
     return y;
@@ -82,8 +77,7 @@ erf(ADNumberType x)
  * Implementation of the complementary error function for Sacado numbers.
  */
 template <typename ADNumberType,
-          typename = std::enable_if_t<
-            dealii::Differentiation::AD::is_sacado_number<ADNumberType>::value>>
+          typename = std::enable_if_t<dealii::Differentiation::AD::is_sacado_number<ADNumberType>::value>>
 inline ADNumberType
 erfc(const ADNumberType &x)
 {

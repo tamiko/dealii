@@ -50,12 +50,9 @@ check_file(const std::string name, typename GridIn<dim>::Format format)
 void
 filename_resolution()
 {
-  check_file<2>(std::string(SOURCE_DIR "/grid_in_unv_2d/test1427"),
-                GridIn<2>::unv);
-  check_file<2>(std::string(SOURCE_DIR "/grid_in_unv_2d/test46"),
-                GridIn<2>::unv);
-  check_file<2>(std::string(SOURCE_DIR "/grid_in_unv_2d/salome_square"),
-                GridIn<2>::unv);
+  check_file<2>(std::string(SOURCE_DIR "/grid_in_unv_2d/test1427"), GridIn<2>::unv);
+  check_file<2>(std::string(SOURCE_DIR "/grid_in_unv_2d/test46"), GridIn<2>::unv);
+  check_file<2>(std::string(SOURCE_DIR "/grid_in_unv_2d/salome_square"), GridIn<2>::unv);
 }
 
 

@@ -29,9 +29,7 @@
 #include "../tests.h"
 
 void
-test_face(const std::vector<Point<3>> &   vertices_,
-          const std::vector<CellData<3>> &cell_data_,
-          const unsigned int              face_n)
+test_face(const std::vector<Point<3>> &vertices_, const std::vector<CellData<3>> &cell_data_, const unsigned int face_n)
 {
   const ReferenceCell ref_cell  = ReferenceCells::Tetrahedron;
   auto                vertices  = vertices_;
@@ -39,8 +37,8 @@ test_face(const std::vector<Point<3>> &   vertices_,
 
   Point<3> extra_vertex;
   for (unsigned int i = 0; i < 3; ++i)
-    extra_vertex += ref_cell.template vertex<3>(ref_cell.face_to_cell_vertices(
-      face_n, i, ReferenceCell::default_combined_face_orientation()));
+    extra_vertex += ref_cell.template vertex<3>(
+      ref_cell.face_to_cell_vertices(face_n, i, ReferenceCell::default_combined_face_orientation()));
 
   extra_vertex /= 3.0;
   extra_vertex += ref_cell.template unit_normal_vectors<3>(face_n);
@@ -50,8 +48,8 @@ test_face(const std::vector<Point<3>> &   vertices_,
   cell_data.emplace_back();
   cell_data.back().vertices.resize(0);
   for (unsigned int i = 0; i < 3; ++i)
-    cell_data.back().vertices.push_back(ref_cell.face_to_cell_vertices(
-      face_n, i, ref_cell.default_combined_face_orientation()));
+    cell_data.back().vertices.push_back(
+      ref_cell.face_to_cell_vertices(face_n, i, ref_cell.default_combined_face_orientation()));
   cell_data.back().vertices.push_back(ref_cell.n_vertices());
   std::sort(cell_data.back().vertices.begin(), cell_data.back().vertices.end());
 
@@ -63,18 +61,11 @@ test_face(const std::vector<Point<3>> &   vertices_,
       deallog << "  p2 = " << permutation_n;
 
       FE_Nothing<3>     fe(ref_cell);
-      const Mapping<3> &mapping =
-        ref_cell.template get_default_linear_mapping<3>();
-      Quadrature<2> face_quad(FE_SimplexP<3>(1).get_unit_face_support_points());
+      const Mapping<3> &mapping = ref_cell.template get_default_linear_mapping<3>();
+      Quadrature<2>     face_quad(FE_SimplexP<3>(1).get_unit_face_support_points());
 
-      FEFaceValues<3> cell_face_values(mapping,
-                                       fe,
-                                       face_quad,
-                                       update_quadrature_points);
-      FEFaceValues<3> neighbor_cell_face_values(mapping,
-                                                fe,
-                                                face_quad,
-                                                update_quadrature_points);
+      FEFaceValues<3> cell_face_values(mapping, fe, face_quad, update_quadrature_points);
+      FEFaceValues<3> neighbor_cell_face_values(mapping, fe, face_quad, update_quadrature_points);
 
       for (const auto &cell : tria.active_cell_iterators())
         for (unsigned int face_no : cell->face_indices())
@@ -91,39 +82,30 @@ test_face(const std::vector<Point<3>> &   vertices_,
                 break;
             neighbor_cell_face_values.reinit(neighbor_cell, neighbor_face_no);
 
-            deallog << " : " << int(cell->combined_face_orientation(face_no))
-                    << ", "
-                    << int(neighbor_cell->combined_face_orientation(
-                         neighbor_face_no));
+            deallog << " : " << int(cell->combined_face_orientation(face_no)) << ", "
+                    << int(neighbor_cell->combined_face_orientation(neighbor_face_no));
 
             double max_distance = 0.0;
             for (unsigned int q = 0; q < face_quad.size(); ++q)
-              max_distance = std::max(
-                max_distance,
-                cell_face_values.get_quadrature_points()[q].distance(
-                  neighbor_cell_face_values.get_quadrature_points()[q]));
+              max_distance = std::max(max_distance,
+                                      cell_face_values.get_quadrature_points()[q].distance(
+                                        neighbor_cell_face_values.get_quadrature_points()[q]));
 
             if (max_distance > 1e-12)
               {
-                deallog << "!!!!! Found a wrong point permutation !!!!!"
-                        << std::endl;
+                deallog << "!!!!! Found a wrong point permutation !!!!!" << std::endl;
 
                 deallog << "cell points =" << std::endl;
                 for (unsigned int q = 0; q < face_quad.size(); ++q)
                   {
-                    deallog << " "
-                            << cell_face_values.get_quadrature_points()[q]
-                            << std::endl;
+                    deallog << " " << cell_face_values.get_quadrature_points()[q] << std::endl;
                   }
                 deallog << std::endl;
 
                 deallog << "neighbor_cell points =" << std::endl;
                 for (unsigned int q = 0; q < face_quad.size(); ++q)
                   {
-                    deallog
-                      << " "
-                      << neighbor_cell_face_values.get_quadrature_points()[q]
-                      << std::endl;
+                    deallog << " " << neighbor_cell_face_values.get_quadrature_points()[q] << std::endl;
                   }
                 deallog << std::endl;
 
@@ -133,8 +115,7 @@ test_face(const std::vector<Point<3>> &   vertices_,
       deallog << std::endl;
       ++permutation_n;
     }
-  while (std::next_permutation(cell_data.back().vertices.begin(),
-                               cell_data.back().vertices.end()));
+  while (std::next_permutation(cell_data.back().vertices.begin(), cell_data.back().vertices.end()));
 }
 
 void
@@ -161,8 +142,7 @@ test()
           test_face(vertices, cells, face_n);
           ++permutation_n;
         }
-      while (std::next_permutation(cells.back().vertices.begin(),
-                                   cells.back().vertices.end()));
+      while (std::next_permutation(cells.back().vertices.begin(), cells.back().vertices.end()));
     }
 }
 

@@ -168,9 +168,8 @@ namespace TrilinosWrappers
      * An overview of possible parameters is given at
      * https://docs.trilinos.org/dev/packages/nox/doc/html/parameters.html.
      */
-    NOXSolver(AdditionalData &                            additional_data,
-              const Teuchos::RCP<Teuchos::ParameterList> &parameters =
-                Teuchos::rcp(new Teuchos::ParameterList));
+    NOXSolver(AdditionalData                             &additional_data,
+              const Teuchos::RCP<Teuchos::ParameterList> &parameters = Teuchos::rcp(new Teuchos::ParameterList));
 
     /**
      * Destructor.
@@ -279,9 +278,7 @@ namespace TrilinosWrappers
      * throws an exception of type RecoverableUserCallbackError, then this
      * exception is treated like any other exception.
      */
-    std::function<
-      void(const VectorType &y, VectorType &x, const double tolerance)>
-      solve_with_jacobian;
+    std::function<void(const VectorType &y, VectorType &x, const double tolerance)> solve_with_jacobian;
 
     /**
      * A user function that applies the inverse of the Jacobian
@@ -312,8 +309,7 @@ namespace TrilinosWrappers
      * throws an exception of type RecoverableUserCallbackError, then this
      * exception is treated like any other exception.
      */
-    std::function<
-      int(const VectorType &y, VectorType &x, const double tolerance)>
+    std::function<int(const VectorType &y, VectorType &x, const double tolerance)>
       solve_with_jacobian_and_track_n_linear_iterations;
 
     /**
@@ -335,10 +331,8 @@ namespace TrilinosWrappers
      * throws an exception of type RecoverableUserCallbackError, then this
      * exception is treated like any other exception.
      */
-    std::function<SolverControl::State(const unsigned int i,
-                                       const double       norm_f,
-                                       const VectorType & current_u,
-                                       const VectorType & f)>
+    std::function<
+      SolverControl::State(const unsigned int i, const double norm_f, const VectorType &current_u, const VectorType &f)>
       check_iteration_status;
 
     /**

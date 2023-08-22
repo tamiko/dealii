@@ -55,12 +55,7 @@ main()
 
   constraints.clear();
   VectorTools::project_boundary_values_curl_conforming_l2(
-    dof_handler,
-    1,
-    Functions::ZeroFunction<dim>(dim + 1),
-    0,
-    constraints,
-    mapping);
+    dof_handler, 1, Functions::ZeroFunction<dim>(dim + 1), 0, constraints, mapping);
   constraints.close();
 
   constraints.print(deallog.get_file_stream());

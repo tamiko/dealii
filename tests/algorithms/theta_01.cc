@@ -85,8 +85,7 @@ main()
   deallog << "Initial: " << value(0) << ' ' << value(1) << std::endl;
   solver.notify(Events::initial);
   solver(outdata, indata);
-  deallog << "Result: " << value(0) << ' ' << value(1) << " Norm "
-          << value.l2_norm() << std::endl;
+  deallog << "Result: " << value(0) << ' ' << value(1) << " Norm " << value.l2_norm() << std::endl;
 }
 
 
@@ -102,8 +101,7 @@ Explicit::operator()(AnyData &out, const AnyData &in)
 {
   const double *step = in.read_ptr<double>("Timestep");
 
-  if (this->notifications.test(Events::initial) ||
-      this->notifications.test(Events::new_timestep_size))
+  if (this->notifications.test(Events::initial) || this->notifications.test(Events::new_timestep_size))
     {
       m.equ(-*step, *matrix);
       for (unsigned int i = 0; i < m.m(); ++i)
@@ -127,8 +125,7 @@ Implicit::operator()(AnyData &out, const AnyData &in)
 {
   const double *step = in.read_ptr<double>("Timestep");
 
-  if (this->notifications.test(Events::initial) ||
-      this->notifications.test(Events::new_timestep_size))
+  if (this->notifications.test(Events::initial) || this->notifications.test(Events::new_timestep_size))
     {
       m.equ(*step, *matrix);
       for (unsigned int i = 0; i < m.m(); ++i)

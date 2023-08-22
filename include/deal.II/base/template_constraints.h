@@ -49,11 +49,7 @@ namespace internal
      * case is this general template, which then declares member variables
      * and types according to the failed detection.
      */
-    template <class Default,
-              class AlwaysVoid,
-              template <class...>
-              class Op,
-              class... Args>
+    template <class Default, class AlwaysVoid, template <class...> class Op, class... Args>
     struct detector
     {
       using value_t = std::false_type;
@@ -94,9 +90,9 @@ namespace internal
     struct nonesuch : private nonesuch_base
     {
       ~nonesuch()                = delete;
-      nonesuch(nonesuch const &) = delete;
+      nonesuch(const nonesuch &) = delete;
       void
-      operator=(nonesuch const &) = delete;
+      operator=(const nonesuch &) = delete;
     };
 
     template <class Default, template <class...> class Op, class... Args>
@@ -115,8 +111,7 @@ namespace internal
     using is_detected_exact = std::is_same<Expected, detected_t<Op, Args...>>;
 
     template <class To, template <class...> class Op, class... Args>
-    using is_detected_convertible =
-      std::is_convertible<detected_t<Op, Args...>, To>;
+    using is_detected_convertible = std::is_convertible<detected_t<Op, Args...>, To>;
   } // namespace SupportsOperation
 
 
@@ -155,8 +150,7 @@ namespace internal
    * is not, and the variable declared here detects and reports this.
    */
   template <template <class...> class Op, class... Args>
-  constexpr bool is_supported_operation =
-    SupportsOperation::is_detected<Op, Args...>::value;
+  constexpr bool is_supported_operation = SupportsOperation::is_detected<Op, Args...>::value;
 } // namespace internal
 
 
@@ -201,8 +195,7 @@ namespace internal
 template <class Base, class... Derived>
 struct is_base_of_all
 {
-  static constexpr bool value = internal::TemplateConstraints::all_true<
-    std::is_base_of_v<Base, Derived>...>::value;
+  static constexpr bool value = internal::TemplateConstraints::all_true<std::is_base_of_v<Base, Derived>...>::value;
 };
 
 
@@ -216,8 +209,7 @@ struct is_base_of_all
 template <typename Type, class... Types>
 struct all_same_as
 {
-  static constexpr bool value = internal::TemplateConstraints::all_true<
-    std::is_same_v<Type, Types>...>::value;
+  static constexpr bool value = internal::TemplateConstraints::all_true<std::is_same_v<Type, Types>...>::value;
 };
 
 
@@ -231,8 +223,7 @@ struct all_same_as
 template <typename Type, class... Types>
 struct is_same_as_any_of
 {
-  static constexpr bool value = internal::TemplateConstraints::any_true<
-    std::is_same_v<Type, Types>...>::value;
+  static constexpr bool value = internal::TemplateConstraints::any_true<std::is_same_v<Type, Types>...>::value;
 };
 
 
@@ -263,8 +254,7 @@ struct is_same_as_any_of
  * `bool` arguments) must be the last template argument.
  */
 template <bool... Values>
-struct enable_if_all
-  : std::enable_if<internal::TemplateConstraints::all_true<Values...>::value>
+struct enable_if_all : std::enable_if<internal::TemplateConstraints::all_true<Values...>::value>
 {};
 
 
@@ -304,12 +294,10 @@ using enable_if_all_t = typename enable_if_all<Values...>::type;
  * the `begin()` and `end()` functions, or is a C-style array.
  */
 template <typename T>
-using begin_and_end_t =
-  decltype(std::begin(std::declval<T>()), std::end(std::declval<T>()));
+using begin_and_end_t = decltype(std::begin(std::declval<T>()), std::end(std::declval<T>()));
 
 template <typename T>
-constexpr bool has_begin_and_end =
-  internal::is_supported_operation<begin_and_end_t, T>;
+constexpr bool has_begin_and_end = internal::is_supported_operation<begin_and_end_t, T>;
 
 
 /**
@@ -458,8 +446,7 @@ namespace internal
 template <typename T, typename U>
 struct ProductType
 {
-  using type =
-    typename internal::ProductTypeImpl<std::decay_t<T>, std::decay_t<U>>::type;
+  using type = typename internal::ProductTypeImpl<std::decay_t<T>, std::decay_t<U>>::type;
 };
 
 namespace internal
@@ -694,8 +681,7 @@ namespace concepts
    * example, on class Triangulation.
    */
   template <int dim, int spacedim>
-  concept is_valid_dim_spacedim = (dim >= 1 && spacedim <= 3 &&
-                                   dim <= spacedim);
+  concept is_valid_dim_spacedim = (dim >= 1 && spacedim <= 3 && dim <= spacedim);
 
   namespace internal
   {
@@ -712,57 +698,44 @@ namespace concepts
     inline constexpr bool is_dealii_vector_type<dealii::Vector<Number>> = true;
 
     template <typename Number>
-    inline constexpr bool is_dealii_vector_type<dealii::BlockVector<Number>> =
-      true;
+    inline constexpr bool is_dealii_vector_type<dealii::BlockVector<Number>> = true;
 
     template <typename Number>
-    inline constexpr bool
-      is_dealii_vector_type<dealii::LinearAlgebra::BlockVector<Number>> = true;
+    inline constexpr bool is_dealii_vector_type<dealii::LinearAlgebra::BlockVector<Number>> = true;
 
     template <typename Number, typename MemorySpace>
-    inline constexpr bool is_dealii_vector_type<
-      dealii::LinearAlgebra::distributed::Vector<Number, MemorySpace>> = true;
+    inline constexpr bool is_dealii_vector_type<dealii::LinearAlgebra::distributed::Vector<Number, MemorySpace>> = true;
 
     template <typename Number>
-    inline constexpr bool is_dealii_vector_type<
-      dealii::LinearAlgebra::distributed::BlockVector<Number>> = true;
+    inline constexpr bool is_dealii_vector_type<dealii::LinearAlgebra::distributed::BlockVector<Number>> = true;
 
 #  ifdef DEAL_II_WITH_PETSC
     template <>
-    inline constexpr bool is_dealii_vector_type<dealii::PETScWrappers::Vector> =
-      true;
+    inline constexpr bool is_dealii_vector_type<dealii::PETScWrappers::Vector> = true;
 
     template <>
-    inline constexpr bool
-      is_dealii_vector_type<dealii::PETScWrappers::BlockVector> = true;
+    inline constexpr bool is_dealii_vector_type<dealii::PETScWrappers::BlockVector> = true;
 
     template <>
-    inline constexpr bool
-      is_dealii_vector_type<dealii::PETScWrappers::MPI::Vector> = true;
+    inline constexpr bool is_dealii_vector_type<dealii::PETScWrappers::MPI::Vector> = true;
 
     template <>
-    inline constexpr bool
-      is_dealii_vector_type<dealii::PETScWrappers::MPI::BlockVector> = true;
+    inline constexpr bool is_dealii_vector_type<dealii::PETScWrappers::MPI::BlockVector> = true;
 #  endif
 
 #  ifdef DEAL_II_WITH_TRILINOS
     template <>
-    inline constexpr bool
-      is_dealii_vector_type<dealii::TrilinosWrappers::MPI::Vector> = true;
+    inline constexpr bool is_dealii_vector_type<dealii::TrilinosWrappers::MPI::Vector> = true;
 
     template <>
-    inline constexpr bool
-      is_dealii_vector_type<dealii::TrilinosWrappers::MPI::BlockVector> = true;
+    inline constexpr bool is_dealii_vector_type<dealii::TrilinosWrappers::MPI::BlockVector> = true;
 
     template <>
-    inline constexpr bool
-      is_dealii_vector_type<dealii::LinearAlgebra::EpetraWrappers::Vector> =
-        true;
+    inline constexpr bool is_dealii_vector_type<dealii::LinearAlgebra::EpetraWrappers::Vector> = true;
 
 #    ifdef DEAL_II_TRILINOS_WITH_TPETRA
     template <typename Number>
-    inline constexpr bool is_dealii_vector_type<
-      dealii::LinearAlgebra::TpetraWrappers::Vector<Number>> = true;
+    inline constexpr bool is_dealii_vector_type<dealii::LinearAlgebra::TpetraWrappers::Vector<Number>> = true;
 #    endif
 #  endif
 
@@ -779,25 +752,19 @@ namespace concepts
 
 #  ifdef DEAL_II_WITH_PETSC
     template <>
-    inline constexpr bool
-      is_dealii_petsc_vector_type<dealii::PETScWrappers::VectorBase> = true;
+    inline constexpr bool is_dealii_petsc_vector_type<dealii::PETScWrappers::VectorBase> = true;
 
     template <>
-    inline constexpr bool
-      is_dealii_petsc_vector_type<dealii::PETScWrappers::Vector> = true;
+    inline constexpr bool is_dealii_petsc_vector_type<dealii::PETScWrappers::Vector> = true;
 
     template <>
-    inline constexpr bool
-      is_dealii_petsc_vector_type<dealii::PETScWrappers::BlockVector> = true;
+    inline constexpr bool is_dealii_petsc_vector_type<dealii::PETScWrappers::BlockVector> = true;
 
     template <>
-    inline constexpr bool
-      is_dealii_petsc_vector_type<dealii::PETScWrappers::MPI::Vector> = true;
+    inline constexpr bool is_dealii_petsc_vector_type<dealii::PETScWrappers::MPI::Vector> = true;
 
     template <>
-    inline constexpr bool
-      is_dealii_petsc_vector_type<dealii::PETScWrappers::MPI::BlockVector> =
-        true;
+    inline constexpr bool is_dealii_petsc_vector_type<dealii::PETScWrappers::MPI::BlockVector> = true;
 #  endif
 
 
@@ -813,13 +780,10 @@ namespace concepts
 
 #  ifdef DEAL_II_WITH_PETSC
     template <>
-    inline constexpr bool
-      is_dealii_petsc_matrix_type<dealii::PETScWrappers::MPI::SparseMatrix> =
-        true;
+    inline constexpr bool is_dealii_petsc_matrix_type<dealii::PETScWrappers::MPI::SparseMatrix> = true;
 
     template <>
-    inline constexpr bool is_dealii_petsc_matrix_type<
-      dealii::PETScWrappers::MPI::BlockSparseMatrix> = true;
+    inline constexpr bool is_dealii_petsc_matrix_type<dealii::PETScWrappers::MPI::BlockSparseMatrix> = true;
 #  endif
   } // namespace internal
 
@@ -836,8 +800,7 @@ namespace concepts
    * types.
    */
   template <typename VectorType>
-  concept is_dealii_vector_type =
-    internal::is_dealii_vector_type<std::remove_cv_t<VectorType>>;
+  concept is_dealii_vector_type = internal::is_dealii_vector_type<std::remove_cv_t<VectorType>>;
 
   /**
    * A concept that tests whether a given template argument is a deal.II
@@ -849,9 +812,7 @@ namespace concepts
    * not.
    */
   template <typename VectorType>
-  concept is_writable_dealii_vector_type = is_dealii_vector_type<VectorType> &&
-                                           (std::is_const_v<VectorType> ==
-                                            false);
+  concept is_writable_dealii_vector_type = is_dealii_vector_type<VectorType> && (std::is_const_v<VectorType> == false);
 
   /**
    * A concept that tests whether a given template argument is a deal.II
@@ -862,8 +823,7 @@ namespace concepts
    * time stepping and nonlinear solver classes in namespace PETScWrappers.
    */
   template <typename VectorType>
-  concept is_dealii_petsc_vector_type =
-    internal::is_dealii_petsc_vector_type<VectorType>;
+  concept is_dealii_petsc_vector_type = internal::is_dealii_petsc_vector_type<VectorType>;
 
   /**
    * A concept that tests whether a given template argument is a deal.II
@@ -874,8 +834,7 @@ namespace concepts
    * time stepping and nonlinear solver classes in namespace PETScWrappers.
    */
   template <typename VectorType>
-  concept is_dealii_petsc_matrix_type =
-    internal::is_dealii_petsc_matrix_type<VectorType>;
+  concept is_dealii_petsc_matrix_type = internal::is_dealii_petsc_matrix_type<VectorType>;
 #endif
 } // namespace concepts
 
@@ -919,24 +878,20 @@ namespace concepts
     inline constexpr bool is_triangulation_or_dof_handler = false;
 
     template <int dim, int spacedim>
-    inline constexpr bool
-      is_triangulation_or_dof_handler<Triangulation<dim, spacedim>> = true;
+    inline constexpr bool is_triangulation_or_dof_handler<Triangulation<dim, spacedim>> = true;
 
     template <int dim, int spacedim>
-    inline constexpr bool is_triangulation_or_dof_handler<
-      parallel::distributed::Triangulation<dim, spacedim>> = true;
+    inline constexpr bool is_triangulation_or_dof_handler<parallel::distributed::Triangulation<dim, spacedim>> = true;
 
     template <int dim, int spacedim>
-    inline constexpr bool is_triangulation_or_dof_handler<
-      parallel::shared::Triangulation<dim, spacedim>> = true;
+    inline constexpr bool is_triangulation_or_dof_handler<parallel::shared::Triangulation<dim, spacedim>> = true;
 
     template <int dim, int spacedim>
-    inline constexpr bool is_triangulation_or_dof_handler<
-      parallel::fullydistributed::Triangulation<dim, spacedim>> = true;
+    inline constexpr bool is_triangulation_or_dof_handler<parallel::fullydistributed::Triangulation<dim, spacedim>> =
+      true;
 
     template <int dim, int spacedim>
-    inline constexpr bool
-      is_triangulation_or_dof_handler<DoFHandler<dim, spacedim>> = true;
+    inline constexpr bool is_triangulation_or_dof_handler<DoFHandler<dim, spacedim>> = true;
   } // namespace internal
 
 
@@ -948,8 +903,7 @@ namespace concepts
    * Triangulation or a DoFHandler type.
    */
   template <typename MeshType>
-  concept is_triangulation_or_dof_handler =
-    internal::is_triangulation_or_dof_handler<MeshType>;
+  concept is_triangulation_or_dof_handler = internal::is_triangulation_or_dof_handler<MeshType>;
 
   /**
    * A concept that tests whether a class `VectorType` has the required
@@ -963,8 +917,7 @@ namespace concepts
                                             VectorType                      W,
                                             typename VectorType::value_type a,
                                             typename VectorType::value_type b,
-                                            typename VectorType::value_type s)
-  {
+                                            typename VectorType::value_type s) {
     // Check local type requirements:
     typename VectorType::value_type;
     typename VectorType::size_type;
@@ -998,45 +951,37 @@ namespace concepts
     // Norms and similar stuff:
     {
       U.mean_value()
-    }
-    ->std::convertible_to<typename VectorType::value_type>;
+    } -> std::convertible_to<typename VectorType::value_type>;
 
     {
       U.l1_norm()
-    }
-    ->std::convertible_to<typename VectorType::real_type>;
+    } -> std::convertible_to<typename VectorType::real_type>;
 
     {
       U.l2_norm()
-    }
-    ->std::convertible_to<typename VectorType::real_type>;
+    } -> std::convertible_to<typename VectorType::real_type>;
 
     {
       U.linfty_norm()
-    }
-    ->std::convertible_to<typename VectorType::real_type>;
+    } -> std::convertible_to<typename VectorType::real_type>;
 
     // Dot products:
     {
       U *V
-    }
-    ->std::convertible_to<typename VectorType::value_type>;
+    } -> std::convertible_to<typename VectorType::value_type>;
 
     {
       U.add_and_dot(a, V, W)
-    }
-    ->std::convertible_to<typename VectorType::value_type>;
+    } -> std::convertible_to<typename VectorType::value_type>;
 
     // Some queries:
     {
       U.size()
-    }
-    ->std::convertible_to<typename VectorType::size_type>;
+    } -> std::convertible_to<typename VectorType::size_type>;
 
     {
       U.all_zero()
-    }
-    ->std::same_as<bool>;
+    } -> std::same_as<bool>;
   };
 
 #endif

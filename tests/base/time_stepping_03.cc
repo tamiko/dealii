@@ -35,9 +35,8 @@ main()
          26877169314380. / 34165994151039.}};
 
   deallog << "Check low-storage Runge-Kutta coefficients" << std::endl;
-  TimeStepping::LowStorageRungeKutta<Vector<double>> lsrk54(
-    TimeStepping::LOW_STORAGE_RK_STAGE5_ORDER4);
-  std::vector<double> a, b, c;
+  TimeStepping::LowStorageRungeKutta<Vector<double>> lsrk54(TimeStepping::LOW_STORAGE_RK_STAGE5_ORDER4);
+  std::vector<double>                                a, b, c;
   lsrk54.get_coefficients(a, b, c);
 
   double sum_previous_bi = 0.;

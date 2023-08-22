@@ -75,12 +75,8 @@ test(const FiniteElement<dim, spacedim> &fe)
   AffineConstraints<double> dummy;
   dummy.close();
 
-  VectorTools::project(mapping,
-                       dof_handler,
-                       dummy,
-                       QGaussPyramid<dim>(fe.tensor_degree() + 1),
-                       RightHandSideFunction<dim>(1),
-                       solution);
+  VectorTools::project(
+    mapping, dof_handler, dummy, QGaussPyramid<dim>(fe.tensor_degree() + 1), RightHandSideFunction<dim>(1), solution);
 
 
   DataOut<dim> data_out;

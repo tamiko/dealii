@@ -58,8 +58,7 @@ DEAL_II_NAMESPACE_OPEN
  *   space dimension need to coincide.
  */
 template <int dim, int patch_dim, int spacedim>
-class DataOutResample
-  : public DataOut_DoFData<dim, patch_dim, spacedim, spacedim>
+class DataOutResample : public DataOut_DoFData<dim, patch_dim, spacedim, spacedim>
 {
 public:
   /**
@@ -67,7 +66,7 @@ public:
    * should be generated.
    */
   DataOutResample(const Triangulation<patch_dim, spacedim> &patch_tria,
-                  const Mapping<patch_dim, spacedim> &      patch_mapping);
+                  const Mapping<patch_dim, spacedim>       &patch_mapping);
 
   /**
    * Update the @p mapping of original triangulation. One needs to call this
@@ -83,8 +82,7 @@ public:
    *   mapping, this function has to be called before its first usage.
    */
   void
-  update_mapping(const Mapping<dim, spacedim> &mapping,
-                 const unsigned int            n_subdivisions = 0);
+  update_mapping(const Mapping<dim, spacedim> &mapping, const unsigned int n_subdivisions = 0);
 
   /**
    * This is the central function of this class since it builds the list of
@@ -100,12 +98,10 @@ public:
    * determines how many "patches" this function will build out of every cell.
    */
   void
-  build_patches(
-    const Mapping<dim, spacedim> &mapping,
-    const unsigned int            n_subdivisions = 0,
-    const typename DataOut<patch_dim, spacedim>::CurvedCellRegion
-      curved_region =
-        DataOut<patch_dim, spacedim>::CurvedCellRegion::curved_boundary);
+  build_patches(const Mapping<dim, spacedim>                                 &mapping,
+                const unsigned int                                            n_subdivisions = 0,
+                const typename DataOut<patch_dim, spacedim>::CurvedCellRegion curved_region =
+                  DataOut<patch_dim, spacedim>::CurvedCellRegion::curved_boundary);
 
   /**
    * Just like the above function, this function builds a list of
@@ -119,10 +115,8 @@ public:
    *   n_subdivisions previously passed to these functions is used.
    */
   void
-  build_patches(
-    const typename DataOut<patch_dim, spacedim>::CurvedCellRegion
-      curved_region =
-        DataOut<patch_dim, spacedim>::CurvedCellRegion::curved_boundary);
+  build_patches(const typename DataOut<patch_dim, spacedim>::CurvedCellRegion curved_region =
+                  DataOut<patch_dim, spacedim>::CurvedCellRegion::curved_boundary);
 
 protected:
   virtual const std::vector<typename DataOutBase::Patch<patch_dim, spacedim>> &

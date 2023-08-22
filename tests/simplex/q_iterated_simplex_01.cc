@@ -52,8 +52,7 @@ check_accuracy_1D(const unsigned int n_points_1D, const unsigned int n_copies)
   monomial_powers[dim - 1] += accuracy - sum;
 
   const Functions::Monomial<dim> func(monomial_powers);
-  const QIteratedSimplex<dim> quad(QWitherdenVincentSimplex<dim>(n_points_1D),
-                                   n_copies);
+  const QIteratedSimplex<dim>    quad(QWitherdenVincentSimplex<dim>(n_points_1D), n_copies);
 
   deallog << "Monomial powers = " << monomial_powers << std::endl;
   double integrand = 0.0;

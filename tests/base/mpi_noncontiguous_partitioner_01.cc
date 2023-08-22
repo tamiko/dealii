@@ -40,17 +40,14 @@ test(const MPI_Comm comm)
       index_set_want.add_index(2);
     }
 
-  Utilities::MPI::NoncontiguousPartitioner vector(index_set_has,
-                                                  index_set_want,
-                                                  comm);
+  Utilities::MPI::NoncontiguousPartitioner vector(index_set_has, index_set_want, comm);
 
   AlignedVector<double> src(index_set_has.n_elements());
   AlignedVector<double> dst(index_set_want.n_elements());
 
   src[0] = Utilities::MPI::this_mpi_process(comm) * 100 + 1;
 
-  vector.export_to_ghosted_array(ArrayView<const double>(src.data(),
-                                                         src.size()),
+  vector.export_to_ghosted_array(ArrayView<const double>(src.data(), src.size()),
                                  ArrayView<double>(dst.data(), dst.size()));
 
   for (size_t i = 0; i < src.size(); ++i)

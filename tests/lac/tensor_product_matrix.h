@@ -25,22 +25,15 @@ namespace dealii
     // Compute harminic extent of all non-artificial cells.
     template <int dim>
     std::vector<std::array<double, dim>>
-    compute_harmonic_cell_extent(const Mapping<dim> &       mapping,
-                                 const Triangulation<dim> & triangulation,
+    compute_harmonic_cell_extent(const Mapping<dim>        &mapping,
+                                 const Triangulation<dim>  &triangulation,
                                  const Quadrature<dim - 1> &quadrature)
     {
-      std::vector<std::array<double, dim>> result(
-        triangulation.n_active_cells());
+      std::vector<std::array<double, dim>> result(triangulation.n_active_cells());
 
       FE_Nothing<dim>   fe_nothing;
-      FEFaceValues<dim> fe_face_values_0(mapping,
-                                         fe_nothing,
-                                         quadrature,
-                                         update_quadrature_points);
-      FEFaceValues<dim> fe_face_values_1(mapping,
-                                         fe_nothing,
-                                         quadrature,
-                                         update_quadrature_points);
+      FEFaceValues<dim> fe_face_values_0(mapping, fe_nothing, quadrature, update_quadrature_points);
+      FEFaceValues<dim> fe_face_values_1(mapping, fe_nothing, quadrature, update_quadrature_points);
 
       for (const auto &cell : triangulation.active_cell_iterators())
         if (cell->is_artificial() == false)
@@ -53,8 +46,7 @@ namespace dealii
                 double extent = 0.0;
 
                 for (unsigned int q = 0; q < quadrature.size(); ++q)
-                  extent += fe_face_values_0.quadrature_point(q).distance(
-                              fe_face_values_1.quadrature_point(q)) *
+                  extent += fe_face_values_0.quadrature_point(q).distance(fe_face_values_1.quadrature_point(q)) *
                             quadrature.weight(q);
 
                 result[cell->active_cell_index()][d] = extent;
@@ -68,15 +60,12 @@ namespace dealii
     // of its neighbors. If there is no neigbor, its extent is zero.
     template <int dim>
     std::vector<dealii::ndarray<double, dim, 3>>
-    compute_harmonic_patch_extent(const Mapping<dim> &       mapping,
-                                  const Triangulation<dim> & triangulation,
+    compute_harmonic_patch_extent(const Mapping<dim>        &mapping,
+                                  const Triangulation<dim>  &triangulation,
                                   const Quadrature<dim - 1> &quadrature)
     {
       // 1) compute extent of each non-artificial cell
-      const auto harmonic_cell_extents =
-        GridTools::compute_harmonic_cell_extent(mapping,
-                                                triangulation,
-                                                quadrature);
+      const auto harmonic_cell_extents = GridTools::compute_harmonic_cell_extent(mapping, triangulation, quadrature);
 
       // 2) accumulate for each face the normal extent for the
       // neigboring cell(s); here we also consider periodicies
@@ -86,18 +75,16 @@ namespace dealii
         if (cell->is_artificial() == false)
           for (unsigned int d = 0; d < dim; ++d)
             {
-              const auto extent =
-                harmonic_cell_extents[cell->active_cell_index()][d];
+              const auto extent = harmonic_cell_extents[cell->active_cell_index()][d];
 
               const auto add_extent_to_faces = [&](const unsigned int face_no) {
                 face_extent[cell->face(face_no)->index()] += extent;
 
                 if (cell->has_periodic_neighbor(face_no) &&
-                    (cell->periodic_neighbor(face_no)->is_artificial() ==
-                     false))
-                  face_extent[cell->periodic_neighbor(face_no)
-                                ->face(cell->periodic_neighbor_face_no(face_no))
-                                ->index()] += extent;
+                    (cell->periodic_neighbor(face_no)->is_artificial() == false))
+                  face_extent
+                    [cell->periodic_neighbor(face_no)->face(cell->periodic_neighbor_face_no(face_no))->index()] +=
+                    extent;
               };
 
               add_extent_to_faces(2 * d + 0); // face 0
@@ -107,23 +94,19 @@ namespace dealii
       // 3) collect cell extent including those of the neighboring
       // cells, which corresponds to the difference of extent of the
       // current cell and the face extent
-      std::vector<dealii::ndarray<double, dim, 3>> result(
-        triangulation.n_active_cells());
+      std::vector<dealii::ndarray<double, dim, 3>> result(triangulation.n_active_cells());
 
       for (const auto &cell : triangulation.active_cell_iterators())
         if (cell->is_locally_owned())
           for (unsigned int d = 0; d < dim; ++d)
             {
-              const auto cell_extent =
-                harmonic_cell_extents[cell->active_cell_index()][d];
+              const auto cell_extent = harmonic_cell_extents[cell->active_cell_index()][d];
 
               const auto index = cell->active_cell_index();
 
-              result[index][d][0] =
-                face_extent[cell->face(2 * d + 0)->index()] - cell_extent;
+              result[index][d][0] = face_extent[cell->face(2 * d + 0)->index()] - cell_extent;
               result[index][d][1] = cell_extent;
-              result[index][d][2] =
-                face_extent[cell->face(2 * d + 1)->index()] - cell_extent;
+              result[index][d][2] = face_extent[cell->face(2 * d + 1)->index()] - cell_extent;
             }
 
       return result;

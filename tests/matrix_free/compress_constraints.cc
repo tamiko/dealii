@@ -76,20 +76,15 @@ test()
   dof.distribute_dofs(fe);
   AffineConstraints<double> constraints;
   DoFTools::make_hanging_node_constraints(dof, constraints);
-  VectorTools::interpolate_boundary_values(dof,
-                                           0,
-                                           Functions::ZeroFunction<dim>(),
-                                           constraints);
+  VectorTools::interpolate_boundary_values(dof, 0, Functions::ZeroFunction<dim>(), constraints);
   constraints.close();
 
   const QGauss<1> quad(2);
   MatrixFree<dim> mf;
   mf.reinit(MappingQ1<dim>{}, dof, constraints, quad);
 
-  deallog << "Number of hanging nodes: " << constraints.n_constraints()
-          << std::endl;
-  deallog << "Number of different constraint weights: "
-          << mf.n_constraint_pool_entries() << std::endl;
+  deallog << "Number of hanging nodes: " << constraints.n_constraints() << std::endl;
+  deallog << "Number of different constraint weights: " << mf.n_constraint_pool_entries() << std::endl;
 }
 
 

@@ -50,8 +50,8 @@ template <int dim>
 void
 test()
 {
-  parallel::distributed::Triangulation<dim> triangulation(
-    MPI_COMM_WORLD, Triangulation<dim>::limit_level_difference_at_vertices);
+  parallel::distributed::Triangulation<dim> triangulation(MPI_COMM_WORLD,
+                                                          Triangulation<dim>::limit_level_difference_at_vertices);
   TestGrids::hyper_line(triangulation, 2);
   Assert(triangulation.n_active_cells() == 2, ExcInternalError());
 

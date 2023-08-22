@@ -320,12 +320,12 @@ namespace WorkStream
          * hold items, and the sample additional data object that will be
          * passed to each worker and copier function invocation.
          */
-        IteratorRangeToItemStream(const Iterator &   begin,
-                                  const Iterator &   end,
+        IteratorRangeToItemStream(const Iterator    &begin,
+                                  const Iterator    &end,
                                   const unsigned int buffer_size,
                                   const unsigned int chunk_size,
                                   const ScratchData &sample_scratch_data,
-                                  const CopyData &   sample_copy_data)
+                                  const CopyData    &sample_copy_data)
           : remaining_iterator_range(begin, end)
           , item_buffer(buffer_size)
           , sample_scratch_data(sample_scratch_data)
@@ -336,8 +336,7 @@ namespace WorkStream
             {
               Assert(item.n_iterators == 0, ExcInternalError());
 
-              item.iterators.resize(chunk_size,
-                                    remaining_iterator_range.second);
+              item.iterators.resize(chunk_size, remaining_iterator_range.second);
               item.scratch_data        = &thread_local_scratch;
               item.sample_scratch_data = &sample_scratch_data;
               item.copy_datas.resize(chunk_size, sample_copy_data);
@@ -374,19 +373,16 @@ namespace WorkStream
                 current_item                    = &item_buffer[i];
                 break;
               }
-          Assert(current_item != nullptr,
-                 ExcMessage("This can't be. There must be a free item!"));
+          Assert(current_item != nullptr, ExcMessage("This can't be. There must be a free item!"));
 
           // initialize the next item. it may
           // consist of at most chunk_size
           // elements
           current_item->n_iterators = 0;
-          while ((remaining_iterator_range.first !=
-                  remaining_iterator_range.second) &&
+          while ((remaining_iterator_range.first != remaining_iterator_range.second) &&
                  (current_item->n_iterators < chunk_size))
             {
-              current_item->iterators[current_item->n_iterators] =
-                remaining_iterator_range.first;
+              current_item->iterators[current_item->n_iterators] = remaining_iterator_range.first;
 
               ++remaining_iterator_range.first;
               ++current_item->n_iterators;
@@ -442,8 +438,7 @@ namespace WorkStream
          * scratch data object is allocated and initialized by the same thread
          * that will later use it.
          */
-        Threads::ThreadLocalStorage<typename ItemType::ScratchDataList>
-          thread_local_scratch;
+        Threads::ThreadLocalStorage<typename ItemType::ScratchDataList> thread_local_scratch;
 
         /**
          * A reference to a sample scratch data that will be used to
@@ -463,24 +458,18 @@ namespace WorkStream
 
 
 
-      template <typename Worker,
-                typename Copier,
-                typename Iterator,
-                typename ScratchData,
-                typename CopyData>
+      template <typename Worker, typename Copier, typename Iterator, typename ScratchData, typename CopyData>
       void
-      run(const Iterator &                            begin,
+      run(const Iterator                             &begin,
           const std_cxx20::type_identity_t<Iterator> &end,
           Worker                                      worker,
           Copier                                      copier,
-          const ScratchData &                         sample_scratch_data,
-          const CopyData &                            sample_copy_data,
+          const ScratchData                          &sample_scratch_data,
+          const CopyData                             &sample_copy_data,
           const unsigned int                          queue_length,
           const unsigned int                          chunk_size)
       {
-        using ItemType = typename IteratorRangeToItemStream<Iterator,
-                                                            ScratchData,
-                                                            CopyData>::ItemType;
+        using ItemType = typename IteratorRangeToItemStream<Iterator, ScratchData, CopyData>::ItemType;
 
         // Create the three stages of the pipeline:
 
@@ -489,13 +478,8 @@ namespace WorkStream
         //
         // The first stage is the one that provides us with chunks of data
         // to work on (the stream of "items"). This stage runs sequentially.
-        IteratorRangeToItemStream<Iterator, ScratchData, CopyData>
-             iterator_range_to_item_stream(begin,
-                                        end,
-                                        queue_length,
-                                        chunk_size,
-                                        sample_scratch_data,
-                                        sample_copy_data);
+        IteratorRangeToItemStream<Iterator, ScratchData, CopyData> iterator_range_to_item_stream(
+          begin, end, queue_length, chunk_size, sample_scratch_data, sample_copy_data);
         auto tbb_item_stream_filter = tbb::make_filter<void, ItemType *>(
 #    ifdef DEAL_II_TBB_WITH_ONEAPI
           tbb::filter_mode::serial_in_order,
@@ -523,12 +507,8 @@ namespace WorkStream
 #    else
           tbb::filter::parallel,
 #    endif
-          [worker =
-             std::function<void(const Iterator &, ScratchData &, CopyData &)>(
-               worker),
-           copier_exists =
-             static_cast<bool>(std::function<void(const CopyData &)>(copier))](
-            ItemType *current_item) {
+          [worker        = std::function<void(const Iterator &, ScratchData &, CopyData &)>(worker),
+           copier_exists = static_cast<bool>(std::function<void(const CopyData &)>(copier))](ItemType *current_item) {
             // we need to find an unused scratch data object in the list that
             // corresponds to the current thread and then mark it as used. if
             // we can't find one, create one
@@ -556,10 +536,8 @@ namespace WorkStream
               // if no object was found, create one and mark it as used
               if (scratch_data == nullptr)
                 {
-                  scratch_data =
-                    new ScratchData(*current_item->sample_scratch_data);
-                  current_item->scratch_data->get().emplace_back(scratch_data,
-                                                                 true);
+                  scratch_data = new ScratchData(*current_item->sample_scratch_data);
+                  current_item->scratch_data->get().emplace_back(scratch_data, true);
                 }
             }
 
@@ -572,9 +550,7 @@ namespace WorkStream
                 try
                   {
                     if (worker)
-                      worker(current_item->iterators[i],
-                             *scratch_data,
-                             current_item->copy_datas[i]);
+                      worker(current_item->iterators[i], *scratch_data, current_item->copy_datas[i]);
                   }
                 catch (const std::exception &exc)
                   {
@@ -620,8 +596,7 @@ namespace WorkStream
 #    else
           tbb::filter::serial,
 #    endif
-          [copier = std::function<void(const CopyData &)>(copier)](
-            ItemType *current_item) {
+          [copier = std::function<void(const CopyData &)>(copier)](ItemType *current_item) {
             if (copier)
               {
                 // Initiate copying data. For the same reasons as in the worker
@@ -652,9 +627,7 @@ namespace WorkStream
         // ----- The pipeline -----
         //
         // Now create a pipeline from these stages and execute it:
-        tbb::parallel_pipeline(queue_length,
-                               tbb_item_stream_filter & tbb_worker_filter &
-                                 tbb_copier_filter);
+        tbb::parallel_pipeline(queue_length, tbb_item_stream_filter & tbb_worker_filter & tbb_copier_filter);
       }
 
     }    // namespace tbb_no_coloring
@@ -672,18 +645,14 @@ namespace WorkStream
       /**
        * Sequential version without colors.
        */
-      template <typename Worker,
-                typename Copier,
-                typename Iterator,
-                typename ScratchData,
-                typename CopyData>
+      template <typename Worker, typename Copier, typename Iterator, typename ScratchData, typename CopyData>
       void
-      run(const Iterator &                            begin,
+      run(const Iterator                             &begin,
           const std_cxx20::type_identity_t<Iterator> &end,
           Worker                                      worker,
           Copier                                      copier,
-          const ScratchData &                         sample_scratch_data,
-          const CopyData &                            sample_copy_data)
+          const ScratchData                          &sample_scratch_data,
+          const CopyData                             &sample_copy_data)
       {
         // need to copy the sample since it is marked const
         ScratchData scratch_data = sample_scratch_data;
@@ -692,12 +661,8 @@ namespace WorkStream
         // Optimization: Check if the functions are not the zero function. To
         // check zero-ness, create a C++ function out of it:
         const bool have_worker =
-          (static_cast<const std::function<
-             void(const Iterator &, ScratchData &, CopyData &)> &>(worker)) !=
-          nullptr;
-        const bool have_copier =
-          (static_cast<const std::function<void(const CopyData &)> &>(
-            copier)) != nullptr;
+          (static_cast<const std::function<void(const Iterator &, ScratchData &, CopyData &)> &>(worker)) != nullptr;
+        const bool have_copier = (static_cast<const std::function<void(const CopyData &)> &>(copier)) != nullptr;
 
         // Finally loop over all items and perform the necessary work:
         for (Iterator i = begin; i != end; ++i)
@@ -714,17 +679,13 @@ namespace WorkStream
       /**
        * Sequential version with colors
        */
-      template <typename Worker,
-                typename Copier,
-                typename Iterator,
-                typename ScratchData,
-                typename CopyData>
+      template <typename Worker, typename Copier, typename Iterator, typename ScratchData, typename CopyData>
       void
       run(const std::vector<std::vector<Iterator>> &colored_iterators,
           Worker                                    worker,
           Copier                                    copier,
-          const ScratchData &                       sample_scratch_data,
-          const CopyData &                          sample_copy_data)
+          const ScratchData                        &sample_scratch_data,
+          const CopyData                           &sample_copy_data)
       {
         // need to copy the sample since it is marked const
         ScratchData scratch_data = sample_scratch_data;
@@ -733,12 +694,8 @@ namespace WorkStream
         // Optimization: Check if the functions are not the zero function. To
         // check zero-ness, create a C++ function out of it:
         const bool have_worker =
-          (static_cast<const std::function<
-             void(const Iterator &, ScratchData &, CopyData &)> &>(worker)) !=
-          nullptr;
-        const bool have_copier =
-          (static_cast<const std::function<void(const CopyData &)> &>(
-            copier)) != nullptr;
+          (static_cast<const std::function<void(const Iterator &, ScratchData &, CopyData &)> &>(worker)) != nullptr;
+        const bool have_copier = (static_cast<const std::function<void(const CopyData &)> &>(copier)) != nullptr;
 
         // Finally loop over all items and perform the necessary work:
         for (unsigned int color = 0; color < colored_iterators.size(); ++color)
@@ -785,9 +742,7 @@ namespace WorkStream
           : currently_in_use(false)
         {}
 
-        ScratchAndCopyDataObjects(std::unique_ptr<ScratchData> &&p,
-                                  std::unique_ptr<CopyData> &&   q,
-                                  const bool                     in_use)
+        ScratchAndCopyDataObjects(std::unique_ptr<ScratchData> &&p, std::unique_ptr<CopyData> &&q, const bool in_use)
           : scratch_data(std::move(p))
           , copy_data(std::move(q))
           , currently_in_use(in_use)
@@ -815,12 +770,10 @@ namespace WorkStream
         /**
          * Constructor.
          */
-        WorkerAndCopier(
-          const std::function<void(const Iterator &, ScratchData &, CopyData &)>
-            &                                          worker,
-          const std::function<void(const CopyData &)> &copier,
-          const ScratchData &                          sample_scratch_data,
-          const CopyData &                             sample_copy_data)
+        WorkerAndCopier(const std::function<void(const Iterator &, ScratchData &, CopyData &)> &worker,
+                        const std::function<void(const CopyData &)>                            &copier,
+                        const ScratchData                                                      &sample_scratch_data,
+                        const CopyData                                                         &sample_copy_data)
           : worker(worker)
           , copier(copier)
           , sample_scratch_data(sample_scratch_data)
@@ -833,8 +786,7 @@ namespace WorkStream
          * range of items denoted by the two arguments.
          */
         void
-        operator()(const tbb::blocked_range<
-                   typename std::vector<Iterator>::const_iterator> &range)
+        operator()(const tbb::blocked_range<typename std::vector<Iterator>::const_iterator> &range)
         {
           // we need to find an unused scratch and corresponding copy
           // data object in the list that corresponds to the current
@@ -847,14 +799,13 @@ namespace WorkStream
           // now and expect it to still be valid after calling the worker,
           // but we at least do not have to lock the following section.
           ScratchData *scratch_data = nullptr;
-          CopyData *   copy_data    = nullptr;
+          CopyData    *copy_data    = nullptr;
           {
             ScratchAndCopyDataList &scratch_and_copy_data_list = data.get();
 
             // see if there is an unused object. if so, grab it and mark
             // it as used
-            for (typename ScratchAndCopyDataList::iterator p =
-                   scratch_and_copy_data_list.begin();
+            for (typename ScratchAndCopyDataList::iterator p = scratch_and_copy_data_list.begin();
                  p != scratch_and_copy_data_list.end();
                  ++p)
               if (p->currently_in_use == false)
@@ -871,21 +822,17 @@ namespace WorkStream
               {
                 Assert(copy_data == nullptr, ExcInternalError());
 
-                scratch_and_copy_data_list.emplace_back(
-                  std::make_unique<ScratchData>(sample_scratch_data),
-                  std::make_unique<CopyData>(sample_copy_data),
-                  true);
-                scratch_data =
-                  scratch_and_copy_data_list.back().scratch_data.get();
-                copy_data = scratch_and_copy_data_list.back().copy_data.get();
+                scratch_and_copy_data_list.emplace_back(std::make_unique<ScratchData>(sample_scratch_data),
+                                                        std::make_unique<CopyData>(sample_copy_data),
+                                                        true);
+                scratch_data = scratch_and_copy_data_list.back().scratch_data.get();
+                copy_data    = scratch_and_copy_data_list.back().copy_data.get();
               }
           }
 
           // then call the worker and copier functions on each
           // element of the chunk we were given.
-          for (typename std::vector<Iterator>::const_iterator p = range.begin();
-               p != range.end();
-               ++p)
+          for (typename std::vector<Iterator>::const_iterator p = range.begin(); p != range.end(); ++p)
             {
               try
                 {
@@ -910,8 +857,7 @@ namespace WorkStream
           {
             ScratchAndCopyDataList &scratch_and_copy_data_list = data.get();
 
-            for (typename ScratchAndCopyDataList::iterator p =
-                   scratch_and_copy_data_list.begin();
+            for (typename ScratchAndCopyDataList::iterator p = scratch_and_copy_data_list.begin();
                  p != scratch_and_copy_data_list.end();
                  ++p)
               if (p->scratch_data.get() == scratch_data)
@@ -923,8 +869,8 @@ namespace WorkStream
         }
 
       private:
-        using ScratchAndCopyDataObjects = typename tbb_colored::
-          ScratchAndCopyDataObjects<Iterator, ScratchData, CopyData>;
+        using ScratchAndCopyDataObjects =
+          typename tbb_colored::ScratchAndCopyDataObjects<Iterator, ScratchData, CopyData>;
 
         /**
          * Typedef to a list of scratch data objects. The rationale for this
@@ -938,8 +884,7 @@ namespace WorkStream
          * Pointer to the function that does the assembling on the sequence of
          * cells.
          */
-        const std::function<void(const Iterator &, ScratchData &, CopyData &)>
-          worker;
+        const std::function<void(const Iterator &, ScratchData &, CopyData &)> worker;
 
         /**
          * Pointer to the function that does the copying from local
@@ -951,43 +896,33 @@ namespace WorkStream
          * References to sample scratch and copy data for when we need them.
          */
         const ScratchData &sample_scratch_data;
-        const CopyData &   sample_copy_data;
+        const CopyData    &sample_copy_data;
       };
 
       /**
        * The colored run function using TBB.
        */
-      template <typename Worker,
-                typename Copier,
-                typename Iterator,
-                typename ScratchData,
-                typename CopyData>
+      template <typename Worker, typename Copier, typename Iterator, typename ScratchData, typename CopyData>
       void
       run(const std::vector<std::vector<Iterator>> &colored_iterators,
           Worker                                    worker,
           Copier                                    copier,
-          const ScratchData &                       sample_scratch_data,
-          const CopyData &                          sample_copy_data,
+          const ScratchData                        &sample_scratch_data,
+          const CopyData                           &sample_copy_data,
           const unsigned int                        chunk_size)
       {
         // loop over the various colors of what we're given
         for (unsigned int color = 0; color < colored_iterators.size(); ++color)
           if (colored_iterators[color].size() > 0)
             {
-              using WorkerAndCopier = internal::tbb_colored::
-                WorkerAndCopier<Iterator, ScratchData, CopyData>;
+              using WorkerAndCopier = internal::tbb_colored::WorkerAndCopier<Iterator, ScratchData, CopyData>;
 
-              WorkerAndCopier worker_and_copier(worker,
-                                                copier,
-                                                sample_scratch_data,
-                                                sample_copy_data);
+              WorkerAndCopier worker_and_copier(worker, copier, sample_scratch_data, sample_copy_data);
 
               parallel::internal::parallel_for(
                 colored_iterators[color].begin(),
                 colored_iterators[color].end(),
-                [&worker_and_copier](
-                  const tbb::blocked_range<
-                    typename std::vector<Iterator>::const_iterator> &range) {
+                [&worker_and_copier](const tbb::blocked_range<typename std::vector<Iterator>::const_iterator> &range) {
                   worker_and_copier(range);
                 },
                 chunk_size);
@@ -1049,19 +984,15 @@ namespace WorkStream
    * `std::function` object *can* be recognized, and is then used to select
    * a more efficient algorithm.
    */
-  template <typename Worker,
-            typename Copier,
-            typename Iterator,
-            typename ScratchData,
-            typename CopyData>
+  template <typename Worker, typename Copier, typename Iterator, typename ScratchData, typename CopyData>
   void
   run(const std::vector<std::vector<Iterator>> &colored_iterators,
       Worker                                    worker,
       Copier                                    copier,
-      const ScratchData &                       sample_scratch_data,
-      const CopyData &                          sample_copy_data,
-      const unsigned int queue_length = 2 * MultithreadInfo::n_threads(),
-      const unsigned int chunk_size   = 8);
+      const ScratchData                        &sample_scratch_data,
+      const CopyData                           &sample_copy_data,
+      const unsigned int                        queue_length = 2 * MultithreadInfo::n_threads(),
+      const unsigned int                        chunk_size   = 8);
 
 
   /**
@@ -1113,20 +1044,16 @@ namespace WorkStream
    * `std::function` object *can* be recognized, and is then used to select
    * a more efficient algorithm.
    */
-  template <typename Worker,
-            typename Copier,
-            typename Iterator,
-            typename ScratchData,
-            typename CopyData>
+  template <typename Worker, typename Copier, typename Iterator, typename ScratchData, typename CopyData>
   void
-  run(const Iterator &                            begin,
+  run(const Iterator                             &begin,
       const std_cxx20::type_identity_t<Iterator> &end,
       Worker                                      worker,
       Copier                                      copier,
-      const ScratchData &                         sample_scratch_data,
-      const CopyData &                            sample_copy_data,
-      const unsigned int queue_length = 2 * MultithreadInfo::n_threads(),
-      const unsigned int chunk_size   = 8)
+      const ScratchData                          &sample_scratch_data,
+      const CopyData                             &sample_copy_data,
+      const unsigned int                          queue_length = 2 * MultithreadInfo::n_threads(),
+      const unsigned int                          chunk_size   = 8)
   {
     Assert(queue_length > 0,
            ExcMessage("The queue length must be at least one, and preferably "
@@ -1146,14 +1073,8 @@ namespace WorkStream
         if (static_cast<const std::function<void(const CopyData &)> &>(copier))
           {
             // If we have a copier, run the algorithm:
-            internal::tbb_no_coloring::run(begin,
-                                           end,
-                                           worker,
-                                           copier,
-                                           sample_scratch_data,
-                                           sample_copy_data,
-                                           queue_length,
-                                           chunk_size);
+            internal::tbb_no_coloring::run(
+              begin, end, worker, copier, sample_scratch_data, sample_copy_data, queue_length, chunk_size);
           }
         else
           {
@@ -1175,13 +1096,7 @@ namespace WorkStream
             for (Iterator p = begin; p != end; ++p)
               all_iterators[0].push_back(p);
 
-            run(all_iterators,
-                worker,
-                copier,
-                sample_scratch_data,
-                sample_copy_data,
-                queue_length,
-                chunk_size);
+            run(all_iterators, worker, copier, sample_scratch_data, sample_copy_data, queue_length, chunk_size);
           }
 
         // exit this function to not run the sequential version below:
@@ -1190,8 +1105,7 @@ namespace WorkStream
       }
 
     // no TBB installed or we are requested to run sequentially:
-    internal::sequential::run(
-      begin, end, worker, copier, sample_scratch_data, sample_copy_data);
+    internal::sequential::run(begin, end, worker, copier, sample_scratch_data, sample_copy_data);
   }
 
 
@@ -1214,7 +1128,7 @@ namespace WorkStream
       Worker             worker,
       Copier             copier,
       const ScratchData &sample_scratch_data,
-      const CopyData &   sample_copy_data,
+      const CopyData    &sample_copy_data,
       const unsigned int queue_length = 2 * MultithreadInfo::n_threads(),
       const unsigned int chunk_size   = 8)
   {
@@ -1234,19 +1148,15 @@ namespace WorkStream
   /**
    * Same as the function above, but for deal.II's IteratorRange.
    */
-  template <typename Worker,
-            typename Copier,
-            typename Iterator,
-            typename ScratchData,
-            typename CopyData>
+  template <typename Worker, typename Copier, typename Iterator, typename ScratchData, typename CopyData>
   void
   run(const IteratorRange<Iterator> &iterator_range,
       Worker                         worker,
       Copier                         copier,
-      const ScratchData &            sample_scratch_data,
-      const CopyData &               sample_copy_data,
-      const unsigned int queue_length = 2 * MultithreadInfo::n_threads(),
-      const unsigned int chunk_size   = 8)
+      const ScratchData             &sample_scratch_data,
+      const CopyData                &sample_copy_data,
+      const unsigned int             queue_length = 2 * MultithreadInfo::n_threads(),
+      const unsigned int             chunk_size   = 8)
   {
     // Call the function above
     run(iterator_range.begin(),
@@ -1261,17 +1171,13 @@ namespace WorkStream
 
 
 
-  template <typename Worker,
-            typename Copier,
-            typename Iterator,
-            typename ScratchData,
-            typename CopyData>
+  template <typename Worker, typename Copier, typename Iterator, typename ScratchData, typename CopyData>
   void
   run(const std::vector<std::vector<Iterator>> &colored_iterators,
       Worker                                    worker,
       Copier                                    copier,
-      const ScratchData &                       sample_scratch_data,
-      const CopyData &                          sample_copy_data,
+      const ScratchData                        &sample_scratch_data,
+      const CopyData                           &sample_copy_data,
       const unsigned int                        queue_length,
       const unsigned int                        chunk_size)
   {
@@ -1286,12 +1192,8 @@ namespace WorkStream
     if (MultithreadInfo::n_threads() > 1)
       {
 #  ifdef DEAL_II_WITH_TBB
-        internal::tbb_colored::run(colored_iterators,
-                                   worker,
-                                   copier,
-                                   sample_scratch_data,
-                                   sample_copy_data,
-                                   chunk_size);
+        internal::tbb_colored::run(
+          colored_iterators, worker, copier, sample_scratch_data, sample_copy_data, chunk_size);
 
         // exit this function to not run the sequential version below:
         return;
@@ -1300,11 +1202,7 @@ namespace WorkStream
 
     // run all colors sequentially:
     {
-      internal::sequential::run(colored_iterators,
-                                worker,
-                                copier,
-                                sample_scratch_data,
-                                sample_copy_data);
+      internal::sequential::run(colored_iterators, worker, copier, sample_scratch_data, sample_copy_data);
     }
   }
 
@@ -1351,18 +1249,15 @@ namespace WorkStream
    * `std::function` object *can* be recognized, and is then used to select
    * a more efficient algorithm.
    */
-  template <typename MainClass,
-            typename Iterator,
-            typename ScratchData,
-            typename CopyData>
+  template <typename MainClass, typename Iterator, typename ScratchData, typename CopyData>
   void
-  run(const Iterator &                            begin,
+  run(const Iterator                             &begin,
       const std_cxx20::type_identity_t<Iterator> &end,
-      MainClass &                                 main_object,
+      MainClass                                  &main_object,
       void (MainClass::*worker)(const Iterator &, ScratchData &, CopyData &),
       void (MainClass::*copier)(const CopyData &),
       const ScratchData &sample_scratch_data,
-      const CopyData &   sample_copy_data,
+      const CopyData    &sample_copy_data,
       const unsigned int queue_length = 2 * MultithreadInfo::n_threads(),
       const unsigned int chunk_size   = 8)
   {
@@ -1370,14 +1265,10 @@ namespace WorkStream
     run(
       begin,
       end,
-      [&main_object, worker](const Iterator &iterator,
-                             ScratchData &   scratch_data,
-                             CopyData &      copy_data) {
+      [&main_object, worker](const Iterator &iterator, ScratchData &scratch_data, CopyData &copy_data) {
         (main_object.*worker)(iterator, scratch_data, copy_data);
       },
-      [&main_object, copier](const CopyData &copy_data) {
-        (main_object.*copier)(copy_data);
-      },
+      [&main_object, copier](const CopyData &copy_data) { (main_object.*copier)(copy_data); },
       sample_scratch_data,
       sample_copy_data,
       queue_length,
@@ -1385,18 +1276,15 @@ namespace WorkStream
   }
 
 
-  template <typename MainClass,
-            typename Iterator,
-            typename ScratchData,
-            typename CopyData>
+  template <typename MainClass, typename Iterator, typename ScratchData, typename CopyData>
   void
-  run(const IteratorOverIterators<Iterator> &                            begin,
+  run(const IteratorOverIterators<Iterator>                             &begin,
       const IteratorOverIterators<std_cxx20::type_identity_t<Iterator>> &end,
-      MainClass &main_object,
+      MainClass                                                         &main_object,
       void (MainClass::*worker)(const Iterator &, ScratchData &, CopyData &),
       void (MainClass::*copier)(const CopyData &),
       const ScratchData &sample_scratch_data,
-      const CopyData &   sample_copy_data,
+      const CopyData    &sample_copy_data,
       const unsigned int queue_length = 2 * MultithreadInfo::n_threads(),
       const unsigned int chunk_size   = 8)
   {
@@ -1404,14 +1292,10 @@ namespace WorkStream
     run(
       begin,
       end,
-      [&main_object, worker](const Iterator &iterator,
-                             ScratchData &   scratch_data,
-                             CopyData &      copy_data) {
+      [&main_object, worker](const Iterator &iterator, ScratchData &scratch_data, CopyData &copy_data) {
         (main_object.*worker)(iterator, scratch_data, copy_data);
       },
-      [&main_object, copier](const CopyData &copy_data) {
-        (main_object.*copier)(copy_data);
-      },
+      [&main_object, copier](const CopyData &copy_data) { (main_object.*copier)(copy_data); },
       sample_scratch_data,
       sample_copy_data,
       queue_length,
@@ -1433,18 +1317,16 @@ namespace WorkStream
             typename CopyData,
             typename = std::enable_if_t<has_begin_and_end<IteratorRangeType>>>
   void
-  run(
-    IteratorRangeType iterator_range,
-    MainClass &       main_object,
-    void (MainClass::*worker)(
-      const typename std_cxx20::type_identity_t<IteratorRangeType>::iterator &,
-      ScratchData &,
-      CopyData &),
-    void (MainClass::*copier)(const CopyData &),
-    const ScratchData &sample_scratch_data,
-    const CopyData &   sample_copy_data,
-    const unsigned int queue_length = 2 * MultithreadInfo::n_threads(),
-    const unsigned int chunk_size   = 8)
+  run(IteratorRangeType iterator_range,
+      MainClass        &main_object,
+      void (MainClass::*worker)(const typename std_cxx20::type_identity_t<IteratorRangeType>::iterator &,
+                                ScratchData &,
+                                CopyData &),
+      void (MainClass::*copier)(const CopyData &),
+      const ScratchData &sample_scratch_data,
+      const CopyData    &sample_copy_data,
+      const unsigned int queue_length = 2 * MultithreadInfo::n_threads(),
+      const unsigned int chunk_size   = 8)
   {
     // Call the function above
     run(std::begin(iterator_range),
@@ -1463,17 +1345,14 @@ namespace WorkStream
   /**
    * Same as the function above, but for deal.II's IteratorRange.
    */
-  template <typename MainClass,
-            typename Iterator,
-            typename ScratchData,
-            typename CopyData>
+  template <typename MainClass, typename Iterator, typename ScratchData, typename CopyData>
   void
   run(IteratorRange<Iterator> iterator_range,
-      MainClass &             main_object,
+      MainClass              &main_object,
       void (MainClass::*worker)(const Iterator &, ScratchData &, CopyData &),
       void (MainClass::*copier)(const CopyData &),
       const ScratchData &sample_scratch_data,
-      const CopyData &   sample_copy_data,
+      const CopyData    &sample_copy_data,
       const unsigned int queue_length = 2 * MultithreadInfo::n_threads(),
       const unsigned int chunk_size   = 8)
   {

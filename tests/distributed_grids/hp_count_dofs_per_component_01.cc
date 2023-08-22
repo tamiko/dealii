@@ -51,8 +51,8 @@ template <int dim>
 void
 test()
 {
-  parallel::distributed::Triangulation<dim> triangulation(
-    MPI_COMM_WORLD, Triangulation<dim>::limit_level_difference_at_vertices);
+  parallel::distributed::Triangulation<dim> triangulation(MPI_COMM_WORLD,
+                                                          Triangulation<dim>::limit_level_difference_at_vertices);
 
   hp::FECollection<dim> fe;
   fe.push_back(FESystem<dim>(FE_Q<dim>(3), 2, FE_DGQ<dim>(1), 1));
@@ -63,12 +63,9 @@ test()
   triangulation.refine_global(2);
   dof_handler.distribute_dofs(fe);
 
-  const std::vector<types::global_dof_index> dofs_per_component =
-    DoFTools::count_dofs_per_fe_component(dof_handler);
+  const std::vector<types::global_dof_index> dofs_per_component = DoFTools::count_dofs_per_fe_component(dof_handler);
 
-  Assert(std::accumulate(dofs_per_component.begin(),
-                         dofs_per_component.end(),
-                         0U) == dof_handler.n_dofs(),
+  Assert(std::accumulate(dofs_per_component.begin(), dofs_per_component.end(), 0U) == dof_handler.n_dofs(),
          ExcInternalError());
 
   unsigned int myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
@@ -76,8 +73,7 @@ test()
     {
       deallog << "Total number of dofs: " << dof_handler.n_dofs() << std::endl;
       for (unsigned int i = 0; i < dofs_per_component.size(); ++i)
-        deallog << "Block " << i << " has " << dofs_per_component[i]
-                << " global dofs" << std::endl;
+        deallog << "Block " << i << " has " << dofs_per_component[i] << " global dofs" << std::endl;
     }
 }
 

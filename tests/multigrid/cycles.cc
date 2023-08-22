@@ -35,9 +35,7 @@
 #define N 3
 using VectorType = Vector<double>;
 
-class MGAll : public MGSmootherBase<VectorType>,
-              public MGTransferBase<VectorType>,
-              public MGCoarseGridBase<VectorType>
+class MGAll : public MGSmootherBase<VectorType>, public MGTransferBase<VectorType>, public MGCoarseGridBase<VectorType>
 {
 public:
   virtual ~MGAll()
@@ -73,14 +71,7 @@ test_cycles(unsigned int minlevel, unsigned int maxlevel)
     level_matrices[i].reinit(N, N);
   mg::Matrix<VectorType> mgmatrix(level_matrices);
 
-  Multigrid<VectorType> mg1(mgmatrix,
-                            all,
-                            all,
-                            all,
-                            all,
-                            minlevel,
-                            maxlevel,
-                            Multigrid<VectorType>::v_cycle);
+  Multigrid<VectorType> mg1(mgmatrix, all, all, all, all, minlevel, maxlevel, Multigrid<VectorType>::v_cycle);
 
   for (unsigned int i = minlevel; i <= maxlevel; ++i)
     mg1.defect[i].reinit(N);
@@ -111,8 +102,7 @@ test_cycles(unsigned int minlevel, unsigned int maxlevel)
         }
     };
 
-    auto print_pre_smoother_step = [](const bool         start,
-                                      const unsigned int level) {
+    auto print_pre_smoother_step = [](const bool start, const unsigned int level) {
       if (start)
         {
           deallog << "V-cycle entering level " << level << std::endl;
@@ -122,8 +112,7 @@ test_cycles(unsigned int minlevel, unsigned int maxlevel)
         }
     };
 
-    auto print_post_smoother_step = [](const bool         start,
-                                       const unsigned int level) {
+    auto print_post_smoother_step = [](const bool start, const unsigned int level) {
       if (start)
         {
           deallog << "Smoothing on     level " << level << std::endl;
@@ -139,27 +128,20 @@ test_cycles(unsigned int minlevel, unsigned int maxlevel)
         }
     };
 
-    auto print_edge_prolongation = [](const bool         start,
-                                      const unsigned int level) {
+    auto print_edge_prolongation = [](const bool start, const unsigned int level) {
       if (start)
         {
           deallog << "Edge prol. level       " << level << std::endl;
         }
     };
 
-    const auto coarse_connection = mg1.connect_coarse_solve(print_coarse_solve);
-    const auto restriction_connection =
-      mg1.connect_restriction(print_restriction);
-    const auto prolongation_connection =
-      mg1.connect_prolongation(print_prolongation);
-    const auto pre_smoother_connection =
-      mg1.connect_pre_smoother_step(print_pre_smoother_step);
-    const auto post_smoother_connection =
-      mg1.connect_post_smoother_step(print_post_smoother_step);
-    const auto residual_step_connection =
-      mg1.connect_residual_step(print_residual_step);
-    const auto edge_prolongation_connection =
-      mg1.connect_residual_step(print_edge_prolongation);
+    const auto coarse_connection            = mg1.connect_coarse_solve(print_coarse_solve);
+    const auto restriction_connection       = mg1.connect_restriction(print_restriction);
+    const auto prolongation_connection      = mg1.connect_prolongation(print_prolongation);
+    const auto pre_smoother_connection      = mg1.connect_pre_smoother_step(print_pre_smoother_step);
+    const auto post_smoother_connection     = mg1.connect_post_smoother_step(print_post_smoother_step);
+    const auto residual_step_connection     = mg1.connect_residual_step(print_residual_step);
+    const auto edge_prolongation_connection = mg1.connect_residual_step(print_edge_prolongation);
 
     mg1.cycle();
     deallog << std::endl;
@@ -198,8 +180,7 @@ test_cycles(unsigned int minlevel, unsigned int maxlevel)
         }
     };
 
-    auto print_pre_smoother_step_w = [](const bool         start,
-                                        const unsigned int level) {
+    auto print_pre_smoother_step_w = [](const bool start, const unsigned int level) {
       if (start)
         {
           deallog << "W-cycle entering level  " << level << std::endl;
@@ -209,8 +190,7 @@ test_cycles(unsigned int minlevel, unsigned int maxlevel)
         }
     };
 
-    auto print_post_smoother_step_w = [](const bool         start,
-                                         const unsigned int level) {
+    auto print_post_smoother_step_w = [](const bool start, const unsigned int level) {
       if (start)
         {
           deallog << "W-cycle smoothing level " << level << std::endl;
@@ -219,36 +199,27 @@ test_cycles(unsigned int minlevel, unsigned int maxlevel)
         }
     };
 
-    auto print_residual_step_w = [](const bool         start,
-                                    const unsigned int level) {
+    auto print_residual_step_w = [](const bool start, const unsigned int level) {
       if (start)
         {
           deallog << "W-cycle Res. step level " << level << std::endl;
         }
     };
 
-    auto print_edge_prolongation_w = [](const bool         start,
-                                        const unsigned int level) {
+    auto print_edge_prolongation_w = [](const bool start, const unsigned int level) {
       if (start)
         {
           deallog << "W-cycle Edge pro. level " << level << std::endl;
         }
     };
 
-    const auto coarse_connection =
-      mg1.connect_coarse_solve(print_coarse_solve_w);
-    const auto restriction_connection =
-      mg1.connect_restriction(print_restriction_w);
-    const auto prolongation_connection =
-      mg1.connect_prolongation(print_prolongation_w);
-    const auto pre_smoother_connection =
-      mg1.connect_pre_smoother_step(print_pre_smoother_step_w);
-    const auto post_smoother_connection =
-      mg1.connect_post_smoother_step(print_post_smoother_step_w);
-    const auto residual_step_connection =
-      mg1.connect_residual_step(print_residual_step_w);
-    const auto edge_prolongation_connection =
-      mg1.connect_residual_step(print_edge_prolongation_w);
+    const auto coarse_connection            = mg1.connect_coarse_solve(print_coarse_solve_w);
+    const auto restriction_connection       = mg1.connect_restriction(print_restriction_w);
+    const auto prolongation_connection      = mg1.connect_prolongation(print_prolongation_w);
+    const auto pre_smoother_connection      = mg1.connect_pre_smoother_step(print_pre_smoother_step_w);
+    const auto post_smoother_connection     = mg1.connect_post_smoother_step(print_post_smoother_step_w);
+    const auto residual_step_connection     = mg1.connect_residual_step(print_residual_step_w);
+    const auto edge_prolongation_connection = mg1.connect_residual_step(print_edge_prolongation_w);
 
     mg1.set_cycle(Multigrid<VectorType>::w_cycle);
     mg1.cycle();
@@ -288,8 +259,7 @@ test_cycles(unsigned int minlevel, unsigned int maxlevel)
         }
     };
 
-    auto print_pre_smoother_step_f = [](const bool         start,
-                                        const unsigned int level) {
+    auto print_pre_smoother_step_f = [](const bool start, const unsigned int level) {
       if (start)
         {
           deallog << "F-cycle entering level  " << level << std::endl;
@@ -299,8 +269,7 @@ test_cycles(unsigned int minlevel, unsigned int maxlevel)
         }
     };
 
-    auto print_post_smoother_step_f = [](const bool         start,
-                                         const unsigned int level) {
+    auto print_post_smoother_step_f = [](const bool start, const unsigned int level) {
       if (start)
         {
           deallog << "F-cycle smoothing level " << level << std::endl;
@@ -309,16 +278,14 @@ test_cycles(unsigned int minlevel, unsigned int maxlevel)
         }
     };
 
-    auto print_residual_step_f = [](const bool         start,
-                                    const unsigned int level) {
+    auto print_residual_step_f = [](const bool start, const unsigned int level) {
       if (start)
         {
           deallog << "F-cycle Res. step level " << level << std::endl;
         }
     };
 
-    auto print_edge_prolongation_f = [](const bool         start,
-                                        const unsigned int level) {
+    auto print_edge_prolongation_f = [](const bool start, const unsigned int level) {
       if (start)
         {
           deallog << "F-cycle Edge pro. level " << level << std::endl;

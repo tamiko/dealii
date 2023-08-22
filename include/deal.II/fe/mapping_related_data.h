@@ -56,8 +56,7 @@ namespace internal
        * Initialize all vectors to correct size.
        */
       void
-      initialize(const unsigned int n_quadrature_points,
-                 const UpdateFlags  flags);
+      initialize(const unsigned int n_quadrature_points, const UpdateFlags flags);
 
       /**
        * Compute and return an estimate for the memory consumption (in bytes)

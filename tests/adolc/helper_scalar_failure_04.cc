@@ -43,9 +43,7 @@ test_incorrect_no_of_ind_vars()
   using ADNumberType = typename ADHelper::ad_type;
 
   std::cout << "*** Test variables: Scalar + Scalar (coupled), "
-            << (AD::ADNumberTraits<ADNumberType>::is_taped == true ? "Taped" :
-                                                                     "Tapeless")
-            << std::endl;
+            << (AD::ADNumberTraits<ADNumberType>::is_taped == true ? "Taped" : "Tapeless") << std::endl;
 
   try
     {
@@ -63,16 +61,14 @@ test_incorrect_no_of_ind_vars()
       // Configure tape
       const int  tape_no = 1;
       const bool is_recording =
-        ad_helper.start_recording_operations(tape_no /*material_id*/,
-                                             true /*overwrite_tape*/,
-                                             true /*keep*/);
+        ad_helper.start_recording_operations(tape_no /*material_id*/, true /*overwrite_tape*/, true /*keep*/);
 
       ad_helper.register_independent_variable(s1, s1_dof);
       ad_helper.register_independent_variable(s2, s2_dof);
 
       const ADNumberType s1_ad = ad_helper.get_sensitive_variables(s1_dof);
-      const ADNumberType s2_ad = ad_helper.get_sensitive_variables(
-        s2_dof); // This line might lead to memory corruption in tapeless mode.
+      const ADNumberType s2_ad =
+        ad_helper.get_sensitive_variables(s2_dof); // This line might lead to memory corruption in tapeless mode.
 
       const ADNumberType psi(s1_ad * s2_ad);
 
@@ -106,17 +102,11 @@ main()
 #endif
 
   const unsigned int dim = 2;
-  AssertThrow((test_incorrect_no_of_ind_vars<dim,
-                                             double,
-                                             AD::NumberTypes::adolc_taped>() ==
-               expected_result_taped),
+  AssertThrow((test_incorrect_no_of_ind_vars<dim, double, AD::NumberTypes::adolc_taped>() == expected_result_taped),
               ExcInternalError());
-  AssertThrow(
-    (test_incorrect_no_of_ind_vars<dim,
-                                   double,
-                                   AD::NumberTypes::adolc_tapeless>() ==
-     expected_result_tapeless),
-    ExcInternalError());
+  AssertThrow((test_incorrect_no_of_ind_vars<dim, double, AD::NumberTypes::adolc_tapeless>() ==
+               expected_result_tapeless),
+              ExcInternalError());
 
   deallog << "OK" << std::endl;
 }

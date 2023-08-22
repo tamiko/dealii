@@ -24,14 +24,12 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS)
         namespace experimental
         \{
 #if deal_II_dimension <= deal_II_space_dimension
-          template class FieldTransfer<
-            deal_II_dimension,
-            ::dealii::LinearAlgebra::distributed::Vector<double>,
-            deal_II_space_dimension>;
-          template class FieldTransfer<
-            deal_II_dimension,
-            ::dealii::LinearAlgebra::distributed::Vector<float>,
-            deal_II_space_dimension>;
+          template class FieldTransfer<deal_II_dimension,
+                                       ::dealii::LinearAlgebra::distributed::Vector<double>,
+                                       deal_II_space_dimension>;
+          template class FieldTransfer<deal_II_dimension,
+                                       ::dealii::LinearAlgebra::distributed::Vector<float>,
+                                       deal_II_space_dimension>;
 #endif
         \}
       \}

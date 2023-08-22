@@ -37,9 +37,7 @@ using namespace dealii;
 
 template <int dim>
 void
-test(int                                              n_refinements,
-     const typename Triangulation<dim>::MeshSmoothing flag,
-     MPI_Comm                                         comm)
+test(int n_refinements, const typename Triangulation<dim>::MeshSmoothing flag, MPI_Comm comm)
 {
   // create serial triangulation
   Triangulation<dim> basetria(flag);
@@ -61,8 +59,7 @@ test(int                                              n_refinements,
     }
 
   // partition
-  GridTools::partition_triangulation_zorder(
-    Utilities::MPI::n_mpi_processes(comm), basetria);
+  GridTools::partition_triangulation_zorder(Utilities::MPI::n_mpi_processes(comm), basetria);
   GridTools::partition_multigrid_levels(basetria);
 
   // create instance of pft
@@ -70,8 +67,7 @@ test(int                                              n_refinements,
 
   // extract relevant information form serial triangulation
   const auto construction_data =
-    TriangulationDescription::Utilities::create_description_from_triangulation(
-      basetria, comm);
+    TriangulationDescription::Utilities::create_description_from_triangulation(basetria, comm);
 
   // actually create triangulation
   tria_pft.create_triangulation(construction_data);
@@ -81,8 +77,7 @@ test(int                                              n_refinements,
       CellId id        = cell->id();
       auto   cell_base = basetria.create_cell_iterator(id);
       for (unsigned int d = 0; d < dim; ++d)
-        Assert(std::abs(cell->center()[d] - cell_base->center()[d]) < 1e-9,
-               ExcMessage("Cells do not match"));
+        Assert(std::abs(cell->center()[d] - cell_base->center()[d]) < 1e-9, ExcMessage("Cells do not match"));
     }
 
   deallog << "OK!" << std::endl;
@@ -96,9 +91,8 @@ main(int argc, char *argv[])
 
   const MPI_Comm comm = MPI_COMM_WORLD;
 
-  std::vector<typename Triangulation<2>::MeshSmoothing> flags{
-    Triangulation<2>::none,
-    Triangulation<2>::limit_level_difference_at_vertices};
+  std::vector<typename Triangulation<2>::MeshSmoothing> flags{Triangulation<2>::none,
+                                                              Triangulation<2>::limit_level_difference_at_vertices};
 
   for (auto flag : flags)
     {

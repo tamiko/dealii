@@ -64,8 +64,7 @@ public:
       for (unsigned int j = i; j < dim; ++j)
         dir_x_dir[i][j] = dir[i] * dir[j];
 
-    return Z * std::exp(-Z * r) *
-           ((Z + 1.0 / r) * dir_x_dir - unit_symmetric_tensor<dim>() / r);
+    return Z * std::exp(-Z * r) * ((Z + 1.0 / r) * dir_x_dir - unit_symmetric_tensor<dim>() / r);
   }
 
 private:
@@ -142,8 +141,7 @@ check()
           // check values:
           const double v1 = func.value(p);
           const double v2 = func2.value(p);
-          AssertThrow(std::fabs(v1 - v2) <= std::abs(v1) * 1e-10,
-                      ExcInternalError());
+          AssertThrow(std::fabs(v1 - v2) <= std::abs(v1) * 1e-10, ExcInternalError());
 
           // check gradients:
           const Tensor<1, dim> g1 = func.gradient(p);

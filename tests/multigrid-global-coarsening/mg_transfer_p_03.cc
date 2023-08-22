@@ -69,8 +69,7 @@ do_test(const FiniteElement<dim> &fe_fine, const FiniteElement<dim> &fe_coarse)
   dof_handler_coarse.distribute_dofs(FESystem<dim>(fe_coarse, dim));
 
   AffineConstraints<Number> constraint_coarse;
-  DoFTools::make_hanging_node_constraints(dof_handler_coarse,
-                                          constraint_coarse);
+  DoFTools::make_hanging_node_constraints(dof_handler_coarse, constraint_coarse);
   constraint_coarse.close();
 
   AffineConstraints<Number> constraint_fine;
@@ -79,10 +78,7 @@ do_test(const FiniteElement<dim> &fe_fine, const FiniteElement<dim> &fe_coarse)
 
   // setup transfer operator
   MGTwoLevelTransfer<dim, LinearAlgebra::distributed::Vector<Number>> transfer;
-  transfer.reinit(dof_handler_fine,
-                  dof_handler_coarse,
-                  constraint_fine,
-                  constraint_coarse);
+  transfer.reinit(dof_handler_fine, dof_handler_coarse, constraint_fine, constraint_coarse);
 
   test_transfer_operator(transfer, dof_handler_fine, dof_handler_coarse);
 }
@@ -96,22 +92,19 @@ test(int fe_degree_fine, int fe_degree_coarse)
 
   {
     deallog.push("CG<2>(" + str_fine + ")<->CG<2>(" + str_coarse + ")");
-    do_test<dim, Number>(FE_Q<dim>(fe_degree_fine),
-                         FE_Q<dim>(fe_degree_coarse));
+    do_test<dim, Number>(FE_Q<dim>(fe_degree_fine), FE_Q<dim>(fe_degree_coarse));
     deallog.pop();
   }
 
   {
     deallog.push("DG<2>(" + str_fine + ")<->CG<2>(" + str_coarse + ")");
-    do_test<dim, Number>(FE_DGQ<dim>(fe_degree_fine),
-                         FE_Q<dim>(fe_degree_coarse));
+    do_test<dim, Number>(FE_DGQ<dim>(fe_degree_fine), FE_Q<dim>(fe_degree_coarse));
     deallog.pop();
   }
 
   {
     deallog.push("DG<2>(" + str_fine + ")<->DG<2>(" + str_coarse + ")");
-    do_test<dim, Number>(FE_DGQ<dim>(fe_degree_fine),
-                         FE_DGQ<dim>(fe_degree_coarse));
+    do_test<dim, Number>(FE_DGQ<dim>(fe_degree_fine), FE_DGQ<dim>(fe_degree_coarse));
     deallog.pop();
   }
 }

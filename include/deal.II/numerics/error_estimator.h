@@ -340,20 +340,18 @@ public:
    */
   template <typename Number>
   static void
-  estimate(
-    const Mapping<dim, spacedim> &   mapping,
-    const DoFHandler<dim, spacedim> &dof,
-    const Quadrature<dim - 1> &      quadrature,
-    const std::map<types::boundary_id, const Function<spacedim, Number> *>
-      &                       neumann_bc,
-    const ReadVector<Number> &solution,
-    Vector<float> &           error,
-    const ComponentMask &     component_mask = {},
-    const Function<spacedim> *coefficients   = nullptr,
-    const unsigned int        n_threads      = numbers::invalid_unsigned_int,
-    const types::subdomain_id subdomain_id   = numbers::invalid_subdomain_id,
-    const types::material_id  material_id    = numbers::invalid_material_id,
-    const Strategy            strategy       = cell_diameter_over_24);
+  estimate(const Mapping<dim, spacedim>                                           &mapping,
+           const DoFHandler<dim, spacedim>                                        &dof,
+           const Quadrature<dim - 1>                                              &quadrature,
+           const std::map<types::boundary_id, const Function<spacedim, Number> *> &neumann_bc,
+           const ReadVector<Number>                                               &solution,
+           Vector<float>                                                          &error,
+           const ComponentMask                                                    &component_mask = {},
+           const Function<spacedim>                                               *coefficients   = nullptr,
+           const unsigned int        n_threads    = numbers::invalid_unsigned_int,
+           const types::subdomain_id subdomain_id = numbers::invalid_subdomain_id,
+           const types::material_id  material_id  = numbers::invalid_material_id,
+           const Strategy            strategy     = cell_diameter_over_24);
 
   /**
    * Call the @p estimate function, see above, with
@@ -361,19 +359,17 @@ public:
    */
   template <typename Number>
   static void
-  estimate(
-    const DoFHandler<dim, spacedim> &dof,
-    const Quadrature<dim - 1> &      quadrature,
-    const std::map<types::boundary_id, const Function<spacedim, Number> *>
-      &                       neumann_bc,
-    const ReadVector<Number> &solution,
-    Vector<float> &           error,
-    const ComponentMask &     component_mask = {},
-    const Function<spacedim> *coefficients   = nullptr,
-    const unsigned int        n_threads      = numbers::invalid_unsigned_int,
-    const types::subdomain_id subdomain_id   = numbers::invalid_subdomain_id,
-    const types::material_id  material_id    = numbers::invalid_material_id,
-    const Strategy            strategy       = cell_diameter_over_24);
+  estimate(const DoFHandler<dim, spacedim>                                        &dof,
+           const Quadrature<dim - 1>                                              &quadrature,
+           const std::map<types::boundary_id, const Function<spacedim, Number> *> &neumann_bc,
+           const ReadVector<Number>                                               &solution,
+           Vector<float>                                                          &error,
+           const ComponentMask                                                    &component_mask = {},
+           const Function<spacedim>                                               *coefficients   = nullptr,
+           const unsigned int        n_threads    = numbers::invalid_unsigned_int,
+           const types::subdomain_id subdomain_id = numbers::invalid_subdomain_id,
+           const types::material_id  material_id  = numbers::invalid_material_id,
+           const Strategy            strategy     = cell_diameter_over_24);
 
   /**
    * Same function as above, but accepts more than one solution vector and
@@ -390,20 +386,18 @@ public:
    */
   template <typename Number>
   static void
-  estimate(
-    const Mapping<dim, spacedim> &   mapping,
-    const DoFHandler<dim, spacedim> &dof,
-    const Quadrature<dim - 1> &      quadrature,
-    const std::map<types::boundary_id, const Function<spacedim, Number> *>
-      &                                          neumann_bc,
-    const ArrayView<const ReadVector<Number> *> &solutions,
-    ArrayView<Vector<float> *> &                 errors,
-    const ComponentMask &                        component_mask = {},
-    const Function<spacedim> *                   coefficients   = nullptr,
-    const unsigned int        n_threads    = numbers::invalid_unsigned_int,
-    const types::subdomain_id subdomain_id = numbers::invalid_subdomain_id,
-    const types::material_id  material_id  = numbers::invalid_material_id,
-    const Strategy            strategy     = cell_diameter_over_24);
+  estimate(const Mapping<dim, spacedim>                                           &mapping,
+           const DoFHandler<dim, spacedim>                                        &dof,
+           const Quadrature<dim - 1>                                              &quadrature,
+           const std::map<types::boundary_id, const Function<spacedim, Number> *> &neumann_bc,
+           const ArrayView<const ReadVector<Number> *>                            &solutions,
+           ArrayView<Vector<float> *>                                             &errors,
+           const ComponentMask                                                    &component_mask = {},
+           const Function<spacedim>                                               *coefficients   = nullptr,
+           const unsigned int        n_threads    = numbers::invalid_unsigned_int,
+           const types::subdomain_id subdomain_id = numbers::invalid_subdomain_id,
+           const types::material_id  material_id  = numbers::invalid_material_id,
+           const Strategy            strategy     = cell_diameter_over_24);
 
   /**
    * Call the @p estimate function, see above, with
@@ -411,19 +405,17 @@ public:
    */
   template <typename Number>
   static void
-  estimate(
-    const DoFHandler<dim, spacedim> &dof,
-    const Quadrature<dim - 1> &      quadrature,
-    const std::map<types::boundary_id, const Function<spacedim, Number> *>
-      &                                          neumann_bc,
-    const ArrayView<const ReadVector<Number> *> &solutions,
-    ArrayView<Vector<float> *> &                 errors,
-    const ComponentMask &                        component_mask = {},
-    const Function<spacedim> *                   coefficients   = nullptr,
-    const unsigned int        n_threads    = numbers::invalid_unsigned_int,
-    const types::subdomain_id subdomain_id = numbers::invalid_subdomain_id,
-    const types::material_id  material_id  = numbers::invalid_material_id,
-    const Strategy            strategy     = cell_diameter_over_24);
+  estimate(const DoFHandler<dim, spacedim>                                        &dof,
+           const Quadrature<dim - 1>                                              &quadrature,
+           const std::map<types::boundary_id, const Function<spacedim, Number> *> &neumann_bc,
+           const ArrayView<const ReadVector<Number> *>                            &solutions,
+           ArrayView<Vector<float> *>                                             &errors,
+           const ComponentMask                                                    &component_mask = {},
+           const Function<spacedim>                                               *coefficients   = nullptr,
+           const unsigned int        n_threads    = numbers::invalid_unsigned_int,
+           const types::subdomain_id subdomain_id = numbers::invalid_subdomain_id,
+           const types::material_id  material_id  = numbers::invalid_material_id,
+           const Strategy            strategy     = cell_diameter_over_24);
 
 
   /**
@@ -432,20 +424,18 @@ public:
    */
   template <typename Number>
   static void
-  estimate(
-    const Mapping<dim, spacedim> &   mapping,
-    const DoFHandler<dim, spacedim> &dof,
-    const hp::QCollection<dim - 1> & quadrature,
-    const std::map<types::boundary_id, const Function<spacedim, Number> *>
-      &                       neumann_bc,
-    const ReadVector<Number> &solution,
-    Vector<float> &           error,
-    const ComponentMask &     component_mask = {},
-    const Function<spacedim> *coefficients   = nullptr,
-    const unsigned int        n_threads      = numbers::invalid_unsigned_int,
-    const types::subdomain_id subdomain_id   = numbers::invalid_subdomain_id,
-    const types::material_id  material_id    = numbers::invalid_material_id,
-    const Strategy            strategy       = cell_diameter_over_24);
+  estimate(const Mapping<dim, spacedim>                                           &mapping,
+           const DoFHandler<dim, spacedim>                                        &dof,
+           const hp::QCollection<dim - 1>                                         &quadrature,
+           const std::map<types::boundary_id, const Function<spacedim, Number> *> &neumann_bc,
+           const ReadVector<Number>                                               &solution,
+           Vector<float>                                                          &error,
+           const ComponentMask                                                    &component_mask = {},
+           const Function<spacedim>                                               *coefficients   = nullptr,
+           const unsigned int        n_threads    = numbers::invalid_unsigned_int,
+           const types::subdomain_id subdomain_id = numbers::invalid_subdomain_id,
+           const types::material_id  material_id  = numbers::invalid_material_id,
+           const Strategy            strategy     = cell_diameter_over_24);
 
 
   /**
@@ -454,19 +444,17 @@ public:
    */
   template <typename Number>
   static void
-  estimate(
-    const DoFHandler<dim, spacedim> &dof,
-    const hp::QCollection<dim - 1> & quadrature,
-    const std::map<types::boundary_id, const Function<spacedim, Number> *>
-      &                       neumann_bc,
-    const ReadVector<Number> &solution,
-    Vector<float> &           error,
-    const ComponentMask &     component_mask = {},
-    const Function<spacedim> *coefficients   = nullptr,
-    const unsigned int        n_threads      = numbers::invalid_unsigned_int,
-    const types::subdomain_id subdomain_id   = numbers::invalid_subdomain_id,
-    const types::material_id  material_id    = numbers::invalid_material_id,
-    const Strategy            strategy       = cell_diameter_over_24);
+  estimate(const DoFHandler<dim, spacedim>                                        &dof,
+           const hp::QCollection<dim - 1>                                         &quadrature,
+           const std::map<types::boundary_id, const Function<spacedim, Number> *> &neumann_bc,
+           const ReadVector<Number>                                               &solution,
+           Vector<float>                                                          &error,
+           const ComponentMask                                                    &component_mask = {},
+           const Function<spacedim>                                               *coefficients   = nullptr,
+           const unsigned int        n_threads    = numbers::invalid_unsigned_int,
+           const types::subdomain_id subdomain_id = numbers::invalid_subdomain_id,
+           const types::material_id  material_id  = numbers::invalid_material_id,
+           const Strategy            strategy     = cell_diameter_over_24);
 
 
   /**
@@ -475,20 +463,18 @@ public:
    */
   template <typename Number>
   static void
-  estimate(
-    const Mapping<dim, spacedim> &   mapping,
-    const DoFHandler<dim, spacedim> &dof,
-    const hp::QCollection<dim - 1> & quadrature,
-    const std::map<types::boundary_id, const Function<spacedim, Number> *>
-      &                                          neumann_bc,
-    const ArrayView<const ReadVector<Number> *> &solutions,
-    ArrayView<Vector<float> *> &                 errors,
-    const ComponentMask &                        component_mask = {},
-    const Function<spacedim> *                   coefficients   = nullptr,
-    const unsigned int        n_threads    = numbers::invalid_unsigned_int,
-    const types::subdomain_id subdomain_id = numbers::invalid_subdomain_id,
-    const types::material_id  material_id  = numbers::invalid_material_id,
-    const Strategy            strategy     = cell_diameter_over_24);
+  estimate(const Mapping<dim, spacedim>                                           &mapping,
+           const DoFHandler<dim, spacedim>                                        &dof,
+           const hp::QCollection<dim - 1>                                         &quadrature,
+           const std::map<types::boundary_id, const Function<spacedim, Number> *> &neumann_bc,
+           const ArrayView<const ReadVector<Number> *>                            &solutions,
+           ArrayView<Vector<float> *>                                             &errors,
+           const ComponentMask                                                    &component_mask = {},
+           const Function<spacedim>                                               *coefficients   = nullptr,
+           const unsigned int        n_threads    = numbers::invalid_unsigned_int,
+           const types::subdomain_id subdomain_id = numbers::invalid_subdomain_id,
+           const types::material_id  material_id  = numbers::invalid_material_id,
+           const Strategy            strategy     = cell_diameter_over_24);
 
 
   /**
@@ -497,19 +483,17 @@ public:
    */
   template <typename Number>
   static void
-  estimate(
-    const DoFHandler<dim, spacedim> &dof,
-    const hp::QCollection<dim - 1> & quadrature,
-    const std::map<types::boundary_id, const Function<spacedim, Number> *>
-      &                                          neumann_bc,
-    const ArrayView<const ReadVector<Number> *> &solutions,
-    ArrayView<Vector<float> *> &                 errors,
-    const ComponentMask &                        component_mask = {},
-    const Function<spacedim> *                   coefficients   = nullptr,
-    const unsigned int        n_threads    = numbers::invalid_unsigned_int,
-    const types::subdomain_id subdomain_id = numbers::invalid_subdomain_id,
-    const types::material_id  material_id  = numbers::invalid_material_id,
-    const Strategy            strategy     = cell_diameter_over_24);
+  estimate(const DoFHandler<dim, spacedim>                                        &dof,
+           const hp::QCollection<dim - 1>                                         &quadrature,
+           const std::map<types::boundary_id, const Function<spacedim, Number> *> &neumann_bc,
+           const ArrayView<const ReadVector<Number> *>                            &solutions,
+           ArrayView<Vector<float> *>                                             &errors,
+           const ComponentMask                                                    &component_mask = {},
+           const Function<spacedim>                                               *coefficients   = nullptr,
+           const unsigned int        n_threads    = numbers::invalid_unsigned_int,
+           const types::subdomain_id subdomain_id = numbers::invalid_subdomain_id,
+           const types::material_id  material_id  = numbers::invalid_material_id,
+           const Strategy            strategy     = cell_diameter_over_24);
 
   /**
    * Exception
@@ -525,14 +509,13 @@ public:
   /**
    * Exception
    */
-  DeclExceptionMsg(
-    ExcInvalidCoefficient,
-    "If you do specify the argument for a (possibly "
-    "spatially variable) coefficient function for this function, "
-    "then it needs to refer to a coefficient that is either "
-    "scalar (has one vector component) or has as many vector "
-    "components as there are in the finite element used by "
-    "the DoFHandler argument.");
+  DeclExceptionMsg(ExcInvalidCoefficient,
+                   "If you do specify the argument for a (possibly "
+                   "spatially variable) coefficient function for this function, "
+                   "then it needs to refer to a coefficient that is either "
+                   "scalar (has one vector component) or has as many vector "
+                   "components as there are in the finite element used by "
+                   "the DoFHandler argument.");
   /**
    * Exception
    */
@@ -540,22 +523,19 @@ public:
                  types::boundary_id,
                  int,
                  int,
-                 << "You provided a function map that for boundary indicator "
-                 << arg1 << " specifies a function with " << arg2
+                 << "You provided a function map that for boundary indicator " << arg1 << " specifies a function with "
+                 << arg2
                  << " vector components. However, the finite "
                     "element in use has "
-                 << arg3
-                 << " components, and these two numbers need to match.");
+                 << arg3 << " components, and these two numbers need to match.");
   /**
    * Exception
    */
   DeclException2(ExcIncompatibleNumberOfElements,
                  int,
                  int,
-                 << "The number of input vectors, " << arg1
-                 << " needs to be equal to the number of output vectors, "
-                 << arg2
-                 << ". This is not the case in your call of this function.");
+                 << "The number of input vectors, " << arg1 << " needs to be equal to the number of output vectors, "
+                 << arg2 << ". This is not the case in your call of this function.");
   /**
    * Exception
    */
@@ -620,20 +600,18 @@ public:
    */
   template <typename Number>
   static void
-  estimate(
-    const Mapping<1, spacedim> &   mapping,
-    const DoFHandler<1, spacedim> &dof,
-    const Quadrature<0> &          quadrature,
-    const std::map<types::boundary_id, const Function<spacedim, Number> *>
-      &                       neumann_bc,
-    const ReadVector<Number> &solution,
-    Vector<float> &           error,
-    const ComponentMask &     component_mask = {},
-    const Function<spacedim> *coefficient    = nullptr,
-    const unsigned int        n_threads      = numbers::invalid_unsigned_int,
-    const types::subdomain_id subdomain_id   = numbers::invalid_subdomain_id,
-    const types::material_id  material_id    = numbers::invalid_material_id,
-    const Strategy            strategy       = cell_diameter_over_24);
+  estimate(const Mapping<1, spacedim>                                             &mapping,
+           const DoFHandler<1, spacedim>                                          &dof,
+           const Quadrature<0>                                                    &quadrature,
+           const std::map<types::boundary_id, const Function<spacedim, Number> *> &neumann_bc,
+           const ReadVector<Number>                                               &solution,
+           Vector<float>                                                          &error,
+           const ComponentMask                                                    &component_mask = {},
+           const Function<spacedim>                                               *coefficient    = nullptr,
+           const unsigned int        n_threads    = numbers::invalid_unsigned_int,
+           const types::subdomain_id subdomain_id = numbers::invalid_subdomain_id,
+           const types::material_id  material_id  = numbers::invalid_material_id,
+           const Strategy            strategy     = cell_diameter_over_24);
 
 
 
@@ -643,19 +621,17 @@ public:
    */
   template <typename Number>
   static void
-  estimate(
-    const DoFHandler<1, spacedim> &dof,
-    const Quadrature<0> &          quadrature,
-    const std::map<types::boundary_id, const Function<spacedim, Number> *>
-      &                       neumann_bc,
-    const ReadVector<Number> &solution,
-    Vector<float> &           error,
-    const ComponentMask &     component_mask = {},
-    const Function<spacedim> *coefficients   = nullptr,
-    const unsigned int        n_threads      = numbers::invalid_unsigned_int,
-    const types::subdomain_id subdomain_id   = numbers::invalid_subdomain_id,
-    const types::material_id  material_id    = numbers::invalid_material_id,
-    const Strategy            strategy       = cell_diameter_over_24);
+  estimate(const DoFHandler<1, spacedim>                                          &dof,
+           const Quadrature<0>                                                    &quadrature,
+           const std::map<types::boundary_id, const Function<spacedim, Number> *> &neumann_bc,
+           const ReadVector<Number>                                               &solution,
+           Vector<float>                                                          &error,
+           const ComponentMask                                                    &component_mask = {},
+           const Function<spacedim>                                               *coefficients   = nullptr,
+           const unsigned int        n_threads    = numbers::invalid_unsigned_int,
+           const types::subdomain_id subdomain_id = numbers::invalid_subdomain_id,
+           const types::material_id  material_id  = numbers::invalid_material_id,
+           const Strategy            strategy     = cell_diameter_over_24);
 
 
 
@@ -674,20 +650,18 @@ public:
    */
   template <typename Number>
   static void
-  estimate(
-    const Mapping<1, spacedim> &   mapping,
-    const DoFHandler<1, spacedim> &dof,
-    const Quadrature<0> &          quadrature,
-    const std::map<types::boundary_id, const Function<spacedim, Number> *>
-      &                                          neumann_bc,
-    const ArrayView<const ReadVector<Number> *> &solutions,
-    ArrayView<Vector<float> *> &                 errors,
-    const ComponentMask &                        component_mask = {},
-    const Function<spacedim> *                   coefficients   = nullptr,
-    const unsigned int        n_threads    = numbers::invalid_unsigned_int,
-    const types::subdomain_id subdomain_id = numbers::invalid_subdomain_id,
-    const types::material_id  material_id  = numbers::invalid_material_id,
-    const Strategy            strategy     = cell_diameter_over_24);
+  estimate(const Mapping<1, spacedim>                                             &mapping,
+           const DoFHandler<1, spacedim>                                          &dof,
+           const Quadrature<0>                                                    &quadrature,
+           const std::map<types::boundary_id, const Function<spacedim, Number> *> &neumann_bc,
+           const ArrayView<const ReadVector<Number> *>                            &solutions,
+           ArrayView<Vector<float> *>                                             &errors,
+           const ComponentMask                                                    &component_mask = {},
+           const Function<spacedim>                                               *coefficients   = nullptr,
+           const unsigned int        n_threads    = numbers::invalid_unsigned_int,
+           const types::subdomain_id subdomain_id = numbers::invalid_subdomain_id,
+           const types::material_id  material_id  = numbers::invalid_material_id,
+           const Strategy            strategy     = cell_diameter_over_24);
 
 
 
@@ -697,19 +671,17 @@ public:
    */
   template <typename Number>
   static void
-  estimate(
-    const DoFHandler<1, spacedim> &dof,
-    const Quadrature<0> &          quadrature,
-    const std::map<types::boundary_id, const Function<spacedim, Number> *>
-      &                                          neumann_bc,
-    const ArrayView<const ReadVector<Number> *> &solutions,
-    ArrayView<Vector<float> *> &                 errors,
-    const ComponentMask &                        component_mask = {},
-    const Function<spacedim> *                   coefficients   = nullptr,
-    const unsigned int        n_threads    = numbers::invalid_unsigned_int,
-    const types::subdomain_id subdomain_id = numbers::invalid_subdomain_id,
-    const types::material_id  material_id  = numbers::invalid_material_id,
-    const Strategy            strategy     = cell_diameter_over_24);
+  estimate(const DoFHandler<1, spacedim>                                          &dof,
+           const Quadrature<0>                                                    &quadrature,
+           const std::map<types::boundary_id, const Function<spacedim, Number> *> &neumann_bc,
+           const ArrayView<const ReadVector<Number> *>                            &solutions,
+           ArrayView<Vector<float> *>                                             &errors,
+           const ComponentMask                                                    &component_mask = {},
+           const Function<spacedim>                                               *coefficients   = nullptr,
+           const unsigned int        n_threads    = numbers::invalid_unsigned_int,
+           const types::subdomain_id subdomain_id = numbers::invalid_subdomain_id,
+           const types::material_id  material_id  = numbers::invalid_material_id,
+           const Strategy            strategy     = cell_diameter_over_24);
 
 
 
@@ -719,20 +691,18 @@ public:
    */
   template <typename Number>
   static void
-  estimate(
-    const Mapping<1, spacedim> &   mapping,
-    const DoFHandler<1, spacedim> &dof,
-    const hp::QCollection<0> &     quadrature,
-    const std::map<types::boundary_id, const Function<spacedim, Number> *>
-      &                       neumann_bc,
-    const ReadVector<Number> &solution,
-    Vector<float> &           error,
-    const ComponentMask &     component_mask = {},
-    const Function<spacedim> *coefficients   = nullptr,
-    const unsigned int        n_threads      = numbers::invalid_unsigned_int,
-    const types::subdomain_id subdomain_id   = numbers::invalid_subdomain_id,
-    const types::material_id  material_id    = numbers::invalid_material_id,
-    const Strategy            strategy       = cell_diameter_over_24);
+  estimate(const Mapping<1, spacedim>                                             &mapping,
+           const DoFHandler<1, spacedim>                                          &dof,
+           const hp::QCollection<0>                                               &quadrature,
+           const std::map<types::boundary_id, const Function<spacedim, Number> *> &neumann_bc,
+           const ReadVector<Number>                                               &solution,
+           Vector<float>                                                          &error,
+           const ComponentMask                                                    &component_mask = {},
+           const Function<spacedim>                                               *coefficients   = nullptr,
+           const unsigned int        n_threads    = numbers::invalid_unsigned_int,
+           const types::subdomain_id subdomain_id = numbers::invalid_subdomain_id,
+           const types::material_id  material_id  = numbers::invalid_material_id,
+           const Strategy            strategy     = cell_diameter_over_24);
 
 
 
@@ -742,19 +712,17 @@ public:
    */
   template <typename Number>
   static void
-  estimate(
-    const DoFHandler<1, spacedim> &dof,
-    const hp::QCollection<0> &     quadrature,
-    const std::map<types::boundary_id, const Function<spacedim, Number> *>
-      &                       neumann_bc,
-    const ReadVector<Number> &solution,
-    Vector<float> &           error,
-    const ComponentMask &     component_mask = {},
-    const Function<spacedim> *coefficients   = nullptr,
-    const unsigned int        n_threads      = numbers::invalid_unsigned_int,
-    const types::subdomain_id subdomain_id   = numbers::invalid_subdomain_id,
-    const types::material_id  material_id    = numbers::invalid_material_id,
-    const Strategy            strategy       = cell_diameter_over_24);
+  estimate(const DoFHandler<1, spacedim>                                          &dof,
+           const hp::QCollection<0>                                               &quadrature,
+           const std::map<types::boundary_id, const Function<spacedim, Number> *> &neumann_bc,
+           const ReadVector<Number>                                               &solution,
+           Vector<float>                                                          &error,
+           const ComponentMask                                                    &component_mask = {},
+           const Function<spacedim>                                               *coefficients   = nullptr,
+           const unsigned int        n_threads    = numbers::invalid_unsigned_int,
+           const types::subdomain_id subdomain_id = numbers::invalid_subdomain_id,
+           const types::material_id  material_id  = numbers::invalid_material_id,
+           const Strategy            strategy     = cell_diameter_over_24);
 
 
 
@@ -764,20 +732,18 @@ public:
    */
   template <typename Number>
   static void
-  estimate(
-    const Mapping<1, spacedim> &   mapping,
-    const DoFHandler<1, spacedim> &dof,
-    const hp::QCollection<0> &     quadrature,
-    const std::map<types::boundary_id, const Function<spacedim, Number> *>
-      &                                          neumann_bc,
-    const ArrayView<const ReadVector<Number> *> &solutions,
-    ArrayView<Vector<float> *> &                 errors,
-    const ComponentMask &                        component_mask = {},
-    const Function<spacedim> *                   coefficients   = nullptr,
-    const unsigned int        n_threads    = numbers::invalid_unsigned_int,
-    const types::subdomain_id subdomain_id = numbers::invalid_subdomain_id,
-    const types::material_id  material_id  = numbers::invalid_material_id,
-    const Strategy            strategy     = cell_diameter_over_24);
+  estimate(const Mapping<1, spacedim>                                             &mapping,
+           const DoFHandler<1, spacedim>                                          &dof,
+           const hp::QCollection<0>                                               &quadrature,
+           const std::map<types::boundary_id, const Function<spacedim, Number> *> &neumann_bc,
+           const ArrayView<const ReadVector<Number> *>                            &solutions,
+           ArrayView<Vector<float> *>                                             &errors,
+           const ComponentMask                                                    &component_mask = {},
+           const Function<spacedim>                                               *coefficients   = nullptr,
+           const unsigned int        n_threads    = numbers::invalid_unsigned_int,
+           const types::subdomain_id subdomain_id = numbers::invalid_subdomain_id,
+           const types::material_id  material_id  = numbers::invalid_material_id,
+           const Strategy            strategy     = cell_diameter_over_24);
 
 
 
@@ -787,19 +753,17 @@ public:
    */
   template <typename Number>
   static void
-  estimate(
-    const DoFHandler<1, spacedim> &dof,
-    const hp::QCollection<0> &     quadrature,
-    const std::map<types::boundary_id, const Function<spacedim, Number> *>
-      &                                          neumann_bc,
-    const ArrayView<const ReadVector<Number> *> &solutions,
-    ArrayView<Vector<float> *> &                 errors,
-    const ComponentMask &                        component_mask = {},
-    const Function<spacedim> *                   coefficients   = nullptr,
-    const unsigned int        n_threads    = numbers::invalid_unsigned_int,
-    const types::subdomain_id subdomain_id = numbers::invalid_subdomain_id,
-    const types::material_id  material_id  = numbers::invalid_material_id,
-    const Strategy            strategy     = cell_diameter_over_24);
+  estimate(const DoFHandler<1, spacedim>                                          &dof,
+           const hp::QCollection<0>                                               &quadrature,
+           const std::map<types::boundary_id, const Function<spacedim, Number> *> &neumann_bc,
+           const ArrayView<const ReadVector<Number> *>                            &solutions,
+           ArrayView<Vector<float> *>                                             &errors,
+           const ComponentMask                                                    &component_mask = {},
+           const Function<spacedim>                                               *coefficients   = nullptr,
+           const unsigned int        n_threads    = numbers::invalid_unsigned_int,
+           const types::subdomain_id subdomain_id = numbers::invalid_subdomain_id,
+           const types::material_id  material_id  = numbers::invalid_material_id,
+           const Strategy            strategy     = cell_diameter_over_24);
 
 
 
@@ -818,14 +782,13 @@ public:
   /**
    * Exception
    */
-  DeclExceptionMsg(
-    ExcInvalidCoefficient,
-    "If you do specify the argument for a (possibly "
-    "spatially variable) coefficient function for this function, "
-    "then it needs to refer to a coefficient that is either "
-    "scalar (has one vector component) or has as many vector "
-    "components as there are in the finite element used by "
-    "the DoFHandler argument.");
+  DeclExceptionMsg(ExcInvalidCoefficient,
+                   "If you do specify the argument for a (possibly "
+                   "spatially variable) coefficient function for this function, "
+                   "then it needs to refer to a coefficient that is either "
+                   "scalar (has one vector component) or has as many vector "
+                   "components as there are in the finite element used by "
+                   "the DoFHandler argument.");
 
   /**
    * Exception
@@ -834,12 +797,11 @@ public:
                  types::boundary_id,
                  int,
                  int,
-                 << "You provided a function map that for boundary indicator "
-                 << arg1 << " specifies a function with " << arg2
+                 << "You provided a function map that for boundary indicator " << arg1 << " specifies a function with "
+                 << arg2
                  << " vector components. However, the finite "
                     "element in use has "
-                 << arg3
-                 << " components, and these two numbers need to match.");
+                 << arg3 << " components, and these two numbers need to match.");
 
   /**
    * Exception
@@ -847,10 +809,8 @@ public:
   DeclException2(ExcIncompatibleNumberOfElements,
                  int,
                  int,
-                 << "The number of input vectors, " << arg1
-                 << " needs to be equal to the number of output vectors, "
-                 << arg2
-                 << ". This is not the case in your call of this function.");
+                 << "The number of input vectors, " << arg1 << " needs to be equal to the number of output vectors, "
+                 << arg2 << ". This is not the case in your call of this function.");
 
   /**
    * Exception

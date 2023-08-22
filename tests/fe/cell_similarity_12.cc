@@ -68,10 +68,7 @@ test(const unsigned int degree)
     points[1][d] = 0.85;
 
   const Quadrature<dim> quadrature(points);
-  FEValues<dim>         fe_values(mapping,
-                          fe,
-                          quadrature,
-                          update_gradients | update_jacobians);
+  FEValues<dim>         fe_values(mapping, fe, quadrature, update_gradients | update_jacobians);
 
   const auto check = [&]() {
     for (const auto &cell : dof.active_cell_iterators())
@@ -93,8 +90,7 @@ test(const unsigned int degree)
           {
             deallog << "[ ";
             for (unsigned int d = 0; d < dim; ++d)
-              deallog << fe_values.shape_grad(fe.dofs_per_cell / 2, q)[d]
-                      << ' ';
+              deallog << fe_values.shape_grad(fe.dofs_per_cell / 2, q)[d] << ' ';
             deallog << " ] ";
           }
         deallog << std::endl;

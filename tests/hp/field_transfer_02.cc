@@ -69,15 +69,13 @@ main(int argc, char *argv[])
   dof_handler.distribute_dofs(fe_collection);
 
   // Initialize solution
-  LinearAlgebra::distributed::Vector<double> solution(
-    dof_handler.locally_owned_dofs(), MPI_COMM_WORLD);
-  const double old_value = 10.;
+  LinearAlgebra::distributed::Vector<double> solution(dof_handler.locally_owned_dofs(), MPI_COMM_WORLD);
+  const double                               old_value = 10.;
   for (unsigned int i = 0; i < solution.locally_owned_size(); ++i)
     solution.local_element(i) = old_value;
 
-  parallel::distributed::experimental::
-    FieldTransfer<2, LinearAlgebra::distributed::Vector<double>>
-      field_transfer(dof_handler);
+  parallel::distributed::experimental::FieldTransfer<2, LinearAlgebra::distributed::Vector<double>> field_transfer(
+    dof_handler);
   // Assign FE_Q to all the cells
   for (auto cell : dof_handler.active_cell_iterators())
     {
@@ -94,14 +92,12 @@ main(int argc, char *argv[])
   triangulation.execute_coarsening_and_refinement();
 
   dof_handler.distribute_dofs(fe_collection);
-  const unsigned int dofs_per_cell =
-    dof_handler.get_fe_collection().max_dofs_per_cell();
+  const unsigned int dofs_per_cell = dof_handler.get_fe_collection().max_dofs_per_cell();
 
   AffineConstraints<double> affine_constraints;
   const double              new_value = 11.;
 
-  LinearAlgebra::distributed::Vector<double> new_solution(
-    dof_handler.locally_owned_dofs(), MPI_COMM_WORLD);
+  LinearAlgebra::distributed::Vector<double> new_solution(dof_handler.locally_owned_dofs(), MPI_COMM_WORLD);
   field_transfer.interpolate(new_value, affine_constraints, new_solution);
 
   // Check the new_solution
@@ -109,14 +105,12 @@ main(int argc, char *argv[])
   if (myid == 0)
     {
       for (unsigned int i = 0; i < new_solution.locally_owned_size(); ++i)
-        AssertThrow(new_solution.local_element(i) == old_value,
-                    ExcInternalError());
+        AssertThrow(new_solution.local_element(i) == old_value, ExcInternalError());
     }
   else if (myid == 1)
     {
       for (unsigned int i = 0; i < new_solution.locally_owned_size(); ++i)
-        AssertThrow(new_solution.local_element(i) == new_value,
-                    ExcInternalError());
+        AssertThrow(new_solution.local_element(i) == new_value, ExcInternalError());
     }
 
   if (myid == 0)

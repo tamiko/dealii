@@ -55,15 +55,13 @@ main()
                                    constants,
                                    /* time dependent */ false);
 
-        deallog << "Initialize Succeeded with dim = 2, rank = 2, "
-                << expressions.size() << " expressions, " << variables
-                << " as variables." << std::endl;
+        deallog << "Initialize Succeeded with dim = 2, rank = 2, " << expressions.size() << " expressions, "
+                << variables << " as variables." << std::endl;
       }
     }
   catch (...)
     {
-      deallog << "Initialization or Evaluation Failed with dim = 2, rank = 2, "
-              << expressions.size() << " expressions, " << variables
-              << " as variables." << std::endl;
+      deallog << "Initialization or Evaluation Failed with dim = 2, rank = 2, " << expressions.size()
+              << " expressions, " << variables << " as variables." << std::endl;
     }
 }

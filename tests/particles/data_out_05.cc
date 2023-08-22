@@ -45,9 +45,7 @@ test()
     MappingQ<dim, spacedim> mapping(1);
 
     // Create a particle handler using one manually created particle
-    Particles::ParticleHandler<dim, spacedim> particle_handler(tr,
-                                                               mapping,
-                                                               spacedim);
+    Particles::ParticleHandler<dim, spacedim> particle_handler(tr, mapping, spacedim);
     std::vector<Point<spacedim>>              position(1);
     std::vector<Point<dim>>                   reference_position(1);
     std::vector<double>                       properties(spacedim);
@@ -62,13 +60,9 @@ test()
         properties[i] = 0.125;
       }
 
-    Particles::Particle<dim, spacedim> particle1(position[0],
-                                                 reference_position[0],
-                                                 0);
+    Particles::Particle<dim, spacedim> particle1(position[0], reference_position[0], 0);
 
-    typename Triangulation<dim, spacedim>::active_cell_iterator cell1(&tr,
-                                                                      2,
-                                                                      0);
+    typename Triangulation<dim, spacedim>::active_cell_iterator cell1(&tr, 2, 0);
 
     if (Utilities::MPI::this_mpi_process(tr.get_communicator()) == 0)
       {
@@ -76,21 +70,17 @@ test()
         particle_it->set_properties(properties);
       }
 
-    std::vector<std::string> data_names;
-    std::vector<DataComponentInterpretation::DataComponentInterpretation>
-      data_interpretations;
+    std::vector<std::string>                                              data_names;
+    std::vector<DataComponentInterpretation::DataComponentInterpretation> data_interpretations;
 
     for (unsigned int i = 0; i < spacedim; ++i)
       {
         data_names.emplace_back("property_coord_" + std::to_string(i));
-        data_interpretations.emplace_back(
-          DataComponentInterpretation::component_is_scalar);
+        data_interpretations.emplace_back(DataComponentInterpretation::component_is_scalar);
       }
 
     Particles::DataOut<dim, spacedim> particle_output;
-    particle_output.build_patches(particle_handler,
-                                  data_names,
-                                  data_interpretations);
+    particle_output.build_patches(particle_handler, data_names, data_interpretations);
     particle_output.write_gnuplot(deallog.get_file_stream());
   }
 

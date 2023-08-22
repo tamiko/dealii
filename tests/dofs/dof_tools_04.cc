@@ -29,8 +29,7 @@ check_this(const DoFHandler<dim> &dof_handler)
 {
   const types::global_dof_index n_dofs = dof_handler.n_dofs();
 
-  const IndexSet hanging_node_dofs =
-    DoFTools::extract_hanging_node_dofs(dof_handler);
+  const IndexSet hanging_node_dofs = DoFTools::extract_hanging_node_dofs(dof_handler);
 
   AffineConstraints<double> constraints;
   DoFTools::make_hanging_node_constraints(dof_handler, constraints);
@@ -40,7 +39,6 @@ check_this(const DoFHandler<dim> &dof_handler)
     if (hanging_node_dofs.is_element(dof))
       AssertThrow(constraints.is_constrained(dof), ExcInternalError());
 
-  AssertThrow(hanging_node_dofs.n_elements() == constraints.n_constraints(),
-              ExcInternalError());
+  AssertThrow(hanging_node_dofs.n_elements() == constraints.n_constraints(), ExcInternalError());
   output_bool_vector(hanging_node_dofs);
 }

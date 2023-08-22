@@ -60,8 +60,7 @@ test()
 
   std::vector<BoundingBox<spacedim>> local_description(1, box);
 
-  auto built_tree =
-    GridTools::build_global_description_tree(local_description, MPI_COMM_WORLD);
+  auto built_tree = GridTools::build_global_description_tree(local_description, MPI_COMM_WORLD);
 
   Point<spacedim> my_point;
   Point<spacedim> point_inside_d_1;
@@ -75,23 +74,17 @@ test()
     }
 
   std::vector<std::pair<BoundingBox<spacedim>, unsigned int>> test_results;
-  built_tree.query(bgi::intersects(outside_point),
-                   std::back_inserter(test_results));
+  built_tree.query(bgi::intersects(outside_point), std::back_inserter(test_results));
   if (test_results.size() != 0)
-    deallog
-      << "Point found inside a bounding box! It should be outside all of them!"
-      << std::endl;
+    deallog << "Point found inside a bounding box! It should be outside all of them!" << std::endl;
 
   built_tree.query(bgi::intersects(my_point), std::back_inserter(test_results));
   if (std::get<1>(test_results[0]) != current_proc)
-    deallog << "Error: Point found inside wrong process: "
-            << std::get<1>(test_results[0]) << std::endl;
+    deallog << "Error: Point found inside wrong process: " << std::get<1>(test_results[0]) << std::endl;
 
-  built_tree.query(bgi::intersects(point_inside_d_1),
-                   std::back_inserter(test_results));
+  built_tree.query(bgi::intersects(point_inside_d_1), std::back_inserter(test_results));
   if (std::get<1>(test_results[1]) != next_p)
-    deallog << "Error: Point found inside wrong process: "
-            << std::get<1>(test_results[1]) << std::endl;
+    deallog << "Error: Point found inside wrong process: " << std::get<1>(test_results[1]) << std::endl;
 }
 
 int

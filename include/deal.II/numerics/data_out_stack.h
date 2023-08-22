@@ -119,8 +119,7 @@ class DataOutStack : public DataOutInterface<dim + 1, spacedim + 1>
                 "Because this class stacks data into the (dim+1)st "
                 "dimension to create graphical output, it only works for "
                 "dim<3.");
-  static_assert(dim == spacedim,
-                "This class is not implemented for dim != spacedim.");
+  static_assert(dim == spacedim, "This class is not implemented for dim != spacedim.");
 
 public:
   /**
@@ -157,8 +156,7 @@ public:
    * parameter direction, i.e. orthogonal to the space directions.
    */
   void
-  new_parameter_value(const double parameter_value,
-                      const double parameter_step);
+  new_parameter_value(const double parameter_value, const double parameter_step);
 
   /**
    * Attach the DoF handler for the grid and data associated with the
@@ -193,8 +191,7 @@ public:
    * finite element has only one component.
    */
   void
-  declare_data_vector(const std::vector<std::string> &name,
-                      const VectorType                vector_type);
+  declare_data_vector(const std::vector<std::string> &name, const VectorType vector_type);
 
 
   /**
@@ -240,8 +237,7 @@ public:
    */
   template <typename number>
   void
-  add_data_vector(const Vector<number> &          vec,
-                  const std::vector<std::string> &names);
+  add_data_vector(const Vector<number> &vec, const std::vector<std::string> &names);
 
   /**
    * This is the central function of this class since it builds the list of
@@ -280,11 +276,10 @@ public:
   /**
    * Exception
    */
-  DeclException1(
-    ExcVectorNotDeclared,
-    std::string,
-    << "The data vector for which the first component has the name " << arg1
-    << " has not been added before.");
+  DeclException1(ExcVectorNotDeclared,
+                 std::string,
+                 << "The data vector for which the first component has the name " << arg1
+                 << " has not been added before.");
   /**
    * Exception
    */
@@ -294,19 +289,17 @@ public:
   /**
    * Exception
    */
-  DeclExceptionMsg(
-    ExcDataAlreadyAdded,
-    "You cannot declare additional vectors after already calling "
-    "build_patches(). All data vectors need to be declared "
-    "before you call this function the first time.");
+  DeclExceptionMsg(ExcDataAlreadyAdded,
+                   "You cannot declare additional vectors after already calling "
+                   "build_patches(). All data vectors need to be declared "
+                   "before you call this function the first time.");
   /**
    * Exception
    */
   DeclException1(ExcNameAlreadyUsed,
                  std::string,
                  << "You tried to declare a component of a data vector with "
-                 << "the name <" << arg1
-                 << ">, but that name is already used.");
+                 << "the name <" << arg1 << ">, but that name is already used.");
 
 private:
   /**
@@ -324,8 +317,7 @@ private:
    * DoF handler to be used for the data corresponding to the present
    * parameter value.
    */
-  SmartPointer<const DoFHandler<dim, spacedim>, DataOutStack<dim, spacedim>>
-    dof_handler;
+  SmartPointer<const DoFHandler<dim, spacedim>, DataOutStack<dim, spacedim>> dof_handler;
 
   /**
    * List of patches of all past and present parameter value data sets.
@@ -372,8 +364,7 @@ private:
    * DataOutBase) to the actual output function.
    */
   virtual const std::vector<
-    dealii::DataOutBase::Patch<DataOutStack<dim, spacedim>::patch_dim,
-                               DataOutStack<dim, spacedim>::patch_spacedim>> &
+    dealii::DataOutBase::Patch<DataOutStack<dim, spacedim>::patch_dim, DataOutStack<dim, spacedim>::patch_spacedim>> &
   get_patches() const override;
 
 

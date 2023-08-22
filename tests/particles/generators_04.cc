@@ -42,17 +42,11 @@ test()
     std::mt19937 random_number_generator(time(nullptr));
 
     const Particles::Particle<dim, spacedim> particle =
-      Particles::Generators::random_particle_in_cell(tr.begin_active(),
-                                                     42,
-                                                     random_number_generator,
-                                                     mapping);
+      Particles::Generators::random_particle_in_cell(tr.begin_active(), 42, random_number_generator, mapping);
 
-    const Point<dim> p_unit =
-      mapping.transform_real_to_unit_cell(tr.begin_active(),
-                                          particle.get_location());
+    const Point<dim> p_unit = mapping.transform_real_to_unit_cell(tr.begin_active(), particle.get_location());
 
-    deallog << "Particle is inside cell 1: "
-            << GeometryInfo<dim>::is_inside_unit_cell(p_unit) << std::endl;
+    deallog << "Particle is inside cell 1: " << GeometryInfo<dim>::is_inside_unit_cell(p_unit) << std::endl;
     deallog << "Particle id: " << particle.get_id() << std::endl;
   }
 

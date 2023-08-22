@@ -104,8 +104,7 @@ namespace Step7
     value(const Point<dim> &p, const unsigned int component = 0) const override;
 
     virtual Tensor<1, dim>
-    gradient(const Point<dim> & p,
-             const unsigned int component = 0) const override;
+    gradient(const Point<dim> &p, const unsigned int component = 0) const override;
   };
 
   template <int dim>
@@ -116,8 +115,7 @@ namespace Step7
     for (const auto &center : this->source_centers)
       {
         const Tensor<1, dim> x_minus_xi = p - center;
-        return_value +=
-          std::exp(-x_minus_xi.norm_square() / (this->width * this->width));
+        return_value += std::exp(-x_minus_xi.norm_square() / (this->width * this->width));
       }
 
     return return_value;
@@ -136,10 +134,8 @@ namespace Step7
         // For the gradient, note that its direction is along (x-x_i), so we
         // add up multiples of this distance vector, where the factor is given
         // by the exponentials.
-        return_value +=
-          (-2. / (this->width * this->width) *
-           std::exp(-x_minus_xi.norm_square() / (this->width * this->width)) *
-           x_minus_xi);
+        return_value += (-2. / (this->width * this->width) *
+                         std::exp(-x_minus_xi.norm_square() / (this->width * this->width)) * x_minus_xi);
       }
 
     return return_value;
@@ -166,13 +162,10 @@ namespace Step7
 
         // The first contribution is the Laplacian:
         return_value +=
-          ((2. * dim -
-            4. * x_minus_xi.norm_square() / (this->width * this->width)) /
-           (this->width * this->width) *
+          ((2. * dim - 4. * x_minus_xi.norm_square() / (this->width * this->width)) / (this->width * this->width) *
            std::exp(-x_minus_xi.norm_square() / (this->width * this->width)));
         // And the second is the solution itself:
-        return_value +=
-          std::exp(-x_minus_xi.norm_square() / (this->width * this->width));
+        return_value += std::exp(-x_minus_xi.norm_square() / (this->width * this->width));
       }
 
     return return_value;
@@ -190,8 +183,7 @@ namespace Step7
       adaptive_refinement
     };
 
-    HelmholtzProblem(const FiniteElement<dim> &fe,
-                     const RefinementMode      refinement_mode);
+    HelmholtzProblem(const FiniteElement<dim> &fe, const RefinementMode refinement_mode);
 
     void
     run();
@@ -227,8 +219,7 @@ namespace Step7
   };
 
   template <int dim>
-  HelmholtzProblem<dim>::HelmholtzProblem(const FiniteElement<dim> &fe,
-                                          const RefinementMode refinement_mode)
+  HelmholtzProblem<dim>::HelmholtzProblem(const FiniteElement<dim> &fe, const RefinementMode refinement_mode)
     : dof_handler(triangulation)
     , fe(&fe)
     , refinement_mode(refinement_mode)
@@ -242,8 +233,7 @@ namespace Step7
     DoFRenumbering::Cuthill_McKee(dof_handler);
 
     hanging_node_constraints.clear();
-    DoFTools::make_hanging_node_constraints(dof_handler,
-                                            hanging_node_constraints);
+    DoFTools::make_hanging_node_constraints(dof_handler, hanging_node_constraints);
     hanging_node_constraints.close();
 
     DynamicSparsityPattern dsp(dof_handler.n_dofs(), dof_handler.n_dofs());
@@ -288,14 +278,12 @@ namespace Step7
     FEValues<dim> fe_values(mapping,
                             *fe,
                             quadrature_formula,
-                            update_values | update_gradients |
-                              update_quadrature_points | update_JxW_values);
+                            update_values | update_gradients | update_quadrature_points | update_JxW_values);
 
     FEFaceValues<dim> fe_face_values(mapping,
                                      *fe,
                                      face_quadrature_formula,
-                                     update_values | update_quadrature_points |
-                                       update_normal_vectors |
+                                     update_values | update_quadrature_points | update_normal_vectors |
                                        update_JxW_values);
 
     const RightHandSide<dim> right_hand_side;
@@ -310,20 +298,18 @@ namespace Step7
 
         fe_values.reinit(cell);
 
-        right_hand_side.value_list(fe_values.get_quadrature_points(),
-                                   rhs_values);
+        right_hand_side.value_list(fe_values.get_quadrature_points(), rhs_values);
 
         for (unsigned int q_point = 0; q_point < n_q_points; ++q_point)
           for (unsigned int i = 0; i < dofs_per_cell; ++i)
             {
               for (unsigned int j = 0; j < dofs_per_cell; ++j)
-                cell_matrix(i, j) +=
-                  ((fe_values.shape_grad(i, q_point) *     // grad phi_i(x_q)
-                      fe_values.shape_grad(j, q_point)     // grad phi_j(x_q)
-                    +                                      //
-                    fe_values.shape_value(i, q_point) *    // phi_i(x_q)
-                      fe_values.shape_value(j, q_point)) * // phi_j(x_q)
-                   fe_values.JxW(q_point));                // dx
+                cell_matrix(i, j) += ((fe_values.shape_grad(i, q_point) *     // grad phi_i(x_q)
+                                         fe_values.shape_grad(j, q_point)     // grad phi_j(x_q)
+                                       +                                      //
+                                       fe_values.shape_value(i, q_point) *    // phi_i(x_q)
+                                         fe_values.shape_value(j, q_point)) * // phi_j(x_q)
+                                      fe_values.JxW(q_point));                // dx
 
 
               cell_rhs(i) += (fe_values.shape_value(i, q_point) * // phi_i(x_q)
@@ -337,19 +323,15 @@ namespace Step7
               fe_face_values.reinit(cell, face);
 
 
-              for (unsigned int q_point = 0; q_point < n_face_q_points;
-                   ++q_point)
+              for (unsigned int q_point = 0; q_point < n_face_q_points; ++q_point)
                 {
-                  const double neumann_value =
-                    (exact_solution.gradient(
-                       fe_face_values.quadrature_point(q_point)) *
-                     fe_face_values.normal_vector(q_point));
+                  const double neumann_value = (exact_solution.gradient(fe_face_values.quadrature_point(q_point)) *
+                                                fe_face_values.normal_vector(q_point));
 
                   for (unsigned int i = 0; i < dofs_per_cell; ++i)
-                    cell_rhs(i) +=
-                      (neumann_value *                          // g(x_q)
-                       fe_face_values.shape_value(i, q_point) * // phi_i(x_q)
-                       fe_face_values.JxW(q_point));            // dx
+                    cell_rhs(i) += (neumann_value *                          // g(x_q)
+                                    fe_face_values.shape_value(i, q_point) * // phi_i(x_q)
+                                    fe_face_values.JxW(q_point));            // dx
                 }
             }
 
@@ -357,9 +339,7 @@ namespace Step7
         for (unsigned int i = 0; i < dofs_per_cell; ++i)
           {
             for (unsigned int j = 0; j < dofs_per_cell; ++j)
-              system_matrix.add(local_dof_indices[i],
-                                local_dof_indices[j],
-                                cell_matrix(i, j));
+              system_matrix.add(local_dof_indices[i], local_dof_indices[j], cell_matrix(i, j));
 
             system_rhs(local_dof_indices[i]) += cell_rhs(i);
           }
@@ -369,12 +349,8 @@ namespace Step7
     hanging_node_constraints.condense(system_rhs);
 
     std::map<types::global_dof_index, double> boundary_values;
-    VectorTools::interpolate_boundary_values(
-      mapping, dof_handler, 0, Solution<dim>(), boundary_values);
-    MatrixTools::apply_boundary_values(boundary_values,
-                                       system_matrix,
-                                       solution,
-                                       system_rhs);
+    VectorTools::interpolate_boundary_values(mapping, dof_handler, 0, Solution<dim>(), boundary_values);
+    MatrixTools::apply_boundary_values(boundary_values, system_matrix, solution, system_rhs);
   }
 
   template <int dim>
@@ -406,18 +382,15 @@ namespace Step7
 
         case adaptive_refinement:
           {
-            Vector<float> estimated_error_per_cell(
-              triangulation.n_active_cells());
+            Vector<float> estimated_error_per_cell(triangulation.n_active_cells());
 
-            KellyErrorEstimator<dim>::estimate(
-              dof_handler,
-              QGauss<dim - 1>(fe->degree + 1),
-              std::map<types::boundary_id, const Function<dim> *>(),
-              solution,
-              estimated_error_per_cell);
+            KellyErrorEstimator<dim>::estimate(dof_handler,
+                                               QGauss<dim - 1>(fe->degree + 1),
+                                               std::map<types::boundary_id, const Function<dim> *>(),
+                                               solution,
+                                               estimated_error_per_cell);
 
-            GridRefinement::refine_and_coarsen_fixed_number(
-              triangulation, estimated_error_per_cell, 0.3, 0.03);
+            GridRefinement::refine_and_coarsen_fixed_number(triangulation, estimated_error_per_cell, 0.3, 0.03);
 
             triangulation.execute_coarsening_and_refinement();
 
@@ -452,10 +425,7 @@ namespace Step7
                                       difference_per_cell,
                                       QGauss<dim>(fe->degree + 1),
                                       VectorTools::L2_norm);
-    const double L2_error =
-      VectorTools::compute_global_error(triangulation,
-                                        difference_per_cell,
-                                        VectorTools::L2_norm);
+    const double L2_error = VectorTools::compute_global_error(triangulation, difference_per_cell, VectorTools::L2_norm);
 
     VectorTools::integrate_difference(mapping,
                                       dof_handler,
@@ -465,30 +435,20 @@ namespace Step7
                                       QGauss<dim>(fe->degree + 1),
                                       VectorTools::H1_seminorm);
     const double H1_error =
-      VectorTools::compute_global_error(triangulation,
-                                        difference_per_cell,
-                                        VectorTools::H1_seminorm);
+      VectorTools::compute_global_error(triangulation, difference_per_cell, VectorTools::H1_seminorm);
 
     const QTrapezoid<1>  q_trapez;
     const QIterated<dim> q_iterated(q_trapez, fe->degree * 2 + 1);
-    VectorTools::integrate_difference(mapping,
-                                      dof_handler,
-                                      solution,
-                                      Solution<dim>(),
-                                      difference_per_cell,
-                                      q_iterated,
-                                      VectorTools::Linfty_norm);
+    VectorTools::integrate_difference(
+      mapping, dof_handler, solution, Solution<dim>(), difference_per_cell, q_iterated, VectorTools::Linfty_norm);
     const double Linfty_error =
-      VectorTools::compute_global_error(triangulation,
-                                        difference_per_cell,
-                                        VectorTools::Linfty_norm);
+      VectorTools::compute_global_error(triangulation, difference_per_cell, VectorTools::Linfty_norm);
 
     const unsigned int n_active_cells = triangulation.n_active_cells();
     const unsigned int n_dofs         = dof_handler.n_dofs();
 
     deallog << "Cycle " << cycle << ':' << std::endl
-            << "   Number of active cells:       " << n_active_cells
-            << std::endl
+            << "   Number of active cells:       " << n_active_cells << std::endl
             << "   Number of degrees of freedom: " << n_dofs << std::endl;
 
     convergence_table.add_value("cycle", cycle);
@@ -504,8 +464,7 @@ namespace Step7
   HelmholtzProblem<dim>::run()
   {
     // note: reduced refinement to keep problem size manageable
-    const unsigned int n_cycles =
-      (refinement_mode == global_refinement) ? 3 : 9;
+    const unsigned int n_cycles = (refinement_mode == global_refinement) ? 3 : 9;
     for (unsigned int cycle = 0; cycle < n_cycles; ++cycle)
       {
         if (cycle == 0)
@@ -513,8 +472,7 @@ namespace Step7
 #ifdef USE_SIMPLEX
             Triangulation<dim> temp;
             GridGenerator::hyper_cube(temp, -1., 1.);
-            GridGenerator::convert_hypercube_to_simplex_mesh(temp,
-                                                             triangulation);
+            GridGenerator::convert_hypercube_to_simplex_mesh(temp, triangulation);
 #else
             GridGenerator::hyper_cube(triangulation, -1., 1.);
 #endif
@@ -524,8 +482,7 @@ namespace Step7
               for (const auto &face : cell->face_iterators())
                 {
                   const auto center = face->center();
-                  if ((std::fabs(center(0) - (-1.0)) < 1e-12) ||
-                      (std::fabs(center(1) - (-1.0)) < 1e-12))
+                  if ((std::fabs(center(0) - (-1.0)) < 1e-12) || (std::fabs(center(1) - (-1.0)) < 1e-12))
                     face->set_boundary_id(1);
                 }
           }
@@ -643,14 +600,10 @@ namespace Step7
         new_order.emplace_back("L2");
         convergence_table.set_column_order(new_order);
 
-        convergence_table.evaluate_convergence_rates(
-          "L2", ConvergenceTable::reduction_rate);
-        convergence_table.evaluate_convergence_rates(
-          "L2", ConvergenceTable::reduction_rate_log2);
-        convergence_table.evaluate_convergence_rates(
-          "H1", ConvergenceTable::reduction_rate);
-        convergence_table.evaluate_convergence_rates(
-          "H1", ConvergenceTable::reduction_rate_log2);
+        convergence_table.evaluate_convergence_rates("L2", ConvergenceTable::reduction_rate);
+        convergence_table.evaluate_convergence_rates("L2", ConvergenceTable::reduction_rate_log2);
+        convergence_table.evaluate_convergence_rates("H1", ConvergenceTable::reduction_rate);
+        convergence_table.evaluate_convergence_rates("H1", ConvergenceTable::reduction_rate_log2);
 
         deallog << std::endl;
         convergence_table.write_text(deallog.get_file_stream());
@@ -709,8 +662,7 @@ main()
 #else
         FE_Q<dim> fe(1);
 #endif
-        HelmholtzProblem<dim> helmholtz_problem_2d(
-          fe, HelmholtzProblem<dim>::adaptive_refinement);
+        HelmholtzProblem<dim> helmholtz_problem_2d(fe, HelmholtzProblem<dim>::adaptive_refinement);
 
         // TODO needs hanging node constraints
 #ifndef USE_SIMPLEX
@@ -730,8 +682,7 @@ main()
 #else
         FE_Q<dim> fe(1);
 #endif
-        HelmholtzProblem<dim> helmholtz_problem_2d(
-          fe, HelmholtzProblem<dim>::global_refinement);
+        HelmholtzProblem<dim> helmholtz_problem_2d(fe, HelmholtzProblem<dim>::global_refinement);
 
         helmholtz_problem_2d.run();
 
@@ -748,8 +699,7 @@ main()
 #else
         FE_Q<dim> fe(2);
 #endif
-        HelmholtzProblem<dim> helmholtz_problem_2d(
-          fe, HelmholtzProblem<dim>::global_refinement);
+        HelmholtzProblem<dim> helmholtz_problem_2d(fe, HelmholtzProblem<dim>::global_refinement);
 
         helmholtz_problem_2d.run();
 
@@ -765,8 +715,7 @@ main()
 #else
         FE_Q<dim> fe(2);
 #endif
-        HelmholtzProblem<dim> helmholtz_problem_2d(
-          fe, HelmholtzProblem<dim>::adaptive_refinement);
+        HelmholtzProblem<dim> helmholtz_problem_2d(fe, HelmholtzProblem<dim>::adaptive_refinement);
 
         // TODO needs hanging node constraints
 #ifndef USE_SIMPLEX
@@ -778,27 +727,19 @@ main()
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
 

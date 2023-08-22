@@ -45,11 +45,9 @@ test_boundary(const FEValuesBase<dim> &fev)
   }
 
   Vector<double>                   u(n), v(n), w(n);
-  std::vector<std::vector<double>> uval(
-    d, std::vector<double>(fev.n_quadrature_points)),
+  std::vector<std::vector<double>> uval(d, std::vector<double>(fev.n_quadrature_points)),
     null_val(d, std::vector<double>(fev.n_quadrature_points, 0.));
-  std::vector<std::vector<Tensor<1, dim>>> ugrad(
-    d, std::vector<Tensor<1, dim>>(fev.n_quadrature_points));
+  std::vector<std::vector<Tensor<1, dim>>> ugrad(d, std::vector<Tensor<1, dim>>(fev.n_quadrature_points));
 
   std::vector<types::global_dof_index> indices(n);
   for (unsigned int i = 0; i < n; ++i)
@@ -84,8 +82,7 @@ test_fe(Triangulation<dim> &tr, FiniteElement<dim> &fe)
   QGauss<dim - 1>   face_quadrature(fe.tensor_degree() + 1);
   FEFaceValues<dim> fef1(fe,
                          face_quadrature,
-                         update_values | update_gradients |
-                           update_normal_vectors | update_JxW_values);
+                         update_values | update_gradients | update_normal_vectors | update_JxW_values);
   for (const unsigned int i : GeometryInfo<dim>::face_indices())
     {
       deallog << "boundary_matrix " << i << std::endl;

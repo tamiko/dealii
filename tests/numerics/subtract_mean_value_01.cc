@@ -40,8 +40,7 @@ test(VectorType &v)
 
   // then check the norm
   VectorTools::subtract_mean_value(v, filter);
-  AssertThrow(std::fabs(v.mean_value()) < 1e-10 * v.l2_norm(),
-              ExcInternalError());
+  AssertThrow(std::fabs(v.mean_value()) < 1e-10 * v.l2_norm(), ExcInternalError());
 
   deallog << "OK" << std::endl;
 }
@@ -77,28 +76,20 @@ main()
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

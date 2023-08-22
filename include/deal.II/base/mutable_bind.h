@@ -85,8 +85,7 @@ namespace Utilities
      * An alias to the stored std::tuple type. Only copy constructible
      * objects are allowed as tuple members.
      */
-    using TupleType =
-      std::tuple<std::remove_cv_t<std::remove_reference_t<FunctionArgs>>...>;
+    using TupleType = std::tuple<std::remove_cv_t<std::remove_reference_t<FunctionArgs>>...>;
 
     /**
      * Construct a MutableBind object specifying the function, and
@@ -144,9 +143,8 @@ namespace Utilities
      * the conversion
      */
     void
-    parse_arguments(const std::string &          value_string,
-                    const Patterns::PatternBase &pattern =
-                      *Patterns::Tools::Convert<TupleType>::to_pattern());
+    parse_arguments(const std::string           &value_string,
+                    const Patterns::PatternBase &pattern = *Patterns::Tools::Convert<TupleType>::to_pattern());
 
   private:
     /**
@@ -184,16 +182,14 @@ namespace Utilities
    */
   template <typename ReturnType, class... FunctionArgs>
   MutableBind<ReturnType, FunctionArgs...>
-  mutable_bind(ReturnType (*function)(FunctionArgs...),
-               std_cxx20::type_identity_t<FunctionArgs> &&...arguments);
+  mutable_bind(ReturnType (*function)(FunctionArgs...), std_cxx20::type_identity_t<FunctionArgs> &&...arguments);
 
   /**
    * Same as above, using a std::function object.
    */
   template <typename ReturnType, class... FunctionArgs>
   MutableBind<ReturnType, FunctionArgs...>
-  mutable_bind(std::function<ReturnType(FunctionArgs...)>,
-               std_cxx20::type_identity_t<FunctionArgs> &&...arguments);
+  mutable_bind(std::function<ReturnType(FunctionArgs...)>, std_cxx20::type_identity_t<FunctionArgs> &&...arguments);
 
   /**
    * Create a MutableBind object from a function pointer, with uninitialized
@@ -206,24 +202,20 @@ namespace Utilities
    * constructors.
    */
   template <typename ReturnType, class... FunctionArgs>
-  MutableBind<ReturnType, FunctionArgs...>
-    mutable_bind(ReturnType (*function)(FunctionArgs...));
+  MutableBind<ReturnType, FunctionArgs...> mutable_bind(ReturnType (*function)(FunctionArgs...));
 
   /**
    * Same as above, using a std::function object.
    */
   template <typename ReturnType, class... FunctionArgs>
-  MutableBind<ReturnType, FunctionArgs...>
-    mutable_bind(std::function<ReturnType(FunctionArgs...)>);
+  MutableBind<ReturnType, FunctionArgs...> mutable_bind(std::function<ReturnType(FunctionArgs...)>);
 
 
 
 #ifndef DOXYGEN
   template <typename ReturnType, class... FunctionArgs>
   template <typename FunctionType>
-  MutableBind<ReturnType, FunctionArgs...>::MutableBind(
-    FunctionType function,
-    FunctionArgs &&...arguments)
+  MutableBind<ReturnType, FunctionArgs...>::MutableBind(FunctionType function, FunctionArgs &&...arguments)
     : function(function)
     , arguments(std::make_tuple(std::move(arguments)...))
   {}
@@ -232,8 +224,7 @@ namespace Utilities
 
   template <typename ReturnType, class... FunctionArgs>
   template <typename FunctionType>
-  MutableBind<ReturnType, FunctionArgs...>::MutableBind(FunctionType function,
-                                                        TupleType && arguments)
+  MutableBind<ReturnType, FunctionArgs...>::MutableBind(FunctionType function, TupleType &&arguments)
     : function(function)
     , arguments(std::move(arguments))
   {}
@@ -259,8 +250,7 @@ namespace Utilities
 
   template <typename ReturnType, class... FunctionArgs>
   void
-  MutableBind<ReturnType, FunctionArgs...>::set_arguments(
-    FunctionArgs &&...args)
+  MutableBind<ReturnType, FunctionArgs...>::set_arguments(FunctionArgs &&...args)
   {
     arguments = std::make_tuple(std::move(args)...);
   }
@@ -278,30 +268,26 @@ namespace Utilities
 
   template <typename ReturnType, class... FunctionArgs>
   void
-  MutableBind<ReturnType, FunctionArgs...>::parse_arguments(
-    const std::string &          value_string,
-    const Patterns::PatternBase &pattern)
+  MutableBind<ReturnType, FunctionArgs...>::parse_arguments(const std::string           &value_string,
+                                                            const Patterns::PatternBase &pattern)
   {
-    arguments =
-      Patterns::Tools::Convert<TupleType>::to_value(value_string, pattern);
+    arguments = Patterns::Tools::Convert<TupleType>::to_value(value_string, pattern);
   }
 
 
 
   template <typename ReturnType, class... FunctionArgs>
   MutableBind<ReturnType, FunctionArgs...>
-  mutable_bind(ReturnType (*function)(FunctionArgs...),
-               std_cxx20::type_identity_t<FunctionArgs> &&...arguments)
+  mutable_bind(ReturnType (*function)(FunctionArgs...), std_cxx20::type_identity_t<FunctionArgs> &&...arguments)
   {
-    return MutableBind<ReturnType, FunctionArgs...>(function,
-                                                    std::move(arguments)...);
+    return MutableBind<ReturnType, FunctionArgs...>(function, std::move(arguments)...);
   }
 
 
 
   template <typename ReturnType, class... FunctionArgs>
   MutableBind<ReturnType, FunctionArgs...>
-    mutable_bind(ReturnType (*function)(FunctionArgs...))
+  mutable_bind(ReturnType (*function)(FunctionArgs...))
   {
     return MutableBind<ReturnType, FunctionArgs...>(function);
   }
@@ -313,8 +299,7 @@ namespace Utilities
   mutable_bind(std::function<ReturnType(FunctionArgs...)> function,
                std_cxx20::type_identity_t<FunctionArgs> &&...arguments)
   {
-    return MutableBind<ReturnType, FunctionArgs...>(function,
-                                                    std::move(arguments)...);
+    return MutableBind<ReturnType, FunctionArgs...>(function, std::move(arguments)...);
   }
 
 

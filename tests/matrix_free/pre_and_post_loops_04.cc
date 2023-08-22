@@ -44,10 +44,7 @@
 
 
 
-template <int dim,
-          int fe_degree,
-          int n_q_points_1d = fe_degree + 1,
-          typename Number   = double>
+template <int dim, int fe_degree, int n_q_points_1d = fe_degree + 1, typename Number = double>
 class Matrix
 {
 public:
@@ -56,8 +53,7 @@ public:
   {}
 
   void
-  vmult(LinearAlgebra::distributed::Vector<Number> &      dst,
-        const LinearAlgebra::distributed::Vector<Number> &src) const
+  vmult(LinearAlgebra::distributed::Vector<Number> &dst, const LinearAlgebra::distributed::Vector<Number> &src) const
   {
     dst = 0;
     data.cell_loop(&Matrix::local_apply, this, dst, src);
@@ -66,10 +62,9 @@ public:
   }
 
   void
-  vmult_with_update_basic(
-    LinearAlgebra::distributed::Vector<Number> &dst,
-    LinearAlgebra::distributed::Vector<Number> &src,
-    LinearAlgebra::distributed::Vector<Number> &other_vector) const
+  vmult_with_update_basic(LinearAlgebra::distributed::Vector<Number> &dst,
+                          LinearAlgebra::distributed::Vector<Number> &src,
+                          LinearAlgebra::distributed::Vector<Number> &other_vector) const
   {
     src.add(1.5, other_vector);
     other_vector.add(0.7, dst);
@@ -79,10 +74,9 @@ public:
   }
 
   void
-  vmult_with_update_merged(
-    LinearAlgebra::distributed::Vector<Number> &dst,
-    LinearAlgebra::distributed::Vector<Number> &src,
-    LinearAlgebra::distributed::Vector<Number> &other_vector) const
+  vmult_with_update_merged(LinearAlgebra::distributed::Vector<Number> &dst,
+                           LinearAlgebra::distributed::Vector<Number> &src,
+                           LinearAlgebra::distributed::Vector<Number> &other_vector) const
   {
     data.cell_loop(
       &Matrix::local_apply,
@@ -102,8 +96,7 @@ public:
       [&](const unsigned int start_range, const unsigned int end_range) {
         for (unsigned int i = start_range; i < end_range; ++i)
           {
-            dst.local_element(i) =
-              0.63 * dst.local_element(i) - 1.3 * other_vector.local_element(i);
+            dst.local_element(i) = 0.63 * dst.local_element(i) - 1.3 * other_vector.local_element(i);
           }
       });
   }
@@ -113,14 +106,14 @@ private:
 
   void
   local_apply(const MatrixFree<dim, Number> &,
-              LinearAlgebra::distributed::Vector<Number> &      dst,
+              LinearAlgebra::distributed::Vector<Number>       &dst,
               const LinearAlgebra::distributed::Vector<Number> &src,
-              const std::pair<unsigned int, unsigned int> &     range) const
+              const std::pair<unsigned int, unsigned int>      &range) const
   {
-    helmholtz_operator<dim,
-                       fe_degree,
-                       LinearAlgebra::distributed::Vector<Number>,
-                       n_q_points_1d>(data, dst, src, range);
+    helmholtz_operator<dim, fe_degree, LinearAlgebra::distributed::Vector<Number>, n_q_points_1d>(data,
+                                                                                                  dst,
+                                                                                                  src,
+                                                                                                  range);
   }
 };
 
@@ -176,8 +169,7 @@ test()
   mf.vmult_with_update_merged(vec3, vec2, vec1);
 
   vec3 -= ref3;
-  deallog << "Error in 1x merged operation: " << vec3.linfty_norm()
-          << std::endl;
+  deallog << "Error in 1x merged operation: " << vec3.linfty_norm() << std::endl;
 
   ref3 = 0;
 
@@ -188,8 +180,7 @@ test()
   mf.vmult_with_update_merged(vec1, vec2, vec3);
 
   vec3 -= ref3;
-  deallog << "Error in 2x merged operation: " << vec3.linfty_norm()
-          << std::endl;
+  deallog << "Error in 2x merged operation: " << vec3.linfty_norm() << std::endl;
 }
 
 

@@ -47,16 +47,14 @@ main()
       dealii::MultithreadInfo::set_thread_limit(n);
 
       const auto n_threads = dealii::MultithreadInfo::n_threads();
-      const auto n_tbb     = tbb::global_control::active_value(
-        tbb::global_control::max_allowed_parallelism);
+      const auto n_tbb     = tbb::global_control::active_value(tbb::global_control::max_allowed_parallelism);
 
       if (n != n_threads || n != n_tbb)
-        deallog
-          << "Problem: Thread limits differ from what has been enforced:\n"
-          << "dealii::MultiThreadInfo::set_thread_limit(" << n << ")\n"
-          << "dealii::MultiThreadInfo::n_threads() == " << n_threads << "\n"
-          << "tbb::global_control::active_value(...) == " << n_tbb << "\n"
-          << std::endl;
+        deallog << "Problem: Thread limits differ from what has been enforced:\n"
+                << "dealii::MultiThreadInfo::set_thread_limit(" << n << ")\n"
+                << "dealii::MultiThreadInfo::n_threads() == " << n_threads << "\n"
+                << "tbb::global_control::active_value(...) == " << n_tbb << "\n"
+                << std::endl;
     }
 #endif
 

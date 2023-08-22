@@ -40,13 +40,10 @@ plot(const PolynomialsRT_Bubbles<dim> &poly)
   for (unsigned int k = 0; k < quadrature.size(); ++k)
     {
       if (k % (poly.degree() + 3) == 0)
-        deallog << "RT_Bubbles" << poly.degree() << '<' << dim << '>'
-                << std::endl;
+        deallog << "RT_Bubbles" << poly.degree() << '<' << dim << '>' << std::endl;
 
-      deallog << "RT_Bubbles" << poly.degree() << '<' << dim << '>' << '\t'
-              << quadrature.point(k);
-      poly.evaluate(
-        quadrature.point(k), values, grads, grads2, thirds, fourths);
+      deallog << "RT_Bubbles" << poly.degree() << '<' << dim << '>' << '\t' << quadrature.point(k);
+      poly.evaluate(quadrature.point(k), values, grads, grads2, thirds, fourths);
 
       for (unsigned int i = 0; i < poly.n(); ++i)
         for (unsigned int d = 0; d < dim; ++d)

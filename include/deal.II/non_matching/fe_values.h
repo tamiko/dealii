@@ -169,12 +169,12 @@ namespace NonMatching
      */
     template <typename VectorType>
     FEValues(const hp::FECollection<dim> &fe_collection,
-             const Quadrature<1> &        quadrature,
+             const Quadrature<1>         &quadrature,
              const RegionUpdateFlags      region_update_flags,
-             const MeshClassifier<dim> &  mesh_classifier,
-             const DoFHandler<dim> &      dof_handler,
-             const VectorType &           level_set,
-             const AdditionalData &       additional_data = AdditionalData());
+             const MeshClassifier<dim>   &mesh_classifier,
+             const DoFHandler<dim>       &dof_handler,
+             const VectorType            &level_set,
+             const AdditionalData        &additional_data = AdditionalData());
 
     /**
      * Constructor.
@@ -204,14 +204,14 @@ namespace NonMatching
      */
     template <typename VectorType>
     FEValues(const hp::MappingCollection<dim> &mapping_collection,
-             const hp::FECollection<dim> &     fe_collection,
-             const hp::QCollection<dim> &      q_collection,
-             const hp::QCollection<1> &        q_collection_1d,
+             const hp::FECollection<dim>      &fe_collection,
+             const hp::QCollection<dim>       &q_collection,
+             const hp::QCollection<1>         &q_collection_1d,
              const RegionUpdateFlags           region_update_flags,
-             const MeshClassifier<dim> &       mesh_classifier,
-             const DoFHandler<dim> &           dof_handler,
-             const VectorType &                level_set,
-             const AdditionalData &additional_data = AdditionalData());
+             const MeshClassifier<dim>        &mesh_classifier,
+             const DoFHandler<dim>            &dof_handler,
+             const VectorType                 &level_set,
+             const AdditionalData             &additional_data = AdditionalData());
 
     /**
      * Reinitialize the various FEValues-like objects for the 3 different
@@ -223,8 +223,7 @@ namespace NonMatching
      */
     template <bool level_dof_access>
     void
-    reinit(
-      const TriaIterator<DoFCellAccessor<dim, dim, level_dof_access>> &cell);
+    reinit(const TriaIterator<DoFCellAccessor<dim, dim, level_dof_access>> &cell);
 
     /**
      * Return an dealii::FEValues object reinitialized with a quadrature for the
@@ -316,8 +315,7 @@ namespace NonMatching
      * This container is a std::deque, which is compatible with the `FEValues`
      * class that does not have a copy-constructor.
      */
-    std::deque<std::optional<dealii::FEValues<dim>>>
-      fe_values_inside_full_quadrature;
+    std::deque<std::optional<dealii::FEValues<dim>>> fe_values_inside_full_quadrature;
 
     /**
      * For each element in the FECollection passed to the constructor,
@@ -332,8 +330,7 @@ namespace NonMatching
      * This container is a std::deque, which is compatible with the `FEValues`
      * class that does not have a copy-constructor.
      */
-    std::deque<std::optional<dealii::FEValues<dim>>>
-      fe_values_outside_full_quadrature;
+    std::deque<std::optional<dealii::FEValues<dim>>> fe_values_outside_full_quadrature;
 
     /**
      * FEValues object created with a quadrature rule integrating over the
@@ -436,8 +433,7 @@ namespace NonMatching
   class FEInterfaceValues
   {
   public:
-    using AdditionalData =
-      typename FaceQuadratureGenerator<dim>::AdditionalData;
+    using AdditionalData = typename FaceQuadratureGenerator<dim>::AdditionalData;
 
     /**
      * Constructor.
@@ -462,12 +458,12 @@ namespace NonMatching
      */
     template <typename VectorType>
     FEInterfaceValues(const hp::FECollection<dim> &fe_collection,
-                      const Quadrature<1> &        quadrature,
+                      const Quadrature<1>         &quadrature,
                       const RegionUpdateFlags      region_update_flags,
-                      const MeshClassifier<dim> &  mesh_classifier,
-                      const DoFHandler<dim> &      dof_handler,
-                      const VectorType &           level_set,
-                      const AdditionalData &additional_data = AdditionalData());
+                      const MeshClassifier<dim>   &mesh_classifier,
+                      const DoFHandler<dim>       &dof_handler,
+                      const VectorType            &level_set,
+                      const AdditionalData        &additional_data = AdditionalData());
 
     /**
      * Constructor.
@@ -497,14 +493,14 @@ namespace NonMatching
      */
     template <typename VectorType>
     FEInterfaceValues(const hp::MappingCollection<dim> &mapping_collection,
-                      const hp::FECollection<dim> &     fe_collection,
-                      const hp::QCollection<dim - 1> &  q_collection,
-                      const hp::QCollection<1> &        q_collection_1d,
+                      const hp::FECollection<dim>      &fe_collection,
+                      const hp::QCollection<dim - 1>   &q_collection,
+                      const hp::QCollection<1>         &q_collection_1d,
                       const RegionUpdateFlags           region_update_flags,
-                      const MeshClassifier<dim> &       mesh_classifier,
-                      const DoFHandler<dim> &           dof_handler,
-                      const VectorType &                level_set,
-                      const AdditionalData &additional_data = AdditionalData());
+                      const MeshClassifier<dim>        &mesh_classifier,
+                      const DoFHandler<dim>            &dof_handler,
+                      const VectorType                 &level_set,
+                      const AdditionalData             &additional_data = AdditionalData());
 
     /**
      * Reinitialize on the shared face between two neighboring cells.
@@ -521,7 +517,7 @@ namespace NonMatching
      */
     template <typename CellIteratorType, typename CellNeighborIteratorType>
     void
-    reinit(const CellIteratorType &        cell,
+    reinit(const CellIteratorType         &cell,
            const unsigned int              face_no,
            const unsigned int              sub_face_no,
            const CellNeighborIteratorType &cell_neighbor,
@@ -581,10 +577,9 @@ namespace NonMatching
      */
     template <bool level_dof_access>
     void
-    do_reinit(
-      const TriaIterator<DoFCellAccessor<dim, dim, level_dof_access>> &cell,
-      const unsigned int                                               face_no,
-      const std::function<void(dealii::FEInterfaceValues<dim> &)> &call_reinit);
+    do_reinit(const TriaIterator<DoFCellAccessor<dim, dim, level_dof_access>> &cell,
+              const unsigned int                                               face_no,
+              const std::function<void(dealii::FEInterfaceValues<dim> &)>     &call_reinit);
 
     /**
      * A pointer to the collection of mappings to be used.
@@ -637,8 +632,7 @@ namespace NonMatching
      * This container is a std::deque, which is compatible with the
      * `FEInterfaceValues` class that does not have a copy-constructor.
      */
-    std::deque<std::optional<dealii::FEInterfaceValues<dim>>>
-      fe_values_inside_full_quadrature;
+    std::deque<std::optional<dealii::FEInterfaceValues<dim>>> fe_values_inside_full_quadrature;
 
     /**
      * For each element in the FECollection passed to the constructor,
@@ -654,8 +648,7 @@ namespace NonMatching
      * This container is a std::deque, which is compatible with the
      * `FEInterfaceValues` class that does not have a copy-constructor.
      */
-    std::deque<std::optional<dealii::FEInterfaceValues<dim>>>
-      fe_values_outside_full_quadrature;
+    std::deque<std::optional<dealii::FEInterfaceValues<dim>>> fe_values_outside_full_quadrature;
 
     /**
      * FEInterfaceValues object created with a quadrature rule integrating over
@@ -689,15 +682,13 @@ namespace NonMatching
   template <int dim>
   template <typename CellIteratorType>
   inline void
-  FEInterfaceValues<dim>::reinit(const CellIteratorType &cell,
-                                 const unsigned int      face_no)
+  FEInterfaceValues<dim>::reinit(const CellIteratorType &cell, const unsigned int face_no)
   {
     // Lambda describing how we should call reinit on a single
     // dealii::FEInterfaceValues object.
-    const auto reinit_operation =
-      [&cell, face_no](dealii::FEInterfaceValues<dim> &fe_interface_values) {
-        fe_interface_values.reinit(cell, face_no);
-      };
+    const auto reinit_operation = [&cell, face_no](dealii::FEInterfaceValues<dim> &fe_interface_values) {
+      fe_interface_values.reinit(cell, face_no);
+    };
 
     do_reinit(cell, face_no, reinit_operation);
   }
@@ -707,34 +698,22 @@ namespace NonMatching
   template <int dim>
   template <typename CellIteratorType, typename CellNeighborIteratorType>
   inline void
-  FEInterfaceValues<dim>::reinit(const CellIteratorType &        cell,
+  FEInterfaceValues<dim>::reinit(const CellIteratorType         &cell,
                                  const unsigned int              face_no,
                                  const unsigned int              sub_face_no,
                                  const CellNeighborIteratorType &cell_neighbor,
-                                 const unsigned int face_no_neighbor,
-                                 const unsigned int sub_face_no_neighbor)
+                                 const unsigned int              face_no_neighbor,
+                                 const unsigned int              sub_face_no_neighbor)
   {
     Assert(sub_face_no == numbers::invalid_unsigned_int, ExcNotImplemented());
-    Assert(sub_face_no_neighbor == numbers::invalid_unsigned_int,
-           ExcNotImplemented());
+    Assert(sub_face_no_neighbor == numbers::invalid_unsigned_int, ExcNotImplemented());
 
     // Lambda describing how we should call reinit on a single
     // dealii::FEInterfaceValues object.
-    const auto reinit_operation =
-      [&cell,
-       face_no,
-       sub_face_no,
-       &cell_neighbor,
-       face_no_neighbor,
-       sub_face_no_neighbor](
-        dealii::FEInterfaceValues<dim> &fe_interface_values) {
-        fe_interface_values.reinit(cell,
-                                   face_no,
-                                   sub_face_no,
-                                   cell_neighbor,
-                                   face_no_neighbor,
-                                   sub_face_no_neighbor);
-      };
+    const auto reinit_operation = [&cell, face_no, sub_face_no, &cell_neighbor, face_no_neighbor, sub_face_no_neighbor](
+                                    dealii::FEInterfaceValues<dim> &fe_interface_values) {
+      fe_interface_values.reinit(cell, face_no, sub_face_no, cell_neighbor, face_no_neighbor, sub_face_no_neighbor);
+    };
 
     do_reinit(cell, face_no, reinit_operation);
   }

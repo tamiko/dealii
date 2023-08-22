@@ -38,9 +38,6 @@ test()
   AffineConstraints<Number> constraints;
   constraints.close();
 
-  do_test<dim,
-          fe_degree,
-          Number,
-          LinearAlgebra::distributed::Vector<Number, MemorySpace::Default>,
-          fe_degree + 1>(dof, constraints, tria.n_active_cells());
+  do_test<dim, fe_degree, Number, LinearAlgebra::distributed::Vector<Number, MemorySpace::Default>, fe_degree + 1>(
+    dof, constraints, tria.n_active_cells());
 }

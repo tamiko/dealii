@@ -48,18 +48,14 @@ test()
     for (unsigned int i = 0; i < dim; ++i)
       particle_reference_locations[0](i) = 0.5;
 
-    Particles::Generators::regular_reference_locations(
-      tr, particle_reference_locations, particle_handler);
+    Particles::Generators::regular_reference_locations(tr, particle_reference_locations, particle_handler);
 
-    deallog << "Particle number: " << particle_handler.n_global_particles()
-            << std::endl;
+    deallog << "Particle number: " << particle_handler.n_global_particles() << std::endl;
 
     for (const auto &particle : particle_handler)
       {
-        deallog << "Particle location: " << particle.get_location()
-                << std::endl;
-        deallog << "Particle reference location: "
-                << particle.get_reference_location() << std::endl;
+        deallog << "Particle location: " << particle.get_location() << std::endl;
+        deallog << "Particle reference location: " << particle.get_reference_location() << std::endl;
       }
   }
 

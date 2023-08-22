@@ -53,9 +53,7 @@ check_this(Triangulation<3> &tria)
 
   // look at all faces, not only
   // active ones
-  for (DoFHandler<3>::cell_iterator cell = dof_handler.begin();
-       cell != dof_handler.end();
-       ++cell)
+  for (DoFHandler<3>::cell_iterator cell = dof_handler.begin(); cell != dof_handler.end(); ++cell)
     for (const unsigned int f : GeometryInfo<3>::face_indices())
       if (!cell->at_boundary(f))
         {
@@ -74,16 +72,13 @@ check_this(Triangulation<3> &tria)
           // wrongly, then outputting
           // some will be ok, I guess
           if (global_face++ % 17 == 0)
-            deallog << "Cell " << cell << ", face " << f
-                    << " n=" << fe_face_values1.normal_vector(0) << std::endl;
+            deallog << "Cell " << cell << ", face " << f << " n=" << fe_face_values1.normal_vector(0) << std::endl;
 
           // normal vectors should be
           // in opposite directions,
           // so their sum should be
           // close to zero
-          Assert((fe_face_values1.normal_vector(0) +
-                  fe_face_values2.normal_vector(0))
-                     .norm_square() < 1e-20,
+          Assert((fe_face_values1.normal_vector(0) + fe_face_values2.normal_vector(0)).norm_square() < 1e-20,
                  ExcInternalError());
         }
 }

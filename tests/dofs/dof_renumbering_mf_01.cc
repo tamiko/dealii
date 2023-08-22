@@ -53,10 +53,7 @@ test(const unsigned int degree)
   AffineConstraints<double> constraints;
 
   {
-    const auto renumber =
-      DoFRenumbering::compute_matrix_free_data_locality(dof,
-                                                        constraints,
-                                                        mf_data);
+    const auto renumber = DoFRenumbering::compute_matrix_free_data_locality(dof, constraints, mf_data);
 
     deallog << "Renumbering no constraints: " << std::endl;
     for (unsigned int i = 0; i < renumber.size(); ++i)
@@ -81,17 +78,11 @@ test(const unsigned int degree)
   deallog << std::endl;
 
   dof.distribute_dofs(fe);
-  VectorTools::interpolate_boundary_values(dof,
-                                           0,
-                                           Functions::ZeroFunction<dim>(),
-                                           constraints);
+  VectorTools::interpolate_boundary_values(dof, 0, Functions::ZeroFunction<dim>(), constraints);
   constraints.close();
 
   {
-    const auto renumber =
-      DoFRenumbering::compute_matrix_free_data_locality(dof,
-                                                        constraints,
-                                                        mf_data);
+    const auto renumber = DoFRenumbering::compute_matrix_free_data_locality(dof, constraints, mf_data);
 
     deallog << "Renumbering Dirichlet constraints: " << std::endl;
     for (unsigned int i = 0; i < renumber.size(); ++i)

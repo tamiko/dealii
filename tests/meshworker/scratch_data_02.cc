@@ -71,10 +71,7 @@ test()
 
 
   DoFTools::make_hanging_node_constraints(dh, constraints);
-  VectorTools::interpolate_boundary_values(dh,
-                                           0,
-                                           boundary_function,
-                                           constraints);
+  VectorTools::interpolate_boundary_values(dh, 0, boundary_function, constraints);
 
   constraints.close();
 
@@ -95,8 +92,7 @@ test()
   QGauss<dim>     quad(3);
   QGauss<dim - 1> face_quad(3);
 
-  UpdateFlags cell_flags = update_values | update_gradients |
-                           update_quadrature_points | update_JxW_values;
+  UpdateFlags cell_flags = update_values | update_gradients | update_quadrature_points | update_JxW_values;
   UpdateFlags face_flags = update_JxW_values;
 
   using ScratchData = MeshWorker::ScratchData<dim, spacedim>;
@@ -110,30 +106,26 @@ test()
 
   using Iterator = decltype(cell);
 
-  auto cell_worker =
-    [&rhs_function](const Iterator &cell, ScratchData &s, CopyData &c) {
-      const auto &fev = s.reinit(cell);
-      const auto &JxW = s.get_JxW_values();
-      const auto &p   = s.get_quadrature_points();
+  auto cell_worker = [&rhs_function](const Iterator &cell, ScratchData &s, CopyData &c) {
+    const auto &fev = s.reinit(cell);
+    const auto &JxW = s.get_JxW_values();
+    const auto &p   = s.get_quadrature_points();
 
-      c.local_dof_indices[0] = s.get_local_dof_indices();
+    c.local_dof_indices[0] = s.get_local_dof_indices();
 
-      for (unsigned int q = 0; q < p.size(); ++q)
-        for (unsigned int i = 0; i < fev.dofs_per_cell; ++i)
-          {
-            for (unsigned int j = 0; j < fev.dofs_per_cell; ++j)
-              {
-                c.matrices[0](i, j) +=
-                  fev.shape_grad(i, q) * fev.shape_grad(j, q) * JxW[q];
-              }
-            c.vectors[0](i) +=
-              fev.shape_value(i, q) * rhs_function.value(p[q]) * JxW[q];
-          }
-    };
+    for (unsigned int q = 0; q < p.size(); ++q)
+      for (unsigned int i = 0; i < fev.dofs_per_cell; ++i)
+        {
+          for (unsigned int j = 0; j < fev.dofs_per_cell; ++j)
+            {
+              c.matrices[0](i, j) += fev.shape_grad(i, q) * fev.shape_grad(j, q) * JxW[q];
+            }
+          c.vectors[0](i) += fev.shape_value(i, q) * rhs_function.value(p[q]) * JxW[q];
+        }
+  };
 
   auto copier = [&constraints, &matrix, &rhs](const CopyData &c) {
-    constraints.distribute_local_to_global(
-      c.matrices[0], c.vectors[0], c.local_dof_indices[0], matrix, rhs);
+    constraints.distribute_local_to_global(c.matrices[0], c.vectors[0], c.local_dof_indices[0], matrix, rhs);
   };
 
   mesh_loop(cell, endc, cell_worker, copier, scratch, copy, assemble_own_cells);

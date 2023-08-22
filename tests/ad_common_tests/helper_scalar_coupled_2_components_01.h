@@ -117,9 +117,7 @@ test_scalar_scalar_coupled()
   // Configure tape
   const int  tape_no = 1;
   const bool is_recording =
-    ad_helper.start_recording_operations(tape_no /*material_id*/,
-                                         true /*overwrite_tape*/,
-                                         true /*keep*/);
+    ad_helper.start_recording_operations(tape_no /*material_id*/, true /*overwrite_tape*/, true /*keep*/);
   if (is_recording == true)
     {
       ad_helper.register_independent_variable(s1, s1_dof);
@@ -150,9 +148,7 @@ test_scalar_scalar_coupled()
   // Set a new evaluation point
   if (AD::ADNumberTraits<ADNumberType>::is_taped == true)
     {
-      std::cout
-        << "Using tape with different values for independent variables..."
-        << std::endl;
+      std::cout << "Using tape with different values for independent variables..." << std::endl;
       s1 = 4.9;
       s2 = 0.87;
       ad_helper.activate_recorded_tape(tape_no);
@@ -183,33 +179,23 @@ test_scalar_scalar_coupled()
     }
 
   // Extract components of the solution
-  const ScalarNumberType dpsi_ds1 =
-    ad_helper.extract_gradient_component(Dpsi, s1_dof);
-  const ScalarNumberType dpsi_ds2 =
-    ad_helper.extract_gradient_component(Dpsi, s2_dof);
+  const ScalarNumberType dpsi_ds1 = ad_helper.extract_gradient_component(Dpsi, s1_dof);
+  const ScalarNumberType dpsi_ds2 = ad_helper.extract_gradient_component(Dpsi, s2_dof);
   std::cout << "extracted Dpsi (s1): " << dpsi_ds1 << "\n"
             << "extracted Dpsi (s2): " << dpsi_ds2 << "\n";
 
   // Verify the result
-  using func = FunctionsTestScalarScalarCoupled<dim, ScalarNumberType>;
-  static const ScalarNumberType tol =
-    1e5 * std::numeric_limits<ScalarNumberType>::epsilon();
-  Assert(std::abs(psi - func::psi(s1, s2)) < tol,
-         ExcMessage("No match for function value."));
-  Assert(std::abs(dpsi_ds1 - func::dpsi_ds1(s1, s2)) < tol,
-         ExcMessage("No match for first derivative."));
-  Assert(std::abs(dpsi_ds2 - func::dpsi_ds2(s1, s2)) < tol,
-         ExcMessage("No match for first derivative."));
+  using func                        = FunctionsTestScalarScalarCoupled<dim, ScalarNumberType>;
+  static const ScalarNumberType tol = 1e5 * std::numeric_limits<ScalarNumberType>::epsilon();
+  Assert(std::abs(psi - func::psi(s1, s2)) < tol, ExcMessage("No match for function value."));
+  Assert(std::abs(dpsi_ds1 - func::dpsi_ds1(s1, s2)) < tol, ExcMessage("No match for first derivative."));
+  Assert(std::abs(dpsi_ds2 - func::dpsi_ds2(s1, s2)) < tol, ExcMessage("No match for first derivative."));
   if (AD::ADNumberTraits<ADNumberType>::n_supported_derivative_levels >= 2)
     {
-      const ScalarNumberType d2psi_ds1_ds1 =
-        ad_helper.extract_hessian_component(D2psi, s1_dof, s1_dof);
-      const ScalarNumberType d2psi_ds2_ds1 =
-        ad_helper.extract_hessian_component(D2psi, s1_dof, s2_dof);
-      const ScalarNumberType d2psi_ds1_ds2 =
-        ad_helper.extract_hessian_component(D2psi, s2_dof, s1_dof);
-      const ScalarNumberType d2psi_ds2_ds2 =
-        ad_helper.extract_hessian_component(D2psi, s2_dof, s2_dof);
+      const ScalarNumberType d2psi_ds1_ds1 = ad_helper.extract_hessian_component(D2psi, s1_dof, s1_dof);
+      const ScalarNumberType d2psi_ds2_ds1 = ad_helper.extract_hessian_component(D2psi, s1_dof, s2_dof);
+      const ScalarNumberType d2psi_ds1_ds2 = ad_helper.extract_hessian_component(D2psi, s2_dof, s1_dof);
+      const ScalarNumberType d2psi_ds2_ds2 = ad_helper.extract_hessian_component(D2psi, s2_dof, s2_dof);
       std::cout << "extracted D2psi (s1,s1): " << d2psi_ds1_ds1 << "\n"
                 << "extracted D2psi (s1,s2): " << d2psi_ds2_ds1 << "\n"
                 << "extracted D2psi (s2,s1): " << d2psi_ds1_ds2 << "\n"

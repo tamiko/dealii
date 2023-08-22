@@ -25,9 +25,7 @@
 
 
 void
-my_check_this(const DoFHandler<1> &,
-              const Vector<double> &,
-              const Vector<double> &)
+my_check_this(const DoFHandler<1> &, const Vector<double> &, const Vector<double> &)
 {
   // nothing to check in 1d
 }
@@ -35,18 +33,12 @@ my_check_this(const DoFHandler<1> &,
 
 template <int dim>
 void
-my_check_this(const DoFHandler<dim> &dof_handler,
-              const Vector<double> & v_node,
-              const Vector<double> & v_cell)
+my_check_this(const DoFHandler<dim> &dof_handler, const Vector<double> &v_node, const Vector<double> &v_cell)
 {
   DataOutFaces<dim> data_out_faces;
   data_out_faces.attach_dof_handler(dof_handler);
-  data_out_faces.add_data_vector(v_node,
-                                 "node_data",
-                                 DataOutFaces<dim>::type_dof_data);
-  data_out_faces.add_data_vector(v_cell,
-                                 "cell_data",
-                                 DataOutFaces<dim>::type_cell_data);
+  data_out_faces.add_data_vector(v_node, "node_data", DataOutFaces<dim>::type_dof_data);
+  data_out_faces.add_data_vector(v_cell, "cell_data", DataOutFaces<dim>::type_cell_data);
   data_out_faces.build_patches();
 
   data_out_faces.write_dx(deallog.get_file_stream());
@@ -65,9 +57,7 @@ my_check_this(const DoFHandler<dim> &dof_handler,
 
 template <int dim>
 void
-check_this(const DoFHandler<dim> &dof_handler,
-           const Vector<double> & v_node,
-           const Vector<double> & v_cell)
+check_this(const DoFHandler<dim> &dof_handler, const Vector<double> &v_node, const Vector<double> &v_cell)
 {
   // since we can't forward declare
   // check_this in this file (it is forward

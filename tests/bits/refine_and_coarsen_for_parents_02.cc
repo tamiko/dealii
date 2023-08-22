@@ -93,26 +93,19 @@ check()
 
   DoFHandler<dim> dof_handler(tria);
 
-  for (typename DoFHandler<dim>::cell_iterator cell = dof_handler.begin();
-       cell != dof_handler.end();
-       ++cell)
+  for (typename DoFHandler<dim>::cell_iterator cell = dof_handler.begin(); cell != dof_handler.end(); ++cell)
     for (unsigned int child = 0; child < cell->n_children(); ++child)
       AssertThrow(cell->child(child)->parent() == cell, ExcInternalError());
 
   // coarsen the mesh globally and
   // verify that the parent relation
   // holds
-  for (typename Triangulation<dim>::active_cell_iterator cell =
-         tria.begin_active();
-       cell != tria.end();
-       ++cell)
+  for (typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(); cell != tria.end(); ++cell)
     cell->set_coarsen_flag();
 
   tria.execute_coarsening_and_refinement();
 
-  for (typename DoFHandler<dim>::cell_iterator cell = dof_handler.begin();
-       cell != dof_handler.end();
-       ++cell)
+  for (typename DoFHandler<dim>::cell_iterator cell = dof_handler.begin(); cell != dof_handler.end(); ++cell)
     for (unsigned int child = 0; child < cell->n_children(); ++child)
       AssertThrow(cell->child(child)->parent() == cell, ExcInternalError());
 

@@ -44,8 +44,7 @@ template <int dim0, int dim1, int spacedim>
 void
 test()
 {
-  deallog << "dim0: " << dim0 << ", dim1: " << dim1
-          << ", spacedim: " << spacedim << std::endl;
+  deallog << "dim0: " << dim0 << ", dim1: " << dim1 << ", spacedim: " << spacedim << std::endl;
 
   Triangulation<dim0, spacedim> tria0;
   Triangulation<dim1, spacedim> tria1;
@@ -59,8 +58,7 @@ test()
   FE_Q<dim0, spacedim> fe0(1);
   FE_Q<dim1, spacedim> fe1(1);
 
-  deallog << "FE0             : " << fe0.get_name() << std::endl
-          << "FE1             : " << fe1.get_name() << std::endl;
+  deallog << "FE0             : " << fe0.get_name() << std::endl << "FE1             : " << fe1.get_name() << std::endl;
 
   DoFHandler<dim0, spacedim> dh0(tria0);
   DoFHandler<dim1, spacedim> dh1(tria1);
@@ -83,37 +81,23 @@ test()
   QGauss<dim0> quad0(2); // Quadrature for coupling
   QGauss<dim1> quad1(2); // Quadrature for coupling
 
-  const double epsilon = 2 * std::max(GridTools::maximal_cell_diameter(tria0),
-                                      GridTools::maximal_cell_diameter(tria1));
+  const double epsilon = 2 * std::max(GridTools::maximal_cell_diameter(tria0), GridTools::maximal_cell_diameter(tria1));
 
   deallog << "Epsilon: " << epsilon << std::endl;
 
   SparsityPattern sparsity;
   {
     DynamicSparsityPattern dsp(dh0.n_dofs(), dh1.n_dofs());
-    NonMatching::create_coupling_sparsity_pattern(
-      epsilon, cache0, cache1, dh0, dh1, quad1, dsp, constraints0);
+    NonMatching::create_coupling_sparsity_pattern(epsilon, cache0, cache1, dh0, dh1, quad1, dsp, constraints0);
     sparsity.copy_from(dsp);
   }
   SparseMatrix<double> coupling(sparsity);
 
   Functions::CutOffFunctionC1<spacedim> dirac(
-    1,
-    Point<spacedim>(),
-    1,
-    Functions::CutOffFunctionBase<spacedim>::no_component,
-    true);
+    1, Point<spacedim>(), 1, Functions::CutOffFunctionBase<spacedim>::no_component, true);
 
-  NonMatching::create_coupling_mass_matrix(dirac,
-                                           epsilon,
-                                           cache0,
-                                           cache1,
-                                           dh0,
-                                           dh1,
-                                           quad0,
-                                           quad1,
-                                           coupling,
-                                           constraints0);
+  NonMatching::create_coupling_mass_matrix(
+    dirac, epsilon, cache0, cache1, dh0, dh1, quad0, quad1, coupling, constraints0);
 
   SparsityPattern mass_sparsity1;
   {

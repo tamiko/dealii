@@ -61,24 +61,20 @@ test()
     deallog << "Cell worker on : " << cell << std::endl;
   };
 
-  auto boundary_worker =
-    [](const Iterator &cell, const unsigned int &f, ScratchData &, CopyData &) {
-      deallog << "Boundary worker on : " << cell << ", Face : " << f
-              << std::endl;
-    };
+  auto boundary_worker = [](const Iterator &cell, const unsigned int &f, ScratchData &, CopyData &) {
+    deallog << "Boundary worker on : " << cell << ", Face : " << f << std::endl;
+  };
 
-  auto face_worker = [](const Iterator &    cell,
+  auto face_worker = [](const Iterator     &cell,
                         const unsigned int &f,
                         const unsigned int &sf,
-                        const Iterator &    ncell,
+                        const Iterator     &ncell,
                         const unsigned int &nf,
                         const unsigned int &nsf,
-                        ScratchData &       s,
-                        CopyData &          c) {
-    deallog << "Face worker on : " << cell << ", Neighbor cell : " << ncell
-            << ", Face : " << f << ", Neighbor Face : " << nf
-            << ", Subface: " << sf << ", Neighbor Subface: " << nsf
-            << std::endl;
+                        ScratchData        &s,
+                        CopyData           &c) {
+    deallog << "Face worker on : " << cell << ", Neighbor cell : " << ncell << ", Face : " << f
+            << ", Neighbor Face : " << nf << ", Subface: " << sf << ", Neighbor Subface: " << nsf << std::endl;
   };
 
   auto copier = [](const CopyData &) { deallog << "copier" << std::endl; };
@@ -91,8 +87,7 @@ test()
             copier,
             scratch,
             copy,
-            MeshWorker::assemble_own_cells |
-              MeshWorker::assemble_own_interior_faces_once |
+            MeshWorker::assemble_own_cells | MeshWorker::assemble_own_interior_faces_once |
               MeshWorker::assemble_boundary_faces,
             boundary_worker,
             face_worker);

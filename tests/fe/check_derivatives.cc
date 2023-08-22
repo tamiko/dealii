@@ -57,9 +57,8 @@ test(const FiniteElement<dim> &fe, const Quadrature<dim> &quadrature)
             {
               Point<dim> point_plus_dx = point;
               point_plus_dx[d] += delta_x;
-              fd_grad[d] = (fe.shape_value_component(i, point_plus_dx, c) -
-                            fe.shape_value_component(i, point, c)) /
-                           delta_x;
+              fd_grad[d] =
+                (fe.shape_value_component(i, point_plus_dx, c) - fe.shape_value_component(i, point, c)) / delta_x;
             }
 
           AssertThrow((gradient - fd_grad).norm() <= 2e-5, ExcInternalError());
@@ -118,8 +117,7 @@ check1<FE_Nedelec>(const unsigned int min_degree, const unsigned int max_degree)
 // former is also not implemented in 3d
 template <>
 void
-check1<FE_RaviartThomas>(const unsigned int min_degree,
-                         const unsigned int max_degree)
+check1<FE_RaviartThomas>(const unsigned int min_degree, const unsigned int max_degree)
 {
   for (unsigned int degree = min_degree; degree <= max_degree; ++degree)
     {
@@ -129,8 +127,7 @@ check1<FE_RaviartThomas>(const unsigned int min_degree,
 
 template <>
 void
-check1<FE_RaviartThomasNodal>(const unsigned int min_degree,
-                              const unsigned int max_degree)
+check1<FE_RaviartThomasNodal>(const unsigned int min_degree, const unsigned int max_degree)
 {
   for (unsigned int degree = min_degree; degree <= max_degree; ++degree)
     {

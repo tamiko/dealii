@@ -50,21 +50,15 @@ for (deal_II_dimension : DIMENSIONS; number : REAL_SCALARS)
       \{
         // ----------------------- PointLevelFunctionsBase -------------------
 
-        template class PointLevelFunctionsBase<deal_II_dimension,
-                                               NumberTypes::none,
-                                               number>;
+        template class PointLevelFunctionsBase<deal_II_dimension, NumberTypes::none, number>;
 
         // -------------------------- ScalarFunction ----------------------
 
-        template class ScalarFunction<deal_II_dimension,
-                                      NumberTypes::none,
-                                      number>;
+        template class ScalarFunction<deal_II_dimension, NumberTypes::none, number>;
 
         // -------------------------- VectorFunction ----------------------
 
-        template class VectorFunction<deal_II_dimension,
-                                      NumberTypes::none,
-                                      number>;
+        template class VectorFunction<deal_II_dimension, NumberTypes::none, number>;
 
       \}
     \}

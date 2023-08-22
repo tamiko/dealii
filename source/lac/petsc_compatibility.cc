@@ -93,9 +93,7 @@ namespace PETScWrappers
     snes->mf          = mf ? PETSC_TRUE : PETSC_FALSE;
     snes->mf_operator = mf_operator ? PETSC_TRUE : PETSC_FALSE;
 #  else
-    AssertPETSc(SNESSetUseMatrixFree(snes,
-                                     mf_operator ? PETSC_TRUE : PETSC_FALSE,
-                                     mf ? PETSC_TRUE : PETSC_FALSE));
+    AssertPETSc(SNESSetUseMatrixFree(snes, mf_operator ? PETSC_TRUE : PETSC_FALSE, mf ? PETSC_TRUE : PETSC_FALSE));
 #  endif
   }
 

@@ -78,22 +78,18 @@ test()
         {
           if (cell->subdomain_id() != (unsigned int)myid)
             {
-              AssertThrow(cell->is_ghost() || cell->is_artificial(),
-                          ExcInternalError());
+              AssertThrow(cell->is_ghost() || cell->is_artificial(), ExcInternalError());
             }
           else
             for (const unsigned int n : GeometryInfo<dim>::face_indices())
               {
                 if (cell->at_boundary(n))
                   continue;
-                AssertThrow(cell->neighbor(n).state() == IteratorState::valid,
-                            ExcInternalError());
+                AssertThrow(cell->neighbor(n).state() == IteratorState::valid, ExcInternalError());
 
-                AssertThrow(cell->neighbor(n)->level() == cell->level(),
-                            ExcInternalError());
+                AssertThrow(cell->neighbor(n)->level() == cell->level(), ExcInternalError());
 
-                AssertThrow(!cell->neighbor(n)->has_children(),
-                            ExcInternalError());
+                AssertThrow(!cell->neighbor(n)->has_children(), ExcInternalError());
               }
         }
 

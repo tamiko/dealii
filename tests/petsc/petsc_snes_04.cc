@@ -42,9 +42,7 @@ main(int argc, char **argv)
 
     Solver solver(data);
 
-    solver.residual = [&](const VectorType &X, VectorType &F) -> void {
-      F.equ(2, X);
-    };
+    solver.residual = [&](const VectorType &X, VectorType &F) -> void { F.equ(2, X); };
 
     auto       commsize = Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
     auto       commrank = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);

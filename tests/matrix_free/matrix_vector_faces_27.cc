@@ -42,10 +42,7 @@ test()
   DoFHandler<dim> dof(tria);
   dof.distribute_dofs(fe);
   AffineConstraints<double> constraints;
-  VectorTools::interpolate_boundary_values(dof,
-                                           0,
-                                           Functions::ZeroFunction<dim>(),
-                                           constraints);
+  VectorTools::interpolate_boundary_values(dof, 0, Functions::ZeroFunction<dim>(), constraints);
   constraints.close();
 
   do_test<dim, fe_degree, fe_degree + 1, double>(dof, constraints, false);

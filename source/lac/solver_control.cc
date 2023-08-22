@@ -83,18 +83,15 @@ SolverControl::check(const unsigned int step, const double check_value)
   if (check_value <= tol)
     {
       if (m_log_result)
-        deallog << "Convergence step " << step << " value " << check_value
-                << std::endl;
+        deallog << "Convergence step " << step << " value " << check_value << std::endl;
       lcheck = success;
       return success;
     }
 
-  if ((step >= maxsteps) || numbers::is_nan(check_value) ||
-      (check_failure && (check_value > failure_residual)))
+  if ((step >= maxsteps) || numbers::is_nan(check_value) || (check_failure && (check_value > failure_residual)))
     {
       if (m_log_result)
-        deallog << "Failure step " << step << " value " << check_value
-                << std::endl;
+        deallog << "Failure step " << step << " value " << check_value << std::endl;
       lcheck = failure;
       return failure;
     }
@@ -156,12 +153,10 @@ const std::vector<double> &
 SolverControl::get_history_data() const
 {
   Assert(history_data_enabled, ExcHistoryDataRequired());
-  Assert(
-    history_data.size() > 0,
-    ExcMessage(
-      "The SolverControl object was asked for the solver history "
-      "data, but there is no data. Possibly you requested the data before the "
-      "solver was run."));
+  Assert(history_data.size() > 0,
+         ExcMessage("The SolverControl object was asked for the solver history "
+                    "data, but there is no data. Possibly you requested the data before the "
+                    "solver was run."));
 
   return history_data;
 }
@@ -279,8 +274,7 @@ ReductionControl::check(const unsigned int step, const double check_value)
   if (check_value <= reduced_tol)
     {
       if (m_log_result)
-        deallog << "Convergence step " << step << " value " << check_value
-                << std::endl;
+        deallog << "Convergence step " << step << " value " << check_value << std::endl;
       lstep  = step;
       lvalue = check_value;
       lcheck = success;
@@ -332,8 +326,7 @@ IterationNumberControl::check(const unsigned int step, const double check_value)
   if (step >= this->maxsteps)
     {
       if (m_log_result)
-        deallog << "Convergence step " << step << " value " << check_value
-                << std::endl;
+        deallog << "Convergence step " << step << " value " << check_value << std::endl;
       lstep  = step;
       lvalue = check_value;
 
@@ -347,18 +340,16 @@ IterationNumberControl::check(const unsigned int step, const double check_value)
 /*------------------------ ConsecutiveControl -------------------------------*/
 
 
-ConsecutiveControl::ConsecutiveControl(
-  const unsigned int n,
-  const double       tolerance,
-  const unsigned int n_consecutive_iterations,
-  const bool         m_log_history,
-  const bool         m_log_result)
+ConsecutiveControl::ConsecutiveControl(const unsigned int n,
+                                       const double       tolerance,
+                                       const unsigned int n_consecutive_iterations,
+                                       const bool         m_log_history,
+                                       const bool         m_log_result)
   : SolverControl(n, tolerance, m_log_history, m_log_result)
   , n_consecutive_iterations(n_consecutive_iterations)
   , n_converged_iterations(0)
 {
-  AssertThrow(n_consecutive_iterations > 0,
-              ExcMessage("n_consecutive_iterations should be positive"));
+  AssertThrow(n_consecutive_iterations > 0, ExcMessage("n_consecutive_iterations should be positive"));
 }
 
 
@@ -374,7 +365,7 @@ ConsecutiveControl::ConsecutiveControl(const SolverControl &c)
 ConsecutiveControl &
 ConsecutiveControl::operator=(const SolverControl &c)
 {
-  SolverControl::operator  =(c);
+  SolverControl::operator=(c);
   n_consecutive_iterations = 1;
   n_converged_iterations   = 0;
   return *this;
@@ -393,8 +384,7 @@ ConsecutiveControl::check(const unsigned int step, const double check_value)
       // check two things:
       // (i)  steps are ascending without repetitions
       // (ii) user started from zero even when solver is being reused.
-      Assert(step - 1 == lstep,
-             ExcMessage("steps should be ascending integers."));
+      Assert(step - 1 == lstep, ExcMessage("steps should be ascending integers."));
     }
 
   SolverControl::State state = SolverControl::check(step, check_value);

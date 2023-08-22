@@ -42,76 +42,54 @@ namespace VectorTools
 {
   template <int dim, typename VectorType, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_dealii_vector_type<VectorType>)
-  void point_value(const DoFHandler<dim, spacedim> &        dof,
-                   const VectorType &                       fe_function,
-                   const Point<spacedim> &                  point,
+  void point_value(const DoFHandler<dim, spacedim>         &dof,
+                   const VectorType                        &fe_function,
+                   const Point<spacedim>                   &point,
                    Vector<typename VectorType::value_type> &value)
   {
     if (dof.has_hp_capabilities() == false)
-      point_value(get_default_linear_mapping(dof.get_triangulation()),
-                  dof,
-                  fe_function,
-                  point,
-                  value);
+      point_value(get_default_linear_mapping(dof.get_triangulation()), dof, fe_function, point, value);
     else
-      point_value(hp::StaticMappingQ1<dim, spacedim>::mapping_collection,
-                  dof,
-                  fe_function,
-                  point,
-                  value);
+      point_value(hp::StaticMappingQ1<dim, spacedim>::mapping_collection, dof, fe_function, point, value);
   }
 
 
   template <int dim, typename VectorType, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_dealii_vector_type<VectorType>)
   typename VectorType::value_type
-    point_value(const DoFHandler<dim, spacedim> &dof,
-                const VectorType &               fe_function,
-                const Point<spacedim> &          point)
+    point_value(const DoFHandler<dim, spacedim> &dof, const VectorType &fe_function, const Point<spacedim> &point)
   {
     if (dof.has_hp_capabilities() == false)
-      return point_value(get_default_linear_mapping(dof.get_triangulation()),
-                         dof,
-                         fe_function,
-                         point);
+      return point_value(get_default_linear_mapping(dof.get_triangulation()), dof, fe_function, point);
     else
-      return point_value(hp::StaticMappingQ1<dim, spacedim>::mapping_collection,
-                         dof,
-                         fe_function,
-                         point);
+      return point_value(hp::StaticMappingQ1<dim, spacedim>::mapping_collection, dof, fe_function, point);
   }
 
 
   template <int dim, typename VectorType, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_dealii_vector_type<VectorType>)
-  void point_value(const Mapping<dim, spacedim> &           mapping,
-                   const DoFHandler<dim, spacedim> &        dof,
-                   const VectorType &                       fe_function,
-                   const Point<spacedim> &                  point,
+  void point_value(const Mapping<dim, spacedim>            &mapping,
+                   const DoFHandler<dim, spacedim>         &dof,
+                   const VectorType                        &fe_function,
+                   const Point<spacedim>                   &point,
                    Vector<typename VectorType::value_type> &value)
   {
     using Number                 = typename VectorType::value_type;
     const FiniteElement<dim> &fe = dof.get_fe();
 
-    Assert(value.size() == fe.n_components(),
-           ExcDimensionMismatch(value.size(), fe.n_components()));
+    Assert(value.size() == fe.n_components(), ExcDimensionMismatch(value.size(), fe.n_components()));
 
     // first find the cell in which this point
     // is, initialize a quadrature rule with
     // it, and then a FEValues object
-    const std::pair<typename DoFHandler<dim, spacedim>::active_cell_iterator,
-                    Point<spacedim>>
-      cell_point =
-        GridTools::find_active_cell_around_point(mapping, dof, point);
+    const std::pair<typename DoFHandler<dim, spacedim>::active_cell_iterator, Point<spacedim>> cell_point =
+      GridTools::find_active_cell_around_point(mapping, dof, point);
 
-    AssertThrow(cell_point.first.state() == IteratorState::valid &&
-                  cell_point.first->is_locally_owned(),
+    AssertThrow(cell_point.first.state() == IteratorState::valid && cell_point.first->is_locally_owned(),
                 ExcPointNotAvailableHere());
-    Assert(GeometryInfo<dim>::distance_to_unit_cell(cell_point.second) < 1e-10,
-           ExcInternalError());
+    Assert(GeometryInfo<dim>::distance_to_unit_cell(cell_point.second) < 1e-10, ExcInternalError());
 
-    const Quadrature<dim> quadrature(
-      cell_point.first->reference_cell().closest_point(cell_point.second));
+    const Quadrature<dim> quadrature(cell_point.first->reference_cell().closest_point(cell_point.second));
 
     FEValues<dim> fe_values(mapping, fe, quadrature, update_values);
     fe_values.reinit(cell_point.first);
@@ -128,40 +106,30 @@ namespace VectorTools
   template <int dim, typename VectorType, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_dealii_vector_type<VectorType>)
   void point_value(const hp::MappingCollection<dim, spacedim> &mapping,
-                   const DoFHandler<dim, spacedim> &           dof,
-                   const VectorType &                          fe_function,
-                   const Point<spacedim> &                     point,
-                   Vector<typename VectorType::value_type> &   value)
+                   const DoFHandler<dim, spacedim>            &dof,
+                   const VectorType                           &fe_function,
+                   const Point<spacedim>                      &point,
+                   Vector<typename VectorType::value_type>    &value)
   {
     using Number                              = typename VectorType::value_type;
     const hp::FECollection<dim, spacedim> &fe = dof.get_fe_collection();
 
-    Assert(value.size() == fe.n_components(),
-           ExcDimensionMismatch(value.size(), fe.n_components()));
+    Assert(value.size() == fe.n_components(), ExcDimensionMismatch(value.size(), fe.n_components()));
 
     // first find the cell in which this point
     // is, initialize a quadrature rule with
     // it, and then a FEValues object
-    const std::pair<typename DoFHandler<dim, spacedim>::active_cell_iterator,
-                    Point<spacedim>>
-      cell_point =
-        GridTools::find_active_cell_around_point(mapping, dof, point);
+    const std::pair<typename DoFHandler<dim, spacedim>::active_cell_iterator, Point<spacedim>> cell_point =
+      GridTools::find_active_cell_around_point(mapping, dof, point);
 
-    AssertThrow(cell_point.first.state() == IteratorState::valid &&
-                  cell_point.first->is_locally_owned(),
+    AssertThrow(cell_point.first.state() == IteratorState::valid && cell_point.first->is_locally_owned(),
                 ExcPointNotAvailableHere());
-    Assert(GeometryInfo<dim>::distance_to_unit_cell(cell_point.second) < 1e-10,
-           ExcInternalError());
+    Assert(GeometryInfo<dim>::distance_to_unit_cell(cell_point.second) < 1e-10, ExcInternalError());
 
-    const Quadrature<dim> quadrature(
-      cell_point.first->reference_cell().closest_point(cell_point.second));
-    hp::FEValues<dim, spacedim> hp_fe_values(mapping,
-                                             fe,
-                                             hp::QCollection<dim>(quadrature),
-                                             update_values);
+    const Quadrature<dim>       quadrature(cell_point.first->reference_cell().closest_point(cell_point.second));
+    hp::FEValues<dim, spacedim> hp_fe_values(mapping, fe, hp::QCollection<dim>(quadrature), update_values);
     hp_fe_values.reinit(cell_point.first);
-    const FEValues<dim, spacedim> &fe_values =
-      hp_fe_values.get_present_fe_values();
+    const FEValues<dim, spacedim> &fe_values = hp_fe_values.get_present_fe_values();
 
     // then use this to get at the values of
     // the given fe_function at this point
@@ -174,15 +142,13 @@ namespace VectorTools
 
   template <int dim, typename VectorType, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_dealii_vector_type<VectorType>)
-  typename VectorType::value_type
-    point_value(const Mapping<dim, spacedim> &   mapping,
-                const DoFHandler<dim, spacedim> &dof,
-                const VectorType &               fe_function,
-                const Point<spacedim> &          point)
+  typename VectorType::value_type point_value(const Mapping<dim, spacedim>    &mapping,
+                                              const DoFHandler<dim, spacedim> &dof,
+                                              const VectorType                &fe_function,
+                                              const Point<spacedim>           &point)
   {
     Assert(dof.get_fe(0).n_components() == 1,
-           ExcMessage(
-             "Finite element is not scalar as is necessary for this function"));
+           ExcMessage("Finite element is not scalar as is necessary for this function"));
 
     Vector<typename VectorType::value_type> value(1);
     point_value(mapping, dof, fe_function, point, value);
@@ -193,15 +159,13 @@ namespace VectorTools
 
   template <int dim, typename VectorType, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_dealii_vector_type<VectorType>)
-  typename VectorType::value_type
-    point_value(const hp::MappingCollection<dim, spacedim> &mapping,
-                const DoFHandler<dim, spacedim> &           dof,
-                const VectorType &                          fe_function,
-                const Point<spacedim> &                     point)
+  typename VectorType::value_type point_value(const hp::MappingCollection<dim, spacedim> &mapping,
+                                              const DoFHandler<dim, spacedim>            &dof,
+                                              const VectorType                           &fe_function,
+                                              const Point<spacedim>                      &point)
   {
     Assert(dof.get_fe(0).n_components() == 1,
-           ExcMessage(
-             "Finite element is not scalar as is necessary for this function"));
+           ExcMessage("Finite element is not scalar as is necessary for this function"));
 
     Vector<typename VectorType::value_type> value(1);
     point_value(mapping, dof, fe_function, point, value);
@@ -212,55 +176,42 @@ namespace VectorTools
 
   template <int dim, typename VectorType, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_dealii_vector_type<VectorType>)
-  void point_difference(
-    const DoFHandler<dim, spacedim> &                          dof,
-    const VectorType &                                         fe_function,
-    const Function<spacedim, typename VectorType::value_type> &exact_function,
-    Vector<typename VectorType::value_type> &                  difference,
-    const Point<spacedim> &                                    point)
+  void point_difference(const DoFHandler<dim, spacedim>                           &dof,
+                        const VectorType                                          &fe_function,
+                        const Function<spacedim, typename VectorType::value_type> &exact_function,
+                        Vector<typename VectorType::value_type>                   &difference,
+                        const Point<spacedim>                                     &point)
   {
-    point_difference(StaticMappingQ1<dim>::mapping,
-                     dof,
-                     fe_function,
-                     exact_function,
-                     difference,
-                     point);
+    point_difference(StaticMappingQ1<dim>::mapping, dof, fe_function, exact_function, difference, point);
   }
 
 
   template <int dim, typename VectorType, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_dealii_vector_type<VectorType>)
-  void point_difference(
-    const Mapping<dim, spacedim> &                             mapping,
-    const DoFHandler<dim, spacedim> &                          dof,
-    const VectorType &                                         fe_function,
-    const Function<spacedim, typename VectorType::value_type> &exact_function,
-    Vector<typename VectorType::value_type> &                  difference,
-    const Point<spacedim> &                                    point)
+  void point_difference(const Mapping<dim, spacedim>                              &mapping,
+                        const DoFHandler<dim, spacedim>                           &dof,
+                        const VectorType                                          &fe_function,
+                        const Function<spacedim, typename VectorType::value_type> &exact_function,
+                        Vector<typename VectorType::value_type>                   &difference,
+                        const Point<spacedim>                                     &point)
   {
     using Number                 = typename VectorType::value_type;
     const FiniteElement<dim> &fe = dof.get_fe();
 
-    Assert(difference.size() == fe.n_components(),
-           ExcDimensionMismatch(difference.size(), fe.n_components()));
+    Assert(difference.size() == fe.n_components(), ExcDimensionMismatch(difference.size(), fe.n_components()));
 
     // first find the cell in which this point
     // is, initialize a quadrature rule with
     // it, and then a FEValues object
-    const std::pair<typename DoFHandler<dim, spacedim>::active_cell_iterator,
-                    Point<spacedim>>
-      cell_point =
-        GridTools::find_active_cell_around_point(mapping, dof, point);
+    const std::pair<typename DoFHandler<dim, spacedim>::active_cell_iterator, Point<spacedim>> cell_point =
+      GridTools::find_active_cell_around_point(mapping, dof, point);
 
-    AssertThrow(cell_point.first.state() == IteratorState::valid &&
-                  cell_point.first->is_locally_owned(),
+    AssertThrow(cell_point.first.state() == IteratorState::valid && cell_point.first->is_locally_owned(),
                 ExcPointNotAvailableHere());
-    Assert(GeometryInfo<dim>::distance_to_unit_cell(cell_point.second) < 1e-10,
-           ExcInternalError());
+    Assert(GeometryInfo<dim>::distance_to_unit_cell(cell_point.second) < 1e-10, ExcInternalError());
 
-    const Quadrature<dim> quadrature(
-      cell_point.first->reference_cell().closest_point(cell_point.second));
-    FEValues<dim> fe_values(mapping, fe, quadrature, update_values);
+    const Quadrature<dim> quadrature(cell_point.first->reference_cell().closest_point(cell_point.second));
+    FEValues<dim>         fe_values(mapping, fe, quadrature, update_values);
     fe_values.reinit(cell_point.first);
 
     // then use this to get at the values of
@@ -279,33 +230,25 @@ namespace VectorTools
 
   template <int dim, int spacedim>
   void
-  create_point_source_vector(const Mapping<dim, spacedim> &   mapping,
+  create_point_source_vector(const Mapping<dim, spacedim>    &mapping,
                              const DoFHandler<dim, spacedim> &dof_handler,
-                             const Point<spacedim> &          p,
-                             Vector<double> &                 rhs_vector)
+                             const Point<spacedim>           &p,
+                             Vector<double>                  &rhs_vector)
   {
-    Assert(rhs_vector.size() == dof_handler.n_dofs(),
-           ExcDimensionMismatch(rhs_vector.size(), dof_handler.n_dofs()));
+    Assert(rhs_vector.size() == dof_handler.n_dofs(), ExcDimensionMismatch(rhs_vector.size(), dof_handler.n_dofs()));
     Assert(dof_handler.get_fe(0).n_components() == 1,
            ExcMessage("This function only works for scalar finite elements"));
 
     rhs_vector = 0;
 
-    std::pair<typename DoFHandler<dim, spacedim>::active_cell_iterator,
-              Point<spacedim>>
-      cell_point =
-        GridTools::find_active_cell_around_point(mapping, dof_handler, p);
+    std::pair<typename DoFHandler<dim, spacedim>::active_cell_iterator, Point<spacedim>> cell_point =
+      GridTools::find_active_cell_around_point(mapping, dof_handler, p);
 
-    AssertThrow(cell_point.first.state() == IteratorState::valid,
-                ExcPointNotAvailableHere());
+    AssertThrow(cell_point.first.state() == IteratorState::valid, ExcPointNotAvailableHere());
 
-    const Quadrature<dim> quadrature(
-      cell_point.first->reference_cell().closest_point(cell_point.second));
+    const Quadrature<dim> quadrature(cell_point.first->reference_cell().closest_point(cell_point.second));
 
-    FEValues<dim, spacedim> fe_values(mapping,
-                                      dof_handler.get_fe(),
-                                      quadrature,
-                                      UpdateFlags(update_values));
+    FEValues<dim, spacedim> fe_values(mapping, dof_handler.get_fe(), quadrature, UpdateFlags(update_values));
     fe_values.reinit(cell_point.first);
 
     const unsigned int dofs_per_cell = dof_handler.get_fe().n_dofs_per_cell();
@@ -322,18 +265,13 @@ namespace VectorTools
   template <int dim, int spacedim>
   void
   create_point_source_vector(const DoFHandler<dim, spacedim> &dof_handler,
-                             const Point<spacedim> &          p,
-                             Vector<double> &                 rhs_vector)
+                             const Point<spacedim>           &p,
+                             Vector<double>                  &rhs_vector)
   {
     if (dof_handler.has_hp_capabilities())
-      create_point_source_vector(
-        hp::StaticMappingQ1<dim, spacedim>::mapping_collection,
-        dof_handler,
-        p,
-        rhs_vector);
+      create_point_source_vector(hp::StaticMappingQ1<dim, spacedim>::mapping_collection, dof_handler, p, rhs_vector);
     else
-      create_point_source_vector(get_default_linear_mapping(
-                                   dof_handler.get_triangulation()),
+      create_point_source_vector(get_default_linear_mapping(dof_handler.get_triangulation()),
                                  dof_handler,
                                  p,
                                  rhs_vector);
@@ -342,29 +280,23 @@ namespace VectorTools
 
   template <int dim, int spacedim>
   void
-  create_point_source_vector(
-    const hp::MappingCollection<dim, spacedim> &mapping,
-    const DoFHandler<dim, spacedim> &           dof_handler,
-    const Point<spacedim> &                     p,
-    Vector<double> &                            rhs_vector)
+  create_point_source_vector(const hp::MappingCollection<dim, spacedim> &mapping,
+                             const DoFHandler<dim, spacedim>            &dof_handler,
+                             const Point<spacedim>                      &p,
+                             Vector<double>                             &rhs_vector)
   {
-    Assert(rhs_vector.size() == dof_handler.n_dofs(),
-           ExcDimensionMismatch(rhs_vector.size(), dof_handler.n_dofs()));
+    Assert(rhs_vector.size() == dof_handler.n_dofs(), ExcDimensionMismatch(rhs_vector.size(), dof_handler.n_dofs()));
     Assert(dof_handler.get_fe(0).n_components() == 1,
            ExcMessage("This function only works for scalar finite elements"));
 
     rhs_vector = 0;
 
-    std::pair<typename DoFHandler<dim, spacedim>::active_cell_iterator,
-              Point<spacedim>>
-      cell_point =
-        GridTools::find_active_cell_around_point(mapping, dof_handler, p);
+    std::pair<typename DoFHandler<dim, spacedim>::active_cell_iterator, Point<spacedim>> cell_point =
+      GridTools::find_active_cell_around_point(mapping, dof_handler, p);
 
-    AssertThrow(cell_point.first.state() == IteratorState::valid,
-                ExcPointNotAvailableHere());
+    AssertThrow(cell_point.first.state() == IteratorState::valid, ExcPointNotAvailableHere());
 
-    const Quadrature<dim> quadrature(
-      cell_point.first->reference_cell().closest_point(cell_point.second));
+    const Quadrature<dim> quadrature(cell_point.first->reference_cell().closest_point(cell_point.second));
 
     FEValues<dim> fe_values(mapping[cell_point.first->active_fe_index()],
                             cell_point.first->get_fe(),
@@ -372,8 +304,7 @@ namespace VectorTools
                             UpdateFlags(update_values));
     fe_values.reinit(cell_point.first);
 
-    const unsigned int dofs_per_cell =
-      cell_point.first->get_fe().n_dofs_per_cell();
+    const unsigned int dofs_per_cell = cell_point.first->get_fe().n_dofs_per_cell();
 
     std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
     cell_point.first->get_dof_indices(local_dof_indices);
@@ -386,36 +317,27 @@ namespace VectorTools
 
   template <int dim, int spacedim>
   void
-  create_point_source_vector(const Mapping<dim, spacedim> &   mapping,
+  create_point_source_vector(const Mapping<dim, spacedim>    &mapping,
                              const DoFHandler<dim, spacedim> &dof_handler,
-                             const Point<spacedim> &          p,
-                             const Point<dim> &               orientation,
-                             Vector<double> &                 rhs_vector)
+                             const Point<spacedim>           &p,
+                             const Point<dim>                &orientation,
+                             Vector<double>                  &rhs_vector)
   {
-    Assert(rhs_vector.size() == dof_handler.n_dofs(),
-           ExcDimensionMismatch(rhs_vector.size(), dof_handler.n_dofs()));
+    Assert(rhs_vector.size() == dof_handler.n_dofs(), ExcDimensionMismatch(rhs_vector.size(), dof_handler.n_dofs()));
     Assert(dof_handler.get_fe(0).n_components() == dim,
-           ExcMessage(
-             "This function only works for vector-valued finite elements."));
+           ExcMessage("This function only works for vector-valued finite elements."));
 
     rhs_vector = 0;
 
-    const std::pair<typename DoFHandler<dim, spacedim>::active_cell_iterator,
-                    Point<spacedim>>
-      cell_point =
-        GridTools::find_active_cell_around_point(mapping, dof_handler, p);
+    const std::pair<typename DoFHandler<dim, spacedim>::active_cell_iterator, Point<spacedim>> cell_point =
+      GridTools::find_active_cell_around_point(mapping, dof_handler, p);
 
-    AssertThrow(cell_point.first.state() == IteratorState::valid,
-                ExcPointNotAvailableHere());
+    AssertThrow(cell_point.first.state() == IteratorState::valid, ExcPointNotAvailableHere());
 
-    const Quadrature<dim> quadrature(
-      cell_point.first->reference_cell().closest_point(cell_point.second));
+    const Quadrature<dim> quadrature(cell_point.first->reference_cell().closest_point(cell_point.second));
 
     const FEValuesExtractors::Vector vec(0);
-    FEValues<dim, spacedim>          fe_values(mapping,
-                                      dof_handler.get_fe(),
-                                      quadrature,
-                                      UpdateFlags(update_values));
+    FEValues<dim, spacedim>          fe_values(mapping, dof_handler.get_fe(), quadrature, UpdateFlags(update_values));
     fe_values.reinit(cell_point.first);
 
     const unsigned int dofs_per_cell = dof_handler.get_fe().n_dofs_per_cell();
@@ -424,8 +346,7 @@ namespace VectorTools
     cell_point.first->get_dof_indices(local_dof_indices);
 
     for (unsigned int i = 0; i < dofs_per_cell; ++i)
-      rhs_vector(local_dof_indices[i]) =
-        orientation * fe_values[vec].value(i, 0);
+      rhs_vector(local_dof_indices[i]) = orientation * fe_values[vec].value(i, 0);
   }
 
 
@@ -433,71 +354,54 @@ namespace VectorTools
   template <int dim, int spacedim>
   void
   create_point_source_vector(const DoFHandler<dim, spacedim> &dof_handler,
-                             const Point<spacedim> &          p,
-                             const Point<dim> &               orientation,
-                             Vector<double> &                 rhs_vector)
+                             const Point<spacedim>           &p,
+                             const Point<dim>                &orientation,
+                             Vector<double>                  &rhs_vector)
   {
     if (dof_handler.has_hp_capabilities())
       create_point_source_vector(
-        hp::StaticMappingQ1<dim, spacedim>::mapping_collection,
-        dof_handler,
-        p,
-        orientation,
-        rhs_vector);
+        hp::StaticMappingQ1<dim, spacedim>::mapping_collection, dof_handler, p, orientation, rhs_vector);
     else
-      create_point_source_vector(get_default_linear_mapping(
-                                   dof_handler.get_triangulation()),
-                                 dof_handler,
-                                 p,
-                                 orientation,
-                                 rhs_vector);
+      create_point_source_vector(
+        get_default_linear_mapping(dof_handler.get_triangulation()), dof_handler, p, orientation, rhs_vector);
   }
 
 
   template <int dim, int spacedim>
   void
-  create_point_source_vector(
-    const hp::MappingCollection<dim, spacedim> &mapping,
-    const DoFHandler<dim, spacedim> &           dof_handler,
-    const Point<spacedim> &                     p,
-    const Point<dim> &                          orientation,
-    Vector<double> &                            rhs_vector)
+  create_point_source_vector(const hp::MappingCollection<dim, spacedim> &mapping,
+                             const DoFHandler<dim, spacedim>            &dof_handler,
+                             const Point<spacedim>                      &p,
+                             const Point<dim>                           &orientation,
+                             Vector<double>                             &rhs_vector)
   {
-    Assert(rhs_vector.size() == dof_handler.n_dofs(),
-           ExcDimensionMismatch(rhs_vector.size(), dof_handler.n_dofs()));
+    Assert(rhs_vector.size() == dof_handler.n_dofs(), ExcDimensionMismatch(rhs_vector.size(), dof_handler.n_dofs()));
     Assert(dof_handler.get_fe(0).n_components() == dim,
-           ExcMessage(
-             "This function only works for vector-valued finite elements."));
+           ExcMessage("This function only works for vector-valued finite elements."));
 
     rhs_vector = 0;
 
-    std::pair<typename DoFHandler<dim, spacedim>::active_cell_iterator,
-              Point<spacedim>>
-      cell_point =
-        GridTools::find_active_cell_around_point(mapping, dof_handler, p);
+    std::pair<typename DoFHandler<dim, spacedim>::active_cell_iterator, Point<spacedim>> cell_point =
+      GridTools::find_active_cell_around_point(mapping, dof_handler, p);
 
-    AssertThrow(cell_point.first.state() == IteratorState::valid,
-                ExcPointNotAvailableHere());
+    AssertThrow(cell_point.first.state() == IteratorState::valid, ExcPointNotAvailableHere());
 
-    const Quadrature<dim> quadrature(
-      cell_point.first->reference_cell().closest_point(cell_point.second));
+    const Quadrature<dim> quadrature(cell_point.first->reference_cell().closest_point(cell_point.second));
 
     const FEValuesExtractors::Vector vec(0);
-    FEValues<dim> fe_values(mapping[cell_point.first->active_fe_index()],
+    FEValues<dim>                    fe_values(mapping[cell_point.first->active_fe_index()],
                             cell_point.first->get_fe(),
                             quadrature,
                             UpdateFlags(update_values));
     fe_values.reinit(cell_point.first);
 
-    const unsigned int dofs_per_cell =
-      cell_point.first->get_fe().n_dofs_per_cell();
+    const unsigned int dofs_per_cell = cell_point.first->get_fe().n_dofs_per_cell();
 
     std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
     cell_point.first->get_dof_indices(local_dof_indices);
 
     for (unsigned int i = 0; i < dofs_per_cell; ++i)
-      rhs_vector(local_dof_indices[i]) =
-        orientation * fe_values[vec].value(i, 0);
+      rhs_vector(local_dof_indices[i]) = orientation * fe_values[vec].value(i, 0);
   }
 } // namespace VectorTools
 

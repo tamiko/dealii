@@ -41,22 +41,15 @@ plot_all_info(const Triangulation<dim> &tria)
       CellId current_cell_id(cell->id());
 
       deallog << "CellId = " << current_cell_id << std::endl
-              << "   {index -> face_orientation | face_flip | face_rotation}: "
-              << std::endl;
-      for (unsigned int face_index = 0;
-           face_index < GeometryInfo<dim>::faces_per_cell;
-           ++face_index)
+              << "   {index -> face_orientation | face_flip | face_rotation}: " << std::endl;
+      for (unsigned int face_index = 0; face_index < GeometryInfo<dim>::faces_per_cell; ++face_index)
         {
-          deallog << "      {" << face_index << " -> "
-                  << cell->face_orientation(face_index) << " | "
-                  << cell->face_flip(face_index) << " | "
-                  << cell->face_rotation(face_index) << " } " << std::endl;
+          deallog << "      {" << face_index << " -> " << cell->face_orientation(face_index) << " | "
+                  << cell->face_flip(face_index) << " | " << cell->face_rotation(face_index) << " } " << std::endl;
         } // face_index
 
       deallog << "   line orientation: {  ";
-      for (unsigned int line_index = 0;
-           line_index < GeometryInfo<dim>::lines_per_cell;
-           ++line_index)
+      for (unsigned int line_index = 0; line_index < GeometryInfo<dim>::lines_per_cell; ++line_index)
         {
           deallog << cell->line_orientation(line_index) << "  ";
         } // line_index
@@ -90,11 +83,8 @@ main(int /*argc*/, char ** /*argv*/)
 
       bool manipulate_first_cube = true;
 
-      GridGenerator::non_standard_orientation_mesh(tria_test,
-                                                   face_orientation,
-                                                   face_flip,
-                                                   face_rotation,
-                                                   manipulate_first_cube);
+      GridGenerator::non_standard_orientation_mesh(
+        tria_test, face_orientation, face_flip, face_rotation, manipulate_first_cube);
 
       plot_all_info(tria_test);
 

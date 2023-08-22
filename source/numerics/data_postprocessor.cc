@@ -32,12 +32,10 @@ namespace DataPostprocessorInputs
   unsigned int
   CommonInputs<spacedim>::get_face_number() const
   {
-    Assert(
-      face_number != numbers::invalid_unsigned_int,
-      ExcMessage(
-        "This function can only be called if set_cell_and_face() has "
-        "previously been called. Typically, this would be by using DataOutFaces "
-        "or a related class."));
+    Assert(face_number != numbers::invalid_unsigned_int,
+           ExcMessage("This function can only be called if set_cell_and_face() has "
+                      "previously been called. Typically, this would be by using DataOutFaces "
+                      "or a related class."));
     return face_number;
   }
 } // namespace DataPostprocessorInputs
@@ -46,9 +44,8 @@ namespace DataPostprocessorInputs
 
 template <int dim>
 void
-DataPostprocessor<dim>::evaluate_scalar_field(
-  const DataPostprocessorInputs::Scalar<dim> &,
-  std::vector<Vector<double>> &) const
+DataPostprocessor<dim>::evaluate_scalar_field(const DataPostprocessorInputs::Scalar<dim> &,
+                                              std::vector<Vector<double>> &) const
 {
   AssertThrow(false, ExcPureFunctionCalled());
 }
@@ -57,9 +54,8 @@ DataPostprocessor<dim>::evaluate_scalar_field(
 
 template <int dim>
 void
-DataPostprocessor<dim>::evaluate_vector_field(
-  const DataPostprocessorInputs::Vector<dim> &,
-  std::vector<Vector<double>> &) const
+DataPostprocessor<dim>::evaluate_vector_field(const DataPostprocessorInputs::Vector<dim> &,
+                                              std::vector<Vector<double>> &) const
 {
   AssertThrow(false, ExcPureFunctionCalled());
 }
@@ -80,9 +76,7 @@ DataPostprocessor<dim>::get_data_component_interpretation() const
 // -------------------- DataPostprocessorScalar -------------------------
 
 template <int dim>
-DataPostprocessorScalar<dim>::DataPostprocessorScalar(
-  const std::string &name,
-  const UpdateFlags  update_flags)
+DataPostprocessorScalar<dim>::DataPostprocessorScalar(const std::string &name, const UpdateFlags update_flags)
   : name(name)
   , update_flags(update_flags)
 {}
@@ -119,9 +113,7 @@ DataPostprocessorScalar<dim>::get_needed_update_flags() const
 // ------------------------- DataPostprocessorVector ------------------------
 
 template <int dim>
-DataPostprocessorVector<dim>::DataPostprocessorVector(
-  const std::string &name,
-  const UpdateFlags  update_flags)
+DataPostprocessorVector<dim>::DataPostprocessorVector(const std::string &name, const UpdateFlags update_flags)
   : name(name)
   , update_flags(update_flags)
 {}
@@ -158,9 +150,7 @@ DataPostprocessorVector<dim>::get_needed_update_flags() const
 // ------------------------- DataPostprocessorTensor ------------------------
 
 template <int dim>
-DataPostprocessorTensor<dim>::DataPostprocessorTensor(
-  const std::string &name,
-  const UpdateFlags  update_flags)
+DataPostprocessorTensor<dim>::DataPostprocessorTensor(const std::string &name, const UpdateFlags update_flags)
   : name(name)
   , update_flags(update_flags)
 {}
@@ -204,15 +194,13 @@ namespace DataPostprocessors
 
   template <int dim>
   void
-  BoundaryIds<dim>::evaluate_scalar_field(
-    const DataPostprocessorInputs::Scalar<dim> &inputs,
-    std::vector<Vector<double>> &               computed_quantities) const
+  BoundaryIds<dim>::evaluate_scalar_field(const DataPostprocessorInputs::Scalar<dim> &inputs,
+                                          std::vector<Vector<double>>                &computed_quantities) const
   {
     AssertDimension(computed_quantities.size(), inputs.solution_values.size());
 
-    const typename DoFHandler<dim>::active_cell_iterator cell =
-      inputs.template get_cell<dim>();
-    const unsigned int face = inputs.get_face_number();
+    const typename DoFHandler<dim>::active_cell_iterator cell = inputs.template get_cell<dim>();
+    const unsigned int                                   face = inputs.get_face_number();
 
     for (auto &output : computed_quantities)
       {

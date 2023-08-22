@@ -103,8 +103,7 @@ namespace LinearAlgebra
       struct Binop_Subtraction<std::complex<Number>>
       {
         __device__ static inline std::complex<Number>
-        operation(const std::complex<Number> a,
-                  const std::complex<Number> /*b*/)
+        operation(const std::complex<Number> a, const std::complex<Number> /*b*/)
         {
           printf("This function is not implemented for std::complex<Number>!");
           assert(false);
@@ -193,10 +192,7 @@ namespace LinearAlgebra
        */
       template <typename Number, template <typename> class Binop>
       __global__ void
-      masked_vector_bin_op(const unsigned int *mask,
-                           Number *            v1,
-                           const Number *      v2,
-                           const size_type     N);
+      masked_vector_bin_op(const unsigned int *mask, Number *v1, const Number *v2, const size_type N);
 
 
 
@@ -315,10 +311,7 @@ namespace LinearAlgebra
        */
       template <typename Number, typename Operation>
       __global__ void
-      double_vector_reduction(Number *        result,
-                              const Number *  v1,
-                              const Number *  v2,
-                              const size_type N);
+      double_vector_reduction(Number *result, const Number *v1, const Number *v2, const size_type N);
 
 
 
@@ -340,10 +333,7 @@ namespace LinearAlgebra
        */
       template <typename Number>
       __global__ void
-      add_aV(Number *        val,
-             const Number    a,
-             const Number *  V_val,
-             const size_type N);
+      add_aV(Number *val, const Number a, const Number *V_val, const size_type N);
 
 
 
@@ -355,11 +345,11 @@ namespace LinearAlgebra
        */
       template <typename Number>
       __global__ void
-      add_aVbW(Number *        val,
+      add_aVbW(Number         *val,
                const Number    a,
-               const Number *  V_val,
+               const Number   *V_val,
                const Number    b,
-               const Number *  W_val,
+               const Number   *W_val,
                const size_type N);
 
 
@@ -372,11 +362,7 @@ namespace LinearAlgebra
        */
       template <typename Number>
       __global__ void
-      sadd(const Number    s,
-           Number *        val,
-           const Number    a,
-           const Number *  V_val,
-           const size_type N);
+      sadd(const Number s, Number *val, const Number a, const Number *V_val, const size_type N);
 
 
 
@@ -389,11 +375,11 @@ namespace LinearAlgebra
       template <typename Number>
       __global__ void
       sadd(const Number    s,
-           Number *        val,
+           Number         *val,
            const Number    a,
-           const Number *  V_val,
+           const Number   *V_val,
            const Number    b,
-           const Number *  W_val,
+           const Number   *W_val,
            const size_type N);
 
 
@@ -428,12 +414,7 @@ namespace LinearAlgebra
        */
       template <typename Number>
       __global__ void
-      equ(Number *        val,
-          const Number    a,
-          const Number *  V_val,
-          const Number    b,
-          const Number *  W_val,
-          const size_type N);
+      equ(Number *val, const Number a, const Number *V_val, const Number b, const Number *W_val, const size_type N);
 
 
 
@@ -445,12 +426,7 @@ namespace LinearAlgebra
        */
       template <typename Number>
       __global__ void
-      add_and_dot(Number *        res,
-                  Number *        v1,
-                  const Number *  v2,
-                  const Number *  v3,
-                  const Number    a,
-                  const size_type N);
+      add_and_dot(Number *res, Number *v1, const Number *v2, const Number *v3, const Number a, const size_type N);
 
 
 
@@ -472,10 +448,7 @@ namespace LinearAlgebra
        */
       template <typename Number, typename IndexType>
       __global__ void
-      set_permutated(const IndexType *indices,
-                     Number *         val,
-                     const Number *   v,
-                     const IndexType  N);
+      set_permutated(const IndexType *indices, Number *val, const Number *v, const IndexType N);
 
 
 
@@ -487,10 +460,7 @@ namespace LinearAlgebra
        */
       template <typename Number, typename IndexType>
       __global__ void
-      gather(Number *         val,
-             const IndexType *indices,
-             const Number *   v,
-             const IndexType  N);
+      gather(Number *val, const IndexType *indices, const Number *v, const IndexType N);
 
 
 
@@ -502,10 +472,7 @@ namespace LinearAlgebra
        */
       template <typename Number>
       __global__ void
-      add_permutated(const size_type *indices,
-                     Number *         val,
-                     const Number *   v,
-                     const size_type  N);
+      add_permutated(const size_type *indices, Number *val, const Number *v, const size_type N);
     } // namespace kernel
   }   // namespace CUDAWrappers
 } // namespace LinearAlgebra

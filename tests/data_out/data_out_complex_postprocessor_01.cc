@@ -48,9 +48,8 @@ public:
   ComputeMagnitude();
 
   virtual void
-  evaluate_vector_field(
-    const DataPostprocessorInputs::Vector<dim> &inputs,
-    std::vector<Vector<double>> &computed_quantities) const override;
+  evaluate_vector_field(const DataPostprocessorInputs::Vector<dim> &inputs,
+                        std::vector<Vector<double>>                &computed_quantities) const override;
 };
 
 template <int dim>
@@ -61,23 +60,18 @@ ComputeMagnitude<dim>::ComputeMagnitude()
 
 template <int dim>
 void
-ComputeMagnitude<dim>::evaluate_vector_field(
-  const DataPostprocessorInputs::Vector<dim> &inputs,
-  std::vector<Vector<double>> &               computed_quantities) const
+ComputeMagnitude<dim>::evaluate_vector_field(const DataPostprocessorInputs::Vector<dim> &inputs,
+                                             std::vector<Vector<double>>                &computed_quantities) const
 {
   Assert(computed_quantities.size() == inputs.solution_values.size(),
-         ExcDimensionMismatch(computed_quantities.size(),
-                              inputs.solution_values.size()));
+         ExcDimensionMismatch(computed_quantities.size(), inputs.solution_values.size()));
 
   for (unsigned int i = 0; i < computed_quantities.size(); ++i)
     {
-      Assert(computed_quantities[i].size() == 1,
-             ExcDimensionMismatch(computed_quantities[i].size(), 1));
-      Assert(inputs.solution_values[i].size() == 2,
-             ExcDimensionMismatch(inputs.solution_values[i].size(), 2));
+      Assert(computed_quantities[i].size() == 1, ExcDimensionMismatch(computed_quantities[i].size(), 1));
+      Assert(inputs.solution_values[i].size() == 2, ExcDimensionMismatch(inputs.solution_values[i].size(), 2));
 
-      const std::complex<double> u(inputs.solution_values[i](0),
-                                   inputs.solution_values[i](1));
+      const std::complex<double> u(inputs.solution_values[i](0), inputs.solution_values[i](1));
 
       computed_quantities[i](0) = std::abs(u);
     }
@@ -131,27 +125,19 @@ main()
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     }
 }

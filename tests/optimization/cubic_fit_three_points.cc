@@ -32,22 +32,17 @@ test()
 {
   // test 1:
   {
-    auto f = [](double x) {
-      return std::pow(x, 4) - 20. * std::pow(x, 3) + 0.1 * x;
-    };
-    auto g = [](double x) {
-      return 4. * std::pow(x, 3) - 60. * std::pow(x, 2) + 0.1;
-    };
+    auto f = [](double x) { return std::pow(x, 4) - 20. * std::pow(x, 3) + 0.1 * x; };
+    auto g = [](double x) { return 4. * std::pow(x, 3) - 60. * std::pow(x, 2) + 0.1; };
 
-    const double x1 = 17;
-    const double x2 = 10;
-    const double x3 = 5;
-    const double f1 = f(x1);
-    const double f2 = f(x2);
-    const double f3 = f(x3);
-    const double g1 = g(x1);
-    const double res =
-      *LineMinimization::cubic_fit_three_points(x1, f1, g1, x2, f2, x3, f3);
+    const double x1  = 17;
+    const double x2  = 10;
+    const double x3  = 5;
+    const double f1  = f(x1);
+    const double f2  = f(x2);
+    const double f3  = f(x3);
+    const double g1  = g(x1);
+    const double res = *LineMinimization::cubic_fit_three_points(x1, f1, g1, x2, f2, x3, f3);
     deallog << x1 << ' ' << f1 << ' ' << g1 << std::endl
             << x2 << ' ' << f2 << std::endl
             << x3 << ' ' << f3 << std::endl

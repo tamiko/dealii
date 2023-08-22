@@ -46,20 +46,15 @@ test()
     for (auto &cell : tria.active_cell_iterators())
       if (cell->is_locally_owned())
         {
-          const std::string  parent_cellid = cell->parent()->id().to_string();
-          const unsigned int parent_coarse_cell_id =
-            (unsigned int)std::stoul(parent_cellid);
-          cell_ids[cell->active_cell_index()] = parent_coarse_cell_id;
+          const std::string  parent_cellid         = cell->parent()->id().to_string();
+          const unsigned int parent_coarse_cell_id = (unsigned int)std::stoul(parent_cellid);
+          cell_ids[cell->active_cell_index()]      = parent_coarse_cell_id;
 
-          deallog << "cellid=" << cell->id()
-                  << " parentid=" << cell_ids[cell->active_cell_index()]
-                  << std::endl;
+          deallog << "cellid=" << cell->id() << " parentid=" << cell_ids[cell->active_cell_index()] << std::endl;
         }
 
     // ----- transfer -----
-    parallel::distributed::
-      CellDataTransfer<dim, spacedim, std::vector<unsigned int>>
-        cell_data_transfer(tria);
+    parallel::distributed::CellDataTransfer<dim, spacedim, std::vector<unsigned int>> cell_data_transfer(tria);
 
     cell_data_transfer.prepare_for_coarsening_and_refinement(cell_ids);
     tria.save("file");
@@ -79,9 +74,7 @@ test()
     // ----- transfer -----
     tria.load("file");
 
-    parallel::distributed::
-      CellDataTransfer<dim, spacedim, std::vector<unsigned int>>
-        cell_data_transfer(tria);
+    parallel::distributed::CellDataTransfer<dim, spacedim, std::vector<unsigned int>> cell_data_transfer(tria);
 
     std::vector<unsigned int> cell_ids(tria.n_active_cells());
     cell_data_transfer.deserialize(cell_ids);
@@ -90,9 +83,7 @@ test()
     // check if all children adopted the correct id
     for (auto &cell : tria.active_cell_iterators())
       if (cell->is_locally_owned())
-        deallog << "cellid=" << cell->id()
-                << " parentid=" << cell_ids[(cell->active_cell_index())]
-                << std::endl;
+        deallog << "cellid=" << cell->id() << " parentid=" << cell_ids[(cell->active_cell_index())] << std::endl;
 
     // make sure no processor is hanging
     MPI_Barrier(MPI_COMM_WORLD);

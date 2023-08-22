@@ -24,14 +24,11 @@ main(int argc, char *argv[])
 {
   initlog();
 
-  Utilities::MPI::MPI_InitFinalize::signals.at_mpi_init.connect([=]() {
-    deallog << "called via MPI_InitFinalize::signals.at_mpi_init" << std::endl;
-  });
+  Utilities::MPI::MPI_InitFinalize::signals.at_mpi_init.connect(
+    [=]() { deallog << "called via MPI_InitFinalize::signals.at_mpi_init" << std::endl; });
 
-  Utilities::MPI::MPI_InitFinalize::signals.at_mpi_finalize.connect([=]() {
-    deallog << "called via MPI_InitFinalize::signals.at_mpi_finalize"
-            << std::endl;
-  });
+  Utilities::MPI::MPI_InitFinalize::signals.at_mpi_finalize.connect(
+    [=]() { deallog << "called via MPI_InitFinalize::signals.at_mpi_finalize" << std::endl; });
 
   deallog << "before MPI initialization" << std::endl;
   {

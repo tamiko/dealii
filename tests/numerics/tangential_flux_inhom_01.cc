@@ -48,7 +48,7 @@ test(const Triangulation<dim> &tr, const FiniteElement<dim> &fe)
   DoFHandler<dim> dof(tr);
   dof.distribute_dofs(fe);
 
-  Functions::ConstantFunction<dim> constant_function(1., dim);
+  Functions::ConstantFunction<dim>                    constant_function(1., dim);
   std::map<types::boundary_id, const Function<dim> *> function_map;
   for (const unsigned int j : GeometryInfo<dim>::face_indices())
     function_map[j] = &constant_function;
@@ -62,21 +62,16 @@ test(const Triangulation<dim> &tr, const FiniteElement<dim> &fe)
         boundary_ids.insert(j);
 
       AffineConstraints<double> cm;
-      VectorTools::compute_nonzero_tangential_flux_constraints(
-        dof, 0, boundary_ids, function_map, cm);
+      VectorTools::compute_nonzero_tangential_flux_constraints(dof, 0, boundary_ids, function_map, cm);
 
       cm.print(deallog.get_file_stream());
     }
   // Get the location of all boundary dofs
-  std::vector<types::global_dof_index> face_dofs;
-  const std::vector<Point<dim - 1>> &  unit_support_points =
-    fe.get_unit_face_support_points();
-  Quadrature<dim - 1>    quadrature(unit_support_points);
-  FEFaceValues<dim, dim> fe_face_values(fe,
-                                        quadrature,
-                                        update_quadrature_points);
-  typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(),
-                                                 endc = dof.end();
+  std::vector<types::global_dof_index>           face_dofs;
+  const std::vector<Point<dim - 1>>             &unit_support_points = fe.get_unit_face_support_points();
+  Quadrature<dim - 1>                            quadrature(unit_support_points);
+  FEFaceValues<dim, dim>                         fe_face_values(fe, quadrature, update_quadrature_points);
+  typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(), endc = dof.end();
   for (; cell != endc; ++cell)
     for (const unsigned int face_no : GeometryInfo<dim>::face_indices())
       if (cell->face(face_no)->at_boundary())
@@ -88,10 +83,8 @@ test(const Triangulation<dim> &tr, const FiniteElement<dim> &fe)
           fe_face_values.reinit(cell, face_no);
           for (unsigned int i = 0; i < face_dofs.size(); ++i)
             {
-              std::cout << face_dofs[i] << "\t"
-                        << fe_face_values.quadrature_point(i) << "\t"
-                        << fe.face_system_to_component_index(i).first
-                        << std::endl;
+              std::cout << face_dofs[i] << "\t" << fe_face_values.quadrature_point(i) << "\t"
+                        << fe.face_system_to_component_index(i).first << std::endl;
             }
         }
 }

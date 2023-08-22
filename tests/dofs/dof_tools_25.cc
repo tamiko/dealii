@@ -49,14 +49,13 @@ create_and_print_pattern(const DoFHandler<dim> &dof_handler)
 {
   DynamicSparsityPattern dynamic_pattern(dof_handler.n_dofs());
 
-  auto face_has_flux_coupling =
-    [](const typename DoFHandler<dim>::active_cell_iterator &cell,
-       const unsigned int                                    face_index) {
-      // Only add a flux coupling if the face is at x = 0.
-      const Point<dim> &center = cell->face(face_index)->center();
-      return std::abs(center[0]) < 1e-3;
-      return true;
-    };
+  auto face_has_flux_coupling = [](const typename DoFHandler<dim>::active_cell_iterator &cell,
+                                   const unsigned int                                    face_index) {
+    // Only add a flux coupling if the face is at x = 0.
+    const Point<dim> &center = cell->face(face_index)->center();
+    return std::abs(center[0]) < 1e-3;
+    return true;
+  };
 
   AffineConstraints<double> constraints;
   constraints.close();

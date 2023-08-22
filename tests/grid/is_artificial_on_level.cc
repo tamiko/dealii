@@ -33,10 +33,9 @@ main(int argc, char *argv[])
   MPILogInitAll                    all;
 
 
-  parallel::distributed::Triangulation<2> tria(
-    MPI_COMM_WORLD,
-    dealii::Triangulation<2>::none,
-    parallel::distributed::Triangulation<2>::construct_multigrid_hierarchy);
+  parallel::distributed::Triangulation<2> tria(MPI_COMM_WORLD,
+                                               dealii::Triangulation<2>::none,
+                                               parallel::distributed::Triangulation<2>::construct_multigrid_hierarchy);
   GridGenerator::subdivided_hyper_cube(tria, 4);
 
   AssertDimension(Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD), 2);

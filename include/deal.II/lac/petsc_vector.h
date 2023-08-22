@@ -189,9 +189,7 @@ namespace PETScWrappers
        * <tt>v=Vector@<number@>(0);</tt>, i.e. the vector is replaced by one
        * of length zero.
        */
-      explicit Vector(const MPI_Comm  communicator,
-                      const size_type n,
-                      const size_type locally_owned_size);
+      explicit Vector(const MPI_Comm communicator, const size_type n, const size_type locally_owned_size);
 
       /**
        * Copy-constructor from deal.II vectors. Sets the dimension to that of
@@ -204,9 +202,7 @@ namespace PETScWrappers
        * different parts of the vector shall communicate
        */
       template <typename Number>
-      explicit Vector(const MPI_Comm                communicator,
-                      const dealii::Vector<Number> &v,
-                      const size_type               locally_owned_size);
+      explicit Vector(const MPI_Comm communicator, const dealii::Vector<Number> &v, const size_type locally_owned_size);
 
       /**
        * Construct a new parallel ghosted PETSc vector from IndexSets.
@@ -231,9 +227,7 @@ namespace PETScWrappers
        * @see
        * @ref GlossGhostedVector "vectors with ghost elements"
        */
-      Vector(const IndexSet &local,
-             const IndexSet &ghost,
-             const MPI_Comm  communicator);
+      Vector(const IndexSet &local, const IndexSet &ghost, const MPI_Comm communicator);
 
       /**
        * Construct a new parallel PETSc vector without ghost elements from an
@@ -333,9 +327,7 @@ namespace PETScWrappers
        * @ref GlossGhostedVector "vectors with ghost elements"
        */
       void
-      reinit(const IndexSet &local,
-             const IndexSet &ghost,
-             const MPI_Comm  communicator);
+      reinit(const IndexSet &local, const IndexSet &ghost, const MPI_Comm communicator);
 
       /**
        * Reinit as a vector without ghost elements. See constructor with same
@@ -355,9 +347,7 @@ namespace PETScWrappers
        * @p make_ghosted.
        */
       void
-      reinit(
-        const std::shared_ptr<const Utilities::MPI::Partitioner> &partitioner,
-        const bool make_ghosted = true);
+      reinit(const std::shared_ptr<const Utilities::MPI::Partitioner> &partitioner, const bool make_ghosted = true);
 
       /**
        * Print to a stream. @p precision denotes the desired precision with
@@ -371,7 +361,7 @@ namespace PETScWrappers
        * distributed across processors.
        */
       void
-      print(std::ostream &     out,
+      print(std::ostream      &out,
             const unsigned int precision  = 3,
             const bool         scientific = true,
             const bool         across     = true) const;
@@ -393,9 +383,7 @@ namespace PETScWrappers
        * locally.
        */
       virtual void
-      create_vector(const MPI_Comm  comm,
-                    const size_type n,
-                    const size_type locally_owned_size);
+      create_vector(const MPI_Comm comm, const size_type n, const size_type locally_owned_size);
 
 
 
@@ -432,9 +420,7 @@ namespace PETScWrappers
 #  ifndef DOXYGEN
 
     template <typename number>
-    Vector::Vector(const MPI_Comm                communicator,
-                   const dealii::Vector<number> &v,
-                   const size_type               locally_owned_size)
+    Vector::Vector(const MPI_Comm communicator, const dealii::Vector<number> &v, const size_type locally_owned_size)
     {
       Vector::create_vector(communicator, v.size(), locally_owned_size);
 
@@ -516,22 +502,16 @@ namespace internal
     public:
       template <typename Matrix>
       static void
-      reinit_range_vector(const Matrix &              matrix,
-                          PETScWrappers::MPI::Vector &v,
-                          bool /*omit_zeroing_entries*/)
+      reinit_range_vector(const Matrix &matrix, PETScWrappers::MPI::Vector &v, bool /*omit_zeroing_entries*/)
       {
-        v.reinit(matrix.locally_owned_range_indices(),
-                 matrix.get_mpi_communicator());
+        v.reinit(matrix.locally_owned_range_indices(), matrix.get_mpi_communicator());
       }
 
       template <typename Matrix>
       static void
-      reinit_domain_vector(const Matrix &              matrix,
-                           PETScWrappers::MPI::Vector &v,
-                           bool /*omit_zeroing_entries*/)
+      reinit_domain_vector(const Matrix &matrix, PETScWrappers::MPI::Vector &v, bool /*omit_zeroing_entries*/)
       {
-        v.reinit(matrix.locally_owned_domain_indices(),
-                 matrix.get_mpi_communicator());
+        v.reinit(matrix.locally_owned_domain_indices(), matrix.get_mpi_communicator());
       }
     };
 

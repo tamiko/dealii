@@ -74,9 +74,7 @@ test_hyper_cube()
   // result non-square
   GridGenerator::hyper_cube(tr);
   Point<dim> shift;
-  for (unsigned int i = GeometryInfo<dim>::vertices_per_cell / 2;
-       i < GeometryInfo<dim>::vertices_per_cell;
-       ++i)
+  for (unsigned int i = GeometryInfo<dim>::vertices_per_cell / 2; i < GeometryInfo<dim>::vertices_per_cell; ++i)
     tr.begin_active()->vertex(i)[0] += 0.5;
 
   FESystem<dim> fe(FE_Q<dim>(2), dim);

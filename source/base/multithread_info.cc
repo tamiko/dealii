@@ -66,21 +66,17 @@ MultithreadInfo::set_thread_limit(const unsigned int max_threads)
           }
         catch (...)
           {
-            AssertThrow(
-              false,
-              ExcMessage(
-                std::string(
-                  "When specifying the <DEAL_II_NUM_THREADS> environment "
-                  "variable, it needs to be something that can be interpreted "
-                  "as an integer. The text you have in the environment "
-                  "variable is <") +
-                penv + ">"));
+            AssertThrow(false,
+                        ExcMessage(std::string("When specifying the <DEAL_II_NUM_THREADS> environment "
+                                               "variable, it needs to be something that can be interpreted "
+                                               "as an integer. The text you have in the environment "
+                                               "variable is <") +
+                                   penv + ">"));
           }
 
         AssertThrow(max_threads_env > 0,
-                    ExcMessage(
-                      "When specifying the <DEAL_II_NUM_THREADS> environment "
-                      "variable, it needs to be a positive number."));
+                    ExcMessage("When specifying the <DEAL_II_NUM_THREADS> environment "
+                               "variable, it needs to be a positive number."));
 
         if (n_max_threads != numbers::invalid_unsigned_int)
           n_max_threads = std::min(n_max_threads, max_threads_env);
@@ -105,8 +101,8 @@ MultithreadInfo::set_thread_limit(const unsigned int max_threads)
   // does not provide a mechanism to override its setting - we can only
   // delete the old and replace it with a new one.
   static std::unique_ptr<tbb::global_control> tbb_global_control;
-  tbb_global_control = std::make_unique<tbb::global_control>(
-    tbb::global_control::max_allowed_parallelism, n_max_threads);
+  tbb_global_control =
+    std::make_unique<tbb::global_control>(tbb::global_control::max_allowed_parallelism, n_max_threads);
 
 #  else
   // Initialize the scheduler and destroy the old one before doing so
@@ -154,9 +150,7 @@ void
 MultithreadInfo::initialize_multithreading()
 {
   static std::once_flag is_initialized;
-  std::call_once(is_initialized, []() {
-    MultithreadInfo::set_thread_limit(numbers::invalid_unsigned_int);
-  });
+  std::call_once(is_initialized, []() { MultithreadInfo::set_thread_limit(numbers::invalid_unsigned_int); });
 }
 
 
@@ -168,10 +162,8 @@ MultithreadInfo::get_taskflow_executor()
   // This should not trigger in normal user code, because we initialize the
   // Executor in the static DoOnce struct at the end of this file unless you
   // ask for the Executor before this static object gets constructed.
-  Assert(
-    executor.get() != nullptr,
-    ExcMessage(
-      "Please initialize multithreading using MultithreadInfo::set_thread_limit() first."));
+  Assert(executor.get() != nullptr,
+         ExcMessage("Please initialize multithreading using MultithreadInfo::set_thread_limit() first."));
   return *(executor.get());
 }
 

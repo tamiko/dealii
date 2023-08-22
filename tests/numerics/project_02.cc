@@ -80,20 +80,15 @@ test()
   cm.close();
   VectorTools::project(dh, cm, QGauss<dim>(3), F<dim>(), v);
 
-  for (typename DoFHandler<dim>::active_cell_iterator cell = dh.begin_active();
-       cell != dh.end();
-       ++cell)
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dh.begin_active(); cell != dh.end(); ++cell)
     for (const unsigned int i : GeometryInfo<dim>::vertex_indices())
       {
         // check that the error is
         // somewhat small. it won't
         // be zero since we project
         // and do not interpolate
-        Assert(std::fabs(v(cell->vertex_dof_index(i, 0)) -
-                         F<dim>().value(cell->vertex(i))) < 1e-4,
-               ExcInternalError());
-        deallog << cell->vertex(i) << ' ' << v(cell->vertex_dof_index(i, 0))
-                << std::endl;
+        Assert(std::fabs(v(cell->vertex_dof_index(i, 0)) - F<dim>().value(cell->vertex(i))) < 1e-4, ExcInternalError());
+        deallog << cell->vertex(i) << ' ' << v(cell->vertex_dof_index(i, 0)) << std::endl;
       }
 }
 

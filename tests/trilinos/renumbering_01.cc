@@ -129,12 +129,9 @@ private:
                                                MPI_COMM_WORLD,
                                                locally_relevant_dofs);
 
-    system_matrix.reinit(locally_owned_dofs,
-                         locally_owned_dofs,
-                         sparsity_pattern,
-                         MPI_COMM_WORLD);
-    deallog << "local_range: " << system_matrix.local_range().first << " - "
-            << system_matrix.local_range().second << std::endl;
+    system_matrix.reinit(locally_owned_dofs, locally_owned_dofs, sparsity_pattern, MPI_COMM_WORLD);
+    deallog << "local_range: " << system_matrix.local_range().first << " - " << system_matrix.local_range().second
+            << std::endl;
   }
 
   void
@@ -149,9 +146,7 @@ private:
       new_number[i] = dof_handler.n_dofs() - i - 1;
 
     std::vector<types::global_dof_index> local_new_number;
-    for (IndexSet::ElementIterator dof = locally_owned_dofs.begin();
-         dof != locally_owned_dofs.end();
-         ++dof)
+    for (IndexSet::ElementIterator dof = locally_owned_dofs.begin(); dof != locally_owned_dofs.end(); ++dof)
       local_new_number.push_back(new_number[*dof]);
 
     deallog << "n_dofs = " << dof_handler.n_dofs() << std::endl;

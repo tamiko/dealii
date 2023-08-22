@@ -49,14 +49,12 @@ test()
   const unsigned int spacedim = 2;
 
   Triangulation<dim, spacedim> tria;
-  std::map<Triangulation<dim, spacedim>::cell_iterator,
-           Triangulation<spacedim, spacedim>::face_iterator>
+  std::map<Triangulation<dim, spacedim>::cell_iterator, Triangulation<spacedim, spacedim>::face_iterator>
                           surface_to_volume_mapping;
   Triangulation<spacedim> volume_mesh;
   GridGenerator::hyper_cube(volume_mesh);
 
-  surface_to_volume_mapping =
-    GridGenerator::extract_boundary_mesh(volume_mesh, tria);
+  surface_to_volume_mapping = GridGenerator::extract_boundary_mesh(volume_mesh, tria);
 
   FE_Q<dim, spacedim>       fe(2);
   DoFHandler<dim, spacedim> dof_handler(tria);
@@ -69,33 +67,22 @@ test()
   for (unsigned int boundary_id = 0; boundary_id < 2; ++boundary_id)
     {
       std::map<types::global_dof_index, double> bv;
-      VectorTools::interpolate_boundary_values(
-        dof_handler, boundary_id, Functions::SquareFunction<spacedim>(), bv);
+      VectorTools::interpolate_boundary_values(dof_handler, boundary_id, Functions::SquareFunction<spacedim>(), bv);
       deallog << bv.size() << " boundary degrees of freedom" << std::endl;
 
-      for (std::map<types::global_dof_index, double>::const_iterator i =
-             bv.begin();
-           i != bv.end();
-           ++i)
+      for (std::map<types::global_dof_index, double>::const_iterator i = bv.begin(); i != bv.end(); ++i)
         deallog << i->first << ' ' << i->second << std::endl;
 
-      for (DoFHandler<dim, spacedim>::active_cell_iterator cell =
-             dof_handler.begin_active();
-           cell != dof_handler.end();
+      for (DoFHandler<dim, spacedim>::active_cell_iterator cell = dof_handler.begin_active(); cell != dof_handler.end();
            ++cell)
         for (const unsigned int f : GeometryInfo<dim>::face_indices())
-          if (cell->at_boundary(f) &&
-              (cell->face(f)->boundary_id() == boundary_id))
-            for (unsigned int v = 0; v < GeometryInfo<dim>::vertices_per_face;
-                 ++v)
+          if (cell->at_boundary(f) && (cell->face(f)->boundary_id() == boundary_id))
+            for (unsigned int v = 0; v < GeometryInfo<dim>::vertices_per_face; ++v)
               for (unsigned int i = 0; i < fe.dofs_per_vertex; ++i)
                 {
-                  AssertThrow(bv.find(cell->face(f)->vertex_dof_index(v, i)) !=
-                                bv.end(),
-                              ExcInternalError());
+                  AssertThrow(bv.find(cell->face(f)->vertex_dof_index(v, i)) != bv.end(), ExcInternalError());
                   AssertThrow(bv[cell->face(f)->vertex_dof_index(v, i)] ==
-                                Functions::SquareFunction<spacedim>().value(
-                                  cell->face(f)->vertex(v), i),
+                                Functions::SquareFunction<spacedim>().value(cell->face(f)->vertex(v), i),
                               ExcInternalError());
                 }
     }

@@ -52,9 +52,7 @@ main()
         ++boundary_face_count;
 
   if (boundary_face_count != 10)
-    deallog << "Found " << boundary_face_count
-            << " boundary faces. However, there should be 10 of them!"
-            << std::endl;
+    deallog << "Found " << boundary_face_count << " boundary faces. However, there should be 10 of them!" << std::endl;
   else
     deallog << "OK!" << std::endl;
 }

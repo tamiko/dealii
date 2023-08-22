@@ -41,8 +41,7 @@ test()
   IndexSet is3 = is1;
   is3.subtract_set(is2);
 
-  deallog << "Set sizes: " << is1.n_elements() << ' ' << is2.n_elements() << ' '
-          << is3.n_elements() << std::endl;
+  deallog << "Set sizes: " << is1.n_elements() << ' ' << is2.n_elements() << ' ' << is3.n_elements() << std::endl;
 
   is1.print(deallog);
   is2.print(deallog);
@@ -52,9 +51,7 @@ test()
 
   for (unsigned int i = 0; i < is3.size(); ++i)
     {
-      AssertThrow((is1.is_element(i) && !is2.is_element(i)) ==
-                    is3.is_element(i),
-                  ExcInternalError());
+      AssertThrow((is1.is_element(i) && !is2.is_element(i)) == is3.is_element(i), ExcInternalError());
     }
 
   IndexSet empty(100);

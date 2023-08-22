@@ -52,9 +52,7 @@ flatten_triangulation(Triangulation<dim> &tria_in, Triangulation<dim> &tria_out)
   const std::vector<Point<dim>> vertices = tria_in.get_vertices();
 
   // now we need to loop over all cells and extract the cell data.
-  typename Triangulation<dim>::active_cell_iterator cell =
-                                                      tria_in.begin_active(),
-                                                    endc = tria_in.end();
+  typename Triangulation<dim>::active_cell_iterator cell = tria_in.begin_active(), endc = tria_in.end();
 
   std::vector<CellData<dim>> cells(n_active_cells, CellData<dim>());
 
@@ -88,9 +86,7 @@ mesh_info(const Triangulation<dim> &tria, const std::string &filename)
 
   {
     std::map<unsigned int, unsigned int>              boundary_count;
-    typename Triangulation<dim>::active_cell_iterator cell =
-                                                        tria.begin_active(),
-                                                      endc = tria.end();
+    typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
     for (; cell != endc; ++cell)
       {
         for (const unsigned int face : GeometryInfo<dim>::face_indices())
@@ -100,10 +96,7 @@ mesh_info(const Triangulation<dim> &tria, const std::string &filename)
           }
       }
     deallog << " boundary indicators: ";
-    for (std::map<unsigned int, unsigned int>::iterator it =
-           boundary_count.begin();
-         it != boundary_count.end();
-         ++it)
+    for (std::map<unsigned int, unsigned int>::iterator it = boundary_count.begin(); it != boundary_count.end(); ++it)
       {
         deallog << it->first << '(' << it->second << " times) ";
       }
@@ -124,13 +117,12 @@ test()
 
   // create the two meshes
   GridGenerator::hyper_ball(ball, center, 0.5);
-  GridGenerator::hyper_shell(
-    shell,
-    center,
-    0.5,
-    1,
-    8,
-    true); // colorize flag set to true so outer bnd is 1 and inner is 0
+  GridGenerator::hyper_shell(shell,
+                             center,
+                             0.5,
+                             1,
+                             8,
+                             true); // colorize flag set to true so outer bnd is 1 and inner is 0
 
   // set boundaries
   static const SphericalManifold<2> boundary(center);

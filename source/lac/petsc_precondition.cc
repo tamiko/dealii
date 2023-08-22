@@ -104,8 +104,7 @@ namespace PETScWrappers
     AssertThrow(pc == nullptr, StandardExceptions::ExcInvalidState());
 
     MPI_Comm       comm;
-    PetscErrorCode ierr = PetscObjectGetComm(
-      reinterpret_cast<PetscObject>(static_cast<const Mat &>(matrix)), &comm);
+    PetscErrorCode ierr = PetscObjectGetComm(reinterpret_cast<PetscObject>(static_cast<const Mat &>(matrix)), &comm);
     AssertThrow(ierr == 0, ExcPETScError(ierr));
 
     create_pc_with_comm(comm);
@@ -137,8 +136,7 @@ namespace PETScWrappers
 
 
 
-  PreconditionJacobi::PreconditionJacobi(const MPI_Comm        comm,
-                                         const AdditionalData &additional_data_)
+  PreconditionJacobi::PreconditionJacobi(const MPI_Comm comm, const AdditionalData &additional_data_)
     : PreconditionBase(comm)
   {
     additional_data = additional_data_;
@@ -151,8 +149,7 @@ namespace PETScWrappers
 
 
 
-  PreconditionJacobi::PreconditionJacobi(const MatrixBase &    matrix,
-                                         const AdditionalData &additional_data)
+  PreconditionJacobi::PreconditionJacobi(const MatrixBase &matrix, const AdditionalData &additional_data)
     : PreconditionBase(matrix.get_mpi_communicator())
   {
     initialize(matrix, additional_data);
@@ -175,8 +172,7 @@ namespace PETScWrappers
 
 
   void
-  PreconditionJacobi::initialize(const MatrixBase &    matrix_,
-                                 const AdditionalData &additional_data_)
+  PreconditionJacobi::initialize(const MatrixBase &matrix_, const AdditionalData &additional_data_)
   {
     clear();
 
@@ -193,9 +189,7 @@ namespace PETScWrappers
     : PreconditionBase()
   {}
 
-  PreconditionBlockJacobi::PreconditionBlockJacobi(
-    const MPI_Comm        comm,
-    const AdditionalData &additional_data_)
+  PreconditionBlockJacobi::PreconditionBlockJacobi(const MPI_Comm comm, const AdditionalData &additional_data_)
     : PreconditionBase(comm)
   {
     additional_data = additional_data_;
@@ -208,9 +202,7 @@ namespace PETScWrappers
 
 
 
-  PreconditionBlockJacobi::PreconditionBlockJacobi(
-    const MatrixBase &    matrix,
-    const AdditionalData &additional_data)
+  PreconditionBlockJacobi::PreconditionBlockJacobi(const MatrixBase &matrix, const AdditionalData &additional_data)
     : PreconditionBase(matrix.get_mpi_communicator())
   {
     initialize(matrix, additional_data);
@@ -231,8 +223,7 @@ namespace PETScWrappers
 
 
   void
-  PreconditionBlockJacobi::initialize(const MatrixBase &    matrix_,
-                                      const AdditionalData &additional_data_)
+  PreconditionBlockJacobi::initialize(const MatrixBase &matrix_, const AdditionalData &additional_data_)
   {
     clear();
 
@@ -257,8 +248,7 @@ namespace PETScWrappers
 
 
 
-  PreconditionSOR::PreconditionSOR(const MatrixBase &    matrix,
-                                   const AdditionalData &additional_data)
+  PreconditionSOR::PreconditionSOR(const MatrixBase &matrix, const AdditionalData &additional_data)
     : PreconditionBase(matrix.get_mpi_communicator())
   {
     initialize(matrix, additional_data);
@@ -266,8 +256,7 @@ namespace PETScWrappers
 
 
   void
-  PreconditionSOR::initialize(const MatrixBase &    matrix_,
-                              const AdditionalData &additional_data_)
+  PreconditionSOR::initialize(const MatrixBase &matrix_, const AdditionalData &additional_data_)
   {
     clear();
 
@@ -301,8 +290,7 @@ namespace PETScWrappers
 
 
 
-  PreconditionSSOR::PreconditionSSOR(const MatrixBase &    matrix,
-                                     const AdditionalData &additional_data)
+  PreconditionSSOR::PreconditionSSOR(const MatrixBase &matrix, const AdditionalData &additional_data)
     : PreconditionBase(matrix.get_mpi_communicator())
   {
     initialize(matrix, additional_data);
@@ -310,8 +298,7 @@ namespace PETScWrappers
 
 
   void
-  PreconditionSSOR::initialize(const MatrixBase &    matrix_,
-                               const AdditionalData &additional_data_)
+  PreconditionSSOR::initialize(const MatrixBase &matrix_, const AdditionalData &additional_data_)
   {
     clear();
 
@@ -349,8 +336,7 @@ namespace PETScWrappers
 
 
 
-  PreconditionICC::PreconditionICC(const MatrixBase &    matrix,
-                                   const AdditionalData &additional_data)
+  PreconditionICC::PreconditionICC(const MatrixBase &matrix, const AdditionalData &additional_data)
     : PreconditionBase(matrix.get_mpi_communicator())
   {
     initialize(matrix, additional_data);
@@ -358,8 +344,7 @@ namespace PETScWrappers
 
 
   void
-  PreconditionICC::initialize(const MatrixBase &    matrix_,
-                              const AdditionalData &additional_data_)
+  PreconditionICC::initialize(const MatrixBase &matrix_, const AdditionalData &additional_data_)
   {
     clear();
 
@@ -393,8 +378,7 @@ namespace PETScWrappers
 
 
 
-  PreconditionILU::PreconditionILU(const MatrixBase &    matrix,
-                                   const AdditionalData &additional_data)
+  PreconditionILU::PreconditionILU(const MatrixBase &matrix, const AdditionalData &additional_data)
     : PreconditionBase(matrix.get_mpi_communicator())
   {
     initialize(matrix, additional_data);
@@ -402,8 +386,7 @@ namespace PETScWrappers
 
 
   void
-  PreconditionILU::initialize(const MatrixBase &    matrix_,
-                              const AdditionalData &additional_data_)
+  PreconditionILU::initialize(const MatrixBase &matrix_, const AdditionalData &additional_data_)
   {
     clear();
 
@@ -425,19 +408,18 @@ namespace PETScWrappers
 
   /* ----------------- PreconditionBoomerAMG -------------------- */
 
-  PreconditionBoomerAMG::AdditionalData::AdditionalData(
-    const bool           symmetric_operator,
-    const double         strong_threshold,
-    const double         max_row_sum,
-    const unsigned int   aggressive_coarsening_num_levels,
-    const bool           output_details,
-    const RelaxationType relaxation_type_up,
-    const RelaxationType relaxation_type_down,
-    const RelaxationType relaxation_type_coarse,
-    const unsigned int   n_sweeps_coarse,
-    const double         tol,
-    const unsigned int   max_iter,
-    const bool           w_cycle)
+  PreconditionBoomerAMG::AdditionalData::AdditionalData(const bool           symmetric_operator,
+                                                        const double         strong_threshold,
+                                                        const double         max_row_sum,
+                                                        const unsigned int   aggressive_coarsening_num_levels,
+                                                        const bool           output_details,
+                                                        const RelaxationType relaxation_type_up,
+                                                        const RelaxationType relaxation_type_down,
+                                                        const RelaxationType relaxation_type_coarse,
+                                                        const unsigned int   n_sweeps_coarse,
+                                                        const double         tol,
+                                                        const unsigned int   max_iter,
+                                                        const bool           w_cycle)
     : symmetric_operator(symmetric_operator)
     , strong_threshold(strong_threshold)
     , max_row_sum(max_row_sum)
@@ -462,8 +444,7 @@ namespace PETScWrappers
      * strings for PETSc.
      */
     std::string
-    to_string(
-      PreconditionBoomerAMG::AdditionalData::RelaxationType relaxation_type)
+    to_string(PreconditionBoomerAMG::AdditionalData::RelaxationType relaxation_type)
     {
       std::string string_type;
 
@@ -472,39 +453,31 @@ namespace PETScWrappers
           case PreconditionBoomerAMG::AdditionalData::RelaxationType::Jacobi:
             string_type = "Jacobi";
             break;
-          case PreconditionBoomerAMG::AdditionalData::RelaxationType::
-            sequentialGaussSeidel:
+          case PreconditionBoomerAMG::AdditionalData::RelaxationType::sequentialGaussSeidel:
             string_type = "sequential-Gauss-Seidel";
             break;
-          case PreconditionBoomerAMG::AdditionalData::RelaxationType::
-            seqboundaryGaussSeidel:
+          case PreconditionBoomerAMG::AdditionalData::RelaxationType::seqboundaryGaussSeidel:
             string_type = "seqboundary-Gauss-Seidel";
             break;
           case PreconditionBoomerAMG::AdditionalData::RelaxationType::SORJacobi:
             string_type = "SOR/Jacobi";
             break;
-          case PreconditionBoomerAMG::AdditionalData::RelaxationType::
-            backwardSORJacobi:
+          case PreconditionBoomerAMG::AdditionalData::RelaxationType::backwardSORJacobi:
             string_type = "backward-SOR/Jacobi";
             break;
-          case PreconditionBoomerAMG::AdditionalData::RelaxationType::
-            symmetricSORJacobi:
+          case PreconditionBoomerAMG::AdditionalData::RelaxationType::symmetricSORJacobi:
             string_type = "symmetric-SOR/Jacobi";
             break;
-          case PreconditionBoomerAMG::AdditionalData::RelaxationType::
-            l1scaledSORJacobi:
+          case PreconditionBoomerAMG::AdditionalData::RelaxationType::l1scaledSORJacobi:
             string_type = " l1scaled-SOR/Jacobi";
             break;
-          case PreconditionBoomerAMG::AdditionalData::RelaxationType::
-            GaussianElimination:
+          case PreconditionBoomerAMG::AdditionalData::RelaxationType::GaussianElimination:
             string_type = "Gaussian-elimination";
             break;
-          case PreconditionBoomerAMG::AdditionalData::RelaxationType::
-            l1GaussSeidel:
+          case PreconditionBoomerAMG::AdditionalData::RelaxationType::l1GaussSeidel:
             string_type = "l1-Gauss-Seidel";
             break;
-          case PreconditionBoomerAMG::AdditionalData::RelaxationType::
-            backwardl1GaussSeidel:
+          case PreconditionBoomerAMG::AdditionalData::RelaxationType::backwardl1GaussSeidel:
             string_type = "backward-l1-Gauss-Seidel";
             break;
           case PreconditionBoomerAMG::AdditionalData::RelaxationType::CG:
@@ -516,8 +489,7 @@ namespace PETScWrappers
           case PreconditionBoomerAMG::AdditionalData::RelaxationType::FCFJacobi:
             string_type = "FCF-Jacobi";
             break;
-          case PreconditionBoomerAMG::AdditionalData::RelaxationType::
-            l1scaledJacobi:
+          case PreconditionBoomerAMG::AdditionalData::RelaxationType::l1scaledJacobi:
             string_type = "l1scaled-Jacobi";
             break;
           case PreconditionBoomerAMG::AdditionalData::RelaxationType::None:
@@ -539,9 +511,7 @@ namespace PETScWrappers
 
 
 
-  PreconditionBoomerAMG::PreconditionBoomerAMG(
-    const MPI_Comm        comm,
-    const AdditionalData &additional_data_)
+  PreconditionBoomerAMG::PreconditionBoomerAMG(const MPI_Comm comm, const AdditionalData &additional_data_)
     : PreconditionBase(comm)
   {
     additional_data = additional_data_;
@@ -561,9 +531,7 @@ namespace PETScWrappers
 
 
 
-  PreconditionBoomerAMG::PreconditionBoomerAMG(
-    const MatrixBase &    matrix,
-    const AdditionalData &additional_data)
+  PreconditionBoomerAMG::PreconditionBoomerAMG(const MatrixBase &matrix, const AdditionalData &additional_data)
     : PreconditionBase(matrix.get_mpi_communicator())
   {
     initialize(matrix, additional_data);
@@ -586,84 +554,58 @@ namespace PETScWrappers
         set_option_value("-pc_hypre_boomeramg_print_statistics", "1");
       }
 
-    set_option_value("-pc_hypre_boomeramg_agg_nl",
-                     std::to_string(
-                       additional_data.aggressive_coarsening_num_levels));
+    set_option_value("-pc_hypre_boomeramg_agg_nl", std::to_string(additional_data.aggressive_coarsening_num_levels));
 
-    set_option_value("-pc_hypre_boomeramg_max_row_sum",
-                     std::to_string(additional_data.max_row_sum));
+    set_option_value("-pc_hypre_boomeramg_max_row_sum", std::to_string(additional_data.max_row_sum));
 
-    set_option_value("-pc_hypre_boomeramg_strong_threshold",
-                     std::to_string(additional_data.strong_threshold));
+    set_option_value("-pc_hypre_boomeramg_strong_threshold", std::to_string(additional_data.strong_threshold));
 
     // change to symmetric SOR/Jacobi when using a symmetric operator for
     // backward compatibility
-    if (additional_data.relaxation_type_up ==
-          AdditionalData::RelaxationType::SORJacobi &&
+    if (additional_data.relaxation_type_up == AdditionalData::RelaxationType::SORJacobi &&
         additional_data.symmetric_operator)
       {
-        additional_data.relaxation_type_up =
-          AdditionalData::RelaxationType::symmetricSORJacobi;
+        additional_data.relaxation_type_up = AdditionalData::RelaxationType::symmetricSORJacobi;
       }
 
-    if (additional_data.relaxation_type_down ==
-          AdditionalData::RelaxationType::SORJacobi &&
+    if (additional_data.relaxation_type_down == AdditionalData::RelaxationType::SORJacobi &&
         additional_data.symmetric_operator)
       {
-        additional_data.relaxation_type_down =
-          AdditionalData::RelaxationType::symmetricSORJacobi;
+        additional_data.relaxation_type_down = AdditionalData::RelaxationType::symmetricSORJacobi;
       }
 
-    if (additional_data.relaxation_type_coarse ==
-          AdditionalData::RelaxationType::SORJacobi &&
+    if (additional_data.relaxation_type_coarse == AdditionalData::RelaxationType::SORJacobi &&
         additional_data.symmetric_operator)
       {
-        additional_data.relaxation_type_coarse =
-          AdditionalData::RelaxationType::symmetricSORJacobi;
+        additional_data.relaxation_type_coarse = AdditionalData::RelaxationType::symmetricSORJacobi;
       }
 
-    auto relaxation_type_is_symmetric =
-      [](AdditionalData::RelaxationType relaxation_type) {
-        return relaxation_type == AdditionalData::RelaxationType::Jacobi ||
-               relaxation_type ==
-                 AdditionalData::RelaxationType::symmetricSORJacobi ||
-               relaxation_type ==
-                 AdditionalData::RelaxationType::GaussianElimination ||
-               relaxation_type == AdditionalData::RelaxationType::None ||
-               relaxation_type ==
-                 AdditionalData::RelaxationType::l1scaledJacobi ||
-               relaxation_type == AdditionalData::RelaxationType::CG ||
-               relaxation_type == AdditionalData::RelaxationType::Chebyshev;
-      };
+    auto relaxation_type_is_symmetric = [](AdditionalData::RelaxationType relaxation_type) {
+      return relaxation_type == AdditionalData::RelaxationType::Jacobi ||
+             relaxation_type == AdditionalData::RelaxationType::symmetricSORJacobi ||
+             relaxation_type == AdditionalData::RelaxationType::GaussianElimination ||
+             relaxation_type == AdditionalData::RelaxationType::None ||
+             relaxation_type == AdditionalData::RelaxationType::l1scaledJacobi ||
+             relaxation_type == AdditionalData::RelaxationType::CG ||
+             relaxation_type == AdditionalData::RelaxationType::Chebyshev;
+    };
 
-    if (additional_data.symmetric_operator &&
-        !relaxation_type_is_symmetric(additional_data.relaxation_type_up))
-      Assert(false,
-             ExcMessage("Use a symmetric smoother for relaxation_type_up"));
+    if (additional_data.symmetric_operator && !relaxation_type_is_symmetric(additional_data.relaxation_type_up))
+      Assert(false, ExcMessage("Use a symmetric smoother for relaxation_type_up"));
 
-    if (additional_data.symmetric_operator &&
-        !relaxation_type_is_symmetric(additional_data.relaxation_type_down))
-      Assert(false,
-             ExcMessage("Use a symmetric smoother for relaxation_type_down"));
+    if (additional_data.symmetric_operator && !relaxation_type_is_symmetric(additional_data.relaxation_type_down))
+      Assert(false, ExcMessage("Use a symmetric smoother for relaxation_type_down"));
 
-    if (additional_data.symmetric_operator &&
-        !relaxation_type_is_symmetric(additional_data.relaxation_type_coarse))
-      Assert(false,
-             ExcMessage("Use a symmetric smoother for relaxation_type_coarse"));
+    if (additional_data.symmetric_operator && !relaxation_type_is_symmetric(additional_data.relaxation_type_coarse))
+      Assert(false, ExcMessage("Use a symmetric smoother for relaxation_type_coarse"));
 
-    set_option_value("-pc_hypre_boomeramg_relax_type_up",
-                     to_string(additional_data.relaxation_type_up));
-    set_option_value("-pc_hypre_boomeramg_relax_type_down",
-                     to_string(additional_data.relaxation_type_down));
-    set_option_value("-pc_hypre_boomeramg_relax_type_coarse",
-                     to_string(additional_data.relaxation_type_coarse));
-    set_option_value("-pc_hypre_boomeramg_grid_sweeps_coarse",
-                     std::to_string(additional_data.n_sweeps_coarse));
+    set_option_value("-pc_hypre_boomeramg_relax_type_up", to_string(additional_data.relaxation_type_up));
+    set_option_value("-pc_hypre_boomeramg_relax_type_down", to_string(additional_data.relaxation_type_down));
+    set_option_value("-pc_hypre_boomeramg_relax_type_coarse", to_string(additional_data.relaxation_type_coarse));
+    set_option_value("-pc_hypre_boomeramg_grid_sweeps_coarse", std::to_string(additional_data.n_sweeps_coarse));
 
-    set_option_value("-pc_hypre_boomeramg_tol",
-                     std::to_string(additional_data.tol));
-    set_option_value("-pc_hypre_boomeramg_max_iter",
-                     std::to_string(additional_data.max_iter));
+    set_option_value("-pc_hypre_boomeramg_tol", std::to_string(additional_data.tol));
+    set_option_value("-pc_hypre_boomeramg_max_iter", std::to_string(additional_data.max_iter));
 
     if (additional_data.w_cycle)
       {
@@ -682,8 +624,7 @@ namespace PETScWrappers
 
 
   void
-  PreconditionBoomerAMG::initialize(const MatrixBase &    matrix_,
-                                    const AdditionalData &additional_data_)
+  PreconditionBoomerAMG::initialize(const MatrixBase &matrix_, const AdditionalData &additional_data_)
   {
 #  ifdef DEAL_II_PETSC_WITH_HYPRE
     clear();
@@ -705,12 +646,11 @@ namespace PETScWrappers
 
   /* ----------------- PreconditionParaSails -------------------- */
 
-  PreconditionParaSails::AdditionalData::AdditionalData(
-    const unsigned int symmetric,
-    const unsigned int n_levels,
-    const double       threshold,
-    const double       filter,
-    const bool         output_details)
+  PreconditionParaSails::AdditionalData::AdditionalData(const unsigned int symmetric,
+                                                        const unsigned int n_levels,
+                                                        const double       threshold,
+                                                        const double       filter,
+                                                        const bool         output_details)
     : symmetric(symmetric)
     , n_levels(n_levels)
     , threshold(threshold)
@@ -726,9 +666,7 @@ namespace PETScWrappers
 
 
 
-  PreconditionParaSails::PreconditionParaSails(
-    const MatrixBase &    matrix,
-    const AdditionalData &additional_data)
+  PreconditionParaSails::PreconditionParaSails(const MatrixBase &matrix, const AdditionalData &additional_data)
     : PreconditionBase(matrix.get_mpi_communicator())
   {
     initialize(matrix, additional_data);
@@ -736,8 +674,7 @@ namespace PETScWrappers
 
 
   void
-  PreconditionParaSails::initialize(const MatrixBase &    matrix_,
-                                    const AdditionalData &additional_data_)
+  PreconditionParaSails::initialize(const MatrixBase &matrix_, const AdditionalData &additional_data_)
   {
     clear();
 
@@ -757,10 +694,8 @@ namespace PETScWrappers
         set_option_value("-pc_hypre_parasails_logging", "1");
       }
 
-    Assert((additional_data.symmetric == 0 || additional_data.symmetric == 1 ||
-            additional_data.symmetric == 2),
-           ExcMessage(
-             "ParaSails parameter symmetric can only be equal to 0, 1, 2!"));
+    Assert((additional_data.symmetric == 0 || additional_data.symmetric == 1 || additional_data.symmetric == 2),
+           ExcMessage("ParaSails parameter symmetric can only be equal to 0, 1, 2!"));
 
     std::stringstream ssStream;
 
@@ -785,16 +720,12 @@ namespace PETScWrappers
           }
 
         default:
-          Assert(
-            false,
-            ExcMessage(
-              "ParaSails parameter symmetric can only be equal to 0, 1, 2!"));
+          Assert(false, ExcMessage("ParaSails parameter symmetric can only be equal to 0, 1, 2!"));
       }
 
     set_option_value("-pc_hypre_parasails_sym", ssStream.str());
 
-    set_option_value("-pc_hypre_parasails_nlevels",
-                     std::to_string(additional_data.n_levels));
+    set_option_value("-pc_hypre_parasails_nlevels", std::to_string(additional_data.n_levels));
 
     ssStream.str(""); // empty the stringstream
     ssStream << additional_data.threshold;
@@ -824,8 +755,7 @@ namespace PETScWrappers
 
 
 
-  PreconditionNone::PreconditionNone(const MatrixBase &    matrix,
-                                     const AdditionalData &additional_data)
+  PreconditionNone::PreconditionNone(const MatrixBase &matrix, const AdditionalData &additional_data)
     : PreconditionBase(matrix.get_mpi_communicator())
   {
     initialize(matrix, additional_data);
@@ -833,8 +763,7 @@ namespace PETScWrappers
 
 
   void
-  PreconditionNone::initialize(const MatrixBase &    matrix_,
-                               const AdditionalData &additional_data_)
+  PreconditionNone::initialize(const MatrixBase &matrix_, const AdditionalData &additional_data_)
   {
     clear();
 
@@ -852,9 +781,7 @@ namespace PETScWrappers
 
   /* ----------------- PreconditionLU -------------------- */
 
-  PreconditionLU::AdditionalData::AdditionalData(const double pivoting,
-                                                 const double zero_pivot,
-                                                 const double damping)
+  PreconditionLU::AdditionalData::AdditionalData(const double pivoting, const double zero_pivot, const double damping)
     : pivoting(pivoting)
     , zero_pivot(zero_pivot)
     , damping(damping)
@@ -868,8 +795,7 @@ namespace PETScWrappers
 
 
 
-  PreconditionLU::PreconditionLU(const MatrixBase &    matrix,
-                                 const AdditionalData &additional_data)
+  PreconditionLU::PreconditionLU(const MatrixBase &matrix, const AdditionalData &additional_data)
     : PreconditionBase(matrix.get_mpi_communicator())
   {
     initialize(matrix, additional_data);
@@ -877,8 +803,7 @@ namespace PETScWrappers
 
 
   void
-  PreconditionLU::initialize(const MatrixBase &    matrix_,
-                             const AdditionalData &additional_data_)
+  PreconditionLU::initialize(const MatrixBase &matrix_, const AdditionalData &additional_data_)
   {
     clear();
 
@@ -906,12 +831,11 @@ namespace PETScWrappers
   /* ----------------- PreconditionBDDC -------------------- */
 
   template <int dim>
-  PreconditionBDDC<dim>::AdditionalData::AdditionalData(
-    const bool                    use_vertices,
-    const bool                    use_edges,
-    const bool                    use_faces,
-    const bool                    symmetric,
-    const std::vector<Point<dim>> coords)
+  PreconditionBDDC<dim>::AdditionalData::AdditionalData(const bool                    use_vertices,
+                                                        const bool                    use_edges,
+                                                        const bool                    use_faces,
+                                                        const bool                    symmetric,
+                                                        const std::vector<Point<dim>> coords)
     : use_vertices(use_vertices)
     , use_edges(use_edges)
     , use_faces(use_faces)
@@ -929,9 +853,7 @@ namespace PETScWrappers
 
 
   template <int dim>
-  PreconditionBDDC<dim>::PreconditionBDDC(
-    const MPI_Comm        comm,
-    const AdditionalData &additional_data_)
+  PreconditionBDDC<dim>::PreconditionBDDC(const MPI_Comm comm, const AdditionalData &additional_data_)
     : PreconditionBase(comm)
   {
     additional_data = additional_data_;
@@ -945,8 +867,7 @@ namespace PETScWrappers
 
 
   template <int dim>
-  PreconditionBDDC<dim>::PreconditionBDDC(const MatrixBase &    matrix,
-                                          const AdditionalData &additional_data)
+  PreconditionBDDC<dim>::PreconditionBDDC(const MatrixBase &matrix, const AdditionalData &additional_data)
     : PreconditionBase(matrix.get_mpi_communicator())
   {
     initialize(matrix, additional_data);
@@ -1005,18 +926,14 @@ namespace PETScWrappers
       {
         set_option_value("-pc_bddc_corner_selection", "true");
         // Convert coords vector to PETSc data array
-        std::vector<PetscReal> coords_petsc(additional_data.coords.size() *
-                                            dim);
+        std::vector<PetscReal> coords_petsc(additional_data.coords.size() * dim);
         for (unsigned int i = 0, j = 0; i < additional_data.coords.size(); ++i)
           {
             for (j = 0; j < dim; ++j)
               coords_petsc[dim * i + j] = additional_data.coords[i][j];
           }
 
-        ierr = PCSetCoordinates(pc,
-                                dim,
-                                additional_data.coords.size(),
-                                coords_petsc.data());
+        ierr = PCSetCoordinates(pc, dim, additional_data.coords.size(), coords_petsc.data());
         AssertThrow(ierr == 0, ExcPETScError(ierr));
       }
     else
@@ -1030,8 +947,7 @@ namespace PETScWrappers
     ierr = PCSetFromOptions(pc);
     AssertThrow(ierr == 0, ExcPETScError(ierr));
 #  else
-    AssertThrow(
-      false, ExcMessage("BDDC preconditioner requires PETSc 3.10.0 or newer"));
+    AssertThrow(false, ExcMessage("BDDC preconditioner requires PETSc 3.10.0 or newer"));
 #  endif
   }
 
@@ -1039,8 +955,7 @@ namespace PETScWrappers
 
   template <int dim>
   void
-  PreconditionBDDC<dim>::initialize(const MatrixBase &    matrix_,
-                                    const AdditionalData &additional_data_)
+  PreconditionBDDC<dim>::initialize(const MatrixBase &matrix_, const AdditionalData &additional_data_)
   {
     clear();
 
@@ -1127,10 +1042,9 @@ namespace PETScWrappers
 
     auto *user = static_cast<PreconditionShell *>(ctx);
     if (!user->vmult)
-      SETERRQ(
-        PetscObjectComm((PetscObject)ppc),
-        PETSC_ERR_LIB,
-        "Failure in dealii::PETScWrappers::PreconditionShell::pcapply. Missing std::function vmult");
+      SETERRQ(PetscObjectComm((PetscObject)ppc),
+              PETSC_ERR_LIB,
+              "Failure in dealii::PETScWrappers::PreconditionShell::pcapply. Missing std::function vmult");
 
     VectorBase src(x);
     VectorBase dst(y);
@@ -1145,14 +1059,13 @@ namespace PETScWrappers
       }
     catch (...)
       {
-        return PetscError(
-          PetscObjectComm((PetscObject)ppc),
-          lineno + 3,
-          "vmult",
-          __FILE__,
-          PETSC_ERR_LIB,
-          PETSC_ERROR_INITIAL,
-          "Failure in pcapply from dealii::PETScWrappers::NonlinearSolver");
+        return PetscError(PetscObjectComm((PetscObject)ppc),
+                          lineno + 3,
+                          "vmult",
+                          __FILE__,
+                          PETSC_ERR_LIB,
+                          PETSC_ERROR_INITIAL,
+                          "Failure in pcapply from dealii::PETScWrappers::NonlinearSolver");
       }
     petsc_increment_state_counter(y);
     PetscFunctionReturn(PETSC_SUCCESS);
@@ -1168,10 +1081,9 @@ namespace PETScWrappers
 
     auto *user = static_cast<PreconditionShell *>(ctx);
     if (!user->vmultT)
-      SETERRQ(
-        PetscObjectComm((PetscObject)ppc),
-        PETSC_ERR_LIB,
-        "Failure in dealii::PETScWrappers::PreconditionShell::pcapply_transpose. Missing std::function vmultT");
+      SETERRQ(PetscObjectComm((PetscObject)ppc),
+              PETSC_ERR_LIB,
+              "Failure in dealii::PETScWrappers::PreconditionShell::pcapply_transpose. Missing std::function vmultT");
 
     VectorBase src(x);
     VectorBase dst(y);
@@ -1186,14 +1098,13 @@ namespace PETScWrappers
       }
     catch (...)
       {
-        return PetscError(
-          PetscObjectComm((PetscObject)ppc),
-          lineno + 3,
-          "vmultT",
-          __FILE__,
-          PETSC_ERR_LIB,
-          PETSC_ERROR_INITIAL,
-          "Failure in pcapply_transpose from dealii::PETScWrappers::NonlinearSolver");
+        return PetscError(PetscObjectComm((PetscObject)ppc),
+                          lineno + 3,
+                          "vmultT",
+                          __FILE__,
+                          PETSC_ERR_LIB,
+                          PETSC_ERROR_INITIAL,
+                          "Failure in pcapply_transpose from dealii::PETScWrappers::NonlinearSolver");
       }
     petsc_increment_state_counter(y);
     PetscFunctionReturn(PETSC_SUCCESS);

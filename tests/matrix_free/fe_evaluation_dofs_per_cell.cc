@@ -51,8 +51,7 @@ print_info(const FEEval &eval)
   deallog << "FEEvaluation::tensor_dofs_per_cell: " << v << std::endl;
   v = FEEval::static_dofs_per_cell;
   deallog << "FEEvaluation::static_dofs_per_cell: " << v << std::endl;
-  deallog << "FEEvaluation::dofs_per_component: " << eval.dofs_per_component
-          << std::endl;
+  deallog << "FEEvaluation::dofs_per_component: " << eval.dofs_per_component << std::endl;
   deallog << "FEEvaluation::dofs_per_cell: " << eval.dofs_per_cell << std::endl;
   deallog << "FEEvaluation::n_q_points: " << eval.n_q_points << std::endl;
 }

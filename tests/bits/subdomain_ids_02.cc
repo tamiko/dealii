@@ -48,8 +48,7 @@ test()
   // ids based on their position, in
   // particular we take the quadrant
   // (octant)
-  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(),
-                                                    endc = tria.end();
+  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
   for (; cell != endc; ++cell)
     {
       unsigned int subdomain = 0;
@@ -76,10 +75,7 @@ test()
       // subdomain. this time it should add
       // up, since each dof is uniquely
       // associated
-      deallog << std::count(subdomain_association.begin(),
-                            subdomain_association.end(),
-                            subdomain)
-              << std::endl;
+      deallog << std::count(subdomain_association.begin(), subdomain_association.end(), subdomain) << std::endl;
     }
 
   // make sure that all subdomain_ids are

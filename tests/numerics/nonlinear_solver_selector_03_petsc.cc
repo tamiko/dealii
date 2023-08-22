@@ -19,8 +19,7 @@
 // the test nonlinear_solver_selector_03. Here we use the nonlinear
 // PETSc solver SNES instead of KINSOL with MPI.
 
-#define SOLVER \
-  NonlinearSolverSelector<LA::MPI::Vector>::AdditionalData::petsc_snes
+#define SOLVER NonlinearSolverSelector<LA::MPI::Vector>::AdditionalData::petsc_snes
 
 #define FORCE_USE_OF_PETSC
 

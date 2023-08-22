@@ -62,19 +62,15 @@ test()
 
 
   typename MatrixFree<dim, double>::AdditionalData additional_data;
-  additional_data.mapping_update_flags_boundary_faces =
-    update_gradients | update_values;
-  additional_data.mapping_update_flags_inner_faces =
-    update_gradients | update_values;
-  additional_data.initialize_mapping = false;
-  additional_data.tasks_parallel_scheme =
-    MatrixFree<dim, double>::AdditionalData::none;
+  additional_data.mapping_update_flags_boundary_faces = update_gradients | update_values;
+  additional_data.mapping_update_flags_inner_faces    = update_gradients | update_values;
+  additional_data.initialize_mapping                  = false;
+  additional_data.tasks_parallel_scheme               = MatrixFree<dim, double>::AdditionalData::none;
 
   AffineConstraints<double> constraints;
 
   MatrixFree<dim, double> matrix_free;
-  matrix_free.reinit(
-    mapping, dof_handler, constraints, quadrature, additional_data);
+  matrix_free.reinit(mapping, dof_handler, constraints, quadrature, additional_data);
 
   using VectorType = Vector<double>;
 
@@ -85,8 +81,7 @@ test()
   std::vector<std::vector<CellId>>                          cells(2);
   std::vector<std::vector<std::pair<CellId, unsigned int>>> boundary_faces(2);
 
-  std::vector<std::vector<std::vector<std::pair<CellId, CellId>>>> inner_faces(
-    2);
+  std::vector<std::vector<std::vector<std::pair<CellId, CellId>>>> inner_faces(2);
   for (unsigned int i = 0; i < 2; ++i)
     inner_faces[i].resize(2);
 
@@ -95,8 +90,7 @@ test()
       const auto i = data.get_cell_active_fe_index(range);
 
       for (unsigned int cell = range.first; cell < range.second; ++cell)
-        for (unsigned int v = 0; v < data.n_active_entries_per_cell_batch(cell);
-             ++v)
+        for (unsigned int v = 0; v < data.n_active_entries_per_cell_batch(cell); ++v)
           cells[i].push_back(data.get_cell_iterator(cell, v)->id());
     },
     [&](const auto &data, auto &dst, const auto &src, const auto range) {
@@ -104,21 +98,17 @@ test()
       const auto j = data.get_face_active_fe_index(range, false);
 
       for (unsigned int face = range.first; face < range.second; ++face)
-        for (unsigned int v = 0; v < data.n_active_entries_per_face_batch(face);
-             ++v)
-          inner_faces[i][j].emplace_back(
-            data.get_face_iterator(face, v, true).first->id(),
-            data.get_face_iterator(face, v, false).first->id());
+        for (unsigned int v = 0; v < data.n_active_entries_per_face_batch(face); ++v)
+          inner_faces[i][j].emplace_back(data.get_face_iterator(face, v, true).first->id(),
+                                         data.get_face_iterator(face, v, false).first->id());
     },
     [&](const auto &data, auto &dst, const auto &src, const auto range) {
       const auto i = data.get_face_active_fe_index(range);
 
       for (unsigned int face = range.first; face < range.second; ++face)
-        for (unsigned int v = 0; v < data.n_active_entries_per_face_batch(face);
-             ++v)
-          boundary_faces[i].emplace_back(
-            data.get_face_iterator(face, v).first->id(),
-            data.get_face_iterator(face, v).second);
+        for (unsigned int v = 0; v < data.n_active_entries_per_face_batch(face); ++v)
+          boundary_faces[i].emplace_back(data.get_face_iterator(face, v).first->id(),
+                                         data.get_face_iterator(face, v).second);
     },
     dst,
     src);

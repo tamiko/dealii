@@ -142,8 +142,8 @@ public:
    * compute_grad_grad() functions, see below, in a loop over all polynomials.
    */
   void
-  evaluate(const Point<dim> &           unit_point,
-           std::vector<double> &        values,
+  evaluate(const Point<dim>            &unit_point,
+           std::vector<double>         &values,
            std::vector<Tensor<1, dim>> &grads,
            std::vector<Tensor<2, dim>> &grad_grads,
            std::vector<Tensor<3, dim>> &third_derivatives,
@@ -174,29 +174,25 @@ public:
    * @copydoc ScalarPolynomialsBase::compute_1st_derivative()
    */
   virtual Tensor<1, dim>
-  compute_1st_derivative(const unsigned int i,
-                         const Point<dim> & p) const override;
+  compute_1st_derivative(const unsigned int i, const Point<dim> &p) const override;
 
   /**
    * @copydoc ScalarPolynomialsBase::compute_2nd_derivative()
    */
   virtual Tensor<2, dim>
-  compute_2nd_derivative(const unsigned int i,
-                         const Point<dim> & p) const override;
+  compute_2nd_derivative(const unsigned int i, const Point<dim> &p) const override;
 
   /**
    * @copydoc ScalarPolynomialsBase::compute_3rd_derivative()
    */
   virtual Tensor<3, dim>
-  compute_3rd_derivative(const unsigned int i,
-                         const Point<dim> & p) const override;
+  compute_3rd_derivative(const unsigned int i, const Point<dim> &p) const override;
 
   /**
    * @copydoc ScalarPolynomialsBase::compute_4th_derivative()
    */
   virtual Tensor<4, dim>
-  compute_4th_derivative(const unsigned int i,
-                         const Point<dim> & p) const override;
+  compute_4th_derivative(const unsigned int i, const Point<dim> &p) const override;
 
   /**
    * Compute the gradient of the <tt>i</tt>th polynomial at unit point
@@ -330,8 +326,7 @@ PolynomialSpace<dim>::output_indices(StreamType &out) const
 template <int dim>
 template <int order>
 Tensor<order, dim>
-PolynomialSpace<dim>::compute_derivative(const unsigned int i,
-                                         const Point<dim> & p) const
+PolynomialSpace<dim>::compute_derivative(const unsigned int i, const Point<dim> &p) const
 {
   const std::array<unsigned int, dim> indices = compute_index(i);
 
@@ -351,8 +346,7 @@ PolynomialSpace<dim>::compute_derivative(const unsigned int i,
     {
       case 1:
         {
-          Tensor<1, dim> &derivative_1 =
-            *reinterpret_cast<Tensor<1, dim> *>(&derivative);
+          Tensor<1, dim> &derivative_1 = *reinterpret_cast<Tensor<1, dim> *>(&derivative);
           for (unsigned int d = 0; d < dim; ++d)
             {
               derivative_1[d] = 1.;
@@ -370,8 +364,7 @@ PolynomialSpace<dim>::compute_derivative(const unsigned int i,
         }
       case 2:
         {
-          Tensor<2, dim> &derivative_2 =
-            *reinterpret_cast<Tensor<2, dim> *>(&derivative);
+          Tensor<2, dim> &derivative_2 = *reinterpret_cast<Tensor<2, dim> *>(&derivative);
           for (unsigned int d1 = 0; d1 < dim; ++d1)
             for (unsigned int d2 = 0; d2 < dim; ++d2)
               {
@@ -392,8 +385,7 @@ PolynomialSpace<dim>::compute_derivative(const unsigned int i,
         }
       case 3:
         {
-          Tensor<3, dim> &derivative_3 =
-            *reinterpret_cast<Tensor<3, dim> *>(&derivative);
+          Tensor<3, dim> &derivative_3 = *reinterpret_cast<Tensor<3, dim> *>(&derivative);
           for (unsigned int d1 = 0; d1 < dim; ++d1)
             for (unsigned int d2 = 0; d2 < dim; ++d2)
               for (unsigned int d3 = 0; d3 < dim; ++d3)
@@ -417,8 +409,7 @@ PolynomialSpace<dim>::compute_derivative(const unsigned int i,
         }
       case 4:
         {
-          Tensor<4, dim> &derivative_4 =
-            *reinterpret_cast<Tensor<4, dim> *>(&derivative);
+          Tensor<4, dim> &derivative_4 = *reinterpret_cast<Tensor<4, dim> *>(&derivative);
           for (unsigned int d1 = 0; d1 < dim; ++d1)
             for (unsigned int d2 = 0; d2 < dim; ++d2)
               for (unsigned int d3 = 0; d3 < dim; ++d3)
@@ -455,8 +446,7 @@ PolynomialSpace<dim>::compute_derivative(const unsigned int i,
 
 template <int dim>
 inline Tensor<1, dim>
-PolynomialSpace<dim>::compute_1st_derivative(const unsigned int i,
-                                             const Point<dim> & p) const
+PolynomialSpace<dim>::compute_1st_derivative(const unsigned int i, const Point<dim> &p) const
 {
   return compute_derivative<1>(i, p);
 }
@@ -465,8 +455,7 @@ PolynomialSpace<dim>::compute_1st_derivative(const unsigned int i,
 
 template <int dim>
 inline Tensor<2, dim>
-PolynomialSpace<dim>::compute_2nd_derivative(const unsigned int i,
-                                             const Point<dim> & p) const
+PolynomialSpace<dim>::compute_2nd_derivative(const unsigned int i, const Point<dim> &p) const
 {
   return compute_derivative<2>(i, p);
 }
@@ -475,8 +464,7 @@ PolynomialSpace<dim>::compute_2nd_derivative(const unsigned int i,
 
 template <int dim>
 inline Tensor<3, dim>
-PolynomialSpace<dim>::compute_3rd_derivative(const unsigned int i,
-                                             const Point<dim> & p) const
+PolynomialSpace<dim>::compute_3rd_derivative(const unsigned int i, const Point<dim> &p) const
 {
   return compute_derivative<3>(i, p);
 }
@@ -485,8 +473,7 @@ PolynomialSpace<dim>::compute_3rd_derivative(const unsigned int i,
 
 template <int dim>
 inline Tensor<4, dim>
-PolynomialSpace<dim>::compute_4th_derivative(const unsigned int i,
-                                             const Point<dim> & p) const
+PolynomialSpace<dim>::compute_4th_derivative(const unsigned int i, const Point<dim> &p) const
 {
   return compute_derivative<4>(i, p);
 }

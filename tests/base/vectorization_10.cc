@@ -31,7 +31,7 @@ do_test()
 {
   // since the number of array elements is system dependent, it is not a good
   // idea to print them to an output file. Instead, check the values manually
-  const unsigned int n_vectors = VectorizedArray<Number, width>::size();
+  const unsigned int             n_vectors = VectorizedArray<Number, width>::size();
   VectorizedArray<Number, width> arr[n_numbers];
   Number                         other[n_vectors * n_numbers];
   unsigned int                   offsets[n_vectors];
@@ -50,8 +50,8 @@ do_test()
         ++n_errors;
   if (n_errors > 0)
     {
-      deallog << "load_and_transpose at          n=" << n_numbers
-              << " width=" << width << ": #errors: " << n_errors << std::endl;
+      deallog << "load_and_transpose at          n=" << n_numbers << " width=" << width << ": #errors: " << n_errors
+              << std::endl;
 
       for (unsigned int i = 0; i < n_numbers; ++i)
         {
@@ -69,8 +69,8 @@ do_test()
         ++n_errors;
   if (n_errors > 0)
     {
-      deallog << "transpose_and_store (  add) at n=" << n_numbers
-              << " width=" << width << ": #errors: " << n_errors << std::endl;
+      deallog << "transpose_and_store (  add) at n=" << n_numbers << " width=" << width << ": #errors: " << n_errors
+              << std::endl;
 
       for (unsigned int i = 0; i < n_vectors; ++i)
         {
@@ -88,8 +88,8 @@ do_test()
         ++n_errors;
   if (n_errors > 0)
     {
-      deallog << "transpose_and_store (noadd) at n=" << n_numbers
-              << " width=" << width << ": #errors: " << n_errors << std::endl;
+      deallog << "transpose_and_store (noadd) at n=" << n_numbers << " width=" << width << ": #errors: " << n_errors
+              << std::endl;
 
       for (unsigned int i = 0; i < n_vectors; ++i)
         {

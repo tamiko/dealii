@@ -65,12 +65,12 @@ main(int argc, char **argv)
   const double       rel_tolerance     = 1e-5;
   const double       lin_rel_tolerance = 1e-3;
 
-  TrilinosWrappers::NOXSolver<VectorType>::AdditionalData additional_data(
-    n_max_iterations, abs_tolerance, rel_tolerance);
+  TrilinosWrappers::NOXSolver<VectorType>::AdditionalData additional_data(n_max_iterations,
+                                                                          abs_tolerance,
+                                                                          rel_tolerance);
 
   // set up parameters
-  Teuchos::RCP<Teuchos::ParameterList> non_linear_parameters =
-    Teuchos::rcp(new Teuchos::ParameterList);
+  Teuchos::RCP<Teuchos::ParameterList> non_linear_parameters = Teuchos::rcp(new Teuchos::ParameterList);
 
   non_linear_parameters->set("Nonlinear Solver", "Line Search Based");
   non_linear_parameters->sublist("Printing").set("Output Information", 15);
@@ -83,13 +83,11 @@ main(int argc, char **argv)
 
 
   // set up solver
-  TrilinosWrappers::NOXSolver<VectorType> solver(additional_data,
-                                                 non_linear_parameters);
+  TrilinosWrappers::NOXSolver<VectorType> solver(additional_data, non_linear_parameters);
 
   // ... helper functions
   solver.residual = [](const VectorType &u, VectorType &F) {
-    deallog << "Evaluating the solution at u=(" << u[0] << ',' << u[1] << ')'
-            << std::endl;
+    deallog << "Evaluating the solution at u=(" << u[0] << ',' << u[1] << ')' << std::endl;
 
     F(0) = std::cos(u[0] + u[1]) - 1 + 2 * u[0];
     F(1) = std::sin(u[0] - u[1]) + 2 * u[1];
@@ -101,8 +99,7 @@ main(int argc, char **argv)
   solver.setup_jacobian = [&J, &J_inverse](const VectorType &u) {
     // We don't do any kind of set-up in this program, but we can at least
     // say that we're here
-    deallog << "Setting up Jacobian system at u=(" << u[0] << ',' << u[1] << ')'
-            << std::endl;
+    deallog << "Setting up Jacobian system at u=(" << u[0] << ',' << u[1] << ')' << std::endl;
 
     J(0, 0) = -std::sin(u[0] + u[1]) + 2;
     J(0, 1) = -std::sin(u[0] + u[1]);
@@ -112,15 +109,10 @@ main(int argc, char **argv)
     J_inverse.invert(J);
   };
 
-  solver.apply_jacobian = [&](const VectorType &src, VectorType &dst) {
-    J.vmult(dst, src);
-  };
+  solver.apply_jacobian = [&](const VectorType &src, VectorType &dst) { J.vmult(dst, src); };
 
-  solver.solve_with_jacobian = [&J_inverse](const VectorType &rhs,
-                                            VectorType &      dst,
-                                            const double /*tolerance*/) {
-    deallog << "Solving Jacobian system with rhs=(" << rhs[0] << ',' << rhs[1]
-            << ')' << std::endl;
+  solver.solve_with_jacobian = [&J_inverse](const VectorType &rhs, VectorType &dst, const double /*tolerance*/) {
+    deallog << "Solving Jacobian system with rhs=(" << rhs[0] << ',' << rhs[1] << ')' << std::endl;
 
     J_inverse.vmult(dst, rhs);
   };

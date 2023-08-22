@@ -63,30 +63,26 @@ namespace TensorProductMatrixCreator
    * which correspond to all matrix entries restricted to the cell-local DoFs.
    */
   template <int dim, typename Number>
-  std::pair<std::array<FullMatrix<Number>, dim>,
-            std::array<FullMatrix<Number>, dim>>
-  create_laplace_tensor_product_matrix(
-    const FiniteElement<1> &                            fe,
-    const Quadrature<1> &                               quadrature,
-    const dealii::ndarray<LaplaceBoundaryType, dim, 2> &boundary_ids,
-    const dealii::ndarray<double, dim, 3> &             cell_extent,
-    const unsigned int                                  n_overlap = 1);
+  std::pair<std::array<FullMatrix<Number>, dim>, std::array<FullMatrix<Number>, dim>>
+  create_laplace_tensor_product_matrix(const FiniteElement<1>                             &fe,
+                                       const Quadrature<1>                                &quadrature,
+                                       const dealii::ndarray<LaplaceBoundaryType, dim, 2> &boundary_ids,
+                                       const dealii::ndarray<double, dim, 3>              &cell_extent,
+                                       const unsigned int                                  n_overlap = 1);
 
   /**
    * Same as above but the boundary IDs are extracted from the given @p cell
    * and are mapped to the boundary type via the sets @p dirichlet_boundaries and @p neumann_boundaries.
    */
   template <int dim, typename Number>
-  std::pair<std::array<FullMatrix<Number>, dim>,
-            std::array<FullMatrix<Number>, dim>>
-  create_laplace_tensor_product_matrix(
-    const typename Triangulation<dim>::cell_iterator &cell,
-    const std::set<types::boundary_id> &              dirichlet_boundaries,
-    const std::set<types::boundary_id> &              neumann_boundaries,
-    const FiniteElement<1> &                          fe,
-    const Quadrature<1> &                             quadrature,
-    const dealii::ndarray<double, dim, 3> &           cell_extent,
-    const unsigned int                                n_overlap = 1);
+  std::pair<std::array<FullMatrix<Number>, dim>, std::array<FullMatrix<Number>, dim>>
+  create_laplace_tensor_product_matrix(const typename Triangulation<dim>::cell_iterator &cell,
+                                       const std::set<types::boundary_id>               &dirichlet_boundaries,
+                                       const std::set<types::boundary_id>               &neumann_boundaries,
+                                       const FiniteElement<1>                           &fe,
+                                       const Quadrature<1>                              &quadrature,
+                                       const dealii::ndarray<double, dim, 3>            &cell_extent,
+                                       const unsigned int                                n_overlap = 1);
 
 } // namespace TensorProductMatrixCreator
 
@@ -101,9 +97,7 @@ namespace TensorProductMatrixCreator
   {
     template <typename Number>
     void
-    clear_row_and_column(const unsigned int  n_dofs_1D_with_overlap,
-                         const unsigned int  n,
-                         FullMatrix<Number> &matrix)
+    clear_row_and_column(const unsigned int n_dofs_1D_with_overlap, const unsigned int n, FullMatrix<Number> &matrix)
     {
       for (unsigned int i = 0; i < n_dofs_1D_with_overlap; ++i)
         {
@@ -114,9 +108,7 @@ namespace TensorProductMatrixCreator
 
     template <typename Number>
     std::tuple<FullMatrix<Number>, FullMatrix<Number>, bool>
-    create_reference_mass_and_stiffness_matrices(
-      const FiniteElement<1> &fe,
-      const Quadrature<1> &   quadrature)
+    create_reference_mass_and_stiffness_matrices(const FiniteElement<1> &fe, const Quadrature<1> &quadrature)
     {
       Triangulation<1> tria;
       GridGenerator::hyper_cube(tria);
@@ -131,66 +123,49 @@ namespace TensorProductMatrixCreator
       FullMatrix<Number> mass_matrix_reference(n_dofs_1D, n_dofs_1D);
       FullMatrix<Number> derivative_matrix_reference(n_dofs_1D, n_dofs_1D);
 
-      FEValues<1> fe_values(mapping,
-                            fe,
-                            quadrature,
-                            update_values | update_gradients |
-                              update_JxW_values);
+      FEValues<1> fe_values(mapping, fe, quadrature, update_values | update_gradients | update_JxW_values);
 
       fe_values.reinit(tria.begin());
 
       const auto lexicographic_to_hierarchic_numbering =
-        Utilities::invert_permutation(
-          FETools::hierarchic_to_lexicographic_numbering<1>(
-            fe.tensor_degree()));
+        Utilities::invert_permutation(FETools::hierarchic_to_lexicographic_numbering<1>(fe.tensor_degree()));
 
       for (const unsigned int q_index : fe_values.quadrature_point_indices())
         for (const unsigned int i : fe_values.dof_indices())
           for (const unsigned int j : fe_values.dof_indices())
             {
               mass_matrix_reference(i, j) +=
-                (fe_values.shape_value(lexicographic_to_hierarchic_numbering[i],
-                                       q_index) *
-                 fe_values.shape_value(lexicographic_to_hierarchic_numbering[j],
-                                       q_index) *
-                 fe_values.JxW(q_index));
+                (fe_values.shape_value(lexicographic_to_hierarchic_numbering[i], q_index) *
+                 fe_values.shape_value(lexicographic_to_hierarchic_numbering[j], q_index) * fe_values.JxW(q_index));
 
               derivative_matrix_reference(i, j) +=
-                (fe_values.shape_grad(lexicographic_to_hierarchic_numbering[i],
-                                      q_index) *
-                 fe_values.shape_grad(lexicographic_to_hierarchic_numbering[j],
-                                      q_index) *
-                 fe_values.JxW(q_index));
+                (fe_values.shape_grad(lexicographic_to_hierarchic_numbering[i], q_index) *
+                 fe_values.shape_grad(lexicographic_to_hierarchic_numbering[j], q_index) * fe_values.JxW(q_index));
             }
 
-      return std::tuple<FullMatrix<Number>, FullMatrix<Number>, bool>{
-        mass_matrix_reference, derivative_matrix_reference, false};
+      return std::tuple<FullMatrix<Number>, FullMatrix<Number>, bool>{mass_matrix_reference,
+                                                                      derivative_matrix_reference,
+                                                                      false};
     }
   } // namespace internal
 
 
 
   template <int dim, typename Number>
-  std::pair<std::array<FullMatrix<Number>, dim>,
-            std::array<FullMatrix<Number>, dim>>
-  create_laplace_tensor_product_matrix(
-    const FiniteElement<1> &                            fe,
-    const Quadrature<1> &                               quadrature,
-    const dealii::ndarray<LaplaceBoundaryType, dim, 2> &boundary_ids,
-    const dealii::ndarray<double, dim, 3> &             cell_extent,
-    const unsigned int                                  n_overlap)
+  std::pair<std::array<FullMatrix<Number>, dim>, std::array<FullMatrix<Number>, dim>>
+  create_laplace_tensor_product_matrix(const FiniteElement<1>                             &fe,
+                                       const Quadrature<1>                                &quadrature,
+                                       const dealii::ndarray<LaplaceBoundaryType, dim, 2> &boundary_ids,
+                                       const dealii::ndarray<double, dim, 3>              &cell_extent,
+                                       const unsigned int                                  n_overlap)
   {
     // 1) create element mass and siffness matrix (without overlap)
     const auto create_reference_mass_and_stiffness_matrices =
-      internal::create_reference_mass_and_stiffness_matrices<Number>(
-        fe, quadrature);
+      internal::create_reference_mass_and_stiffness_matrices<Number>(fe, quadrature);
 
-    const auto &M_ref =
-      std::get<0>(create_reference_mass_and_stiffness_matrices);
-    const auto &K_ref =
-      std::get<1>(create_reference_mass_and_stiffness_matrices);
-    const auto &is_dg =
-      std::get<2>(create_reference_mass_and_stiffness_matrices);
+    const auto &M_ref = std::get<0>(create_reference_mass_and_stiffness_matrices);
+    const auto &K_ref = std::get<1>(create_reference_mass_and_stiffness_matrices);
+    const auto &is_dg = std::get<2>(create_reference_mass_and_stiffness_matrices);
 
     AssertIndexRange(n_overlap, M_ref.n());
     AssertIndexRange(0, n_overlap);
@@ -241,12 +216,8 @@ namespace TensorProductMatrixCreator
               {
                 // left DBC
                 const unsigned i0 = n_overlap - 1;
-                internal::clear_row_and_column(n_dofs_1D_with_overlap,
-                                               i0,
-                                               Ms[d]);
-                internal::clear_row_and_column(n_dofs_1D_with_overlap,
-                                               i0,
-                                               Ks[d]);
+                internal::clear_row_and_column(n_dofs_1D_with_overlap, i0, Ms[d]);
+                internal::clear_row_and_column(n_dofs_1D_with_overlap, i0, Ks[d]);
               }
             else if (boundary_ids[d][0] == LaplaceBoundaryType::neumann)
               {
@@ -278,12 +249,8 @@ namespace TensorProductMatrixCreator
               {
                 // right DBC
                 const unsigned i0 = n_overlap + n_dofs_1D - 2;
-                internal::clear_row_and_column(n_dofs_1D_with_overlap,
-                                               i0,
-                                               Ms[d]);
-                internal::clear_row_and_column(n_dofs_1D_with_overlap,
-                                               i0,
-                                               Ks[d]);
+                internal::clear_row_and_column(n_dofs_1D_with_overlap, i0, Ms[d]);
+                internal::clear_row_and_column(n_dofs_1D_with_overlap, i0, Ks[d]);
               }
             else if (boundary_ids[d][1] == LaplaceBoundaryType::neumann)
               {
@@ -301,24 +268,21 @@ namespace TensorProductMatrixCreator
 
 
   template <int dim, typename Number>
-  std::pair<std::array<FullMatrix<Number>, dim>,
-            std::array<FullMatrix<Number>, dim>>
-  create_laplace_tensor_product_matrix(
-    const typename Triangulation<dim>::cell_iterator &cell,
-    const std::set<types::boundary_id> &              dirichlet_boundaries,
-    const std::set<types::boundary_id> &              neumann_boundaries,
-    const FiniteElement<1> &                          fe,
-    const Quadrature<1> &                             quadrature,
-    const dealii::ndarray<double, dim, 3> &           cell_extent,
-    const unsigned int                                n_overlap)
+  std::pair<std::array<FullMatrix<Number>, dim>, std::array<FullMatrix<Number>, dim>>
+  create_laplace_tensor_product_matrix(const typename Triangulation<dim>::cell_iterator &cell,
+                                       const std::set<types::boundary_id>               &dirichlet_boundaries,
+                                       const std::set<types::boundary_id>               &neumann_boundaries,
+                                       const FiniteElement<1>                           &fe,
+                                       const Quadrature<1>                              &quadrature,
+                                       const dealii::ndarray<double, dim, 3>            &cell_extent,
+                                       const unsigned int                                n_overlap)
   {
     dealii::ndarray<LaplaceBoundaryType, dim, 2> boundary_ids;
 
     for (unsigned int d = 0; d < dim; ++d)
       {
         // left neighbor or left boundary
-        if ((cell->at_boundary(2 * d) == false) ||
-            cell->has_periodic_neighbor(2 * d))
+        if ((cell->at_boundary(2 * d) == false) || cell->has_periodic_neighbor(2 * d))
           {
             // left neighbor
             Assert(cell_extent[d][0] > 0.0, ExcInternalError());
@@ -328,14 +292,12 @@ namespace TensorProductMatrixCreator
         else
           {
             const auto bid = cell->face(2 * d)->boundary_id();
-            if (dirichlet_boundaries.find(bid) !=
-                dirichlet_boundaries.end() /*DBC*/)
+            if (dirichlet_boundaries.find(bid) != dirichlet_boundaries.end() /*DBC*/)
               {
                 // left DBC
                 boundary_ids[d][0] = LaplaceBoundaryType::dirichlet;
               }
-            else if (neumann_boundaries.find(bid) !=
-                     neumann_boundaries.end() /*NBC*/)
+            else if (neumann_boundaries.find(bid) != neumann_boundaries.end() /*NBC*/)
               {
                 // left NBC
                 boundary_ids[d][0] = LaplaceBoundaryType::neumann;
@@ -347,8 +309,7 @@ namespace TensorProductMatrixCreator
           }
 
         // right neighbor or right boundary
-        if ((cell->at_boundary(2 * d + 1) == false) ||
-            cell->has_periodic_neighbor(2 * d + 1))
+        if ((cell->at_boundary(2 * d + 1) == false) || cell->has_periodic_neighbor(2 * d + 1))
           {
             Assert(cell_extent[d][2] > 0.0, ExcInternalError());
 
@@ -357,14 +318,12 @@ namespace TensorProductMatrixCreator
         else
           {
             const auto bid = cell->face(2 * d + 1)->boundary_id();
-            if (dirichlet_boundaries.find(bid) !=
-                dirichlet_boundaries.end() /*DBC*/)
+            if (dirichlet_boundaries.find(bid) != dirichlet_boundaries.end() /*DBC*/)
               {
                 // right DBC
                 boundary_ids[d][1] = LaplaceBoundaryType::dirichlet;
               }
-            else if (neumann_boundaries.find(bid) !=
-                     neumann_boundaries.end() /*NBC*/)
+            else if (neumann_boundaries.find(bid) != neumann_boundaries.end() /*NBC*/)
               {
                 // right NBC
                 boundary_ids[d][1] = LaplaceBoundaryType::neumann;
@@ -376,8 +335,7 @@ namespace TensorProductMatrixCreator
           }
       }
 
-    return create_laplace_tensor_product_matrix<dim, Number>(
-      fe, quadrature, boundary_ids, cell_extent, n_overlap);
+    return create_laplace_tensor_product_matrix<dim, Number>(fe, quadrature, boundary_ids, cell_extent, n_overlap);
   }
 
 } // namespace TensorProductMatrixCreator

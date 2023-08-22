@@ -40,10 +40,7 @@ abaqus_grid(const char *name)
 
   int hash  = 0;
   int index = 0;
-  for (typename Triangulation<dim>::active_cell_iterator c =
-         tria.begin_active();
-       c != tria.end();
-       ++c, ++index)
+  for (typename Triangulation<dim>::active_cell_iterator c = tria.begin_active(); c != tria.end(); ++c, ++index)
     for (const unsigned int i : c->vertex_indices())
       hash += (index * i * c->vertex_index(i)) % (tria.n_active_cells() + 1);
   deallog << "  hash=" << hash << std::endl;
@@ -72,8 +69,7 @@ main()
       deallog << "3d_test_cube_1.inp" << std::endl;
       abaqus_grid<3>(SOURCE_DIR "/grids/abaqus/3d/3d_test_cube_1.inp");
       deallog << "3d_test_cube_two_materials.inp" << std::endl;
-      abaqus_grid<3>(SOURCE_DIR
-                     "/grids/abaqus/3d/3d_test_cube_two_materials.inp");
+      abaqus_grid<3>(SOURCE_DIR "/grids/abaqus/3d/3d_test_cube_two_materials.inp");
       deallog << "3d_CC_cubit_old.inp" << std::endl;
       abaqus_grid<3>(SOURCE_DIR "/grids/abaqus/3d/3d_CC_cubit_old.inp");
       deallog << "3d_CC_cubit_new.inp" << std::endl;
@@ -87,27 +83,19 @@ main()
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 

@@ -49,11 +49,9 @@ check_this(const DoFHandler<dim> &dof_handler)
 
   IndexSet component_dofs;
   {
-    std::vector<bool> component_mask(dof_handler.get_fe().n_components(),
-                                     false);
+    std::vector<bool> component_mask(dof_handler.get_fe().n_components(), false);
     component_mask[0] = true;
-    component_dofs =
-      DoFTools::extract_dofs(dof_handler, ComponentMask(component_mask));
+    component_dofs    = DoFTools::extract_dofs(dof_handler, ComponentMask(component_mask));
 
     for (unsigned int i = 0; i < dof_data.size(); ++i)
       if (component_dofs.is_element(i) == true)
@@ -83,19 +81,16 @@ check_this(const DoFHandler<dim> &dof_handler)
   // sure that the function zeroes out
   // previous content.
   {
-    std::vector<bool> component_mask(dof_handler.get_fe().n_components(),
-                                     false);
+    std::vector<bool> component_mask(dof_handler.get_fe().n_components(), false);
     component_mask.back() = true;
-    component_dofs =
-      DoFTools::extract_dofs(dof_handler, ComponentMask(component_mask));
+    component_dofs        = DoFTools::extract_dofs(dof_handler, ComponentMask(component_mask));
     for (unsigned int i = 0; i < dof_data.size(); ++i)
       if (component_dofs.is_element(i) == true)
         dof_data(i) = i + 1;
       else
         dof_data(i) = 0;
   }
-  DoFTools::distribute_cell_to_dof_vector(
-    dof_handler, cell_data, dof_data, dof_handler.get_fe().n_components() - 1);
+  DoFTools::distribute_cell_to_dof_vector(dof_handler, cell_data, dof_data, dof_handler.get_fe().n_components() - 1);
   for (unsigned int i = 0; i < dof_data.size(); i += 3)
     deallog << dof_data(i) << ' ';
   deallog << std::endl;

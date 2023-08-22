@@ -25,14 +25,10 @@ template <typename Number>
 void
 test_const(const VectorizedArray<Number> &vector)
 {
-  AssertDimension(*std::max_element(vector.begin(), vector.end()),
+  AssertDimension(*std::max_element(vector.begin(), vector.end()), VectorizedArray<Number>::size() - 1);
+  AssertDimension(std::distance(vector.begin(), std::max_element(vector.begin(), vector.end())),
                   VectorizedArray<Number>::size() - 1);
-  AssertDimension(std::distance(vector.begin(),
-                                std::max_element(vector.begin(), vector.end())),
-                  VectorizedArray<Number>::size() - 1);
-  AssertDimension(std::distance(vector.begin(),
-                                vector.begin() +
-                                  (VectorizedArray<Number>::size() - 1)),
+  AssertDimension(std::distance(vector.begin(), vector.begin() + (VectorizedArray<Number>::size() - 1)),
                   VectorizedArray<Number>::size() - 1);
 }
 
@@ -40,14 +36,10 @@ template <typename Number>
 void
 test_nonconst(VectorizedArray<Number> &vector)
 {
-  AssertDimension(*std::max_element(vector.begin(), vector.end()),
+  AssertDimension(*std::max_element(vector.begin(), vector.end()), VectorizedArray<Number>::size() - 1);
+  AssertDimension(std::distance(vector.begin(), std::max_element(vector.begin(), vector.end())),
                   VectorizedArray<Number>::size() - 1);
-  AssertDimension(std::distance(vector.begin(),
-                                std::max_element(vector.begin(), vector.end())),
-                  VectorizedArray<Number>::size() - 1);
-  AssertDimension(std::distance(vector.begin(),
-                                vector.begin() +
-                                  (VectorizedArray<Number>::size() - 1)),
+  AssertDimension(std::distance(vector.begin(), vector.begin() + (VectorizedArray<Number>::size() - 1)),
                   VectorizedArray<Number>::size() - 1);
 
   auto it = vector.begin();

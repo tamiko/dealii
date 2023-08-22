@@ -42,8 +42,7 @@ namespace Particles
     /**
      * A type for the storage container for particles.
      */
-    using particle_container =
-      typename ParticleAccessor<dim, spacedim>::particle_container;
+    using particle_container = typename ParticleAccessor<dim, spacedim>::particle_container;
 
     /**
      * Empty constructor. Such an object is not usable!
@@ -55,10 +54,9 @@ namespace Particles
      * container, an iterator to the cell, and the particle index within that
      * cell.
      */
-    ParticleIterator(
-      const typename particle_container::iterator particles_in_cell,
-      const PropertyPool<dim, spacedim> &         property_pool,
-      const unsigned int                          particle_index_within_cell);
+    ParticleIterator(const typename particle_container::iterator particles_in_cell,
+                     const PropertyPool<dim, spacedim>          &property_pool,
+                     const unsigned int                          particle_index_within_cell);
 
     /**
      * Dereferencing operator, returns a reference to an accessor. Usage is thus
@@ -163,7 +161,7 @@ namespace Particles
   template <int dim, int spacedim>
   inline ParticleIterator<dim, spacedim>::ParticleIterator(
     const typename particle_container::iterator particles_in_cell,
-    const PropertyPool<dim, spacedim> &         property_pool,
+    const PropertyPool<dim, spacedim>          &property_pool,
     const unsigned int                          particle_index_within_cell)
     : accessor(particles_in_cell, property_pool, particle_index_within_cell)
   {}
@@ -208,8 +206,7 @@ namespace Particles
 
   template <int dim, int spacedim>
   inline bool
-  ParticleIterator<dim, spacedim>::operator!=(
-    const ParticleIterator<dim, spacedim> &other) const
+  ParticleIterator<dim, spacedim>::operator!=(const ParticleIterator<dim, spacedim> &other) const
   {
     return accessor != other.accessor;
   }
@@ -218,8 +215,7 @@ namespace Particles
 
   template <int dim, int spacedim>
   inline bool
-  ParticleIterator<dim, spacedim>::operator==(
-    const ParticleIterator<dim, spacedim> &other) const
+  ParticleIterator<dim, spacedim>::operator==(const ParticleIterator<dim, spacedim> &other) const
   {
     return accessor == other.accessor;
   }
@@ -241,7 +237,7 @@ namespace Particles
   ParticleIterator<dim, spacedim>::operator++(int)
   {
     ParticleIterator tmp(*this);
-                     operator++();
+    operator++();
 
     return tmp;
   }
@@ -263,7 +259,7 @@ namespace Particles
   ParticleIterator<dim, spacedim>::operator--(int)
   {
     ParticleIterator tmp(*this);
-                     operator--();
+    operator--();
 
     return tmp;
   }

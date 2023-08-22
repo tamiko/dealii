@@ -17,8 +17,7 @@
 
 #include <deal.II/base/config.h>
 
-#if defined(DEAL_II_HAVE_CXX17_BESSEL_FUNCTIONS) || \
-  defined(DEAL_II_HAVE_CXX17_LEGENDRE_FUNCTIONS)
+#if defined(DEAL_II_HAVE_CXX17_BESSEL_FUNCTIONS) || defined(DEAL_II_HAVE_CXX17_LEGENDRE_FUNCTIONS)
 #  include <cmath>
 #endif
 
@@ -74,8 +73,7 @@ namespace std_cxx17
   inline double
   legendre(unsigned int l, double x)
   {
-    Assert(static_cast<int>(l) >= 0,
-           ExcIndexRange(l, 0, std::numeric_limits<int>::max()));
+    Assert(static_cast<int>(l) >= 0, ExcIndexRange(l, 0, std::numeric_limits<int>::max()));
     return boost::math::legendre_p(static_cast<int>(l), x);
   }
 
@@ -84,8 +82,7 @@ namespace std_cxx17
   inline float
   legendre(unsigned int l, float x)
   {
-    Assert(static_cast<int>(l) >= 0,
-           ExcIndexRange(l, 0, std::numeric_limits<int>::max()));
+    Assert(static_cast<int>(l) >= 0, ExcIndexRange(l, 0, std::numeric_limits<int>::max()));
     return boost::math::legendre_p(static_cast<int>(l), x);
   }
 
@@ -94,8 +91,7 @@ namespace std_cxx17
   inline long double
   legendre(unsigned int l, long double x)
   {
-    Assert(static_cast<int>(l) >= 0,
-           ExcIndexRange(l, 0, std::numeric_limits<int>::max()));
+    Assert(static_cast<int>(l) >= 0, ExcIndexRange(l, 0, std::numeric_limits<int>::max()));
     return boost::math::legendre_p(static_cast<int>(l), x);
   }
 
@@ -104,8 +100,7 @@ namespace std_cxx17
   inline float
   legendref(unsigned int l, float x)
   {
-    Assert(static_cast<int>(l) >= 0,
-           ExcIndexRange(l, 0, std::numeric_limits<int>::max()));
+    Assert(static_cast<int>(l) >= 0, ExcIndexRange(l, 0, std::numeric_limits<int>::max()));
     return boost::math::legendre_p(static_cast<int>(l), x);
   }
 
@@ -114,8 +109,7 @@ namespace std_cxx17
   inline long double
   legendrel(unsigned int l, long double x)
   {
-    Assert(static_cast<int>(l) >= 0,
-           ExcIndexRange(l, 0, std::numeric_limits<int>::max()));
+    Assert(static_cast<int>(l) >= 0, ExcIndexRange(l, 0, std::numeric_limits<int>::max()));
     return boost::math::legendre_p(static_cast<int>(l), x);
   }
 

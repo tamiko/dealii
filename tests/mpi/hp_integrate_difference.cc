@@ -125,10 +125,7 @@ test()
   GridGenerator::hyper_cube(tr, -1, 1);
   tr.refine_global(3);
 
-  const hp::FECollection<dim> fe(FE_Q<dim>(1),
-                                 FE_Q<dim>(2),
-                                 FE_Q<dim>(3),
-                                 FE_Q<dim>(4));
+  const hp::FECollection<dim> fe(FE_Q<dim>(1), FE_Q<dim>(2), FE_Q<dim>(3), FE_Q<dim>(4));
   DoFHandler<dim>             dof_handler(tr);
 
   // set DoF indices as described at the top of the file
@@ -151,14 +148,12 @@ test()
   dof_handler.distribute_dofs(fe);
 
   // interpolate the function above onto the finite element space
-  TrilinosWrappers::MPI::Vector interpolated(dof_handler.locally_owned_dofs(),
-                                             MPI_COMM_WORLD);
+  TrilinosWrappers::MPI::Vector interpolated(dof_handler.locally_owned_dofs(), MPI_COMM_WORLD);
   VectorTools::interpolate(dof_handler, CheckFunction<dim>(), interpolated);
 
   // then also apply constraints
   AffineConstraints<double> hanging_node_constraints;
-  DoFTools::make_hanging_node_constraints(dof_handler,
-                                          hanging_node_constraints);
+  DoFTools::make_hanging_node_constraints(dof_handler, hanging_node_constraints);
   hanging_node_constraints.close();
   hanging_node_constraints.distribute(interpolated);
 
@@ -169,31 +164,21 @@ test()
   x_rel = interpolated;
 
   // Create a sufficiently high order quadrature formula
-  hp::QCollection<dim> quadrature(QGauss<dim>(3),
-                                  QGauss<dim>(4),
-                                  QGauss<dim>(5),
-                                  QGauss<dim>(6));
+  hp::QCollection<dim> quadrature(QGauss<dim>(3), QGauss<dim>(4), QGauss<dim>(5), QGauss<dim>(6));
 
   {
     // integrate the difference between the function above and
     // the zero function. for this case, we can compute the exact values
     // by hand. the ones printed in the output are correct
     Vector<float> results(tr.n_active_cells());
-    VectorTools::integrate_difference(dof_handler,
-                                      x_rel,
-                                      Functions::ZeroFunction<dim>(),
-                                      results,
-                                      quadrature,
-                                      VectorTools::L2_norm);
-    const double global =
-      VectorTools::compute_global_error(tr, results, VectorTools::L2_norm);
+    VectorTools::integrate_difference(
+      dof_handler, x_rel, Functions::ZeroFunction<dim>(), results, quadrature, VectorTools::L2_norm);
+    const double global = VectorTools::compute_global_error(tr, results, VectorTools::L2_norm);
 
     if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
       deallog << "L2 norm = " << global << std::endl;
 
-    Assert(std::fabs(global - std::sqrt(5847346.) / 2520. *
-                                (dim == 3 ? std::sqrt(2) : 1)) < 1e-7,
-           ExcInternalError());
+    Assert(std::fabs(global - std::sqrt(5847346.) / 2520. * (dim == 3 ? std::sqrt(2) : 1)) < 1e-7, ExcInternalError());
   }
 
 
@@ -201,14 +186,9 @@ test()
     // Now also integrate the difference between the function above and
     // the its interpolant. This should then of course be zero
     Vector<float> results(tr.n_active_cells());
-    VectorTools::integrate_difference(dof_handler,
-                                      x_rel,
-                                      CheckFunction<dim>(),
-                                      results,
-                                      quadrature,
-                                      VectorTools::L2_norm);
-    const double global =
-      VectorTools::compute_global_error(tr, results, VectorTools::L2_norm);
+    VectorTools::integrate_difference(
+      dof_handler, x_rel, CheckFunction<dim>(), results, quadrature, VectorTools::L2_norm);
+    const double global = VectorTools::compute_global_error(tr, results, VectorTools::L2_norm);
 
     if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
       deallog << "L2 error = " << global << std::endl;

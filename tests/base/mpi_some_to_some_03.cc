@@ -41,12 +41,9 @@ test()
 
   const auto original = Utilities::MPI::some_to_some(MPI_COMM_WORLD, received);
 
-  deallog << "Sent                      : "
-          << Patterns::Tools::to_string(to_send) << std::endl;
-  deallog << "Received                  : "
-          << Patterns::Tools::to_string(received) << std::endl;
-  deallog << "Received(Received) == Sent: "
-          << Patterns::Tools::to_string(original) << std::endl;
+  deallog << "Sent                      : " << Patterns::Tools::to_string(to_send) << std::endl;
+  deallog << "Received                  : " << Patterns::Tools::to_string(received) << std::endl;
+  deallog << "Received(Received) == Sent: " << Patterns::Tools::to_string(original) << std::endl;
 
   // now check that to_send and original are the same
   if (original == to_send)

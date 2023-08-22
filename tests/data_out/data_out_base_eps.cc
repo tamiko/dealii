@@ -48,10 +48,7 @@ check(DataOutBase::EpsFlags flags, std::ostream &out)
   names[3] = "x4";
   names[4] = "i";
   std::vector<
-    std::tuple<unsigned int,
-               unsigned int,
-               std::string,
-               DataComponentInterpretation::DataComponentInterpretation>>
+    std::tuple<unsigned int, unsigned int, std::string, DataComponentInterpretation::DataComponentInterpretation>>
     vectors;
   DataOutBase::write_eps(patches, names, vectors, flags, out);
 }
@@ -59,10 +56,7 @@ check(DataOutBase::EpsFlags flags, std::ostream &out)
 
 template <int dim>
 void
-check_cont(unsigned int          ncells,
-           unsigned int          nsub,
-           DataOutBase::EpsFlags flags,
-           std::ostream &        out)
+check_cont(unsigned int ncells, unsigned int nsub, DataOutBase::EpsFlags flags, std::ostream &out)
 {
   std::vector<DataOutBase::Patch<dim, dim>> patches;
 
@@ -71,10 +65,7 @@ check_cont(unsigned int          ncells,
   std::vector<std::string> names(1);
   names[0] = "CutOff";
   std::vector<
-    std::tuple<unsigned int,
-               unsigned int,
-               std::string,
-               DataComponentInterpretation::DataComponentInterpretation>>
+    std::tuple<unsigned int, unsigned int, std::string, DataComponentInterpretation::DataComponentInterpretation>>
     vectors;
   DataOutBase::write_eps(patches, names, vectors, flags, out);
 }
@@ -89,7 +80,7 @@ check_all(std::ostream &log)
 #endif
 
   char                  name[100];
-  const char *          format = "%d%d%d%s.eps";
+  const char           *format = "%d%d%d%s.eps";
   DataOutBase::EpsFlags flags;
 
   if (true)
@@ -98,8 +89,7 @@ check_all(std::ostream &log)
 #if SEPARATE_FILES == 1
       std::ofstream out(name);
 #else
-      out << "==============================\n"
-          << name << "\n==============================\n";
+      out << "==============================\n" << name << "\n==============================\n";
 #endif
       check_cont<dim>(4, 4, flags, out);
     }
@@ -113,8 +103,7 @@ check_all(std::ostream &log)
 #if SEPARATE_FILES == 1
       std::ofstream out(name);
 #else
-      out << "==============================\n"
-          << name << "\n==============================\n";
+      out << "==============================\n" << name << "\n==============================\n";
 #endif
       check<dim, spacedim>(flags, out);
     }

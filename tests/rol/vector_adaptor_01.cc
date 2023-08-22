@@ -30,8 +30,7 @@ test(const VectorType &given_vector)
 
   // --- Testing the constructor
   Rol::VectorAdaptor<VectorType> given_vector_rol(given_vector_rcp);
-  AssertThrow(given_vector == *given_vector_rol.getVector(),
-              ExcInternalError());
+  AssertThrow(given_vector == *given_vector_rol.getVector(), ExcInternalError());
 
 
   Teuchos::RCP<VectorType>       w_rcp = Teuchos::rcp(new VectorType);
@@ -62,8 +61,7 @@ main(int argc, char **argv)
 {
   deallog.depth_console(10);
 
-  dealii::Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, dealii::numbers::invalid_unsigned_int);
+  dealii::Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, dealii::numbers::invalid_unsigned_int);
 
   try
     {
@@ -80,28 +78,20 @@ main(int argc, char **argv)
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

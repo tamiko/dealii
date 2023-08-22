@@ -41,8 +41,7 @@ namespace internal
 std::mutex ParameterAcceptor::class_list_mutex;
 
 // Static empty class set
-std::set<ParameterAcceptor *, internal::ParameterAcceptorCompare>
-  ParameterAcceptor::class_list;
+std::set<ParameterAcceptor *, internal::ParameterAcceptorCompare> ParameterAcceptor::class_list;
 
 // Static parameter handler
 ParameterHandler ParameterAcceptor::prm;
@@ -73,19 +72,17 @@ ParameterAcceptor::~ParameterAcceptor()
 std::string
 ParameterAcceptor::get_section_name() const
 {
-  return (!section_name.empty() ? section_name :
-                                  boost::core::demangle(typeid(*this).name()));
+  return (!section_name.empty() ? section_name : boost::core::demangle(typeid(*this).name()));
 }
 
 
 
 void
-ParameterAcceptor::initialize(
-  const std::string &                 filename,
-  const std::string &                 output_filename,
-  const ParameterHandler::OutputStyle output_style_for_output_filename,
-  ParameterHandler &                  prm,
-  const ParameterHandler::OutputStyle output_style_for_filename)
+ParameterAcceptor::initialize(const std::string                  &filename,
+                              const std::string                  &output_filename,
+                              const ParameterHandler::OutputStyle output_style_for_output_filename,
+                              ParameterHandler                   &prm,
+                              const ParameterHandler::OutputStyle output_style_for_filename)
 {
   declare_all_parameters(prm);
   if (!filename.empty())
@@ -99,8 +96,7 @@ ParameterAcceptor::initialize(
           prm.print_parameters(filename, output_style_for_filename);
           AssertThrow(false,
                       ExcMessage("You specified <" + filename + "> as input " +
-                                 "parameter file, but it does not exist. " +
-                                 "We created it for you."));
+                                 "parameter file, but it does not exist. " + "We created it for you."));
         }
     }
 
@@ -181,8 +177,7 @@ ParameterAcceptor::get_section_path() const
   const auto my_section_name = get_section_name();
   const bool is_absolute     = (my_section_name.front() == sep);
 
-  std::vector<std::string> sections =
-    Utilities::split_string_list(my_section_name, sep);
+  std::vector<std::string> sections = Utilities::split_string_list(my_section_name, sep);
 
   // Split string list removes trailing empty strings, but not
   // preceding ones. Make sure that if we had an absolute path,
@@ -195,9 +190,7 @@ ParameterAcceptor::get_section_path() const
       // to ours. This is tricky. If the previous class has a path with a
       // trailing /, then the full path is used, else only the path except the
       // last one
-      for (auto acceptor_it = class_list.rbegin();
-           acceptor_it != class_list.rend();
-           ++acceptor_it)
+      for (auto acceptor_it = class_list.rbegin(); acceptor_it != class_list.rend(); ++acceptor_it)
         {
           auto *const acceptor = *acceptor_it;
           if (acceptor->get_acceptor_id() >= get_acceptor_id())
@@ -209,9 +202,7 @@ ParameterAcceptor::get_section_path() const
           if ((previous_path.size() > 0) && has_trailing == false)
             previous_path.resize(previous_path.size() - 1);
 
-          sections.insert(sections.begin(),
-                          previous_path.begin(),
-                          previous_path.end());
+          sections.insert(sections.begin(), previous_path.begin(), previous_path.end());
           // Exit the for cycle
           break;
         }
@@ -227,11 +218,9 @@ void
 ParameterAcceptor::enter_subsection(const std::string &subsection)
 {
   AssertThrow(subsection.find(sep) == std::string::npos,
-              ExcMessage(
-                "A subsection name cannot contain the special character '/'"));
+              ExcMessage("A subsection name cannot contain the special character '/'"));
 
-  AssertThrow(subsection != "",
-              ExcMessage("Cannot create an empty subsection."));
+  AssertThrow(subsection != "", ExcMessage("Cannot create an empty subsection."));
 
   subsections.push_back(subsection);
 }
@@ -241,16 +230,14 @@ ParameterAcceptor::enter_subsection(const std::string &subsection)
 void
 ParameterAcceptor::leave_subsection()
 {
-  AssertThrow(subsections.size() > 0,
-              ExcMessage("There is no subsection to leave here."));
+  AssertThrow(subsections.size() > 0, ExcMessage("There is no subsection to leave here."));
   subsections.pop_back();
 }
 
 
 
 void
-ParameterAcceptor::enter_my_subsection(
-  ParameterHandler &prm = ParameterAcceptor::prm)
+ParameterAcceptor::enter_my_subsection(ParameterHandler &prm = ParameterAcceptor::prm)
 {
   const auto sections = get_section_path();
   for (const auto &sec : sections)
@@ -262,8 +249,7 @@ ParameterAcceptor::enter_my_subsection(
 
 
 void
-ParameterAcceptor::leave_my_subsection(
-  ParameterHandler &prm = ParameterAcceptor::prm)
+ParameterAcceptor::leave_my_subsection(ParameterHandler &prm = ParameterAcceptor::prm)
 {
   const auto sections = get_section_path();
   for (unsigned int i = 0; i < sections.size(); ++i)

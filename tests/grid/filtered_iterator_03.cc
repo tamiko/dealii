@@ -32,8 +32,7 @@
 DeclException2(ExcNumberMismatch,
                int,
                int,
-               << "The numbers " << arg1 << " and " << arg2
-               << " should be equation, but are not.");
+               << "The numbers " << arg1 << " and " << arg2 << " should be equation, but are not.");
 
 
 
@@ -81,23 +80,15 @@ test()
   // on some level
   if (true)
     {
-      FilteredIterator<active_cell_iterator>
-        begin = make_filtered_iterator(tria.begin_active(),
-                                       &always_true<active_cell_iterator>),
-        end =
-          make_filtered_iterator(static_cast<active_cell_iterator>(tria.end()),
-                                 &always_true<active_cell_iterator>);
+      FilteredIterator<active_cell_iterator> begin = make_filtered_iterator(tria.begin_active(),
+                                                                            &always_true<active_cell_iterator>),
+                                             end = make_filtered_iterator(static_cast<active_cell_iterator>(tria.end()),
+                                                                          &always_true<active_cell_iterator>);
 
-      Assert(std::distance(begin, end) ==
-               static_cast<signed int>(tria.n_active_cells()),
-             ExcInternalError());
-      deallog << std::distance(begin, end) << ' ' << tria.n_active_cells()
-              << std::endl;
+      Assert(std::distance(begin, end) == static_cast<signed int>(tria.n_active_cells()), ExcInternalError());
+      deallog << std::distance(begin, end) << ' ' << tria.n_active_cells() << std::endl;
       logfile << "Check 1: "
-              << (std::distance(begin, end) ==
-                      static_cast<signed int>(tria.n_active_cells()) ?
-                    "OK" :
-                    "Failed")
+              << (std::distance(begin, end) == static_cast<signed int>(tria.n_active_cells()) ? "OK" : "Failed")
               << std::endl;
     };
 }

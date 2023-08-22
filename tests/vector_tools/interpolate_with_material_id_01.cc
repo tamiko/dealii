@@ -105,18 +105,16 @@ namespace PhaseField
     if (dim == 3)
       repetitions[dim - 2] = 4;
 
-    GridGenerator::subdivided_hyper_rectangle(
-      triangulation,
-      repetitions,
-      Point<dim>(),
-      (dim == 1 ?
-         Point<dim>(1.0) :
-         (dim == 2 ? Point<dim>(1.0, 1.0) : Point<dim>(1.0, 1.0, 1.0))),
-      true);
+    GridGenerator::subdivided_hyper_rectangle(triangulation,
+                                              repetitions,
+                                              Point<dim>(),
+                                              (dim == 1 ?
+                                                 Point<dim>(1.0) :
+                                                 (dim == 2 ? Point<dim>(1.0, 1.0) : Point<dim>(1.0, 1.0, 1.0))),
+                                              true);
 
 
-    for (typename Triangulation<dim>::active_cell_iterator cell =
-           triangulation.begin_active();
+    for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
          cell != triangulation.end();
          ++cell)
 
@@ -144,10 +142,7 @@ namespace PhaseField
     const Functions::ConstantFunction<dim> constant_function_1(1.0);
     function_map[1] = &constant_function_1;
 
-    VectorTools::interpolate_based_on_material_id(MappingQ<dim>(1),
-                                                  dof_handler,
-                                                  function_map,
-                                                  dst);
+    VectorTools::interpolate_based_on_material_id(MappingQ<dim>(1), dof_handler, function_map, dst);
 
 
     deallog << " Final values: " << std::endl;

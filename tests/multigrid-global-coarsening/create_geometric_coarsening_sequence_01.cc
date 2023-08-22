@@ -53,8 +53,7 @@ test()
       tria.execute_coarsening_and_refinement();
     }
 
-  const auto trias =
-    MGTransferGlobalCoarseningTools::create_geometric_coarsening_sequence(tria);
+  const auto trias = MGTransferGlobalCoarseningTools::create_geometric_coarsening_sequence(tria);
 
   for (const auto &tria : trias)
     {

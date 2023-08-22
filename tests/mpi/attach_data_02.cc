@@ -35,10 +35,8 @@
 
 template <int dim>
 std::vector<char>
-pack_function(
-  const typename parallel::distributed::Triangulation<dim, dim>::cell_iterator
-    &              cell,
-  const CellStatus status)
+pack_function(const typename parallel::distributed::Triangulation<dim, dim>::cell_iterator &cell,
+              const CellStatus                                                              status)
 {
   static unsigned int       some_number = 1;
   std::vector<unsigned int> some_vector(some_number);
@@ -47,16 +45,13 @@ pack_function(
 
   std::vector<char> buffer;
   buffer.reserve(some_number * sizeof(unsigned int));
-  for (auto vector_it = some_vector.cbegin(); vector_it != some_vector.cend();
-       ++vector_it)
+  for (auto vector_it = some_vector.cbegin(); vector_it != some_vector.cend(); ++vector_it)
     {
       Utilities::pack(*vector_it, buffer, /*allow_compression=*/false);
     }
 
-  deallog << "packing cell " << cell->id()
-          << " with data size =" << buffer.size() << " accumulated data="
-          << std::accumulate(some_vector.begin(), some_vector.end(), 0)
-          << " status=";
+  deallog << "packing cell " << cell->id() << " with data size =" << buffer.size()
+          << " accumulated data=" << std::accumulate(some_vector.begin(), some_vector.end(), 0) << " status=";
   if (status == CellStatus::cell_will_persist)
     deallog << "PERSIST";
   else if (status == CellStatus::cell_will_be_refined)
@@ -80,33 +75,26 @@ pack_function(
 
 template <int dim>
 void
-unpack_function(
-  const typename parallel::distributed::Triangulation<dim, dim>::cell_iterator
-    &                                                             cell,
-  const CellStatus                                                status,
-  const boost::iterator_range<std::vector<char>::const_iterator> &data_range)
+unpack_function(const typename parallel::distributed::Triangulation<dim, dim>::cell_iterator &cell,
+                const CellStatus                                                              status,
+                const boost::iterator_range<std::vector<char>::const_iterator>               &data_range)
 {
-  const unsigned int data_in_bytes =
-    std::distance(data_range.begin(), data_range.end());
+  const unsigned int data_in_bytes = std::distance(data_range.begin(), data_range.end());
 
   std::vector<unsigned int> intdatavector(data_in_bytes / sizeof(unsigned int));
 
   auto vector_it = intdatavector.begin();
   auto data_it   = data_range.begin();
-  for (; data_it != data_range.end();
-       ++vector_it, data_it += sizeof(unsigned int))
+  for (; data_it != data_range.end(); ++vector_it, data_it += sizeof(unsigned int))
     {
-      *vector_it =
-        Utilities::unpack<unsigned int>(data_it,
-                                        data_it + sizeof(unsigned int),
-                                        /*allow_compression=*/false);
+      *vector_it = Utilities::unpack<unsigned int>(data_it,
+                                                   data_it + sizeof(unsigned int),
+                                                   /*allow_compression=*/false);
     }
 
-  deallog << "unpacking cell " << cell->id() << " with data size="
-          << std::distance(data_range.begin(), data_range.end())
-          << " accumulated data="
-          << std::accumulate(intdatavector.begin(), intdatavector.end(), 0)
-          << " status=";
+  deallog << "unpacking cell " << cell->id()
+          << " with data size=" << std::distance(data_range.begin(), data_range.end())
+          << " accumulated data=" << std::accumulate(intdatavector.begin(), intdatavector.end(), 0) << " status=";
   if (status == CellStatus::cell_will_persist)
     deallog << "PERSIST";
   else if (status == CellStatus::cell_will_be_refined)
@@ -162,9 +150,8 @@ test()
             }
         }
 
-      unsigned int handle =
-        tr.register_data_attach(pack_function<dim>,
-                                /*returns_variable_size_data=*/true);
+      unsigned int handle = tr.register_data_attach(pack_function<dim>,
+                                                    /*returns_variable_size_data=*/true);
 
       deallog << "handle=" << handle << std::endl;
       tr.execute_coarsening_and_refinement();

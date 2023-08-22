@@ -73,44 +73,31 @@ namespace
 
 
 template <int dim, int spacedim>
-FE_PyramidPoly<dim, spacedim>::FE_PyramidPoly(
-  const unsigned int                                degree,
-  const internal::GenericDoFsPerObject &            dpos,
-  const typename FiniteElementData<dim>::Conformity conformity)
+FE_PyramidPoly<dim, spacedim>::FE_PyramidPoly(const unsigned int                                degree,
+                                              const internal::GenericDoFsPerObject             &dpos,
+                                              const typename FiniteElementData<dim>::Conformity conformity)
   : dealii::FE_Poly<dim, spacedim>(
       ScalarLagrangePolynomialPyramid<dim>(degree),
-      FiniteElementData<dim>(dpos,
-                             ReferenceCells::Pyramid,
-                             1,
-                             degree,
-                             conformity),
-      std::vector<bool>(
-        FiniteElementData<dim>(dpos, ReferenceCells::Pyramid, 1, degree)
-          .dofs_per_cell,
-        true),
-      std::vector<ComponentMask>(
-        FiniteElementData<dim>(dpos, ReferenceCells::Pyramid, 1, degree)
-          .dofs_per_cell,
-        ComponentMask(std::vector<bool>(1, true))))
+      FiniteElementData<dim>(dpos, ReferenceCells::Pyramid, 1, degree, conformity),
+      std::vector<bool>(FiniteElementData<dim>(dpos, ReferenceCells::Pyramid, 1, degree).dofs_per_cell, true),
+      std::vector<ComponentMask>(FiniteElementData<dim>(dpos, ReferenceCells::Pyramid, 1, degree).dofs_per_cell,
+                                 ComponentMask(std::vector<bool>(1, true))))
 {
   AssertDimension(dim, 3);
 
   if (degree == 1)
     {
       for (const auto i : this->reference_cell().vertex_indices())
-        this->unit_support_points.emplace_back(
-          this->reference_cell().template vertex<dim>(i));
+        this->unit_support_points.emplace_back(this->reference_cell().template vertex<dim>(i));
 
       this->unit_face_support_points.resize(this->reference_cell().n_faces());
 
       for (const auto f : this->reference_cell().face_indices())
         {
-          const auto face_reference_cell =
-            this->reference_cell().face_reference_cell(f);
+          const auto face_reference_cell = this->reference_cell().face_reference_cell(f);
 
           for (const auto i : face_reference_cell.vertex_indices())
-            this->unit_face_support_points[f].emplace_back(
-              face_reference_cell.template vertex<dim - 1>(i));
+            this->unit_face_support_points[f].emplace_back(face_reference_cell.template vertex<dim - 1>(i));
         }
     }
   else
@@ -121,13 +108,11 @@ FE_PyramidPoly<dim, spacedim>::FE_PyramidPoly(
 
 template <int dim, int spacedim>
 void
-FE_PyramidPoly<dim, spacedim>::
-  convert_generalized_support_point_values_to_dof_values(
-    const std::vector<Vector<double>> &support_point_values,
-    std::vector<double> &              nodal_values) const
+FE_PyramidPoly<dim, spacedim>::convert_generalized_support_point_values_to_dof_values(
+  const std::vector<Vector<double>> &support_point_values,
+  std::vector<double>               &nodal_values) const
 {
-  AssertDimension(support_point_values.size(),
-                  this->get_unit_support_points().size());
+  AssertDimension(support_point_values.size(), this->get_unit_support_points().size());
   AssertDimension(support_point_values.size(), nodal_values.size());
   AssertDimension(this->dofs_per_cell, nodal_values.size());
 
@@ -143,9 +128,7 @@ FE_PyramidPoly<dim, spacedim>::
 
 template <int dim, int spacedim>
 FE_PyramidP<dim, spacedim>::FE_PyramidP(const unsigned int degree)
-  : FE_PyramidPoly<dim, spacedim>(degree,
-                                  get_dpo_vector_fe_pyramid_p(degree),
-                                  FiniteElementData<dim>::H1)
+  : FE_PyramidPoly<dim, spacedim>(degree, get_dpo_vector_fe_pyramid_p(degree), FiniteElementData<dim>::H1)
 {}
 
 
@@ -173,9 +156,8 @@ FE_PyramidP<dim, spacedim>::get_name() const
 
 template <int dim, int spacedim>
 FiniteElementDomination::Domination
-FE_PyramidP<dim, spacedim>::compare_for_domination(
-  const FiniteElement<dim, spacedim> &fe_other,
-  const unsigned int                  codim) const
+FE_PyramidP<dim, spacedim>::compare_for_domination(const FiniteElement<dim, spacedim> &fe_other,
+                                                   const unsigned int                  codim) const
 {
   Assert(codim <= dim, ExcImpossibleInDim(dim));
 
@@ -183,8 +165,7 @@ FE_PyramidP<dim, spacedim>::compare_for_domination(
   // (if fe_other is derived from FE_SimplexDGP)
   // ------------------------------------
   if (codim > 0)
-    if (dynamic_cast<const FE_SimplexDGP<dim, spacedim> *>(&fe_other) !=
-        nullptr)
+    if (dynamic_cast<const FE_SimplexDGP<dim, spacedim> *>(&fe_other) != nullptr)
       // there are no requirements between continuous and discontinuous
       // elements
       return FiniteElementDomination::no_requirements;
@@ -193,8 +174,7 @@ FE_PyramidP<dim, spacedim>::compare_for_domination(
   // (if fe_other is not derived from FE_SimplexDGP)
   // & cell domination
   // ----------------------------------------
-  if (const FE_PyramidP<dim, spacedim> *fe_pp_other =
-        dynamic_cast<const FE_PyramidP<dim, spacedim> *>(&fe_other))
+  if (const FE_PyramidP<dim, spacedim> *fe_pp_other = dynamic_cast<const FE_PyramidP<dim, spacedim> *>(&fe_other))
     {
       if (this->degree < fe_pp_other->degree)
         return FiniteElementDomination::this_element_dominates;
@@ -203,8 +183,7 @@ FE_PyramidP<dim, spacedim>::compare_for_domination(
       else
         return FiniteElementDomination::other_element_dominates;
     }
-  else if (const FE_SimplexP<dim, spacedim> *fe_p_other =
-             dynamic_cast<const FE_SimplexP<dim, spacedim> *>(&fe_other))
+  else if (const FE_SimplexP<dim, spacedim> *fe_p_other = dynamic_cast<const FE_SimplexP<dim, spacedim> *>(&fe_other))
     {
       if (this->degree < fe_p_other->degree)
         return FiniteElementDomination::this_element_dominates;
@@ -213,8 +192,7 @@ FE_PyramidP<dim, spacedim>::compare_for_domination(
       else
         return FiniteElementDomination::other_element_dominates;
     }
-  else if (const FE_Q<dim, spacedim> *fe_q_other =
-             dynamic_cast<const FE_Q<dim, spacedim> *>(&fe_other))
+  else if (const FE_Q<dim, spacedim> *fe_q_other = dynamic_cast<const FE_Q<dim, spacedim> *>(&fe_other))
     {
       if (this->degree < fe_q_other->degree)
         return FiniteElementDomination::this_element_dominates;
@@ -223,8 +201,7 @@ FE_PyramidP<dim, spacedim>::compare_for_domination(
       else
         return FiniteElementDomination::other_element_dominates;
     }
-  else if (const FE_Nothing<dim, spacedim> *fe_nothing =
-             dynamic_cast<const FE_Nothing<dim, spacedim> *>(&fe_other))
+  else if (const FE_Nothing<dim, spacedim> *fe_nothing = dynamic_cast<const FE_Nothing<dim, spacedim> *>(&fe_other))
     {
       if (fe_nothing->is_dominating())
         return FiniteElementDomination::other_element_dominates;
@@ -243,8 +220,7 @@ FE_PyramidP<dim, spacedim>::compare_for_domination(
 
 template <int dim, int spacedim>
 std::vector<std::pair<unsigned int, unsigned int>>
-FE_PyramidP<dim, spacedim>::hp_vertex_dof_identities(
-  const FiniteElement<dim, spacedim> &fe_other) const
+FE_PyramidP<dim, spacedim>::hp_vertex_dof_identities(const FiniteElement<dim, spacedim> &fe_other) const
 {
   (void)fe_other;
 
@@ -259,8 +235,7 @@ FE_PyramidP<dim, spacedim>::hp_vertex_dof_identities(
 
 template <int dim, int spacedim>
 std::vector<std::pair<unsigned int, unsigned int>>
-FE_PyramidP<dim, spacedim>::hp_line_dof_identities(
-  const FiniteElement<dim, spacedim> &fe_other) const
+FE_PyramidP<dim, spacedim>::hp_line_dof_identities(const FiniteElement<dim, spacedim> &fe_other) const
 {
   (void)fe_other;
 
@@ -280,9 +255,8 @@ FE_PyramidP<dim, spacedim>::hp_line_dof_identities(
 
 template <int dim, int spacedim>
 std::vector<std::pair<unsigned int, unsigned int>>
-FE_PyramidP<dim, spacedim>::hp_quad_dof_identities(
-  const FiniteElement<dim, spacedim> &fe_other,
-  const unsigned int                  face_no) const
+FE_PyramidP<dim, spacedim>::hp_quad_dof_identities(const FiniteElement<dim, spacedim> &fe_other,
+                                                   const unsigned int                  face_no) const
 {
   (void)fe_other;
 
@@ -291,13 +265,11 @@ FE_PyramidP<dim, spacedim>::hp_quad_dof_identities(
 
   if (face_no == 0)
     {
-      Assert((dynamic_cast<const FE_Q<dim, spacedim> *>(&fe_other)),
-             ExcNotImplemented());
+      Assert((dynamic_cast<const FE_Q<dim, spacedim> *>(&fe_other)), ExcNotImplemented());
     }
   else
     {
-      Assert((dynamic_cast<const FE_SimplexP<dim, spacedim> *>(&fe_other)),
-             ExcNotImplemented());
+      Assert((dynamic_cast<const FE_SimplexP<dim, spacedim> *>(&fe_other)), ExcNotImplemented());
     }
 
   std::vector<std::pair<unsigned int, unsigned int>> result;
@@ -312,9 +284,7 @@ FE_PyramidP<dim, spacedim>::hp_quad_dof_identities(
 
 template <int dim, int spacedim>
 FE_PyramidDGP<dim, spacedim>::FE_PyramidDGP(const unsigned int degree)
-  : FE_PyramidPoly<dim, spacedim>(degree,
-                                  get_dpo_vector_fe_pyramid_dgp(degree),
-                                  FiniteElementData<dim>::L2)
+  : FE_PyramidPoly<dim, spacedim>(degree, get_dpo_vector_fe_pyramid_dgp(degree), FiniteElementData<dim>::L2)
 {}
 
 

@@ -42,19 +42,14 @@ dim2_grid()
 
   deallog << "Check project for 2D cube from (-1,-1), to (1,1)." << std::endl;
 
-  Triangulation<2>::active_cell_iterator cell = triangulation.begin_active(),
-                                         endc = triangulation.end();
+  Triangulation<2>::active_cell_iterator cell = triangulation.begin_active(), endc = triangulation.end();
   deallog << "The test point has real coordinates: " << testp
-          << ", and unit coordinates: "
-          << mapping.transform_real_to_unit_cell(cell, testp) << std::endl;
+          << ", and unit coordinates: " << mapping.transform_real_to_unit_cell(cell, testp) << std::endl;
   for (; cell != endc; ++cell)
     for (const unsigned int face : GeometryInfo<2>::face_indices())
       {
         deallog << "For face: " << face << ", the test point projects to: "
-                << mapping.project_real_point_to_unit_point_on_face(cell,
-                                                                    face,
-                                                                    testp)
-                << std::endl;
+                << mapping.project_real_point_to_unit_point_on_face(cell, face, testp) << std::endl;
       }
 }
 void
@@ -70,22 +65,16 @@ dim3_grid()
 
   MappingQ<3> mapping(1);
 
-  deallog << "Check project for 3D cube from (-1,-1,-1) to (1,1,1)."
-          << std::endl;
+  deallog << "Check project for 3D cube from (-1,-1,-1) to (1,1,1)." << std::endl;
 
-  Triangulation<3>::active_cell_iterator cell = triangulation.begin_active(),
-                                         endc = triangulation.end();
+  Triangulation<3>::active_cell_iterator cell = triangulation.begin_active(), endc = triangulation.end();
   deallog << "The test point has real coordinates: " << testp
-          << ", and unit coordinates: "
-          << mapping.transform_real_to_unit_cell(cell, testp) << std::endl;
+          << ", and unit coordinates: " << mapping.transform_real_to_unit_cell(cell, testp) << std::endl;
   for (; cell != endc; ++cell)
     for (const unsigned int face : GeometryInfo<3>::face_indices())
       {
         deallog << "For face: " << face << ", the test point projects to: "
-                << mapping.project_real_point_to_unit_point_on_face(cell,
-                                                                    face,
-                                                                    testp)
-                << std::endl;
+                << mapping.project_real_point_to_unit_point_on_face(cell, face, testp) << std::endl;
       }
 }
 void
@@ -104,23 +93,16 @@ dim3_parallelepiped_grid()
 
   MappingQ<3> mapping(1);
 
-  deallog
-    << "Check project for 3D parallelepiped with vectors (2, 0, 0), (0, 2, 0), and (0, 1, 2)."
-    << std::endl;
-  Triangulation<3>::active_cell_iterator cell = triangulation.begin_active(),
-                                         endc = triangulation.end();
+  deallog << "Check project for 3D parallelepiped with vectors (2, 0, 0), (0, 2, 0), and (0, 1, 2)." << std::endl;
+  Triangulation<3>::active_cell_iterator cell = triangulation.begin_active(), endc = triangulation.end();
   deallog << "The test point has real coordinates: " << testp
-          << ", and unit coordinates: "
-          << mapping.transform_real_to_unit_cell(cell, testp) << std::endl;
+          << ", and unit coordinates: " << mapping.transform_real_to_unit_cell(cell, testp) << std::endl;
 
   for (; cell != endc; ++cell)
     for (const unsigned int face : GeometryInfo<3>::face_indices())
       {
         deallog << "For face: " << face << ", the test point projects to: "
-                << mapping.project_real_point_to_unit_point_on_face(cell,
-                                                                    face,
-                                                                    testp)
-                << std::endl;
+                << mapping.project_real_point_to_unit_point_on_face(cell, face, testp) << std::endl;
       }
 }
 int

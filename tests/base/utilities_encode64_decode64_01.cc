@@ -25,8 +25,7 @@ test(const std::string &input)
 {
   deallog << "Encoding: " << input << std::endl;
   auto encoded = Utilities::encode_base64({input.begin(), input.end()});
-  deallog << "Encoded: " << std::string(encoded.begin(), encoded.end())
-          << std::endl;
+  deallog << "Encoded: " << std::string(encoded.begin(), encoded.end()) << std::endl;
   deallog << "Decoded: " << Utilities::decode_base64(encoded) << std::endl;
 }
 

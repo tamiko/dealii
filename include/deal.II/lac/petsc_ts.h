@@ -315,19 +315,12 @@ namespace PETScWrappers
   template <typename VectorType  = PETScWrappers::VectorBase,
             typename PMatrixType = PETScWrappers::MatrixBase,
             typename AMatrixType = PMatrixType>
-#  if defined(DEAL_II_HAVE_CXX20) && \
-    !defined(DEAL_II_DOXYGEN_DO_NOT_PARSE_REQUIRES_CLAUSES)
-  requires(
-    (concepts::is_dealii_petsc_vector_type<VectorType> ||
-     std::constructible_from<
-       VectorType,
-       Vec>)&&(concepts::is_dealii_petsc_matrix_type<PMatrixType> ||
-               std::constructible_from<
-                 PMatrixType,
-                 Mat>)&&(concepts::is_dealii_petsc_matrix_type<AMatrixType> ||
-                         std::constructible_from<AMatrixType, Mat>))
+#  if defined(DEAL_II_HAVE_CXX20) && !defined(DEAL_II_DOXYGEN_DO_NOT_PARSE_REQUIRES_CLAUSES)
+    requires((concepts::is_dealii_petsc_vector_type<VectorType> || std::constructible_from<VectorType, Vec>) &&
+             (concepts::is_dealii_petsc_matrix_type<PMatrixType> || std::constructible_from<PMatrixType, Mat>) &&
+             (concepts::is_dealii_petsc_matrix_type<AMatrixType> || std::constructible_from<AMatrixType, Mat>))
 #  endif
-    class TimeStepper
+  class TimeStepper
   {
   public:
     /**
@@ -340,8 +333,7 @@ namespace PETScWrappers
     /**
      * Constructor.
      */
-    TimeStepper(const TimeStepperData &data     = TimeStepperData(),
-                const MPI_Comm         mpi_comm = PETSC_COMM_WORLD);
+    TimeStepper(const TimeStepperData &data = TimeStepperData(), const MPI_Comm mpi_comm = PETSC_COMM_WORLD);
 
     /**
      * Destructor.
@@ -464,10 +456,7 @@ namespace PETScWrappers
      * See there for a description of how to deal with errors and other
      * requirements and conventions.
      */
-    std::function<void(const real_type   t,
-                       const VectorType &y,
-                       const VectorType &y_dot,
-                       VectorType &      res)>
+    std::function<void(const real_type t, const VectorType &y, const VectorType &y_dot, VectorType &res)>
       implicit_function;
 
     /**
@@ -488,8 +477,8 @@ namespace PETScWrappers
                        const VectorType &y,
                        const VectorType &y_dot,
                        const real_type   alpha,
-                       AMatrixType &     A,
-                       PMatrixType &     P)>
+                       AMatrixType      &A,
+                       PMatrixType      &P)>
       implicit_jacobian;
 
     /**
@@ -500,8 +489,7 @@ namespace PETScWrappers
      * See there for a description of how to deal with errors and other
      * requirements and conventions.
      */
-    std::function<void(const real_type t, const VectorType &y, VectorType &res)>
-      explicit_function;
+    std::function<void(const real_type t, const VectorType &y, VectorType &res)> explicit_function;
 
     /**
      * Callback for the computation of the explicit Jacobian $\dfrac{\partial
@@ -512,11 +500,7 @@ namespace PETScWrappers
      * See there for a description of how to deal with errors and other
      * requirements and conventions.
      */
-    std::function<void(const real_type   t,
-                       const VectorType &y,
-                       AMatrixType &     A,
-                       PMatrixType &     P)>
-      explicit_jacobian;
+    std::function<void(const real_type t, const VectorType &y, AMatrixType &A, PMatrixType &P)> explicit_jacobian;
 
     /**
      * Callback for monitoring the solution process.
@@ -529,10 +513,7 @@ namespace PETScWrappers
      * See there for a description of how to deal with errors and other
      * requirements and conventions.
      */
-    std::function<void(const real_type    t,
-                       const VectorType & y,
-                       const unsigned int step_number)>
-      monitor;
+    std::function<void(const real_type t, const VectorType &y, const unsigned int step_number)> monitor;
 
     /**
      * Callback for the set up of the Jacobian system.
@@ -553,10 +534,7 @@ namespace PETScWrappers
      * See there for a description of how to deal with errors and other
      * requirements and conventions.
      */
-    std::function<void(const real_type   t,
-                       const VectorType &y,
-                       const VectorType &ydot,
-                       const real_type   alpha)>
+    std::function<void(const real_type t, const VectorType &y, const VectorType &ydot, const real_type alpha)>
       setup_jacobian;
 
     /**
@@ -570,8 +548,7 @@ namespace PETScWrappers
      * See there for a description of how to deal with errors and other
      * requirements and conventions.
      */
-    std::function<void(const VectorType &src, VectorType &dst)>
-      solve_with_jacobian;
+    std::function<void(const VectorType &src, VectorType &dst)> solve_with_jacobian;
 
     /**
      * Callback to return an index set containing the algebraic components.
@@ -614,10 +591,7 @@ namespace PETScWrappers
      * See there for a description of how to deal with errors and other
      * requirements and conventions.
      */
-    std::function<void(const real_type    t,
-                       const unsigned int step,
-                       const VectorType & y,
-                       bool &             resize)>
+    std::function<void(const real_type t, const unsigned int step, const VectorType &y, bool &resize)>
       decide_for_coarsening_and_refinement;
 
     /**
@@ -634,9 +608,7 @@ namespace PETScWrappers
      * See there for a description of how to deal with errors and other
      * requirements and conventions.
      */
-    std::function<void(const std::vector<VectorType> &all_in,
-                       std::vector<VectorType> &      all_out)>
-      interpolate;
+    std::function<void(const std::vector<VectorType> &all_in, std::vector<VectorType> &all_out)> interpolate;
 
   private:
     /**

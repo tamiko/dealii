@@ -46,21 +46,18 @@ namespace NonMatching
   template <int dim>
   template <typename VectorType>
   FEValues<dim>::FEValues(const hp::FECollection<dim> &fe_collection,
-                          const Quadrature<1> &        quadrature,
+                          const Quadrature<1>         &quadrature,
                           const RegionUpdateFlags      region_update_flags,
-                          const MeshClassifier<dim> &  mesh_classifier,
-                          const DoFHandler<dim> &      dof_handler,
-                          const VectorType &           level_set,
-                          const AdditionalData &       additional_data)
+                          const MeshClassifier<dim>   &mesh_classifier,
+                          const DoFHandler<dim>       &dof_handler,
+                          const VectorType            &level_set,
+                          const AdditionalData        &additional_data)
     : mapping_collection(&dealii::hp::StaticMappingQ1<dim>::mapping_collection)
     , fe_collection(&fe_collection)
     , q_collection_1D(quadrature)
     , region_update_flags(region_update_flags)
     , mesh_classifier(&mesh_classifier)
-    , quadrature_generator(q_collection_1D,
-                           dof_handler,
-                           level_set,
-                           additional_data)
+    , quadrature_generator(q_collection_1D, dof_handler, level_set, additional_data)
   {
     // Tensor products of each quadrature in q_collection_1d. Used on the
     // non-intersected cells.
@@ -76,23 +73,20 @@ namespace NonMatching
   template <int dim>
   template <typename VectorType>
   FEValues<dim>::FEValues(const hp::MappingCollection<dim> &mapping_collection,
-                          const hp::FECollection<dim> &     fe_collection,
-                          const hp::QCollection<dim> &      q_collection,
-                          const hp::QCollection<1> &        q_collection_1D,
+                          const hp::FECollection<dim>      &fe_collection,
+                          const hp::QCollection<dim>       &q_collection,
+                          const hp::QCollection<1>         &q_collection_1D,
                           const RegionUpdateFlags           region_update_flags,
-                          const MeshClassifier<dim> &       mesh_classifier,
-                          const DoFHandler<dim> &           dof_handler,
-                          const VectorType &                level_set,
-                          const AdditionalData &            additional_data)
+                          const MeshClassifier<dim>        &mesh_classifier,
+                          const DoFHandler<dim>            &dof_handler,
+                          const VectorType                 &level_set,
+                          const AdditionalData             &additional_data)
     : mapping_collection(&mapping_collection)
     , fe_collection(&fe_collection)
     , q_collection_1D(q_collection_1D)
     , region_update_flags(region_update_flags)
     , mesh_classifier(&mesh_classifier)
-    , quadrature_generator(q_collection_1D,
-                           dof_handler,
-                           level_set,
-                           additional_data)
+    , quadrature_generator(q_collection_1D, dof_handler, level_set, additional_data)
   {
     initialize(q_collection);
   }
@@ -106,18 +100,14 @@ namespace NonMatching
     current_cell_location = LocationToLevelSet::unassigned;
     active_fe_index       = numbers::invalid_unsigned_int;
 
-    Assert(fe_collection->size() > 0,
-           ExcMessage("Incoming hp::FECollection can not be empty."));
-    Assert(mapping_collection->size() == fe_collection->size() ||
-             mapping_collection->size() == 1,
+    Assert(fe_collection->size() > 0, ExcMessage("Incoming hp::FECollection can not be empty."));
+    Assert(mapping_collection->size() == fe_collection->size() || mapping_collection->size() == 1,
            ExcMessage("Size of hp::MappingCollection must be "
                       "the same as hp::FECollection or 1."));
-    Assert(q_collection.size() == fe_collection->size() ||
-             q_collection.size() == 1,
+    Assert(q_collection.size() == fe_collection->size() || q_collection.size() == 1,
            ExcMessage("Size of hp::QCollection<dim> must be the "
                       "same as hp::FECollection or 1."));
-    Assert(q_collection_1D.size() == fe_collection->size() ||
-             q_collection_1D.size() == 1,
+    Assert(q_collection_1D.size() == fe_collection->size() || q_collection_1D.size() == 1,
            ExcMessage("Size of hp::QCollection<1> must be the "
                       "same as hp::FECollection or 1."));
 
@@ -125,23 +115,19 @@ namespace NonMatching
     // on the non-intersected cells.
     fe_values_inside_full_quadrature.resize(fe_collection->size());
     fe_values_outside_full_quadrature.resize(fe_collection->size());
-    for (unsigned int fe_index = 0; fe_index < fe_collection->size();
-         ++fe_index)
+    for (unsigned int fe_index = 0; fe_index < fe_collection->size(); ++fe_index)
       {
-        const unsigned int mapping_index =
-          mapping_collection->size() > 1 ? fe_index : 0;
-        const unsigned int q_index = q_collection.size() > 1 ? fe_index : 0;
+        const unsigned int mapping_index = mapping_collection->size() > 1 ? fe_index : 0;
+        const unsigned int q_index       = q_collection.size() > 1 ? fe_index : 0;
 
-        fe_values_inside_full_quadrature[fe_index].emplace(
-          (*mapping_collection)[mapping_index],
-          (*fe_collection)[fe_index],
-          q_collection[q_index],
-          region_update_flags.inside);
-        fe_values_outside_full_quadrature[fe_index].emplace(
-          (*mapping_collection)[mapping_index],
-          (*fe_collection)[fe_index],
-          q_collection[q_index],
-          region_update_flags.outside);
+        fe_values_inside_full_quadrature[fe_index].emplace((*mapping_collection)[mapping_index],
+                                                           (*fe_collection)[fe_index],
+                                                           q_collection[q_index],
+                                                           region_update_flags.inside);
+        fe_values_outside_full_quadrature[fe_index].emplace((*mapping_collection)[mapping_index],
+                                                            (*fe_collection)[fe_index],
+                                                            q_collection[q_index],
+                                                            region_update_flags.outside);
       }
   }
 
@@ -150,8 +136,7 @@ namespace NonMatching
   template <int dim>
   template <bool level_dof_access>
   void
-  FEValues<dim>::reinit(
-    const TriaIterator<DoFCellAccessor<dim, dim, level_dof_access>> &cell)
+  FEValues<dim>::reinit(const TriaIterator<DoFCellAccessor<dim, dim, level_dof_access>> &cell)
   {
     current_cell_location = mesh_classifier->location_to_level_set(cell);
     active_fe_index       = cell->active_fe_index();
@@ -176,20 +161,15 @@ namespace NonMatching
           }
         case LocationToLevelSet::intersected:
           {
-            const unsigned int mapping_index =
-              mapping_collection->size() > 1 ? active_fe_index : 0;
+            const unsigned int mapping_index = mapping_collection->size() > 1 ? active_fe_index : 0;
 
-            const unsigned int q1D_index =
-              q_collection_1D.size() > 1 ? active_fe_index : 0;
+            const unsigned int q1D_index = q_collection_1D.size() > 1 ? active_fe_index : 0;
             quadrature_generator.set_1D_quadrature(q1D_index);
             quadrature_generator.generate(cell);
 
-            const Quadrature<dim> &inside_quadrature =
-              quadrature_generator.get_inside_quadrature();
-            const Quadrature<dim> &outside_quadrature =
-              quadrature_generator.get_outside_quadrature();
-            const ImmersedSurfaceQuadrature<dim> &surface_quadrature =
-              quadrature_generator.get_surface_quadrature();
+            const Quadrature<dim>                &inside_quadrature  = quadrature_generator.get_inside_quadrature();
+            const Quadrature<dim>                &outside_quadrature = quadrature_generator.get_outside_quadrature();
+            const ImmersedSurfaceQuadrature<dim> &surface_quadrature = quadrature_generator.get_surface_quadrature();
 
             // Even if a cell is formally intersected the number of created
             // quadrature points can be 0. Avoid creating an FEValues object
@@ -270,23 +250,19 @@ namespace NonMatching
 
   template <int dim>
   template <typename VectorType>
-  FEInterfaceValues<dim>::FEInterfaceValues(
-    const hp::FECollection<dim> &fe_collection,
-    const Quadrature<1> &        quadrature,
-    const RegionUpdateFlags      region_update_flags,
-    const MeshClassifier<dim> &  mesh_classifier,
-    const DoFHandler<dim> &      dof_handler,
-    const VectorType &           level_set,
-    const AdditionalData &       additional_data)
+  FEInterfaceValues<dim>::FEInterfaceValues(const hp::FECollection<dim> &fe_collection,
+                                            const Quadrature<1>         &quadrature,
+                                            const RegionUpdateFlags      region_update_flags,
+                                            const MeshClassifier<dim>   &mesh_classifier,
+                                            const DoFHandler<dim>       &dof_handler,
+                                            const VectorType            &level_set,
+                                            const AdditionalData        &additional_data)
     : mapping_collection(&dealii::hp::StaticMappingQ1<dim>::mapping_collection)
     , fe_collection(&fe_collection)
     , q_collection_1D(quadrature)
     , region_update_flags(region_update_flags)
     , mesh_classifier(&mesh_classifier)
-    , face_quadrature_generator(q_collection_1D,
-                                dof_handler,
-                                level_set,
-                                additional_data)
+    , face_quadrature_generator(q_collection_1D, dof_handler, level_set, additional_data)
   {
     // Tensor products of each quadrature in q_collection_1d. Used on the
     // non-intersected cells.
@@ -301,25 +277,21 @@ namespace NonMatching
 
   template <int dim>
   template <typename VectorType>
-  FEInterfaceValues<dim>::FEInterfaceValues(
-    const hp::MappingCollection<dim> &mapping_collection,
-    const hp::FECollection<dim> &     fe_collection,
-    const hp::QCollection<dim - 1> &  q_collection,
-    const hp::QCollection<1> &        q_collection_1D,
-    const RegionUpdateFlags           region_update_flags,
-    const MeshClassifier<dim> &       mesh_classifier,
-    const DoFHandler<dim> &           dof_handler,
-    const VectorType &                level_set,
-    const AdditionalData &            additional_data)
+  FEInterfaceValues<dim>::FEInterfaceValues(const hp::MappingCollection<dim> &mapping_collection,
+                                            const hp::FECollection<dim>      &fe_collection,
+                                            const hp::QCollection<dim - 1>   &q_collection,
+                                            const hp::QCollection<1>         &q_collection_1D,
+                                            const RegionUpdateFlags           region_update_flags,
+                                            const MeshClassifier<dim>        &mesh_classifier,
+                                            const DoFHandler<dim>            &dof_handler,
+                                            const VectorType                 &level_set,
+                                            const AdditionalData             &additional_data)
     : mapping_collection(&mapping_collection)
     , fe_collection(&fe_collection)
     , q_collection_1D(q_collection_1D)
     , region_update_flags(region_update_flags)
     , mesh_classifier(&mesh_classifier)
-    , face_quadrature_generator(q_collection_1D,
-                                dof_handler,
-                                level_set,
-                                additional_data)
+    , face_quadrature_generator(q_collection_1D, dof_handler, level_set, additional_data)
   {
     initialize(q_collection);
   }
@@ -328,50 +300,36 @@ namespace NonMatching
 
   template <int dim>
   void
-  FEInterfaceValues<dim>::initialize(
-    const hp::QCollection<dim - 1> &q_collection)
+  FEInterfaceValues<dim>::initialize(const hp::QCollection<dim - 1> &q_collection)
   {
     current_face_location = LocationToLevelSet::unassigned;
     active_fe_index       = numbers::invalid_unsigned_int;
 
-    Assert(fe_collection->size() > 0,
-           ExcMessage("Incoming hp::FECollection can not be empty."));
-    Assert(
-      mapping_collection->size() == fe_collection->size() ||
-        mapping_collection->size() == 1,
-      ExcMessage(
-        "Size of hp::MappingCollection must be the same as hp::FECollection or 1."));
-    Assert(
-      q_collection.size() == fe_collection->size() || q_collection.size() == 1,
-      ExcMessage(
-        "Size of hp::QCollection<dim> must be the same as hp::FECollection or 1."));
-    Assert(
-      q_collection_1D.size() == fe_collection->size() ||
-        q_collection_1D.size() == 1,
-      ExcMessage(
-        "Size of hp::QCollection<1> must be the same as hp::FECollection or 1."));
+    Assert(fe_collection->size() > 0, ExcMessage("Incoming hp::FECollection can not be empty."));
+    Assert(mapping_collection->size() == fe_collection->size() || mapping_collection->size() == 1,
+           ExcMessage("Size of hp::MappingCollection must be the same as hp::FECollection or 1."));
+    Assert(q_collection.size() == fe_collection->size() || q_collection.size() == 1,
+           ExcMessage("Size of hp::QCollection<dim> must be the same as hp::FECollection or 1."));
+    Assert(q_collection_1D.size() == fe_collection->size() || q_collection_1D.size() == 1,
+           ExcMessage("Size of hp::QCollection<1> must be the same as hp::FECollection or 1."));
 
     // For each element in fe_collection, create dealii::FEInterfaceValues
     // objects to use on the non-intersected cells.
     fe_values_inside_full_quadrature.resize(fe_collection->size());
     fe_values_outside_full_quadrature.resize(fe_collection->size());
-    for (unsigned int fe_index = 0; fe_index < fe_collection->size();
-         ++fe_index)
+    for (unsigned int fe_index = 0; fe_index < fe_collection->size(); ++fe_index)
       {
-        const unsigned int mapping_index =
-          mapping_collection->size() > 1 ? fe_index : 0;
-        const unsigned int q_index = q_collection.size() > 1 ? fe_index : 0;
+        const unsigned int mapping_index = mapping_collection->size() > 1 ? fe_index : 0;
+        const unsigned int q_index       = q_collection.size() > 1 ? fe_index : 0;
 
-        fe_values_inside_full_quadrature[fe_index].emplace(
-          (*mapping_collection)[mapping_index],
-          (*fe_collection)[fe_index],
-          q_collection[q_index],
-          region_update_flags.inside);
-        fe_values_outside_full_quadrature[fe_index].emplace(
-          (*mapping_collection)[mapping_index],
-          (*fe_collection)[fe_index],
-          q_collection[q_index],
-          region_update_flags.outside);
+        fe_values_inside_full_quadrature[fe_index].emplace((*mapping_collection)[mapping_index],
+                                                           (*fe_collection)[fe_index],
+                                                           q_collection[q_index],
+                                                           region_update_flags.inside);
+        fe_values_outside_full_quadrature[fe_index].emplace((*mapping_collection)[mapping_index],
+                                                            (*fe_collection)[fe_index],
+                                                            q_collection[q_index],
+                                                            region_update_flags.outside);
       }
   }
 
@@ -380,14 +338,12 @@ namespace NonMatching
   template <int dim>
   template <bool level_dof_access>
   void
-  FEInterfaceValues<dim>::do_reinit(
-    const TriaIterator<DoFCellAccessor<dim, dim, level_dof_access>> &cell,
-    const unsigned int                                               face_no,
-    const std::function<void(dealii::FEInterfaceValues<dim> &)> &call_reinit)
+  FEInterfaceValues<dim>::do_reinit(const TriaIterator<DoFCellAccessor<dim, dim, level_dof_access>> &cell,
+                                    const unsigned int                                               face_no,
+                                    const std::function<void(dealii::FEInterfaceValues<dim> &)>     &call_reinit)
   {
-    current_face_location =
-      mesh_classifier->location_to_level_set(cell, face_no);
-    active_fe_index = cell->active_fe_index();
+    current_face_location = mesh_classifier->location_to_level_set(cell, face_no);
+    active_fe_index       = cell->active_fe_index();
 
     // These objects were created with a quadrature based on the previous cell
     // and are thus no longer valid.
@@ -408,18 +364,14 @@ namespace NonMatching
           }
         case LocationToLevelSet::intersected:
           {
-            const unsigned int mapping_index =
-              mapping_collection->size() > 1 ? active_fe_index : 0;
-            const unsigned int q1D_index =
-              q_collection_1D.size() > 1 ? active_fe_index : 0;
+            const unsigned int mapping_index = mapping_collection->size() > 1 ? active_fe_index : 0;
+            const unsigned int q1D_index     = q_collection_1D.size() > 1 ? active_fe_index : 0;
 
             face_quadrature_generator.set_1D_quadrature(q1D_index);
             face_quadrature_generator.generate(cell, face_no);
 
-            const Quadrature<dim - 1> &inside_quadrature =
-              face_quadrature_generator.get_inside_quadrature();
-            const Quadrature<dim - 1> &outside_quadrature =
-              face_quadrature_generator.get_outside_quadrature();
+            const Quadrature<dim - 1> &inside_quadrature  = face_quadrature_generator.get_inside_quadrature();
+            const Quadrature<dim - 1> &outside_quadrature = face_quadrature_generator.get_outside_quadrature();
 
             // Even if a cell is formally intersected the number of created
             // quadrature points can be 0. Avoid creating an FEInterfaceValues

@@ -81,8 +81,8 @@ test(const unsigned int degree)
     tmp1(i) = random_value<double>();
   cg.solve(mass_matrix, tmp2, tmp1, PreconditionIdentity());
 
-  deallog << "Degree=" << degree << ": " << solver_control.last_step()
-          << " iterations to obtain convergence." << std::endl;
+  deallog << "Degree=" << degree << ": " << solver_control.last_step() << " iterations to obtain convergence."
+          << std::endl;
 }
 
 

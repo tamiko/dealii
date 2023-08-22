@@ -169,16 +169,11 @@ namespace ArborXWrappers
     Kokkos::View<int *, Kokkos::HostSpace> indices("indices", 0);
 
     Kokkos::View<int *, Kokkos::HostSpace> offset("offset", 0);
-    ArborX::query(
-      bvh, Kokkos::DefaultHostExecutionSpace{}, queries, indices, offset);
+    ArborX::query(bvh, Kokkos::DefaultHostExecutionSpace{}, queries, indices, offset);
     std::vector<int> indices_vector;
-    indices_vector.insert(indices_vector.begin(),
-                          indices.data(),
-                          indices.data() + indices.extent(0));
+    indices_vector.insert(indices_vector.begin(), indices.data(), indices.data() + indices.extent(0));
     std::vector<int> offset_vector;
-    offset_vector.insert(offset_vector.begin(),
-                         offset.data(),
-                         offset.data() + offset.extent(0));
+    offset_vector.insert(offset_vector.begin(), offset.data(), offset.data() + offset.extent(0));
 
     return {indices_vector, offset_vector};
   }

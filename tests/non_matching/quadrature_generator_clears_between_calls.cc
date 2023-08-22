@@ -32,17 +32,13 @@
 // deallog.
 template <int dim>
 void
-print_n_quadrature_points(
-  const NonMatching::QuadratureGenerator<dim> &quadrature_generator)
+print_n_quadrature_points(const NonMatching::QuadratureGenerator<dim> &quadrature_generator)
 {
-  deallog << "inside " << quadrature_generator.get_inside_quadrature().size()
-          << std::endl;
+  deallog << "inside " << quadrature_generator.get_inside_quadrature().size() << std::endl;
 
-  deallog << "outside " << quadrature_generator.get_outside_quadrature().size()
-          << std::endl;
+  deallog << "outside " << quadrature_generator.get_outside_quadrature().size() << std::endl;
 
-  deallog << "surface " << quadrature_generator.get_surface_quadrature().size()
-          << std::endl;
+  deallog << "surface " << quadrature_generator.get_surface_quadrature().size() << std::endl;
 
   deallog << std::endl;
 }

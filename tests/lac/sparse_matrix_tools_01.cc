@@ -38,8 +38,7 @@
 
 template <int dim, int spacedim>
 void
-reinit_sparsity_pattern(const DoFHandler<dim, spacedim> &dof_handler,
-                        SparsityPattern &                sparsity_pattern)
+reinit_sparsity_pattern(const DoFHandler<dim, spacedim> &dof_handler, SparsityPattern &sparsity_pattern)
 {
   std::vector<unsigned int> counter(dof_handler.n_dofs(), 0);
 
@@ -60,11 +59,10 @@ reinit_sparsity_pattern(const DoFHandler<dim, spacedim> &dof_handler,
 
 template <int dim, int spacedim>
 void
-reinit_sparsity_pattern(const DoFHandler<dim, spacedim> &  dof_handler,
+reinit_sparsity_pattern(const DoFHandler<dim, spacedim>   &dof_handler,
                         TrilinosWrappers::SparsityPattern &sparsity_pattern)
 {
-  sparsity_pattern.reinit(dof_handler.locally_owned_dofs(),
-                          dof_handler.get_communicator());
+  sparsity_pattern.reinit(dof_handler.locally_owned_dofs(), dof_handler.get_communicator());
 }
 
 template <int dim,
@@ -93,10 +91,7 @@ test()
   // create system matrix
   SparsityPatternType sparsity_pattern;
   reinit_sparsity_pattern(dof_handler, sparsity_pattern);
-  DoFTools::make_sparsity_pattern(dof_handler,
-                                  sparsity_pattern,
-                                  constraints,
-                                  false);
+  DoFTools::make_sparsity_pattern(dof_handler, sparsity_pattern, constraints, false);
   sparsity_pattern.compress();
 
   SpareMatrixType laplace_matrix;
@@ -107,10 +102,7 @@ test()
 
   // extract blocks
   std::vector<FullMatrix<double>> blocks;
-  SparseMatrixTools::restrict_to_cells(laplace_matrix,
-                                       sparsity_pattern,
-                                       dof_handler,
-                                       blocks);
+  SparseMatrixTools::restrict_to_cells(laplace_matrix, sparsity_pattern, dof_handler, blocks);
 
   for (const auto &block : blocks)
     {
@@ -128,32 +120,19 @@ test()
 
     if (is_1.size() == 0)
       SparseMatrixTools::restrict_to_serial_sparse_matrix(
-        laplace_matrix,
-        sparsity_pattern,
-        is_0,
-        serial_sparse_matrix,
-        serial_sparsity_pattern);
+        laplace_matrix, sparsity_pattern, is_0, serial_sparse_matrix, serial_sparsity_pattern);
     else
       SparseMatrixTools::restrict_to_serial_sparse_matrix(
-        laplace_matrix,
-        sparsity_pattern,
-        is_0,
-        is_1,
-        serial_sparse_matrix,
-        serial_sparsity_pattern);
+        laplace_matrix, sparsity_pattern, is_0, is_1, serial_sparse_matrix, serial_sparsity_pattern);
 
     FullMatrix<double> serial_sparse_matrix_full;
     serial_sparse_matrix_full.copy_from(serial_sparse_matrix);
-    serial_sparse_matrix_full.print_formatted(deallog.get_file_stream(),
-                                              2,
-                                              false,
-                                              8);
+    serial_sparse_matrix_full.print_formatted(deallog.get_file_stream(), 2, false, 8);
   };
 
   test_restrict(dof_handler.locally_owned_dofs(), {});
   test_restrict(DoFTools::extract_locally_active_dofs(dof_handler), {});
-  test_restrict(dof_handler.locally_owned_dofs(),
-                DoFTools::extract_locally_active_dofs(dof_handler));
+  test_restrict(dof_handler.locally_owned_dofs(), DoFTools::extract_locally_active_dofs(dof_handler));
 }
 
 #include "../tests.h"
@@ -167,18 +146,10 @@ main(int argc, char *argv[])
 
   // SparseMatrix -> SparseMatrix
   if (Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD) == 1)
-    test<2,
-         SparseMatrix<double>,
-         SparsityPattern,
-         SparseMatrix<double>,
-         SparsityPattern>();
+    test<2, SparseMatrix<double>, SparsityPattern, SparseMatrix<double>, SparsityPattern>();
 
   // TrilinosWrappers::SparseMatrix -> SparseMatrix
-  test<2,
-       TrilinosWrappers::SparseMatrix,
-       TrilinosWrappers::SparsityPattern,
-       SparseMatrix<double>,
-       SparsityPattern>();
+  test<2, TrilinosWrappers::SparseMatrix, TrilinosWrappers::SparsityPattern, SparseMatrix<double>, SparsityPattern>();
 
   // TrilinosWrappers::SparseMatrix -> TrilinosWrappers::SparseMatrix
   test<2,

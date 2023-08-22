@@ -31,11 +31,10 @@ namespace internal
 {
   template <int dim, typename Number>
   void
-  FEEvaluationFactory<dim, Number>::evaluate(
-    const unsigned int                     n_components,
-    const EvaluationFlags::EvaluationFlags evaluation_flag,
-    const Number *                         values_dofs,
-    FEEvaluationData<dim, Number, false> & fe_eval)
+  FEEvaluationFactory<dim, Number>::evaluate(const unsigned int                     n_components,
+                                             const EvaluationFlags::EvaluationFlags evaluation_flag,
+                                             const Number                          *values_dofs,
+                                             FEEvaluationData<dim, Number, false>  &fe_eval)
   {
     instantiation_helper_run<1, FEEvaluationImplSelector<dim, Number, false>>(
       fe_eval.get_shape_info().data[0].fe_degree,
@@ -50,12 +49,11 @@ namespace internal
 
   template <int dim, typename Number>
   void
-  FEEvaluationFactory<dim, Number>::integrate(
-    const unsigned int                     n_components,
-    const EvaluationFlags::EvaluationFlags integration_flag,
-    Number *                               values_dofs,
-    FEEvaluationData<dim, Number, false> & fe_eval,
-    const bool                             sum_into_values_array)
+  FEEvaluationFactory<dim, Number>::integrate(const unsigned int                     n_components,
+                                              const EvaluationFlags::EvaluationFlags integration_flag,
+                                              Number                                *values_dofs,
+                                              FEEvaluationData<dim, Number, false>  &fe_eval,
+                                              const bool                             sum_into_values_array)
   {
     instantiation_helper_run<1, FEEvaluationImplSelector<dim, Number, true>>(
       fe_eval.get_shape_info().data[0].fe_degree,
@@ -75,27 +73,23 @@ namespace internal
   // outside of deal.II.
   template <int dim, typename Number>
   bool
-  FEEvaluationFactory<dim, Number>::fast_evaluation_supported(
-    const unsigned int given_degree,
-    const unsigned int n_q_points_1d)
+  FEEvaluationFactory<dim, Number>::fast_evaluation_supported(const unsigned int given_degree,
+                                                              const unsigned int n_q_points_1d)
   {
-    return instantiation_helper_run<1, FastEvaluationSupported>(given_degree,
-                                                                n_q_points_1d);
+    return instantiation_helper_run<1, FastEvaluationSupported>(given_degree, n_q_points_1d);
   }
 
 
 
   template <int dim, typename Number>
   void
-  CellwiseInverseMassFactory<dim, Number>::apply(
-    const unsigned int                          n_components,
-    const FEEvaluationData<dim, Number, false> &fe_eval,
-    const Number *                              in_array,
-    Number *                                    out_array)
+  CellwiseInverseMassFactory<dim, Number>::apply(const unsigned int                          n_components,
+                                                 const FEEvaluationData<dim, Number, false> &fe_eval,
+                                                 const Number                               *in_array,
+                                                 Number                                     *out_array)
   {
     const unsigned int fe_degree = fe_eval.get_shape_info().data[0].fe_degree;
-    instantiation_helper_run<1,
-                             CellwiseInverseMassMatrixImplBasic<dim, Number>>(
+    instantiation_helper_run<1, CellwiseInverseMassMatrixImplBasic<dim, Number>>(
       fe_degree, fe_degree + 1, n_components, fe_eval, in_array, out_array);
   }
 
@@ -103,25 +97,16 @@ namespace internal
 
   template <int dim, typename Number>
   void
-  CellwiseInverseMassFactory<dim, Number>::apply(
-    const unsigned int                          n_components,
-    const FEEvaluationData<dim, Number, false> &fe_eval,
-    const ArrayView<const Number> &             inverse_coefficients,
-    const bool                                  dyadic_coefficients,
-    const Number *                              in_array,
-    Number *                                    out_array)
+  CellwiseInverseMassFactory<dim, Number>::apply(const unsigned int                          n_components,
+                                                 const FEEvaluationData<dim, Number, false> &fe_eval,
+                                                 const ArrayView<const Number>              &inverse_coefficients,
+                                                 const bool                                  dyadic_coefficients,
+                                                 const Number                               *in_array,
+                                                 Number                                     *out_array)
   {
     const unsigned int fe_degree = fe_eval.get_shape_info().data[0].fe_degree;
-    instantiation_helper_run<
-      1,
-      CellwiseInverseMassMatrixImplFlexible<dim, Number>>(fe_degree,
-                                                          fe_degree + 1,
-                                                          n_components,
-                                                          fe_eval,
-                                                          inverse_coefficients,
-                                                          dyadic_coefficients,
-                                                          in_array,
-                                                          out_array);
+    instantiation_helper_run<1, CellwiseInverseMassMatrixImplFlexible<dim, Number>>(
+      fe_degree, fe_degree + 1, n_components, fe_eval, inverse_coefficients, dyadic_coefficients, in_array, out_array);
   }
 
 
@@ -131,15 +116,12 @@ namespace internal
   CellwiseInverseMassFactory<dim, Number>::transform_from_q_points_to_basis(
     const unsigned int                          n_components,
     const FEEvaluationData<dim, Number, false> &fe_eval,
-    const Number *                              in_array,
-    Number *                                    out_array)
+    const Number                               *in_array,
+    Number                                     *out_array)
   {
-    const unsigned int fe_degree = fe_eval.get_shape_info().data[0].fe_degree;
-    const unsigned int n_q_points_1d =
-      fe_eval.get_shape_info().data[0].n_q_points_1d;
-    instantiation_helper_run<
-      1,
-      CellwiseInverseMassMatrixImplTransformFromQPoints<dim, Number>>(
+    const unsigned int fe_degree     = fe_eval.get_shape_info().data[0].fe_degree;
+    const unsigned int n_q_points_1d = fe_eval.get_shape_info().data[0].n_q_points_1d;
+    instantiation_helper_run<1, CellwiseInverseMassMatrixImplTransformFromQPoints<dim, Number>>(
       fe_degree, n_q_points_1d, n_components, fe_eval, in_array, out_array);
   }
 

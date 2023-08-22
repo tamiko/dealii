@@ -346,8 +346,7 @@ public:
    *   the destructor is called.
    */
   void
-  replicate_across_communicator(const MPI_Comm     communicator,
-                                const unsigned int root_process);
+  replicate_across_communicator(const MPI_Comm communicator, const unsigned int root_process);
 
   /**
    * Swaps the given vector with the calling vector.
@@ -575,7 +574,7 @@ private:
      */
     Deleter(AlignedVector<T> *owning_object,
             const bool        is_shmem_root,
-            T *               aligned_shmem_pointer,
+            T                *aligned_shmem_pointer,
             MPI_Comm          shmem_group_communicator,
             MPI_Win           shmem_window);
 #endif
@@ -633,7 +632,7 @@ private:
        * identify the MPI window in which the data resides.
        */
       MPISharedMemDeleterAction(const bool is_shmem_root,
-                                T *        aligned_shmem_pointer,
+                                T         *aligned_shmem_pointer,
                                 MPI_Comm   shmem_group_communicator,
                                 MPI_Win    shmem_window);
 
@@ -651,7 +650,7 @@ private:
        * all ancillary information to destroy this window.
        */
       const bool is_shmem_root;
-      T *        aligned_shmem_pointer;
+      T         *aligned_shmem_pointer;
       MPI_Comm   shmem_group_communicator;
       MPI_Win    shmem_window;
     };
@@ -715,11 +714,9 @@ namespace internal
    * @relatesalso AlignedVector
    */
   template <typename T>
-  class AlignedVectorCopyConstruct
-    : private dealii::parallel::ParallelForInteger
+  class AlignedVectorCopyConstruct : private dealii::parallel::ParallelForInteger
   {
-    static const std::size_t minimum_parallel_grain_size =
-      160000 / sizeof(T) + 1;
+    static const std::size_t minimum_parallel_grain_size = 160000 / sizeof(T) + 1;
 
   public:
     /**
@@ -731,15 +728,12 @@ namespace internal
      * The elements from the source array are simply copied via the placement
      * new copy constructor.
      */
-    AlignedVectorCopyConstruct(const T *const source_begin,
-                               const T *const source_end,
-                               T *const       destination)
+    AlignedVectorCopyConstruct(const T *const source_begin, const T *const source_end, T *const destination)
       : source_(source_begin)
       , destination_(destination)
     {
       Assert(source_end >= source_begin, ExcInternalError());
-      Assert(source_end == source_begin || destination != nullptr,
-             ExcInternalError());
+      Assert(source_end == source_begin || destination != nullptr, ExcInternalError());
       const std::size_t size = source_end - source_begin;
       if (size < minimum_parallel_grain_size)
         AlignedVectorCopyConstruct::apply_to_subrange(0, size);
@@ -752,8 +746,7 @@ namespace internal
      * the constructor on a subrange given by two integers.
      */
     virtual void
-    apply_to_subrange(const std::size_t begin,
-                      const std::size_t end) const override
+    apply_to_subrange(const std::size_t begin, const std::size_t end) const override
     {
       if (end == begin)
         return;
@@ -784,11 +777,9 @@ namespace internal
    * @relatesalso AlignedVector
    */
   template <typename T>
-  class AlignedVectorMoveConstruct
-    : private dealii::parallel::ParallelForInteger
+  class AlignedVectorMoveConstruct : private dealii::parallel::ParallelForInteger
   {
-    static const std::size_t minimum_parallel_grain_size =
-      160000 / sizeof(T) + 1;
+    static const std::size_t minimum_parallel_grain_size = 160000 / sizeof(T) + 1;
 
   public:
     /**
@@ -800,15 +791,12 @@ namespace internal
      * The data is moved between the two arrays by invoking the destructor on
      * the source range (preparing for a subsequent call to free).
      */
-    AlignedVectorMoveConstruct(T *const source_begin,
-                               T *const source_end,
-                               T *const destination)
+    AlignedVectorMoveConstruct(T *const source_begin, T *const source_end, T *const destination)
       : source_(source_begin)
       , destination_(destination)
     {
       Assert(source_end >= source_begin, ExcInternalError());
-      Assert(source_end == source_begin || destination != nullptr,
-             ExcInternalError());
+      Assert(source_end == source_begin || destination != nullptr, ExcInternalError());
       const std::size_t size = source_end - source_begin;
       if (size < minimum_parallel_grain_size)
         AlignedVectorMoveConstruct::apply_to_subrange(0, size);
@@ -821,8 +809,7 @@ namespace internal
      * the constructor on a subrange given by two integers.
      */
     virtual void
-    apply_to_subrange(const std::size_t begin,
-                      const std::size_t end) const override
+    apply_to_subrange(const std::size_t begin, const std::size_t end) const override
     {
       if (end == begin)
         return;
@@ -867,17 +854,14 @@ namespace internal
   template <typename T, bool initialize_memory>
   class AlignedVectorInitialize : private dealii::parallel::ParallelForInteger
   {
-    static const std::size_t minimum_parallel_grain_size =
-      160000 / sizeof(T) + 1;
+    static const std::size_t minimum_parallel_grain_size = 160000 / sizeof(T) + 1;
 
   public:
     /**
      * Constructor. Issues a parallel call if there are sufficiently many
      * elements, otherwise work in serial.
      */
-    AlignedVectorInitialize(const std::size_t size,
-                            const T &         element,
-                            T *const          destination)
+    AlignedVectorInitialize(const std::size_t size, const T &element, T *const destination)
       : element_(element)
       , destination_(destination)
       , trivial_element(false)
@@ -889,16 +873,13 @@ namespace internal
       // do not use memcmp for long double because on some systems it does not
       // completely fill its memory and may lead to false positives in
       // e.g. valgrind
-      if (std::is_trivial_v<T> == true &&
-          std::is_same_v<T, long double> == false)
+      if (std::is_trivial_v<T> == true && std::is_same_v<T, long double> == false)
         {
           const unsigned char zero[sizeof(T)] = {};
           // cast element to (void*) to silence compiler warning for virtual
           // classes (they will never arrive here because they are
           // non-trivial).
-          if (std::memcmp(zero,
-                          static_cast<const void *>(&element),
-                          sizeof(T)) == 0)
+          if (std::memcmp(zero, static_cast<const void *>(&element), sizeof(T)) == 0)
             trivial_element = true;
         }
       if (size < minimum_parallel_grain_size)
@@ -911,32 +892,26 @@ namespace internal
      * This sets elements on a subrange given by two integers.
      */
     virtual void
-    apply_to_subrange(const std::size_t begin,
-                      const std::size_t end) const override
+    apply_to_subrange(const std::size_t begin, const std::size_t end) const override
     {
       // for classes with trivial assignment of zero can use memset. cast
       // element to (void*) to silence compiler warning for virtual
       // classes (they will never arrive here because they are
       // non-trivial).
       if (std::is_trivial_v<T> == true && trivial_element)
-        std::memset(static_cast<void *>(destination_ + begin),
-                    0,
-                    (end - begin) * sizeof(T));
+        std::memset(static_cast<void *>(destination_ + begin), 0, (end - begin) * sizeof(T));
       else
-        copy_construct_or_assign(
-          begin, end, std::integral_constant<bool, initialize_memory>());
+        copy_construct_or_assign(begin, end, std::integral_constant<bool, initialize_memory>());
     }
 
   private:
-    const T &  element_;
+    const T   &element_;
     mutable T *destination_;
     bool       trivial_element;
 
     // copy assignment operation
     void
-    copy_construct_or_assign(const std::size_t begin,
-                             const std::size_t end,
-                             std::integral_constant<bool, false>) const
+    copy_construct_or_assign(const std::size_t begin, const std::size_t end, std::integral_constant<bool, false>) const
     {
       for (std::size_t i = begin; i < end; ++i)
         destination_[i] = element_;
@@ -944,9 +919,7 @@ namespace internal
 
     // copy constructor (memory initialization)
     void
-    copy_construct_or_assign(const std::size_t begin,
-                             const std::size_t end,
-                             std::integral_constant<bool, true>) const
+    copy_construct_or_assign(const std::size_t begin, const std::size_t end, std::integral_constant<bool, true>) const
     {
       for (std::size_t i = begin; i < end; ++i)
         new (&destination_[i]) T(element_);
@@ -968,11 +941,9 @@ namespace internal
    * @relatesalso AlignedVector
    */
   template <typename T, bool initialize_memory>
-  class AlignedVectorDefaultInitialize
-    : private dealii::parallel::ParallelForInteger
+  class AlignedVectorDefaultInitialize : private dealii::parallel::ParallelForInteger
   {
-    static const std::size_t minimum_parallel_grain_size =
-      160000 / sizeof(T) + 1;
+    static const std::size_t minimum_parallel_grain_size = 160000 / sizeof(T) + 1;
 
   public:
     /**
@@ -996,20 +967,16 @@ namespace internal
      * This initializes elements on a subrange given by two integers.
      */
     virtual void
-    apply_to_subrange(const std::size_t begin,
-                      const std::size_t end) const override
+    apply_to_subrange(const std::size_t begin, const std::size_t end) const override
     {
       // for classes with trivial assignment of zero can use memset. cast
       // element to (void*) to silence compiler warning for virtual
       // classes (they will never arrive here because they are
       // non-trivial).
       if (std::is_trivial_v<T> == true)
-        std::memset(static_cast<void *>(destination_ + begin),
-                    0,
-                    (end - begin) * sizeof(T));
+        std::memset(static_cast<void *>(destination_ + begin), 0, (end - begin) * sizeof(T));
       else
-        default_construct_or_assign(
-          begin, end, std::integral_constant<bool, initialize_memory>());
+        default_construct_or_assign(begin, end, std::integral_constant<bool, initialize_memory>());
     }
 
   private:
@@ -1055,14 +1022,13 @@ inline AlignedVector<T>::Deleter::Deleter(AlignedVector<T> *owning_object)
 template <typename T>
 inline AlignedVector<T>::Deleter::Deleter(AlignedVector<T> *owning_object,
                                           const bool        is_shmem_root,
-                                          T *      aligned_shmem_pointer,
-                                          MPI_Comm shmem_group_communicator,
-                                          MPI_Win  shmem_window)
-  : deleter_action_object(
-      std::make_unique<MPISharedMemDeleterAction>(is_shmem_root,
-                                                  aligned_shmem_pointer,
-                                                  shmem_group_communicator,
-                                                  shmem_window))
+                                          T                *aligned_shmem_pointer,
+                                          MPI_Comm          shmem_group_communicator,
+                                          MPI_Win           shmem_window)
+  : deleter_action_object(std::make_unique<MPISharedMemDeleterAction>(is_shmem_root,
+                                                                      aligned_shmem_pointer,
+                                                                      shmem_group_communicator,
+                                                                      shmem_window))
   , owning_aligned_vector(owning_object)
 {}
 #  endif
@@ -1078,12 +1044,10 @@ AlignedVector<T>::Deleter::operator()(T *ptr)
     {
       if (ptr != nullptr)
         {
-          Assert(owning_aligned_vector->used_elements_end != nullptr,
-                 ExcInternalError());
+          Assert(owning_aligned_vector->used_elements_end != nullptr, ExcInternalError());
 
           if (std::is_trivial_v<T> == false)
-            for (T *p = owning_aligned_vector->used_elements_end - 1; p >= ptr;
-                 --p)
+            for (T *p = owning_aligned_vector->used_elements_end - 1; p >= ptr; --p)
               p->~T();
 
           std::free(ptr);
@@ -1098,8 +1062,7 @@ AlignedVector<T>::Deleter::operator()(T *ptr)
 
 template <typename T>
 inline void
-AlignedVector<T>::Deleter::reset_owning_object(
-  const AlignedVector<T> *new_aligned_vector_ptr)
+AlignedVector<T>::Deleter::reset_owning_object(const AlignedVector<T> *new_aligned_vector_ptr)
 {
   owning_aligned_vector = new_aligned_vector_ptr;
 }
@@ -1108,11 +1071,11 @@ AlignedVector<T>::Deleter::reset_owning_object(
 #  ifdef DEAL_II_WITH_MPI
 
 template <typename T>
-inline AlignedVector<T>::Deleter::MPISharedMemDeleterAction::
-  MPISharedMemDeleterAction(const bool is_shmem_root,
-                            T *        aligned_shmem_pointer,
-                            MPI_Comm   shmem_group_communicator,
-                            MPI_Win    shmem_window)
+inline AlignedVector<T>::Deleter::MPISharedMemDeleterAction::MPISharedMemDeleterAction(
+  const bool is_shmem_root,
+  T         *aligned_shmem_pointer,
+  MPI_Comm   shmem_group_communicator,
+  MPI_Win    shmem_window)
   : is_shmem_root(is_shmem_root)
   , aligned_shmem_pointer(aligned_shmem_pointer)
   , shmem_group_communicator(shmem_group_communicator)
@@ -1123,9 +1086,7 @@ inline AlignedVector<T>::Deleter::MPISharedMemDeleterAction::
 
 template <typename T>
 inline void
-AlignedVector<T>::Deleter::MPISharedMemDeleterAction::delete_array(
-  const AlignedVector<T> *aligned_vector,
-  T *                     ptr)
+AlignedVector<T>::Deleter::MPISharedMemDeleterAction::delete_array(const AlignedVector<T> *aligned_vector, T *ptr)
 {
   (void)ptr;
   // It would be nice to assert that aligned_vector->elements.get() equals ptr,
@@ -1182,9 +1143,7 @@ inline AlignedVector<T>::AlignedVector(const AlignedVector<T> &vec)
   // copy the data from vec
   reserve(vec.size());
   used_elements_end = allocated_elements_end;
-  internal::AlignedVectorCopyConstruct<T>(vec.elements.get(),
-                                          vec.used_elements_end,
-                                          elements.get());
+  internal::AlignedVectorCopyConstruct<T>(vec.elements.get(), vec.used_elements_end, elements.get());
 }
 
 
@@ -1212,9 +1171,7 @@ AlignedVector<T>::operator=(const AlignedVector<T> &vec)
 
   // Then copy the elements over by using the copy constructor on these
   // elements:
-  internal::AlignedVectorCopyConstruct<T>(vec.elements.get(),
-                                          vec.used_elements_end,
-                                          elements.get());
+  internal::AlignedVectorCopyConstruct<T>(vec.elements.get(), vec.used_elements_end, elements.get());
 
   // Finally adjust the pointer to the end of the elements that are used:
   used_elements_end = elements.get() + new_size;
@@ -1260,7 +1217,8 @@ AlignedVector<T>::resize_fast(const size_type new_size)
   if (new_size == 0)
     clear();
   else if (new_size == old_size)
-    {} // nothing to do here
+    {
+    } // nothing to do here
   else if (new_size < old_size)
     {
       // call destructor on fields that are released, if the type requires it.
@@ -1280,8 +1238,7 @@ AlignedVector<T>::resize_fast(const size_type new_size)
       // need to still set the values in case the class is non-trivial because
       // virtual classes etc. need to run their (default) constructor
       if (std::is_trivial_v<T> == false)
-        dealii::internal::AlignedVectorDefaultInitialize<T, true>(
-          new_size - old_size, elements.get() + old_size);
+        dealii::internal::AlignedVectorDefaultInitialize<T, true>(new_size - old_size, elements.get() + old_size);
     }
 }
 
@@ -1296,7 +1253,8 @@ AlignedVector<T>::resize(const size_type new_size)
   if (new_size == 0)
     clear();
   else if (new_size == old_size)
-    {} // nothing to do here
+    {
+    } // nothing to do here
   else if (new_size < old_size)
     {
       // call destructor on fields that are released, if the type requires it.
@@ -1314,8 +1272,7 @@ AlignedVector<T>::resize(const size_type new_size)
       used_elements_end = elements.get() + new_size;
 
       // finally set the values to the default initializer
-      dealii::internal::AlignedVectorDefaultInitialize<T, true>(
-        new_size - old_size, elements.get() + old_size);
+      dealii::internal::AlignedVectorDefaultInitialize<T, true>(new_size - old_size, elements.get() + old_size);
     }
 }
 
@@ -1330,7 +1287,8 @@ AlignedVector<T>::resize(const size_type new_size, const T &init)
   if (new_size == 0)
     clear();
   else if (new_size == old_size)
-    {} // nothing to do here
+    {
+    } // nothing to do here
   else if (new_size < old_size)
     {
       // call destructor on fields that are released, if the type requires it.
@@ -1348,8 +1306,7 @@ AlignedVector<T>::resize(const size_type new_size, const T &init)
       used_elements_end = elements.get() + new_size;
 
       // finally set the desired init values
-      dealii::internal::AlignedVectorInitialize<T, true>(
-        new_size - old_size, init, elements.get() + old_size);
+      dealii::internal::AlignedVectorInitialize<T, true>(new_size - old_size, init, elements.get() + old_size);
     }
 }
 
@@ -1366,14 +1323,12 @@ AlignedVector<T>::reserve(const size_type new_allocated_size)
       // if we continuously increase the size of the vector, we might be
       // reallocating a lot of times. therefore, try to increase the size more
       // aggressively
-      const size_type new_size =
-        std::max(new_allocated_size, 2 * old_allocated_size);
+      const size_type new_size = std::max(new_allocated_size, 2 * old_allocated_size);
 
       // allocate and align along 64-byte boundaries (this is enough for all
       // levels of vectorization currently supported by deal.II)
       T *new_data_ptr;
-      Utilities::System::posix_memalign(
-        reinterpret_cast<void **>(&new_data_ptr), 64, new_size * sizeof(T));
+      Utilities::System::posix_memalign(reinterpret_cast<void **>(&new_data_ptr), 64, new_size * sizeof(T));
 
       // Now create a deleter that encodes what should happen when the object is
       // released: We need to destroy the objects that are currently alive (in
@@ -1384,8 +1339,7 @@ AlignedVector<T>::reserve(const size_type new_allocated_size)
 
       // copy whatever elements we need to retain
       if (new_allocated_size > 0)
-        dealii::internal::AlignedVectorMoveConstruct<T>(
-          elements.get(), elements.get() + old_size, new_data_ptr);
+        dealii::internal::AlignedVectorMoveConstruct<T>(elements.get(), elements.get() + old_size, new_data_ptr);
 
       // Now reset all of the member variables of the current object
       // based on the allocation above. Assigning to a std::unique_ptr
@@ -1396,14 +1350,15 @@ AlignedVector<T>::reserve(const size_type new_allocated_size)
       // deleter object of the previously allocated array (see how it loops over
       // the to-be-destroyed elements a the Deleter::DefaultDeleterAction
       // class).
-      elements          = decltype(elements)(new_data_ptr, std::move(deleter));
-      used_elements_end = elements.get() + old_size;
+      elements               = decltype(elements)(new_data_ptr, std::move(deleter));
+      used_elements_end      = elements.get() + old_size;
       allocated_elements_end = elements.get() + new_size;
     }
   else if (new_allocated_size == 0)
     clear();
   else // size_alloc < allocated_size
-    {} // nothing to do here
+    {
+    } // nothing to do here
 }
 
 
@@ -1484,8 +1439,7 @@ template <class T>
 inline void
 AlignedVector<T>::fill()
 {
-  dealii::internal::AlignedVectorDefaultInitialize<T, false>(size(),
-                                                             elements.get());
+  dealii::internal::AlignedVectorDefaultInitialize<T, false>(size(), elements.get());
 }
 
 
@@ -1494,17 +1448,14 @@ template <class T>
 inline void
 AlignedVector<T>::fill(const T &value)
 {
-  dealii::internal::AlignedVectorInitialize<T, false>(size(),
-                                                      value,
-                                                      elements.get());
+  dealii::internal::AlignedVectorInitialize<T, false>(size(), value, elements.get());
 }
 
 
 
 template <class T>
 inline void
-AlignedVector<T>::replicate_across_communicator(const MPI_Comm     communicator,
-                                                const unsigned int root_process)
+AlignedVector<T>::replicate_across_communicator(const MPI_Comm communicator, const unsigned int root_process)
 {
 #  ifdef DEAL_II_WITH_MPI
 
@@ -1512,8 +1463,7 @@ AlignedVector<T>::replicate_across_communicator(const MPI_Comm     communicator,
   // processes just clear() their memory and reset themselves to a non-shared
   // empty object -- there is no point to run through complicated MPI
   // calls if the end result is an empty array. Otherwise, we continue on.
-  const size_type new_size =
-    Utilities::MPI::broadcast(communicator, size(), root_process);
+  const size_type new_size = Utilities::MPI::broadcast(communicator, size(), root_process);
   if (new_size == 0)
     {
       clear();
@@ -1560,9 +1510,8 @@ AlignedVector<T>::replicate_across_communicator(const MPI_Comm     communicator,
                                    &shmem_group_communicator_temp);
     AssertThrowMPI(ierr);
 
-    const int key =
-      (Utilities::MPI::this_mpi_process(communicator) == root_process ? 0 : 1);
-    ierr = MPI_Comm_split(shmem_group_communicator_temp,
+    const int key = (Utilities::MPI::this_mpi_process(communicator) == root_process ? 0 : 1);
+    ierr          = MPI_Comm_split(shmem_group_communicator_temp,
                           /* color */ 0,
                           key,
                           &shmem_group_communicator);
@@ -1570,14 +1519,12 @@ AlignedVector<T>::replicate_across_communicator(const MPI_Comm     communicator,
 
     // Verify the explanation from above
     if (Utilities::MPI::this_mpi_process(communicator) == root_process)
-      Assert(Utilities::MPI::this_mpi_process(shmem_group_communicator) == 0,
-             ExcInternalError());
+      Assert(Utilities::MPI::this_mpi_process(shmem_group_communicator) == 0, ExcInternalError());
 
     // And get rid of the temporary communicator
     Utilities::MPI::free_communicator(shmem_group_communicator_temp);
   }
-  const bool is_shmem_root =
-    Utilities::MPI::this_mpi_process(shmem_group_communicator) == 0;
+  const bool is_shmem_root = Utilities::MPI::this_mpi_process(shmem_group_communicator) == 0;
 
   // **** Step 2 ****
   // We then have to send the state of the current object from the
@@ -1607,8 +1554,7 @@ AlignedVector<T>::replicate_across_communicator(const MPI_Comm     communicator,
   // ordered.
   MPI_Comm shmem_roots_communicator;
   {
-    const int key =
-      (Utilities::MPI::this_mpi_process(communicator) == root_process ? 0 : 1);
+    const int key = (Utilities::MPI::this_mpi_process(communicator) == root_process ? 0 : 1);
 
     const int ierr = MPI_Comm_split(communicator,
                                     /*color=*/
@@ -1619,14 +1565,12 @@ AlignedVector<T>::replicate_across_communicator(const MPI_Comm     communicator,
 
     // Again verify the explanation from above
     if (Utilities::MPI::this_mpi_process(communicator) == root_process)
-      Assert(Utilities::MPI::this_mpi_process(shmem_roots_communicator) == 0,
-             ExcInternalError());
+      Assert(Utilities::MPI::this_mpi_process(shmem_roots_communicator) == 0, ExcInternalError());
   }
 
   const unsigned int shmem_roots_root_rank = 0;
   const bool         is_shmem_roots_root =
-    (is_shmem_root && (Utilities::MPI::this_mpi_process(
-                         shmem_roots_communicator) == shmem_roots_root_rank));
+    (is_shmem_root && (Utilities::MPI::this_mpi_process(shmem_roots_communicator) == shmem_roots_root_rank));
 
   // Now let the original root_process broadcast the current object to all
   // shmem roots. We know that the last rank is the original root process that
@@ -1642,19 +1586,13 @@ AlignedVector<T>::replicate_across_communicator(const MPI_Comm     communicator,
           // In that case, first tell all of the other shmem roots how many
           // elements we will have to deal with, and let them resize their
           // (non-shared) arrays.
-          const size_type new_size =
-            Utilities::MPI::broadcast(shmem_roots_communicator,
-                                      size(),
-                                      shmem_roots_root_rank);
+          const size_type new_size = Utilities::MPI::broadcast(shmem_roots_communicator, size(), shmem_roots_root_rank);
           if (is_shmem_roots_root == false)
             resize(new_size);
 
           // Then directly copy from the root process into these buffers
-          int ierr = MPI_Bcast(elements.get(),
-                               sizeof(T) * new_size,
-                               MPI_CHAR,
-                               shmem_roots_root_rank,
-                               shmem_roots_communicator);
+          int ierr =
+            MPI_Bcast(elements.get(), sizeof(T) * new_size, MPI_CHAR, shmem_roots_root_rank, shmem_roots_communicator);
           AssertThrowMPI(ierr);
         }
       else
@@ -1669,13 +1607,9 @@ AlignedVector<T>::replicate_across_communicator(const MPI_Comm     communicator,
           // deadlock. So we just send the result of the broadcast() call to
           // nirvana on the root process and keep our current state.
           if (Utilities::MPI::this_mpi_process(shmem_roots_communicator) == 0)
-            Utilities::MPI::broadcast(shmem_roots_communicator,
-                                      *this,
-                                      shmem_roots_root_rank);
+            Utilities::MPI::broadcast(shmem_roots_communicator, *this, shmem_roots_root_rank);
           else
-            *this = Utilities::MPI::broadcast(shmem_roots_communicator,
-                                              *this,
-                                              shmem_roots_root_rank);
+            *this = Utilities::MPI::broadcast(shmem_roots_communicator, *this, shmem_roots_root_rank);
         }
     }
 
@@ -1712,12 +1646,10 @@ AlignedVector<T>::replicate_across_communicator(const MPI_Comm     communicator,
   // know anything about, and so setting this flag is backward compatible also
   // to older MPI versions.
   MPI_Win        shmem_window;
-  void *         base_ptr;
+  void          *base_ptr;
   const MPI_Aint align_by = 64;
   const MPI_Aint alloc_size =
-    Utilities::MPI::broadcast(shmem_group_communicator,
-                              (size() * sizeof(T) + (align_by - 1)),
-                              0);
+    Utilities::MPI::broadcast(shmem_group_communicator, (size() * sizeof(T) + (align_by - 1)), 0);
 
   {
     int ierr;
@@ -1725,9 +1657,7 @@ AlignedVector<T>::replicate_across_communicator(const MPI_Comm     communicator,
     MPI_Info mpi_info;
     ierr = MPI_Info_create(&mpi_info);
     AssertThrowMPI(ierr);
-    ierr = MPI_Info_set(mpi_info,
-                        "mpi_minimum_memory_alignment",
-                        std::to_string(align_by).c_str());
+    ierr = MPI_Info_set(mpi_info, "mpi_minimum_memory_alignment", std::to_string(align_by).c_str());
     AssertThrowMPI(ierr);
     ierr = MPI_Win_allocate_shared((is_shmem_root ? alloc_size : 0),
                                    /* disp_unit = */ 1,
@@ -1764,8 +1694,7 @@ AlignedVector<T>::replicate_across_communicator(const MPI_Comm     communicator,
     {
       int       disp_unit;
       MPI_Aint  alloc_size; // not actually used
-      const int ierr = MPI_Win_shared_query(
-        shmem_window, MPI_PROC_NULL, &alloc_size, &disp_unit, &base_ptr);
+      const int ierr = MPI_Win_shared_query(shmem_window, MPI_PROC_NULL, &alloc_size, &disp_unit, &base_ptr);
       AssertThrowMPI(ierr);
 
       // Make sure we actually got a pointer, and check that the disp_unit is
@@ -1785,10 +1714,9 @@ AlignedVector<T>::replicate_across_communicator(const MPI_Comm     communicator,
   // https://en.cppreference.com/w/cpp/memory/align is not entirely clear, but I
   // *think* that the following should do given that we do not use base_ptr and
   // available_space any further after the call to std::align.
-  std::size_t available_space       = alloc_size;
-  void *      base_ptr_backup       = base_ptr;
-  T *         aligned_shmem_pointer = static_cast<T *>(
-    std::align(align_by, new_size * sizeof(T), base_ptr, available_space));
+  std::size_t available_space = alloc_size;
+  void       *base_ptr_backup = base_ptr;
+  T *aligned_shmem_pointer    = static_cast<T *>(std::align(align_by, new_size * sizeof(T), base_ptr, available_space));
   Assert(aligned_shmem_pointer != nullptr, ExcInternalError());
 
   // There is one step to guard against. It is *conceivable* that the base_ptr
@@ -1855,12 +1783,9 @@ AlignedVector<T>::replicate_across_communicator(const MPI_Comm     communicator,
   // the shmem root!) but also destroy the MPI_Win and the communicator. All of
   // that is encapsulated in the following call where the deleter makes copies
   // of the arguments in the lambda capture.
-  elements = decltype(elements)(aligned_shmem_pointer,
-                                Deleter(this,
-                                        is_shmem_root,
-                                        aligned_shmem_pointer,
-                                        shmem_group_communicator,
-                                        shmem_window));
+  elements =
+    decltype(elements)(aligned_shmem_pointer,
+                       Deleter(this, is_shmem_root, aligned_shmem_pointer, shmem_group_communicator, shmem_window));
 
   // We then also have to set the other two pointers that define the state of
   // the current object. Note that the new buffer size is exactly as large as
@@ -1874,8 +1799,7 @@ AlignedVector<T>::replicate_across_communicator(const MPI_Comm     communicator,
   // Verify this in some sort of round-about way
 #    ifdef DEBUG
   const std::vector<char> packed_data = Utilities::pack(*this);
-  const int               hash =
-    std::accumulate(packed_data.begin(), packed_data.end(), int(0));
+  const int               hash        = std::accumulate(packed_data.begin(), packed_data.end(), int(0));
   Assert(Utilities::MPI::max(hash, communicator) == hash, ExcInternalError());
 #    endif
 
@@ -2012,7 +1936,7 @@ inline void
 AlignedVector<T>::save(Archive &ar, const unsigned int) const
 {
   size_type vec_size = size();
-  ar &      vec_size;
+  ar       &vec_size;
   if (vec_size > 0)
     ar &boost::serialization::make_array(elements.get(), vec_size);
 }
@@ -2025,7 +1949,7 @@ inline void
 AlignedVector<T>::load(Archive &ar, const unsigned int)
 {
   size_type vec_size = 0;
-  ar &      vec_size;
+  ar       &vec_size;
 
   if (vec_size > 0)
     {
@@ -2063,10 +1987,7 @@ operator==(const AlignedVector<T> &lhs, const AlignedVector<T> &rhs)
 {
   if (lhs.size() != rhs.size())
     return false;
-  for (typename AlignedVector<T>::const_iterator lit = lhs.begin(),
-                                                 rit = rhs.begin();
-       lit != lhs.end();
-       ++lit, ++rit)
+  for (typename AlignedVector<T>::const_iterator lit = lhs.begin(), rit = rhs.begin(); lit != lhs.end(); ++lit, ++rit)
     if (*lit != *rit)
       return false;
   return true;

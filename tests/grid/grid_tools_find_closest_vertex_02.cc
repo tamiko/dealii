@@ -33,8 +33,7 @@ template <int dim, int spacedim>
 void
 test(const Point<spacedim> &p, double displacement)
 {
-  deallog << "dim: " << dim << ", spacedim: " << spacedim
-          << " with displacement " << displacement << std::endl;
+  deallog << "dim: " << dim << ", spacedim: " << spacedim << " with displacement " << displacement << std::endl;
 
   Triangulation<dim, spacedim> tria;
   GridGenerator::hyper_cube(tria);
@@ -55,12 +54,11 @@ test(const Point<spacedim> &p, double displacement)
 
   for (const auto cell : tria.active_cell_iterators())
     {
-      const auto i =
-        GridTools::find_closest_vertex_of_cell<dim, spacedim>(cell, p, mapping);
+      const auto  i = GridTools::find_closest_vertex_of_cell<dim, spacedim>(cell, p, mapping);
       const auto &v = mapping.get_vertices(cell);
 
-      deallog << "Closest vertex of cell " << cell << " to " << p
-              << " is cell->vertex(" << i << ") : " << v[i] << std::endl;
+      deallog << "Closest vertex of cell " << cell << " to " << p << " is cell->vertex(" << i << ") : " << v[i]
+              << std::endl;
     }
 };
 

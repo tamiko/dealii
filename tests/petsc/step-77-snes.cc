@@ -71,8 +71,7 @@ namespace Step77
   using VectorType         = PETScWrappers::MPI::Vector;
   using MatrixType         = PETScWrappers::MPI::SparseMatrix;
   using PreconditionerType = PETScWrappers::PreconditionLU;
-  using NonlinearSolver =
-    PETScWrappers::NonlinearSolver<VectorType, MatrixType>;
+  using NonlinearSolver    = PETScWrappers::NonlinearSolver<VectorType, MatrixType>;
 
   // @sect3{The <code>MinimalSurfaceProblem</code> class template}
 
@@ -99,8 +98,7 @@ namespace Step77
     void
     refine_mesh();
     void
-    compute_jacobian_and_initialize_preconditioner(
-      const VectorType &evaluation_point);
+    compute_jacobian_and_initialize_preconditioner(const VectorType &evaluation_point);
     void
     compute_jacobian(const VectorType &evaluation_point);
     void
@@ -141,8 +139,7 @@ namespace Step77
 
   template <int dim>
   double
-  BoundaryValues<dim>::value(const Point<dim> &p,
-                             const unsigned int /*component*/) const
+  BoundaryValues<dim>::value(const Point<dim> &p, const unsigned int /*component*/) const
   {
     return std::sin(2 * numbers::PI * (p[0] + p[1]));
   }
@@ -160,9 +157,8 @@ namespace Step77
   MinimalSurfaceProblem<dim>::MinimalSurfaceProblem()
     : mpi_communicator(MPI_COMM_WORLD)
     , triangulation(mpi_communicator,
-                    typename Triangulation<dim>::MeshSmoothing(
-                      Triangulation<dim>::smoothing_on_refinement |
-                      Triangulation<dim>::smoothing_on_coarsening))
+                    typename Triangulation<dim>::MeshSmoothing(Triangulation<dim>::smoothing_on_refinement |
+                                                               Triangulation<dim>::smoothing_on_coarsening))
     , dof_handler(triangulation)
     , fe(1)
   {}
@@ -178,19 +174,15 @@ namespace Step77
         dof_handler.distribute_dofs(fe);
       }
 
-    IndexSet locally_owned_dofs = dof_handler.locally_owned_dofs();
-    IndexSet locally_relevant_dofs =
-      DoFTools::extract_locally_relevant_dofs(dof_handler);
+    IndexSet locally_owned_dofs    = dof_handler.locally_owned_dofs();
+    IndexSet locally_relevant_dofs = DoFTools::extract_locally_relevant_dofs(dof_handler);
 
     // Specifically, we need two types of AffineConstraints.
     // One to handle homogeneous boundary conditions for the update step.
     zero_constraints.clear();
     zero_constraints.reinit(locally_relevant_dofs);
     DoFTools::make_hanging_node_constraints(dof_handler, zero_constraints);
-    VectorTools::interpolate_boundary_values(dof_handler,
-                                             0,
-                                             Functions::ZeroFunction<dim>(),
-                                             zero_constraints);
+    VectorTools::interpolate_boundary_values(dof_handler, 0, Functions::ZeroFunction<dim>(), zero_constraints);
     zero_constraints.close();
 
     // And another one to handle non-homogeneous boundary conditions
@@ -198,10 +190,7 @@ namespace Step77
     bc_constraints.clear();
     bc_constraints.reinit(locally_relevant_dofs);
     DoFTools::make_hanging_node_constraints(dof_handler, bc_constraints);
-    VectorTools::interpolate_boundary_values(dof_handler,
-                                             0,
-                                             BoundaryValues<dim>(),
-                                             bc_constraints);
+    VectorTools::interpolate_boundary_values(dof_handler, 0, BoundaryValues<dim>(), bc_constraints);
     bc_constraints.close();
 
 
@@ -210,23 +199,15 @@ namespace Step77
 
     zero_constraints.condense(dsp);
 
-    SparsityTools::distribute_sparsity_pattern(dsp,
-                                               locally_owned_dofs,
-                                               mpi_communicator,
-                                               locally_relevant_dofs);
+    SparsityTools::distribute_sparsity_pattern(dsp, locally_owned_dofs, mpi_communicator, locally_relevant_dofs);
 
     if (initial_step)
       current_solution.reinit(locally_owned_dofs, mpi_communicator);
     scratch_vector.reinit(locally_owned_dofs, mpi_communicator);
 
-    jacobian_matrix.reinit(locally_owned_dofs,
-                           locally_owned_dofs,
-                           dsp,
-                           mpi_communicator);
+    jacobian_matrix.reinit(locally_owned_dofs, locally_owned_dofs, dsp, mpi_communicator);
 
-    locally_relevant_solution.reinit(locally_owned_dofs,
-                                     locally_relevant_dofs,
-                                     mpi_communicator);
+    locally_relevant_solution.reinit(locally_owned_dofs, locally_relevant_dofs, mpi_communicator);
   }
 
 
@@ -243,16 +224,11 @@ namespace Step77
   // read-only.
   template <int dim>
   void
-  MinimalSurfaceProblem<dim>::compute_residual(
-    const VectorType &evaluation_point,
-    VectorType &      residual)
+  MinimalSurfaceProblem<dim>::compute_residual(const VectorType &evaluation_point, VectorType &residual)
   {
     deallog << "  Computing residual vector " << std::endl;
     const QGauss<dim> quadrature_formula(fe.degree + 1);
-    FEValues<dim>     fe_values(fe,
-                            quadrature_formula,
-                            update_gradients | update_quadrature_points |
-                              update_JxW_values);
+    FEValues<dim> fe_values(fe, quadrature_formula, update_gradients | update_quadrature_points | update_JxW_values);
 
     const unsigned int dofs_per_cell = fe.n_dofs_per_cell();
     const unsigned int n_q_points    = quadrature_formula.size();
@@ -276,28 +252,22 @@ namespace Step77
         cell_residual = 0;
         fe_values.reinit(cell);
 
-        fe_values.get_function_gradients(locally_relevant_solution,
-                                         evaluation_point_gradients);
+        fe_values.get_function_gradients(locally_relevant_solution, evaluation_point_gradients);
 
         for (unsigned int q = 0; q < n_q_points; ++q)
           {
-            const double coeff =
-              1.0 / std::sqrt(1 + evaluation_point_gradients[q] *
-                                    evaluation_point_gradients[q]);
+            const double coeff = 1.0 / std::sqrt(1 + evaluation_point_gradients[q] * evaluation_point_gradients[q]);
 
             for (unsigned int i = 0; i < dofs_per_cell; ++i)
-              cell_residual(i) +=
-                (fe_values.shape_grad(i, q)      // \nabla \phi_i
-                 * coeff                         // * a_n
-                 * evaluation_point_gradients[q] // * \nabla u_n
-                 * fe_values.JxW(q));            // * dx
+              cell_residual(i) += (fe_values.shape_grad(i, q)      // \nabla \phi_i
+                                   * coeff                         // * a_n
+                                   * evaluation_point_gradients[q] // * \nabla u_n
+                                   * fe_values.JxW(q));            // * dx
           }
 
         cell->get_dof_indices(local_dof_indices);
 
-        zero_constraints.distribute_local_to_global(cell_residual,
-                                                    local_dof_indices,
-                                                    residual);
+        zero_constraints.distribute_local_to_global(cell_residual, local_dof_indices, residual);
       }
     residual.compress(VectorOperation::add);
   }
@@ -316,8 +286,7 @@ namespace Step77
   // resources by constructing the factors that will be then thrown away.
   template <int dim>
   void
-  MinimalSurfaceProblem<dim>::compute_jacobian_and_initialize_preconditioner(
-    const VectorType &evaluation_point)
+  MinimalSurfaceProblem<dim>::compute_jacobian_and_initialize_preconditioner(const VectorType &evaluation_point)
   {
     compute_jacobian(evaluation_point);
     jacobian_matrix_factorization.initialize(jacobian_matrix);
@@ -332,8 +301,7 @@ namespace Step77
   // always after a residual callback.
   template <int dim>
   void
-  MinimalSurfaceProblem<dim>::compute_jacobian(
-    const VectorType &evaluation_point)
+  MinimalSurfaceProblem<dim>::compute_jacobian(const VectorType &evaluation_point)
   {
     deallog << "  Computing Jacobian matrix" << std::endl;
     const QGauss<dim> quadrature_formula(fe.degree + 1);
@@ -342,10 +310,7 @@ namespace Step77
 
     jacobian_matrix = 0;
 
-    FEValues<dim> fe_values(fe,
-                            quadrature_formula,
-                            update_gradients | update_quadrature_points |
-                              update_JxW_values);
+    FEValues<dim> fe_values(fe, quadrature_formula, update_gradients | update_quadrature_points | update_JxW_values);
 
     const unsigned int dofs_per_cell = fe.n_dofs_per_cell();
     const unsigned int n_q_points    = quadrature_formula.size();
@@ -369,32 +334,24 @@ namespace Step77
 
         fe_values.reinit(cell);
 
-        fe_values.get_function_gradients(locally_relevant_solution,
-                                         evaluation_point_gradients);
+        fe_values.get_function_gradients(locally_relevant_solution, evaluation_point_gradients);
 
         for (unsigned int q = 0; q < n_q_points; ++q)
           {
-            const double coeff =
-              1.0 / std::sqrt(1 + evaluation_point_gradients[q] *
-                                    evaluation_point_gradients[q]);
-            auto B =
+            const double coeff = 1.0 / std::sqrt(1 + evaluation_point_gradients[q] * evaluation_point_gradients[q]);
+            auto         B =
               fe_values.JxW(q) * coeff *
-              (identity - coeff * coeff *
-                            outer_product(evaluation_point_gradients[q],
-                                          evaluation_point_gradients[q]));
+              (identity - coeff * coeff * outer_product(evaluation_point_gradients[q], evaluation_point_gradients[q]));
             for (unsigned int i = 0; i < dofs_per_cell; ++i)
               {
                 for (unsigned int j = 0; j < dofs_per_cell; ++j)
-                  cell_matrix(i, j) +=
-                    fe_values.shape_grad(i, q) * B * fe_values.shape_grad(j, q);
+                  cell_matrix(i, j) += fe_values.shape_grad(i, q) * B * fe_values.shape_grad(j, q);
               }
           }
 
         cell->get_dof_indices(local_dof_indices);
 
-        zero_constraints.distribute_local_to_global(cell_matrix,
-                                                    local_dof_indices,
-                                                    jacobian_matrix);
+        zero_constraints.distribute_local_to_global(cell_matrix, local_dof_indices, jacobian_matrix);
       }
     jacobian_matrix.compress(VectorOperation::add);
   }
@@ -427,24 +384,23 @@ namespace Step77
   {
     Vector<float> estimated_error_per_cell(triangulation.n_active_cells());
 
-    KellyErrorEstimator<dim>::estimate(
-      dof_handler,
-      QGauss<dim - 1>(fe.degree + 1),
-      std::map<types::boundary_id, const Function<dim> *>(),
-      locally_relevant_solution,
-      estimated_error_per_cell);
+    KellyErrorEstimator<dim>::estimate(dof_handler,
+                                       QGauss<dim - 1>(fe.degree + 1),
+                                       std::map<types::boundary_id, const Function<dim> *>(),
+                                       locally_relevant_solution,
+                                       estimated_error_per_cell);
 
-    parallel::distributed::GridRefinement::refine_and_coarsen_fixed_number(
-      triangulation, estimated_error_per_cell, 0.3, 0.03);
+    parallel::distributed::GridRefinement::refine_and_coarsen_fixed_number(triangulation,
+                                                                           estimated_error_per_cell,
+                                                                           0.3,
+                                                                           0.03);
 
     triangulation.prepare_coarsening_and_refinement();
 
-    parallel::distributed::SolutionTransfer<dim, PETScWrappers::MPI::Vector>
-      solution_transfer(dof_handler);
+    parallel::distributed::SolutionTransfer<dim, PETScWrappers::MPI::Vector> solution_transfer(dof_handler);
 
     PETScWrappers::MPI::Vector current_solution_tmp(locally_relevant_solution);
-    solution_transfer.prepare_for_coarsening_and_refinement(
-      current_solution_tmp);
+    solution_transfer.prepare_for_coarsening_and_refinement(current_solution_tmp);
 
     triangulation.execute_coarsening_and_refinement();
 
@@ -478,8 +434,7 @@ namespace Step77
     // Here we make sure the initial guess satisfies the boundary conditions.
     bc_constraints.distribute(current_solution);
 
-    for (unsigned int refinement_cycle = 0; refinement_cycle < 6;
-         ++refinement_cycle)
+    for (unsigned int refinement_cycle = 0; refinement_cycle < 6; ++refinement_cycle)
       {
         deallog << "Mesh refinement step " << refinement_cycle << std::endl;
 
@@ -487,8 +442,7 @@ namespace Step77
           refine_mesh();
 
         const double target_tolerance = 1e-3 * std::pow(0.1, refinement_cycle);
-        deallog << "  Target_tolerance: " << target_tolerance << std::endl
-                << std::endl;
+        deallog << "  Target_tolerance: " << target_tolerance << std::endl << std::endl;
 
         // This is where we create the nonlinear solver
         // and feed it with an object that encodes a number of additional
@@ -525,8 +479,7 @@ namespace Step77
 
           // Here we inform the nonlinear_solver about how to sample the
           // residual of our nonlinear equations.
-          nonlinear_solver.residual = [&](const VectorType &evaluation_point,
-                                          VectorType &      residual) {
+          nonlinear_solver.residual = [&](const VectorType &evaluation_point, VectorType &residual) {
             compute_residual(evaluation_point, residual);
             return 0;
           };
@@ -536,16 +489,14 @@ namespace Step77
             {
               // Then we tell PETSc what to do when a
               // new Jacobian is requested. Here we do as in step-77.
-              nonlinear_solver.setup_jacobian =
-                [&](const VectorType &current_u) {
-                  compute_jacobian_and_initialize_preconditioner(current_u);
-                  return 0;
-                };
+              nonlinear_solver.setup_jacobian = [&](const VectorType &current_u) {
+                compute_jacobian_and_initialize_preconditioner(current_u);
+                return 0;
+              };
 
               // We also need to tell PETSc how we solve the Jacobian
               // system.
-              nonlinear_solver.solve_with_jacobian = [&](const VectorType &rhs,
-                                                         VectorType &dst) {
+              nonlinear_solver.solve_with_jacobian = [&](const VectorType &rhs, VectorType &dst) {
                 solve(rhs, dst);
 
                 return 0;
@@ -566,24 +517,22 @@ namespace Step77
               // returning to us the correct matrix.
               nonlinear_solver.set_matrix(jacobian_matrix);
 
-              nonlinear_solver.jacobian =
-                [&](const VectorType &current_u, MatrixType &, MatrixType &P) {
-                  Assert(P == jacobian_matrix, ExcInternalError());
-                  compute_jacobian(current_u);
-                  (void)P;
-                  return 0;
-                };
+              nonlinear_solver.jacobian = [&](const VectorType &current_u, MatrixType &, MatrixType &P) {
+                Assert(P == jacobian_matrix, ExcInternalError());
+                compute_jacobian(current_u);
+                (void)P;
+                return 0;
+              };
             }
 
           // Solver diagnostics can be performed by using a monitoring routine
           // that will be called at each Newton step. Here PETSc will give us
           // the current solution (unused here), the current step, and the
           // value of the norm of the function.
-          nonlinear_solver.monitor =
-            [&](const VectorType &, unsigned int step, double gnorm) {
-              deallog << step << " norm=" << gnorm << std::endl;
-              return 0;
-            };
+          nonlinear_solver.monitor = [&](const VectorType &, unsigned int step, double gnorm) {
+            deallog << step << " norm=" << gnorm << std::endl;
+            return 0;
+          };
 
           // We are now set up to solve the nonlinear system
           nonlinear_solver.solve(current_solution);

@@ -416,13 +416,11 @@ public:
    * does not exist
    */
   static void
-  initialize(const std::string &filename        = "",
-             const std::string &output_filename = "",
-             const ParameterHandler::OutputStyle
-               output_style_for_output_filename      = ParameterHandler::Short,
-             ParameterHandler &                  prm = ParameterAcceptor::prm,
-             const ParameterHandler::OutputStyle output_style_for_filename =
-               ParameterHandler::DefaultStyle);
+  initialize(const std::string                  &filename                         = "",
+             const std::string                  &output_filename                  = "",
+             const ParameterHandler::OutputStyle output_style_for_output_filename = ParameterHandler::Short,
+             ParameterHandler                   &prm                              = ParameterAcceptor::prm,
+             const ParameterHandler::OutputStyle output_style_for_filename        = ParameterHandler::DefaultStyle);
 
   /**
    * Call declare_all_parameters(), read the parameters from the `input_stream`
@@ -434,8 +432,7 @@ public:
    * @param prm The ParameterHandler to use
    */
   static void
-  initialize(std::istream &    input_stream,
-             ParameterHandler &prm = ParameterAcceptor::prm);
+  initialize(std::istream &input_stream, ParameterHandler &prm = ParameterAcceptor::prm);
 
 
   /**
@@ -522,12 +519,11 @@ public:
    */
   template <typename ParameterType>
   void
-  add_parameter(const std::string &          entry,
-                ParameterType &              parameter,
-                const std::string &          documentation = "",
-                ParameterHandler &           prm_          = prm,
-                const Patterns::PatternBase &pattern =
-                  *Patterns::Tools::Convert<ParameterType>::to_pattern());
+  add_parameter(const std::string           &entry,
+                ParameterType               &parameter,
+                const std::string           &documentation = "",
+                ParameterHandler            &prm_          = prm,
+                const Patterns::PatternBase &pattern       = *Patterns::Tools::Convert<ParameterType>::to_pattern());
 
   /**
    * The global parameter handler.
@@ -624,8 +620,7 @@ private:
    * A set containing the address of all constructed classes of type
    * ParameterAcceptor.
    */
-  static std::set<ParameterAcceptor *, internal::ParameterAcceptorCompare>
-    class_list;
+  static std::set<ParameterAcceptor *, internal::ParameterAcceptorCompare> class_list;
 
   /** The id of this specific class instance. */
   const unsigned int acceptor_id;
@@ -726,10 +721,10 @@ public:
 // Inline and template functions
 template <typename ParameterType>
 void
-ParameterAcceptor::add_parameter(const std::string &          entry,
-                                 ParameterType &              parameter,
-                                 const std::string &          documentation,
-                                 ParameterHandler &           prm,
+ParameterAcceptor::add_parameter(const std::string           &entry,
+                                 ParameterType               &parameter,
+                                 const std::string           &documentation,
+                                 ParameterHandler            &prm,
                                  const Patterns::PatternBase &pattern)
 {
   enter_my_subsection(prm);
@@ -741,9 +736,7 @@ ParameterAcceptor::add_parameter(const std::string &          entry,
 
 template <class SourceClass>
 template <typename... Args>
-ParameterAcceptorProxy<SourceClass>::ParameterAcceptorProxy(
-  const std::string &section_name,
-  Args... args)
+ParameterAcceptorProxy<SourceClass>::ParameterAcceptorProxy(const std::string &section_name, Args... args)
   : SourceClass(args...)
   , ParameterAcceptor(section_name)
 {}

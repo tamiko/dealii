@@ -26,25 +26,20 @@ namespace python
   {
     template <int dim, int spacedim>
     PointWrapper
-    transform_unit_to_real_cell(void *mapping_ptr,
-                                void *cell_accessor_ptr,
-                                void *point_ptr)
+    transform_unit_to_real_cell(void *mapping_ptr, void *cell_accessor_ptr, void *point_ptr)
     {
-      const MappingQ<dim, spacedim> *mapping =
-        static_cast<const MappingQ<dim, spacedim> *>(mapping_ptr);
+      const MappingQ<dim, spacedim> *mapping = static_cast<const MappingQ<dim, spacedim> *>(mapping_ptr);
 
       const CellAccessor<dim, spacedim> *cell_accessor =
         static_cast<const CellAccessor<dim, spacedim> *>(cell_accessor_ptr);
 
       const Point<dim> *point = static_cast<const Point<dim> *>(point_ptr);
 
-      typename Triangulation<dim, spacedim>::active_cell_iterator cell(
-        &cell_accessor->get_triangulation(),
-        cell_accessor->level(),
-        cell_accessor->index());
+      typename Triangulation<dim, spacedim>::active_cell_iterator cell(&cell_accessor->get_triangulation(),
+                                                                       cell_accessor->level(),
+                                                                       cell_accessor->index());
 
-      Point<spacedim> p_real =
-        mapping->transform_unit_to_real_cell(cell, *point);
+      Point<spacedim> p_real = mapping->transform_unit_to_real_cell(cell, *point);
 
       boost::python::list coord_list;
       for (int i = 0; i < spacedim; ++i)
@@ -57,23 +52,18 @@ namespace python
 
     template <int dim, int spacedim>
     PointWrapper
-    transform_real_to_unit_cell(void *mapping_ptr,
-                                void *cell_accessor_ptr,
-                                void *point_ptr)
+    transform_real_to_unit_cell(void *mapping_ptr, void *cell_accessor_ptr, void *point_ptr)
     {
-      const MappingQ<dim, spacedim> *mapping =
-        static_cast<const MappingQ<dim, spacedim> *>(mapping_ptr);
+      const MappingQ<dim, spacedim> *mapping = static_cast<const MappingQ<dim, spacedim> *>(mapping_ptr);
 
       const CellAccessor<dim, spacedim> *cell_accessor =
         static_cast<const CellAccessor<dim, spacedim> *>(cell_accessor_ptr);
 
-      const Point<spacedim> *point =
-        static_cast<const Point<spacedim> *>(point_ptr);
+      const Point<spacedim> *point = static_cast<const Point<spacedim> *>(point_ptr);
 
-      typename Triangulation<dim, spacedim>::active_cell_iterator cell(
-        &cell_accessor->get_triangulation(),
-        cell_accessor->level(),
-        cell_accessor->index());
+      typename Triangulation<dim, spacedim>::active_cell_iterator cell(&cell_accessor->get_triangulation(),
+                                                                       cell_accessor->level(),
+                                                                       cell_accessor->index());
 
       Point<dim> p_real = mapping->transform_real_to_unit_cell(cell, *point);
 
@@ -88,29 +78,23 @@ namespace python
 
     template <int dim, int spacedim>
     PointWrapper
-    project_real_point_to_unit_point_on_face(void *mapping_ptr,
-                                             void *cell_accessor_ptr,
+    project_real_point_to_unit_point_on_face(void              *mapping_ptr,
+                                             void              *cell_accessor_ptr,
                                              const unsigned int face_no,
-                                             void *             point_ptr)
+                                             void              *point_ptr)
     {
-      const MappingQ<dim, spacedim> *mapping =
-        static_cast<const MappingQ<dim, spacedim> *>(mapping_ptr);
+      const MappingQ<dim, spacedim> *mapping = static_cast<const MappingQ<dim, spacedim> *>(mapping_ptr);
 
       const CellAccessor<dim, spacedim> *cell_accessor =
         static_cast<const CellAccessor<dim, spacedim> *>(cell_accessor_ptr);
 
-      const Point<spacedim> *point =
-        static_cast<const Point<spacedim> *>(point_ptr);
+      const Point<spacedim> *point = static_cast<const Point<spacedim> *>(point_ptr);
 
-      typename Triangulation<dim, spacedim>::active_cell_iterator cell(
-        &cell_accessor->get_triangulation(),
-        cell_accessor->level(),
-        cell_accessor->index());
+      typename Triangulation<dim, spacedim>::active_cell_iterator cell(&cell_accessor->get_triangulation(),
+                                                                       cell_accessor->level(),
+                                                                       cell_accessor->index());
 
-      Point<dim - 1> p_face =
-        mapping->project_real_point_to_unit_point_on_face(cell,
-                                                          face_no,
-                                                          *point);
+      Point<dim - 1> p_face = mapping->project_real_point_to_unit_point_on_face(cell, face_no, *point);
 
       boost::python::list coord_list;
       for (int i = 0; i < dim - 1; ++i)
@@ -133,9 +117,7 @@ namespace python
 
 
 
-  MappingQWrapper::MappingQWrapper(const int dim,
-                                   const int spacedim,
-                                   const int degree)
+  MappingQWrapper::MappingQWrapper(const int dim, const int spacedim, const int degree)
     : dim(dim)
     , spacedim(spacedim)
     , degree(degree)
@@ -164,8 +146,7 @@ namespace python
     spacedim = other.spacedim;
     degree   = other.degree;
 
-    AssertThrow(other.mapping_ptr != nullptr,
-                ExcMessage("Underlying mapping does not exist."));
+    AssertThrow(other.mapping_ptr != nullptr, ExcMessage("Underlying mapping does not exist."));
 
     if ((dim == 2) && (spacedim == 2))
       {
@@ -217,75 +198,59 @@ namespace python
 
 
   PointWrapper
-  MappingQWrapper::transform_unit_to_real_cell(CellAccessorWrapper &cell,
-                                               PointWrapper &       p)
+  MappingQWrapper::transform_unit_to_real_cell(CellAccessorWrapper &cell, PointWrapper &p)
   {
-    AssertThrow(
-      dim == p.get_dim(),
-      ExcMessage(
-        "Dimension of the point is not equal to the dimension of the mapping."));
+    AssertThrow(dim == p.get_dim(), ExcMessage("Dimension of the point is not equal to the dimension of the mapping."));
 
     if ((dim == 2) && (spacedim == 2))
-      return internal::transform_unit_to_real_cell<2, 2>(mapping_ptr,
-                                                         cell.cell_accessor,
-                                                         p.point);
+      return internal::transform_unit_to_real_cell<2, 2>(mapping_ptr, cell.cell_accessor, p.point);
     else if ((dim == 2) && (spacedim == 3))
-      return internal::transform_unit_to_real_cell<2, 3>(mapping_ptr,
-                                                         cell.cell_accessor,
-                                                         p.point);
+      return internal::transform_unit_to_real_cell<2, 3>(mapping_ptr, cell.cell_accessor, p.point);
     else
-      return internal::transform_unit_to_real_cell<3, 3>(mapping_ptr,
-                                                         cell.cell_accessor,
-                                                         p.point);
+      return internal::transform_unit_to_real_cell<3, 3>(mapping_ptr, cell.cell_accessor, p.point);
   }
 
 
 
   PointWrapper
-  MappingQWrapper::transform_real_to_unit_cell(CellAccessorWrapper &cell,
-                                               PointWrapper &       p)
+  MappingQWrapper::transform_real_to_unit_cell(CellAccessorWrapper &cell, PointWrapper &p)
   {
-    AssertThrow(
-      spacedim == p.get_dim(),
-      ExcMessage(
-        "Dimension of the point is not equal to the space dimension of the mapping."));
+    AssertThrow(spacedim == p.get_dim(),
+                ExcMessage("Dimension of the point is not equal to the space dimension of the mapping."));
 
     if ((dim == 2) && (spacedim == 2))
-      return internal::transform_real_to_unit_cell<2, 2>(mapping_ptr,
-                                                         cell.cell_accessor,
-                                                         p.point);
+      return internal::transform_real_to_unit_cell<2, 2>(mapping_ptr, cell.cell_accessor, p.point);
     else if ((dim == 2) && (spacedim == 3))
-      return internal::transform_real_to_unit_cell<2, 3>(mapping_ptr,
-                                                         cell.cell_accessor,
-                                                         p.point);
+      return internal::transform_real_to_unit_cell<2, 3>(mapping_ptr, cell.cell_accessor, p.point);
     else
-      return internal::transform_real_to_unit_cell<3, 3>(mapping_ptr,
-                                                         cell.cell_accessor,
-                                                         p.point);
+      return internal::transform_real_to_unit_cell<3, 3>(mapping_ptr, cell.cell_accessor, p.point);
   }
 
 
 
   PointWrapper
-  MappingQWrapper::project_real_point_to_unit_point_on_face(
-    CellAccessorWrapper &cell,
-    const unsigned int   face_no,
-    PointWrapper &       p)
+  MappingQWrapper::project_real_point_to_unit_point_on_face(CellAccessorWrapper &cell,
+                                                            const unsigned int   face_no,
+                                                            PointWrapper        &p)
   {
-    AssertThrow(
-      spacedim == p.get_dim(),
-      ExcMessage(
-        "Dimension of the point is not equal to the space dimension of the mapping."));
+    AssertThrow(spacedim == p.get_dim(),
+                ExcMessage("Dimension of the point is not equal to the space dimension of the mapping."));
 
     if ((dim == 2) && (spacedim == 2))
-      return internal::project_real_point_to_unit_point_on_face<2, 2>(
-        mapping_ptr, cell.cell_accessor, face_no, p.point);
+      return internal::project_real_point_to_unit_point_on_face<2, 2>(mapping_ptr,
+                                                                      cell.cell_accessor,
+                                                                      face_no,
+                                                                      p.point);
     else if ((dim == 2) && (spacedim == 3))
-      return internal::project_real_point_to_unit_point_on_face<2, 3>(
-        mapping_ptr, cell.cell_accessor, face_no, p.point);
+      return internal::project_real_point_to_unit_point_on_face<2, 3>(mapping_ptr,
+                                                                      cell.cell_accessor,
+                                                                      face_no,
+                                                                      p.point);
     else
-      return internal::project_real_point_to_unit_point_on_face<3, 3>(
-        mapping_ptr, cell.cell_accessor, face_no, p.point);
+      return internal::project_real_point_to_unit_point_on_face<3, 3>(mapping_ptr,
+                                                                      cell.cell_accessor,
+                                                                      face_no,
+                                                                      p.point);
   }
 
 

@@ -64,15 +64,12 @@ test_2d()
 
   // now merge triangulations
   Triangulation<dim> result;
-  GridGenerator::merge_triangulations({&tria_1, &tria_2, &tria_3, &tria_4},
-                                      result);
+  GridGenerator::merge_triangulations({&tria_1, &tria_2, &tria_3, &tria_4}, result);
 
   GridOut().write_gnuplot(result, deallog.get_file_stream());
 
-  deallog << "     Total number of cells        = " << result.n_cells()
-          << std::endl
-          << "     Total number of vertices = " << result.n_used_vertices()
-          << std::endl;
+  deallog << "     Total number of cells        = " << result.n_cells() << std::endl
+          << "     Total number of vertices = " << result.n_used_vertices() << std::endl;
 }
 
 void
@@ -147,16 +144,12 @@ test_3d()
 
   // now merge triangulations
   Triangulation<dim> result;
-  GridGenerator::merge_triangulations(
-    {&tria_1, &tria_2, &tria_3, &tria_4, &tria_5, &tria_6, &tria_7, &tria_8},
-    result);
+  GridGenerator::merge_triangulations({&tria_1, &tria_2, &tria_3, &tria_4, &tria_5, &tria_6, &tria_7, &tria_8}, result);
 
   GridOut().write_gnuplot(result, deallog.get_file_stream());
 
-  deallog << "     Total number of cells        = " << result.n_cells()
-          << std::endl
-          << "     Total number of vertices = " << result.n_used_vertices()
-          << std::endl;
+  deallog << "     Total number of cells        = " << result.n_cells() << std::endl
+          << "     Total number of vertices = " << result.n_used_vertices() << std::endl;
 }
 
 int

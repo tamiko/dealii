@@ -505,8 +505,8 @@ public:
   FiniteElementData(const std::vector<unsigned int> &dofs_per_object,
                     const unsigned int               n_components,
                     const unsigned int               degree,
-                    const Conformity                 conformity = unknown,
-                    const BlockIndices &block_indices = BlockIndices());
+                    const Conformity                 conformity    = unknown,
+                    const BlockIndices              &block_indices = BlockIndices());
 
   /**
    * The same as above but with the difference that also the type of the
@@ -516,8 +516,8 @@ public:
                     const ReferenceCell              reference_cell,
                     const unsigned int               n_components,
                     const unsigned int               degree,
-                    const Conformity                 conformity = unknown,
-                    const BlockIndices &block_indices = BlockIndices());
+                    const Conformity                 conformity    = unknown,
+                    const BlockIndices              &block_indices = BlockIndices());
 
   /**
    * The same as above but instead of passing a vector containing the degrees
@@ -529,8 +529,8 @@ public:
                     const ReferenceCell                   reference_cell,
                     const unsigned int                    n_components,
                     const unsigned int                    degree,
-                    const Conformity                      conformity = unknown,
-                    const BlockIndices &block_indices = BlockIndices());
+                    const Conformity                      conformity    = unknown,
+                    const BlockIndices                   &block_indices = BlockIndices());
 
   /**
    * Return the kind of reference cell this element is defined on: For
@@ -712,9 +712,7 @@ namespace internal
    * of a @p dim dimensional reference cell @p reference_cell.
    */
   internal::GenericDoFsPerObject
-  expand(const unsigned int               dim,
-         const std::vector<unsigned int> &dofs_per_object,
-         const ReferenceCell              reference_cell);
+  expand(const unsigned int dim, const std::vector<unsigned int> &dofs_per_object, const ReferenceCell reference_cell);
 } // namespace internal
 
 
@@ -738,15 +736,13 @@ namespace FiniteElementDomination
     switch (d1)
       {
         case this_element_dominates:
-          if ((d2 == this_element_dominates) ||
-              (d2 == either_element_can_dominate) || (d2 == no_requirements))
+          if ((d2 == this_element_dominates) || (d2 == either_element_can_dominate) || (d2 == no_requirements))
             return this_element_dominates;
           else
             return neither_element_dominates;
 
         case other_element_dominates:
-          if ((d2 == other_element_dominates) ||
-              (d2 == either_element_can_dominate) || (d2 == no_requirements))
+          if ((d2 == other_element_dominates) || (d2 == either_element_can_dominate) || (d2 == no_requirements))
             return other_element_dominates;
           else
             return neither_element_dominates;
@@ -847,8 +843,7 @@ FiniteElementData<dim>::n_dofs_per_hex() const
 
 template <int dim>
 inline unsigned int
-FiniteElementData<dim>::n_dofs_per_face(unsigned int face_no,
-                                        unsigned int child_no) const
+FiniteElementData<dim>::n_dofs_per_face(unsigned int face_no, unsigned int child_no) const
 {
   (void)child_no;
 
@@ -968,22 +963,16 @@ FiniteElementData<dim>::get_first_hex_index() const
 
 template <int dim>
 unsigned int
-FiniteElementData<dim>::get_first_face_line_index(
-  const unsigned int face_no) const
+FiniteElementData<dim>::get_first_face_line_index(const unsigned int face_no) const
 {
-  return first_line_index_of_faces[first_line_index_of_faces.size() == 1 ?
-                                     0 :
-                                     face_no];
+  return first_line_index_of_faces[first_line_index_of_faces.size() == 1 ? 0 : face_no];
 }
 
 template <int dim>
 unsigned int
-FiniteElementData<dim>::get_first_face_quad_index(
-  const unsigned int face_no) const
+FiniteElementData<dim>::get_first_face_quad_index(const unsigned int face_no) const
 {
-  return first_quad_index_of_faces[first_quad_index_of_faces.size() == 1 ?
-                                     0 :
-                                     face_no];
+  return first_quad_index_of_faces[first_quad_index_of_faces.size() == 1 ? 0 : face_no];
 }
 
 template <int dim>
@@ -1017,8 +1006,7 @@ internal::GenericDoFsPerObject::generate(const FiniteElementData<dim> &fe)
         const auto c = fe.template n_dofs_per_object<1>(l);
 
         result.dofs_per_object_exclusive[1].emplace_back(c);
-        result.dofs_per_object_inclusive[1].emplace_back(
-          c + 2 * fe.template n_dofs_per_object<0>());
+        result.dofs_per_object_inclusive[1].emplace_back(c + 2 * fe.template n_dofs_per_object<0>());
         result.object_index[1].emplace_back(counter);
 
         counter += c;
@@ -1058,11 +1046,9 @@ internal::GenericDoFsPerObject::generate(const FiniteElementData<dim> &fe)
     {
       result.first_object_index_on_face[0].emplace_back(0);
 
-      result.first_object_index_on_face[1].emplace_back(
-        fe.get_first_face_line_index(face_no));
+      result.first_object_index_on_face[1].emplace_back(fe.get_first_face_line_index(face_no));
 
-      result.first_object_index_on_face[2].emplace_back(
-        fe.get_first_face_quad_index(face_no));
+      result.first_object_index_on_face[2].emplace_back(fe.get_first_face_quad_index(face_no));
     }
 
   return result;

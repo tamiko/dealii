@@ -60,18 +60,14 @@ test()
   IndexSet local_relevant(global_size);
   local_relevant                            = local_owned;
   const std::size_t n_ghosts                = 10;
-  unsigned int      ghost_indices[n_ghosts] = {
-    1, 2, 13, set - 3, set - 2, set - 1, set, set + 1, set + 2, set + 3};
-  local_relevant.add_indices(std::begin(ghost_indices),
-                             std::end(ghost_indices));
+  unsigned int      ghost_indices[n_ghosts] = {1, 2, 13, set - 3, set - 2, set - 1, set, set + 1, set + 2, set + 3};
+  local_relevant.add_indices(std::begin(ghost_indices), std::end(ghost_indices));
 
   // v has ghosts, w has none. set some entries
   // on w, copy into v and check if they are
   // there
-  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> v(
-    local_owned, local_relevant, MPI_COMM_WORLD);
-  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> w(
-    local_owned, local_owned, MPI_COMM_WORLD);
+  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> v(local_owned, local_relevant, MPI_COMM_WORLD);
+  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> w(local_owned, local_owned, MPI_COMM_WORLD);
 
   // set a few of the local elements
   LinearAlgebra::ReadWriteVector<double> rw_vector(local_owned);
@@ -93,30 +89,25 @@ test()
     v_move_rw.import_elements(v_move, VectorOperation::insert);
 
     for (unsigned int i = 0; i < v_rw.locally_owned_size(); ++i)
-      AssertThrow(v_move_rw.local_element(i) == v_rw.local_element(i),
-                  ExcInternalError());
+      AssertThrow(v_move_rw.local_element(i) == v_rw.local_element(i), ExcInternalError());
 
     // v_copy should now be empty
     AssertThrow(v_copy.locally_owned_size() == 0, ExcInternalError());
     AssertThrow(v_copy.get_partitioner()->size() == 0, ExcInternalError());
-    AssertThrow(v_copy.get_partitioner()->n_ghost_indices() == 0,
-                ExcInternalError());
-    AssertThrow(v_copy.get_mpi_communicator() == MPI_COMM_SELF,
-                ExcInternalError());
+    AssertThrow(v_copy.get_partitioner()->n_ghost_indices() == 0, ExcInternalError());
+    AssertThrow(v_copy.get_mpi_communicator() == MPI_COMM_SELF, ExcInternalError());
   }
 
   // check local values for correctness
   rw_vector.import_elements(v, VectorOperation::insert);
   for (unsigned int i = 0; i < local_size; ++i)
-    AssertThrow(rw_vector.local_element(i) == 2.0 * (i + my_start),
-                ExcInternalError());
+    AssertThrow(rw_vector.local_element(i) == 2.0 * (i + my_start), ExcInternalError());
 
   // check non-local entries on all processors
   LinearAlgebra::ReadWriteVector<double> ghost_vector(local_relevant);
   ghost_vector.import_elements(v, VectorOperation::insert);
   for (unsigned int i = 0; i < 10; ++i)
-    AssertThrow(ghost_vector(ghost_indices[i]) == 2. * ghost_indices[i],
-                ExcInternalError());
+    AssertThrow(ghost_vector(ghost_indices[i]) == 2. * ghost_indices[i], ExcInternalError());
 
   // now the same again, but import ghosts automatically because v had ghosts
   // set before calling operator =
@@ -127,14 +118,12 @@ test()
   // check local values for correctness
   rw_vector.import_elements(v, VectorOperation::insert);
   for (unsigned int i = 0; i < local_size; ++i)
-    AssertThrow(rw_vector.local_element(i) == 2.0 * (i + my_start),
-                ExcInternalError());
+    AssertThrow(rw_vector.local_element(i) == 2.0 * (i + my_start), ExcInternalError());
 
   // check non-local entries on all processors
   ghost_vector.import_elements(v, VectorOperation::insert);
   for (unsigned int i = 0; i < 10; ++i)
-    AssertThrow(ghost_vector(ghost_indices[i]) == 2. * ghost_indices[i],
-                ExcInternalError());
+    AssertThrow(ghost_vector(ghost_indices[i]) == 2. * ghost_indices[i], ExcInternalError());
 
   if (myid == 0)
     deallog << "OK" << std::endl;
@@ -145,8 +134,7 @@ test()
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   unsigned int myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
   deallog.push(Utilities::int_to_string(myid));

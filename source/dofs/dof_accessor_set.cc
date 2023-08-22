@@ -44,9 +44,9 @@ DeclException2(ExcNonMatchingElementsSetDofValuesByInterpolation,
                Number,
                Number,
                << "Called set_dof_values_by_interpolation(), but"
-               << " the element to be set, value " << std::setprecision(16)
-               << arg1 << ", does not match with the non-zero value "
-               << std::setprecision(16) << arg2 << " already set before.");
+               << " the element to be set, value " << std::setprecision(16) << arg1
+               << ", does not match with the non-zero value " << std::setprecision(16) << arg2
+               << " already set before.");
 
 namespace internal
 {
@@ -57,8 +57,7 @@ namespace internal
    * std::abs on default types, but simply return the number on unsigned types.
    */
   template <typename Number>
-  std::enable_if_t<!std::is_unsigned_v<Number>,
-                   typename numbers::NumberTraits<Number>::real_type>
+  std::enable_if_t<!std::is_unsigned_v<Number>, typename numbers::NumberTraits<Number>::real_type>
   get_abs(const Number a)
   {
     return std::abs(a);
@@ -76,41 +75,29 @@ namespace internal
    */
   template <typename VectorType>
   constexpr bool is_dealii_vector =
-    std::is_same_v<VectorType,
-                   dealii::Vector<typename VectorType::value_type>> ||
-    std::is_same_v<VectorType,
-                   dealii::BlockVector<typename VectorType::value_type>> ||
-    std::is_same_v<VectorType,
-                   dealii::LinearAlgebra::distributed::Vector<
-                     typename VectorType::value_type>> ||
-    std::is_same_v<VectorType,
-                   dealii::LinearAlgebra::distributed::BlockVector<
-                     typename VectorType::value_type>>;
+    std::is_same_v<VectorType, dealii::Vector<typename VectorType::value_type>> ||
+    std::is_same_v<VectorType, dealii::BlockVector<typename VectorType::value_type>> ||
+    std::is_same_v<VectorType, dealii::LinearAlgebra::distributed::Vector<typename VectorType::value_type>> ||
+    std::is_same_v<VectorType, dealii::LinearAlgebra::distributed::BlockVector<typename VectorType::value_type>>;
 
   /**
    * Helper functions that call set_ghost_state() if the vector supports this
    * operation.
    */
   template <typename T>
-  using set_ghost_state_t =
-    decltype(std::declval<T const>().set_ghost_state(std::declval<bool>()));
+  using set_ghost_state_t = decltype(std::declval<const T>().set_ghost_state(std::declval<bool>()));
 
   template <typename T>
-  constexpr bool has_set_ghost_state =
-    is_supported_operation<set_ghost_state_t, T>;
+  constexpr bool has_set_ghost_state = is_supported_operation<set_ghost_state_t, T>;
 
-  template <
-    typename VectorType,
-    std::enable_if_t<has_set_ghost_state<VectorType>, VectorType> * = nullptr>
+  template <typename VectorType, std::enable_if_t<has_set_ghost_state<VectorType>, VectorType> * = nullptr>
   void
   set_ghost_state(VectorType &vector, const bool ghosted)
   {
     vector.set_ghost_state(ghosted);
   }
 
-  template <
-    typename VectorType,
-    std::enable_if_t<!has_set_ghost_state<VectorType>, VectorType> * = nullptr>
+  template <typename VectorType, std::enable_if_t<!has_set_ghost_state<VectorType>, VectorType> * = nullptr>
   void
   set_ghost_state(VectorType &, const bool)
   {
@@ -122,15 +109,11 @@ namespace internal
    * Helper function that sets the values on a cell, but also checks if the
    * new values are similar to the old values.
    */
-  template <int  dim,
-            int  spacedim,
-            bool lda,
-            class OutputVector,
-            typename number>
+  template <int dim, int spacedim, bool lda, class OutputVector, typename number>
   void
   set_dof_values(const DoFCellAccessor<dim, spacedim, lda> &cell,
-                 const Vector<number> &                     local_values,
-                 OutputVector &                             values,
+                 const Vector<number>                      &local_values,
+                 OutputVector                              &values,
                  const bool                                 perform_check)
   {
     (void)perform_check;
@@ -150,12 +133,9 @@ namespace internal
             // Utilities::MPI::Partitioner::import_from_ghosted_array_finish()
             Assert(local_values_old[i] == number() ||
                      get_abs(local_values_old[i] - local_values[i]) <=
-                       get_abs(local_values_old[i] + local_values[i]) *
-                         100000. *
-                         std::numeric_limits<typename numbers::NumberTraits<
-                           number>::real_type>::epsilon(),
-                   ExcNonMatchingElementsSetDofValuesByInterpolation<number>(
-                     local_values[i], local_values_old[i]));
+                       get_abs(local_values_old[i] + local_values[i]) * 100000. *
+                         std::numeric_limits<typename numbers::NumberTraits<number>::real_type>::epsilon(),
+                   ExcNonMatchingElementsSetDofValuesByInterpolation<number>(local_values[i], local_values_old[i]));
           }
 
         set_ghost_state(values, old_ghost_state);
@@ -166,24 +146,18 @@ namespace internal
   }
 
 
-  template <int  dim,
-            int  spacedim,
-            bool lda,
-            class OutputVector,
-            typename number>
+  template <int dim, int spacedim, bool lda, class OutputVector, typename number>
   void
-  process_by_interpolation(
-    const DoFCellAccessor<dim, spacedim, lda> &      cell,
-    const Vector<number> &                           local_values,
-    OutputVector &                                   values,
-    const types::fe_index                            fe_index_,
-    const std::function<void(const DoFCellAccessor<dim, spacedim, lda> &cell,
-                             const Vector<number> &local_values,
-                             OutputVector &        values)> &processor)
+  process_by_interpolation(const DoFCellAccessor<dim, spacedim, lda>       &cell,
+                           const Vector<number>                            &local_values,
+                           OutputVector                                    &values,
+                           const types::fe_index                            fe_index_,
+                           const std::function<void(const DoFCellAccessor<dim, spacedim, lda> &cell,
+                                                    const Vector<number>                      &local_values,
+                                                    OutputVector                              &values)> &processor)
   {
     const types::fe_index fe_index =
-      (cell.get_dof_handler().has_hp_capabilities() == false &&
-       fe_index_ == numbers::invalid_fe_index) ?
+      (cell.get_dof_handler().has_hp_capabilities() == false && fe_index_ == numbers::invalid_fe_index) ?
         DoFHandler<dim, spacedim>::default_fe_index :
         fe_index_;
 
@@ -193,22 +167,18 @@ namespace internal
             // for hp-DoFHandlers, we need to require that on
             // active cells, you either don't specify an fe_index,
             // or that you specify the correct one
-            (fe_index == cell.active_fe_index()) ||
-            (fe_index == numbers::invalid_fe_index))
+            (fe_index == cell.active_fe_index()) || (fe_index == numbers::invalid_fe_index))
           // simply set the values on this cell
           processor(cell, local_values, values);
         else
           {
-            Assert(local_values.size() ==
-                     cell.get_dof_handler().get_fe(fe_index).n_dofs_per_cell(),
+            Assert(local_values.size() == cell.get_dof_handler().get_fe(fe_index).n_dofs_per_cell(),
                    ExcMessage("Incorrect size of local_values vector."));
 
-            FullMatrix<double> interpolation(
-              cell.get_fe().n_dofs_per_cell(),
-              cell.get_dof_handler().get_fe(fe_index).n_dofs_per_cell());
+            FullMatrix<double> interpolation(cell.get_fe().n_dofs_per_cell(),
+                                             cell.get_dof_handler().get_fe(fe_index).n_dofs_per_cell());
 
-            cell.get_fe().get_interpolation_matrix(
-              cell.get_dof_handler().get_fe(fe_index), interpolation);
+            cell.get_fe().get_interpolation_matrix(cell.get_dof_handler().get_fe(fe_index), interpolation);
 
             // do the interpolation to the target space. for historical
             // reasons, matrices are set to size 0x0 internally even if
@@ -224,36 +194,29 @@ namespace internal
     else
       // otherwise distribute them to the children
       {
-        Assert((cell.get_dof_handler().has_hp_capabilities() == false) ||
-                 (fe_index != numbers::invalid_fe_index),
-               ExcMessage(
-                 "You cannot call this function on non-active cells "
-                 "of DoFHandler objects unless you provide an explicit "
-                 "finite element index because they do not have naturally "
-                 "associated finite element spaces associated: degrees "
-                 "of freedom are only distributed on active cells for which "
-                 "the active FE index has been set."));
+        Assert((cell.get_dof_handler().has_hp_capabilities() == false) || (fe_index != numbers::invalid_fe_index),
+               ExcMessage("You cannot call this function on non-active cells "
+                          "of DoFHandler objects unless you provide an explicit "
+                          "finite element index because they do not have naturally "
+                          "associated finite element spaces associated: degrees "
+                          "of freedom are only distributed on active cells for which "
+                          "the active FE index has been set."));
 
-        const FiniteElement<dim, spacedim> &fe =
-          cell.get_dof_handler().get_fe(fe_index);
-        const unsigned int dofs_per_cell = fe.n_dofs_per_cell();
+        const FiniteElement<dim, spacedim> &fe            = cell.get_dof_handler().get_fe(fe_index);
+        const unsigned int                  dofs_per_cell = fe.n_dofs_per_cell();
 
         Assert(local_values.size() == dofs_per_cell,
-               (typename DoFCellAccessor<dim, spacedim, lda>::BaseClass::
-                  ExcVectorDoesNotMatch()));
+               (typename DoFCellAccessor<dim, spacedim, lda>::BaseClass::ExcVectorDoesNotMatch()));
         Assert(values.size() == cell.get_dof_handler().n_dofs(),
-               (typename DoFCellAccessor<dim, spacedim, lda>::BaseClass::
-                  ExcVectorDoesNotMatch()));
+               (typename DoFCellAccessor<dim, spacedim, lda>::BaseClass::ExcVectorDoesNotMatch()));
 
         Vector<number> tmp(dofs_per_cell);
 
         for (unsigned int child = 0; child < cell.n_children(); ++child)
           {
             if (tmp.size() > 0)
-              fe.get_prolongation_matrix(child, cell.refinement_case())
-                .vmult(tmp, local_values);
-            process_by_interpolation(
-              *cell.child(child), tmp, values, fe_index, processor);
+              fe.get_prolongation_matrix(child, cell.refinement_case()).vmult(tmp, local_values);
+            process_by_interpolation(*cell.child(child), tmp, values, fe_index, processor);
           }
       }
   }
@@ -265,11 +228,10 @@ namespace internal
 template <int dim, int spacedim, bool lda>
 template <class OutputVector, typename number>
 void
-DoFCellAccessor<dim, spacedim, lda>::set_dof_values_by_interpolation(
-  const Vector<number> &local_values,
-  OutputVector &        values,
-  const types::fe_index fe_index_,
-  const bool            perform_check) const
+DoFCellAccessor<dim, spacedim, lda>::set_dof_values_by_interpolation(const Vector<number> &local_values,
+                                                                     OutputVector         &values,
+                                                                     const types::fe_index fe_index_,
+                                                                     const bool            perform_check) const
 {
   internal::process_by_interpolation<dim, spacedim, lda, OutputVector, number>(
     *this,
@@ -277,36 +239,27 @@ DoFCellAccessor<dim, spacedim, lda>::set_dof_values_by_interpolation(
     values,
     fe_index_,
     [perform_check](const DoFCellAccessor<dim, spacedim, lda> &cell,
-                    const Vector<number> &                     local_values,
-                    OutputVector &                             values) {
-      internal::set_dof_values(cell, local_values, values, perform_check);
-    });
+                    const Vector<number>                      &local_values,
+                    OutputVector &values) { internal::set_dof_values(cell, local_values, values, perform_check); });
 }
 
 
 template <int dim, int spacedim, bool lda>
 template <class OutputVector, typename number>
 void
-DoFCellAccessor<dim, spacedim, lda>::
-  distribute_local_to_global_by_interpolation(
-    const Vector<number> &local_values,
-    OutputVector &        values,
-    const types::fe_index fe_index_) const
+DoFCellAccessor<dim, spacedim, lda>::distribute_local_to_global_by_interpolation(const Vector<number> &local_values,
+                                                                                 OutputVector         &values,
+                                                                                 const types::fe_index fe_index_) const
 {
   internal::process_by_interpolation<dim, spacedim, lda, OutputVector, number>(
     *this,
     local_values,
     values,
     fe_index_,
-    [](const DoFCellAccessor<dim, spacedim, lda> &cell,
-       const Vector<number> &                     local_values,
-       OutputVector &                             values) {
-      std::vector<types::global_dof_index> dof_indices(
-        cell.get_fe().n_dofs_per_cell());
+    [](const DoFCellAccessor<dim, spacedim, lda> &cell, const Vector<number> &local_values, OutputVector &values) {
+      std::vector<types::global_dof_index> dof_indices(cell.get_fe().n_dofs_per_cell());
       cell.get_dof_indices(dof_indices);
-      AffineConstraints<number>().distribute_local_to_global(local_values,
-                                                             dof_indices,
-                                                             values);
+      AffineConstraints<number>().distribute_local_to_global(local_values, dof_indices, values);
     });
 }
 

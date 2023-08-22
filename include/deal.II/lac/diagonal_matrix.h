@@ -167,7 +167,7 @@ public:
   add(const size_type  row,
       const size_type  n_cols,
       const size_type *col_indices,
-      const number2 *  values,
+      const number2   *values,
       const bool       elide_zero_values      = true,
       const bool       col_indices_are_sorted = false);
 
@@ -230,8 +230,8 @@ public:
   void
   apply_to_subrange(const unsigned int begin_range,
                     const unsigned int end_range,
-                    const value_type * src_pointer_to_current_range,
-                    value_type *       dst_pointer_to_current_range) const;
+                    const value_type  *src_pointer_to_current_range,
+                    value_type        *dst_pointer_to_current_range) const;
 
   /**
    * Initialize vector @p dst to have the same size and partition as
@@ -350,8 +350,7 @@ DiagonalMatrix<VectorType>::n() const
 
 template <typename VectorType>
 typename VectorType::value_type
-DiagonalMatrix<VectorType>::operator()(const size_type i,
-                                       const size_type j) const
+DiagonalMatrix<VectorType>::operator()(const size_type i, const size_type j) const
 {
   Assert(i == j, ExcIndexRange(j, i, i + 1));
   (void)j;
@@ -377,7 +376,7 @@ void
 DiagonalMatrix<VectorType>::add(const size_type  row,
                                 const size_type  n_cols,
                                 const size_type *col_indices,
-                                const number2 *  values,
+                                const number2   *values,
                                 const bool,
                                 const bool)
 {
@@ -390,9 +389,7 @@ DiagonalMatrix<VectorType>::add(const size_type  row,
 
 template <typename VectorType>
 void
-DiagonalMatrix<VectorType>::add(const size_type  i,
-                                const size_type  j,
-                                const value_type value)
+DiagonalMatrix<VectorType>::add(const size_type i, const size_type j, const value_type value)
 {
   if (i == j)
     diagonal(i) += value;
@@ -406,9 +403,7 @@ namespace internal
   {
     template <typename VectorType>
     void
-    assign_and_scale(VectorType &      dst,
-                     const VectorType &src,
-                     const VectorType &diagonal)
+    assign_and_scale(VectorType &dst, const VectorType &src, const VectorType &diagonal)
     {
       dst = src;
       dst.scale(diagonal);
@@ -416,11 +411,9 @@ namespace internal
 
     template <typename Number>
     void
-    assign_and_scale(
-      LinearAlgebra::distributed::Vector<Number, MemorySpace::Host> &      dst,
-      const LinearAlgebra::distributed::Vector<Number, MemorySpace::Host> &src,
-      const LinearAlgebra::distributed::Vector<Number, MemorySpace::Host>
-        &diagonal)
+    assign_and_scale(LinearAlgebra::distributed::Vector<Number, MemorySpace::Host>       &dst,
+                     const LinearAlgebra::distributed::Vector<Number, MemorySpace::Host> &src,
+                     const LinearAlgebra::distributed::Vector<Number, MemorySpace::Host> &diagonal)
     {
       auto *const       dst_ptr      = dst.begin();
       const auto *const src_ptr      = src.begin();
@@ -455,8 +448,7 @@ DiagonalMatrix<VectorType>::Tvmult(VectorType &dst, const VectorType &src) const
 
 template <typename VectorType>
 void
-DiagonalMatrix<VectorType>::vmult_add(VectorType &      dst,
-                                      const VectorType &src) const
+DiagonalMatrix<VectorType>::vmult_add(VectorType &dst, const VectorType &src) const
 {
   VectorType tmp(src);
   tmp.scale(diagonal);
@@ -467,8 +459,7 @@ DiagonalMatrix<VectorType>::vmult_add(VectorType &      dst,
 
 template <typename VectorType>
 void
-DiagonalMatrix<VectorType>::Tvmult_add(VectorType &      dst,
-                                       const VectorType &src) const
+DiagonalMatrix<VectorType>::Tvmult_add(VectorType &dst, const VectorType &src) const
 {
   vmult_add(dst, src);
 }
@@ -477,8 +468,7 @@ DiagonalMatrix<VectorType>::Tvmult_add(VectorType &      dst,
 
 template <typename VectorType>
 typename VectorType::value_type
-DiagonalMatrix<VectorType>::apply(const unsigned int index,
-                                  const value_type   src) const
+DiagonalMatrix<VectorType>::apply(const unsigned int index, const value_type src) const
 {
   AssertIndexRange(index, diagonal.locally_owned_elements().n_elements());
   return diagonal.local_element(index) * src;
@@ -488,24 +478,20 @@ DiagonalMatrix<VectorType>::apply(const unsigned int index,
 
 template <typename VectorType>
 void
-DiagonalMatrix<VectorType>::apply_to_subrange(
-  const unsigned int begin_range,
-  const unsigned int end_range,
-  const value_type * src_pointer_to_current_range,
-  value_type *       dst_pointer_to_current_range) const
+DiagonalMatrix<VectorType>::apply_to_subrange(const unsigned int begin_range,
+                                              const unsigned int end_range,
+                                              const value_type  *src_pointer_to_current_range,
+                                              value_type        *dst_pointer_to_current_range) const
 {
-  AssertIndexRange(begin_range,
-                   diagonal.locally_owned_elements().n_elements() + 1);
-  AssertIndexRange(end_range,
-                   diagonal.locally_owned_elements().n_elements() + 1);
+  AssertIndexRange(begin_range, diagonal.locally_owned_elements().n_elements() + 1);
+  AssertIndexRange(end_range, diagonal.locally_owned_elements().n_elements() + 1);
 
-  const value_type * diagonal_entry = diagonal.begin() + begin_range;
+  const value_type  *diagonal_entry = diagonal.begin() + begin_range;
   const unsigned int length         = end_range - begin_range;
 
   DEAL_II_OPENMP_SIMD_PRAGMA
   for (unsigned int i = 0; i < length; ++i)
-    dst_pointer_to_current_range[i] =
-      diagonal_entry[i] * src_pointer_to_current_range[i];
+    dst_pointer_to_current_range[i] = diagonal_entry[i] * src_pointer_to_current_range[i];
 }
 
 

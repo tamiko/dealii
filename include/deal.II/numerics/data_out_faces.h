@@ -37,17 +37,14 @@ namespace internal
      * documentation of the WorkStream context.
      */
     template <int dim, int spacedim>
-    struct ParallelData
-      : public internal::DataOutImplementation::ParallelDataBase<dim, spacedim>
+    struct ParallelData : public internal::DataOutImplementation::ParallelDataBase<dim, spacedim>
     {
-      ParallelData(const unsigned int               n_datasets,
-                   const unsigned int               n_subdivisions,
-                   const std::vector<unsigned int> &n_postprocessor_outputs,
-                   const Mapping<dim, spacedim> &   mapping,
-                   const std::vector<
-                     std::shared_ptr<dealii::hp::FECollection<dim, spacedim>>>
-                     &               finite_elements,
-                   const UpdateFlags update_flags);
+      ParallelData(const unsigned int                                                           n_datasets,
+                   const unsigned int                                                           n_subdivisions,
+                   const std::vector<unsigned int>                                             &n_postprocessor_outputs,
+                   const Mapping<dim, spacedim>                                                &mapping,
+                   const std::vector<std::shared_ptr<dealii::hp::FECollection<dim, spacedim>>> &finite_elements,
+                   const UpdateFlags                                                            update_flags);
 
       std::vector<Point<spacedim>> patch_evaluation_points;
     };
@@ -121,9 +118,7 @@ public:
    * Alias to the iterator type of the dof handler class under
    * consideration.
    */
-  using cell_iterator =
-    typename DataOut_DoFData<dim, patch_dim, spacedim, patch_spacedim>::
-      cell_iterator;
+  using cell_iterator = typename DataOut_DoFData<dim, patch_dim, spacedim, patch_spacedim>::cell_iterator;
 
   /**
    * Constructor.
@@ -176,8 +171,7 @@ public:
    * hp::MappingCollection in case of a DoFHandler with hp-capabilities.
    */
   virtual void
-  build_patches(const Mapping<dim, spacedim> &mapping,
-                const unsigned int            n_subdivisions = 0);
+  build_patches(const Mapping<dim, spacedim> &mapping, const unsigned int n_subdivisions = 0);
 
   /**
    * Declare a way to describe a face which we would like to generate output
@@ -237,10 +231,9 @@ private:
    * Build one patch. This function is called in a WorkStream context.
    */
   void
-  build_one_patch(
-    const FaceDescriptor *cell_and_face,
-    internal::DataOutFacesImplementation::ParallelData<dim, spacedim> &data,
-    DataOutBase::Patch<patch_dim, patch_spacedim> &                    patch);
+  build_one_patch(const FaceDescriptor                                              *cell_and_face,
+                  internal::DataOutFacesImplementation::ParallelData<dim, spacedim> &data,
+                  DataOutBase::Patch<patch_dim, patch_spacedim>                     &patch);
 };
 
 

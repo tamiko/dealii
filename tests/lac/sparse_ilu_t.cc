@@ -113,8 +113,7 @@ main()
 
 
               deallog << "Residual with test vector " << i << ":  "
-                      << " left=" << left_residual
-                      << ", right=" << right_residual << std::endl;
+                      << " left=" << left_residual << ", right=" << right_residual << std::endl;
             };
         };
     };

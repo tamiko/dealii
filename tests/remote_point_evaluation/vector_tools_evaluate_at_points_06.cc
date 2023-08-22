@@ -52,10 +52,9 @@ create_partitioner(const DoFHandler<dim, spacedim> &dof_handler)
 
   DoFTools::extract_locally_relevant_dofs(dof_handler, locally_relevant_dofs);
 
-  return std::make_shared<const Utilities::MPI::Partitioner>(
-    dof_handler.locally_owned_dofs(),
-    locally_relevant_dofs,
-    dof_handler.get_communicator());
+  return std::make_shared<const Utilities::MPI::Partitioner>(dof_handler.locally_owned_dofs(),
+                                                             locally_relevant_dofs,
+                                                             dof_handler.get_communicator());
 }
 
 void
@@ -73,12 +72,10 @@ test()
   dof_handler_1.distribute_dofs(fe_1);
 
   // approach 1:
-  LinearAlgebra::distributed::Vector<double> vector_1(
-    create_partitioner(dof_handler_1));
+  LinearAlgebra::distributed::Vector<double> vector_1(create_partitioner(dof_handler_1));
 
   // approach 2:
-  LinearAlgebra::distributed::Vector<double> vector_2(
-    tria_1.global_active_cell_index_partitioner().lock());
+  LinearAlgebra::distributed::Vector<double> vector_2(tria_1.global_active_cell_index_partitioner().lock());
 
   // approach 3:
   Vector<double> vector_3(tria_1.n_active_cells());
@@ -110,25 +107,20 @@ test()
     for (unsigned int i = 0; i < n_intervals; ++i)
       {
         const double rad = 2.0 * numbers::PI / n_intervals * i;
-        evaluation_points.emplace_back(0.75 * std::cos(rad),
-                                       0.75 * std::sin(rad));
+        evaluation_points.emplace_back(0.75 * std::cos(rad), 0.75 * std::sin(rad));
       }
 
   Utilities::MPI::RemotePointEvaluation<dim> evaluation_cache;
-  const auto evaluation_point_results_1 = VectorTools::point_values<1>(
-    mapping_1, dof_handler_1, vector_1, evaluation_points, evaluation_cache);
-  const auto evaluation_point_results_2 =
-    VectorTools::point_values<1>(evaluation_cache, tria_1, vector_2);
-  const auto evaluation_point_results_3 =
-    VectorTools::point_values<1>(evaluation_cache, tria_1, vector_3);
+  const auto                                 evaluation_point_results_1 =
+    VectorTools::point_values<1>(mapping_1, dof_handler_1, vector_1, evaluation_points, evaluation_cache);
+  const auto evaluation_point_results_2 = VectorTools::point_values<1>(evaluation_cache, tria_1, vector_2);
+  const auto evaluation_point_results_3 = VectorTools::point_values<1>(evaluation_cache, tria_1, vector_3);
 
   if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
     for (unsigned int i = 0; i < n_intervals; ++i)
       {
-        if (std::abs(evaluation_point_results_1[i] -
-                     evaluation_point_results_2[i]) > 1e-10 ||
-            std::abs(evaluation_point_results_1[i] -
-                     evaluation_point_results_3[i]) > 1e-10)
+        if (std::abs(evaluation_point_results_1[i] - evaluation_point_results_2[i]) > 1e-10 ||
+            std::abs(evaluation_point_results_1[i] - evaluation_point_results_3[i]) > 1e-10)
           Assert(false, ExcNotImplemented());
       }
 

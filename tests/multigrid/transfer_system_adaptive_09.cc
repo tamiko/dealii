@@ -48,8 +48,7 @@ void
 refine_mesh(Triangulation<dim> &triangulation)
 {
   bool cell_refined = false;
-  for (typename Triangulation<dim>::active_cell_iterator cell =
-         triangulation.begin_active();
+  for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
        cell != triangulation.end();
        ++cell)
     {
@@ -62,8 +61,7 @@ refine_mesh(Triangulation<dim> &triangulation)
         }
     }
   if (!cell_refined) // if no cell was selected for refinement, refine global
-    for (typename Triangulation<dim>::active_cell_iterator cell =
-           triangulation.begin_active();
+    for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
          cell != triangulation.end();
          ++cell)
       cell->set_refine_flag();
@@ -76,16 +74,13 @@ check(const FiniteElement<dim> &fe, const unsigned int selected_block)
 {
   deallog << fe.get_name() << std::endl;
 
-  Triangulation<dim> tr(Triangulation<dim>::limit_level_difference_at_vertices);
+  Triangulation<dim>        tr(Triangulation<dim>::limit_level_difference_at_vertices);
   std::vector<unsigned int> subdivisions(dim, 1);
   subdivisions[0] = 2;
 
-  const Point<dim> bottom_left =
-    (dim == 2 ? Point<dim>(-1, -1) : Point<dim>(-1, -1, -1));
-  const Point<dim> top_right =
-    (dim == 2 ? Point<dim>(1, 1) : Point<dim>(1, 1, 1));
-  GridGenerator::subdivided_hyper_rectangle(
-    tr, subdivisions, bottom_left, top_right, true);
+  const Point<dim> bottom_left = (dim == 2 ? Point<dim>(-1, -1) : Point<dim>(-1, -1, -1));
+  const Point<dim> top_right   = (dim == 2 ? Point<dim>(1, 1) : Point<dim>(1, 1, 1));
+  GridGenerator::subdivided_hyper_rectangle(tr, subdivisions, bottom_left, top_right, true);
   refine_mesh(tr);
 
   std::ostringstream out_filename;
@@ -112,19 +107,13 @@ check(const FiniteElement<dim> &fe, const unsigned int selected_block)
 
   MGTransferSelect<double> transfer;
 
-  transfer.build(mg_dof_handler,
-                 selected_block,
-                 selected_block,
-                 block_component,
-                 block_component);
+  transfer.build(mg_dof_handler, selected_block, selected_block, block_component, block_component);
 
   const std::vector<types::global_dof_index> dofs_per_block =
     DoFTools::count_dofs_per_fe_block(mg_dof_handler, block_component);
-  std::vector<std::vector<types::global_dof_index>> mg_dofs_per_block(
-    tr.n_levels(), std::vector<types::global_dof_index>(3));
-  MGTools::count_dofs_per_block(mg_dof_handler,
-                                mg_dofs_per_block,
-                                block_component);
+  std::vector<std::vector<types::global_dof_index>> mg_dofs_per_block(tr.n_levels(),
+                                                                      std::vector<types::global_dof_index>(3));
+  MGTools::count_dofs_per_block(mg_dof_handler, mg_dofs_per_block, block_component);
 
   deallog << "Global  dofs:";
   for (unsigned int i = 0; i < dofs_per_block.size(); ++i)

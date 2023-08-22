@@ -38,37 +38,32 @@ namespace Differentiation
        * Convert a map of Expressions to its SymEngine counterpart.
        */
       SymEngine::map_basic_basic
-      convert_expression_map_to_basic_map(
-        const SD::types::substitution_map &substitution_map);
+      convert_expression_map_to_basic_map(const SD::types::substitution_map &substitution_map);
 
       /**
        * Convert to a map of Expressions from its SymEngine counterpart.
        */
       SD::types::substitution_map
-      convert_basic_map_to_expression_map(
-        const SymEngine::map_basic_basic &substitution_map);
+      convert_basic_map_to_expression_map(const SymEngine::map_basic_basic &substitution_map);
 
       /**
        * Convert a vector of Expressions to its SymEngine counterpart.
        */
       SymEngine::vec_basic
-      convert_expression_vector_to_basic_vector(
-        const SD::types::symbol_vector &symbol_vector);
+      convert_expression_vector_to_basic_vector(const SD::types::symbol_vector &symbol_vector);
 
       /**
        * Convert to a vector of Expressions from its SymEngine counterpart.
        */
       SD::types::symbol_vector
-      convert_basic_vector_to_expression_vector(
-        const SymEngine::vec_basic &symbol_vector);
+      convert_basic_vector_to_expression_vector(const SymEngine::vec_basic &symbol_vector);
 
       /**
        * Convert to a vector of pairs of Expressions from its SymEngine
        * counterpart.
        */
       std::vector<std::pair<Expression, Expression>>
-      convert_basic_pair_vector_to_expression_pair_vector(
-        const SymEngine::vec_pair &symbol_value_vector);
+      convert_basic_pair_vector_to_expression_pair_vector(const SymEngine::vec_pair &symbol_value_vector);
 
       /**
        * Extract the symbols (key entries) from a substitution map.
@@ -102,9 +97,7 @@ namespace Differentiation
        */
       template <typename StreamType>
       StreamType &
-      print_substitution_map(
-        StreamType &                       stream,
-        const SD::types::substitution_map &symbol_value_map);
+      print_substitution_map(StreamType &stream, const SD::types::substitution_map &symbol_value_map);
 
     } // namespace Utilities
 
@@ -132,8 +125,7 @@ namespace Differentiation
         values.reserve(substitution_values.size());
 
         for (const auto &entry : substitution_values)
-          values.push_back(
-            static_cast<NumberType>(ExpressionType(entry.second)));
+          values.push_back(static_cast<NumberType>(ExpressionType(entry.second)));
 
         return values;
       }
@@ -141,9 +133,7 @@ namespace Differentiation
 
       template <typename StreamType>
       StreamType &
-      print_substitution_map(
-        StreamType &                       stream,
-        const SD::types::substitution_map &symbol_value_map)
+      print_substitution_map(StreamType &stream, const SD::types::substitution_map &symbol_value_map)
       {
         for (const auto &entry : symbol_value_map)
           stream << entry.first << " = " << entry.second << '\n';

@@ -107,8 +107,7 @@ LaplaceProblem::assemble_system()
 
   FEValues<2> fe_values(fe,
                         quadrature_formula,
-                        update_values | update_gradients |
-                          update_quadrature_points | update_JxW_values);
+                        update_values | update_gradients | update_quadrature_points | update_JxW_values);
 
   const unsigned int dofs_per_cell = fe.dofs_per_cell;
   const unsigned int n_q_points    = quadrature_formula.size();
@@ -118,8 +117,7 @@ LaplaceProblem::assemble_system()
 
   std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
 
-  DoFHandler<2>::active_cell_iterator cell = dof_handler.begin_active(),
-                                      endc = dof_handler.end();
+  DoFHandler<2>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
 
   for (; cell != endc; ++cell)
     {
@@ -132,13 +130,11 @@ LaplaceProblem::assemble_system()
           {
             for (unsigned int j = 0; j < dofs_per_cell; ++j)
               {
-                cell_A(i, j) += fe_values.shape_grad(i, q_point) *
-                                fe_values.shape_grad(j, q_point) *
-                                fe_values.JxW(q_point);
+                cell_A(i, j) +=
+                  fe_values.shape_grad(i, q_point) * fe_values.shape_grad(j, q_point) * fe_values.JxW(q_point);
               }
 
-            cell_b(i) +=
-              fe_values.shape_value(i, q_point) * fe_values.JxW(q_point);
+            cell_b(i) += fe_values.shape_value(i, q_point) * fe_values.JxW(q_point);
           }
 
       cell->get_dof_indices(local_dof_indices);
@@ -199,28 +195,20 @@ main(int argc, char **argv)
 
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
 

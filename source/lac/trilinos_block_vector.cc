@@ -78,9 +78,7 @@ namespace TrilinosWrappers
       // initialize each block
       this->components.resize(this->n_blocks());
       for (unsigned int i = 0; i < this->n_blocks(); ++i)
-        this->components[i].reinit(parallel_partitioning[i],
-                                   communicator,
-                                   omit_zeroing_entries);
+        this->components[i].reinit(parallel_partitioning[i], communicator, omit_zeroing_entries);
 
       // update block_indices content
       this->collect_sizes();
@@ -102,10 +100,7 @@ namespace TrilinosWrappers
       // initialize each block
       this->components.resize(this->n_blocks());
       for (unsigned int i = 0; i < this->n_blocks(); ++i)
-        this->components[i].reinit(parallel_partitioning[i],
-                                   ghost_values[i],
-                                   communicator,
-                                   vector_writable);
+        this->components[i].reinit(parallel_partitioning[i], ghost_values[i], communicator, vector_writable);
 
       // update block_indices content
       this->collect_sizes();
@@ -114,11 +109,9 @@ namespace TrilinosWrappers
 
 
     void
-    BlockVector::reinit(
-      const std::vector<std::shared_ptr<const Utilities::MPI::Partitioner>>
-        &        partitioners,
-      const bool make_ghosted,
-      const bool vector_writable)
+    BlockVector::reinit(const std::vector<std::shared_ptr<const Utilities::MPI::Partitioner>> &partitioners,
+                        const bool                                                             make_ghosted,
+                        const bool                                                             vector_writable)
     {
       // update the number of blocks
       this->block_indices.reinit(partitioners.size(), 0);
@@ -126,9 +119,7 @@ namespace TrilinosWrappers
       // initialize each block
       this->components.resize(this->n_blocks());
       for (unsigned int i = 0; i < this->n_blocks(); ++i)
-        this->components[i].reinit(partitioners[i],
-                                   make_ghosted,
-                                   vector_writable);
+        this->components[i].reinit(partitioners[i], make_ghosted, vector_writable);
 
       // update block_indices content
       this->collect_sizes();
@@ -144,9 +135,7 @@ namespace TrilinosWrappers
 
       this->components.resize(this->n_blocks());
       for (unsigned int i = 0; i < this->n_blocks(); ++i)
-        this->components[i].reinit(v.components[i],
-                                   omit_zeroing_entries,
-                                   false);
+        this->components[i].reinit(v.components[i], omit_zeroing_entries, false);
 
       this->collect_sizes();
     }
@@ -166,9 +155,7 @@ namespace TrilinosWrappers
 
 
     void
-    BlockVector::import_nonlocal_data_for_fe(
-      const TrilinosWrappers::BlockSparseMatrix &m,
-      const BlockVector &                        v)
+    BlockVector::import_nonlocal_data_for_fe(const TrilinosWrappers::BlockSparseMatrix &m, const BlockVector &v)
     {
       AssertDimension(m.n_block_rows(), v.n_blocks());
       AssertDimension(m.n_block_cols(), v.n_blocks());
@@ -178,8 +165,7 @@ namespace TrilinosWrappers
 
       this->components.resize(this->n_blocks());
       for (unsigned int i = 0; i < this->n_blocks(); ++i)
-        this->components[i].import_nonlocal_data_for_fe(m.block(i, i),
-                                                        v.block(i));
+        this->components[i].import_nonlocal_data_for_fe(m.block(i, i), v.block(i));
 
       this->collect_sizes();
     }
@@ -187,10 +173,7 @@ namespace TrilinosWrappers
 
 
     void
-    BlockVector::print(std::ostream &     out,
-                       const unsigned int precision,
-                       const bool         scientific,
-                       const bool         across) const
+    BlockVector::print(std::ostream &out, const unsigned int precision, const bool scientific, const bool across) const
     {
       for (unsigned int i = 0; i < this->n_blocks(); ++i)
         {

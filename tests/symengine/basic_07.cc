@@ -53,16 +53,14 @@ main(int argc, char *argv[])
   // That is to say, we'd have to compute Q=Q(C) using a nonlinear solution
   // scheme, as might be the case for a viscoelastic material with a
   // nonlinear evolution law.
-  SE::RCP<const SE::Symbol> C  = SE::symbol("C");  // Primary variable
-  SE::RCP<const SE::Symbol> Qi = SE::symbol("Qi"); // Some internal variable
-  SE::RCP<const SE::Basic>  Q =
-    SE::function_symbol("Q", C); // This sets up the dependence of Q on C
+  SE::RCP<const SE::Symbol> C  = SE::symbol("C");             // Primary variable
+  SE::RCP<const SE::Symbol> Qi = SE::symbol("Qi");            // Some internal variable
+  SE::RCP<const SE::Basic>  Q  = SE::function_symbol("Q", C); // This sets up the dependence of Q on C
 
   std::cout << *C << ",  " << *Qi << ",  " << *Q << std::endl;
 
   // 1. Define a function with Q being independent of C
-  SE::RCP<const SE::Basic> f_CQ_symb =
-    SE::mul(SE::real_double(0.5), SE::mul(Qi, SE::pow(C, SE::integer(2))));
+  SE::RCP<const SE::Basic> f_CQ_symb = SE::mul(SE::real_double(0.5), SE::mul(Qi, SE::pow(C, SE::integer(2))));
 
   std::cout << "f_CQ_symb: " << *f_CQ_symb << std::endl;
 
@@ -75,9 +73,8 @@ main(int argc, char *argv[])
   // 3. Substitute Qi -> Q=Q(C) to now make SymEngine aware of Q's dependence
   // on C.
   SE::map_basic_basic int_var_dict;
-  int_var_dict[Qi] = Q;
-  SE::RCP<const SE::Basic> df_CQ_dC_symb_subs =
-    df_CQ_dC_symb->subs(int_var_dict);
+  int_var_dict[Qi]                            = Q;
+  SE::RCP<const SE::Basic> df_CQ_dC_symb_subs = df_CQ_dC_symb->subs(int_var_dict);
 
   std::cout << "df_CQ_dC_symb_subs: " << *df_CQ_dC_symb_subs << std::endl;
 
@@ -90,14 +87,12 @@ main(int argc, char *argv[])
   // Lets assume Q = 0.6*C*C
   // Then dQ_dC = 1.2*C
   SE::map_basic_basic all_var_dict;
-  all_var_dict[C] = SE::real_double(5);
-  all_var_dict[Qi] =
-    SE::real_double(0.6 * 5 * 5); // This would be the numerical end result of
-                                  // an internal nonlinear solver for Q
-  all_var_dict[Q] = Qi;           // These are numerically the same thing
-  all_var_dict[Q->diff(C)] =
-    SE::mul(SE::real_double(1.2),
-            C); // This resolves the implicit relationship between Q and C
+  all_var_dict[C]  = SE::real_double(5);
+  all_var_dict[Qi] = SE::real_double(0.6 * 5 * 5); // This would be the numerical end result of
+                                                   // an internal nonlinear solver for Q
+  all_var_dict[Q]          = Qi;                   // These are numerically the same thing
+  all_var_dict[Q->diff(C)] = SE::mul(SE::real_double(1.2),
+                                     C); // This resolves the implicit relationship between Q and C
 
   SE::RCP<const SE::Basic> f_CQ_subs = f_CQ_symb->subs(all_var_dict);
   std::cout << "f_CQ_subs: " << *f_CQ_subs << std::endl;
@@ -109,15 +104,12 @@ main(int argc, char *argv[])
 
   // This first substitution should presumably convert Q(C)->0.6C and thus
   // dQ(C)_dC into 0.6
-  SE::RCP<const SE::Basic> D2f_CQ_DC_dC_subs_1 =
-    D2f_CQ_DC_dC_symb->subs(all_var_dict);
+  SE::RCP<const SE::Basic> D2f_CQ_DC_dC_subs_1 = D2f_CQ_DC_dC_symb->subs(all_var_dict);
   // This second substitution should fill out the remaining entries for C
-  SE::RCP<const SE::Basic> D2f_CQ_DC_dC_subs =
-    D2f_CQ_DC_dC_subs_1->subs(all_var_dict);
+  SE::RCP<const SE::Basic> D2f_CQ_DC_dC_subs = D2f_CQ_DC_dC_subs_1->subs(all_var_dict);
   std::cout << "D2f_CQ_DC_dC: subs 1: " << *D2f_CQ_DC_dC_subs_1 << std::endl
             << "D2f_CQ_DC_dC: subs 2: " << *D2f_CQ_DC_dC_subs << std::endl;
-  deallog << "D2f_CQ_DC_dC: eval: " << SE::eval_double(*D2f_CQ_DC_dC_subs)
-          << std::endl;
+  deallog << "D2f_CQ_DC_dC: eval: " << SE::eval_double(*D2f_CQ_DC_dC_subs) << std::endl;
 
   return 0;
 }

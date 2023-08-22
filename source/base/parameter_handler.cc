@@ -64,31 +64,15 @@ namespace
     // for all parts of the string, see if it is an allowed character or not
     for (const char c : s)
       {
-        static const std::string allowed_characters(
-          "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+        static const std::string allowed_characters("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 
-        if ((!mangle_whole_string) &&
-            (allowed_characters.find(c) != std::string::npos))
+        if ((!mangle_whole_string) && (allowed_characters.find(c) != std::string::npos))
           u.push_back(c);
         else
           {
             u.push_back('_');
-            static const char hex[16] = {'0',
-                                         '1',
-                                         '2',
-                                         '3',
-                                         '4',
-                                         '5',
-                                         '6',
-                                         '7',
-                                         '8',
-                                         '9',
-                                         'a',
-                                         'b',
-                                         'c',
-                                         'd',
-                                         'e',
-                                         'f'};
+            static const char hex[16] = {
+              '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
             u.push_back(hex[static_cast<unsigned char>(c) / 16]);
             u.push_back(hex[static_cast<unsigned char>(c) % 16]);
           }
@@ -110,8 +94,7 @@ namespace
         u.push_back(s[i]);
       else
         {
-          Assert(i + 2 < s.size(),
-                 ExcMessage("Trying to demangle an invalid string."));
+          Assert(i + 2 < s.size(), ExcMessage("Trying to demangle an invalid string."));
 
           unsigned char c = 0;
           switch (s[i + 1])
@@ -258,8 +241,7 @@ namespace
    * to identify things.
    */
   std::string
-  collate_path_string(const char                      separator,
-                      const std::vector<std::string> &subsection_path)
+  collate_path_string(const char separator, const std::vector<std::string> &subsection_path)
   {
     if (subsection_path.size() > 0)
       {
@@ -281,10 +263,9 @@ namespace
    * as well as all subsections within it recursively.
    */
   void
-  recursively_sort_parameters(
-    const char                      separator,
-    const std::vector<std::string> &target_subsection_path,
-    boost::property_tree::ptree &   tree)
+  recursively_sort_parameters(const char                      separator,
+                              const std::vector<std::string> &target_subsection_path,
+                              boost::property_tree::ptree    &tree)
   {
     boost::property_tree::ptree &current_section =
       tree.get_child(collate_path_string(separator, target_subsection_path));
@@ -292,34 +273,30 @@ namespace
     // Custom comparator to ensure that the order of sorting is:
     // - sorted parameters and aliases;
     // - sorted subsections.
-    static auto compare =
-      [](const std::pair<std::string, boost::property_tree::ptree> &a,
-         const std::pair<std::string, boost::property_tree::ptree> &b) {
-        bool a_is_param =
-          (is_parameter_node(a.second) || is_alias_node(a.second));
+    static auto compare = [](const std::pair<std::string, boost::property_tree::ptree> &a,
+                             const std::pair<std::string, boost::property_tree::ptree> &b) {
+      bool a_is_param = (is_parameter_node(a.second) || is_alias_node(a.second));
 
-        bool b_is_param =
-          (is_parameter_node(b.second) || is_alias_node(b.second));
+      bool b_is_param = (is_parameter_node(b.second) || is_alias_node(b.second));
 
-        // If a is a parameter/alias and b is a subsection,
-        // a should go first, and vice-versa.
-        if (a_is_param && !b_is_param)
-          return true;
+      // If a is a parameter/alias and b is a subsection,
+      // a should go first, and vice-versa.
+      if (a_is_param && !b_is_param)
+        return true;
 
-        if (!a_is_param && b_is_param)
-          return false;
+      if (!a_is_param && b_is_param)
+        return false;
 
-        // Otherwise, compare a and b.
-        return a.first < b.first;
-      };
+      // Otherwise, compare a and b.
+      return a.first < b.first;
+    };
 
     current_section.sort(compare);
 
     // Now transverse subsections tree recursively.
     for (auto &p : current_section)
       {
-        if ((is_parameter_node(p.second) == false) &&
-            (is_alias_node(p.second) == false))
+        if ((is_parameter_node(p.second) == false) && (is_alias_node(p.second) == false))
           {
             const std::string subsection = demangle(p.first);
 
@@ -339,8 +316,8 @@ namespace
    */
   void
   recursively_demangle(const boost::property_tree::ptree &tree_in,
-                       boost::property_tree::ptree &      tree_out,
-                       const bool is_parameter_or_alias_node = false)
+                       boost::property_tree::ptree       &tree_out,
+                       const bool                         is_parameter_or_alias_node = false)
   {
     for (const auto &p : tree_in)
       {
@@ -355,10 +332,7 @@ namespace
             if (const auto val = p.second.get_value_optional<std::string>())
               temp.put_value<std::string>(*val);
 
-            recursively_demangle(p.second,
-                                 temp,
-                                 is_parameter_node(p.second) ||
-                                   is_alias_node(p.second));
+            recursively_demangle(p.second, temp, is_parameter_node(p.second) || is_alias_node(p.second));
             tree_out.put_child(demangle(p.first), temp);
           }
       }
@@ -370,15 +344,11 @@ namespace
   void
   assert_validity_of_output_style(const ParameterHandler::OutputStyle style)
   {
-    AssertThrow(
-      (((style & ParameterHandler::XML) != 0) +
-       ((style & ParameterHandler::JSON) != 0) +
-       ((style & ParameterHandler::PRM) != 0) +
-       ((style & ParameterHandler::Description) != 0) +
-       ((style & ParameterHandler::LaTeX) != 0)) == 1,
-      ExcMessage(
-        "You have chosen either no or multiple style formats. You can choose "
-        "between: PRM, Description, LaTeX, XML, JSON."));
+    AssertThrow((((style & ParameterHandler::XML) != 0) + ((style & ParameterHandler::JSON) != 0) +
+                 ((style & ParameterHandler::PRM) != 0) + ((style & ParameterHandler::Description) != 0) +
+                 ((style & ParameterHandler::LaTeX) != 0)) == 1,
+                ExcMessage("You have chosen either no or multiple style formats. You can choose "
+                           "between: PRM, Description, LaTeX, XML, JSON."));
   }
 
 } // namespace
@@ -408,9 +378,7 @@ ParameterHandler::get_current_full_path(const std::string &name) const
 
 
 std::string
-ParameterHandler::get_current_full_path(
-  const std::vector<std::string> &sub_path,
-  const std::string &             name) const
+ParameterHandler::get_current_full_path(const std::vector<std::string> &sub_path, const std::string &name) const
 {
   std::string path = get_current_path();
   if (path.empty() == false)
@@ -427,7 +395,7 @@ ParameterHandler::get_current_full_path(
 
 
 void
-ParameterHandler::parse_input(std::istream &     input,
+ParameterHandler::parse_input(std::istream      &input,
                               const std::string &filename,
                               const std::string &last_line,
                               const bool         skip_undefined)
@@ -458,11 +426,9 @@ ParameterHandler::parse_input(std::istream &     input,
   // unknown state.
   //
   // after unwinding the subsection stack, just re-throw the exception
-  auto scan_line_or_cleanup = [this,
-                               &skip_undefined,
-                               &saved_path](const std::string &line,
-                                            const std::string &filename,
-                                            const unsigned int line_number) {
+  auto scan_line_or_cleanup = [this, &skip_undefined, &saved_path](const std::string &line,
+                                                                   const std::string &filename,
+                                                                   const unsigned int line_number) {
     try
       {
         scan_line(line, filename, line_number, skip_undefined);
@@ -493,8 +459,7 @@ ParameterHandler::parse_input(std::istream &     input,
 
       // Check whether or not the current line should be joined with the next
       // line before calling scan_line.
-      if (input_line.size() != 0 &&
-          input_line.find_last_of('\\') == input_line.size() - 1)
+      if (input_line.size() != 0 && input_line.find_last_of('\\') == input_line.size() - 1)
         {
           input_line.erase(input_line.size() - 1); // remove the last '\'
           is_concatenated = true;
@@ -517,9 +482,7 @@ ParameterHandler::parse_input(std::istream &     input,
 
       if (!is_concatenated)
         {
-          scan_line_or_cleanup(fully_concatenated_line,
-                               filename,
-                               current_logical_line_n);
+          scan_line_or_cleanup(fully_concatenated_line, filename, current_logical_line_n);
 
           fully_concatenated_line.clear();
         }
@@ -546,14 +509,12 @@ ParameterHandler::parse_input(std::istream &     input,
           for (unsigned int i = 0; i < subsection_path.size(); ++i)
             {
               paths_message << std::setw(i * 2 + 4) << " "
-                            << "subsection " << subsection_path[i]
-                            << (i == subsection_path.size() - 1 ? "" : "\n");
+                            << "subsection " << subsection_path[i] << (i == subsection_path.size() - 1 ? "" : "\n");
             }
         }
       // restore subsection we started with before throwing the exception:
       subsection_path = saved_path;
-      AssertThrow(false,
-                  ExcUnbalancedSubsections(filename, paths_message.str()));
+      AssertThrow(false, ExcUnbalancedSubsections(filename, paths_message.str()));
     }
 }
 
@@ -563,7 +524,7 @@ void
 ParameterHandler::parse_input(const std::string &filename,
                               const std::string &last_line,
                               const bool         skip_undefined,
-                              const bool assert_mandatory_entries_are_found)
+                              const bool         assert_mandatory_entries_are_found)
 {
   std::ifstream is(filename);
   AssertThrow(is, PathSearch::ExcFileNotFound(filename, "ParameterHandler"));
@@ -588,9 +549,7 @@ ParameterHandler::parse_input(const std::string &filename,
 
 
 void
-ParameterHandler::parse_input_from_string(const std::string &s,
-                                          const std::string &last_line,
-                                          const bool         skip_undefined)
+ParameterHandler::parse_input_from_string(const std::string &s, const std::string &last_line, const bool skip_undefined)
 {
   std::istringstream input_stream(s);
   parse_input(input_stream, "input string", last_line, skip_undefined);
@@ -606,13 +565,12 @@ namespace
   // declared in the ParameterHandler object); if so, copy the value of these
   // nodes into the destination object
   void
-  read_xml_recursively(
-    const boost::property_tree::ptree &source,
-    const std::string &                current_path,
-    const char                         path_separator,
-    const std::vector<std::unique_ptr<const Patterns::PatternBase>> &patterns,
-    const bool        skip_undefined,
-    ParameterHandler &prm)
+  read_xml_recursively(const boost::property_tree::ptree                               &source,
+                       const std::string                                               &current_path,
+                       const char                                                       path_separator,
+                       const std::vector<std::unique_ptr<const Patterns::PatternBase>> &patterns,
+                       const bool                                                       skip_undefined,
+                       ParameterHandler                                                &prm)
   {
     for (const auto &p : source)
       {
@@ -641,8 +599,7 @@ namespace
               {
                 try
                   {
-                    prm.set(demangle(p.first),
-                            p.second.get<std::string>("value"));
+                    prm.set(demangle(p.first), p.second.get<std::string>("value"));
                   }
                 catch (const ParameterHandler::ExcEntryUndeclared &)
                   {
@@ -668,9 +625,7 @@ namespace
             // it must be a subsection
             prm.enter_subsection(demangle(p.first));
             read_xml_recursively(p.second,
-                                 (current_path.empty() ?
-                                    p.first :
-                                    current_path + path_separator + p.first),
+                                 (current_path.empty() ? p.first : current_path + path_separator + p.first),
                                  path_separator,
                                  patterns,
                                  skip_undefined,
@@ -715,7 +670,8 @@ namespace
             p.second.put_value<std::string>(temp);
           }
         else if (p.second.get_optional<std::string>("alias"))
-          {}
+          {
+          }
         else
           {
             // it must be a subsection
@@ -728,8 +684,7 @@ namespace
 
 
 void
-ParameterHandler::parse_input_from_xml(std::istream &in,
-                                       const bool    skip_undefined)
+ParameterHandler::parse_input_from_xml(std::istream &in, const bool skip_undefined)
 {
   AssertThrow(in.fail() == false, ExcIO());
   // read the XML tree assuming that (as we
@@ -747,45 +702,36 @@ ParameterHandler::parse_input_from_xml(std::istream &in,
               ExcInvalidXMLParameterFile("There is no top-level XML element "
                                          "called \"ParameterHandler\"."));
 
-  const std::size_t n_top_level_elements =
-    std::distance(single_node_tree.begin(), single_node_tree.end());
+  const std::size_t n_top_level_elements = std::distance(single_node_tree.begin(), single_node_tree.end());
   if (n_top_level_elements != 1)
     {
       std::ostringstream top_level_message;
-      top_level_message << "The ParameterHandler input parser found "
-                        << n_top_level_elements
+      top_level_message << "The ParameterHandler input parser found " << n_top_level_elements
                         << " top level elements while reading\n "
                         << "    an XML format input file, but there should be"
                         << " exactly one top level element.\n"
                         << "    The top level elements are:\n";
 
       unsigned int entry_n = 0;
-      for (boost::property_tree::ptree::iterator it = single_node_tree.begin();
-           it != single_node_tree.end();
+      for (boost::property_tree::ptree::iterator it = single_node_tree.begin(); it != single_node_tree.end();
            ++it, ++entry_n)
         {
-          top_level_message
-            << "        " << it->first
-            << (entry_n != n_top_level_elements - 1 ? "\n" : "");
+          top_level_message << "        " << it->first << (entry_n != n_top_level_elements - 1 ? "\n" : "");
         }
 
       // repeat assertion condition to make the printed version easier to read
-      AssertThrow(n_top_level_elements == 1,
-                  ExcInvalidXMLParameterFile(top_level_message.str()));
+      AssertThrow(n_top_level_elements == 1, ExcInvalidXMLParameterFile(top_level_message.str()));
     }
 
   // read the child elements recursively
-  const boost::property_tree::ptree &my_entries =
-    single_node_tree.get_child("ParameterHandler");
+  const boost::property_tree::ptree &my_entries = single_node_tree.get_child("ParameterHandler");
 
-  read_xml_recursively(
-    my_entries, "", path_separator, patterns, skip_undefined, *this);
+  read_xml_recursively(my_entries, "", path_separator, patterns, skip_undefined, *this);
 }
 
 
 void
-ParameterHandler::parse_input_from_json(std::istream &in,
-                                        const bool    skip_undefined)
+ParameterHandler::parse_input_from_json(std::istream &in, const bool skip_undefined)
 {
   AssertThrow(in.fail() == false, ExcIO());
 
@@ -798,18 +744,15 @@ ParameterHandler::parse_input_from_json(std::istream &in,
     }
   catch (const std::exception &e)
     {
-      AssertThrow(
-        false,
-        ExcMessage(
-          "The provided JSON file is not valid. Boost aborted with the "
-          "following assert message: \n\n" +
-          std::string(e.what())));
+      AssertThrow(false,
+                  ExcMessage("The provided JSON file is not valid. Boost aborted with the "
+                             "following assert message: \n\n" +
+                             std::string(e.what())));
     }
 
   // The xml function is reused to read in the xml into the parameter file.
   // This means that only mangled files can be read.
-  read_xml_recursively(
-    node_tree, "", path_separator, patterns, skip_undefined, *this);
+  read_xml_recursively(node_tree, "", path_separator, patterns, skip_undefined, *this);
 }
 
 
@@ -824,25 +767,19 @@ ParameterHandler::clear()
 
 
 void
-ParameterHandler::declare_entry(const std::string &          entry,
-                                const std::string &          default_value,
+ParameterHandler::declare_entry(const std::string           &entry,
+                                const std::string           &default_value,
                                 const Patterns::PatternBase &pattern,
-                                const std::string &          documentation,
+                                const std::string           &documentation,
                                 const bool                   has_to_be_set)
 {
-  entries->put(get_current_full_path(entry) + path_separator + "value",
-               default_value);
-  entries->put(get_current_full_path(entry) + path_separator + "default_value",
-               default_value);
-  entries->put(get_current_full_path(entry) + path_separator + "documentation",
-               documentation);
+  entries->put(get_current_full_path(entry) + path_separator + "value", default_value);
+  entries->put(get_current_full_path(entry) + path_separator + "default_value", default_value);
+  entries->put(get_current_full_path(entry) + path_separator + "documentation", documentation);
 
   // initialize with false
-  const std::pair<bool, bool> set_status =
-    std::pair<bool, bool>(has_to_be_set, false);
-  entries_set_status.insert(
-    std::pair<std::string, std::pair<bool, bool>>(get_current_full_path(entry),
-                                                  set_status));
+  const std::pair<bool, bool> set_status = std::pair<bool, bool>(has_to_be_set, false);
+  entries_set_status.insert(std::pair<std::string, std::pair<bool, bool>>(get_current_full_path(entry), set_status));
 
   patterns.reserve(patterns.size() + 1);
   patterns.emplace_back(pattern.clone());
@@ -857,41 +794,32 @@ ParameterHandler::declare_entry(const std::string &          entry,
   // case, they will have to be able
   // to re-create the patterns as far
   // as possible
-  entries->put(get_current_full_path(entry) + path_separator +
-                 "pattern_description",
-               patterns.back()->description());
+  entries->put(get_current_full_path(entry) + path_separator + "pattern_description", patterns.back()->description());
 
   // as documented, do the default value checking at the very end
-  AssertThrow(pattern.match(default_value),
-              ExcValueDoesNotMatchPattern(default_value,
-                                          pattern.description()));
+  AssertThrow(pattern.match(default_value), ExcValueDoesNotMatchPattern(default_value, pattern.description()));
 }
 
 
 
 void
-ParameterHandler::add_action(
-  const std::string &                             entry,
-  const std::function<void(const std::string &)> &action,
-  const bool                                      execute_action)
+ParameterHandler::add_action(const std::string                              &entry,
+                             const std::function<void(const std::string &)> &action,
+                             const bool                                      execute_action)
 {
   actions.push_back(action);
 
   // get the current list of actions, if any
   boost::optional<std::string> current_actions =
-    entries->get_optional<std::string>(get_current_full_path(entry) +
-                                       path_separator + "actions");
+    entries->get_optional<std::string>(get_current_full_path(entry) + path_separator + "actions");
 
   // if there were actions already associated with this parameter, add
   // the current one to it; otherwise, create a one-item list and use
   // that
   if (current_actions)
     {
-      const std::string all_actions =
-        current_actions.get() + "," +
-        Utilities::int_to_string(actions.size() - 1);
-      entries->put(get_current_full_path(entry) + path_separator + "actions",
-                   all_actions);
+      const std::string all_actions = current_actions.get() + "," + Utilities::int_to_string(actions.size() - 1);
+      entries->put(get_current_full_path(entry) + path_separator + "actions", all_actions);
     }
   else
     entries->put(get_current_full_path(entry) + path_separator + "actions",
@@ -899,8 +827,8 @@ ParameterHandler::add_action(
 
   if (execute_action)
     {
-      const std::string default_value = entries->get<std::string>(
-        get_current_full_path(entry) + path_separator + "default_value");
+      const std::string default_value =
+        entries->get<std::string>(get_current_full_path(entry) + path_separator + "default_value");
       action(default_value);
     }
 }
@@ -913,18 +841,14 @@ ParameterHandler::declare_alias(const std::string &existing_entry_name,
                                 const bool         alias_is_deprecated)
 {
   // see if there is anything to refer to already
-  Assert(entries->get_optional<std::string>(
-           get_current_full_path(existing_entry_name)),
-         ExcMessage("You are trying to declare an alias entry <" + alias_name +
-                    "> that references an entry <" + existing_entry_name +
-                    ">, but the latter does not exist."));
+  Assert(entries->get_optional<std::string>(get_current_full_path(existing_entry_name)),
+         ExcMessage("You are trying to declare an alias entry <" + alias_name + "> that references an entry <" +
+                    existing_entry_name + ">, but the latter does not exist."));
   // then also make sure that what is being referred to is in
   // fact a parameter (not an alias or subsection)
-  Assert(entries->get_optional<std::string>(
-           get_current_full_path(existing_entry_name) + path_separator +
-           "value"),
-         ExcMessage("You are trying to declare an alias entry <" + alias_name +
-                    "> that references an entry <" + existing_entry_name +
+  Assert(entries->get_optional<std::string>(get_current_full_path(existing_entry_name) + path_separator + "value"),
+         ExcMessage("You are trying to declare an alias entry <" + alias_name + "> that references an entry <" +
+                    existing_entry_name +
                     ">, but the latter does not seem to be a "
                     "parameter declaration."));
 
@@ -934,35 +858,28 @@ ParameterHandler::declare_alias(const std::string &existing_entry_name,
   // entry
   if (entries->get_optional<std::string>(get_current_full_path(alias_name)))
     {
-      Assert(entries->get_optional<std::string>(
-               get_current_full_path(alias_name) + path_separator + "alias"),
-             ExcMessage("You are trying to declare an alias entry <" +
-                        alias_name +
+      Assert(entries->get_optional<std::string>(get_current_full_path(alias_name) + path_separator + "alias"),
+             ExcMessage("You are trying to declare an alias entry <" + alias_name +
                         "> but a non-alias entry already exists in this "
                         "subsection (i.e., there is either a preexisting "
                         "further subsection, or a parameter entry, with "
                         "the same name as the alias)."));
-      Assert(entries->get<std::string>(get_current_full_path(alias_name) +
-                                       path_separator + "alias") ==
+      Assert(entries->get<std::string>(get_current_full_path(alias_name) + path_separator + "alias") ==
                existing_entry_name,
-             ExcMessage(
-               "You are trying to declare an alias entry <" + alias_name +
-               "> but an alias entry already exists in this "
-               "subsection and this existing alias references a "
-               "different parameter entry. Specifically, "
-               "you are trying to reference the entry <" +
-               existing_entry_name +
-               "> whereas the existing alias references "
-               "the entry <" +
-               entries->get<std::string>(get_current_full_path(alias_name) +
-                                         path_separator + "alias") +
-               ">."));
+             ExcMessage("You are trying to declare an alias entry <" + alias_name +
+                        "> but an alias entry already exists in this "
+                        "subsection and this existing alias references a "
+                        "different parameter entry. Specifically, "
+                        "you are trying to reference the entry <" +
+                        existing_entry_name +
+                        "> whereas the existing alias references "
+                        "the entry <" +
+                        entries->get<std::string>(get_current_full_path(alias_name) + path_separator + "alias") +
+                        ">."));
     }
 
-  entries->put(get_current_full_path(alias_name) + path_separator + "alias",
-               existing_entry_name);
-  entries->put(get_current_full_path(alias_name) + path_separator +
-                 "deprecation_status",
+  entries->put(get_current_full_path(alias_name) + path_separator + "alias", existing_entry_name);
+  entries->put(get_current_full_path(alias_name) + path_separator + "deprecation_status",
                (alias_is_deprecated ? "true" : "false"));
 }
 
@@ -973,8 +890,7 @@ ParameterHandler::enter_subsection(const std::string &subsection)
 {
   // if necessary create subsection
   if (!entries->get_child_optional(get_current_full_path(subsection)))
-    entries->add_child(get_current_full_path(subsection),
-                       boost::property_tree::ptree());
+    entries->add_child(get_current_full_path(subsection), boost::property_tree::ptree());
 
   // then enter it
   subsection_path.push_back(subsection);
@@ -996,22 +912,19 @@ ParameterHandler::leave_subsection()
 
 
 bool
-ParameterHandler::subsection_path_exists(
-  const std::vector<std::string> &sub_path) const
+ParameterHandler::subsection_path_exists(const std::vector<std::string> &sub_path) const
 {
   // Get full path to sub_path (i.e. prepend subsection_path to sub_path).
   std::vector<std::string> full_path(subsection_path);
   full_path.insert(full_path.end(), sub_path.begin(), sub_path.end());
 
   boost::optional<const boost::property_tree::ptree &> subsection(
-    entries->get_child_optional(
-      collate_path_string(path_separator, full_path)));
+    entries->get_child_optional(collate_path_string(path_separator, full_path)));
 
   // If subsection is boost::null (i.e. it does not exist)
   // or it exists as a parameter/alias node, return false.
   // Otherwise (i.e. it exists as a subsection node), return true.
-  return !(!subsection || is_parameter_node(subsection.get()) ||
-           is_alias_node(subsection.get()));
+  return !(!subsection || is_parameter_node(subsection.get()) || is_alias_node(subsection.get()));
 }
 
 
@@ -1021,8 +934,8 @@ ParameterHandler::get(const std::string &entry_string) const
 {
   // assert that the entry is indeed
   // declared
-  if (boost::optional<std::string> value = entries->get_optional<std::string>(
-        get_current_full_path(entry_string) + path_separator + "value"))
+  if (boost::optional<std::string> value =
+        entries->get_optional<std::string>(get_current_full_path(entry_string) + path_separator + "value"))
     return value.get();
   else
     {
@@ -1034,20 +947,16 @@ ParameterHandler::get(const std::string &entry_string) const
 
 
 std::string
-ParameterHandler::get(const std::vector<std::string> &entry_subsection_path,
-                      const std::string &             entry_string) const
+ParameterHandler::get(const std::vector<std::string> &entry_subsection_path, const std::string &entry_string) const
 {
   // assert that the entry is indeed
   // declared
   if (boost::optional<std::string> value = entries->get_optional<std::string>(
-        get_current_full_path(entry_subsection_path, entry_string) +
-        path_separator + "value"))
+        get_current_full_path(entry_subsection_path, entry_string) + path_separator + "value"))
     return value.get();
   else
     {
-      Assert(false,
-             ExcEntryUndeclared(demangle(
-               get_current_full_path(entry_subsection_path, entry_string))));
+      Assert(false, ExcEntryUndeclared(demangle(get_current_full_path(entry_subsection_path, entry_string))));
       return "";
     }
 }
@@ -1064,8 +973,7 @@ ParameterHandler::get_integer(const std::string &entry_string) const
   catch (...)
     {
       AssertThrow(false,
-                  ExcMessage("Can't convert the parameter value <" +
-                             get(entry_string) + "> for entry <" +
+                  ExcMessage("Can't convert the parameter value <" + get(entry_string) + "> for entry <" +
                              entry_string + "> to an integer."));
       return 0;
     }
@@ -1074,9 +982,8 @@ ParameterHandler::get_integer(const std::string &entry_string) const
 
 
 long int
-ParameterHandler::get_integer(
-  const std::vector<std::string> &entry_subsection_path,
-  const std::string &             entry_string) const
+ParameterHandler::get_integer(const std::vector<std::string> &entry_subsection_path,
+                              const std::string              &entry_string) const
 {
   try
     {
@@ -1085,12 +992,9 @@ ParameterHandler::get_integer(
   catch (...)
     {
       AssertThrow(false,
-                  ExcMessage(
-                    "Can't convert the parameter value <" +
-                    get(entry_subsection_path, entry_string) + "> for entry <" +
-                    demangle(get_current_full_path(entry_subsection_path,
-                                                   entry_string)) +
-                    "> to an integer."));
+                  ExcMessage("Can't convert the parameter value <" + get(entry_subsection_path, entry_string) +
+                             "> for entry <" + demangle(get_current_full_path(entry_subsection_path, entry_string)) +
+                             "> to an integer."));
       return 0;
     }
 }
@@ -1107,10 +1011,8 @@ ParameterHandler::get_double(const std::string &entry_string) const
   catch (...)
     {
       AssertThrow(false,
-                  ExcMessage("Can't convert the parameter value <" +
-                             get(entry_string) + "> for entry <" +
-                             entry_string +
-                             "> to a double precision variable."));
+                  ExcMessage("Can't convert the parameter value <" + get(entry_string) + "> for entry <" +
+                             entry_string + "> to a double precision variable."));
       return 0;
     }
 }
@@ -1118,24 +1020,19 @@ ParameterHandler::get_double(const std::string &entry_string) const
 
 
 double
-ParameterHandler::get_double(
-  const std::vector<std::string> &entry_subsection_path,
-  const std::string &             entry_string) const
+ParameterHandler::get_double(const std::vector<std::string> &entry_subsection_path,
+                             const std::string              &entry_string) const
 {
   try
     {
-      return Utilities::string_to_double(
-        get(entry_subsection_path, entry_string));
+      return Utilities::string_to_double(get(entry_subsection_path, entry_string));
     }
   catch (...)
     {
       AssertThrow(false,
-                  ExcMessage(
-                    "Can't convert the parameter value <" +
-                    get(entry_subsection_path, entry_string) + "> for entry <" +
-                    demangle(get_current_full_path(entry_subsection_path,
-                                                   entry_string)) +
-                    "> to a double precision variable."));
+                  ExcMessage("Can't convert the parameter value <" + get(entry_subsection_path, entry_string) +
+                             "> for entry <" + demangle(get_current_full_path(entry_subsection_path, entry_string)) +
+                             "> to a double precision variable."));
       return 0;
     }
 }
@@ -1148,8 +1045,7 @@ ParameterHandler::get_bool(const std::string &entry_string) const
   const std::string s = get(entry_string);
 
   AssertThrow((s == "true") || (s == "false") || (s == "yes") || (s == "no"),
-              ExcMessage("Can't convert the parameter value <" +
-                         get(entry_string) + "> for entry <" + entry_string +
+              ExcMessage("Can't convert the parameter value <" + get(entry_string) + "> for entry <" + entry_string +
                          "> to a boolean."));
   if (s == "true" || s == "yes")
     return true;
@@ -1160,18 +1056,13 @@ ParameterHandler::get_bool(const std::string &entry_string) const
 
 
 bool
-ParameterHandler::get_bool(
-  const std::vector<std::string> &entry_subsection_path,
-  const std::string &             entry_string) const
+ParameterHandler::get_bool(const std::vector<std::string> &entry_subsection_path, const std::string &entry_string) const
 {
   const std::string s = get(entry_subsection_path, entry_string);
 
   AssertThrow((s == "true") || (s == "false") || (s == "yes") || (s == "no"),
-              ExcMessage("Can't convert the parameter value <" +
-                         get(entry_subsection_path, entry_string) +
-                         "> for entry <" +
-                         demangle(get_current_full_path(entry_subsection_path,
-                                                        entry_string)) +
+              ExcMessage("Can't convert the parameter value <" + get(entry_subsection_path, entry_string) +
+                         "> for entry <" + demangle(get_current_full_path(entry_subsection_path, entry_string)) +
                          "> to a boolean."));
   if (s == "true" || s == "yes")
     return true;
@@ -1182,14 +1073,12 @@ ParameterHandler::get_bool(
 
 
 void
-ParameterHandler::set(const std::string &entry_string,
-                      const std::string &new_value)
+ParameterHandler::set(const std::string &entry_string, const std::string &new_value)
 {
   // resolve aliases before looking up the correct entry
   std::string path = get_current_full_path(entry_string);
   if (entries->get_optional<std::string>(path + path_separator + "alias"))
-    path = get_current_full_path(
-      entries->get<std::string>(path + path_separator + "alias"));
+    path = get_current_full_path(entries->get<std::string>(path + path_separator + "alias"));
 
   // get the node for the entry. if it doesn't exist, then we end up
   // in the else-branch below, which asserts that the entry is indeed
@@ -1197,13 +1086,10 @@ ParameterHandler::set(const std::string &entry_string,
   if (entries->get_optional<std::string>(path + path_separator + "value"))
     {
       // verify that the new value satisfies the provided pattern
-      const unsigned int pattern_index =
-        entries->get<unsigned int>(path + path_separator + "pattern");
+      const unsigned int pattern_index = entries->get<unsigned int>(path + path_separator + "pattern");
       AssertThrow(patterns[pattern_index]->match(new_value),
-                  ExcValueDoesNotMatchPattern(new_value,
-                                              entries->get<std::string>(
-                                                path + path_separator +
-                                                "pattern_description")));
+                  ExcValueDoesNotMatchPattern(
+                    new_value, entries->get<std::string>(path + path_separator + "pattern_description")));
 
       // then also execute the actions associated with this
       // parameter (if any have been provided)
@@ -1211,8 +1097,8 @@ ParameterHandler::set(const std::string &entry_string,
         entries->get_optional<std::string>(path + path_separator + "actions");
       if (action_indices_as_string)
         {
-          std::vector<int> action_indices = Utilities::string_to_int(
-            Utilities::split_string_list(action_indices_as_string.get()));
+          std::vector<int> action_indices =
+            Utilities::string_to_int(Utilities::split_string_list(action_indices_as_string.get()));
           for (const unsigned int index : action_indices)
             if (actions.size() >= index + 1)
               actions[index](new_value);
@@ -1225,9 +1111,7 @@ ParameterHandler::set(const std::string &entry_string,
       if (map_iter != entries_set_status.end())
         map_iter->second = std::pair<bool, bool>(map_iter->second.first, true);
       else
-        AssertThrow(false,
-                    ExcMessage("Could not find parameter " + path +
-                               " in map entries_set_status."));
+        AssertThrow(false, ExcMessage("Could not find parameter " + path + " in map entries_set_status."));
     }
   else
     AssertThrow(false, ExcEntryUndeclared(entry_string));
@@ -1280,8 +1164,7 @@ ParameterHandler::set(const std::string &entry_string, const bool new_value)
 
 
 std::ostream &
-ParameterHandler::print_parameters(std::ostream &    out,
-                                   const OutputStyle style) const
+ParameterHandler::print_parameters(std::ostream &out, const OutputStyle style) const
 {
   AssertThrow(out.fail() == false, ExcIO());
 
@@ -1297,9 +1180,7 @@ ParameterHandler::print_parameters(std::ostream &    out,
     {
       // Dive recursively into the subsections,
       // starting from the top level.
-      recursively_sort_parameters(path_separator,
-                                  std::vector<std::string>(),
-                                  current_entries);
+      recursively_sort_parameters(path_separator, std::vector<std::string>(), current_entries);
     }
 
   // we'll have to print some text that is padded with spaces;
@@ -1354,8 +1235,7 @@ ParameterHandler::print_parameters(std::ostream &    out,
     }
   else if ((style & Text) != 0)
     {
-      out << "# Listing of Parameters" << std::endl
-          << "# ---------------------" << std::endl;
+      out << "# Listing of Parameters" << std::endl << "# ---------------------" << std::endl;
     }
   else if ((style & LaTeX) != 0)
     {
@@ -1373,12 +1253,11 @@ ParameterHandler::print_parameters(std::ostream &    out,
     }
 
   // dive recursively into the subsections
-  recursively_print_parameters(
-    current_entries,
-    std::vector<std::string>(), // start at the top level
-    style,
-    0,
-    out);
+  recursively_print_parameters(current_entries,
+                               std::vector<std::string>(), // start at the top level
+                               style,
+                               0,
+                               out);
 
   return out;
 }
@@ -1386,9 +1265,7 @@ ParameterHandler::print_parameters(std::ostream &    out,
 
 
 void
-ParameterHandler::print_parameters(
-  const std::string &                 filename,
-  const ParameterHandler::OutputStyle style) const
+ParameterHandler::print_parameters(const std::string &filename, const ParameterHandler::OutputStyle style) const
 {
   std::string extension = filename.substr(filename.find_last_of('.') + 1);
   boost::algorithm::to_lower(extension);
@@ -1411,12 +1288,11 @@ ParameterHandler::print_parameters(
 
 
 void
-ParameterHandler::recursively_print_parameters(
-  const boost::property_tree::ptree &tree,
-  const std::vector<std::string> &   target_subsection_path,
-  const OutputStyle                  style,
-  const unsigned int                 indent_level,
-  std::ostream &                     out) const
+ParameterHandler::recursively_print_parameters(const boost::property_tree::ptree &tree,
+                                               const std::vector<std::string>    &target_subsection_path,
+                                               const OutputStyle                  style,
+                                               const unsigned int                 indent_level,
+                                               std::ostream                      &out) const
 {
   AssertThrow(out.fail() == false, ExcIO());
 
@@ -1445,8 +1321,7 @@ ParameterHandler::recursively_print_parameters(
         if (is_parameter_node(p.second) == true)
           {
             longest_name  = std::max(longest_name, demangle(p.first).size());
-            longest_value = std::max(longest_value,
-                                     p.second.get<std::string>("value").size());
+            longest_value = std::max(longest_value, p.second.get<std::string>("value").size());
           }
 
       // print entries one by one
@@ -1461,8 +1336,7 @@ ParameterHandler::recursively_print_parameters(
             // the documentation, and then the actual entry; break the
             // documentation into readable chunks such that the whole
             // thing is at most 78 characters wide
-            if (!is_short &&
-                !p.second.get<std::string>("documentation").empty())
+            if (!is_short && !p.second.get<std::string>("documentation").empty())
               {
                 if (first_entry == false)
                   out << '\n';
@@ -1470,9 +1344,8 @@ ParameterHandler::recursively_print_parameters(
                   first_entry = false;
 
                 const std::vector<std::string> doc_lines =
-                  Utilities::break_text_into_lines(
-                    p.second.get<std::string>("documentation"),
-                    78 - overall_indent_level * 2 - 2);
+                  Utilities::break_text_into_lines(p.second.get<std::string>("documentation"),
+                                                   78 - overall_indent_level * 2 - 2);
 
                 for (const auto &doc_line : doc_lines)
                   out << std::setw(overall_indent_level * 2) << ""
@@ -1481,19 +1354,15 @@ ParameterHandler::recursively_print_parameters(
 
             // print name and value of this entry
             out << std::setw(overall_indent_level * 2) << ""
-                << "set " << demangle(p.first)
-                << std::setw(longest_name - demangle(p.first).size() + 1) << " "
+                << "set " << demangle(p.first) << std::setw(longest_name - demangle(p.first).size() + 1) << " "
                 << "= " << value;
 
             // finally print the default value, but only if it differs
             // from the actual value
-            if (!is_short &&
-                value != p.second.get<std::string>("default_value"))
+            if (!is_short && value != p.second.get<std::string>("default_value"))
               {
-                out << std::setw(longest_value - value.size() + 1) << ' '
-                    << "# ";
-                out << "default: "
-                    << p.second.get<std::string>("default_value");
+                out << std::setw(longest_value - value.size() + 1) << ' ' << "# ";
+                out << "default: " << p.second.get<std::string>("default_value");
               }
 
             out << '\n';
@@ -1507,13 +1376,11 @@ ParameterHandler::recursively_print_parameters(
 
       // if there are any parameters in this section then print them
       // as an itemized list
-      const bool parameters_exist_here =
-        std::any_of(current_section.begin(),
-                    current_section.end(),
-                    [](const boost::property_tree::ptree::value_type &p) {
-                      return is_parameter_node(p.second) ||
-                             is_alias_node(p.second);
-                    });
+      const bool parameters_exist_here = std::any_of(current_section.begin(),
+                                                     current_section.end(),
+                                                     [](const boost::property_tree::ptree::value_type &p) {
+                                                       return is_parameter_node(p.second) || is_alias_node(p.second);
+                                                     });
       if (parameters_exist_here)
         {
           out << "\\begin{itemize}" << '\n';
@@ -1525,8 +1392,7 @@ ParameterHandler::recursively_print_parameters(
                 const std::string value = p.second.get<std::string>("value");
 
                 // print name
-                out << "\\item {\\it Parameter name:} {\\tt "
-                    << escape(demangle(p.first)) << "}\n"
+                out << "\\item {\\it Parameter name:} {\\tt " << escape(demangle(p.first)) << "}\n"
                     << "\\phantomsection";
                 {
                   // create label: labels are not to be escaped but
@@ -1541,15 +1407,12 @@ ParameterHandler::recursively_print_parameters(
                   // Backwards-compatibility. Output the label with and
                   // without escaping whitespace:
                   if (label.find("_20") != std::string::npos)
-                    out << "\\label{"
-                        << Utilities::replace_in_string(label, "_20", " ")
-                        << "}\n";
+                    out << "\\label{" << Utilities::replace_in_string(label, "_20", " ") << "}\n";
                   out << "\\label{" << label << "}\n";
                 }
                 out << "\n\n";
 
-                out << "\\index[prmindex]{" << escape(demangle(p.first))
-                    << "}\n";
+                out << "\\index[prmindex]{" << escape(demangle(p.first)) << "}\n";
                 out << "\\index[prmindexfull]{";
                 for (const auto &path : target_subsection_path)
                   out << escape(path) << "!";
@@ -1558,27 +1421,19 @@ ParameterHandler::recursively_print_parameters(
                 // finally print value and default
                 out << "{\\it Value:} " << escape(value) << "\n\n"
                     << '\n'
-                    << "{\\it Default:} "
-                    << escape(p.second.get<std::string>("default_value"))
-                    << "\n\n"
+                    << "{\\it Default:} " << escape(p.second.get<std::string>("default_value")) << "\n\n"
                     << '\n';
 
                 // if there is a documenting string, print it as well but
                 // don't escape to allow formatting/formulas
-                if (!is_short &&
-                    !p.second.get<std::string>("documentation").empty())
-                  out << "{\\it Description:} "
-                      << p.second.get<std::string>("documentation") << "\n\n"
-                      << '\n';
+                if (!is_short && !p.second.get<std::string>("documentation").empty())
+                  out << "{\\it Description:} " << p.second.get<std::string>("documentation") << "\n\n" << '\n';
                 if (!is_short)
                   {
                     // also output possible values, do not escape because the
                     // description internally will use LaTeX formatting
-                    const unsigned int pattern_index =
-                      p.second.get<unsigned int>("pattern");
-                    const std::string desc_str =
-                      patterns[pattern_index]->description(
-                        Patterns::PatternBase::LaTeX);
+                    const unsigned int pattern_index = p.second.get<unsigned int>("pattern");
+                    const std::string  desc_str = patterns[pattern_index]->description(Patterns::PatternBase::LaTeX);
                     out << "{\\it Possible values:} " << desc_str << '\n';
                   }
               }
@@ -1587,8 +1442,7 @@ ParameterHandler::recursively_print_parameters(
                 const std::string alias = p.second.get<std::string>("alias");
 
                 // print name
-                out << "\\item {\\it Parameter name:} {\\tt "
-                    << escape(demangle(p.first)) << "}\n"
+                out << "\\item {\\it Parameter name:} {\\tt " << escape(demangle(p.first)) << "}\n"
                     << "\\phantomsection";
                 {
                   // create label: labels are not to be escaped but
@@ -1603,30 +1457,22 @@ ParameterHandler::recursively_print_parameters(
                   // Backwards-compatibility. Output the label with and
                   // without escaping whitespace:
                   if (label.find("_20") != std::string::npos)
-                    out << "\\label{"
-                        << Utilities::replace_in_string(label, "_20", " ")
-                        << "}\n";
+                    out << "\\label{" << Utilities::replace_in_string(label, "_20", " ") << "}\n";
                   out << "\\label{" << label << "}\n";
                 }
                 out << "\n\n";
 
-                out << "\\index[prmindex]{" << escape(demangle(p.first))
-                    << "}\n";
+                out << "\\index[prmindex]{" << escape(demangle(p.first)) << "}\n";
                 out << "\\index[prmindexfull]{";
                 for (const auto &path : target_subsection_path)
                   out << escape(path) << "!";
                 out << escape(demangle(p.first)) << "}\n";
 
                 // finally print alias and indicate if it is deprecated
-                out
-                  << "This parameter is an alias for the parameter ``\\texttt{"
-                  << escape(alias) << "}''."
-                  << (p.second.get<std::string>("deprecation_status") ==
-                          "true" ?
-                        " Its use is deprecated." :
-                        "")
-                  << "\n\n"
-                  << '\n';
+                out << "This parameter is an alias for the parameter ``\\texttt{" << escape(alias) << "}''."
+                    << (p.second.get<std::string>("deprecation_status") == "true" ? " Its use is deprecated." : "")
+                    << "\n\n"
+                    << '\n';
               }
           out << "\\end{itemize}" << '\n';
         }
@@ -1646,24 +1492,19 @@ ParameterHandler::recursively_print_parameters(
           {
             // print name and value
             out << std::setw(overall_indent_level * 2) << ""
-                << "set " << demangle(p.first)
-                << std::setw(longest_name - demangle(p.first).size() + 1) << " "
+                << "set " << demangle(p.first) << std::setw(longest_name - demangle(p.first).size() + 1) << " "
                 << " = ";
 
             // print possible values:
-            const unsigned int pattern_index =
-              p.second.get<unsigned int>("pattern");
-            const std::string full_desc_str =
-              patterns[pattern_index]->description(Patterns::PatternBase::Text);
+            const unsigned int pattern_index = p.second.get<unsigned int>("pattern");
+            const std::string  full_desc_str = patterns[pattern_index]->description(Patterns::PatternBase::Text);
             const std::vector<std::string> description_str =
-              Utilities::break_text_into_lines(
-                full_desc_str, 78 - overall_indent_level * 2 - 2, '|');
+              Utilities::break_text_into_lines(full_desc_str, 78 - overall_indent_level * 2 - 2, '|');
             if (description_str.size() > 1)
               {
                 out << '\n';
                 for (const auto &description : description_str)
-                  out << std::setw(overall_indent_level * 2 + 6) << ""
-                      << description << '\n';
+                  out << std::setw(overall_indent_level * 2 + 6) << "" << description << '\n';
               }
             else if (description_str.empty() == false)
               out << "  " << description_str[0] << '\n';
@@ -1671,12 +1512,9 @@ ParameterHandler::recursively_print_parameters(
               out << '\n';
 
             // if there is a documenting string, print it as well
-            if (!is_short &&
-                p.second.get<std::string>("documentation").size() != 0)
-              out << std::setw(overall_indent_level * 2 + longest_name + 10)
-                  << ""
-                  << "(" << p.second.get<std::string>("documentation") << ")"
-                  << '\n';
+            if (!is_short && p.second.get<std::string>("documentation").size() != 0)
+              out << std::setw(overall_indent_level * 2 + longest_name + 10) << ""
+                  << "(" << p.second.get<std::string>("documentation") << ")" << '\n';
           }
     }
   else
@@ -1696,16 +1534,14 @@ ParameterHandler::recursively_print_parameters(
       else if (is_alias_node(p.second) == false)
         ++n_sections;
 
-    if (((style & Description) == 0) &&
-        (!(((style & Text) != 0) && is_short)) && (n_parameters != 0) &&
+    if (((style & Description) == 0) && (!(((style & Text) != 0) && is_short)) && (n_parameters != 0) &&
         (n_sections != 0))
       out << "\n\n";
   }
 
   // now transverse subsections tree
   for (const auto &p : current_section)
-    if ((is_parameter_node(p.second) == false) &&
-        (is_alias_node(p.second) == false))
+    if ((is_parameter_node(p.second) == false) && (is_alias_node(p.second) == false))
       {
         // first print the subsection header
         if (((style & Text) != 0) || ((style & Description) != 0))
@@ -1716,8 +1552,7 @@ ParameterHandler::recursively_print_parameters(
         else if ((style & LaTeX) != 0)
           {
             auto escape = [](const std::string &input) {
-              return Patterns::internal::escape(input,
-                                                Patterns::PatternBase::LaTeX);
+              return Patterns::internal::escape(input, Patterns::PatternBase::LaTeX);
             };
 
             out << '\n' << "\\subsection{Parameters in section \\tt ";
@@ -1747,8 +1582,7 @@ ParameterHandler::recursively_print_parameters(
         std::vector<std::string> directory_path = target_subsection_path;
         directory_path.emplace_back(subsection);
 
-        recursively_print_parameters(
-          tree, directory_path, style, overall_indent_level + 1, out);
+        recursively_print_parameters(tree, directory_path, style, overall_indent_level + 1, out);
 
         if (is_short && ((style & Text) != 0))
           {
@@ -1798,8 +1632,7 @@ ParameterHandler::log_parameters(LogStream &out, const OutputStyle style)
 
 
 void
-ParameterHandler::log_parameters_section(LogStream &       out,
-                                         const OutputStyle style)
+ParameterHandler::log_parameters_section(LogStream &out, const OutputStyle style)
 {
   // Create entries copy and sort it, if needed.
   // In this way we ensure that the class state is never
@@ -1815,19 +1648,15 @@ ParameterHandler::log_parameters_section(LogStream &       out,
 
       // Dive recursively into the subsections,
       // starting from the current level.
-      recursively_sort_parameters(path_separator,
-                                  subsection_path,
-                                  sorted_entries);
+      recursively_sort_parameters(path_separator, subsection_path, sorted_entries);
     }
 
-  const boost::property_tree::ptree &current_section =
-    current_entries->get_child(get_current_path());
+  const boost::property_tree::ptree &current_section = current_entries->get_child(get_current_path());
 
   // print entries one by one
   for (const auto &p : current_section)
     if (is_parameter_node(p.second) == true)
-      out << demangle(p.first) << ": " << p.second.get<std::string>("value")
-          << std::endl;
+      out << demangle(p.first) << ": " << p.second.get<std::string>("value") << std::endl;
 
   // now transverse subsections tree
   for (const auto &p : current_section)
@@ -1878,71 +1707,53 @@ ParameterHandler::scan_line(std::string        line,
       const std::string subsection = Utilities::trim(line);
 
       // check whether subsection exists
-      AssertThrow(skip_undefined || entries->get_child_optional(
-                                      get_current_full_path(subsection)),
-                  ExcNoSubsection(current_line_n,
-                                  input_filename,
-                                  demangle(get_current_full_path(subsection))));
+      AssertThrow(skip_undefined || entries->get_child_optional(get_current_full_path(subsection)),
+                  ExcNoSubsection(current_line_n, input_filename, demangle(get_current_full_path(subsection))));
 
       // subsection exists
       subsection_path.push_back(subsection);
     }
   // exit subsection
-  else if (Utilities::match_at_string_start(line, "END") ||
-           Utilities::match_at_string_start(line, "end"))
+  else if (Utilities::match_at_string_start(line, "END") || Utilities::match_at_string_start(line, "end"))
     {
       line.erase(0, 3);
       while ((line.size() > 0) && ((std::isspace(line[0])) != 0))
         line.erase(0, 1);
 
-      AssertThrow(
-        line.empty(),
-        ExcCannotParseLine(current_line_n,
-                           input_filename,
-                           "Invalid content after 'end' or 'END' statement."));
-      AssertThrow(subsection_path.size() != 0,
+      AssertThrow(line.empty(),
                   ExcCannotParseLine(current_line_n,
                                      input_filename,
-                                     "There is no subsection to leave here."));
+                                     "Invalid content after 'end' or 'END' statement."));
+      AssertThrow(subsection_path.size() != 0,
+                  ExcCannotParseLine(current_line_n, input_filename, "There is no subsection to leave here."));
       leave_subsection();
     }
   // regular entry
-  else if (Utilities::match_at_string_start(line, "SET ") ||
-           Utilities::match_at_string_start(line, "set "))
+  else if (Utilities::match_at_string_start(line, "SET ") || Utilities::match_at_string_start(line, "set "))
     {
       // erase "set" statement
       line.erase(0, 4);
 
       std::string::size_type pos = line.find('=');
-      AssertThrow(
-        pos != std::string::npos,
-        ExcCannotParseLine(current_line_n,
-                           input_filename,
-                           "Invalid format of 'set' or 'SET' statement."));
+      AssertThrow(pos != std::string::npos,
+                  ExcCannotParseLine(current_line_n, input_filename, "Invalid format of 'set' or 'SET' statement."));
 
       // extract entry name and value and trim
-      std::string entry_name = Utilities::trim(std::string(line, 0, pos));
-      std::string entry_value =
-        Utilities::trim(std::string(line, pos + 1, std::string::npos));
+      std::string entry_name  = Utilities::trim(std::string(line, 0, pos));
+      std::string entry_value = Utilities::trim(std::string(line, pos + 1, std::string::npos));
 
       // resolve aliases before we look up the entry. if necessary, print
       // a warning that the alias is deprecated
       std::string path = get_current_full_path(entry_name);
       if (entries->get_optional<std::string>(path + path_separator + "alias"))
         {
-          if (entries->get<std::string>(path + path_separator +
-                                        "deprecation_status") == "true")
+          if (entries->get<std::string>(path + path_separator + "deprecation_status") == "true")
             {
-              std::cerr << "Warning in line <" << current_line_n
-                        << "> of file <" << input_filename
-                        << ">: You are using the deprecated spelling <"
-                        << entry_name << "> of the parameter <"
-                        << entries->get<std::string>(path + path_separator +
-                                                     "alias")
-                        << ">." << std::endl;
+              std::cerr << "Warning in line <" << current_line_n << "> of file <" << input_filename
+                        << ">: You are using the deprecated spelling <" << entry_name << "> of the parameter <"
+                        << entries->get<std::string>(path + path_separator + "alias") << ">." << std::endl;
             }
-          path = get_current_full_path(
-            entries->get<std::string>(path + path_separator + "alias"));
+          path = get_current_full_path(entries->get<std::string>(path + path_separator + "alias"));
         }
 
       // get the node for the entry. if it doesn't exist, then we end up
@@ -1956,26 +1767,22 @@ ParameterHandler::scan_line(std::string        line,
           if (entry_value.find('{') == std::string::npos)
             {
               // verify that the new value satisfies the provided pattern
-              const unsigned int pattern_index =
-                entries->get<unsigned int>(path + path_separator + "pattern");
+              const unsigned int pattern_index = entries->get<unsigned int>(path + path_separator + "pattern");
               AssertThrow(patterns[pattern_index]->match(entry_value),
-                          ExcInvalidEntryForPattern(
-                            current_line_n,
-                            input_filename,
-                            entry_value,
-                            entry_name,
-                            patterns[pattern_index]->description()));
+                          ExcInvalidEntryForPattern(current_line_n,
+                                                    input_filename,
+                                                    entry_value,
+                                                    entry_name,
+                                                    patterns[pattern_index]->description()));
 
               // then also execute the actions associated with this
               // parameter (if any have been provided)
               const boost::optional<std::string> action_indices_as_string =
-                entries->get_optional<std::string>(path + path_separator +
-                                                   "actions");
+                entries->get_optional<std::string>(path + path_separator + "actions");
               if (action_indices_as_string)
                 {
                   std::vector<int> action_indices =
-                    Utilities::string_to_int(Utilities::split_string_list(
-                      action_indices_as_string.get()));
+                    Utilities::string_to_int(Utilities::split_string_list(action_indices_as_string.get()));
                   for (const unsigned int index : action_indices)
                     if (actions.size() >= index + 1)
                       actions[index](entry_value);
@@ -1987,26 +1794,21 @@ ParameterHandler::scan_line(std::string        line,
 
           auto map_iter = entries_set_status.find(path);
           if (map_iter != entries_set_status.end())
-            map_iter->second =
-              std::pair<bool, bool>(map_iter->second.first, true);
+            map_iter->second = std::pair<bool, bool>(map_iter->second.first, true);
           else
-            AssertThrow(false,
-                        ExcMessage("Could not find parameter " + path +
-                                   " in map entries_set_status."));
+            AssertThrow(false, ExcMessage("Could not find parameter " + path + " in map entries_set_status."));
         }
       else
         {
-          AssertThrow(
-            skip_undefined,
-            ExcCannotParseLine(current_line_n,
-                               input_filename,
-                               ("No entry with name <" + entry_name +
-                                "> was declared in the current subsection.")));
+          AssertThrow(skip_undefined,
+                      ExcCannotParseLine(current_line_n,
+                                         input_filename,
+                                         ("No entry with name <" + entry_name +
+                                          "> was declared in the current subsection.")));
         }
     }
   // an include statement?
-  else if (Utilities::match_at_string_start(line, "include ") ||
-           Utilities::match_at_string_start(line, "INCLUDE "))
+  else if (Utilities::match_at_string_start(line, "include ") || Utilities::match_at_string_start(line, "INCLUDE "))
     {
       // erase "include " statement and eliminate spaces
       line.erase(0, 7);
@@ -2022,26 +1824,22 @@ ParameterHandler::scan_line(std::string        line,
                                      "name a file for inclusion."));
 
       std::ifstream input(line);
-      AssertThrow(input,
-                  ExcCannotOpenIncludeStatementFile(current_line_n,
-                                                    input_filename,
-                                                    line));
+      AssertThrow(input, ExcCannotOpenIncludeStatementFile(current_line_n, input_filename, line));
       parse_input(input, line, "", skip_undefined);
     }
   else
     {
-      AssertThrow(
-        false,
-        ExcCannotParseLine(current_line_n,
-                           input_filename,
-                           "The line\n\n"
-                           "        <" +
-                             original_line +
-                             ">\n\n"
-                             "could not be parsed: please check to "
-                             "make sure that the file is not missing a "
-                             "'set', 'include', 'subsection', or 'end' "
-                             "statement."));
+      AssertThrow(false,
+                  ExcCannotParseLine(current_line_n,
+                                     input_filename,
+                                     "The line\n\n"
+                                     "        <" +
+                                       original_line +
+                                       ">\n\n"
+                                       "could not be parsed: please check to "
+                                       "make sure that the file is not missing a "
+                                       "'set', 'include', 'subsection', or 'end' "
+                                       "statement."));
     }
 }
 
@@ -2098,8 +1896,7 @@ ParameterHandler::get_entries_wrongly_not_set() const
 void
 ParameterHandler::assert_that_entries_have_been_set() const
 {
-  const std::set<std::string> entries_wrongly_not_set =
-    this->get_entries_wrongly_not_set();
+  const std::set<std::string> entries_wrongly_not_set = this->get_entries_wrongly_not_set();
 
   if (entries_wrongly_not_set.size() > 0)
     {
@@ -2108,15 +1905,13 @@ ParameterHandler::assert_that_entries_have_been_set() const
         list_of_missing_parameters += "  " + it + "\n";
       list_of_missing_parameters += "\n";
 
-      AssertThrow(
-        entries_wrongly_not_set.empty(),
-        ExcMessage(
-          "Not all entries of the parameter handler that were declared with "
-          "`has_to_be_set = true` have been set. The following parameters " +
-          list_of_missing_parameters +
-          " have not been set. "
-          "A possible reason might be that you did not add these parameter to "
-          "the input file or that their spelling is not correct."));
+      AssertThrow(entries_wrongly_not_set.empty(),
+                  ExcMessage("Not all entries of the parameter handler that were declared with "
+                             "`has_to_be_set = true` have been set. The following parameters " +
+                             list_of_missing_parameters +
+                             " have not been set. "
+                             "A possible reason might be that you did not add these parameter to "
+                             "the input file or that their spelling is not correct."));
     }
 }
 
@@ -2129,7 +1924,7 @@ MultipleParameterLoop::MultipleParameterLoop()
 
 
 void
-MultipleParameterLoop::parse_input(std::istream &     input,
+MultipleParameterLoop::parse_input(std::istream      &input,
                                    const std::string &filename,
                                    const std::string &last_line,
                                    const bool         skip_undefined)
@@ -2184,10 +1979,8 @@ MultipleParameterLoop::init_branches()
                   << "        " << multiple_choice.entry_value << std::endl
                   << "    for the entry named" << std::endl
                   << "        " << multiple_choice.entry_name << std::endl
-                  << "    does not have the right number of entries for the "
-                  << std::endl
-                  << "        " << n_branches
-                  << " variant runs that will be performed." << std::endl;
+                  << "    does not have the right number of entries for the " << std::endl
+                  << "        " << n_branches << " variant runs that will be performed." << std::endl;
 
 
   // do a first run on filling the values to
@@ -2203,8 +1996,7 @@ MultipleParameterLoop::init_branches()
 void
 MultipleParameterLoop::init_branches_current_section()
 {
-  const boost::property_tree::ptree &current_section =
-    entries->get_child(get_current_path());
+  const boost::property_tree::ptree &current_section = entries->get_child(get_current_path());
 
   // check all entries in the present
   // subsection whether they are
@@ -2214,9 +2006,7 @@ MultipleParameterLoop::init_branches_current_section()
       {
         const std::string value = p.second.get<std::string>("value");
         if (value.find('{') != std::string::npos)
-          multiple_choices.emplace_back(subsection_path,
-                                        demangle(p.first),
-                                        value);
+          multiple_choices.emplace_back(subsection_path, demangle(p.first), value);
       }
 
   // then loop over all subsections
@@ -2237,22 +2027,18 @@ MultipleParameterLoop::fill_entry_values(const unsigned int run_no)
   unsigned int possibilities = 1;
 
   std::vector<Entry>::iterator choice;
-  for (choice = multiple_choices.begin(); choice != multiple_choices.end();
-       ++choice)
+  for (choice = multiple_choices.begin(); choice != multiple_choices.end(); ++choice)
     {
-      const unsigned int selection =
-        (run_no / possibilities) % choice->different_values.size();
-      std::string entry_value;
+      const unsigned int selection = (run_no / possibilities) % choice->different_values.size();
+      std::string        entry_value;
       if (choice->type == Entry::variant)
         entry_value = choice->different_values[selection];
       else
         {
           if (run_no >= choice->different_values.size())
             {
-              std::cerr
-                << "The given array for entry <" << choice->entry_name
-                << "> does not contain enough elements! Taking empty string instead."
-                << std::endl;
+              std::cerr << "The given array for entry <" << choice->entry_name
+                        << "> does not contain enough elements! Taking empty string instead." << std::endl;
               entry_value = "";
             }
           else
@@ -2292,8 +2078,8 @@ MultipleParameterLoop::memory_consumption() const
 
 
 MultipleParameterLoop::Entry::Entry(const std::vector<std::string> &ssp,
-                                    const std::string &             Name,
-                                    const std::string &             Value)
+                                    const std::string              &Name,
+                                    const std::string              &Value)
   : subsection_path(ssp)
   , entry_name(Name)
   , entry_value(Value)
@@ -2310,12 +2096,8 @@ MultipleParameterLoop::Entry::split_different_values()
   // the selection itself, final
   // part after "}"
   std::string prefix(entry_value, 0, entry_value.find('{'));
-  std::string multiple(entry_value,
-                       entry_value.find('{') + 1,
-                       entry_value.rfind('}') - entry_value.find('{') - 1);
-  std::string postfix(entry_value,
-                      entry_value.rfind('}') + 1,
-                      std::string::npos);
+  std::string multiple(entry_value, entry_value.find('{') + 1, entry_value.rfind('}') - entry_value.find('{') - 1);
+  std::string postfix(entry_value, entry_value.rfind('}') + 1, std::string::npos);
   // if array entry {{..}}: delete inner
   // pair of braces
   if (multiple[0] == '{')
@@ -2337,8 +2119,7 @@ MultipleParameterLoop::Entry::split_different_values()
 
   while (multiple.find('|') != std::string::npos)
     {
-      different_values.push_back(
-        prefix + std::string(multiple, 0, multiple.find('|')) + postfix);
+      different_values.push_back(prefix + std::string(multiple, 0, multiple.find('|')) + postfix);
       multiple.erase(0, multiple.find('|') + 1);
     }
   // make up the last selection ("while" broke
@@ -2346,8 +2127,7 @@ MultipleParameterLoop::Entry::split_different_values()
   different_values.push_back(prefix + multiple + postfix);
   // finally check whether this was a variant
   // entry ({...}) or an array ({{...}})
-  if ((entry_value.find("{{") != std::string::npos) &&
-      (entry_value.find("}}") != std::string::npos))
+  if ((entry_value.find("{{") != std::string::npos) && (entry_value.find("}}") != std::string::npos))
     type = Entry::array;
   else
     type = Entry::variant;
@@ -2357,10 +2137,8 @@ MultipleParameterLoop::Entry::split_different_values()
 std::size_t
 MultipleParameterLoop::Entry::memory_consumption() const
 {
-  return (MemoryConsumption::memory_consumption(subsection_path) +
-          MemoryConsumption::memory_consumption(entry_name) +
-          MemoryConsumption::memory_consumption(entry_value) +
-          MemoryConsumption::memory_consumption(different_values) +
+  return (MemoryConsumption::memory_consumption(subsection_path) + MemoryConsumption::memory_consumption(entry_name) +
+          MemoryConsumption::memory_consumption(entry_value) + MemoryConsumption::memory_consumption(different_values) +
           sizeof(type));
 }
 

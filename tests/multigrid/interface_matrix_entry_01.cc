@@ -58,8 +58,7 @@ test()
     parallel::distributed::Triangulation<dim>::construct_multigrid_hierarchy);
   GridGenerator::hyper_cube(tria, 0, 1);
   tria.refine_global(1);
-  for (typename parallel::distributed::Triangulation<dim>::active_cell_iterator
-         cell = tria.begin_active();
+  for (typename parallel::distributed::Triangulation<dim>::active_cell_iterator cell = tria.begin_active();
        cell != tria.end();
        ++cell)
     for (const unsigned int v : GeometryInfo<dim>::vertex_indices())
@@ -71,8 +70,7 @@ test()
               break;
             }
         if (dim == 3)
-          if (cell->vertex(v)[0] < 0.5 && cell->vertex(v)[1] < 0.5 &&
-              cell->vertex(v)[2] < 0.5)
+          if (cell->vertex(v)[0] < 0.5 && cell->vertex(v)[1] < 0.5 && cell->vertex(v)[2] < 0.5)
             {
               cell->set_refine_flag();
               break;
@@ -94,28 +92,21 @@ test()
   constraints.reinit(locally_relevant_set);
   DoFTools::make_hanging_node_constraints(mg_dof_handler, constraints);
 
-  const std::set<types::boundary_id> dirichlet_boundary_ids = {0};
+  const std::set<types::boundary_id>                  dirichlet_boundary_ids = {0};
   std::map<types::boundary_id, const Function<dim> *> dirichlet_boundary;
-  Functions::ConstantFunction<dim> homogeneous_dirichlet_bc(0.0);
+  Functions::ConstantFunction<dim>                    homogeneous_dirichlet_bc(0.0);
   dirichlet_boundary[0] = &homogeneous_dirichlet_bc;
-  VectorTools::interpolate_boundary_values(mg_dof_handler,
-                                           dirichlet_boundary,
-                                           constraints);
+  VectorTools::interpolate_boundary_values(mg_dof_handler, dirichlet_boundary, constraints);
   constraints.close();
 
   mg_constrained_dofs.clear();
   mg_constrained_dofs.initialize(mg_dof_handler);
-  mg_constrained_dofs.make_zero_boundary_constraints(mg_dof_handler,
-                                                     dirichlet_boundary_ids);
+  mg_constrained_dofs.make_zero_boundary_constraints(mg_dof_handler, dirichlet_boundary_ids);
 
   for (unsigned int level = 0; level < tria.n_levels(); ++level)
     {
-      DynamicSparsityPattern dsp(mg_dof_handler.n_dofs(level),
-                                 mg_dof_handler.n_dofs(level));
-      MGTools::make_interface_sparsity_pattern(mg_dof_handler,
-                                               mg_constrained_dofs,
-                                               dsp,
-                                               level);
+      DynamicSparsityPattern dsp(mg_dof_handler.n_dofs(level), mg_dof_handler.n_dofs(level));
+      MGTools::make_interface_sparsity_pattern(mg_dof_handler, mg_constrained_dofs, dsp, level);
       dsp.print(deallog.get_file_stream());
     }
 }

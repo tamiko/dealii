@@ -31,16 +31,9 @@
 
 #include "../testmatrix.h"
 
-template <typename SolverType,
-          typename MatrixType,
-          typename VectorType,
-          class PRECONDITION>
+template <typename SolverType, typename MatrixType, typename VectorType, class PRECONDITION>
 double
-check_solve(SolverType &        solver,
-            const MatrixType &  A,
-            VectorType &        u,
-            VectorType &        f,
-            const PRECONDITION &P)
+check_solve(SolverType &solver, const MatrixType &A, VectorType &u, VectorType &f, const PRECONDITION &P)
 {
   double result = 0.;
   u             = 0.;
@@ -91,11 +84,9 @@ main()
         {
           deallog << "Block size " << blocksize << std::endl;
 
-          const unsigned int n_blocks = dim / blocksize;
-          RelaxationBlock<SparseMatrix<double>, double>::AdditionalData
-            relax_data(0.8);
-          PreconditionBlock<SparseMatrix<double>, double>::AdditionalData
-            prec_data(blocksize, 0.8);
+          const unsigned int                                              n_blocks = dim / blocksize;
+          RelaxationBlock<SparseMatrix<double>, double>::AdditionalData   relax_data(0.8);
+          PreconditionBlock<SparseMatrix<double>, double>::AdditionalData prec_data(blocksize, 0.8);
 
           // The permutation vectors;
           std::vector<types::global_dof_index> bperm(n_blocks);

@@ -35,16 +35,14 @@ main()
   // Introduce a cyclic dependency into a map.
   // Here we set a==b and b==a.
   const SD::types::substitution_map sub_vals_unresolved =
-    SD::make_substitution_map(
-      std::make_pair(SD::Expression("a"), SD::Expression("b")),
-      std::make_pair(SD::Expression("b"), SD::Expression("a")));
+    SD::make_substitution_map(std::make_pair(SD::Expression("a"), SD::Expression("b")),
+                              std::make_pair(SD::Expression("b"), SD::Expression("a")));
   std::cout << "Original map:" << std::endl;
   SD::Utilities::print_substitution_map(std::cout, sub_vals_unresolved);
 
   const bool                        force_cyclic_dependency_resolution = true;
   const SD::types::substitution_map sub_vals_resolved =
-    SD::resolve_explicit_dependencies(sub_vals_unresolved,
-                                      force_cyclic_dependency_resolution);
+    SD::resolve_explicit_dependencies(sub_vals_unresolved, force_cyclic_dependency_resolution);
   std::cout << "Resolved map:" << std::endl;
   SD::Utilities::print_substitution_map(std::cout, sub_vals_resolved);
 

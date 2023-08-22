@@ -23,11 +23,7 @@ namespace
   // A dummy utility routine to create an empty matrix in case we import
   // a MATNEST with NULL blocks
   static Mat
-  create_dummy_mat(MPI_Comm comm,
-                   PetscInt lr,
-                   PetscInt gr,
-                   PetscInt lc,
-                   PetscInt gc)
+  create_dummy_mat(MPI_Comm comm, PetscInt lr, PetscInt gr, PetscInt lc, PetscInt gc)
   {
     Mat            dummy;
     PetscErrorCode ierr;
@@ -81,8 +77,7 @@ namespace PETScWrappers
 
 #  ifndef DOXYGEN
     void
-    BlockSparseMatrix::reinit(const size_type n_block_rows,
-                              const size_type n_block_columns)
+    BlockSparseMatrix::reinit(const size_type n_block_rows, const size_type n_block_columns)
     {
       // first delete previous content of
       // the subobjects array
@@ -108,8 +103,8 @@ namespace PETScWrappers
 
 
     void
-    BlockSparseMatrix::reinit(const std::vector<IndexSet> &      rows,
-                              const std::vector<IndexSet> &      cols,
+    BlockSparseMatrix::reinit(const std::vector<IndexSet>       &rows,
+                              const std::vector<IndexSet>       &cols,
                               const BlockDynamicSparsityPattern &bdsp,
                               const MPI_Comm                     com)
     {
@@ -133,10 +128,8 @@ namespace PETScWrappers
       for (unsigned int r = 0; r < this->n_block_rows(); ++r)
         for (unsigned int c = 0; c < this->n_block_cols(); ++c)
           {
-            Assert(rows[r].size() == bdsp.block(r, c).n_rows(),
-                   ExcMessage("invalid size"));
-            Assert(cols[c].size() == bdsp.block(r, c).n_cols(),
-                   ExcMessage("invalid size"));
+            Assert(rows[r].size() == bdsp.block(r, c).n_rows(), ExcMessage("invalid size"));
+            Assert(cols[c].size() == bdsp.block(r, c).n_cols(), ExcMessage("invalid size"));
 
             BlockType *p = new BlockType();
             p->reinit(rows[r], cols[c], bdsp.block(r, c), com);
@@ -147,7 +140,7 @@ namespace PETScWrappers
     }
 
     void
-    BlockSparseMatrix::reinit(const std::vector<IndexSet> &      sizes,
+    BlockSparseMatrix::reinit(const std::vector<IndexSet>       &sizes,
                               const BlockDynamicSparsityPattern &bdsp,
                               const MPI_Comm                     com)
     {
@@ -177,12 +170,11 @@ namespace PETScWrappers
             {
               if (this->sub_objects[r][c])
                 {
-                  comm = this->sub_objects[r][c]->get_mpi_communicator();
+                  comm               = this->sub_objects[r][c]->get_mpi_communicator();
                   row_sizes[r]       = this->sub_objects[r][c]->m();
                   col_sizes[c]       = this->sub_objects[r][c]->n();
                   row_local_sizes[r] = this->sub_objects[r][c]->local_size();
-                  col_local_sizes[c] =
-                    this->sub_objects[r][c]->local_domain_size();
+                  col_local_sizes[c] = this->sub_objects[r][c]->local_domain_size();
                 }
             }
         }
@@ -192,30 +184,25 @@ namespace PETScWrappers
             {
               if (!this->sub_objects[r][c])
                 {
-                  Assert(
-                    row_sizes[r] != size_type(-1),
-                    ExcMessage(
-                      "When passing empty sub-blocks of a block matrix, you need to make "
-                      "sure that at least one block in each block row and block column is "
-                      "non-empty. However, block row " +
-                      std::to_string(r) +
-                      " is completely empty "
-                      "and so it is not possible to determine how many rows it should have."));
-                  Assert(
-                    col_sizes[c] != size_type(-1),
-                    ExcMessage(
-                      "When passing empty sub-blocks of a block matrix, you need to make "
-                      "sure that at least one block in each block row and block column is "
-                      "non-empty. However, block column " +
-                      std::to_string(c) +
-                      " is completely empty "
-                      "and so it is not possible to determine how many columns it should have."));
-                  Mat dummy = ::create_dummy_mat(
-                    comm,
-                    static_cast<PetscInt>(row_local_sizes[r]),
-                    static_cast<PetscInt>(row_sizes[r]),
-                    static_cast<PetscInt>(col_local_sizes[c]),
-                    static_cast<PetscInt>(col_sizes[c]));
+                  Assert(row_sizes[r] != size_type(-1),
+                         ExcMessage("When passing empty sub-blocks of a block matrix, you need to make "
+                                    "sure that at least one block in each block row and block column is "
+                                    "non-empty. However, block row " +
+                                    std::to_string(r) +
+                                    " is completely empty "
+                                    "and so it is not possible to determine how many rows it should have."));
+                  Assert(col_sizes[c] != size_type(-1),
+                         ExcMessage("When passing empty sub-blocks of a block matrix, you need to make "
+                                    "sure that at least one block in each block row and block column is "
+                                    "non-empty. However, block column " +
+                                    std::to_string(c) +
+                                    " is completely empty "
+                                    "and so it is not possible to determine how many columns it should have."));
+                  Mat dummy               = ::create_dummy_mat(comm,
+                                                 static_cast<PetscInt>(row_local_sizes[r]),
+                                                 static_cast<PetscInt>(row_sizes[r]),
+                                                 static_cast<PetscInt>(col_local_sizes[c]),
+                                                 static_cast<PetscInt>(col_sizes[c]));
                   this->sub_objects[r][c] = new BlockType(dummy);
 
                   // the new object got a reference on dummy, we can safely
@@ -251,11 +238,10 @@ namespace PETScWrappers
       for (unsigned int r = 0; r < m; r++)
         for (unsigned int c = 0; c < n; c++)
           {
-            comm = this->sub_objects[r][c]->get_mpi_communicator();
+            comm                    = this->sub_objects[r][c]->get_mpi_communicator();
             psub_objects[r * n + c] = this->sub_objects[r][c]->petsc_matrix();
           }
-      ierr = MatCreateNest(
-        comm, m, nullptr, n, nullptr, psub_objects.data(), &petsc_nest_matrix);
+      ierr = MatCreateNest(comm, m, nullptr, n, nullptr, psub_objects.data(), &petsc_nest_matrix);
       AssertThrow(ierr == 0, ExcPETScError(ierr));
 
       ierr = MatNestSetVecType(petsc_nest_matrix, VECNEST);
@@ -339,10 +325,7 @@ namespace PETScWrappers
       PetscBool isnest;
       PetscInt  nr = 1, nc = 1;
 
-      PetscErrorCode ierr =
-        PetscObjectTypeCompare(reinterpret_cast<PetscObject>(A),
-                               MATNEST,
-                               &isnest);
+      PetscErrorCode ierr = PetscObjectTypeCompare(reinterpret_cast<PetscObject>(A), MATNEST, &isnest);
       AssertThrow(ierr == 0, ExcPETScError(ierr));
       std::vector<Mat> mats;
       bool             need_empty_matrices = false;

@@ -62,8 +62,7 @@ namespace MatrixTools
   {
     template <typename Iterator>
     bool
-    column_less_than(const typename Iterator::value_type p,
-                     const unsigned int                  column)
+    column_less_than(const typename Iterator::value_type p, const unsigned int column)
     {
       return (p.column() < column);
     }
@@ -73,19 +72,15 @@ namespace MatrixTools
   // (GK)
   template <typename number>
   void
-  apply_boundary_values(
-    const std::map<types::global_dof_index, number> &boundary_values,
-    SparseMatrix<number> &                           matrix,
-    Vector<number> &                                 solution,
-    Vector<number> &                                 right_hand_side,
-    const bool                                       eliminate_columns)
+  apply_boundary_values(const std::map<types::global_dof_index, number> &boundary_values,
+                        SparseMatrix<number>                            &matrix,
+                        Vector<number>                                  &solution,
+                        Vector<number>                                  &right_hand_side,
+                        const bool                                       eliminate_columns)
   {
-    Assert(matrix.n() == right_hand_side.size(),
-           ExcDimensionMismatch(matrix.n(), right_hand_side.size()));
-    Assert(matrix.n() == solution.size(),
-           ExcDimensionMismatch(matrix.n(), solution.size()));
-    Assert(matrix.n() == matrix.m(),
-           ExcDimensionMismatch(matrix.n(), matrix.m()));
+    Assert(matrix.n() == right_hand_side.size(), ExcDimensionMismatch(matrix.n(), right_hand_side.size()));
+    Assert(matrix.n() == solution.size(), ExcDimensionMismatch(matrix.n(), solution.size()));
+    Assert(matrix.n() == matrix.m(), ExcDimensionMismatch(matrix.n(), matrix.m()));
 
     // if no boundary values are to be applied
     // simply return
@@ -110,9 +105,8 @@ namespace MatrixTools
         }
 
 
-    typename std::map<types::global_dof_index, number>::const_iterator
-      dof  = boundary_values.begin(),
-      endd = boundary_values.end();
+    typename std::map<types::global_dof_index, number>::const_iterator dof  = boundary_values.begin(),
+                                                                       endd = boundary_values.end();
     for (; dof != endd; ++dof)
       {
         Assert(dof->first < n_dofs, ExcInternalError());
@@ -122,10 +116,7 @@ namespace MatrixTools
 
         // set entries of this line to zero except for the diagonal
         // entry
-        for (typename SparseMatrix<number>::iterator p =
-               matrix.begin(dof_number);
-             p != matrix.end(dof_number);
-             ++p)
+        for (typename SparseMatrix<number>::iterator p = matrix.begin(dof_number); p != matrix.end(dof_number); ++p)
           if (p->column() != dof_number)
             p->value() = 0.;
 
@@ -145,13 +136,13 @@ namespace MatrixTools
         number new_rhs;
         if (matrix.diag_element(dof_number) != number())
           {
-            new_rhs = dof->second * matrix.diag_element(dof_number);
+            new_rhs                     = dof->second * matrix.diag_element(dof_number);
             right_hand_side(dof_number) = new_rhs;
           }
         else
           {
             matrix.set(dof_number, dof_number, first_nonzero_diagonal_entry);
-            new_rhs = dof->second * first_nonzero_diagonal_entry;
+            new_rhs                     = dof->second * first_nonzero_diagonal_entry;
             right_hand_side(dof_number) = new_rhs;
           }
 
@@ -178,9 +169,7 @@ namespace MatrixTools
             // row. we need not look at the first entry of each row,
             // since that is the diagonal element and thus the present
             // row
-            for (typename SparseMatrix<number>::iterator q =
-                   matrix.begin(dof_number) + 1;
-                 q != matrix.end(dof_number);
+            for (typename SparseMatrix<number>::iterator q = matrix.begin(dof_number) + 1; q != matrix.end(dof_number);
                  ++q)
               {
                 const types::global_dof_index row = q->column();
@@ -188,15 +177,10 @@ namespace MatrixTools
                 // find the position of
                 // element
                 // (row,dof_number)
-                bool (*comp)(
-                  const typename SparseMatrix<number>::iterator::value_type p,
-                  const unsigned int column) =
+                bool (*comp)(const typename SparseMatrix<number>::iterator::value_type p, const unsigned int column) =
                   &column_less_than<typename SparseMatrix<number>::iterator>;
                 const typename SparseMatrix<number>::iterator p =
-                  Utilities::lower_bound(matrix.begin(row) + 1,
-                                         matrix.end(row),
-                                         dof_number,
-                                         comp);
+                  Utilities::lower_bound(matrix.begin(row) + 1, matrix.end(row), dof_number, comp);
 
                 // check whether this line has an entry in the
                 // regarding column (check for ==dof_number and !=
@@ -209,16 +193,14 @@ namespace MatrixTools
                 // symmetric and we only walk over those rows for
                 // which the current row has a column entry
                 Assert((p != matrix.end(row)) && (p->column() == dof_number),
-                       ExcMessage(
-                         "This function is trying to access an element of the "
-                         "matrix that doesn't seem to exist. Are you using a "
-                         "nonsymmetric sparsity pattern? If so, you are not "
-                         "allowed to set the eliminate_column argument of this "
-                         "function, see the documentation."));
+                       ExcMessage("This function is trying to access an element of the "
+                                  "matrix that doesn't seem to exist. Are you using a "
+                                  "nonsymmetric sparsity pattern? If so, you are not "
+                                  "allowed to set the eliminate_column argument of this "
+                                  "function, see the documentation."));
 
                 // correct right hand side
-                right_hand_side(row) -=
-                  static_cast<number>(p->value()) / diagonal_entry * new_rhs;
+                right_hand_side(row) -= static_cast<number>(p->value()) / diagonal_entry * new_rhs;
 
                 // set matrix entry to zero
                 p->value() = 0.;
@@ -234,28 +216,21 @@ namespace MatrixTools
 
   template <typename number>
   void
-  apply_boundary_values(
-    const std::map<types::global_dof_index, number> &boundary_values,
-    BlockSparseMatrix<number> &                      matrix,
-    BlockVector<number> &                            solution,
-    BlockVector<number> &                            right_hand_side,
-    const bool                                       eliminate_columns)
+  apply_boundary_values(const std::map<types::global_dof_index, number> &boundary_values,
+                        BlockSparseMatrix<number>                       &matrix,
+                        BlockVector<number>                             &solution,
+                        BlockVector<number>                             &right_hand_side,
+                        const bool                                       eliminate_columns)
   {
     const unsigned int blocks = matrix.n_block_rows();
 
-    Assert(matrix.n() == right_hand_side.size(),
-           ExcDimensionMismatch(matrix.n(), right_hand_side.size()));
-    Assert(matrix.n() == solution.size(),
-           ExcDimensionMismatch(matrix.n(), solution.size()));
+    Assert(matrix.n() == right_hand_side.size(), ExcDimensionMismatch(matrix.n(), right_hand_side.size()));
+    Assert(matrix.n() == solution.size(), ExcDimensionMismatch(matrix.n(), solution.size()));
     Assert(matrix.n_block_rows() == matrix.n_block_cols(), ExcNotQuadratic());
-    Assert(matrix.get_sparsity_pattern().get_row_indices() ==
-             matrix.get_sparsity_pattern().get_column_indices(),
+    Assert(matrix.get_sparsity_pattern().get_row_indices() == matrix.get_sparsity_pattern().get_column_indices(),
            ExcNotQuadratic());
-    Assert(matrix.get_sparsity_pattern().get_column_indices() ==
-             solution.get_block_indices(),
-           ExcBlocksDontMatch());
-    Assert(matrix.get_sparsity_pattern().get_row_indices() ==
-             right_hand_side.get_block_indices(),
+    Assert(matrix.get_sparsity_pattern().get_column_indices() == solution.get_block_indices(), ExcBlocksDontMatch());
+    Assert(matrix.get_sparsity_pattern().get_row_indices() == right_hand_side.get_block_indices(),
            ExcBlocksDontMatch());
 
     // if no boundary values are to be applied
@@ -275,12 +250,10 @@ namespace MatrixTools
     number first_nonzero_diagonal_entry = 0;
     for (unsigned int diag_block = 0; diag_block < blocks; ++diag_block)
       {
-        for (unsigned int i = 0; i < matrix.block(diag_block, diag_block).n();
-             ++i)
+        for (unsigned int i = 0; i < matrix.block(diag_block, diag_block).n(); ++i)
           if (matrix.block(diag_block, diag_block).diag_element(i) != number{})
             {
-              first_nonzero_diagonal_entry =
-                matrix.block(diag_block, diag_block).diag_element(i);
+              first_nonzero_diagonal_entry = matrix.block(diag_block, diag_block).diag_element(i);
               break;
             }
         // check whether we have found
@@ -295,11 +268,9 @@ namespace MatrixTools
       first_nonzero_diagonal_entry = 1;
 
 
-    typename std::map<types::global_dof_index, number>::const_iterator
-      dof  = boundary_values.begin(),
-      endd = boundary_values.end();
-    const BlockSparsityPattern &sparsity_pattern =
-      matrix.get_sparsity_pattern();
+    typename std::map<types::global_dof_index, number>::const_iterator dof  = boundary_values.begin(),
+                                                                       endd = boundary_values.end();
+    const BlockSparsityPattern &sparsity_pattern                            = matrix.get_sparsity_pattern();
 
     // pointer to the mapping between
     // global and block indices. since
@@ -317,9 +288,8 @@ namespace MatrixTools
         // get global index and index
         // in the block in which this
         // dof is located
-        const types::global_dof_index dof_number = dof->first;
-        const std::pair<unsigned int, types::global_dof_index> block_index =
-          index_mapping.global_to_local(dof_number);
+        const types::global_dof_index                          dof_number  = dof->first;
+        const std::pair<unsigned int, types::global_dof_index> block_index = index_mapping.global_to_local(dof_number);
 
         // for each boundary dof:
 
@@ -331,13 +301,9 @@ namespace MatrixTools
         for (unsigned int block_col = 0; block_col < blocks; ++block_col)
           for (typename SparseMatrix<number>::iterator p =
                  (block_col == block_index.first ?
-                    matrix.block(block_index.first, block_col)
-                        .begin(block_index.second) +
-                      1 :
-                    matrix.block(block_index.first, block_col)
-                      .begin(block_index.second));
-               p != matrix.block(block_index.first, block_col)
-                      .end(block_index.second);
+                    matrix.block(block_index.first, block_col).begin(block_index.second) + 1 :
+                    matrix.block(block_index.first, block_col).begin(block_index.second));
+               p != matrix.block(block_index.first, block_col).end(block_index.second);
                ++p)
             p->value() = 0;
 
@@ -355,15 +321,12 @@ namespace MatrixTools
         // store the new rhs entry to make
         // the gauss step more efficient
         number new_rhs;
-        if (matrix.block(block_index.first, block_index.first)
-              .diag_element(block_index.second) != number{})
-          new_rhs =
-            dof->second * matrix.block(block_index.first, block_index.first)
-                            .diag_element(block_index.second);
+        if (matrix.block(block_index.first, block_index.first).diag_element(block_index.second) != number{})
+          new_rhs = dof->second * matrix.block(block_index.first, block_index.first).diag_element(block_index.second);
         else
           {
-            matrix.block(block_index.first, block_index.first)
-              .diag_element(block_index.second) = first_nonzero_diagonal_entry;
+            matrix.block(block_index.first, block_index.first).diag_element(block_index.second) =
+              first_nonzero_diagonal_entry;
             new_rhs = dof->second * first_nonzero_diagonal_entry;
           }
         right_hand_side.block(block_index.first)(block_index.second) = new_rhs;
@@ -384,8 +347,7 @@ namespace MatrixTools
             // of this line for the Gauss
             // elimination step
             const number diagonal_entry =
-              matrix.block(block_index.first, block_index.first)
-                .diag_element(block_index.second);
+              matrix.block(block_index.first, block_index.first).diag_element(block_index.second);
 
             // we have to loop over all
             // rows of the matrix which
@@ -412,21 +374,17 @@ namespace MatrixTools
               {
                 // get pointers to the sparsity patterns of this block and of
                 // the transpose one
-                const SparsityPattern &this_sparsity =
-                  sparsity_pattern.block(block_row, block_index.first);
+                const SparsityPattern &this_sparsity = sparsity_pattern.block(block_row, block_index.first);
 
-                SparseMatrix<number> &this_matrix =
-                  matrix.block(block_row, block_index.first);
-                SparseMatrix<number> &transpose_matrix =
-                  matrix.block(block_index.first, block_row);
+                SparseMatrix<number> &this_matrix      = matrix.block(block_row, block_index.first);
+                SparseMatrix<number> &transpose_matrix = matrix.block(block_index.first, block_row);
 
                 // traverse the row of the transpose block to find the
                 // interesting rows in the present block.  don't use the
                 // diagonal element of the diagonal block
                 for (typename SparseMatrix<number>::iterator q =
-                       (block_index.first == block_row ?
-                          transpose_matrix.begin(block_index.second) + 1 :
-                          transpose_matrix.begin(block_index.second));
+                       (block_index.first == block_row ? transpose_matrix.begin(block_index.second) + 1 :
+                                                         transpose_matrix.begin(block_index.second));
                      q != transpose_matrix.end(block_index.second);
                      ++q)
                   {
@@ -438,19 +396,14 @@ namespace MatrixTools
                     // find the position of element (row,dof_number) in this
                     // block (not in the transpose one). note that we have to
                     // take care of special cases with square sub-matrices
-                    bool (*comp)(
-                      typename SparseMatrix<number>::iterator::value_type p,
-                      const unsigned int column) =
-                      &column_less_than<
-                        typename SparseMatrix<number>::iterator>;
+                    bool (*comp)(typename SparseMatrix<number>::iterator::value_type p, const unsigned int column) =
+                      &column_less_than<typename SparseMatrix<number>::iterator>;
 
-                    typename SparseMatrix<number>::iterator p =
-                      this_matrix.end();
+                    typename SparseMatrix<number>::iterator p = this_matrix.end();
 
                     if (this_sparsity.n_rows() == this_sparsity.n_cols())
                       {
-                        if (this_matrix.begin(row)->column() ==
-                            block_index.second)
+                        if (this_matrix.begin(row)->column() == block_index.second)
                           p = this_matrix.begin(row);
                         else
                           p = Utilities::lower_bound(this_matrix.begin(row) + 1,
@@ -459,10 +412,8 @@ namespace MatrixTools
                                                      comp);
                       }
                     else
-                      p = Utilities::lower_bound(this_matrix.begin(row),
-                                                 this_matrix.end(row),
-                                                 block_index.second,
-                                                 comp);
+                      p =
+                        Utilities::lower_bound(this_matrix.begin(row), this_matrix.end(row), block_index.second, comp);
 
                     // check whether this line has an entry in the
                     // regarding column (check for ==dof_number and !=
@@ -474,13 +425,10 @@ namespace MatrixTools
                     // we have assumed that the sparsity pattern is
                     // symmetric and we only walk over those rows for
                     // which the current row has a column entry
-                    Assert((p->column() == block_index.second) &&
-                             (p != this_matrix.end(row)),
-                           ExcInternalError());
+                    Assert((p->column() == block_index.second) && (p != this_matrix.end(row)), ExcInternalError());
 
                     // correct right hand side
-                    right_hand_side.block(block_row)(row) -=
-                      number(p->value()) / diagonal_entry * new_rhs;
+                    right_hand_side.block(block_row)(row) -= number(p->value()) / diagonal_entry * new_rhs;
 
                     // set matrix entry to zero
                     p->value() = 0.;
@@ -497,12 +445,11 @@ namespace MatrixTools
 
   template <typename number>
   void
-  local_apply_boundary_values(
-    const std::map<types::global_dof_index, number> &boundary_values,
-    const std::vector<types::global_dof_index> &     local_dof_indices,
-    FullMatrix<number> &                             local_matrix,
-    Vector<number> &                                 local_rhs,
-    const bool                                       eliminate_columns)
+  local_apply_boundary_values(const std::map<types::global_dof_index, number> &boundary_values,
+                              const std::vector<types::global_dof_index>      &local_dof_indices,
+                              FullMatrix<number>                              &local_matrix,
+                              Vector<number>                                  &local_rhs,
+                              const bool                                       eliminate_columns)
   {
     Assert(local_dof_indices.size() == local_matrix.m(),
            ExcDimensionMismatch(local_dof_indices.size(), local_matrix.m()));
@@ -543,8 +490,8 @@ namespace MatrixTools
     const unsigned int n_local_dofs     = local_dof_indices.size();
     for (unsigned int i = 0; i < n_local_dofs; ++i)
       {
-        const typename std::map<types::global_dof_index, number>::const_iterator
-          boundary_value = boundary_values.find(local_dof_indices[i]);
+        const typename std::map<types::global_dof_index, number>::const_iterator boundary_value =
+          boundary_values.find(local_dof_indices[i]);
         if (boundary_value != boundary_values.end())
           {
             // remove this row, except for the
@@ -599,8 +546,7 @@ namespace MatrixTools
                 for (unsigned int row = 0; row < n_local_dofs; ++row)
                   if (row != i)
                     {
-                      local_rhs(row) -=
-                        local_matrix(row, i) * boundary_value->second;
+                      local_rhs(row) -= local_matrix(row, i) * boundary_value->second;
                       local_matrix(row, i) = 0;
                     }
               }

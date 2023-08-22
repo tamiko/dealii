@@ -39,14 +39,10 @@ test()
     AssertThrow(a.begin() == &v[4], ExcInternalError());
     AssertThrow(a.end() == &v[7], ExcInternalError());
 
-    static_assert(std::is_reference_v<decltype(*a.begin())>,
-                  "type should be a reference");
-    static_assert(std::is_reference_v<decltype(*a.end())>,
-                  "type should be a reference");
-    static_assert(!is_const_reference<decltype(*a.begin())>(),
-                  "type should not be const");
-    static_assert(!is_const_reference<decltype(*a.end())>(),
-                  "type should not be const");
+    static_assert(std::is_reference_v<decltype(*a.begin())>, "type should be a reference");
+    static_assert(std::is_reference_v<decltype(*a.end())>, "type should be a reference");
+    static_assert(!is_const_reference<decltype(*a.begin())>(), "type should not be const");
+    static_assert(!is_const_reference<decltype(*a.end())>(), "type should not be const");
   }
 
   // and an immutable view of a mutable vector
@@ -56,10 +52,8 @@ test()
     AssertThrow(a.begin() == &v[4], ExcInternalError());
     AssertThrow(a.end() == &v[7], ExcInternalError());
 
-    static_assert(is_const_reference<decltype(*a.begin())>(),
-                  "type should be const reference");
-    static_assert(is_const_reference<decltype(*a.end())>(),
-                  "type should be const reference");
+    static_assert(is_const_reference<decltype(*a.begin())>(), "type should be const reference");
+    static_assert(is_const_reference<decltype(*a.end())>(), "type should be const reference");
   }
 
   // and an immutable view of an immutable vector
@@ -69,10 +63,8 @@ test()
     AssertThrow(a.begin() == &v[4], ExcInternalError());
     AssertThrow(a.end() == &v[7], ExcInternalError());
 
-    static_assert(is_const_reference<decltype(*a.begin())>(),
-                  "type should be const reference");
-    static_assert(is_const_reference<decltype(*a.end())>(),
-                  "type should be const reference");
+    static_assert(is_const_reference<decltype(*a.begin())>(), "type should be const reference");
+    static_assert(is_const_reference<decltype(*a.end())>(), "type should be const reference");
   }
 
   deallog << "OK" << std::endl;

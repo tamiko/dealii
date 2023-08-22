@@ -22,8 +22,7 @@ DEAL_II_NAMESPACE_OPEN
 namespace
 {
   unsigned int
-  compute_n_polynomials_pyramid(const unsigned int dim,
-                                const unsigned int degree)
+  compute_n_polynomials_pyramid(const unsigned int dim, const unsigned int degree)
   {
     if (dim == 3)
       {
@@ -40,17 +39,14 @@ namespace
 
 
 template <int dim>
-ScalarLagrangePolynomialPyramid<dim>::ScalarLagrangePolynomialPyramid(
-  const unsigned int degree)
-  : ScalarPolynomialsBase<dim>(degree,
-                               compute_n_polynomials_pyramid(dim, degree))
+ScalarLagrangePolynomialPyramid<dim>::ScalarLagrangePolynomialPyramid(const unsigned int degree)
+  : ScalarPolynomialsBase<dim>(degree, compute_n_polynomials_pyramid(dim, degree))
 {}
 
 
 template <int dim>
 double
-ScalarLagrangePolynomialPyramid<dim>::compute_value(const unsigned int i,
-                                                    const Point<dim> & p) const
+ScalarLagrangePolynomialPyramid<dim>::compute_value(const unsigned int i, const Point<dim> &p) const
 {
   AssertDimension(dim, 3);
   AssertIndexRange(this->degree(), 2);
@@ -87,8 +83,7 @@ ScalarLagrangePolynomialPyramid<dim>::compute_value(const unsigned int i,
 
 template <int dim>
 Tensor<1, dim>
-ScalarLagrangePolynomialPyramid<dim>::compute_grad(const unsigned int i,
-                                                   const Point<dim> & p) const
+ScalarLagrangePolynomialPyramid<dim>::compute_grad(const unsigned int i, const Point<dim> &p) const
 {
   AssertDimension(dim, 3);
   AssertIndexRange(this->degree(), 4);
@@ -164,9 +159,7 @@ ScalarLagrangePolynomialPyramid<dim>::compute_grad(const unsigned int i,
 
 template <int dim>
 Tensor<2, dim>
-ScalarLagrangePolynomialPyramid<dim>::compute_grad_grad(
-  const unsigned int i,
-  const Point<dim> & p) const
+ScalarLagrangePolynomialPyramid<dim>::compute_grad_grad(const unsigned int i, const Point<dim> &p) const
 {
   (void)i;
   (void)p;
@@ -179,13 +172,12 @@ ScalarLagrangePolynomialPyramid<dim>::compute_grad_grad(
 
 template <int dim>
 void
-ScalarLagrangePolynomialPyramid<dim>::evaluate(
-  const Point<dim> &           unit_point,
-  std::vector<double> &        values,
-  std::vector<Tensor<1, dim>> &grads,
-  std::vector<Tensor<2, dim>> &grad_grads,
-  std::vector<Tensor<3, dim>> &third_derivatives,
-  std::vector<Tensor<4, dim>> &fourth_derivatives) const
+ScalarLagrangePolynomialPyramid<dim>::evaluate(const Point<dim>            &unit_point,
+                                               std::vector<double>         &values,
+                                               std::vector<Tensor<1, dim>> &grads,
+                                               std::vector<Tensor<2, dim>> &grad_grads,
+                                               std::vector<Tensor<3, dim>> &third_derivatives,
+                                               std::vector<Tensor<4, dim>> &fourth_derivatives) const
 {
   (void)grads;
   (void)grad_grads;
@@ -205,9 +197,7 @@ ScalarLagrangePolynomialPyramid<dim>::evaluate(
 
 template <int dim>
 Tensor<1, dim>
-ScalarLagrangePolynomialPyramid<dim>::compute_1st_derivative(
-  const unsigned int i,
-  const Point<dim> & p) const
+ScalarLagrangePolynomialPyramid<dim>::compute_1st_derivative(const unsigned int i, const Point<dim> &p) const
 {
   return compute_grad(i, p);
 }
@@ -216,9 +206,7 @@ ScalarLagrangePolynomialPyramid<dim>::compute_1st_derivative(
 
 template <int dim>
 Tensor<2, dim>
-ScalarLagrangePolynomialPyramid<dim>::compute_2nd_derivative(
-  const unsigned int i,
-  const Point<dim> & p) const
+ScalarLagrangePolynomialPyramid<dim>::compute_2nd_derivative(const unsigned int i, const Point<dim> &p) const
 {
   (void)i;
   (void)p;
@@ -232,9 +220,7 @@ ScalarLagrangePolynomialPyramid<dim>::compute_2nd_derivative(
 
 template <int dim>
 Tensor<3, dim>
-ScalarLagrangePolynomialPyramid<dim>::compute_3rd_derivative(
-  const unsigned int i,
-  const Point<dim> & p) const
+ScalarLagrangePolynomialPyramid<dim>::compute_3rd_derivative(const unsigned int i, const Point<dim> &p) const
 {
   (void)i;
   (void)p;
@@ -248,9 +234,7 @@ ScalarLagrangePolynomialPyramid<dim>::compute_3rd_derivative(
 
 template <int dim>
 Tensor<4, dim>
-ScalarLagrangePolynomialPyramid<dim>::compute_4th_derivative(
-  const unsigned int i,
-  const Point<dim> & p) const
+ScalarLagrangePolynomialPyramid<dim>::compute_4th_derivative(const unsigned int i, const Point<dim> &p) const
 {
   (void)i;
   (void)p;

@@ -42,10 +42,7 @@ check(DataOutBase::VtkFlags flags, std::ostream &out)
   names[3] = "x4";
   names[4] = "i";
   std::vector<
-    std::tuple<unsigned int,
-               unsigned int,
-               std::string,
-               DataComponentInterpretation::DataComponentInterpretation>>
+    std::tuple<unsigned int, unsigned int, std::string, DataComponentInterpretation::DataComponentInterpretation>>
     vectors;
   DataOutBase::write_vtu(patches, names, vectors, flags, out);
 }

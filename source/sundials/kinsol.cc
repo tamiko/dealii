@@ -54,17 +54,16 @@ DEAL_II_NAMESPACE_OPEN
 namespace SUNDIALS
 {
   template <typename VectorType>
-  KINSOL<VectorType>::AdditionalData::AdditionalData(
-    const SolutionStrategy &strategy,
-    const unsigned int      maximum_non_linear_iterations,
-    const double            function_tolerance,
-    const double            step_tolerance,
-    const bool              no_init_setup,
-    const unsigned int      maximum_setup_calls,
-    const double            maximum_newton_step,
-    const double            dq_relative_error,
-    const unsigned int      maximum_beta_failures,
-    const unsigned int      anderson_subspace_size)
+  KINSOL<VectorType>::AdditionalData::AdditionalData(const SolutionStrategy &strategy,
+                                                     const unsigned int      maximum_non_linear_iterations,
+                                                     const double            function_tolerance,
+                                                     const double            step_tolerance,
+                                                     const bool              no_init_setup,
+                                                     const unsigned int      maximum_setup_calls,
+                                                     const double            maximum_newton_step,
+                                                     const double            dq_relative_error,
+                                                     const unsigned int      maximum_beta_failures,
+                                                     const unsigned int      anderson_subspace_size)
     : strategy(strategy)
     , maximum_non_linear_iterations(maximum_non_linear_iterations)
     , function_tolerance(function_tolerance)
@@ -87,8 +86,7 @@ namespace SUNDIALS
     prm.add_parameter("Solution strategy",
                       strategy_str,
                       "Choose among newton|linesearch|fixed_point|picard",
-                      Patterns::Selection(
-                        "newton|linesearch|fixed_point|picard"));
+                      Patterns::Selection("newton|linesearch|fixed_point|picard"));
     prm.add_action("Solution strategy", [&](const std::string &value) {
       if (value == "newton")
         strategy = newton;
@@ -101,30 +99,24 @@ namespace SUNDIALS
       else
         Assert(false, ExcInternalError());
     });
-    prm.add_parameter("Maximum number of nonlinear iterations",
-                      maximum_non_linear_iterations);
+    prm.add_parameter("Maximum number of nonlinear iterations", maximum_non_linear_iterations);
     prm.add_parameter("Function norm stopping tolerance", function_tolerance);
     prm.add_parameter("Scaled step stopping tolerance", step_tolerance);
 
     prm.enter_subsection("Newton parameters");
     prm.add_parameter("No initial matrix setup", no_init_setup);
-    prm.add_parameter("Maximum iterations without matrix setup",
-                      maximum_setup_calls);
-    prm.add_parameter("Maximum allowable scaled length of the Newton step",
-                      maximum_newton_step);
-    prm.add_parameter("Relative error for different quotient computation",
-                      dq_relative_error);
+    prm.add_parameter("Maximum iterations without matrix setup", maximum_setup_calls);
+    prm.add_parameter("Maximum allowable scaled length of the Newton step", maximum_newton_step);
+    prm.add_parameter("Relative error for different quotient computation", dq_relative_error);
     prm.leave_subsection();
 
     prm.enter_subsection("Linesearch parameters");
-    prm.add_parameter("Maximum number of beta-condition failures",
-                      maximum_beta_failures);
+    prm.add_parameter("Maximum number of beta-condition failures", maximum_beta_failures);
     prm.leave_subsection();
 
 
     prm.enter_subsection("Fixed point and Picard parameters");
-    prm.add_parameter("Anderson acceleration subspace size",
-                      anderson_subspace_size);
+    prm.add_parameter("Anderson acceleration subspace size", anderson_subspace_size);
     prm.leave_subsection();
   }
 
@@ -138,8 +130,7 @@ namespace SUNDIALS
 
 
   template <typename VectorType>
-  KINSOL<VectorType>::KINSOL(const AdditionalData &data,
-                             const MPI_Comm        mpi_comm)
+  KINSOL<VectorType>::KINSOL(const AdditionalData &data, const MPI_Comm mpi_comm)
     : data(data)
     , mpi_communicator(mpi_comm)
     , kinsol_mem(nullptr)
@@ -156,10 +147,7 @@ namespace SUNDIALS
     // MPI_COMM_SELF in a serial application as MPI won't be
     // initialized. Hence, work around that by just not providing a
     // communicator in that case.
-    const int status =
-      SUNContext_Create(mpi_communicator == MPI_COMM_SELF ? nullptr :
-                                                            &mpi_communicator,
-                        &kinsol_ctx);
+    const int status = SUNContext_Create(mpi_communicator == MPI_COMM_SELF ? nullptr : &mpi_communicator, &kinsol_ctx);
     (void)status;
     AssertKINSOL(status);
 #  endif
@@ -189,14 +177,12 @@ namespace SUNDIALS
     // Make sure we have what we need
     if (data.strategy == AdditionalData::fixed_point)
       {
-        Assert(iteration_function,
-               ExcFunctionNotProvided("iteration_function"));
+        Assert(iteration_function, ExcFunctionNotProvided("iteration_function"));
       }
     else
       {
         Assert(residual, ExcFunctionNotProvided("residual"));
-        Assert(solve_with_jacobian,
-               ExcFunctionNotProvided("solve_with_jacobian"));
+        Assert(solve_with_jacobian, ExcFunctionNotProvided("solve_with_jacobian"));
       }
 
     // Create a new solver object:
@@ -213,10 +199,7 @@ namespace SUNDIALS
     kinsol_mem = KINCreate();
 #  else
     // Same comment applies as in class constructor:
-    status =
-      SUNContext_Create(mpi_communicator == MPI_COMM_SELF ? nullptr :
-                                                            &mpi_communicator,
-                        &kinsol_ctx);
+    status = SUNContext_Create(mpi_communicator == MPI_COMM_SELF ? nullptr : &mpi_communicator, &kinsol_ctx);
     AssertKINSOL(status);
 
     kinsol_mem = KINCreate(kinsol_ctx);
@@ -243,10 +226,8 @@ namespace SUNDIALS
         ones = 1.0;
       }
 
-    auto u_scale = make_compatible_nvector_view(
-      get_solution_scaling ? get_solution_scaling() : ones);
-    auto f_scale = make_compatible_nvector_view(
-      get_function_scaling ? get_function_scaling() : ones);
+    auto u_scale = make_compatible_nvector_view(get_solution_scaling ? get_solution_scaling() : ones);
+    auto f_scale = make_compatible_nvector_view(get_function_scaling ? get_function_scaling() : ones);
 
     auto solution = make_compatible_nvector_view(initial_guess_and_solution);
 
@@ -263,19 +244,17 @@ namespace SUNDIALS
         kinsol_mem,
         /* wrap up the iteration_function() callback: */
         [](N_Vector yy, N_Vector FF, void *user_data) -> int {
-          KINSOL<VectorType> &solver =
-            *static_cast<KINSOL<VectorType> *>(user_data);
+          KINSOL<VectorType> &solver = *static_cast<KINSOL<VectorType> *>(user_data);
 
           auto src_yy = internal::unwrap_nvector_const<VectorType>(yy);
           auto dst_FF = internal::unwrap_nvector<VectorType>(FF);
 
           Assert(solver.iteration_function, ExcInternalError());
 
-          const int err = Utilities::call_and_possibly_capture_exception(
-            solver.iteration_function,
-            solver.pending_exception,
-            *src_yy,
-            *dst_FF);
+          const int err = Utilities::call_and_possibly_capture_exception(solver.iteration_function,
+                                                                         solver.pending_exception,
+                                                                         *src_yy,
+                                                                         *dst_FF);
 
           return err;
         },
@@ -285,16 +264,15 @@ namespace SUNDIALS
         kinsol_mem,
         /* wrap up the residual() callback: */
         [](N_Vector yy, N_Vector FF, void *user_data) -> int {
-          KINSOL<VectorType> &solver =
-            *static_cast<KINSOL<VectorType> *>(user_data);
+          KINSOL<VectorType> &solver = *static_cast<KINSOL<VectorType> *>(user_data);
 
           auto src_yy = internal::unwrap_nvector_const<VectorType>(yy);
           auto dst_FF = internal::unwrap_nvector<VectorType>(FF);
 
           Assert(solver.residual, ExcInternalError());
 
-          const int err = Utilities::call_and_possibly_capture_exception(
-            solver.residual, solver.pending_exception, *src_yy, *dst_FF);
+          const int err =
+            Utilities::call_and_possibly_capture_exception(solver.residual, solver.pending_exception, *src_yy, *dst_FF);
 
           return err;
         },
@@ -340,8 +318,7 @@ namespace SUNDIALS
 #  endif
         LS->content = this;
 
-        LS->ops->gettype =
-          [](SUNLinearSolver /*ignored*/) -> SUNLinearSolver_Type {
+        LS->ops->gettype = [](SUNLinearSolver /*ignored*/) -> SUNLinearSolver_Type {
           return SUNLINEARSOLVER_MATRIX_ITERATIVE;
         };
 
@@ -360,16 +337,11 @@ namespace SUNDIALS
           return 0;
         };
 
-        LS->ops->solve = [](SUNLinearSolver LS,
-                            SUNMatrix /*ignored*/,
-                            N_Vector x,
-                            N_Vector b,
-                            realtype tol) -> int {
+        LS->ops->solve = [](SUNLinearSolver LS, SUNMatrix /*ignored*/, N_Vector x, N_Vector b, realtype tol) -> int {
           // Receive the object that describes the linear solver and
           // unpack the pointer to the KINSOL object from which we can then
           // get the 'reinit' and 'solve' functions.
-          const KINSOL<VectorType> &solver =
-            *static_cast<const KINSOL<VectorType> *>(LS->content);
+          const KINSOL<VectorType> &solver = *static_cast<const KINSOL<VectorType> *>(LS->content);
 
           Assert(solver.solve_with_jacobian, ExcInternalError());
 
@@ -377,11 +349,7 @@ namespace SUNDIALS
           auto dst_x = internal::unwrap_nvector<VectorType>(x);
 
           const int err = Utilities::call_and_possibly_capture_exception(
-            solver.solve_with_jacobian,
-            solver.pending_exception,
-            *src_b,
-            *dst_x,
-            tol);
+            solver.solve_with_jacobian, solver.pending_exception, *src_b, *dst_x, tol);
 
           return err;
         };
@@ -398,9 +366,7 @@ namespace SUNDIALS
 #  endif
         J->content = this;
 
-        J->ops->getid = [](SUNMatrix /*ignored*/) -> SUNMatrix_ID {
-          return SUNMATRIX_CUSTOM;
-        };
+        J->ops->getid = [](SUNMatrix /*ignored*/) -> SUNMatrix_ID { return SUNMATRIX_CUSTOM; };
 
         J->ops->destroy = [](SUNMatrix A) {
           if (A->content)
@@ -424,30 +390,28 @@ namespace SUNDIALS
         // it as well. The manual says that this must happen *after*
         // calling KINSetLinearSolver
         if (!setup_jacobian)
-          setup_jacobian = [](const VectorType &, const VectorType &) {
-            return 0;
-          };
-        status = KINSetJacFn(
-          kinsol_mem,
-          [](N_Vector u,
-             N_Vector f,
-             SUNMatrix /* ignored */,
-             void *user_data,
-             N_Vector /* tmp1 */,
-             N_Vector /* tmp2 */) {
-            // Receive the object that describes the linear solver and
-            // unpack the pointer to the KINSOL object from which we can then
-            // get the 'setup' function.
-            const KINSOL<VectorType> &solver =
-              *static_cast<const KINSOL<VectorType> *>(user_data);
+          setup_jacobian = [](const VectorType &, const VectorType &) { return 0; };
+        status = KINSetJacFn(kinsol_mem,
+                             [](N_Vector u,
+                                N_Vector f,
+                                SUNMatrix /* ignored */,
+                                void *user_data,
+                                N_Vector /* tmp1 */,
+                                N_Vector /* tmp2 */) {
+                               // Receive the object that describes the linear solver and
+                               // unpack the pointer to the KINSOL object from which we can then
+                               // get the 'setup' function.
+                               const KINSOL<VectorType> &solver = *static_cast<const KINSOL<VectorType> *>(user_data);
 
-            auto ycur = internal::unwrap_nvector_const<VectorType>(u);
-            auto fcur = internal::unwrap_nvector<VectorType>(f);
+                               auto ycur = internal::unwrap_nvector_const<VectorType>(u);
+                               auto fcur = internal::unwrap_nvector<VectorType>(f);
 
-            // Call the user-provided setup function with these arguments:
-            return Utilities::call_and_possibly_capture_exception(
-              solver.setup_jacobian, solver.pending_exception, *ycur, *fcur);
-          });
+                               // Call the user-provided setup function with these arguments:
+                               return Utilities::call_and_possibly_capture_exception(solver.setup_jacobian,
+                                                                                     solver.pending_exception,
+                                                                                     *ycur,
+                                                                                     *fcur);
+                             });
         AssertKINSOL(status);
       }
 
@@ -517,9 +481,7 @@ namespace SUNDIALS
   void
   KINSOL<VectorType>::set_functions_to_trigger_an_assert()
   {
-    reinit_vector = [](VectorType &) {
-      AssertThrow(false, ExcFunctionNotProvided("reinit_vector"));
-    };
+    reinit_vector = [](VectorType &) { AssertThrow(false, ExcFunctionNotProvided("reinit_vector")); };
   }
 
   template class KINSOL<Vector<double>>;

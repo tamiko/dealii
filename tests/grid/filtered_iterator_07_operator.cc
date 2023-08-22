@@ -45,19 +45,16 @@ test()
   dof_handler.distribute_dofs(fe);
 
   int n_cells_visited = 0;
-  for (const auto &cell : dof_handler.active_cell_iterators() |
-                            IteratorFilters::ActiveFEIndexEqualTo(0))
+  for (const auto &cell : dof_handler.active_cell_iterators() | IteratorFilters::ActiveFEIndexEqualTo(0))
     {
       ++n_cells_visited;
       (void)cell;
     }
 
-  Assert(n_cells_visited == Utilities::fixed_power<dim>(2),
-         ExcMessage("Wrong number of cells visited."));
+  Assert(n_cells_visited == Utilities::fixed_power<dim>(2), ExcMessage("Wrong number of cells visited."));
 
   n_cells_visited = 0;
-  for (const auto &cell : dof_handler.active_cell_iterators() |
-                            IteratorFilters::ActiveFEIndexEqualTo(1))
+  for (const auto &cell : dof_handler.active_cell_iterators() | IteratorFilters::ActiveFEIndexEqualTo(1))
     {
       ++n_cells_visited;
       (void)cell;
@@ -75,8 +72,7 @@ test_hp()
   GridGenerator::hyper_cube(tria, 0, 1, true);
   tria.refine_global(1);
 
-  const hp::FECollection<dim, spacedim> fe_collection{FE_Q<dim, spacedim>(1),
-                                                      FE_Q<dim, spacedim>(1)};
+  const hp::FECollection<dim, spacedim> fe_collection{FE_Q<dim, spacedim>(1), FE_Q<dim, spacedim>(1)};
 
   DoFHandler<dim, spacedim> dof_handler(tria);
 
@@ -89,19 +85,16 @@ test_hp()
   dof_handler.distribute_dofs(fe_collection);
 
   int n_cells_visited = 0;
-  for (const auto &cell : dof_handler.active_cell_iterators() |
-                            IteratorFilters::ActiveFEIndexEqualTo(0))
+  for (const auto &cell : dof_handler.active_cell_iterators() | IteratorFilters::ActiveFEIndexEqualTo(0))
     {
       ++n_cells_visited;
       (void)cell;
     }
 
-  Assert(n_cells_visited == Utilities::fixed_power<dim>(2) - 1,
-         ExcMessage("Wrong number of cells visited."));
+  Assert(n_cells_visited == Utilities::fixed_power<dim>(2) - 1, ExcMessage("Wrong number of cells visited."));
 
   n_cells_visited = 0;
-  for (const auto &cell : dof_handler.active_cell_iterators() |
-                            IteratorFilters::ActiveFEIndexEqualTo(1))
+  for (const auto &cell : dof_handler.active_cell_iterators() | IteratorFilters::ActiveFEIndexEqualTo(1))
     {
       ++n_cells_visited;
       (void)cell;

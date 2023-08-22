@@ -33,13 +33,10 @@ template <typename FaceType>
 void
 print_face(const FaceType &face, const unsigned int level)
 {
-  AssertThrow(
-    face->get_fe(0).n_dofs_per_face() > 0,
-    ExcMessage(
-      "Please use a finite element with at least 1 DoF for this test"));
+  AssertThrow(face->get_fe(0).n_dofs_per_face() > 0,
+              ExcMessage("Please use a finite element with at least 1 DoF for this test"));
 
-  std::vector<types::global_dof_index> mg_dofs(
-    face->get_fe(0).n_dofs_per_face());
+  std::vector<types::global_dof_index> mg_dofs(face->get_fe(0).n_dofs_per_face());
   face->get_mg_dof_indices(level, mg_dofs);
 
   // Print face DoFs
@@ -60,8 +57,7 @@ check()
   GridGenerator::hyper_cube(tria, -1, 1, true);
 
   // Create periodic boundary along x axis
-  std::vector<GridTools::PeriodicFacePair<typename Tria::cell_iterator>>
-    face_pairs;
+  std::vector<GridTools::PeriodicFacePair<typename Tria::cell_iterator>> face_pairs;
 
   GridTools::collect_periodic_faces(tria, 0, 1, 0, face_pairs);
 
@@ -100,10 +96,8 @@ check()
           // Iterate over all faces
           for (const unsigned int i_face : GeometryInfo<dim>::face_indices())
             {
-              if ((level_cell->at_boundary(i_face) &&
-                   !level_cell->has_periodic_neighbor(i_face)) ||
-                  level_cell->neighbor_or_periodic_neighbor(i_face)->level() ==
-                    level_cell->level())
+              if ((level_cell->at_boundary(i_face) && !level_cell->has_periodic_neighbor(i_face)) ||
+                  level_cell->neighbor_or_periodic_neighbor(i_face)->level() == level_cell->level())
                 continue;
 
               // Get face
@@ -126,27 +120,23 @@ check()
       deallog << std::endl;
 
       // Print faces that have periodic neighbors
-      deallog << "  Faces having periodic neighbors of same level:"
-              << std::endl;
+      deallog << "  Faces having periodic neighbors of same level:" << std::endl;
       for (const auto level_cell : dof_handler.cell_iterators_on_level(level))
         {
           // Iterate over all faces
           for (const unsigned int i_face : GeometryInfo<dim>::face_indices())
             {
               if (!level_cell->has_periodic_neighbor(i_face) ||
-                  level_cell->periodic_neighbor(i_face)->level() !=
-                    level_cell->level())
+                  level_cell->periodic_neighbor(i_face)->level() != level_cell->level())
                 continue;
 
-              typename DoFHandler<dim>::cell_iterator neighbor_cell =
-                level_cell->periodic_neighbor(i_face);
+              typename DoFHandler<dim>::cell_iterator neighbor_cell = level_cell->periodic_neighbor(i_face);
 
               // Each side only once
               if (level_cell->index() > neighbor_cell->index())
                 continue;
 
-              unsigned int neighbor_i_face =
-                level_cell->periodic_neighbor_face_no(i_face);
+              unsigned int neighbor_i_face = level_cell->periodic_neighbor_face_no(i_face);
 
               // Get face
               const auto face          = level_cell->face(i_face);
@@ -167,8 +157,7 @@ check()
 
       // Print constraint matrix
       deallog << "  Constraint matrix:" << std::endl;
-      constrained_dofs.get_level_constraints(level).print(
-        deallog.get_file_stream());
+      constrained_dofs.get_level_constraints(level).print(deallog.get_file_stream());
     }
 }
 

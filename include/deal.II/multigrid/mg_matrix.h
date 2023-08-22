@@ -79,21 +79,13 @@ namespace mg
     operator[](unsigned int level) const;
 
     virtual void
-    vmult(const unsigned int level,
-          VectorType &       dst,
-          const VectorType & src) const override;
+    vmult(const unsigned int level, VectorType &dst, const VectorType &src) const override;
     virtual void
-    vmult_add(const unsigned int level,
-              VectorType &       dst,
-              const VectorType & src) const override;
+    vmult_add(const unsigned int level, VectorType &dst, const VectorType &src) const override;
     virtual void
-    Tvmult(const unsigned int level,
-           VectorType &       dst,
-           const VectorType & src) const override;
+    Tvmult(const unsigned int level, VectorType &dst, const VectorType &src) const override;
     virtual void
-    Tvmult_add(const unsigned int level,
-               VectorType &       dst,
-               const VectorType & src) const override;
+    Tvmult_add(const unsigned int level, VectorType &dst, const VectorType &src) const override;
     virtual unsigned int
     get_minlevel() const override;
     virtual unsigned int
@@ -128,9 +120,7 @@ public:
    * Constructor. @p row and @p col are the coordinate of the selected block.
    * The other argument is handed over to the @p SmartPointer constructor.
    */
-  MGMatrixSelect(const unsigned int         row    = 0,
-                 const unsigned int         col    = 0,
-                 MGLevelObject<MatrixType> *matrix = 0);
+  MGMatrixSelect(const unsigned int row = 0, const unsigned int col = 0, MGLevelObject<MatrixType> *matrix = 0);
 
   /**
    * Set the matrix object to be used. The matrix object must exist longer as
@@ -149,40 +139,31 @@ public:
    * Matrix-vector-multiplication on a certain level.
    */
   virtual void
-  vmult(const unsigned int    level,
-        Vector<number> &      dst,
-        const Vector<number> &src) const;
+  vmult(const unsigned int level, Vector<number> &dst, const Vector<number> &src) const;
 
   /**
    * Adding matrix-vector-multiplication on a certain level.
    */
   virtual void
-  vmult_add(const unsigned int    level,
-            Vector<number> &      dst,
-            const Vector<number> &src) const;
+  vmult_add(const unsigned int level, Vector<number> &dst, const Vector<number> &src) const;
 
   /**
    * Transpose matrix-vector-multiplication on a certain level.
    */
   virtual void
-  Tvmult(const unsigned int    level,
-         Vector<number> &      dst,
-         const Vector<number> &src) const;
+  Tvmult(const unsigned int level, Vector<number> &dst, const Vector<number> &src) const;
 
   /**
    * Adding transpose matrix-vector-multiplication on a certain level.
    */
   virtual void
-  Tvmult_add(const unsigned int    level,
-             Vector<number> &      dst,
-             const Vector<number> &src) const;
+  Tvmult_add(const unsigned int level, Vector<number> &dst, const Vector<number> &src) const;
 
 private:
   /**
    * Pointer to the matrix objects on each level.
    */
-  SmartPointer<MGLevelObject<MatrixType>, MGMatrixSelect<MatrixType, number>>
-    matrix;
+  SmartPointer<MGLevelObject<MatrixType>, MGMatrixSelect<MatrixType, number>> matrix;
   /**
    * Row coordinate of selected block.
    */
@@ -211,9 +192,7 @@ namespace mg
         // rich enough interface to populate reinit_(domain|range)_vector.
         // Thus, apply an empty LinearOperator exemplar.
         matrices[level] =
-          linear_operator<VectorType>(LinearOperator<VectorType>(),
-                                      Utilities::get_underlying_value(
-                                        p[level]));
+          linear_operator<VectorType>(LinearOperator<VectorType>(), Utilities::get_underlying_value(p[level]));
       }
   }
 
@@ -248,9 +227,7 @@ namespace mg
 
   template <typename VectorType>
   void
-  Matrix<VectorType>::vmult(const unsigned int level,
-                            VectorType &       dst,
-                            const VectorType & src) const
+  Matrix<VectorType>::vmult(const unsigned int level, VectorType &dst, const VectorType &src) const
   {
     matrices[level].vmult(dst, src);
   }
@@ -259,9 +236,7 @@ namespace mg
 
   template <typename VectorType>
   void
-  Matrix<VectorType>::vmult_add(const unsigned int level,
-                                VectorType &       dst,
-                                const VectorType & src) const
+  Matrix<VectorType>::vmult_add(const unsigned int level, VectorType &dst, const VectorType &src) const
   {
     matrices[level].vmult_add(dst, src);
   }
@@ -270,9 +245,7 @@ namespace mg
 
   template <typename VectorType>
   void
-  Matrix<VectorType>::Tvmult(const unsigned int level,
-                             VectorType &       dst,
-                             const VectorType & src) const
+  Matrix<VectorType>::Tvmult(const unsigned int level, VectorType &dst, const VectorType &src) const
   {
     matrices[level].Tvmult(dst, src);
   }
@@ -281,9 +254,7 @@ namespace mg
 
   template <typename VectorType>
   void
-  Matrix<VectorType>::Tvmult_add(const unsigned int level,
-                                 VectorType &       dst,
-                                 const VectorType & src) const
+  Matrix<VectorType>::Tvmult_add(const unsigned int level, VectorType &dst, const VectorType &src) const
   {
     matrices[level].Tvmult_add(dst, src);
   }
@@ -320,8 +291,8 @@ namespace mg
 /*----------------------------------------------------------------------*/
 
 template <typename MatrixType, typename number>
-MGMatrixSelect<MatrixType, number>::MGMatrixSelect(const unsigned int row,
-                                                   const unsigned int col,
+MGMatrixSelect<MatrixType, number>::MGMatrixSelect(const unsigned int         row,
+                                                   const unsigned int         col,
                                                    MGLevelObject<MatrixType> *p)
   : matrix(p, typeid(*this).name())
   , row(row)
@@ -341,8 +312,7 @@ MGMatrixSelect<MatrixType, number>::set_matrix(MGLevelObject<MatrixType> *p)
 
 template <typename MatrixType, typename number>
 void
-MGMatrixSelect<MatrixType, number>::select_block(const unsigned int brow,
-                                                 const unsigned int bcol)
+MGMatrixSelect<MatrixType, number>::select_block(const unsigned int brow, const unsigned int bcol)
 {
   row = brow;
   col = bcol;
@@ -353,7 +323,7 @@ MGMatrixSelect<MatrixType, number>::select_block(const unsigned int brow,
 template <typename MatrixType, typename number>
 void
 MGMatrixSelect<MatrixType, number>::vmult(const unsigned int    level,
-                                          Vector<number> &      dst,
+                                          Vector<number>       &dst,
                                           const Vector<number> &src) const
 {
   Assert(matrix != 0, ExcNotInitialized());
@@ -367,7 +337,7 @@ MGMatrixSelect<MatrixType, number>::vmult(const unsigned int    level,
 template <typename MatrixType, typename number>
 void
 MGMatrixSelect<MatrixType, number>::vmult_add(const unsigned int    level,
-                                              Vector<number> &      dst,
+                                              Vector<number>       &dst,
                                               const Vector<number> &src) const
 {
   Assert(matrix != 0, ExcNotInitialized());
@@ -381,7 +351,7 @@ MGMatrixSelect<MatrixType, number>::vmult_add(const unsigned int    level,
 template <typename MatrixType, typename number>
 void
 MGMatrixSelect<MatrixType, number>::Tvmult(const unsigned int    level,
-                                           Vector<number> &      dst,
+                                           Vector<number>       &dst,
                                            const Vector<number> &src) const
 {
   Assert(matrix != 0, ExcNotInitialized());
@@ -395,7 +365,7 @@ MGMatrixSelect<MatrixType, number>::Tvmult(const unsigned int    level,
 template <typename MatrixType, typename number>
 void
 MGMatrixSelect<MatrixType, number>::Tvmult_add(const unsigned int    level,
-                                               Vector<number> &      dst,
+                                               Vector<number>       &dst,
                                                const Vector<number> &src) const
 {
   Assert(matrix != 0, ExcNotInitialized());

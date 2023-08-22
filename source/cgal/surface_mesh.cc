@@ -25,19 +25,17 @@ namespace
 {
   template <typename dealiiFace, typename CGAL_Mesh>
   void
-  add_facet(
-    const dealiiFace &                                              face,
-    const std::map<unsigned int, typename CGAL_Mesh::Vertex_index> &deal2cgal,
-    CGAL_Mesh &                                                     mesh,
-    const bool clockwise_ordering = true)
+  add_facet(const dealiiFace                                               &face,
+            const std::map<unsigned int, typename CGAL_Mesh::Vertex_index> &deal2cgal,
+            CGAL_Mesh                                                      &mesh,
+            const bool                                                      clockwise_ordering = true)
   {
-    const auto reference_cell_type = face->reference_cell();
+    const auto                                    reference_cell_type = face->reference_cell();
     std::vector<typename CGAL_Mesh::Vertex_index> indices;
 
     if (reference_cell_type == ReferenceCells::Line)
       {
-        mesh.add_edge(deal2cgal.at(face->vertex_index(0)),
-                      deal2cgal.at(face->vertex_index(1)));
+        mesh.add_edge(deal2cgal.at(face->vertex_index(0)), deal2cgal.at(face->vertex_index(1)));
       }
     else if (reference_cell_type == ReferenceCells::Triangle)
       {
@@ -70,16 +68,14 @@ namespace
 
   template <typename dealiiFace, typename CGAL_Mesh>
   void
-  map_vertices(
-    const dealiiFace &                                        cell,
-    std::map<unsigned int, typename CGAL_Mesh::Vertex_index> &deal2cgal,
-    CGAL_Mesh &                                               mesh)
+  map_vertices(const dealiiFace                                         &cell,
+               std::map<unsigned int, typename CGAL_Mesh::Vertex_index> &deal2cgal,
+               CGAL_Mesh                                                &mesh)
   {
     for (const auto i : cell->vertex_indices())
       {
-        deal2cgal[cell->vertex_index(i)] = mesh.add_vertex(
-          CGALWrappers::dealii_point_to_cgal_point<typename CGAL_Mesh::Point>(
-            cell->vertex(i)));
+        deal2cgal[cell->vertex_index(i)] =
+          mesh.add_vertex(CGALWrappers::dealii_point_to_cgal_point<typename CGAL_Mesh::Point>(cell->vertex(i)));
       }
   }
 } // namespace
@@ -92,21 +88,20 @@ namespace CGALWrappers
 {
   template <typename CGALPointType, int dim, int spacedim>
   void
-  dealii_cell_to_cgal_surface_mesh(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const Mapping<dim, spacedim> &                              mapping,
-    CGAL::Surface_mesh<CGALPointType> &                         mesh)
+  dealii_cell_to_cgal_surface_mesh(const typename Triangulation<dim, spacedim>::cell_iterator &cell,
+                                   const Mapping<dim, spacedim>                               &mapping,
+                                   CGAL::Surface_mesh<CGALPointType>                          &mesh)
   {
     Assert(dim > 1, ExcImpossibleInDim(dim));
-    using Mesh           = CGAL::Surface_mesh<CGALPointType>;
-    const auto &vertices = mapping.get_vertices(cell);
+    using Mesh                                                   = CGAL::Surface_mesh<CGALPointType>;
+    const auto                                         &vertices = mapping.get_vertices(cell);
     std::map<unsigned int, typename Mesh::Vertex_index> deal2cgal;
 
     // Add all vertices to the mesh
     // Store CGAL ordering
     for (const auto &i : cell->vertex_indices())
-      deal2cgal[cell->vertex_index(i)] = mesh.add_vertex(
-        CGALWrappers::dealii_point_to_cgal_point<CGALPointType>(vertices[i]));
+      deal2cgal[cell->vertex_index(i)] =
+        mesh.add_vertex(CGALWrappers::dealii_point_to_cgal_point<CGALPointType>(vertices[i]));
 
     // Add faces
     if (dim < 3)
@@ -131,9 +126,7 @@ namespace CGALWrappers
       for (const auto &f : cell->face_indices())
         {
           // Check for standard orientation of faces
-          bool face_is_clockwise_oriented =
-            cell->reference_cell() != ReferenceCells::Hexahedron ||
-            (f % 2 == 0);
+          bool face_is_clockwise_oriented = cell->reference_cell() != ReferenceCells::Hexahedron || (f % 2 == 0);
           // Make sure that we revert the orientation if required
           if (cell->face_orientation(f) == false)
             face_is_clockwise_oriented = !face_is_clockwise_oriented;
@@ -145,16 +138,11 @@ namespace CGALWrappers
 
   template <typename CGALPointType, int dim, int spacedim>
   void
-  dealii_tria_to_cgal_surface_mesh(
-    const dealii::Triangulation<dim, spacedim> &tria,
-    CGAL::Surface_mesh<CGALPointType> &         mesh)
+  dealii_tria_to_cgal_surface_mesh(const dealii::Triangulation<dim, spacedim> &tria,
+                                   CGAL::Surface_mesh<CGALPointType>          &mesh)
   {
-    Assert(tria.n_cells() > 0,
-           ExcMessage(
-             "Triangulation cannot be empty upon calling this function."));
-    Assert(mesh.is_empty(),
-           ExcMessage(
-             "The surface mesh must be empty upon calling this function."));
+    Assert(tria.n_cells() > 0, ExcMessage("Triangulation cannot be empty upon calling this function."));
+    Assert(mesh.is_empty(), ExcMessage("The surface mesh must be empty upon calling this function."));
 
     Assert(dim > 1, ExcImpossibleInDim(dim));
     using Mesh         = CGAL::Surface_mesh<CGALPointType>;
@@ -178,10 +166,7 @@ namespace CGALWrappers
               if (cell->face(f)->at_boundary())
                 {
                   map_vertices(cell->face(f), deal2cgal, mesh);
-                  add_facet(cell->face(f),
-                            deal2cgal,
-                            mesh,
-                            (f % 2 == 0 || cell->n_vertices() != 8));
+                  add_facet(cell->face(f), deal2cgal, mesh, (f % 2 == 0 || cell->n_vertices() != 8));
                 }
           }
       }

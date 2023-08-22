@@ -48,16 +48,14 @@ template <int dim>
 void
 gnuplot_output()
 {
-  deallog << "Output of grids into gnuplot files:" << std::endl
-          << "===================================" << std::endl;
+  deallog << "Output of grids into gnuplot files:" << std::endl << "===================================" << std::endl;
 
   Triangulation<dim> triangulation;
   GridGenerator::hyper_ball(triangulation);
   static const SphericalManifold<dim> boundary;
   triangulation.set_manifold(0, boundary);
 
-  for (unsigned int refinement = 0; refinement < 2;
-       ++refinement, triangulation.refine_global(1))
+  for (unsigned int refinement = 0; refinement < 2; ++refinement, triangulation.refine_global(1))
     {
       deallog << "Refinement level: " << refinement << std::endl;
 
@@ -75,9 +73,7 @@ gnuplot_output()
           GridOutFlags::Gnuplot gnuplot_flags(false, 30);
           grid_out.set_flags(gnuplot_flags);
 
-          grid_out.write_gnuplot(triangulation,
-                                 deallog.get_file_stream(),
-                                 &mapping);
+          grid_out.write_gnuplot(triangulation, deallog.get_file_stream(), &mapping);
         }
       deallog << std::endl;
     }
@@ -87,8 +83,7 @@ template <int dim>
 void
 compute_pi_by_area()
 {
-  deallog << "Computation of Pi by the area:" << std::endl
-          << "==============================" << std::endl;
+  deallog << "Computation of Pi by the area:" << std::endl << "==============================" << std::endl;
 
   const hp::QCollection<dim> quadrature(QGauss<dim>(4));
 
@@ -109,10 +104,7 @@ compute_pi_by_area()
 
       DoFHandler<dim> dof_handler(triangulation);
 
-      hp::FEValues<dim> x_fe_values(mapping,
-                                    dummy_fe,
-                                    quadrature,
-                                    update_JxW_values);
+      hp::FEValues<dim> x_fe_values(mapping, dummy_fe, quadrature, update_JxW_values);
 
       ConvergenceTable table;
 
@@ -125,14 +117,11 @@ compute_pi_by_area()
 
           long double area = 0;
 
-          typename DoFHandler<dim>::active_cell_iterator
-            cell = dof_handler.begin_active(),
-            endc = dof_handler.end();
+          typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
           for (; cell != endc; ++cell)
             {
               x_fe_values.reinit(cell);
-              const FEValues<dim> &fe_values =
-                x_fe_values.get_present_fe_values();
+              const FEValues<dim> &fe_values = x_fe_values.get_present_fe_values();
               for (unsigned int i = 0; i < fe_values.n_quadrature_points; ++i)
                 area += fe_values.JxW(i);
             };
@@ -155,8 +144,7 @@ template <int dim>
 void
 compute_pi_by_perimeter()
 {
-  deallog << "Computation of Pi by the perimeter:" << std::endl
-          << "===================================" << std::endl;
+  deallog << "Computation of Pi by the perimeter:" << std::endl << "===================================" << std::endl;
 
   const hp::QCollection<dim - 1> quadrature(QGauss<dim - 1>(4));
 
@@ -175,10 +163,7 @@ compute_pi_by_perimeter()
 
       DoFHandler<dim> dof_handler(triangulation);
 
-      hp::FEFaceValues<dim> x_fe_face_values(mapping,
-                                             fe,
-                                             quadrature,
-                                             update_JxW_values);
+      hp::FEFaceValues<dim> x_fe_face_values(mapping, fe, quadrature, update_JxW_values);
       ConvergenceTable      table;
 
       for (unsigned int refinement = 0; refinement < (degree != 4 ? 6 : 4);
@@ -188,26 +173,20 @@ compute_pi_by_perimeter()
 
           dof_handler.distribute_dofs(fe);
 
-          typename DoFHandler<dim>::active_cell_iterator
-            cell                = dof_handler.begin_active(),
-            endc                = dof_handler.end();
-          long double perimeter = 0;
+          typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
+          long double                                    perimeter = 0;
           for (; cell != endc; ++cell)
             for (const unsigned int face_no : GeometryInfo<dim>::face_indices())
               if (cell->face(face_no)->at_boundary())
                 {
                   x_fe_face_values.reinit(cell, face_no);
-                  const FEFaceValues<dim> &fe_face_values =
-                    x_fe_face_values.get_present_fe_values();
+                  const FEFaceValues<dim> &fe_face_values = x_fe_face_values.get_present_fe_values();
 
-                  for (unsigned int i = 0;
-                       i < fe_face_values.n_quadrature_points;
-                       ++i)
+                  for (unsigned int i = 0; i < fe_face_values.n_quadrature_points; ++i)
                     perimeter += fe_face_values.JxW(i);
                 };
           table.add_value("eval.pi", static_cast<double>(perimeter / 2.));
-          table.add_value("error",
-                          static_cast<double>(std::fabs(perimeter / 2. - pi)));
+          table.add_value("error", static_cast<double>(std::fabs(perimeter / 2. - pi)));
         };
 
       table.set_precision("eval.pi", 16);

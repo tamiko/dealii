@@ -56,9 +56,7 @@ test()
     deallog << "hyper_cube" << std::endl;
 
   parallel::distributed::Triangulation<dim> tr(
-    MPI_COMM_WORLD,
-    Triangulation<dim>::none,
-    parallel::distributed::Triangulation<dim>::construct_multigrid_hierarchy);
+    MPI_COMM_WORLD, Triangulation<dim>::none, parallel::distributed::Triangulation<dim>::construct_multigrid_hierarchy);
 
   GridGenerator::hyper_cube(tr);
   tr.refine_global(2);
@@ -82,8 +80,7 @@ test()
           deallog << "ID = " << i << std::endl;
           for (unsigned int lvl = 0; lvl < tr.n_levels(); ++lvl)
             {
-              typename Triangulation<dim>::cell_iterator cell = tr.begin(lvl),
-                                                         endc = tr.end(lvl);
+              typename Triangulation<dim>::cell_iterator cell = tr.begin(lvl), endc = tr.end(lvl);
 
               for (; cell != endc; ++cell)
                 if (cell->level_subdomain_id() != 4294967294)
@@ -97,8 +94,7 @@ test()
     }
 
   if (myid == 0)
-    deallog << "my levels: " << tr.n_levels()
-            << "<= global levels:" << tr.n_global_levels() << std::endl;
+    deallog << "my levels: " << tr.n_levels() << "<= global levels:" << tr.n_global_levels() << std::endl;
 }
 
 

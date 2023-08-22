@@ -42,9 +42,7 @@ main()
   for (const auto &cell : tria.active_cell_iterators())
     {
       CGAL::Surface_mesh<CGALPoint> mesh;
-      CGALWrappers::dealii_cell_to_cgal_surface_mesh(
-        cell, StaticMappingQ1<3>::mapping, mesh);
-      deallog << "cell: " << cell << " is valid: " << (int)mesh.is_valid()
-              << std::endl;
+      CGALWrappers::dealii_cell_to_cgal_surface_mesh(cell, StaticMappingQ1<3>::mapping, mesh);
+      deallog << "cell: " << cell << " is valid: " << (int)mesh.is_valid() << std::endl;
     }
 }

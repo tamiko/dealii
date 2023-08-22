@@ -62,14 +62,12 @@ test()
   dofh.distribute_dofs(fe);
 
   deallog << "Before:" << std::endl;
-  for (const auto &cell :
-       dofh.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : dofh.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     {
       deallog << "locally owned cell: " << cell << std::endl;
       deallog << "       dof indices: ";
 
-      std::vector<types::global_dof_index> cell_dofs(
-        cell->get_fe().dofs_per_cell);
+      std::vector<types::global_dof_index> cell_dofs(cell->get_fe().dofs_per_cell);
       cell->get_dof_indices(cell_dofs);
 
       for (auto i : cell_dofs)
@@ -78,37 +76,31 @@ test()
     }
 
   std::set<types::global_dof_index> starting_indices;
-  for (const auto &cell :
-       dofh.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : dofh.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     for (const unsigned int f : GeometryInfo<dim>::face_indices())
       if (!cell->at_boundary(f) && cell->neighbor(f)->is_ghost())
         {
           // we've identified a subdomain interface. use these DoFs
           // as starting indices
-          std::vector<types::global_dof_index> face_dofs(
-            cell->get_fe().dofs_per_face);
+          std::vector<types::global_dof_index> face_dofs(cell->get_fe().dofs_per_face);
           cell->face(f)->get_dof_indices(face_dofs);
           for (auto i : face_dofs)
             starting_indices.insert(i);
         }
 
-  DoFRenumbering::Cuthill_McKee(
-    dofh,
-    false,
-    false,
-    std::vector<types::global_dof_index>(starting_indices.begin(),
-                                         starting_indices.end()));
+  DoFRenumbering::Cuthill_McKee(dofh,
+                                false,
+                                false,
+                                std::vector<types::global_dof_index>(starting_indices.begin(), starting_indices.end()));
 
   // output the renumbered DoF indices
   deallog << "After:" << std::endl;
-  for (const auto &cell :
-       dofh.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : dofh.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     {
       deallog << "locally owned cell: " << cell << std::endl;
       deallog << "       dof indices: ";
 
-      std::vector<types::global_dof_index> cell_dofs(
-        cell->get_fe().dofs_per_cell);
+      std::vector<types::global_dof_index> cell_dofs(cell->get_fe().dofs_per_cell);
       cell->get_dof_indices(cell_dofs);
 
       for (auto i : cell_dofs)
@@ -118,8 +110,7 @@ test()
 
   std::map<types::global_dof_index, Point<dim>> support_points;
   DoFTools::map_dofs_to_support_points(MappingQ1<dim>(), dofh, support_points);
-  DoFTools::write_gnuplot_dof_support_point_info(deallog.get_file_stream(),
-                                                 support_points);
+  DoFTools::write_gnuplot_dof_support_point_info(deallog.get_file_stream(), support_points);
 }
 
 

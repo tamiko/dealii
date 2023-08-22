@@ -63,10 +63,10 @@ test()
   const auto box0 = tree0.begin()->first;
   const auto box1 = tree1.begin()->first;
 
-  deallog << "No Mapping      : " << box0.get_boundary_points().first << ", "
-          << box0.get_boundary_points().second << std::endl
-          << "MappingQEulerian: " << box1.get_boundary_points().first << ", "
-          << box1.get_boundary_points().second << std::endl;
+  deallog << "No Mapping      : " << box0.get_boundary_points().first << ", " << box0.get_boundary_points().second
+          << std::endl
+          << "MappingQEulerian: " << box1.get_boundary_points().first << ", " << box1.get_boundary_points().second
+          << std::endl;
 }
 
 

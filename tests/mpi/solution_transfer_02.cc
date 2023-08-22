@@ -46,14 +46,12 @@ template <int dim>
 void
 transfer(const MPI_Comm mpi_communicator)
 {
-  const unsigned int this_mpi_process =
-    Utilities::MPI::this_mpi_process(mpi_communicator);
+  const unsigned int this_mpi_process = Utilities::MPI::this_mpi_process(mpi_communicator);
 
   Triangulation<dim> tria;
   GridGenerator::hyper_cube(tria);
   tria.refine_global(1);
-  GridTools::partition_triangulation(Utilities::MPI::n_mpi_processes(
-                                       mpi_communicator),
+  GridTools::partition_triangulation(Utilities::MPI::n_mpi_processes(mpi_communicator),
                                      tria,
                                      SparsityTools::Partitioner::zoltan);
 
@@ -64,11 +62,8 @@ transfer(const MPI_Comm mpi_communicator)
   TrilinosWrappers::MPI::Vector solution;
 
   dof_handler.distribute_dofs(fe);
-  IndexSet locally_owned_dofs =
-    DoFTools::locally_owned_dofs_per_subdomain(dof_handler)[this_mpi_process];
-  IndexSet locally_relevant_dofs =
-    DoFTools::locally_relevant_dofs_per_subdomain(
-      dof_handler)[this_mpi_process];
+  IndexSet locally_owned_dofs    = DoFTools::locally_owned_dofs_per_subdomain(dof_handler)[this_mpi_process];
+  IndexSet locally_relevant_dofs = DoFTools::locally_relevant_dofs_per_subdomain(dof_handler)[this_mpi_process];
   solution.reinit(locally_owned_dofs, mpi_communicator);
 
   for (unsigned int i = 0; i < solution.size(); ++i)
@@ -77,27 +72,22 @@ transfer(const MPI_Comm mpi_communicator)
 
   SolutionTransfer<dim, TrilinosWrappers::MPI::Vector> soltrans(dof_handler);
 
-  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(),
-                                                    endc = tria.end();
+  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
   ++cell;
   ++cell;
   for (; cell != endc; ++cell)
     cell->set_refine_flag();
 
   TrilinosWrappers::MPI::Vector old_solution;
-  old_solution.reinit(locally_owned_dofs,
-                      locally_relevant_dofs,
-                      mpi_communicator);
+  old_solution.reinit(locally_owned_dofs, locally_relevant_dofs, mpi_communicator);
   old_solution = solution;
 
   tria.prepare_coarsening_and_refinement();
   soltrans.prepare_for_pure_refinement();
   tria.execute_coarsening_and_refinement();
   dof_handler.distribute_dofs(fe);
-  locally_owned_dofs =
-    DoFTools::locally_owned_dofs_per_subdomain(dof_handler)[this_mpi_process];
-  locally_relevant_dofs = DoFTools::locally_relevant_dofs_per_subdomain(
-    dof_handler)[this_mpi_process];
+  locally_owned_dofs    = DoFTools::locally_owned_dofs_per_subdomain(dof_handler)[this_mpi_process];
+  locally_relevant_dofs = DoFTools::locally_relevant_dofs_per_subdomain(dof_handler)[this_mpi_process];
   solution.reinit(locally_owned_dofs, mpi_communicator);
   soltrans.refine_interpolate(old_solution, solution);
 }

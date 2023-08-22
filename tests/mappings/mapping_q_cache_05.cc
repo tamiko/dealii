@@ -40,8 +40,7 @@ public:
   double
   value(const Point<dim> &point, const unsigned int compontent) const
   {
-    return std::sin(point[compontent] * 0.5 * numbers::PI) -
-           (is_displacement_function ? point[compontent] : 0.0);
+    return std::sin(point[compontent] * 0.5 * numbers::PI) - (is_displacement_function ? point[compontent] : 0.0);
   }
 
 private:
@@ -52,9 +51,7 @@ static int counter = 0;
 
 template <int dim, typename Fu>
 void
-do_test(const unsigned int degree,
-        const Fu &         fu,
-        const bool         is_displacement_function)
+do_test(const unsigned int degree, const Fu &fu, const bool is_displacement_function)
 {
   Triangulation<dim> tria;
   GridGenerator::subdivided_hyper_cube(tria, 4);
@@ -68,9 +65,7 @@ do_test(const unsigned int degree,
 
     data_out.attach_triangulation(tria);
 
-    data_out.build_patches(mapping_cache,
-                           2,
-                           DataOut<dim>::CurvedCellRegion::curved_inner_cells);
+    data_out.build_patches(mapping_cache, 2, DataOut<dim>::CurvedCellRegion::curved_inner_cells);
 
 #if false
     std::ofstream output("test." + std::to_string(counter++) + ".vtk");
@@ -90,21 +85,18 @@ main()
   do_test<2>(3, Solution<2>(false), false);
   do_test<2>(
     3,
-    [](const typename Triangulation<2>::cell_iterator &,
-       const Point<2> &p) -> Point<2> {
+    [](const typename Triangulation<2>::cell_iterator &, const Point<2> &p) -> Point<2> {
       Point<2> result;
 
       for (unsigned int compontent = 0; compontent < 2; ++compontent)
-        result[compontent] =
-          std::sin(p[compontent] * 0.5 * numbers::PI) - p[compontent];
+        result[compontent] = std::sin(p[compontent] * 0.5 * numbers::PI) - p[compontent];
 
       return result;
     },
     true);
   do_test<2>(
     3,
-    [](const typename Triangulation<2>::cell_iterator &,
-       const Point<2> &p) -> Point<2> {
+    [](const typename Triangulation<2>::cell_iterator &, const Point<2> &p) -> Point<2> {
       Point<2> result;
 
       for (unsigned int compontent = 0; compontent < 2; ++compontent)

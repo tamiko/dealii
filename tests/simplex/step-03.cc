@@ -113,12 +113,10 @@ Step3<dim>::make_grid()
   Triangulation<dim, dim> temp_tria;
 
   GridGenerator::subdivided_hyper_cube(temp_tria, 2);
-  GridGenerator::convert_hypercube_to_simplex_mesh<dim, dim>(temp_tria,
-                                                             triangulation);
+  GridGenerator::convert_hypercube_to_simplex_mesh<dim, dim>(temp_tria, triangulation);
   triangulation.refine_global(1);
 
-  deallog << "Number of active cells: " << triangulation.n_active_cells()
-          << std::endl;
+  deallog << "Number of active cells: " << triangulation.n_active_cells() << std::endl;
 }
 
 template <int dim>
@@ -126,8 +124,7 @@ void
 Step3<dim>::setup_system()
 {
   dof_handler.distribute_dofs(fe);
-  deallog << "Number of degrees of freedom: " << dof_handler.n_dofs()
-          << std::endl;
+  deallog << "Number of degrees of freedom: " << dof_handler.n_dofs() << std::endl;
 
   DynamicSparsityPattern dsp(dof_handler.n_dofs());
   DoFTools::make_sparsity_pattern(dof_handler, dsp);
@@ -143,10 +140,7 @@ template <int dim>
 void
 Step3<dim>::assemble_system()
 {
-  FEValues<dim> fe_values(mapping,
-                          fe,
-                          quadrature_formula,
-                          update_values | update_gradients | update_JxW_values);
+  FEValues<dim> fe_values(mapping, fe, quadrature_formula, update_values | update_gradients | update_JxW_values);
 
   const unsigned int dofs_per_cell = fe.n_dofs_per_cell();
 
@@ -166,10 +160,9 @@ Step3<dim>::assemble_system()
         {
           for (const unsigned int i : fe_values.dof_indices())
             for (const unsigned int j : fe_values.dof_indices())
-              cell_matrix(i, j) +=
-                (fe_values.shape_grad(i, q_index) * // grad phi_i(x_q)
-                 fe_values.shape_grad(j, q_index) * // grad phi_j(x_q)
-                 fe_values.JxW(q_index));           // dx
+              cell_matrix(i, j) += (fe_values.shape_grad(i, q_index) * // grad phi_i(x_q)
+                                    fe_values.shape_grad(j, q_index) * // grad phi_j(x_q)
+                                    fe_values.JxW(q_index));           // dx
 
           for (const unsigned int i : fe_values.dof_indices())
             cell_rhs(i) += (fe_values.shape_value(i, q_index) * // phi_i(x_q)
@@ -180,21 +173,15 @@ Step3<dim>::assemble_system()
 
       for (const unsigned int i : fe_values.dof_indices())
         for (const unsigned int j : fe_values.dof_indices())
-          system_matrix.add(local_dof_indices[i],
-                            local_dof_indices[j],
-                            cell_matrix(i, j));
+          system_matrix.add(local_dof_indices[i], local_dof_indices[j], cell_matrix(i, j));
 
       for (const unsigned int i : fe_values.dof_indices())
         system_rhs(local_dof_indices[i]) += cell_rhs(i);
     }
 
   std::map<types::global_dof_index, double> boundary_values;
-  VectorTools::interpolate_boundary_values(
-    mapping, dof_handler, 0, Functions::ZeroFunction<dim>(), boundary_values);
-  MatrixTools::apply_boundary_values(boundary_values,
-                                     system_matrix,
-                                     solution,
-                                     system_rhs);
+  VectorTools::interpolate_boundary_values(mapping, dof_handler, 0, Functions::ZeroFunction<dim>(), boundary_values);
+  MatrixTools::apply_boundary_values(boundary_values, system_matrix, solution, system_rhs);
 }
 
 template <int dim>

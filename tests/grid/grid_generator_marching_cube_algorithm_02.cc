@@ -65,9 +65,7 @@ public:
 
 template <int dim>
 void
-create_mca_tria(const unsigned int   n_subdivisions,
-                const double         iso_level,
-                const Function<dim> &my_function)
+create_mca_tria(const unsigned int n_subdivisions, const double iso_level, const Function<dim> &my_function)
 {
   deallog << "dim=" << dim << " iso level: " << iso_level << std::endl;
   const int degree        = 3;
@@ -88,23 +86,16 @@ create_mca_tria(const unsigned int   n_subdivisions,
 
   VectorType ls_vector;
   IndexSet   locally_relevant_dofs;
-  DoFTools::extract_locally_relevant_dofs(background_dof_handler,
-                                          locally_relevant_dofs);
+  DoFTools::extract_locally_relevant_dofs(background_dof_handler, locally_relevant_dofs);
 
 
-  ls_vector.reinit(background_dof_handler.locally_owned_dofs(),
-                   locally_relevant_dofs,
-                   MPI_COMM_WORLD);
+  ls_vector.reinit(background_dof_handler.locally_owned_dofs(), locally_relevant_dofs, MPI_COMM_WORLD);
 
-  dealii::VectorTools::interpolate(mapping,
-                                   background_dof_handler,
-                                   my_function,
-                                   ls_vector);
+  dealii::VectorTools::interpolate(mapping, background_dof_handler, my_function, ls_vector);
 
   std::vector<Point<dim>> vertices;
 
-  const GridTools::MarchingCubeAlgorithm<dim, VectorType> mc(
-    mapping, background_dof_handler.get_fe(), n_subdivisions);
+  const GridTools::MarchingCubeAlgorithm<dim, VectorType> mc(mapping, background_dof_handler.get_fe(), n_subdivisions);
 
   ls_vector.update_ghost_values();
   mc.process(background_dof_handler, ls_vector, iso_level, vertices);
@@ -119,8 +110,7 @@ create_mca_tria(const unsigned int   n_subdivisions,
       data_out.add_data_vector(ls_vector, "level_set");
       data_out.build_patches(2);
       data_out.write_vtu_with_pvtu_record("./",
-                                          "data_background_" +
-                                            std::to_string(n_subdivisions),
+                                          "data_background_" + std::to_string(n_subdivisions),
                                           0,
                                           triangulation.get_communicator());
     }
@@ -134,8 +124,7 @@ test()
     {
       {
         deallog << "signed distance function" << std::endl;
-        const auto my_function =
-          Functions::SignedDistance::Sphere<dim>(Point<dim>(), 0.75);
+        const auto my_function = Functions::SignedDistance::Sphere<dim>(Point<dim>(), 0.75);
         create_mca_tria<dim>(i, -0.1 + i * 0.05, my_function);
       }
       {

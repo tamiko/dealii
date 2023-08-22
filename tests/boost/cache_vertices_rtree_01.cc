@@ -44,19 +44,15 @@ test(const unsigned int ref = 2, const unsigned int n_points = 10)
   const auto &v_tree = cache.get_used_vertices_rtree();
 
   std::vector<Point<spacedim>> points(n_points);
-  std::generate(points.begin(), points.end(), []() {
-    return random_point<spacedim>();
-  });
+  std::generate(points.begin(), points.end(), []() { return random_point<spacedim>(); });
 
-  deallog << "Testing dim = " << dim << ", spacedim = " << spacedim
-          << std::endl;
+  deallog << "Testing dim = " << dim << ", spacedim = " << spacedim << std::endl;
 
   for (const auto &p : points)
     {
       std::vector<std::pair<Point<spacedim>, unsigned int>> res;
       v_tree.query(bgi::nearest(p, 1), std::back_inserter(res));
-      deallog << "Nearest vertex to " << p << ": v[" << res[0].second
-              << "] = " << res[0].first << std::endl;
+      deallog << "Nearest vertex to " << p << ": v[" << res[0].second << "] = " << res[0].first << std::endl;
     }
 }
 

@@ -34,9 +34,7 @@
 
 template <int dim>
 double
-difference(const FiniteElement<dim> &fe,
-           const std::vector<double> dofs,
-           const Function<dim> &     function)
+difference(const FiniteElement<dim> &fe, const std::vector<double> dofs, const Function<dim> &function)
 {
   double      result = 0.;
   QGauss<dim> quadrature(fe.degree + 1);
@@ -59,14 +57,13 @@ template <int dim>
 double
 vector_difference(const FiniteElement<dim> &fe,
                   const std::vector<double> dofs,
-                  const Function<dim> &     function,
+                  const Function<dim>      &function,
                   const unsigned int        offset)
 {
   double      result = 0.;
   QGauss<dim> quadrature(fe.degree + 1);
 
-  std::vector<Vector<double>> f(quadrature.size(),
-                                Vector<double>(function.n_components));
+  std::vector<Vector<double>> f(quadrature.size(), Vector<double>(function.n_components));
 
   function.vector_value_list(quadrature.get_points(), f);
 
@@ -75,8 +72,7 @@ vector_difference(const FiniteElement<dim> &fe,
       {
         double diff = f[k](comp + offset);
         for (unsigned int i = 0; i < dofs.size(); ++i)
-          diff -=
-            dofs[i] * fe.shape_value_component(i, quadrature.point(k), comp);
+          diff -= dofs[i] * fe.shape_value_component(i, quadrature.point(k), comp);
         diff   = std::abs(diff);
         result = std::max(result, diff);
       }
@@ -106,12 +102,9 @@ public:
   }
 
   void
-  value_list(const std::vector<Point<dim>> &points,
-             std::vector<double> &          values,
-             const unsigned int             c) const
+  value_list(const std::vector<Point<dim>> &points, std::vector<double> &values, const unsigned int c) const
   {
-    Assert(values.size() == points.size(),
-           ExcDimensionMismatch(values.size(), points.size()));
+    Assert(values.size() == points.size(), ExcDimensionMismatch(values.size(), points.size()));
 
     for (unsigned int i = 0; i < points.size(); ++i)
       {
@@ -125,13 +118,10 @@ public:
   }
 
   void
-  vector_value_list(const std::vector<Point<dim>> &points,
-                    std::vector<Vector<double>> &  values) const
+  vector_value_list(const std::vector<Point<dim>> &points, std::vector<Vector<double>> &values) const
   {
-    Assert(values.size() == points.size(),
-           ExcDimensionMismatch(values.size(), points.size()));
-    Assert(values[0].size() == this->n_components,
-           ExcDimensionMismatch(values.size(), this->n_components));
+    Assert(values.size() == points.size(), ExcDimensionMismatch(values.size(), points.size()));
+    Assert(values[0].size() == this->n_components, ExcDimensionMismatch(values.size(), this->n_components));
 
     for (unsigned int i = 0; i < points.size(); ++i)
       {
@@ -166,8 +156,7 @@ public:
     std::vector<double> coeffs(degree);
     for (unsigned int i = 0; i < degree; ++i)
       coeffs[i] = std::pow(-1.0, static_cast<double>(i)) * (i + 1);
-    poly = std::make_unique<Functions::Polynomial<dim>>(
-      Functions::Polynomial<dim>(exponents, coeffs));
+    poly = std::make_unique<Functions::Polynomial<dim>>(Functions::Polynomial<dim>(exponents, coeffs));
   }
 
   double
@@ -177,12 +166,9 @@ public:
   }
 
   void
-  value_list(const std::vector<Point<dim>> &points,
-             std::vector<double> &          values,
-             const unsigned int             c) const
+  value_list(const std::vector<Point<dim>> &points, std::vector<double> &values, const unsigned int c) const
   {
-    Assert(values.size() == points.size(),
-           ExcDimensionMismatch(values.size(), points.size()));
+    Assert(values.size() == points.size(), ExcDimensionMismatch(values.size(), points.size()));
 
     for (unsigned int i = 0; i < points.size(); ++i)
       {
@@ -193,13 +179,10 @@ public:
   }
 
   void
-  vector_value_list(const std::vector<Point<dim>> &points,
-                    std::vector<Vector<double>> &  values) const
+  vector_value_list(const std::vector<Point<dim>> &points, std::vector<Vector<double>> &values) const
   {
-    Assert(values.size() == points.size(),
-           ExcDimensionMismatch(values.size(), points.size()));
-    Assert(values[0].size() == this->n_components,
-           ExcDimensionMismatch(values.size(), this->n_components));
+    Assert(values.size() == points.size(), ExcDimensionMismatch(values.size(), points.size()));
+    Assert(values[0].size() == this->n_components, ExcDimensionMismatch(values.size(), this->n_components));
 
     for (unsigned int i = 0; i < points.size(); ++i)
       {

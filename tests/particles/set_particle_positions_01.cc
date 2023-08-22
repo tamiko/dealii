@@ -46,34 +46,29 @@ test()
   Particles::ParticleHandler<dim, spacedim> particle_handler(tr, mapping);
 
   const unsigned int n_points = 10;
-  const unsigned int my_cpu = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
-  const unsigned int n_cpus = Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
+  const unsigned int my_cpu   = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  const unsigned int n_cpus   = Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
   Testing::srand(my_cpu + 1);
 
   // Distribute the local points to the processor that owns them
   // on the triangulation
-  auto my_bounding_box = GridTools::compute_mesh_predicate_bounding_box(
-    tr, IteratorFilters::LocallyOwnedCell());
+  auto my_bounding_box = GridTools::compute_mesh_predicate_bounding_box(tr, IteratorFilters::LocallyOwnedCell());
 
-  auto global_bounding_boxes =
-    Utilities::MPI::all_gather(MPI_COMM_WORLD, my_bounding_box);
+  auto global_bounding_boxes = Utilities::MPI::all_gather(MPI_COMM_WORLD, my_bounding_box);
 
   std::vector<Point<spacedim>> points(n_points);
   for (auto &p : points)
     p = random_point<spacedim>();
 
-  auto cpu_to_index =
-    particle_handler.insert_global_particles(points, global_bounding_boxes);
+  auto cpu_to_index = particle_handler.insert_global_particles(points, global_bounding_boxes);
 
-  const auto set = particle_handler.locally_owned_particle_ids().tensor_product(
-    complete_index_set(spacedim));
+  const auto set = particle_handler.locally_owned_particle_ids().tensor_product(complete_index_set(spacedim));
 
   TrilinosWrappers::MPI::Vector vector(set, MPI_COMM_WORLD);
   particle_handler.get_particle_positions(vector);
   deallog << "Local set: ";
   set.print(deallog);
-  deallog << std::endl
-          << "Local vector norm: " << vector.linfty_norm() << std::endl;
+  deallog << std::endl << "Local vector norm: " << vector.linfty_norm() << std::endl;
 
   // With this we know we don't get out of the domain
   vector *= 1e-3;
@@ -81,9 +76,7 @@ test()
 
   // Make sure we have a new index set
 
-  const auto new_set =
-    particle_handler.locally_owned_particle_ids().tensor_product(
-      complete_index_set(spacedim));
+  const auto new_set = particle_handler.locally_owned_particle_ids().tensor_product(complete_index_set(spacedim));
 
   TrilinosWrappers::MPI::Vector new_vector(new_set, MPI_COMM_WORLD);
 

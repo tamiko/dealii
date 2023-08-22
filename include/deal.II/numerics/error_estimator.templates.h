@@ -132,8 +132,7 @@ namespace internal
     /**
      * The same vector for a neighbor cell
      */
-    std::vector<std::vector<std::vector<Tensor<1, spacedim, number>>>>
-      neighbor_psi;
+    std::vector<std::vector<std::vector<Tensor<1, spacedim, number>>>> neighbor_psi;
 
     /**
      * The normal vectors of the finite element function on one face
@@ -171,26 +170,24 @@ namespace internal
      * Some more references to input data to the
      * KellyErrorEstimator::estimate() function.
      */
-    const std::map<types::boundary_id, const Function<spacedim, number> *>
-      *                       neumann_bc;
-    const ComponentMask       component_mask;
-    const Function<spacedim> *coefficients;
+    const std::map<types::boundary_id, const Function<spacedim, number> *> *neumann_bc;
+    const ComponentMask                                                     component_mask;
+    const Function<spacedim>                                               *coefficients;
 
     /**
      * Constructor.
      */
     template <class FE>
-    ParallelData(const FE &                              fe,
-                 const dealii::hp::QCollection<dim - 1> &face_quadratures,
-                 const dealii::hp::MappingCollection<dim, spacedim> &mapping,
-                 const bool                need_quadrature_points,
-                 const unsigned int        n_solution_vectors,
-                 const types::subdomain_id subdomain_id,
-                 const types::material_id  material_id,
-                 const std::map<types::boundary_id,
-                                const Function<spacedim, number> *> *neumann_bc,
-                 const ComponentMask &     component_mask,
-                 const Function<spacedim> *coefficients);
+    ParallelData(const FE                                                               &fe,
+                 const dealii::hp::QCollection<dim - 1>                                 &face_quadratures,
+                 const dealii::hp::MappingCollection<dim, spacedim>                     &mapping,
+                 const bool                                                              need_quadrature_points,
+                 const unsigned int                                                      n_solution_vectors,
+                 const types::subdomain_id                                               subdomain_id,
+                 const types::material_id                                                material_id,
+                 const std::map<types::boundary_id, const Function<spacedim, number> *> *neumann_bc,
+                 const ComponentMask                                                    &component_mask,
+                 const Function<spacedim>                                               *coefficients);
 
     /**
      * Resize the arrays so that they fit the number of quadrature points
@@ -205,52 +202,40 @@ namespace internal
   template <int dim, int spacedim, typename number>
   template <class FE>
   ParallelData<dim, spacedim, number>::ParallelData(
-    const FE &                                          fe,
-    const dealii::hp::QCollection<dim - 1> &            face_quadratures,
-    const dealii::hp::MappingCollection<dim, spacedim> &mapping,
-    const bool                                          need_quadrature_points,
-    const unsigned int                                  n_solution_vectors,
-    const types::subdomain_id                           subdomain_id,
-    const types::material_id                            material_id,
-    const std::map<types::boundary_id, const Function<spacedim, number> *>
-      *                       neumann_bc,
-    const ComponentMask &     component_mask,
-    const Function<spacedim> *coefficients)
+    const FE                                                               &fe,
+    const dealii::hp::QCollection<dim - 1>                                 &face_quadratures,
+    const dealii::hp::MappingCollection<dim, spacedim>                     &mapping,
+    const bool                                                              need_quadrature_points,
+    const unsigned int                                                      n_solution_vectors,
+    const types::subdomain_id                                               subdomain_id,
+    const types::material_id                                                material_id,
+    const std::map<types::boundary_id, const Function<spacedim, number> *> *neumann_bc,
+    const ComponentMask                                                    &component_mask,
+    const Function<spacedim>                                               *coefficients)
     : finite_element(fe)
     , face_quadratures(face_quadratures)
     , fe_face_values_cell(mapping,
                           finite_element,
                           face_quadratures,
                           update_gradients | update_JxW_values |
-                            (need_quadrature_points ? update_quadrature_points :
-                                                      UpdateFlags()) |
-                            update_normal_vectors)
-    , fe_face_values_neighbor(mapping,
-                              finite_element,
-                              face_quadratures,
-                              update_gradients | update_normal_vectors)
-    , fe_subface_values(mapping,
-                        finite_element,
-                        face_quadratures,
-                        update_gradients | update_normal_vectors)
+                            (need_quadrature_points ? update_quadrature_points : UpdateFlags()) | update_normal_vectors)
+    , fe_face_values_neighbor(mapping, finite_element, face_quadratures, update_gradients | update_normal_vectors)
+    , fe_subface_values(mapping, finite_element, face_quadratures, update_gradients | update_normal_vectors)
     , phi(n_solution_vectors,
-          std::vector<std::vector<number>>(
-            face_quadratures.max_n_quadrature_points(),
-            std::vector<number>(fe.n_components())))
+          std::vector<std::vector<number>>(face_quadratures.max_n_quadrature_points(),
+                                           std::vector<number>(fe.n_components())))
     , psi(n_solution_vectors,
-          std::vector<std::vector<Tensor<1, spacedim, number>>>(
-            face_quadratures.max_n_quadrature_points(),
-            std::vector<Tensor<1, spacedim, number>>(fe.n_components())))
+          std::vector<std::vector<Tensor<1, spacedim, number>>>(face_quadratures.max_n_quadrature_points(),
+                                                                std::vector<Tensor<1, spacedim, number>>(
+                                                                  fe.n_components())))
     , neighbor_psi(n_solution_vectors,
-                   std::vector<std::vector<Tensor<1, spacedim, number>>>(
-                     face_quadratures.max_n_quadrature_points(),
-                     std::vector<Tensor<1, spacedim, number>>(
-                       fe.n_components())))
+                   std::vector<std::vector<Tensor<1, spacedim, number>>>(face_quadratures.max_n_quadrature_points(),
+                                                                         std::vector<Tensor<1, spacedim, number>>(
+                                                                           fe.n_components())))
     , normal_vectors(face_quadratures.max_n_quadrature_points())
     , neighbor_normal_vectors(face_quadratures.max_n_quadrature_points())
     , coefficient_values1(face_quadratures.max_n_quadrature_points())
-    , coefficient_values(face_quadratures.max_n_quadrature_points(),
-                         dealii::Vector<double>(fe.n_components()))
+    , coefficient_values(face_quadratures.max_n_quadrature_points(), dealii::Vector<double>(fe.n_components()))
     , JxW_values(face_quadratures.max_n_quadrature_points())
     , subdomain_id(subdomain_id)
     , material_id(material_id)
@@ -263,8 +248,7 @@ namespace internal
 
   template <int dim, int spacedim, typename number>
   void
-  ParallelData<dim, spacedim, number>::resize(
-    const unsigned int active_fe_index)
+  ParallelData<dim, spacedim, number>::resize(const unsigned int active_fe_index)
   {
     const unsigned int n_q_points   = face_quadratures[active_fe_index].size();
     const unsigned int n_components = finite_element.n_components();
@@ -303,22 +287,18 @@ namespace internal
   template <int dim, int spacedim>
   void
   copy_local_to_global(
-    const std::map<typename DoFHandler<dim, spacedim>::face_iterator,
-                   std::vector<double>> &local_face_integrals,
-    std::map<typename DoFHandler<dim, spacedim>::face_iterator,
-             std::vector<double>> &      face_integrals)
+    const std::map<typename DoFHandler<dim, spacedim>::face_iterator, std::vector<double>> &local_face_integrals,
+    std::map<typename DoFHandler<dim, spacedim>::face_iterator, std::vector<double>>       &face_integrals)
   {
     // now copy locally computed elements into the global map
-    for (typename std::map<typename DoFHandler<dim, spacedim>::face_iterator,
-                           std::vector<double>>::const_iterator p =
+    for (typename std::map<typename DoFHandler<dim, spacedim>::face_iterator, std::vector<double>>::const_iterator p =
            local_face_integrals.begin();
          p != local_face_integrals.end();
          ++p)
       {
         // double check that the element does not already exists in the
         // global map
-        Assert(face_integrals.find(p->first) == face_integrals.end(),
-               ExcInternalError());
+        Assert(face_integrals.find(p->first) == face_integrals.end(), ExcInternalError());
 
         for (unsigned int i = 0; i < p->second.size(); ++i)
           {
@@ -337,14 +317,12 @@ namespace internal
    */
   template <int dim, int spacedim, typename number>
   std::vector<double>
-  integrate_over_face(
-    ParallelData<dim, spacedim, number> &                    parallel_data,
-    const typename DoFHandler<dim, spacedim>::face_iterator &face,
-    dealii::hp::FEFaceValues<dim, spacedim> &fe_face_values_cell)
+  integrate_over_face(ParallelData<dim, spacedim, number>                     &parallel_data,
+                      const typename DoFHandler<dim, spacedim>::face_iterator &face,
+                      dealii::hp::FEFaceValues<dim, spacedim>                 &fe_face_values_cell)
   {
-    const unsigned int n_q_points = parallel_data.psi[0].size(),
-                       n_components =
-                         parallel_data.finite_element.n_components(),
+    const unsigned int n_q_points         = parallel_data.psi[0].size(),
+                       n_components       = parallel_data.finite_element.n_components(),
                        n_solution_vectors = parallel_data.psi.size();
 
     // now psi contains the following:
@@ -358,27 +336,23 @@ namespace internal
     // the normal vector of one cell, taking that of the neighbor would only
     // change the sign. We take the outward normal.
 
-    parallel_data.normal_vectors =
-      fe_face_values_cell.get_present_fe_values().get_normal_vectors();
+    parallel_data.normal_vectors = fe_face_values_cell.get_present_fe_values().get_normal_vectors();
 
     for (unsigned int n = 0; n < n_solution_vectors; ++n)
       for (unsigned int component = 0; component < n_components; ++component)
         for (unsigned int point = 0; point < n_q_points; ++point)
           parallel_data.phi[n][point][component] =
-            (parallel_data.psi[n][point][component] *
-             parallel_data.normal_vectors[point]);
+            (parallel_data.psi[n][point][component] * parallel_data.normal_vectors[point]);
 
     if (face->at_boundary() == false)
       {
         // compute the jump in the gradients
 
         for (unsigned int n = 0; n < n_solution_vectors; ++n)
-          for (unsigned int component = 0; component < n_components;
-               ++component)
+          for (unsigned int component = 0; component < n_components; ++component)
             for (unsigned int p = 0; p < n_q_points; ++p)
               parallel_data.phi[n][p][component] +=
-                (parallel_data.neighbor_psi[n][p][component] *
-                 parallel_data.neighbor_normal_vectors[p]);
+                (parallel_data.neighbor_psi[n][p][component] * parallel_data.neighbor_normal_vectors[p]);
       }
 
     // if a coefficient was given: use that to scale the jump in the
@@ -388,30 +362,22 @@ namespace internal
         // scalar coefficient
         if (parallel_data.coefficients->n_components == 1)
           {
-            parallel_data.coefficients->value_list(
-              fe_face_values_cell.get_present_fe_values()
-                .get_quadrature_points(),
-              parallel_data.coefficient_values1);
+            parallel_data.coefficients->value_list(fe_face_values_cell.get_present_fe_values().get_quadrature_points(),
+                                                   parallel_data.coefficient_values1);
             for (unsigned int n = 0; n < n_solution_vectors; ++n)
-              for (unsigned int component = 0; component < n_components;
-                   ++component)
+              for (unsigned int component = 0; component < n_components; ++component)
                 for (unsigned int point = 0; point < n_q_points; ++point)
-                  parallel_data.phi[n][point][component] *=
-                    parallel_data.coefficient_values1[point];
+                  parallel_data.phi[n][point][component] *= parallel_data.coefficient_values1[point];
           }
         else
           // vector-valued coefficient
           {
             parallel_data.coefficients->vector_value_list(
-              fe_face_values_cell.get_present_fe_values()
-                .get_quadrature_points(),
-              parallel_data.coefficient_values);
+              fe_face_values_cell.get_present_fe_values().get_quadrature_points(), parallel_data.coefficient_values);
             for (unsigned int n = 0; n < n_solution_vectors; ++n)
-              for (unsigned int component = 0; component < n_components;
-                   ++component)
+              for (unsigned int component = 0; component < n_components; ++component)
                 for (unsigned int point = 0; point < n_q_points; ++point)
-                  parallel_data.phi[n][point][component] *=
-                    parallel_data.coefficient_values[point](component);
+                  parallel_data.phi[n][point][component] *= parallel_data.coefficient_values[point](component);
           }
       }
 
@@ -422,17 +388,13 @@ namespace internal
       {
         const types::boundary_id boundary_id = face->boundary_id();
 
-        Assert(parallel_data.neumann_bc->find(boundary_id) !=
-                 parallel_data.neumann_bc->end(),
-               ExcInternalError());
+        Assert(parallel_data.neumann_bc->find(boundary_id) != parallel_data.neumann_bc->end(), ExcInternalError());
         // get the values of the boundary function at the quadrature points
         if (n_components == 1)
           {
             std::vector<number> g(n_q_points);
             parallel_data.neumann_bc->find(boundary_id)
-              ->second->value_list(fe_face_values_cell.get_present_fe_values()
-                                     .get_quadrature_points(),
-                                   g);
+              ->second->value_list(fe_face_values_cell.get_present_fe_values().get_quadrature_points(), g);
 
             for (unsigned int n = 0; n < n_solution_vectors; ++n)
               for (unsigned int point = 0; point < n_q_points; ++point)
@@ -440,17 +402,12 @@ namespace internal
           }
         else
           {
-            std::vector<dealii::Vector<number>> g(
-              n_q_points, dealii::Vector<number>(n_components));
+            std::vector<dealii::Vector<number>> g(n_q_points, dealii::Vector<number>(n_components));
             parallel_data.neumann_bc->find(boundary_id)
-              ->second->vector_value_list(fe_face_values_cell
-                                            .get_present_fe_values()
-                                            .get_quadrature_points(),
-                                          g);
+              ->second->vector_value_list(fe_face_values_cell.get_present_fe_values().get_quadrature_points(), g);
 
             for (unsigned int n = 0; n < n_solution_vectors; ++n)
-              for (unsigned int component = 0; component < n_components;
-                   ++component)
+              for (unsigned int component = 0; component < n_components; ++component)
                 for (unsigned int point = 0; point < n_q_points; ++point)
                   parallel_data.phi[n][point][component] -= g[point](component);
           }
@@ -464,8 +421,7 @@ namespace internal
     // each component being the mentioned value at one of the quadrature
     // points
 
-    parallel_data.JxW_values =
-      fe_face_values_cell.get_present_fe_values().get_JxW_values();
+    parallel_data.JxW_values = fe_face_values_cell.get_present_fe_values().get_JxW_values();
 
     // take the square of the phi[i] for integration, and sum up
     std::vector<double> face_integral(n_solution_vectors, 0);
@@ -473,8 +429,7 @@ namespace internal
       for (unsigned int component = 0; component < n_components; ++component)
         if (parallel_data.component_mask[component] == true)
           for (unsigned int p = 0; p < n_q_points; ++p)
-            face_integral[n] += numbers::NumberTraits<number>::abs_square(
-                                  parallel_data.phi[n][p][component]) *
+            face_integral[n] += numbers::NumberTraits<number>::abs_square(parallel_data.phi[n][p][component]) *
                                 parallel_data.JxW_values[p];
 
     return face_integral;
@@ -486,11 +441,10 @@ namespace internal
    */
   template <int dim, int spacedim>
   double
-  boundary_face_factor(
-    const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
-    const unsigned int                                              face_no,
-    const dealii::hp::FEFaceValues<dim, spacedim> &fe_face_values_cell,
-    const typename KellyErrorEstimator<dim, spacedim>::Strategy strategy)
+  boundary_face_factor(const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
+                       const unsigned int                                              face_no,
+                       const dealii::hp::FEFaceValues<dim, spacedim>                  &fe_face_values_cell,
+                       const typename KellyErrorEstimator<dim, spacedim>::Strategy     strategy)
   {
     switch (strategy)
       {
@@ -502,12 +456,9 @@ namespace internal
           {
             return 1.0;
           }
-        case KellyErrorEstimator<dim,
-                                 spacedim>::face_diameter_over_twice_max_degree:
+        case KellyErrorEstimator<dim, spacedim>::face_diameter_over_twice_max_degree:
           {
-            const double cell_degree =
-              fe_face_values_cell.get_fe_collection()[cell->active_fe_index()]
-                .degree;
+            const double cell_degree = fe_face_values_cell.get_fe_collection()[cell->active_fe_index()].degree;
             return cell->face(face_no)->diameter() / cell_degree;
           }
         default:
@@ -524,12 +475,11 @@ namespace internal
    */
   template <int dim, int spacedim>
   double
-  regular_face_factor(
-    const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
-    const unsigned int                                              face_no,
-    const dealii::hp::FEFaceValues<dim, spacedim> &fe_face_values_cell,
-    const dealii::hp::FEFaceValues<dim, spacedim> &fe_face_values_neighbor,
-    const typename KellyErrorEstimator<dim, spacedim>::Strategy strategy)
+  regular_face_factor(const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
+                      const unsigned int                                              face_no,
+                      const dealii::hp::FEFaceValues<dim, spacedim>                  &fe_face_values_cell,
+                      const dealii::hp::FEFaceValues<dim, spacedim>                  &fe_face_values_neighbor,
+                      const typename KellyErrorEstimator<dim, spacedim>::Strategy     strategy)
   {
     switch (strategy)
       {
@@ -541,18 +491,12 @@ namespace internal
           {
             return 1.0;
           }
-        case KellyErrorEstimator<dim,
-                                 spacedim>::face_diameter_over_twice_max_degree:
+        case KellyErrorEstimator<dim, spacedim>::face_diameter_over_twice_max_degree:
           {
-            const double cell_degree =
-              fe_face_values_cell.get_fe_collection()[cell->active_fe_index()]
-                .degree;
+            const double cell_degree = fe_face_values_cell.get_fe_collection()[cell->active_fe_index()].degree;
             const double neighbor_degree =
-              fe_face_values_neighbor
-                .get_fe_collection()[cell->neighbor(face_no)->active_fe_index()]
-                .degree;
-            return cell->face(face_no)->diameter() /
-                   std::max(cell_degree, neighbor_degree) / 2.0;
+              fe_face_values_neighbor.get_fe_collection()[cell->neighbor(face_no)->active_fe_index()].degree;
+            return cell->face(face_no)->diameter() / std::max(cell_degree, neighbor_degree) / 2.0;
           }
         default:
           {
@@ -567,15 +511,13 @@ namespace internal
    */
   template <int dim, int spacedim>
   double
-  irregular_face_factor(
-    const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
-    const typename DoFHandler<dim, spacedim>::active_cell_iterator
-      &                                            neighbor_child,
-    const unsigned int                             face_no,
-    const unsigned int                             subface_no,
-    const dealii::hp::FEFaceValues<dim, spacedim> &fe_face_values,
-    dealii::hp::FESubfaceValues<dim, spacedim> &   fe_subface_values,
-    const typename KellyErrorEstimator<dim, spacedim>::Strategy strategy)
+  irregular_face_factor(const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
+                        const typename DoFHandler<dim, spacedim>::active_cell_iterator &neighbor_child,
+                        const unsigned int                                              face_no,
+                        const unsigned int                                              subface_no,
+                        const dealii::hp::FEFaceValues<dim, spacedim>                  &fe_face_values,
+                        dealii::hp::FESubfaceValues<dim, spacedim>                     &fe_subface_values,
+                        const typename KellyErrorEstimator<dim, spacedim>::Strategy     strategy)
   {
     switch (strategy)
       {
@@ -587,18 +529,13 @@ namespace internal
           {
             return 1.0;
           }
-        case KellyErrorEstimator<dim,
-                                 spacedim>::face_diameter_over_twice_max_degree:
+        case KellyErrorEstimator<dim, spacedim>::face_diameter_over_twice_max_degree:
           {
-            const double cell_degree =
-              fe_face_values.get_fe_collection()[cell->active_fe_index()]
-                .degree;
+            const double cell_degree = fe_face_values.get_fe_collection()[cell->active_fe_index()].degree;
             const double neighbor_child_degree =
-              fe_subface_values
-                .get_fe_collection()[neighbor_child->active_fe_index()]
-                .degree;
-            return cell->face(face_no)->child(subface_no)->diameter() /
-                   std::max(neighbor_child_degree, cell_degree) / 2.0;
+              fe_subface_values.get_fe_collection()[neighbor_child->active_fe_index()].degree;
+            return cell->face(face_no)->child(subface_no)->diameter() / std::max(neighbor_child_degree, cell_degree) /
+                   2.0;
           }
         default:
           {
@@ -614,11 +551,10 @@ namespace internal
    */
   template <int dim, int spacedim>
   double
-  cell_factor(
-    const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
-    const unsigned int /*face_no*/,
-    const DoFHandler<dim, spacedim> & /*dof_handler*/,
-    const typename KellyErrorEstimator<dim, spacedim>::Strategy strategy)
+  cell_factor(const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
+              const unsigned int /*face_no*/,
+              const DoFHandler<dim, spacedim> & /*dof_handler*/,
+              const typename KellyErrorEstimator<dim, spacedim>::Strategy strategy)
   {
     switch (strategy)
       {
@@ -630,8 +566,7 @@ namespace internal
           {
             return cell->diameter();
           }
-        case KellyErrorEstimator<dim,
-                                 spacedim>::face_diameter_over_twice_max_degree:
+        case KellyErrorEstimator<dim, spacedim>::face_diameter_over_twice_max_degree:
           {
             return 1.0;
           }
@@ -654,19 +589,17 @@ namespace internal
   template <typename Number, int dim, int spacedim>
   void
   integrate_over_regular_face(
-    const ArrayView<const ReadVector<Number> *> &solutions,
-    ParallelData<dim, spacedim, Number> &        parallel_data,
-    std::map<typename DoFHandler<dim, spacedim>::face_iterator,
-             std::vector<double>> &              local_face_integrals,
-    const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
-    const unsigned int                                              face_no,
-    dealii::hp::FEFaceValues<dim, spacedim> &fe_face_values_cell,
-    dealii::hp::FEFaceValues<dim, spacedim> &fe_face_values_neighbor,
-    const typename KellyErrorEstimator<dim, spacedim>::Strategy strategy)
+    const ArrayView<const ReadVector<Number> *>                                      &solutions,
+    ParallelData<dim, spacedim, Number>                                              &parallel_data,
+    std::map<typename DoFHandler<dim, spacedim>::face_iterator, std::vector<double>> &local_face_integrals,
+    const typename DoFHandler<dim, spacedim>::active_cell_iterator                   &cell,
+    const unsigned int                                                                face_no,
+    dealii::hp::FEFaceValues<dim, spacedim>                                          &fe_face_values_cell,
+    dealii::hp::FEFaceValues<dim, spacedim>                                          &fe_face_values_neighbor,
+    const typename KellyErrorEstimator<dim, spacedim>::Strategy                       strategy)
   {
-    const typename DoFHandler<dim, spacedim>::face_iterator face =
-      cell->face(face_no);
-    const unsigned int n_solution_vectors = solutions.size();
+    const typename DoFHandler<dim, spacedim>::face_iterator face               = cell->face(face_no);
+    const unsigned int                                      n_solution_vectors = solutions.size();
 
 
     // initialize data of the restriction
@@ -676,62 +609,46 @@ namespace internal
     // get gradients of the finite element
     // function on this cell
     for (unsigned int n = 0; n < n_solution_vectors; ++n)
-      fe_face_values_cell.get_present_fe_values().get_function_gradients(
-        *solutions[n], parallel_data.psi[n]);
+      fe_face_values_cell.get_present_fe_values().get_function_gradients(*solutions[n], parallel_data.psi[n]);
 
     double factor;
     // now compute over the other side of the face
     if (face->at_boundary() == false)
       // internal face; integrate jump of gradient across this face
       {
-        Assert(cell->neighbor(face_no).state() == IteratorState::valid,
-               ExcInternalError());
+        Assert(cell->neighbor(face_no).state() == IteratorState::valid, ExcInternalError());
 
-        const typename DoFHandler<dim, spacedim>::active_cell_iterator
-          neighbor = cell->neighbor(face_no);
+        const typename DoFHandler<dim, spacedim>::active_cell_iterator neighbor = cell->neighbor(face_no);
 
         // find which number the current face has relative to the
         // neighboring cell
-        const unsigned int neighbor_neighbor =
-          cell->neighbor_of_neighbor(face_no);
-        Assert(neighbor_neighbor < GeometryInfo<dim>::faces_per_cell,
-               ExcInternalError());
+        const unsigned int neighbor_neighbor = cell->neighbor_of_neighbor(face_no);
+        Assert(neighbor_neighbor < GeometryInfo<dim>::faces_per_cell, ExcInternalError());
 
         // get restriction of finite element function of @p{neighbor} to the
         // common face. in the hp-case, use the quadrature formula that
         // matches the one we would use for the present cell
-        fe_face_values_neighbor.reinit(neighbor,
-                                       neighbor_neighbor,
-                                       cell->active_fe_index());
+        fe_face_values_neighbor.reinit(neighbor, neighbor_neighbor, cell->active_fe_index());
 
-        factor = regular_face_factor<dim, spacedim>(cell,
-                                                    face_no,
-                                                    fe_face_values_cell,
-                                                    fe_face_values_neighbor,
-                                                    strategy);
+        factor =
+          regular_face_factor<dim, spacedim>(cell, face_no, fe_face_values_cell, fe_face_values_neighbor, strategy);
 
         // get gradients on neighbor cell
         for (unsigned int n = 0; n < n_solution_vectors; ++n)
           {
-            fe_face_values_neighbor.get_present_fe_values()
-              .get_function_gradients(*solutions[n],
-                                      parallel_data.neighbor_psi[n]);
+            fe_face_values_neighbor.get_present_fe_values().get_function_gradients(*solutions[n],
+                                                                                   parallel_data.neighbor_psi[n]);
           }
 
-        parallel_data.neighbor_normal_vectors =
-          fe_face_values_neighbor.get_present_fe_values().get_normal_vectors();
+        parallel_data.neighbor_normal_vectors = fe_face_values_neighbor.get_present_fe_values().get_normal_vectors();
       }
     else
       {
-        factor = boundary_face_factor<dim, spacedim>(cell,
-                                                     face_no,
-                                                     fe_face_values_cell,
-                                                     strategy);
+        factor = boundary_face_factor<dim, spacedim>(cell, face_no, fe_face_values_cell, strategy);
       }
 
     // now go to the generic function that does all the other things
-    local_face_integrals[face] =
-      integrate_over_face(parallel_data, face, fe_face_values_cell);
+    local_face_integrals[face] = integrate_over_face(parallel_data, face, fe_face_values_cell);
 
     for (unsigned int i = 0; i < local_face_integrals[face].size(); ++i)
       local_face_integrals[face][i] *= factor;
@@ -747,15 +664,14 @@ namespace internal
   template <typename Number, int dim, int spacedim>
   void
   integrate_over_irregular_face(
-    const ArrayView<const ReadVector<Number> *> &solutions,
-    ParallelData<dim, spacedim, Number> &        parallel_data,
-    std::map<typename DoFHandler<dim, spacedim>::face_iterator,
-             std::vector<double>> &              local_face_integrals,
-    const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
-    const unsigned int                                              face_no,
-    dealii::hp::FEFaceValues<dim, spacedim> &   fe_face_values,
-    dealii::hp::FESubfaceValues<dim, spacedim> &fe_subface_values,
-    const typename KellyErrorEstimator<dim, spacedim>::Strategy strategy)
+    const ArrayView<const ReadVector<Number> *>                                      &solutions,
+    ParallelData<dim, spacedim, Number>                                              &parallel_data,
+    std::map<typename DoFHandler<dim, spacedim>::face_iterator, std::vector<double>> &local_face_integrals,
+    const typename DoFHandler<dim, spacedim>::active_cell_iterator                   &cell,
+    const unsigned int                                                                face_no,
+    dealii::hp::FEFaceValues<dim, spacedim>                                          &fe_face_values,
+    dealii::hp::FESubfaceValues<dim, spacedim>                                       &fe_subface_values,
+    const typename KellyErrorEstimator<dim, spacedim>::Strategy                       strategy)
   {
     const auto neighbor = cell->neighbor(face_no);
     (void)neighbor;
@@ -775,74 +691,50 @@ namespace internal
     // store which number @p{cell} has in the list of neighbors of
     // @p{neighbor}
     const unsigned int neighbor_neighbor = cell->neighbor_of_neighbor(face_no);
-    Assert(neighbor_neighbor < GeometryInfo<dim>::faces_per_cell,
-           ExcInternalError());
+    Assert(neighbor_neighbor < GeometryInfo<dim>::faces_per_cell, ExcInternalError());
 
     // loop over all subfaces
-    for (unsigned int subface_no = 0; subface_no < face->n_children();
-         ++subface_no)
+    for (unsigned int subface_no = 0; subface_no < face->n_children(); ++subface_no)
       {
         // get an iterator pointing to the cell behind the present subface
-        const typename DoFHandler<dim, spacedim>::active_cell_iterator
-          neighbor_child = cell->neighbor_child_on_subface(face_no, subface_no);
+        const typename DoFHandler<dim, spacedim>::active_cell_iterator neighbor_child =
+          cell->neighbor_child_on_subface(face_no, subface_no);
         Assert(neighbor_child->is_active(), ExcInternalError());
 
         // restrict the finite element on the present cell to the subface
-        fe_subface_values.reinit(cell,
-                                 face_no,
-                                 subface_no,
-                                 cell->active_fe_index());
+        fe_subface_values.reinit(cell, face_no, subface_no, cell->active_fe_index());
 
         // restrict the finite element on the neighbor cell to the common
         // @p{subface}.
-        fe_face_values.reinit(neighbor_child,
-                              neighbor_neighbor,
-                              cell->active_fe_index());
+        fe_face_values.reinit(neighbor_child, neighbor_neighbor, cell->active_fe_index());
 
-        const double factor =
-          irregular_face_factor<dim, spacedim>(cell,
-                                               neighbor_child,
-                                               face_no,
-                                               subface_no,
-                                               fe_face_values,
-                                               fe_subface_values,
-                                               strategy);
+        const double factor = irregular_face_factor<dim, spacedim>(
+          cell, neighbor_child, face_no, subface_no, fe_face_values, fe_subface_values, strategy);
 
         // store the gradient of the solution in psi
         for (unsigned int n = 0; n < n_solution_vectors; ++n)
-          fe_subface_values.get_present_fe_values().get_function_gradients(
-            *solutions[n], parallel_data.psi[n]);
+          fe_subface_values.get_present_fe_values().get_function_gradients(*solutions[n], parallel_data.psi[n]);
 
         // store the gradient from the neighbor's side in @p{neighbor_psi}
         for (unsigned int n = 0; n < n_solution_vectors; ++n)
-          fe_face_values.get_present_fe_values().get_function_gradients(
-            *solutions[n], parallel_data.neighbor_psi[n]);
+          fe_face_values.get_present_fe_values().get_function_gradients(*solutions[n], parallel_data.neighbor_psi[n]);
 
         // call generic evaluate function
-        parallel_data.neighbor_normal_vectors =
-          fe_subface_values.get_present_fe_values().get_normal_vectors();
+        parallel_data.neighbor_normal_vectors = fe_subface_values.get_present_fe_values().get_normal_vectors();
 
         local_face_integrals[neighbor_child->face(neighbor_neighbor)] =
           integrate_over_face(parallel_data, face, fe_face_values);
-        for (unsigned int i = 0;
-             i < local_face_integrals[neighbor_child->face(neighbor_neighbor)]
-                   .size();
-             i++)
-          local_face_integrals[neighbor_child->face(neighbor_neighbor)][i] *=
-            factor;
+        for (unsigned int i = 0; i < local_face_integrals[neighbor_child->face(neighbor_neighbor)].size(); i++)
+          local_face_integrals[neighbor_child->face(neighbor_neighbor)][i] *= factor;
       }
 
     // finally loop over all subfaces to collect the contributions of the
     // subfaces and store them with the mother face
     std::vector<double> sum(n_solution_vectors, 0);
-    for (unsigned int subface_no = 0; subface_no < face->n_children();
-         ++subface_no)
+    for (unsigned int subface_no = 0; subface_no < face->n_children(); ++subface_no)
       {
-        Assert(local_face_integrals.find(face->child(subface_no)) !=
-                 local_face_integrals.end(),
-               ExcInternalError());
-        Assert(local_face_integrals[face->child(subface_no)][0] >= 0,
-               ExcInternalError());
+        Assert(local_face_integrals.find(face->child(subface_no)) != local_face_integrals.end(), ExcInternalError());
+        Assert(local_face_integrals[face->child(subface_no)][0] >= 0, ExcInternalError());
 
         for (unsigned int n = 0; n < n_solution_vectors; ++n)
           sum[n] += local_face_integrals[face->child(subface_no)][n];
@@ -861,12 +753,11 @@ namespace internal
   template <typename Number, int dim, int spacedim>
   void
   estimate_one_cell(
-    const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
-    ParallelData<dim, spacedim, Number> &        parallel_data,
-    std::map<typename DoFHandler<dim, spacedim>::face_iterator,
-             std::vector<double>> &              local_face_integrals,
-    const ArrayView<const ReadVector<Number> *> &solutions,
-    const typename KellyErrorEstimator<dim, spacedim>::Strategy strategy)
+    const typename DoFHandler<dim, spacedim>::active_cell_iterator                   &cell,
+    ParallelData<dim, spacedim, Number>                                              &parallel_data,
+    std::map<typename DoFHandler<dim, spacedim>::face_iterator, std::vector<double>> &local_face_integrals,
+    const ArrayView<const ReadVector<Number> *>                                      &solutions,
+    const typename KellyErrorEstimator<dim, spacedim>::Strategy                       strategy)
   {
     const unsigned int n_solution_vectors = solutions.size();
 
@@ -879,8 +770,7 @@ namespace internal
     // loop over all faces of this cell
     for (const unsigned int face_no : cell->face_indices())
       {
-        const typename DoFHandler<dim, spacedim>::face_iterator face =
-          cell->face(face_no);
+        const typename DoFHandler<dim, spacedim>::face_iterator face = cell->face(face_no);
 
         // make sure we do work only once: this face may either be regular
         // or irregular. if it is regular and has a neighbor, then we visit
@@ -890,8 +780,7 @@ namespace internal
         if ((face->has_children() == false) && !cell->at_boundary(face_no) &&
             (!cell->neighbor_is_coarser(face_no) &&
              (cell->neighbor(face_no)->index() < cell->index() ||
-              (cell->neighbor(face_no)->index() == cell->index() &&
-               cell->neighbor(face_no)->level() < cell->level()))))
+              (cell->neighbor(face_no)->index() == cell->index() && cell->neighbor(face_no)->level() < cell->level()))))
           continue;
 
         // if the neighboring cell is less refined than the present one,
@@ -906,11 +795,9 @@ namespace internal
         // summing up the contributions of the faces of cells, we enter this
         // face into the list of faces with contribution zero.
         if (face->at_boundary() &&
-            (parallel_data.neumann_bc->find(face->boundary_id()) ==
-             parallel_data.neumann_bc->end()))
+            (parallel_data.neumann_bc->find(face->boundary_id()) == parallel_data.neumann_bc->end()))
           {
-            local_face_integrals[face] =
-              std::vector<double>(n_solution_vectors, 0.);
+            local_face_integrals[face] = std::vector<double>(n_solution_vectors, 0.);
             continue;
           }
 
@@ -918,10 +805,8 @@ namespace internal
         // present cell is on the subdomain we care for (and the same for
         // material_id), or if one of the neighbors behind the face is on
         // the subdomain we care for
-        if (!(((subdomain_id == numbers::invalid_subdomain_id) ||
-               (cell->subdomain_id() == subdomain_id)) &&
-              ((material_id == numbers::invalid_material_id) ||
-               (cell->material_id() == material_id))))
+        if (!(((subdomain_id == numbers::invalid_subdomain_id) || (cell->subdomain_id() == subdomain_id)) &&
+              ((material_id == numbers::invalid_material_id) || (cell->material_id() == material_id))))
           {
             // ok, cell is unwanted, but maybe its neighbor behind the face
             // we presently work on? oh is there a face at all?
@@ -930,19 +815,16 @@ namespace internal
 
             bool care_for_cell = false;
             if (face->has_children() == false)
-              care_for_cell |=
-                ((cell->neighbor(face_no)->subdomain_id() == subdomain_id) ||
-                 (subdomain_id == numbers::invalid_subdomain_id)) &&
-                ((cell->neighbor(face_no)->material_id() == material_id) ||
-                 (material_id == numbers::invalid_material_id));
+              care_for_cell |= ((cell->neighbor(face_no)->subdomain_id() == subdomain_id) ||
+                                (subdomain_id == numbers::invalid_subdomain_id)) &&
+                               ((cell->neighbor(face_no)->material_id() == material_id) ||
+                                (material_id == numbers::invalid_material_id));
             else
               {
                 for (unsigned int sf = 0; sf < face->n_children(); ++sf)
-                  if (((cell->neighbor_child_on_subface(face_no, sf)
-                          ->subdomain_id() == subdomain_id) &&
+                  if (((cell->neighbor_child_on_subface(face_no, sf)->subdomain_id() == subdomain_id) &&
                        (material_id == numbers::invalid_material_id)) ||
-                      ((cell->neighbor_child_on_subface(face_no, sf)
-                          ->material_id() == material_id) &&
+                      ((cell->neighbor_child_on_subface(face_no, sf)->material_id() == material_id) &&
                        (subdomain_id == numbers::invalid_subdomain_id)))
                     {
                       care_for_cell = true;
@@ -1000,19 +882,18 @@ template <int dim, int spacedim>
 template <typename Number>
 void
 KellyErrorEstimator<dim, spacedim>::estimate(
-  const Mapping<dim, spacedim> &   mapping,
-  const DoFHandler<dim, spacedim> &dof_handler,
-  const Quadrature<dim - 1> &      quadrature,
-  const std::map<types::boundary_id, const Function<spacedim, Number> *>
-    &                       neumann_bc,
-  const ReadVector<Number> &solution,
-  Vector<float> &           error,
-  const ComponentMask &     component_mask,
-  const Function<spacedim> *coefficients,
-  const unsigned int        n_threads,
-  const types::subdomain_id subdomain_id,
-  const types::material_id  material_id,
-  const Strategy            strategy)
+  const Mapping<dim, spacedim>                                           &mapping,
+  const DoFHandler<dim, spacedim>                                        &dof_handler,
+  const Quadrature<dim - 1>                                              &quadrature,
+  const std::map<types::boundary_id, const Function<spacedim, Number> *> &neumann_bc,
+  const ReadVector<Number>                                               &solution,
+  Vector<float>                                                          &error,
+  const ComponentMask                                                    &component_mask,
+  const Function<spacedim>                                               *coefficients,
+  const unsigned int                                                      n_threads,
+  const types::subdomain_id                                               subdomain_id,
+  const types::material_id                                                material_id,
+  const Strategy                                                          strategy)
 {
   // just pass on to the other function
   std::vector<const ReadVector<Number> *> solutions(1, &solution);
@@ -1037,18 +918,17 @@ template <int dim, int spacedim>
 template <typename Number>
 void
 KellyErrorEstimator<dim, spacedim>::estimate(
-  const DoFHandler<dim, spacedim> &dof_handler,
-  const Quadrature<dim - 1> &      quadrature,
-  const std::map<types::boundary_id, const Function<spacedim, Number> *>
-    &                       neumann_bc,
-  const ReadVector<Number> &solution,
-  Vector<float> &           error,
-  const ComponentMask &     component_mask,
-  const Function<spacedim> *coefficients,
-  const unsigned int        n_threads,
-  const types::subdomain_id subdomain_id,
-  const types::material_id  material_id,
-  const Strategy            strategy)
+  const DoFHandler<dim, spacedim>                                        &dof_handler,
+  const Quadrature<dim - 1>                                              &quadrature,
+  const std::map<types::boundary_id, const Function<spacedim, Number> *> &neumann_bc,
+  const ReadVector<Number>                                               &solution,
+  Vector<float>                                                          &error,
+  const ComponentMask                                                    &component_mask,
+  const Function<spacedim>                                               *coefficients,
+  const unsigned int                                                      n_threads,
+  const types::subdomain_id                                               subdomain_id,
+  const types::material_id                                                material_id,
+  const Strategy                                                          strategy)
 {
   estimate(get_default_linear_mapping(dof_handler.get_triangulation()),
            dof_handler,
@@ -1069,19 +949,18 @@ template <int dim, int spacedim>
 template <typename Number>
 void
 KellyErrorEstimator<dim, spacedim>::estimate(
-  const Mapping<dim, spacedim> &   mapping,
-  const DoFHandler<dim, spacedim> &dof_handler,
-  const hp::QCollection<dim - 1> & quadrature,
-  const std::map<types::boundary_id, const Function<spacedim, Number> *>
-    &                       neumann_bc,
-  const ReadVector<Number> &solution,
-  Vector<float> &           error,
-  const ComponentMask &     component_mask,
-  const Function<spacedim> *coefficients,
-  const unsigned int        n_threads,
-  const types::subdomain_id subdomain_id,
-  const types::material_id  material_id,
-  const Strategy            strategy)
+  const Mapping<dim, spacedim>                                           &mapping,
+  const DoFHandler<dim, spacedim>                                        &dof_handler,
+  const hp::QCollection<dim - 1>                                         &quadrature,
+  const std::map<types::boundary_id, const Function<spacedim, Number> *> &neumann_bc,
+  const ReadVector<Number>                                               &solution,
+  Vector<float>                                                          &error,
+  const ComponentMask                                                    &component_mask,
+  const Function<spacedim>                                               *coefficients,
+  const unsigned int                                                      n_threads,
+  const types::subdomain_id                                               subdomain_id,
+  const types::material_id                                                material_id,
+  const Strategy                                                          strategy)
 {
   // just pass on to the other function
   std::vector<const ReadVector<Number> *> solutions(1, &solution);
@@ -1106,18 +985,17 @@ template <int dim, int spacedim>
 template <typename Number>
 void
 KellyErrorEstimator<dim, spacedim>::estimate(
-  const DoFHandler<dim, spacedim> &dof_handler,
-  const hp::QCollection<dim - 1> & quadrature,
-  const std::map<types::boundary_id, const Function<spacedim, Number> *>
-    &                       neumann_bc,
-  const ReadVector<Number> &solution,
-  Vector<float> &           error,
-  const ComponentMask &     component_mask,
-  const Function<spacedim> *coefficients,
-  const unsigned int        n_threads,
-  const types::subdomain_id subdomain_id,
-  const types::material_id  material_id,
-  const Strategy            strategy)
+  const DoFHandler<dim, spacedim>                                        &dof_handler,
+  const hp::QCollection<dim - 1>                                         &quadrature,
+  const std::map<types::boundary_id, const Function<spacedim, Number> *> &neumann_bc,
+  const ReadVector<Number>                                               &solution,
+  Vector<float>                                                          &error,
+  const ComponentMask                                                    &component_mask,
+  const Function<spacedim>                                               *coefficients,
+  const unsigned int                                                      n_threads,
+  const types::subdomain_id                                               subdomain_id,
+  const types::material_id                                                material_id,
+  const Strategy                                                          strategy)
 {
   estimate(get_default_linear_mapping(dof_handler.get_triangulation()),
            dof_handler,
@@ -1139,31 +1017,28 @@ template <int dim, int spacedim>
 template <typename Number>
 void
 KellyErrorEstimator<dim, spacedim>::estimate(
-  const Mapping<dim, spacedim> &   mapping,
-  const DoFHandler<dim, spacedim> &dof_handler,
-  const hp::QCollection<dim - 1> & face_quadratures,
-  const std::map<types::boundary_id, const Function<spacedim, Number> *>
-    &                                          neumann_bc,
-  const ArrayView<const ReadVector<Number> *> &solutions,
-  ArrayView<Vector<float> *> &                 errors,
-  const ComponentMask &                        component_mask,
-  const Function<spacedim> *                   coefficients,
+  const Mapping<dim, spacedim>                                           &mapping,
+  const DoFHandler<dim, spacedim>                                        &dof_handler,
+  const hp::QCollection<dim - 1>                                         &face_quadratures,
+  const std::map<types::boundary_id, const Function<spacedim, Number> *> &neumann_bc,
+  const ArrayView<const ReadVector<Number> *>                            &solutions,
+  ArrayView<Vector<float> *>                                             &errors,
+  const ComponentMask                                                    &component_mask,
+  const Function<spacedim>                                               *coefficients,
   const unsigned int,
   const types::subdomain_id subdomain_id_,
   const types::material_id  material_id,
   const Strategy            strategy)
 {
   types::subdomain_id subdomain_id = numbers::invalid_subdomain_id;
-  if (const auto *triangulation = dynamic_cast<
-        const parallel::DistributedTriangulationBase<dim, spacedim> *>(
-        &dof_handler.get_triangulation()))
+  if (const auto *triangulation =
+        dynamic_cast<const parallel::DistributedTriangulationBase<dim, spacedim> *>(&dof_handler.get_triangulation()))
     {
       Assert((subdomain_id_ == numbers::invalid_subdomain_id) ||
                (subdomain_id_ == triangulation->locally_owned_subdomain()),
-             ExcMessage(
-               "For distributed Triangulation objects and associated "
-               "DoFHandler objects, asking for any subdomain other than the "
-               "locally owned one does not make sense."));
+             ExcMessage("For distributed Triangulation objects and associated "
+                        "DoFHandler objects, asking for any subdomain other than the "
+                        "locally owned one does not make sense."));
       subdomain_id = triangulation->locally_owned_subdomain();
     }
   else
@@ -1176,26 +1051,19 @@ KellyErrorEstimator<dim, spacedim>::estimate(
 
   // sanity checks
   Assert(solutions.size() > 0, ExcNoSolutions());
-  Assert(solutions.size() == errors.size(),
-         ExcIncompatibleNumberOfElements(solutions.size(), errors.size()));
+  Assert(solutions.size() == errors.size(), ExcIncompatibleNumberOfElements(solutions.size(), errors.size()));
 
   for (const auto &boundary_function : neumann_bc)
     {
       (void)boundary_function;
       Assert(boundary_function.second->n_components == n_components,
-             ExcInvalidBoundaryFunction(boundary_function.first,
-                                        boundary_function.second->n_components,
-                                        n_components));
+             ExcInvalidBoundaryFunction(boundary_function.first, boundary_function.second->n_components, n_components));
     }
 
-  Assert(component_mask.represents_n_components(n_components),
-         ExcInvalidComponentMask());
-  Assert(component_mask.n_selected_components(n_components) > 0,
-         ExcInvalidComponentMask());
+  Assert(component_mask.represents_n_components(n_components), ExcInvalidComponentMask());
+  Assert(component_mask.n_selected_components(n_components) > 0, ExcInvalidComponentMask());
 
-  Assert((coefficients == nullptr) ||
-           (coefficients->n_components == n_components) ||
-           (coefficients->n_components == 1),
+  Assert((coefficients == nullptr) || (coefficients->n_components == n_components) || (coefficients->n_components == 1),
          ExcInvalidCoefficient());
 
   for (unsigned int n = 0; n < solutions.size(); ++n)
@@ -1208,46 +1076,36 @@ KellyErrorEstimator<dim, spacedim>::estimate(
   // the integrated jump of the gradient for each face.  At the end of the
   // function, we again loop over the cells and collect the contributions of
   // the different faces of the cell.
-  std::map<typename DoFHandler<dim, spacedim>::face_iterator,
-           std::vector<double>>
-    face_integrals;
+  std::map<typename DoFHandler<dim, spacedim>::face_iterator, std::vector<double>> face_integrals;
 
   // all the data needed in the error estimator by each of the threads is
   // gathered in the following structures
-  const hp::MappingCollection<dim, spacedim> mapping_collection(mapping);
-  const internal::ParallelData<dim, spacedim, Number> parallel_data(
-    dof_handler.get_fe_collection(),
-    face_quadratures,
-    mapping_collection,
-    (!neumann_bc.empty() || (coefficients != nullptr)),
-    solutions.size(),
-    subdomain_id,
-    material_id,
-    &neumann_bc,
-    component_mask,
-    coefficients);
-  std::map<typename DoFHandler<dim, spacedim>::face_iterator,
-           std::vector<double>>
-    sample_local_face_integrals;
+  const hp::MappingCollection<dim, spacedim>          mapping_collection(mapping);
+  const internal::ParallelData<dim, spacedim, Number> parallel_data(dof_handler.get_fe_collection(),
+                                                                    face_quadratures,
+                                                                    mapping_collection,
+                                                                    (!neumann_bc.empty() || (coefficients != nullptr)),
+                                                                    solutions.size(),
+                                                                    subdomain_id,
+                                                                    material_id,
+                                                                    &neumann_bc,
+                                                                    component_mask,
+                                                                    coefficients);
+  std::map<typename DoFHandler<dim, spacedim>::face_iterator, std::vector<double>> sample_local_face_integrals;
 
   // now let's work on all those cells:
   WorkStream::run(
     dof_handler.begin_active(),
-    static_cast<typename DoFHandler<dim, spacedim>::active_cell_iterator>(
-      dof_handler.end()),
-    [&solutions, strategy](
-      const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
-      internal::ParallelData<dim, spacedim, Number> &parallel_data,
-      std::map<typename DoFHandler<dim, spacedim>::face_iterator,
-               std::vector<double>> &                local_face_integrals) {
-      internal::estimate_one_cell(
-        cell, parallel_data, local_face_integrals, solutions, strategy);
+    static_cast<typename DoFHandler<dim, spacedim>::active_cell_iterator>(dof_handler.end()),
+    [&solutions,
+     strategy](const typename DoFHandler<dim, spacedim>::active_cell_iterator                   &cell,
+               internal::ParallelData<dim, spacedim, Number>                                    &parallel_data,
+               std::map<typename DoFHandler<dim, spacedim>::face_iterator, std::vector<double>> &local_face_integrals) {
+      internal::estimate_one_cell(cell, parallel_data, local_face_integrals, solutions, strategy);
     },
     [&face_integrals](
-      const std::map<typename DoFHandler<dim, spacedim>::face_iterator,
-                     std::vector<double>> &local_face_integrals) {
-      internal::copy_local_to_global<dim, spacedim>(local_face_integrals,
-                                                    face_integrals);
+      const std::map<typename DoFHandler<dim, spacedim>::face_iterator, std::vector<double>> &local_face_integrals) {
+      internal::copy_local_to_global<dim, spacedim>(local_face_integrals, face_integrals);
     },
     parallel_data,
     sample_local_face_integrals);
@@ -1258,40 +1116,31 @@ KellyErrorEstimator<dim, spacedim>::estimate(
   for (unsigned int n = 0; n < n_solution_vectors; ++n)
     {
       (*errors[n]).reinit(dof_handler.get_triangulation().n_active_cells());
-      for (unsigned int i = 0;
-           i < dof_handler.get_triangulation().n_active_cells();
-           ++i)
+      for (unsigned int i = 0; i < dof_handler.get_triangulation().n_active_cells(); ++i)
         (*errors[n])(i) = 0;
     }
 
   // now walk over all cells and collect information from the faces. only do
   // something if this is a cell we care for based on the subdomain id
   for (const auto &cell : dof_handler.active_cell_iterators())
-    if (((subdomain_id == numbers::invalid_subdomain_id) ||
-         (cell->subdomain_id() == subdomain_id)) &&
-        ((material_id == numbers::invalid_material_id) ||
-         (cell->material_id() == material_id)))
+    if (((subdomain_id == numbers::invalid_subdomain_id) || (cell->subdomain_id() == subdomain_id)) &&
+        ((material_id == numbers::invalid_material_id) || (cell->material_id() == material_id)))
       {
         const unsigned int present_cell = cell->active_cell_index();
 
         // loop over all faces of this cell
         for (const unsigned int face_no : cell->face_indices())
           {
-            Assert(face_integrals.find(cell->face(face_no)) !=
-                     face_integrals.end(),
-                   ExcInternalError());
-            const double factor = internal::cell_factor<dim, spacedim>(
-              cell, face_no, dof_handler, strategy);
+            Assert(face_integrals.find(cell->face(face_no)) != face_integrals.end(), ExcInternalError());
+            const double factor = internal::cell_factor<dim, spacedim>(cell, face_no, dof_handler, strategy);
 
             for (unsigned int n = 0; n < n_solution_vectors; ++n)
               {
                 // make sure that we have written a meaningful value into this
                 // slot
-                Assert(face_integrals[cell->face(face_no)][n] >= 0,
-                       ExcInternalError());
+                Assert(face_integrals[cell->face(face_no)][n] >= 0, ExcInternalError());
 
-                (*errors[n])(present_cell) +=
-                  (face_integrals[cell->face(face_no)][n] * factor);
+                (*errors[n])(present_cell) += (face_integrals[cell->face(face_no)][n] * factor);
               }
           }
 
@@ -1306,19 +1155,18 @@ template <int dim, int spacedim>
 template <typename Number>
 void
 KellyErrorEstimator<dim, spacedim>::estimate(
-  const Mapping<dim, spacedim> &   mapping,
-  const DoFHandler<dim, spacedim> &dof_handler,
-  const Quadrature<dim - 1> &      quadrature,
-  const std::map<types::boundary_id, const Function<spacedim, Number> *>
-    &                                          neumann_bc,
-  const ArrayView<const ReadVector<Number> *> &solutions,
-  ArrayView<Vector<float> *> &                 errors,
-  const ComponentMask &                        component_mask,
-  const Function<spacedim> *                   coefficients,
-  const unsigned int                           n_threads,
-  const types::subdomain_id                    subdomain_id,
-  const types::material_id                     material_id,
-  const Strategy                               strategy)
+  const Mapping<dim, spacedim>                                           &mapping,
+  const DoFHandler<dim, spacedim>                                        &dof_handler,
+  const Quadrature<dim - 1>                                              &quadrature,
+  const std::map<types::boundary_id, const Function<spacedim, Number> *> &neumann_bc,
+  const ArrayView<const ReadVector<Number> *>                            &solutions,
+  ArrayView<Vector<float> *>                                             &errors,
+  const ComponentMask                                                    &component_mask,
+  const Function<spacedim>                                               *coefficients,
+  const unsigned int                                                      n_threads,
+  const types::subdomain_id                                               subdomain_id,
+  const types::material_id                                                material_id,
+  const Strategy                                                          strategy)
 {
   // forward to the function with the QCollection
   estimate(mapping,
@@ -1340,18 +1188,17 @@ template <int dim, int spacedim>
 template <typename Number>
 void
 KellyErrorEstimator<dim, spacedim>::estimate(
-  const DoFHandler<dim, spacedim> &dof_handler,
-  const Quadrature<dim - 1> &      quadrature,
-  const std::map<types::boundary_id, const Function<spacedim, Number> *>
-    &                                          neumann_bc,
-  const ArrayView<const ReadVector<Number> *> &solutions,
-  ArrayView<Vector<float> *> &                 errors,
-  const ComponentMask &                        component_mask,
-  const Function<spacedim> *                   coefficients,
-  const unsigned int                           n_threads,
-  const types::subdomain_id                    subdomain_id,
-  const types::material_id                     material_id,
-  const Strategy                               strategy)
+  const DoFHandler<dim, spacedim>                                        &dof_handler,
+  const Quadrature<dim - 1>                                              &quadrature,
+  const std::map<types::boundary_id, const Function<spacedim, Number> *> &neumann_bc,
+  const ArrayView<const ReadVector<Number> *>                            &solutions,
+  ArrayView<Vector<float> *>                                             &errors,
+  const ComponentMask                                                    &component_mask,
+  const Function<spacedim>                                               *coefficients,
+  const unsigned int                                                      n_threads,
+  const types::subdomain_id                                               subdomain_id,
+  const types::material_id                                                material_id,
+  const Strategy                                                          strategy)
 {
   estimate(get_default_linear_mapping(dof_handler.get_triangulation()),
            dof_handler,
@@ -1373,18 +1220,17 @@ template <int dim, int spacedim>
 template <typename Number>
 void
 KellyErrorEstimator<dim, spacedim>::estimate(
-  const DoFHandler<dim, spacedim> &dof_handler,
-  const hp::QCollection<dim - 1> & quadrature,
-  const std::map<types::boundary_id, const Function<spacedim, Number> *>
-    &                                          neumann_bc,
-  const ArrayView<const ReadVector<Number> *> &solutions,
-  ArrayView<Vector<float> *> &                 errors,
-  const ComponentMask &                        component_mask,
-  const Function<spacedim> *                   coefficients,
-  const unsigned int                           n_threads,
-  const types::subdomain_id                    subdomain_id,
-  const types::material_id                     material_id,
-  const Strategy                               strategy)
+  const DoFHandler<dim, spacedim>                                        &dof_handler,
+  const hp::QCollection<dim - 1>                                         &quadrature,
+  const std::map<types::boundary_id, const Function<spacedim, Number> *> &neumann_bc,
+  const ArrayView<const ReadVector<Number> *>                            &solutions,
+  ArrayView<Vector<float> *>                                             &errors,
+  const ComponentMask                                                    &component_mask,
+  const Function<spacedim>                                               *coefficients,
+  const unsigned int                                                      n_threads,
+  const types::subdomain_id                                               subdomain_id,
+  const types::material_id                                                material_id,
+  const Strategy                                                          strategy)
 {
   estimate(get_default_linear_mapping(dof_handler.get_triangulation()),
            dof_handler,

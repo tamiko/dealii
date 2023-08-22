@@ -46,15 +46,13 @@ namespace NonMatching
   {
     namespace MeshClassifierImplementation
     {
-      DeclExceptionMsg(
-        ExcReclassifyNotCalled,
-        "The Triangulation has not been classified. You need to call the "
-        "reclassify()-function before using this function.");
+      DeclExceptionMsg(ExcReclassifyNotCalled,
+                       "The Triangulation has not been classified. You need to call the "
+                       "reclassify()-function before using this function.");
 
-      DeclExceptionMsg(
-        ExcTriangulationMismatch,
-        "The incoming cell does not belong to the triangulation passed to "
-        "the constructor.");
+      DeclExceptionMsg(ExcTriangulationMismatch,
+                       "The incoming cell does not belong to the triangulation passed to "
+                       "the constructor.");
 
       /**
        * Return LocationToLevelSet::inside/outside if all values in incoming
@@ -65,9 +63,7 @@ namespace NonMatching
       LocationToLevelSet
       location_from_dof_signs(const VectorType &local_levelset_values)
       {
-        const auto min_max_element =
-          std::minmax_element(local_levelset_values.begin(),
-                              local_levelset_values.end());
+        const auto min_max_element = std::minmax_element(local_levelset_values.begin(), local_levelset_values.end());
 
         if (*min_max_element.second < 0)
           return LocationToLevelSet::inside;
@@ -90,8 +86,7 @@ namespace NonMatching
         /**
          * Constructor.
          */
-        DiscreteLevelSetDescription(const DoFHandler<dim> &dof_handler,
-                                    const VectorType &     level_set);
+        DiscreteLevelSetDescription(const DoFHandler<dim> &dof_handler, const VectorType &level_set);
 
         /**
          * Return the FECollection of the DoFHandler passed to the constructor.
@@ -104,18 +99,16 @@ namespace NonMatching
          * DoFHandler and the incoming cell in the triangulation.
          */
         unsigned int
-        active_fe_index(const typename Triangulation<dim>::active_cell_iterator
-                          &cell) const override;
+        active_fe_index(const typename Triangulation<dim>::active_cell_iterator &cell) const override;
 
         /**
          * Writes the local face dofs of the global level set vector to
          * @p local_levelset_values.
          */
         void
-        get_local_level_set_values(
-          const typename Triangulation<dim>::active_cell_iterator &cell,
-          const unsigned int                                       face_index,
-          Vector<double> &local_levelset_values) override;
+        get_local_level_set_values(const typename Triangulation<dim>::active_cell_iterator &cell,
+                                   const unsigned int                                       face_index,
+                                   Vector<double> &local_levelset_values) override;
 
       private:
         /**
@@ -133,9 +126,8 @@ namespace NonMatching
 
 
       template <int dim, typename VectorType>
-      DiscreteLevelSetDescription<dim, VectorType>::DiscreteLevelSetDescription(
-        const DoFHandler<dim> &dof_handler,
-        const VectorType &     level_set)
+      DiscreteLevelSetDescription<dim, VectorType>::DiscreteLevelSetDescription(const DoFHandler<dim> &dof_handler,
+                                                                                const VectorType      &level_set)
         : dof_handler(&dof_handler)
         , level_set(&level_set)
       {}
@@ -156,21 +148,18 @@ namespace NonMatching
       DiscreteLevelSetDescription<dim, VectorType>::get_local_level_set_values(
         const typename Triangulation<dim>::active_cell_iterator &cell,
         const unsigned int                                       face_index,
-        Vector<double> &local_levelset_values)
+        Vector<double>                                          &local_levelset_values)
       {
         const auto cell_with_dofs = cell->as_dof_handler_iterator(*dof_handler);
 
-        const unsigned int n_dofs_per_face =
-          dof_handler->get_fe().n_dofs_per_face();
+        const unsigned int                   n_dofs_per_face = dof_handler->get_fe().n_dofs_per_face();
         std::vector<types::global_dof_index> dof_indices(n_dofs_per_face);
         cell_with_dofs->face(face_index)->get_dof_indices(dof_indices);
 
         local_levelset_values.reinit(dof_indices.size());
 
         for (unsigned int i = 0; i < dof_indices.size(); i++)
-          local_levelset_values[i] =
-            dealii::internal::ElementAccess<VectorType>::get(*level_set,
-                                                             dof_indices[i]);
+          local_levelset_values[i] = dealii::internal::ElementAccess<VectorType>::get(*level_set, dof_indices[i]);
       }
 
 
@@ -198,8 +187,7 @@ namespace NonMatching
          * Constructor. Takes the Function that describes the geometry and the
          * element that this function should be interpolated to.
          */
-        AnalyticLevelSetDescription(const Function<dim> &     level_set,
-                                    const FiniteElement<dim> &element);
+        AnalyticLevelSetDescription(const Function<dim> &level_set, const FiniteElement<dim> &element);
 
         /**
          * Returns the finite element passed to the constructor wrapped in a
@@ -213,18 +201,16 @@ namespace NonMatching
          * FECollection.
          */
         unsigned int
-        active_fe_index(const typename Triangulation<dim>::active_cell_iterator
-                          &cell) const override;
+        active_fe_index(const typename Triangulation<dim>::active_cell_iterator &cell) const override;
 
         /**
          * Return the level set function evaluated at the real space face
          * support points of the finite element passed to the constructor.
          */
         void
-        get_local_level_set_values(
-          const typename Triangulation<dim>::active_cell_iterator &cell,
-          const unsigned int                                       face_index,
-          Vector<double> &local_levelset_values) override;
+        get_local_level_set_values(const typename Triangulation<dim>::active_cell_iterator &cell,
+                                   const unsigned int                                       face_index,
+                                   Vector<double> &local_levelset_values) override;
 
       private:
         /**
@@ -248,15 +234,11 @@ namespace NonMatching
 
 
       template <int dim>
-      AnalyticLevelSetDescription<dim>::AnalyticLevelSetDescription(
-        const Function<dim> &     level_set,
-        const FiniteElement<dim> &element)
+      AnalyticLevelSetDescription<dim>::AnalyticLevelSetDescription(const Function<dim>      &level_set,
+                                                                    const FiniteElement<dim> &element)
         : level_set(&level_set)
         , fe_collection(element)
-        , fe_face_values(element,
-                         Quadrature<dim - 1>(
-                           element.get_unit_face_support_points()),
-                         update_quadrature_points)
+        , fe_face_values(element, Quadrature<dim - 1>(element.get_unit_face_support_points()), update_quadrature_points)
       {}
 
 
@@ -266,14 +248,12 @@ namespace NonMatching
       AnalyticLevelSetDescription<dim>::get_local_level_set_values(
         const typename Triangulation<dim>::active_cell_iterator &cell,
         const unsigned int                                       face_index,
-        Vector<double> &local_levelset_values)
+        Vector<double>                                          &local_levelset_values)
       {
-        AssertDimension(local_levelset_values.size(),
-                        fe_face_values.n_quadrature_points);
+        AssertDimension(local_levelset_values.size(), fe_face_values.n_quadrature_points);
 
         fe_face_values.reinit(cell, face_index);
-        const std::vector<Point<dim>> &points =
-          fe_face_values.get_quadrature_points();
+        const std::vector<Point<dim>> &points = fe_face_values.get_quadrature_points();
 
         for (unsigned int i = 0; i < points.size(); i++)
           local_levelset_values[i] = level_set->value(points[i]);
@@ -292,8 +272,7 @@ namespace NonMatching
 
       template <int dim>
       unsigned int
-      AnalyticLevelSetDescription<dim>::active_fe_index(
-        const typename Triangulation<dim>::active_cell_iterator &) const
+      AnalyticLevelSetDescription<dim>::active_fe_index(const typename Triangulation<dim>::active_cell_iterator &) const
       {
         return 0;
       }
@@ -304,27 +283,23 @@ namespace NonMatching
 
   template <int dim>
   template <typename VectorType>
-  MeshClassifier<dim>::MeshClassifier(const DoFHandler<dim> &dof_handler,
-                                      const VectorType &     level_set)
+  MeshClassifier<dim>::MeshClassifier(const DoFHandler<dim> &dof_handler, const VectorType &level_set)
     : triangulation(&dof_handler.get_triangulation())
     , level_set_description(
-        std::make_unique<internal::MeshClassifierImplementation::
-                           DiscreteLevelSetDescription<dim, VectorType>>(
+        std::make_unique<internal::MeshClassifierImplementation::DiscreteLevelSetDescription<dim, VectorType>>(
           dof_handler,
           level_set))
   {
 #ifdef DEAL_II_WITH_LAPACK
-    const hp::FECollection<dim> &fe_collection =
-      dof_handler.get_fe_collection();
+    const hp::FECollection<dim> &fe_collection = dof_handler.get_fe_collection();
     for (unsigned int i = 0; i < fe_collection.size(); i++)
       {
         // The level set function must be scalar.
         AssertDimension(fe_collection[i].n_components(), 1);
 
         Assert(fe_collection[i].has_face_support_points(),
-               ExcMessage(
-                 "The elements in the FECollection of the incoming DoFHandler "
-                 "must have face support points."));
+               ExcMessage("The elements in the FECollection of the incoming DoFHandler "
+                          "must have face support points."));
       }
 #else
     AssertThrow(false, ExcNeedsLAPACK());
@@ -335,13 +310,11 @@ namespace NonMatching
 
   template <int dim>
   MeshClassifier<dim>::MeshClassifier(const Triangulation<dim> &triangulation,
-                                      const Function<dim> &     level_set,
+                                      const Function<dim>      &level_set,
                                       const FiniteElement<dim> &element)
     : triangulation(&triangulation)
     , level_set_description(
-        std::make_unique<internal::MeshClassifierImplementation::
-                           AnalyticLevelSetDescription<dim>>(level_set,
-                                                             element))
+        std::make_unique<internal::MeshClassifierImplementation::AnalyticLevelSetDescription<dim>>(level_set, element))
   {
     // The level set function must be scalar.
     AssertDimension(level_set.n_components, 1);
@@ -355,26 +328,22 @@ namespace NonMatching
   MeshClassifier<dim>::reclassify()
   {
     initialize();
-    cell_locations.assign(triangulation->n_active_cells(),
-                          LocationToLevelSet::unassigned);
-    face_locations.assign(triangulation->n_raw_faces(),
-                          LocationToLevelSet::unassigned);
+    cell_locations.assign(triangulation->n_active_cells(), LocationToLevelSet::unassigned);
+    face_locations.assign(triangulation->n_raw_faces(), LocationToLevelSet::unassigned);
 
     // Loop over all cells and determine the location of all non artificial
     // cells and faces.
     for (const auto &cell : triangulation->active_cell_iterators())
       if (!cell->is_artificial())
         {
-          const LocationToLevelSet face0_location =
-            determine_face_location_to_levelset(cell, 0);
+          const LocationToLevelSet face0_location = determine_face_location_to_levelset(cell, 0);
 
           face_locations[cell->face(0)->index()] = face0_location;
           LocationToLevelSet cell_location       = face0_location;
 
           for (unsigned int f = 1; f < GeometryInfo<dim>::faces_per_cell; ++f)
             {
-              const LocationToLevelSet face_location =
-                determine_face_location_to_levelset(cell, f);
+              const LocationToLevelSet face_location = determine_face_location_to_levelset(cell, f);
 
               face_locations[cell->face(f)->index()] = face_location;
 
@@ -395,53 +364,42 @@ namespace NonMatching
   {
     // The location of the face might already be computed on the neighboring
     // cell. If this is the case we just return the value.
-    const LocationToLevelSet location =
-      face_locations.at(cell->face(face_index)->index());
+    const LocationToLevelSet location = face_locations.at(cell->face(face_index)->index());
     if (location != LocationToLevelSet::unassigned)
       return location;
 
     // Determine the location by changing basis to FE_Bernstein and checking
     // the signs of the dofs.
-    const unsigned int fe_index = level_set_description->active_fe_index(cell);
-    const unsigned int n_local_dofs =
-      lagrange_to_bernstein_face[fe_index][face_index].m();
+    const unsigned int fe_index     = level_set_description->active_fe_index(cell);
+    const unsigned int n_local_dofs = lagrange_to_bernstein_face[fe_index][face_index].m();
 
     Vector<double> local_levelset_values(n_local_dofs);
-    level_set_description->get_local_level_set_values(cell,
-                                                      face_index,
-                                                      local_levelset_values);
+    level_set_description->get_local_level_set_values(cell, face_index, local_levelset_values);
 
-    const FiniteElement<dim> &fe =
-      level_set_description->get_fe_collection()[fe_index];
+    const FiniteElement<dim> &fe = level_set_description->get_fe_collection()[fe_index];
 
-    const FE_Q_iso_Q1<dim> *fe_q_iso_q1 =
-      dynamic_cast<const FE_Q_iso_Q1<dim> *>(&fe);
+    const FE_Q_iso_Q1<dim> *fe_q_iso_q1 = dynamic_cast<const FE_Q_iso_Q1<dim> *>(&fe);
 
     const FE_Poly<dim> *fe_poly = dynamic_cast<const FE_Poly<dim> *>(&fe);
 
-    const bool is_linear = fe_q_iso_q1 != nullptr ||
-                           (fe_poly != nullptr && fe_poly->get_degree() == 1);
+    const bool is_linear = fe_q_iso_q1 != nullptr || (fe_poly != nullptr && fe_poly->get_degree() == 1);
 
     // shortcut for linear elements
     if (is_linear)
       {
-        return internal::MeshClassifierImplementation::location_from_dof_signs(
-          local_levelset_values);
+        return internal::MeshClassifierImplementation::location_from_dof_signs(local_levelset_values);
       }
 
-    lagrange_to_bernstein_face[fe_index][face_index].solve(
-      local_levelset_values);
+    lagrange_to_bernstein_face[fe_index][face_index].solve(local_levelset_values);
 
-    return internal::MeshClassifierImplementation::location_from_dof_signs(
-      local_levelset_values);
+    return internal::MeshClassifierImplementation::location_from_dof_signs(local_levelset_values);
   }
 
 
 
   template <int dim>
   LocationToLevelSet
-  MeshClassifier<dim>::location_to_level_set(
-    const typename Triangulation<dim>::cell_iterator &cell) const
+  MeshClassifier<dim>::location_to_level_set(const typename Triangulation<dim>::cell_iterator &cell) const
   {
     Assert(cell_locations.size() == triangulation->n_active_cells(),
            internal::MeshClassifierImplementation::ExcReclassifyNotCalled());
@@ -455,9 +413,8 @@ namespace NonMatching
 
   template <int dim>
   LocationToLevelSet
-  MeshClassifier<dim>::location_to_level_set(
-    const typename Triangulation<dim>::cell_iterator &cell,
-    const unsigned int                                face_index) const
+  MeshClassifier<dim>::location_to_level_set(const typename Triangulation<dim>::cell_iterator &cell,
+                                             const unsigned int                                face_index) const
   {
     AssertIndexRange(face_index, GeometryInfo<dim>::faces_per_cell);
     Assert(face_locations.size() == triangulation->n_raw_faces(),
@@ -474,8 +431,7 @@ namespace NonMatching
   void
   MeshClassifier<dim>::initialize()
   {
-    const hp::FECollection<dim> &fe_collection =
-      level_set_description->get_fe_collection();
+    const hp::FECollection<dim> &fe_collection = level_set_description->get_fe_collection();
 
     // The level set function must be scalar.
     AssertDimension(fe_collection.n_components(), 1);
@@ -485,8 +441,7 @@ namespace NonMatching
     for (unsigned int i = 0; i < fe_collection.size(); i++)
       {
         const FiniteElement<dim> &element = fe_collection[i];
-        const FE_Q_Base<dim> *    fe_q =
-          dynamic_cast<const FE_Q_Base<dim> *>(&element);
+        const FE_Q_Base<dim>     *fe_q    = dynamic_cast<const FE_Q_Base<dim> *>(&element);
         Assert(fe_q != nullptr, ExcNotImplemented());
 
         const FE_Bernstein<dim> fe_bernstein(fe_q->get_degree());
@@ -494,11 +449,9 @@ namespace NonMatching
         const unsigned int dofs_per_face = fe_q->dofs_per_face;
         for (unsigned int f = 0; f < GeometryInfo<dim>::faces_per_cell; f++)
           {
-            FullMatrix<double> face_interpolation_matrix(dofs_per_face,
-                                                         dofs_per_face);
+            FullMatrix<double> face_interpolation_matrix(dofs_per_face, dofs_per_face);
 
-            fe_bernstein.get_face_interpolation_matrix(
-              *fe_q, face_interpolation_matrix, f);
+            fe_bernstein.get_face_interpolation_matrix(*fe_q, face_interpolation_matrix, f);
             lagrange_to_bernstein_face[i][f].reinit(dofs_per_face);
             lagrange_to_bernstein_face[i][f] = face_interpolation_matrix;
             lagrange_to_bernstein_face[i][f].compute_lu_factorization();

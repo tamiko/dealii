@@ -49,8 +49,7 @@ test()
   DataOut<dim> data_out;
   data_out.add_data_vector(dof1, v1, "linear");
 
-  DataOutBase::DataOutFilter data_filter(
-    DataOutBase::DataOutFilterFlags(true, false));
+  DataOutBase::DataOutFilter data_filter(DataOutBase::DataOutFilterFlags(true, false));
 
   data_out.write_filtered_data(data_filter);
 

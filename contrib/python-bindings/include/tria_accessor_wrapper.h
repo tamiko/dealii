@@ -38,10 +38,7 @@ namespace python
     /**
      * Constructor.
      */
-    TriaAccessorWrapper(void *    tria_accessor,
-                        const int structdim,
-                        const int dim,
-                        const int spacedim);
+    TriaAccessorWrapper(void *tria_accessor, const int structdim, const int dim, const int spacedim);
 
     /**
      * Destructor.
@@ -56,8 +53,7 @@ namespace python
     /*! @copydoc TriaAccessor::center
      */
     PointWrapper
-    get_center(const bool respect_manifold             = false,
-               const bool interpolate_from_surrounding = false) const;
+    get_center(const bool respect_manifold = false, const bool interpolate_from_surrounding = false) const;
 
     /**
      * Set the ith vertex of the cell to @p point_wrapper.
@@ -126,8 +122,7 @@ namespace python
     DeclException2(ExcVertexDoesNotExist,
                    int,
                    int,
-                   << "Requested vertex number " << arg1
-                   << " does not exist. The largest vertex number "
+                   << "Requested vertex number " << arg1 << " does not exist. The largest vertex number "
                    << "acceptable is " << arg2 - 1);
 
   private:

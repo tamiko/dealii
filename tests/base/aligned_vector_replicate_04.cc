@@ -28,15 +28,13 @@ test()
 {
   const MPI_Comm     communicator = MPI_COMM_WORLD;
   const unsigned int root         = 1;
-  Assert(root < Utilities::MPI::n_mpi_processes(communicator),
-         ExcInternalError());
+  Assert(root < Utilities::MPI::n_mpi_processes(communicator), ExcInternalError());
 
   // Create an empty object and replicate it.
   AlignedVector<int> avec;
   avec.replicate_across_communicator(communicator, root);
 
-  deallog << "On process " << Utilities::MPI::this_mpi_process(communicator)
-          << ": " << avec.size() << std::endl;
+  deallog << "On process " << Utilities::MPI::this_mpi_process(communicator) << ": " << avec.size() << std::endl;
 }
 
 

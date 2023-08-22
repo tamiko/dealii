@@ -33,9 +33,8 @@
 void
 test()
 {
-  const unsigned int myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
-  const unsigned int n_processes =
-    Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
+  const unsigned int myid        = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  const unsigned int n_processes = Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
 
   // create a vector that consists of elements indexed from 0 to n
   TrilinosWrappers::MPI::BlockVector vec(2);
@@ -47,23 +46,15 @@ test()
   }
   vec.collect_sizes();
   AssertThrow(vec.block(0).locally_owned_size() == 100, ExcInternalError());
-  AssertThrow(vec.block(0).local_range().first == 100 * myid,
-              ExcInternalError());
-  AssertThrow(vec.block(0).local_range().second == 100 * myid + 100,
-              ExcInternalError());
+  AssertThrow(vec.block(0).local_range().first == 100 * myid, ExcInternalError());
+  AssertThrow(vec.block(0).local_range().second == 100 * myid + 100, ExcInternalError());
   AssertThrow(vec.block(1).locally_owned_size() == 100, ExcInternalError());
-  AssertThrow(vec.block(1).local_range().first == 100 * myid,
-              ExcInternalError());
-  AssertThrow(vec.block(1).local_range().second == 100 * myid + 100,
-              ExcInternalError());
+  AssertThrow(vec.block(1).local_range().first == 100 * myid, ExcInternalError());
+  AssertThrow(vec.block(1).local_range().second == 100 * myid + 100, ExcInternalError());
 
-  for (unsigned int i = vec.block(0).local_range().first;
-       i < vec.block(0).local_range().second;
-       ++i)
+  for (unsigned int i = vec.block(0).local_range().first; i < vec.block(0).local_range().second; ++i)
     vec.block(0)(i) = i;
-  for (unsigned int i = vec.block(1).local_range().first;
-       i < vec.block(1).local_range().second;
-       ++i)
+  for (unsigned int i = vec.block(1).local_range().first; i < vec.block(1).local_range().second; ++i)
     vec.block(1)(i) = i;
   vec.compress(VectorOperation::insert);
 
@@ -79,15 +70,13 @@ test()
   // create a AffineConstraints<double> with a range that exceeds the locally
   // owned range by 50 on each side
   IndexSet locally_relevant_range(vec.size());
-  locally_relevant_range.add_range(
-    std::max<int>(100 * myid - 50, 0),
-    std::min(static_cast<types::global_dof_index>(100 * myid + 150),
-             vec.block(0).size()));
-  locally_relevant_range.add_range(
-    vec.block(0).size() + std::max<int>(100 * myid - 50, 0),
-    vec.block(0).size() +
-      std::min(static_cast<types::global_dof_index>(100 * myid + 150),
-               vec.block(0).size()));
+  locally_relevant_range.add_range(std::max<int>(100 * myid - 50, 0),
+                                   std::min(static_cast<types::global_dof_index>(100 * myid + 150),
+                                            vec.block(0).size()));
+  locally_relevant_range.add_range(vec.block(0).size() + std::max<int>(100 * myid - 50, 0),
+                                   vec.block(0).size() +
+                                     std::min(static_cast<types::global_dof_index>(100 * myid + 150),
+                                              vec.block(0).size()));
   AffineConstraints<double> cm(locally_relevant_range);
 
   // add constraints that constrain an element in the middle of the
@@ -104,20 +93,15 @@ test()
           cm.add_line(p * 100 + 10);
           cm.add_entry(p * 100 + 10, p * 100 - 25, 1);
           cm.add_line(vec.block(0).size() + p * 100 + 10);
-          cm.add_entry(vec.block(0).size() + p * 100 + 10,
-                       vec.block(0).size() + p * 100 - 25,
-                       1);
+          cm.add_entry(vec.block(0).size() + p * 100 + 10, vec.block(0).size() + p * 100 - 25, 1);
         }
 
-      if ((p != n_processes - 1) &&
-          locally_relevant_range.is_element(p * 100 + 90))
+      if ((p != n_processes - 1) && locally_relevant_range.is_element(p * 100 + 90))
         {
           cm.add_line(p * 100 + 90);
           cm.add_entry(p * 100 + 90, p * 100 + 105, 1);
           cm.add_line(vec.block(0).size() + p * 100 + 90);
-          cm.add_entry(vec.block(0).size() + p * 100 + 90,
-                       vec.block(0).size() + p * 100 + 105,
-                       1);
+          cm.add_entry(vec.block(0).size() + p * 100 + 90, vec.block(0).size() + p * 100 + 105, 1);
         }
     }
   cm.close();
@@ -127,43 +111,35 @@ test()
 
   // verify correctness
   if (myid != 0)
-    AssertThrow(vec(vec.block(0).local_range().first + 10) ==
-                  vec.block(0).local_range().first - 25,
+    AssertThrow(vec(vec.block(0).local_range().first + 10) == vec.block(0).local_range().first - 25,
                 ExcInternalError());
 
   if (myid != n_processes - 1)
-    AssertThrow(vec(vec.block(0).local_range().first + 90) ==
-                  vec.block(0).local_range().first + 105,
+    AssertThrow(vec(vec.block(0).local_range().first + 90) == vec.block(0).local_range().first + 105,
                 ExcInternalError());
 
   if (myid != 0)
-    AssertThrow(vec(vec.block(0).size() + vec.block(1).local_range().first +
-                    10) == vec.block(1).local_range().first - 25,
+    AssertThrow(vec(vec.block(0).size() + vec.block(1).local_range().first + 10) ==
+                  vec.block(1).local_range().first - 25,
                 ExcInternalError());
 
   if (myid != n_processes - 1)
-    AssertThrow(vec(vec.block(0).size() + vec.block(1).local_range().first +
-                    90) == vec.block(1).local_range().first + 105,
+    AssertThrow(vec(vec.block(0).size() + vec.block(1).local_range().first + 90) ==
+                  vec.block(1).local_range().first + 105,
                 ExcInternalError());
 
 
-  for (unsigned int i = vec.block(0).local_range().first;
-       i < vec.block(0).local_range().second;
-       ++i)
+  for (unsigned int i = vec.block(0).local_range().first; i < vec.block(0).local_range().second; ++i)
     {
-      if ((i != vec.block(0).local_range().first + 10) &&
-          (i != vec.block(0).local_range().first + 90))
+      if ((i != vec.block(0).local_range().first + 10) && (i != vec.block(0).local_range().first + 90))
         {
           double val = vec.block(0)(i);
           AssertThrow(std::fabs(val - i) <= 1e-6, ExcInternalError());
         }
     }
-  for (unsigned int i = vec.block(1).local_range().first;
-       i < vec.block(1).local_range().second;
-       ++i)
+  for (unsigned int i = vec.block(1).local_range().first; i < vec.block(1).local_range().second; ++i)
     {
-      if ((i != vec.block(1).local_range().first + 10) &&
-          (i != vec.block(1).local_range().first + 90))
+      if ((i != vec.block(1).local_range().first + 10) && (i != vec.block(1).local_range().first + 90))
         {
           double val = vec.block(1)(i);
           AssertThrow(std::fabs(val - i) <= 1e-6, ExcInternalError());

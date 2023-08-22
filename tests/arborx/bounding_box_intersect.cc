@@ -47,11 +47,10 @@ test_1d()
   query_bounding_boxes.emplace_back(std::make_pair(point_c, point_d));
 
   ArborXWrappers::BVH                           bvh(bounding_boxes);
-  ArborXWrappers::BoundingBoxIntersectPredicate bb_intersect(
-    query_bounding_boxes);
-  auto             indices_offset = bvh.query(bb_intersect);
-  std::vector<int> indices        = indices_offset.first;
-  std::vector<int> offset         = indices_offset.second;
+  ArborXWrappers::BoundingBoxIntersectPredicate bb_intersect(query_bounding_boxes);
+  auto                                          indices_offset = bvh.query(bb_intersect);
+  std::vector<int>                              indices        = indices_offset.first;
+  std::vector<int>                              offset         = indices_offset.second;
 
   std::vector<int> indices_ref = {0, 1, 2};
   std::vector<int> offset_ref  = {0, 2, 3};
@@ -101,9 +100,7 @@ test_2d()
       for (unsigned int j = 0; j < n_points_1d - 1; ++j)
         {
           unsigned int point_index = j + i * n_points_1d;
-          bounding_boxes.push_back(
-            std::make_pair(points[point_index],
-                           points[point_index + n_points_1d + 1]));
+          bounding_boxes.push_back(std::make_pair(points[point_index], points[point_index + n_points_1d + 1]));
         }
     }
 
@@ -117,11 +114,10 @@ test_2d()
   query_bounding_boxes.emplace_back(std::make_pair(point_c, point_d));
 
   ArborXWrappers::BVH                           bvh(bounding_boxes);
-  ArborXWrappers::BoundingBoxIntersectPredicate bb_intersect(
-    query_bounding_boxes);
-  auto             indices_offset = bvh.query(bb_intersect);
-  std::vector<int> indices        = indices_offset.first;
-  std::vector<int> offset         = indices_offset.second;
+  ArborXWrappers::BoundingBoxIntersectPredicate bb_intersect(query_bounding_boxes);
+  auto                                          indices_offset = bvh.query(bb_intersect);
+  std::vector<int>                              indices        = indices_offset.first;
+  std::vector<int>                              offset         = indices_offset.second;
 
   std::vector<int> indices_ref = {0, 1, 4, 5, 10};
   std::vector<int> offset_ref  = {0, 4, 5};
@@ -175,12 +171,9 @@ test_3d()
         {
           for (unsigned int k = 0; k < n_points_1d - 1; ++k)
             {
-              unsigned int point_index =
-                k + j * n_points_1d + i * n_points_1d * n_points_1d;
+              unsigned int point_index = k + j * n_points_1d + i * n_points_1d * n_points_1d;
               bounding_boxes.push_back(
-                std::make_pair(points[point_index],
-                               points[point_index + n_points_1d * n_points_1d +
-                                      n_points_1d + 1]));
+                std::make_pair(points[point_index], points[point_index + n_points_1d * n_points_1d + n_points_1d + 1]));
             }
         }
     }
@@ -195,11 +188,10 @@ test_3d()
   query_bounding_boxes.emplace_back(std::make_pair(point_c, point_d));
 
   ArborXWrappers::BVH                           bvh(bounding_boxes);
-  ArborXWrappers::BoundingBoxIntersectPredicate bb_intersect(
-    query_bounding_boxes);
-  auto             indices_offset = bvh.query(bb_intersect);
-  std::vector<int> indices        = indices_offset.first;
-  std::vector<int> offset         = indices_offset.second;
+  ArborXWrappers::BoundingBoxIntersectPredicate bb_intersect(query_bounding_boxes);
+  auto                                          indices_offset = bvh.query(bb_intersect);
+  std::vector<int>                              indices        = indices_offset.first;
+  std::vector<int>                              offset         = indices_offset.second;
 
   std::vector<int> indices_ref = {0, 1, 4, 5, 16, 17, 20, 21, 42};
   std::vector<int> offset_ref  = {0, 8, 9};

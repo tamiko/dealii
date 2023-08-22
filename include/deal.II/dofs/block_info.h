@@ -110,9 +110,7 @@ public:
    */
   template <int dim, int spacedim>
   void
-  initialize(const DoFHandler<dim, spacedim> &,
-             bool levels_only = false,
-             bool active_only = false);
+  initialize(const DoFHandler<dim, spacedim> &, bool levels_only = false, bool active_only = false);
 
   /**
    * @brief Initialize block structure on cells and compute renumbering
@@ -280,8 +278,7 @@ BlockInfo::print(OS &os) const
     }
   else
     {
-      os << "local    dofs " << std::setw(5) << local().total_size()
-         << " blocks";
+      os << "local    dofs " << std::setw(5) << local().total_size() << " blocks";
       for (unsigned int i = 0; i < local().size(); ++i)
         os << ' ' << std::setw(5) << local().block_size(i);
       os << std::endl;
@@ -289,8 +286,7 @@ BlockInfo::print(OS &os) const
 
   for (unsigned int l = 0; l < levels.size(); ++l)
     {
-      os << "level " << std::setw(2) << l << " dofs " << std::setw(5)
-         << level(l).total_size() << " blocks";
+      os << "level " << std::setw(2) << l << " dofs " << std::setw(5) << level(l).total_size() << " blocks";
       for (unsigned int i = 0; i < level(l).size(); ++i)
         os << ' ' << std::setw(5) << level(l).block_size(i);
       os << std::endl;
@@ -301,10 +297,8 @@ BlockInfo::print(OS &os) const
 inline std::size_t
 BlockInfo::memory_consumption() const
 {
-  return (MemoryConsumption::memory_consumption(bi_global) +
-          MemoryConsumption::memory_consumption(levels) +
-          MemoryConsumption::memory_consumption(bi_local) +
-          MemoryConsumption::memory_consumption(base_elements));
+  return (MemoryConsumption::memory_consumption(bi_global) + MemoryConsumption::memory_consumption(levels) +
+          MemoryConsumption::memory_consumption(bi_local) + MemoryConsumption::memory_consumption(base_elements));
 }
 
 

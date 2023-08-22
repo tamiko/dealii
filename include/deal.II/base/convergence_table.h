@@ -155,8 +155,7 @@ public:
    * fill, you will have to re-enable it after calling this function.
    */
   void
-  evaluate_convergence_rates(const std::string &data_column_key,
-                             const RateMode     rate_mode);
+  evaluate_convergence_rates(const std::string &data_column_key, const RateMode rate_mode);
 
   /**
    * Omit this column <tt>key</tt> (not supercolumn!) from the evaluation of
@@ -183,8 +182,7 @@ public:
    * omit_column_from_convergence_rate_evaluation().
    */
   void
-  evaluate_all_convergence_rates(const std::string &reference_column_key,
-                                 const RateMode     rate_mode);
+  evaluate_all_convergence_rates(const std::string &reference_column_key, const RateMode rate_mode);
 
   /**
    * Evaluate convergence rates due to the <tt>rate_mode</tt>. This function
@@ -210,9 +208,7 @@ public:
   /**
    * Exception
    */
-  DeclException1(ExcRateColumnAlreadyExists,
-                 std::string,
-                 << "Rate column <" << arg1 << "> does already exist.");
+  DeclException1(ExcRateColumnAlreadyExists, std::string, << "Rate column <" << arg1 << "> does already exist.");
   /** @} */
 };
 

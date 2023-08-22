@@ -41,8 +41,7 @@ namespace CGALWrappers
      * The three vertices of a facet belonging to a surface patch s have to be
      * on the same surface patch s, on a curve or on a corner.
      */
-    facet_vertices_on_same_surface_patch =
-      CGAL::FACET_VERTICES_ON_SAME_SURFACE_PATCH,
+    facet_vertices_on_same_surface_patch = CGAL::FACET_VERTICES_ON_SAME_SURFACE_PATCH,
 
     /**
      * The three vertices of a facet belonging to a surface patch s have to be
@@ -131,20 +130,15 @@ namespace CGALWrappers
     /**
      * Constructor.
      */
-    AdditionalData(
-      double        edge_s  = std::numeric_limits<double>::max(),
-      double        facet_a = 0.,
-      double        facet_s = 0.,
-      double        facet_d = 0.,
-      FacetTopology facet_t =
-        dealii::CGALWrappers::FacetTopology::facet_vertices_on_surface,
-      double cell_radius_edge_r = 0.,
-      double cell_s             = 0.)
+    AdditionalData(double        edge_s             = std::numeric_limits<double>::max(),
+                   double        facet_a            = 0.,
+                   double        facet_s            = 0.,
+                   double        facet_d            = 0.,
+                   FacetTopology facet_t            = dealii::CGALWrappers::FacetTopology::facet_vertices_on_surface,
+                   double        cell_radius_edge_r = 0.,
+                   double        cell_s             = 0.)
     {
-      AssertThrow(
-        dim == 3,
-        ExcMessage(
-          "These struct can be instantiated with 3d Triangulations only."));
+      AssertThrow(dim == 3, ExcMessage("These struct can be instantiated with 3d Triangulations only."));
       edge_size              = edge_s;
       facet_angle            = facet_a;
       facet_size             = facet_s;
@@ -191,9 +185,7 @@ namespace CGALWrappers
     /**
      * Constructor.
      */
-    AdditionalData(double angular_b  = 0.,
-                   double radius_b   = 0.,
-                   double distance_b = 0.)
+    AdditionalData(double angular_b = 0., double radius_b = 0., double distance_b = 0.)
     {
       angular_bound  = angular_b;
       radius_bound   = radius_b;

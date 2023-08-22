@@ -38,8 +38,7 @@ do_test()
   VectorType v1, v2;
 
   {
-    MPI_Comm communicator =
-      Utilities::MPI::duplicate_communicator(MPI_COMM_WORLD);
+    MPI_Comm communicator = Utilities::MPI::duplicate_communicator(MPI_COMM_WORLD);
     v1.reinit(set, communicator);
     deallog << "reinit: " << v1.size() << " ";
 
@@ -49,8 +48,7 @@ do_test()
   }
 
   {
-    MPI_Comm communicator =
-      Utilities::MPI::duplicate_communicator(MPI_COMM_WORLD);
+    MPI_Comm communicator = Utilities::MPI::duplicate_communicator(MPI_COMM_WORLD);
     v2.reinit(set, communicator);
     v1.reinit(v2);
     deallog << v1.size() << " ";
@@ -63,8 +61,7 @@ do_test()
   }
 
   {
-    MPI_Comm communicator =
-      Utilities::MPI::duplicate_communicator(MPI_COMM_WORLD);
+    MPI_Comm communicator = Utilities::MPI::duplicate_communicator(MPI_COMM_WORLD);
     v2.reinit(set, communicator);
     v1 = v2;
     deallog << "assign " << v1.size() << " ";
@@ -77,8 +74,7 @@ do_test()
   }
 
   {
-    MPI_Comm communicator =
-      Utilities::MPI::duplicate_communicator(MPI_COMM_WORLD);
+    MPI_Comm                                   communicator = Utilities::MPI::duplicate_communicator(MPI_COMM_WORLD);
     GrowingVectorMemory<VectorType>            memory;
     typename VectorMemory<VectorType>::Pointer v3(memory);
     v1.reinit(set, communicator);
@@ -91,8 +87,7 @@ do_test()
   }
 
   {
-    MPI_Comm communicator =
-      Utilities::MPI::duplicate_communicator(MPI_COMM_WORLD);
+    MPI_Comm                                   communicator = Utilities::MPI::duplicate_communicator(MPI_COMM_WORLD);
     GrowingVectorMemory<VectorType>            memory;
     typename VectorMemory<VectorType>::Pointer v3(memory);
     v1.reinit(set, communicator);
@@ -108,11 +103,9 @@ do_test()
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   initlog();
 
-  do_test<
-    LinearAlgebra::distributed::Vector<double, dealii::MemorySpace::Default>>();
+  do_test<LinearAlgebra::distributed::Vector<double, dealii::MemorySpace::Default>>();
 }

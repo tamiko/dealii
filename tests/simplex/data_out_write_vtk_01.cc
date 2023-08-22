@@ -57,9 +57,7 @@ public:
 
 template <int dim, int spacedim = dim>
 void
-test(const FiniteElement<dim, spacedim> &fe,
-     const unsigned int                  n_components,
-     const bool                          do_high_order)
+test(const FiniteElement<dim, spacedim> &fe, const unsigned int n_components, const bool do_high_order)
 {
   Triangulation<dim, spacedim> tria;
   GridGenerator::subdivided_hyper_cube_with_simplices(tria, dim == 2 ? 4 : 2);
@@ -84,9 +82,7 @@ test(const FiniteElement<dim, spacedim> &fe,
 
   static unsigned int counter = 0;
 
-  for (unsigned int n_subdivisions = 1;
-       n_subdivisions <= (do_high_order ? 3 : 2);
-       ++n_subdivisions)
+  for (unsigned int n_subdivisions = 1; n_subdivisions <= (do_high_order ? 3 : 2); ++n_subdivisions)
     {
       DataOutBase::VtkFlags flags;
       flags.write_higher_order_cells = do_high_order;
@@ -123,29 +119,18 @@ main()
         {
           const unsigned int dim = 2;
           test<dim>(FE_SimplexP<dim>(2) /*=degree*/, 1, do_high_order);
-          test<dim>(FESystem<dim>(FE_SimplexP<dim>(2 /*=degree*/), dim),
-                    dim,
-                    do_high_order);
-          test<dim>(FESystem<dim>(FE_SimplexP<dim>(2 /*=degree*/),
-                                  dim,
-                                  FE_SimplexP<dim>(1 /*=degree*/),
-                                  1),
+          test<dim>(FESystem<dim>(FE_SimplexP<dim>(2 /*=degree*/), dim), dim, do_high_order);
+          test<dim>(FESystem<dim>(FE_SimplexP<dim>(2 /*=degree*/), dim, FE_SimplexP<dim>(1 /*=degree*/), 1),
                     dim + 1,
                     do_high_order);
         }
 
-      if (do_high_order ==
-          false /*TODO: higher-order output not working for 3D*/)
+      if (do_high_order == false /*TODO: higher-order output not working for 3D*/)
         {
           const unsigned int dim = 3;
           test<dim>(FE_SimplexP<dim>(2) /*=degree*/, 1, do_high_order);
-          test<dim>(FESystem<dim>(FE_SimplexP<dim>(2 /*=degree*/), dim),
-                    dim,
-                    do_high_order);
-          test<dim>(FESystem<dim>(FE_SimplexP<dim>(2 /*=degree*/),
-                                  dim,
-                                  FE_SimplexP<dim>(1 /*=degree*/),
-                                  1),
+          test<dim>(FESystem<dim>(FE_SimplexP<dim>(2 /*=degree*/), dim), dim, do_high_order);
+          test<dim>(FESystem<dim>(FE_SimplexP<dim>(2 /*=degree*/), dim, FE_SimplexP<dim>(1 /*=degree*/), 1),
                     dim + 1,
                     do_high_order);
         }

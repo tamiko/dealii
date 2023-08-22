@@ -50,33 +50,23 @@ test()
         position[1](i) = 0.75;
       }
 
-    Particles::Particle<dim, spacedim> particle1(position[0],
-                                                 reference_position[0],
-                                                 0);
-    Particles::Particle<dim, spacedim> particle2(position[1],
-                                                 reference_position[1],
-                                                 1);
+    Particles::Particle<dim, spacedim> particle1(position[0], reference_position[0], 0);
+    Particles::Particle<dim, spacedim> particle2(position[1], reference_position[1], 1);
 
-    typename Triangulation<dim, spacedim>::active_cell_iterator cell1(&tr,
-                                                                      1,
-                                                                      0);
-    typename Triangulation<dim, spacedim>::active_cell_iterator cell2(&tr,
-                                                                      1,
-                                                                      0);
+    typename Triangulation<dim, spacedim>::active_cell_iterator cell1(&tr, 1, 0);
+    typename Triangulation<dim, spacedim>::active_cell_iterator cell2(&tr, 1, 0);
 
     particle_handler.insert_particle(particle1, cell1);
     particle_handler.insert_particle(particle2, cell2);
 
     for (const auto &particle : particle_handler)
-      deallog << "Before sort particle id " << particle.get_id()
-              << " is in cell " << particle.get_surrounding_cell(tr)
+      deallog << "Before sort particle id " << particle.get_id() << " is in cell " << particle.get_surrounding_cell(tr)
               << std::endl;
 
     particle_handler.sort_particles_into_subdomains_and_cells();
 
     for (const auto &particle : particle_handler)
-      deallog << "After sort particle id " << particle.get_id()
-              << " is in cell " << particle.get_surrounding_cell(tr)
+      deallog << "After sort particle id " << particle.get_id() << " is in cell " << particle.get_surrounding_cell(tr)
               << std::endl;
 
     // Move all points up by 0.5. This will change cell for particle 1, and will
@@ -89,8 +79,7 @@ test()
 
     particle_handler.sort_particles_into_subdomains_and_cells();
     for (const auto &particle : particle_handler)
-      deallog << "After shift particle id " << particle.get_id()
-              << " is in cell " << particle.get_surrounding_cell(tr)
+      deallog << "After shift particle id " << particle.get_id() << " is in cell " << particle.get_surrounding_cell(tr)
               << std::endl;
   }
 

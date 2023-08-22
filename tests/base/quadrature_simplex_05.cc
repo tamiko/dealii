@@ -29,15 +29,11 @@ template <int dim, typename stream_type>
 void
 test(int n, const Point<dim> &split_point, stream_type &deallog)
 {
-  QSplit<dim> quad(QSimplex<dim>(QIterated<dim>(QTrapezoid<1>(), n)),
-                   split_point);
+  QSplit<dim> quad(QSimplex<dim>(QIterated<dim>(QTrapezoid<1>(), n)), split_point);
 
   deallog << std::endl
           << "# dim = " << dim << ", quad size = " << quad.size()
-          << ", computed area = "
-          << std::accumulate(quad.get_weights().begin(),
-                             quad.get_weights().end(),
-                             0.0)
+          << ", computed area = " << std::accumulate(quad.get_weights().begin(), quad.get_weights().end(), 0.0)
           << std::endl
           << std::endl;
 

@@ -67,21 +67,19 @@ protected:
 
 
 template <>
-const Point<1>
-  SolutionBase<1>::source_centers[SolutionBase<1>::n_source_centers] =
-    {Point<1>(-1.0 / 3.0), Point<1>(0.0), Point<1>(+1.0 / 3.0)};
+const Point<1> SolutionBase<1>::source_centers[SolutionBase<1>::n_source_centers] = {Point<1>(-1.0 / 3.0),
+                                                                                     Point<1>(0.0),
+                                                                                     Point<1>(+1.0 / 3.0)};
 
 template <>
-const Point<2>
-  SolutionBase<2>::source_centers[SolutionBase<2>::n_source_centers] =
-    {Point<2>(-0.5, +0.5), Point<2>(-0.5, -0.5), Point<2>(+0.5, -0.5)};
+const Point<2> SolutionBase<2>::source_centers[SolutionBase<2>::n_source_centers] = {Point<2>(-0.5, +0.5),
+                                                                                     Point<2>(-0.5, -0.5),
+                                                                                     Point<2>(+0.5, -0.5)};
 
 template <>
-const Point<3>
-  SolutionBase<3>::source_centers[SolutionBase<3>::n_source_centers] = {
-    Point<3>(-0.5, +0.5, 0.5),
-    Point<3>(-0.5, -0.5, -0.5),
-    Point<3>(+0.5, -0.5, 0)};
+const Point<3> SolutionBase<3>::source_centers[SolutionBase<3>::n_source_centers] = {Point<3>(-0.5, +0.5, 0.5),
+                                                                                     Point<3>(-0.5, -0.5, -0.5),
+                                                                                     Point<3>(+0.5, -0.5, 0)};
 
 template <int dim>
 const double SolutionBase<dim>::width = 1. / 3.;
@@ -112,8 +110,7 @@ Solution<dim>::value(const Point<dim> &p, const unsigned int) const
   for (unsigned int i = 0; i < this->n_source_centers; ++i)
     {
       const Tensor<1, dim> x_minus_xi = p - this->source_centers[i];
-      return_value +=
-        std::exp(-x_minus_xi.norm_square() / (this->width * this->width));
+      return_value += std::exp(-x_minus_xi.norm_square() / (this->width * this->width));
     }
 
   return return_value;
@@ -130,10 +127,8 @@ Solution<dim>::gradient(const Point<dim> &p, const unsigned int) const
     {
       const Tensor<1, dim> x_minus_xi = p - this->source_centers[i];
 
-      return_value +=
-        (-2 / (this->width * this->width) *
-         std::exp(-x_minus_xi.norm_square() / (this->width * this->width)) *
-         x_minus_xi);
+      return_value += (-2 / (this->width * this->width) *
+                       std::exp(-x_minus_xi.norm_square() / (this->width * this->width)) * x_minus_xi);
     }
 
   return return_value;
@@ -163,13 +158,9 @@ RightHandSide<dim>::value(const Point<dim> &p, const unsigned int) const
     {
       const Tensor<1, dim> x_minus_xi = p - this->source_centers[i];
 
-      return_value +=
-        ((2 * dim -
-          4 * x_minus_xi.norm_square() / (this->width * this->width)) /
-         (this->width * this->width) *
-         std::exp(-x_minus_xi.norm_square() / (this->width * this->width)));
-      return_value +=
-        std::exp(-x_minus_xi.norm_square() / (this->width * this->width));
+      return_value += ((2 * dim - 4 * x_minus_xi.norm_square() / (this->width * this->width)) /
+                       (this->width * this->width) * std::exp(-x_minus_xi.norm_square() / (this->width * this->width)));
+      return_value += std::exp(-x_minus_xi.norm_square() / (this->width * this->width));
     }
 
   return return_value;
@@ -187,8 +178,7 @@ public:
     adaptive_refinement
   };
 
-  HelmholtzProblem(const unsigned int   fe_degree,
-                   const RefinementMode refinement_mode);
+  HelmholtzProblem(const unsigned int fe_degree, const RefinementMode refinement_mode);
 
   void
   run();
@@ -231,8 +221,7 @@ private:
 
 
 template <int dim>
-HelmholtzProblem<dim>::HelmholtzProblem(const unsigned int   fe_degree,
-                                        const RefinementMode refinement_mode)
+HelmholtzProblem<dim>::HelmholtzProblem(const unsigned int fe_degree, const RefinementMode refinement_mode)
   : fe(fe_degree)
   , dof_handler(triangulation)
   , fe_trace(fe_degree)
@@ -240,10 +229,9 @@ HelmholtzProblem<dim>::HelmholtzProblem(const unsigned int   fe_degree,
   , refinement_mode(refinement_mode)
 {
   deallog << "Solving with Q" << fe_degree << " elements, "
-          << (refinement_mode == global_refinement ? "global" : "adaptive")
-          << " refinement" << std::endl
-          << "==========================================="
-          << (refinement_mode == global_refinement ? "" : "==") << std::endl
+          << (refinement_mode == global_refinement ? "global" : "adaptive") << " refinement" << std::endl
+          << "===========================================" << (refinement_mode == global_refinement ? "" : "==")
+          << std::endl
           << std::endl;
 }
 
@@ -257,10 +245,7 @@ HelmholtzProblem<dim>::setup_system()
 
   constraints.clear();
   DoFTools::make_hanging_node_constraints(dof_handler, constraints);
-  VectorTools::interpolate_boundary_values(dof_handler,
-                                           0,
-                                           Solution<dim>(),
-                                           constraints);
+  VectorTools::interpolate_boundary_values(dof_handler, 0, Solution<dim>(), constraints);
   constraints.close();
 
   {
@@ -279,18 +264,12 @@ HelmholtzProblem<dim>::setup_system()
 
   constraints_trace.clear();
   DoFTools::make_hanging_node_constraints(dof_handler_trace, constraints_trace);
-  VectorTools::interpolate_boundary_values(dof_handler_trace,
-                                           0,
-                                           Solution<dim>(),
-                                           constraints_trace);
+  VectorTools::interpolate_boundary_values(dof_handler_trace, 0, Solution<dim>(), constraints_trace);
   constraints_trace.close();
 
   {
     DynamicSparsityPattern csp(dof_handler_trace.n_dofs());
-    DoFTools::make_sparsity_pattern(dof_handler_trace,
-                                    csp,
-                                    constraints_trace,
-                                    false);
+    DoFTools::make_sparsity_pattern(dof_handler_trace, csp, constraints_trace, false);
     sparsity_pattern_trace.copy_from(csp);
   }
 
@@ -300,10 +279,9 @@ HelmholtzProblem<dim>::setup_system()
   system_rhs_trace.reinit(dof_handler_trace.n_dofs());
   solution_trace_full.reinit(dof_handler.n_dofs());
 
-  deallog << "Number of DoFs:       " << dof_handler.n_dofs() << " / "
-          << dof_handler_trace.n_dofs() << std::endl;
-  deallog << "Number of matrix nnz: " << sparsity_pattern.n_nonzero_elements()
-          << " / " << sparsity_pattern_trace.n_nonzero_elements() << std::endl;
+  deallog << "Number of DoFs:       " << dof_handler.n_dofs() << " / " << dof_handler_trace.n_dofs() << std::endl;
+  deallog << "Number of matrix nnz: " << sparsity_pattern.n_nonzero_elements() << " / "
+          << sparsity_pattern_trace.n_nonzero_elements() << std::endl;
 }
 
 
@@ -323,39 +301,31 @@ HelmholtzProblem<dim>::assemble_system(const bool do_reconstruct)
   FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
   Vector<double>     cell_rhs(dofs_per_cell);
 
-  FullMatrix<double> trace_matrix(fe_trace.dofs_per_cell,
-                                  fe_trace.dofs_per_cell);
+  FullMatrix<double> trace_matrix(fe_trace.dofs_per_cell, fe_trace.dofs_per_cell);
   Vector<double>     trace_rhs(fe_trace.dofs_per_cell);
 
-  FullMatrix<double> eliminate_matrix(cell_matrix.m() - trace_matrix.m(),
-                                      cell_matrix.m() - trace_matrix.m());
+  FullMatrix<double> eliminate_matrix(cell_matrix.m() - trace_matrix.m(), cell_matrix.m() - trace_matrix.m());
   FullMatrix<double> temp_matrix(trace_matrix.m(), eliminate_matrix.m());
 
   std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
-  std::vector<types::global_dof_index> dof_indices_trace(
-    fe_trace.dofs_per_cell);
-  Vector<double> local_trace(fe_trace.dofs_per_cell);
-  Vector<double> local_interior(dofs_per_cell - fe_trace.dofs_per_cell);
+  std::vector<types::global_dof_index> dof_indices_trace(fe_trace.dofs_per_cell);
+  Vector<double>                       local_trace(fe_trace.dofs_per_cell);
+  Vector<double>                       local_interior(dofs_per_cell - fe_trace.dofs_per_cell);
 
   FEValues<dim> x_fe_values(fe,
                             quadrature_formula,
-                            update_values | update_gradients |
-                              update_quadrature_points | update_JxW_values);
+                            update_values | update_gradients | update_quadrature_points | update_JxW_values);
 
-  FEFaceValues<dim> x_fe_face_values(fe,
-                                     face_quadrature_formula,
-                                     update_values | update_quadrature_points |
-                                       update_normal_vectors |
-                                       update_JxW_values);
+  FEFaceValues<dim> x_fe_face_values(
+    fe, face_quadrature_formula, update_values | update_quadrature_points | update_normal_vectors | update_JxW_values);
 
   const RightHandSide<dim> right_hand_side;
   std::vector<double>      rhs_values(n_q_points);
 
   const Solution<dim> exact_solution;
 
-  typename DoFHandler<dim>::active_cell_iterator
-    cell = dof_handler.begin_active(),
-    endc = dof_handler.end(), tracec = dof_handler_trace.begin_active();
+  typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end(),
+                                                 tracec = dof_handler_trace.begin_active();
   for (; cell != endc; ++cell, ++tracec)
     {
       cell_rhs = 0;
@@ -369,42 +339,35 @@ HelmholtzProblem<dim>::assemble_system(const bool do_reconstruct)
         {
           for (unsigned int j = 0; j < dofs_per_cell; ++j)
             {
-              double                sum          = 0;
-              const Tensor<1, dim> *shape_grad_i = &fe_values.shape_grad(i, 0);
-              const Tensor<1, dim> *shape_grad_j = &fe_values.shape_grad(j, 0);
-              const double *shape_value_i        = &fe_values.shape_value(i, 0);
-              const double *shape_value_j        = &fe_values.shape_value(j, 0);
+              double                sum           = 0;
+              const Tensor<1, dim> *shape_grad_i  = &fe_values.shape_grad(i, 0);
+              const Tensor<1, dim> *shape_grad_j  = &fe_values.shape_grad(j, 0);
+              const double         *shape_value_i = &fe_values.shape_value(i, 0);
+              const double         *shape_value_j = &fe_values.shape_value(j, 0);
               for (unsigned int q_index = 0; q_index < n_q_points; ++q_index)
-                sum += (shape_grad_i[q_index] * shape_grad_j[q_index] +
-                        shape_value_i[q_index] * shape_value_j[q_index]) *
-                       fe_values.JxW(q_index);
+                sum +=
+                  (shape_grad_i[q_index] * shape_grad_j[q_index] + shape_value_i[q_index] * shape_value_j[q_index]) *
+                  fe_values.JxW(q_index);
               cell_matrix(i, j) = sum;
             }
 
           for (unsigned int q_point = 0; q_point < n_q_points; ++q_point)
-            cell_rhs(i) += (fe_values.shape_value(i, q_point) *
-                            rhs_values[q_point] * fe_values.JxW(q_point));
+            cell_rhs(i) += (fe_values.shape_value(i, q_point) * rhs_values[q_point] * fe_values.JxW(q_point));
         }
 
       for (const unsigned int face : GeometryInfo<dim>::face_indices())
-        if (cell->face(face)->at_boundary() &&
-            (cell->face(face)->boundary_id() == 1))
+        if (cell->face(face)->at_boundary() && (cell->face(face)->boundary_id() == 1))
           {
             x_fe_face_values.reinit(cell, face);
-            const FEFaceValues<dim> &fe_face_values =
-              x_fe_face_values.get_present_fe_values();
+            const FEFaceValues<dim> &fe_face_values = x_fe_face_values.get_present_fe_values();
 
             for (unsigned int q_point = 0; q_point < n_face_q_points; ++q_point)
               {
-                const double neumann_value =
-                  (exact_solution.gradient(
-                     fe_face_values.quadrature_point(q_point)) *
-                   fe_face_values.normal_vector(q_point));
+                const double neumann_value = (exact_solution.gradient(fe_face_values.quadrature_point(q_point)) *
+                                              fe_face_values.normal_vector(q_point));
 
                 for (unsigned int i = 0; i < dofs_per_cell; ++i)
-                  cell_rhs(i) +=
-                    (neumann_value * fe_face_values.shape_value(i, q_point) *
-                     fe_face_values.JxW(q_point));
+                  cell_rhs(i) += (neumann_value * fe_face_values.shape_value(i, q_point) * fe_face_values.JxW(q_point));
               }
           }
 
@@ -420,11 +383,7 @@ HelmholtzProblem<dim>::assemble_system(const bool do_reconstruct)
       if (do_reconstruct == false)
         {
           cell->get_dof_indices(local_dof_indices);
-          constraints.distribute_local_to_global(cell_matrix,
-                                                 cell_rhs,
-                                                 local_dof_indices,
-                                                 system_matrix,
-                                                 system_rhs);
+          constraints.distribute_local_to_global(cell_matrix, cell_rhs, local_dof_indices, system_matrix, system_rhs);
 
           for (unsigned int i = 0; i < shift; ++i)
             for (unsigned int j = 0; j < sizes; ++j)
@@ -451,11 +410,8 @@ HelmholtzProblem<dim>::assemble_system(const bool do_reconstruct)
             }
 
           tracec->get_dof_indices(dof_indices_trace);
-          constraints_trace.distribute_local_to_global(trace_matrix,
-                                                       trace_rhs,
-                                                       dof_indices_trace,
-                                                       system_matrix_trace,
-                                                       system_rhs_trace);
+          constraints_trace.distribute_local_to_global(
+            trace_matrix, trace_rhs, dof_indices_trace, system_matrix_trace, system_rhs_trace);
         }
       else
         {
@@ -504,10 +460,7 @@ HelmholtzProblem<dim>::solve()
     PreconditionSSOR<> preconditioner;
     preconditioner.initialize(system_matrix_trace, 1.2);
 
-    cg.solve(system_matrix_trace,
-             solution_trace,
-             system_rhs_trace,
-             preconditioner);
+    cg.solve(system_matrix_trace, solution_trace, system_rhs_trace, preconditioner);
 
     constraints_trace.distribute(solution_trace);
   }
@@ -529,18 +482,13 @@ HelmholtzProblem<dim>::refine_grid()
 
       case adaptive_refinement:
         {
-          Vector<float> estimated_error_per_cell(
-            triangulation.n_active_cells());
+          Vector<float> estimated_error_per_cell(triangulation.n_active_cells());
 
           std::map<types::boundary_id, const Function<dim> *> neumann_boundary;
-          KellyErrorEstimator<dim>::estimate(dof_handler,
-                                             QGauss<dim - 1>(3),
-                                             neumann_boundary,
-                                             solution,
-                                             estimated_error_per_cell);
+          KellyErrorEstimator<dim>::estimate(
+            dof_handler, QGauss<dim - 1>(3), neumann_boundary, solution, estimated_error_per_cell);
 
-          GridRefinement::refine_and_coarsen_fixed_number(
-            triangulation, estimated_error_per_cell, 0.3, 0.03);
+          GridRefinement::refine_and_coarsen_fixed_number(triangulation, estimated_error_per_cell, 0.3, 0.03);
 
           triangulation.execute_coarsening_and_refinement();
 
@@ -562,12 +510,8 @@ HelmholtzProblem<dim>::process_solution(const unsigned int cycle)
 {
   {
     Vector<float> difference_per_cell(triangulation.n_active_cells());
-    VectorTools::integrate_difference(dof_handler,
-                                      solution,
-                                      Solution<dim>(),
-                                      difference_per_cell,
-                                      QGauss<dim>(fe.degree + 2),
-                                      VectorTools::L2_norm);
+    VectorTools::integrate_difference(
+      dof_handler, solution, Solution<dim>(), difference_per_cell, QGauss<dim>(fe.degree + 2), VectorTools::L2_norm);
     const double L2_error = difference_per_cell.l2_norm();
 
     VectorTools::integrate_difference(dof_handler,
@@ -626,13 +570,10 @@ HelmholtzProblem<dim>::run()
           GridGenerator::hyper_cube(triangulation, -1, 1);
           triangulation.refine_global(1);
 
-          typename Triangulation<dim>::cell_iterator cell =
-                                                       triangulation.begin(),
-                                                     endc = triangulation.end();
+          typename Triangulation<dim>::cell_iterator cell = triangulation.begin(), endc = triangulation.end();
           for (; cell != endc; ++cell)
             for (const unsigned int face : GeometryInfo<dim>::face_indices())
-              if ((cell->face(face)->center()(0) == -1) ||
-                  (cell->face(face)->center()(1) == -1))
+              if ((cell->face(face)->center()(0) == -1) || (cell->face(face)->center()(1) == -1))
                 cell->face(face)->set_boundary_id(1);
         }
       else
@@ -678,8 +619,7 @@ main()
     {
       for (unsigned int deg = 1; deg < 5; ++deg)
         {
-          HelmholtzProblem<2> helmholtz_problem_2d(
-            deg, HelmholtzProblem<2>::adaptive_refinement);
+          HelmholtzProblem<2> helmholtz_problem_2d(deg, HelmholtzProblem<2>::adaptive_refinement);
 
           helmholtz_problem_2d.run();
 
@@ -687,8 +627,7 @@ main()
         }
       for (unsigned int deg = 1; deg < 4; ++deg)
         {
-          HelmholtzProblem<2> helmholtz_problem_2d(
-            deg, HelmholtzProblem<2>::global_refinement);
+          HelmholtzProblem<2> helmholtz_problem_2d(deg, HelmholtzProblem<2>::global_refinement);
 
           helmholtz_problem_2d.run();
 
@@ -696,8 +635,7 @@ main()
         }
 
       {
-        HelmholtzProblem<3> helmholtz_problem_3d(
-          2, HelmholtzProblem<3>::adaptive_refinement);
+        HelmholtzProblem<3> helmholtz_problem_3d(2, HelmholtzProblem<3>::adaptive_refinement);
 
         helmholtz_problem_3d.run();
 
@@ -706,27 +644,19 @@ main()
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     }
 

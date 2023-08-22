@@ -40,8 +40,7 @@ void
 test(std::ostream & /*out*/)
 {
   parallel::distributed::Triangulation<dim> tr(MPI_COMM_WORLD);
-  Triangulation<dim>                        tr2(
-    Triangulation<dim>::limit_level_difference_at_vertices);
+  Triangulation<dim>                        tr2(Triangulation<dim>::limit_level_difference_at_vertices);
 
   {
     GridIn<dim> gi;
@@ -51,12 +50,10 @@ test(std::ostream & /*out*/)
       {
         gi.read_xda(in);
       }
-    catch (
-      const typename Triangulation<dim>::DistortedCellList &distorted_cells)
+    catch (const typename Triangulation<dim>::DistortedCellList &distorted_cells)
       {
         // ignore distorted cells
-        deallog << distorted_cells.distorted_cells.size()
-                << " distorted cells after creating mesh." << std::endl;
+        deallog << distorted_cells.distorted_cells.size() << " distorted cells after creating mesh." << std::endl;
       }
   }
 
@@ -68,12 +65,10 @@ test(std::ostream & /*out*/)
       {
         gi.read_xda(in);
       }
-    catch (
-      const typename Triangulation<dim>::DistortedCellList &distorted_cells)
+    catch (const typename Triangulation<dim>::DistortedCellList &distorted_cells)
       {
         // ignore distorted cells
-        deallog << distorted_cells.distorted_cells.size()
-                << " distorted cells after creating mesh." << std::endl;
+        deallog << distorted_cells.distorted_cells.size() << " distorted cells after creating mesh." << std::endl;
       }
   }
 
@@ -91,9 +86,7 @@ test(std::ostream & /*out*/)
 
       // refine tr and tr2
       unsigned int index = 0;
-      for (typename Triangulation<dim>::active_cell_iterator cell =
-             tr.begin_active();
-           cell != tr.end();
+      for (typename Triangulation<dim>::active_cell_iterator cell = tr.begin_active(); cell != tr.end();
            ++cell, ++index)
         if (flags[index])
           {
@@ -106,32 +99,27 @@ test(std::ostream & /*out*/)
         {
           tr.execute_coarsening_and_refinement();
         }
-      catch (
-        const typename Triangulation<dim>::DistortedCellList &distorted_cells)
+      catch (const typename Triangulation<dim>::DistortedCellList &distorted_cells)
         {
           // ignore distorted cells
-          deallog << distorted_cells.distorted_cells.size()
-                  << " distorted cells after adaptively refining mesh."
+          deallog << distorted_cells.distorted_cells.size() << " distorted cells after adaptively refining mesh."
                   << std::endl;
         }
       try
         {
           tr2.execute_coarsening_and_refinement();
         }
-      catch (
-        const typename Triangulation<dim>::DistortedCellList &distorted_cells)
+      catch (const typename Triangulation<dim>::DistortedCellList &distorted_cells)
         {
           // ignore distorted cells
-          deallog << distorted_cells.distorted_cells.size()
-                  << " distorted cells after adaptively refining mesh."
+          deallog << distorted_cells.distorted_cells.size() << " distorted cells after adaptively refining mesh."
                   << std::endl;
         }
 
       //      write_vtk(tr, "1");
       deallog << std::endl;
 
-      deallog << i << " Number of cells: " << tr.n_active_cells() << ' '
-              << tr2.n_active_cells() << std::endl;
+      deallog << i << " Number of cells: " << tr.n_active_cells() << ' ' << tr2.n_active_cells() << std::endl;
 
       assert_tria_equal(tr, tr2);
     }

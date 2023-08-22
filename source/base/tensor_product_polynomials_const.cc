@@ -46,11 +46,9 @@ TensorProductPolynomialsConst<dim>::output_indices(std::ostream &out) const
 
 template <int dim>
 void
-TensorProductPolynomialsConst<dim>::set_numbering(
-  const std::vector<unsigned int> &renumber)
+TensorProductPolynomialsConst<dim>::set_numbering(const std::vector<unsigned int> &renumber)
 {
-  Assert(renumber.size() == index_map.size(),
-         ExcDimensionMismatch(renumber.size(), index_map.size()));
+  Assert(renumber.size() == index_map.size(), ExcDimensionMismatch(renumber.size(), index_map.size()));
 
   index_map = renumber;
   for (unsigned int i = 0; i < index_map.size(); ++i)
@@ -66,8 +64,7 @@ TensorProductPolynomialsConst<dim>::set_numbering(
 
 template <int dim>
 double
-TensorProductPolynomialsConst<dim>::compute_value(const unsigned int i,
-                                                  const Point<dim> & p) const
+TensorProductPolynomialsConst<dim>::compute_value(const unsigned int i, const Point<dim> &p) const
 {
   const unsigned int max_indices = tensor_polys.n();
   Assert(i <= max_indices, ExcInternalError());
@@ -84,8 +81,7 @@ TensorProductPolynomialsConst<dim>::compute_value(const unsigned int i,
 
 template <>
 double
-TensorProductPolynomialsConst<0>::compute_value(const unsigned int,
-                                                const Point<0> &) const
+TensorProductPolynomialsConst<0>::compute_value(const unsigned int, const Point<0> &) const
 {
   Assert(false, ExcNotImplemented());
   return 0.;
@@ -94,8 +90,7 @@ TensorProductPolynomialsConst<0>::compute_value(const unsigned int,
 
 template <int dim>
 Tensor<1, dim>
-TensorProductPolynomialsConst<dim>::compute_grad(const unsigned int i,
-                                                 const Point<dim> & p) const
+TensorProductPolynomialsConst<dim>::compute_grad(const unsigned int i, const Point<dim> &p) const
 {
   const unsigned int max_indices = tensor_polys.n();
   Assert(i <= max_indices, ExcInternalError());
@@ -110,8 +105,7 @@ TensorProductPolynomialsConst<dim>::compute_grad(const unsigned int i,
 
 template <int dim>
 Tensor<2, dim>
-TensorProductPolynomialsConst<dim>::compute_grad_grad(const unsigned int i,
-                                                      const Point<dim> &p) const
+TensorProductPolynomialsConst<dim>::compute_grad_grad(const unsigned int i, const Point<dim> &p) const
 {
   const unsigned int max_indices = tensor_polys.n();
   Assert(i <= max_indices, ExcInternalError());
@@ -126,13 +120,12 @@ TensorProductPolynomialsConst<dim>::compute_grad_grad(const unsigned int i,
 
 template <int dim>
 void
-TensorProductPolynomialsConst<dim>::evaluate(
-  const Point<dim> &           p,
-  std::vector<double> &        values,
-  std::vector<Tensor<1, dim>> &grads,
-  std::vector<Tensor<2, dim>> &grad_grads,
-  std::vector<Tensor<3, dim>> &third_derivatives,
-  std::vector<Tensor<4, dim>> &fourth_derivatives) const
+TensorProductPolynomialsConst<dim>::evaluate(const Point<dim>            &p,
+                                             std::vector<double>         &values,
+                                             std::vector<Tensor<1, dim>> &grads,
+                                             std::vector<Tensor<2, dim>> &grad_grads,
+                                             std::vector<Tensor<3, dim>> &third_derivatives,
+                                             std::vector<Tensor<4, dim>> &fourth_derivatives) const
 {
   Assert(values.size() == tensor_polys.n() + 1 || values.empty(),
          ExcDimensionMismatch2(values.size(), tensor_polys.n() + 1, 0));
@@ -140,16 +133,10 @@ TensorProductPolynomialsConst<dim>::evaluate(
          ExcDimensionMismatch2(grads.size(), tensor_polys.n() + 1, 0));
   Assert(grad_grads.size() == tensor_polys.n() + 1 || grad_grads.empty(),
          ExcDimensionMismatch2(grad_grads.size(), tensor_polys.n() + 1, 0));
-  Assert(third_derivatives.size() == tensor_polys.n() + 1 ||
-           third_derivatives.empty(),
-         ExcDimensionMismatch2(third_derivatives.size(),
-                               tensor_polys.n() + 1,
-                               0));
-  Assert(fourth_derivatives.size() == tensor_polys.n() + 1 ||
-           fourth_derivatives.empty(),
-         ExcDimensionMismatch2(fourth_derivatives.size(),
-                               tensor_polys.n() + 1,
-                               0));
+  Assert(third_derivatives.size() == tensor_polys.n() + 1 || third_derivatives.empty(),
+         ExcDimensionMismatch2(third_derivatives.size(), tensor_polys.n() + 1, 0));
+  Assert(fourth_derivatives.size() == tensor_polys.n() + 1 || fourth_derivatives.empty(),
+         ExcDimensionMismatch2(fourth_derivatives.size(), tensor_polys.n() + 1, 0));
 
   // remove slot for const value, go into the base class compute method and
   // finally append the const value again
@@ -181,8 +168,7 @@ TensorProductPolynomialsConst<dim>::evaluate(
       do_4th_derivatives = true;
     }
 
-  tensor_polys.evaluate(
-    p, values, grads, grad_grads, third_derivatives, fourth_derivatives);
+  tensor_polys.evaluate(p, values, grads, grad_grads, third_derivatives, fourth_derivatives);
 
   // for dgq node: values =1, grads=0, grads_grads=0, third_derivatives=0,
   // fourth_derivatives=0

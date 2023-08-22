@@ -39,19 +39,12 @@ namespace std_cxx20
      *
      * @note The extra call is required to pattern-match the index_sequence.
      */
-    template <typename F,
-              size_t... Ind,
-              typename BoundArgsTuple,
-              typename... CallArgs>
+    template <typename F, size_t... Ind, typename BoundArgsTuple, typename... CallArgs>
     constexpr decltype(auto)
-    call_bind(F &&function,
-              std::index_sequence<Ind...>,
-              BoundArgsTuple &&bound_args,
-              CallArgs &&...call_args)
+    call_bind(F &&function, std::index_sequence<Ind...>, BoundArgsTuple &&bound_args, CallArgs &&...call_args)
     {
       return std::invoke(std::forward<F>(function),
-                         std::get<Ind>(
-                           std::forward<BoundArgsTuple>(bound_args))...,
+                         std::get<Ind>(std::forward<BoundArgsTuple>(bound_args))...,
                          std::forward<CallArgs>(call_args)...);
     }
 
@@ -64,8 +57,7 @@ namespace std_cxx20
     make_bind_front(F &&f, BoundArgs &&...bound_args)
     {
       return [f          = std::forward<F>(f),
-              bound_args = std::make_tuple(
-                std::forward<BoundArgs>(bound_args)...)](auto &&...call_args) {
+              bound_args = std::make_tuple(std::forward<BoundArgs>(bound_args)...)](auto &&...call_args) {
         // Perform actual call inside a helper functions which allows to use
         // pattern-matching to the index sequence.
         return call_bind(f,
@@ -121,8 +113,7 @@ namespace std_cxx20
   decltype(auto)
   bind_front(F &&f, BoundArgs &&...bound_args)
   {
-    return internal::make_bind_front(std::forward<F>(f),
-                                     std::forward<BoundArgs>(bound_args)...);
+    return internal::make_bind_front(std::forward<F>(f), std::forward<BoundArgs>(bound_args)...);
   }
 #else
   using std::bind_front;

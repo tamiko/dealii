@@ -48,28 +48,22 @@ test()
   std::map<CellId, std::string> input;
   std::set<std::string>         output;
 
-  using cell_iterator =
-    typename parallel::distributed::Triangulation<dim>::active_cell_iterator;
-  using DT = double;
+  using cell_iterator = typename parallel::distributed::Triangulation<dim>::active_cell_iterator;
+  using DT            = double;
   std::map<CellId, int> map;
   int                   counter = 0;
 
-  std::map<unsigned int, std::set<dealii::types::subdomain_id>>
-    vertices_with_ghost_neighbors =
-      GridTools::compute_vertices_with_ghost_neighbors(tria);
+  std::map<unsigned int, std::set<dealii::types::subdomain_id>> vertices_with_ghost_neighbors =
+    GridTools::compute_vertices_with_ghost_neighbors(tria);
 
-  for (const auto &cell :
-       tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     {
       for (const unsigned int v : GeometryInfo<dim>::vertex_indices())
         {
-          const std::map<unsigned int,
-                         std::set<dealii::types::subdomain_id>>::const_iterator
-            neighbor_subdomains_of_vertex =
-              vertices_with_ghost_neighbors.find(cell->vertex_index(v));
+          const std::map<unsigned int, std::set<dealii::types::subdomain_id>>::const_iterator
+            neighbor_subdomains_of_vertex = vertices_with_ghost_neighbors.find(cell->vertex_index(v));
 
-          if (neighbor_subdomains_of_vertex !=
-              vertices_with_ghost_neighbors.end())
+          if (neighbor_subdomains_of_vertex != vertices_with_ghost_neighbors.end())
             {
               map[cell->id()] = ++counter;
               break;
@@ -77,34 +71,32 @@ test()
         }
     }
 
-  GridTools::
-    exchange_cell_data_to_ghosts<DT, parallel::distributed::Triangulation<dim>>(
-      tria,
-      [&](const cell_iterator &cell) -> std::optional<DT> {
-        const auto         counter = map[cell->id()];
-        std::ostringstream oss;
-        if (counter % 2 == 0)
-          {
-            DT value = counter;
+  GridTools::exchange_cell_data_to_ghosts<DT, parallel::distributed::Triangulation<dim>>(
+    tria,
+    [&](const cell_iterator &cell) -> std::optional<DT> {
+      const auto         counter = map[cell->id()];
+      std::ostringstream oss;
+      if (counter % 2 == 0)
+        {
+          DT value = counter;
 
-            oss << "pack " << cell->id() << ' ' << value;
-            input[cell->id()] = oss.str();
-            return value;
-          }
-        else
-          {
-            oss << "skipping " << cell->id() << ' ' << counter;
-            input[cell->id()] = oss.str();
-            return std::optional<DT>();
-          }
-      },
-      [&](const cell_iterator &cell, const DT &data) {
-        std::ostringstream oss;
-        oss << "unpack " << cell->id() << ' ' << data << " from "
-            << cell->subdomain_id();
+          oss << "pack " << cell->id() << ' ' << value;
+          input[cell->id()] = oss.str();
+          return value;
+        }
+      else
+        {
+          oss << "skipping " << cell->id() << ' ' << counter;
+          input[cell->id()] = oss.str();
+          return std::optional<DT>();
+        }
+    },
+    [&](const cell_iterator &cell, const DT &data) {
+      std::ostringstream oss;
+      oss << "unpack " << cell->id() << ' ' << data << " from " << cell->subdomain_id();
 
-        output.insert(oss.str());
-      });
+      output.insert(oss.str());
+    });
 
   // sort the output because it will come in in random order
   for (auto &it : input)

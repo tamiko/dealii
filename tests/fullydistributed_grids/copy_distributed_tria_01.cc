@@ -40,9 +40,7 @@ test(int n_refinements, MPI_Comm comm)
 {
   // create pdt
   parallel::distributed::Triangulation<dim> tria_pdt(
-    comm,
-    dealii::Triangulation<dim>::none,
-    parallel::distributed::Triangulation<dim>::construct_multigrid_hierarchy);
+    comm, dealii::Triangulation<dim>::none, parallel::distributed::Triangulation<dim>::construct_multigrid_hierarchy);
   GridGenerator::hyper_cube(tria_pdt);
   tria_pdt.refine_global(n_refinements);
 
@@ -50,9 +48,7 @@ test(int n_refinements, MPI_Comm comm)
   parallel::fullydistributed::Triangulation<dim> tria_pft(comm);
 
   // extract relevant information form serial triangulation
-  auto construction_data =
-    TriangulationDescription::Utilities::create_description_from_triangulation(
-      tria_pdt, comm);
+  auto construction_data = TriangulationDescription::Utilities::create_description_from_triangulation(tria_pdt, comm);
 
   // actually create triangulation
   tria_pft.create_triangulation(construction_data);

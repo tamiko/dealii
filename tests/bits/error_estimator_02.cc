@@ -87,8 +87,7 @@ make_mesh(Triangulation<dim> &tria)
   const double steps[4] = {/*d=0*/ 0, 7, 3, 3};
   for (unsigned int i = 0; i < steps[dim]; ++i)
     {
-      typename Triangulation<dim>::active_cell_iterator cell =
-        tria.begin_active();
+      typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active();
       for (unsigned int index = 0; cell != tria.end(); ++cell, ++index)
         if (index % (3 * dim) == 0)
           cell->set_refine_flag();
@@ -100,8 +99,7 @@ make_mesh(Triangulation<dim> &tria)
   // ids based on their position, in
   // particular we take the quadrant
   // (octant)
-  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(),
-                                                    endc = tria.end();
+  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
   for (; cell != endc; ++cell)
     {
       unsigned int material = 0;
@@ -146,8 +144,7 @@ check()
   // results. scale results so that they show
   // up in the output file as a reasonable
   // number
-  KellyErrorEstimator<dim>::estimate(
-    mapping, dof, q_face, neumann_bc, v, error1);
+  KellyErrorEstimator<dim>::estimate(mapping, dof, q_face, neumann_bc, v, error1);
   const double scaling_factor = 500000. / error1.linfty_norm();
   error1 *= scaling_factor;
 
@@ -187,8 +184,7 @@ check()
         {
           deallog << i << ' ' << this_error(i) << std::endl;
 
-          AssertThrow((this_error(i) == 0) || (error2(i) == 0),
-                      ExcInternalError());
+          AssertThrow((this_error(i) == 0) || (error2(i) == 0), ExcInternalError());
           if (this_error(i) != 0)
             error2(i) = this_error(i);
         }

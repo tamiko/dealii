@@ -94,8 +94,7 @@ struct FE_Q_Base<xdim, xspacedim>::Implementation
    */
   template <int spacedim>
   static void
-  initialize_constraints(const std::vector<Point<1>> &,
-                         FE_Q_Base<1, spacedim> &)
+  initialize_constraints(const std::vector<Point<1>> &, FE_Q_Base<1, spacedim> &)
   {
     // no constraints in 1d
   }
@@ -103,14 +102,12 @@ struct FE_Q_Base<xdim, xspacedim>::Implementation
 
   template <int spacedim>
   static void
-  initialize_constraints(const std::vector<Point<1>> & /*points*/,
-                         FE_Q_Base<2, spacedim> &fe)
+  initialize_constraints(const std::vector<Point<1>> & /*points*/, FE_Q_Base<2, spacedim> &fe)
   {
     const unsigned int dim = 2;
 
     unsigned int q_deg = fe.degree;
-    if (dynamic_cast<const TensorProductPolynomialsBubbles<dim> *>(
-          &fe.get_poly_space()) != nullptr)
+    if (dynamic_cast<const TensorProductPolynomialsBubbles<dim> *>(&fe.get_poly_space()) != nullptr)
       q_deg = fe.degree - 1;
 
     // restricted to each face, the traces of the shape functions is an
@@ -167,40 +164,29 @@ struct FE_Q_Base<xdim, xspacedim>::Implementation
         const double       step = 1. / q_deg;
         // subface 0
         for (unsigned int i = 1; i <= n; ++i)
-          constraint_points.push_back(
-            GeometryInfo<dim - 1>::child_to_cell_coordinates(
-              Point<dim - 1>(i * step), 0));
+          constraint_points.push_back(GeometryInfo<dim - 1>::child_to_cell_coordinates(Point<dim - 1>(i * step), 0));
         // subface 1
         for (unsigned int i = 1; i <= n; ++i)
-          constraint_points.push_back(
-            GeometryInfo<dim - 1>::child_to_cell_coordinates(
-              Point<dim - 1>(i * step), 1));
+          constraint_points.push_back(GeometryInfo<dim - 1>::child_to_cell_coordinates(Point<dim - 1>(i * step), 1));
       }
 
     // Now construct relation between destination (child) and source (mother)
     // dofs.
 
-    fe.interface_constraints.TableBase<2, double>::reinit(
-      fe.interface_constraints_size());
+    fe.interface_constraints.TableBase<2, double>::reinit(fe.interface_constraints_size());
 
     // use that the element evaluates to 1 at index 0 and along the line at
     // zero
-    const std::vector<unsigned int> &index_map_inverse =
-      fe.get_poly_space_numbering_inverse();
-    const std::vector<unsigned int> face_index_map =
-      FETools::lexicographic_to_hierarchic_numbering<dim - 1>(q_deg);
-    Assert(std::abs(
-             fe.poly_space->compute_value(index_map_inverse[0], Point<dim>()) -
-             1.) < 1e-14,
-           ExcInternalError());
+    const std::vector<unsigned int> &index_map_inverse = fe.get_poly_space_numbering_inverse();
+    const std::vector<unsigned int>  face_index_map    = FETools::lexicographic_to_hierarchic_numbering<dim - 1>(q_deg);
+    Assert(std::abs(fe.poly_space->compute_value(index_map_inverse[0], Point<dim>()) - 1.) < 1e-14, ExcInternalError());
 
     for (unsigned int i = 0; i < constraint_points.size(); ++i)
       for (unsigned int j = 0; j < q_deg + 1; ++j)
         {
           Point<dim> p;
-          p[0] = constraint_points[i](0);
-          fe.interface_constraints(i, face_index_map[j]) =
-            fe.poly_space->compute_value(index_map_inverse[j], p);
+          p[0]                                           = constraint_points[i](0);
+          fe.interface_constraints(i, face_index_map[j]) = fe.poly_space->compute_value(index_map_inverse[j], p);
 
           // if the value is small up to round-off, then simply set it to zero
           // to avoid unwanted fill-in of the constraint matrices (which would
@@ -214,14 +200,12 @@ struct FE_Q_Base<xdim, xspacedim>::Implementation
 
   template <int spacedim>
   static void
-  initialize_constraints(const std::vector<Point<1>> & /*points*/,
-                         FE_Q_Base<3, spacedim> &fe)
+  initialize_constraints(const std::vector<Point<1>> & /*points*/, FE_Q_Base<3, spacedim> &fe)
   {
     const unsigned int dim = 3;
 
     unsigned int q_deg = fe.degree;
-    if (dynamic_cast<const TensorProductPolynomialsBubbles<dim> *>(
-          &fe.get_poly_space()) != nullptr)
+    if (dynamic_cast<const TensorProductPolynomialsBubbles<dim> *>(&fe.get_poly_space()) != nullptr)
       q_deg = fe.degree - 1;
 
     // For a detailed documentation of the interpolation see the
@@ -265,43 +249,29 @@ struct FE_Q_Base<xdim, xspacedim>::Implementation
         // Add nodes of lines interior in the "mother-face"
 
         // line 5: use line 9
-        QProjector<dim - 1>::project_to_subface(
-          ReferenceCells::get_hypercube<dim - 1>(), qline, 0, 0, p_line);
+        QProjector<dim - 1>::project_to_subface(ReferenceCells::get_hypercube<dim - 1>(), qline, 0, 0, p_line);
         for (unsigned int i = 0; i < n; ++i)
           constraint_points.push_back(p_line[i] + Point<dim - 1>(0.5, 0));
         // line 6: use line 10
-        QProjector<dim - 1>::project_to_subface(
-          ReferenceCells::get_hypercube<dim - 1>(), qline, 0, 1, p_line);
+        QProjector<dim - 1>::project_to_subface(ReferenceCells::get_hypercube<dim - 1>(), qline, 0, 1, p_line);
         for (unsigned int i = 0; i < n; ++i)
           constraint_points.push_back(p_line[i] + Point<dim - 1>(0.5, 0));
         // line 7: use line 13
-        QProjector<dim - 1>::project_to_subface(
-          ReferenceCells::get_hypercube<dim - 1>(), qline, 2, 0, p_line);
+        QProjector<dim - 1>::project_to_subface(ReferenceCells::get_hypercube<dim - 1>(), qline, 2, 0, p_line);
         for (unsigned int i = 0; i < n; ++i)
           constraint_points.push_back(p_line[i] + Point<dim - 1>(0, 0.5));
         // line 8: use line 14
-        QProjector<dim - 1>::project_to_subface(
-          ReferenceCells::get_hypercube<dim - 1>(), qline, 2, 1, p_line);
+        QProjector<dim - 1>::project_to_subface(ReferenceCells::get_hypercube<dim - 1>(), qline, 2, 1, p_line);
         for (unsigned int i = 0; i < n; ++i)
           constraint_points.push_back(p_line[i] + Point<dim - 1>(0, 0.5));
 
         // DoFs on bordering lines lines 9-16
-        for (unsigned int face = 0;
-             face < GeometryInfo<dim - 1>::faces_per_cell;
-             ++face)
-          for (unsigned int subface = 0;
-               subface < GeometryInfo<dim - 1>::max_children_per_face;
-               ++subface)
+        for (unsigned int face = 0; face < GeometryInfo<dim - 1>::faces_per_cell; ++face)
+          for (unsigned int subface = 0; subface < GeometryInfo<dim - 1>::max_children_per_face; ++subface)
             {
               QProjector<dim - 1>::project_to_subface(
-                ReferenceCells::get_hypercube<dim - 1>(),
-                qline,
-                face,
-                subface,
-                p_line);
-              constraint_points.insert(constraint_points.end(),
-                                       p_line.begin(),
-                                       p_line.end());
+                ReferenceCells::get_hypercube<dim - 1>(), qline, face, subface, p_line);
+              constraint_points.insert(constraint_points.end(), p_line.begin(), p_line.end());
             }
 
         // Create constraints for interior nodes
@@ -311,13 +281,9 @@ struct FE_Q_Base<xdim, xspacedim>::Implementation
             inner_points[i++] = Point<dim - 1>(ix * step, iy * step);
 
         // at the moment do this for isotropic face refinement only
-        for (unsigned int child = 0;
-             child < GeometryInfo<dim - 1>::max_children_per_cell;
-             ++child)
+        for (unsigned int child = 0; child < GeometryInfo<dim - 1>::max_children_per_cell; ++child)
           for (const auto &inner_point : inner_points)
-            constraint_points.push_back(
-              GeometryInfo<dim - 1>::child_to_cell_coordinates(inner_point,
-                                                               child));
+            constraint_points.push_back(GeometryInfo<dim - 1>::child_to_cell_coordinates(inner_point, child));
       }
 
     // Now construct relation between destination (child) and source (mother)
@@ -326,17 +292,11 @@ struct FE_Q_Base<xdim, xspacedim>::Implementation
 
     // use that the element evaluates to 1 at index 0 and along the line at
     // zero
-    const std::vector<unsigned int> &index_map_inverse =
-      fe.get_poly_space_numbering_inverse();
-    const std::vector<unsigned int> face_index_map =
-      FETools::lexicographic_to_hierarchic_numbering<dim - 1>(q_deg);
-    Assert(std::abs(
-             fe.poly_space->compute_value(index_map_inverse[0], Point<dim>()) -
-             1.) < 1e-14,
-           ExcInternalError());
+    const std::vector<unsigned int> &index_map_inverse = fe.get_poly_space_numbering_inverse();
+    const std::vector<unsigned int>  face_index_map    = FETools::lexicographic_to_hierarchic_numbering<dim - 1>(q_deg);
+    Assert(std::abs(fe.poly_space->compute_value(index_map_inverse[0], Point<dim>()) - 1.) < 1e-14, ExcInternalError());
 
-    fe.interface_constraints.TableBase<2, double>::reinit(
-      fe.interface_constraints_size());
+    fe.interface_constraints.TableBase<2, double>::reinit(fe.interface_constraints_size());
 
     for (unsigned int i = 0; i < constraint_points.size(); ++i)
       {
@@ -355,8 +315,7 @@ struct FE_Q_Base<xdim, xspacedim>::Implementation
         // coordinates should eliminate any FP errors.
         for (unsigned int k = 0; k < dim - 1; ++k)
           {
-            const int coord_int =
-              static_cast<int>(constraint_points[i](k) * interval + 0.25);
+            const int coord_int = static_cast<int>(constraint_points[i](k) * interval + 0.25);
             constraint_point(k) = 1. * coord_int / interval;
 
             // The following lines of code should eliminate the problems with
@@ -392,19 +351,16 @@ struct FE_Q_Base<xdim, xspacedim>::Implementation
               if (mirror[k])
                 indices[k] = q_deg - indices[k];
 
-            const unsigned int new_index =
-              indices[1] * (q_deg + 1) + indices[0];
+            const unsigned int new_index = indices[1] * (q_deg + 1) + indices[0];
 
             fe.interface_constraints(i, face_index_map[j]) =
-              fe.poly_space->compute_value(index_map_inverse[new_index],
-                                           constraint_point);
+              fe.poly_space->compute_value(index_map_inverse[new_index], constraint_point);
 
             // if the value is small up to round-off, then simply set it to
             // zero to avoid unwanted fill-in of the constraint matrices
             // (which would then increase the number of other DoFs a
             // constrained DoF would couple to)
-            if (std::fabs(fe.interface_constraints(i, face_index_map[j])) <
-                1e-13)
+            if (std::fabs(fe.interface_constraints(i, face_index_map[j])) < 1e-13)
               fe.interface_constraints(i, face_index_map[j]) = 0;
           }
       }
@@ -414,19 +370,15 @@ struct FE_Q_Base<xdim, xspacedim>::Implementation
 
 
 template <int dim, int spacedim>
-FE_Q_Base<dim, spacedim>::FE_Q_Base(
-  const ScalarPolynomialsBase<dim> &poly_space,
-  const FiniteElementData<dim> &    fe_data,
-  const std::vector<bool> &         restriction_is_additive_flags)
-  : FE_Poly<dim, spacedim>(
-      poly_space,
-      fe_data,
-      restriction_is_additive_flags,
-      std::vector<ComponentMask>(1, ComponentMask(std::vector<bool>(1, true))))
-  , q_degree(dynamic_cast<const TensorProductPolynomialsBubbles<dim> *>(
-               &poly_space) != nullptr ?
-               this->degree - 1 :
-               this->degree)
+FE_Q_Base<dim, spacedim>::FE_Q_Base(const ScalarPolynomialsBase<dim> &poly_space,
+                                    const FiniteElementData<dim>     &fe_data,
+                                    const std::vector<bool>          &restriction_is_additive_flags)
+  : FE_Poly<dim, spacedim>(poly_space,
+                           fe_data,
+                           restriction_is_additive_flags,
+                           std::vector<ComponentMask>(1, ComponentMask(std::vector<bool>(1, true))))
+  , q_degree(dynamic_cast<const TensorProductPolynomialsBubbles<dim> *>(&poly_space) != nullptr ? this->degree - 1 :
+                                                                                                  this->degree)
 {}
 
 
@@ -435,52 +387,41 @@ template <int dim, int spacedim>
 void
 FE_Q_Base<dim, spacedim>::initialize(const std::vector<Point<1>> &points)
 {
-  Assert(points[0][0] == 0,
-         ExcMessage("The first support point has to be zero."));
-  Assert(points.back()[0] == 1,
-         ExcMessage("The last support point has to be one."));
+  Assert(points[0][0] == 0, ExcMessage("The first support point has to be zero."));
+  Assert(points.back()[0] == 1, ExcMessage("The last support point has to be one."));
 
   // distinguish q/q_dg0 case: need to be flexible enough to allow more
   // degrees of freedom than there are FE_Q degrees of freedom for derived
   // class FE_Q_DG0 that otherwise shares 95% of the code.
-  const unsigned int q_dofs_per_cell =
-    Utilities::fixed_power<dim>(q_degree + 1);
-  Assert(q_dofs_per_cell == this->n_dofs_per_cell() ||
-           q_dofs_per_cell + 1 == this->n_dofs_per_cell() ||
+  const unsigned int q_dofs_per_cell = Utilities::fixed_power<dim>(q_degree + 1);
+  Assert(q_dofs_per_cell == this->n_dofs_per_cell() || q_dofs_per_cell + 1 == this->n_dofs_per_cell() ||
            q_dofs_per_cell + dim == this->n_dofs_per_cell(),
          ExcInternalError());
 
   [this, q_dofs_per_cell]() {
-    std::vector<unsigned int> renumber =
-      FETools::hierarchic_to_lexicographic_numbering<dim>(q_degree);
+    std::vector<unsigned int> renumber = FETools::hierarchic_to_lexicographic_numbering<dim>(q_degree);
     for (unsigned int i = q_dofs_per_cell; i < this->n_dofs_per_cell(); ++i)
       renumber.push_back(i);
-    auto *tensor_poly_space_ptr =
-      dynamic_cast<TensorProductPolynomials<dim> *>(this->poly_space.get());
+    auto *tensor_poly_space_ptr = dynamic_cast<TensorProductPolynomials<dim> *>(this->poly_space.get());
     if (tensor_poly_space_ptr != nullptr)
       {
         tensor_poly_space_ptr->set_numbering(renumber);
         return;
       }
-    auto *tensor_piecewise_poly_space_ptr = dynamic_cast<
-      TensorProductPolynomials<dim, Polynomials::PiecewisePolynomial<double>>
-        *>(this->poly_space.get());
+    auto *tensor_piecewise_poly_space_ptr =
+      dynamic_cast<TensorProductPolynomials<dim, Polynomials::PiecewisePolynomial<double>> *>(this->poly_space.get());
     if (tensor_piecewise_poly_space_ptr != nullptr)
       {
         tensor_piecewise_poly_space_ptr->set_numbering(renumber);
         return;
       }
-    auto *tensor_bubbles_poly_space_ptr =
-      dynamic_cast<TensorProductPolynomialsBubbles<dim> *>(
-        this->poly_space.get());
+    auto *tensor_bubbles_poly_space_ptr = dynamic_cast<TensorProductPolynomialsBubbles<dim> *>(this->poly_space.get());
     if (tensor_bubbles_poly_space_ptr != nullptr)
       {
         tensor_bubbles_poly_space_ptr->set_numbering(renumber);
         return;
       }
-    auto *tensor_const_poly_space_ptr =
-      dynamic_cast<TensorProductPolynomialsConst<dim> *>(
-        this->poly_space.get());
+    auto *tensor_const_poly_space_ptr = dynamic_cast<TensorProductPolynomialsConst<dim> *>(this->poly_space.get());
     if (tensor_const_poly_space_ptr != nullptr)
       {
         tensor_const_poly_space_ptr->set_numbering(renumber);
@@ -493,11 +434,9 @@ FE_Q_Base<dim, spacedim>::initialize(const std::vector<Point<1>> &points)
   // constraints. All of this can happen in parallel
   Threads::TaskGroup<> tasks;
   tasks += Threads::new_task([&]() { initialize_unit_support_points(points); });
-  tasks +=
-    Threads::new_task([&]() { initialize_unit_face_support_points(points); });
+  tasks += Threads::new_task([&]() { initialize_unit_face_support_points(points); });
   tasks += Threads::new_task([&]() { initialize_constraints(points); });
-  tasks +=
-    Threads::new_task([&]() { this->initialize_quad_dof_index_permutation(); });
+  tasks += Threads::new_task([&]() { this->initialize_quad_dof_index_permutation(); });
   tasks.join_all();
 
   // do not initialize embedding and restriction here. these matrices are
@@ -509,27 +448,21 @@ FE_Q_Base<dim, spacedim>::initialize(const std::vector<Point<1>> &points)
 
 template <int dim, int spacedim>
 void
-FE_Q_Base<dim, spacedim>::get_interpolation_matrix(
-  const FiniteElement<dim, spacedim> &x_source_fe,
-  FullMatrix<double> &                interpolation_matrix) const
+FE_Q_Base<dim, spacedim>::get_interpolation_matrix(const FiniteElement<dim, spacedim> &x_source_fe,
+                                                   FullMatrix<double>                 &interpolation_matrix) const
 {
   // go through the list of elements we can interpolate from
-  if (const FE_Q_Base<dim, spacedim> *source_fe =
-        dynamic_cast<const FE_Q_Base<dim, spacedim> *>(&x_source_fe))
+  if (const FE_Q_Base<dim, spacedim> *source_fe = dynamic_cast<const FE_Q_Base<dim, spacedim> *>(&x_source_fe))
     {
       // ok, source is a Q element, so we will be able to do the work
       Assert(interpolation_matrix.m() == this->n_dofs_per_cell(),
-             ExcDimensionMismatch(interpolation_matrix.m(),
-                                  this->n_dofs_per_cell()));
+             ExcDimensionMismatch(interpolation_matrix.m(), this->n_dofs_per_cell()));
       Assert(interpolation_matrix.n() == x_source_fe.n_dofs_per_cell(),
-             ExcDimensionMismatch(interpolation_matrix.m(),
-                                  x_source_fe.n_dofs_per_cell()));
+             ExcDimensionMismatch(interpolation_matrix.m(), x_source_fe.n_dofs_per_cell()));
 
       // only evaluate Q dofs
-      const unsigned int q_dofs_per_cell =
-        Utilities::fixed_power<dim>(q_degree + 1);
-      const unsigned int source_q_dofs_per_cell =
-        Utilities::fixed_power<dim>(source_fe->degree + 1);
+      const unsigned int q_dofs_per_cell        = Utilities::fixed_power<dim>(q_degree + 1);
+      const unsigned int source_q_dofs_per_cell = Utilities::fixed_power<dim>(source_fe->degree + 1);
 
       // evaluation is simply done by evaluating the other FE's basis functions
       // on the unit support points (FE_Q has the property that the cell
@@ -542,19 +475,16 @@ FE_Q_Base<dim, spacedim>::get_interpolation_matrix(
 
           // FE_Q element evaluates to 1 in unit support point and to zero in
           // all other points by construction
-          Assert(std::abs(this->poly_space->compute_value(j, p) - 1.) < 1e-13,
-                 ExcInternalError());
+          Assert(std::abs(this->poly_space->compute_value(j, p) - 1.) < 1e-13, ExcInternalError());
 
           for (unsigned int i = 0; i < source_q_dofs_per_cell; ++i)
-            interpolation_matrix(j, i) =
-              source_fe->poly_space->compute_value(i, p);
+            interpolation_matrix(j, i) = source_fe->poly_space->compute_value(i, p);
         }
 
       // for FE_Q_DG0, add one last row of identity
       if (q_dofs_per_cell < this->n_dofs_per_cell())
         {
-          AssertDimension(source_q_dofs_per_cell + 1,
-                          source_fe->n_dofs_per_cell());
+          AssertDimension(source_q_dofs_per_cell + 1, source_fe->n_dofs_per_cell());
           for (unsigned int i = 0; i < source_q_dofs_per_cell; ++i)
             interpolation_matrix(q_dofs_per_cell, i) = 0.;
           for (unsigned int j = 0; j < q_dofs_per_cell; ++j)
@@ -595,44 +525,34 @@ FE_Q_Base<dim, spacedim>::get_interpolation_matrix(
       // columns to zero, instead of m and zero. thus, only test the
       // number of columns
       Assert(interpolation_matrix.n() == x_source_fe.n_dofs_per_cell(),
-             ExcDimensionMismatch(interpolation_matrix.m(),
-                                  x_source_fe.n_dofs_per_cell()));
+             ExcDimensionMismatch(interpolation_matrix.m(), x_source_fe.n_dofs_per_cell()));
     }
   else
-    AssertThrow(
-      false,
-      (typename FiniteElement<dim,
-                              spacedim>::ExcInterpolationNotImplemented()));
+    AssertThrow(false, (typename FiniteElement<dim, spacedim>::ExcInterpolationNotImplemented()));
 }
 
 
 
 template <int dim, int spacedim>
 void
-FE_Q_Base<dim, spacedim>::get_face_interpolation_matrix(
-  const FiniteElement<dim, spacedim> &source_fe,
-  FullMatrix<double> &                interpolation_matrix,
-  const unsigned int                  face_no) const
+FE_Q_Base<dim, spacedim>::get_face_interpolation_matrix(const FiniteElement<dim, spacedim> &source_fe,
+                                                        FullMatrix<double>                 &interpolation_matrix,
+                                                        const unsigned int                  face_no) const
 {
-  get_subface_interpolation_matrix(source_fe,
-                                   numbers::invalid_unsigned_int,
-                                   interpolation_matrix,
-                                   face_no);
+  get_subface_interpolation_matrix(source_fe, numbers::invalid_unsigned_int, interpolation_matrix, face_no);
 }
 
 
 
 template <int dim, int spacedim>
 void
-FE_Q_Base<dim, spacedim>::get_subface_interpolation_matrix(
-  const FiniteElement<dim, spacedim> &source_fe,
-  const unsigned int                  subface,
-  FullMatrix<double> &                interpolation_matrix,
-  const unsigned int                  face_no) const
+FE_Q_Base<dim, spacedim>::get_subface_interpolation_matrix(const FiniteElement<dim, spacedim> &source_fe,
+                                                           const unsigned int                  subface,
+                                                           FullMatrix<double>                 &interpolation_matrix,
+                                                           const unsigned int                  face_no) const
 {
   Assert(interpolation_matrix.m() == source_fe.n_dofs_per_face(face_no),
-         ExcDimensionMismatch(interpolation_matrix.m(),
-                              source_fe.n_dofs_per_face(face_no)));
+         ExcDimensionMismatch(interpolation_matrix.m(), source_fe.n_dofs_per_face(face_no)));
 
   Assert(source_fe.n_components() == this->n_components(),
          ExcDimensionMismatch(source_fe.n_components(), this->n_components()));
@@ -642,22 +562,18 @@ FE_Q_Base<dim, spacedim>::get_subface_interpolation_matrix(
       // have this test in here since a table of size 2x0 reports its size as
       // 0x0
       Assert(interpolation_matrix.n() == this->n_dofs_per_face(face_no),
-             ExcDimensionMismatch(interpolation_matrix.n(),
-                                  this->n_dofs_per_face(face_no)));
+             ExcDimensionMismatch(interpolation_matrix.n(), this->n_dofs_per_face(face_no)));
 
       // Make sure that the element for which the DoFs should be constrained
       // is the one with the higher polynomial degree.  Actually the procedure
       // will work also if this assertion is not satisfied. But the matrices
       // produced in that case might lead to problems in the hp-procedures,
       // which use this method.
-      Assert(
-        this->n_dofs_per_face(face_no) <= source_fe.n_dofs_per_face(face_no),
-        (typename FiniteElement<dim,
-                                spacedim>::ExcInterpolationNotImplemented()));
+      Assert(this->n_dofs_per_face(face_no) <= source_fe.n_dofs_per_face(face_no),
+             (typename FiniteElement<dim, spacedim>::ExcInterpolationNotImplemented()));
 
       // generate a point on this cell and evaluate the shape functions there
-      const Quadrature<dim - 1> quad_face_support(
-        source_fe.get_unit_face_support_points(face_no));
+      const Quadrature<dim - 1> quad_face_support(source_fe.get_unit_face_support_points(face_no));
 
       // Rule of thumb for FP accuracy, that can be expected for a given
       // polynomial degree.  This value is used to cut off values close to
@@ -671,21 +587,15 @@ FE_Q_Base<dim, spacedim>::get_subface_interpolation_matrix(
       // be done for the face orientation flag in 3d.
       const Quadrature<dim> subface_quadrature =
         subface == numbers::invalid_unsigned_int ?
-          QProjector<dim>::project_to_face(this->reference_cell(),
-                                           quad_face_support,
-                                           0) :
-          QProjector<dim>::project_to_subface(this->reference_cell(),
-                                              quad_face_support,
-                                              0,
-                                              subface);
+          QProjector<dim>::project_to_face(this->reference_cell(), quad_face_support, 0) :
+          QProjector<dim>::project_to_subface(this->reference_cell(), quad_face_support, 0, subface);
       for (unsigned int i = 0; i < source_fe.n_dofs_per_face(face_no); ++i)
         {
           const Point<dim> &p = subface_quadrature.point(i);
 
           for (unsigned int j = 0; j < this->n_dofs_per_face(face_no); ++j)
             {
-              double matrix_entry =
-                this->shape_value(this->face_to_cell_index(j, 0), p);
+              double matrix_entry = this->shape_value(this->face_to_cell_index(j, 0), p);
 
               // Correct the interpolated value. I.e. if it is close to 1 or
               // 0, make it exactly 1 or 0. Unfortunately, this is required to
@@ -718,10 +628,7 @@ FE_Q_Base<dim, spacedim>::get_subface_interpolation_matrix(
       // nothing to do here, the FE_Nothing has no degrees of freedom anyway
     }
   else
-    AssertThrow(
-      false,
-      (typename FiniteElement<dim,
-                              spacedim>::ExcInterpolationNotImplemented()));
+    AssertThrow(false, (typename FiniteElement<dim, spacedim>::ExcInterpolationNotImplemented()));
 }
 
 
@@ -737,8 +644,7 @@ FE_Q_Base<dim, spacedim>::hp_constraints_are_implemented() const
 
 template <int dim, int spacedim>
 std::vector<std::pair<unsigned int, unsigned int>>
-FE_Q_Base<dim, spacedim>::hp_vertex_dof_identities(
-  const FiniteElement<dim, spacedim> &fe_other) const
+FE_Q_Base<dim, spacedim>::hp_vertex_dof_identities(const FiniteElement<dim, spacedim> &fe_other) const
 {
   if (dynamic_cast<const FE_Q_Base<dim, spacedim> *>(&fe_other) != nullptr)
     {
@@ -746,8 +652,7 @@ FE_Q_Base<dim, spacedim>::hp_vertex_dof_identities(
       // should have identical value
       return {{0U, 0U}};
     }
-  else if (dynamic_cast<const FE_SimplexP<dim, spacedim> *>(&fe_other) !=
-           nullptr)
+  else if (dynamic_cast<const FE_SimplexP<dim, spacedim> *>(&fe_other) != nullptr)
     {
       // there should be exactly one single DoF of each FE at a vertex, and they
       // should have identical value
@@ -781,13 +686,11 @@ FE_Q_Base<dim, spacedim>::hp_vertex_dof_identities(
 
 template <int dim, int spacedim>
 std::vector<std::pair<unsigned int, unsigned int>>
-FE_Q_Base<dim, spacedim>::hp_line_dof_identities(
-  const FiniteElement<dim, spacedim> &fe_other) const
+FE_Q_Base<dim, spacedim>::hp_line_dof_identities(const FiniteElement<dim, spacedim> &fe_other) const
 {
   // we can presently only compute these identities if both FEs are FE_Qs or
   // if the other one is an FE_Nothing
-  if (const FE_Q_Base<dim, spacedim> *fe_q_other =
-        dynamic_cast<const FE_Q_Base<dim, spacedim> *>(&fe_other))
+  if (const FE_Q_Base<dim, spacedim> *fe_q_other = dynamic_cast<const FE_Q_Base<dim, spacedim> *>(&fe_other))
     {
       // dofs are located along lines, so two dofs are identical if they are
       // located at identical positions. if we had only equidistant points, we
@@ -802,23 +705,18 @@ FE_Q_Base<dim, spacedim>::hp_line_dof_identities(
 
       std::vector<std::pair<unsigned int, unsigned int>> identities;
 
-      const std::vector<unsigned int> &index_map_inverse =
-        this->get_poly_space_numbering_inverse();
-      const std::vector<unsigned int> &index_map_inverse_other =
-        fe_q_other->get_poly_space_numbering_inverse();
+      const std::vector<unsigned int> &index_map_inverse       = this->get_poly_space_numbering_inverse();
+      const std::vector<unsigned int> &index_map_inverse_other = fe_q_other->get_poly_space_numbering_inverse();
 
       for (unsigned int i = 0; i < p - 1; ++i)
         for (unsigned int j = 0; j < q - 1; ++j)
-          if (std::fabs(
-                this->unit_support_points[index_map_inverse[i + 1]][0] -
-                fe_q_other->unit_support_points[index_map_inverse_other[j + 1]]
-                                               [0]) < 1e-14)
+          if (std::fabs(this->unit_support_points[index_map_inverse[i + 1]][0] -
+                        fe_q_other->unit_support_points[index_map_inverse_other[j + 1]][0]) < 1e-14)
             identities.emplace_back(i, j);
 
       return identities;
     }
-  else if (const FE_SimplexP<dim, spacedim> *fe_p_other =
-             dynamic_cast<const FE_SimplexP<dim, spacedim> *>(&fe_other))
+  else if (const FE_SimplexP<dim, spacedim> *fe_p_other = dynamic_cast<const FE_SimplexP<dim, spacedim> *>(&fe_other))
     {
       // DoFs are located along lines, so two dofs are identical if they are
       // located at identical positions. If we had only equidistant points, we
@@ -834,16 +732,14 @@ FE_Q_Base<dim, spacedim>::hp_line_dof_identities(
 
       Assert(fe_p_other->degree <= 2, ExcNotImplemented());
 
-      const std::vector<unsigned int> &index_map_inverse_q =
-        this->get_poly_space_numbering_inverse();
+      const std::vector<unsigned int> &index_map_inverse_q = this->get_poly_space_numbering_inverse();
 
       std::vector<std::pair<unsigned int, unsigned int>> identities;
 
       for (unsigned int i = 0; i < this->degree - 1; ++i)
         for (unsigned int j = 0; j < fe_p_other->degree - 1; ++j)
-          if (std::fabs(
-                this->unit_support_points[index_map_inverse_q[i + 1]][0] -
-                fe_p_other->get_unit_support_points()[j + 3][0]) < 1e-14)
+          if (std::fabs(this->unit_support_points[index_map_inverse_q[i + 1]][0] -
+                        fe_p_other->get_unit_support_points()[j + 3][0]) < 1e-14)
             identities.emplace_back(i, j);
 
       return identities;
@@ -876,14 +772,11 @@ FE_Q_Base<dim, spacedim>::hp_line_dof_identities(
 
 template <int dim, int spacedim>
 std::vector<std::pair<unsigned int, unsigned int>>
-FE_Q_Base<dim, spacedim>::hp_quad_dof_identities(
-  const FiniteElement<dim, spacedim> &fe_other,
-  const unsigned int) const
+FE_Q_Base<dim, spacedim>::hp_quad_dof_identities(const FiniteElement<dim, spacedim> &fe_other, const unsigned int) const
 {
   // we can presently only compute these identities if both FEs are FE_Qs or
   // if the other one is an FE_Nothing
-  if (const FE_Q_Base<dim, spacedim> *fe_q_other =
-        dynamic_cast<const FE_Q_Base<dim, spacedim> *>(&fe_other))
+  if (const FE_Q_Base<dim, spacedim> *fe_q_other = dynamic_cast<const FE_Q_Base<dim, spacedim> *>(&fe_other))
     {
       // this works exactly like the line case above, except that now we have
       // to have two indices i1, i2 and j1, j2 to characterize the dofs on the
@@ -895,25 +788,17 @@ FE_Q_Base<dim, spacedim>::hp_quad_dof_identities(
 
       std::vector<std::pair<unsigned int, unsigned int>> identities;
 
-      const std::vector<unsigned int> &index_map_inverse =
-        this->get_poly_space_numbering_inverse();
-      const std::vector<unsigned int> &index_map_inverse_other =
-        fe_q_other->get_poly_space_numbering_inverse();
+      const std::vector<unsigned int> &index_map_inverse       = this->get_poly_space_numbering_inverse();
+      const std::vector<unsigned int> &index_map_inverse_other = fe_q_other->get_poly_space_numbering_inverse();
 
       for (unsigned int i1 = 0; i1 < p - 1; ++i1)
         for (unsigned int i2 = 0; i2 < p - 1; ++i2)
           for (unsigned int j1 = 0; j1 < q - 1; ++j1)
             for (unsigned int j2 = 0; j2 < q - 1; ++j2)
-              if ((std::fabs(
-                     this->unit_support_points[index_map_inverse[i1 + 1]][0] -
-                     fe_q_other
-                       ->unit_support_points[index_map_inverse_other[j1 + 1]]
-                                            [0]) < 1e-14) &&
-                  (std::fabs(
-                     this->unit_support_points[index_map_inverse[i2 + 1]][0] -
-                     fe_q_other
-                       ->unit_support_points[index_map_inverse_other[j2 + 1]]
-                                            [0]) < 1e-14))
+              if ((std::fabs(this->unit_support_points[index_map_inverse[i1 + 1]][0] -
+                             fe_q_other->unit_support_points[index_map_inverse_other[j1 + 1]][0]) < 1e-14) &&
+                  (std::fabs(this->unit_support_points[index_map_inverse[i2 + 1]][0] -
+                             fe_q_other->unit_support_points[index_map_inverse_other[j2 + 1]][0]) < 1e-14))
                 identities.emplace_back(i1 * (p - 1) + i2, j1 * (q - 1) + j2);
 
       return identities;
@@ -952,11 +837,9 @@ FE_Q_Base<dim, spacedim>::hp_quad_dof_identities(
 
 template <int dim, int spacedim>
 void
-FE_Q_Base<dim, spacedim>::initialize_unit_support_points(
-  const std::vector<Point<1>> &points)
+FE_Q_Base<dim, spacedim>::initialize_unit_support_points(const std::vector<Point<1>> &points)
 {
-  const std::vector<unsigned int> &index_map_inverse =
-    this->get_poly_space_numbering_inverse();
+  const std::vector<unsigned int> &index_map_inverse = this->get_poly_space_numbering_inverse();
 
   // We can compute the support points by computing the tensor
   // product of the 1d set of points. We could do this by hand, but it's
@@ -969,24 +852,21 @@ FE_Q_Base<dim, spacedim>::initialize_unit_support_points(
   // product order to the order in which we enumerate DoFs on cells
   this->unit_support_points.resize(support_quadrature.size());
   for (unsigned int k = 0; k < support_quadrature.size(); ++k)
-    this->unit_support_points[index_map_inverse[k]] =
-      support_quadrature.point(k);
+    this->unit_support_points[index_map_inverse[k]] = support_quadrature.point(k);
 }
 
 
 
 template <int dim, int spacedim>
 void
-FE_Q_Base<dim, spacedim>::initialize_unit_face_support_points(
-  const std::vector<Point<1>> &points)
+FE_Q_Base<dim, spacedim>::initialize_unit_face_support_points(const std::vector<Point<1>> &points)
 {
   // TODO: the implementation makes the assumption that all faces have the
   // same number of dofs
   AssertDimension(this->n_unique_faces(), 1);
   const unsigned int face_no = 0;
 
-  this->unit_face_support_points[face_no].resize(
-    Utilities::fixed_power<dim - 1>(q_degree + 1));
+  this->unit_face_support_points[face_no].resize(Utilities::fixed_power<dim - 1>(q_degree + 1));
 
   // In 1d, there is only one 0-dimensional support point, so there is nothing
   // more to be done.
@@ -994,8 +874,7 @@ FE_Q_Base<dim, spacedim>::initialize_unit_face_support_points(
     return;
 
   // find renumbering of faces and assign from values of quadrature
-  const std::vector<unsigned int> face_index_map =
-    FETools::lexicographic_to_hierarchic_numbering<dim - 1>(q_degree);
+  const std::vector<unsigned int> face_index_map = FETools::lexicographic_to_hierarchic_numbering<dim - 1>(q_degree);
 
   // We can compute the support points by computing the tensor
   // product of the 1d set of points. We could do this by hand, but it's
@@ -1008,8 +887,7 @@ FE_Q_Base<dim, spacedim>::initialize_unit_face_support_points(
   // product order to the order in which we enumerate DoFs on cells
   this->unit_face_support_points[face_no].resize(support_quadrature.size());
   for (unsigned int k = 0; k < support_quadrature.size(); ++k)
-    this->unit_face_support_points[face_no][face_index_map[k]] =
-      support_quadrature.point(k);
+    this->unit_face_support_points[face_no][face_index_map[k]] = support_quadrature.point(k);
 }
 
 
@@ -1027,11 +905,9 @@ FE_Q_Base<dim, spacedim>::initialize_quad_dof_index_permutation()
   AssertDimension(this->n_unique_faces(), 1);
   const unsigned int face_no = 0;
 
-  Assert(
-    this->adjust_quad_dof_index_for_face_orientation_table[0].n_elements() ==
-      this->reference_cell().n_face_orientations(face_no) *
-        this->n_dofs_per_quad(face_no),
-    ExcInternalError());
+  Assert(this->adjust_quad_dof_index_for_face_orientation_table[0].n_elements() ==
+           this->reference_cell().n_face_orientations(face_no) * this->n_dofs_per_quad(face_no),
+         ExcInternalError());
 
   const unsigned int n = q_degree - 1;
   Assert(n * n == this->n_dofs_per_quad(face_no), ExcInternalError());
@@ -1062,41 +938,33 @@ FE_Q_Base<dim, spacedim>::initialize_quad_dof_index_permutation()
 
       // face_orientation=false, face_flip=false, face_rotation=false
       this->adjust_quad_dof_index_for_face_orientation_table[face_no](
-        local, internal::combined_face_orientation(false, false, false)) =
-        j + i * n - local;
+        local, internal::combined_face_orientation(false, false, false)) = j + i * n - local;
       // face_orientation=false, face_flip=false, face_rotation=true
       this->adjust_quad_dof_index_for_face_orientation_table[face_no](
-        local, internal::combined_face_orientation(false, true, false)) =
-        i + (n - 1 - j) * n - local;
+        local, internal::combined_face_orientation(false, true, false)) = i + (n - 1 - j) * n - local;
       // face_orientation=false, face_flip=true,  face_rotation=false
       this->adjust_quad_dof_index_for_face_orientation_table[face_no](
-        local, internal::combined_face_orientation(false, false, true)) =
-        (n - 1 - j) + (n - 1 - i) * n - local;
+        local, internal::combined_face_orientation(false, false, true)) = (n - 1 - j) + (n - 1 - i) * n - local;
       // face_orientation=false, face_flip=true,  face_rotation=true
       this->adjust_quad_dof_index_for_face_orientation_table[face_no](
-        local, internal::combined_face_orientation(false, true, true)) =
-        (n - 1 - i) + j * n - local;
+        local, internal::combined_face_orientation(false, true, true)) = (n - 1 - i) + j * n - local;
       // face_orientation=true,  face_flip=false, face_rotation=false
       this->adjust_quad_dof_index_for_face_orientation_table[face_no](
         local, internal::combined_face_orientation(true, false, false)) = 0;
       // face_orientation=true,  face_flip=false, face_rotation=true
       this->adjust_quad_dof_index_for_face_orientation_table[face_no](
-        local, internal::combined_face_orientation(true, true, false)) =
-        j + (n - 1 - i) * n - local;
+        local, internal::combined_face_orientation(true, true, false)) = j + (n - 1 - i) * n - local;
       // face_orientation=true,  face_flip=true,  face_rotation=false
       this->adjust_quad_dof_index_for_face_orientation_table[face_no](
-        local, internal::combined_face_orientation(true, false, true)) =
-        (n - 1 - i) + (n - 1 - j) * n - local;
+        local, internal::combined_face_orientation(true, false, true)) = (n - 1 - i) + (n - 1 - j) * n - local;
       // face_orientation=true,  face_flip=true,  face_rotation=true
       this->adjust_quad_dof_index_for_face_orientation_table[face_no](
-        local, internal::combined_face_orientation(true, true, true)) =
-        (n - 1 - j) + i * n - local;
+        local, internal::combined_face_orientation(true, true, true)) = (n - 1 - j) + i * n - local;
     }
 
   // additionally initialize reordering of line dofs
   for (unsigned int i = 0; i < this->n_dofs_per_line(); ++i)
-    this->adjust_line_dof_index_for_line_orientation_table[i] =
-      this->n_dofs_per_line() - 1 - i - i;
+    this->adjust_line_dof_index_for_line_orientation_table[i] = this->n_dofs_per_line() - 1 - i - i;
 }
 
 
@@ -1105,9 +973,9 @@ template <int dim, int spacedim>
 unsigned int
 FE_Q_Base<dim, spacedim>::face_to_cell_index(const unsigned int face_index,
                                              const unsigned int face,
-                                             const bool face_orientation,
-                                             const bool face_flip,
-                                             const bool face_rotation) const
+                                             const bool         face_orientation,
+                                             const bool         face_flip,
+                                             const bool         face_rotation) const
 {
   AssertIndexRange(face_index, this->n_dofs_per_face(face));
   AssertIndexRange(face, GeometryInfo<dim>::faces_per_cell);
@@ -1128,14 +996,12 @@ FE_Q_Base<dim, spacedim>::face_to_cell_index(const unsigned int face_index,
     {
       // get the number of the vertex on the face that corresponds to this DoF,
       // along with the number of the DoF on this vertex
-      const unsigned int face_vertex = face_index / this->n_dofs_per_vertex();
-      const unsigned int dof_index_on_vertex =
-        face_index % this->n_dofs_per_vertex();
+      const unsigned int face_vertex         = face_index / this->n_dofs_per_vertex();
+      const unsigned int dof_index_on_vertex = face_index % this->n_dofs_per_vertex();
 
       // then get the number of this vertex on the cell and translate
       // this to a DoF number on the cell
-      return (GeometryInfo<dim>::face_to_cell_vertices(
-                face, face_vertex, face_orientation, face_flip, face_rotation) *
+      return (GeometryInfo<dim>::face_to_cell_vertices(face, face_vertex, face_orientation, face_flip, face_rotation) *
                 this->n_dofs_per_vertex() +
               dof_index_on_vertex);
     }
@@ -1144,8 +1010,7 @@ FE_Q_Base<dim, spacedim>::face_to_cell_index(const unsigned int face_index,
     {
       // do the same kind of translation as before. we need to only consider
       // DoFs on the lines, i.e., ignoring those on the vertices
-      const unsigned int index =
-        face_index - this->get_first_face_line_index(face);
+      const unsigned int index = face_index - this->get_first_face_line_index(face);
 
       const unsigned int face_line         = index / this->n_dofs_per_line();
       const unsigned int dof_index_on_line = index % this->n_dofs_per_line();
@@ -1165,8 +1030,7 @@ FE_Q_Base<dim, spacedim>::face_to_cell_index(const unsigned int face_index,
             if (face_flip == false)
               adjusted_dof_index_on_line = dof_index_on_line;
             else
-              adjusted_dof_index_on_line =
-                this->n_dofs_per_line() - dof_index_on_line - 1;
+              adjusted_dof_index_on_line = this->n_dofs_per_line() - dof_index_on_line - 1;
             break;
 
           case 3:
@@ -1178,8 +1042,7 @@ FE_Q_Base<dim, spacedim>::face_to_cell_index(const unsigned int face_index,
             // that said, the Q2 case is easy enough to implement, as is the
             // case where everything is in standard orientation
             Assert((this->n_dofs_per_line() <= 1) ||
-                     ((face_orientation == true) && (face_flip == false) &&
-                      (face_rotation == false)),
+                     ((face_orientation == true) && (face_flip == false) && (face_rotation == false)),
                    ExcNotImplemented());
             adjusted_dof_index_on_line = dof_index_on_line;
             break;
@@ -1189,8 +1052,7 @@ FE_Q_Base<dim, spacedim>::face_to_cell_index(const unsigned int face_index,
         }
 
       return (this->get_first_line_index() +
-              GeometryInfo<dim>::face_to_cell_lines(
-                face, face_line, face_orientation, face_flip, face_rotation) *
+              GeometryInfo<dim>::face_to_cell_lines(face, face_line, face_orientation, face_flip, face_rotation) *
                 this->n_dofs_per_line() +
               adjusted_dof_index_on_line);
     }
@@ -1200,15 +1062,13 @@ FE_Q_Base<dim, spacedim>::face_to_cell_index(const unsigned int face_index,
       Assert(dim >= 3, ExcInternalError());
 
       // ignore vertex and line dofs
-      const unsigned int index =
-        face_index - this->get_first_face_quad_index(face);
+      const unsigned int index = face_index - this->get_first_face_quad_index(face);
 
       // the same is true here as above for the 3d case -- someone will
       // just have to draw a bunch of pictures. in the meantime,
       // we can implement the Q2 case in which it is simple
       Assert((this->n_dofs_per_quad(face) <= 1) ||
-               ((face_orientation == true) && (face_flip == false) &&
-                (face_rotation == false)),
+               ((face_orientation == true) && (face_flip == false) && (face_rotation == false)),
              ExcNotImplemented());
       return (this->get_first_quad_index(face) + index);
     }
@@ -1232,8 +1092,7 @@ FE_Q_Base<dim, spacedim>::get_dpo_vector(const unsigned int degree)
 
 template <int dim, int spacedim>
 void
-FE_Q_Base<dim, spacedim>::initialize_constraints(
-  const std::vector<Point<1>> &points)
+FE_Q_Base<dim, spacedim>::initialize_constraints(const std::vector<Point<1>> &points)
 {
   Implementation::initialize_constraints(points, *this);
 }
@@ -1242,15 +1101,12 @@ FE_Q_Base<dim, spacedim>::initialize_constraints(
 
 template <int dim, int spacedim>
 const FullMatrix<double> &
-FE_Q_Base<dim, spacedim>::get_prolongation_matrix(
-  const unsigned int         child,
-  const RefinementCase<dim> &refinement_case) const
+FE_Q_Base<dim, spacedim>::get_prolongation_matrix(const unsigned int         child,
+                                                  const RefinementCase<dim> &refinement_case) const
 {
-  AssertIndexRange(refinement_case,
-                   RefinementCase<dim>::isotropic_refinement + 1);
+  AssertIndexRange(refinement_case, RefinementCase<dim>::isotropic_refinement + 1);
   Assert(refinement_case != RefinementCase<dim>::no_refinement,
-         ExcMessage(
-           "Prolongation matrices are only available for refined cells!"));
+         ExcMessage("Prolongation matrices are only available for refined cells!"));
   AssertIndexRange(child, GeometryInfo<dim>::n_children(refinement_case));
 
   // initialization upon first request
@@ -1259,13 +1115,11 @@ FE_Q_Base<dim, spacedim>::get_prolongation_matrix(
       std::lock_guard<std::mutex> lock(this->mutex);
 
       // if matrix got updated while waiting for the lock
-      if (this->prolongation[refinement_case - 1][child].n() ==
-          this->n_dofs_per_cell())
+      if (this->prolongation[refinement_case - 1][child].n() == this->n_dofs_per_cell())
         return this->prolongation[refinement_case - 1][child];
 
       // distinguish q/q_dg0 case: only treat Q dofs first
-      const unsigned int q_dofs_per_cell =
-        Utilities::fixed_power<dim>(q_degree + 1);
+      const unsigned int q_dofs_per_cell = Utilities::fixed_power<dim>(q_degree + 1);
 
       // compute the interpolation matrices in much the same way as we do for
       // the constraints. it's actually simpler here, since we don't have this
@@ -1280,8 +1134,7 @@ FE_Q_Base<dim, spacedim>::get_prolongation_matrix(
       // current numbering gives the identity operation
       for (unsigned int i = 0; i < q_dofs_per_cell; ++i)
         {
-          Assert(std::fabs(1. - this->poly_space->compute_value(
-                                  i, this->unit_support_points[i])) < eps,
+          Assert(std::fabs(1. - this->poly_space->compute_value(i, this->unit_support_points[i])) < eps,
                  ExcInternalError("The Lagrange polynomial does not evaluate "
                                   "to one or zero in a nodal point. "
                                   "This typically indicates that the "
@@ -1290,15 +1143,13 @@ FE_Q_Base<dim, spacedim>::get_prolongation_matrix(
                                   "prevents the sum to be one."));
           for (unsigned int j = 0; j < q_dofs_per_cell; ++j)
             if (j != i)
-              Assert(std::fabs(this->poly_space->compute_value(
-                       i, this->unit_support_points[j])) < eps,
-                     ExcInternalError(
-                       "The Lagrange polynomial does not evaluate "
-                       "to one or zero in a nodal point. "
-                       "This typically indicates that the "
-                       "polynomial interpolation is "
-                       "ill-conditioned such that round-off "
-                       "prevents the sum to be one."));
+              Assert(std::fabs(this->poly_space->compute_value(i, this->unit_support_points[j])) < eps,
+                     ExcInternalError("The Lagrange polynomial does not evaluate "
+                                      "to one or zero in a nodal point. "
+                                      "This typically indicates that the "
+                                      "polynomial interpolation is "
+                                      "ill-conditioned such that round-off "
+                                      "prevents the sum to be one."));
         }
 #endif
 
@@ -1307,11 +1158,9 @@ FE_Q_Base<dim, spacedim>::get_prolongation_matrix(
       // information from the polynomial. This makes the cost of this function
       // almost negligible also for high order elements
       const unsigned int            dofs1d = q_degree + 1;
-      std::vector<Table<2, double>> subcell_evaluations(
-        dim, Table<2, double>(dofs1d, dofs1d));
+      std::vector<Table<2, double>> subcell_evaluations(dim, Table<2, double>(dofs1d, dofs1d));
 
-      const std::vector<unsigned int> &index_map_inverse =
-        this->get_poly_space_numbering_inverse();
+      const std::vector<unsigned int> &index_map_inverse = this->get_poly_space_numbering_inverse();
 
       // helper value: step size how to walk through diagonal and how many
       // points we have left apart from the first dimension
@@ -1325,8 +1174,7 @@ FE_Q_Base<dim, spacedim>::get_prolongation_matrix(
           }
       }
 
-      FullMatrix<double> prolongate(this->n_dofs_per_cell(),
-                                    this->n_dofs_per_cell());
+      FullMatrix<double> prolongate(this->n_dofs_per_cell(), this->n_dofs_per_cell());
 
       // go through the points in diagonal to capture variation in all
       // directions simultaneously
@@ -1334,18 +1182,14 @@ FE_Q_Base<dim, spacedim>::get_prolongation_matrix(
         {
           const unsigned int diag_comp = index_map_inverse[j * step_size_diag];
           const Point<dim>   p_subcell = this->unit_support_points[diag_comp];
-          const Point<dim>   p_cell =
-            GeometryInfo<dim>::child_to_cell_coordinates(p_subcell,
-                                                         child,
-                                                         refinement_case);
+          const Point<dim>   p_cell = GeometryInfo<dim>::child_to_cell_coordinates(p_subcell, child, refinement_case);
           for (unsigned int i = 0; i < dofs1d; ++i)
             for (unsigned int d = 0; d < dim; ++d)
               {
                 // evaluate along line where only x is different from zero
                 Point<dim> point;
-                point[0] = p_cell[d];
-                const double cell_value =
-                  this->poly_space->compute_value(index_map_inverse[i], point);
+                point[0]                = p_cell[d];
+                const double cell_value = this->poly_space->compute_value(index_map_inverse[i], point);
 
                 // cut off values that are too small. note that we have here
                 // Lagrange interpolation functions, so they should be zero at
@@ -1383,8 +1227,7 @@ FE_Q_Base<dim, spacedim>::get_prolongation_matrix(
             {
               double val_extra_dim = 1.;
               for (unsigned int d = 1; d < dim; ++d)
-                val_extra_dim *=
-                  subcell_evaluations[d](j_indices[d - 1], i_indices[d - 1]);
+                val_extra_dim *= subcell_evaluations[d](j_indices[d - 1], i_indices[d - 1]);
 
               // innermost sum where we actually compute. the same as
               // prolongate(j,i) = this->poly_space->compute_value (i, p_cell)
@@ -1392,8 +1235,7 @@ FE_Q_Base<dim, spacedim>::get_prolongation_matrix(
                 {
                   const unsigned int j_ind = index_map_inverse[j + jj];
                   for (unsigned int ii = 0; ii < dofs1d; ++ii)
-                    prolongate(j_ind, index_map_inverse[i + ii]) =
-                      val_extra_dim * subcell_evaluations[0](jj, ii);
+                    prolongate(j_ind, index_map_inverse[i + ii]) = val_extra_dim * subcell_evaluations[0](jj, ii);
                 }
 
               // update indices that denote the tensor product position. a bit
@@ -1417,8 +1259,7 @@ FE_Q_Base<dim, spacedim>::get_prolongation_matrix(
           double sum = 0;
           for (unsigned int col = 0; col < this->n_dofs_per_cell(); ++col)
             sum += prolongate(row, col);
-          Assert(std::fabs(sum - 1.) <
-                   std::max(eps, 5e-16 * std::sqrt(this->n_dofs_per_cell())),
+          Assert(std::fabs(sum - 1.) < std::max(eps, 5e-16 * std::sqrt(this->n_dofs_per_cell())),
                  ExcInternalError("The entries in a row of the local "
                                   "prolongation matrix do not add to one. "
                                   "This typically indicates that the "
@@ -1429,8 +1270,7 @@ FE_Q_Base<dim, spacedim>::get_prolongation_matrix(
 #endif
 
       // swap matrices
-      prolongate.swap(const_cast<FullMatrix<double> &>(
-        this->prolongation[refinement_case - 1][child]));
+      prolongate.swap(const_cast<FullMatrix<double> &>(this->prolongation[refinement_case - 1][child]));
     }
 
   // finally return the matrix
@@ -1441,15 +1281,12 @@ FE_Q_Base<dim, spacedim>::get_prolongation_matrix(
 
 template <int dim, int spacedim>
 const FullMatrix<double> &
-FE_Q_Base<dim, spacedim>::get_restriction_matrix(
-  const unsigned int         child,
-  const RefinementCase<dim> &refinement_case) const
+FE_Q_Base<dim, spacedim>::get_restriction_matrix(const unsigned int         child,
+                                                 const RefinementCase<dim> &refinement_case) const
 {
-  AssertIndexRange(refinement_case,
-                   RefinementCase<dim>::isotropic_refinement + 1);
+  AssertIndexRange(refinement_case, RefinementCase<dim>::isotropic_refinement + 1);
   Assert(refinement_case != RefinementCase<dim>::no_refinement,
-         ExcMessage(
-           "Restriction matrices are only available for refined cells!"));
+         ExcMessage("Restriction matrices are only available for refined cells!"));
   AssertIndexRange(child, GeometryInfo<dim>::n_children(refinement_case));
 
   // initialization upon first request
@@ -1458,15 +1295,12 @@ FE_Q_Base<dim, spacedim>::get_restriction_matrix(
       std::lock_guard<std::mutex> lock(this->mutex);
 
       // if matrix got updated while waiting for the lock...
-      if (this->restriction[refinement_case - 1][child].n() ==
-          this->n_dofs_per_cell())
+      if (this->restriction[refinement_case - 1][child].n() == this->n_dofs_per_cell())
         return this->restriction[refinement_case - 1][child];
 
-      FullMatrix<double> my_restriction(this->n_dofs_per_cell(),
-                                        this->n_dofs_per_cell());
+      FullMatrix<double> my_restriction(this->n_dofs_per_cell(), this->n_dofs_per_cell());
       // distinguish q/q_dg0 case
-      const unsigned int q_dofs_per_cell =
-        Utilities::fixed_power<dim>(q_degree + 1);
+      const unsigned int q_dofs_per_cell = Utilities::fixed_power<dim>(q_degree + 1);
 
       // for Lagrange interpolation polynomials based on equidistant points,
       // construction of the restriction matrices is relatively simple. the
@@ -1486,9 +1320,8 @@ FE_Q_Base<dim, spacedim>::get_restriction_matrix(
       // assumption that whenever a row makes a non-zero contribution to the
       // mother's residual, the correct value is interpolated.
 
-      const double                     eps = 1e-15 * q_degree * dim;
-      const std::vector<unsigned int> &index_map_inverse =
-        this->get_poly_space_numbering_inverse();
+      const double                     eps               = 1e-15 * q_degree * dim;
+      const std::vector<unsigned int> &index_map_inverse = this->get_poly_space_numbering_inverse();
 
       const unsigned int          dofs1d = q_degree + 1;
       std::vector<Tensor<1, dim>> evaluations1d(dofs1d);
@@ -1501,10 +1334,7 @@ FE_Q_Base<dim, spacedim>::get_restriction_matrix(
           const Point<dim> p_cell     = this->unit_support_points[mother_dof];
 
           // check whether this interpolation point is inside this child cell
-          const Point<dim> p_subcell =
-            GeometryInfo<dim>::cell_to_child_coordinates(p_cell,
-                                                         child,
-                                                         refinement_case);
+          const Point<dim> p_subcell = GeometryInfo<dim>::cell_to_child_coordinates(p_cell, child, refinement_case);
           if (GeometryInfo<dim>::is_inside_unit_cell(p_subcell))
             {
               // same logic as in initialize_embedding to evaluate the
@@ -1516,10 +1346,8 @@ FE_Q_Base<dim, spacedim>::get_restriction_matrix(
                 for (unsigned int d = 0; d < dim; ++d)
                   {
                     Point<dim> point;
-                    point[0] = p_subcell[d];
-                    evaluations1d[j][d] =
-                      this->poly_space->compute_value(index_map_inverse[j],
-                                                      point);
+                    point[0]            = p_subcell[d];
+                    evaluations1d[j][d] = this->poly_space->compute_value(index_map_inverse[j], point);
                   }
               unsigned int j_indices[dim];
               internal::FE_Q_Base::zero_indices<dim>(j_indices);
@@ -1539,7 +1367,7 @@ FE_Q_Base<dim, spacedim>::get_restriction_matrix(
                       // support point might not be a child support point, and
                       // then we will get more than one nonzero value per
                       // row. Still, the values should sum up to 1
-                      const double val = val_extra_dim * evaluations1d[jj][0];
+                      const double       val       = val_extra_dim * evaluations1d[jj][0];
                       const unsigned int child_dof = index_map_inverse[j + jj];
                       if (std::fabs(val - 1.) < eps)
                         my_restriction(mother_dof, child_dof) = 1.;
@@ -1549,12 +1377,9 @@ FE_Q_Base<dim, spacedim>::get_restriction_matrix(
                       sum_check += val;
 #endif
                     }
-                  internal::FE_Q_Base::increment_indices<dim>(j_indices,
-                                                              dofs1d);
+                  internal::FE_Q_Base::increment_indices<dim>(j_indices, dofs1d);
                 }
-              Assert(std::fabs(sum_check - 1) <
-                       std::max(eps,
-                                5e-16 * std::sqrt(this->n_dofs_per_cell())),
+              Assert(std::fabs(sum_check - 1) < std::max(eps, 5e-16 * std::sqrt(this->n_dofs_per_cell())),
                      ExcInternalError("The entries in a row of the local "
                                       "restriction matrix do not add to one. "
                                       "This typically indicates that the "
@@ -1565,16 +1390,13 @@ FE_Q_Base<dim, spacedim>::get_restriction_matrix(
 
           // part for FE_Q_DG0
           if (q_dofs_per_cell < this->n_dofs_per_cell())
-            my_restriction(this->n_dofs_per_cell() - 1,
-                           this->n_dofs_per_cell() - 1) =
-              1. / GeometryInfo<dim>::n_children(
-                     RefinementCase<dim>(refinement_case));
+            my_restriction(this->n_dofs_per_cell() - 1, this->n_dofs_per_cell() - 1) =
+              1. / GeometryInfo<dim>::n_children(RefinementCase<dim>(refinement_case));
         }
 
       // swap the just computed restriction matrix into the
       // element of the vector stored in the base class
-      my_restriction.swap(const_cast<FullMatrix<double> &>(
-        this->restriction[refinement_case - 1][child]));
+      my_restriction.swap(const_cast<FullMatrix<double> &>(this->restriction[refinement_case - 1][child]));
     }
 
   return this->restriction[refinement_case - 1][child];
@@ -1589,9 +1411,7 @@ FE_Q_Base<dim, spacedim>::get_restriction_matrix(
 
 template <int dim, int spacedim>
 bool
-FE_Q_Base<dim, spacedim>::has_support_on_face(
-  const unsigned int shape_index,
-  const unsigned int face_index) const
+FE_Q_Base<dim, spacedim>::has_support_on_face(const unsigned int shape_index, const unsigned int face_index) const
 {
   AssertIndexRange(shape_index, this->n_dofs_per_cell());
   AssertIndexRange(face_index, GeometryInfo<dim>::faces_per_cell);
@@ -1600,13 +1420,11 @@ FE_Q_Base<dim, spacedim>::has_support_on_face(
   // vertex in this class, the first is on vertex 0 (==face 0 in some sense),
   // the second on face 1:
   if (dim == 1)
-    return (((shape_index == 0) && (face_index == 0)) ||
-            ((shape_index == 1) && (face_index == 1)));
+    return (((shape_index == 0) && (face_index == 0)) || ((shape_index == 1) && (face_index == 1)));
 
   // first, special-case interior shape functions, since they have no support
   // no-where on the boundary
-  if (((dim == 2) &&
-       (shape_index >= this->get_first_quad_index(0 /*first quad*/))) ||
+  if (((dim == 2) && (shape_index >= this->get_first_quad_index(0 /*first quad*/))) ||
       ((dim == 3) && (shape_index >= this->get_first_hex_index())))
     return false;
 
@@ -1617,12 +1435,10 @@ FE_Q_Base<dim, spacedim>::has_support_on_face(
       // shape_index==vertex_number. check whether this vertex is on the given
       // face. thus, for each face, give a list of vertices
       const unsigned int vertex_no = shape_index;
-      Assert(vertex_no < GeometryInfo<dim>::vertices_per_cell,
-             ExcInternalError());
+      Assert(vertex_no < GeometryInfo<dim>::vertices_per_cell, ExcInternalError());
 
       for (unsigned int v = 0; v < GeometryInfo<dim>::vertices_per_face; ++v)
-        if (GeometryInfo<dim>::face_to_cell_vertices(face_index, v) ==
-            vertex_no)
+        if (GeometryInfo<dim>::face_to_cell_vertices(face_index, v) == vertex_no)
           return true;
 
       return false;
@@ -1630,10 +1446,8 @@ FE_Q_Base<dim, spacedim>::has_support_on_face(
   else if (shape_index < this->get_first_quad_index(0 /*first quad*/))
     // ok, dof is on a line
     {
-      const unsigned int line_index =
-        (shape_index - this->get_first_line_index()) / this->n_dofs_per_line();
-      Assert(line_index < GeometryInfo<dim>::lines_per_cell,
-             ExcInternalError());
+      const unsigned int line_index = (shape_index - this->get_first_line_index()) / this->n_dofs_per_line();
+      Assert(line_index < GeometryInfo<dim>::lines_per_cell, ExcInternalError());
 
       // in 2d, the line is the face, so get the line index
       if (dim == 2)
@@ -1641,12 +1455,10 @@ FE_Q_Base<dim, spacedim>::has_support_on_face(
       else if (dim == 3)
         {
           // silence compiler warning
-          const unsigned int lines_per_face =
-            dim == 3 ? GeometryInfo<dim>::lines_per_face : 1;
+          const unsigned int lines_per_face = dim == 3 ? GeometryInfo<dim>::lines_per_face : 1;
           // see whether the given line is on the given face.
           for (unsigned int l = 0; l < lines_per_face; ++l)
-            if (GeometryInfo<3>::face_to_cell_lines(face_index, l) ==
-                line_index)
+            if (GeometryInfo<3>::face_to_cell_lines(face_index, l) == line_index)
               return true;
 
           return false;
@@ -1658,10 +1470,8 @@ FE_Q_Base<dim, spacedim>::has_support_on_face(
     // dof is on a quad
     {
       const unsigned int quad_index =
-        (shape_index - this->get_first_quad_index(0)) /
-        this->n_dofs_per_quad(face_index); // this won't work
-      Assert(static_cast<signed int>(quad_index) <
-               static_cast<signed int>(GeometryInfo<dim>::quads_per_cell),
+        (shape_index - this->get_first_quad_index(0)) / this->n_dofs_per_quad(face_index); // this won't work
+      Assert(static_cast<signed int>(quad_index) < static_cast<signed int>(GeometryInfo<dim>::quads_per_cell),
              ExcInternalError());
 
       // in 2d, cell bubble are zero on all faces. but we have treated this
@@ -1700,8 +1510,7 @@ FE_Q_Base<dim, spacedim>::get_constant_modes() const
   // themselves. An example for this is FE_Q_DG0.
   for (unsigned int i = 0; i < Utilities::fixed_power<dim>(q_degree + 1); ++i)
     constant_modes(0, i) = true;
-  return std::pair<Table<2, bool>, std::vector<unsigned int>>(
-    constant_modes, std::vector<unsigned int>(1, 0));
+  return std::pair<Table<2, bool>, std::vector<unsigned int>>(constant_modes, std::vector<unsigned int>(1, 0));
 }
 
 

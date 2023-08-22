@@ -71,16 +71,13 @@ public:
    * @pre minlevel <= maxlevel
    */
   template <class... Args>
-  MGLevelObject(const unsigned int minlevel,
-                const unsigned int maxlevel,
-                Args &&...args);
+  MGLevelObject(const unsigned int minlevel, const unsigned int maxlevel, Args &&...args);
 
   /**
    * Constructor. Same as above but without arguments to be forwarded to the
    * constructor of the underlying object.
    */
-  MGLevelObject(const unsigned int minlevel = 0,
-                const unsigned int maxlevel = 0);
+  MGLevelObject(const unsigned int minlevel = 0, const unsigned int maxlevel = 0);
 
   /**
    * Access object on level @p level.
@@ -118,9 +115,7 @@ public:
    */
   template <class... Args>
   void
-  resize(const unsigned int new_minlevel,
-         const unsigned int new_maxlevel,
-         Args &&...args);
+  resize(const unsigned int new_minlevel, const unsigned int new_maxlevel, Args &&...args);
 
   /**
    * Call <tt>operator = (s)</tt> on all objects stored by this object.
@@ -205,9 +200,7 @@ private:
 
 template <class Object>
 template <class... Args>
-MGLevelObject<Object>::MGLevelObject(const unsigned int min,
-                                     const unsigned int max,
-                                     Args &&...args)
+MGLevelObject<Object>::MGLevelObject(const unsigned int min, const unsigned int max, Args &&...args)
   : minlevel(0)
 {
   resize(min, max, std::forward<Args>(args)...);
@@ -215,8 +208,7 @@ MGLevelObject<Object>::MGLevelObject(const unsigned int min,
 
 
 template <class Object>
-MGLevelObject<Object>::MGLevelObject(const unsigned int min,
-                                     const unsigned int max)
+MGLevelObject<Object>::MGLevelObject(const unsigned int min, const unsigned int max)
   : minlevel(0)
 {
   resize(min, max);
@@ -227,8 +219,7 @@ template <class Object>
 Object &
 MGLevelObject<Object>::operator[](const unsigned int i)
 {
-  Assert((i >= minlevel) && (i < minlevel + objects.size()),
-         ExcIndexRange(i, minlevel, minlevel + objects.size()));
+  Assert((i >= minlevel) && (i < minlevel + objects.size()), ExcIndexRange(i, minlevel, minlevel + objects.size()));
   return *objects[i - minlevel];
 }
 
@@ -237,8 +228,7 @@ template <class Object>
 const Object &
 MGLevelObject<Object>::operator[](const unsigned int i) const
 {
-  Assert((i >= minlevel) && (i < minlevel + objects.size()),
-         ExcIndexRange(i, minlevel, minlevel + objects.size()));
+  Assert((i >= minlevel) && (i < minlevel + objects.size()), ExcIndexRange(i, minlevel, minlevel + objects.size()));
   return *objects[i - minlevel];
 }
 
@@ -254,9 +244,7 @@ MGLevelObject<Object>::back() const
 template <class Object>
 template <class... Args>
 void
-MGLevelObject<Object>::resize(const unsigned int new_minlevel,
-                              const unsigned int new_maxlevel,
-                              Args &&...args)
+MGLevelObject<Object>::resize(const unsigned int new_minlevel, const unsigned int new_maxlevel, Args &&...args)
 {
   Assert(new_minlevel <= new_maxlevel, ExcInternalError());
   // note that on clear(), the
@@ -341,8 +329,8 @@ std::size_t
 MGLevelObject<Object>::memory_consumption() const
 {
   std::size_t result = sizeof(*this);
-  using Iter = typename std::vector<std::shared_ptr<Object>>::const_iterator;
-  const Iter end = objects.end();
+  using Iter         = typename std::vector<std::shared_ptr<Object>>::const_iterator;
+  const Iter end     = objects.end();
   for (Iter o = objects.begin(); o != end; ++o)
     result += (*o)->memory_consumption();
 

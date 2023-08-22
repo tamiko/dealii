@@ -30,9 +30,7 @@ check(MGLevelObject<T> &obj)
 {
   obj.apply([&](const unsigned int lvl, T &value) { value = (T)lvl; });
 
-  obj.apply([&](const unsigned int lvl, T &value) {
-    deallog << "lvl: " << lvl << " value: " << value << std::endl;
-  });
+  obj.apply([&](const unsigned int lvl, T &value) { deallog << "lvl: " << lvl << " value: " << value << std::endl; });
 }
 
 int

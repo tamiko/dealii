@@ -56,11 +56,9 @@ test()
   // verify flags
   for (const auto &cell : dh.active_cell_iterators())
     {
-      deallog << "cell:" << cell->id().to_string()
-              << ", future_fe:" << cell->future_fe_index() << std::endl;
+      deallog << "cell:" << cell->id().to_string() << ", future_fe:" << cell->future_fe_index() << std::endl;
       Assert(&(dh.get_fe(cell->future_fe_index())) == &(cell->get_future_fe()),
-             ExcMessage(
-               "DoFCellAccessor::get_future_fe() returns the wrong object."));
+             ExcMessage("DoFCellAccessor::get_future_fe() returns the wrong object."));
     }
 
   // clear all flags and check if all were cleared

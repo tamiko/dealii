@@ -80,21 +80,18 @@ do_test(const FiniteElement<dim> &fe_fine, const FiniteElement<dim> &fe_coarse)
 
   // setup dof-handlers
   DoFHandler<dim> dof_handler_fine(tria_fine);
-  for (const auto &cell : dof_handler_fine.active_cell_iterators() |
-                            IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : dof_handler_fine.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     cell->set_active_fe_index(0);
   dof_handler_fine.distribute_dofs(fe);
 
   DoFHandler<dim> dof_handler_coarse(tria_coarse);
-  for (const auto &cell : dof_handler_coarse.active_cell_iterators() |
-                            IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : dof_handler_coarse.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     cell->set_active_fe_index(1);
   dof_handler_coarse.distribute_dofs(fe);
 
   // setup constraint matrix
   AffineConstraints<Number> constraint_coarse;
-  DoFTools::make_hanging_node_constraints(dof_handler_coarse,
-                                          constraint_coarse);
+  DoFTools::make_hanging_node_constraints(dof_handler_coarse, constraint_coarse);
   constraint_coarse.close();
 
   AffineConstraints<Number> constraint_fine;
@@ -103,10 +100,7 @@ do_test(const FiniteElement<dim> &fe_fine, const FiniteElement<dim> &fe_coarse)
 
   // setup transfer operator
   MGTwoLevelTransfer<dim, LinearAlgebra::distributed::Vector<Number>> transfer;
-  transfer.reinit(dof_handler_fine,
-                  dof_handler_coarse,
-                  constraint_fine,
-                  constraint_coarse);
+  transfer.reinit(dof_handler_fine, dof_handler_coarse, constraint_fine, constraint_coarse);
 
   test_transfer_operator(transfer, dof_handler_fine, dof_handler_coarse);
 }

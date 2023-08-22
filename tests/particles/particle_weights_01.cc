@@ -51,30 +51,20 @@ test()
   Particles::ParticleHandler<dim> particle_handler(triangulation, mapping);
   {
     const auto local_bounding_box =
-      GridTools::compute_mesh_predicate_bounding_box(
-        triangulation, IteratorFilters::LocallyOwnedCell());
-    const auto global_bounding_boxes =
-      Utilities::MPI::all_gather(triangulation.get_communicator(),
-                                 local_bounding_box);
+      GridTools::compute_mesh_predicate_bounding_box(triangulation, IteratorFilters::LocallyOwnedCell());
+    const auto global_bounding_boxes = Utilities::MPI::all_gather(triangulation.get_communicator(), local_bounding_box);
 
-    Particles::Generators::quadrature_points(triangulation,
-                                             QMidpoint<dim>(),
-                                             global_bounding_boxes,
-                                             particle_handler);
+    Particles::Generators::quadrature_points(triangulation, QMidpoint<dim>(), global_bounding_boxes, particle_handler);
 
-    Assert(particle_handler.n_locally_owned_particles() ==
-             triangulation.n_locally_owned_active_cells(),
+    Assert(particle_handler.n_locally_owned_particles() == triangulation.n_locally_owned_active_cells(),
            ExcInternalError());
-    Assert(particle_handler.n_global_particles() ==
-             triangulation.n_global_active_cells(),
-           ExcInternalError());
+    Assert(particle_handler.n_global_particles() == triangulation.n_global_active_cells(), ExcInternalError());
   }
 
   // register weighting function that returns the number of particles per cell
   triangulation.signals.weight.connect(
-    [&particle_handler](const typename parallel::distributed::Triangulation<
-                          dim>::cell_iterator &cell,
-                        const CellStatus       status) -> unsigned int {
+    [&particle_handler](const typename parallel::distributed::Triangulation<dim>::cell_iterator &cell,
+                        const CellStatus status) -> unsigned int {
       unsigned int n_particles_in_cell = 0;
       switch (status)
         {
@@ -88,8 +78,7 @@ test()
 
           case CellStatus::children_will_be_coarsened:
             for (const auto &child : cell->child_iterators())
-              n_particles_in_cell +=
-                particle_handler.n_particles_in_cell(child);
+              n_particles_in_cell += particle_handler.n_particles_in_cell(child);
             break;
 
           default:
@@ -101,8 +90,7 @@ test()
     });
 
   // refine one cell, and coarsen one group of siblings
-  for (const auto &cell : triangulation.active_cell_iterators() |
-                            IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : triangulation.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     {
       if (cell->id().to_string() == "0_2:00")
         cell->set_refine_flag();

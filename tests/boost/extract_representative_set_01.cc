@@ -44,6 +44,5 @@ main()
   deallog << "LEVEL 1:  N boxes: " << boxes.size() << std::endl;
 
   for (const auto &b : boxes)
-    deallog << "Box: " << Patterns::Tools::to_string(b.get_boundary_points())
-            << std::endl;
+    deallog << "Box: " << Patterns::Tools::to_string(b.get_boundary_points()) << std::endl;
 }

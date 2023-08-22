@@ -70,21 +70,15 @@ main(int argc, char **argv)
   DoFTools::make_hanging_node_constraints(dof_handler, constraint);
   constraint.close();
 
-  matrix_free.reinit(
-    MappingQ1<dim>{}, dof_handler, constraint, QGauss<1>(4), data);
+  matrix_free.reinit(MappingQ1<dim>{}, dof_handler, constraint, QGauss<1>(4), data);
 
   LinearAlgebra::distributed::Vector<double> src;
   matrix_free.initialize_dof_vector(src);
 
-  deallog << "main partitioner: size="
-          << matrix_free.get_dof_info().vector_partitioner->size()
-          << " locally_owned_size="
-          << matrix_free.get_dof_info().vector_partitioner->locally_owned_size()
-          << " n_ghosts="
-          << matrix_free.get_dof_info().vector_partitioner->n_ghost_indices()
-          << std::endl;
+  deallog << "main partitioner: size=" << matrix_free.get_dof_info().vector_partitioner->size()
+          << " locally_owned_size=" << matrix_free.get_dof_info().vector_partitioner->locally_owned_size()
+          << " n_ghosts=" << matrix_free.get_dof_info().vector_partitioner->n_ghost_indices() << std::endl;
   for (auto &p : matrix_free.get_dof_info().vector_exchanger_face_variants)
-    deallog << "partitioner: size=" << p->size()
-            << " locally_owned_size=" << p->locally_owned_size()
+    deallog << "partitioner: size=" << p->size() << " locally_owned_size=" << p->locally_owned_size()
             << " n_ghosts=" << p->n_ghost_indices() << std::endl;
 }

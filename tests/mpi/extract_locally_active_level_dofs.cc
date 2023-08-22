@@ -58,14 +58,12 @@ test()
   IndexSet locally_level_active;
   for (unsigned int level = 0; level < tr.n_levels(); ++level)
     {
-      DoFTools::extract_locally_active_level_dofs(dofh,
-                                                  locally_level_active,
-                                                  level);
+      DoFTools::extract_locally_active_level_dofs(dofh, locally_level_active, level);
 
       if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
         {
-          deallog << "Level: " << level << ", " << locally_level_active.size()
-                  << ", " << locally_level_active.n_elements() << std::endl;
+          deallog << "Level: " << level << ", " << locally_level_active.size() << ", "
+                  << locally_level_active.n_elements() << std::endl;
 
           for (unsigned int i = 0; i < locally_level_active.size(); ++i)
             if (locally_level_active.is_element(i))

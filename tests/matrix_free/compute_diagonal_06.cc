@@ -41,32 +41,25 @@ test(const std::vector<std::shared_ptr<Triangulation<dim>>> &trias)
       DoFTools::make_hanging_node_constraints(dof_handler, constraint);
       constraint.close();
 
-      typename MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData
-        additional_data;
+      typename MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData additional_data;
       additional_data.mapping_update_flags = update_values | update_gradients;
 
       MappingQ<dim> mapping(1);
       QGauss<1>     quad(fe_degree + 1);
 
       MatrixFree<dim, Number, VectorizedArrayType> matrix_free;
-      matrix_free.reinit(
-        mapping, dof_handler, constraint, quad, additional_data);
+      matrix_free.reinit(mapping, dof_handler, constraint, quad, additional_data);
 
 
-      Test<dim, fe_degree, n_points, n_components, Number, VectorizedArrayType>
-        test(matrix_free,
-             constraint,
-             [](FEEvaluation<dim,
-                             fe_degree,
-                             n_points,
-                             n_components,
-                             Number,
-                             VectorizedArrayType> &phi) {
-               phi.evaluate(EvaluationFlags::gradients);
-               for (unsigned int q = 0; q < phi.n_q_points; ++q)
-                 phi.submit_gradient(phi.get_gradient(q), q);
-               phi.integrate(EvaluationFlags::gradients);
-             });
+      Test<dim, fe_degree, n_points, n_components, Number, VectorizedArrayType> test(
+        matrix_free,
+        constraint,
+        [](FEEvaluation<dim, fe_degree, n_points, n_components, Number, VectorizedArrayType> &phi) {
+          phi.evaluate(EvaluationFlags::gradients);
+          for (unsigned int q = 0; q < phi.n_q_points; ++q)
+            phi.submit_gradient(phi.get_gradient(q), q);
+          phi.integrate(EvaluationFlags::gradients);
+        });
 
       test.do_test();
     }
@@ -81,8 +74,7 @@ create_triangulations()
   // refine one cell of a 3^dim subdivided_hyper_cube
   for (unsigned int i = 0; i < Utilities::pow<unsigned int>(3, dim); ++i)
     {
-      std::shared_ptr<Triangulation<dim>> tria =
-        std::make_shared<Triangulation<dim>>();
+      std::shared_ptr<Triangulation<dim>> tria = std::make_shared<Triangulation<dim>>();
       GridGenerator::subdivided_hyper_cube(*tria, 3);
       CellAccessor<dim, dim>(tria.get(), 0, i).set_refine_flag();
       tria->execute_coarsening_and_refinement();
@@ -92,9 +84,8 @@ create_triangulations()
   // refine one cell of a hyper_cross
   for (unsigned int i = 0; i < 4 * dim + 1; ++i)
     {
-      std::shared_ptr<Triangulation<dim>> tria =
-        std::make_shared<Triangulation<dim>>();
-      std::vector<unsigned int> sizes(dim * 2, 2);
+      std::shared_ptr<Triangulation<dim>> tria = std::make_shared<Triangulation<dim>>();
+      std::vector<unsigned int>           sizes(dim * 2, 2);
       GridGenerator::hyper_cross(*tria, sizes);
       CellAccessor<dim, dim>(tria.get(), 0, i).set_refine_flag();
       tria->execute_coarsening_and_refinement();
@@ -104,8 +95,7 @@ create_triangulations()
   // refine all cells of a 2^dim subdivided_hyper_cube but one
   for (unsigned int i = 0; i < Utilities::pow<unsigned int>(2, dim); ++i)
     {
-      std::shared_ptr<Triangulation<dim>> tria =
-        std::make_shared<Triangulation<dim>>();
+      std::shared_ptr<Triangulation<dim>> tria = std::make_shared<Triangulation<dim>>();
       GridGenerator::subdivided_hyper_cube(*tria, 2);
 
       unsigned int counter = 0;

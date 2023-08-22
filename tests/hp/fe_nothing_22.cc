@@ -33,33 +33,21 @@ test()
   deallog << std::boolalpha;
   deallog << (FE_Nothing<dim>(1) == FE_Nothing<dim>(1, false)) << std::endl;
   deallog << (FE_Nothing<dim>(1) == FE_Nothing<dim>(2)) << std::endl;
-  deallog << (FE_Nothing<dim>(2, true) == FE_Nothing<dim>(2, false))
-          << std::endl;
-  deallog << (FE_Nothing<dim>(1, true) == FE_Nothing<dim>(2, true))
-          << std::endl;
+  deallog << (FE_Nothing<dim>(2, true) == FE_Nothing<dim>(2, false)) << std::endl;
+  deallog << (FE_Nothing<dim>(1, true) == FE_Nothing<dim>(2, true)) << std::endl;
   if (dim == 2)
     {
-      deallog << (FE_Nothing<dim>(ReferenceCells::Quadrilateral, 2, true) ==
-                  FE_Nothing<dim>(2, true))
-              << std::endl;
-      deallog << (FE_Nothing<dim>(ReferenceCells::Triangle, 2, true) ==
-                  FE_Nothing<dim>(2, true))
-              << std::endl;
+      deallog << (FE_Nothing<dim>(ReferenceCells::Quadrilateral, 2, true) == FE_Nothing<dim>(2, true)) << std::endl;
+      deallog << (FE_Nothing<dim>(ReferenceCells::Triangle, 2, true) == FE_Nothing<dim>(2, true)) << std::endl;
     }
   if (dim == 3)
     {
-      deallog << (FE_Nothing<dim>(ReferenceCells::Hexahedron, 2, true) ==
-                  FE_Nothing<dim>(2, true))
-              << std::endl;
-      deallog << (FE_Nothing<dim>(ReferenceCells::Tetrahedron, 2, true) ==
-                  FE_Nothing<dim>(2, true))
-              << std::endl;
+      deallog << (FE_Nothing<dim>(ReferenceCells::Hexahedron, 2, true) == FE_Nothing<dim>(2, true)) << std::endl;
+      deallog << (FE_Nothing<dim>(ReferenceCells::Tetrahedron, 2, true) == FE_Nothing<dim>(2, true)) << std::endl;
       deallog << (FE_Nothing<dim>(ReferenceCells::Wedge, 1, false) ==
                   FE_Nothing<dim>(ReferenceCells::Pyramid, 1, false))
               << std::endl;
-      deallog << (FE_Nothing<dim>(ReferenceCells::Wedge, 3) ==
-                  FE_Nothing<dim>(3))
-              << std::endl;
+      deallog << (FE_Nothing<dim>(ReferenceCells::Wedge, 3) == FE_Nothing<dim>(3)) << std::endl;
     }
 }
 

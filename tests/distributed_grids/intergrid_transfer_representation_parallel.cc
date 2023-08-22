@@ -70,8 +70,7 @@ test(unsigned n_refinements)
       typename Triangulation<dim>::active_cell_iterator cell;
       for (cell = tria2.begin_active(); cell != tria2.end(); ++cell)
         {
-          if (cell->is_locally_owned() &&
-              (cell->center().distance(p0) < 0.71 / double(i + 1)))
+          if (cell->is_locally_owned() && (cell->center().distance(p0) < 0.71 / double(i + 1)))
             cell->set_refine_flag();
         }
 
@@ -100,9 +99,7 @@ test(unsigned n_refinements)
   for (std::size_t i = 0; i < transfer_representation.size(); ++i)
     {
       TransferRep::value_type m = transfer_representation[i];
-      for (TransferRep::value_type::const_iterator it = m.begin();
-           it != m.end();
-           ++it)
+      for (TransferRep::value_type::const_iterator it = m.begin(); it != m.end(); ++it)
         local_sum += static_cast<unsigned int>(it->second);
     }
 

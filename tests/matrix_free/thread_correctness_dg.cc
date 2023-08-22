@@ -36,8 +36,7 @@ sub_test()
   create_mesh(tria);
   tria.begin_active()->set_refine_flag();
   tria.execute_coarsening_and_refinement();
-  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(),
-                                                    endc = tria.end();
+  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
   for (; cell != endc; ++cell)
     if (cell->center().norm() < 0.5)
       cell->set_refine_flag();
@@ -88,37 +87,31 @@ sub_test()
                        dof,
                        constraints,
                        quad,
-                       typename MatrixFree<dim, number>::AdditionalData(
-                         MatrixFree<dim, number>::AdditionalData::none));
+                       typename MatrixFree<dim, number>::AdditionalData(MatrixFree<dim, number>::AdditionalData::none));
 
         // choose block size of 3 which introduces
         // some irregularity to the blocks (stress the
         // non-overlapping computation harder)
-        mf_data_color.reinit(
-          MappingQ1<dim>{},
-          dof,
-          constraints,
-          quad,
-          typename MatrixFree<dim, number>::AdditionalData(
-            MatrixFree<dim, number>::AdditionalData::partition_color, 3));
+        mf_data_color.reinit(MappingQ1<dim>{},
+                             dof,
+                             constraints,
+                             quad,
+                             typename MatrixFree<dim, number>::AdditionalData(
+                               MatrixFree<dim, number>::AdditionalData::partition_color, 3));
 
-        mf_data_partition.reinit(
-          MappingQ1<dim>{},
-          dof,
-          constraints,
-          quad,
-          typename MatrixFree<dim, number>::AdditionalData(
-            MatrixFree<dim, number>::AdditionalData::partition_partition, 3));
+        mf_data_partition.reinit(MappingQ1<dim>{},
+                                 dof,
+                                 constraints,
+                                 quad,
+                                 typename MatrixFree<dim, number>::AdditionalData(
+                                   MatrixFree<dim, number>::AdditionalData::partition_partition, 3));
       }
 
       MatrixFreeTest<dim, fe_degree, fe_degree + 1, number> mf_ref(mf_data);
-      MatrixFreeTest<dim, fe_degree, fe_degree + 1, number> mf_color(
-        mf_data_color);
-      MatrixFreeTest<dim, fe_degree, fe_degree + 1, number> mf_partition(
-        mf_data_partition);
-      Vector<number> in_dist(dof.n_dofs());
-      Vector<number> out_dist(in_dist), out_color(in_dist),
-        out_partition(in_dist);
+      MatrixFreeTest<dim, fe_degree, fe_degree + 1, number> mf_color(mf_data_color);
+      MatrixFreeTest<dim, fe_degree, fe_degree + 1, number> mf_partition(mf_data_partition);
+      Vector<number>                                        in_dist(dof.n_dofs());
+      Vector<number> out_dist(in_dist), out_color(in_dist), out_partition(in_dist);
 
       for (unsigned int i = 0; i < dof.n_dofs(); ++i)
         {
@@ -141,16 +134,12 @@ sub_test()
           double diff_norm = out_color.linfty_norm();
           if (std::is_same_v<number, float> && diff_norm < 5e-6)
             diff_norm = 0;
-          deallog << "Sweep " << sweep
-                  << ", error in partition/color:                  "
-                  << diff_norm << std::endl;
+          deallog << "Sweep " << sweep << ", error in partition/color:                  " << diff_norm << std::endl;
           out_partition -= out_dist;
           diff_norm = out_partition.linfty_norm();
           if (std::is_same_v<number, float> && diff_norm < 5e-6)
             diff_norm = 0;
-          deallog << "Sweep " << sweep
-                  << ", error in partition/partition:              "
-                  << diff_norm << std::endl;
+          deallog << "Sweep " << sweep << ", error in partition/partition:              " << diff_norm << std::endl;
         }
       deallog << std::endl;
     }

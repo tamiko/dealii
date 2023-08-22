@@ -44,10 +44,7 @@
 #include <string>
 
 double
-test(const unsigned int n,
-     const unsigned int exponent,
-     const double       a,
-     const double       b)
+test(const unsigned int n, const unsigned int exponent, const double a, const double b)
 {
   const QGaussLog<1> qlog(n);
   const QGauss<1>    qgauss(7);
@@ -63,9 +60,7 @@ test(const unsigned int n,
 
   DoFHandler<1> dh(tria);
 
-  FEValues<1> fe_values(feq,
-                        qlog,
-                        update_JxW_values | update_quadrature_points),
+  FEValues<1> fe_values(feq, qlog, update_JxW_values | update_quadrature_points),
     fev_help(feq, qgauss, update_JxW_values | update_quadrature_points);
 
 
@@ -81,8 +76,7 @@ test(const unsigned int n,
       fev_help.reinit(cell);
       for (unsigned int i = 0; i < fe_values.n_quadrature_points; ++i)
         {
-          integral +=
-            fe_values.JxW(i) * monomial.value(fe_values.quadrature_point(i));
+          integral += fe_values.JxW(i) * monomial.value(fe_values.quadrature_point(i));
         }
 
 
@@ -96,8 +90,7 @@ test(const unsigned int n,
 
       for (unsigned int i = 0; i < fev_help.n_quadrature_points; ++i)
         {
-          integral += fev_help.JxW(i) *
-                      monomial.value(fev_help.quadrature_point(i)) * log(b - a);
+          integral += fev_help.JxW(i) * monomial.value(fev_help.quadrature_point(i)) * log(b - a);
         }
     }
 
@@ -140,18 +133,15 @@ main()
 
   double exact_integral;
 
-  deallog
-    << "Calculation of the integral of ln(x-a)*f(x) on the interval [a,b] = ["
-    << a << ", " << b << ']' << std::endl;
+  deallog << "Calculation of the integral of ln(x-a)*f(x) on the interval [a,b] = [" << a << ", " << b << ']'
+          << std::endl;
   for (unsigned int j = 0; j < 13; ++j)
     {
       exact_integral = 0;
       for (unsigned int k = 0; k <= j; ++k)
-        exact_integral +=
-          newton_binomial(j, k) * pow(a, static_cast<int>(j - k)) *
-          (pow(b - a, static_cast<int>(k) + 1) / (k + 1) * log(b - a) -
-           pow(b - a, static_cast<int>(k) + 1) /
-             pow(static_cast<double>(k + 1), 2));
+        exact_integral += newton_binomial(j, k) * pow(a, static_cast<int>(j - k)) *
+                          (pow(b - a, static_cast<int>(k) + 1) / (k + 1) * log(b - a) -
+                           pow(b - a, static_cast<int>(k) + 1) / pow(static_cast<double>(k + 1), 2));
       deallog << "f(x) = x^" << j << std::endl;
       for (unsigned int i = 1; i < 13; ++i)
         deallog << " No. of points = " << i << "  "

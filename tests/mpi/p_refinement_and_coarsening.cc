@@ -52,8 +52,7 @@ test()
 
   // set future_fe_indices
   unsigned int future_feidx = 0;
-  for (const auto &cell :
-       dh.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : dh.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     {
       // check if cell is initialized correctly
       Assert(cell->active_fe_index() == 0, ExcInternalError());
@@ -66,13 +65,11 @@ test()
   tria.execute_coarsening_and_refinement();
 
   // check if all flags were cleared and verify fe_indices
-  for (const auto &cell :
-       dh.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : dh.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     {
       Assert(cell->future_fe_index_set() == false, ExcInternalError());
 
-      deallog << "cell:" << cell->id().to_string()
-              << ", fe_index:" << cell->active_fe_index() << std::endl;
+      deallog << "cell:" << cell->id().to_string() << ", fe_index:" << cell->active_fe_index() << std::endl;
     }
 }
 

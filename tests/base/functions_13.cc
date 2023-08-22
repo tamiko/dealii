@@ -41,12 +41,10 @@ main()
   initlog();
 
   MyFunctionTime<std::complex<double>> function_time_1;
-  static_assert(std::is_same<decltype(function_time_1.get_time()),
-                             std::complex<double>>::value,
+  static_assert(std::is_same<decltype(function_time_1.get_time()), std::complex<double>>::value,
                 "Wrong return type for FunctionTime<double>::get_time().");
   MyFunctionTime<std::complex<float>> function_time_2;
-  static_assert(std::is_same<decltype(function_time_2.get_time()),
-                             std::complex<float>>::value,
+  static_assert(std::is_same<decltype(function_time_2.get_time()), std::complex<float>>::value,
                 "Wrong return type for FunctionTime<float>::get_time().");
 
   MyFunction<1, std::complex<double>> function_1;

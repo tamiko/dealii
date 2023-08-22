@@ -201,9 +201,8 @@ namespace internal
                      size_type,
                      size_type,
                      size_type,
-                     << "Index " << N - P + 1 << "has a value of " << arg1
-                     << " but needs to be in the range [" << arg2 << ',' << arg3
-                     << "[.");
+                     << "Index " << N - P + 1 << "has a value of " << arg1 << " but needs to be in the range [" << arg2
+                     << ',' << arg3 << "[.");
 
     private:
       /**
@@ -466,9 +465,7 @@ public:
    * and third argument by calling fill(entries,C_style_indexing).
    */
   template <typename InputIterator>
-  TableBase(const TableIndices<N> &sizes,
-            InputIterator          entries,
-            const bool             C_style_indexing = true);
+  TableBase(const TableIndices<N> &sizes, InputIterator entries, const bool C_style_indexing = true);
 
   /**
    * Copy constructor. Performs a deep copy.
@@ -543,8 +540,7 @@ public:
    * memory is left in an uninitialized or otherwise undefined state.
    */
   void
-  reinit(const TableIndices<N> &new_size,
-         const bool             omit_default_initialization = false);
+  reinit(const TableIndices<N> &new_size, const bool omit_default_initialization = false);
 
   /**
    * Set all dimensions to zero.
@@ -725,8 +721,7 @@ public:
    *   the destructor is called.
    */
   void
-  replicate_across_communicator(const MPI_Comm     communicator,
-                                const unsigned int root_process);
+  replicate_across_communicator(const MPI_Comm communicator, const unsigned int root_process);
 
   /**
    * Swap the contents of this table and the other table @p v. One could do
@@ -887,9 +882,7 @@ public:
    * input range. If false, change the first index fastest.
    */
   template <typename InputIterator>
-  Table(const size_type size,
-        InputIterator   entries,
-        const bool      C_style_indexing = true);
+  Table(const size_type size, InputIterator entries, const bool C_style_indexing = true);
 
   /**
    * Access operator. Since this is a one-dimensional object, this simply
@@ -987,8 +980,7 @@ namespace MatrixTableIterators
     /**
      * Type of the stored pointer to the table.
      */
-    using container_pointer_type = typename std::
-      conditional<Constness, const TableType *, TableType *>::type;
+    using container_pointer_type = typename std::conditional<Constness, const TableType *, TableType *>::type;
 
     /**
      * Value type of the underlying container.
@@ -1018,20 +1010,17 @@ namespace MatrixTableIterators
     /**
      * Constructor taking an array index.
      */
-    AccessorBase(const container_pointer_type table,
-                 const std::ptrdiff_t         linear_index);
+    AccessorBase(const container_pointer_type table, const std::ptrdiff_t linear_index);
 
     /**
      * Comparison operator.
      */
     template <bool OtherConstness>
     friend bool
-    operator==(
-      const AccessorBase<TableType, Constness, storage_order> &     left,
-      const AccessorBase<TableType, OtherConstness, storage_order> &right)
+    operator==(const AccessorBase<TableType, Constness, storage_order>      &left,
+               const AccessorBase<TableType, OtherConstness, storage_order> &right)
     {
-      return left.container == right.container &&
-             left.linear_index == right.linear_index;
+      return left.container == right.container && left.linear_index == right.linear_index;
     }
 
     /**
@@ -1082,9 +1071,8 @@ namespace MatrixTableIterators
     friend class AccessorBase<TableType, true, storage_order>;
 
     // Make the underlying iterator class a friend.
-    friend class LinearIndexIterator<
-      Iterator<TableType, Constness, storage_order>,
-      Accessor<TableType, Constness, storage_order>>;
+    friend class LinearIndexIterator<Iterator<TableType, Constness, storage_order>,
+                                     Accessor<TableType, Constness, storage_order>>;
   };
 
   /**
@@ -1092,21 +1080,18 @@ namespace MatrixTableIterators
    * table. This is the same as the base class.
    */
   template <typename TableType, Storage storage_order>
-  class Accessor<TableType, true, storage_order>
-    : public AccessorBase<TableType, true, storage_order>
+  class Accessor<TableType, true, storage_order> : public AccessorBase<TableType, true, storage_order>
   {
   public:
     /**
      * Use the base class value type.
      */
-    using value_type =
-      typename AccessorBase<TableType, true, storage_order>::value_type;
+    using value_type = typename AccessorBase<TableType, true, storage_order>::value_type;
 
     /**
      * Use the base class size type.
      */
-    using size_type =
-      typename AccessorBase<TableType, true, storage_order>::size_type;
+    using size_type = typename AccessorBase<TableType, true, storage_order>::size_type;
 
     /**
      * Inherit the base class constructors.
@@ -1119,21 +1104,18 @@ namespace MatrixTableIterators
    * a table.
    */
   template <typename TableType, Storage storage_order>
-  class Accessor<TableType, false, storage_order>
-    : public AccessorBase<TableType, false, storage_order>
+  class Accessor<TableType, false, storage_order> : public AccessorBase<TableType, false, storage_order>
   {
   public:
     /**
      * Use the base class value type.
      */
-    using value_type =
-      typename AccessorBase<TableType, true, storage_order>::value_type;
+    using value_type = typename AccessorBase<TableType, true, storage_order>::value_type;
 
     /**
      * Use the base class size type.
      */
-    using size_type =
-      typename AccessorBase<TableType, true, storage_order>::size_type;
+    using size_type = typename AccessorBase<TableType, true, storage_order>::size_type;
 
     /**
      * Inherit the base class constructors.
@@ -1186,9 +1168,8 @@ namespace MatrixTableIterators
    * Storage::row_major for Table<2, T>.
    */
   template <typename TableType, bool Constness, Storage storage_order>
-  class Iterator
-    : public LinearIndexIterator<Iterator<TableType, Constness, storage_order>,
-                                 Accessor<TableType, Constness, storage_order>>
+  class Iterator : public LinearIndexIterator<Iterator<TableType, Constness, storage_order>,
+                                              Accessor<TableType, Constness, storage_order>>
   {
   public:
     /**
@@ -1199,8 +1180,7 @@ namespace MatrixTableIterators
     /**
      * Type of the stored pointer to the table.
      */
-    using container_pointer_type = typename std::
-      conditional<Constness, const TableType *, TableType *>::type;
+    using container_pointer_type = typename std::conditional<Constness, const TableType *, TableType *>::type;
 
     /**
      * Constructor from an accessor.
@@ -1215,9 +1195,7 @@ namespace MatrixTableIterators
     /**
      * Constructor for a particular table entry.
      */
-    Iterator(const container_pointer_type object,
-             const size_type              row,
-             const size_type              column);
+    Iterator(const container_pointer_type object, const size_type row, const size_type column);
 
     /**
      * Copy constructor from a non-const iterator.
@@ -1227,8 +1205,7 @@ namespace MatrixTableIterators
     /**
      * Constructor for an entry with a particular linear index.
      */
-    Iterator(const container_pointer_type container,
-             const std::ptrdiff_t         linear_index);
+    Iterator(const container_pointer_type container, const std::ptrdiff_t linear_index);
   };
 } // namespace MatrixTableIterators
 
@@ -1275,14 +1252,12 @@ public:
    * Typedef for a constant iterator that traverses the table in column-major
    * order.
    */
-  using const_iterator = MatrixTableIterators::
-    Iterator<Table<2, T>, true, MatrixTableIterators::Storage::row_major>;
+  using const_iterator = MatrixTableIterators::Iterator<Table<2, T>, true, MatrixTableIterators::Storage::row_major>;
 
   /**
    * Typedef for an iterator that traverses the table in column-major order.
    */
-  using iterator = MatrixTableIterators::
-    Iterator<Table<2, T>, false, MatrixTableIterators::Storage::row_major>;
+  using iterator = MatrixTableIterators::Iterator<Table<2, T>, false, MatrixTableIterators::Storage::row_major>;
 
   /**
    * Default constructor. Set all dimensions to zero.
@@ -1333,10 +1308,7 @@ public:
    * input range. If false, change the first index fastest.
    */
   template <typename InputIterator>
-  Table(const size_type size1,
-        const size_type size2,
-        InputIterator   entries,
-        const bool      C_style_indexing = true);
+  Table(const size_type size1, const size_type size2, InputIterator entries, const bool C_style_indexing = true);
 
   /**
    * Reinitialize the object. This function is mostly here for compatibility
@@ -1344,9 +1316,7 @@ public:
    * by converting the arguments to the data type requested by the base class.
    */
   void
-  reinit(const size_type size1,
-         const size_type size2,
-         const bool      omit_default_initialization = false);
+  reinit(const size_type size1, const size_type size2, const bool omit_default_initialization = false);
 
   using TableBase<2, T>::reinit;
 
@@ -1462,15 +1432,12 @@ protected:
 
   // Make the AccessorBase class a friend so that it may directly index into
   // the array.
-  friend class MatrixTableIterators::
-    AccessorBase<Table<2, T>, true, MatrixTableIterators::Storage::row_major>;
-  friend class MatrixTableIterators::
-    AccessorBase<Table<2, T>, false, MatrixTableIterators::Storage::row_major>;
+  friend class MatrixTableIterators::AccessorBase<Table<2, T>, true, MatrixTableIterators::Storage::row_major>;
+  friend class MatrixTableIterators::AccessorBase<Table<2, T>, false, MatrixTableIterators::Storage::row_major>;
 
   // Make the mutable accessor class a friend so that we can write to array
   // entries with iterators.
-  friend class MatrixTableIterators::
-    Accessor<Table<2, T>, false, MatrixTableIterators::Storage::row_major>;
+  friend class MatrixTableIterators::Accessor<Table<2, T>, false, MatrixTableIterators::Storage::row_major>;
 };
 
 
@@ -1635,10 +1602,7 @@ public:
   /**
    * Constructor. Pass down the given dimensions to the base class.
    */
-  Table(const size_type size1,
-        const size_type size2,
-        const size_type size3,
-        const size_type size4);
+  Table(const size_type size1, const size_type size2, const size_type size3, const size_type size4);
 
   /**
    * Access operator. Generate an object that accesses the requested three-
@@ -1667,10 +1631,7 @@ public:
    * This version of the function only allows read access.
    */
   typename AlignedVector<T>::const_reference
-  operator()(const size_type i,
-             const size_type j,
-             const size_type k,
-             const size_type l) const;
+  operator()(const size_type i, const size_type j, const size_type k, const size_type l) const;
 
 
   /**
@@ -1680,10 +1641,7 @@ public:
    * This version of the function allows read-write access.
    */
   typename AlignedVector<T>::reference
-  operator()(const size_type i,
-             const size_type j,
-             const size_type k,
-             const size_type l);
+  operator()(const size_type i, const size_type j, const size_type k, const size_type l);
 
   /**
    * Make the variations of `operator()` from the base class available.
@@ -1753,11 +1711,7 @@ public:
    * This version of the function only allows read access.
    */
   typename AlignedVector<T>::const_reference
-  operator()(const size_type i,
-             const size_type j,
-             const size_type k,
-             const size_type l,
-             const size_type m) const;
+  operator()(const size_type i, const size_type j, const size_type k, const size_type l, const size_type m) const;
 
   /**
    * Direct access to one element of the table by specifying all indices at
@@ -1766,11 +1720,7 @@ public:
    * This version of the function allows read-write access.
    */
   typename AlignedVector<T>::reference
-  operator()(const size_type i,
-             const size_type j,
-             const size_type k,
-             const size_type l,
-             const size_type m);
+  operator()(const size_type i, const size_type j, const size_type k, const size_type l, const size_type m);
 
   /**
    * Make the variations of `operator()` from the base class available.
@@ -2000,17 +1950,13 @@ public:
    * order.
    */
   using const_iterator =
-    MatrixTableIterators::Iterator<TransposeTable<T>,
-                                   true,
-                                   MatrixTableIterators::Storage::column_major>;
+    MatrixTableIterators::Iterator<TransposeTable<T>, true, MatrixTableIterators::Storage::column_major>;
 
   /**
    * Typedef for an iterator that traverses the table in column-major order.
    */
   using iterator =
-    MatrixTableIterators::Iterator<TransposeTable<T>,
-                                   false,
-                                   MatrixTableIterators::Storage::column_major>;
+    MatrixTableIterators::Iterator<TransposeTable<T>, false, MatrixTableIterators::Storage::column_major>;
 
   /**
    * Default constructor. Set all dimensions to zero.
@@ -2028,9 +1974,7 @@ public:
    * by converting the arguments to the data type requested by the base class.
    */
   void
-  reinit(const size_type size1,
-         const size_type size2,
-         const bool      omit_default_initialization = false);
+  reinit(const size_type size1, const size_type size2, const bool omit_default_initialization = false);
 
   /**
    * Direct access to one element of the table by specifying all indices at
@@ -2121,21 +2065,13 @@ protected:
 
   // Make the AccessorBase class a friend so that it may directly index into
   // the array.
-  friend class MatrixTableIterators::AccessorBase<
-    TransposeTable<T>,
-    true,
-    MatrixTableIterators::Storage::column_major>;
-  friend class MatrixTableIterators::AccessorBase<
-    TransposeTable<T>,
-    false,
-    MatrixTableIterators::Storage::column_major>;
+  friend class MatrixTableIterators::AccessorBase<TransposeTable<T>, true, MatrixTableIterators::Storage::column_major>;
+  friend class MatrixTableIterators::
+    AccessorBase<TransposeTable<T>, false, MatrixTableIterators::Storage::column_major>;
 
   // Make the mutable accessor class a friend so that we can write to array
   // entries with iterators.
-  friend class MatrixTableIterators::Accessor<
-    TransposeTable<T>,
-    false,
-    MatrixTableIterators::Storage::column_major>;
+  friend class MatrixTableIterators::Accessor<TransposeTable<T>, false, MatrixTableIterators::Storage::column_major>;
 };
 
 
@@ -2154,9 +2090,7 @@ TableBase<N, T>::TableBase(const TableIndices<N> &sizes)
 
 template <int N, typename T>
 template <typename InputIterator>
-TableBase<N, T>::TableBase(const TableIndices<N> &sizes,
-                           InputIterator          entries,
-                           const bool             C_style_indexing)
+TableBase<N, T>::TableBase(const TableIndices<N> &sizes, InputIterator entries, const bool C_style_indexing)
 {
   reinit(sizes);
   fill(entries, C_style_indexing);
@@ -2212,8 +2146,7 @@ namespace internal
   namespace TableBaseAccessors
   {
     template <int N, typename T, bool C, unsigned int P>
-    inline Accessor<N, T, C, P>::Accessor(const TableType &table,
-                                          const iterator   data)
+    inline Accessor<N, T, C, P>::Accessor(const TableType &table, const iterator data)
       : table(table)
       , data(data)
     {}
@@ -2255,8 +2188,7 @@ namespace internal
 
 
     template <int N, typename T, bool C>
-    inline Accessor<N, T, C, 1>::Accessor(const TableType &table,
-                                          const iterator   data)
+    inline Accessor<N, T, C, 1>::Accessor(const TableType &table, const iterator data)
       : table(table)
       , data(data)
     {}
@@ -2330,9 +2262,7 @@ TableBase<N, T>::operator=(const TableBase<N, T2> &m)
 {
   reinit(m.size(), true);
   if (!empty())
-    std::copy(m.values.begin(),
-              m.values.begin() + n_elements(),
-              values.begin());
+    std::copy(m.values.begin(), m.values.begin() + n_elements(), values.begin());
 
   return *this;
 }
@@ -2385,23 +2315,20 @@ TableBase<N, T>::fill(const T &value)
 
 template <int N, typename T>
 inline void
-TableBase<N, T>::replicate_across_communicator(const MPI_Comm     communicator,
-                                               const unsigned int root_process)
+TableBase<N, T>::replicate_across_communicator(const MPI_Comm communicator, const unsigned int root_process)
 {
   // Replicate first the actual data, then also exchange the
   // extents of the table
   values.replicate_across_communicator(communicator, root_process);
 
-  table_size =
-    Utilities::MPI::broadcast(communicator, table_size, root_process);
+  table_size = Utilities::MPI::broadcast(communicator, table_size, root_process);
 }
 
 
 
 template <int N, typename T>
 inline void
-TableBase<N, T>::reinit(const TableIndices<N> &new_sizes,
-                        const bool             omit_default_initialization)
+TableBase<N, T>::reinit(const TableIndices<N> &new_sizes, const bool omit_default_initialization)
 {
   table_size = new_sizes;
 
@@ -2547,9 +2474,7 @@ TableBase<N, T>::fill(InputIterator entries, const bool C_style_indexing)
   Assert(n_elements() != 0, ExcMessage("Trying to fill an empty matrix."));
 
   if (C_style_indexing)
-    for (typename AlignedVector<T>::iterator p = values.begin();
-         p != values.end();
-         ++p)
+    for (typename AlignedVector<T>::iterator p = values.begin(); p != values.end(); ++p)
       *p = *entries++;
   else
     internal::TableImplementation::fill_Fortran_style(entries, *this);
@@ -2592,9 +2517,7 @@ TableBase<N, T>::position(const TableIndices<N> &indices) const
       case 2:
         return size_type(indices[0]) * table_size[1] + indices[1];
       case 3:
-        return ((size_type(indices[0]) * table_size[1] + indices[1]) *
-                  table_size[2] +
-                indices[2]);
+        return ((size_type(indices[0]) * table_size[1] + indices[1]) * table_size[2] + indices[2]);
       default:
         {
           unsigned int s = indices[0];
@@ -2657,9 +2580,7 @@ inline Table<1, T>::Table(const size_type size)
 
 template <typename T>
 template <typename InputIterator>
-inline Table<1, T>::Table(const size_type size,
-                          InputIterator   entries,
-                          const bool      C_style_indexing)
+inline Table<1, T>::Table(const size_type size, InputIterator entries, const bool C_style_indexing)
   : TableBase<1, T>(TableIndices<1>(size), entries, C_style_indexing)
 {}
 
@@ -2728,12 +2649,9 @@ inline Table<2, T>::Table(const size_type size1,
 
 template <typename T>
 inline void
-Table<2, T>::reinit(const size_type size1,
-                    const size_type size2,
-                    const bool      omit_default_initialization)
+Table<2, T>::reinit(const size_type size1, const size_type size2, const bool omit_default_initialization)
 {
-  this->TableBase<2, T>::reinit(TableIndices<2>(size1, size2),
-                                omit_default_initialization);
+  this->TableBase<2, T>::reinit(TableIndices<2>(size1, size2), omit_default_initialization);
 }
 
 
@@ -2743,8 +2661,8 @@ inline dealii::internal::TableBaseAccessors::Accessor<2, T, true, 1>
 Table<2, T>::operator[](const size_type i) const
 {
   AssertIndexRange(i, this->table_size[0]);
-  return dealii::internal::TableBaseAccessors::Accessor<2, T, true, 1>(
-    *this, this->values.begin() + size_type(i) * n_cols());
+  return dealii::internal::TableBaseAccessors::Accessor<2, T, true, 1>(*this,
+                                                                       this->values.begin() + size_type(i) * n_cols());
 }
 
 
@@ -2754,8 +2672,8 @@ inline dealii::internal::TableBaseAccessors::Accessor<2, T, false, 1>
 Table<2, T>::operator[](const size_type i)
 {
   AssertIndexRange(i, this->table_size[0]);
-  return dealii::internal::TableBaseAccessors::Accessor<2, T, false, 1>(
-    *this, this->values.begin() + size_type(i) * n_cols());
+  return dealii::internal::TableBaseAccessors::Accessor<2, T, false, 1>(*this,
+                                                                        this->values.begin() + size_type(i) * n_cols());
 }
 
 
@@ -2863,8 +2781,7 @@ namespace MatrixTableIterators
     // checking whatsoever.
     template <typename TableType, Storage storage_order>
     inline std::ptrdiff_t
-    get_row_index(const std::ptrdiff_t   linear_index,
-                  const TableType *const container)
+    get_row_index(const std::ptrdiff_t linear_index, const TableType *const container)
     {
       switch (storage_order)
         {
@@ -2882,8 +2799,7 @@ namespace MatrixTableIterators
 
     template <typename TableType, Storage storage_order>
     inline std::ptrdiff_t
-    get_column_index(const std::ptrdiff_t   linear_index,
-                     const TableType *const container)
+    get_column_index(const std::ptrdiff_t linear_index, const TableType *const container)
     {
       switch (storage_order)
         {
@@ -2909,8 +2825,7 @@ namespace MatrixTableIterators
 
 
   template <typename TableType, bool Constness, Storage storage_order>
-  inline AccessorBase<TableType, Constness, storage_order>::AccessorBase(
-    const container_pointer_type table)
+  inline AccessorBase<TableType, Constness, storage_order>::AccessorBase(const container_pointer_type table)
     : container(table)
     , linear_index(container->values.size())
   {}
@@ -2927,14 +2842,12 @@ namespace MatrixTableIterators
 
 
   template <typename TableType, bool Constness, Storage storage_order>
-  inline AccessorBase<TableType, Constness, storage_order>::AccessorBase(
-    const container_pointer_type table,
-    const std::ptrdiff_t         index)
+  inline AccessorBase<TableType, Constness, storage_order>::AccessorBase(const container_pointer_type table,
+                                                                         const std::ptrdiff_t         index)
     : container(table)
     , linear_index(index)
   {
-    Assert(0 <= linear_index &&
-             std::size_t(linear_index) < container->values.size() + 1,
+    Assert(0 <= linear_index && std::size_t(linear_index) < container->values.size() + 1,
            ExcMessage("The current iterator points outside of the table and is "
                       "not the end iterator."));
   }
@@ -2942,9 +2855,8 @@ namespace MatrixTableIterators
 
 
   template <typename TableType, bool Constness, Storage storage_order>
-  inline const typename AccessorBase<TableType, Constness, storage_order>::
-    value_type &
-    AccessorBase<TableType, Constness, storage_order>::value() const
+  inline const typename AccessorBase<TableType, Constness, storage_order>::value_type &
+  AccessorBase<TableType, Constness, storage_order>::value() const
   {
     assert_valid_linear_index();
     return this->container->values[linear_index];
@@ -2953,8 +2865,7 @@ namespace MatrixTableIterators
 
 
   template <typename TableType, bool Constness, Storage storage_order>
-  inline AccessorBase<TableType, Constness, storage_order>::
-  operator const value_type &() const
+  inline AccessorBase<TableType, Constness, storage_order>::operator const value_type &() const
   {
     assert_valid_linear_index();
     return this->container->values[linear_index];
@@ -2967,9 +2878,7 @@ namespace MatrixTableIterators
   AccessorBase<TableType, Constness, storage_order>::row() const
   {
     assert_valid_linear_index();
-    return static_cast<std::size_t>(
-      internal::get_row_index<TableType, storage_order>(linear_index,
-                                                        container));
+    return static_cast<std::size_t>(internal::get_row_index<TableType, storage_order>(linear_index, container));
   }
 
 
@@ -2979,33 +2888,24 @@ namespace MatrixTableIterators
   AccessorBase<TableType, Constness, storage_order>::column() const
   {
     assert_valid_linear_index();
-    return static_cast<std::size_t>(
-      internal::get_column_index<TableType, storage_order>(linear_index,
-                                                           container));
+    return static_cast<std::size_t>(internal::get_column_index<TableType, storage_order>(linear_index, container));
   }
 
 
 
   template <typename TableType, bool Constness, Storage storage_order>
   inline void
-  AccessorBase<TableType, Constness, storage_order>::assert_valid_linear_index()
-    const
+  AccessorBase<TableType, Constness, storage_order>::assert_valid_linear_index() const
   {
 #  ifdef DEBUG // avoid unused variable warnings by guarding everything
     Assert(container != nullptr,
            ExcMessage("This accessor has been default-constructed and does not "
                       "have a corresponding table."));
-    Assert(!container->empty(),
-           ExcMessage("An empty table has no rows or columns."));
-    Assert(0 <= linear_index &&
-             std::size_t(linear_index) < container->values.size(),
+    Assert(!container->empty(), ExcMessage("An empty table has no rows or columns."));
+    Assert(0 <= linear_index && std::size_t(linear_index) < container->values.size(),
            ExcMessage("The current iterator points outside of the table."));
-    const std::ptrdiff_t row_n =
-      internal::get_row_index<TableType, storage_order>(linear_index,
-                                                        container);
-    const std::ptrdiff_t column_n =
-      internal::get_column_index<TableType, storage_order>(linear_index,
-                                                           container);
+    const std::ptrdiff_t row_n    = internal::get_row_index<TableType, storage_order>(linear_index, container);
+    const std::ptrdiff_t column_n = internal::get_column_index<TableType, storage_order>(linear_index, container);
     Assert(0 <= column_n && std::size_t(column_n) < container->n_cols(),
            ExcMessage("The current iterator points outside the table."));
     Assert(0 <= row_n && std::size_t(row_n) < container->n_rows(),
@@ -3018,8 +2918,7 @@ namespace MatrixTableIterators
   template <typename TableType, Storage storage_order>
   inline const Accessor<TableType, false, storage_order> &
   Accessor<TableType, false, storage_order>::operator=(
-    const typename Accessor<TableType, false, storage_order>::value_type &t)
-    const
+    const typename Accessor<TableType, false, storage_order>::value_type &t) const
   {
     this->assert_valid_linear_index();
     this->container->values[this->linear_index] = t;
@@ -3060,52 +2959,43 @@ namespace MatrixTableIterators
 
 
   template <typename TableType, bool Constness, Storage storage_order>
-  inline Iterator<TableType, Constness, storage_order>::Iterator(
-    const Accessor<TableType, Constness, storage_order> &a)
-    : LinearIndexIterator<Iterator<TableType, Constness, storage_order>,
-                          Accessor<TableType, Constness, storage_order>>(a)
+  inline Iterator<TableType, Constness, storage_order>::Iterator(const Accessor<TableType, Constness, storage_order> &a)
+    : LinearIndexIterator<Iterator<TableType, Constness, storage_order>, Accessor<TableType, Constness, storage_order>>(
+        a)
   {}
 
 
 
   template <typename TableType, bool Constness, Storage storage_order>
-  inline Iterator<TableType, Constness, storage_order>::Iterator(
-    const container_pointer_type table)
-    : LinearIndexIterator<Iterator<TableType, Constness, storage_order>,
-                          Accessor<TableType, Constness, storage_order>>(
+  inline Iterator<TableType, Constness, storage_order>::Iterator(const container_pointer_type table)
+    : LinearIndexIterator<Iterator<TableType, Constness, storage_order>, Accessor<TableType, Constness, storage_order>>(
         Accessor<TableType, Constness, storage_order>(table))
   {}
 
 
 
   template <typename TableType, bool Constness, Storage storage_order>
-  inline Iterator<TableType, Constness, storage_order>::Iterator(
-    const Iterator<TableType, false, storage_order> &i)
-    : LinearIndexIterator<Iterator<TableType, Constness, storage_order>,
-                          Accessor<TableType, Constness, storage_order>>(*i)
+  inline Iterator<TableType, Constness, storage_order>::Iterator(const Iterator<TableType, false, storage_order> &i)
+    : LinearIndexIterator<Iterator<TableType, Constness, storage_order>, Accessor<TableType, Constness, storage_order>>(
+        *i)
   {}
 
 
 
   template <typename TableType, bool Constness, Storage storage_order>
-  inline Iterator<TableType, Constness, storage_order>::Iterator(
-    const container_pointer_type table,
-    const size_type              row_n,
-    const size_type              col_n)
+  inline Iterator<TableType, Constness, storage_order>::Iterator(const container_pointer_type table,
+                                                                 const size_type              row_n,
+                                                                 const size_type              col_n)
     : Iterator(table,
-               storage_order == Storage::row_major ?
-                 table->n_cols() * row_n + col_n :
-                 table->n_rows() * col_n + row_n)
+               storage_order == Storage::row_major ? table->n_cols() * row_n + col_n : table->n_rows() * col_n + row_n)
   {}
 
 
 
   template <typename TableType, bool Constness, Storage storage_order>
-  inline Iterator<TableType, Constness, storage_order>::Iterator(
-    const container_pointer_type table,
-    const std::ptrdiff_t         linear_index)
-    : LinearIndexIterator<Iterator<TableType, Constness, storage_order>,
-                          Accessor<TableType, Constness, storage_order>>(
+  inline Iterator<TableType, Constness, storage_order>::Iterator(const container_pointer_type table,
+                                                                 const std::ptrdiff_t         linear_index)
+    : LinearIndexIterator<Iterator<TableType, Constness, storage_order>, Accessor<TableType, Constness, storage_order>>(
         Accessor<TableType, Constness, storage_order>(table, linear_index))
   {}
 } // namespace MatrixTableIterators
@@ -3114,8 +3004,7 @@ namespace MatrixTableIterators
 
 //---------------------------------------------------------------------------
 template <typename T>
-inline TransposeTable<T>::TransposeTable(const size_type size1,
-                                         const size_type size2)
+inline TransposeTable<T>::TransposeTable(const size_type size1, const size_type size2)
   : TableBase<2, T>(TableIndices<2>(size2, size1))
 {}
 
@@ -3123,12 +3012,9 @@ inline TransposeTable<T>::TransposeTable(const size_type size1,
 
 template <typename T>
 inline void
-TransposeTable<T>::reinit(const size_type size1,
-                          const size_type size2,
-                          const bool      omit_default_initialization)
+TransposeTable<T>::reinit(const size_type size1, const size_type size2, const bool omit_default_initialization)
 {
-  this->TableBase<2, T>::reinit(TableIndices<2>(size2, size1),
-                                omit_default_initialization);
+  this->TableBase<2, T>::reinit(TableIndices<2>(size2, size1), omit_default_initialization);
 }
 
 
@@ -3229,9 +3115,7 @@ TransposeTable<T>::end() const
 
 
 template <typename T>
-inline Table<3, T>::Table(const size_type size1,
-                          const size_type size2,
-                          const size_type size3)
+inline Table<3, T>::Table(const size_type size1, const size_type size2, const size_type size3)
   : TableBase<3, T>(TableIndices<3>(size1, size2, size3))
 {}
 
@@ -3244,9 +3128,7 @@ inline Table<3, T>::Table(const size_type size1,
                           const size_type size3,
                           InputIterator   entries,
                           const bool      C_style_indexing)
-  : TableBase<3, T>(TableIndices<3>(size1, size2, size3),
-                    entries,
-                    C_style_indexing)
+  : TableBase<3, T>(TableIndices<3>(size1, size2, size3), entries, C_style_indexing)
 {}
 
 
@@ -3258,8 +3140,7 @@ Table<3, T>::reinit(const size_type size1,
                     const size_type size3,
                     const bool      omit_default_initialization)
 {
-  this->TableBase<3, T>::reinit(TableIndices<3>(size1, size2, size3),
-                                omit_default_initialization);
+  this->TableBase<3, T>::reinit(TableIndices<3>(size1, size2, size3), omit_default_initialization);
 }
 
 
@@ -3269,10 +3150,9 @@ inline dealii::internal::TableBaseAccessors::Accessor<3, T, true, 2>
 Table<3, T>::operator[](const size_type i) const
 {
   AssertIndexRange(i, this->table_size[0]);
-  const size_type subobject_size =
-    size_type(this->table_size[1]) * this->table_size[2];
-  return (dealii::internal::TableBaseAccessors::Accessor<3, T, true, 2>(
-    *this, this->values.begin() + i * subobject_size));
+  const size_type subobject_size = size_type(this->table_size[1]) * this->table_size[2];
+  return (
+    dealii::internal::TableBaseAccessors::Accessor<3, T, true, 2>(*this, this->values.begin() + i * subobject_size));
 }
 
 
@@ -3282,26 +3162,21 @@ inline dealii::internal::TableBaseAccessors::Accessor<3, T, false, 2>
 Table<3, T>::operator[](const size_type i)
 {
   AssertIndexRange(i, this->table_size[0]);
-  const size_type subobject_size =
-    size_type(this->table_size[1]) * this->table_size[2];
-  return (dealii::internal::TableBaseAccessors::Accessor<3, T, false, 2>(
-    *this, this->values.begin() + i * subobject_size));
+  const size_type subobject_size = size_type(this->table_size[1]) * this->table_size[2];
+  return (
+    dealii::internal::TableBaseAccessors::Accessor<3, T, false, 2>(*this, this->values.begin() + i * subobject_size));
 }
 
 
 
 template <typename T>
 inline typename AlignedVector<T>::const_reference
-Table<3, T>::operator()(const size_type i,
-                        const size_type j,
-                        const size_type k) const
+Table<3, T>::operator()(const size_type i, const size_type j, const size_type k) const
 {
   AssertIndexRange(i, this->table_size[0]);
   AssertIndexRange(j, this->table_size[1]);
   AssertIndexRange(k, this->table_size[2]);
-  return this
-    ->values[(size_type(i) * this->table_size[1] + j) * this->table_size[2] +
-             k];
+  return this->values[(size_type(i) * this->table_size[1] + j) * this->table_size[2] + k];
 }
 
 
@@ -3313,18 +3188,13 @@ Table<3, T>::operator()(const size_type i, const size_type j, const size_type k)
   AssertIndexRange(i, this->table_size[0]);
   AssertIndexRange(j, this->table_size[1]);
   AssertIndexRange(k, this->table_size[2]);
-  return this
-    ->values[(size_type(i) * this->table_size[1] + j) * this->table_size[2] +
-             k];
+  return this->values[(size_type(i) * this->table_size[1] + j) * this->table_size[2] + k];
 }
 
 
 
 template <typename T>
-inline Table<4, T>::Table(const size_type size1,
-                          const size_type size2,
-                          const size_type size3,
-                          const size_type size4)
+inline Table<4, T>::Table(const size_type size1, const size_type size2, const size_type size3, const size_type size4)
   : TableBase<4, T>(TableIndices<4>(size1, size2, size3, size4))
 {}
 
@@ -3335,10 +3205,9 @@ inline dealii::internal::TableBaseAccessors::Accessor<4, T, true, 3>
 Table<4, T>::operator[](const size_type i) const
 {
   AssertIndexRange(i, this->table_size[0]);
-  const size_type subobject_size =
-    size_type(this->table_size[1]) * this->table_size[2] * this->table_size[3];
-  return (dealii::internal::TableBaseAccessors::Accessor<4, T, true, 3>(
-    *this, this->values.begin() + i * subobject_size));
+  const size_type subobject_size = size_type(this->table_size[1]) * this->table_size[2] * this->table_size[3];
+  return (
+    dealii::internal::TableBaseAccessors::Accessor<4, T, true, 3>(*this, this->values.begin() + i * subobject_size));
 }
 
 
@@ -3348,50 +3217,35 @@ inline dealii::internal::TableBaseAccessors::Accessor<4, T, false, 3>
 Table<4, T>::operator[](const size_type i)
 {
   AssertIndexRange(i, this->table_size[0]);
-  const size_type subobject_size =
-    size_type(this->table_size[1]) * this->table_size[2] * this->table_size[3];
-  return (dealii::internal::TableBaseAccessors::Accessor<4, T, false, 3>(
-    *this, this->values.begin() + i * subobject_size));
+  const size_type subobject_size = size_type(this->table_size[1]) * this->table_size[2] * this->table_size[3];
+  return (
+    dealii::internal::TableBaseAccessors::Accessor<4, T, false, 3>(*this, this->values.begin() + i * subobject_size));
 }
 
 
 
 template <typename T>
 inline typename AlignedVector<T>::const_reference
-Table<4, T>::operator()(const size_type i,
-                        const size_type j,
-                        const size_type k,
-                        const size_type l) const
+Table<4, T>::operator()(const size_type i, const size_type j, const size_type k, const size_type l) const
 {
   AssertIndexRange(i, this->table_size[0]);
   AssertIndexRange(j, this->table_size[1]);
   AssertIndexRange(k, this->table_size[2]);
   AssertIndexRange(l, this->table_size[3]);
-  return this
-    ->values[((size_type(i) * this->table_size[1] + j) * this->table_size[2] +
-              k) *
-               this->table_size[3] +
-             l];
+  return this->values[((size_type(i) * this->table_size[1] + j) * this->table_size[2] + k) * this->table_size[3] + l];
 }
 
 
 
 template <typename T>
 inline typename AlignedVector<T>::reference
-Table<4, T>::operator()(const size_type i,
-                        const size_type j,
-                        const size_type k,
-                        const size_type l)
+Table<4, T>::operator()(const size_type i, const size_type j, const size_type k, const size_type l)
 {
   AssertIndexRange(i, this->table_size[0]);
   AssertIndexRange(j, this->table_size[1]);
   AssertIndexRange(k, this->table_size[2]);
   AssertIndexRange(l, this->table_size[3]);
-  return this
-    ->values[((size_type(i) * this->table_size[1] + j) * this->table_size[2] +
-              k) *
-               this->table_size[3] +
-             l];
+  return this->values[((size_type(i) * this->table_size[1] + j) * this->table_size[2] + k) * this->table_size[3] + l];
 }
 
 
@@ -3412,11 +3266,10 @@ inline dealii::internal::TableBaseAccessors::Accessor<5, T, true, 4>
 Table<5, T>::operator[](const size_type i) const
 {
   AssertIndexRange(i, this->table_size[0]);
-  const size_type subobject_size = size_type(this->table_size[1]) *
-                                   this->table_size[2] * this->table_size[3] *
-                                   this->table_size[4];
-  return (dealii::internal::TableBaseAccessors::Accessor<5, T, true, 4>(
-    *this, this->values.begin() + i * subobject_size));
+  const size_type subobject_size =
+    size_type(this->table_size[1]) * this->table_size[2] * this->table_size[3] * this->table_size[4];
+  return (
+    dealii::internal::TableBaseAccessors::Accessor<5, T, true, 4>(*this, this->values.begin() + i * subobject_size));
 }
 
 
@@ -3426,59 +3279,43 @@ inline dealii::internal::TableBaseAccessors::Accessor<5, T, false, 4>
 Table<5, T>::operator[](const size_type i)
 {
   AssertIndexRange(i, this->table_size[0]);
-  const size_type subobject_size = size_type(this->table_size[1]) *
-                                   this->table_size[2] * this->table_size[3] *
-                                   this->table_size[4];
-  return (dealii::internal::TableBaseAccessors::Accessor<5, T, false, 4>(
-    *this, this->values.begin() + i * subobject_size));
+  const size_type subobject_size =
+    size_type(this->table_size[1]) * this->table_size[2] * this->table_size[3] * this->table_size[4];
+  return (
+    dealii::internal::TableBaseAccessors::Accessor<5, T, false, 4>(*this, this->values.begin() + i * subobject_size));
 }
 
 
 
 template <typename T>
 inline typename AlignedVector<T>::const_reference
-Table<5, T>::operator()(const size_type i,
-                        const size_type j,
-                        const size_type k,
-                        const size_type l,
-                        const size_type m) const
+Table<5, T>::operator()(const size_type i, const size_type j, const size_type k, const size_type l, const size_type m)
+  const
 {
   AssertIndexRange(i, this->table_size[0]);
   AssertIndexRange(j, this->table_size[1]);
   AssertIndexRange(k, this->table_size[2]);
   AssertIndexRange(l, this->table_size[3]);
   AssertIndexRange(m, this->table_size[4]);
-  return this
-    ->values[(((size_type(i) * this->table_size[1] + j) * this->table_size[2] +
-               k) *
-                this->table_size[3] +
-              l) *
-               this->table_size[4] +
-             m];
+  return this->values[(((size_type(i) * this->table_size[1] + j) * this->table_size[2] + k) * this->table_size[3] + l) *
+                        this->table_size[4] +
+                      m];
 }
 
 
 
 template <typename T>
 inline typename AlignedVector<T>::reference
-Table<5, T>::operator()(const size_type i,
-                        const size_type j,
-                        const size_type k,
-                        const size_type l,
-                        const size_type m)
+Table<5, T>::operator()(const size_type i, const size_type j, const size_type k, const size_type l, const size_type m)
 {
   AssertIndexRange(i, this->table_size[0]);
   AssertIndexRange(j, this->table_size[1]);
   AssertIndexRange(k, this->table_size[2]);
   AssertIndexRange(l, this->table_size[3]);
   AssertIndexRange(m, this->table_size[4]);
-  return this
-    ->values[(((size_type(i) * this->table_size[1] + j) * this->table_size[2] +
-               k) *
-                this->table_size[3] +
-              l) *
-               this->table_size[4] +
-             m];
+  return this->values[(((size_type(i) * this->table_size[1] + j) * this->table_size[2] + k) * this->table_size[3] + l) *
+                        this->table_size[4] +
+                      m];
 }
 
 
@@ -3510,11 +3347,10 @@ inline dealii::internal::TableBaseAccessors::Accessor<6, T, true, 5>
 Table<6, T>::operator[](const size_type i) const
 {
   AssertIndexRange(i, this->table_size[0]);
-  const size_type subobject_size = size_type(this->table_size[1]) *
-                                   this->table_size[2] * this->table_size[3] *
+  const size_type subobject_size = size_type(this->table_size[1]) * this->table_size[2] * this->table_size[3] *
                                    this->table_size[4] * this->table_size[5];
-  return (dealii::internal::TableBaseAccessors::Accessor<6, T, true, 5>(
-    *this, this->values.begin() + i * subobject_size));
+  return (
+    dealii::internal::TableBaseAccessors::Accessor<6, T, true, 5>(*this, this->values.begin() + i * subobject_size));
 }
 
 
@@ -3524,11 +3360,10 @@ inline dealii::internal::TableBaseAccessors::Accessor<6, T, false, 5>
 Table<6, T>::operator[](const size_type i)
 {
   AssertIndexRange(i, this->table_size[0]);
-  const size_type subobject_size = size_type(this->table_size[1]) *
-                                   this->table_size[2] * this->table_size[3] *
+  const size_type subobject_size = size_type(this->table_size[1]) * this->table_size[2] * this->table_size[3] *
                                    this->table_size[4] * this->table_size[5];
-  return (dealii::internal::TableBaseAccessors::Accessor<6, T, false, 5>(
-    *this, this->values.begin() + i * subobject_size));
+  return (
+    dealii::internal::TableBaseAccessors::Accessor<6, T, false, 5>(*this, this->values.begin() + i * subobject_size));
 }
 
 
@@ -3549,10 +3384,7 @@ Table<6, T>::operator()(const size_type i,
   AssertIndexRange(m, this->table_size[4]);
   AssertIndexRange(n, this->table_size[5]);
   return this
-    ->values[((((size_type(i) * this->table_size[1] + j) * this->table_size[2] +
-                k) *
-                 this->table_size[3] +
-               l) *
+    ->values[((((size_type(i) * this->table_size[1] + j) * this->table_size[2] + k) * this->table_size[3] + l) *
                 this->table_size[4] +
               m) *
                this->table_size[5] +
@@ -3577,10 +3409,7 @@ Table<6, T>::operator()(const size_type i,
   AssertIndexRange(m, this->table_size[4]);
   AssertIndexRange(n, this->table_size[5]);
   return this
-    ->values[((((size_type(i) * this->table_size[1] + j) * this->table_size[2] +
-                k) *
-                 this->table_size[3] +
-               l) *
+    ->values[((((size_type(i) * this->table_size[1] + j) * this->table_size[2] + k) * this->table_size[3] + l) *
                 this->table_size[4] +
               m) *
                this->table_size[5] +
@@ -3618,11 +3447,10 @@ inline dealii::internal::TableBaseAccessors::Accessor<7, T, true, 6>
 Table<7, T>::operator[](const size_type i) const
 {
   AssertIndexRange(i, this->table_size[0]);
-  const size_type subobject_size =
-    size_type(this->table_size[1]) * this->table_size[2] * this->table_size[3] *
-    this->table_size[4] * this->table_size[5] * this->table_size[6];
-  return (dealii::internal::TableBaseAccessors::Accessor<7, T, true, 6>(
-    *this, this->values.begin() + i * subobject_size));
+  const size_type subobject_size = size_type(this->table_size[1]) * this->table_size[2] * this->table_size[3] *
+                                   this->table_size[4] * this->table_size[5] * this->table_size[6];
+  return (
+    dealii::internal::TableBaseAccessors::Accessor<7, T, true, 6>(*this, this->values.begin() + i * subobject_size));
 }
 
 
@@ -3632,11 +3460,10 @@ inline dealii::internal::TableBaseAccessors::Accessor<7, T, false, 6>
 Table<7, T>::operator[](const size_type i)
 {
   AssertIndexRange(i, this->table_size[0]);
-  const size_type subobject_size =
-    size_type(this->table_size[1]) * this->table_size[2] * this->table_size[3] *
-    this->table_size[4] * this->table_size[5] * this->table_size[6];
-  return (dealii::internal::TableBaseAccessors::Accessor<7, T, false, 6>(
-    *this, this->values.begin() + i * subobject_size));
+  const size_type subobject_size = size_type(this->table_size[1]) * this->table_size[2] * this->table_size[3] *
+                                   this->table_size[4] * this->table_size[5] * this->table_size[6];
+  return (
+    dealii::internal::TableBaseAccessors::Accessor<7, T, false, 6>(*this, this->values.begin() + i * subobject_size));
 }
 
 
@@ -3658,16 +3485,14 @@ Table<7, T>::operator()(const size_type i,
   AssertIndexRange(m, this->table_size[4]);
   AssertIndexRange(n, this->table_size[5]);
   AssertIndexRange(o, this->table_size[6]);
-  return this->values
-    [(((((size_type(i) * this->table_size[1] + j) * this->table_size[2] + k) *
-          this->table_size[3] +
-        l) *
-         this->table_size[4] +
-       m) *
-        this->table_size[5] +
-      n) *
-       this->table_size[6] +
-     o];
+  return this
+    ->values[(((((size_type(i) * this->table_size[1] + j) * this->table_size[2] + k) * this->table_size[3] + l) *
+                 this->table_size[4] +
+               m) *
+                this->table_size[5] +
+              n) *
+               this->table_size[6] +
+             o];
 }
 
 
@@ -3689,16 +3514,14 @@ Table<7, T>::operator()(const size_type i,
   AssertIndexRange(m, this->table_size[4]);
   AssertIndexRange(n, this->table_size[5]);
   AssertIndexRange(o, this->table_size[6]);
-  return this->values
-    [(((((size_type(i) * this->table_size[1] + j) * this->table_size[2] + k) *
-          this->table_size[3] +
-        l) *
-         this->table_size[4] +
-       m) *
-        this->table_size[5] +
-      n) *
-       this->table_size[6] +
-     o];
+  return this
+    ->values[(((((size_type(i) * this->table_size[1] + j) * this->table_size[2] + k) * this->table_size[3] + l) *
+                 this->table_size[4] +
+               m) *
+                this->table_size[5] +
+              n) *
+               this->table_size[6] +
+             o];
 }
 
 

@@ -32,14 +32,8 @@ main()
 
   static const int dim = 2;
 
-  FESystem<dim> fe(FE_RaviartThomas<dim>(1),
-                   1,
-                   FE_Q<dim>(1),
-                   1,
-                   FE_Nedelec<dim>(1),
-                   2,
-                   FESystem<dim>(FE_Q<dim>(1), dim),
-                   1);
+  FESystem<dim> fe(
+    FE_RaviartThomas<dim>(1), 1, FE_Q<dim>(1), 1, FE_Nedelec<dim>(1), 2, FESystem<dim>(FE_Q<dim>(1), dim), 1);
 
   const unsigned int n_comp = fe.n_components();
 

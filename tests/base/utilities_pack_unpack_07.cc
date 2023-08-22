@@ -36,9 +36,7 @@ check(const double (&array)[N])
   // ----- PACK -----
   std::vector<char> array_compressed, array_uncompressed;
 
-  TimerOutput computing_timer(std::cout,
-                              TimerOutput::never,
-                              TimerOutput::wall_times);
+  TimerOutput computing_timer(std::cout, TimerOutput::never, TimerOutput::wall_times);
 
 #ifdef DEAL_II_WITH_ZLIB
   // default option should work for compression
@@ -56,15 +54,13 @@ check(const double (&array)[N])
   // check if compression has been invoked by comparing sizes
   deallog << "unpacked array: " << sizeof(array) << std::endl;
 
-  deallog << "packed array without compression: " << array_uncompressed.size()
-          << std::endl;
+  deallog << "packed array without compression: " << array_uncompressed.size() << std::endl;
 
   // compression ratio might change depending on architecture and zlib
   // library used, so set the lowest digit to 0 to make this test more
   // robust:
 #ifdef DEAL_II_WITH_ZLIB
-  deallog << "packed array with compression: "
-          << (array_compressed.size() / 10) * 10 << std::endl;
+  deallog << "packed array with compression: " << (array_compressed.size() / 10) * 10 << std::endl;
 #endif
 }
 

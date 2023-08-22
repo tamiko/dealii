@@ -55,22 +55,13 @@ test()
   local_owned.add_range(my_start, my_start + local_size);
   IndexSet local_relevant_1(global_size), local_relevant_2(global_size);
   local_relevant_1                          = local_owned;
-  types::global_dof_index ghost_indices[10] = {1,
-                                               2,
-                                               13,
-                                               set - 2,
-                                               set - 1,
-                                               set,
-                                               set + 1,
-                                               2 * set,
-                                               2 * set + 1,
-                                               2 * set + 3};
+  types::global_dof_index ghost_indices[10] = {
+    1, 2, 13, set - 2, set - 1, set, set + 1, 2 * set, 2 * set + 1, 2 * set + 3};
   local_relevant_1.add_indices(&ghost_indices[0], ghost_indices + 10);
   if (myid > 0)
     local_relevant_1.add_range(my_start - 10, my_start);
   if (myid < numproc - 1)
-    local_relevant_1.add_range(my_start + local_size,
-                               my_start + local_size + 10);
+    local_relevant_1.add_range(my_start + local_size, my_start + local_size + 10);
 
   local_relevant_2 = local_owned;
   local_relevant_2.add_indices(&ghost_indices[0], ghost_indices + 10);
@@ -99,10 +90,8 @@ test()
   std::vector<unsigned int> ghosts(v.n_ghost_indices());
 
   // send the full array
-  v.export_to_ghosted_array_start(make_array_view(locally_owned_data),
-                                  make_array_view(ghosts));
-  v.export_to_ghosted_array_finish(make_array_view(locally_owned_data),
-                                   make_array_view(ghosts));
+  v.export_to_ghosted_array_start(make_array_view(locally_owned_data), make_array_view(ghosts));
+  v.export_to_ghosted_array_finish(make_array_view(locally_owned_data), make_array_view(ghosts));
   deallog << "All ghosts: ";
   for (unsigned int i = 0; i < ghosts.size(); ++i)
     deallog << ghosts[i] << ' ';
@@ -111,19 +100,16 @@ test()
   // send only the array in w
   std::fill(ghosts.begin(), ghosts.end(), 0);
 
-  w.export_to_ghosted_array_start(make_array_view(locally_owned_data),
-                                  make_array_view(ghosts));
+  w.export_to_ghosted_array_start(make_array_view(locally_owned_data), make_array_view(ghosts));
 
 
   // start a second send operation for the x partitioner in parallel to make
   // sure communication does not get messed up
   std::vector<unsigned int> ghosts2(x.n_ghost_indices());
 
-  x.export_to_ghosted_array_start(make_array_view(locally_owned_data),
-                                  make_array_view(ghosts2));
+  x.export_to_ghosted_array_start(make_array_view(locally_owned_data), make_array_view(ghosts2));
 
-  w.export_to_ghosted_array_finish(make_array_view(locally_owned_data),
-                                   make_array_view(ghosts));
+  w.export_to_ghosted_array_finish(make_array_view(locally_owned_data), make_array_view(ghosts));
   deallog << "Ghosts on reduced 1: ";
   for (unsigned int i = 0; i < ghosts.size(); ++i)
     deallog << ghosts[i] << ' ';
@@ -131,26 +117,21 @@ test()
 
   std::fill(ghosts.begin(), ghosts.end(), 0);
 
-  x.export_to_ghosted_array_start(make_array_view(locally_owned_data),
-                                  make_array_view(ghosts));
-  x.export_to_ghosted_array_finish(make_array_view(locally_owned_data),
-                                   make_array_view(ghosts));
+  x.export_to_ghosted_array_start(make_array_view(locally_owned_data), make_array_view(ghosts));
+  x.export_to_ghosted_array_finish(make_array_view(locally_owned_data), make_array_view(ghosts));
   deallog << "Ghosts on reduced 2: ";
   for (unsigned int i = 0; i < ghosts.size(); ++i)
     deallog << ghosts[i] << ' ';
   deallog << std::endl;
 
-  x.export_to_ghosted_array_finish(make_array_view(locally_owned_data),
-                                   make_array_view(ghosts2));
+  x.export_to_ghosted_array_finish(make_array_view(locally_owned_data), make_array_view(ghosts2));
   deallog << "Ghosts on reduced 2 without excess entries: ";
   for (unsigned int i = 0; i < ghosts2.size(); ++i)
     deallog << ghosts2[i] << ' ';
   deallog << std::endl;
 
-  x.export_to_ghosted_array_start(make_array_view(locally_owned_data),
-                                  make_array_view(ghosts));
-  x.export_to_ghosted_array_finish(make_array_view(locally_owned_data),
-                                   make_array_view(ghosts));
+  x.export_to_ghosted_array_start(make_array_view(locally_owned_data), make_array_view(ghosts));
+  x.export_to_ghosted_array_finish(make_array_view(locally_owned_data), make_array_view(ghosts));
   deallog << "Ghosts on reduced 2: ";
   for (unsigned int i = 0; i < ghosts.size(); ++i)
     deallog << ghosts[i] << ' ';

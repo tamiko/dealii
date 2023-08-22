@@ -46,10 +46,8 @@ test(Vector<std::complex<double>> &v, Vector<std::complex<double>> &w)
     {
       if (i % 3 == 0)
         {
-          AssertThrow(w(i) == std::complex<double>(i + 1., i + 2.),
-                      ExcInternalError());
-          AssertThrow(v(i) == std::complex<double>(i + 1., i + 2.) + 1. * i,
-                      ExcInternalError());
+          AssertThrow(w(i) == std::complex<double>(i + 1., i + 2.), ExcInternalError());
+          AssertThrow(v(i) == std::complex<double>(i + 1., i + 2.) + 1. * i, ExcInternalError());
         }
       else
         {
@@ -77,28 +75,20 @@ main()
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

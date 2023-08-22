@@ -41,26 +41,22 @@ test()
 
   // global size: 20, local_size: 3 as long as
   // less than 20
-  const unsigned int local_size  = 3;
-  const unsigned int global_size = std::min(20U, local_size * numproc);
-  const int          my_start    = std::min(local_size * myid, global_size);
-  const int          my_end = std::min(local_size * (myid + 1), global_size);
+  const unsigned int local_size        = 3;
+  const unsigned int global_size       = std::min(20U, local_size * numproc);
+  const int          my_start          = std::min(local_size * myid, global_size);
+  const int          my_end            = std::min(local_size * (myid + 1), global_size);
   const int          actual_local_size = my_end - my_start;
 
   IndexSet local_owned(global_size);
   if (my_end > my_start)
-    local_owned.add_range(static_cast<unsigned int>(my_start),
-                          static_cast<unsigned int>(my_end));
+    local_owned.add_range(static_cast<unsigned int>(my_start), static_cast<unsigned int>(my_end));
   IndexSet local_relevant(global_size);
   local_relevant = local_owned;
   local_relevant.add_index(2);
 
-  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> v(
-    local_owned, local_relevant, MPI_COMM_WORLD);
-  AssertDimension(static_cast<unsigned int>(actual_local_size),
-                  v.locally_owned_size());
-  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> w(v), x(v),
-    y(v);
+  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> v(local_owned, local_relevant, MPI_COMM_WORLD);
+  AssertDimension(static_cast<unsigned int>(actual_local_size), v.locally_owned_size());
+  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> w(v), x(v), y(v);
 
   // set local elements
   LinearAlgebra::ReadWriteVector<double> v_rw(local_owned);
@@ -96,8 +92,7 @@ test()
   y.add(1., w);
   y_rw.import_elements(y, VectorOperation::insert);
   for (int i = 0; i < actual_local_size; ++i)
-    AssertThrow(y_rw.local_element(i) == 3 * (i + my_start) + 1042,
-                ExcInternalError());
+    AssertThrow(y_rw.local_element(i) == 3 * (i + my_start) + 1042, ExcInternalError());
   if (myid == 0)
     deallog << "OK" << std::endl;
 
@@ -115,8 +110,7 @@ test()
   y.add(2., w, -0.5, x);
   y_rw.import_elements(y, VectorOperation::insert);
   for (int i = 0; i < actual_local_size; ++i)
-    AssertThrow(y_rw.local_element(i) == 5 * (i + my_start) + 2042 - 5000,
-                ExcInternalError());
+    AssertThrow(y_rw.local_element(i) == 5 * (i + my_start) + 2042 - 5000, ExcInternalError());
   if (myid == 0)
     deallog << "OK" << std::endl;
 
@@ -137,15 +131,13 @@ test()
   y_rw.import_elements(y, VectorOperation::insert);
   for (int i = 0; i < actual_local_size; ++i)
     {
-      AssertThrow(y_rw.local_element(i) == 5 * (i + my_start) + 2000,
-                  ExcInternalError());
+      AssertThrow(y_rw.local_element(i) == 5 * (i + my_start) + 2000, ExcInternalError());
     }
   if (myid == 0)
     deallog << "OK" << std::endl;
 
   if (myid == 0)
-    deallog
-      << "Check sadd (factor, factor, vector, factor, vector, factor, vector): ";
+    deallog << "Check sadd (factor, factor, vector, factor, vector, factor, vector): ";
   y.sadd(-1., 1., v);
   y.add(2., w);
   y.add(2., x);
@@ -161,8 +153,7 @@ test()
   y.add(1., v, 3., v);
   y_rw.import_elements(y, VectorOperation::insert);
   for (int i = 0; i < actual_local_size; ++i)
-    AssertThrow(y_rw.local_element(i) == 4 * (i + my_start),
-                ExcInternalError());
+    AssertThrow(y_rw.local_element(i) == 4 * (i + my_start), ExcInternalError());
   if (myid == 0)
     deallog << "OK" << std::endl;
 
@@ -189,8 +180,7 @@ test()
   y.scale(x);
   y_rw.import_elements(y, VectorOperation::insert);
   for (int i = 0; i < actual_local_size; ++i)
-    AssertThrow(y_rw.local_element(i) == 40000. * (i + my_start),
-                ExcInternalError());
+    AssertThrow(y_rw.local_element(i) == 40000. * (i + my_start), ExcInternalError());
   if (myid == 0)
     deallog << "OK" << std::endl;
 
@@ -209,8 +199,7 @@ test()
   y.add(-2., w);
   y_rw.import_elements(y, VectorOperation::insert);
   for (int i = 0; i < actual_local_size; ++i)
-    AssertThrow(y_rw.local_element(i) == 6. * (i + my_start) - 2000,
-                ExcInternalError());
+    AssertThrow(y_rw.local_element(i) == 6. * (i + my_start) - 2000, ExcInternalError());
   if (myid == 0)
     deallog << "OK" << std::endl;
 
@@ -221,8 +210,7 @@ test()
   y.add(3., x);
   y_rw.import_elements(y, VectorOperation::insert);
   for (int i = 0; i < actual_local_size; ++i)
-    AssertThrow(y_rw.local_element(i) == 6. * (i + my_start) + 28000,
-                ExcInternalError());
+    AssertThrow(y_rw.local_element(i) == 6. * (i + my_start) + 28000, ExcInternalError());
   if (myid == 0)
     deallog << "OK" << std::endl;
 }
@@ -232,8 +220,7 @@ test()
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   unsigned int myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
   deallog.push(Utilities::int_to_string(myid));

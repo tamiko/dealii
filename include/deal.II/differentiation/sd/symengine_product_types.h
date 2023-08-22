@@ -64,9 +64,7 @@ namespace internal
     struct GeneralProductTypeImpl;
 
     template <typename T>
-    struct GeneralProductTypeImpl<T,
-                                  Differentiation::SD::Expression,
-                                  std::enable_if_t<std::is_arithmetic_v<T>>>
+    struct GeneralProductTypeImpl<T, Differentiation::SD::Expression, std::enable_if_t<std::is_arithmetic_v<T>>>
     {
       using type = Differentiation::SD::Expression;
     };
@@ -75,38 +73,28 @@ namespace internal
     struct GeneralProductTypeImpl<
       T,
       Differentiation::SD::Expression,
-      std::enable_if_t<boost::is_complex<T>::value &&
-                       std::is_arithmetic_v<typename T::value_type>>>
+      std::enable_if_t<boost::is_complex<T>::value && std::is_arithmetic_v<typename T::value_type>>>
     {
       using type = Differentiation::SD::Expression;
     };
 
     template <int rank, int dim, typename T>
-    struct GeneralProductTypeImpl<Tensor<rank, dim, T>,
-                                  Differentiation::SD::Expression>
+    struct GeneralProductTypeImpl<Tensor<rank, dim, T>, Differentiation::SD::Expression>
     {
-      using type =
-        Tensor<rank,
-               dim,
-               typename ProductType<T, Differentiation::SD::Expression>::type>;
+      using type = Tensor<rank, dim, typename ProductType<T, Differentiation::SD::Expression>::type>;
     };
 
     template <int rank, int dim, typename T>
-    struct GeneralProductTypeImpl<SymmetricTensor<rank, dim, T>,
-                                  Differentiation::SD::Expression>
+    struct GeneralProductTypeImpl<SymmetricTensor<rank, dim, T>, Differentiation::SD::Expression>
     {
-      using type = SymmetricTensor<
-        rank,
-        dim,
-        typename ProductType<T, Differentiation::SD::Expression>::type>;
+      using type = SymmetricTensor<rank, dim, typename ProductType<T, Differentiation::SD::Expression>::type>;
     };
 
   } // namespace SD
 
 
   template <>
-  struct ProductTypeImpl<Differentiation::SD::Expression,
-                         Differentiation::SD::Expression>
+  struct ProductTypeImpl<Differentiation::SD::Expression, Differentiation::SD::Expression>
   {
     using type = Differentiation::SD::Expression;
   };
@@ -115,15 +103,13 @@ namespace internal
   template <typename T>
   struct ProductTypeImpl<T, Differentiation::SD::Expression>
   {
-    using type = typename SD::
-      GeneralProductTypeImpl<T, Differentiation::SD::Expression>::type;
+    using type = typename SD::GeneralProductTypeImpl<T, Differentiation::SD::Expression>::type;
   };
 
   template <typename T>
   struct ProductTypeImpl<Differentiation::SD::Expression, T>
   {
-    using type = typename SD::
-      GeneralProductTypeImpl<T, Differentiation::SD::Expression>::type;
+    using type = typename SD::GeneralProductTypeImpl<T, Differentiation::SD::Expression>::type;
   };
 
 } // namespace internal

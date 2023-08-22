@@ -32,8 +32,7 @@ namespace LACExceptions
   /**
    * This function only works for quadratic matrices.
    */
-  DeclExceptionMsg(ExcNotQuadratic,
-                   "This function only works for quadratic objects!");
+  DeclExceptionMsg(ExcNotQuadratic, "This function only works for quadratic objects!");
 
   /**
    * The operation cannot be finished since the matrix is singular.
@@ -48,12 +47,11 @@ namespace LACExceptions
   /**
    * The operation requires a sparsity pattern.
    */
-  DeclExceptionMsg(
-    ExcNeedsSparsityPattern,
-    "This function requires that the current object have a "
-    "sparsity pattern attached to it, but no sparsity pattern "
-    "is available. This usually means that there is a missing "
-    "reinit() call which would have added the sparsity pattern.");
+  DeclExceptionMsg(ExcNeedsSparsityPattern,
+                   "This function requires that the current object have a "
+                   "sparsity pattern attached to it, but no sparsity pattern "
+                   "is available. This usually means that there is a missing "
+                   "reinit() call which would have added the sparsity pattern.");
 
   /**
    * Exception thrown when a PETSc function reports an error. If possible,
@@ -80,8 +78,7 @@ namespace LACExceptions
    */
   DeclException1(ExcTrilinosError,
                  int,
-                 << "An error with error number " << arg1
-                 << " occurred while calling a Trilinos function");
+                 << "An error with error number " << arg1 << " occurred while calling a Trilinos function");
 
   /** @} */
 } // namespace LACExceptions

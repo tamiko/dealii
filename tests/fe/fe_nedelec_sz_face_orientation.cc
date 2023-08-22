@@ -40,10 +40,7 @@ create_reference_triangulation(Triangulation<3> &tria)
   std::vector<unsigned int> repetitions(3, 1);
 
   repetitions[0] = 2;
-  GridGenerator::subdivided_hyper_rectangle(tria,
-                                            repetitions,
-                                            Point<3>(-1.0, 0.0, 0.0),
-                                            Point<3>(1.0, 1.0, 1.0));
+  GridGenerator::subdivided_hyper_rectangle(tria, repetitions, Point<3>(-1.0, 0.0, 0.0), Point<3>(1.0, 1.0, 1.0));
 }
 
 void
@@ -193,21 +190,15 @@ evaluate(const FiniteElement<3> &fe, const DoFHandler<3> &dof_handler)
 {
   const FEValuesExtractors::Vector component(0);
   const Quadrature<3>              quadrature(Point<3>(0.5, 0.5, 0.5));
-  FEValues<3>                      fe_values(fe,
-                        quadrature,
-                        update_quadrature_points | update_values |
-                          update_gradients);
+  FEValues<3> fe_values(fe, quadrature, update_quadrature_points | update_values | update_gradients);
 
-  for (DoFHandler<3>::active_cell_iterator cell = dof_handler.begin_active();
-       cell != dof_handler.end();
-       ++cell)
+  for (DoFHandler<3>::active_cell_iterator cell = dof_handler.begin_active(); cell != dof_handler.end(); ++cell)
     {
       fe_values.reinit(cell);
 
       for (unsigned int i = 0; i < fe.dofs_per_cell; ++i)
         {
-          deallog << "DoF#" << i << ", value=["
-                  << fe_values[component].value(i, 0) << "], curl=["
+          deallog << "DoF#" << i << ", value=[" << fe_values[component].value(i, 0) << "], curl=["
                   << fe_values[component].curl(i, 0) << ']' << std::endl;
         }
     }
@@ -241,8 +232,7 @@ main()
     for (int face_flip = 0; face_flip <= 1; ++face_flip)
       for (int face_rotation = 0; face_rotation <= 1; ++face_rotation)
         {
-          deallog << face_orientation << face_flip << face_rotation
-                  << std::endl;
+          deallog << face_orientation << face_flip << face_rotation << std::endl;
           run(face_orientation, face_flip, face_rotation);
         }
 }

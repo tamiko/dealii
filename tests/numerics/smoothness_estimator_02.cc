@@ -98,8 +98,7 @@ PolyFunction<dim>::value(const Point<dim> &point, const unsigned int) const
 
 template <typename CoefficientType>
 void
-prepare_symmetric_coefficients(Table<1, CoefficientType> &         coeff,
-                               const std::vector<CoefficientType> &coeff_1d)
+prepare_symmetric_coefficients(Table<1, CoefficientType> &coeff, const std::vector<CoefficientType> &coeff_1d)
 {
   Assert(coeff.size(0) == coeff_1d.size(), ExcInternalError());
 
@@ -109,8 +108,7 @@ prepare_symmetric_coefficients(Table<1, CoefficientType> &         coeff,
 
 template <typename CoefficientType>
 void
-prepare_symmetric_coefficients(Table<2, CoefficientType> &         coeff,
-                               const std::vector<CoefficientType> &coeff_1d)
+prepare_symmetric_coefficients(Table<2, CoefficientType> &coeff, const std::vector<CoefficientType> &coeff_1d)
 {
   for (unsigned int d = 0; d < 2; ++d)
     Assert(coeff.size(d) == coeff_1d.size(), ExcInternalError());
@@ -122,8 +120,7 @@ prepare_symmetric_coefficients(Table<2, CoefficientType> &         coeff,
 
 template <typename CoefficientType>
 void
-prepare_symmetric_coefficients(Table<3, CoefficientType> &         coeff,
-                               const std::vector<CoefficientType> &coeff_1d)
+prepare_symmetric_coefficients(Table<3, CoefficientType> &coeff, const std::vector<CoefficientType> &coeff_1d)
 {
   for (unsigned int d = 0; d < 3; ++d)
     Assert(coeff.size(d) == coeff_1d.size(), ExcInternalError());
@@ -138,8 +135,7 @@ prepare_symmetric_coefficients(Table<3, CoefficientType> &         coeff,
 
 template <typename CoefficientType>
 typename CoefficientType::value_type
-compare(const Table<1, CoefficientType> &coeff1,
-        const Table<1, CoefficientType> &coeff2)
+compare(const Table<1, CoefficientType> &coeff1, const Table<1, CoefficientType> &coeff2)
 {
   Assert(coeff1.size(0) == coeff2.size(0), ExcInternalError());
 
@@ -152,8 +148,7 @@ compare(const Table<1, CoefficientType> &coeff1,
 
 template <typename CoefficientType>
 typename CoefficientType::value_type
-compare(const Table<2, CoefficientType> &coeff1,
-        const Table<2, CoefficientType> &coeff2)
+compare(const Table<2, CoefficientType> &coeff1, const Table<2, CoefficientType> &coeff2)
 {
   for (unsigned int d = 0; d < 2; ++d)
     Assert(coeff1.size(d) == coeff2.size(d), ExcInternalError());
@@ -168,8 +163,7 @@ compare(const Table<2, CoefficientType> &coeff1,
 
 template <typename CoefficientType>
 typename CoefficientType::value_type
-compare(const Table<3, CoefficientType> &coeff1,
-        const Table<3, CoefficientType> &coeff2)
+compare(const Table<3, CoefficientType> &coeff1, const Table<3, CoefficientType> &coeff2)
 {
   for (unsigned int d = 0; d < 3; ++d)
     Assert(coeff1.size(d) == coeff2.size(d), ExcInternalError());
@@ -194,19 +188,16 @@ test(const unsigned int poly_degree)
   for (unsigned int p = 1; p <= max_poly; ++p)
     fe_collection.push_back(FE_Q<dim>(p));
 
-  FESeries::Fourier<dim> fourier =
-    SmoothnessEstimator::Fourier::default_fe_series(fe_collection);
+  FESeries::Fourier<dim> fourier = SmoothnessEstimator::Fourier::default_fe_series(fe_collection);
 
   const unsigned int fe_index = poly_degree - 1;
-  const unsigned int n_modes =
-    fourier.get_n_coefficients_per_direction(fe_index);
+  const unsigned int n_modes  = fourier.get_n_coefficients_per_direction(fe_index);
 
   Assert((poly_degree >= 1) && (poly_degree <= max_poly), ExcInternalError());
   Assert((n_modes >= 3) && (n_modes <= max_poly + 2), ExcInternalError());
 
   deallog << "-----------------------------------" << std::endl;
-  deallog << dim << "d, p=" << poly_degree << ", max_p=" << max_poly
-          << ", n_modes=" << n_modes << std::endl;
+  deallog << dim << "d, p=" << poly_degree << ", max_p=" << max_poly << ", n_modes=" << n_modes << std::endl;
   deallog << "-----------------------------------" << std::endl;
 
   // --- prepare test function ---
@@ -285,20 +276,17 @@ test(const unsigned int poly_degree)
 
   // verify results
   const double linf = compare(coeff_in, coeff_out);
-  deallog << "Linf norm in exact and calculate Fourier coefficients:"
-          << std::endl
-          << linf << std::endl;
+  deallog << "Linf norm in exact and calculate Fourier coefficients:" << std::endl << linf << std::endl;
 
   // finally test smoothness estimator:
   Vector<float> regularity(1);
-  SmoothnessEstimator::Fourier::coefficient_decay(
-    fourier,
-    dof_handler,
-    values,
-    regularity,
-    /*regression_strategy=*/VectorTools::Linfty_norm,
-    /*smallest_abs_coefficient=*/1e-10,
-    /*only_flagged_cells=*/false);
+  SmoothnessEstimator::Fourier::coefficient_decay(fourier,
+                                                  dof_handler,
+                                                  values,
+                                                  regularity,
+                                                  /*regression_strategy=*/VectorTools::Linfty_norm,
+                                                  /*smallest_abs_coefficient=*/1e-10,
+                                                  /*only_flagged_cells=*/false);
 
   deallog << "estimated regularity:" << std::endl << regularity[0] << std::endl;
 

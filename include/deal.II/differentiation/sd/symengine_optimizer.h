@@ -70,8 +70,7 @@ namespace Differentiation
      * An exception to indicate that the SymEngine library has not been built
      * against the LLVM compiler.
      */
-    DeclExceptionMsg(ExcSymEngineLLVMNotAvailable,
-                     "SymEngine has not been built with LLVM support.");
+    DeclExceptionMsg(ExcSymEngineLLVMNotAvailable, "SymEngine has not been built with LLVM support.");
 
     /**
      * An exception to indicate that SymEngine's LLVM optimizer doesn't work
@@ -177,8 +176,7 @@ namespace Differentiation
     inline OptimizationFlags
     operator|(const OptimizationFlags f1, const OptimizationFlags f2)
     {
-      return static_cast<OptimizationFlags>(static_cast<unsigned int>(f1) |
-                                            static_cast<unsigned int>(f2));
+      return static_cast<OptimizationFlags>(static_cast<unsigned int>(f1) | static_cast<unsigned int>(f2));
     }
 
 
@@ -209,8 +207,7 @@ namespace Differentiation
     inline OptimizationFlags
     operator&(const OptimizationFlags f1, const OptimizationFlags f2)
     {
-      return static_cast<OptimizationFlags>(static_cast<unsigned int>(f1) &
-                                            static_cast<unsigned int>(f2));
+      return static_cast<OptimizationFlags>(static_cast<unsigned int>(f1) & static_cast<unsigned int>(f2));
     }
 
 
@@ -256,9 +253,8 @@ namespace Differentiation
         // - Debug mode: -O0 (no optimizations)
         // but this doesn't make much sense since SymEngine is a
         // tested external library.
-        const bool use_agg_opt =
-          static_cast<int>(flags & OptimizationFlags::optimize_aggressive);
-        const int opt_level = (use_agg_opt ? 3 : 2);
+        const bool use_agg_opt = static_cast<int>(flags & OptimizationFlags::optimize_aggressive);
+        const int  opt_level   = (use_agg_opt ? 3 : 2);
         return opt_level;
       }
     } // namespace internal
@@ -277,8 +273,7 @@ namespace Differentiation
         s << "cse|";
 
       // LLVM optimization level
-      s << "-O" + std::to_string(internal::get_LLVM_optimization_level(o)) +
-             "|";
+      s << "-O" + std::to_string(internal::get_LLVM_optimization_level(o)) + "|";
 
       return s;
     }
@@ -366,45 +361,35 @@ namespace Differentiation
 
       // Specialization for arithmetic types
       template <typename ReturnType_>
-      struct SupportedOptimizerTypeTraits<
-        ReturnType_,
-        std::enable_if_t<std::is_arithmetic_v<ReturnType_>>>
+      struct SupportedOptimizerTypeTraits<ReturnType_, std::enable_if_t<std::is_arithmetic_v<ReturnType_>>>
       {
         static const bool is_supported = true;
 
-        using ReturnType = typename std::
-          conditional<std::is_same_v<ReturnType_, float>, float, double>::type;
+        using ReturnType = typename std::conditional<std::is_same_v<ReturnType_, float>, float, double>::type;
       };
 
 
 
       // Specialization for complex arithmetic types
       template <typename ReturnType_>
-      struct SupportedOptimizerTypeTraits<
-        ReturnType_,
-        std::enable_if_t<
-          boost::is_complex<ReturnType_>::value &&
-          std::is_arithmetic_v<typename ReturnType_::value_type>>>
+      struct SupportedOptimizerTypeTraits<ReturnType_,
+                                          std::enable_if_t<boost::is_complex<ReturnType_>::value &&
+                                                           std::is_arithmetic_v<typename ReturnType_::value_type>>>
       {
         static const bool is_supported = true;
 
-        using ReturnType = typename std::conditional<
-          std::is_same_v<ReturnType_, std::complex<float>>,
-          std::complex<float>,
-          std::complex<double>>::type;
+        using ReturnType = typename std::conditional<std::is_same_v<ReturnType_, std::complex<float>>,
+                                                     std::complex<float>,
+                                                     std::complex<double>>::type;
       };
 
 
 
       template <typename ReturnType_>
-      struct DictionaryOptimizer<ReturnType_,
-                                 std::enable_if_t<SupportedOptimizerTypeTraits<
-                                   ReturnType_>::is_supported>>
+      struct DictionaryOptimizer<ReturnType_, std::enable_if_t<SupportedOptimizerTypeTraits<ReturnType_>::is_supported>>
       {
-        using ReturnType =
-          typename SupportedOptimizerTypeTraits<ReturnType_>::ReturnType;
-        using OptimizerType =
-          internal::DictionarySubstitutionVisitor<ReturnType, SD::Expression>;
+        using ReturnType    = typename SupportedOptimizerTypeTraits<ReturnType_>::ReturnType;
+        using OptimizerType = internal::DictionarySubstitutionVisitor<ReturnType, SD::Expression>;
 
 
         /**
@@ -416,15 +401,13 @@ namespace Differentiation
          * @param optimization_flags A set of flags that indicate the types of optimization to be performed.
          */
         static void
-        initialize(OptimizerType &               optimizer,
-                   const SymEngine::vec_basic &  independent_symbols,
-                   const SymEngine::vec_basic &  dependent_functions,
+        initialize(OptimizerType                &optimizer,
+                   const SymEngine::vec_basic   &independent_symbols,
+                   const SymEngine::vec_basic   &dependent_functions,
                    const enum OptimizationFlags &optimization_flags)
         {
           const bool use_symbolic_cse = use_symbolic_CSE(optimization_flags);
-          optimizer.init(independent_symbols,
-                         dependent_functions,
-                         use_symbolic_cse);
+          optimizer.init(independent_symbols, dependent_functions, use_symbolic_cse);
         }
 
 
@@ -435,9 +418,7 @@ namespace Differentiation
          */
         template <class Archive>
         static void
-        save(Archive &          archive,
-             const unsigned int version,
-             OptimizerType &    optimizer)
+        save(Archive &archive, const unsigned int version, OptimizerType &optimizer)
         {
           optimizer.save(archive, version);
         }
@@ -450,9 +431,9 @@ namespace Differentiation
          */
         template <class Archive>
         static void
-        load(Archive &          archive,
+        load(Archive           &archive,
              const unsigned int version,
-             OptimizerType &    optimizer,
+             OptimizerType     &optimizer,
              const SymEngine::vec_basic & /*independent_symbols*/,
              const SymEngine::vec_basic & /*dependent_functions*/,
              const enum OptimizationFlags & /*optimization_flags*/)
@@ -479,34 +460,26 @@ namespace Differentiation
          */
         template <typename Stream>
         static void
-        print(Stream &             stream,
+        print(Stream              &stream,
               const OptimizerType &optimizer,
               const bool           print_independent_symbols = false,
               const bool           print_dependent_functions = false,
               const bool           print_cse_reductions      = true)
         {
-          optimizer.print(stream,
-                          print_independent_symbols,
-                          print_dependent_functions,
-                          print_cse_reductions);
+          optimizer.print(stream, print_independent_symbols, print_dependent_functions, print_cse_reductions);
         }
       };
 
 
 
       template <typename ReturnType_>
-      struct LambdaOptimizer<ReturnType_,
-                             std::enable_if_t<SupportedOptimizerTypeTraits<
-                               ReturnType_>::is_supported>>
+      struct LambdaOptimizer<ReturnType_, std::enable_if_t<SupportedOptimizerTypeTraits<ReturnType_>::is_supported>>
       {
         using ReturnType =
-          typename std::conditional<!boost::is_complex<ReturnType_>::value,
-                                    double,
-                                    std::complex<double>>::type;
-        using OptimizerType = typename std::conditional<
-          !boost::is_complex<ReturnType_>::value,
-          SymEngine::LambdaRealDoubleVisitor,
-          SymEngine::LambdaComplexDoubleVisitor>::type;
+          typename std::conditional<!boost::is_complex<ReturnType_>::value, double, std::complex<double>>::type;
+        using OptimizerType = typename std::conditional<!boost::is_complex<ReturnType_>::value,
+                                                        SymEngine::LambdaRealDoubleVisitor,
+                                                        SymEngine::LambdaComplexDoubleVisitor>::type;
 
 
         /**
@@ -518,15 +491,13 @@ namespace Differentiation
          * @param optimization_flags A set of flags that indicate the types of optimization to be performed.
          */
         static void
-        initialize(OptimizerType &               optimizer,
-                   const SymEngine::vec_basic &  independent_symbols,
-                   const SymEngine::vec_basic &  dependent_functions,
+        initialize(OptimizerType                &optimizer,
+                   const SymEngine::vec_basic   &independent_symbols,
+                   const SymEngine::vec_basic   &dependent_functions,
                    const enum OptimizationFlags &optimization_flags)
         {
           const bool use_symbolic_cse = use_symbolic_CSE(optimization_flags);
-          optimizer.init(independent_symbols,
-                         dependent_functions,
-                         use_symbolic_cse);
+          optimizer.init(independent_symbols, dependent_functions, use_symbolic_cse);
         }
 
 
@@ -537,9 +508,7 @@ namespace Differentiation
          */
         template <class Archive>
         static void
-        save(Archive & /*archive*/,
-             const unsigned int /*version*/,
-             OptimizerType & /*optimizer*/)
+        save(Archive & /*archive*/, const unsigned int /*version*/, OptimizerType & /*optimizer*/)
         {}
 
 
@@ -551,15 +520,12 @@ namespace Differentiation
         static void
         load(Archive & /*archive*/,
              const unsigned int /*version*/,
-             OptimizerType &               optimizer,
-             const SymEngine::vec_basic &  independent_symbols,
-             const SymEngine::vec_basic &  dependent_functions,
+             OptimizerType                &optimizer,
+             const SymEngine::vec_basic   &independent_symbols,
+             const SymEngine::vec_basic   &dependent_functions,
              const enum OptimizationFlags &optimization_flags)
         {
-          initialize(optimizer,
-                     independent_symbols,
-                     dependent_functions,
-                     optimization_flags);
+          initialize(optimizer, independent_symbols, dependent_functions, optimization_flags);
         }
 
 
@@ -595,15 +561,12 @@ namespace Differentiation
 
 #    ifdef HAVE_SYMENGINE_LLVM
       template <typename ReturnType_>
-      struct LLVMOptimizer<ReturnType_,
-                           std::enable_if_t<std::is_arithmetic_v<ReturnType_>>>
+      struct LLVMOptimizer<ReturnType_, std::enable_if_t<std::is_arithmetic_v<ReturnType_>>>
       {
-        using ReturnType = typename std::
-          conditional<std::is_same_v<ReturnType_, float>, float, double>::type;
-        using OptimizerType =
-          typename std::conditional<std::is_same_v<ReturnType_, float>,
-                                    SymEngine::LLVMFloatVisitor,
-                                    SymEngine::LLVMDoubleVisitor>::type;
+        using ReturnType    = typename std::conditional<std::is_same_v<ReturnType_, float>, float, double>::type;
+        using OptimizerType = typename std::conditional<std::is_same_v<ReturnType_, float>,
+                                                        SymEngine::LLVMFloatVisitor,
+                                                        SymEngine::LLVMDoubleVisitor>::type;
 
         /**
          * A flag to indicate if the ReturnType is supported by a
@@ -621,17 +584,14 @@ namespace Differentiation
          * @param optimization_flags A set of flags that indicate the types of optimization to be performed.
          */
         static void
-        initialize(OptimizerType &               optimizer,
-                   const SymEngine::vec_basic &  independent_symbols,
-                   const SymEngine::vec_basic &  dependent_functions,
+        initialize(OptimizerType                &optimizer,
+                   const SymEngine::vec_basic   &independent_symbols,
+                   const SymEngine::vec_basic   &dependent_functions,
                    const enum OptimizationFlags &optimization_flags)
         {
-          const int opt_level = get_LLVM_optimization_level(optimization_flags);
+          const int  opt_level        = get_LLVM_optimization_level(optimization_flags);
           const bool use_symbolic_cse = use_symbolic_CSE(optimization_flags);
-          optimizer.init(independent_symbols,
-                         dependent_functions,
-                         use_symbolic_cse,
-                         opt_level);
+          optimizer.init(independent_symbols, dependent_functions, use_symbolic_cse, opt_level);
         }
 
 
@@ -642,12 +602,10 @@ namespace Differentiation
          */
         template <class Archive>
         static void
-        save(Archive &archive,
-             const unsigned int /*version*/,
-             OptimizerType &optimizer)
+        save(Archive &archive, const unsigned int /*version*/, OptimizerType &optimizer)
         {
           const std::string llvm_compiled_function = optimizer.dumps();
-          archive &         llvm_compiled_function;
+          archive          &llvm_compiled_function;
         }
 
 
@@ -666,7 +624,7 @@ namespace Differentiation
              const enum OptimizationFlags & /*optimization_flags*/)
         {
           std::string llvm_compiled_function;
-          archive &   llvm_compiled_function;
+          archive    &llvm_compiled_function;
           optimizer.loads(llvm_compiled_function);
         }
 
@@ -706,17 +664,14 @@ namespace Differentiation
       // the calling class does not create this type: This can be done by
       // checking the `supported_by_LLVM` flag.
       template <typename ReturnType_>
-      struct LLVMOptimizer<
-        ReturnType_,
-        std::enable_if_t<
-          boost::is_complex<ReturnType_>::value &&
-          std::is_arithmetic_v<typename ReturnType_::value_type>>>
+      struct LLVMOptimizer<ReturnType_,
+                           std::enable_if_t<boost::is_complex<ReturnType_>::value &&
+                                            std::is_arithmetic_v<typename ReturnType_::value_type>>>
       {
         // Since there is no working implementation, these are dummy types
         // that help with templating in the calling function.
-        using ReturnType = typename LambdaOptimizer<ReturnType_>::ReturnType;
-        using OptimizerType =
-          typename LambdaOptimizer<ReturnType_>::OptimizerType;
+        using ReturnType    = typename LambdaOptimizer<ReturnType_>::ReturnType;
+        using OptimizerType = typename LambdaOptimizer<ReturnType_>::OptimizerType;
 
         /**
          * A flag to indicate if the ReturnType is supported by a
@@ -750,9 +705,7 @@ namespace Differentiation
          */
         template <class Archive>
         static void
-        save(Archive & /*archive*/,
-             const unsigned int /*version*/,
-             OptimizerType & /*optimizer*/)
+        save(Archive & /*archive*/, const unsigned int /*version*/, OptimizerType & /*optimizer*/)
         {
           AssertThrow(false, ExcNotImplemented());
         }
@@ -810,11 +763,9 @@ namespace Differentiation
 
 
       template <typename ReturnType, typename Optimizer>
-      struct OptimizerHelper<
-        ReturnType,
-        Optimizer,
-        std::enable_if_t<
-          std::is_same_v<ReturnType, typename Optimizer::ReturnType>>>
+      struct OptimizerHelper<ReturnType,
+                             Optimizer,
+                             std::enable_if_t<std::is_same_v<ReturnType, typename Optimizer::ReturnType>>>
       {
         /**
          * Initialize an instance of an optimizer.
@@ -826,19 +777,16 @@ namespace Differentiation
          */
         static void
         initialize(typename Optimizer::OptimizerType *optimizer,
-                   const SymEngine::vec_basic &       independent_symbols,
-                   const SymEngine::vec_basic &       dependent_functions,
-                   const enum OptimizationFlags &     optimization_flags)
+                   const SymEngine::vec_basic        &independent_symbols,
+                   const SymEngine::vec_basic        &dependent_functions,
+                   const enum OptimizationFlags      &optimization_flags)
         {
           Assert(optimizer, ExcNotInitialized());
 
           // Some optimizers don't have the same interface for
           // initialization, we filter them out through the specializations
           // of the Optimizer class
-          Optimizer::initialize(*optimizer,
-                                independent_symbols,
-                                dependent_functions,
-                                optimization_flags);
+          Optimizer::initialize(*optimizer, independent_symbols, dependent_functions, optimization_flags);
         }
 
 
@@ -858,8 +806,8 @@ namespace Differentiation
          */
         static void
         substitute(typename Optimizer::OptimizerType *optimizer,
-                   std::vector<ReturnType> &          output_values,
-                   const std::vector<ReturnType> &    substitution_values)
+                   std::vector<ReturnType>           &output_values,
+                   const std::vector<ReturnType>     &substitution_values)
         {
           Assert(optimizer, ExcNotInitialized());
           optimizer->call(output_values.data(), substitution_values.data());
@@ -873,9 +821,7 @@ namespace Differentiation
          */
         template <class Archive>
         static void
-        save(Archive &                          archive,
-             const unsigned int                 version,
-             typename Optimizer::OptimizerType *optimizer)
+        save(Archive &archive, const unsigned int version, typename Optimizer::OptimizerType *optimizer)
         {
           Assert(optimizer, ExcNotInitialized());
 
@@ -893,24 +839,19 @@ namespace Differentiation
          */
         template <class Archive>
         static void
-        load(Archive &                          archive,
+        load(Archive                           &archive,
              const unsigned int                 version,
              typename Optimizer::OptimizerType *optimizer,
-             const SymEngine::vec_basic &       independent_symbols,
-             const SymEngine::vec_basic &       dependent_functions,
-             const enum OptimizationFlags &     optimization_flags)
+             const SymEngine::vec_basic        &independent_symbols,
+             const SymEngine::vec_basic        &dependent_functions,
+             const enum OptimizationFlags      &optimization_flags)
         {
           Assert(optimizer, ExcNotInitialized());
 
           // Some optimizers don't have the same interface for
           // serialization, we filter them out through the specializations
           // of the Optimizer class
-          Optimizer::load(archive,
-                          version,
-                          *optimizer,
-                          independent_symbols,
-                          dependent_functions,
-                          optimization_flags);
+          Optimizer::load(archive, version, *optimizer, independent_symbols, dependent_functions, optimization_flags);
         }
 
 
@@ -932,31 +873,26 @@ namespace Differentiation
          */
         template <typename Stream>
         static void
-        print(Stream &                           stream,
+        print(Stream                            &stream,
               typename Optimizer::OptimizerType *optimizer,
-              const bool print_independent_symbols = false,
-              const bool print_dependent_functions = false,
-              const bool print_cse_reductions      = true)
+              const bool                         print_independent_symbols = false,
+              const bool                         print_dependent_functions = false,
+              const bool                         print_cse_reductions      = true)
         {
           Assert(optimizer, ExcNotInitialized());
 
           // Some optimizers don't have a print function, so
           // we filter them out through the specializations of
           // the Optimizer class
-          Optimizer::print(stream,
-                           *optimizer,
-                           print_independent_symbols,
-                           print_dependent_functions,
-                           print_cse_reductions);
+          Optimizer::print(
+            stream, *optimizer, print_independent_symbols, print_dependent_functions, print_cse_reductions);
         }
       };
 
       template <typename ReturnType, typename Optimizer>
-      struct OptimizerHelper<
-        ReturnType,
-        Optimizer,
-        std::enable_if_t<
-          !std::is_same_v<ReturnType, typename Optimizer::ReturnType>>>
+      struct OptimizerHelper<ReturnType,
+                             Optimizer,
+                             std::enable_if_t<!std::is_same_v<ReturnType, typename Optimizer::ReturnType>>>
       {
         /**
          * Initialize an instance of an optimizer.
@@ -968,16 +904,14 @@ namespace Differentiation
          */
         static void
         initialize(typename Optimizer::OptimizerType *optimizer,
-                   const SymEngine::vec_basic &       independent_symbols,
-                   const SymEngine::vec_basic &       dependent_functions,
-                   const enum OptimizationFlags &     optimization_flags)
+                   const SymEngine::vec_basic        &independent_symbols,
+                   const SymEngine::vec_basic        &dependent_functions,
+                   const enum OptimizationFlags      &optimization_flags)
         {
           Assert(optimizer, ExcNotInitialized());
 
           const bool use_symbolic_cse = use_symbolic_CSE(optimization_flags);
-          optimizer->init(independent_symbols,
-                          dependent_functions,
-                          use_symbolic_cse);
+          optimizer->init(independent_symbols, dependent_functions, use_symbolic_cse);
         }
 
 
@@ -997,25 +931,19 @@ namespace Differentiation
          */
         static void
         substitute(typename Optimizer::OptimizerType *optimizer,
-                   std::vector<ReturnType> &          output_values,
-                   const std::vector<ReturnType> &    substitution_values)
+                   std::vector<ReturnType>           &output_values,
+                   const std::vector<ReturnType>     &substitution_values)
         {
           Assert(optimizer, ExcNotInitialized());
 
           // Intermediate values to accommodate the difference in
           // value types.
-          std::vector<typename Optimizer::ReturnType> int_outputs(
-            output_values.size());
-          std::vector<typename Optimizer::ReturnType> int_inputs(
-            substitution_values.size());
+          std::vector<typename Optimizer::ReturnType> int_outputs(output_values.size());
+          std::vector<typename Optimizer::ReturnType> int_inputs(substitution_values.size());
 
-          std::copy(substitution_values.begin(),
-                    substitution_values.end(),
-                    int_inputs.begin());
+          std::copy(substitution_values.begin(), substitution_values.end(), int_inputs.begin());
           optimizer->call(int_outputs.data(), int_inputs.data());
-          std::copy(int_outputs.begin(),
-                    int_outputs.end(),
-                    output_values.begin());
+          std::copy(int_outputs.begin(), int_outputs.end(), output_values.begin());
         }
 
 
@@ -1026,9 +954,7 @@ namespace Differentiation
          */
         template <class Archive>
         static void
-        save(Archive &                          archive,
-             const unsigned int                 version,
-             typename Optimizer::OptimizerType *optimizer)
+        save(Archive &archive, const unsigned int version, typename Optimizer::OptimizerType *optimizer)
         {
           Assert(optimizer, ExcNotInitialized());
           Optimizer::save(archive, version, *optimizer);
@@ -1042,24 +968,19 @@ namespace Differentiation
          */
         template <class Archive>
         static void
-        load(Archive &                          archive,
+        load(Archive                           &archive,
              const unsigned int                 version,
              typename Optimizer::OptimizerType *optimizer,
-             const SymEngine::vec_basic &       independent_symbols,
-             const SymEngine::vec_basic &       dependent_functions,
-             const enum OptimizationFlags &     optimization_flags)
+             const SymEngine::vec_basic        &independent_symbols,
+             const SymEngine::vec_basic        &dependent_functions,
+             const enum OptimizationFlags      &optimization_flags)
         {
           Assert(optimizer, ExcNotInitialized());
 
           // Some optimizers don't have the same interface for
           // serialization, we filter them out through the specializations
           // of the Optimizer class
-          Optimizer::load(archive,
-                          version,
-                          *optimizer,
-                          independent_symbols,
-                          dependent_functions,
-                          optimization_flags);
+          Optimizer::load(archive, version, *optimizer, independent_symbols, dependent_functions, optimization_flags);
         }
 
 
@@ -1081,18 +1002,15 @@ namespace Differentiation
          */
         template <typename Stream>
         static void
-        print(Stream &                           stream,
+        print(Stream                            &stream,
               typename Optimizer::OptimizerType *optimizer,
-              const bool                         print_cse_reductions = true,
-              const bool print_independent_symbols                    = false,
-              const bool print_dependent_functions                    = false)
+              const bool                         print_cse_reductions      = true,
+              const bool                         print_independent_symbols = false,
+              const bool                         print_dependent_functions = false)
         {
           Assert(optimizer, ExcNotInitialized());
 
-          optimizer->print(stream,
-                           print_independent_symbols,
-                           print_dependent_functions,
-                           print_cse_reductions);
+          optimizer->print(stream, print_independent_symbols, print_dependent_functions, print_cse_reductions);
         }
       };
 
@@ -1123,24 +1041,17 @@ namespace Differentiation
        * @return TensorType<rank, dim, NumberType> The numeric result that the
        *         input @p symbol_tensor evaluates to.
        */
-      template <typename NumberType,
-                int rank,
-                int dim,
-                template <int, int, typename>
-                class TensorType>
+      template <typename NumberType, int rank, int dim, template <int, int, typename> class TensorType>
       TensorType<rank, dim, NumberType>
-      tensor_evaluate_optimized(
-        const TensorType<rank, dim, Expression> &symbol_tensor,
-        const std::vector<NumberType> &          cached_evaluation,
-        const BatchOptimizer<NumberType> &       optimizer)
+      tensor_evaluate_optimized(const TensorType<rank, dim, Expression> &symbol_tensor,
+                                const std::vector<NumberType>           &cached_evaluation,
+                                const BatchOptimizer<NumberType>        &optimizer)
       {
         TensorType<rank, dim, NumberType> out;
         for (unsigned int i = 0; i < out.n_independent_components; ++i)
           {
-            const TableIndices<rank> indices(
-              out.unrolled_to_component_indices(i));
-            out[indices] =
-              optimizer.extract(symbol_tensor[indices], cached_evaluation);
+            const TableIndices<rank> indices(out.unrolled_to_component_indices(i));
+            out[indices] = optimizer.extract(symbol_tensor[indices], cached_evaluation);
           }
         return out;
       }
@@ -1170,23 +1081,16 @@ namespace Differentiation
        */
       template <typename NumberType, int dim>
       SymmetricTensor<4, dim, NumberType>
-      tensor_evaluate_optimized(
-        const SymmetricTensor<4, dim, Expression> &symbol_tensor,
-        const std::vector<NumberType> &            cached_evaluation,
-        const BatchOptimizer<NumberType> &         optimizer)
+      tensor_evaluate_optimized(const SymmetricTensor<4, dim, Expression> &symbol_tensor,
+                                const std::vector<NumberType>             &cached_evaluation,
+                                const BatchOptimizer<NumberType>          &optimizer)
       {
         SymmetricTensor<4, dim, NumberType> out;
-        for (unsigned int i = 0;
-             i < SymmetricTensor<2, dim>::n_independent_components;
-             ++i)
-          for (unsigned int j = 0;
-               j < SymmetricTensor<2, dim>::n_independent_components;
-               ++j)
+        for (unsigned int i = 0; i < SymmetricTensor<2, dim>::n_independent_components; ++i)
+          for (unsigned int j = 0; j < SymmetricTensor<2, dim>::n_independent_components; ++j)
             {
-              const TableIndices<4> indices =
-                make_rank_4_tensor_indices<dim>(i, j);
-              out[indices] =
-                optimizer.extract(symbol_tensor[indices], cached_evaluation);
+              const TableIndices<4> indices = make_rank_4_tensor_indices<dim>(i, j);
+              out[indices]                  = optimizer.extract(symbol_tensor[indices], cached_evaluation);
             }
         return out;
       }
@@ -1211,8 +1115,7 @@ namespace Differentiation
        */
       template <typename NumberType, typename T>
       void
-      register_functions(BatchOptimizer<NumberType> &optimizer,
-                         const T &                   function)
+      register_functions(BatchOptimizer<NumberType> &optimizer, const T &function)
       {
         optimizer.register_function(function);
       }
@@ -1237,8 +1140,7 @@ namespace Differentiation
        */
       template <typename NumberType, typename T>
       void
-      register_functions(BatchOptimizer<NumberType> &optimizer,
-                         const std::vector<T> &      functions)
+      register_functions(BatchOptimizer<NumberType> &optimizer, const std::vector<T> &functions)
       {
         for (const auto &function : functions)
           register_functions(optimizer, function);
@@ -1266,9 +1168,7 @@ namespace Differentiation
        */
       template <typename NumberType, typename T, typename... Args>
       void
-      register_functions(BatchOptimizer<NumberType> &optimizer,
-                         const T &                   function,
-                         const Args &...other_functions)
+      register_functions(BatchOptimizer<NumberType> &optimizer, const T &function, const Args &...other_functions)
       {
         register_functions(optimizer, function);
         register_functions(optimizer, other_functions...);
@@ -1286,21 +1186,15 @@ namespace Differentiation
        * @param symbol_tensor
        * @return A vector of Expressions, with a consistent ordering.
        */
-      template <int rank,
-                int dim,
-                template <int, int, typename>
-                class TensorType>
+      template <int rank, int dim, template <int, int, typename> class TensorType>
       types::symbol_vector
-      unroll_to_expression_vector(
-        const TensorType<rank, dim, Expression> &symbol_tensor)
+      unroll_to_expression_vector(const TensorType<rank, dim, Expression> &symbol_tensor)
       {
         SD::types::symbol_vector out;
         out.reserve(symbol_tensor.n_independent_components);
-        for (unsigned int i = 0; i < symbol_tensor.n_independent_components;
-             ++i)
+        for (unsigned int i = 0; i < symbol_tensor.n_independent_components; ++i)
           {
-            const TableIndices<rank> indices(
-              symbol_tensor.unrolled_to_component_indices(i));
+            const TableIndices<rank> indices(symbol_tensor.unrolled_to_component_indices(i));
             out.push_back(symbol_tensor[indices].get_RCP());
           }
         return out;
@@ -1318,20 +1212,14 @@ namespace Differentiation
        */
       template <int dim>
       types::symbol_vector
-      unroll_to_expression_vector(
-        const SymmetricTensor<4, dim, Expression> &symbol_tensor)
+      unroll_to_expression_vector(const SymmetricTensor<4, dim, Expression> &symbol_tensor)
       {
         SD::types::symbol_vector out;
         out.reserve(symbol_tensor.n_independent_components);
-        for (unsigned int i = 0;
-             i < SymmetricTensor<2, dim>::n_independent_components;
-             ++i)
-          for (unsigned int j = 0;
-               j < SymmetricTensor<2, dim>::n_independent_components;
-               ++j)
+        for (unsigned int i = 0; i < SymmetricTensor<2, dim>::n_independent_components; ++i)
+          for (unsigned int j = 0; j < SymmetricTensor<2, dim>::n_independent_components; ++j)
             {
-              const TableIndices<4> indices =
-                make_rank_4_tensor_indices<dim>(i, j);
+              const TableIndices<4> indices = make_rank_4_tensor_indices<dim>(i, j);
               out.push_back(symbol_tensor[indices].get_RCP());
             }
         return out;
@@ -1461,9 +1349,8 @@ namespace Differentiation
        * then an error will be thrown. Currently the LLVM optimization method
        * is not compatible with complex numbers.
        */
-      BatchOptimizer(const enum OptimizerType &    optimization_method,
-                     const enum OptimizationFlags &optimization_flags =
-                       OptimizationFlags::optimize_all);
+      BatchOptimizer(const enum OptimizerType     &optimization_method,
+                     const enum OptimizationFlags &optimization_flags = OptimizationFlags::optimize_all);
 
       /**
        * Copy constructor.
@@ -1662,8 +1549,7 @@ namespace Differentiation
        */
       template <int rank, int dim>
       void
-      register_function(
-        const SymmetricTensor<rank, dim, Expression> &function_tensor);
+      register_function(const SymmetricTensor<rank, dim, Expression> &function_tensor);
 
       /**
        * Register a collection of symbolic expressions that represent dependent
@@ -1744,9 +1630,8 @@ namespace Differentiation
        * then a safe default will be selected.
        */
       void
-      set_optimization_method(const enum OptimizerType &    optimization_method,
-                              const enum OptimizationFlags &optimization_flags =
-                                OptimizationFlags::optimize_all);
+      set_optimization_method(const enum OptimizerType     &optimization_method,
+                              const enum OptimizationFlags &optimization_flags = OptimizationFlags::optimize_all);
 
       /**
        * Return the optimization method that has been
@@ -1837,8 +1722,7 @@ namespace Differentiation
        * @p values overwrites any previously computed results.
        */
       void
-      substitute(const types::symbol_vector &   symbols,
-                 const std::vector<ReturnType> &values) const;
+      substitute(const types::symbol_vector &symbols, const std::vector<ReturnType> &values) const;
 
       /**
        * Perform batch substitution of all of the registered symbols
@@ -1851,8 +1735,7 @@ namespace Differentiation
        * @p values overwrites any previously computed results.
        */
       void
-      substitute(const SymEngine::vec_basic &   symbols,
-                 const std::vector<ReturnType> &values) const;
+      substitute(const SymEngine::vec_basic &symbols, const std::vector<ReturnType> &values) const;
 
       /**
        * Returns a flag to indicate whether the substitute()
@@ -1949,8 +1832,7 @@ namespace Differentiation
        * takes no arguments.
        */
       ReturnType
-      extract(const Expression &             func,
-              const std::vector<ReturnType> &cached_evaluation) const;
+      extract(const Expression &func, const std::vector<ReturnType> &cached_evaluation) const;
 
 
       /**
@@ -1961,8 +1843,7 @@ namespace Differentiation
        * takes no arguments.
        */
       std::vector<ReturnType>
-      extract(const std::vector<Expression> &funcs,
-              const std::vector<ReturnType> &cached_evaluation) const;
+      extract(const std::vector<Expression> &funcs, const std::vector<ReturnType> &cached_evaluation) const;
 
 
       /**
@@ -1974,8 +1855,7 @@ namespace Differentiation
        */
       template <int rank, int dim>
       Tensor<rank, dim, ReturnType>
-      extract(const Tensor<rank, dim, Expression> &funcs,
-              const std::vector<ReturnType> &      cached_evaluation) const;
+      extract(const Tensor<rank, dim, Expression> &funcs, const std::vector<ReturnType> &cached_evaluation) const;
 
 
       /**
@@ -1988,7 +1868,7 @@ namespace Differentiation
       template <int rank, int dim>
       SymmetricTensor<rank, dim, ReturnType>
       extract(const SymmetricTensor<rank, dim, Expression> &funcs,
-              const std::vector<ReturnType> &cached_evaluation) const;
+              const std::vector<ReturnType>                &cached_evaluation) const;
 
       /** @} */
 
@@ -2027,16 +1907,14 @@ namespace Differentiation
        * results of a differentiation operation.
        */
       bool
-      is_valid_nonunique_dependent_variable(
-        const SD::Expression &function) const;
+      is_valid_nonunique_dependent_variable(const SD::Expression &function) const;
 
       /**
        * A check to see if a function is exactly equal to one of the logical
        * results of a differentiation operation.
        */
       bool
-      is_valid_nonunique_dependent_variable(
-        const SymEngine::RCP<const SymEngine::Basic> &function) const;
+      is_valid_nonunique_dependent_variable(const SymEngine::RCP<const SymEngine::Basic> &function) const;
 
       /**
        * The output of substituting symbolic values with floating point
@@ -2063,9 +1941,7 @@ namespace Differentiation
        * underlying SymEngine::Basic other than the value that it represents.
        */
       using map_dependent_expression_to_vector_entry_t =
-        std::map<SD::Expression,
-                 std::size_t,
-                 SD::types::internal::ExpressionKeyLess>;
+        std::map<SD::Expression, std::size_t, SD::types::internal::ExpressionKeyLess>;
 
       /**
        * A map indicating which dependent variable is associated with which
@@ -2147,8 +2023,7 @@ namespace Differentiation
     template <typename ReturnType>
     template <typename Stream>
     void
-    BatchOptimizer<ReturnType>::print(Stream &stream,
-                                      const bool /*print_cse*/) const
+    BatchOptimizer<ReturnType>::print(Stream &stream, const bool /*print_cse*/) const
     {
       // Settings
       stream << "Method? " << optimization_method() << '\n';
@@ -2157,11 +2032,9 @@ namespace Differentiation
       stream << "Values substituted? " << values_substituted() << "\n\n";
 
       // Independent variables
-      stream << "Symbols (" << n_independent_variables()
-             << " independent variables):" << '\n';
+      stream << "Symbols (" << n_independent_variables() << " independent variables):" << '\n';
       int cntr = 0;
-      for (SD::types::substitution_map::const_iterator it =
-             independent_variables_symbols.begin();
+      for (SD::types::substitution_map::const_iterator it = independent_variables_symbols.begin();
            it != independent_variables_symbols.end();
            ++it, ++cntr)
         {
@@ -2170,11 +2043,9 @@ namespace Differentiation
       stream << '\n' << std::flush;
 
       // Dependent functions
-      stream << "Functions (" << n_dependent_variables()
-             << " dependent variables):" << '\n';
+      stream << "Functions (" << n_dependent_variables() << " dependent variables):" << '\n';
       cntr = 0;
-      for (typename SD::types::symbol_vector::const_iterator it =
-             dependent_variables_functions.begin();
+      for (typename SD::types::symbol_vector::const_iterator it = dependent_variables_functions.begin();
            it != dependent_variables_functions.end();
            ++it, ++cntr)
         {
@@ -2192,52 +2063,42 @@ namespace Differentiation
 
           if (optimization_method() == OptimizerType::dictionary)
             {
-              Assert(dynamic_cast<typename internal::DictionaryOptimizer<
-                       ReturnType>::OptimizerType *>(optimizer.get()),
+              Assert(dynamic_cast<typename internal::DictionaryOptimizer<ReturnType>::OptimizerType *>(optimizer.get()),
                      ExcMessage("Cannot cast optimizer to Dictionary type."));
 
-              internal::OptimizerHelper<
-                ReturnType,
-                internal::DictionaryOptimizer<ReturnType>>::
-                print(stream,
-                      dynamic_cast<typename internal::DictionaryOptimizer<
-                        ReturnType>::OptimizerType *>(optimizer.get()),
-                      print_independent_symbols,
-                      print_dependent_functions,
-                      print_cse_reductions);
+              internal::OptimizerHelper<ReturnType, internal::DictionaryOptimizer<ReturnType>>::print(
+                stream,
+                dynamic_cast<typename internal::DictionaryOptimizer<ReturnType>::OptimizerType *>(optimizer.get()),
+                print_independent_symbols,
+                print_dependent_functions,
+                print_cse_reductions);
 
               stream << '\n' << std::flush;
             }
           else if (optimization_method() == OptimizerType::lambda)
             {
-              Assert(dynamic_cast<typename internal::LambdaOptimizer<
-                       ReturnType>::OptimizerType *>(optimizer.get()),
+              Assert(dynamic_cast<typename internal::LambdaOptimizer<ReturnType>::OptimizerType *>(optimizer.get()),
                      ExcMessage("Cannot cast optimizer to Lambda type."));
 
-              internal::OptimizerHelper<ReturnType,
-                                        internal::LambdaOptimizer<ReturnType>>::
-                print(stream,
-                      dynamic_cast<typename internal::LambdaOptimizer<
-                        ReturnType>::OptimizerType *>(optimizer.get()),
-                      print_independent_symbols,
-                      print_dependent_functions,
-                      print_cse_reductions);
+              internal::OptimizerHelper<ReturnType, internal::LambdaOptimizer<ReturnType>>::print(
+                stream,
+                dynamic_cast<typename internal::LambdaOptimizer<ReturnType>::OptimizerType *>(optimizer.get()),
+                print_independent_symbols,
+                print_dependent_functions,
+                print_cse_reductions);
             }
 #    ifdef HAVE_SYMENGINE_LLVM
           else if (optimization_method() == OptimizerType::llvm)
             {
-              Assert(dynamic_cast<typename internal::LLVMOptimizer<
-                       ReturnType>::OptimizerType *>(optimizer.get()),
+              Assert(dynamic_cast<typename internal::LLVMOptimizer<ReturnType>::OptimizerType *>(optimizer.get()),
                      ExcMessage("Cannot cast optimizer to LLVM type."));
 
-              internal::OptimizerHelper<ReturnType,
-                                        internal::LLVMOptimizer<ReturnType>>::
-                print(stream,
-                      dynamic_cast<typename internal::LLVMOptimizer<
-                        ReturnType>::OptimizerType *>(optimizer.get()),
-                      print_independent_symbols,
-                      print_dependent_functions,
-                      print_cse_reductions);
+              internal::OptimizerHelper<ReturnType, internal::LLVMOptimizer<ReturnType>>::print(
+                stream,
+                dynamic_cast<typename internal::LLVMOptimizer<ReturnType>::OptimizerType *>(optimizer.get()),
+                print_independent_symbols,
+                print_dependent_functions,
+                print_cse_reductions);
             }
 #    endif // HAVE_SYMENGINE_LLVM
           else
@@ -2251,8 +2112,7 @@ namespace Differentiation
           stream << "Evaluated functions:" << '\n';
           stream << std::flush;
           cntr = 0;
-          for (typename std::vector<ReturnType>::const_iterator it =
-                 dependent_variables_output.begin();
+          for (typename std::vector<ReturnType>::const_iterator it = dependent_variables_output.begin();
                it != dependent_variables_output.end();
                ++it, ++cntr)
             {
@@ -2267,21 +2127,16 @@ namespace Differentiation
     template <typename ReturnType>
     template <class Archive>
     void
-    BatchOptimizer<ReturnType>::save(Archive &          ar,
-                                     const unsigned int version) const
+    BatchOptimizer<ReturnType>::save(Archive &ar, const unsigned int version) const
     {
       // Serialize enum classes...
       {
-        const auto m =
-          static_cast<typename std::underlying_type<OptimizerType>::type>(
-            method);
-        ar &m;
+        const auto m = static_cast<typename std::underlying_type<OptimizerType>::type>(method);
+        ar        &m;
       }
       {
-        const auto f =
-          static_cast<typename std::underlying_type<OptimizationFlags>::type>(
-            flags);
-        ar &f;
+        const auto f = static_cast<typename std::underlying_type<OptimizationFlags>::type>(flags);
+        ar        &f;
       }
 
       // Important: Independent variables must always be
@@ -2301,38 +2156,25 @@ namespace Differentiation
       // provide it with sufficient information to rebuild itself from scratch.
       // This is because only two of the three optimization classes support
       // real serialization (i.e. have save/load capability).
-      const SD::types::symbol_vector symbol_vec =
-        Utilities::extract_symbols(independent_variables_symbols);
-      if (typename internal::DictionaryOptimizer<ReturnType>::OptimizerType
-            *opt = dynamic_cast<typename internal::DictionaryOptimizer<
-              ReturnType>::OptimizerType *>(optimizer.get()))
+      const SD::types::symbol_vector symbol_vec = Utilities::extract_symbols(independent_variables_symbols);
+      if (typename internal::DictionaryOptimizer<ReturnType>::OptimizerType *opt =
+            dynamic_cast<typename internal::DictionaryOptimizer<ReturnType>::OptimizerType *>(optimizer.get()))
         {
-          Assert(optimization_method() == OptimizerType::dictionary,
-                 ExcInternalError());
-          internal::OptimizerHelper<
-            ReturnType,
-            internal::DictionaryOptimizer<ReturnType>>::save(ar, version, opt);
+          Assert(optimization_method() == OptimizerType::dictionary, ExcInternalError());
+          internal::OptimizerHelper<ReturnType, internal::DictionaryOptimizer<ReturnType>>::save(ar, version, opt);
         }
-      else if (typename internal::LambdaOptimizer<ReturnType>::OptimizerType
-                 *opt = dynamic_cast<typename internal::LambdaOptimizer<
-                   ReturnType>::OptimizerType *>(optimizer.get()))
+      else if (typename internal::LambdaOptimizer<ReturnType>::OptimizerType *opt =
+                 dynamic_cast<typename internal::LambdaOptimizer<ReturnType>::OptimizerType *>(optimizer.get()))
         {
-          Assert(optimization_method() == OptimizerType::lambda,
-                 ExcInternalError());
-          internal::OptimizerHelper<
-            ReturnType,
-            internal::LambdaOptimizer<ReturnType>>::save(ar, version, opt);
+          Assert(optimization_method() == OptimizerType::lambda, ExcInternalError());
+          internal::OptimizerHelper<ReturnType, internal::LambdaOptimizer<ReturnType>>::save(ar, version, opt);
         }
 #    ifdef HAVE_SYMENGINE_LLVM
-      else if (typename internal::LLVMOptimizer<ReturnType>::OptimizerType
-                 *opt = dynamic_cast<typename internal::LLVMOptimizer<
-                   ReturnType>::OptimizerType *>(optimizer.get()))
+      else if (typename internal::LLVMOptimizer<ReturnType>::OptimizerType *opt =
+                 dynamic_cast<typename internal::LLVMOptimizer<ReturnType>::OptimizerType *>(optimizer.get()))
         {
-          Assert(optimization_method() == OptimizerType::llvm,
-                 ExcInternalError());
-          internal::OptimizerHelper<
-            ReturnType,
-            internal::LLVMOptimizer<ReturnType>>::save(ar, version, opt);
+          Assert(optimization_method() == OptimizerType::llvm, ExcInternalError());
+          internal::OptimizerHelper<ReturnType, internal::LLVMOptimizer<ReturnType>>::save(ar, version, opt);
         }
 #    endif
       else
@@ -2357,12 +2199,12 @@ namespace Differentiation
       // Deserialize enum classes...
       {
         typename std::underlying_type<OptimizerType>::type m;
-        ar &                                               m;
+        ar                                                &m;
         method = static_cast<OptimizerType>(m);
       }
       {
         typename std::underlying_type<OptimizationFlags>::type f;
-        ar &                                                   f;
+        ar                                                    &f;
         flags = static_cast<OptimizationFlags>(f);
       }
 
@@ -2389,59 +2231,43 @@ namespace Differentiation
       // provide it with sufficient information to rebuild itself from scratch.
       // This is because only two of the three optimization classes support
       // real serialization (i.e. have save/load capability).
-      const SD::types::symbol_vector symbol_vec =
-        Utilities::extract_symbols(independent_variables_symbols);
-      if (typename internal::DictionaryOptimizer<ReturnType>::OptimizerType
-            *opt = dynamic_cast<typename internal::DictionaryOptimizer<
-              ReturnType>::OptimizerType *>(optimizer.get()))
+      const SD::types::symbol_vector symbol_vec = Utilities::extract_symbols(independent_variables_symbols);
+      if (typename internal::DictionaryOptimizer<ReturnType>::OptimizerType *opt =
+            dynamic_cast<typename internal::DictionaryOptimizer<ReturnType>::OptimizerType *>(optimizer.get()))
         {
-          Assert(optimization_method() == OptimizerType::dictionary,
-                 ExcInternalError());
-          internal::OptimizerHelper<ReturnType,
-                                    internal::DictionaryOptimizer<ReturnType>>::
-            load(ar,
-                 version,
-                 opt,
-                 Utilities::convert_expression_vector_to_basic_vector(
-                   symbol_vec),
-                 Utilities::convert_expression_vector_to_basic_vector(
-                   dependent_variables_functions),
-                 optimization_flags());
+          Assert(optimization_method() == OptimizerType::dictionary, ExcInternalError());
+          internal::OptimizerHelper<ReturnType, internal::DictionaryOptimizer<ReturnType>>::load(
+            ar,
+            version,
+            opt,
+            Utilities::convert_expression_vector_to_basic_vector(symbol_vec),
+            Utilities::convert_expression_vector_to_basic_vector(dependent_variables_functions),
+            optimization_flags());
         }
-      else if (typename internal::LambdaOptimizer<ReturnType>::OptimizerType
-                 *opt = dynamic_cast<typename internal::LambdaOptimizer<
-                   ReturnType>::OptimizerType *>(optimizer.get()))
+      else if (typename internal::LambdaOptimizer<ReturnType>::OptimizerType *opt =
+                 dynamic_cast<typename internal::LambdaOptimizer<ReturnType>::OptimizerType *>(optimizer.get()))
         {
-          Assert(optimization_method() == OptimizerType::lambda,
-                 ExcInternalError());
-          internal::OptimizerHelper<ReturnType,
-                                    internal::LambdaOptimizer<ReturnType>>::
-            load(ar,
-                 version,
-                 opt,
-                 Utilities::convert_expression_vector_to_basic_vector(
-                   symbol_vec),
-                 Utilities::convert_expression_vector_to_basic_vector(
-                   dependent_variables_functions),
-                 optimization_flags());
+          Assert(optimization_method() == OptimizerType::lambda, ExcInternalError());
+          internal::OptimizerHelper<ReturnType, internal::LambdaOptimizer<ReturnType>>::load(
+            ar,
+            version,
+            opt,
+            Utilities::convert_expression_vector_to_basic_vector(symbol_vec),
+            Utilities::convert_expression_vector_to_basic_vector(dependent_variables_functions),
+            optimization_flags());
         }
 #    ifdef HAVE_SYMENGINE_LLVM
-      else if (typename internal::LLVMOptimizer<ReturnType>::OptimizerType
-                 *opt = dynamic_cast<typename internal::LLVMOptimizer<
-                   ReturnType>::OptimizerType *>(optimizer.get()))
+      else if (typename internal::LLVMOptimizer<ReturnType>::OptimizerType *opt =
+                 dynamic_cast<typename internal::LLVMOptimizer<ReturnType>::OptimizerType *>(optimizer.get()))
         {
-          Assert(optimization_method() == OptimizerType::llvm,
-                 ExcInternalError());
-          internal::OptimizerHelper<ReturnType,
-                                    internal::LLVMOptimizer<ReturnType>>::
-            load(ar,
-                 version,
-                 opt,
-                 Utilities::convert_expression_vector_to_basic_vector(
-                   symbol_vec),
-                 Utilities::convert_expression_vector_to_basic_vector(
-                   dependent_variables_functions),
-                 optimization_flags());
+          Assert(optimization_method() == OptimizerType::llvm, ExcInternalError());
+          internal::OptimizerHelper<ReturnType, internal::LLVMOptimizer<ReturnType>>::load(
+            ar,
+            version,
+            opt,
+            Utilities::convert_expression_vector_to_basic_vector(symbol_vec),
+            Utilities::convert_expression_vector_to_basic_vector(dependent_variables_functions),
+            optimization_flags());
         }
 #    endif
       else
@@ -2455,15 +2281,11 @@ namespace Differentiation
     template <typename ReturnType>
     template <int rank, int dim>
     void
-    BatchOptimizer<ReturnType>::register_function(
-      const Tensor<rank, dim, Expression> &function_tensor)
+    BatchOptimizer<ReturnType>::register_function(const Tensor<rank, dim, Expression> &function_tensor)
     {
-      Assert(optimized() == false,
-             ExcMessage(
-               "Cannot register functions once the optimizer is finalised."));
+      Assert(optimized() == false, ExcMessage("Cannot register functions once the optimizer is finalised."));
 
-      register_vector_functions(
-        internal::unroll_to_expression_vector(function_tensor));
+      register_vector_functions(internal::unroll_to_expression_vector(function_tensor));
     }
 
 
@@ -2471,15 +2293,11 @@ namespace Differentiation
     template <typename ReturnType>
     template <int rank, int dim>
     void
-    BatchOptimizer<ReturnType>::register_function(
-      const SymmetricTensor<rank, dim, Expression> &function_tensor)
+    BatchOptimizer<ReturnType>::register_function(const SymmetricTensor<rank, dim, Expression> &function_tensor)
     {
-      Assert(optimized() == false,
-             ExcMessage(
-               "Cannot register functions once the optimizer is finalised."));
+      Assert(optimized() == false, ExcMessage("Cannot register functions once the optimizer is finalised."));
 
-      register_vector_functions(
-        internal::unroll_to_expression_vector(function_tensor));
+      register_vector_functions(internal::unroll_to_expression_vector(function_tensor));
     }
 
 
@@ -2487,9 +2305,7 @@ namespace Differentiation
     template <typename ReturnType>
     template <typename T, typename... Args>
     void
-    BatchOptimizer<ReturnType>::register_functions(
-      const T &functions,
-      const Args &...other_functions)
+    BatchOptimizer<ReturnType>::register_functions(const T &functions, const Args &...other_functions)
     {
       internal::register_functions(*this, functions);
       internal::register_functions(*this, other_functions...);
@@ -2500,8 +2316,7 @@ namespace Differentiation
     template <typename ReturnType>
     template <typename T>
     void
-    BatchOptimizer<ReturnType>::register_functions(
-      const std::vector<T> &functions)
+    BatchOptimizer<ReturnType>::register_functions(const std::vector<T> &functions)
     {
       internal::register_functions(*this, functions);
     }
@@ -2511,13 +2326,10 @@ namespace Differentiation
     template <typename ReturnType>
     template <int rank, int dim>
     Tensor<rank, dim, ReturnType>
-    BatchOptimizer<ReturnType>::extract(
-      const Tensor<rank, dim, Expression> &funcs,
-      const std::vector<ReturnType> &      cached_evaluation) const
+    BatchOptimizer<ReturnType>::extract(const Tensor<rank, dim, Expression> &funcs,
+                                        const std::vector<ReturnType>       &cached_evaluation) const
     {
-      return internal::tensor_evaluate_optimized(funcs,
-                                                 cached_evaluation,
-                                                 *this);
+      return internal::tensor_evaluate_optimized(funcs, cached_evaluation, *this);
     }
 
 
@@ -2525,14 +2337,11 @@ namespace Differentiation
     template <typename ReturnType>
     template <int rank, int dim>
     Tensor<rank, dim, ReturnType>
-    BatchOptimizer<ReturnType>::evaluate(
-      const Tensor<rank, dim, Expression> &funcs) const
+    BatchOptimizer<ReturnType>::evaluate(const Tensor<rank, dim, Expression> &funcs) const
     {
-      Assert(
-        values_substituted() == true,
-        ExcMessage(
-          "The optimizer is not configured to perform evaluation. "
-          "This action can only performed after substitute() has been called."));
+      Assert(values_substituted() == true,
+             ExcMessage("The optimizer is not configured to perform evaluation. "
+                        "This action can only performed after substitute() has been called."));
 
       return extract(funcs, dependent_variables_output);
     }
@@ -2542,13 +2351,10 @@ namespace Differentiation
     template <typename ReturnType>
     template <int rank, int dim>
     SymmetricTensor<rank, dim, ReturnType>
-    BatchOptimizer<ReturnType>::extract(
-      const SymmetricTensor<rank, dim, Expression> &funcs,
-      const std::vector<ReturnType> &               cached_evaluation) const
+    BatchOptimizer<ReturnType>::extract(const SymmetricTensor<rank, dim, Expression> &funcs,
+                                        const std::vector<ReturnType>                &cached_evaluation) const
     {
-      return internal::tensor_evaluate_optimized(funcs,
-                                                 cached_evaluation,
-                                                 *this);
+      return internal::tensor_evaluate_optimized(funcs, cached_evaluation, *this);
     }
 
 
@@ -2556,14 +2362,11 @@ namespace Differentiation
     template <typename ReturnType>
     template <int rank, int dim>
     SymmetricTensor<rank, dim, ReturnType>
-    BatchOptimizer<ReturnType>::evaluate(
-      const SymmetricTensor<rank, dim, Expression> &funcs) const
+    BatchOptimizer<ReturnType>::evaluate(const SymmetricTensor<rank, dim, Expression> &funcs) const
     {
-      Assert(
-        values_substituted() == true,
-        ExcMessage(
-          "The optimizer is not configured to perform evaluation. "
-          "This action can only performed after substitute() has been called."));
+      Assert(values_substituted() == true,
+             ExcMessage("The optimizer is not configured to perform evaluation. "
+                        "This action can only performed after substitute() has been called."));
 
       return extract(funcs, dependent_variables_output);
     }

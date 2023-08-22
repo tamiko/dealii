@@ -42,9 +42,7 @@ test_overlapping_ind_var_components()
   using ADNumberType = typename ADHelper::ad_type;
 
   std::cout << "*** Test variables: Tensor + Vector (coupled), "
-            << (AD::ADNumberTraits<ADNumberType>::is_taped == true ? "Taped" :
-                                                                     "Tapeless")
-            << std::endl;
+            << (AD::ADNumberTraits<ADNumberType>::is_taped == true ? "Taped" : "Tapeless") << std::endl;
 
   try
     {
@@ -52,8 +50,7 @@ test_overlapping_ind_var_components()
       const FEValuesExtractors::Tensor<2> t1_dof(0);
       const FEValuesExtractors::Vector    v2_dof(dim + 1);
       const unsigned int                  n_AD_components =
-        Tensor<2, dim>::n_independent_components +
-        Tensor<1, dim>::n_independent_components;
+        Tensor<2, dim>::n_independent_components + Tensor<1, dim>::n_independent_components;
       ADHelper ad_helper(n_AD_components);
       ad_helper.set_tape_buffer_sizes(); // Increase the buffer size from the
                                          // default values
@@ -64,17 +61,13 @@ test_overlapping_ind_var_components()
       // Configure tape
       const int  tape_no = 1;
       const bool is_recording =
-        ad_helper.start_recording_operations(tape_no /*material_id*/,
-                                             true /*overwrite_tape*/,
-                                             true /*keep*/);
+        ad_helper.start_recording_operations(tape_no /*material_id*/, true /*overwrite_tape*/, true /*keep*/);
 
       ad_helper.register_independent_variable(t1, t1_dof);
       ad_helper.register_independent_variable(v2, v2_dof);
 
-      const Tensor<2, dim, ADNumberType> t1_ad =
-        ad_helper.get_sensitive_variables(t1_dof);
-      const Tensor<1, dim, ADNumberType> v2_ad =
-        ad_helper.get_sensitive_variables(v2_dof);
+      const Tensor<2, dim, ADNumberType> t1_ad = ad_helper.get_sensitive_variables(t1_dof);
+      const Tensor<1, dim, ADNumberType> v2_ad = ad_helper.get_sensitive_variables(v2_dof);
 
       const ADNumberType psi((v2_ad * v2_ad) * trace(t1_ad));
 
@@ -106,18 +99,10 @@ main()
 #endif
 
   const unsigned int dim = 2;
-  AssertThrow(
-    (test_overlapping_ind_var_components<dim,
-                                         double,
-                                         AD::NumberTypes::adolc_taped>() ==
-     expected_result),
-    ExcInternalError());
-  AssertThrow(
-    (test_overlapping_ind_var_components<dim,
-                                         double,
-                                         AD::NumberTypes::adolc_tapeless>() ==
-     expected_result),
-    ExcInternalError());
+  AssertThrow((test_overlapping_ind_var_components<dim, double, AD::NumberTypes::adolc_taped>() == expected_result),
+              ExcInternalError());
+  AssertThrow((test_overlapping_ind_var_components<dim, double, AD::NumberTypes::adolc_tapeless>() == expected_result),
+              ExcInternalError());
 
   deallog << "OK" << std::endl;
 }

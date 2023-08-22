@@ -30,8 +30,8 @@ main(int argc, char *argv[])
   initlog();
 
   const unsigned int root_process = 0;
-  const auto         n_procs = Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
-  const auto         my_proc = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  const auto         n_procs      = Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
+  const auto         my_proc      = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
 
   // Creating the local array of points
   std::vector<Point<3>> local_points(my_proc + 1);
@@ -39,29 +39,24 @@ main(int argc, char *argv[])
     local_points[i] = Point<3>(my_proc, -my_proc, i);
 
   // send to process 0
-  const auto gathered_points =
-    Utilities::MPI::gather(MPI_COMM_WORLD, local_points, root_process);
+  const auto gathered_points = Utilities::MPI::gather(MPI_COMM_WORLD, local_points, root_process);
 
   // scatter from process 0
-  const auto scattered_points =
-    Utilities::MPI::scatter(MPI_COMM_WORLD, gathered_points, root_process);
+  const auto scattered_points = Utilities::MPI::scatter(MPI_COMM_WORLD, gathered_points, root_process);
 
   int test_passed = 1;
 
   if (scattered_points.size() != my_proc + 1)
     {
       test_passed = 0;
-      deallog << "Error: Points on rank " << my_proc << " have wrong size. "
-              << std::endl;
+      deallog << "Error: Points on rank " << my_proc << " have wrong size. " << std::endl;
     }
   for (unsigned int p = 0; p < scattered_points.size(); ++p)
-    if (scattered_points[p][0] != (double)my_proc ||
-        scattered_points[p][1] != (double)-my_proc ||
+    if (scattered_points[p][0] != (double)my_proc || scattered_points[p][1] != (double)-my_proc ||
         scattered_points[p][2] != (double)p)
       {
         test_passed = 0;
-        deallog << "Error with point " << p << " on rank " << my_proc
-                << std::endl;
+        deallog << "Error with point " << p << " on rank " << my_proc << std::endl;
       }
 
   if (Utilities::MPI::min(test_passed, MPI_COMM_WORLD))

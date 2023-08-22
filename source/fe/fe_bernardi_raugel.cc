@@ -42,16 +42,11 @@ DEAL_II_NAMESPACE_OPEN
 
 template <int dim>
 FE_BernardiRaugel<dim>::FE_BernardiRaugel(const unsigned int p)
-  : FE_PolyTensor<dim>(
-      PolynomialsBernardiRaugel<dim>(p),
-      FiniteElementData<dim>(get_dpo_vector(),
-                             dim,
-                             2,
-                             FiniteElementData<dim>::Hdiv),
-      std::vector<bool>(PolynomialsBernardiRaugel<dim>::n_polynomials(p), true),
-      std::vector<ComponentMask>(PolynomialsBernardiRaugel<dim>::n_polynomials(
-                                   p),
-                                 ComponentMask(std::vector<bool>(dim, true))))
+  : FE_PolyTensor<dim>(PolynomialsBernardiRaugel<dim>(p),
+                       FiniteElementData<dim>(get_dpo_vector(), dim, 2, FiniteElementData<dim>::Hdiv),
+                       std::vector<bool>(PolynomialsBernardiRaugel<dim>::n_polynomials(p), true),
+                       std::vector<ComponentMask>(PolynomialsBernardiRaugel<dim>::n_polynomials(p),
+                                                  ComponentMask(std::vector<bool>(dim, true))))
 {
   Assert(dim == 2 || dim == 3, ExcImpossibleInDim(dim));
   Assert(p == 1, ExcMessage("Only BR1 elements are available"));
@@ -111,11 +106,10 @@ template <int dim>
 void
 FE_BernardiRaugel<dim>::convert_generalized_support_point_values_to_dof_values(
   const std::vector<Vector<double>> &support_point_values,
-  std::vector<double> &              nodal_values) const
+  std::vector<double>               &nodal_values) const
 {
   Assert(support_point_values.size() == this->generalized_support_points.size(),
-         ExcDimensionMismatch(support_point_values.size(),
-                              this->generalized_support_points.size()));
+         ExcDimensionMismatch(support_point_values.size(), this->generalized_support_points.size()));
   AssertDimension(support_point_values[0].size(), dim);
   Assert(nodal_values.size() == this->n_dofs_per_cell(),
          ExcDimensionMismatch(nodal_values.size(), this->n_dofs_per_cell()));
@@ -133,15 +127,12 @@ FE_BernardiRaugel<dim>::convert_generalized_support_point_values_to_dof_values(
 
   // Compute the support points values for the bubble functions
   for (unsigned int i = dim * GeometryInfo<dim>::vertices_per_cell;
-       i < dim * GeometryInfo<dim>::vertices_per_cell +
-             GeometryInfo<dim>::faces_per_cell;
+       i < dim * GeometryInfo<dim>::vertices_per_cell + GeometryInfo<dim>::faces_per_cell;
        ++i)
     {
       nodal_values[i] = 0;
       for (unsigned int j = 0; j < dim; ++j)
-        nodal_values[i] +=
-          support_point_values[i][j] *
-          normals[i - dim * GeometryInfo<dim>::vertices_per_cell][j];
+        nodal_values[i] += support_point_values[i][j] * normals[i - dim * GeometryInfo<dim>::vertices_per_cell][j];
     }
 }
 
@@ -175,8 +166,7 @@ FE_BernardiRaugel<dim>::initialize_support_points()
   // We need dim copies of each vertex for the first dim*vertices_per_cell
   // generalized support points
   for (unsigned int i = 0; i < dim * GeometryInfo<dim>::vertices_per_cell; ++i)
-    this->generalized_support_points[i] =
-      GeometryInfo<dim>::unit_cell_vertex(i / dim);
+    this->generalized_support_points[i] = GeometryInfo<dim>::unit_cell_vertex(i / dim);
 
   // The remaining 2*dim points are the edge midpoints
   for (unsigned int i = 0; i < dim; ++i)
@@ -190,8 +180,7 @@ FE_BernardiRaugel<dim>::initialize_support_points()
             p[2] = 0.5;
           p[i] = j;
 
-          const unsigned int k =
-            dim * GeometryInfo<dim>::vertices_per_cell + i * 2 + j;
+          const unsigned int k                = dim * GeometryInfo<dim>::vertices_per_cell + i * 2 + j;
           this->generalized_support_points[k] = p;
         }
     }

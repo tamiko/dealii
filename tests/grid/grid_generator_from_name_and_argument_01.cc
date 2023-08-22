@@ -29,16 +29,15 @@ test(const std::string &name, const std::string &arguments)
 {
   Triangulation<dim, spacedim> tria;
 
-  deallog << "Generating Triangulation<" << dim << ", " << spacedim
-          << "> : " << name << '(' << arguments << ')' << std::endl;
+  deallog << "Generating Triangulation<" << dim << ", " << spacedim << "> : " << name << '(' << arguments << ')'
+          << std::endl;
 
   GridGenerator::generate_from_name_and_arguments(tria, name, arguments);
 
   GridOut go;
   go.write_msh(tria, deallog.get_file_stream());
 
-  std::ofstream ofile(name + "_" + std::to_string(dim) + "_" +
-                      std::to_string(spacedim) + ".msh");
+  std::ofstream ofile(name + "_" + std::to_string(dim) + "_" + std::to_string(spacedim) + ".msh");
   go.write_msh(tria, ofile);
 }
 

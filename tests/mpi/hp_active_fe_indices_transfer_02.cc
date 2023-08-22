@@ -62,8 +62,7 @@ test()
               cell->set_active_fe_index(i++);
             }
 
-          deallog << "cellid=" << cell->id()
-                  << " fe_index=" << cell->active_fe_index() << std::endl;
+          deallog << "cellid=" << cell->id() << " fe_index=" << cell->active_fe_index() << std::endl;
         }
 
     dh.distribute_dofs(fe_collection);
@@ -96,8 +95,7 @@ test()
     for (auto &cell : dh.active_cell_iterators())
       if (!cell->is_artificial())
         {
-          deallog << "cellid=" << cell->id()
-                  << " fe_index=" << cell->active_fe_index();
+          deallog << "cellid=" << cell->id() << " fe_index=" << cell->active_fe_index();
           if (cell->is_ghost())
             deallog << " ghost";
           deallog << std::endl;

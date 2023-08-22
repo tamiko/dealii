@@ -45,8 +45,7 @@ test(const unsigned int m = 13, const unsigned int n = 5)
   const unsigned int numprocs = Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
   for (unsigned int i = 0; i < full_matrix.m(); ++i)
     for (unsigned int j = 0; j < full_matrix.n(); ++j)
-      Assert(full_matrix(i, j) == full_matrix_original(i, j) * double(numprocs),
-             ExcInternalError());
+      Assert(full_matrix(i, j) == full_matrix_original(i, j) * double(numprocs), ExcInternalError());
 
   if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
     deallog << "Ok" << std::endl;
@@ -56,8 +55,7 @@ test(const unsigned int m = 13, const unsigned int n = 5)
 int
 main(int argc, char *argv[])
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
     {

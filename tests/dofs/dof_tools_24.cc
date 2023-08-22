@@ -67,13 +67,8 @@ create_and_print_flux_sparsity_pattern(const DoFHandler<dim> &dof_handler)
 
   DynamicSparsityPattern dynamic_pattern(dof_handler.n_dofs());
 
-  DoFTools::make_flux_sparsity_pattern(dof_handler,
-                                       dynamic_pattern,
-                                       constraints,
-                                       keep_constrained_dofs,
-                                       couplings,
-                                       face_couplings,
-                                       subdomain_id);
+  DoFTools::make_flux_sparsity_pattern(
+    dof_handler, dynamic_pattern, constraints, keep_constrained_dofs, couplings, face_couplings, subdomain_id);
 
   dynamic_pattern.print(deallog.get_file_stream());
 }

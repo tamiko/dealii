@@ -77,10 +77,7 @@ test()
 
 
   DoFTools::make_hanging_node_constraints(dh, constraints);
-  VectorTools::interpolate_boundary_values(dh,
-                                           0,
-                                           boundary_function,
-                                           constraints);
+  VectorTools::interpolate_boundary_values(dh, 0, boundary_function, constraints);
 
   constraints.close();
 
@@ -100,8 +97,7 @@ test()
 
   QGauss<dim> quad(3);
 
-  UpdateFlags cell_flags = update_values | update_gradients |
-                           update_quadrature_points | update_JxW_values;
+  UpdateFlags cell_flags = update_values | update_gradients | update_quadrature_points | update_JxW_values;
 
   using ScratchData = MeshWorker::ScratchData<dim, spacedim>;
   using CopyData    = MeshWorker::CopyData<1, 1, 1>;
@@ -116,9 +112,7 @@ test()
 
   FEValuesExtractors::Scalar scalar(0);
 
-  auto cell_worker = [&rhs_function, &solution, &scalar](const Iterator &cell,
-                                                         ScratchData &   s,
-                                                         CopyData &      c) {
+  auto cell_worker = [&rhs_function, &solution, &scalar](const Iterator &cell, ScratchData &s, CopyData &c) {
     const auto &fev = s.reinit(cell);
     const auto &JxW = s.get_JxW_values();
     const auto &p   = s.get_quadrature_points();
@@ -135,9 +129,7 @@ test()
     for (unsigned int i = 0; i < fev.dofs_per_cell; ++i)
       for (unsigned int q = 0; q < p.size(); ++q)
         {
-          residual[i] += (fev.shape_grad(i, q) * grad_u[q] -
-                          rhs_function.value(p[q]) * fev.shape_value(i, q)) *
-                         JxW[q];
+          residual[i] += (fev.shape_grad(i, q) * grad_u[q] - rhs_function.value(p[q]) * fev.shape_value(i, q)) * JxW[q];
         }
 
     // Copy from Sacado to normal vectors
@@ -150,8 +142,7 @@ test()
   };
 
   auto copier = [&constraints, &matrix, &rhs](const CopyData &c) {
-    constraints.distribute_local_to_global(
-      c.matrices[0], c.vectors[0], c.local_dof_indices[0], matrix, rhs);
+    constraints.distribute_local_to_global(c.matrices[0], c.vectors[0], c.local_dof_indices[0], matrix, rhs);
   };
 
   mesh_loop(cell, endc, cell_worker, copier, scratch, copy, assemble_own_cells);

@@ -51,8 +51,7 @@ test()
       deallog << "Identity set #" << i << std::endl;
       for (const auto &p : identities[i])
         {
-          deallog << "  " << fe_collection[p.first].get_name()
-                  << ": quad dof index " << p.second << std::endl;
+          deallog << "  " << fe_collection[p.first].get_name() << ": quad dof index " << p.second << std::endl;
         }
     }
 

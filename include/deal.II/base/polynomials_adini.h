@@ -63,8 +63,8 @@ public:
    * compute_grad_grad() functions, see below, in a loop over all polynomials.
    */
   void
-  evaluate(const Point<dim> &           unit_point,
-           std::vector<double> &        values,
+  evaluate(const Point<dim>            &unit_point,
+           std::vector<double>         &values,
            std::vector<Tensor<1, dim>> &grads,
            std::vector<Tensor<2, dim>> &grad_grads,
            std::vector<Tensor<3, dim>> &third_derivatives,
@@ -82,29 +82,25 @@ public:
    * @copydoc ScalarPolynomialsBase::compute_1st_derivative()
    */
   virtual Tensor<1, dim>
-  compute_1st_derivative(const unsigned int i,
-                         const Point<dim> & p) const override;
+  compute_1st_derivative(const unsigned int i, const Point<dim> &p) const override;
 
   /**
    * @copydoc ScalarPolynomialsBase::compute_2nd_derivative()
    */
   virtual Tensor<2, dim>
-  compute_2nd_derivative(const unsigned int i,
-                         const Point<dim> & p) const override;
+  compute_2nd_derivative(const unsigned int i, const Point<dim> &p) const override;
 
   /**
    * @copydoc ScalarPolynomialsBase::compute_3rd_derivative()
    */
   virtual Tensor<3, dim>
-  compute_3rd_derivative(const unsigned int i,
-                         const Point<dim> & p) const override;
+  compute_3rd_derivative(const unsigned int i, const Point<dim> &p) const override;
 
   /**
    * @copydoc ScalarPolynomialsBase::compute_4th_derivative()
    */
   virtual Tensor<4, dim>
-  compute_4th_derivative(const unsigned int i,
-                         const Point<dim> & p) const override;
+  compute_4th_derivative(const unsigned int i, const Point<dim> &p) const override;
 
   /**
    * Compute the gradient of the <tt>i</tt>th polynomial at
@@ -178,8 +174,7 @@ private:
 
 template <int dim>
 inline Tensor<1, dim>
-PolynomialsAdini<dim>::compute_1st_derivative(const unsigned int /*i*/,
-                                              const Point<dim> & /*p*/) const
+PolynomialsAdini<dim>::compute_1st_derivative(const unsigned int /*i*/, const Point<dim> & /*p*/) const
 {
   Assert(false, ExcNotImplemented());
   return {};
@@ -189,8 +184,7 @@ PolynomialsAdini<dim>::compute_1st_derivative(const unsigned int /*i*/,
 
 template <int dim>
 inline Tensor<2, dim>
-PolynomialsAdini<dim>::compute_2nd_derivative(const unsigned int /*i*/,
-                                              const Point<dim> & /*p*/) const
+PolynomialsAdini<dim>::compute_2nd_derivative(const unsigned int /*i*/, const Point<dim> & /*p*/) const
 {
   Assert(false, ExcNotImplemented());
   return {};
@@ -200,8 +194,7 @@ PolynomialsAdini<dim>::compute_2nd_derivative(const unsigned int /*i*/,
 
 template <int dim>
 inline Tensor<3, dim>
-PolynomialsAdini<dim>::compute_3rd_derivative(const unsigned int /*i*/,
-                                              const Point<dim> & /*p*/) const
+PolynomialsAdini<dim>::compute_3rd_derivative(const unsigned int /*i*/, const Point<dim> & /*p*/) const
 {
   Assert(false, ExcNotImplemented());
   return {};
@@ -211,8 +204,7 @@ PolynomialsAdini<dim>::compute_3rd_derivative(const unsigned int /*i*/,
 
 template <int dim>
 inline Tensor<4, dim>
-PolynomialsAdini<dim>::compute_4th_derivative(const unsigned int /*i*/,
-                                              const Point<dim> & /*p*/) const
+PolynomialsAdini<dim>::compute_4th_derivative(const unsigned int /*i*/, const Point<dim> & /*p*/) const
 {
   Assert(false, ExcNotImplemented());
   return {};

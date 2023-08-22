@@ -33,7 +33,7 @@ void
 check_this(const DoFHandler<dim> &dof_handler)
 {
   // set up X-shape mask
-  const unsigned int n_components = dof_handler.get_fe().n_components();
+  const unsigned int           n_components = dof_handler.get_fe().n_components();
   Table<2, DoFTools::Coupling> mask(n_components, n_components);
   for (unsigned int i = 0; i < n_components; ++i)
     for (unsigned int j = 0; j < n_components; ++j)
@@ -42,8 +42,7 @@ check_this(const DoFHandler<dim> &dof_handler)
     mask[i][i] = mask[i][n_components - i - 1] = DoFTools::always;
 
   // create sparsity pattern
-  SparsityPattern sp(dof_handler.n_dofs(),
-                     dof_handler.max_couplings_between_dofs());
+  SparsityPattern sp(dof_handler.n_dofs(), dof_handler.max_couplings_between_dofs());
   DoFTools::make_sparsity_pattern(dof_handler, mask, sp);
   sp.compress();
 
@@ -66,9 +65,7 @@ check_this(const DoFHandler<dim> &dof_handler)
 
   unsigned int hash = 0;
   for (unsigned int l = 0; l < sp.n_rows(); ++l)
-    hash +=
-      l *
-      (sp.row_length(l) + (sp.begin(l) - sp.begin()) +
-       (sp.row_length(l) > 1 ? std::next(sp.begin(l)) : sp.begin(l))->column());
+    hash += l * (sp.row_length(l) + (sp.begin(l) - sp.begin()) +
+                 (sp.row_length(l) > 1 ? std::next(sp.begin(l)) : sp.begin(l))->column());
   deallog << hash << std::endl;
 }

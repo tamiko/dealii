@@ -59,10 +59,8 @@ namespace FEConforimityTest
     : a(_a)
     , b(_b)
     , uniform_distribution(a, b)
-    , timeSeed(
-        std::chrono::high_resolution_clock::now().time_since_epoch().count())
-    , seed_sequence(
-        {std::uint32_t(timeSeed & 0xffffffff), std::uint32_t(timeSeed >> 32)})
+    , timeSeed(std::chrono::high_resolution_clock::now().time_since_epoch().count())
+    , seed_sequence({std::uint32_t(timeSeed & 0xffffffff), std::uint32_t(timeSeed >> 32)})
   {
     rng.seed(seed_sequence);
   }

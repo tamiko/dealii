@@ -40,9 +40,7 @@ test()
   // need to make sure that the adjacent edges are also all
   // correct. for the other boundaries, don't bother with adjacent
   // edges
-  for (Triangulation<dim>::active_cell_iterator cell =
-         triangulation.begin_active();
-       cell != triangulation.end();
+  for (Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active(); cell != triangulation.end();
        ++cell)
     for (const unsigned int f : GeometryInfo<dim>::face_indices())
       if (cell->face(f)->at_boundary())

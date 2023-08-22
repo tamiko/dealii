@@ -80,14 +80,7 @@ test()
   GridGenerator::hyper_cube(tria);
   tria.refine_global(2);
 
-  FESystem<dim>   fe(FE_RaviartThomas<dim>(1),
-                   1,
-                   FE_Q<dim>(2),
-                   1,
-                   FE_DGQ<dim>(2),
-                   1,
-                   FE_DGP<dim>(1),
-                   1);
+  FESystem<dim>   fe(FE_RaviartThomas<dim>(1), 1, FE_Q<dim>(2), 1, FE_DGQ<dim>(2), 1, FE_DGP<dim>(1), 1);
   DoFHandler<dim> dofhandler(tria);
   dofhandler.distribute_dofs(fe);
 
@@ -103,20 +96,12 @@ test()
   const dealii::Function<dim, double> *w = nullptr;
   IndexSet                             relevant_dofs;
   DoFTools::extract_locally_relevant_dofs(dofhandler, relevant_dofs);
-  VectorType ghosted(dofhandler.locally_owned_dofs(),
-                     relevant_dofs,
-                     MPI_COMM_WORLD);
+  VectorType ghosted(dofhandler.locally_owned_dofs(), relevant_dofs, MPI_COMM_WORLD);
   ghosted = vec;
-  VectorTools::integrate_difference(dofhandler,
-                                    ghosted,
-                                    Reference<dim>(),
-                                    cellwise_errors,
-                                    quadrature,
-                                    VectorTools::L2_norm);
+  VectorTools::integrate_difference(
+    dofhandler, ghosted, Reference<dim>(), cellwise_errors, quadrature, VectorTools::L2_norm);
 
-  const double error = VectorTools::compute_global_error(tria,
-                                                         cellwise_errors,
-                                                         VectorTools::L2_norm);
+  const double error = VectorTools::compute_global_error(tria, cellwise_errors, VectorTools::L2_norm);
 
   AssertThrow(error < 1e-10, ExcMessage("Error in integrate_difference"));
 }
@@ -128,14 +113,7 @@ test_simplex()
   parallel::shared::Triangulation<dim> tria(MPI_COMM_WORLD);
   GridGenerator::subdivided_hyper_cube_with_simplices(tria, 4);
 
-  FESystem<dim>   fe(FE_SimplexP<dim>(1),
-                   dim,
-                   FE_SimplexP<dim>(1),
-                   1,
-                   FE_SimplexP<dim>(1),
-                   1,
-                   FE_SimplexDGP<dim>(1),
-                   1);
+  FESystem<dim> fe(FE_SimplexP<dim>(1), dim, FE_SimplexP<dim>(1), 1, FE_SimplexP<dim>(1), 1, FE_SimplexDGP<dim>(1), 1);
   DoFHandler<dim> dofhandler(tria);
   dofhandler.distribute_dofs(fe);
 
@@ -152,21 +130,12 @@ test_simplex()
 
   IndexSet relevant_dofs;
   DoFTools::extract_locally_relevant_dofs(dofhandler, relevant_dofs);
-  VectorType ghosted(dofhandler.locally_owned_dofs(),
-                     relevant_dofs,
-                     MPI_COMM_WORLD);
+  VectorType ghosted(dofhandler.locally_owned_dofs(), relevant_dofs, MPI_COMM_WORLD);
   ghosted = vec;
-  VectorTools::integrate_difference(mapping,
-                                    dofhandler,
-                                    ghosted,
-                                    Reference<dim>(),
-                                    cellwise_errors,
-                                    quadrature,
-                                    VectorTools::L2_norm);
+  VectorTools::integrate_difference(
+    mapping, dofhandler, ghosted, Reference<dim>(), cellwise_errors, quadrature, VectorTools::L2_norm);
 
-  const double error = VectorTools::compute_global_error(tria,
-                                                         cellwise_errors,
-                                                         VectorTools::L2_norm);
+  const double error = VectorTools::compute_global_error(tria, cellwise_errors, VectorTools::L2_norm);
 
   AssertThrow(error < 1e-10, ExcMessage("Error in integrate_difference"));
 }

@@ -32,10 +32,8 @@ test()
   deallog << std::setprecision(2);
   deallog.attach(logfile);
 
-  deallog << IsBlockVector<Vector<double>>::value << ' '
-          << IsBlockVector<Vector<float>>::value << ' '
-          << IsBlockVector<BlockVector<double>>::value << ' '
-          << IsBlockVector<BlockVector<float>>::value << std::endl;
+  deallog << IsBlockVector<Vector<double>>::value << ' ' << IsBlockVector<Vector<float>>::value << ' '
+          << IsBlockVector<BlockVector<double>>::value << ' ' << IsBlockVector<BlockVector<float>>::value << std::endl;
 }
 
 
@@ -49,27 +47,19 @@ main()
     }
   catch (const std::exception &e)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << e.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       // abort
       return 2;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       // abort
       return 3;
     };

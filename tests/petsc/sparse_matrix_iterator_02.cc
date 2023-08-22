@@ -38,9 +38,7 @@ test()
     }
   matrix.compress(VectorOperation::insert);
 
-  for (PETScWrappers::SparseMatrix::const_iterator iterator = matrix.begin();
-       iterator != matrix.end();
-       ++iterator)
+  for (PETScWrappers::SparseMatrix::const_iterator iterator = matrix.begin(); iterator != matrix.end(); ++iterator)
     {
       // This is what we want to test.
       PETScWrappers::SparseMatrix::const_iterator duplicate = iterator;
@@ -68,28 +66,20 @@ main(int argc, char **argv)
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

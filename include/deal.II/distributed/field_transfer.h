@@ -64,9 +64,7 @@ namespace parallel
          * FE_Nothing
          */
         void
-        prepare_for_coarsening_and_refinement(
-          const VectorType & in,
-          const unsigned int fe_nothing_index);
+        prepare_for_coarsening_and_refinement(const VectorType &in, const unsigned int fe_nothing_index);
 
         /**
          * Interpolate the data previously stored in this object before the mesh
@@ -76,9 +74,7 @@ namespace parallel
          * AffineConstraints after refinement.
          */
         void
-        interpolate(const Number &                   new_value,
-                    const AffineConstraints<Number> &affine_constraints,
-                    VectorType &                     out);
+        interpolate(const Number &new_value, const AffineConstraints<Number> &affine_constraints, VectorType &out);
 
       private:
         /**
@@ -94,9 +90,7 @@ namespace parallel
         /**
          * CellDataTransfer used to perform the field transfer.
          */
-        std::unique_ptr<
-          CellDataTransfer<dim, spacedim, std::vector<Vector<Number>>>>
-          cell_data_transfer;
+        std::unique_ptr<CellDataTransfer<dim, spacedim, std::vector<Vector<Number>>>> cell_data_transfer;
       };
     } // namespace experimental
   }   // namespace distributed

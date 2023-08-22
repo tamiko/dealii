@@ -147,9 +147,8 @@ namespace Step40
 #ifdef HEX
     , mapping(1)
     , triangulation(mpi_communicator,
-                    typename Triangulation<dim>::MeshSmoothing(
-                      Triangulation<dim>::smoothing_on_refinement |
-                      Triangulation<dim>::smoothing_on_coarsening))
+                    typename Triangulation<dim>::MeshSmoothing(Triangulation<dim>::smoothing_on_refinement |
+                                                               Triangulation<dim>::smoothing_on_coarsening))
 #else
     , mapping(FE_SimplexP<dim>(1))
     , triangulation(mpi_communicator)
@@ -167,16 +166,13 @@ namespace Step40
     locally_owned_dofs = dof_handler.locally_owned_dofs();
     DoFTools::extract_locally_relevant_dofs(dof_handler, locally_relevant_dofs);
 
-    locally_relevant_solution.reinit(locally_owned_dofs,
-                                     locally_relevant_dofs,
-                                     mpi_communicator);
+    locally_relevant_solution.reinit(locally_owned_dofs, locally_relevant_dofs, mpi_communicator);
     system_rhs.reinit(locally_owned_dofs, mpi_communicator);
 
     constraints.clear();
     constraints.reinit(locally_relevant_dofs);
     DoFTools::make_hanging_node_constraints(dof_handler, constraints);
-    VectorTools::interpolate_boundary_values(
-      mapping, dof_handler, 0, Functions::ZeroFunction<dim>(), constraints);
+    VectorTools::interpolate_boundary_values(mapping, dof_handler, 0, Functions::ZeroFunction<dim>(), constraints);
     constraints.close();
 
     DynamicSparsityPattern dsp(locally_relevant_dofs);
@@ -187,10 +183,7 @@ namespace Step40
                                                mpi_communicator,
                                                locally_relevant_dofs);
 
-    system_matrix.reinit(locally_owned_dofs,
-                         locally_owned_dofs,
-                         dsp,
-                         mpi_communicator);
+    system_matrix.reinit(locally_owned_dofs, locally_owned_dofs, dsp, mpi_communicator);
   }
 
   template <int dim>
@@ -206,8 +199,7 @@ namespace Step40
     FEValues<dim> fe_values(mapping,
                             fe,
                             quadrature_formula,
-                            update_values | update_gradients |
-                              update_quadrature_points | update_JxW_values);
+                            update_values | update_gradients | update_quadrature_points | update_JxW_values);
 
     const unsigned int dofs_per_cell = fe.n_dofs_per_cell();
     const unsigned int n_q_points    = quadrature_formula.size();
@@ -217,8 +209,7 @@ namespace Step40
 
     std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
 
-    for (const auto &cell : dof_handler.active_cell_iterators() |
-                              IteratorFilters::LocallyOwnedCell())
+    for (const auto &cell : dof_handler.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
       {
         cell_matrix = 0.;
         cell_rhs    = 0.;
@@ -229,18 +220,15 @@ namespace Step40
           {
             const double rhs_value =
               (fe_values.quadrature_point(q_point)[1] >
-                   0.5 +
-                     0.25 * std::sin(4.0 * numbers::PI *
-                                     fe_values.quadrature_point(q_point)[0]) ?
+                   0.5 + 0.25 * std::sin(4.0 * numbers::PI * fe_values.quadrature_point(q_point)[0]) ?
                  1. :
                  -1.);
 
             for (unsigned int i = 0; i < dofs_per_cell; ++i)
               {
                 for (unsigned int j = 0; j < dofs_per_cell; ++j)
-                  cell_matrix(i, j) += fe_values.shape_grad(i, q_point) *
-                                       fe_values.shape_grad(j, q_point) *
-                                       fe_values.JxW(q_point);
+                  cell_matrix(i, j) +=
+                    fe_values.shape_grad(i, q_point) * fe_values.shape_grad(j, q_point) * fe_values.JxW(q_point);
 
                 cell_rhs(i) += rhs_value *                         //
                                fe_values.shape_value(i, q_point) * //
@@ -249,8 +237,7 @@ namespace Step40
           }
 
         cell->get_dof_indices(local_dof_indices);
-        constraints.distribute_local_to_global(
-          cell_matrix, cell_rhs, local_dof_indices, system_matrix, system_rhs);
+        constraints.distribute_local_to_global(cell_matrix, cell_rhs, local_dof_indices, system_matrix, system_rhs);
       }
 
     system_matrix.compress(VectorOperation::add);
@@ -261,8 +248,7 @@ namespace Step40
   void
   LaplaceProblem<dim>::solve()
   {
-    LA::MPI::Vector completely_distributed_solution(locally_owned_dofs,
-                                                    mpi_communicator);
+    LA::MPI::Vector completely_distributed_solution(locally_owned_dofs, mpi_communicator);
 
     SolverControl solver_control(dof_handler.n_dofs(), 1e-12);
 
@@ -283,10 +269,7 @@ namespace Step40
 #endif
     preconditioner.initialize(system_matrix, data);
 
-    check_solver_within_range(solver.solve(system_matrix,
-                                           completely_distributed_solution,
-                                           system_rhs,
-                                           preconditioner),
+    check_solver_within_range(solver.solve(system_matrix, completely_distributed_solution, system_rhs, preconditioner),
                               solver_control.last_step(),
                               1,
                               9);
@@ -311,9 +294,7 @@ namespace Step40
                                       quadrature_formula,
                                       VectorTools::NormType::L2_norm);
 
-    deallog << VectorTools::compute_global_error(triangulation,
-                                                 difference,
-                                                 VectorTools::NormType::L2_norm)
+    deallog << VectorTools::compute_global_error(triangulation, difference, VectorTools::NormType::L2_norm)
             << std::endl;
   }
 
@@ -332,8 +313,7 @@ namespace Step40
 
     data_out.build_patches(mapping);
 
-    data_out.write_vtu_with_pvtu_record(
-      "./", "solution", 0, mpi_communicator, 2, 8);
+    data_out.write_vtu_with_pvtu_record("./", "solution", 0, mpi_communicator, 2, 8);
   }
 
   template <int dim>
@@ -341,8 +321,7 @@ namespace Step40
   LaplaceProblem<dim>::run()
   {
     deallog << "Running "
-            << " on " << Utilities::MPI::n_mpi_processes(mpi_communicator)
-            << " MPI rank(s)..." << std::endl;
+            << " on " << Utilities::MPI::n_mpi_processes(mpi_communicator) << " MPI rank(s)..." << std::endl;
 
     const unsigned int n_subdivisions = 16;
     Point<dim>         a, b;
@@ -366,20 +345,18 @@ namespace Step40
       }
 
 #ifdef HEX
-    GridGenerator::subdivided_hyper_rectangle(
-      triangulation, std::vector<unsigned int>(dim, n_subdivisions), a, b);
+    GridGenerator::subdivided_hyper_rectangle(triangulation, std::vector<unsigned int>(dim, n_subdivisions), a, b);
 #else
-    auto construction_data = TriangulationDescription::Utilities::
-      create_description_from_triangulation_in_groups<dim, dim>(
+    auto                     construction_data =
+      TriangulationDescription::Utilities::create_description_from_triangulation_in_groups<dim, dim>(
         [n_subdivisions, a, b](Triangulation<dim> &tria_serial) {
-          GridGenerator::subdivided_hyper_rectangle_with_simplices(
-            tria_serial, std::vector<unsigned int>(dim, n_subdivisions), a, b);
+          GridGenerator::subdivided_hyper_rectangle_with_simplices(tria_serial,
+                                                                   std::vector<unsigned int>(dim, n_subdivisions),
+                                                                   a,
+                                                                   b);
         },
-        [](Triangulation<dim> &tria_serial,
-           const MPI_Comm      mpi_comm,
-           const unsigned int /* group_size */) {
-          GridTools::partition_triangulation(
-            Utilities::MPI::n_mpi_processes(mpi_comm), tria_serial);
+        [](Triangulation<dim> &tria_serial, const MPI_Comm mpi_comm, const unsigned int /* group_size */) {
+          GridTools::partition_triangulation(Utilities::MPI::n_mpi_processes(mpi_comm), tria_serial);
         },
         mpi_communicator,
         1);
@@ -388,10 +365,8 @@ namespace Step40
 
     setup_system();
 
-    deallog << "   Number of active cells:       "
-            << triangulation.n_global_active_cells() << std::endl
-            << "   Number of degrees of freedom: " << dof_handler.n_dofs()
-            << std::endl;
+    deallog << "   Number of active cells:       " << triangulation.n_global_active_cells() << std::endl
+            << "   Number of degrees of freedom: " << dof_handler.n_dofs() << std::endl;
 
     assemble_system();
     solve();
@@ -421,28 +396,20 @@ main(int argc, char *argv[])
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
 

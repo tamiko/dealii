@@ -29,8 +29,7 @@ template <int dim>
 void
 plot(const PolynomialsBDM<dim> &poly)
 {
-  const PolynomialSpace<dim> legendre_poly_space =
-    Polynomials::Legendre::generate_complete_basis(poly.degree() - 1);
+  const PolynomialSpace<dim> legendre_poly_space = Polynomials::Legendre::generate_complete_basis(poly.degree() - 1);
 
   const Point<3> p0(0, 0, 0);
   const Point<3> p1(0.25, 0.5, 0.75);
@@ -60,8 +59,7 @@ plot(const PolynomialsBDM<dim> &poly)
 
       unsigned int start = dim * n_sub;
 
-      deallog << "BDM" << poly.degree() - 1 << '<' << dim << '>' << points[k]
-              << std::endl;
+      deallog << "BDM" << poly.degree() - 1 << '<' << dim << '>' << points[k] << std::endl;
       poly.evaluate(points[k], values, grads, grads2, thirds, fourths);
 
       for (unsigned int i = 0; i < poly.degree(); ++i, start += dim)

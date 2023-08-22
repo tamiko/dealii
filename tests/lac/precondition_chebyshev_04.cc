@@ -79,13 +79,8 @@ check()
   for (unsigned int i = 0; i < size; ++i)
     in(i) = random_value<double>();
 
-  PreconditionChebyshev<FullMatrix<double>,
-                        Vector<double>,
-                        DiagonalMatrixManual>
-                                                              prec;
-  PreconditionChebyshev<FullMatrix<double>,
-                        Vector<double>,
-                        DiagonalMatrixManual>::AdditionalData data;
+  PreconditionChebyshev<FullMatrix<double>, Vector<double>, DiagonalMatrixManual>                 prec;
+  PreconditionChebyshev<FullMatrix<double>, Vector<double>, DiagonalMatrixManual>::AdditionalData data;
   data.smoothing_range = 2 * size;
   data.degree          = 4;
   data.preconditioner.reset(new DiagonalMatrixManual());
@@ -113,10 +108,7 @@ check()
   out -= ref;
   deallog << " difference norm = " << out.linfty_norm() << std::endl;
 
-  PreconditionChebyshev<FullMatrix<double>,
-                        Vector<double>,
-                        DiagonalMatrixManual>
-    prec2;
+  PreconditionChebyshev<FullMatrix<double>, Vector<double>, DiagonalMatrixManual> prec2;
   prec2.initialize(m, data);
   prec2.vmult(out, zero);
   prec2.vmult(out, in);

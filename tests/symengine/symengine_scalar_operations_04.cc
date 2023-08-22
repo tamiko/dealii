@@ -43,12 +43,10 @@ test()
     ;
     deallog << "a/symbolic b: " << a_division_symb_b << std::endl;
 
-    const SD_number_t substitute_symb_a_division_b =
-      SD::substitute(symb_a_division_b, symb_a, a);
+    const SD_number_t substitute_symb_a_division_b = SD::substitute(symb_a_division_b, symb_a, a);
     deallog << "a/b: " << substitute_symb_a_division_b << std::endl;
 
-    const SD_number_t a_division_substitute_symb_b =
-      SD::substitute(a_division_symb_b, symb_b, b);
+    const SD_number_t a_division_substitute_symb_b = SD::substitute(a_division_symb_b, symb_b, b);
     deallog << "a/b: " << a_division_substitute_symb_b << std::endl;
   }
 
@@ -60,12 +58,10 @@ test()
     ;
     deallog << "a*symbolic b: " << a_product_symb_b << std::endl;
 
-    const SD_number_t substitute_symb_a_product_b =
-      SD::substitute(symb_a_product_b, symb_a, a);
+    const SD_number_t substitute_symb_a_product_b = SD::substitute(symb_a_product_b, symb_a, a);
     deallog << "a*b: " << substitute_symb_a_product_b << std::endl;
 
-    const SD_number_t a_product_substitute_symb_b =
-      SD::substitute(a_product_symb_b, symb_b, b);
+    const SD_number_t a_product_substitute_symb_b = SD::substitute(a_product_symb_b, symb_b, b);
     deallog << "a*b: " << a_product_substitute_symb_b << std::endl;
   }
 }

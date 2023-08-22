@@ -63,9 +63,8 @@ template <int dim>
 void
 test()
 {
-  const unsigned int myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
-  const unsigned int n_processes =
-    Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
+  const unsigned int myid        = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  const unsigned int n_processes = Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
 
   parallel::distributed::Triangulation<dim> tr(MPI_COMM_WORLD);
 
@@ -98,15 +97,14 @@ test()
   DoFTools::make_hanging_node_constraints(dofh, cm);
 
   std::map<types::boundary_id, const Function<dim> *> dirichlet_boundary;
-  Functions::ZeroFunction<dim> homogeneous_dirichlet_bc(1);
+  Functions::ZeroFunction<dim>                        homogeneous_dirichlet_bc(1);
   dirichlet_boundary[0] = &homogeneous_dirichlet_bc;
   VectorTools::interpolate_boundary_values(dofh, dirichlet_boundary, cm);
 
   cm.close();
 
   TrilinosWrappers::MPI::Vector vec(dofh.locally_owned_dofs(), MPI_COMM_WORLD);
-  for (unsigned int i = vec.local_range().first; i < vec.local_range().second;
-       ++i)
+  for (unsigned int i = vec.local_range().first; i < vec.local_range().second; ++i)
     vec(i) = i;
   vec.compress(VectorOperation::insert);
 

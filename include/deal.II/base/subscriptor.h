@@ -114,8 +114,7 @@ public:
    * subscriber may be identified by text supplied as @p identifier.
    */
   void
-  subscribe(std::atomic<bool> *const validity,
-            const std::string &      identifier = "") const;
+  subscribe(std::atomic<bool> *const validity, const std::string &identifier = "") const;
 
   /**
    * Unsubscribes a user from the object.
@@ -124,8 +123,7 @@ public:
    * the one supplied to subscribe().
    */
   void
-  unsubscribe(std::atomic<bool> *const validity,
-              const std::string &      identifier = "") const;
+  unsubscribe(std::atomic<bool> *const validity, const std::string &identifier = "") const;
 
   /**
    * Return the present number of subscriptions to this object. This allows to
@@ -162,8 +160,7 @@ public:
                  int,
                  std::string,
                  std::string,
-                 << "Object of class " << arg2 << " is still used by " << arg1
-                 << " other objects."
+                 << "Object of class " << arg2 << " is still used by " << arg1 << " other objects."
                  << "\n\n"
                  << "(Additional information: " << arg3 << ")\n\n"
                  << "See the entry in the Frequently Asked Questions of "
@@ -178,8 +175,7 @@ public:
   DeclException2(ExcNoSubscriber,
                  std::string,
                  std::string,
-                 << "No subscriber with identifier <" << arg2
-                 << "> subscribes to this object of class " << arg1
+                 << "No subscriber with identifier <" << arg2 << "> subscribes to this object of class " << arg1
                  << ". Consequently, it cannot be unsubscribed.");
   /** @} */
 
@@ -319,8 +315,7 @@ Subscriptor::list_subscribers(StreamType &stream) const
   std::lock_guard<std::mutex> lock(mutex);
 
   for (const auto &it : counter_map)
-    stream << it.second << '/' << counter << " subscriptions from \""
-           << it.first << '\"' << std::endl;
+    stream << it.second << '/' << counter << " subscriptions from \"" << it.first << '\"' << std::endl;
 }
 
 DEAL_II_NAMESPACE_CLOSE

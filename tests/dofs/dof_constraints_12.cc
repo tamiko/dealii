@@ -63,12 +63,8 @@ main()
     deallog << "constraints2 shifted:" << std::endl;
     tmp.print(deallog.get_file_stream());
 
-    constraints.merge(constraints1,
-                      AffineConstraints<double>::no_conflicts_allowed,
-                      true);
-    constraints.merge(tmp,
-                      AffineConstraints<double>::no_conflicts_allowed,
-                      true);
+    constraints.merge(constraints1, AffineConstraints<double>::no_conflicts_allowed, true);
+    constraints.merge(tmp, AffineConstraints<double>::no_conflicts_allowed, true);
   }
   constraints.close();
   deallog << "constraints: " << std::endl;

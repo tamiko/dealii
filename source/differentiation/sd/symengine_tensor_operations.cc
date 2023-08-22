@@ -64,10 +64,8 @@ namespace Differentiation
             Tensor<rank, dim, Expression> out;
             for (unsigned int i = 0; i < out.n_independent_components; ++i)
               {
-                const TableIndices<rank> indices(
-                  out.unrolled_to_component_indices(i));
-                out[indices] = Expression(sym + std::string("_") +
-                                          internal::make_index_string(indices));
+                const TableIndices<rank> indices(out.unrolled_to_component_indices(i));
+                out[indices] = Expression(sym + std::string("_") + internal::make_index_string(indices));
               }
             return out;
           }
@@ -98,10 +96,8 @@ namespace Differentiation
             SymmetricTensor<rank, dim, Expression> out;
             for (unsigned int i = 0; i < out.n_independent_components; ++i)
               {
-                const TableIndices<rank> indices(
-                  out.unrolled_to_component_indices(i));
-                out[indices] = Expression(sym + std::string("_") +
-                                          internal::make_index_string(indices));
+                const TableIndices<rank> indices(out.unrolled_to_component_indices(i));
+                out[indices] = Expression(sym + std::string("_") + internal::make_index_string(indices));
               }
             return out;
           }
@@ -115,18 +111,11 @@ namespace Differentiation
           create(const std::string &sym)
           {
             SymmetricTensor<4, dim, Expression> out;
-            for (unsigned int i = 0;
-                 i < SymmetricTensor<2, dim>::n_independent_components;
-                 ++i)
-              for (unsigned int j = 0;
-                   j < SymmetricTensor<2, dim>::n_independent_components;
-                   ++j)
+            for (unsigned int i = 0; i < SymmetricTensor<2, dim>::n_independent_components; ++i)
+              for (unsigned int j = 0; j < SymmetricTensor<2, dim>::n_independent_components; ++j)
                 {
-                  const TableIndices<4> indices =
-                    make_rank_4_tensor_indices<dim>(i, j);
-                  out[indices] =
-                    Expression(sym + std::string("_") +
-                               internal::make_index_string(indices));
+                  const TableIndices<4> indices = make_rank_4_tensor_indices<dim>(i, j);
+                  out[indices] = Expression(sym + std::string("_") + internal::make_index_string(indices));
                 }
             return out;
           }
@@ -141,20 +130,14 @@ namespace Differentiation
         struct Symbol_Function_Tensor
         {
           static Tensor<rank, dim, Expression>
-          create(const std::string &            sym,
-                 const types::substitution_map &arguments)
+          create(const std::string &sym, const types::substitution_map &arguments)
           {
             Tensor<rank, dim, Expression> out;
-            const types::symbol_vector    args =
-              Utilities::extract_symbols(arguments);
+            const types::symbol_vector    args = Utilities::extract_symbols(arguments);
             for (unsigned int i = 0; i < out.n_independent_components; ++i)
               {
-                const TableIndices<rank> indices(
-                  out.unrolled_to_component_indices(i));
-                out[indices] =
-                  Expression(sym + std::string("_") +
-                               internal::make_index_string(indices),
-                             args);
+                const TableIndices<rank> indices(out.unrolled_to_component_indices(i));
+                out[indices] = Expression(sym + std::string("_") + internal::make_index_string(indices), args);
               }
             return out;
           }
@@ -165,8 +148,7 @@ namespace Differentiation
         struct Symbol_Function_Tensor<0, dim>
         {
           static Tensor<0, dim, Expression>
-          create(const std::string &            sym,
-                 const types::substitution_map &arguments)
+          create(const std::string &sym, const types::substitution_map &arguments)
           {
             return make_symbolic_function(sym, arguments);
           }
@@ -181,20 +163,14 @@ namespace Differentiation
         struct Symbol_Function_SymmetricTensor
         {
           static SymmetricTensor<2, dim, Expression>
-          create(const std::string &            sym,
-                 const types::substitution_map &arguments)
+          create(const std::string &sym, const types::substitution_map &arguments)
           {
             SymmetricTensor<rank, dim, Expression> out;
-            const types::symbol_vector             args =
-              Utilities::extract_symbols(arguments);
+            const types::symbol_vector             args = Utilities::extract_symbols(arguments);
             for (unsigned int i = 0; i < out.n_independent_components; ++i)
               {
-                const TableIndices<rank> indices(
-                  out.unrolled_to_component_indices(i));
-                out[indices] =
-                  Expression(sym + std::string("_") +
-                               internal::make_index_string(indices),
-                             args);
+                const TableIndices<rank> indices(out.unrolled_to_component_indices(i));
+                out[indices] = Expression(sym + std::string("_") + internal::make_index_string(indices), args);
               }
             return out;
           }
@@ -205,25 +181,15 @@ namespace Differentiation
         struct Symbol_Function_SymmetricTensor<4, dim>
         {
           static SymmetricTensor<4, dim, Expression>
-          create(const std::string &            sym,
-                 const types::substitution_map &arguments)
+          create(const std::string &sym, const types::substitution_map &arguments)
           {
             SymmetricTensor<4, dim, Expression> out;
-            const types::symbol_vector          args =
-              Utilities::extract_symbols(arguments);
-            for (unsigned int i = 0;
-                 i < SymmetricTensor<2, dim>::n_independent_components;
-                 ++i)
-              for (unsigned int j = 0;
-                   j < SymmetricTensor<2, dim>::n_independent_components;
-                   ++j)
+            const types::symbol_vector          args = Utilities::extract_symbols(arguments);
+            for (unsigned int i = 0; i < SymmetricTensor<2, dim>::n_independent_components; ++i)
+              for (unsigned int j = 0; j < SymmetricTensor<2, dim>::n_independent_components; ++j)
                 {
-                  const TableIndices<4> indices =
-                    make_rank_4_tensor_indices<dim>(i, j);
-                  out[indices] =
-                    Expression(sym + std::string("_") +
-                                 internal::make_index_string(indices),
-                               args);
+                  const TableIndices<4> indices = make_rank_4_tensor_indices<dim>(i, j);
+                  out[indices] = Expression(sym + std::string("_") + internal::make_index_string(indices), args);
                 }
             return out;
           }
@@ -243,8 +209,7 @@ namespace Differentiation
 #  ifndef DOXYGEN
     template <int dim>
     Tensor<1, dim, Expression>
-    make_vector_of_symbolic_functions(const std::string &            sym,
-                                      const types::substitution_map &arguments)
+    make_vector_of_symbolic_functions(const std::string &sym, const types::substitution_map &arguments)
     {
       return internal::Symbol_Function_Tensor<1, dim>::create(sym, arguments);
     }
@@ -270,22 +235,17 @@ namespace Differentiation
 #  ifndef DOXYGEN
     template <int rank, int dim>
     Tensor<rank, dim, Expression>
-    make_tensor_of_symbolic_functions(const std::string &            sym,
-                                      const types::substitution_map &arguments)
+    make_tensor_of_symbolic_functions(const std::string &sym, const types::substitution_map &arguments)
     {
-      return internal::Symbol_Function_Tensor<rank, dim>::create(sym,
-                                                                 arguments);
+      return internal::Symbol_Function_Tensor<rank, dim>::create(sym, arguments);
     }
 
 
     template <int rank, int dim>
     SymmetricTensor<rank, dim, Expression>
-    make_symmetric_tensor_of_symbolic_functions(
-      const std::string &            sym,
-      const types::substitution_map &arguments)
+    make_symmetric_tensor_of_symbolic_functions(const std::string &sym, const types::substitution_map &arguments)
     {
-      return internal::Symbol_Function_SymmetricTensor<rank, dim>::create(
-        sym, arguments);
+      return internal::Symbol_Function_SymmetricTensor<rank, dim>::create(sym, arguments);
     }
 #  endif // DOXYGEN
 

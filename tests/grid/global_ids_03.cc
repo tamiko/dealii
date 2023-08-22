@@ -37,9 +37,7 @@ void
 test(int n_refinements, MPI_Comm comm)
 {
   parallel::distributed::Triangulation<dim> tria(
-    comm,
-    Triangulation<dim>::none,
-    parallel::distributed::Triangulation<dim>::construct_multigrid_hierarchy);
+    comm, Triangulation<dim>::none, parallel::distributed::Triangulation<dim>::construct_multigrid_hierarchy);
   GridGenerator::hyper_cube(tria);
   tria.refine_global(n_refinements);
 
@@ -47,13 +45,11 @@ test(int n_refinements, MPI_Comm comm)
     {
       deallog.push("level=" + std::to_string(l));
       for (const auto cell : tria.cell_iterators_on_level(l))
-        if (cell->level_subdomain_id() !=
-            dealii::numbers::artificial_subdomain_id)
-          deallog << cell->id() << " -> " << cell->level_subdomain_id() << ' '
-                  << cell->global_level_cell_index() << std::endl;
+        if (cell->level_subdomain_id() != dealii::numbers::artificial_subdomain_id)
+          deallog << cell->id() << " -> " << cell->level_subdomain_id() << ' ' << cell->global_level_cell_index()
+                  << std::endl;
 
-      const Utilities::MPI::Partitioner &part =
-        *tria.global_level_cell_index_partitioner(l).lock();
+      const Utilities::MPI::Partitioner &part = *tria.global_level_cell_index_partitioner(l).lock();
 
       part.locally_owned_range().print(deallog);
       part.ghost_indices().print(deallog);

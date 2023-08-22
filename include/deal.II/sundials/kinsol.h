@@ -242,16 +242,16 @@ namespace SUNDIALS
        *
        * @param anderson_subspace_size Anderson acceleration subspace size
        */
-      AdditionalData(const SolutionStrategy &strategy = linesearch,
-                     const unsigned int maximum_non_linear_iterations = 200,
-                     const double       function_tolerance            = 0.0,
-                     const double       step_tolerance                = 0.0,
-                     const bool         no_init_setup                 = false,
-                     const unsigned int maximum_setup_calls           = 0,
-                     const double       maximum_newton_step           = 0.0,
-                     const double       dq_relative_error             = 0.0,
-                     const unsigned int maximum_beta_failures         = 0,
-                     const unsigned int anderson_subspace_size        = 0);
+      AdditionalData(const SolutionStrategy &strategy                      = linesearch,
+                     const unsigned int      maximum_non_linear_iterations = 200,
+                     const double            function_tolerance            = 0.0,
+                     const double            step_tolerance                = 0.0,
+                     const bool              no_init_setup                 = false,
+                     const unsigned int      maximum_setup_calls           = 0,
+                     const double            maximum_newton_step           = 0.0,
+                     const double            dq_relative_error             = 0.0,
+                     const unsigned int      maximum_beta_failures         = 0,
+                     const unsigned int      anderson_subspace_size        = 0);
 
       /**
        * Add all AdditionalData() parameters to the given ParameterHandler
@@ -453,8 +453,7 @@ namespace SUNDIALS
      * with "recoverable" errors in some circumstances, so callbacks
      * can throw exceptions of type RecoverableUserCallbackError.
      */
-    std::function<void(const VectorType &src, VectorType &dst)>
-      iteration_function;
+    std::function<void(const VectorType &src, VectorType &dst)> iteration_function;
 
     /**
      * A function object that users may supply and that is intended to
@@ -501,9 +500,7 @@ namespace SUNDIALS
      * with "recoverable" errors in some circumstances, so callbacks
      * can throw exceptions of type RecoverableUserCallbackError.
      */
-    std::function<void(const VectorType &current_u,
-                       const VectorType &current_f)>
-      setup_jacobian;
+    std::function<void(const VectorType &current_u, const VectorType &current_f)> setup_jacobian;
 
     /**
      * A function object that users may supply and that is intended to solve
@@ -544,9 +541,7 @@ namespace SUNDIALS
      * with "recoverable" errors in some circumstances, so callbacks
      * can throw exceptions of type RecoverableUserCallbackError.
      */
-    std::function<
-      void(const VectorType &rhs, VectorType &dst, const double tolerance)>
-      solve_with_jacobian;
+    std::function<void(const VectorType &rhs, VectorType &dst, const double tolerance)> solve_with_jacobian;
 
     /**
      * A function object that users may supply and that is intended to return a
@@ -655,8 +650,7 @@ namespace SUNDIALS
     DeclException1(ExcKINSOLError,
                    int,
                    << "One of the SUNDIALS KINSOL internal functions "
-                   << "returned a negative error code: " << arg1
-                   << ". Please consult SUNDIALS manual.");
+                   << "returned a negative error code: " << arg1 << ". Please consult SUNDIALS manual.");
 
   private:
     /**
@@ -665,8 +659,7 @@ namespace SUNDIALS
      */
     DeclException1(ExcFunctionNotProvided,
                    std::string,
-                   << "Please provide an implementation for the function \""
-                   << arg1 << "\"");
+                   << "Please provide an implementation for the function \"" << arg1 << "\"");
 
     /**
      * This function is executed at construction time to set the

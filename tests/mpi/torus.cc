@@ -65,27 +65,23 @@
 using cell_iterator = parallel::distributed::Triangulation<2, 3>::cell_iterator;
 DeclException1(ExcMissingCell,
                cell_iterator,
-               << "Trying to find cell " << arg1
-               << " but it doesn't appear to be in the list");
+               << "Trying to find cell " << arg1 << " but it doesn't appear to be in the list");
 
 int
 main(int argc, char *argv[])
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
-  MPILogInitAll log;
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
+  MPILogInitAll                    log;
 
-  parallel::distributed::Triangulation<2, 3> triangulation(
-    MPI_COMM_WORLD,
-    typename Triangulation<2, 3>::MeshSmoothing(
-      Triangulation<2, 3>::smoothing_on_refinement |
-      Triangulation<2, 3>::smoothing_on_coarsening));
+  parallel::distributed::Triangulation<2, 3> triangulation(MPI_COMM_WORLD,
+                                                           typename Triangulation<2, 3>::MeshSmoothing(
+                                                             Triangulation<2, 3>::smoothing_on_refinement |
+                                                             Triangulation<2, 3>::smoothing_on_coarsening));
   GridGenerator::torus(triangulation, 1, 0.2);
 
   // create a set of all cells, and insert all cells into it
   std::set<parallel::distributed::Triangulation<2, 3>::cell_iterator> cells;
-  for (parallel::distributed::Triangulation<2, 3>::cell_iterator cell =
-         triangulation.begin(0);
+  for (parallel::distributed::Triangulation<2, 3>::cell_iterator cell = triangulation.begin(0);
        cell != triangulation.end(0);
        ++cell)
     {
@@ -97,8 +93,7 @@ main(int argc, char *argv[])
     deallog << "List contains " << cells.size() << " items" << std::endl;
 
   // verify that every cell is in there
-  for (parallel::distributed::Triangulation<2, 3>::cell_iterator cell =
-         triangulation.begin(0);
+  for (parallel::distributed::Triangulation<2, 3>::cell_iterator cell = triangulation.begin(0);
        cell != triangulation.end(0);
        ++cell)
     AssertThrow(cells.find(cell) != cells.end(), ExcMissingCell(cell));
@@ -108,8 +103,7 @@ main(int argc, char *argv[])
 
   if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
     deallog << "List contains " << cells.size() << " items" << std::endl;
-  for (parallel::distributed::Triangulation<2, 3>::cell_iterator cell =
-         triangulation.begin(0);
+  for (parallel::distributed::Triangulation<2, 3>::cell_iterator cell = triangulation.begin(0);
        cell != triangulation.end(0);
        ++cell)
     AssertThrow(cells.find(cell) != cells.end(), ExcMissingCell(cell));

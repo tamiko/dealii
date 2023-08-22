@@ -343,8 +343,7 @@ public:
    * course empty.
    */
   virtual std::vector<std::pair<unsigned int, unsigned int>>
-  hp_quad_dof_identities(const FiniteElement<dim> &fe_other,
-                         const unsigned int        face_no = 0) const override;
+  hp_quad_dof_identities(const FiniteElement<dim> &fe_other, const unsigned int face_no = 0) const override;
 
   /**
    * Return whether this element implements its hanging node constraints in
@@ -361,8 +360,7 @@ public:
    * @copydoc FiniteElement::compare_for_domination()
    */
   virtual FiniteElementDomination::Domination
-  compare_for_domination(const FiniteElement<dim> &fe_other,
-                         const unsigned int codim = 0) const override final;
+  compare_for_domination(const FiniteElement<dim> &fe_other, const unsigned int codim = 0) const override final;
 
   /**
    * @}
@@ -378,8 +376,7 @@ public:
    * FiniteElement<dim>::ExcInterpolationNotImplemented is thrown.
    */
   virtual void
-  get_interpolation_matrix(const FiniteElement<dim> &source,
-                           FullMatrix<double> &      matrix) const override;
+  get_interpolation_matrix(const FiniteElement<dim> &source, FullMatrix<double> &matrix) const override;
 
   /**
    * Return the matrix interpolating from a face of one element to the face
@@ -394,8 +391,8 @@ public:
    */
   virtual void
   get_face_interpolation_matrix(const FiniteElement<dim> &source,
-                                FullMatrix<double> &      matrix,
-                                const unsigned int face_no = 0) const override;
+                                FullMatrix<double>       &matrix,
+                                const unsigned int        face_no = 0) const override;
 
   /**
    * Return the matrix interpolating from a face of one element to the face
@@ -409,19 +406,17 @@ public:
    * FiniteElement<dim>::ExcInterpolationNotImplemented.
    */
   virtual void
-  get_subface_interpolation_matrix(
-    const FiniteElement<dim> &source,
-    const unsigned int        subface,
-    FullMatrix<double> &      matrix,
-    const unsigned int        face_no = 0) const override;
+  get_subface_interpolation_matrix(const FiniteElement<dim> &source,
+                                   const unsigned int        subface,
+                                   FullMatrix<double>       &matrix,
+                                   const unsigned int        face_no = 0) const override;
 
   /**
    * This function returns @p true, if the shape function @p shape_index has
    * non-zero function values somewhere on the face @p face_index.
    */
   virtual bool
-  has_support_on_face(const unsigned int shape_index,
-                      const unsigned int face_index) const override;
+  has_support_on_face(const unsigned int shape_index, const unsigned int face_index) const override;
 
   /**
    * Determine an estimate for the memory consumption (in bytes) of this

@@ -62,10 +62,7 @@ test()
     points[1][d] = 0.85;
 
   const Quadrature<dim> quadrature(points);
-  FEValues<dim>         fe_values(mapping,
-                          fe,
-                          quadrature,
-                          update_gradients | update_jacobians);
+  FEValues<dim>         fe_values(mapping, fe, quadrature, update_gradients | update_jacobians);
 
   for (const auto &cell : dof.active_cell_iterators())
     {

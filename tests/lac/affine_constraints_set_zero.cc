@@ -52,14 +52,11 @@ test()
 
   LinearAlgebra::distributed::Vector<double, MemorySpace::Default> ghosted;
   {
-    ghosted.reinit(local_active,
-                   complete_index_set(2 * numproc),
-                   MPI_COMM_WORLD);
+    ghosted.reinit(local_active, complete_index_set(2 * numproc), MPI_COMM_WORLD);
     auto ghosted_values = ghosted.get_values();
 
     Kokkos::parallel_for(
-      Kokkos::RangePolicy<ExecutionSpace>(exec, 0, numproc),
-      KOKKOS_LAMBDA(int i) {
+      Kokkos::RangePolicy<ExecutionSpace>(exec, 0, numproc), KOKKOS_LAMBDA(int i) {
         int offset        = myid * numproc;
         ghosted_values[i] = 1.0 + i + offset;
       });
@@ -76,15 +73,12 @@ test()
 
   LinearAlgebra::distributed::Vector<double, MemorySpace::Default> distributed;
   {
-    distributed.reinit(local_active,
-                       complete_index_set(2 * numproc),
-                       MPI_COMM_WORLD);
+    distributed.reinit(local_active, complete_index_set(2 * numproc), MPI_COMM_WORLD);
 
     auto distributed_values = distributed.get_values();
 
     Kokkos::parallel_for(
-      Kokkos::RangePolicy<ExecutionSpace>(exec, 0, numproc),
-      KOKKOS_LAMBDA(int i) {
+      Kokkos::RangePolicy<ExecutionSpace>(exec, 0, numproc), KOKKOS_LAMBDA(int i) {
         int offset            = myid * numproc;
         distributed_values[i] = 1.0 + i + offset;
       });

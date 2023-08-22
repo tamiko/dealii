@@ -41,8 +41,7 @@ test()
   for (unsigned int i = 0; i < n_particles; ++i)
     {
       for (unsigned int d = 0; d < dim; ++d)
-        particle_positions[i][d] =
-          static_cast<double>(i) / static_cast<double>(n_particles);
+        particle_positions[i][d] = static_cast<double>(i) / static_cast<double>(n_particles);
     }
 
   const MappingQ1<dim> mapping;
@@ -52,9 +51,7 @@ test()
 
   // create the particle handler
   const unsigned int              n_property_components = 1;
-  Particles::ParticleHandler<dim> particle_handler(triangulation,
-                                                   mapping,
-                                                   n_property_components);
+  Particles::ParticleHandler<dim> particle_handler(triangulation, mapping, n_property_components);
 
   particle_handler.insert_particles(particle_positions);
 
@@ -64,8 +61,7 @@ test()
   // bulk-inserted before.
   for (auto &particle : particle_handler)
     {
-      particle.set_properties(
-        std::vector<double>(1, particle.get_location()[0]));
+      particle.set_properties(std::vector<double>(1, particle.get_location()[0]));
     }
 
   // Finally output these properties

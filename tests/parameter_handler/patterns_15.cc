@@ -43,14 +43,10 @@ main()
 
   prm.set("A mask", "false,false,true");
 
-  deallog << "After ParameterHandler::set =========================="
-          << std::endl
-          << std::endl;
+  deallog << "After ParameterHandler::set ==========================" << std::endl << std::endl;
   prm.log_parameters(deallog);
 
-  deallog << "Actual variables            =========================="
-          << std::endl
-          << std::endl;
+  deallog << "Actual variables            ==========================" << std::endl << std::endl;
 
   deallog << Convert<T>::to_string(a) << std::endl;
 }

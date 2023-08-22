@@ -670,9 +670,7 @@ public:
    * @param output_type A variable indicating what kind of timing the output
    * should represent (CPU or wall time).
    */
-  TimerOutput(std::ostream &        stream,
-              const OutputFrequency output_frequency,
-              const OutputType      output_type);
+  TimerOutput(std::ostream &stream, const OutputFrequency output_frequency, const OutputType output_type);
 
   /**
    * Constructor.
@@ -684,9 +682,7 @@ public:
    * @param output_type A variable indicating what kind of timing the output
    * should represent (CPU or wall time).
    */
-  TimerOutput(ConditionalOStream &  stream,
-              const OutputFrequency output_frequency,
-              const OutputType      output_type);
+  TimerOutput(ConditionalOStream &stream, const OutputFrequency output_frequency, const OutputType output_type);
 
   /**
    * Constructor that takes an MPI communicator as input. A timer constructed
@@ -712,7 +708,7 @@ public:
    * each section.
    */
   TimerOutput(const MPI_Comm        mpi_comm,
-              std::ostream &        stream,
+              std::ostream         &stream,
               const OutputFrequency output_frequency,
               const OutputType      output_type);
 
@@ -740,7 +736,7 @@ public:
    * each section.)
    */
   TimerOutput(const MPI_Comm        mpi_comm,
-              ConditionalOStream &  stream,
+              ConditionalOStream   &stream,
               const OutputFrequency output_frequency,
               const OutputType      output_type);
 
@@ -795,8 +791,7 @@ public:
    * median is given).
    */
   void
-  print_wall_time_statistics(const MPI_Comm mpi_comm,
-                             const double   print_quantile = 0.) const;
+  print_wall_time_statistics(const MPI_Comm mpi_comm, const double print_quantile = 0.) const;
 
   /**
    * By calling this function, all output can be disabled. This function
@@ -924,8 +919,8 @@ Timer::print_last_lap_wall_time_data(StreamType &stream) const
 {
   const Utilities::MPI::MinMaxAvg &statistic = get_last_lap_wall_time_data();
   stream << statistic.max << " wall,"
-         << " max @" << statistic.max_index << ", min=" << statistic.min << " @"
-         << statistic.min_index << ", avg=" << statistic.avg << std::endl;
+         << " max @" << statistic.max_index << ", min=" << statistic.min << " @" << statistic.min_index
+         << ", avg=" << statistic.avg << std::endl;
 }
 
 
@@ -936,14 +931,13 @@ Timer::print_accumulated_wall_time_data(StreamType &stream) const
 {
   const Utilities::MPI::MinMaxAvg &statistic = get_accumulated_wall_time_data();
   stream << statistic.max << " wall,"
-         << " max @" << statistic.max_index << ", min=" << statistic.min << " @"
-         << statistic.min_index << ", avg=" << statistic.avg << std::endl;
+         << " max @" << statistic.max_index << ", min=" << statistic.min << " @" << statistic.min_index
+         << ", avg=" << statistic.avg << std::endl;
 }
 
 
 
-inline TimerOutput::Scope::Scope(dealii::TimerOutput &timer_,
-                                 const std::string &  section_name_)
+inline TimerOutput::Scope::Scope(dealii::TimerOutput &timer_, const std::string &section_name_)
   : timer(timer_)
   , section_name(section_name_)
   , in(true)

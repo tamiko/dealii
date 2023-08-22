@@ -70,10 +70,7 @@ test(const FiniteElement<dim, spacedim> &fe, const unsigned int n_components)
 
   MappingFE<dim> mapping(FE_SimplexP<dim>(1));
 
-  VectorTools::interpolate(mapping,
-                           dof_handler,
-                           RightHandSideFunction<dim>(n_components),
-                           solution);
+  VectorTools::interpolate(mapping, dof_handler, RightHandSideFunction<dim>(n_components), solution);
 
   static unsigned int counter = 0;
 
@@ -84,22 +81,16 @@ test(const FiniteElement<dim, spacedim> &fe, const unsigned int n_components)
 
   data_out.build_patches(mapping);
 
-  const std::string output_basename("test." + std::to_string(dim) + "." +
-                                    std::to_string(counter++));
+  const std::string output_basename("test." + std::to_string(dim) + "." + std::to_string(counter++));
 
-  DataOutBase::DataOutFilter data_filter(
-    DataOutBase::DataOutFilterFlags(true, true));
+  DataOutBase::DataOutFilter data_filter(DataOutBase::DataOutFilterFlags(true, true));
   data_out.write_filtered_data(data_filter);
-  data_out.write_hdf5_parallel(data_filter,
-                               output_basename + ".h5",
-                               MPI_COMM_SELF);
+  data_out.write_hdf5_parallel(data_filter, output_basename + ".h5", MPI_COMM_SELF);
 
-  std::vector<XDMFEntry> xdmf_entries({data_out.create_xdmf_entry(
-    data_filter, output_basename + ".h5", 0, MPI_COMM_SELF)});
+  std::vector<XDMFEntry> xdmf_entries(
+    {data_out.create_xdmf_entry(data_filter, output_basename + ".h5", 0, MPI_COMM_SELF)});
 
-  data_out.write_xdmf_file(xdmf_entries,
-                           output_basename + ".xdmf",
-                           MPI_COMM_SELF);
+  data_out.write_xdmf_file(xdmf_entries, output_basename + ".xdmf", MPI_COMM_SELF);
 
   data_out.clear();
 
@@ -128,14 +119,12 @@ main(int argc, char **argv)
     const unsigned int dim = 2;
     test<dim>(FE_SimplexP<dim>(2), 1);
     test<dim>(FESystem<dim>(FE_SimplexP<dim>(2), dim), dim);
-    test<dim>(FESystem<dim>(FE_SimplexP<dim>(2), dim, FE_SimplexP<dim>(1), 1),
-              dim + 1);
+    test<dim>(FESystem<dim>(FE_SimplexP<dim>(2), dim, FE_SimplexP<dim>(1), 1), dim + 1);
   }
   {
     const unsigned int dim = 3;
     test<dim>(FE_SimplexP<dim>(2), 1);
     test<dim>(FESystem<dim>(FE_SimplexP<dim>(2), dim), dim);
-    test<dim>(FESystem<dim>(FE_SimplexP<dim>(2), dim, FE_SimplexP<dim>(1), 1),
-              dim + 1);
+    test<dim>(FESystem<dim>(FE_SimplexP<dim>(2), dim, FE_SimplexP<dim>(1), 1), dim + 1);
   }
 }

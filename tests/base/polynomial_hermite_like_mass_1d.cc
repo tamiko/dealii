@@ -31,8 +31,7 @@ main()
 
   for (unsigned int degree = 1; degree < 11; ++degree)
     {
-      auto poly =
-        Polynomials::HermiteLikeInterpolation::generate_complete_basis(degree);
+      auto               poly = Polynomials::HermiteLikeInterpolation::generate_complete_basis(degree);
       QGauss<1>          quad(degree + 1);
       FullMatrix<double> mat(degree + 1, degree + 1);
       for (unsigned int i = 0; i < degree + 1; ++i)
@@ -40,8 +39,7 @@ main()
           {
             double sum = 0;
             for (unsigned int q = 0; q < quad.size(); ++q)
-              sum += poly[i].value(quad.point(q)[0]) *
-                     poly[j].value(quad.point(q)[0]) * quad.weight(q);
+              sum += poly[i].value(quad.point(q)[0]) * poly[j].value(quad.point(q)[0]) * quad.weight(q);
             if (std::abs(sum) > 1e-15)
               mat(i, j) = sum;
           }

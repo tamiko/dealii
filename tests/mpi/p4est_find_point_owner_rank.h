@@ -38,24 +38,18 @@ test(const std::vector<Point<dim>> &points)
 
   parallel::distributed::Triangulation<dim> triangulation(
     MPI_COMM_WORLD,
-    typename Triangulation<dim>::MeshSmoothing(
-      Triangulation<dim>::smoothing_on_refinement |
-      Triangulation<dim>::smoothing_on_coarsening),
+    typename Triangulation<dim>::MeshSmoothing(Triangulation<dim>::smoothing_on_refinement |
+                                               Triangulation<dim>::smoothing_on_coarsening),
     typename parallel::distributed::Triangulation<dim>::Settings(
-      parallel::distributed::Triangulation<
-        dim>::communicate_vertices_to_p4est));
+      parallel::distributed::Triangulation<dim>::communicate_vertices_to_p4est));
   GridGenerator::subdivided_hyper_cube(triangulation, 2);
   triangulation.refine_global(3);
 
-  deallog << "   Number of MPI processes = "
-          << Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD) << std::endl;
-  deallog << "   Number of this MPI processes = "
-          << Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) << std::endl;
-  deallog << "   Number of cells = " << triangulation.n_global_active_cells()
-          << std::endl;
+  deallog << "   Number of MPI processes = " << Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD) << std::endl;
+  deallog << "   Number of this MPI processes = " << Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) << std::endl;
+  deallog << "   Number of cells = " << triangulation.n_global_active_cells() << std::endl;
   deallog << "   Number of levels = " << triangulation.n_levels() << std::endl;
-  deallog << "   Number of global levels = " << triangulation.n_global_levels()
-          << std::endl;
+  deallog << "   Number of global levels = " << triangulation.n_global_levels() << std::endl;
   const unsigned int checksum = triangulation.get_checksum();
   deallog << "   Triangulation checksum = " << checksum << std::endl;
 
@@ -67,8 +61,7 @@ test(const std::vector<Point<dim>> &points)
 
   ////////////////////////////////////////////////////////////
   // test stuff
-  std::vector<types::subdomain_id> point_owner_ranks =
-    triangulation.find_point_owner_rank(points);
+  std::vector<types::subdomain_id> point_owner_ranks = triangulation.find_point_owner_rank(points);
 
   // Gather all point_owner_ranks found from all MPI ranks and compare the
   // results on root_process. They must all be equal.
@@ -80,8 +73,7 @@ test(const std::vector<Point<dim>> &points)
     {
       if (std::adjacent_find(all_ranks_found_on_each_process.begin(),
                              all_ranks_found_on_each_process.end(),
-                             std::not_equal_to<>()) ==
-          all_ranks_found_on_each_process.end())
+                             std::not_equal_to<>()) == all_ranks_found_on_each_process.end())
         {
           deallog << std::endl
                   << "   All point owner ranks found on all processes equal "
@@ -91,13 +83,12 @@ test(const std::vector<Point<dim>> &points)
         }
       else
         {
-          deallog
-            << std::endl
-            << "   Some point owner ranks found on all processes do not equal "
-               "each other. Check output and/or the file "
-               "tests/mpi/p4est_find_point_owner_rank.h. TEST FAILED."
-            << std::endl
-            << std::endl;
+          deallog << std::endl
+                  << "   Some point owner ranks found on all processes do not equal "
+                     "each other. Check output and/or the file "
+                     "tests/mpi/p4est_find_point_owner_rank.h. TEST FAILED."
+                  << std::endl
+                  << std::endl;
         }
     }
   ////////////////////////////////////////////////////////////
@@ -117,12 +108,10 @@ check_error_on_invalid_mesh(const Point<dim> &point)
 
   parallel::distributed::Triangulation<dim> triangulation(
     MPI_COMM_WORLD,
-    typename Triangulation<dim>::MeshSmoothing(
-      Triangulation<dim>::smoothing_on_refinement |
-      Triangulation<dim>::smoothing_on_coarsening),
+    typename Triangulation<dim>::MeshSmoothing(Triangulation<dim>::smoothing_on_refinement |
+                                               Triangulation<dim>::smoothing_on_coarsening),
     typename parallel::distributed::Triangulation<dim>::Settings(
-      parallel::distributed::Triangulation<
-        dim>::communicate_vertices_to_p4est));
+      parallel::distributed::Triangulation<dim>::communicate_vertices_to_p4est));
 
   GridGenerator::hyper_shell(triangulation,
                              /* center is origin */ Point<dim>(),
@@ -130,15 +119,11 @@ check_error_on_invalid_mesh(const Point<dim> &point)
                              /* 	outer_radius */ 2);
   triangulation.refine_global(3);
 
-  deallog << "   Number of MPI processes = "
-          << Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD) << std::endl;
-  deallog << "   Number of this MPI processes = "
-          << Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) << std::endl;
-  deallog << "   Number of cells = " << triangulation.n_global_active_cells()
-          << std::endl;
+  deallog << "   Number of MPI processes = " << Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD) << std::endl;
+  deallog << "   Number of this MPI processes = " << Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) << std::endl;
+  deallog << "   Number of cells = " << triangulation.n_global_active_cells() << std::endl;
   deallog << "   Number of levels = " << triangulation.n_levels() << std::endl;
-  deallog << "   Number of global levels = " << triangulation.n_global_levels()
-          << std::endl;
+  deallog << "   Number of global levels = " << triangulation.n_global_levels() << std::endl;
   const unsigned int checksum = triangulation.get_checksum();
   deallog << "   Triangulation checksum = " << checksum << std::endl;
   deallog << "   point = " << point << std::endl;
@@ -147,7 +132,6 @@ check_error_on_invalid_mesh(const Point<dim> &point)
 
   ////////////////////////////////////////////////////////////
   // This should result in an error.
-  types::subdomain_id point_owner_rank =
-    triangulation.find_point_owner_rank(point);
+  types::subdomain_id point_owner_rank = triangulation.find_point_owner_rank(point);
   ////////////////////////////////////////////////////////////
 }

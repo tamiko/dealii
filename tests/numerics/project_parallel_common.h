@@ -103,7 +103,7 @@ private:
 template <int dim, int components, int fe_degree>
 void
 do_project(const parallel::distributed::Triangulation<dim> &triangulation,
-           const FiniteElement<dim> &                       fe,
+           const FiniteElement<dim>                        &fe,
            const unsigned int                               order_difference)
 {
   const unsigned int p = fe_degree;
@@ -122,19 +122,13 @@ do_project(const parallel::distributed::Triangulation<dim> &triangulation,
   DoFTools::make_hanging_node_constraints(dof_handler, constraints);
   constraints.close();
 
-  LinearAlgebra::distributed::Vector<double> projection(locally_owned_dofs,
-                                                        locally_relevant_dofs,
-                                                        mpi_communicator);
-  Vector<float> error(triangulation.n_active_cells());
+  LinearAlgebra::distributed::Vector<double> projection(locally_owned_dofs, locally_relevant_dofs, mpi_communicator);
+  Vector<float>                              error(triangulation.n_active_cells());
   for (unsigned int q = 0; q <= p + 2 - order_difference; ++q)
     {
       // project the function
       projection.zero_out_ghost_values();
-      VectorTools::project(dof_handler,
-                           constraints,
-                           QGauss<dim>(p + 2),
-                           F<dim>(q, fe.n_components()),
-                           projection);
+      VectorTools::project(dof_handler, constraints, QGauss<dim>(p + 2), F<dim>(q, fe.n_components()), projection);
       // just to make sure it doesn't get
       // forgotten: handle hanging node
       // constraints
@@ -149,16 +143,13 @@ do_project(const parallel::distributed::Triangulation<dim> &triangulation,
                                         QGauss<dim>(std::max(p, q) + 1),
                                         VectorTools::L2_norm);
       const double L2_error_local = error.l2_norm();
-      const double L2_error       = std::sqrt(
-        Utilities::MPI::sum(L2_error_local * L2_error_local, mpi_communicator));
+      const double L2_error       = std::sqrt(Utilities::MPI::sum(L2_error_local * L2_error_local, mpi_communicator));
       const double projection_l2_norm = projection.l2_norm();
-      deallog << fe.get_name() << ", P_" << q
-              << ", rel. error=" << L2_error / projection_l2_norm << std::endl;
+      deallog << fe.get_name() << ", P_" << q << ", rel. error=" << L2_error / projection_l2_norm << std::endl;
 
       if (q <= p - order_difference)
         if (L2_error > 1e-10 * projection_l2_norm)
-          deallog << "Projection failed with relative error "
-                  << L2_error / projection_l2_norm << std::endl;
+          deallog << "Projection failed with relative error " << L2_error / projection_l2_norm << std::endl;
     }
 }
 
@@ -170,8 +161,7 @@ do_project(const parallel::distributed::Triangulation<dim> &triangulation,
 // can only represent polynomials of degree p-1 exactly. the gap is then 1.
 template <int dim, int components, int fe_degree>
 void
-test_no_hanging_nodes(const FiniteElement<dim> &fe,
-                      const unsigned int        order_difference = 0)
+test_no_hanging_nodes(const FiniteElement<dim> &fe, const unsigned int order_difference = 0)
 {
   parallel::distributed::Triangulation<dim> triangulation(MPI_COMM_WORLD);
   GridGenerator::hyper_cube(triangulation);
@@ -185,8 +175,7 @@ test_no_hanging_nodes(const FiniteElement<dim> &fe,
 // same test as above, but this time with a mesh that has hanging nodes
 template <int dim, int components, int fe_degree>
 void
-test_with_hanging_nodes(const FiniteElement<dim> &fe,
-                        const unsigned int        order_difference = 0)
+test_with_hanging_nodes(const FiniteElement<dim> &fe, const unsigned int order_difference = 0)
 {
   parallel::distributed::Triangulation<dim> triangulation(MPI_COMM_WORLD);
   GridGenerator::hyper_cube(triangulation);
@@ -212,8 +201,7 @@ test_with_hanging_nodes(const FiniteElement<dim> &fe,
 // having face_orientation==false
 template <int dim, int components, int fe_degree>
 void
-test_with_wrong_face_orientation(const FiniteElement<dim> &fe,
-                                 const unsigned int        order_difference = 0)
+test_with_wrong_face_orientation(const FiniteElement<dim> &fe, const unsigned int order_difference = 0)
 {
   if (dim != 3)
     return;
@@ -223,15 +211,12 @@ test_with_wrong_face_orientation(const FiniteElement<dim> &fe,
       parallel::distributed::Triangulation<dim> triangulation(MPI_COMM_WORLD);
       GridGenerator::hyper_ball(triangulation);
       triangulation.reset_manifold(0);
-      typename parallel::distributed::Triangulation<dim>::active_cell_iterator
-        cell = triangulation.begin_active();
+      typename parallel::distributed::Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
       std::advance(cell, i);
       cell->set_refine_flag();
       triangulation.execute_coarsening_and_refinement();
 
-      do_project<dim, components, fe_degree>(triangulation,
-                                             fe,
-                                             order_difference);
+      do_project<dim, components, fe_degree>(triangulation, fe, order_difference);
     }
 }
 
@@ -242,8 +227,7 @@ test_with_wrong_face_orientation(const FiniteElement<dim> &fe,
 // fe_poly_tensor.cc
 template <int dim, int components, int fe_degree>
 void
-test_with_2d_deformed_mesh(const FiniteElement<dim> &fe,
-                           const unsigned int        order_difference = 0)
+test_with_2d_deformed_mesh(const FiniteElement<dim> &fe, const unsigned int order_difference = 0)
 {
   if (dim != 2)
     return;
@@ -292,8 +276,7 @@ test_with_2d_deformed_mesh(const FiniteElement<dim> &fe,
 // makes sure we also check the sign_change thingy for refined cells
 template <int dim, int components, int fe_degree>
 void
-test_with_2d_deformed_refined_mesh(const FiniteElement<dim> &fe,
-                                   const unsigned int order_difference = 0)
+test_with_2d_deformed_refined_mesh(const FiniteElement<dim> &fe, const unsigned int order_difference = 0)
 {
   if (dim != 2)
     return;
@@ -351,9 +334,7 @@ test_with_2d_deformed_refined_mesh(const FiniteElement<dim> &fe,
         }
       triangulation.execute_coarsening_and_refinement();
 
-      do_project<dim, components, fe_degree>(triangulation,
-                                             fe,
-                                             order_difference);
+      do_project<dim, components, fe_degree>(triangulation, fe, order_difference);
     }
 }
 

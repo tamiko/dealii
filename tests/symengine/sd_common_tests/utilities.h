@@ -57,9 +57,7 @@ print(Stream &stream, const std::string &name, const NumberType &val)
 
 template <typename Stream, int dim, typename NumberType>
 void
-print(Stream &                          stream,
-      const std::string &               name,
-      const Tensor<0, dim, NumberType> &val)
+print(Stream &stream, const std::string &name, const Tensor<0, dim, NumberType> &val)
 {
   stream << name << ": " << val << std::endl;
 }
@@ -67,9 +65,7 @@ print(Stream &                          stream,
 
 template <typename Stream, int dim, typename NumberType>
 void
-print(Stream &                          stream,
-      const std::string &               name,
-      const Tensor<1, dim, NumberType> &t)
+print(Stream &stream, const std::string &name, const Tensor<1, dim, NumberType> &t)
 {
   for (unsigned int i = 0; i < dim; ++i)
     stream << name << "[" << i << "]: " << t[i] << std::endl;
@@ -78,9 +74,7 @@ print(Stream &                          stream,
 
 template <typename Stream, int dim, typename NumberType>
 void
-print(Stream &                          stream,
-      const std::string &               name,
-      const Tensor<2, dim, NumberType> &t)
+print(Stream &stream, const std::string &name, const Tensor<2, dim, NumberType> &t)
 {
   for (unsigned int i = 0; i < dim; ++i)
     for (unsigned int j = 0; j < dim; ++j)
@@ -90,9 +84,7 @@ print(Stream &                          stream,
 
 template <typename Stream, int dim, typename NumberType>
 void
-print(Stream &                                   stream,
-      const std::string &                        name,
-      const SymmetricTensor<2, dim, NumberType> &t)
+print(Stream &stream, const std::string &name, const SymmetricTensor<2, dim, NumberType> &t)
 {
   for (unsigned int i = 0; i < dim; ++i)
     for (unsigned int j = i; j < dim; ++j)
@@ -102,43 +94,34 @@ print(Stream &                                   stream,
 
 template <typename Stream, int dim, typename NumberType>
 void
-print(Stream &                          stream,
-      const std::string &               name,
-      const Tensor<3, dim, NumberType> &t)
+print(Stream &stream, const std::string &name, const Tensor<3, dim, NumberType> &t)
 {
   for (unsigned int i = 0; i < dim; ++i)
     for (unsigned int j = 0; j < dim; ++j)
       for (unsigned int k = 0; k < dim; ++k)
-        stream << name << "[" << i << "][" << j << "][" << k
-               << "]: " << t[i][j][k] << std::endl;
+        stream << name << "[" << i << "][" << j << "][" << k << "]: " << t[i][j][k] << std::endl;
 }
 
 
 template <typename Stream, int dim, typename NumberType>
 void
-print(Stream &                          stream,
-      const std::string &               name,
-      const Tensor<4, dim, NumberType> &t)
+print(Stream &stream, const std::string &name, const Tensor<4, dim, NumberType> &t)
 {
   for (unsigned int i = 0; i < dim; ++i)
     for (unsigned int j = 0; j < dim; ++j)
       for (unsigned int k = 0; k < dim; ++k)
         for (unsigned int l = 0; l < dim; ++l)
-          stream << name << "[" << i << "][" << j << "][" << k << "][" << l
-                 << "]: " << t[i][j][k][l] << std::endl;
+          stream << name << "[" << i << "][" << j << "][" << k << "][" << l << "]: " << t[i][j][k][l] << std::endl;
 }
 
 
 template <typename Stream, int dim, typename NumberType>
 void
-print(Stream &                                   stream,
-      const std::string &                        name,
-      const SymmetricTensor<4, dim, NumberType> &t)
+print(Stream &stream, const std::string &name, const SymmetricTensor<4, dim, NumberType> &t)
 {
   for (unsigned int i = 0; i < dim; ++i)
     for (unsigned int j = i; j < dim; ++j)
       for (unsigned int k = 0; k < dim; ++k)
         for (unsigned int l = k; l < dim; ++l)
-          stream << name << "[" << i << "][" << j << "][" << k << "][" << l
-                 << "]: " << t[i][j][k][l] << std::endl;
+          stream << name << "[" << i << "][" << j << "][" << k << "][" << l << "]: " << t[i][j][k][l] << std::endl;
 }

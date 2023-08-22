@@ -64,10 +64,7 @@ test()
   CGAL::Polygon_mesh_processing::triangulate_faces(surface_mesh0);
   CGAL::Polygon_mesh_processing::triangulate_faces(surface_mesh1);
 
-  compute_boolean_operation(surface_mesh0,
-                            surface_mesh1,
-                            BooleanOperation::compute_intersection,
-                            out_mesh);
+  compute_boolean_operation(surface_mesh0, surface_mesh1, BooleanOperation::compute_intersection, out_mesh);
   // Now back to deal.II
   cgal_surface_mesh_to_dealii_triangulation(out_mesh, tria_out);
   std::ofstream out_name_spheres("boolean_intersection_hyper_spheres.vtk");
@@ -100,10 +97,7 @@ test()
   CGAL::Polygon_mesh_processing::triangulate_faces(surface_mesh0);
   CGAL::Polygon_mesh_processing::triangulate_faces(surface_mesh1);
 
-  compute_boolean_operation(surface_mesh0,
-                            surface_mesh1,
-                            BooleanOperation::compute_intersection,
-                            out_mesh);
+  compute_boolean_operation(surface_mesh0, surface_mesh1, BooleanOperation::compute_intersection, out_mesh);
   // Now back to deal.II
   cgal_surface_mesh_to_dealii_triangulation(out_mesh, tria_out);
   std::ofstream out_name_cubes("boolean_intersection_cubes.vtk");

@@ -40,7 +40,7 @@ main(int argc, char *argv[])
   using size_type = PETScWrappers::MPI::SparseMatrix::size_type;
 
   Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
-  const auto rank = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  const auto                       rank = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
 
   initlog();
   deallog << std::setprecision(10);
@@ -52,8 +52,7 @@ main(int argc, char *argv[])
       {
         const auto dofs_per_processor = n_dofs / np;
         IndexSet   locally_owned_dofs(n_dofs);
-        locally_owned_dofs.add_range(rank * dofs_per_processor,
-                                     (rank + 1) * dofs_per_processor);
+        locally_owned_dofs.add_range(rank * dofs_per_processor, (rank + 1) * dofs_per_processor);
         locally_owned_dofs.compress();
         DynamicSparsityPattern dsp(n_dofs, n_dofs);
         for (const auto &index : locally_owned_dofs)
@@ -84,7 +83,7 @@ main(int argc, char *argv[])
 
   {
     PETScWrappers::MPI::BlockSparseMatrix a;
-    auto op_a = linear_operator<PETScWrappers::MPI::BlockVector>(a);
+    auto                                  op_a = linear_operator<PETScWrappers::MPI::BlockVector>(a);
     deallog << "BlockSparseMatrix MPI -> OK" << std::endl;
   }
 

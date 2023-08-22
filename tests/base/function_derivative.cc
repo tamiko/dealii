@@ -32,8 +32,8 @@
 template <int dim>
 void
 check_derivative_order(const std::vector<Tensor<1, dim>> &gradients,
-                       FunctionDerivative<dim> &          df,
-                       const Quadrature<dim> &            quadrature,
+                       FunctionDerivative<dim>           &df,
+                       const Quadrature<dim>             &quadrature,
                        const unsigned int                 direction,
                        const double                       order)
 {
@@ -55,12 +55,9 @@ check_derivative_order(const std::vector<Tensor<1, dim>> &gradients,
 
   for (unsigned int i = 0; i < gradients.size(); ++i)
     {
-      const double reduction =
-        std::fabs(gradients[i][direction] - derivatives[i]) /
-        std::fabs(differences[i]);
+      const double reduction = std::fabs(gradients[i][direction] - derivatives[i]) / std::fabs(differences[i]);
       if (reduction > 1.2 * expected || reduction < .8 * expected)
-        deallog << "Derivative error " << direction << ' ' << order << ' ' << i
-                << "   " << reduction << std::endl;
+        deallog << "Derivative error " << direction << ' ' << order << ' ' << i << "   " << reduction << std::endl;
     }
 }
 
@@ -68,9 +65,9 @@ check_derivative_order(const std::vector<Tensor<1, dim>> &gradients,
 template <int dim>
 void
 check_hessian_order(const std::vector<double> &values,
-                    FunctionDerivative<dim> &  df,
-                    const Quadrature<dim> &    quadrature,
-                    const Point<dim> &         k,
+                    FunctionDerivative<dim>   &df,
+                    const Quadrature<dim>     &quadrature,
+                    const Point<dim>          &k,
                     const unsigned int         direction,
                     const double               order)
 {
@@ -98,12 +95,10 @@ check_hessian_order(const std::vector<double> &values,
     for (unsigned int d = 0; d < dim; ++d)
       {
         const double reduction =
-          std::fabs(-values[i] * k[direction] * k[d] - derivatives[i][d]) /
-          std::fabs(differences[i][d]);
+          std::fabs(-values[i] * k[direction] * k[d] - derivatives[i][d]) / std::fabs(differences[i][d]);
         if (reduction > 1.2 * expected || reduction < .8 * expected)
-          deallog << "Hessian error " << direction << ' ' << d << ' ' << order
-                  << ' ' << i << "   " << reduction << "   " << expected
-                  << "   " << differences[i][d] << std::endl;
+          deallog << "Hessian error " << direction << ' ' << d << ' ' << order << ' ' << i << "   " << reduction
+                  << "   " << expected << "   " << differences[i][d] << std::endl;
       }
 }
 

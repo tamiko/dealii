@@ -48,13 +48,11 @@ template <typename MeshType>
 MPI_Comm
 get_mpi_comm(const MeshType &mesh)
 {
-  const auto *tria_parallel = dynamic_cast<
-    const parallel::TriangulationBase<MeshType::dimension,
-                                      MeshType::space_dimension> *>(
-    &(mesh.get_triangulation()));
+  const auto *tria_parallel =
+    dynamic_cast<const parallel::TriangulationBase<MeshType::dimension, MeshType::space_dimension> *>(
+      &(mesh.get_triangulation()));
 
-  return tria_parallel != nullptr ? tria_parallel->get_communicator() :
-                                    MPI_COMM_SELF;
+  return tria_parallel != nullptr ? tria_parallel->get_communicator() : MPI_COMM_SELF;
 }
 
 template <int dim, int spacedim>
@@ -65,16 +63,15 @@ create_partitioner(const DoFHandler<dim, spacedim> &dof_handler)
 
   DoFTools::extract_locally_relevant_dofs(dof_handler, locally_relevant_dofs);
 
-  return std::make_shared<const Utilities::MPI::Partitioner>(
-    dof_handler.locally_owned_dofs(),
-    locally_relevant_dofs,
-    get_mpi_comm(dof_handler));
+  return std::make_shared<const Utilities::MPI::Partitioner>(dof_handler.locally_owned_dofs(),
+                                                             locally_relevant_dofs,
+                                                             get_mpi_comm(dof_handler));
 }
 
 template <int dim>
 void
-print(const Mapping<dim> &                              mapping,
-      const DoFHandler<dim> &                           dof_handler,
+print(const Mapping<dim>                               &mapping,
+      const DoFHandler<dim>                            &dof_handler,
       const LinearAlgebra::distributed::Vector<double> &result,
       const unsigned int                                counter)
 {
@@ -90,15 +87,13 @@ print(const Mapping<dim> &                              mapping,
   const auto &tria = dof_handler.get_triangulation();
 
   Vector<double> ranks(tria.n_active_cells());
-  for (const auto &cell :
-       tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     ranks(cell->active_cell_index()) = cell->subdomain_id();
   data_out.add_data_vector(ranks, "rank");
   data_out.add_data_vector(result, "result");
 
   data_out.build_patches(mapping, dof_handler.get_fe().tensor_degree() + 1);
-  data_out.write_vtu_with_pvtu_record(
-    "./", "example-1", counter, MPI_COMM_WORLD, 1, 1);
+  data_out.write_vtu_with_pvtu_record("./", "example-1", counter, MPI_COMM_WORLD, 1, 1);
 
   result.zero_out_ghost_values();
 }
@@ -134,14 +129,10 @@ test()
   FE_Q<dim>       fe_1(degree);
   dof_handler_1.distribute_dofs(fe_1);
 
-  LinearAlgebra::distributed::Vector<double> vector_1(
-    create_partitioner(dof_handler_1));
+  LinearAlgebra::distributed::Vector<double> vector_1(create_partitioner(dof_handler_1));
 
   const MappingQ1<dim> mapping_1;
-  VectorTools::interpolate(mapping_1,
-                           dof_handler_1,
-                           AnalyticalFunction<dim>(),
-                           vector_1);
+  VectorTools::interpolate(mapping_1, dof_handler_1, AnalyticalFunction<dim>(), vector_1);
 
   std::vector<Point<dim>> evaluation_points;
 
@@ -153,18 +144,16 @@ test()
 
   vector_1.update_ghost_values();
   Utilities::MPI::RemotePointEvaluation<dim> evaluation_cache;
-  const auto evaluation_point_results = VectorTools::point_values<1>(
-    mapping_1, dof_handler_1, vector_1, evaluation_points, evaluation_cache);
+  const auto                                 evaluation_point_results =
+    VectorTools::point_values<1>(mapping_1, dof_handler_1, vector_1, evaluation_points, evaluation_cache);
   const auto evaluation_point_gradient_results =
-    VectorTools::point_gradients<1>(
-      mapping_1, dof_handler_1, vector_1, evaluation_points, evaluation_cache);
+    VectorTools::point_gradients<1>(mapping_1, dof_handler_1, vector_1, evaluation_points, evaluation_cache);
   vector_1.zero_out_ghost_values();
 
   if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
     for (unsigned int i = 0; i <= n_intervals; ++i)
       {
-        if (std::abs(evaluation_points[i][0] - evaluation_point_results[i]) >
-              1e-10 ||
+        if (std::abs(evaluation_points[i][0] - evaluation_point_results[i]) > 1e-10 ||
             std::abs(evaluation_point_gradient_results[i][0] - 1.0) > 1e-10)
           Assert(false, ExcNotImplemented());
       }

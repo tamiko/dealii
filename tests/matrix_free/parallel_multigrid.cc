@@ -51,49 +51,40 @@
 
 
 
-template <int dim,
-          int fe_degree,
-          int n_q_points_1d = fe_degree + 1,
-          typename number   = double>
+template <int dim, int fe_degree, int n_q_points_1d = fe_degree + 1, typename number = double>
 class LaplaceOperator : public Subscriptor
 {
 public:
   LaplaceOperator(){};
 
   void
-  initialize(const Mapping<dim> &                mapping,
-             const DoFHandler<dim> &             dof_handler,
+  initialize(const Mapping<dim>                 &mapping,
+             const DoFHandler<dim>              &dof_handler,
              const std::set<types::boundary_id> &dirichlet_boundaries,
-             const unsigned int level = numbers::invalid_unsigned_int)
+             const unsigned int                  level = numbers::invalid_unsigned_int)
   {
     const QGauss<1>                                  quad(n_q_points_1d);
     typename MatrixFree<dim, number>::AdditionalData addit_data;
-    addit_data.tasks_parallel_scheme =
-      MatrixFree<dim, number>::AdditionalData::none;
-    addit_data.mg_level = level;
+    addit_data.tasks_parallel_scheme = MatrixFree<dim, number>::AdditionalData::none;
+    addit_data.mg_level              = level;
 
     // extract the constraints due to Dirichlet boundary conditions
     AffineConstraints<double>                           constraints;
     Functions::ZeroFunction<dim>                        zero;
     std::map<types::boundary_id, const Function<dim> *> functions;
-    for (std::set<types::boundary_id>::const_iterator it =
-           dirichlet_boundaries.begin();
+    for (std::set<types::boundary_id>::const_iterator it = dirichlet_boundaries.begin();
          it != dirichlet_boundaries.end();
          ++it)
       functions[*it] = &zero;
     if (level == numbers::invalid_unsigned_int)
-      VectorTools::interpolate_boundary_values(dof_handler,
-                                               functions,
-                                               constraints);
+      VectorTools::interpolate_boundary_values(dof_handler, functions, constraints);
     else
       {
         std::vector<types::global_dof_index>    local_dofs;
-        typename DoFHandler<dim>::cell_iterator cell = dof_handler.begin(level),
-                                                endc = dof_handler.end(level);
+        typename DoFHandler<dim>::cell_iterator cell = dof_handler.begin(level), endc = dof_handler.end(level);
         for (; cell != endc; ++cell)
           {
-            if (dof_handler.get_triangulation().locally_owned_subdomain() !=
-                  numbers::invalid_subdomain_id &&
+            if (dof_handler.get_triangulation().locally_owned_subdomain() != numbers::invalid_subdomain_id &&
                 cell->level_subdomain_id() == numbers::artificial_subdomain_id)
               continue;
             const FiniteElement<dim> &fe = cell->get_fe();
@@ -102,9 +93,8 @@ public:
             for (const unsigned int face_no : GeometryInfo<dim>::face_indices())
               if (cell->at_boundary(face_no) == true)
                 {
-                  const typename DoFHandler<dim>::face_iterator face =
-                    cell->face(face_no);
-                  const types::boundary_id bi = face->boundary_id();
+                  const typename DoFHandler<dim>::face_iterator face = cell->face(face_no);
+                  const types::boundary_id                      bi   = face->boundary_id();
                   if (functions.find(bi) != functions.end())
                     {
                       face->get_mg_dof_indices(level, local_dofs);
@@ -122,39 +112,35 @@ public:
   }
 
   void
-  vmult(LinearAlgebra::distributed::Vector<number> &      dst,
-        const LinearAlgebra::distributed::Vector<number> &src) const
+  vmult(LinearAlgebra::distributed::Vector<number> &dst, const LinearAlgebra::distributed::Vector<number> &src) const
   {
     dst = 0;
     vmult_add(dst, src);
   }
 
   void
-  Tvmult(LinearAlgebra::distributed::Vector<number> &      dst,
-         const LinearAlgebra::distributed::Vector<number> &src) const
+  Tvmult(LinearAlgebra::distributed::Vector<number> &dst, const LinearAlgebra::distributed::Vector<number> &src) const
   {
     dst = 0;
     vmult_add(dst, src);
   }
 
   void
-  Tvmult_add(LinearAlgebra::distributed::Vector<number> &      dst,
+  Tvmult_add(LinearAlgebra::distributed::Vector<number>       &dst,
              const LinearAlgebra::distributed::Vector<number> &src) const
   {
     vmult_add(dst, src);
   }
 
   void
-  vmult_add(LinearAlgebra::distributed::Vector<number> &      dst,
+  vmult_add(LinearAlgebra::distributed::Vector<number>       &dst,
             const LinearAlgebra::distributed::Vector<number> &src) const
   {
     data.cell_loop(&LaplaceOperator::local_apply, this, dst, src);
 
-    const std::vector<unsigned int> &constrained_dofs =
-      data.get_constrained_dofs();
+    const std::vector<unsigned int> &constrained_dofs = data.get_constrained_dofs();
     for (unsigned int i = 0; i < constrained_dofs.size(); ++i)
-      dst.local_element(constrained_dofs[i]) +=
-        src.local_element(constrained_dofs[i]);
+      dst.local_element(constrained_dofs[i]) += src.local_element(constrained_dofs[i]);
   }
 
   types::global_dof_index
@@ -172,21 +158,16 @@ public:
   number
   el(const unsigned int row, const unsigned int col) const
   {
-    AssertThrow(false,
-                ExcMessage("Matrix-free does not allow for entry access"));
+    AssertThrow(false, ExcMessage("Matrix-free does not allow for entry access"));
     return number();
   }
 
   void
-  initialize_dof_vector(
-    LinearAlgebra::distributed::Vector<number> &vector) const
+  initialize_dof_vector(LinearAlgebra::distributed::Vector<number> &vector) const
   {
-    if (!vector.partitioners_are_compatible(
-          *data.get_dof_info(0).vector_partitioner))
+    if (!vector.partitioners_are_compatible(*data.get_dof_info(0).vector_partitioner))
       data.initialize_dof_vector(vector);
-    Assert(vector.partitioners_are_globally_compatible(
-             *data.get_dof_info(0).vector_partitioner),
-           ExcInternalError());
+    Assert(vector.partitioners_are_globally_compatible(*data.get_dof_info(0).vector_partitioner), ExcInternalError());
   }
 
   const LinearAlgebra::distributed::Vector<number> &
@@ -205,10 +186,10 @@ public:
 
 private:
   void
-  local_apply(const MatrixFree<dim, number> &                   data,
-              LinearAlgebra::distributed::Vector<number> &      dst,
+  local_apply(const MatrixFree<dim, number>                    &data,
+              LinearAlgebra::distributed::Vector<number>       &dst,
               const LinearAlgebra::distributed::Vector<number> &src,
-              const std::pair<unsigned int, unsigned int> &cell_range) const
+              const std::pair<unsigned int, unsigned int>      &cell_range) const
   {
     FEEvaluation<dim, fe_degree, n_q_points_1d, 1, number> phi(data);
 
@@ -229,26 +210,20 @@ private:
   {
     data.initialize_dof_vector(inverse_diagonal_entries);
     unsigned int dummy = 0;
-    data.cell_loop(&LaplaceOperator::local_diagonal_cell,
-                   this,
-                   inverse_diagonal_entries,
-                   dummy);
+    data.cell_loop(&LaplaceOperator::local_diagonal_cell, this, inverse_diagonal_entries, dummy);
 
-    for (unsigned int i = 0; i < inverse_diagonal_entries.locally_owned_size();
-         ++i)
+    for (unsigned int i = 0; i < inverse_diagonal_entries.locally_owned_size(); ++i)
       if (std::abs(inverse_diagonal_entries.local_element(i)) > 1e-10)
-        inverse_diagonal_entries.local_element(i) =
-          1. / inverse_diagonal_entries.local_element(i);
+        inverse_diagonal_entries.local_element(i) = 1. / inverse_diagonal_entries.local_element(i);
       else
         inverse_diagonal_entries.local_element(i) = 1.;
   }
 
   void
-  local_diagonal_cell(
-    const MatrixFree<dim, number> &             data,
-    LinearAlgebra::distributed::Vector<number> &dst,
-    const unsigned int &,
-    const std::pair<unsigned int, unsigned int> &cell_range) const
+  local_diagonal_cell(const MatrixFree<dim, number>              &data,
+                      LinearAlgebra::distributed::Vector<number> &dst,
+                      const unsigned int &,
+                      const std::pair<unsigned int, unsigned int> &cell_range) const
   {
     FEEvaluation<dim, fe_degree, n_q_points_1d, 1, number> phi(data);
 
@@ -281,8 +256,7 @@ private:
 
 
 template <typename MatrixType, typename Number>
-class MGCoarseIterative
-  : public MGCoarseGridBase<LinearAlgebra::distributed::Vector<Number>>
+class MGCoarseIterative : public MGCoarseGridBase<LinearAlgebra::distributed::Vector<Number>>
 {
 public:
   MGCoarseIterative()
@@ -296,12 +270,11 @@ public:
 
   virtual void
   operator()(const unsigned int                                level,
-             LinearAlgebra::distributed::Vector<double> &      dst,
+             LinearAlgebra::distributed::Vector<double>       &dst,
              const LinearAlgebra::distributed::Vector<double> &src) const
   {
-    ReductionControl solver_control(1e4, 1e-50, 1e-10);
-    SolverCG<LinearAlgebra::distributed::Vector<double>> solver_coarse(
-      solver_control);
+    ReductionControl                                     solver_control(1e4, 1e-50, 1e-10);
+    SolverCG<LinearAlgebra::distributed::Vector<double>> solver_coarse(solver_control);
     solver_coarse.solve(*coarse_matrix, dst, src, PreconditionIdentity());
   }
 
@@ -319,7 +292,8 @@ do_test(const DoFHandler<dim> &dof)
       deallog.push("float");
     }
   else
-    {}
+    {
+    }
 
   deallog << "Testing " << dof.get_fe().get_name();
   deallog << std::endl;
@@ -327,7 +301,7 @@ do_test(const DoFHandler<dim> &dof)
 
   MappingQ<dim>                                          mapping(fe_degree + 1);
   LaplaceOperator<dim, fe_degree, n_q_points_1d, number> fine_matrix;
-  const std::set<types::boundary_id> dirichlet_boundaries = {0};
+  const std::set<types::boundary_id>                     dirichlet_boundaries = {0};
   fine_matrix.initialize(mapping, dof, dirichlet_boundaries);
 
   LinearAlgebra::distributed::Vector<number> in, sol;
@@ -338,22 +312,17 @@ do_test(const DoFHandler<dim> &dof)
   in = 1.;
 
   // set up multigrid in analogy to step-37
-  using LevelMatrixType =
-    LaplaceOperator<dim, fe_degree, n_q_points_1d, number>;
+  using LevelMatrixType = LaplaceOperator<dim, fe_degree, n_q_points_1d, number>;
 
   MGLevelObject<LevelMatrixType> mg_matrices;
   mg_matrices.resize(0, dof.get_triangulation().n_global_levels() - 1);
-  for (unsigned int level = 0;
-       level < dof.get_triangulation().n_global_levels();
-       ++level)
+  for (unsigned int level = 0; level < dof.get_triangulation().n_global_levels(); ++level)
     {
       mg_matrices[level].initialize(mapping, dof, dirichlet_boundaries, level);
     }
 
   std::vector<std::shared_ptr<const Utilities::MPI::Partitioner>> partitioners;
-  for (unsigned int level = mg_matrices.min_level();
-       level <= mg_matrices.max_level();
-       ++level)
+  for (unsigned int level = mg_matrices.min_level(); level <= mg_matrices.max_level(); ++level)
     partitioners.push_back(mg_matrices[level].get_vector_partitioner());
 
   MGTransferMatrixFree<dim, double> mg_transfer;
@@ -362,41 +331,29 @@ do_test(const DoFHandler<dim> &dof)
   MGCoarseIterative<LevelMatrixType, number> mg_coarse;
   mg_coarse.initialize(mg_matrices[0]);
 
-  using SMOOTHER =
-    PreconditionChebyshev<LevelMatrixType,
-                          LinearAlgebra::distributed::Vector<number>>;
-  MGSmootherPrecondition<LevelMatrixType,
-                         SMOOTHER,
-                         LinearAlgebra::distributed::Vector<number>>
-    mg_smoother;
+  using SMOOTHER = PreconditionChebyshev<LevelMatrixType, LinearAlgebra::distributed::Vector<number>>;
+  MGSmootherPrecondition<LevelMatrixType, SMOOTHER, LinearAlgebra::distributed::Vector<number>> mg_smoother;
 
   MGLevelObject<typename SMOOTHER::AdditionalData> smoother_data;
   smoother_data.resize(0, dof.get_triangulation().n_global_levels() - 1);
-  for (unsigned int level = 0;
-       level < dof.get_triangulation().n_global_levels();
-       ++level)
+  for (unsigned int level = 0; level < dof.get_triangulation().n_global_levels(); ++level)
     {
       smoother_data[level].smoothing_range     = 15.;
       smoother_data[level].degree              = 5;
       smoother_data[level].eig_cg_n_iterations = 15;
-      smoother_data[level].preconditioner.reset(
-        new DiagonalMatrix<LinearAlgebra::distributed::Vector<number>>());
-      smoother_data[level].preconditioner->get_vector() =
-        mg_matrices[level].get_matrix_diagonal_inverse();
+      smoother_data[level].preconditioner.reset(new DiagonalMatrix<LinearAlgebra::distributed::Vector<number>>());
+      smoother_data[level].preconditioner->get_vector() = mg_matrices[level].get_matrix_diagonal_inverse();
     }
   mg_smoother.initialize(mg_matrices, smoother_data);
 
   mg::Matrix<LinearAlgebra::distributed::Vector<double>> mg_matrix(mg_matrices);
 
-  Multigrid<LinearAlgebra::distributed::Vector<double>> mg(
-    mg_matrix, mg_coarse, mg_transfer, mg_smoother, mg_smoother);
-  PreconditionMG<dim,
-                 LinearAlgebra::distributed::Vector<double>,
-                 MGTransferMatrixFree<dim, double>>
-    preconditioner(dof, mg, mg_transfer);
+  Multigrid<LinearAlgebra::distributed::Vector<double>> mg(mg_matrix, mg_coarse, mg_transfer, mg_smoother, mg_smoother);
+  PreconditionMG<dim, LinearAlgebra::distributed::Vector<double>, MGTransferMatrixFree<dim, double>> preconditioner(
+    dof, mg, mg_transfer);
 
   {
-    ReductionControl control(30, 1e-20, 1e-7);
+    ReductionControl                                     control(30, 1e-20, 1e-7);
     SolverCG<LinearAlgebra::distributed::Vector<double>> solver(control);
     solver.solve(fine_matrix, sol, in, preconditioner);
   }
@@ -416,8 +373,7 @@ test()
       parallel::distributed::Triangulation<dim> tria(
         MPI_COMM_WORLD,
         Triangulation<dim>::limit_level_difference_at_vertices,
-        parallel::distributed::Triangulation<
-          dim>::construct_multigrid_hierarchy);
+        parallel::distributed::Triangulation<dim>::construct_multigrid_hierarchy);
       GridGenerator::hyper_cube(tria);
       tria.refine_global(i - dim);
 

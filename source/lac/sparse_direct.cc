@@ -51,8 +51,7 @@ namespace
   unsigned int
   parallel_grainsize(const SparseMatrixType &matrix)
   {
-    const unsigned int avg_entries_per_row =
-      matrix.n_nonzero_elements() / matrix.m();
+    const unsigned int avg_entries_per_row = matrix.n_nonzero_elements() / matrix.m();
     return std::max(1000 / avg_entries_per_row, 1u);
   }
 } // namespace
@@ -218,8 +217,7 @@ SparseDirectUMFPACK::sort_arrays(const BlockSparseMatrix<number> &matrix)
           for (size_type block = 0; block < matrix.n_block_cols(); ++block)
             {
               // find the next out-of-order element
-              while ((cursor < Ap[row + 1] - 1) &&
-                     (Ai[cursor] < Ai[cursor + 1]))
+              while ((cursor < Ap[row + 1] - 1) && (Ai[cursor] < Ai[cursor + 1]))
                 ++cursor;
 
               // if there is none, then just go on
@@ -229,8 +227,7 @@ SparseDirectUMFPACK::sort_arrays(const BlockSparseMatrix<number> &matrix)
               // otherwise swap this entry with successive ones as long as
               // necessary
               long int element = cursor;
-              while ((element < Ap[row + 1] - 1) &&
-                     (Ai[element] > Ai[element + 1]))
+              while ((element < Ap[row + 1] - 1) && (Ai[element] > Ai[element + 1]))
                 {
                   std::swap(Ai[element], Ai[element + 1]);
 
@@ -303,9 +300,7 @@ SparseDirectUMFPACK::factorize(const Matrix &matrix)
       for (size_type row = row_begin; row < row_end; ++row)
         {
           long int index = Ap[row];
-          for (typename Matrix::const_iterator p = matrix.begin(row);
-               p != matrix.end(row);
-               ++p)
+          for (typename Matrix::const_iterator p = matrix.begin(row); p != matrix.end(row); ++p)
             {
               // write entry into the first free one for this row
               Ai[index] = p->column();
@@ -328,35 +323,16 @@ SparseDirectUMFPACK::factorize(const Matrix &matrix)
 
   int status;
   if (numbers::NumberTraits<number>::is_complex == false)
-    status = umfpack_dl_symbolic(N,
-                                 N,
-                                 Ap.data(),
-                                 Ai.data(),
-                                 Ax.data(),
-                                 &symbolic_decomposition,
-                                 control.data(),
-                                 nullptr);
+    status =
+      umfpack_dl_symbolic(N, N, Ap.data(), Ai.data(), Ax.data(), &symbolic_decomposition, control.data(), nullptr);
   else
-    status = umfpack_zl_symbolic(N,
-                                 N,
-                                 Ap.data(),
-                                 Ai.data(),
-                                 Ax.data(),
-                                 Az.data(),
-                                 &symbolic_decomposition,
-                                 control.data(),
-                                 nullptr);
-  AssertThrow(status == UMFPACK_OK,
-              ExcUMFPACKError("umfpack_dl_symbolic", status));
+    status = umfpack_zl_symbolic(
+      N, N, Ap.data(), Ai.data(), Ax.data(), Az.data(), &symbolic_decomposition, control.data(), nullptr);
+  AssertThrow(status == UMFPACK_OK, ExcUMFPACKError("umfpack_dl_symbolic", status));
 
   if (numbers::NumberTraits<number>::is_complex == false)
-    status = umfpack_dl_numeric(Ap.data(),
-                                Ai.data(),
-                                Ax.data(),
-                                symbolic_decomposition,
-                                &numeric_decomposition,
-                                control.data(),
-                                nullptr);
+    status = umfpack_dl_numeric(
+      Ap.data(), Ai.data(), Ax.data(), symbolic_decomposition, &numeric_decomposition, control.data(), nullptr);
   else
     status = umfpack_zl_numeric(Ap.data(),
                                 Ai.data(),
@@ -366,8 +342,7 @@ SparseDirectUMFPACK::factorize(const Matrix &matrix)
                                 &numeric_decomposition,
                                 control.data(),
                                 nullptr);
-  AssertThrow(status == UMFPACK_OK,
-              ExcUMFPACKError("umfpack_dl_numeric", status));
+  AssertThrow(status == UMFPACK_OK, ExcUMFPACKError("umfpack_dl_numeric", status));
 
   umfpack_dl_free_symbolic(&symbolic_decomposition);
 }
@@ -375,8 +350,7 @@ SparseDirectUMFPACK::factorize(const Matrix &matrix)
 
 
 void
-SparseDirectUMFPACK::solve(Vector<double> &rhs_and_solution,
-                           const bool      transpose /*=false*/) const
+SparseDirectUMFPACK::solve(Vector<double> &rhs_and_solution, const bool transpose /*=false*/) const
 {
   // make sure that some kind of factorize() call has happened before
   Assert(Ap.size() != 0, ExcNotInitialized());
@@ -408,15 +382,13 @@ SparseDirectUMFPACK::solve(Vector<double> &rhs_and_solution,
                                       numeric_decomposition,
                                       control.data(),
                                       nullptr);
-  AssertThrow(status == UMFPACK_OK,
-              ExcUMFPACKError("umfpack_dl_solve", status));
+  AssertThrow(status == UMFPACK_OK, ExcUMFPACKError("umfpack_dl_solve", status));
 }
 
 
 
 void
-SparseDirectUMFPACK::solve(Vector<std::complex<double>> &rhs_and_solution,
-                           const bool transpose /*=false*/) const
+SparseDirectUMFPACK::solve(Vector<std::complex<double>> &rhs_and_solution, const bool transpose /*=false*/) const
 {
 #  ifdef DEAL_II_WITH_COMPLEX_VALUES
   // make sure that some kind of factorize() call has happened before
@@ -478,8 +450,7 @@ SparseDirectUMFPACK::solve(Vector<std::complex<double>> &rhs_and_solution,
                                           numeric_decomposition,
                                           control.data(),
                                           nullptr);
-      AssertThrow(status == UMFPACK_OK,
-                  ExcUMFPACKError("umfpack_dl_solve", status));
+      AssertThrow(status == UMFPACK_OK, ExcUMFPACKError("umfpack_dl_solve", status));
 
       // Now put things back together into the output vector
       for (unsigned int i = 0; i < rhs_and_solution.size(); ++i)
@@ -522,16 +493,14 @@ SparseDirectUMFPACK::solve(Vector<std::complex<double>> &rhs_and_solution,
   (void)rhs_and_solution;
   (void)transpose;
   Assert(false,
-         ExcMessage(
-           "This function can't be called if deal.II has been configured "
-           "with DEAL_II_WITH_COMPLEX_VALUES=FALSE."));
+         ExcMessage("This function can't be called if deal.II has been configured "
+                    "with DEAL_II_WITH_COMPLEX_VALUES=FALSE."));
 #  endif
 }
 
 
 void
-SparseDirectUMFPACK::solve(BlockVector<double> &rhs_and_solution,
-                           const bool           transpose /*=false*/) const
+SparseDirectUMFPACK::solve(BlockVector<double> &rhs_and_solution, const bool transpose /*=false*/) const
 {
   // the UMFPACK functions want a contiguous array of elements, so
   // there is no way around copying data around. thus, just copy the
@@ -545,8 +514,7 @@ SparseDirectUMFPACK::solve(BlockVector<double> &rhs_and_solution,
 
 
 void
-SparseDirectUMFPACK::solve(BlockVector<std::complex<double>> &rhs_and_solution,
-                           const bool transpose /*=false*/) const
+SparseDirectUMFPACK::solve(BlockVector<std::complex<double>> &rhs_and_solution, const bool transpose /*=false*/) const
 {
 #  ifdef DEAL_II_WITH_COMPLEX_VALUES
   // the UMFPACK functions want a contiguous array of elements, so
@@ -561,9 +529,8 @@ SparseDirectUMFPACK::solve(BlockVector<std::complex<double>> &rhs_and_solution,
   (void)rhs_and_solution;
   (void)transpose;
   Assert(false,
-         ExcMessage(
-           "This function can't be called if deal.II has been configured "
-           "with DEAL_II_WITH_COMPLEX_VALUES=FALSE."));
+         ExcMessage("This function can't be called if deal.II has been configured "
+                    "with DEAL_II_WITH_COMPLEX_VALUES=FALSE."));
 #  endif
 }
 
@@ -571,9 +538,7 @@ SparseDirectUMFPACK::solve(BlockVector<std::complex<double>> &rhs_and_solution,
 
 template <class Matrix>
 void
-SparseDirectUMFPACK::solve(const Matrix &  matrix,
-                           Vector<double> &rhs_and_solution,
-                           const bool      transpose /*=false*/)
+SparseDirectUMFPACK::solve(const Matrix &matrix, Vector<double> &rhs_and_solution, const bool transpose /*=false*/)
 {
   factorize(matrix);
   solve(rhs_and_solution, transpose);
@@ -583,7 +548,7 @@ SparseDirectUMFPACK::solve(const Matrix &  matrix,
 
 template <class Matrix>
 void
-SparseDirectUMFPACK::solve(const Matrix &                matrix,
+SparseDirectUMFPACK::solve(const Matrix                 &matrix,
                            Vector<std::complex<double>> &rhs_and_solution,
                            const bool                    transpose /*=false*/)
 {
@@ -597,9 +562,8 @@ SparseDirectUMFPACK::solve(const Matrix &                matrix,
   (void)rhs_and_solution;
   (void)transpose;
   Assert(false,
-         ExcMessage(
-           "This function can't be called if deal.II has been configured "
-           "with DEAL_II_WITH_COMPLEX_VALUES=FALSE."));
+         ExcMessage("This function can't be called if deal.II has been configured "
+                    "with DEAL_II_WITH_COMPLEX_VALUES=FALSE."));
 #  endif
 }
 
@@ -607,9 +571,7 @@ SparseDirectUMFPACK::solve(const Matrix &                matrix,
 
 template <class Matrix>
 void
-SparseDirectUMFPACK::solve(const Matrix &       matrix,
-                           BlockVector<double> &rhs_and_solution,
-                           const bool           transpose /*=false*/)
+SparseDirectUMFPACK::solve(const Matrix &matrix, BlockVector<double> &rhs_and_solution, const bool transpose /*=false*/)
 {
   factorize(matrix);
   solve(rhs_and_solution, transpose);
@@ -619,9 +581,9 @@ SparseDirectUMFPACK::solve(const Matrix &       matrix,
 
 template <class Matrix>
 void
-SparseDirectUMFPACK::solve(const Matrix &                     matrix,
+SparseDirectUMFPACK::solve(const Matrix                      &matrix,
                            BlockVector<std::complex<double>> &rhs_and_solution,
-                           const bool transpose /*=false*/)
+                           const bool                         transpose /*=false*/)
 {
 #  ifdef DEAL_II_WITH_COMPLEX_VALUES
   factorize(matrix);
@@ -633,9 +595,8 @@ SparseDirectUMFPACK::solve(const Matrix &                     matrix,
   (void)rhs_and_solution;
   (void)transpose;
   Assert(false,
-         ExcMessage(
-           "This function can't be called if deal.II has been configured "
-           "with DEAL_II_WITH_COMPLEX_VALUES=FALSE."));
+         ExcMessage("This function can't be called if deal.II has been configured "
+                    "with DEAL_II_WITH_COMPLEX_VALUES=FALSE."));
 #  endif
 }
 
@@ -661,24 +622,20 @@ template <class Matrix>
 void
 SparseDirectUMFPACK::factorize(const Matrix &)
 {
-  AssertThrow(
-    false,
-    ExcMessage(
-      "To call this function you need UMFPACK, but you configured deal.II "
-      "without passing the necessary switch to 'cmake'. Please consult the "
-      "installation instructions at https://dealii.org/current/readme.html"));
+  AssertThrow(false,
+              ExcMessage("To call this function you need UMFPACK, but you configured deal.II "
+                         "without passing the necessary switch to 'cmake'. Please consult the "
+                         "installation instructions at https://dealii.org/current/readme.html"));
 }
 
 
 void
 SparseDirectUMFPACK::solve(Vector<double> &, const bool) const
 {
-  AssertThrow(
-    false,
-    ExcMessage(
-      "To call this function you need UMFPACK, but you configured deal.II "
-      "without passing the necessary switch to 'cmake'. Please consult the "
-      "installation instructions at https://dealii.org/current/readme.html"));
+  AssertThrow(false,
+              ExcMessage("To call this function you need UMFPACK, but you configured deal.II "
+                         "without passing the necessary switch to 'cmake'. Please consult the "
+                         "installation instructions at https://dealii.org/current/readme.html"));
 }
 
 
@@ -686,12 +643,10 @@ SparseDirectUMFPACK::solve(Vector<double> &, const bool) const
 void
 SparseDirectUMFPACK::solve(Vector<std::complex<double>> &, const bool) const
 {
-  AssertThrow(
-    false,
-    ExcMessage(
-      "To call this function you need UMFPACK, but you configured deal.II "
-      "without passing the necessary switch to 'cmake'. Please consult the "
-      "installation instructions at https://dealii.org/current/readme.html"));
+  AssertThrow(false,
+              ExcMessage("To call this function you need UMFPACK, but you configured deal.II "
+                         "without passing the necessary switch to 'cmake'. Please consult the "
+                         "installation instructions at https://dealii.org/current/readme.html"));
 }
 
 
@@ -699,26 +654,21 @@ SparseDirectUMFPACK::solve(Vector<std::complex<double>> &, const bool) const
 void
 SparseDirectUMFPACK::solve(BlockVector<double> &, const bool) const
 {
-  AssertThrow(
-    false,
-    ExcMessage(
-      "To call this function you need UMFPACK, but you configured deal.II "
-      "without passing the necessary switch to 'cmake'. Please consult the "
-      "installation instructions at https://dealii.org/current/readme.html"));
+  AssertThrow(false,
+              ExcMessage("To call this function you need UMFPACK, but you configured deal.II "
+                         "without passing the necessary switch to 'cmake'. Please consult the "
+                         "installation instructions at https://dealii.org/current/readme.html"));
 }
 
 
 
 void
-SparseDirectUMFPACK::solve(BlockVector<std::complex<double>> &,
-                           const bool) const
+SparseDirectUMFPACK::solve(BlockVector<std::complex<double>> &, const bool) const
 {
-  AssertThrow(
-    false,
-    ExcMessage(
-      "To call this function you need UMFPACK, but you configured deal.II "
-      "without passing the necessary switch to 'cmake'. Please consult the "
-      "installation instructions at https://dealii.org/current/readme.html"));
+  AssertThrow(false,
+              ExcMessage("To call this function you need UMFPACK, but you configured deal.II "
+                         "without passing the necessary switch to 'cmake'. Please consult the "
+                         "installation instructions at https://dealii.org/current/readme.html"));
 }
 
 
@@ -727,28 +677,22 @@ template <class Matrix>
 void
 SparseDirectUMFPACK::solve(const Matrix &, Vector<double> &, const bool)
 {
-  AssertThrow(
-    false,
-    ExcMessage(
-      "To call this function you need UMFPACK, but you configured deal.II "
-      "without passing the necessary switch to 'cmake'. Please consult the "
-      "installation instructions at https://dealii.org/current/readme.html"));
+  AssertThrow(false,
+              ExcMessage("To call this function you need UMFPACK, but you configured deal.II "
+                         "without passing the necessary switch to 'cmake'. Please consult the "
+                         "installation instructions at https://dealii.org/current/readme.html"));
 }
 
 
 
 template <class Matrix>
 void
-SparseDirectUMFPACK::solve(const Matrix &,
-                           Vector<std::complex<double>> &,
-                           const bool)
+SparseDirectUMFPACK::solve(const Matrix &, Vector<std::complex<double>> &, const bool)
 {
-  AssertThrow(
-    false,
-    ExcMessage(
-      "To call this function you need UMFPACK, but you configured deal.II "
-      "without passing the necessary switch to 'cmake'. Please consult the "
-      "installation instructions at https://dealii.org/current/readme.html"));
+  AssertThrow(false,
+              ExcMessage("To call this function you need UMFPACK, but you configured deal.II "
+                         "without passing the necessary switch to 'cmake'. Please consult the "
+                         "installation instructions at https://dealii.org/current/readme.html"));
 }
 
 
@@ -757,28 +701,22 @@ template <class Matrix>
 void
 SparseDirectUMFPACK::solve(const Matrix &, BlockVector<double> &, const bool)
 {
-  AssertThrow(
-    false,
-    ExcMessage(
-      "To call this function you need UMFPACK, but you configured deal.II "
-      "without passing the necessary switch to 'cmake'. Please consult the "
-      "installation instructions at https://dealii.org/current/readme.html"));
+  AssertThrow(false,
+              ExcMessage("To call this function you need UMFPACK, but you configured deal.II "
+                         "without passing the necessary switch to 'cmake'. Please consult the "
+                         "installation instructions at https://dealii.org/current/readme.html"));
 }
 
 
 
 template <class Matrix>
 void
-SparseDirectUMFPACK::solve(const Matrix &,
-                           BlockVector<std::complex<double>> &,
-                           const bool)
+SparseDirectUMFPACK::solve(const Matrix &, BlockVector<std::complex<double>> &, const bool)
 {
-  AssertThrow(
-    false,
-    ExcMessage(
-      "To call this function you need UMFPACK, but you configured deal.II "
-      "without passing the necessary switch to 'cmake'. Please consult the "
-      "installation instructions at https://dealii.org/current/readme.html"));
+  AssertThrow(false,
+              ExcMessage("To call this function you need UMFPACK, but you configured deal.II "
+                         "without passing the necessary switch to 'cmake'. Please consult the "
+                         "installation instructions at https://dealii.org/current/readme.html"));
 }
 
 #endif
@@ -802,8 +740,7 @@ SparseDirectUMFPACK::vmult(Vector<double> &dst, const Vector<double> &src) const
 
 
 void
-SparseDirectUMFPACK::vmult(BlockVector<double> &      dst,
-                           const BlockVector<double> &src) const
+SparseDirectUMFPACK::vmult(BlockVector<double> &dst, const BlockVector<double> &src) const
 {
   dst = src;
   this->solve(dst);
@@ -811,8 +748,7 @@ SparseDirectUMFPACK::vmult(BlockVector<double> &      dst,
 
 
 void
-SparseDirectUMFPACK::Tvmult(Vector<double> &      dst,
-                            const Vector<double> &src) const
+SparseDirectUMFPACK::Tvmult(Vector<double> &dst, const Vector<double> &src) const
 {
   dst = src;
   this->solve(dst, /*transpose=*/true);
@@ -821,8 +757,7 @@ SparseDirectUMFPACK::Tvmult(Vector<double> &      dst,
 
 
 void
-SparseDirectUMFPACK::Tvmult(BlockVector<double> &      dst,
-                            const BlockVector<double> &src) const
+SparseDirectUMFPACK::Tvmult(BlockVector<double> &dst, const BlockVector<double> &src) const
 {
   dst = src;
   this->solve(dst, /*transpose=*/true);
@@ -844,21 +779,13 @@ SparseDirectUMFPACK::n() const
 
 
 // explicit instantiations for SparseMatrixUMFPACK
-#define InstantiateUMFPACK(MatrixType)                                     \
-  template void SparseDirectUMFPACK::factorize(const MatrixType &);        \
-  template void SparseDirectUMFPACK::solve(const MatrixType &,             \
-                                           Vector<double> &,               \
-                                           const bool);                    \
-  template void SparseDirectUMFPACK::solve(const MatrixType &,             \
-                                           Vector<std::complex<double>> &, \
-                                           const bool);                    \
-  template void SparseDirectUMFPACK::solve(const MatrixType &,             \
-                                           BlockVector<double> &,          \
-                                           const bool);                    \
-  template void SparseDirectUMFPACK::solve(                                \
-    const MatrixType &, BlockVector<std::complex<double>> &, const bool);  \
-  template void SparseDirectUMFPACK::initialize(const MatrixType &,        \
-                                                const AdditionalData)
+#define InstantiateUMFPACK(MatrixType)                                                                           \
+  template void SparseDirectUMFPACK::factorize(const MatrixType &);                                              \
+  template void SparseDirectUMFPACK::solve(const MatrixType &, Vector<double> &, const bool);                    \
+  template void SparseDirectUMFPACK::solve(const MatrixType &, Vector<std::complex<double>> &, const bool);      \
+  template void SparseDirectUMFPACK::solve(const MatrixType &, BlockVector<double> &, const bool);               \
+  template void SparseDirectUMFPACK::solve(const MatrixType &, BlockVector<std::complex<double>> &, const bool); \
+  template void SparseDirectUMFPACK::initialize(const MatrixType &, const AdditionalData)
 
 // Instantiate everything for real-valued matrices
 InstantiateUMFPACK(SparseMatrix<double>);

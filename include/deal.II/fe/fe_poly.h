@@ -80,8 +80,8 @@ public:
    * Constructor.
    */
   FE_Poly(const ScalarPolynomialsBase<dim> &poly_space,
-          const FiniteElementData<dim> &    fe_data,
-          const std::vector<bool> &         restriction_is_additive_flags,
+          const FiniteElementData<dim>     &fe_data,
+          const std::vector<bool>          &restriction_is_additive_flags,
           const std::vector<ComponentMask> &nonzero_components);
 
   /**
@@ -146,9 +146,7 @@ public:
    * that the specified component is zero.
    */
   virtual double
-  shape_value_component(const unsigned int i,
-                        const Point<dim> & p,
-                        const unsigned int component) const override;
+  shape_value_component(const unsigned int i, const Point<dim> &p, const unsigned int component) const override;
 
   /**
    * Return the gradient of the <tt>i</tt>th shape function at the point
@@ -169,9 +167,7 @@ public:
    * that the specified component is zero.
    */
   virtual Tensor<1, dim>
-  shape_grad_component(const unsigned int i,
-                       const Point<dim> & p,
-                       const unsigned int component) const override;
+  shape_grad_component(const unsigned int i, const Point<dim> &p, const unsigned int component) const override;
 
   /**
    * Return the tensor of second derivatives of the <tt>i</tt>th shape
@@ -192,9 +188,7 @@ public:
    * that the specified component is zero.
    */
   virtual Tensor<2, dim>
-  shape_grad_grad_component(const unsigned int i,
-                            const Point<dim> & p,
-                            const unsigned int component) const override;
+  shape_grad_grad_component(const unsigned int i, const Point<dim> &p, const unsigned int component) const override;
 
   /**
    * Return the tensor of third derivatives of the <tt>i</tt>th shape function
@@ -202,8 +196,7 @@ public:
    * for more information about the semantics of this function.
    */
   virtual Tensor<3, dim>
-  shape_3rd_derivative(const unsigned int i,
-                       const Point<dim> & p) const override;
+  shape_3rd_derivative(const unsigned int i, const Point<dim> &p) const override;
 
   /**
    * Return the third derivative of the <tt>component</tt>th vector component
@@ -217,7 +210,7 @@ public:
    */
   virtual Tensor<3, dim>
   shape_3rd_derivative_component(const unsigned int i,
-                                 const Point<dim> & p,
+                                 const Point<dim>  &p,
                                  const unsigned int component) const override;
 
   /**
@@ -226,8 +219,7 @@ public:
    * class for more information about the semantics of this function.
    */
   virtual Tensor<4, dim>
-  shape_4th_derivative(const unsigned int i,
-                       const Point<dim> & p) const override;
+  shape_4th_derivative(const unsigned int i, const Point<dim> &p) const override;
 
   /**
    * Return the fourth derivative of the <tt>component</tt>th vector component
@@ -241,7 +233,7 @@ public:
    */
   virtual Tensor<4, dim>
   shape_4th_derivative_component(const unsigned int i,
-                                 const Point<dim> & p,
+                                 const Point<dim>  &p,
                                  const unsigned int component) const override;
 
   /**
@@ -258,22 +250,19 @@ protected:
    */
 
 
-  virtual std::unique_ptr<
-    typename FiniteElement<dim, spacedim>::InternalDataBase>
+  virtual std::unique_ptr<typename FiniteElement<dim, spacedim>::InternalDataBase>
   get_data(
-    const UpdateFlags             update_flags,
-    const Mapping<dim, spacedim> &mapping,
-    const Quadrature<dim> &       quadrature,
-    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim,
-                                                                       spacedim>
-      &output_data) const override
+    const UpdateFlags                                                                  update_flags,
+    const Mapping<dim, spacedim>                                                      &mapping,
+    const Quadrature<dim>                                                             &quadrature,
+    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> &output_data) const override
   {
     (void)mapping;
 
     // generate a new data object and
     // initialize some fields
-    std::unique_ptr<typename FiniteElement<dim, spacedim>::InternalDataBase>
-          data_ptr   = std::make_unique<InternalData>();
+    std::unique_ptr<typename FiniteElement<dim, spacedim>::InternalDataBase> data_ptr =
+      std::make_unique<InternalData>();
     auto &data       = dynamic_cast<InternalData &>(*data_ptr);
     data.update_each = requires_update_flags(update_flags);
 
@@ -282,16 +271,11 @@ protected:
     // initialize some scratch arrays. we need them for the underlying
     // polynomial to put the values and derivatives of shape functions
     // to put there, depending on what the user requested
-    std::vector<double> values(
-      update_flags & update_values ? this->n_dofs_per_cell() : 0);
-    std::vector<Tensor<1, dim>> grads(
-      update_flags & update_gradients ? this->n_dofs_per_cell() : 0);
-    std::vector<Tensor<2, dim>> grad_grads(
-      update_flags & update_hessians ? this->n_dofs_per_cell() : 0);
-    std::vector<Tensor<3, dim>> third_derivatives(
-      update_flags & update_3rd_derivatives ? this->n_dofs_per_cell() : 0);
-    std::vector<Tensor<4, dim>>
-      fourth_derivatives; // won't be needed, so leave empty
+    std::vector<double>         values(update_flags & update_values ? this->n_dofs_per_cell() : 0);
+    std::vector<Tensor<1, dim>> grads(update_flags & update_gradients ? this->n_dofs_per_cell() : 0);
+    std::vector<Tensor<2, dim>> grad_grads(update_flags & update_hessians ? this->n_dofs_per_cell() : 0);
+    std::vector<Tensor<3, dim>> third_derivatives(update_flags & update_3rd_derivatives ? this->n_dofs_per_cell() : 0);
+    std::vector<Tensor<4, dim>> fourth_derivatives; // won't be needed, so leave empty
 
     // now also initialize fields the fields of this class's own
     // temporary storage, depending on what we need for the given
@@ -310,8 +294,7 @@ protected:
     // the number of output slots equals the number of quadrature
     // points on only *one* face)
     if ((update_flags & update_values) &&
-        !((output_data.shape_values.n_rows() > 0) &&
-          (output_data.shape_values.n_cols() == n_q_points)))
+        !((output_data.shape_values.n_rows() > 0) && (output_data.shape_values.n_cols() == n_q_points)))
       data.shape_values.reinit(this->n_dofs_per_cell(), n_q_points);
 
     if (update_flags & update_gradients)
@@ -326,16 +309,10 @@ protected:
     // next already fill those fields of which we have information by
     // now. note that the shape gradients are only those on the unit
     // cell, and need to be transformed when visiting an actual cell
-    if (update_flags & (update_values | update_gradients | update_hessians |
-                        update_3rd_derivatives))
+    if (update_flags & (update_values | update_gradients | update_hessians | update_3rd_derivatives))
       for (unsigned int i = 0; i < n_q_points; ++i)
         {
-          poly_space->evaluate(quadrature.point(i),
-                               values,
-                               grads,
-                               grad_grads,
-                               third_derivatives,
-                               fourth_derivatives);
+          poly_space->evaluate(quadrature.point(i), values, grads, grad_grads, third_derivatives, fourth_derivatives);
 
           // the values of shape functions at quadrature points don't change.
           // consequently, write these values right into the output array if
@@ -375,48 +352,39 @@ protected:
 
   virtual void
   fill_fe_values(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const CellSimilarity::Similarity                            cell_similarity,
-    const Quadrature<dim> &                                     quadrature,
-    const Mapping<dim, spacedim> &                              mapping,
-    const typename Mapping<dim, spacedim>::InternalDataBase &mapping_internal,
-    const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &                                                            mapping_data,
-    const typename FiniteElement<dim, spacedim>::InternalDataBase &fe_internal,
-    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim,
-                                                                       spacedim>
-      &output_data) const override;
+    const typename Triangulation<dim, spacedim>::cell_iterator                        &cell,
+    const CellSimilarity::Similarity                                                   cell_similarity,
+    const Quadrature<dim>                                                             &quadrature,
+    const Mapping<dim, spacedim>                                                      &mapping,
+    const typename Mapping<dim, spacedim>::InternalDataBase                           &mapping_internal,
+    const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>         &mapping_data,
+    const typename FiniteElement<dim, spacedim>::InternalDataBase                     &fe_internal,
+    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> &output_data) const override;
 
   using FiniteElement<dim, spacedim>::fill_fe_face_values;
 
   virtual void
   fill_fe_face_values(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const unsigned int                                          face_no,
-    const hp::QCollection<dim - 1> &                            quadrature,
-    const Mapping<dim, spacedim> &                              mapping,
-    const typename Mapping<dim, spacedim>::InternalDataBase &mapping_internal,
-    const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &                                                            mapping_data,
-    const typename FiniteElement<dim, spacedim>::InternalDataBase &fe_internal,
-    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim,
-                                                                       spacedim>
-      &output_data) const override;
+    const typename Triangulation<dim, spacedim>::cell_iterator                        &cell,
+    const unsigned int                                                                 face_no,
+    const hp::QCollection<dim - 1>                                                    &quadrature,
+    const Mapping<dim, spacedim>                                                      &mapping,
+    const typename Mapping<dim, spacedim>::InternalDataBase                           &mapping_internal,
+    const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>         &mapping_data,
+    const typename FiniteElement<dim, spacedim>::InternalDataBase                     &fe_internal,
+    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> &output_data) const override;
 
   virtual void
   fill_fe_subface_values(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const unsigned int                                          face_no,
-    const unsigned int                                          sub_no,
-    const Quadrature<dim - 1> &                                 quadrature,
-    const Mapping<dim, spacedim> &                              mapping,
-    const typename Mapping<dim, spacedim>::InternalDataBase &mapping_internal,
-    const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &                                                            mapping_data,
-    const typename FiniteElement<dim, spacedim>::InternalDataBase &fe_internal,
-    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim,
-                                                                       spacedim>
-      &output_data) const override;
+    const typename Triangulation<dim, spacedim>::cell_iterator                        &cell,
+    const unsigned int                                                                 face_no,
+    const unsigned int                                                                 sub_no,
+    const Quadrature<dim - 1>                                                         &quadrature,
+    const Mapping<dim, spacedim>                                                      &mapping,
+    const typename Mapping<dim, spacedim>::InternalDataBase                           &mapping_internal,
+    const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>         &mapping_data,
+    const typename FiniteElement<dim, spacedim>::InternalDataBase                     &fe_internal,
+    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> &output_data) const override;
 
   /**
    * Fields of cell-independent data.
@@ -489,12 +457,9 @@ protected:
    * where $H_{ijk}$ is the Jacobian pushed-forward derivative.
    */
   void
-  correct_hessians(
-    internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim>
-      &output_data,
-    const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &                mapping_data,
-    const unsigned int n_q_points) const;
+  correct_hessians(internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> &output_data,
+                   const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim> &mapping_data,
+                   const unsigned int                                                         n_q_points) const;
 
   /**
    * Correct the shape third derivatives by subtracting the terms
@@ -519,12 +484,9 @@ protected:
    * is the Jacobian pushed-forward second derivative.
    */
   void
-  correct_third_derivatives(
-    internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim>
-      &output_data,
-    const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &                mapping_data,
-    const unsigned int n_q_points) const;
+  correct_third_derivatives(internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> &output_data,
+                            const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim> &mapping_data,
+                            const unsigned int n_q_points) const;
 
 
   /**

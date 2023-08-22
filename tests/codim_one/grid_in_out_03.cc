@@ -31,8 +31,7 @@ template <int dim, int spacedim>
 void
 test(std::string filename)
 {
-  deallog.get_file_stream()
-    << " Tria<" << dim << ',' << spacedim << ">: " << std::endl;
+  deallog.get_file_stream() << " Tria<" << dim << ',' << spacedim << ">: " << std::endl;
   Triangulation<dim, spacedim> tria;
   GridIn<dim, spacedim>        gi;
   gi.attach_triangulation(tria);

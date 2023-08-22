@@ -40,8 +40,7 @@
 
 template <int dim, int spacedim>
 void
-test_real_to_unit_cell(const Mapping<dim, spacedim> &mapping,
-                       Triangulation<dim, spacedim> &triangulation)
+test_real_to_unit_cell(const Mapping<dim, spacedim> &mapping, Triangulation<dim, spacedim> &triangulation)
 {
   // define a boundary that fits the vertices of the hyper cube mesh
   SphericalManifold<dim, spacedim> boundary;
@@ -64,10 +63,8 @@ test_real_to_unit_cell(const Mapping<dim, spacedim> &mapping,
         for (unsigned int x = 0; x < n_points; ++x)
           for (unsigned int y = 0; y < n_points; ++y)
             {
-              unit_points[y * n_points + x][0] =
-                static_cast<double>(x) / n_points;
-              unit_points[y * n_points + x][1] =
-                static_cast<double>(y) / n_points;
+              unit_points[y * n_points + x][0] = static_cast<double>(x) / n_points;
+              unit_points[y * n_points + x][1] = static_cast<double>(y) / n_points;
             }
         break;
 
@@ -76,19 +73,15 @@ test_real_to_unit_cell(const Mapping<dim, spacedim> &mapping,
           for (unsigned int y = 0; y < n_points; ++y)
             for (unsigned int z = 0; z < n_points; ++z)
               {
-                unit_points[z * n_points * n_points + y * n_points + x][0] =
-                  static_cast<double>(x) / n_points;
-                unit_points[z * n_points * n_points + y * n_points + x][1] =
-                  static_cast<double>(y) / n_points;
-                unit_points[z * n_points * n_points + y * n_points + x][2] =
-                  static_cast<double>(z) / n_points;
+                unit_points[z * n_points * n_points + y * n_points + x][0] = static_cast<double>(x) / n_points;
+                unit_points[z * n_points * n_points + y * n_points + x][1] = static_cast<double>(y) / n_points;
+                unit_points[z * n_points * n_points + y * n_points + x][2] = static_cast<double>(z) / n_points;
               }
         break;
     }
 
-  typename Triangulation<dim, spacedim>::active_cell_iterator cell =
-    triangulation.begin_active();
-  std::vector<Point<spacedim>> real_points(unit_points.size());
+  typename Triangulation<dim, spacedim>::active_cell_iterator cell = triangulation.begin_active();
+  std::vector<Point<spacedim>>                                real_points(unit_points.size());
   for (unsigned int i = 0; i < unit_points.size(); ++i)
     real_points[i] = mapping.transform_unit_to_real_cell(cell, unit_points[i]);
   std::vector<Point<dim>> new_points(unit_points.size());
@@ -97,8 +90,7 @@ test_real_to_unit_cell(const Mapping<dim, spacedim> &mapping,
     {
       // for each of the points, verify that applying the forward map and
       // then pull back get the same point again
-      AssertThrow(unit_points[i].distance(new_points[i]) < 1e-10,
-                  ExcInternalError());
+      AssertThrow(unit_points[i].distance(new_points[i]) < 1e-10, ExcInternalError());
     }
   deallog << "OK" << std::endl;
 }

@@ -51,9 +51,7 @@ get_dofs(const DoFHandler<dim> &dof)
 {
   std::vector<types::global_dof_index> local;
   std::vector<types::global_dof_index> global;
-  for (typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active();
-       cell != dof.end();
-       ++cell)
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(); cell != dof.end(); ++cell)
     {
       local.resize(cell->get_fe().dofs_per_cell);
       cell->get_dof_indices(local);
@@ -112,10 +110,7 @@ check()
   DoFHandler<dim> dof(tr);
   {
     bool coin = false;
-    for (typename DoFHandler<dim>::active_cell_iterator cell =
-           dof.begin_active();
-         cell != dof.end();
-         ++cell)
+    for (typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(); cell != dof.end(); ++cell)
       {
         cell->set_active_fe_index(coin ? 0 : 1);
         coin = !coin;

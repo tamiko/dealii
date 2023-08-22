@@ -89,25 +89,17 @@ main(int argc, char *argv[])
                                              locally_relevant_dofs);
 
   PETScWrappers::MPI::SparseMatrix system_matrix;
-  system_matrix.reinit(locally_owned_dofs,
-                       locally_active_dofs,
-                       locally_owned_dofs,
-                       locally_active_dofs,
-                       dsp,
-                       MPI_COMM_WORLD);
+  system_matrix.reinit(
+    locally_owned_dofs, locally_active_dofs, locally_owned_dofs, locally_active_dofs, dsp, MPI_COMM_WORLD);
   deallog << "MATIS:OK" << std::endl;
-  PETScWrappers::MPI::Vector locally_relevant_solution(locally_owned_dofs,
-                                                       locally_relevant_dofs,
-                                                       MPI_COMM_WORLD);
-  PETScWrappers::MPI::Vector completely_distributed_solution(locally_owned_dofs,
-                                                             MPI_COMM_WORLD);
+  PETScWrappers::MPI::Vector locally_relevant_solution(locally_owned_dofs, locally_relevant_dofs, MPI_COMM_WORLD);
+  PETScWrappers::MPI::Vector completely_distributed_solution(locally_owned_dofs, MPI_COMM_WORLD);
   PETScWrappers::MPI::Vector system_rhs(locally_owned_dofs, MPI_COMM_WORLD);
 
   const QGauss<2> quadrature_formula(2);
   FEValues<2>     fe_values(fe,
                         quadrature_formula,
-                        update_values | update_gradients |
-                          update_quadrature_points | update_JxW_values);
+                        update_values | update_gradients | update_quadrature_points | update_JxW_values);
 
   const unsigned int dofs_per_cell = fe.n_dofs_per_cell();
   const unsigned int n_q_points    = quadrature_formula.size();
@@ -133,16 +125,13 @@ main(int argc, char *argv[])
               {
                 for (unsigned int j = 0; j < dofs_per_cell; ++j)
                   {
-                    cell_matrix(i, j) += fe_values.shape_grad(i, q_point) *
-                                         fe_values.shape_grad(j, q_point) *
-                                         fe_values.JxW(q_point);
-                    cell_matrix(i, j) += fe_values.shape_value(i, q_point) *
-                                         fe_values.shape_value(j, q_point) *
-                                         fe_values.JxW(q_point);
+                    cell_matrix(i, j) +=
+                      fe_values.shape_grad(i, q_point) * fe_values.shape_grad(j, q_point) * fe_values.JxW(q_point);
+                    cell_matrix(i, j) +=
+                      fe_values.shape_value(i, q_point) * fe_values.shape_value(j, q_point) * fe_values.JxW(q_point);
                   }
 
-                cell_rhs(i) += 1.0 * fe_values.shape_value(i, q_point) *
-                               fe_values.JxW(q_point);
+                cell_rhs(i) += 1.0 * fe_values.shape_value(i, q_point) * fe_values.JxW(q_point);
               }
           }
 
@@ -162,13 +151,10 @@ main(int argc, char *argv[])
 
   // Now we setup the dof coordinates if a sufficiently new PETSc is used
   std::map<types::global_dof_index, Point<2>> dof_2_point;
-  DoFTools::map_dofs_to_support_points(MappingQ1<2>(),
-                                       dof_handler,
-                                       dof_2_point);
+  DoFTools::map_dofs_to_support_points(MappingQ1<2>(), dof_handler, dof_2_point);
   std::vector<Point<2>> coords(locally_owned_dofs.n_elements());
   unsigned int          k = 0;
-  for (auto it = locally_owned_dofs.begin(); it != locally_owned_dofs.end();
-       ++it, ++k)
+  for (auto it = locally_owned_dofs.begin(); it != locally_owned_dofs.end(); ++it, ++k)
     {
       coords[k] = dof_2_point[*it];
     }
@@ -176,10 +162,7 @@ main(int argc, char *argv[])
   data.use_vertices = true;
 
   preconditioner.initialize(system_matrix, data);
-  check_solver_within_range(solver.solve(system_matrix,
-                                         completely_distributed_solution,
-                                         system_rhs,
-                                         preconditioner),
+  check_solver_within_range(solver.solve(system_matrix, completely_distributed_solution, system_rhs, preconditioner),
                             solver_control.last_step(),
                             1,
                             2);

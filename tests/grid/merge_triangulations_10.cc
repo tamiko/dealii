@@ -26,8 +26,7 @@ print_boundary_ids(const dealii::Triangulation<dim> &tria)
 {
   for (const auto &face : tria.active_face_iterators())
     if (face->at_boundary())
-      deallog << "Face at " << face->center()
-              << " has id: " << face->boundary_id() << "\n";
+      deallog << "Face at " << face->center() << " has id: " << face->boundary_id() << "\n";
   deallog << "-----------------" << std::endl;
 }
 
@@ -60,9 +59,7 @@ main()
   GridGenerator::merge_triangulations(tria1, tria2, tria, 1e-6, false, true);
   print_boundary_ids(tria);
 
-  deallog
-    << "Merge two rectangles, due to hanging node there is no internal face"
-    << std::endl;
+  deallog << "Merge two rectangles, due to hanging node there is no internal face" << std::endl;
   tria.clear();
   tria2.refine_global(1);
   GridGenerator::flatten_triangulation(tria2, tria3);

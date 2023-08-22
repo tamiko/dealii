@@ -66,8 +66,7 @@ check()
       std::vector<bool> component_mask(element.n_components(), false);
       component_mask[comp] = true;
 
-      const IndexSet dofs =
-        DoFTools::extract_dofs(dof, ComponentMask(component_mask));
+      const IndexSet dofs = DoFTools::extract_dofs(dof, ComponentMask(component_mask));
 
       for (unsigned int d = 0; d < dof.n_dofs(); ++d)
         deallog << dofs.is_element(d);

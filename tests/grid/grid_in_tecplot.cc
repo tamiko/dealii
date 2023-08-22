@@ -33,8 +33,7 @@ test(const std::string &infilename)
   gi.attach_triangulation(tria);
   gi.read(infilename);
 
-  deallog.get_file_stream()
-    << "------------------------------------------" << std::endl;
+  deallog.get_file_stream() << "------------------------------------------" << std::endl;
 
   GridOut grid_out;
   grid_out.set_flags(GridOutFlags::Ucd(true));

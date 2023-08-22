@@ -37,10 +37,7 @@ test()
   std::vector<double> tmp(2);
   tmp[0] = numbers::signaling_nan<double>();
   tmp[1] = numbers::signaling_nan<double>();
-  deallog << (internal::ArrayViewHelper::is_contiguous(tmp.begin(), tmp.end()) ?
-                "true" :
-                "false")
-          << std::endl;
+  deallog << (internal::ArrayViewHelper::is_contiguous(tmp.begin(), tmp.end()) ? "true" : "false") << std::endl;
 }
 
 

@@ -53,9 +53,8 @@ namespace VectorTools
      */
     template <int dim, int spacedim, typename Number>
     void
-    interpolate_zero_boundary_values(
-      const DoFHandler<dim, spacedim> &          dof_handler,
-      std::map<types::global_dof_index, Number> &boundary_values)
+    interpolate_zero_boundary_values(const DoFHandler<dim, spacedim>           &dof_handler,
+                                     std::map<types::global_dof_index, Number> &boundary_values)
     {
       // loop over all boundary faces
       // to get all dof indices of
@@ -84,10 +83,8 @@ namespace VectorTools
           if (cell->at_boundary(f))
             {
               face_dof_indices.resize(cell->get_fe().n_dofs_per_face(f));
-              cell->face(f)->get_dof_indices(face_dof_indices,
-                                             cell->active_fe_index());
-              for (unsigned int i = 0; i < cell->get_fe().n_dofs_per_face(f);
-                   ++i)
+              cell->face(f)->get_dof_indices(face_dof_indices, cell->active_fe_index());
+              for (unsigned int i = 0; i < cell->get_fe().n_dofs_per_face(f); ++i)
                 // enter zero boundary values
                 // for all boundary nodes
                 //
@@ -103,22 +100,15 @@ namespace VectorTools
     /**
      * Compute the boundary values to be used in the project() functions.
      */
-    template <int dim,
-              int spacedim,
-              template <int, int>
-              class M_or_MC,
-              template <int>
-              class Q_or_QC,
-              typename Number>
+    template <int dim, int spacedim, template <int, int> class M_or_MC, template <int> class Q_or_QC, typename Number>
     void
-    project_compute_b_v(
-      const M_or_MC<dim, spacedim> &             mapping,
-      const DoFHandler<dim, spacedim> &          dof,
-      const Function<spacedim, Number> &         function,
-      const bool                                 enforce_zero_boundary,
-      const Q_or_QC<dim - 1> &                   q_boundary,
-      const bool                                 project_to_boundary_first,
-      std::map<types::global_dof_index, Number> &boundary_values)
+    project_compute_b_v(const M_or_MC<dim, spacedim>              &mapping,
+                        const DoFHandler<dim, spacedim>           &dof,
+                        const Function<spacedim, Number>          &function,
+                        const bool                                 enforce_zero_boundary,
+                        const Q_or_QC<dim - 1>                    &q_boundary,
+                        const bool                                 project_to_boundary_first,
+                        std::map<types::global_dof_index, Number> &boundary_values)
     {
       if (enforce_zero_boundary == true)
         // no need to project boundary
@@ -130,24 +120,21 @@ namespace VectorTools
       else
         // no homogeneous boundary values
         if (project_to_boundary_first == true)
-        // boundary projection required
-        {
-          // set up a list of boundary
-          // functions for the
-          // different boundary
-          // parts. We want the
-          // function to hold on
-          // all parts of the boundary
-          const std::vector<types::boundary_id> used_boundary_ids =
-            dof.get_triangulation().get_boundary_ids();
+          // boundary projection required
+          {
+            // set up a list of boundary
+            // functions for the
+            // different boundary
+            // parts. We want the
+            // function to hold on
+            // all parts of the boundary
+            const std::vector<types::boundary_id> used_boundary_ids = dof.get_triangulation().get_boundary_ids();
 
-          std::map<types::boundary_id, const Function<spacedim, Number> *>
-            boundary_functions;
-          for (const auto used_boundary_id : used_boundary_ids)
-            boundary_functions[used_boundary_id] = &function;
-          project_boundary_values(
-            mapping, dof, boundary_functions, q_boundary, boundary_values);
-        }
+            std::map<types::boundary_id, const Function<spacedim, Number> *> boundary_functions;
+            for (const auto used_boundary_id : used_boundary_ids)
+              boundary_functions[used_boundary_id] = &function;
+            project_boundary_values(mapping, dof, boundary_functions, q_boundary, boundary_values);
+          }
     }
 
 
@@ -159,18 +146,15 @@ namespace VectorTools
     template <int components, int dim, typename Number, int spacedim>
     void
     project_matrix_free(
-      const Mapping<dim, spacedim> &   mapping,
-      const DoFHandler<dim, spacedim> &dof,
-      const AffineConstraints<Number> &constraints,
-      const Quadrature<dim> &          quadrature,
-      const Function<
-        spacedim,
-        typename LinearAlgebra::distributed::Vector<Number>::value_type>
-        &                                         function,
-      LinearAlgebra::distributed::Vector<Number> &work_result,
-      const bool                                  enforce_zero_boundary,
-      const Quadrature<dim - 1> &                 q_boundary,
-      const bool                                  project_to_boundary_first)
+      const Mapping<dim, spacedim>                                                              &mapping,
+      const DoFHandler<dim, spacedim>                                                           &dof,
+      const AffineConstraints<Number>                                                           &constraints,
+      const Quadrature<dim>                                                                     &quadrature,
+      const Function<spacedim, typename LinearAlgebra::distributed::Vector<Number>::value_type> &function,
+      LinearAlgebra::distributed::Vector<Number>                                                &work_result,
+      const bool                                                                                 enforce_zero_boundary,
+      const Quadrature<dim - 1>                                                                 &q_boundary,
+      const bool project_to_boundary_first)
     {
       Assert(project_to_boundary_first == false, ExcNotImplemented());
       Assert(enforce_zero_boundary == false, ExcNotImplemented());
@@ -184,8 +168,7 @@ namespace VectorTools
 
       Quadrature<dim> quadrature_mf;
 
-      if (dof.get_fe(0).reference_cell() ==
-          ReferenceCells::get_hypercube<dim>())
+      if (dof.get_fe(0).reference_cell() == ReferenceCells::get_hypercube<dim>())
         quadrature_mf = QGauss<dim>(dof.get_fe().degree + 2);
       else
         // TODO: since we have currently only implemented a handful quadrature
@@ -196,20 +179,12 @@ namespace VectorTools
 
       // set up mass matrix and right hand side
       typename MatrixFree<dim, Number>::AdditionalData additional_data;
-      additional_data.tasks_parallel_scheme =
-        MatrixFree<dim, Number>::AdditionalData::partition_color;
-      additional_data.mapping_update_flags =
-        (update_values | update_JxW_values);
-      std::shared_ptr<MatrixFree<dim, Number>> matrix_free(
-        new MatrixFree<dim, Number>());
-      matrix_free->reinit(
-        mapping, dof, constraints, quadrature_mf, additional_data);
-      using MatrixType = MatrixFreeOperators::MassOperator<
-        dim,
-        -1,
-        0,
-        components,
-        LinearAlgebra::distributed::Vector<Number>>;
+      additional_data.tasks_parallel_scheme = MatrixFree<dim, Number>::AdditionalData::partition_color;
+      additional_data.mapping_update_flags  = (update_values | update_JxW_values);
+      std::shared_ptr<MatrixFree<dim, Number>> matrix_free(new MatrixFree<dim, Number>());
+      matrix_free->reinit(mapping, dof, constraints, quadrature_mf, additional_data);
+      using MatrixType =
+        MatrixFreeOperators::MassOperator<dim, -1, 0, components, LinearAlgebra::distributed::Vector<Number>>;
       MatrixType mass_matrix;
       mass_matrix.initialize(matrix_free);
 
@@ -234,9 +209,8 @@ namespace VectorTools
             {
               mass_matrix.compute_lumped_diagonal();
 
-              const auto &lumped_diagonal =
-                mass_matrix.get_matrix_lumped_diagonal_inverse()->get_vector();
-              bool all_entries_positive = true;
+              const auto &lumped_diagonal      = mass_matrix.get_matrix_lumped_diagonal_inverse()->get_vector();
+              bool        all_entries_positive = true;
               for (const Number &v : lumped_diagonal)
                 if (v < 0.0)
                   {
@@ -253,8 +227,7 @@ namespace VectorTools
           bool all_low_order = true;
           for (unsigned int i = 0; i < fes.size(); ++i)
             {
-              if (dynamic_cast<const FE_SimplexP_Bubbles<dim, spacedim> *>(
-                    &fes[i]) == nullptr)
+              if (dynamic_cast<const FE_SimplexP_Bubbles<dim, spacedim> *>(&fes[i]) == nullptr)
                 all_bubbles = false;
               if (fes[i].tensor_degree() > 1)
                 all_low_order = false;
@@ -262,9 +235,7 @@ namespace VectorTools
           if (all_low_order || all_bubbles)
             use_lumped = true;
         }
-      use_lumped =
-        bool(Utilities::MPI::min(int(use_lumped),
-                                 work_result.get_mpi_communicator()));
+      use_lumped = bool(Utilities::MPI::min(int(use_lumped), work_result.get_mpi_communicator()));
 
       if (use_lumped)
         mass_matrix.compute_lumped_diagonal();
@@ -279,14 +250,12 @@ namespace VectorTools
       inhomogeneities *= -1.;
 
       {
-        create_right_hand_side(
-          mapping, dof, quadrature, function, rhs, constraints);
+        create_right_hand_side(mapping, dof, quadrature, function, rhs, constraints);
 
         // account for inhomogeneous constraints
         inhomogeneities.update_ghost_values();
         FEEvaluation<dim, -1, 0, components, Number> phi(*matrix_free);
-        for (unsigned int cell = 0; cell < matrix_free->n_cell_batches();
-             ++cell)
+        for (unsigned int cell = 0; cell < matrix_free->n_cell_batches(); ++cell)
           {
             phi.reinit(cell);
             phi.read_dof_values_plain(inhomogeneities);
@@ -305,11 +274,10 @@ namespace VectorTools
       // steps may not be sufficient, since roundoff errors may accumulate for
       // badly conditioned matrices. This behavior can be observed, e.g. for
       // FE_Q_Hierarchical for degree higher than three.
-      ReductionControl        control(6 * rhs.size(), 0., 1e-12, false, false);
-      SolverCG<decltype(rhs)> cg(control);
+      ReductionControl                     control(6 * rhs.size(), 0., 1e-12, false, false);
+      SolverCG<decltype(rhs)>              cg(control);
       const DiagonalMatrix<decltype(rhs)> &preconditioner =
-        use_lumped ? *mass_matrix.get_matrix_lumped_diagonal_inverse() :
-                     *mass_matrix.get_matrix_diagonal_inverse();
+        use_lumped ? *mass_matrix.get_matrix_lumped_diagonal_inverse() : *mass_matrix.get_matrix_diagonal_inverse();
 #ifdef DEBUG
       // Make sure we picked a valid preconditioner
       const auto &diagonal = preconditioner.get_vector();
@@ -331,18 +299,15 @@ namespace VectorTools
     template <int dim, typename Number, int spacedim>
     void
     project_matrix_free_component(
-      const Mapping<dim, spacedim> &   mapping,
-      const DoFHandler<dim, spacedim> &dof,
-      const AffineConstraints<Number> &constraints,
-      const Quadrature<dim> &          quadrature,
-      const Function<
-        spacedim,
-        typename LinearAlgebra::distributed::Vector<Number>::value_type>
-        &                                         function,
-      LinearAlgebra::distributed::Vector<Number> &work_result,
-      const bool                                  enforce_zero_boundary,
-      const Quadrature<dim - 1> &                 q_boundary,
-      const bool                                  project_to_boundary_first)
+      const Mapping<dim, spacedim>                                                              &mapping,
+      const DoFHandler<dim, spacedim>                                                           &dof,
+      const AffineConstraints<Number>                                                           &constraints,
+      const Quadrature<dim>                                                                     &quadrature,
+      const Function<spacedim, typename LinearAlgebra::distributed::Vector<Number>::value_type> &function,
+      LinearAlgebra::distributed::Vector<Number>                                                &work_result,
+      const bool                                                                                 enforce_zero_boundary,
+      const Quadrature<dim - 1>                                                                 &q_boundary,
+      const bool project_to_boundary_first)
     {
       switch (dof.get_fe(0).n_components())
         {
@@ -410,21 +375,19 @@ namespace VectorTools
      */
     template <int dim, typename VectorType, int spacedim>
     DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
-    void project_matrix_free_copy_vector(
-      const Mapping<dim, spacedim> &                             mapping,
-      const DoFHandler<dim, spacedim> &                          dof,
-      const AffineConstraints<typename VectorType::value_type> & constraints,
-      const Quadrature<dim> &                                    quadrature,
-      const Function<spacedim, typename VectorType::value_type> &function,
-      VectorType &                                               vec_result,
-      const bool                 enforce_zero_boundary,
-      const Quadrature<dim - 1> &q_boundary,
-      const bool                 project_to_boundary_first)
+    void project_matrix_free_copy_vector(const Mapping<dim, spacedim>                              &mapping,
+                                         const DoFHandler<dim, spacedim>                           &dof,
+                                         const AffineConstraints<typename VectorType::value_type>  &constraints,
+                                         const Quadrature<dim>                                     &quadrature,
+                                         const Function<spacedim, typename VectorType::value_type> &function,
+                                         VectorType                                                &vec_result,
+                                         const bool                 enforce_zero_boundary,
+                                         const Quadrature<dim - 1> &q_boundary,
+                                         const bool                 project_to_boundary_first)
     {
       AssertDimension(vec_result.size(), dof.n_dofs());
 
-      LinearAlgebra::distributed::Vector<typename VectorType::value_type>
-        work_result;
+      LinearAlgebra::distributed::Vector<typename VectorType::value_type> work_result;
       project_matrix_free_component(mapping,
                                     dof,
                                     constraints,
@@ -436,9 +399,7 @@ namespace VectorTools
                                     project_to_boundary_first);
 
       for (const auto i : dof.locally_owned_dofs())
-        ::dealii::internal::ElementAccess<VectorType>::set(work_result(i),
-                                                           i,
-                                                           vec_result);
+        ::dealii::internal::ElementAccess<VectorType>::set(work_result(i), i, vec_result);
       vec_result.compress(VectorOperation::insert);
     }
 
@@ -450,18 +411,15 @@ namespace VectorTools
      */
     template <typename Number>
     bool
-    constraints_and_b_v_are_compatible(
-      const AffineConstraints<Number> &          constraints,
-      std::map<types::global_dof_index, Number> &boundary_values)
+    constraints_and_b_v_are_compatible(const AffineConstraints<Number>           &constraints,
+                                       std::map<types::global_dof_index, Number> &boundary_values)
     {
       for (const auto &boundary_value : boundary_values)
         if (constraints.is_constrained(boundary_value.first))
           // TODO: This looks wrong -- shouldn't it be ==0 in the first
           // condition and && ?
-          if (!(constraints.get_constraint_entries(boundary_value.first)
-                    ->size() > 0 ||
-                (constraints.get_inhomogeneity(boundary_value.first) ==
-                 boundary_value.second)))
+          if (!(constraints.get_constraint_entries(boundary_value.first)->size() > 0 ||
+                (constraints.get_inhomogeneity(boundary_value.first) == boundary_value.second)))
             return false;
 
       return true;
@@ -482,16 +440,15 @@ namespace VectorTools
               template <int>
               class Q_or_QC>
     DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
-    void do_project(
-      const M_or_MC<dim, spacedim> &                             mapping,
-      const DoFHandler<dim, spacedim> &                          dof,
-      const AffineConstraints<typename VectorType::value_type> & constraints,
-      const Q_or_QC<dim> &                                       quadrature,
-      const Function<spacedim, typename VectorType::value_type> &function,
-      VectorType &                                               vec_result,
-      const bool              enforce_zero_boundary,
-      const Q_or_QC<dim - 1> &q_boundary,
-      const bool              project_to_boundary_first)
+    void do_project(const M_or_MC<dim, spacedim>                              &mapping,
+                    const DoFHandler<dim, spacedim>                           &dof,
+                    const AffineConstraints<typename VectorType::value_type>  &constraints,
+                    const Q_or_QC<dim>                                        &quadrature,
+                    const Function<spacedim, typename VectorType::value_type> &function,
+                    VectorType                                                &vec_result,
+                    const bool                                                 enforce_zero_boundary,
+                    const Q_or_QC<dim - 1>                                    &q_boundary,
+                    const bool                                                 project_to_boundary_first)
     {
       using Number = typename VectorType::value_type;
       AssertDimension(dof.get_fe(0).n_components(), function.n_components);
@@ -499,28 +456,18 @@ namespace VectorTools
 
       // make up boundary values
       std::map<types::global_dof_index, Number> boundary_values;
-      project_compute_b_v(mapping,
-                          dof,
-                          function,
-                          enforce_zero_boundary,
-                          q_boundary,
-                          project_to_boundary_first,
-                          boundary_values);
+      project_compute_b_v(
+        mapping, dof, function, enforce_zero_boundary, q_boundary, project_to_boundary_first, boundary_values);
 
       // check if constraints are compatible (see below)
-      const bool constraints_are_compatible =
-        constraints_and_b_v_are_compatible<Number>(constraints,
-                                                   boundary_values);
+      const bool constraints_are_compatible = constraints_and_b_v_are_compatible<Number>(constraints, boundary_values);
 
       // set up mass matrix and right hand side
       Vector<Number>  vec(dof.n_dofs());
       SparsityPattern sparsity;
       {
         DynamicSparsityPattern dsp(dof.n_dofs(), dof.n_dofs());
-        DoFTools::make_sparsity_pattern(dof,
-                                        dsp,
-                                        constraints,
-                                        !constraints_are_compatible);
+        DoFTools::make_sparsity_pattern(dof, dsp, constraints, !constraints_are_compatible);
 
         sparsity.copy_from(dsp);
       }
@@ -535,32 +482,22 @@ namespace VectorTools
       if (constraints_are_compatible)
         {
           const Function<spacedim, Number> *dummy = nullptr;
-          MatrixCreator::create_mass_matrix(mapping,
-                                            dof,
-                                            quadrature,
-                                            mass_matrix,
-                                            function,
-                                            tmp,
-                                            dummy,
-                                            constraints);
+          MatrixCreator::create_mass_matrix(mapping, dof, quadrature, mass_matrix, function, tmp, dummy, constraints);
           if (boundary_values.size() > 0)
-            MatrixTools::apply_boundary_values(
-              boundary_values, mass_matrix, vec, tmp, true);
+            MatrixTools::apply_boundary_values(boundary_values, mass_matrix, vec, tmp, true);
         }
       else
         {
           // create mass matrix and rhs at once, which is faster.
-          MatrixCreator::create_mass_matrix(
-            mapping, dof, quadrature, mass_matrix, function, tmp);
-          MatrixTools::apply_boundary_values(
-            boundary_values, mass_matrix, vec, tmp, true);
+          MatrixCreator::create_mass_matrix(mapping, dof, quadrature, mass_matrix, function, tmp);
+          MatrixTools::apply_boundary_values(boundary_values, mass_matrix, vec, tmp, true);
           constraints.condense(mass_matrix, tmp);
         }
 
       // Allow for a maximum of 5*n steps to reduce the residual by 10^-12. n
       // steps may not be sufficient, since roundoff errors may accumulate for
       // badly conditioned matrices
-      ReductionControl control(5 * tmp.size(), 0., 1e-12, false, false);
+      ReductionControl                    control(5 * tmp.size(), 0., 1e-12, false, false);
       GrowingVectorMemory<Vector<Number>> memory;
       SolverCG<Vector<Number>>            cg(control, memory);
 
@@ -574,24 +511,21 @@ namespace VectorTools
       // it may be of another type than Vector<double> and that wouldn't
       // necessarily go together with the matrix and other functions
       for (unsigned int i = 0; i < vec.size(); ++i)
-        ::dealii::internal::ElementAccess<VectorType>::set(vec(i),
-                                                           i,
-                                                           vec_result);
+        ::dealii::internal::ElementAccess<VectorType>::set(vec(i), i, vec_result);
     }
 
 
 
     template <int dim, typename VectorType, int spacedim>
     DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
-    void project_parallel(
-      const Mapping<dim, spacedim> &                            mapping,
-      const DoFHandler<dim, spacedim> &                         dof,
-      const AffineConstraints<typename VectorType::value_type> &constraints,
-      const Quadrature<dim> &                                   quadrature,
-      const std::function<typename VectorType::value_type(
-        const typename DoFHandler<dim, spacedim>::active_cell_iterator &,
-        const unsigned int)> &                                  func,
-      VectorType &                                              vec_result)
+    void project_parallel(const Mapping<dim, spacedim>                             &mapping,
+                          const DoFHandler<dim, spacedim>                          &dof,
+                          const AffineConstraints<typename VectorType::value_type> &constraints,
+                          const Quadrature<dim>                                    &quadrature,
+                          const std::function<typename VectorType::value_type(
+                            const typename DoFHandler<dim, spacedim>::active_cell_iterator &,
+                            const unsigned int)>                                   &func,
+                          VectorType                                               &vec_result)
     {
       using Number          = typename VectorType::value_type;
       using LocalVectorType = LinearAlgebra::distributed::Vector<Number>;
@@ -600,19 +534,11 @@ namespace VectorTools
 
       // set up mass matrix and right hand side
       typename MatrixFree<dim, Number>::AdditionalData additional_data;
-      additional_data.tasks_parallel_scheme =
-        MatrixFree<dim, Number>::AdditionalData::partition_color;
-      additional_data.mapping_update_flags =
-        (update_values | update_JxW_values);
-      std::shared_ptr<MatrixFree<dim, Number>> matrix_free(
-        new MatrixFree<dim, Number>());
-      matrix_free->reinit(mapping,
-                          dof,
-                          constraints,
-                          QGauss<1>(dof.get_fe().degree + 2),
-                          additional_data);
-      using MatrixType =
-        MatrixFreeOperators::MassOperator<dim, -1, 0, 1, LocalVectorType>;
+      additional_data.tasks_parallel_scheme = MatrixFree<dim, Number>::AdditionalData::partition_color;
+      additional_data.mapping_update_flags  = (update_values | update_JxW_values);
+      std::shared_ptr<MatrixFree<dim, Number>> matrix_free(new MatrixFree<dim, Number>());
+      matrix_free->reinit(mapping, dof, constraints, QGauss<1>(dof.get_fe().degree + 2), additional_data);
+      using MatrixType = MatrixFreeOperators::MassOperator<dim, -1, 0, 1, LocalVectorType>;
       MatrixType mass_matrix;
       mass_matrix.initialize(matrix_free);
       mass_matrix.compute_diagonal();
@@ -626,14 +552,11 @@ namespace VectorTools
 
       // assemble right hand side:
       {
-        FEValues<dim> fe_values(mapping,
-                                dof.get_fe(),
-                                quadrature,
-                                update_values | update_JxW_values);
+        FEValues<dim> fe_values(mapping, dof.get_fe(), quadrature, update_values | update_JxW_values);
 
-        const unsigned int dofs_per_cell = dof.get_fe().n_dofs_per_cell();
-        const unsigned int n_q_points    = quadrature.size();
-        Vector<Number>     cell_rhs(dofs_per_cell);
+        const unsigned int                   dofs_per_cell = dof.get_fe().n_dofs_per_cell();
+        const unsigned int                   n_q_points    = quadrature.size();
+        Vector<Number>                       cell_rhs(dofs_per_cell);
         std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
         for (const auto &cell : dof.active_cell_iterators())
           if (cell->is_locally_owned())
@@ -644,14 +567,11 @@ namespace VectorTools
                 {
                   const double val_q = func(cell, q_point);
                   for (unsigned int i = 0; i < dofs_per_cell; ++i)
-                    cell_rhs(i) += (fe_values.shape_value(i, q_point) * val_q *
-                                    fe_values.JxW(q_point));
+                    cell_rhs(i) += (fe_values.shape_value(i, q_point) * val_q * fe_values.JxW(q_point));
                 }
 
               cell->get_dof_indices(local_dof_indices);
-              constraints.distribute_local_to_global(cell_rhs,
-                                                     local_dof_indices,
-                                                     rhs);
+              constraints.distribute_local_to_global(cell_rhs, local_dof_indices, rhs);
             }
         rhs.compress(VectorOperation::add);
       }
@@ -663,7 +583,7 @@ namespace VectorTools
       // steps may not be sufficient, since roundoff errors may accumulate for
       // badly conditioned matrices. This behavior can be observed, e.g. for
       // FE_Q_Hierarchical for degree higher than three.
-      ReductionControl control(5 * rhs.size(), 0., 1e-12, false, false);
+      ReductionControl                                        control(5 * rhs.size(), 0., 1e-12, false, false);
       SolverCG<LocalVectorType>                               cg(control);
       typename PreconditionJacobi<MatrixType>::AdditionalData data(0.8);
       PreconditionJacobi<MatrixType>                          preconditioner;
@@ -673,12 +593,10 @@ namespace VectorTools
 
       constraints.distribute(vec);
 
-      const IndexSet &          locally_owned_dofs = dof.locally_owned_dofs();
+      const IndexSet           &locally_owned_dofs = dof.locally_owned_dofs();
       IndexSet::ElementIterator it                 = locally_owned_dofs.begin();
       for (; it != locally_owned_dofs.end(); ++it)
-        ::dealii::internal::ElementAccess<VectorType>::set(vec(*it),
-                                                           *it,
-                                                           vec_result);
+        ::dealii::internal::ElementAccess<VectorType>::set(vec(*it), *it, vec_result);
       vec_result.compress(VectorOperation::insert);
     }
 
@@ -687,25 +605,21 @@ namespace VectorTools
     template <int dim, typename VectorType, int spacedim>
     DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
     void project_parallel(
-      std::shared_ptr<const MatrixFree<dim, typename VectorType::value_type>>
-                                                                matrix_free,
-      const AffineConstraints<typename VectorType::value_type> &constraints,
-      const std::function<VectorizedArray<typename VectorType::value_type>(
-        const unsigned int,
-        const unsigned int)> &                                  func,
-      VectorType &                                              vec_result,
-      const unsigned int                                        fe_component)
+      std::shared_ptr<const MatrixFree<dim, typename VectorType::value_type>> matrix_free,
+      const AffineConstraints<typename VectorType::value_type>               &constraints,
+      const std::function<VectorizedArray<typename VectorType::value_type>(const unsigned int, const unsigned int)>
+                        &func,
+      VectorType        &vec_result,
+      const unsigned int fe_component)
     {
-      const DoFHandler<dim, spacedim> &dof =
-        matrix_free->get_dof_handler(fe_component);
+      const DoFHandler<dim, spacedim> &dof = matrix_free->get_dof_handler(fe_component);
 
       using Number          = typename VectorType::value_type;
       using LocalVectorType = LinearAlgebra::distributed::Vector<Number>;
       AssertDimension(dof.get_fe(0).n_components(), 1);
       AssertDimension(vec_result.size(), dof.n_dofs());
 
-      using MatrixType =
-        MatrixFreeOperators::MassOperator<dim, -1, 0, 1, LocalVectorType>;
+      using MatrixType = MatrixFreeOperators::MassOperator<dim, -1, 0, 1, LocalVectorType>;
       MatrixType mass_matrix;
       mass_matrix.initialize(matrix_free, {fe_component});
       mass_matrix.compute_diagonal();
@@ -720,8 +634,8 @@ namespace VectorTools
       // assemble right hand side:
       {
         FEEvaluation<dim, -1, 0, 1, Number> fe_eval(*matrix_free, fe_component);
-        const unsigned int n_cells    = matrix_free->n_cell_batches();
-        const unsigned int n_q_points = fe_eval.n_q_points;
+        const unsigned int                  n_cells    = matrix_free->n_cell_batches();
+        const unsigned int                  n_q_points = fe_eval.n_q_points;
 
         for (unsigned int cell = 0; cell < n_cells; ++cell)
           {
@@ -742,7 +656,7 @@ namespace VectorTools
       // steps may not be sufficient, since roundoff errors may accumulate for
       // badly conditioned matrices. This behavior can be observed, e.g. for
       // FE_Q_Hierarchical for degree higher than three.
-      ReductionControl control(5 * rhs.size(), 0., 1e-12, false, false);
+      ReductionControl                                        control(5 * rhs.size(), 0., 1e-12, false, false);
       SolverCG<LocalVectorType>                               cg(control);
       typename PreconditionJacobi<MatrixType>::AdditionalData data(0.8);
       PreconditionJacobi<MatrixType>                          preconditioner;
@@ -752,12 +666,10 @@ namespace VectorTools
 
       constraints.distribute(vec);
 
-      const IndexSet &          locally_owned_dofs = dof.locally_owned_dofs();
+      const IndexSet           &locally_owned_dofs = dof.locally_owned_dofs();
       IndexSet::ElementIterator it                 = locally_owned_dofs.begin();
       for (; it != locally_owned_dofs.end(); ++it)
-        ::dealii::internal::ElementAccess<VectorType>::set(vec(*it),
-                                                           *it,
-                                                           vec_result);
+        ::dealii::internal::ElementAccess<VectorType>::set(vec(*it), *it, vec_result);
       vec_result.compress(VectorOperation::insert);
     }
 
@@ -773,33 +685,26 @@ namespace VectorTools
      */
     template <typename VectorType, int dim, int spacedim>
     DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
-    std::enable_if_t<
-      !numbers::NumberTraits<typename VectorType::value_type>::is_complex &&
-        (dim == spacedim),
-      void> project(const Mapping<dim, spacedim> &   mapping,
-                    const DoFHandler<dim, spacedim> &dof,
-                    const AffineConstraints<typename VectorType::value_type>
-                      &                    constraints,
-                    const Quadrature<dim> &quadrature,
-                    const Function<spacedim, typename VectorType::value_type>
-                      &                        function,
-                    VectorType &               vec_result,
-                    const bool                 enforce_zero_boundary,
-                    const Quadrature<dim - 1> &q_boundary,
-                    const bool                 project_to_boundary_first)
+    std::enable_if_t<!numbers::NumberTraits<typename VectorType::value_type>::is_complex && (dim == spacedim),
+                     void> project(const Mapping<dim, spacedim>                              &mapping,
+                                   const DoFHandler<dim, spacedim>                           &dof,
+                                   const AffineConstraints<typename VectorType::value_type>  &constraints,
+                                   const Quadrature<dim>                                     &quadrature,
+                                   const Function<spacedim, typename VectorType::value_type> &function,
+                                   VectorType                                                &vec_result,
+                                   const bool                                                 enforce_zero_boundary,
+                                   const Quadrature<dim - 1>                                 &q_boundary,
+                                   const bool                                                 project_to_boundary_first)
     {
       // If we can, use the matrix-free implementation
-      bool use_matrix_free =
-        MatrixFree<dim, typename VectorType::value_type>::is_supported(
-          dof.get_fe()) &&
-        dof.get_fe().n_base_elements() == 1;
+      bool use_matrix_free = MatrixFree<dim, typename VectorType::value_type>::is_supported(dof.get_fe()) &&
+                             dof.get_fe().n_base_elements() == 1;
 
       // enforce_zero_boundary and project_to_boundary_first
       // are not yet supported.
       // We have explicit instantiations only if
       // the number of components is not too high.
-      if (enforce_zero_boundary || project_to_boundary_first ||
-          dof.get_fe(0).n_components() > 4)
+      if (enforce_zero_boundary || project_to_boundary_first || dof.get_fe(0).n_components() > 4)
         use_matrix_free = false;
 
       if (use_matrix_free)
@@ -814,8 +719,7 @@ namespace VectorTools
                                         project_to_boundary_first);
       else
         {
-          Assert((dynamic_cast<const parallel::TriangulationBase<dim> *>(
-                    &(dof.get_triangulation())) == nullptr),
+          Assert((dynamic_cast<const parallel::TriangulationBase<dim> *>(&(dof.get_triangulation())) == nullptr),
                  ExcNotImplemented());
           do_project(mapping,
                      dof,
@@ -839,23 +743,18 @@ namespace VectorTools
      */
     template <typename VectorType, int dim, int spacedim>
     DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
-    std::enable_if_t<
-      numbers::NumberTraits<typename VectorType::value_type>::is_complex ||
-        (dim < spacedim),
-      void> project(const Mapping<dim, spacedim> &   mapping,
-                    const DoFHandler<dim, spacedim> &dof,
-                    const AffineConstraints<typename VectorType::value_type>
-                      &                    constraints,
-                    const Quadrature<dim> &quadrature,
-                    const Function<spacedim, typename VectorType::value_type>
-                      &                        function,
-                    VectorType &               vec_result,
-                    const bool                 enforce_zero_boundary,
-                    const Quadrature<dim - 1> &q_boundary,
-                    const bool                 project_to_boundary_first)
+    std::enable_if_t<numbers::NumberTraits<typename VectorType::value_type>::is_complex || (dim < spacedim),
+                     void> project(const Mapping<dim, spacedim>                              &mapping,
+                                   const DoFHandler<dim, spacedim>                           &dof,
+                                   const AffineConstraints<typename VectorType::value_type>  &constraints,
+                                   const Quadrature<dim>                                     &quadrature,
+                                   const Function<spacedim, typename VectorType::value_type> &function,
+                                   VectorType                                                &vec_result,
+                                   const bool                                                 enforce_zero_boundary,
+                                   const Quadrature<dim - 1>                                 &q_boundary,
+                                   const bool                                                 project_to_boundary_first)
     {
-      Assert((dynamic_cast<const parallel::TriangulationBase<dim> *>(
-                &(dof.get_triangulation())) == nullptr),
+      Assert((dynamic_cast<const parallel::TriangulationBase<dim> *>(&(dof.get_triangulation())) == nullptr),
              ExcNotImplemented());
       do_project(mapping,
                  dof,
@@ -874,18 +773,16 @@ namespace VectorTools
 
   template <int dim, typename VectorType, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
-  void project(
-    const Mapping<dim, spacedim> &                            mapping,
-    const DoFHandler<dim, spacedim> &                         dof,
-    const AffineConstraints<typename VectorType::value_type> &constraints,
-    const Quadrature<dim> &                                   quadrature,
-    const std::function<typename VectorType::value_type(
-      const typename DoFHandler<dim, spacedim>::active_cell_iterator &,
-      const unsigned int)> &                                  func,
-    VectorType &                                              vec_result)
+  void project(const Mapping<dim, spacedim>                             &mapping,
+               const DoFHandler<dim, spacedim>                          &dof,
+               const AffineConstraints<typename VectorType::value_type> &constraints,
+               const Quadrature<dim>                                    &quadrature,
+               const std::function<
+                 typename VectorType::value_type(const typename DoFHandler<dim, spacedim>::active_cell_iterator &,
+                                                 const unsigned int)> &func,
+               VectorType                                             &vec_result)
   {
-    internal::project_parallel<dim, VectorType, spacedim>(
-      mapping, dof, constraints, quadrature, func, vec_result);
+    internal::project_parallel<dim, VectorType, spacedim>(mapping, dof, constraints, quadrature, func, vec_result);
   }
 
 
@@ -893,20 +790,16 @@ namespace VectorTools
   template <int dim, typename VectorType>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
   void project(
-    std::shared_ptr<const MatrixFree<
-      dim,
-      typename VectorType::value_type,
-      VectorizedArray<typename VectorType::value_type>>>      matrix_free,
+    std::shared_ptr<
+      const MatrixFree<dim, typename VectorType::value_type, VectorizedArray<typename VectorType::value_type>>>
+                                                              matrix_free,
     const AffineConstraints<typename VectorType::value_type> &constraints,
     const unsigned int,
-    const std::function<VectorizedArray<typename VectorType::value_type>(
-      const unsigned int,
-      const unsigned int)> &func,
-    VectorType &            vec_result,
-    const unsigned int      fe_component)
+    const std::function<VectorizedArray<typename VectorType::value_type>(const unsigned int, const unsigned int)> &func,
+    VectorType        &vec_result,
+    const unsigned int fe_component)
   {
-    internal::project_parallel<dim, VectorType, dim>(
-      matrix_free, constraints, func, vec_result, fe_component);
+    internal::project_parallel<dim, VectorType, dim>(matrix_free, constraints, func, vec_result, fe_component);
   }
 
 
@@ -914,16 +807,13 @@ namespace VectorTools
   template <int dim, typename VectorType>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
   void project(
-    std::shared_ptr<const MatrixFree<
-      dim,
-      typename VectorType::value_type,
-      VectorizedArray<typename VectorType::value_type>>>      matrix_free,
+    std::shared_ptr<
+      const MatrixFree<dim, typename VectorType::value_type, VectorizedArray<typename VectorType::value_type>>>
+                                                              matrix_free,
     const AffineConstraints<typename VectorType::value_type> &constraints,
-    const std::function<VectorizedArray<typename VectorType::value_type>(
-      const unsigned int,
-      const unsigned int)> &                                  func,
-    VectorType &                                              vec_result,
-    const unsigned int                                        fe_component)
+    const std::function<VectorizedArray<typename VectorType::value_type>(const unsigned int, const unsigned int)> &func,
+    VectorType        &vec_result,
+    const unsigned int fe_component)
   {
     project(matrix_free,
             constraints,
@@ -937,16 +827,15 @@ namespace VectorTools
 
   template <int dim, typename VectorType, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
-  void project(
-    const Mapping<dim, spacedim> &                             mapping,
-    const DoFHandler<dim, spacedim> &                          dof,
-    const AffineConstraints<typename VectorType::value_type> & constraints,
-    const Quadrature<dim> &                                    quadrature,
-    const Function<spacedim, typename VectorType::value_type> &function,
-    VectorType &                                               vec_result,
-    const bool                 enforce_zero_boundary,
-    const Quadrature<dim - 1> &q_boundary,
-    const bool                 project_to_boundary_first)
+  void project(const Mapping<dim, spacedim>                              &mapping,
+               const DoFHandler<dim, spacedim>                           &dof,
+               const AffineConstraints<typename VectorType::value_type>  &constraints,
+               const Quadrature<dim>                                     &quadrature,
+               const Function<spacedim, typename VectorType::value_type> &function,
+               VectorType                                                &vec_result,
+               const bool                                                 enforce_zero_boundary,
+               const Quadrature<dim - 1>                                 &q_boundary,
+               const bool                                                 project_to_boundary_first)
   {
     internal::project(mapping,
                       dof,
@@ -963,15 +852,14 @@ namespace VectorTools
 
   template <int dim, typename VectorType, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
-  void project(
-    const DoFHandler<dim, spacedim> &                          dof,
-    const AffineConstraints<typename VectorType::value_type> & constraints,
-    const Quadrature<dim> &                                    quadrature,
-    const Function<spacedim, typename VectorType::value_type> &function,
-    VectorType &                                               vec,
-    const bool                 enforce_zero_boundary,
-    const Quadrature<dim - 1> &q_boundary,
-    const bool                 project_to_boundary_first)
+  void project(const DoFHandler<dim, spacedim>                           &dof,
+               const AffineConstraints<typename VectorType::value_type>  &constraints,
+               const Quadrature<dim>                                     &quadrature,
+               const Function<spacedim, typename VectorType::value_type> &function,
+               VectorType                                                &vec,
+               const bool                                                 enforce_zero_boundary,
+               const Quadrature<dim - 1>                                 &q_boundary,
+               const bool                                                 project_to_boundary_first)
   {
     project(get_default_linear_mapping(dof.get_triangulation()),
             dof,
@@ -988,19 +876,17 @@ namespace VectorTools
 
   template <int dim, typename VectorType, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
-  void project(
-    const hp::MappingCollection<dim, spacedim> &               mapping,
-    const DoFHandler<dim, spacedim> &                          dof,
-    const AffineConstraints<typename VectorType::value_type> & constraints,
-    const hp::QCollection<dim> &                               quadrature,
-    const Function<spacedim, typename VectorType::value_type> &function,
-    VectorType &                                               vec_result,
-    const bool                      enforce_zero_boundary,
-    const hp::QCollection<dim - 1> &q_boundary,
-    const bool                      project_to_boundary_first)
+  void project(const hp::MappingCollection<dim, spacedim>                &mapping,
+               const DoFHandler<dim, spacedim>                           &dof,
+               const AffineConstraints<typename VectorType::value_type>  &constraints,
+               const hp::QCollection<dim>                                &quadrature,
+               const Function<spacedim, typename VectorType::value_type> &function,
+               VectorType                                                &vec_result,
+               const bool                                                 enforce_zero_boundary,
+               const hp::QCollection<dim - 1>                            &q_boundary,
+               const bool                                                 project_to_boundary_first)
   {
-    Assert((dynamic_cast<const parallel::TriangulationBase<dim, spacedim> *>(
-              &(dof.get_triangulation())) == nullptr),
+    Assert((dynamic_cast<const parallel::TriangulationBase<dim, spacedim> *>(&(dof.get_triangulation())) == nullptr),
            ExcNotImplemented());
 
     internal::do_project(mapping,
@@ -1018,15 +904,14 @@ namespace VectorTools
 
   template <int dim, typename VectorType, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
-  void project(
-    const DoFHandler<dim, spacedim> &                          dof,
-    const AffineConstraints<typename VectorType::value_type> & constraints,
-    const hp::QCollection<dim> &                               quadrature,
-    const Function<spacedim, typename VectorType::value_type> &function,
-    VectorType &                                               vec,
-    const bool                      enforce_zero_boundary,
-    const hp::QCollection<dim - 1> &q_boundary,
-    const bool                      project_to_boundary_first)
+  void project(const DoFHandler<dim, spacedim>                           &dof,
+               const AffineConstraints<typename VectorType::value_type>  &constraints,
+               const hp::QCollection<dim>                                &quadrature,
+               const Function<spacedim, typename VectorType::value_type> &function,
+               VectorType                                                &vec,
+               const bool                                                 enforce_zero_boundary,
+               const hp::QCollection<dim - 1>                            &q_boundary,
+               const bool                                                 project_to_boundary_first)
   {
     project(hp::StaticMappingQ1<dim, spacedim>::mapping_collection,
             dof,

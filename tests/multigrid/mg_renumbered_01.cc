@@ -62,8 +62,7 @@
 
 template <int dim, typename number, int spacedim>
 void
-reinit_vector(const dealii::DoFHandler<dim, spacedim> &mg_dof,
-              MGLevelObject<dealii::Vector<number>> &  v)
+reinit_vector(const dealii::DoFHandler<dim, spacedim> &mg_dof, MGLevelObject<dealii::Vector<number>> &v)
 {
   for (unsigned int level = v.min_level(); level <= v.max_level(); ++level)
     {
@@ -76,12 +75,10 @@ template <int dim>
 void
 initialize(const DoFHandler<dim> &dof, Vector<double> &u)
 {
-  unsigned int       counter       = 0;
-  const unsigned int dofs_per_cell = dof.get_fe().dofs_per_cell;
+  unsigned int                         counter       = 0;
+  const unsigned int                   dofs_per_cell = dof.get_fe().dofs_per_cell;
   std::vector<types::global_dof_index> dof_indices(dofs_per_cell);
-  for (typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active();
-       cell != dof.end();
-       ++cell)
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(); cell != dof.end(); ++cell)
     {
       cell->get_dof_indices(dof_indices);
       for (unsigned int i = 0; i < dofs_per_cell; ++i)
@@ -95,9 +92,9 @@ template <int dim>
 void
 initialize(const DoFHandler<dim> &dof, MGLevelObject<Vector<double>> &u)
 {
-  unsigned int              counter       = 0;
-  const unsigned int        dofs_per_cell = dof.get_fe().dofs_per_cell;
-  std::vector<unsigned int> dof_indices(dofs_per_cell);
+  unsigned int                            counter       = 0;
+  const unsigned int                      dofs_per_cell = dof.get_fe().dofs_per_cell;
+  std::vector<unsigned int>               dof_indices(dofs_per_cell);
   typename DoFHandler<dim>::cell_iterator cell = dof.begin(0);
   cell->get_mg_dof_indices(dof_indices);
   for (unsigned int i = 0; i < dofs_per_cell; ++i)
@@ -107,19 +104,14 @@ initialize(const DoFHandler<dim> &dof, MGLevelObject<Vector<double>> &u)
 
 template <int dim>
 void
-print_diff(const DoFHandler<dim> &dof_1,
-           const DoFHandler<dim> &dof_2,
-           const Vector<double> & u,
-           const Vector<double> & v)
+print_diff(const DoFHandler<dim> &dof_1, const DoFHandler<dim> &dof_2, const Vector<double> &u, const Vector<double> &v)
 {
   Vector<double> diff;
   diff.reinit(u);
-  const unsigned int dofs_per_cell = dof_1.get_fe().dofs_per_cell;
+  const unsigned int                   dofs_per_cell = dof_1.get_fe().dofs_per_cell;
   std::vector<types::global_dof_index> dof_indices_1(dofs_per_cell);
   std::vector<types::global_dof_index> dof_indices_2(dofs_per_cell);
-  for (typename DoFHandler<dim>::active_cell_iterator
-         cell_1 = dof_1.begin_active(),
-         cell_2 = dof_2.begin_active();
+  for (typename DoFHandler<dim>::active_cell_iterator cell_1 = dof_1.begin_active(), cell_2 = dof_2.begin_active();
        cell_1 != dof_1.end();
        ++cell_1, ++cell_2)
     {
@@ -134,8 +126,7 @@ print_diff(const DoFHandler<dim> &dof_1,
 
 template <int dim>
 void
-print(const DoFHandler<dim> &         dof,
-      std::vector<std::vector<bool>> &interface_dofs)
+print(const DoFHandler<dim> &dof, std::vector<std::vector<bool>> &interface_dofs)
 {
   const unsigned int        dofs_per_cell = dof.get_fe().dofs_per_cell;
   std::vector<unsigned int> dof_indices(dofs_per_cell);
@@ -143,9 +134,7 @@ print(const DoFHandler<dim> &         dof,
     {
       deallog << std::endl;
       deallog << "Level " << l << std::endl;
-      for (typename DoFHandler<dim>::cell_iterator cell = dof.begin(l);
-           cell != dof.end(l);
-           ++cell)
+      for (typename DoFHandler<dim>::cell_iterator cell = dof.begin(l); cell != dof.end(l); ++cell)
         {
           cell->get_mg_dof_indices(dof_indices);
           for (unsigned int i = 0; i < dofs_per_cell; ++i)
@@ -223,9 +212,7 @@ LaplaceProblem<dim>::setup_system()
   // DoFRenumbering::Cuthill_McKee (dof);
   for (unsigned int level = 0; level < nlevels; ++level)
     {
-      DoFRenumbering::component_wise(mg_dof_handler_renumbered,
-                                     level,
-                                     block_component);
+      DoFRenumbering::component_wise(mg_dof_handler_renumbered, level, block_component);
       // DoFRenumbering::Cuthill_McKee (mg_dof_handler_renumbered, level);
     }
 
@@ -256,14 +243,11 @@ LaplaceProblem<dim>::setup_system()
       mg_sparsity[level].reinit(mg_dof_handler.n_dofs(level),
                                 mg_dof_handler.n_dofs(level),
                                 mg_dof_handler.max_couplings_between_dofs());
-      mg_sparsity_renumbered[level].reinit(
-        mg_dof_handler_renumbered.n_dofs(level),
-        mg_dof_handler_renumbered.n_dofs(level),
-        mg_dof_handler_renumbered.max_couplings_between_dofs());
+      mg_sparsity_renumbered[level].reinit(mg_dof_handler_renumbered.n_dofs(level),
+                                           mg_dof_handler_renumbered.n_dofs(level),
+                                           mg_dof_handler_renumbered.max_couplings_between_dofs());
       MGTools::make_sparsity_pattern(mg_dof_handler, mg_sparsity[level], level);
-      MGTools::make_sparsity_pattern(mg_dof_handler_renumbered,
-                                     mg_sparsity_renumbered[level],
-                                     level);
+      MGTools::make_sparsity_pattern(mg_dof_handler_renumbered, mg_sparsity_renumbered[level], level);
       mg_sparsity[level].compress();
       mg_sparsity_renumbered[level].compress();
       mg_matrices[level].reinit(mg_sparsity[level]);
@@ -285,17 +269,13 @@ LaplaceProblem<dim>::test_interface_dofs()
       boundary_interface_dofs.push_back(tmp);
     }
 
-  MGTools::extract_inner_interface_dofs(mg_dof_handler_renumbered,
-                                        interface_dofs,
-                                        boundary_interface_dofs);
+  MGTools::extract_inner_interface_dofs(mg_dof_handler_renumbered, interface_dofs, boundary_interface_dofs);
   deallog << "1. Test" << std::endl;
   print(mg_dof_handler_renumbered, interface_dofs);
 
   deallog << std::endl;
 
-  MGTools::extract_inner_interface_dofs(mg_dof_handler,
-                                        interface_dofs,
-                                        boundary_interface_dofs);
+  MGTools::extract_inner_interface_dofs(mg_dof_handler, interface_dofs, boundary_interface_dofs);
 
   deallog << "2. Test" << std::endl;
   print(mg_dof_handler, interface_dofs);
@@ -312,11 +292,9 @@ LaplaceProblem<dim>::test_renumber()
       std::fill(v[l].begin(), v[l].end(), false);
     }
 
-  const unsigned int dofs_per_cell =
-    mg_dof_handler_renumbered.get_fe().dofs_per_cell;
+  const unsigned int        dofs_per_cell = mg_dof_handler_renumbered.get_fe().dofs_per_cell;
   std::vector<unsigned int> dof_indices(dofs_per_cell);
-  for (typename DoFHandler<dim>::cell_iterator cell =
-         mg_dof_handler_renumbered.begin();
+  for (typename DoFHandler<dim>::cell_iterator cell = mg_dof_handler_renumbered.begin();
        cell != mg_dof_handler_renumbered.end();
        ++cell)
     {
@@ -327,8 +305,7 @@ LaplaceProblem<dim>::test_renumber()
   for (unsigned int l = 0; l < triangulation.n_levels(); ++l)
     {
       deallog << "Level " << l << std::endl;
-      for (unsigned int dof = 0; dof < mg_dof_handler_renumbered.n_dofs(l);
-           ++dof)
+      for (unsigned int dof = 0; dof < mg_dof_handler_renumbered.n_dofs(l); ++dof)
         if (!v[l][dof])
           deallog << "FALSE " << dof << std::endl;
     }
@@ -352,13 +329,11 @@ LaplaceProblem<dim>::test()
   mg_constrained_dofs.make_zero_boundary_constraints(mg_dof_handler, {0});
   MGConstrainedDoFs mg_constrained_dofs_renumbered;
   mg_constrained_dofs_renumbered.initialize(mg_dof_handler_renumbered);
-  mg_constrained_dofs_renumbered.make_zero_boundary_constraints(
-    mg_dof_handler_renumbered, {0});
+  mg_constrained_dofs_renumbered.make_zero_boundary_constraints(mg_dof_handler_renumbered, {0});
 
   MGTransferPrebuilt<Vector<double>> mg_transfer(mg_constrained_dofs);
   mg_transfer.build(mg_dof_handler);
-  MGTransferPrebuilt<Vector<double>> mg_transfer_renumbered(
-    mg_constrained_dofs_renumbered);
+  MGTransferPrebuilt<Vector<double>> mg_transfer_renumbered(mg_constrained_dofs_renumbered);
   mg_transfer_renumbered.build(mg_dof_handler_renumbered);
 
   FullMatrix<double> coarse_matrix;
@@ -372,11 +347,9 @@ LaplaceProblem<dim>::test()
   mg_coarse_renumbered.initialize(coarse_matrix_renumbered);
 
   using RELAXATION = PreconditionIdentity;
-  MGSmootherPrecondition<SparseMatrix<double>, RELAXATION, Vector<double>>
-    mg_smoother;
+  MGSmootherPrecondition<SparseMatrix<double>, RELAXATION, Vector<double>> mg_smoother;
 
-  MGSmootherPrecondition<SparseMatrix<double>, RELAXATION, Vector<double>>
-    mg_smoother_renumbered;
+  MGSmootherPrecondition<SparseMatrix<double>, RELAXATION, Vector<double>> mg_smoother_renumbered;
 
   RELAXATION::AdditionalData smoother_data;
   mg_smoother.initialize(mg_matrices, smoother_data);
@@ -389,22 +362,17 @@ LaplaceProblem<dim>::test()
 
   mg::Matrix<Vector<double>> mg_matrix_renumbered(mg_matrices_renumbered);
 
-  Multigrid<Vector<double>> mg(
-    mg_matrix, mg_coarse, mg_transfer, mg_smoother, mg_smoother);
+  Multigrid<Vector<double>> mg(mg_matrix, mg_coarse, mg_transfer, mg_smoother, mg_smoother);
 
-  Multigrid<Vector<double>> mg_renumbered(mg_matrix_renumbered,
-                                          mg_coarse_renumbered,
-                                          mg_transfer_renumbered,
-                                          mg_smoother_renumbered,
-                                          mg_smoother_renumbered);
+  Multigrid<Vector<double>> mg_renumbered(
+    mg_matrix_renumbered, mg_coarse_renumbered, mg_transfer_renumbered, mg_smoother_renumbered, mg_smoother_renumbered);
 
-  PreconditionMG<dim, Vector<double>, MGTransferPrebuilt<Vector<double>>>
-    preconditioner(mg_dof_handler, mg, mg_transfer);
+  PreconditionMG<dim, Vector<double>, MGTransferPrebuilt<Vector<double>>> preconditioner(mg_dof_handler,
+                                                                                         mg,
+                                                                                         mg_transfer);
 
-  PreconditionMG<dim, Vector<double>, MGTransferPrebuilt<Vector<double>>>
-    preconditioner_renumbered(mg_dof_handler_renumbered,
-                              mg_renumbered,
-                              mg_transfer_renumbered);
+  PreconditionMG<dim, Vector<double>, MGTransferPrebuilt<Vector<double>>> preconditioner_renumbered(
+    mg_dof_handler_renumbered, mg_renumbered, mg_transfer_renumbered);
 
   Vector<double> test, dst, dst_renumbered;
   test.reinit(mg_dof_handler.n_dofs());
@@ -431,17 +399,15 @@ void
 LaplaceProblem<dim>::refine_local()
 {
   bool cell_refined = false;
-  for (typename Triangulation<dim>::active_cell_iterator cell =
-         triangulation.begin_active();
+  for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
        cell != triangulation.end();
        ++cell)
     {
       for (const unsigned int vertex : GeometryInfo<dim>::vertex_indices())
         {
-          const Point<dim> p = cell->vertex(vertex);
-          const Point<dim> origin =
-            (dim == 2 ? Point<dim>(0, 0) : Point<dim>(0, 0, 0));
-          const double dist = p.distance(origin);
+          const Point<dim> p      = cell->vertex(vertex);
+          const Point<dim> origin = (dim == 2 ? Point<dim>(0, 0) : Point<dim>(0, 0, 0));
+          const double     dist   = p.distance(origin);
           if (dist < 0.25 / numbers::PI)
             {
               cell->set_refine_flag();
@@ -452,8 +418,7 @@ LaplaceProblem<dim>::refine_local()
     }
   // Wenn nichts verfeinert wurde bisher, global verfeinern!
   if (!cell_refined)
-    for (typename Triangulation<dim>::active_cell_iterator cell =
-           triangulation.begin_active();
+    for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
          cell != triangulation.end();
          ++cell)
       cell->set_refine_flag();

@@ -36,18 +36,17 @@ namespace TrilinosWrappers
 {
   /* -------------------------- PreconditionAMG -------------------------- */
 
-  PreconditionAMG::AdditionalData::AdditionalData(
-    const bool                            elliptic,
-    const bool                            higher_order_elements,
-    const unsigned int                    n_cycles,
-    const bool                            w_cycle,
-    const double                          aggregation_threshold,
-    const std::vector<std::vector<bool>> &constant_modes,
-    const unsigned int                    smoother_sweeps,
-    const unsigned int                    smoother_overlap,
-    const bool                            output_details,
-    const char *                          smoother_type,
-    const char *                          coarse_type)
+  PreconditionAMG::AdditionalData::AdditionalData(const bool                            elliptic,
+                                                  const bool                            higher_order_elements,
+                                                  const unsigned int                    n_cycles,
+                                                  const bool                            w_cycle,
+                                                  const double                          aggregation_threshold,
+                                                  const std::vector<std::vector<bool>> &constant_modes,
+                                                  const unsigned int                    smoother_sweeps,
+                                                  const unsigned int                    smoother_overlap,
+                                                  const bool                            output_details,
+                                                  const char                           *smoother_type,
+                                                  const char                           *coarse_type)
     : elliptic(elliptic)
     , higher_order_elements(higher_order_elements)
     , n_cycles(n_cycles)
@@ -64,10 +63,9 @@ namespace TrilinosWrappers
 
 
   void
-  PreconditionAMG::AdditionalData::set_parameters(
-    Teuchos::ParameterList &             parameter_list,
-    std::unique_ptr<Epetra_MultiVector> &distributed_constant_modes,
-    const Epetra_RowMatrix &             matrix) const
+  PreconditionAMG::AdditionalData::set_parameters(Teuchos::ParameterList              &parameter_list,
+                                                  std::unique_ptr<Epetra_MultiVector> &distributed_constant_modes,
+                                                  const Epetra_RowMatrix              &matrix) const
   {
     if (elliptic == true)
       {
@@ -108,8 +106,7 @@ namespace TrilinosWrappers
       parameter_list.set("prec type", "MGV");
 
     parameter_list.set("smoother: Chebyshev alpha", 10.);
-    parameter_list.set("smoother: ifpack overlap",
-                       static_cast<int>(smoother_overlap));
+    parameter_list.set("smoother: ifpack overlap", static_cast<int>(smoother_overlap));
     parameter_list.set("aggregation: threshold", aggregation_threshold);
     parameter_list.set("coarse: max size", 2000);
 
@@ -125,87 +122,69 @@ namespace TrilinosWrappers
 
   void
   PreconditionAMG::AdditionalData::set_operator_null_space(
-    Teuchos::ParameterList &             parameter_list,
+    Teuchos::ParameterList              &parameter_list,
     std::unique_ptr<Epetra_MultiVector> &ptr_distributed_constant_modes,
-    const Epetra_RowMatrix &             matrix) const
+    const Epetra_RowMatrix              &matrix) const
   {
     const Epetra_Map &domain_map = matrix.OperatorDomainMap();
 
     const size_type constant_modes_dimension = constant_modes.size();
-    ptr_distributed_constant_modes = std::make_unique<Epetra_MultiVector>(
-      domain_map, constant_modes_dimension > 0 ? constant_modes_dimension : 1);
+    ptr_distributed_constant_modes =
+      std::make_unique<Epetra_MultiVector>(domain_map, constant_modes_dimension > 0 ? constant_modes_dimension : 1);
     Assert(ptr_distributed_constant_modes, ExcNotInitialized());
-    Epetra_MultiVector &distributed_constant_modes =
-      *ptr_distributed_constant_modes;
+    Epetra_MultiVector &distributed_constant_modes = *ptr_distributed_constant_modes;
 
     if (constant_modes_dimension > 0)
       {
         const size_type global_size = TrilinosWrappers::n_global_rows(matrix);
         (void)global_length; // work around compiler warning about unused
                              // function in release mode
-        Assert(global_size ==
-                 static_cast<size_type>(
-                   TrilinosWrappers::global_length(distributed_constant_modes)),
-               ExcDimensionMismatch(global_size,
-                                    TrilinosWrappers::global_length(
-                                      distributed_constant_modes)));
-        const bool constant_modes_are_global =
-          constant_modes[0].size() == global_size;
-        const size_type my_size = domain_map.NumMyElements();
+        Assert(global_size == static_cast<size_type>(TrilinosWrappers::global_length(distributed_constant_modes)),
+               ExcDimensionMismatch(global_size, TrilinosWrappers::global_length(distributed_constant_modes)));
+        const bool      constant_modes_are_global = constant_modes[0].size() == global_size;
+        const size_type my_size                   = domain_map.NumMyElements();
 
         // Reshape null space as a contiguous vector of doubles so that
         // Trilinos can read from it.
-        const size_type expected_mode_size =
-          constant_modes_are_global ? global_size : my_size;
+        const size_type expected_mode_size = constant_modes_are_global ? global_size : my_size;
         for (size_type d = 0; d < constant_modes_dimension; ++d)
           {
             Assert(constant_modes[d].size() == expected_mode_size,
-                   ExcDimensionMismatch(constant_modes[d].size(),
-                                        expected_mode_size));
+                   ExcDimensionMismatch(constant_modes[d].size(), expected_mode_size));
             for (size_type row = 0; row < my_size; ++row)
               {
                 const TrilinosWrappers::types::int_type mode_index =
-                  constant_modes_are_global ?
-                    TrilinosWrappers::global_index(domain_map, row) :
-                    row;
-                distributed_constant_modes[d][row] =
-                  static_cast<double>(constant_modes[d][mode_index]);
+                  constant_modes_are_global ? TrilinosWrappers::global_index(domain_map, row) : row;
+                distributed_constant_modes[d][row] = static_cast<double>(constant_modes[d][mode_index]);
               }
           }
         (void)expected_mode_size;
 
         parameter_list.set("null space: type", "pre-computed");
-        parameter_list.set("null space: dimension",
-                           distributed_constant_modes.NumVectors());
-        parameter_list.set("null space: vectors",
-                           distributed_constant_modes.Values());
+        parameter_list.set("null space: dimension", distributed_constant_modes.NumVectors());
+        parameter_list.set("null space: vectors", distributed_constant_modes.Values());
       }
   }
 
 
 
   void
-  PreconditionAMG::AdditionalData::set_parameters(
-    Teuchos::ParameterList &             parameter_list,
-    std::unique_ptr<Epetra_MultiVector> &distributed_constant_modes,
-    const SparseMatrix &                 matrix) const
+  PreconditionAMG::AdditionalData::set_parameters(Teuchos::ParameterList              &parameter_list,
+                                                  std::unique_ptr<Epetra_MultiVector> &distributed_constant_modes,
+                                                  const SparseMatrix                  &matrix) const
   {
-    return set_parameters(parameter_list,
-                          distributed_constant_modes,
-                          matrix.trilinos_matrix());
+    return set_parameters(parameter_list, distributed_constant_modes, matrix.trilinos_matrix());
   }
 
 
 
   void
   PreconditionAMG::AdditionalData::set_operator_null_space(
-    Teuchos::ParameterList &             parameter_list,
+    Teuchos::ParameterList              &parameter_list,
     std::unique_ptr<Epetra_MultiVector> &distributed_constant_modes,
-    const SparseMatrix &                 matrix) const
+    const SparseMatrix                  &matrix) const
   {
-    return set_operator_null_space(parameter_list,
-                                   distributed_constant_modes,
-                                   matrix.trilinos_matrix());
+    return set_operator_null_space(parameter_list, distributed_constant_modes, matrix.trilinos_matrix());
   }
 
 
@@ -219,8 +198,7 @@ namespace TrilinosWrappers
 
 
   void
-  PreconditionAMG::initialize(const SparseMatrix &  matrix,
-                              const AdditionalData &additional_data)
+  PreconditionAMG::initialize(const SparseMatrix &matrix, const AdditionalData &additional_data)
   {
     initialize(matrix.trilinos_matrix(), additional_data);
   }
@@ -228,25 +206,20 @@ namespace TrilinosWrappers
 
 
   void
-  PreconditionAMG::initialize(const Epetra_RowMatrix &matrix,
-                              const AdditionalData &  additional_data)
+  PreconditionAMG::initialize(const Epetra_RowMatrix &matrix, const AdditionalData &additional_data)
   {
     // Build the AMG preconditioner.
     Teuchos::ParameterList              ml_parameters;
     std::unique_ptr<Epetra_MultiVector> distributed_constant_modes;
-    additional_data.set_parameters(ml_parameters,
-                                   distributed_constant_modes,
-                                   matrix);
+    additional_data.set_parameters(ml_parameters, distributed_constant_modes, matrix);
 
     initialize(matrix, ml_parameters);
 
     if (additional_data.output_details)
       {
         ML_Epetra::MultiLevelPreconditioner *multilevel_operator =
-          dynamic_cast<ML_Epetra::MultiLevelPreconditioner *>(
-            preconditioner.get());
-        Assert(multilevel_operator != nullptr,
-               ExcMessage("Preconditioner setup failed."));
+          dynamic_cast<ML_Epetra::MultiLevelPreconditioner *>(preconditioner.get());
+        Assert(multilevel_operator != nullptr, ExcMessage("Preconditioner setup failed."));
         multilevel_operator->PrintUnused(0);
       }
   }
@@ -254,8 +227,7 @@ namespace TrilinosWrappers
 
 
   void
-  PreconditionAMG::initialize(const SparseMatrix &          matrix,
-                              const Teuchos::ParameterList &ml_parameters)
+  PreconditionAMG::initialize(const SparseMatrix &matrix, const Teuchos::ParameterList &ml_parameters)
   {
     initialize(matrix.trilinos_matrix(), ml_parameters);
   }
@@ -263,22 +235,19 @@ namespace TrilinosWrappers
 
 
   void
-  PreconditionAMG::initialize(const Epetra_RowMatrix &      matrix,
-                              const Teuchos::ParameterList &ml_parameters)
+  PreconditionAMG::initialize(const Epetra_RowMatrix &matrix, const Teuchos::ParameterList &ml_parameters)
   {
-    preconditioner.reset(
-      new ML_Epetra::MultiLevelPreconditioner(matrix, ml_parameters));
+    preconditioner.reset(new ML_Epetra::MultiLevelPreconditioner(matrix, ml_parameters));
   }
 
 
 
   template <typename number>
   void
-  PreconditionAMG::initialize(
-    const ::dealii::SparseMatrix<number> &deal_ii_sparse_matrix,
-    const AdditionalData &                additional_data,
-    const double                          drop_tolerance,
-    const ::dealii::SparsityPattern *     use_this_sparsity)
+  PreconditionAMG::initialize(const ::dealii::SparseMatrix<number> &deal_ii_sparse_matrix,
+                              const AdditionalData                 &additional_data,
+                              const double                          drop_tolerance,
+                              const ::dealii::SparsityPattern      *use_this_sparsity)
   {
     preconditioner.reset();
     const size_type n_rows = deal_ii_sparse_matrix.m();
@@ -288,19 +257,13 @@ namespace TrilinosWrappers
     IndexSet           distributor(n_rows);
     const unsigned int n_mpi_processes = communicator.NumProc();
     const unsigned int my_id           = communicator.MyPID();
-    distributor.add_range(my_id * n_rows / n_mpi_processes,
-                          (my_id + 1) * n_rows / n_mpi_processes);
+    distributor.add_range(my_id * n_rows / n_mpi_processes, (my_id + 1) * n_rows / n_mpi_processes);
 
     if (trilinos_matrix.get() == nullptr)
       trilinos_matrix = std::make_shared<SparseMatrix>();
 
-    trilinos_matrix->reinit(distributor,
-                            distributor,
-                            deal_ii_sparse_matrix,
-                            communicator.Comm(),
-                            drop_tolerance,
-                            true,
-                            use_this_sparsity);
+    trilinos_matrix->reinit(
+      distributor, distributor, deal_ii_sparse_matrix, communicator.Comm(), drop_tolerance, true, use_this_sparsity);
 
     initialize(*trilinos_matrix, additional_data);
   }

@@ -31,10 +31,7 @@ main()
 
       ParameterHandler prm;
       prm.enter_subsection("Testing");
-      prm.declare_entry("string list",
-                        "a",
-                        Patterns::List(Patterns::Selection("a|b|c|d|e|f|g|h")),
-                        "docs 1");
+      prm.declare_entry("string list", "a", Patterns::List(Patterns::Selection("a|b|c|d|e|f|g|h")), "docs 1");
       prm.declare_entry("int", "1", Patterns::Integer());
       prm.declare_entry("double", "3.1415926", Patterns::Double(), "docs 3");
       prm.leave_subsection();
@@ -44,33 +41,24 @@ main()
       // as for parameter_handler_3, but
       // use different output format
       prm.parse_input(SOURCE_DIR "/prm/parameter_handler_3.prm");
-      prm.print_parameters(deallog.get_file_stream(),
-                           ParameterHandler::Description);
+      prm.print_parameters(deallog.get_file_stream(), ParameterHandler::Description);
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 

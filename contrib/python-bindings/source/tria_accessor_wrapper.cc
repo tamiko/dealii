@@ -30,8 +30,7 @@ namespace python
     get_barycenter(const void *tria_accessor)
     {
       const TriaAccessor<structdim, dim, spacedim> *accessor =
-        static_cast<const TriaAccessor<structdim, dim, spacedim> *>(
-          tria_accessor);
+        static_cast<const TriaAccessor<structdim, dim, spacedim> *>(tria_accessor);
       Point<spacedim>     barycenter = accessor->barycenter();
       boost::python::list barycenter_list;
       for (int i = 0; i < spacedim; ++i)
@@ -44,15 +43,11 @@ namespace python
 
     template <int structdim, int dim, int spacedim>
     PointWrapper
-    get_center(const bool  respect_manifold,
-               const bool  interpolate_from_surrounding,
-               const void *tria_accessor)
+    get_center(const bool respect_manifold, const bool interpolate_from_surrounding, const void *tria_accessor)
     {
       const TriaAccessor<structdim, dim, spacedim> *accessor =
-        static_cast<const TriaAccessor<structdim, dim, spacedim> *>(
-          tria_accessor);
-      Point<spacedim> center =
-        accessor->center(respect_manifold, interpolate_from_surrounding);
+        static_cast<const TriaAccessor<structdim, dim, spacedim> *>(tria_accessor);
+      Point<spacedim>     center = accessor->center(respect_manifold, interpolate_from_surrounding);
       boost::python::list center_list;
       for (int i = 0; i < spacedim; ++i)
         center_list.append(center[i]);
@@ -78,8 +73,7 @@ namespace python
     get_boundary_id(const void *tria_accessor)
     {
       const TriaAccessor<structdim, dim, spacedim> *accessor =
-        static_cast<const TriaAccessor<structdim, dim, spacedim> *>(
-          tria_accessor);
+        static_cast<const TriaAccessor<structdim, dim, spacedim> *>(tria_accessor);
 
       return accessor->boundary_id();
     }
@@ -102,8 +96,7 @@ namespace python
     {
       TriaAccessor<structdim, dim, spacedim> *accessor =
         static_cast<TriaAccessor<structdim, dim, spacedim> *>(tria_accessor);
-      Point<spacedim> *point =
-        static_cast<Point<spacedim> *>(point_wrapper.get_point());
+      Point<spacedim> *point = static_cast<Point<spacedim> *>(point_wrapper.get_point());
 
       accessor->vertex(i) = *point;
     }
@@ -115,8 +108,7 @@ namespace python
     get_vertex(const int i, const void *tria_accessor)
     {
       const TriaAccessor<structdim, dim, spacedim> *accessor =
-        static_cast<const TriaAccessor<structdim, dim, spacedim> *>(
-          tria_accessor);
+        static_cast<const TriaAccessor<structdim, dim, spacedim> *>(tria_accessor);
       Point<spacedim> vertex = accessor->vertex(i);
 
       boost::python::list coordinates;
@@ -144,8 +136,7 @@ namespace python
     get_manifold_id(const void *tria_accessor)
     {
       const TriaAccessor<structdim, dim, spacedim> *accessor =
-        static_cast<const TriaAccessor<structdim, dim, spacedim> *>(
-          tria_accessor);
+        static_cast<const TriaAccessor<structdim, dim, spacedim> *>(tria_accessor);
       return accessor->manifold_id();
     }
 
@@ -156,8 +147,7 @@ namespace python
     at_boundary(const void *tria_accessor)
     {
       const TriaAccessor<structdim, dim, spacedim> *accessor =
-        static_cast<const TriaAccessor<structdim, dim, spacedim> *>(
-          tria_accessor);
+        static_cast<const TriaAccessor<structdim, dim, spacedim> *>(tria_accessor);
       return accessor->at_boundary();
     }
 
@@ -167,8 +157,7 @@ namespace python
     measure(const void *tria_accessor)
     {
       const TriaAccessor<structdim, dim, spacedim> *accessor =
-        static_cast<const TriaAccessor<structdim, dim, spacedim> *>(
-          tria_accessor);
+        static_cast<const TriaAccessor<structdim, dim, spacedim> *>(tria_accessor);
       return accessor->measure();
     }
 
@@ -176,8 +165,7 @@ namespace python
     const TriaAccessor<structdim, dim, spacedim> *
     tria_accessor_cast(const void *tria_accessor)
     {
-      return static_cast<const TriaAccessor<structdim, dim, spacedim> *>(
-        tria_accessor);
+      return static_cast<const TriaAccessor<structdim, dim, spacedim> *>(tria_accessor);
     }
   } // namespace internal
 
@@ -190,31 +178,24 @@ namespace python
   {
     if ((dim == 2) && (spacedim == 2) && (structdim == 1))
       {
-        TriaAccessor<1, 2, 2> *other_accessor =
-          static_cast<TriaAccessor<1, 2, 2> *>(other.tria_accessor);
-        tria_accessor = new TriaAccessor<1, 2, 2>(*other_accessor);
+        TriaAccessor<1, 2, 2> *other_accessor = static_cast<TriaAccessor<1, 2, 2> *>(other.tria_accessor);
+        tria_accessor                         = new TriaAccessor<1, 2, 2>(*other_accessor);
       }
     else if ((dim == 2) && (spacedim == 3) && (structdim == 1))
       {
-        TriaAccessor<1, 2, 3> *other_accessor =
-          static_cast<TriaAccessor<1, 2, 3> *>(other.tria_accessor);
-        tria_accessor = new TriaAccessor<1, 2, 3>(*other_accessor);
+        TriaAccessor<1, 2, 3> *other_accessor = static_cast<TriaAccessor<1, 2, 3> *>(other.tria_accessor);
+        tria_accessor                         = new TriaAccessor<1, 2, 3>(*other_accessor);
       }
     else if ((dim == 3) && (spacedim == 3) && (structdim == 2))
       {
-        TriaAccessor<2, 3, 3> *other_accessor =
-          static_cast<TriaAccessor<2, 3, 3> *>(other.tria_accessor);
-        tria_accessor = new TriaAccessor<2, 3, 3>(*other_accessor);
+        TriaAccessor<2, 3, 3> *other_accessor = static_cast<TriaAccessor<2, 3, 3> *>(other.tria_accessor);
+        tria_accessor                         = new TriaAccessor<2, 3, 3>(*other_accessor);
       }
     else
-      AssertThrow(false,
-                  ExcMessage("Wrong structdim-dim-spacedim combination."));
+      AssertThrow(false, ExcMessage("Wrong structdim-dim-spacedim combination."));
   }
 
-  TriaAccessorWrapper::TriaAccessorWrapper(void *    tria_accessor,
-                                           const int structdim,
-                                           const int dim,
-                                           const int spacedim)
+  TriaAccessorWrapper::TriaAccessorWrapper(void *tria_accessor, const int structdim, const int dim, const int spacedim)
     : structdim(structdim)
     , dim(dim)
     , spacedim(spacedim)
@@ -230,20 +211,17 @@ namespace python
           {
             // We cannot call delete on a void pointer so cast the void pointer
             // back first.
-            TriaAccessor<1, 2, 2> *tmp =
-              static_cast<TriaAccessor<1, 2, 2> *>(tria_accessor);
+            TriaAccessor<1, 2, 2> *tmp = static_cast<TriaAccessor<1, 2, 2> *>(tria_accessor);
             delete tmp;
           }
         else if ((dim == 2) && (spacedim == 3) && (structdim == 1))
           {
-            TriaAccessor<1, 2, 3> *tmp =
-              static_cast<TriaAccessor<1, 2, 3> *>(tria_accessor);
+            TriaAccessor<1, 2, 3> *tmp = static_cast<TriaAccessor<1, 2, 3> *>(tria_accessor);
             delete tmp;
           }
         else
           {
-            TriaAccessor<2, 3, 3> *tmp =
-              static_cast<TriaAccessor<2, 3, 3> *>(tria_accessor);
+            TriaAccessor<2, 3, 3> *tmp = static_cast<TriaAccessor<2, 3, 3> *>(tria_accessor);
             delete tmp;
           }
 
@@ -270,21 +248,14 @@ namespace python
 
 
   PointWrapper
-  TriaAccessorWrapper::get_center(const bool respect_manifold,
-                                  const bool interpolate_from_surrounding) const
+  TriaAccessorWrapper::get_center(const bool respect_manifold, const bool interpolate_from_surrounding) const
   {
     if ((dim == 2) && (spacedim == 2) && (structdim == 1))
-      return internal::get_center<1, 2, 2>(respect_manifold,
-                                           interpolate_from_surrounding,
-                                           tria_accessor);
+      return internal::get_center<1, 2, 2>(respect_manifold, interpolate_from_surrounding, tria_accessor);
     else if ((dim == 2) && (spacedim == 3) && (structdim == 1))
-      return internal::get_center<1, 2, 3>(respect_manifold,
-                                           interpolate_from_surrounding,
-                                           tria_accessor);
+      return internal::get_center<1, 2, 3>(respect_manifold, interpolate_from_surrounding, tria_accessor);
     else
-      return internal::get_center<2, 3, 3>(respect_manifold,
-                                           interpolate_from_surrounding,
-                                           tria_accessor);
+      return internal::get_center<2, 3, 3>(respect_manifold, interpolate_from_surrounding, tria_accessor);
   }
 
 
@@ -331,8 +302,7 @@ namespace python
   void
   TriaAccessorWrapper::set_vertex(const int i, PointWrapper &point_wrapper)
   {
-    AssertThrow(i < static_cast<int>(Utilities::pow(2, dim)),
-                ExcVertexDoesNotExist(i, Utilities::pow(2, dim)));
+    AssertThrow(i < static_cast<int>(Utilities::pow(2, dim)), ExcVertexDoesNotExist(i, Utilities::pow(2, dim)));
     if ((dim == 2) && (spacedim == 2) && (structdim == 1))
       internal::set_vertex<1, 2, 2>(i, point_wrapper, tria_accessor);
     else if ((dim == 2) && (spacedim == 3) && (structdim == 1))
@@ -346,8 +316,7 @@ namespace python
   PointWrapper
   TriaAccessorWrapper::get_vertex(const int i) const
   {
-    AssertThrow(i < static_cast<int>(Utilities::pow(2, dim)),
-                ExcVertexDoesNotExist(i, Utilities::pow(2, dim)));
+    AssertThrow(i < static_cast<int>(Utilities::pow(2, dim)), ExcVertexDoesNotExist(i, Utilities::pow(2, dim)));
     if ((dim == 2) && (spacedim == 2) && (structdim == 1))
       return internal::get_vertex<1, 2, 2>(i, tria_accessor);
     else if ((dim == 2) && (spacedim == 3) && (structdim == 1))
@@ -425,8 +394,7 @@ namespace python
       return internal::tria_accessor_cast<3, 3, 3>(tria_accessor)->n_vertices();
     else
       {
-        AssertThrow(false,
-                    ExcMessage("Wrong structdim-dim-spacedim combination."));
+        AssertThrow(false, ExcMessage("Wrong structdim-dim-spacedim combination."));
         return -1;
       }
   }
@@ -448,8 +416,7 @@ namespace python
       return internal::tria_accessor_cast<3, 3, 3>(tria_accessor)->n_lines();
     else
       {
-        AssertThrow(false,
-                    ExcMessage("Wrong structdim-dim-spacedim combination."));
+        AssertThrow(false, ExcMessage("Wrong structdim-dim-spacedim combination."));
         return -1;
       }
   }
@@ -467,8 +434,7 @@ namespace python
       return internal::tria_accessor_cast<3, 3, 3>(tria_accessor)->n_faces();
     else
       {
-        AssertThrow(false,
-                    ExcMessage("Wrong structdim-dim-spacedim combination."));
+        AssertThrow(false, ExcMessage("Wrong structdim-dim-spacedim combination."));
         return -1;
       }
   }

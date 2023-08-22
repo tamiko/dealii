@@ -52,8 +52,7 @@ template <int dim,
           class TensorType2,
           typename NumberType2>
 void
-print(const TensorType1<2, dim, NumberType1> &t2,
-      const TensorType2<4, dim, NumberType2> &t4)
+print(const TensorType1<2, dim, NumberType1> &t2, const TensorType2<4, dim, NumberType2> &t4)
 {
   deallog << t2 << std::endl;
   deallog << t4 << std::endl;
@@ -79,9 +78,7 @@ print(const TensorType1<2, dim, NumberType1> &t2_1,
 }
 
 
-template <template <int, int, typename> class TensorType1,
-          template <int, int, typename>
-          class TensorType2>
+template <template <int, int, typename> class TensorType1, template <int, int, typename> class TensorType2>
 struct AreSame : std::false_type
 {};
 
@@ -194,8 +191,7 @@ template <template <int, int, typename> class TensorType1,
           template <int, int, typename>
           class TensorType2,
           typename NumberType2>
-std::enable_if_t<(AreSame<TensorType1, SymmetricTensor>::value &&
-                  AreSame<TensorType2, SymmetricTensor>::value)>
+std::enable_if_t<(AreSame<TensorType1, SymmetricTensor>::value && AreSame<TensorType2, SymmetricTensor>::value)>
 test_three()
 {
   const unsigned int               dim = 2;
@@ -206,8 +202,7 @@ test_three()
   fill_tensor(t4_2);
 
   deallog << "Double contract" << std::endl;
-  TensorType1<2, dim, typename ProductType<NumberType1, NumberType2>::type>
-    res_dc;
+  TensorType1<2, dim, typename ProductType<NumberType1, NumberType2>::type> res_dc;
   double_contract(res_dc, t4_2, t2_1);
   deallog << res_dc << std::endl;
   double_contract(res_dc, t2_1, t4_2);
@@ -219,8 +214,7 @@ template <template <int, int, typename> class TensorType1,
           template <int, int, typename>
           class TensorType2,
           typename NumberType2>
-std::enable_if_t<!(AreSame<TensorType1, SymmetricTensor>::value &&
-                   AreSame<TensorType2, SymmetricTensor>::value)>
+std::enable_if_t<!(AreSame<TensorType1, SymmetricTensor>::value && AreSame<TensorType2, SymmetricTensor>::value)>
 test_three()
 {}
 

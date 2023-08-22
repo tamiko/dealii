@@ -48,13 +48,8 @@ namespace Assembly
     struct Data
     {
       Data(const FiniteElement<dim> &fe)
-        : fe_values(fe,
-                    QGauss<dim>(fe.degree + 1),
-                    update_values | update_gradients | update_JxW_values)
-        , fe_eval(1,
-                  FEEvaluation<dim, fe_degree>(fe,
-                                               QGauss<1>(fe.degree + 1),
-                                               fe_values.get_update_flags()))
+        : fe_values(fe, QGauss<dim>(fe.degree + 1), update_values | update_gradients | update_JxW_values)
+        , fe_eval(1, FEEvaluation<dim, fe_degree>(fe, QGauss<1>(fe.degree + 1), fe_values.get_update_flags()))
         , cell_matrix(fe.dofs_per_cell, fe.dofs_per_cell)
         , test_matrix(cell_matrix)
       {}
@@ -86,7 +81,7 @@ namespace Assembly
 template <int dim, int fe_degree>
 void
 assemble_on_cell(const typename DoFHandler<dim>::active_cell_iterator &cell,
-                 Assembly::Scratch::Data<dim, fe_degree> &             data,
+                 Assembly::Scratch::Data<dim, fe_degree>              &data,
                  unsigned int &)
 {
   const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
@@ -100,22 +95,17 @@ assemble_on_cell(const typename DoFHandler<dim>::active_cell_iterator &cell,
       {
         for (unsigned int j = 0; j < dofs_per_cell; ++j)
           data.cell_matrix(i, j) +=
-            ((data.fe_values.shape_grad(i, q_point) *
-                data.fe_values.shape_grad(j, q_point) +
-              10. * data.fe_values.shape_value(i, q_point) *
-                data.fe_values.shape_value(j, q_point)) *
+            ((data.fe_values.shape_grad(i, q_point) * data.fe_values.shape_grad(j, q_point) +
+              10. * data.fe_values.shape_value(i, q_point) * data.fe_values.shape_value(j, q_point)) *
              data.fe_values.JxW(q_point));
       }
 
   FEEvaluation<dim, fe_degree> &fe_eval = data.fe_eval[0];
   fe_eval.reinit(cell);
-  for (unsigned int i = 0; i < dofs_per_cell;
-       i += VectorizedArray<double>::size())
+  for (unsigned int i = 0; i < dofs_per_cell; i += VectorizedArray<double>::size())
     {
       const unsigned int n_items =
-        i + VectorizedArray<double>::size() > dofs_per_cell ?
-          (dofs_per_cell - i) :
-          VectorizedArray<double>::size();
+        i + VectorizedArray<double>::size() > dofs_per_cell ? (dofs_per_cell - i) : VectorizedArray<double>::size();
       for (unsigned int j = 0; j < dofs_per_cell; ++j)
         fe_eval.begin_dof_values()[j] = VectorizedArray<double>();
       for (unsigned int v = 0; v < n_items; ++v)
@@ -131,8 +121,7 @@ assemble_on_cell(const typename DoFHandler<dim>::active_cell_iterator &cell,
 
       for (unsigned int v = 0; v < n_items; ++v)
         for (unsigned int j = 0; j < dofs_per_cell; ++j)
-          data.test_matrix(fe_eval.get_internal_dof_numbering()[j],
-                           fe_eval.get_internal_dof_numbering()[i + v]) =
+          data.test_matrix(fe_eval.get_internal_dof_numbering()[j], fe_eval.get_internal_dof_numbering()[i + v]) =
             fe_eval.begin_dof_values()[j][v];
     }
   data.test_matrix.add(-1., data.cell_matrix);
@@ -172,8 +161,7 @@ test()
   const SphericalManifold<dim> manifold;
   Triangulation<dim>           tria;
   GridGenerator::hyper_ball(tria);
-  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(),
-                                                    endc = tria.end();
+  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
   for (; cell != endc; ++cell)
     for (const unsigned int f : GeometryInfo<dim>::face_indices())
       if (cell->at_boundary(f))

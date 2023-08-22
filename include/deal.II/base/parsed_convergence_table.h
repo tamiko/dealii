@@ -172,10 +172,9 @@ public:
    * @param list_of_error_norms Specify what error norms to compute for each
    * unique component name.
    */
-  ParsedConvergenceTable(
-    const std::vector<std::string> &                    component_names = {"u"},
-    const std::vector<std::set<VectorTools::NormType>> &list_of_error_norms = {
-      {VectorTools::H1_norm, VectorTools::L2_norm, VectorTools::Linfty_norm}});
+  ParsedConvergenceTable(const std::vector<std::string>                     &component_names     = {"u"},
+                         const std::vector<std::set<VectorTools::NormType>> &list_of_error_norms = {
+                           {VectorTools::H1_norm, VectorTools::L2_norm, VectorTools::Linfty_norm}});
 
   /**
    * Full constructor for ParsedConvergenceTable.
@@ -241,16 +240,15 @@ public:
    * set Rate mode                        = reduction_rate_log2
    * @endcode
    */
-  ParsedConvergenceTable(
-    const std::vector<std::string> &                    component_names,
-    const std::vector<std::set<VectorTools::NormType>> &list_of_error_norms,
-    const double                                        exponent,
-    const std::set<std::string> &                       extra_columns,
-    const std::string &                                 rate_key,
-    const std::string &                                 rate_mode,
-    const std::string &                                 error_file_name,
-    const unsigned int                                  precision,
-    const bool                                          compute_error);
+  ParsedConvergenceTable(const std::vector<std::string>                     &component_names,
+                         const std::vector<std::set<VectorTools::NormType>> &list_of_error_norms,
+                         const double                                        exponent,
+                         const std::set<std::string>                        &extra_columns,
+                         const std::string                                  &rate_key,
+                         const std::string                                  &rate_mode,
+                         const std::string                                  &error_file_name,
+                         const unsigned int                                  precision,
+                         const bool                                          compute_error);
 
   /**
    * Attach all the parameters in this class to entries of the parameter
@@ -274,20 +272,20 @@ public:
   template <int dim, int spacedim, typename VectorType>
   void
   error_from_exact(const DoFHandler<dim, spacedim> &vspace,
-                   const VectorType &               solution,
-                   const Function<spacedim> &       exact,
-                   const Function<spacedim> *       weight = nullptr);
+                   const VectorType                &solution,
+                   const Function<spacedim>        &exact,
+                   const Function<spacedim>        *weight = nullptr);
 
   /**
    * Same as above, with a different mapping.
    */
   template <int dim, int spacedim, typename VectorType>
   void
-  error_from_exact(const Mapping<dim, spacedim> &   mapping,
+  error_from_exact(const Mapping<dim, spacedim>    &mapping,
                    const DoFHandler<dim, spacedim> &vspace,
-                   const VectorType &               solution,
-                   const Function<spacedim> &       exact,
-                   const Function<spacedim> *       weight = nullptr);
+                   const VectorType                &solution,
+                   const Function<spacedim>        &exact,
+                   const Function<spacedim>        *weight = nullptr);
 
   /**
    * Add an additional column (with name @p column_name) to the table, by invoking
@@ -356,7 +354,7 @@ public:
    * key in the parameter file.
    */
   void
-  add_extra_column(const std::string &            column_name,
+  add_extra_column(const std::string             &column_name,
                    const std::function<double()> &custom_function,
                    const bool                     compute_rate = true);
 
@@ -423,8 +421,7 @@ private:
   /**
    * Additional methods to call when adding rows to the table.
    */
-  std::map<std::string, std::pair<std::function<double()>, bool>>
-    extra_column_functions;
+  std::map<std::string, std::pair<std::function<double()>, bool>> extra_column_functions;
 
   /**
    * Type of error to compute per components.
@@ -482,41 +479,30 @@ private:
 template <int dim, int spacedim, typename VectorType>
 void
 ParsedConvergenceTable::difference(const DoFHandler<dim, spacedim> &dh,
-                                   const VectorType &               solution1,
-                                   const VectorType &               solution2,
-                                   const Function<spacedim> *       weight)
+                                   const VectorType                &solution1,
+                                   const VectorType                &solution2,
+                                   const Function<spacedim>        *weight)
 {
-  AssertThrow(solution1.size() == solution2.size(),
-              ExcDimensionMismatch(solution1.size(), solution2.size()));
+  AssertThrow(solution1.size() == solution2.size(), ExcDimensionMismatch(solution1.size(), solution2.size()));
   VectorType solution(solution1);
   solution -= solution2;
-  error_from_exact(
-    dh,
-    solution,
-    Functions::ConstantFunction<spacedim>(0.0, component_names.size()),
-    weight);
+  error_from_exact(dh, solution, Functions::ConstantFunction<spacedim>(0.0, component_names.size()), weight);
 }
 
 
 
 template <int dim, int spacedim, typename VectorType>
 void
-ParsedConvergenceTable::difference(const Mapping<dim, spacedim> &   mapping,
+ParsedConvergenceTable::difference(const Mapping<dim, spacedim>    &mapping,
                                    const DoFHandler<dim, spacedim> &dh,
-                                   const VectorType &               solution1,
-                                   const VectorType &               solution2,
-                                   const Function<spacedim> *       weight)
+                                   const VectorType                &solution1,
+                                   const VectorType                &solution2,
+                                   const Function<spacedim>        *weight)
 {
-  AssertThrow(solution1.size() == solution2.size(),
-              ExcDimensionMismatch(solution1.size(), solution2.size()));
+  AssertThrow(solution1.size() == solution2.size(), ExcDimensionMismatch(solution1.size(), solution2.size()));
   VectorType solution(solution1);
   solution -= solution2;
-  error_from_exact(
-    mapping,
-    dh,
-    solution,
-    Functions::ConstantFunction<spacedim>(0.0, component_names.size()),
-    weight);
+  error_from_exact(mapping, dh, solution, Functions::ConstantFunction<spacedim>(0.0, component_names.size()), weight);
 }
 
 
@@ -524,26 +510,22 @@ ParsedConvergenceTable::difference(const Mapping<dim, spacedim> &   mapping,
 template <int dim, int spacedim, typename VectorType>
 void
 ParsedConvergenceTable::error_from_exact(const DoFHandler<dim, spacedim> &dh,
-                                         const VectorType &        solution,
-                                         const Function<spacedim> &exact,
-                                         const Function<spacedim> *weight)
+                                         const VectorType                &solution,
+                                         const Function<spacedim>        &exact,
+                                         const Function<spacedim>        *weight)
 {
-  error_from_exact(get_default_linear_mapping(dh.get_triangulation()),
-                   dh,
-                   solution,
-                   exact,
-                   weight);
+  error_from_exact(get_default_linear_mapping(dh.get_triangulation()), dh, solution, exact, weight);
 }
 
 
 
 template <int dim, int spacedim, typename VectorType>
 void
-ParsedConvergenceTable::error_from_exact(const Mapping<dim, spacedim> &mapping,
+ParsedConvergenceTable::error_from_exact(const Mapping<dim, spacedim>    &mapping,
                                          const DoFHandler<dim, spacedim> &dh,
-                                         const VectorType &        solution,
-                                         const Function<spacedim> &exact,
-                                         const Function<spacedim> *weight)
+                                         const VectorType                &solution,
+                                         const Function<spacedim>        &exact,
+                                         const Function<spacedim>        *weight)
 {
   const auto n_components = component_names.size();
 
@@ -552,9 +534,8 @@ ParsedConvergenceTable::error_from_exact(const Mapping<dim, spacedim> &mapping,
       AssertDimension(exact.n_components, n_components);
       AssertDimension(dh.get_fe().n_components(), n_components);
 
-      const types::global_cell_index n_active_cells =
-        dh.get_triangulation().n_global_active_cells();
-      const unsigned int n_dofs = dh.n_dofs();
+      const types::global_cell_index n_active_cells = dh.get_triangulation().n_global_active_cells();
+      const unsigned int             n_dofs         = dh.n_dofs();
 
       for (const auto &col : extra_columns)
         if (col == "cells")
@@ -571,14 +552,16 @@ ParsedConvergenceTable::error_from_exact(const Mapping<dim, spacedim> &mapping,
           }
 
       // A vector of zero std::functions with n_components components
-      const std::vector<std::function<double(const Point<spacedim> &)>>
-        zero_components(n_components,
-                        [](const Point<spacedim> &) { return 0.0; });
+      const std::vector<std::function<double(const Point<spacedim> &)>> zero_components(n_components,
+                                                                                        [](const Point<spacedim> &) {
+                                                                                          return 0.0;
+                                                                                        });
 
       // The default weight function, with n_components components
-      std::vector<std::function<double(const Point<spacedim> &)>>
-        weight_components(n_components,
-                          [](const Point<spacedim> &) { return 1.0; });
+      std::vector<std::function<double(const Point<spacedim> &)>> weight_components(n_components,
+                                                                                    [](const Point<spacedim> &) {
+                                                                                      return 1.0;
+                                                                                    });
 
       if (weight != nullptr)
         {
@@ -591,9 +574,7 @@ ParsedConvergenceTable::error_from_exact(const Mapping<dim, spacedim> &mapping,
             {
               AssertDimension(weight->n_components, n_components);
               for (unsigned int i = 0; i < n_components; ++i)
-                weight_components[i] = [&](const Point<spacedim> &p) {
-                  return weight->value(p, i);
-                };
+                weight_components[i] = [&](const Point<spacedim> &p) { return weight->value(p, i); };
             }
         }
 
@@ -613,36 +594,24 @@ ParsedConvergenceTable::error_from_exact(const Mapping<dim, spacedim> &mapping,
             if (mask[j] == true)
               components_expr[j] = weight_components[j];
 
-          FunctionFromFunctionObjects<spacedim> select_component(
-            components_expr);
+          FunctionFromFunctionObjects<spacedim> select_component(components_expr);
 
-          Vector<float> difference_per_cell(
-            dh.get_triangulation().n_global_active_cells());
+          Vector<float> difference_per_cell(dh.get_triangulation().n_global_active_cells());
 
           QGauss<dim> q_gauss((dh.get_fe().degree + 1) * 2);
 
           for (const auto &norm : norms)
             {
               difference_per_cell = 0;
-              VectorTools::integrate_difference(mapping,
-                                                dh,
-                                                solution,
-                                                exact,
-                                                difference_per_cell,
-                                                q_gauss,
-                                                norm,
-                                                &select_component,
-                                                exponent);
+              VectorTools::integrate_difference(
+                mapping, dh, solution, exact, difference_per_cell, q_gauss, norm, &select_component, exponent);
 
-              errors[norm] = VectorTools::compute_global_error(
-                dh.get_triangulation(), difference_per_cell, norm, exponent);
+              errors[norm] =
+                VectorTools::compute_global_error(dh.get_triangulation(), difference_per_cell, norm, exponent);
 
-              std::string name = unique_component_names[i] + "_" +
-                                 Patterns::Tools::to_string(norm);
-              std::string latex_name = "$\\| " + unique_component_names[i] +
-                                       " - " + unique_component_names[i] +
-                                       "_h \\|_{" +
-                                       Patterns::Tools::to_string(norm) + "}$";
+              std::string name       = unique_component_names[i] + "_" + Patterns::Tools::to_string(norm);
+              std::string latex_name = "$\\| " + unique_component_names[i] + " - " + unique_component_names[i] +
+                                       "_h \\|_{" + Patterns::Tools::to_string(norm) + "}$";
 
               table.add_value(name, errors[norm]);
               table.set_precision(name, precision);

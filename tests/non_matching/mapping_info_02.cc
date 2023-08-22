@@ -68,23 +68,19 @@ test_vec_of_qpoints()
 
   hp::QCollection<1> q_collection((QGauss<1>(degree)));
 
-  NonMatching::DiscreteQuadratureGenerator<dim> quadrature_generator(
-    q_collection, dof_handler, level_set_vec);
+  NonMatching::DiscreteQuadratureGenerator<dim> quadrature_generator(q_collection, dof_handler, level_set_vec);
 
   // FEPointEvaluation
-  NonMatching::MappingInfo<dim> mapping_info_cell(
-    mapping, update_values | update_gradients | update_JxW_values);
+  NonMatching::MappingInfo<dim> mapping_info_cell(mapping, update_values | update_gradients | update_JxW_values);
 
   std::vector<std::vector<Point<dim>>> unit_points_vector;
   for (const auto &cell : tria.active_cell_iterators())
     {
       quadrature_generator.generate(cell);
-      unit_points_vector.emplace_back(
-        quadrature_generator.get_inside_quadrature().get_points());
+      unit_points_vector.emplace_back(quadrature_generator.get_inside_quadrature().get_points());
     }
 
-  mapping_info_cell.reinit_cells(tria.active_cell_iterators(),
-                                 unit_points_vector);
+  mapping_info_cell.reinit_cells(tria.active_cell_iterators(), unit_points_vector);
 
   Vector<double>      src(dof_handler.n_dofs());
   std::vector<double> solution_values_in(fe_q.dofs_per_cell);
@@ -94,14 +90,10 @@ test_vec_of_qpoints()
   FEPointEvaluation<1, dim, dim, double> fe_point_cell(mapping_info_cell, fe_q);
   for (const auto &cell : dof_handler.active_cell_iterators())
     {
-      cell->get_dof_values(src,
-                           solution_values_in.begin(),
-                           solution_values_in.end());
+      cell->get_dof_values(src, solution_values_in.begin(), solution_values_in.end());
 
       fe_point_cell.reinit(cell->active_cell_index());
-      fe_point_cell.evaluate(solution_values_in,
-                             EvaluationFlags::values |
-                               EvaluationFlags::gradients);
+      fe_point_cell.evaluate(solution_values_in, EvaluationFlags::values | EvaluationFlags::gradients);
       for (const auto q : fe_point_cell.quadrature_point_indices())
         {
           deallog << fe_point_cell.get_value(q) << std::endl;

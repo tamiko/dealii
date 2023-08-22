@@ -17,8 +17,7 @@
 for (deal_II_dimension : DIMENSIONS)
   {
 #if deal_II_dimension >= 3
-    template dealii::Triangulation<deal_II_dimension>::raw_hex_iterator
-    TriaObjects::next_free_hex(const dealii::Triangulation<deal_II_dimension> &,
-                               const unsigned int);
+    template dealii::Triangulation<deal_II_dimension>::raw_hex_iterator TriaObjects::next_free_hex(
+      const dealii::Triangulation<deal_II_dimension> &, const unsigned int);
 #endif
   }

@@ -35,8 +35,7 @@ main()
 
   {
     const SymmetricTensor<2, 3, VectorizedArray<double>> stv{};
-    static_assert(std::is_same<decltype(stv[0][0]),
-                               const VectorizedArray<double> &>::value);
+    static_assert(std::is_same<decltype(stv[0][0]), const VectorizedArray<double> &>::value);
   }
 
   deallog << "OK" << std::endl;

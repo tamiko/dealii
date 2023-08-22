@@ -33,14 +33,9 @@
  * lambda = 5     v = (0, 1,-1, 0)
  * lambda = 5     v = (0, 0, 1,-1)
  */
-const double symm[4][4] = {{4., -1., -1., -1.},
-                           {-1., 4., -1., -1.},
-                           {-1., -1., 4., -1.},
-                           {-1., -1., -1., 4.}};
+const double symm[4][4] = {{4., -1., -1., -1.}, {-1., 4., -1., -1.}, {-1., -1., 4., -1.}, {-1., -1., -1., 4.}};
 
-const double rect[3][4] = {{4., 3., 2., 1.},
-                           {5., 8., 1., -2.},
-                           {11., 13., -4., -5}};
+const double rect[3][4] = {{4., 3., 2., 1.}, {5., 8., 1., -2.}, {11., 13., -4., -5}};
 
 using namespace dealii;
 
@@ -112,7 +107,7 @@ main()
   for (unsigned int i = 0; i < A.m(); ++i)
     {
       std::complex<double> lambda = LA.eigenvalue(i);
-      deallog << "Eigenvalues " << static_cast<int>(lambda.real() + .0001)
-              << '\t' << static_cast<int>(lambda.imag() + .0001) << std::endl;
+      deallog << "Eigenvalues " << static_cast<int>(lambda.real() + .0001) << '\t'
+              << static_cast<int>(lambda.imag() + .0001) << std::endl;
     }
 }

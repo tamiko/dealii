@@ -43,42 +43,32 @@
 
 template <int dim, int spacedim>
 void
-print_result(const unsigned int                  mapping_degree,
-             const Triangulation<dim, spacedim> &tria,
-             const Point<dim>                    p)
+print_result(const unsigned int mapping_degree, const Triangulation<dim, spacedim> &tria, const Point<dim> p)
 {
   deallog << "Testing " << dim << "D with point " << p << std::endl;
 
   FE_Q<dim>     dummy(mapping_degree);
   MappingQ<dim> mapping(mapping_degree);
 
-  FEValues<dim> fe_values(mapping,
-                          dummy,
-                          Quadrature<dim>(dummy.get_unit_support_points()),
-                          update_quadrature_points);
+  FEValues<dim> fe_values(mapping, dummy, Quadrature<dim>(dummy.get_unit_support_points()), update_quadrature_points);
 
   std::vector<Polynomials::Polynomial<double>> polynomials =
-    Polynomials::generate_complete_Lagrange_basis(
-      QGaussLobatto<1>(mapping_degree + 1).get_points());
-  std::vector<unsigned int> renumber =
-    FETools::lexicographic_to_hierarchic_numbering<dim>(mapping_degree);
+    Polynomials::generate_complete_Lagrange_basis(QGaussLobatto<1>(mapping_degree + 1).get_points());
+  std::vector<unsigned int> renumber = FETools::lexicographic_to_hierarchic_numbering<dim>(mapping_degree);
 
   for (const auto &cell : tria.active_cell_iterators())
     {
       fe_values.reinit(cell);
-      deallog << "Testing on cell " << cell->id() << " with center "
-              << cell->center(true) << std::endl;
-      if (GeometryInfo<dim>::distance_to_unit_cell(
-            cell->real_to_unit_cell_affine_approximation(p)) <
+      deallog << "Testing on cell " << cell->id() << " with center " << cell->center(true) << std::endl;
+      if (GeometryInfo<dim>::distance_to_unit_cell(cell->real_to_unit_cell_affine_approximation(p)) <
           (-0.6 + 1.3 * dim))
-        internal::MappingQImplementation::
-          do_transform_real_to_unit_cell_internal(
-            p,
-            cell->real_to_unit_cell_affine_approximation(p),
-            fe_values.get_quadrature_points(),
-            polynomials,
-            renumber,
-            /* print_iterations = */ true);
+        internal::MappingQImplementation::do_transform_real_to_unit_cell_internal(
+          p,
+          cell->real_to_unit_cell_affine_approximation(p),
+          fe_values.get_quadrature_points(),
+          polynomials,
+          renumber,
+          /* print_iterations = */ true);
       deallog << std::endl;
     }
   deallog << std::endl;

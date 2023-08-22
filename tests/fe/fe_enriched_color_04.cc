@@ -76,8 +76,7 @@ private:
  * ColorEnriched::internal::color_predicates.
  */
 template <int dim>
-using predicate_function =
-  std::function<bool(const typename Triangulation<dim>::cell_iterator &)>;
+using predicate_function = std::function<bool(const typename Triangulation<dim>::cell_iterator &)>;
 
 
 
@@ -107,22 +106,14 @@ main(int argc, char **argv)
   // Do manual coloring since we are not testing coloring function here!
   std::vector<unsigned int> predicate_colors;
   predicate_colors.resize(vec_predicates.size());
-  unsigned int num_colors =
-    ColorEnriched::internal::color_predicates(dof_handler,
-                                              vec_predicates,
-                                              predicate_colors);
+  unsigned int num_colors = ColorEnriched::internal::color_predicates(dof_handler, vec_predicates, predicate_colors);
 
 
   // Make required objects to call function set_cellwise_color_set_and_fe_index
-  std::map<unsigned int, std::map<unsigned int, unsigned int>>
-                                      cellwise_color_predicate_map;
-  std::vector<std::set<unsigned int>> fe_sets;
+  std::map<unsigned int, std::map<unsigned int, unsigned int>> cellwise_color_predicate_map;
+  std::vector<std::set<unsigned int>>                          fe_sets;
   ColorEnriched::internal::set_cellwise_color_set_and_fe_index(
-    dof_handler,
-    vec_predicates,
-    predicate_colors,
-    cellwise_color_predicate_map,
-    fe_sets);
+    dof_handler, vec_predicates, predicate_colors, cellwise_color_predicate_map, fe_sets);
 
   // Construct vector of enrichment functions
   std::vector<std::shared_ptr<Function<dim>>> vec_enrichments;
@@ -131,21 +122,18 @@ main(int argc, char **argv)
     {
       // constant function is chosen as enrichment function
       Functions::ConstantFunction<dim> func(i);
-      vec_enrichments.push_back(
-        std::make_shared<Functions::ConstantFunction<dim>>(func));
+      vec_enrichments.push_back(std::make_shared<Functions::ConstantFunction<dim>>(func));
     }
 
   // Construct container for color enrichment functions needed
   // by function make_colorwise_enrichment_functions
-  std::vector<std::function<const Function<dim> *(
-    const typename Triangulation<dim>::cell_iterator &)>>
+  std::vector<std::function<const Function<dim> *(const typename Triangulation<dim>::cell_iterator &)>>
     color_enrichments;
 
-  ColorEnriched::internal::make_colorwise_enrichment_functions<dim, dim>(
-    num_colors,
-    vec_enrichments,
-    cellwise_color_predicate_map,
-    color_enrichments);
+  ColorEnriched::internal::make_colorwise_enrichment_functions<dim, dim>(num_colors,
+                                                                         vec_enrichments,
+                                                                         cellwise_color_predicate_map,
+                                                                         color_enrichments);
 
 
   deallog << "color wise enrichment functions:" << std::endl;
@@ -167,11 +155,9 @@ main(int argc, char **argv)
        */
       if (cellwise_color_predicate_map.count(cell->material_id()) == 1)
         for (unsigned int color = 1; color <= num_colors; ++color)
-          if (cellwise_color_predicate_map.at(cell->material_id())
-                .count(color) == 1)
-            deallog << ":color:" << color << ":func_value:"
-                    << color_enrichments[color - 1](cell)->value(
-                         cell->center());
+          if (cellwise_color_predicate_map.at(cell->material_id()).count(color) == 1)
+            deallog << ":color:" << color
+                    << ":func_value:" << color_enrichments[color - 1](cell)->value(cell->center());
 
       deallog << std::endl;
     }

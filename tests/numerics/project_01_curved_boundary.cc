@@ -116,8 +116,7 @@ test()
   // the DoFs at the boundary are in fact zero (they are interpolated only at
   // points where the function is zero)
   {
-    VectorTools::project(
-      MappingQ<dim>(2), dh, cm, QGauss<dim>(3), F<dim>(), v, true);
+    VectorTools::project(MappingQ<dim>(2), dh, cm, QGauss<dim>(3), F<dim>(), v, true);
     deallog << v.l2_norm() << std::endl;
     Assert(v.l2_norm() != 0, ExcInternalError());
   }
@@ -128,24 +127,12 @@ test()
   // the boundary will be nonzero since we project, even though the
   // *interpolation* of boundary values onto the trace of the Q1 space is zero
   {
-    VectorTools::project(MappingQ<dim>(2),
-                         dh,
-                         cm,
-                         QGauss<dim>(3),
-                         F<dim>(),
-                         v,
-                         false,
-                         QGauss<dim - 1>(2),
-                         true);
+    VectorTools::project(MappingQ<dim>(2), dh, cm, QGauss<dim>(3), F<dim>(), v, false, QGauss<dim - 1>(2), true);
     deallog << v.l2_norm() << std::endl;
     Assert(v.l2_norm() != 0, ExcInternalError());
-    for (typename DoFHandler<dim>::active_cell_iterator cell =
-           dh.begin_active();
-         cell != dh.end();
-         ++cell)
+    for (typename DoFHandler<dim>::active_cell_iterator cell = dh.begin_active(); cell != dh.end(); ++cell)
       for (const unsigned int i : GeometryInfo<dim>::vertex_indices())
-        deallog << cell->vertex(i) << ' ' << v(cell->vertex_dof_index(i, 0))
-                << std::endl;
+        deallog << cell->vertex(i) << ' ' << v(cell->vertex_dof_index(i, 0)) << std::endl;
   }
 
 
@@ -153,24 +140,12 @@ test()
   // to evaluate the function only at points where it is zero, and
   // consequently the values at the boundary should be zero
   {
-    VectorTools::project(MappingQ<dim>(2),
-                         dh,
-                         cm,
-                         QGauss<dim>(3),
-                         F<dim>(),
-                         v,
-                         false,
-                         QTrapezoid<dim - 1>(),
-                         true);
+    VectorTools::project(MappingQ<dim>(2), dh, cm, QGauss<dim>(3), F<dim>(), v, false, QTrapezoid<dim - 1>(), true);
     deallog << v.l2_norm() << std::endl;
     Assert(v.l2_norm() != 0, ExcInternalError());
-    for (typename DoFHandler<dim>::active_cell_iterator cell =
-           dh.begin_active();
-         cell != dh.end();
-         ++cell)
+    for (typename DoFHandler<dim>::active_cell_iterator cell = dh.begin_active(); cell != dh.end(); ++cell)
       for (const unsigned int i : GeometryInfo<dim>::vertex_indices())
-        deallog << cell->vertex(i) << ' ' << v(cell->vertex_dof_index(i, 0))
-                << std::endl;
+        deallog << cell->vertex(i) << ' ' << v(cell->vertex_dof_index(i, 0)) << std::endl;
   }
 }
 

@@ -71,9 +71,8 @@ template <int dim>
 Test<dim>::Test(const FE_Poly<dim> &fe)
   : dof_handler(triangulation)
 {
-  const FE_Q_iso_Q1<dim> *fe_q_iso_q1 =
-    dynamic_cast<const FE_Q_iso_Q1<dim> *>(&fe);
-  const bool is_fe_q_iso_q1 = fe_q_iso_q1 != nullptr;
+  const FE_Q_iso_Q1<dim> *fe_q_iso_q1    = dynamic_cast<const FE_Q_iso_Q1<dim> *>(&fe);
+  const bool              is_fe_q_iso_q1 = fe_q_iso_q1 != nullptr;
   fe_collection.push_back(fe);
 
   const unsigned int n_quadrature_points = is_fe_q_iso_q1 ? 1 : fe.get_degree();
@@ -119,8 +118,7 @@ Test<dim>::setup_discrete_level_set()
 {
   Point<dim> point_on_zero_contour;
   point_on_zero_contour[0] = 1.5;
-  const Functions::SignedDistance::Plane<dim> analytical_levelset(
-    point_on_zero_contour, Point<dim>::unit_vector(0));
+  const Functions::SignedDistance::Plane<dim> analytical_levelset(point_on_zero_contour, Point<dim>::unit_vector(0));
 
   level_set.reinit(dof_handler.n_dofs());
   VectorTools::interpolate(dof_handler, analytical_levelset, level_set);
@@ -132,8 +130,7 @@ template <int dim>
 void
 Test<dim>::test_discrete_quadrature_generator()
 {
-  NonMatching::DiscreteQuadratureGenerator<dim> quadrature_generator(
-    q_collection1D, dof_handler, level_set);
+  NonMatching::DiscreteQuadratureGenerator<dim> quadrature_generator(q_collection1D, dof_handler, level_set);
   quadrature_generator.generate(triangulation.begin_active());
 
   deallog << "inside" << std::endl;
@@ -150,8 +147,7 @@ template <int dim>
 void
 Test<dim>::test_discrete_face_quadrature_generator()
 {
-  NonMatching::DiscreteFaceQuadratureGenerator<dim> face_quadrature_generator(
-    q_collection1D, dof_handler, level_set);
+  NonMatching::DiscreteFaceQuadratureGenerator<dim> face_quadrature_generator(q_collection1D, dof_handler, level_set);
 
   const auto &cell = triangulation.begin_active();
   for (const auto f : cell->face_indices())
@@ -163,8 +159,7 @@ Test<dim>::test_discrete_face_quadrature_generator()
       deallog << "outside" << std::endl;
       print_quadrature(face_quadrature_generator.get_outside_quadrature());
       deallog << "surface" << std::endl;
-      print_surface_quadrature(
-        face_quadrature_generator.get_surface_quadrature());
+      print_surface_quadrature(face_quadrature_generator.get_surface_quadrature());
     }
 }
 

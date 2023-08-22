@@ -87,15 +87,13 @@ namespace Step68
 
 
     virtual void
-    vector_value(const Point<dim> &point,
-                 Vector<double> &  values) const override;
+    vector_value(const Point<dim> &point, Vector<double> &values) const override;
   };
 
 
   template <int dim>
   void
-  Vortex<dim>::vector_value(const Point<dim> &point,
-                            Vector<double> &  values) const
+  Vortex<dim>::vector_value(const Point<dim> &point, Vector<double> &values) const
   {
     const double T = 4;
     const double t = this->get_time();
@@ -191,14 +189,13 @@ namespace Step68
     // tria_pdt.refine_global(fluid_refinement);
 
     Triangulation<dim> temporary_triangulation;
-    GridGenerator::subdivided_hyper_cube_with_simplices(temporary_triangulation,
-                                                        fluid_refinement);
+    GridGenerator::subdivided_hyper_cube_with_simplices(temporary_triangulation, fluid_refinement);
 
 
     // extract relevant information from distributed triangulation
-    auto construction_data = TriangulationDescription::Utilities::
-      create_description_from_triangulation(temporary_triangulation,
-                                            mpi_communicator);
+    auto construction_data =
+      TriangulationDescription::Utilities::create_description_from_triangulation(temporary_triangulation,
+                                                                                 mpi_communicator);
     background_triangulation.create_triangulation(construction_data);
 
 
@@ -223,28 +220,22 @@ namespace Step68
 
     Triangulation<dim> temporary_quad_particle_triangulation;
 
-    GridGenerator::hyper_shell(temporary_quad_particle_triangulation,
-                               center,
-                               inner_radius,
-                               outer_radius,
-                               6);
+    GridGenerator::hyper_shell(temporary_quad_particle_triangulation, center, inner_radius, outer_radius, 6);
 
 
     Triangulation<dim> temporary_tri_particle_triangulation;
-    GridGenerator::convert_hypercube_to_simplex_mesh(
-      temporary_quad_particle_triangulation,
-      temporary_tri_particle_triangulation);
+    GridGenerator::convert_hypercube_to_simplex_mesh(temporary_quad_particle_triangulation,
+                                                     temporary_tri_particle_triangulation);
 
 
     // extract relevant information from distributed triangulation
-    auto particle_construction_data = TriangulationDescription::Utilities::
-      create_description_from_triangulation(
-        temporary_tri_particle_triangulation, mpi_communicator);
+    auto particle_construction_data =
+      TriangulationDescription::Utilities::create_description_from_triangulation(temporary_tri_particle_triangulation,
+                                                                                 mpi_communicator);
 
 
 
-    parallel::fullydistributed::Triangulation<dim> particle_triangulation(
-      mpi_communicator);
+    parallel::fullydistributed::Triangulation<dim> particle_triangulation(mpi_communicator);
     particle_triangulation.create_triangulation(particle_construction_data);
 
     // We generate the necessary bounding boxes for the particles generator.
@@ -260,30 +251,23 @@ namespace Step68
     const auto local_boxes = extract_rtree_level(tree, 1);
 
     std::vector<std::vector<BoundingBox<dim>>> global_bounding_boxes;
-    global_bounding_boxes =
-      Utilities::MPI::all_gather(mpi_communicator, local_boxes);
+    global_bounding_boxes = Utilities::MPI::all_gather(mpi_communicator, local_boxes);
 
     // We generate an empty vector of properties. We will attribute the
     // properties to the particles once they are generated.
-    std::vector<std::vector<double>> properties(
-      particle_triangulation.n_locally_owned_active_cells(),
-      std::vector<double>(dim + 1, 0.));
+    std::vector<std::vector<double>> properties(particle_triangulation.n_locally_owned_active_cells(),
+                                                std::vector<double>(dim + 1, 0.));
 
     // We generate the particles at the position of a single
     // point quadrature. Consequently, one particle will be generated
     // at the centroid of each cell.
     QGaussSimplex<dim> quadrature_formula(1);
 
-    Particles::Generators::quadrature_points(particle_triangulation,
-                                             quadrature_formula,
-                                             global_bounding_boxes,
-                                             particle_handler,
-                                             mapping,
-                                             properties);
+    Particles::Generators::quadrature_points(
+      particle_triangulation, quadrature_formula, global_bounding_boxes, particle_handler, mapping, properties);
 
     if (Utilities::MPI::this_mpi_process(mpi_communicator) == 0)
-      deallog << "Number of particles inserted: "
-              << particle_handler.n_global_particles() << std::endl;
+      deallog << "Number of particles inserted: " << particle_handler.n_global_particles() << std::endl;
   }
 
 
@@ -302,9 +286,7 @@ namespace Step68
     IndexSet       locally_relevant_dofs;
     DoFTools::extract_locally_relevant_dofs(fluid_dh, locally_relevant_dofs);
 
-    velocity_field.reinit(locally_owned_dofs,
-                          locally_relevant_dofs,
-                          mpi_communicator);
+    velocity_field.reinit(locally_owned_dofs, locally_relevant_dofs, mpi_communicator);
   }
 
 
@@ -346,10 +328,8 @@ namespace Step68
     auto particle = particle_handler.begin();
     while (particle != particle_handler.end())
       {
-        const auto cell =
-          particle->get_surrounding_cell(background_triangulation);
-        const auto dh_cell =
-          typename DoFHandler<dim>::cell_iterator(*cell, &fluid_dh);
+        const auto cell    = particle->get_surrounding_cell(background_triangulation);
+        const auto dh_cell = typename DoFHandler<dim>::cell_iterator(*cell, &fluid_dh);
 
         dh_cell->get_dof_values(velocity_field, local_dof_values);
 
@@ -371,9 +351,7 @@ namespace Step68
               {
                 const auto comp_j = fluid_fe.system_to_component_index(j);
 
-                particle_velocity[comp_j.first] +=
-                  fluid_fe.shape_value(j, reference_location) *
-                  local_dof_values[j];
+                particle_velocity[comp_j.first] += fluid_fe.shape_value(j, reference_location) * local_dof_values[j];
               }
 
             Point<dim> particle_location = particle->get_location();
@@ -387,8 +365,7 @@ namespace Step68
             for (int d = 0; d < dim; ++d)
               properties[d] = particle_velocity[d];
 
-            properties[dim] =
-              Utilities::MPI::this_mpi_process(mpi_communicator);
+            properties[dim] = Utilities::MPI::this_mpi_process(mpi_communicator);
 
             ++particle;
           }
@@ -412,20 +389,15 @@ namespace Step68
     std::vector<std::string> solution_names(dim, "velocity");
     solution_names.push_back("process_id");
 
-    std::vector<DataComponentInterpretation::DataComponentInterpretation>
-      data_component_interpretation(
-        dim, DataComponentInterpretation::component_is_part_of_vector);
-    data_component_interpretation.push_back(
-      DataComponentInterpretation::component_is_scalar);
+    std::vector<DataComponentInterpretation::DataComponentInterpretation> data_component_interpretation(
+      dim, DataComponentInterpretation::component_is_part_of_vector);
+    data_component_interpretation.push_back(DataComponentInterpretation::component_is_scalar);
 
-    particle_output.build_patches(particle_handler,
-                                  solution_names,
-                                  data_component_interpretation);
+    particle_output.build_patches(particle_handler, solution_names, data_component_interpretation);
     const std::string output_folder(output_directory);
     const std::string file_name("interpolated-particles");
 
-    particle_output.write_vtu_with_pvtu_record(
-      output_folder, file_name, it, mpi_communicator, 6);
+    particle_output.write_vtu_with_pvtu_record(output_folder, file_name, it, mpi_communicator, 6);
   }
 
   template <int dim>
@@ -434,9 +406,7 @@ namespace Step68
   {
     if (Utilities::MPI::this_mpi_process(mpi_communicator) == 0)
       deallog << "Particles location" << std::endl;
-    for (unsigned int proc = 0;
-         proc < Utilities::MPI::n_mpi_processes(mpi_communicator);
-         ++proc)
+    for (unsigned int proc = 0; proc < Utilities::MPI::n_mpi_processes(mpi_communicator); ++proc)
       {
         if (Utilities::MPI::this_mpi_process(mpi_communicator) == proc)
           {
@@ -455,10 +425,9 @@ namespace Step68
   void
   ParticleTracking<dim>::output_background(const unsigned int it)
   {
-    std::vector<std::string> solution_names(dim, "velocity");
-    std::vector<DataComponentInterpretation::DataComponentInterpretation>
-      data_component_interpretation(
-        dim, DataComponentInterpretation::component_is_part_of_vector);
+    std::vector<std::string>                                              solution_names(dim, "velocity");
+    std::vector<DataComponentInterpretation::DataComponentInterpretation> data_component_interpretation(
+      dim, DataComponentInterpretation::component_is_part_of_vector);
 
     DataOut<dim> data_out;
 
@@ -478,8 +447,7 @@ namespace Step68
     const std::string output_folder(output_directory);
     const std::string file_name("background");
 
-    data_out.write_vtu_with_pvtu_record(
-      output_folder, file_name, it, mpi_communicator, 6);
+    data_out.write_vtu_with_pvtu_record(output_folder, file_name, it, mpi_communicator, 6);
   }
 
 
@@ -551,28 +519,20 @@ main(int argc, char *argv[])
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
 

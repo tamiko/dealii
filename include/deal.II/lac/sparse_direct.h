@@ -151,8 +151,7 @@ public:
    */
   template <class Matrix>
   void
-  initialize(const Matrix &       matrix,
-             const AdditionalData additional_data = AdditionalData());
+  initialize(const Matrix &matrix, const AdditionalData additional_data = AdditionalData());
 
   /**
    * @}
@@ -253,22 +252,19 @@ public:
    * real and imaginary parts of the right hand side vector.
    */
   void
-  solve(Vector<std::complex<double>> &rhs_and_solution,
-        const bool                    transpose = false) const;
+  solve(Vector<std::complex<double>> &rhs_and_solution, const bool transpose = false) const;
 
   /**
    * Same as before, but for block vectors.
    */
   void
-  solve(BlockVector<double> &rhs_and_solution,
-        const bool           transpose = false) const;
+  solve(BlockVector<double> &rhs_and_solution, const bool transpose = false) const;
 
   /**
    * Same as before, but for complex-valued block vectors.
    */
   void
-  solve(BlockVector<std::complex<double>> &rhs_and_solution,
-        const bool                         transpose = false) const;
+  solve(BlockVector<std::complex<double>> &rhs_and_solution, const bool transpose = false) const;
 
   /**
    * Call the two functions factorize() and solve() in that order, i.e.
@@ -278,36 +274,28 @@ public:
    */
   template <class Matrix>
   void
-  solve(const Matrix &  matrix,
-        Vector<double> &rhs_and_solution,
-        const bool      transpose = false);
+  solve(const Matrix &matrix, Vector<double> &rhs_and_solution, const bool transpose = false);
 
   /**
    * Same as before, but for complex-valued solution vectors.
    */
   template <class Matrix>
   void
-  solve(const Matrix &                matrix,
-        Vector<std::complex<double>> &rhs_and_solution,
-        const bool                    transpose = false);
+  solve(const Matrix &matrix, Vector<std::complex<double>> &rhs_and_solution, const bool transpose = false);
 
   /**
    * Same as before, but for block vectors.
    */
   template <class Matrix>
   void
-  solve(const Matrix &       matrix,
-        BlockVector<double> &rhs_and_solution,
-        const bool           transpose = false);
+  solve(const Matrix &matrix, BlockVector<double> &rhs_and_solution, const bool transpose = false);
 
   /**
    * Same as before, but for complex-valued block vectors.
    */
   template <class Matrix>
   void
-  solve(const Matrix &                     matrix,
-        BlockVector<std::complex<double>> &rhs_and_solution,
-        const bool                         transpose = false);
+  solve(const Matrix &matrix, BlockVector<std::complex<double>> &rhs_and_solution, const bool transpose = false);
 
   /**
    * @}
@@ -318,44 +306,42 @@ public:
    * the output and can be looked up in the UMFPack user manual. The name of
    * the routine is included for reference.
    */
-  DeclException2(
-    ExcUMFPACKError,
-    std::string,
-    int,
-    << "UMFPACK routine " << arg1 << " returned error status " << arg2 << '.'
-    << "\n\n"
-    << ("A complete list of error codes can be found in the file "
-        "<bundled/umfpack/UMFPACK/Include/umfpack.h>."
-        "\n\n"
-        "That said, the two most common errors that can happen are "
-        "that your matrix cannot be factorized because it is "
-        "rank deficient, and that UMFPACK runs out of memory "
-        "because your problem is too large."
-        "\n\n"
-        "The first of these cases most often happens if you "
-        "forget terms in your bilinear form necessary to ensure "
-        "that the matrix has full rank, or if your equation has a "
-        "spatially variable coefficient (or nonlinearity) that is "
-        "supposed to be strictly positive but, for whatever "
-        "reasons, is negative or zero. In either case, you probably "
-        "want to check your assembly procedure. Similarly, a "
-        "matrix can be rank deficient if you forgot to apply the "
-        "appropriate boundary conditions. For example, the "
-        "Laplace equation for a problem where only Neumann boundary "
-        "conditions are posed (or where you forget to apply Dirichlet "
-        "boundary conditions) has exactly one eigenvalue equal to zero "
-        "and its rank is therefore deficient by one. Finally, the matrix "
-        "may be rank deficient because you are using a quadrature "
-        "formula with too few quadrature points."
-        "\n\n"
-        "The other common situation is that you run out of memory. "
-        "On a typical laptop or desktop, it should easily be possible "
-        "to solve problems with 100,000 unknowns in 2d. If you are "
-        "solving problems with many more unknowns than that, in "
-        "particular if you are in 3d, then you may be running out "
-        "of memory and you will need to consider iterative "
-        "solvers instead of the direct solver employed by "
-        "UMFPACK."));
+  DeclException2(ExcUMFPACKError,
+                 std::string,
+                 int,
+                 << "UMFPACK routine " << arg1 << " returned error status " << arg2 << '.' << "\n\n"
+                 << ("A complete list of error codes can be found in the file "
+                     "<bundled/umfpack/UMFPACK/Include/umfpack.h>."
+                     "\n\n"
+                     "That said, the two most common errors that can happen are "
+                     "that your matrix cannot be factorized because it is "
+                     "rank deficient, and that UMFPACK runs out of memory "
+                     "because your problem is too large."
+                     "\n\n"
+                     "The first of these cases most often happens if you "
+                     "forget terms in your bilinear form necessary to ensure "
+                     "that the matrix has full rank, or if your equation has a "
+                     "spatially variable coefficient (or nonlinearity) that is "
+                     "supposed to be strictly positive but, for whatever "
+                     "reasons, is negative or zero. In either case, you probably "
+                     "want to check your assembly procedure. Similarly, a "
+                     "matrix can be rank deficient if you forgot to apply the "
+                     "appropriate boundary conditions. For example, the "
+                     "Laplace equation for a problem where only Neumann boundary "
+                     "conditions are posed (or where you forget to apply Dirichlet "
+                     "boundary conditions) has exactly one eigenvalue equal to zero "
+                     "and its rank is therefore deficient by one. Finally, the matrix "
+                     "may be rank deficient because you are using a quadrature "
+                     "formula with too few quadrature points."
+                     "\n\n"
+                     "The other common situation is that you run out of memory. "
+                     "On a typical laptop or desktop, it should easily be possible "
+                     "to solve problems with 100,000 unknowns in 2d. If you are "
+                     "solving problems with many more unknowns than that, in "
+                     "particular if you are in 3d, then you may be running out "
+                     "of memory and you will need to consider iterative "
+                     "solvers instead of the direct solver employed by "
+                     "UMFPACK."));
 
 private:
   /**

@@ -40,79 +40,54 @@ namespace VectorTools
 {
   template <int dim, typename VectorType, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_dealii_vector_type<VectorType>)
-  void point_gradient(
-    const DoFHandler<dim, spacedim> &dof,
-    const VectorType &               fe_function,
-    const Point<spacedim> &          point,
-    std::vector<Tensor<1, spacedim, typename VectorType::value_type>>
-      &gradients)
+  void point_gradient(const DoFHandler<dim, spacedim>                                   &dof,
+                      const VectorType                                                  &fe_function,
+                      const Point<spacedim>                                             &point,
+                      std::vector<Tensor<1, spacedim, typename VectorType::value_type>> &gradients)
   {
     if (dof.has_hp_capabilities() == false)
-      point_gradient(get_default_linear_mapping(dof.get_triangulation()),
-                     dof,
-                     fe_function,
-                     point,
-                     gradients);
+      point_gradient(get_default_linear_mapping(dof.get_triangulation()), dof, fe_function, point, gradients);
     else
-      point_gradient(hp::StaticMappingQ1<dim, spacedim>::mapping_collection,
-                     dof,
-                     fe_function,
-                     point,
-                     gradients);
+      point_gradient(hp::StaticMappingQ1<dim, spacedim>::mapping_collection, dof, fe_function, point, gradients);
   }
 
 
   template <int dim, typename VectorType, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_dealii_vector_type<VectorType>)
-  Tensor<1, spacedim, typename VectorType::value_type> point_gradient(
-    const DoFHandler<dim, spacedim> &dof,
-    const VectorType &               fe_function,
-    const Point<spacedim> &          point)
+  Tensor<1, spacedim, typename VectorType::value_type> point_gradient(const DoFHandler<dim, spacedim> &dof,
+                                                                      const VectorType                &fe_function,
+                                                                      const Point<spacedim>           &point)
   {
     if (dof.has_hp_capabilities() == false)
-      return point_gradient(get_default_linear_mapping(dof.get_triangulation()),
-                            dof,
-                            fe_function,
-                            point);
+      return point_gradient(get_default_linear_mapping(dof.get_triangulation()), dof, fe_function, point);
     else
-      return point_gradient(
-        hp::StaticMappingQ1<dim, spacedim>::mapping_collection,
-        dof,
-        fe_function,
-        point);
+      return point_gradient(hp::StaticMappingQ1<dim, spacedim>::mapping_collection, dof, fe_function, point);
   }
 
 
   template <int dim, typename VectorType, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_dealii_vector_type<VectorType>)
-  void point_gradient(
-    const Mapping<dim, spacedim> &   mapping,
-    const DoFHandler<dim, spacedim> &dof,
-    const VectorType &               fe_function,
-    const Point<spacedim> &          point,
-    std::vector<Tensor<1, spacedim, typename VectorType::value_type>> &gradient)
+  void point_gradient(const Mapping<dim, spacedim>                                      &mapping,
+                      const DoFHandler<dim, spacedim>                                   &dof,
+                      const VectorType                                                  &fe_function,
+                      const Point<spacedim>                                             &point,
+                      std::vector<Tensor<1, spacedim, typename VectorType::value_type>> &gradient)
   {
     const FiniteElement<dim> &fe = dof.get_fe();
 
-    Assert(gradient.size() == fe.n_components(),
-           ExcDimensionMismatch(gradient.size(), fe.n_components()));
+    Assert(gradient.size() == fe.n_components(), ExcDimensionMismatch(gradient.size(), fe.n_components()));
 
     // first find the cell in which this point
     // is, initialize a quadrature rule with
     // it, and then a FEValues object
-    const std::pair<typename DoFHandler<dim, spacedim>::active_cell_iterator,
-                    Point<spacedim>>
-      cell_point =
-        GridTools::find_active_cell_around_point(mapping, dof, point);
+    const std::pair<typename DoFHandler<dim, spacedim>::active_cell_iterator, Point<spacedim>> cell_point =
+      GridTools::find_active_cell_around_point(mapping, dof, point);
 
-    AssertThrow(cell_point.first.state() == IteratorState::valid &&
-                  cell_point.first->is_locally_owned(),
+    AssertThrow(cell_point.first.state() == IteratorState::valid && cell_point.first->is_locally_owned(),
                 ExcPointNotAvailableHere());
-    Assert(GeometryInfo<dim>::distance_to_unit_cell(cell_point.second) < 1e-10,
-           ExcInternalError());
+    Assert(GeometryInfo<dim>::distance_to_unit_cell(cell_point.second) < 1e-10, ExcInternalError());
 
-    const Quadrature<dim> quadrature(
-      cell_point.first->reference_cell().closest_point(cell_point.second));
+    const Quadrature<dim> quadrature(cell_point.first->reference_cell().closest_point(cell_point.second));
 
     FEValues<dim> fe_values(mapping, fe, quadrature, update_gradients);
     fe_values.reinit(cell_point.first);
@@ -120,8 +95,8 @@ namespace VectorTools
     // then use this to get the gradients of
     // the given fe_function at this point
     using Number = typename VectorType::value_type;
-    std::vector<std::vector<Tensor<1, dim, Number>>> u_gradient(
-      1, std::vector<Tensor<1, dim, Number>>(fe.n_components()));
+    std::vector<std::vector<Tensor<1, dim, Number>>> u_gradient(1,
+                                                                std::vector<Tensor<1, dim, Number>>(fe.n_components()));
     fe_values.get_function_gradients(fe_function, u_gradient);
 
     gradient = u_gradient[0];
@@ -130,45 +105,34 @@ namespace VectorTools
 
   template <int dim, typename VectorType, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_dealii_vector_type<VectorType>)
-  void point_gradient(
-    const hp::MappingCollection<dim, spacedim> &mapping,
-    const DoFHandler<dim, spacedim> &           dof,
-    const VectorType &                          fe_function,
-    const Point<spacedim> &                     point,
-    std::vector<Tensor<1, spacedim, typename VectorType::value_type>> &gradient)
+  void point_gradient(const hp::MappingCollection<dim, spacedim>                        &mapping,
+                      const DoFHandler<dim, spacedim>                                   &dof,
+                      const VectorType                                                  &fe_function,
+                      const Point<spacedim>                                             &point,
+                      std::vector<Tensor<1, spacedim, typename VectorType::value_type>> &gradient)
   {
     using Number                              = typename VectorType::value_type;
     const hp::FECollection<dim, spacedim> &fe = dof.get_fe_collection();
 
-    Assert(gradient.size() == fe.n_components(),
-           ExcDimensionMismatch(gradient.size(), fe.n_components()));
+    Assert(gradient.size() == fe.n_components(), ExcDimensionMismatch(gradient.size(), fe.n_components()));
 
     // first find the cell in which this point
     // is, initialize a quadrature rule with
     // it, and then a FEValues object
-    const std::pair<typename DoFHandler<dim, spacedim>::active_cell_iterator,
-                    Point<spacedim>>
-      cell_point =
-        GridTools::find_active_cell_around_point(mapping, dof, point);
+    const std::pair<typename DoFHandler<dim, spacedim>::active_cell_iterator, Point<spacedim>> cell_point =
+      GridTools::find_active_cell_around_point(mapping, dof, point);
 
-    AssertThrow(cell_point.first.state() == IteratorState::valid &&
-                  cell_point.first->is_locally_owned(),
+    AssertThrow(cell_point.first.state() == IteratorState::valid && cell_point.first->is_locally_owned(),
                 ExcPointNotAvailableHere());
-    Assert(GeometryInfo<dim>::distance_to_unit_cell(cell_point.second) < 1e-10,
-           ExcInternalError());
+    Assert(GeometryInfo<dim>::distance_to_unit_cell(cell_point.second) < 1e-10, ExcInternalError());
 
-    const Quadrature<dim> quadrature(
-      cell_point.first->reference_cell().closest_point(cell_point.second));
-    hp::FEValues<dim, spacedim> hp_fe_values(mapping,
-                                             fe,
-                                             hp::QCollection<dim>(quadrature),
-                                             update_gradients);
+    const Quadrature<dim>       quadrature(cell_point.first->reference_cell().closest_point(cell_point.second));
+    hp::FEValues<dim, spacedim> hp_fe_values(mapping, fe, hp::QCollection<dim>(quadrature), update_gradients);
     hp_fe_values.reinit(cell_point.first);
-    const FEValues<dim, spacedim> &fe_values =
-      hp_fe_values.get_present_fe_values();
+    const FEValues<dim, spacedim> &fe_values = hp_fe_values.get_present_fe_values();
 
-    std::vector<std::vector<Tensor<1, dim, Number>>> u_gradient(
-      1, std::vector<Tensor<1, dim, Number>>(fe.n_components()));
+    std::vector<std::vector<Tensor<1, dim, Number>>> u_gradient(1,
+                                                                std::vector<Tensor<1, dim, Number>>(fe.n_components()));
     fe_values.get_function_gradients(fe_function, u_gradient);
 
     gradient = u_gradient[0];
@@ -177,15 +141,13 @@ namespace VectorTools
 
   template <int dim, typename VectorType, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_dealii_vector_type<VectorType>)
-  Tensor<1, spacedim, typename VectorType::value_type> point_gradient(
-    const Mapping<dim, spacedim> &   mapping,
-    const DoFHandler<dim, spacedim> &dof,
-    const VectorType &               fe_function,
-    const Point<spacedim> &          point)
+  Tensor<1, spacedim, typename VectorType::value_type> point_gradient(const Mapping<dim, spacedim>    &mapping,
+                                                                      const DoFHandler<dim, spacedim> &dof,
+                                                                      const VectorType                &fe_function,
+                                                                      const Point<spacedim>           &point)
   {
     Assert(dof.get_fe(0).n_components() == 1,
-           ExcMessage(
-             "Finite element is not scalar as is necessary for this function"));
+           ExcMessage("Finite element is not scalar as is necessary for this function"));
 
     std::vector<Tensor<1, dim, typename VectorType::value_type>> gradient(1);
     point_gradient(mapping, dof, fe_function, point, gradient);
@@ -199,13 +161,12 @@ namespace VectorTools
   DEAL_II_CXX20_REQUIRES(concepts::is_dealii_vector_type<VectorType>)
   Tensor<1, spacedim, typename VectorType::value_type> point_gradient(
     const hp::MappingCollection<dim, spacedim> &mapping,
-    const DoFHandler<dim, spacedim> &           dof,
-    const VectorType &                          fe_function,
-    const Point<spacedim> &                     point)
+    const DoFHandler<dim, spacedim>            &dof,
+    const VectorType                           &fe_function,
+    const Point<spacedim>                      &point)
   {
     Assert(dof.get_fe(0).n_components() == 1,
-           ExcMessage(
-             "Finite element is not scalar as is necessary for this function"));
+           ExcMessage("Finite element is not scalar as is necessary for this function"));
 
     std::vector<Tensor<1, dim, typename VectorType::value_type>> gradient(1);
     point_gradient(mapping, dof, fe_function, point, gradient);

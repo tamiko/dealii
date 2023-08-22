@@ -136,12 +136,10 @@ test()
   TrilinosWrappers::SparseMatrix serial_c;
   serial_a.mmult(serial_c, serial_b);
 
-  AssertThrow(serial_c.n_nonzero_elements() == c.n_nonzero_elements(),
-              ExcInternalError());
+  AssertThrow(serial_c.n_nonzero_elements() == c.n_nonzero_elements(), ExcInternalError());
   AssertThrow(serial_c.l1_norm() == c.l1_norm(), ExcInternalError());
   AssertThrow(serial_c.linfty_norm() == c.linfty_norm(), ExcInternalError());
-  AssertThrow(serial_c.frobenius_norm() == c.frobenius_norm(),
-              ExcInternalError());
+  AssertThrow(serial_c.frobenius_norm() == c.frobenius_norm(), ExcInternalError());
 
   if (my_rank == 0)
     deallog << "OK" << std::endl;

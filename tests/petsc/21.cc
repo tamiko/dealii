@@ -44,8 +44,7 @@ test(PETScWrappers::MPI::Vector &v)
 
   // check that the entries are ok
   for (unsigned int i = 0; i < v.size(); ++i)
-    AssertThrow(((pattern[i] == true) && (v(i) == i * 3. / 4.)) ||
-                  ((pattern[i] == false) && (v(i) == 0)),
+    AssertThrow(((pattern[i] == true) && (v(i) == i * 3. / 4.)) || ((pattern[i] == false) && (v(i) == 0)),
                 ExcInternalError());
 
   deallog << "OK" << std::endl;
@@ -70,28 +69,20 @@ main(int argc, char **argv)
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

@@ -113,8 +113,8 @@ public:
    * If an incompatible mask is passed, an exception is thrown.
    */
   MappingFEField(const DoFHandler<dim, spacedim> &euler_dof_handler,
-                 const VectorType &               euler_vector,
-                 const ComponentMask &            mask = {});
+                 const VectorType                &euler_vector,
+                 const ComponentMask             &mask = {});
 
   /**
    * Constructor taking vectors on the multigrid levels rather than the active
@@ -126,8 +126,8 @@ public:
    * the other constructor need to be provided.
    */
   MappingFEField(const DoFHandler<dim, spacedim> &euler_dof_handler,
-                 const std::vector<VectorType> &  euler_vector,
-                 const ComponentMask &            mask = {});
+                 const std::vector<VectorType>   &euler_vector,
+                 const ComponentMask             &mask = {});
 
   /**
    * Constructor with MGLevelObject instead of std::vector, otherwise the same
@@ -138,7 +138,7 @@ public:
    */
   MappingFEField(const DoFHandler<dim, spacedim> &euler_dof_handler,
                  const MGLevelObject<VectorType> &euler_vector,
-                 const ComponentMask &            mask = {});
+                 const ComponentMask             &mask = {});
 
   /**
    * Copy constructor.
@@ -170,10 +170,8 @@ public:
    * and constructs the position of the vertices according to the @p euler_vector
    * that was passed at construction time.
    */
-  virtual boost::container::small_vector<Point<spacedim>,
-                                         GeometryInfo<dim>::vertices_per_cell>
-  get_vertices(const typename Triangulation<dim, spacedim>::cell_iterator &cell)
-    const override;
+  virtual boost::container::small_vector<Point<spacedim>, GeometryInfo<dim>::vertices_per_cell>
+  get_vertices(const typename Triangulation<dim, spacedim>::cell_iterator &cell) const override;
 
   /**
    * @name Mapping points between reference and real cells
@@ -182,15 +180,13 @@ public:
 
   // for documentation, see the Mapping base class
   virtual Point<spacedim>
-  transform_unit_to_real_cell(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const Point<dim> &p) const override;
+  transform_unit_to_real_cell(const typename Triangulation<dim, spacedim>::cell_iterator &cell,
+                              const Point<dim>                                           &p) const override;
 
   // for documentation, see the Mapping base class
   virtual Point<dim>
-  transform_real_to_unit_cell(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const Point<spacedim> &p) const override;
+  transform_real_to_unit_cell(const typename Triangulation<dim, spacedim>::cell_iterator &cell,
+                              const Point<spacedim>                                      &p) const override;
 
   /**
    * @}
@@ -203,38 +199,38 @@ public:
 
   // for documentation, see the Mapping base class
   virtual void
-  transform(const ArrayView<const Tensor<1, dim>> &                  input,
+  transform(const ArrayView<const Tensor<1, dim>>                   &input,
             const MappingKind                                        kind,
             const typename Mapping<dim, spacedim>::InternalDataBase &internal,
-            const ArrayView<Tensor<1, spacedim>> &output) const override;
+            const ArrayView<Tensor<1, spacedim>>                    &output) const override;
 
   // for documentation, see the Mapping base class
   virtual void
   transform(const ArrayView<const DerivativeForm<1, dim, spacedim>> &input,
             const MappingKind                                        kind,
             const typename Mapping<dim, spacedim>::InternalDataBase &internal,
-            const ArrayView<Tensor<2, spacedim>> &output) const override;
+            const ArrayView<Tensor<2, spacedim>>                    &output) const override;
 
   // for documentation, see the Mapping base class
   virtual void
-  transform(const ArrayView<const Tensor<2, dim>> &                  input,
+  transform(const ArrayView<const Tensor<2, dim>>                   &input,
             const MappingKind                                        kind,
             const typename Mapping<dim, spacedim>::InternalDataBase &internal,
-            const ArrayView<Tensor<2, spacedim>> &output) const override;
+            const ArrayView<Tensor<2, spacedim>>                    &output) const override;
 
   // for documentation, see the Mapping base class
   virtual void
   transform(const ArrayView<const DerivativeForm<2, dim, spacedim>> &input,
             const MappingKind                                        kind,
             const typename Mapping<dim, spacedim>::InternalDataBase &internal,
-            const ArrayView<Tensor<3, spacedim>> &output) const override;
+            const ArrayView<Tensor<3, spacedim>>                    &output) const override;
 
   // for documentation, see the Mapping base class
   virtual void
-  transform(const ArrayView<const Tensor<3, dim>> &                  input,
+  transform(const ArrayView<const Tensor<3, dim>>                   &input,
             const MappingKind                                        kind,
             const typename Mapping<dim, spacedim>::InternalDataBase &internal,
-            const ArrayView<Tensor<3, spacedim>> &output) const override;
+            const ArrayView<Tensor<3, spacedim>>                    &output) const override;
 
   /**
    * @}
@@ -287,8 +283,7 @@ public:
     /**
      * Constructor.
      */
-    InternalData(const FiniteElement<dim, spacedim> &fe,
-                 const ComponentMask &               mask);
+    InternalData(const FiniteElement<dim, spacedim> &fe, const ComponentMask &mask);
 
     /**
      * Shape function at quadrature point. Shape functions are in tensor
@@ -319,8 +314,7 @@ public:
      * Second derivative of shape function in quadrature point. See above.
      */
     const Tensor<2, dim> &
-    second_derivative(const unsigned int qpoint,
-                      const unsigned int shape_nr) const;
+    second_derivative(const unsigned int qpoint, const unsigned int shape_nr) const;
 
     /**
      * Second derivative of shape function in quadrature point. See above.
@@ -332,8 +326,7 @@ public:
      * Third derivative of shape function in quadrature point. See above.
      */
     const Tensor<3, dim> &
-    third_derivative(const unsigned int qpoint,
-                     const unsigned int shape_nr) const;
+    third_derivative(const unsigned int qpoint, const unsigned int shape_nr) const;
 
     /**
      * Fourth derivative of shape function in quadrature point. See above.
@@ -345,8 +338,7 @@ public:
      * Fourth derivative of shape function in quadrature point. See above.
      */
     const Tensor<4, dim> &
-    fourth_derivative(const unsigned int qpoint,
-                      const unsigned int shape_nr) const;
+    fourth_derivative(const unsigned int qpoint, const unsigned int shape_nr) const;
 
     /**
      * Third derivative of shape function in quadrature point. See above.
@@ -411,9 +403,7 @@ public:
      *
      * Filled once.
      */
-    std::array<std::vector<Tensor<1, dim>>,
-               GeometryInfo<dim>::faces_per_cell *(dim - 1)>
-      unit_tangentials;
+    std::array<std::vector<Tensor<1, dim>>, GeometryInfo<dim>::faces_per_cell *(dim - 1)> unit_tangentials;
 
     /**
      * Number of shape functions. If this is a Q1 mapping, then it is simply
@@ -493,54 +483,46 @@ protected:
 
   // documentation can be found in Mapping::get_face_data()
   virtual std::unique_ptr<typename Mapping<dim, spacedim>::InternalDataBase>
-  get_face_data(const UpdateFlags               flags,
-                const hp::QCollection<dim - 1> &quadrature) const override;
+  get_face_data(const UpdateFlags flags, const hp::QCollection<dim - 1> &quadrature) const override;
 
   // documentation can be found in Mapping::get_subface_data()
   virtual std::unique_ptr<typename Mapping<dim, spacedim>::InternalDataBase>
-  get_subface_data(const UpdateFlags          flags,
-                   const Quadrature<dim - 1> &quadrature) const override;
+  get_subface_data(const UpdateFlags flags, const Quadrature<dim - 1> &quadrature) const override;
 
   // documentation can be found in Mapping::fill_fe_values()
   virtual CellSimilarity::Similarity
-  fill_fe_values(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const CellSimilarity::Similarity                            cell_similarity,
-    const Quadrature<dim> &                                     quadrature,
-    const typename Mapping<dim, spacedim>::InternalDataBase &   internal_data,
-    internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &output_data) const override;
+  fill_fe_values(const typename Triangulation<dim, spacedim>::cell_iterator          &cell,
+                 const CellSimilarity::Similarity                                     cell_similarity,
+                 const Quadrature<dim>                                               &quadrature,
+                 const typename Mapping<dim, spacedim>::InternalDataBase             &internal_data,
+                 internal::FEValuesImplementation::MappingRelatedData<dim, spacedim> &output_data) const override;
 
   using Mapping<dim, spacedim>::fill_fe_face_values;
 
   // documentation can be found in Mapping::fill_fe_face_values()
   virtual void
-  fill_fe_face_values(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const unsigned int                                          face_no,
-    const hp::QCollection<dim - 1> &                            quadrature,
-    const typename Mapping<dim, spacedim>::InternalDataBase &   internal_data,
-    internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &output_data) const override;
+  fill_fe_face_values(const typename Triangulation<dim, spacedim>::cell_iterator          &cell,
+                      const unsigned int                                                   face_no,
+                      const hp::QCollection<dim - 1>                                      &quadrature,
+                      const typename Mapping<dim, spacedim>::InternalDataBase             &internal_data,
+                      internal::FEValuesImplementation::MappingRelatedData<dim, spacedim> &output_data) const override;
 
   // documentation can be found in Mapping::fill_fe_subface_values()
   virtual void
   fill_fe_subface_values(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const unsigned int                                          face_no,
-    const unsigned int                                          subface_no,
-    const Quadrature<dim - 1> &                                 quadrature,
-    const typename Mapping<dim, spacedim>::InternalDataBase &   internal_data,
-    internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &output_data) const override;
+    const typename Triangulation<dim, spacedim>::cell_iterator          &cell,
+    const unsigned int                                                   face_no,
+    const unsigned int                                                   subface_no,
+    const Quadrature<dim - 1>                                           &quadrature,
+    const typename Mapping<dim, spacedim>::InternalDataBase             &internal_data,
+    internal::FEValuesImplementation::MappingRelatedData<dim, spacedim> &output_data) const override;
 
   virtual void
   fill_fe_immersed_surface_values(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const NonMatching::ImmersedSurfaceQuadrature<dim> &         quadrature,
-    const typename Mapping<dim, spacedim>::InternalDataBase &   internal_data,
-    internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &output_data) const override;
+    const typename Triangulation<dim, spacedim>::cell_iterator          &cell,
+    const NonMatching::ImmersedSurfaceQuadrature<dim>                   &quadrature,
+    const typename Mapping<dim, spacedim>::InternalDataBase             &internal_data,
+    internal::FEValuesImplementation::MappingRelatedData<dim, spacedim> &output_data) const override;
 
   /**
    * @}
@@ -561,16 +543,12 @@ protected:
   /**
    * Reference to the vector of shifts.
    */
-  std::vector<
-    SmartPointer<const VectorType, MappingFEField<dim, spacedim, VectorType>>>
-    euler_vector;
+  std::vector<SmartPointer<const VectorType, MappingFEField<dim, spacedim, VectorType>>> euler_vector;
 
   /**
    * Pointer to the DoFHandler to which the mapping vector is associated.
    */
-  SmartPointer<const DoFHandler<dim, spacedim>,
-               MappingFEField<dim, spacedim, VectorType>>
-    euler_dof_handler;
+  SmartPointer<const DoFHandler<dim, spacedim>, MappingFEField<dim, spacedim, VectorType>> euler_dof_handler;
 
 private:
   /**
@@ -607,29 +585,24 @@ private:
    * @p mdata will be changed by this function.
    */
   Point<dim>
-  do_transform_real_to_unit_cell(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const Point<spacedim> &                                     p,
-    const Point<dim> &                                          initial_p_unit,
-    InternalData &                                              mdata) const;
+  do_transform_real_to_unit_cell(const typename Triangulation<dim, spacedim>::cell_iterator &cell,
+                                 const Point<spacedim>                                      &p,
+                                 const Point<dim>                                           &initial_p_unit,
+                                 InternalData                                               &mdata) const;
 
   /**
    * Update internal degrees of freedom.
    */
   void
-  update_internal_dofs(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const typename MappingFEField<dim, spacedim, VectorType>::InternalData
-      &data) const;
+  update_internal_dofs(const typename Triangulation<dim, spacedim>::cell_iterator             &cell,
+                       const typename MappingFEField<dim, spacedim, VectorType>::InternalData &data) const;
 
   /**
    * See the documentation of the base class for detailed information.
    */
   virtual void
-  compute_shapes_virtual(
-    const std::vector<Point<dim>> &unit_points,
-    typename MappingFEField<dim, spacedim, VectorType>::InternalData &data)
-    const;
+  compute_shapes_virtual(const std::vector<Point<dim>>                                    &unit_points,
+                         typename MappingFEField<dim, spacedim, VectorType>::InternalData &data) const;
 
   /*
    * Which components to use for the mapping.
@@ -662,13 +635,13 @@ private:
   compute_data(const UpdateFlags      update_flags,
                const Quadrature<dim> &q,
                const unsigned int     n_original_q_points,
-               InternalData &         data) const;
+               InternalData          &data) const;
 
   void
   compute_face_data(const UpdateFlags      update_flags,
                     const Quadrature<dim> &q,
                     const unsigned int     n_original_q_points,
-                    InternalData &         data) const;
+                    InternalData          &data) const;
 
 
   // Declare other MappingFEField classes friends.

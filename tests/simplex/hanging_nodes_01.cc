@@ -56,19 +56,12 @@ main()
   {
     const unsigned int dim = 2;
 
-    const auto subdivided_hyper_cube_with_simplices =
-      [](Triangulation<dim> &tria) {
-        GridGenerator::subdivided_hyper_cube_with_simplices(tria, 1);
-      };
+    const auto subdivided_hyper_cube_with_simplices = [](Triangulation<dim> &tria) {
+      GridGenerator::subdivided_hyper_cube_with_simplices(tria, 1);
+    };
 
-    test<dim>({1, 0},
-              {0, 0},
-              hp::FECollection<dim>(FE_SimplexP<dim>(1)),
-              subdivided_hyper_cube_with_simplices);
-    test<dim>({1, 0},
-              {0, 0},
-              hp::FECollection<dim>(FE_SimplexP<dim>(2)),
-              subdivided_hyper_cube_with_simplices);
+    test<dim>({1, 0}, {0, 0}, hp::FECollection<dim>(FE_SimplexP<dim>(1)), subdivided_hyper_cube_with_simplices);
+    test<dim>({1, 0}, {0, 0}, hp::FECollection<dim>(FE_SimplexP<dim>(2)), subdivided_hyper_cube_with_simplices);
   }
   deallog.pop();
 }

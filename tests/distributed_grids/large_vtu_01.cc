@@ -70,10 +70,8 @@ run()
   triangulation.refine_global(n_cycles_global);
 
   if (dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
-    deallog << "n_global_active_cells: "
-            << triangulation.n_global_active_cells()
-            << " n_global_levels: " << triangulation.n_global_levels()
-            << std::endl;
+    deallog << "n_global_active_cells: " << triangulation.n_global_active_cells()
+            << " n_global_levels: " << triangulation.n_global_levels() << std::endl;
 
   const unsigned int n_vectors = 1;
 
@@ -86,22 +84,17 @@ run()
 
   using VectorType = LinearAlgebra::distributed::Vector<double>;
   VectorType global_dof_vector;
-  global_dof_vector.reinit(dof_handler.locally_owned_dofs(),
-                           locally_relevant_dofs,
-                           MPI_COMM_WORLD);
+  global_dof_vector.reinit(dof_handler.locally_owned_dofs(), locally_relevant_dofs, MPI_COMM_WORLD);
 
-  VectorTools::interpolate(dof_handler,
-                           Functions::SquareFunction<dim>(),
-                           global_dof_vector);
+  VectorTools::interpolate(dof_handler, Functions::SquareFunction<dim>(), global_dof_vector);
 
   {
     DataOut<dim> data_out;
     data_out.attach_dof_handler(dof_handler);
     for (unsigned int i = 0; i < n_vectors; ++i)
-      data_out.add_data_vector(
-        dof_handler,
-        global_dof_vector,
-        std::vector<std::string>(1, "data" + Utilities::to_string(i)));
+      data_out.add_data_vector(dof_handler,
+                               global_dof_vector,
+                               std::vector<std::string>(1, "data" + Utilities::to_string(i)));
 
     data_out.build_patches((run_big) ? 42 : 2);
     data_out.write_vtu_in_parallel("base.vtu", MPI_COMM_WORLD);

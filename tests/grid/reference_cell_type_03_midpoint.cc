@@ -56,11 +56,9 @@ test(const ReferenceCell &reference_cell)
 
   deallog << "ReferenceCell: " << reference_cell.to_string() << std::endl;
   deallog << "  computed barycenter = " << barycenter << std::endl;
-  deallog << "  self-reported barycenter = " << reference_cell.barycenter<dim>()
-          << std::endl;
+  deallog << "  self-reported barycenter = " << reference_cell.barycenter<dim>() << std::endl;
 
-  Assert((barycenter - reference_cell.barycenter<dim>()).norm() <= 1e-12,
-         ExcInternalError());
+  Assert((barycenter - reference_cell.barycenter<dim>()).norm() <= 1e-12, ExcInternalError());
 }
 
 int

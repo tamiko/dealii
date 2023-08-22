@@ -70,13 +70,11 @@ iterate(DynamicSparsityPattern &sp)
   {
     for (unsigned int row = 0; row < sp.n_rows(); ++row)
       {
-        DynamicSparsityPattern::iterator col     = sp.begin(row),
-                                         end_col = sp.end(row);
+        DynamicSparsityPattern::iterator col = sp.begin(row), end_col = sp.end(row);
         deallog << "row " << row << ':' << std::endl;
         for (; col != end_col; ++col)
           {
-            deallog << "row= " << col->row() << ", col= " << col->column()
-                    << ", index= " << col->index() << std::endl;
+            deallog << "row= " << col->row() << ", col= " << col->column() << ", index= " << col->index() << std::endl;
           }
       }
   }

@@ -47,13 +47,13 @@ output_double_number(double input, const std::string &text)
 
 template <int dim, int fe_degree, typename Number>
 void
-mass_operator(const MatrixFree<dim, Number> &              data,
-              Vector<Number> &                             dst,
-              const Vector<Number> &                       src,
+mass_operator(const MatrixFree<dim, Number>               &data,
+              Vector<Number>                              &dst,
+              const Vector<Number>                        &src,
               const std::pair<unsigned int, unsigned int> &cell_range)
 {
   FEEvaluation<dim, fe_degree, fe_degree + 1, 1, Number> fe_eval(data);
-  const unsigned int n_q_points = fe_eval.n_q_points;
+  const unsigned int                                     n_q_points = fe_eval.n_q_points;
 
   for (unsigned int cell = cell_range.first; cell < cell_range.second; ++cell)
     {
@@ -126,10 +126,7 @@ test(const FiniteElement<dim> &fe, const unsigned int n_iterations)
   MatrixFreeTest<dim, fe_degree, number> mf(mf_data);
   Vector<number>                         in(dof.n_dofs()), out(dof.n_dofs());
 
-  VectorTools::create_right_hand_side(dof,
-                                      QGauss<dim>(fe_degree + 1),
-                                      Functions::CosineFunction<dim>(),
-                                      in);
+  VectorTools::create_right_hand_side(dof, QGauss<dim>(fe_degree + 1), Functions::CosineFunction<dim>(), in);
 
   // prescribe number of iterations in CG instead of tolerance. This is needed
   // to get the same test output on different platforms where roundoff errors
@@ -138,9 +135,7 @@ test(const FiniteElement<dim> &fe, const unsigned int n_iterations)
   SolverControl control(n_iterations, 0);
   SolverCG<>    solver(control);
   solver.connect_condition_number_slot(
-    std::bind(output_double_number,
-              std::placeholders::_1,
-              "Condition number estimate: "));
+    std::bind(output_double_number, std::placeholders::_1, "Condition number estimate: "));
   try
     {
       solver.solve(mf, out, in, PreconditionIdentity());
@@ -176,8 +171,7 @@ main()
     test<2, 10>(FE_Q<2>(10), 108);
     test<2, 10>(FE_Q<2>(QIterated<1>(QTrapezoid<1>(), 10)), 782);
     test<2, 10>(FE_DGQ<2>(10), 70);
-    test<2, 10>(FE_DGQArbitraryNodes<2>(QIterated<1>(QTrapezoid<1>(), 10)),
-                118);
+    test<2, 10>(FE_DGQArbitraryNodes<2>(QIterated<1>(QTrapezoid<1>(), 10)), 118);
     test<2, 16>(FE_Q<2>(16), 156);
     test<2, 25>(FE_Q<2>(25), 200);
     deallog.pop();

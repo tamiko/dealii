@@ -38,10 +38,8 @@ check_scale(const std::vector<Polynomial<double>> &p)
       q.scale(factor);
       double value1 = p[i].value(factor * x);
       double value2 = q.value(x);
-      if (std::fabs(value1 - value2) >
-          std::max(1e-13, 1e-13 * std::fabs(value1)))
-        deallog << "Error scale at x=" << x << ": p(t)=" << value1
-                << ", q(x)=" << value2 << std::endl;
+      if (std::fabs(value1 - value2) > std::max(1e-13, 1e-13 * std::fabs(value1)))
+        deallog << "Error scale at x=" << x << ": p(t)=" << value1 << ", q(x)=" << value2 << std::endl;
       deallog << '.';
     }
   deallog << std::endl;
@@ -65,10 +63,8 @@ check_shift(const std::vector<Polynomial<double>> &p)
       q.shift(a);
       double value1 = p[i].value(x + a);
       double value2 = q.value(x);
-      if (std::fabs(value1 - value2) >
-          std::max(1e-13, 1e-13 * std::fabs(value1)))
-        deallog << "Error shift at x=" << x << ": p(t)=" << value1
-                << ", q(x)=" << value2 << std::endl;
+      if (std::fabs(value1 - value2) > std::max(1e-13, 1e-13 * std::fabs(value1)))
+        deallog << "Error shift at x=" << x << ": p(t)=" << value1 << ", q(x)=" << value2 << std::endl;
       deallog << '.';
     }
   deallog << std::endl;
@@ -88,10 +84,8 @@ check_mult_scalar(const std::vector<Polynomial<double>> &p)
       q *= a;
       double value1 = p[i].value(x) * a;
       double value2 = q.value(x);
-      if (std::fabs(value1 - value2) >
-          std::max(1e-13, 1e-13 * std::fabs(value1)))
-        deallog << "Error multiply at x=" << x << ": a*p(x)=" << value1
-                << ", q(x)=" << value2 << std::endl;
+      if (std::fabs(value1 - value2) > std::max(1e-13, 1e-13 * std::fabs(value1)))
+        deallog << "Error multiply at x=" << x << ": a*p(x)=" << value1 << ", q(x)=" << value2 << std::endl;
       deallog << '.';
     }
   deallog << std::endl;
@@ -112,11 +106,8 @@ check_mult(const std::vector<Polynomial<double>> &p)
           double x      = random_value<double>();
           double value1 = p[i].value(x) * p[j].value(x);
           double value2 = q.value(x);
-          if (std::fabs(value1 - value2) >
-              std::max(1e-13, 1e-13 * std::fabs(value1)))
-            deallog << "Error multiply at x=" << x
-                    << ": p_1(x)*p_2(x)=" << value1 << ", q(x)=" << value2
-                    << std::endl;
+          if (std::fabs(value1 - value2) > std::max(1e-13, 1e-13 * std::fabs(value1)))
+            deallog << "Error multiply at x=" << x << ": p_1(x)*p_2(x)=" << value1 << ", q(x)=" << value2 << std::endl;
         }
       deallog << '.';
     }
@@ -148,10 +139,8 @@ check_expand(const std::vector<Polynomial<double>> &p)
       q += zero;
       double value1 = p[i].value(x);
       double value2 = q.value(x);
-      if (std::fabs(value1 - value2) >
-          std::max(1e-10, 1e-10 * std::fabs(value1)))
-        deallog << "Error expansion at x=" << x << ": p(x)=" << value1
-                << ", q(x)=" << value2 << std::endl;
+      if (std::fabs(value1 - value2) > std::max(1e-10, 1e-10 * std::fabs(value1)))
+        deallog << "Error expansion at x=" << x << ": p(x)=" << value1 << ", q(x)=" << value2 << std::endl;
       deallog << '.';
     }
   deallog << std::endl;
@@ -176,11 +165,9 @@ check_mult_expand(const std::vector<Polynomial<double>> &p)
           double x      = random_value<double>();
           double value1 = p[i].value(x) * p[j].value(x);
           double value2 = q.value(x);
-          if (std::fabs(value1 - value2) >
-              std::max(1e-9, 1e-9 * std::fabs(value1)))
-            deallog << "Error multiply at x=" << x << ": p_" << i << "(x)*p_"
-                    << j << "(x)=" << value1 << ", q(x)=" << value2
-                    << std::endl;
+          if (std::fabs(value1 - value2) > std::max(1e-9, 1e-9 * std::fabs(value1)))
+            deallog << "Error multiply at x=" << x << ": p_" << i << "(x)*p_" << j << "(x)=" << value1
+                    << ", q(x)=" << value2 << std::endl;
         }
       deallog << '.';
     }
@@ -193,8 +180,7 @@ void
 check_lge(unsigned int n)
 {
   deallog << "Points: " << n + 1 << std::endl;
-  std::vector<Polynomial<double>> p =
-    LagrangeEquidistant::generate_complete_basis(n);
+  std::vector<Polynomial<double>> p = LagrangeEquidistant::generate_complete_basis(n);
   check_scale(p);
   check_shift(p);
   check_mult_scalar(p);
@@ -210,8 +196,7 @@ void
 check_poly(const Quadrature<1> &q)
 {
   deallog << "Points: " << q.size() << std::endl;
-  std::vector<Polynomial<double>> p =
-    generate_complete_Lagrange_basis(q.get_points());
+  std::vector<Polynomial<double>> p = generate_complete_Lagrange_basis(q.get_points());
   check_scale(p);
   check_shift(p);
   check_mult_scalar(p);

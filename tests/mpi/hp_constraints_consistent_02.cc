@@ -55,9 +55,7 @@
 
 template <int dim>
 void
-test(const unsigned int degree_center,
-     const unsigned int degree_other,
-     const bool         print_constraints = false)
+test(const unsigned int degree_center, const unsigned int degree_other, const bool print_constraints = false)
 {
   Assert(dim > 1, ExcNotImplemented());
 
@@ -92,8 +90,7 @@ test(const unsigned int degree_center,
         // by checking the number of neighbors of the center cell
         unsigned int n_neighbors = 0;
         for (const unsigned int i : GeometryInfo<dim>::face_indices())
-          if (static_cast<unsigned int>(cell->neighbor_index(i)) !=
-              numbers::invalid_unsigned_int)
+          if (static_cast<unsigned int>(cell->neighbor_index(i)) != numbers::invalid_unsigned_int)
             ++n_neighbors;
         Assert(n_neighbors == 3, ExcInternalError());
 #endif
@@ -113,8 +110,7 @@ test(const unsigned int degree_center,
 
   VectorTools::compute_no_normal_flux_constraints(dh,
                                                   0, /*first component*/
-                                                  std::set<types::boundary_id>{
-                                                    0},
+                                                  std::set<types::boundary_id>{0},
                                                   constraints);
 
   constraints.close();
@@ -131,13 +127,12 @@ test(const unsigned int degree_center,
       deallog << "constraints:" << std::endl;
       constraints.print(deallog.get_file_stream());
     }
-  deallog
-    << "consistent? "
-    << constraints.is_consistent_in_parallel(locally_owned_dofs_per_processor,
-                                             locally_active_dofs,
-                                             MPI_COMM_WORLD,
-                                             true)
-    << std::endl;
+  deallog << "consistent? "
+          << constraints.is_consistent_in_parallel(locally_owned_dofs_per_processor,
+                                                   locally_active_dofs,
+                                                   MPI_COMM_WORLD,
+                                                   true)
+          << std::endl;
 
   deallog << "OK" << std::endl;
 }

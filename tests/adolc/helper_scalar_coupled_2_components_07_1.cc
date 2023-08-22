@@ -30,12 +30,8 @@ main()
 
   deallog.push("Double");
   {
-    test_symmetric_tensor_tensor_coupled<2,
-                                         double,
-                                         AD::NumberTypes::adolc_taped>();
-    test_symmetric_tensor_tensor_coupled<3,
-                                         double,
-                                         AD::NumberTypes::adolc_taped>();
+    test_symmetric_tensor_tensor_coupled<2, double, AD::NumberTypes::adolc_taped>();
+    test_symmetric_tensor_tensor_coupled<3, double, AD::NumberTypes::adolc_taped>();
     deallog << "OK" << std::endl;
   }
   deallog.pop();

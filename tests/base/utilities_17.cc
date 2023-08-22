@@ -70,16 +70,13 @@ test(const unsigned int plane = 1)
 
 
   const int  bit_depth = 2;
-  const auto res =
-    Utilities::inverse_Hilbert_space_filling_curve(points_degenerate,
-                                                   bit_depth);
+  const auto res       = Utilities::inverse_Hilbert_space_filling_curve(points_degenerate, bit_depth);
 
   deallog << plane << ':' << std::endl;
   for (const auto &p : res)
     {
       AssertThrow(p[0] == 0, ExcInternalError());
-      deallog << p[1] << ' ' << p[2] << ' '
-              << Utilities::pack_integers<3>(p, bit_depth) << std::endl;
+      deallog << p[1] << ' ' << p[2] << ' ' << Utilities::pack_integers<3>(p, bit_depth) << std::endl;
     }
   deallog << std::endl;
 }

@@ -42,22 +42,19 @@ namespace internal
   {
     template <int dim, int spacedim>
     ParallelData<dim, spacedim>::ParallelData(
-      const unsigned int               n_datasets,
-      const unsigned int               n_subdivisions,
-      const std::vector<unsigned int> &n_postprocessor_outputs,
-      const Mapping<dim, spacedim> &   mapping,
-      const std::vector<
-        std::shared_ptr<dealii::hp::FECollection<dim, spacedim>>>
-        &               finite_elements,
-      const UpdateFlags update_flags)
-      : internal::DataOutImplementation::ParallelDataBase<dim, spacedim>(
-          n_datasets,
-          n_subdivisions,
-          n_postprocessor_outputs,
-          mapping,
-          finite_elements,
-          update_flags,
-          true)
+      const unsigned int                                                           n_datasets,
+      const unsigned int                                                           n_subdivisions,
+      const std::vector<unsigned int>                                             &n_postprocessor_outputs,
+      const Mapping<dim, spacedim>                                                &mapping,
+      const std::vector<std::shared_ptr<dealii::hp::FECollection<dim, spacedim>>> &finite_elements,
+      const UpdateFlags                                                            update_flags)
+      : internal::DataOutImplementation::ParallelDataBase<dim, spacedim>(n_datasets,
+                                                                         n_subdivisions,
+                                                                         n_postprocessor_outputs,
+                                                                         mapping,
+                                                                         finite_elements,
+                                                                         update_flags,
+                                                                         true)
     {}
 
 
@@ -68,14 +65,10 @@ namespace internal
      */
     template <int dim, int spacedim>
     void
-    append_patch_to_list(
-      const DataOutBase::Patch<DataOutFaces<dim, spacedim>::patch_dim,
-                               DataOutFaces<dim, spacedim>::patch_spacedim>
-        &patch,
-      std::vector<
-        DataOutBase::Patch<DataOutFaces<dim, spacedim>::patch_dim,
-                           DataOutFaces<dim, spacedim>::patch_spacedim>>
-        &patches)
+    append_patch_to_list(const DataOutBase::Patch<DataOutFaces<dim, spacedim>::patch_dim,
+                                                  DataOutFaces<dim, spacedim>::patch_spacedim>        &patch,
+                         std::vector<DataOutBase::Patch<DataOutFaces<dim, spacedim>::patch_dim,
+                                                        DataOutFaces<dim, spacedim>::patch_spacedim>> &patches)
     {
       patches.push_back(patch);
       patches.back().patch_index = patches.size() - 1;
@@ -94,10 +87,9 @@ DataOutFaces<dim, spacedim>::DataOutFaces(const bool so)
 
 template <int dim, int spacedim>
 void
-DataOutFaces<dim, spacedim>::build_one_patch(
-  const FaceDescriptor *cell_and_face,
-  internal::DataOutFacesImplementation::ParallelData<dim, spacedim> &data,
-  DataOutBase::Patch<patch_dim, patch_spacedim> &                    patch)
+DataOutFaces<dim, spacedim>::build_one_patch(const FaceDescriptor *cell_and_face,
+                                             internal::DataOutFacesImplementation::ParallelData<dim, spacedim> &data,
+                                             DataOutBase::Patch<patch_dim, patch_spacedim>                     &patch)
 {
   const cell_iterator cell        = cell_and_face->first;
   const unsigned int  face_number = cell_and_face->second;
@@ -115,13 +107,11 @@ DataOutFaces<dim, spacedim>::build_one_patch(
   for (const unsigned int vertex : cell->face(face_number)->vertex_indices())
     {
       const Point<dim> vertex_reference_coordinates =
-        cell->reference_cell().template vertex<dim>(
-          cell->reference_cell().face_to_cell_vertices(
-            face_number, vertex, cell->combined_face_orientation(face_number)));
+        cell->reference_cell().template vertex<dim>(cell->reference_cell().face_to_cell_vertices(
+          face_number, vertex, cell->combined_face_orientation(face_number)));
 
       const Point<dim> vertex_real_coordinates =
-        data.mapping_collection[0].transform_unit_to_real_cell(
-          cell, vertex_reference_coordinates);
+        data.mapping_collection[0].transform_unit_to_real_cell(cell, vertex_reference_coordinates);
 
       patch.vertices[vertex] = vertex_real_coordinates;
     }
@@ -136,8 +126,7 @@ DataOutFaces<dim, spacedim>::build_one_patch(
 
       // store the intermediate points
       Assert(patch.space_dim == dim, ExcInternalError());
-      const std::vector<Point<dim>> &q_points =
-        fe_patch_values.get_quadrature_points();
+      const std::vector<Point<dim>> &q_points = fe_patch_values.get_quadrature_points();
       // size the patch.data member in order to have enough memory for the
       // quadrature points as well
       patch.data.reinit(data.n_datasets + dim, q_points.size());
@@ -155,18 +144,14 @@ DataOutFaces<dim, spacedim>::build_one_patch(
       // first fill dof_data
       for (unsigned int dataset = 0; dataset < this->dof_data.size(); ++dataset)
         {
-          const FEValuesBase<dim> &this_fe_patch_values =
-            data.get_present_fe_values(dataset);
-          const unsigned int n_components =
-            this_fe_patch_values.get_fe().n_components();
-          const DataPostprocessor<dim> *postprocessor =
-            this->dof_data[dataset]->postprocessor;
+          const FEValuesBase<dim>      &this_fe_patch_values = data.get_present_fe_values(dataset);
+          const unsigned int            n_components         = this_fe_patch_values.get_fe().n_components();
+          const DataPostprocessor<dim> *postprocessor        = this->dof_data[dataset]->postprocessor;
           if (postprocessor != nullptr)
             {
               // we have to postprocess the data, so determine, which fields
               // have to be updated
-              const UpdateFlags update_flags =
-                postprocessor->get_needed_update_flags();
+              const UpdateFlags update_flags = postprocessor->get_needed_update_flags();
 
               if (n_components == 1)
                 {
@@ -175,41 +160,30 @@ DataOutFaces<dim, spacedim>::build_one_patch(
                   if (update_flags & update_values)
                     this->dof_data[dataset]->get_function_values(
                       this_fe_patch_values,
-                      internal::DataOutImplementation::ComponentExtractor::
-                        real_part,
+                      internal::DataOutImplementation::ComponentExtractor::real_part,
                       data.patch_values_scalar.solution_values);
                   if (update_flags & update_gradients)
                     this->dof_data[dataset]->get_function_gradients(
                       this_fe_patch_values,
-                      internal::DataOutImplementation::ComponentExtractor::
-                        real_part,
+                      internal::DataOutImplementation::ComponentExtractor::real_part,
                       data.patch_values_scalar.solution_gradients);
                   if (update_flags & update_hessians)
                     this->dof_data[dataset]->get_function_hessians(
                       this_fe_patch_values,
-                      internal::DataOutImplementation::ComponentExtractor::
-                        real_part,
+                      internal::DataOutImplementation::ComponentExtractor::real_part,
                       data.patch_values_scalar.solution_hessians);
 
                   if (update_flags & update_quadrature_points)
-                    data.patch_values_scalar.evaluation_points =
-                      this_fe_patch_values.get_quadrature_points();
+                    data.patch_values_scalar.evaluation_points = this_fe_patch_values.get_quadrature_points();
 
                   if (update_flags & update_normal_vectors)
-                    data.patch_values_scalar.normals =
-                      this_fe_patch_values.get_normal_vectors();
+                    data.patch_values_scalar.normals = this_fe_patch_values.get_normal_vectors();
 
-                  const typename DoFHandler<dim, spacedim>::active_cell_iterator
-                    dh_cell(&cell->get_triangulation(),
-                            cell->level(),
-                            cell->index(),
-                            this->dof_data[dataset]->dof_handler);
-                  data.patch_values_scalar.template set_cell_and_face<dim>(
-                    dh_cell, face_number);
+                  const typename DoFHandler<dim, spacedim>::active_cell_iterator dh_cell(
+                    &cell->get_triangulation(), cell->level(), cell->index(), this->dof_data[dataset]->dof_handler);
+                  data.patch_values_scalar.template set_cell_and_face<dim>(dh_cell, face_number);
 
-                  postprocessor->evaluate_scalar_field(
-                    data.patch_values_scalar,
-                    data.postprocessed_values[dataset]);
+                  postprocessor->evaluate_scalar_field(data.patch_values_scalar, data.postprocessed_values[dataset]);
                 }
               else
                 {
@@ -219,101 +193,80 @@ DataOutFaces<dim, spacedim>::build_one_patch(
                   if (update_flags & update_values)
                     this->dof_data[dataset]->get_function_values(
                       this_fe_patch_values,
-                      internal::DataOutImplementation::ComponentExtractor::
-                        real_part,
+                      internal::DataOutImplementation::ComponentExtractor::real_part,
                       data.patch_values_system.solution_values);
                   if (update_flags & update_gradients)
                     this->dof_data[dataset]->get_function_gradients(
                       this_fe_patch_values,
-                      internal::DataOutImplementation::ComponentExtractor::
-                        real_part,
+                      internal::DataOutImplementation::ComponentExtractor::real_part,
                       data.patch_values_system.solution_gradients);
                   if (update_flags & update_hessians)
                     this->dof_data[dataset]->get_function_hessians(
                       this_fe_patch_values,
-                      internal::DataOutImplementation::ComponentExtractor::
-                        real_part,
+                      internal::DataOutImplementation::ComponentExtractor::real_part,
                       data.patch_values_system.solution_hessians);
 
                   if (update_flags & update_quadrature_points)
-                    data.patch_values_system.evaluation_points =
-                      this_fe_patch_values.get_quadrature_points();
+                    data.patch_values_system.evaluation_points = this_fe_patch_values.get_quadrature_points();
 
                   if (update_flags & update_normal_vectors)
-                    data.patch_values_system.normals =
-                      this_fe_patch_values.get_normal_vectors();
+                    data.patch_values_system.normals = this_fe_patch_values.get_normal_vectors();
 
-                  const typename DoFHandler<dim, spacedim>::active_cell_iterator
-                    dh_cell(&cell->get_triangulation(),
-                            cell->level(),
-                            cell->index(),
-                            this->dof_data[dataset]->dof_handler);
-                  data.patch_values_system.template set_cell_and_face<dim>(
-                    dh_cell, face_number);
+                  const typename DoFHandler<dim, spacedim>::active_cell_iterator dh_cell(
+                    &cell->get_triangulation(), cell->level(), cell->index(), this->dof_data[dataset]->dof_handler);
+                  data.patch_values_system.template set_cell_and_face<dim>(dh_cell, face_number);
 
-                  postprocessor->evaluate_vector_field(
-                    data.patch_values_system,
-                    data.postprocessed_values[dataset]);
+                  postprocessor->evaluate_vector_field(data.patch_values_system, data.postprocessed_values[dataset]);
                 }
 
               for (unsigned int q = 0; q < n_q_points; ++q)
-                for (unsigned int component = 0;
-                     component < this->dof_data[dataset]->n_output_variables;
-                     ++component)
-                  patch.data(offset + component, q) =
-                    data.postprocessed_values[dataset][q](component);
+                for (unsigned int component = 0; component < this->dof_data[dataset]->n_output_variables; ++component)
+                  patch.data(offset + component, q) = data.postprocessed_values[dataset][q](component);
             }
           else
             // now we use the given data vector without modifications. again,
             // we treat single component functions separately for efficiency
             // reasons.
             if (n_components == 1)
-            {
-              this->dof_data[dataset]->get_function_values(
-                this_fe_patch_values,
-                internal::DataOutImplementation::ComponentExtractor::real_part,
-                data.patch_values_scalar.solution_values);
-              for (unsigned int q = 0; q < n_q_points; ++q)
-                patch.data(offset, q) =
-                  data.patch_values_scalar.solution_values[q];
-            }
-          else
-            {
-              data.resize_system_vectors(n_components);
-              this->dof_data[dataset]->get_function_values(
-                this_fe_patch_values,
-                internal::DataOutImplementation::ComponentExtractor::real_part,
-                data.patch_values_system.solution_values);
-              for (unsigned int component = 0; component < n_components;
-                   ++component)
+              {
+                this->dof_data[dataset]->get_function_values(
+                  this_fe_patch_values,
+                  internal::DataOutImplementation::ComponentExtractor::real_part,
+                  data.patch_values_scalar.solution_values);
                 for (unsigned int q = 0; q < n_q_points; ++q)
-                  patch.data(offset + component, q) =
-                    data.patch_values_system.solution_values[q](component);
-            }
+                  patch.data(offset, q) = data.patch_values_scalar.solution_values[q];
+              }
+            else
+              {
+                data.resize_system_vectors(n_components);
+                this->dof_data[dataset]->get_function_values(
+                  this_fe_patch_values,
+                  internal::DataOutImplementation::ComponentExtractor::real_part,
+                  data.patch_values_system.solution_values);
+                for (unsigned int component = 0; component < n_components; ++component)
+                  for (unsigned int q = 0; q < n_q_points; ++q)
+                    patch.data(offset + component, q) = data.patch_values_system.solution_values[q](component);
+              }
           // increment the counter for the actual data record
           offset += this->dof_data[dataset]->n_output_variables;
         }
 
       // then do the cell data
-      for (unsigned int dataset = 0; dataset < this->cell_data.size();
-           ++dataset)
+      for (unsigned int dataset = 0; dataset < this->cell_data.size(); ++dataset)
         {
           // we need to get at the number of the cell to which this face
           // belongs in order to access the cell data. this is not readily
           // available, so choose the following rather inefficient way:
-          Assert(
-            cell->is_active(),
-            ExcMessage(
-              "The current function is trying to generate cell-data output "
-              "for a face that does not belong to an active cell. This is "
-              "not supported."));
-          const unsigned int cell_number = std::distance(
-            this->triangulation->begin_active(),
-            typename Triangulation<dim, spacedim>::active_cell_iterator(cell));
+          Assert(cell->is_active(),
+                 ExcMessage("The current function is trying to generate cell-data output "
+                            "for a face that does not belong to an active cell. This is "
+                            "not supported."));
+          const unsigned int cell_number =
+            std::distance(this->triangulation->begin_active(),
+                          typename Triangulation<dim, spacedim>::active_cell_iterator(cell));
 
           const double value = this->cell_data[dataset]->get_cell_data_value(
-            cell_number,
-            internal::DataOutImplementation::ComponentExtractor::real_part);
+            cell_number, internal::DataOutImplementation::ComponentExtractor::real_part);
           for (unsigned int q = 0; q < n_q_points; ++q)
             patch.data(dataset + offset, q) = value;
         }
@@ -327,8 +280,7 @@ void
 DataOutFaces<dim, spacedim>::build_patches(const unsigned int n_subdivisions)
 {
   if (this->triangulation->get_reference_cells().size() == 1)
-    build_patches(this->triangulation->get_reference_cells()[0]
-                    .template get_default_linear_mapping<dim, spacedim>(),
+    build_patches(this->triangulation->get_reference_cells()[0].template get_default_linear_mapping<dim, spacedim>(),
                   n_subdivisions);
   else
     Assert(false,
@@ -341,19 +293,13 @@ DataOutFaces<dim, spacedim>::build_patches(const unsigned int n_subdivisions)
 
 template <int dim, int spacedim>
 void
-DataOutFaces<dim, spacedim>::build_patches(
-  const Mapping<dim, spacedim> &mapping,
-  const unsigned int            n_subdivisions_)
+DataOutFaces<dim, spacedim>::build_patches(const Mapping<dim, spacedim> &mapping, const unsigned int n_subdivisions_)
 {
-  const unsigned int n_subdivisions =
-    (n_subdivisions_ != 0) ? n_subdivisions_ : this->default_subdivisions;
+  const unsigned int n_subdivisions = (n_subdivisions_ != 0) ? n_subdivisions_ : this->default_subdivisions;
 
-  Assert(n_subdivisions >= 1,
-         Exceptions::DataOutImplementation::ExcInvalidNumberOfSubdivisions(
-           n_subdivisions));
+  Assert(n_subdivisions >= 1, Exceptions::DataOutImplementation::ExcInvalidNumberOfSubdivisions(n_subdivisions));
 
-  Assert(this->triangulation != nullptr,
-         Exceptions::DataOutImplementation::ExcNoTriangulationSelected());
+  Assert(this->triangulation != nullptr, Exceptions::DataOutImplementation::ExcNoTriangulationSelected());
 
   this->validate_dataset_names();
 
@@ -366,10 +312,8 @@ DataOutFaces<dim, spacedim>::build_patches(
   // test that next_face() returns an end iterator, as well as for the
   // case that first_face() returns an invalid FaceDescriptor object
   std::vector<FaceDescriptor> all_faces;
-  for (FaceDescriptor face = first_face();
-       ((face.first != this->triangulation->end()) &&
-        (face != FaceDescriptor()));
-       face = next_face(face))
+  for (FaceDescriptor face = first_face(); ((face.first != this->triangulation->end()) && (face != FaceDescriptor()));
+       face                = next_face(face))
     all_faces.push_back(face);
 
   // clear the patches array and allocate the right number of elements
@@ -381,25 +325,18 @@ DataOutFaces<dim, spacedim>::build_patches(
   std::vector<unsigned int> n_postprocessor_outputs(this->dof_data.size());
   for (unsigned int dataset = 0; dataset < this->dof_data.size(); ++dataset)
     if (this->dof_data[dataset]->postprocessor)
-      n_postprocessor_outputs[dataset] =
-        this->dof_data[dataset]->n_output_variables;
+      n_postprocessor_outputs[dataset] = this->dof_data[dataset]->n_output_variables;
     else
       n_postprocessor_outputs[dataset] = 0;
 
   UpdateFlags update_flags = update_values;
   for (unsigned int i = 0; i < this->dof_data.size(); ++i)
     if (this->dof_data[i]->postprocessor)
-      update_flags |=
-        this->dof_data[i]->postprocessor->get_needed_update_flags();
+      update_flags |= this->dof_data[i]->postprocessor->get_needed_update_flags();
   update_flags |= update_quadrature_points;
 
   internal::DataOutFacesImplementation::ParallelData<dim, spacedim> thread_data(
-    n_datasets,
-    n_subdivisions,
-    n_postprocessor_outputs,
-    mapping,
-    this->get_fes(),
-    update_flags);
+    n_datasets, n_subdivisions, n_postprocessor_outputs, mapping, this->get_fes(), update_flags);
   DataOutBase::Patch<patch_dim, patch_spacedim> sample_patch;
   sample_patch.n_subdivisions = n_subdivisions;
 
@@ -407,15 +344,11 @@ DataOutFaces<dim, spacedim>::build_patches(
   WorkStream::run(
     all_faces.data(),
     all_faces.data() + all_faces.size(),
-    [this](
-      const FaceDescriptor *cell_and_face,
-      internal::DataOutFacesImplementation::ParallelData<dim, spacedim> &data,
-      DataOutBase::Patch<patch_dim, patch_spacedim> &patch) {
-      this->build_one_patch(cell_and_face, data, patch);
-    },
+    [this](const FaceDescriptor                                              *cell_and_face,
+           internal::DataOutFacesImplementation::ParallelData<dim, spacedim> &data,
+           DataOutBase::Patch<patch_dim, patch_spacedim> &patch) { this->build_one_patch(cell_and_face, data, patch); },
     [this](const DataOutBase::Patch<patch_dim, patch_spacedim> &patch) {
-      internal::DataOutFacesImplementation::append_patch_to_list<dim, spacedim>(
-        patch, this->patches);
+      internal::DataOutFacesImplementation::append_patch_to_list<dim, spacedim>(patch, this->patches);
     },
     thread_data,
     sample_patch);
@@ -463,8 +396,7 @@ DataOutFaces<dim, spacedim>::next_face(const FaceDescriptor &old_face)
 
   // convert the iterator to an active_iterator and advance this to the next
   // active cell
-  typename Triangulation<dim, spacedim>::active_cell_iterator active_cell =
-    face.first;
+  typename Triangulation<dim, spacedim>::active_cell_iterator active_cell = face.first;
 
   // increase face pointer by one
   ++active_cell;

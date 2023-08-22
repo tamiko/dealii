@@ -98,8 +98,7 @@ namespace internal
        * Index of the @p line-th lines of @p face-th surface.
        */
       virtual unsigned int
-      nth_line_of_surface(const unsigned int line,
-                          const unsigned int face) const
+      nth_line_of_surface(const unsigned int line, const unsigned int face) const
       {
         Assert(false, ExcNotImplemented());
         (void)line;
@@ -112,8 +111,7 @@ namespace internal
        * Vertex indices of the @p line-th lines of @p face-th surface.
        */
       virtual const std::array<unsigned int, 2> &
-      vertices_of_nth_line_of_surface(const unsigned int line,
-                                      const unsigned int face) const
+      vertices_of_nth_line_of_surface(const unsigned int line, const unsigned int face) const
       {
         Assert(false, ExcNotImplemented());
         (void)line;
@@ -133,8 +131,7 @@ namespace internal
     struct CellTypeLine : public CellTypeBase
     {
       dealii::ArrayView<const unsigned int>
-      vertices_of_entity(const unsigned int d,
-                         const unsigned int e) const override
+      vertices_of_entity(const unsigned int d, const unsigned int e) const override
       {
         (void)e;
 
@@ -181,8 +178,7 @@ namespace internal
     struct CellTypeTriangle : public CellTypeBase
     {
       dealii::ArrayView<const unsigned int>
-      vertices_of_entity(const unsigned int d,
-                         const unsigned int e) const override
+      vertices_of_entity(const unsigned int d, const unsigned int e) const override
       {
         if (d == 2)
           {
@@ -195,8 +191,7 @@ namespace internal
 
         if (d == 1)
           {
-            static const dealii::ndarray<unsigned int, 3, 2> table = {
-              {{{0, 1}}, {{1, 2}}, {{2, 0}}}};
+            static const dealii::ndarray<unsigned int, 3, 2> table = {{{{0, 1}}, {{1, 2}}, {{2, 0}}}};
 
             return {table[e]};
           }
@@ -238,8 +233,7 @@ namespace internal
     struct CellTypeQuadrilateral : public CellTypeBase
     {
       dealii::ArrayView<const unsigned int>
-      vertices_of_entity(const unsigned int d,
-                         const unsigned int e) const override
+      vertices_of_entity(const unsigned int d, const unsigned int e) const override
       {
         if (d == 2)
           {
@@ -252,8 +246,7 @@ namespace internal
 
         if (d == 1)
           {
-            static const dealii::ndarray<unsigned int, 4, 2> table = {
-              {{{0, 2}}, {{1, 3}}, {{0, 1}}, {{2, 3}}}};
+            static const dealii::ndarray<unsigned int, 4, 2> table = {{{{0, 2}}, {{1, 3}}, {{0, 1}}, {{2, 3}}}};
 
             return {table[e]};
           }
@@ -295,8 +288,7 @@ namespace internal
     struct CellTypeTetrahedron : public CellTypeBase
     {
       dealii::ArrayView<const unsigned int>
-      vertices_of_entity(const unsigned int d,
-                         const unsigned int e) const override
+      vertices_of_entity(const unsigned int d, const unsigned int e) const override
       {
         if (d == 3)
           {
@@ -362,24 +354,20 @@ namespace internal
       }
 
       unsigned int
-      nth_line_of_surface(const unsigned int line,
-                          const unsigned int face) const override
+      nth_line_of_surface(const unsigned int line, const unsigned int face) const override
       {
-        const static dealii::ndarray<unsigned int, 4, 3> table = {
-          {{{0, 1, 2}}, {{0, 3, 4}}, {{2, 5, 3}}, {{1, 4, 5}}}};
+        const static dealii::ndarray<unsigned int, 4, 3> table = {{{{0, 1, 2}}, {{0, 3, 4}}, {{2, 5, 3}}, {{1, 4, 5}}}};
 
         return table[face][line];
       }
 
       const std::array<unsigned int, 2> &
-      vertices_of_nth_line_of_surface(const unsigned int line,
-                                      const unsigned int face) const override
+      vertices_of_nth_line_of_surface(const unsigned int line, const unsigned int face) const override
       {
-        const static dealii::ndarray<unsigned int, 4, 3, 2> table = {
-          {{{{{0, 1}}, {{1, 2}}, {{2, 0}}}},
-           {{{{1, 0}}, {{0, 3}}, {{3, 1}}}},
-           {{{{0, 2}}, {{2, 3}}, {{3, 0}}}},
-           {{{{2, 1}}, {{1, 3}}, {{3, 2}}}}}};
+        const static dealii::ndarray<unsigned int, 4, 3, 2> table = {{{{{{0, 1}}, {{1, 2}}, {{2, 0}}}},
+                                                                      {{{{1, 0}}, {{0, 3}}, {{3, 1}}}},
+                                                                      {{{{0, 2}}, {{2, 3}}, {{3, 0}}}},
+                                                                      {{{{2, 1}}, {{1, 3}}, {{3, 2}}}}}};
 
         return table[face][line];
       }
@@ -393,8 +381,7 @@ namespace internal
     struct CellTypePyramid : public CellTypeBase
     {
       dealii::ArrayView<const unsigned int>
-      vertices_of_entity(const unsigned int d,
-                         const unsigned int e) const override
+      vertices_of_entity(const unsigned int d, const unsigned int e) const override
       {
         if (d == 3)
           {
@@ -422,14 +409,7 @@ namespace internal
         if (d == 1)
           {
             static const dealii::ndarray<unsigned int, 8, 2> table = {
-              {{{0, 2}},
-               {{1, 3}},
-               {{0, 1}},
-               {{2, 3}},
-               {{0, 4}},
-               {{1, 4}},
-               {{2, 4}},
-               {{3, 4}}}};
+              {{{0, 2}}, {{1, 3}}, {{0, 1}}, {{2, 3}}, {{0, 4}}, {{1, 4}}, {{2, 4}}, {{3, 4}}}};
 
             return {table[e]};
           }
@@ -477,31 +457,27 @@ namespace internal
       }
 
       unsigned int
-      nth_line_of_surface(const unsigned int line,
-                          const unsigned int face) const override
+      nth_line_of_surface(const unsigned int line, const unsigned int face) const override
       {
-        const static dealii::ndarray<unsigned int, 5, 4> table = {
-          {{{0, 1, 2, 3}},
-           {{0, 6, 4, numbers::invalid_unsigned_int}},
-           {{1, 5, 7, numbers::invalid_unsigned_int}},
-           {{2, 4, 5, numbers::invalid_unsigned_int}},
-           {{3, 7, 6, numbers::invalid_unsigned_int}}}};
+        const static dealii::ndarray<unsigned int, 5, 4> table = {{{{0, 1, 2, 3}},
+                                                                   {{0, 6, 4, numbers::invalid_unsigned_int}},
+                                                                   {{1, 5, 7, numbers::invalid_unsigned_int}},
+                                                                   {{2, 4, 5, numbers::invalid_unsigned_int}},
+                                                                   {{3, 7, 6, numbers::invalid_unsigned_int}}}};
 
         return table[face][line];
       }
 
       const std::array<unsigned int, 2> &
-      vertices_of_nth_line_of_surface(const unsigned int line,
-                                      const unsigned int face) const override
+      vertices_of_nth_line_of_surface(const unsigned int line, const unsigned int face) const override
       {
         static const unsigned int X = static_cast<unsigned int>(-1);
 
-        const static dealii::ndarray<unsigned int, 5, 4, 2> table = {
-          {{{{{0, 2}}, {{1, 3}}, {{0, 1}}, {{2, 3}}}},
-           {{{{0, 2}}, {{2, 4}}, {{4, 0}}, {{X, X}}}},
-           {{{{3, 1}}, {{1, 4}}, {{4, 3}}, {{X, X}}}},
-           {{{{1, 0}}, {{0, 4}}, {{4, 1}}, {{X, X}}}},
-           {{{{2, 3}}, {{3, 4}}, {{4, 2}}, {{X, X}}}}}};
+        const static dealii::ndarray<unsigned int, 5, 4, 2> table = {{{{{{0, 2}}, {{1, 3}}, {{0, 1}}, {{2, 3}}}},
+                                                                      {{{{0, 2}}, {{2, 4}}, {{4, 0}}, {{X, X}}}},
+                                                                      {{{{3, 1}}, {{1, 4}}, {{4, 3}}, {{X, X}}}},
+                                                                      {{{{1, 0}}, {{0, 4}}, {{4, 1}}, {{X, X}}}},
+                                                                      {{{{2, 3}}, {{3, 4}}, {{4, 2}}, {{X, X}}}}}};
 
         return table[face][line];
       }
@@ -515,13 +491,11 @@ namespace internal
     struct CellTypeWedge : public CellTypeBase
     {
       dealii::ArrayView<const unsigned int>
-      vertices_of_entity(const unsigned int d,
-                         const unsigned int e) const override
+      vertices_of_entity(const unsigned int d, const unsigned int e) const override
       {
         if (d == 3)
           {
-            static const std::array<unsigned int, 6> table = {
-              {0, 1, 2, 3, 4, 5}};
+            static const std::array<unsigned int, 6> table = {{0, 1, 2, 3, 4, 5}};
 
             AssertDimension(e, 0);
 
@@ -532,14 +506,12 @@ namespace internal
           {
             if (e == 0 || e == 1)
               {
-                static const dealii::ndarray<unsigned int, 2, 3> table = {
-                  {{{1, 0, 2}}, {{3, 4, 5}}}};
+                static const dealii::ndarray<unsigned int, 2, 3> table = {{{{1, 0, 2}}, {{3, 4, 5}}}};
 
                 return {table[e]};
               }
 
-            static const dealii::ndarray<unsigned int, 3, 4> table = {
-              {{{0, 1, 3, 4}}, {{1, 2, 4, 5}}, {{2, 0, 5, 3}}}};
+            static const dealii::ndarray<unsigned int, 3, 4> table = {{{{0, 1, 3, 4}}, {{1, 2, 4, 5}}, {{2, 0, 5, 3}}}};
 
             return {table[e - 2]};
           }
@@ -547,15 +519,7 @@ namespace internal
         if (d == 1)
           {
             static const dealii::ndarray<unsigned int, 9, 2> table = {
-              {{{0, 1}},
-               {{1, 2}},
-               {{2, 0}},
-               {{3, 4}},
-               {{4, 5}},
-               {{5, 3}},
-               {{0, 3}},
-               {{1, 4}},
-               {{2, 5}}}};
+              {{{0, 1}}, {{1, 2}}, {{2, 0}}, {{3, 4}}, {{4, 5}}, {{5, 3}}, {{0, 3}}, {{1, 4}}, {{2, 5}}}};
 
             return {table[e]};
           }
@@ -603,33 +567,26 @@ namespace internal
       }
 
       unsigned int
-      nth_line_of_surface(const unsigned int line,
-                          const unsigned int face) const override
+      nth_line_of_surface(const unsigned int line, const unsigned int face) const override
       {
         static const unsigned int X = static_cast<unsigned int>(-1);
 
         const static dealii::ndarray<unsigned int, 5, 4> table = {
-          {{{0, 2, 1, X}},
-           {{3, 4, 5, X}},
-           {{6, 7, 0, 3}},
-           {{7, 8, 1, 4}},
-           {{8, 6, 5, 2}}}};
+          {{{0, 2, 1, X}}, {{3, 4, 5, X}}, {{6, 7, 0, 3}}, {{7, 8, 1, 4}}, {{8, 6, 5, 2}}}};
 
         return table[face][line];
       }
 
       const std::array<unsigned int, 2> &
-      vertices_of_nth_line_of_surface(const unsigned int line,
-                                      const unsigned int face) const override
+      vertices_of_nth_line_of_surface(const unsigned int line, const unsigned int face) const override
       {
         static const unsigned int X = static_cast<unsigned int>(-1);
 
-        const static dealii::ndarray<unsigned int, 5, 4, 2> table = {
-          {{{{{1, 0}}, {{0, 2}}, {{2, 1}}, {{X, X}}}},
-           {{{{3, 4}}, {{4, 5}}, {{5, 3}}, {{X, X}}}},
-           {{{{0, 3}}, {{1, 4}}, {{0, 1}}, {{3, 4}}}},
-           {{{{1, 4}}, {{2, 5}}, {{1, 2}}, {{4, 5}}}},
-           {{{{2, 5}}, {{0, 3}}, {{2, 0}}, {{5, 3}}}}}};
+        const static dealii::ndarray<unsigned int, 5, 4, 2> table = {{{{{{1, 0}}, {{0, 2}}, {{2, 1}}, {{X, X}}}},
+                                                                      {{{{3, 4}}, {{4, 5}}, {{5, 3}}, {{X, X}}}},
+                                                                      {{{{0, 3}}, {{1, 4}}, {{0, 1}}, {{3, 4}}}},
+                                                                      {{{{1, 4}}, {{2, 5}}, {{1, 2}}, {{4, 5}}}},
+                                                                      {{{{2, 5}}, {{0, 3}}, {{2, 0}}, {{5, 3}}}}}};
 
         return table[face][line];
       }
@@ -643,13 +600,11 @@ namespace internal
     struct CellTypeHexahedron : public CellTypeBase
     {
       dealii::ArrayView<const unsigned int>
-      vertices_of_entity(const unsigned int d,
-                         const unsigned int e) const override
+      vertices_of_entity(const unsigned int d, const unsigned int e) const override
       {
         if (d == 3)
           {
-            static const std::array<unsigned int, 8> table = {
-              {0, 1, 2, 3, 4, 5, 6, 7}};
+            static const std::array<unsigned int, 8> table = {{0, 1, 2, 3, 4, 5, 6, 7}};
 
             AssertDimension(e, 0);
 
@@ -659,31 +614,25 @@ namespace internal
         if (d == 2)
           {
             static const dealii::ndarray<unsigned int, 6, 4> table = {
-              {{{0, 2, 4, 6}},
-               {{1, 3, 5, 7}},
-               {{0, 4, 1, 5}},
-               {{2, 6, 3, 7}},
-               {{0, 1, 2, 3}},
-               {{4, 5, 6, 7}}}};
+              {{{0, 2, 4, 6}}, {{1, 3, 5, 7}}, {{0, 4, 1, 5}}, {{2, 6, 3, 7}}, {{0, 1, 2, 3}}, {{4, 5, 6, 7}}}};
 
             return {table[e]};
           }
 
         if (d == 1)
           {
-            static const dealii::ndarray<unsigned int, 12, 2> table = {
-              {{{0, 2}},
-               {{1, 3}},
-               {{0, 1}},
-               {{2, 3}},
-               {{4, 6}},
-               {{5, 7}},
-               {{4, 5}},
-               {{6, 7}},
-               {{0, 4}},
-               {{1, 5}},
-               {{2, 6}},
-               {{3, 7}}}};
+            static const dealii::ndarray<unsigned int, 12, 2> table = {{{{0, 2}},
+                                                                        {{1, 3}},
+                                                                        {{0, 1}},
+                                                                        {{2, 3}},
+                                                                        {{4, 6}},
+                                                                        {{5, 7}},
+                                                                        {{4, 5}},
+                                                                        {{6, 7}},
+                                                                        {{0, 4}},
+                                                                        {{1, 5}},
+                                                                        {{2, 6}},
+                                                                        {{3, 7}}}};
 
             return {table[e]};
           }
@@ -727,31 +676,23 @@ namespace internal
       }
 
       unsigned int
-      nth_line_of_surface(const unsigned int line,
-                          const unsigned int face) const override
+      nth_line_of_surface(const unsigned int line, const unsigned int face) const override
       {
         const static dealii::ndarray<unsigned int, 6, 4> table = {
-          {{{8, 10, 0, 4}},
-           {{9, 11, 1, 5}},
-           {{2, 6, 8, 9}},
-           {{3, 7, 10, 11}},
-           {{0, 1, 2, 3}},
-           {{4, 5, 6, 7}}}};
+          {{{8, 10, 0, 4}}, {{9, 11, 1, 5}}, {{2, 6, 8, 9}}, {{3, 7, 10, 11}}, {{0, 1, 2, 3}}, {{4, 5, 6, 7}}}};
 
         return table[face][line];
       }
 
       const std::array<unsigned int, 2> &
-      vertices_of_nth_line_of_surface(const unsigned int line,
-                                      const unsigned int face) const override
+      vertices_of_nth_line_of_surface(const unsigned int line, const unsigned int face) const override
       {
-        const static dealii::ndarray<unsigned int, 6, 4, 2> table = {
-          {{{{{0, 4}}, {{2, 6}}, {{0, 2}}, {{4, 6}}}},
-           {{{{1, 5}}, {{3, 7}}, {{1, 3}}, {{5, 7}}}},
-           {{{{0, 1}}, {{4, 5}}, {{0, 4}}, {{1, 5}}}},
-           {{{{2, 3}}, {{6, 7}}, {{2, 6}}, {{3, 7}}}},
-           {{{{0, 2}}, {{1, 3}}, {{0, 1}}, {{2, 3}}}},
-           {{{{4, 6}}, {{5, 7}}, {{4, 5}}, {{6, 7}}}}}};
+        const static dealii::ndarray<unsigned int, 6, 4, 2> table = {{{{{{0, 4}}, {{2, 6}}, {{0, 2}}, {{4, 6}}}},
+                                                                      {{{{1, 5}}, {{3, 7}}, {{1, 3}}, {{5, 7}}}},
+                                                                      {{{{0, 1}}, {{4, 5}}, {{0, 4}}, {{1, 5}}}},
+                                                                      {{{{2, 3}}, {{6, 7}}, {{2, 6}}, {{3, 7}}}},
+                                                                      {{{{0, 2}}, {{1, 3}}, {{0, 1}}, {{2, 3}}}},
+                                                                      {{{{4, 6}}, {{5, 7}}, {{4, 5}}, {{6, 7}}}}}};
 
         return table[face][line];
       }
@@ -822,8 +763,7 @@ namespace internal
     template <typename T = unsigned int>
     struct Connectivity
     {
-      Connectivity(const unsigned int                dim,
-                   const std::vector<ReferenceCell> &cell_types)
+      Connectivity(const unsigned int dim, const std::vector<ReferenceCell> &cell_types)
         : dim(dim)
         , cell_types(cell_types)
       {}
@@ -952,8 +892,7 @@ namespace internal
       auto &col_cc = con_cc.col;
       auto &ptr_cc = con_cc.ptr;
 
-      const unsigned int n_faces =
-        *std::max_element(col_cf.begin(), col_cf.end()) + 1;
+      const unsigned int n_faces = *std::max_element(col_cf.begin(), col_cf.end()) + 1;
 
       // clear and initialize with -1 (assume that all faces are at the
       // boundary)
@@ -979,7 +918,7 @@ namespace internal
                   // face is visited the second time -> now we know the cells
                   // on both sides of the face and we can determine for both
                   // cells the neighbor
-                  col_cc[j_0] = neighbors[col_cf[j_0]].first;
+                  col_cc[j_0]                           = neighbors[col_cf[j_0]].first;
                   col_cc[neighbors[col_cf[j_0]].second] = i_0;
                 }
             }
@@ -997,26 +936,25 @@ namespace internal
      */
     template <int max_n_vertices, typename FU>
     void
-    build_face_entities_templated(
-      const unsigned int                                face_dimensionality,
-      const std::vector<std::shared_ptr<CellTypeBase>> &cell_types,
-      const std::vector<ReferenceCell> &                cell_types_index,
-      const CRS<unsigned int> &                         crs,
-      CRS<unsigned int> &                               crs_d,        // result
-      CRS<unsigned int> &                               crs_0,        // result
-      TriaObjectsOrientations &                         orientations, // result
-      const FU &                                        second_key_function)
+    build_face_entities_templated(const unsigned int                                face_dimensionality,
+                                  const std::vector<std::shared_ptr<CellTypeBase>> &cell_types,
+                                  const std::vector<ReferenceCell>                 &cell_types_index,
+                                  const CRS<unsigned int>                          &crs,
+                                  CRS<unsigned int>                                &crs_d,        // result
+                                  CRS<unsigned int>                                &crs_0,        // result
+                                  TriaObjectsOrientations                          &orientations, // result
+                                  const FU                                         &second_key_function)
     {
       const bool compatibility_mode = true;
 
-      const std::vector<std::size_t> & cell_ptr      = crs.ptr;
+      const std::vector<std::size_t>  &cell_ptr      = crs.ptr;
       const std::vector<unsigned int> &cell_vertices = crs.col;
-      std::vector<std::size_t> &       ptr_d         = crs_d.ptr;
-      std::vector<unsigned int> &      col_d         = crs_d.col;
+      std::vector<std::size_t>        &ptr_d         = crs_d.ptr;
+      std::vector<unsigned int>       &col_d         = crs_d.col;
 
       // note: we do not pre-allocate memory for these arrays because it turned
       // out that counting unique entities is more expensive than push_back().
-      std::vector<std::size_t> & ptr_0 = crs_0.ptr;
+      std::vector<std::size_t>  &ptr_0 = crs_0.ptr;
       std::vector<unsigned int> &col_0 = crs_0.col;
 
       // clear
@@ -1026,17 +964,14 @@ namespace internal
       unsigned int n_entities = 0;
 
       for (const auto &c : cell_types_index)
-        n_entities +=
-          cell_types[static_cast<types::geometric_entity_type>(c)]->n_entities(
-            face_dimensionality);
+        n_entities += cell_types[static_cast<types::geometric_entity_type>(c)]->n_entities(face_dimensionality);
 
       // step 1: store each d-dimensional entity of a cell (described by their
       // vertices) into a vector and create a key for them
       //
       // note: it turned out to be more efficient to have a vector of tuples
       // than to have two vectors (sorting becomes inefficient)
-      std::vector<
-        std::tuple<std::array<unsigned int, max_n_vertices>, unsigned int>>
+      std::vector<std::tuple<std::array<unsigned int, max_n_vertices>, unsigned int>>
         keys; // key (sorted vertices), cell-entity index
 
       std::vector<std::array<unsigned int, max_n_vertices>> ad_entity_vertices;
@@ -1056,30 +991,24 @@ namespace internal
       // loop over all cells
       for (unsigned int c = 0, counter = 0; c < cell_types_index.size(); ++c)
         {
-          const auto &cell_type =
-            cell_types[static_cast<types::geometric_entity_type>(
-              cell_types_index[c])];
-          ptr_d[c + 1] = ptr_d[c] + cell_type->n_entities(face_dimensionality);
+          const auto &cell_type = cell_types[static_cast<types::geometric_entity_type>(cell_types_index[c])];
+          ptr_d[c + 1]          = ptr_d[c] + cell_type->n_entities(face_dimensionality);
 
           // ... collect vertices of cell
-          const dealii::ArrayView<const unsigned int> cell_vertice(
-            cell_vertices.data() + cell_ptr[c], cell_ptr[c + 1] - cell_ptr[c]);
+          const dealii::ArrayView<const unsigned int> cell_vertice(cell_vertices.data() + cell_ptr[c],
+                                                                   cell_ptr[c + 1] - cell_ptr[c]);
 
           // ... loop over all its entities
-          for (unsigned int e = 0;
-               e < cell_type->n_entities(face_dimensionality);
-               ++e)
+          for (unsigned int e = 0; e < cell_type->n_entities(face_dimensionality); ++e)
             {
               // ... determine global entity vertices
-              const auto &local_entity_vertices =
-                cell_type->vertices_of_entity(face_dimensionality, e);
+              const auto &local_entity_vertices = cell_type->vertices_of_entity(face_dimensionality, e);
 
               std::array<unsigned int, max_n_vertices> entity_vertices;
               std::fill(entity_vertices.begin(), entity_vertices.end(), 0);
 
               for (unsigned int i = 0; i < local_entity_vertices.size(); ++i)
-                entity_vertices[i] =
-                  cell_vertice[local_entity_vertices[i]] + offset;
+                entity_vertices[i] = cell_vertice[local_entity_vertices[i]] + offset;
 
               // ... create key
               std::array<unsigned int, max_n_vertices> key = entity_vertices;
@@ -1088,12 +1017,10 @@ namespace internal
 
               ad_entity_vertices.emplace_back(entity_vertices);
 
-              ad_entity_types.emplace_back(
-                cell_type->type_of_entity(face_dimensionality, e));
+              ad_entity_types.emplace_back(cell_type->type_of_entity(face_dimensionality, e));
 
               if (compatibility_mode)
-                ad_compatibility.emplace_back(
-                  second_key_function(entity_vertices, cell_type, c, e));
+                ad_compatibility.emplace_back(second_key_function(entity_vertices, cell_type, c, e));
             }
         }
 
@@ -1122,9 +1049,7 @@ namespace internal
 
                   n_unique_entities++;
                   n_unique_entity_vertices +=
-                    cell_types[static_cast<types::geometric_entity_type>(
-                                 ad_entity_types[offset_i])]
-                      ->n_entities(0);
+                    cell_types[static_cast<types::geometric_entity_type>(ad_entity_types[offset_i])]->n_entities(0);
 
                   new_key = ad_compatibility[offset_i];
                 }
@@ -1166,14 +1091,10 @@ namespace internal
               // occurrence
               orientations.set_combined_orientation(
                 offset_i,
-                ad_entity_types[offset_i]
-                  .template get_combined_orientation<unsigned int>(
-                    make_array_view(ad_entity_vertices[offset_i].begin(),
-                                    ad_entity_vertices[offset_i].begin() +
-                                      ad_entity_types[offset_i].n_vertices()),
-                    make_array_view(ref_indices.begin(),
-                                    ref_indices.begin() +
-                                      ad_entity_types[offset_i].n_vertices())));
+                ad_entity_types[offset_i].template get_combined_orientation<unsigned int>(
+                  make_array_view(ad_entity_vertices[offset_i].begin(),
+                                  ad_entity_vertices[offset_i].begin() + ad_entity_types[offset_i].n_vertices()),
+                  make_array_view(ref_indices.begin(), ref_indices.begin() + ad_entity_types[offset_i].n_vertices())));
             }
           col_d[offset_i] = counter;
         }
@@ -1188,57 +1109,33 @@ namespace internal
      */
     template <typename FU>
     void
-    build_face_entities(
-      const unsigned int                                face_dimensionality,
-      const std::vector<std::shared_ptr<CellTypeBase>> &cell_types,
-      const std::vector<ReferenceCell> &                cell_types_index,
-      const CRS<unsigned int> &                         crs,
-      CRS<unsigned int> &                               crs_d,
-      CRS<unsigned int> &                               crs_0,
-      TriaObjectsOrientations &                         orientations,
-      const FU &                                        second_key_function)
+    build_face_entities(const unsigned int                                face_dimensionality,
+                        const std::vector<std::shared_ptr<CellTypeBase>> &cell_types,
+                        const std::vector<ReferenceCell>                 &cell_types_index,
+                        const CRS<unsigned int>                          &crs,
+                        CRS<unsigned int>                                &crs_d,
+                        CRS<unsigned int>                                &crs_0,
+                        TriaObjectsOrientations                          &orientations,
+                        const FU                                         &second_key_function)
     {
       std::size_t max_n_vertices = 0;
 
       for (const auto &c : cell_types_index)
         {
-          const auto &cell_type =
-            cell_types[static_cast<types::geometric_entity_type>(c)];
-          for (unsigned int e = 0;
-               e < cell_type->n_entities(face_dimensionality);
-               ++e)
-            max_n_vertices = std::max(
-              max_n_vertices,
-              cell_type->vertices_of_entity(face_dimensionality, e).size());
+          const auto &cell_type = cell_types[static_cast<types::geometric_entity_type>(c)];
+          for (unsigned int e = 0; e < cell_type->n_entities(face_dimensionality); ++e)
+            max_n_vertices = std::max(max_n_vertices, cell_type->vertices_of_entity(face_dimensionality, e).size());
         }
 
       if (max_n_vertices == 2)
-        build_face_entities_templated<2>(face_dimensionality,
-                                         cell_types,
-                                         cell_types_index,
-                                         crs,
-                                         crs_d,
-                                         crs_0,
-                                         orientations,
-                                         second_key_function);
+        build_face_entities_templated<2>(
+          face_dimensionality, cell_types, cell_types_index, crs, crs_d, crs_0, orientations, second_key_function);
       else if (max_n_vertices == 3)
-        build_face_entities_templated<3>(face_dimensionality,
-                                         cell_types,
-                                         cell_types_index,
-                                         crs,
-                                         crs_d,
-                                         crs_0,
-                                         orientations,
-                                         second_key_function);
+        build_face_entities_templated<3>(
+          face_dimensionality, cell_types, cell_types_index, crs, crs_d, crs_0, orientations, second_key_function);
       else if (max_n_vertices == 4)
-        build_face_entities_templated<4>(face_dimensionality,
-                                         cell_types,
-                                         cell_types_index,
-                                         crs,
-                                         crs_d,
-                                         crs_0,
-                                         orientations,
-                                         second_key_function);
+        build_face_entities_templated<4>(
+          face_dimensionality, cell_types, cell_types_index, crs, crs_d, crs_0, orientations, second_key_function);
       else
         AssertThrow(false, dealii::StandardExceptions::ExcNotImplemented());
     }
@@ -1253,18 +1150,17 @@ namespace internal
      * Furthermore, the type of the quad is determined.
      */
     inline void
-    build_intersection(
-      const std::vector<std::shared_ptr<CellTypeBase>> &cell_types,
-      const std::vector<ReferenceCell> &                cell_types_index,
-      const CRS<unsigned int> &                         con_cv,
-      const CRS<unsigned int> &                         con_cl,
-      const CRS<unsigned int> &                         con_lv,
-      const CRS<unsigned int> &                         con_cq,
-      const CRS<unsigned int> &                         con_qv,
-      const TriaObjectsOrientations &                   ori_cq,
-      CRS<unsigned int> &                               con_ql,   // result
-      TriaObjectsOrientations &                         ori_ql,   // result
-      std::vector<ReferenceCell> &                      quad_t_id // result
+    build_intersection(const std::vector<std::shared_ptr<CellTypeBase>> &cell_types,
+                       const std::vector<ReferenceCell>                 &cell_types_index,
+                       const CRS<unsigned int>                          &con_cv,
+                       const CRS<unsigned int>                          &con_cl,
+                       const CRS<unsigned int>                          &con_lv,
+                       const CRS<unsigned int>                          &con_cq,
+                       const CRS<unsigned int>                          &con_qv,
+                       const TriaObjectsOrientations                    &ori_cq,
+                       CRS<unsigned int>                                &con_ql,   // result
+                       TriaObjectsOrientations                          &ori_ql,   // result
+                       std::vector<ReferenceCell>                       &quad_t_id // result
     )
     {
       // reset output
@@ -1279,14 +1175,10 @@ namespace internal
       // count the number of lines of each face
       for (unsigned int c = 0; c < con_cq.ptr.size() - 1; ++c)
         {
-          const auto &cell_type =
-            cell_types[static_cast<types::geometric_entity_type>(
-              cell_types_index[c])];
+          const auto &cell_type = cell_types[static_cast<types::geometric_entity_type>(cell_types_index[c])];
 
           // loop over faces
-          for (unsigned int f_ = con_cq.ptr[c], f_index = 0;
-               f_ < con_cq.ptr[c + 1];
-               ++f_, ++f_index)
+          for (unsigned int f_ = con_cq.ptr[c], f_index = 0; f_ < con_cq.ptr[c + 1]; ++f_, ++f_index)
             {
               const unsigned int f = con_cq.col[f_];
 
@@ -1305,40 +1197,30 @@ namespace internal
       // loop over cells
       for (unsigned int c = 0; c < con_cq.ptr.size() - 1; ++c)
         {
-          const auto &cell_type =
-            cell_types[static_cast<types::geometric_entity_type>(
-              cell_types_index[c])];
+          const auto &cell_type = cell_types[static_cast<types::geometric_entity_type>(cell_types_index[c])];
 
           // loop over faces
-          for (unsigned int f_ = con_cq.ptr[c], f_index = 0;
-               f_ < con_cq.ptr[c + 1];
-               ++f_, ++f_index)
+          for (unsigned int f_ = con_cq.ptr[c], f_index = 0; f_ < con_cq.ptr[c + 1]; ++f_, ++f_index)
             {
               const unsigned int f = con_cq.col[f_];
 
               // only faces with default orientation have to do something
-              if (ori_cq.get_combined_orientation(f_) !=
-                  ReferenceCell::default_combined_face_orientation())
+              if (ori_cq.get_combined_orientation(f_) != ReferenceCell::default_combined_face_orientation())
                 continue;
 
               // determine entity type of face
               quad_t_id[f] = cell_type->type_of_entity(2, f_index);
 
               // loop over lines
-              for (unsigned int l = 0;
-                   l < cell_type->n_lines_of_surface(f_index);
-                   ++l)
+              for (unsigned int l = 0; l < cell_type->n_lines_of_surface(f_index); ++l)
                 {
                   // determine global index of line
-                  const unsigned int local_line_index =
-                    cell_type->nth_line_of_surface(l, f_index);
-                  const unsigned int global_line_index =
-                    con_cl.col[con_cl.ptr[c] + local_line_index];
-                  con_ql.col[con_ql.ptr[f] + l] = global_line_index;
+                  const unsigned int local_line_index  = cell_type->nth_line_of_surface(l, f_index);
+                  const unsigned int global_line_index = con_cl.col[con_cl.ptr[c] + local_line_index];
+                  con_ql.col[con_ql.ptr[f] + l]        = global_line_index;
 
                   // determine orientation of line
-                  const auto line_vertices_1_ref =
-                    cell_type->vertices_of_nth_line_of_surface(l, f_index);
+                  const auto line_vertices_1_ref = cell_type->vertices_of_nth_line_of_surface(l, f_index);
 
                   bool same = true;
                   for (unsigned int v = 0; v < line_vertices_1_ref.size(); ++v)
@@ -1350,10 +1232,9 @@ namespace internal
                       }
 
                   // ... comparison gives orientation
-                  ori_ql.set_combined_orientation(
-                    con_ql.ptr[f] + l,
-                    same ? ReferenceCell::default_combined_face_orientation() :
-                           ReferenceCell::reversed_combined_line_orientation());
+                  ori_ql.set_combined_orientation(con_ql.ptr[f] + l,
+                                                  same ? ReferenceCell::default_combined_face_orientation() :
+                                                         ReferenceCell::reversed_combined_line_orientation());
                 }
             }
         }
@@ -1373,8 +1254,8 @@ namespace internal
     Connectivity<T>
     build_connectivity(const unsigned int                                dim,
                        const std::vector<std::shared_ptr<CellTypeBase>> &cell_t,
-                       const std::vector<ReferenceCell> &cell_t_id,
-                       const CRS<T> &                    con_cv)
+                       const std::vector<ReferenceCell>                 &cell_t_id,
+                       const CRS<T>                                     &con_cv)
     {
       Connectivity<T> connectivity(dim, cell_t_id);
 
@@ -1387,48 +1268,43 @@ namespace internal
         {
           TriaObjectsOrientations dummy;
 
-          build_face_entities(
-            1,
-            cell_t,
-            connectivity.entity_types(dim),
-            con_cv,
-            dim == 2 ? connectivity.entity_to_entities(2, 1) : temp1,
-            connectivity.entity_to_entities(1, 0),
-            dim == 2 ? connectivity.entity_orientations(1) : dummy,
-            [](auto key, const auto &, const auto &, const auto &) {
-              //  to ensure same enumeration as in deal.II
-              return key;
-            });
+          build_face_entities(1,
+                              cell_t,
+                              connectivity.entity_types(dim),
+                              con_cv,
+                              dim == 2 ? connectivity.entity_to_entities(2, 1) : temp1,
+                              connectivity.entity_to_entities(1, 0),
+                              dim == 2 ? connectivity.entity_orientations(1) : dummy,
+                              [](auto key, const auto &, const auto &, const auto &) {
+                                //  to ensure same enumeration as in deal.II
+                                return key;
+                              });
         }
 
       if (dim == 3) // build quads
         {
-          build_face_entities(
-            2,
-            cell_t,
-            connectivity.entity_types(3),
-            con_cv,
-            connectivity.entity_to_entities(3, 2),
-            connectivity.entity_to_entities(2, 0),
-            connectivity.entity_orientations(2),
-            [&](auto key, const auto &cell_type, const auto &c, const auto &f) {
-              //  to ensure same enumeration as in deal.II
-              AssertIndexRange(cell_type->n_lines_of_surface(f),
-                               key.size() + 1);
+          build_face_entities(2,
+                              cell_t,
+                              connectivity.entity_types(3),
+                              con_cv,
+                              connectivity.entity_to_entities(3, 2),
+                              connectivity.entity_to_entities(2, 0),
+                              connectivity.entity_orientations(2),
+                              [&](auto key, const auto &cell_type, const auto &c, const auto &f) {
+                                //  to ensure same enumeration as in deal.II
+                                AssertIndexRange(cell_type->n_lines_of_surface(f), key.size() + 1);
 
-              unsigned int l = 0;
+                                unsigned int l = 0;
 
-              for (; l < cell_type->n_lines_of_surface(f); ++l)
-                key[l] =
-                  temp1
-                    .col[temp1.ptr[c] + cell_type->nth_line_of_surface(l, f)] +
-                  1 /*offset!*/;
+                                for (; l < cell_type->n_lines_of_surface(f); ++l)
+                                  key[l] =
+                                    temp1.col[temp1.ptr[c] + cell_type->nth_line_of_surface(l, f)] + 1 /*offset!*/;
 
-              for (; l < key.size(); ++l)
-                key[l] = 0;
+                                for (; l < key.size(); ++l)
+                                  key[l] = 0;
 
-              return key;
-            });
+                                return key;
+                              });
 
           // create connectivity: quad -> line
           build_intersection(cell_t,
@@ -1445,8 +1321,7 @@ namespace internal
         }
 
       // determine neighbors
-      determine_neighbors(connectivity.entity_to_entities(dim, dim - 1),
-                          connectivity.entity_to_entities(dim, dim));
+      determine_neighbors(connectivity.entity_to_entities(dim, dim - 1), connectivity.entity_to_entities(dim, dim));
 
       return connectivity;
     }
@@ -1465,31 +1340,26 @@ namespace internal
       // vector of possible cell entity types
       std::vector<std::shared_ptr<CellTypeBase>> cell_types_impl(8);
 
-      cell_types_impl[static_cast<types::geometric_entity_type>(
-        ReferenceCells::Line)]     = std::make_shared<CellTypeLine>();
-      cell_types_impl[static_cast<types::geometric_entity_type>(
-        ReferenceCells::Triangle)] = std::make_shared<CellTypeTriangle>();
-      cell_types_impl[static_cast<types::geometric_entity_type>(
-        ReferenceCells::Quadrilateral)] =
+      cell_types_impl[static_cast<types::geometric_entity_type>(ReferenceCells::Line)] =
+        std::make_shared<CellTypeLine>();
+      cell_types_impl[static_cast<types::geometric_entity_type>(ReferenceCells::Triangle)] =
+        std::make_shared<CellTypeTriangle>();
+      cell_types_impl[static_cast<types::geometric_entity_type>(ReferenceCells::Quadrilateral)] =
         std::make_shared<CellTypeQuadrilateral>();
-      cell_types_impl[static_cast<types::geometric_entity_type>(
-        ReferenceCells::Tetrahedron)] = std::make_shared<CellTypeTetrahedron>();
-      cell_types_impl[static_cast<types::geometric_entity_type>(
-        ReferenceCells::Pyramid)]     = std::make_shared<CellTypePyramid>();
-      cell_types_impl[static_cast<types::geometric_entity_type>(
-        ReferenceCells::Wedge)]       = std::make_shared<CellTypeWedge>();
-      cell_types_impl[static_cast<types::geometric_entity_type>(
-        ReferenceCells::Hexahedron)]  = std::make_shared<CellTypeHexahedron>();
+      cell_types_impl[static_cast<types::geometric_entity_type>(ReferenceCells::Tetrahedron)] =
+        std::make_shared<CellTypeTetrahedron>();
+      cell_types_impl[static_cast<types::geometric_entity_type>(ReferenceCells::Pyramid)] =
+        std::make_shared<CellTypePyramid>();
+      cell_types_impl[static_cast<types::geometric_entity_type>(ReferenceCells::Wedge)] =
+        std::make_shared<CellTypeWedge>();
+      cell_types_impl[static_cast<types::geometric_entity_type>(ReferenceCells::Hexahedron)] =
+        std::make_shared<CellTypeHexahedron>();
 
       // determine cell types and process vertices
       std::vector<T> cell_vertices;
-      cell_vertices.reserve(
-        std::accumulate(cells.begin(),
-                        cells.end(),
-                        0,
-                        [](const auto &result, const auto &cell) {
-                          return result + cell.vertices.size();
-                        }));
+      cell_vertices.reserve(std::accumulate(cells.begin(), cells.end(), 0, [](const auto &result, const auto &cell) {
+        return result + cell.vertices.size();
+      }));
 
       std::vector<std::size_t> cell_vertices_ptr;
       cell_vertices_ptr.reserve(cells.size() + 1);
@@ -1504,31 +1374,22 @@ namespace internal
 #ifdef DEBUG
           auto vertices_unique = cell.vertices;
           std::sort(vertices_unique.begin(), vertices_unique.end());
-          vertices_unique.erase(std::unique(vertices_unique.begin(),
-                                            vertices_unique.end()),
-                                vertices_unique.end());
+          vertices_unique.erase(std::unique(vertices_unique.begin(), vertices_unique.end()), vertices_unique.end());
 
           Assert(vertices_unique.size() == cell.vertices.size(),
-                 ExcMessage(
-                   "The definition of a cell refers to the same vertex several "
-                   "times. This is not possible. A common reason is that "
-                   "CellData::vertices has a size that does not match the "
-                   "size expected from the reference cell. Please resize "
-                   "CellData::vertices or use the appropriate constructor of "
-                   "CellData."));
+                 ExcMessage("The definition of a cell refers to the same vertex several "
+                            "times. This is not possible. A common reason is that "
+                            "CellData::vertices has a size that does not match the "
+                            "size expected from the reference cell. Please resize "
+                            "CellData::vertices or use the appropriate constructor of "
+                            "CellData."));
 #endif
 
-          const ReferenceCell reference_cell =
-            ReferenceCell::n_vertices_to_type(dim, cell.vertices.size());
+          const ReferenceCell reference_cell = ReferenceCell::n_vertices_to_type(dim, cell.vertices.size());
 
-          Assert(reference_cell != ReferenceCells::Invalid,
-                 ExcNotImplemented());
-          AssertIndexRange(static_cast<types::geometric_entity_type>(
-                             reference_cell),
-                           cell_types_impl.size());
-          Assert(cell_types_impl[static_cast<types::geometric_entity_type>(
-                                   reference_cell)]
-                     .get() != nullptr,
+          Assert(reference_cell != ReferenceCells::Invalid, ExcNotImplemented());
+          AssertIndexRange(static_cast<types::geometric_entity_type>(reference_cell), cell_types_impl.size());
+          Assert(cell_types_impl[static_cast<types::geometric_entity_type>(reference_cell)].get() != nullptr,
                  ExcNotImplemented());
 
           cell_types_indices.push_back(reference_cell);
@@ -1541,10 +1402,7 @@ namespace internal
         }
 
       // do the actual work
-      return build_connectivity<T>(dim,
-                                   cell_types_impl,
-                                   cell_types_indices,
-                                   {cell_vertices_ptr, cell_vertices});
+      return build_connectivity<T>(dim, cell_types_impl, cell_types_indices, {cell_vertices_ptr, cell_vertices});
     }
   } // namespace TriangulationImplementation
 } // namespace internal

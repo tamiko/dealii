@@ -38,39 +38,32 @@ test()
   const MPI_Comm mpi_communicator = MPI_COMM_WORLD;
   deallog << "dim = " << dim << std::endl;
 
-  parallel::shared::Triangulation<dim> tria(
-    mpi_communicator,
-    dealii::Triangulation<dim>::none,
-    true,
-    parallel::shared::Triangulation<dim>::partition_zorder);
+  parallel::shared::Triangulation<dim> tria(mpi_communicator,
+                                            dealii::Triangulation<dim>::none,
+                                            true,
+                                            parallel::shared::Triangulation<dim>::partition_zorder);
 
   GridGenerator::hyper_cube(tria);
   tria.refine_global(2);
 
   std::set<std::string> input, output;
 
-  using cell_iterator =
-    typename parallel::shared::Triangulation<dim>::active_cell_iterator;
-  using DT = double;
+  using cell_iterator = typename parallel::shared::Triangulation<dim>::active_cell_iterator;
+  using DT            = double;
   std::map<CellId, DT> map;
   DT                   counter = 0.0;
 
-  std::map<unsigned int, std::set<dealii::types::subdomain_id>>
-    vertices_with_ghost_neighbors =
-      GridTools::compute_vertices_with_ghost_neighbors(tria);
+  std::map<unsigned int, std::set<dealii::types::subdomain_id>> vertices_with_ghost_neighbors =
+    GridTools::compute_vertices_with_ghost_neighbors(tria);
 
-  for (const auto &cell :
-       tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     {
       for (const unsigned int v : GeometryInfo<dim>::vertex_indices())
         {
-          const std::map<unsigned int,
-                         std::set<dealii::types::subdomain_id>>::const_iterator
-            neighbor_subdomains_of_vertex =
-              vertices_with_ghost_neighbors.find(cell->vertex_index(v));
+          const std::map<unsigned int, std::set<dealii::types::subdomain_id>>::const_iterator
+            neighbor_subdomains_of_vertex = vertices_with_ghost_neighbors.find(cell->vertex_index(v));
 
-          if (neighbor_subdomains_of_vertex !=
-              vertices_with_ghost_neighbors.end())
+          if (neighbor_subdomains_of_vertex != vertices_with_ghost_neighbors.end())
             {
               map[cell->id()] = ++counter;
               break;
@@ -78,8 +71,7 @@ test()
         }
     }
 
-  GridTools::exchange_cell_data_to_ghosts<DT,
-                                          parallel::shared::Triangulation<dim>>(
+  GridTools::exchange_cell_data_to_ghosts<DT, parallel::shared::Triangulation<dim>>(
     tria,
     [&](const cell_iterator &cell) {
       DT                 value = map[cell->id()];
@@ -91,8 +83,7 @@ test()
     },
     [&](const cell_iterator &cell, const DT &data) {
       std::ostringstream oss;
-      oss << "unpack " << cell->id() << ' ' << data << " from "
-          << cell->subdomain_id();
+      oss << "unpack " << cell->id() << ' ' << data << " from " << cell->subdomain_id();
 
       output.insert(oss.str());
     });

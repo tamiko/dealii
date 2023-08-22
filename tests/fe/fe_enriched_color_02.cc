@@ -74,8 +74,7 @@ private:
  * ColorEnriched::internal::color_predicates.
  */
 template <int dim>
-using predicate_function =
-  std::function<bool(const typename Triangulation<dim>::cell_iterator &)>;
+using predicate_function = std::function<bool(const typename Triangulation<dim>::cell_iterator &)>;
 
 
 
@@ -105,9 +104,7 @@ main(int argc, char **argv)
 
     predicate_colors.resize(vec_predicates.size());
 
-    ColorEnriched::internal::color_predicates<dim>(dof_handler,
-                                                   vec_predicates,
-                                                   predicate_colors);
+    ColorEnriched::internal::color_predicates<dim>(dof_handler, vec_predicates, predicate_colors);
 
     deallog << "Case 1" << std::endl;
     for (auto i : predicate_colors)
@@ -120,14 +117,11 @@ main(int argc, char **argv)
     // case 2: Two predicates that are connected.
     vec_predicates.clear();
     vec_predicates.push_back(EnrichmentPredicate<dim>(Point<dim>(-10, 10), 2));
-    vec_predicates.push_back(
-      EnrichmentPredicate<dim>(Point<dim>(-7.5, 7.5), 2));
+    vec_predicates.push_back(EnrichmentPredicate<dim>(Point<dim>(-7.5, 7.5), 2));
 
     predicate_colors.resize(vec_predicates.size());
 
-    ColorEnriched::internal::color_predicates(dof_handler,
-                                              vec_predicates,
-                                              predicate_colors);
+    ColorEnriched::internal::color_predicates(dof_handler, vec_predicates, predicate_colors);
 
     deallog << "Case 2" << std::endl;
     for (auto i : predicate_colors)
@@ -142,19 +136,14 @@ main(int argc, char **argv)
     // 3-4 (edge connection)
     vec_predicates.clear();
     vec_predicates.push_back(EnrichmentPredicate<dim>(Point<dim>(-10, 10), 2));
-    vec_predicates.push_back(
-      EnrichmentPredicate<dim>(Point<dim>(-7.5, 7.5), 2));
+    vec_predicates.push_back(EnrichmentPredicate<dim>(Point<dim>(-7.5, 7.5), 2));
     vec_predicates.push_back(EnrichmentPredicate<dim>(Point<dim>(0, 0), 2));
-    vec_predicates.push_back(
-      EnrichmentPredicate<dim>(Point<dim>(7.5, -7.5), 2));
-    vec_predicates.push_back(
-      EnrichmentPredicate<dim>(Point<dim>(12.5, -12.5), 2));
+    vec_predicates.push_back(EnrichmentPredicate<dim>(Point<dim>(7.5, -7.5), 2));
+    vec_predicates.push_back(EnrichmentPredicate<dim>(Point<dim>(12.5, -12.5), 2));
 
     predicate_colors.resize(vec_predicates.size());
 
-    ColorEnriched::internal::color_predicates(dof_handler,
-                                              vec_predicates,
-                                              predicate_colors);
+    ColorEnriched::internal::color_predicates(dof_handler, vec_predicates, predicate_colors);
 
     deallog << "Case 3" << std::endl;
     for (auto i : predicate_colors)

@@ -38,8 +38,7 @@ test()
     {
       const auto c = random_point<dim>();
       const auto d = random_value();
-      box =
-        BoundingBox<dim>({Point<dim>(c - d * ones), Point<dim>(c + d * ones)});
+      box          = BoundingBox<dim>({Point<dim>(c - d * ones), Point<dim>(c + d * ones)});
     }
 
   std::string fname = "boxes_" + std::to_string(dim) + ".vtk";

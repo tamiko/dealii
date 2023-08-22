@@ -64,15 +64,13 @@ test()
   FE_SimplexP<dim, spacedim> fe_fine(2);
   MappingFE<dim>             mapping(FE_SimplexP<dim>(1));
 
-  FullMatrix<double> matrix(fe_fine.n_dofs_per_cell(),
-                            fe_coarse.n_dofs_per_cell());
+  FullMatrix<double> matrix(fe_fine.n_dofs_per_cell(), fe_coarse.n_dofs_per_cell());
   FETools::get_projection_matrix(fe_coarse, fe_fine, matrix);
 
   const unsigned int n_refinements = 2;
 
   Triangulation<dim, spacedim> tria;
-  GridGenerator::subdivided_hyper_cube_with_simplices(
-    tria, Utilities::pow(2, n_refinements));
+  GridGenerator::subdivided_hyper_cube_with_simplices(tria, Utilities::pow(2, n_refinements));
 
   DoFHandler<dim, spacedim> dof_handler_coarse(tria);
   dof_handler_coarse.distribute_dofs(fe_coarse);
@@ -86,10 +84,7 @@ test()
   Vector<double> temp_coarse(fe_coarse.n_dofs_per_cell());
   Vector<double> temp_fine(fe_fine.n_dofs_per_cell());
 
-  VectorTools::interpolate(mapping,
-                           dof_handler_coarse,
-                           RightHandSideFunction<dim>(1),
-                           vec_coarse);
+  VectorTools::interpolate(mapping, dof_handler_coarse, RightHandSideFunction<dim>(1), vec_coarse);
 
   for (const auto &cell_coarse : dof_handler_coarse.active_cell_iterators())
     {
@@ -97,10 +92,7 @@ test()
 
       matrix.vmult(temp_fine, temp_coarse);
 
-      DoFCellAccessor<dim, spacedim, false>(&tria,
-                                            cell_coarse->level(),
-                                            cell_coarse->index(),
-                                            &dof_handler_fine)
+      DoFCellAccessor<dim, spacedim, false>(&tria, cell_coarse->level(), cell_coarse->index(), &dof_handler_fine)
         .set_dof_values(temp_fine, vec_fine);
     }
 

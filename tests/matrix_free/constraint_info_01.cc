@@ -64,29 +64,20 @@ main()
   DoFTools::make_hanging_node_constraints(dof_handler, constraints);
   constraints.close();
 
-  typename MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData
-    additional_data;
-  additional_data.mapping_update_flags = update_values | update_gradients |
-                                         update_JxW_values |
-                                         dealii::update_quadrature_points;
+  typename MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData additional_data;
+  additional_data.mapping_update_flags =
+    update_values | update_gradients | update_JxW_values | dealii::update_quadrature_points;
 
   MatrixFree<dim, Number, VectorizedArrayType> matrix_free;
   matrix_free.reinit(mapping, dof_handler, constraints, quad, additional_data);
 
-  internal::MatrixFreeFunctions::ConstraintInfo<dim, VectorizedArrayType>
-    constraint_info;
+  internal::MatrixFreeFunctions::ConstraintInfo<dim, VectorizedArrayType> constraint_info;
   constraint_info.reinit(dof_handler, matrix_free.n_physical_cells(), true);
 
-  for (unsigned int cell = 0, cell_no = 0; cell < matrix_free.n_cell_batches();
-       ++cell)
-    for (unsigned int v = 0;
-         v < matrix_free.n_active_entries_per_cell_batch(cell);
-         ++v, ++cell_no)
-      constraint_info.read_dof_indices(cell_no,
-                                       -1,
-                                       matrix_free.get_cell_iterator(cell, v),
-                                       constraints,
-                                       matrix_free.get_vector_partitioner());
+  for (unsigned int cell = 0, cell_no = 0; cell < matrix_free.n_cell_batches(); ++cell)
+    for (unsigned int v = 0; v < matrix_free.n_active_entries_per_cell_batch(cell); ++v, ++cell_no)
+      constraint_info.read_dof_indices(
+        cell_no, -1, matrix_free.get_cell_iterator(cell, v), constraints, matrix_free.get_vector_partitioner());
 
   constraint_info.finalize();
 
@@ -102,10 +93,8 @@ main()
     // make sure to filter out contributions that only get filled up to make
     // all SIMD lanes populated
     for (unsigned int i = 0; i < dof_info.row_starts.size(); ++i)
-      if (i == 0 ||
-          (dof_info.row_starts[i].first > dof_info.row_starts[i - 1].first))
-        deallog << "(" << dof_info.row_starts[i].first << ","
-                << dof_info.row_starts[i].second << ") ";
+      if (i == 0 || (dof_info.row_starts[i].first > dof_info.row_starts[i - 1].first))
+        deallog << "(" << dof_info.row_starts[i].first << "," << dof_info.row_starts[i].second << ") ";
     deallog << std::endl;
 
     deallog << std::endl;
@@ -133,62 +122,30 @@ main()
                                    const unsigned int n_cells,
                                    const unsigned int n_dofs_per_cell) {
     internal::VectorReader<Number, VectorizedArrayType> reader;
-    constraint_info.read_write_operation(reader,
-                                         src,
-                                         local_vector.data(),
-                                         first_cell,
-                                         n_cells,
-                                         n_dofs_per_cell,
-                                         true);
-    constraint_info.apply_hanging_node_constraints(first_cell,
-                                                   n_cells,
-                                                   false,
-                                                   local_vector);
+    constraint_info.read_write_operation(reader, src, local_vector.data(), first_cell, n_cells, n_dofs_per_cell, true);
+    constraint_info.apply_hanging_node_constraints(first_cell, n_cells, false, local_vector);
   };
 
-  const auto distribute_local_to_global =
-    [&](const unsigned int first_cell,
-        const unsigned int n_cells,
-        const unsigned int n_dofs_per_cell) {
-      internal::VectorDistributorLocalToGlobal<Number, VectorizedArrayType>
-        writer;
-      constraint_info.apply_hanging_node_constraints(first_cell,
-                                                     n_cells,
-                                                     true,
-                                                     local_vector);
-      constraint_info.read_write_operation(writer,
-                                           dst,
-                                           local_vector.data(),
-                                           first_cell,
-                                           n_cells,
-                                           n_dofs_per_cell,
-                                           true);
-    };
+  const auto distribute_local_to_global = [&](const unsigned int first_cell,
+                                              const unsigned int n_cells,
+                                              const unsigned int n_dofs_per_cell) {
+    internal::VectorDistributorLocalToGlobal<Number, VectorizedArrayType> writer;
+    constraint_info.apply_hanging_node_constraints(first_cell, n_cells, true, local_vector);
+    constraint_info.read_write_operation(writer, dst, local_vector.data(), first_cell, n_cells, n_dofs_per_cell, true);
+  };
 
   const auto read_dof_values_plain = [&](const unsigned int first_cell,
                                          const unsigned int n_cells,
                                          const unsigned int n_dofs_per_cell) {
     internal::VectorReader<Number, VectorizedArrayType> reader;
-    constraint_info.read_write_operation(reader,
-                                         src,
-                                         local_vector.data(),
-                                         first_cell,
-                                         n_cells,
-                                         n_dofs_per_cell,
-                                         false);
+    constraint_info.read_write_operation(reader, src, local_vector.data(), first_cell, n_cells, n_dofs_per_cell, false);
   };
 
   const auto set_dof_values_plain = [&](const unsigned int first_cell,
                                         const unsigned int n_cells,
                                         const unsigned int n_dofs_per_cell) {
     internal::VectorSetter<Number, VectorizedArrayType> writer;
-    constraint_info.read_write_operation(writer,
-                                         dst,
-                                         local_vector.data(),
-                                         first_cell,
-                                         n_cells,
-                                         n_dofs_per_cell,
-                                         false);
+    constraint_info.read_write_operation(writer, dst, local_vector.data(), first_cell, n_cells, n_dofs_per_cell, false);
   };
 
   unsigned int       first_cell      = 0;
@@ -199,8 +156,7 @@ main()
   for (unsigned int cell = 0; cell < matrix_free.n_cell_batches(); ++cell)
     {
       {
-        const unsigned int n_cells =
-          matrix_free.n_active_entries_per_cell_batch(cell);
+        const unsigned int n_cells = matrix_free.n_active_entries_per_cell_batch(cell);
 
         read_dof_values(first_cell, n_cells, n_dofs_per_cell);
         distribute_local_to_global(first_cell, n_cells, n_dofs_per_cell);
@@ -226,8 +182,7 @@ main()
   for (unsigned int cell = 0; cell < matrix_free.n_cell_batches(); ++cell)
     {
       {
-        const unsigned int n_cells =
-          matrix_free.n_active_entries_per_cell_batch(cell);
+        const unsigned int n_cells = matrix_free.n_active_entries_per_cell_batch(cell);
 
         read_dof_values_plain(first_cell, n_cells, n_dofs_per_cell);
         set_dof_values_plain(first_cell, n_cells, n_dofs_per_cell);

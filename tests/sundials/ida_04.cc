@@ -50,9 +50,7 @@
 class HarmonicOscillator
 {
 public:
-  HarmonicOscillator(
-    double                                                        _kappa,
-    const typename SUNDIALS::IDA<Vector<double>>::AdditionalData &data)
+  HarmonicOscillator(double _kappa, const typename SUNDIALS::IDA<Vector<double>>::AdditionalData &data)
     : time_stepper(data)
     , y(1)
     , y_dot(1)
@@ -64,16 +62,13 @@ public:
     time_stepper.reinit_vector = [&](VectorType &v) { v.reinit(1); };
 
 
-    time_stepper.residual = [&](const double      t,
-                                const VectorType &y,
-                                const VectorType &y_dot,
-                                VectorType &      res) {
+    time_stepper.residual = [&](const double t, const VectorType &y, const VectorType &y_dot, VectorType &res) {
       deallog << "Evaluating residual at t=" << t << std::endl;
 
       if (t > last_residual_eval_time + 0.1)
         {
-          deallog << "Time step is too large: " << t - last_residual_eval_time
-                  << ". Failing irrecoverably." << std::endl;
+          deallog << "Time step is too large: " << t - last_residual_eval_time << ". Failing irrecoverably."
+                  << std::endl;
 
           throw ExcMessage("Irrecoverable exception.");
         }
@@ -82,30 +77,21 @@ public:
       last_residual_eval_time = t;
     };
 
-    time_stepper.setup_jacobian = [&](const double,
-                                      const VectorType &,
-                                      const VectorType &,
-                                      const double alpha) {
+    time_stepper.setup_jacobian = [&](const double, const VectorType &, const VectorType &, const double alpha) {
       J = kappa + alpha;
     };
 
-    time_stepper.solve_with_jacobian =
-      [&](const VectorType &src, VectorType &dst, const double) {
-        dst[0] = src[0] / J;
-      };
-
-    time_stepper.output_step = [&](const double       t,
-                                   const VectorType & sol,
-                                   const VectorType & sol_dot,
-                                   const unsigned int step_number) {
-      deallog << "Intermediate output:" << std::endl;
-      deallog << "  t =" << t << std::endl;
-      deallog << "  y =" << sol[0] << "  (exact: " << std::exp(-kappa * t)
-              << ')' << std::endl;
-      deallog << "  y'=" << sol_dot[0]
-              << "  (exact: " << -kappa * std::exp(-kappa * t) << ')'
-              << std::endl;
+    time_stepper.solve_with_jacobian = [&](const VectorType &src, VectorType &dst, const double) {
+      dst[0] = src[0] / J;
     };
+
+    time_stepper.output_step =
+      [&](const double t, const VectorType &sol, const VectorType &sol_dot, const unsigned int step_number) {
+        deallog << "Intermediate output:" << std::endl;
+        deallog << "  t =" << t << std::endl;
+        deallog << "  y =" << sol[0] << "  (exact: " << std::exp(-kappa * t) << ')' << std::endl;
+        deallog << "  y'=" << sol_dot[0] << "  (exact: " << -kappa * std::exp(-kappa * t) << ')' << std::endl;
+      };
   }
 
   void
@@ -119,9 +105,7 @@ public:
       }
     catch (const std::exception &exc)
       {
-        deallog << "Caught an irrecoverable exception in a callback:"
-                << std::endl
-                << exc.what() << std::endl;
+        deallog << "Caught an irrecoverable exception in a callback:" << std::endl << exc.what() << std::endl;
       }
   }
 

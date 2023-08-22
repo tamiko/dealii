@@ -110,9 +110,9 @@ namespace LineMinimization
            const NumberType                        x_hi,
            const NumberType                        f_hi,
            const NumberType                        g_hi,
-           const FiniteSizeHistory<NumberType> &   x_rec,
-           const FiniteSizeHistory<NumberType> &   f_rec,
-           const FiniteSizeHistory<NumberType> &   g_rec,
+           const FiniteSizeHistory<NumberType>    &x_rec,
+           const FiniteSizeHistory<NumberType>    &f_rec,
+           const FiniteSizeHistory<NumberType>    &g_rec,
            const std::pair<NumberType, NumberType> bounds);
 
   /**
@@ -127,9 +127,9 @@ namespace LineMinimization
                         const NumberType                        x_hi,
                         const NumberType                        f_hi,
                         const NumberType                        g_hi,
-                        const FiniteSizeHistory<NumberType> &   x_rec,
-                        const FiniteSizeHistory<NumberType> &   f_rec,
-                        const FiniteSizeHistory<NumberType> &   g_rec,
+                        const FiniteSizeHistory<NumberType>    &x_rec,
+                        const FiniteSizeHistory<NumberType>    &f_rec,
+                        const FiniteSizeHistory<NumberType>    &g_rec,
                         const std::pair<NumberType, NumberType> bounds);
 
 
@@ -321,28 +321,25 @@ namespace LineMinimization
    */
   template <typename NumberType>
   std::pair<NumberType, unsigned int>
-  line_search(
-    const std::function<std::pair<NumberType, NumberType>(const NumberType x)>
-      &              func,
-    const NumberType f0,
-    const NumberType g0,
-    const std::function<
-      NumberType(const NumberType                        x_low,
-                 const NumberType                        f_low,
-                 const NumberType                        g_low,
-                 const NumberType                        x_hi,
-                 const NumberType                        f_hi,
-                 const NumberType                        g_hi,
-                 const FiniteSizeHistory<NumberType> &   x_rec,
-                 const FiniteSizeHistory<NumberType> &   f_rec,
-                 const FiniteSizeHistory<NumberType> &   g_rec,
-                 const std::pair<NumberType, NumberType> bounds)> &interpolate,
-    const NumberType                                               a1,
-    const NumberType                                               eta = 0.9,
-    const NumberType                                               mu  = 0.01,
-    const NumberType   a_max           = std::numeric_limits<NumberType>::max(),
-    const unsigned int max_evaluations = 20,
-    const bool         debug_output    = false);
+  line_search(const std::function<std::pair<NumberType, NumberType>(const NumberType x)>      &func,
+              const NumberType                                                                 f0,
+              const NumberType                                                                 g0,
+              const std::function<NumberType(const NumberType                        x_low,
+                                             const NumberType                        f_low,
+                                             const NumberType                        g_low,
+                                             const NumberType                        x_hi,
+                                             const NumberType                        f_hi,
+                                             const NumberType                        g_hi,
+                                             const FiniteSizeHistory<NumberType>    &x_rec,
+                                             const FiniteSizeHistory<NumberType>    &f_rec,
+                                             const FiniteSizeHistory<NumberType>    &g_rec,
+                                             const std::pair<NumberType, NumberType> bounds)> &interpolate,
+              const NumberType                                                                 a1,
+              const NumberType                                                                 eta = 0.9,
+              const NumberType                                                                 mu  = 0.01,
+              const NumberType   a_max           = std::numeric_limits<NumberType>::max(),
+              const unsigned int max_evaluations = 20,
+              const bool         debug_output    = false);
 
 
   // -------------------  inline and template functions ----------------
@@ -353,11 +350,7 @@ namespace LineMinimization
 
   template <typename NumberType>
   std::optional<NumberType>
-  quadratic_fit(const NumberType x1,
-                const NumberType f1,
-                const NumberType g1,
-                const NumberType x2,
-                const NumberType f2)
+  quadratic_fit(const NumberType x1, const NumberType f1, const NumberType g1, const NumberType x2, const NumberType f2)
   {
     Assert(x1 != x2, ExcMessage("Point are the same"));
     const NumberType denom = (2. * g1 * x2 - 2. * g1 * x1 - 2. * f2 + 2. * f1);
@@ -385,13 +378,11 @@ namespace LineMinimization
       return {};
 
     const NumberType beta2 = std::sqrt(s);
-    const NumberType denom =
-      x1 < x2 ? g2 - g1 + 2. * beta2 : g1 - g2 + 2. * beta2;
+    const NumberType denom = x1 < x2 ? g2 - g1 + 2. * beta2 : g1 - g2 + 2. * beta2;
     if (denom == 0.)
       return {};
 
-    return x1 < x2 ? x2 - (x2 - x1) * (g2 + beta2 - beta1) / denom :
-                     x1 - (x1 - x2) * (g1 + beta2 - beta1) / denom;
+    return x1 < x2 ? x2 - (x2 - x1) * (g2 + beta2 - beta1) / denom : x1 - (x1 - x2) * (g1 + beta2 - beta1) / denom;
   }
 
 
@@ -419,17 +410,12 @@ namespace LineMinimization
     const NumberType x3_shift = x3 - x1;
     const NumberType r1       = f2 - f1 - g1 * x2_shift;
     const NumberType r2       = f3 - f1 - g1 * x3_shift;
-    const NumberType denom =
-      Utilities::fixed_power<2>(x2_shift * x3_shift) * (x2_shift - x3_shift);
+    const NumberType denom    = Utilities::fixed_power<2>(x2_shift * x3_shift) * (x2_shift - x3_shift);
     if (denom == 0.)
       return {};
 
-    const NumberType A = (r1 * Utilities::fixed_power<2>(x3_shift) -
-                          r2 * Utilities::fixed_power<2>(x2_shift)) /
-                         denom;
-    const NumberType B = (r2 * Utilities::fixed_power<3>(x2_shift) -
-                          r1 * Utilities::fixed_power<3>(x3_shift)) /
-                         denom;
+    const NumberType  A = (r1 * Utilities::fixed_power<2>(x3_shift) - r2 * Utilities::fixed_power<2>(x2_shift)) / denom;
+    const NumberType  B = (r2 * Utilities::fixed_power<3>(x2_shift) - r1 * Utilities::fixed_power<3>(x3_shift)) / denom;
     const NumberType &C = g1;
 
     // now get the minimizer:
@@ -499,9 +485,7 @@ namespace LineMinimization
 
     // First try cubic interpolation after first iteration
     std::optional<NumberType> res =
-      x_rec.size() > 0 ?
-        cubic_fit_three_points(x1, f1, g1, x2, f2, x_rec[0], f_rec[0]) :
-        std::optional<NumberType>{};
+      x_rec.size() > 0 ? cubic_fit_three_points(x1, f1, g1, x2, f2, x_rec[0], f_rec[0]) : std::optional<NumberType>{};
     if (res && *res >= bounds.first && *res <= bounds.second)
       return *res;
 
@@ -519,28 +503,25 @@ namespace LineMinimization
 
   template <typename NumberType>
   std::pair<NumberType, unsigned int>
-  line_search(
-    const std::function<std::pair<NumberType, NumberType>(const NumberType x)>
-      &              func,
-    const NumberType f0,
-    const NumberType g0,
-    const std::function<
-      NumberType(const NumberType                        x_low,
-                 const NumberType                        f_low,
-                 const NumberType                        g_low,
-                 const NumberType                        x_hi,
-                 const NumberType                        f_hi,
-                 const NumberType                        g_hi,
-                 const FiniteSizeHistory<NumberType> &   x_rec,
-                 const FiniteSizeHistory<NumberType> &   f_rec,
-                 const FiniteSizeHistory<NumberType> &   g_rec,
-                 const std::pair<NumberType, NumberType> bounds)> &choose,
-    const NumberType                                               a1,
-    const NumberType                                               eta,
-    const NumberType                                               mu,
-    const NumberType                                               a_max,
-    const unsigned int max_evaluations,
-    const bool         debug_output)
+  line_search(const std::function<std::pair<NumberType, NumberType>(const NumberType x)>      &func,
+              const NumberType                                                                 f0,
+              const NumberType                                                                 g0,
+              const std::function<NumberType(const NumberType                        x_low,
+                                             const NumberType                        f_low,
+                                             const NumberType                        g_low,
+                                             const NumberType                        x_hi,
+                                             const NumberType                        f_hi,
+                                             const NumberType                        g_hi,
+                                             const FiniteSizeHistory<NumberType>    &x_rec,
+                                             const FiniteSizeHistory<NumberType>    &f_rec,
+                                             const FiniteSizeHistory<NumberType>    &g_rec,
+                                             const std::pair<NumberType, NumberType> bounds)> &choose,
+              const NumberType                                                                 a1,
+              const NumberType                                                                 eta,
+              const NumberType                                                                 mu,
+              const NumberType                                                                 a_max,
+              const unsigned int                                                               max_evaluations,
+              const bool                                                                       debug_output)
   {
     // Note that scipy use dcsrch() from Minpack2 Fortran lib for line search
     Assert(mu < 0.5 && mu > 0, ExcMessage("mu is not in (0,1/2)."));
@@ -564,15 +545,11 @@ namespace LineMinimization
 
     // return True if the first Wolfe condition (sufficient decrease) is
     // satisfied
-    const auto w1 = [&](const NumberType a, const NumberType f) {
-      return f <= f0 + a * mu * g0;
-    };
+    const auto w1 = [&](const NumberType a, const NumberType f) { return f <= f0 + a * mu * g0; };
 
     // return True if the second Wolfe condition (curvature condition) is
     // satisfied
-    const auto w2 = [&](const NumberType g) {
-      return std::abs(g) <= eta * g0_abs;
-    };
+    const auto w2 = [&](const NumberType g) { return std::abs(g) <= eta * g0_abs; };
 
     // Bracketing phase (Algorithm 2.6.2): look for a non-trivial interval
     // which is known to contain an interval of acceptable points.
@@ -600,8 +577,7 @@ namespace LineMinimization
 
           if (debug_output)
             deallog << "Bracketing phase: " << i << std::endl
-                    << ai << ' ' << fi << ' ' << gi << ' ' << w1(ai, fi) << ' '
-                    << w2(gi) << ' ' << f_min << std::endl;
+                    << ai << ' ' << fi << ' ' << gi << ' ' << w1(ai, fi) << ' ' << w2(gi) << ' ' << f_min << std::endl;
 
           // first check if we can stop bracketing or the whole line search:
           if (fi <= f_min || ai == a_max)
@@ -611,8 +587,7 @@ namespace LineMinimization
               return std::make_pair(ai, i);
             }
 
-          if (!w1(ai, fi) ||
-              (fi >= f_prev && i > 1)) // violate first Wolfe or not descending
+          if (!w1(ai, fi) || (fi >= f_prev && i > 1)) // violate first Wolfe or not descending
             {
               a_lo = a_prev;
               f_lo = f_prev;
@@ -627,8 +602,7 @@ namespace LineMinimization
           if (w2(gi)) // satisfies both Wolfe conditions
             {
               if (debug_output)
-                deallog << "Satisfied both Wolfe conditions during Bracketing."
-                        << std::endl;
+                deallog << "Satisfied both Wolfe conditions during Bracketing." << std::endl;
 
               Assert(w1(ai, fi), ExcInternalError());
               return std::make_pair(ai, i);
@@ -647,9 +621,7 @@ namespace LineMinimization
             }
 
           // extrapolation step with the bounds
-          const auto bounds =
-            std::make_pair(2. * ai - a_prev,
-                           std::min(a_max, ai + tau1 * (ai - a_prev)));
+          const auto bounds = std::make_pair(2. * ai - a_prev, std::min(a_max, ai + tau1 * (ai - a_prev)));
 
           a_prev = ai;
           f_prev = fi;
@@ -663,10 +635,8 @@ namespace LineMinimization
         }
     }
 
-    AssertThrow(
-      i < max_evaluations,
-      ExcMessage(
-        "Could not find the initial bracket within the given number of iterations."));
+    AssertThrow(i < max_evaluations,
+                ExcMessage("Could not find the initial bracket within the given number of iterations."));
 
     // Check properties of the bracket (Theorem 3.2 in More and Thuente, 94
     // and Eq. 2.6.3 in Fletcher 2013
@@ -698,8 +668,7 @@ namespace LineMinimization
         const NumberType a_hi_safe = a_hi - tau3 * (a_hi - a_lo);
         const auto       bounds    = std::minmax(a_lo_safe, a_hi_safe);
 
-        ai = choose(
-          a_lo, f_lo, g_lo, a_hi, f_hi, g_hi, a_rec, f_rec, g_rec, bounds);
+        ai = choose(a_lo, f_lo, g_lo, a_hi, f_hi, g_hi, a_rec, f_rec, g_rec, bounds);
 
         const std::pair<NumberType, NumberType> fgi = func(ai);
         fi                                          = fgi.first;
@@ -708,12 +677,9 @@ namespace LineMinimization
 
         if (debug_output)
           deallog << "Sectioning phase: " << i << std::endl
-                  << a_lo << ' ' << f_lo << ' ' << g_lo << ' ' << w1(a_lo, f_lo)
-                  << ' ' << w2(g_lo) << std::endl
-                  << a_hi << ' ' << f_hi << ' ' << g_hi << ' ' << w1(a_hi, f_hi)
-                  << ' ' << w2(g_hi) << std::endl
-                  << ai << ' ' << fi << ' ' << gi << ' ' << w1(ai, fi) << ' '
-                  << w2(gi) << std::endl;
+                  << a_lo << ' ' << f_lo << ' ' << g_lo << ' ' << w1(a_lo, f_lo) << ' ' << w2(g_lo) << std::endl
+                  << a_hi << ' ' << f_hi << ' ' << g_hi << ' ' << w1(a_hi, f_hi) << ' ' << w2(g_hi) << std::endl
+                  << ai << ' ' << fi << ' ' << gi << ' ' << w1(ai, fi) << ' ' << w2(gi) << std::endl;
 
         if (!w1(ai, fi) || fi >= f_lo)
           // take [a_lo, ai]
@@ -762,10 +728,8 @@ namespace LineMinimization
       }
 
     // if we got here, we could not find the solution
-    AssertThrow(
-      false,
-      ExcMessage(
-        "Could not could complete the sectioning phase within the given number of iterations."));
+    AssertThrow(false,
+                ExcMessage("Could not could complete the sectioning phase within the given number of iterations."));
     return std::make_pair(std::numeric_limits<NumberType>::signaling_NaN(), i);
   }
 

@@ -39,10 +39,7 @@ create_reference_triangulation(Triangulation<3> &tria)
   std::vector<unsigned int> repetitions(3, 1);
 
   repetitions[0] = 2;
-  GridGenerator::subdivided_hyper_rectangle(tria,
-                                            repetitions,
-                                            Point<3>(-1.0, 0.0, 0.0),
-                                            Point<3>(1.0, 1.0, 1.0));
+  GridGenerator::subdivided_hyper_rectangle(tria, repetitions, Point<3>(-1.0, 0.0, 0.0), Point<3>(1.0, 1.0, 1.0));
 }
 
 void
@@ -188,31 +185,25 @@ create_triangulation(Triangulation<3> &tria,
 }
 
 void
-evaluate(const FE_Nedelec<3> & fe,
-         const DoFHandler<3> & dof_handler_ref,
+evaluate(const FE_Nedelec<3>  &fe,
+         const DoFHandler<3>  &dof_handler_ref,
          const Vector<double> &u_ref,
-         const DoFHandler<3> & dof_handler,
+         const DoFHandler<3>  &dof_handler,
          const Vector<double> &u)
 {
   const FEValuesExtractors::Vector component(0);
   const QGauss<3>                  quadrature(2);
   const unsigned int               n_q_points = quadrature.size();
   Functions::FEFieldFunction<3>    fe_field_function(dof_handler, u);
-  FEValues<3>                      fe_values(fe,
-                        quadrature,
-                        update_quadrature_points | update_values);
+  FEValues<3>                      fe_values(fe, quadrature, update_quadrature_points | update_values);
   std::vector<Vector<double>>      values(n_q_points, Vector<double>(3));
   std::vector<Tensor<1, 3>>        values_ref(n_q_points);
 
-  for (DoFHandler<3>::active_cell_iterator cell =
-         dof_handler_ref.begin_active();
-       cell != dof_handler_ref.end();
-       ++cell)
+  for (DoFHandler<3>::active_cell_iterator cell = dof_handler_ref.begin_active(); cell != dof_handler_ref.end(); ++cell)
     {
       fe_values.reinit(cell);
       fe_values[component].get_function_values(u_ref, values_ref);
-      fe_field_function.vector_value_list(fe_values.get_quadrature_points(),
-                                          values);
+      fe_field_function.vector_value_list(fe_values.get_quadrature_points(), values);
 
       for (const auto q_point : fe_values.quadrature_point_indices())
         {
@@ -232,9 +223,9 @@ set_reference_solution(Vector<double> &vector)
 }
 
 void
-set_solution(Vector<double> &      vector,
-             const DoFHandler<3> & dof_handler,
-             const DoFHandler<3> & dof_handler_ref,
+set_solution(Vector<double>       &vector,
+             const DoFHandler<3>  &dof_handler,
+             const DoFHandler<3>  &dof_handler_ref,
              const Vector<double> &u_ref)
 {
   AffineConstraints<double> constraints;
@@ -243,8 +234,7 @@ set_solution(Vector<double> &      vector,
 
   Functions::FEFieldFunction<3> fe_field_function(dof_handler_ref, u_ref);
 
-  VectorTools::project(
-    dof_handler, constraints, QGauss<3>(2), fe_field_function, vector);
+  VectorTools::project(dof_handler, constraints, QGauss<3>(2), fe_field_function, vector);
 }
 
 void

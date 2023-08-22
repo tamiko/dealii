@@ -157,8 +157,7 @@ test(std::ostream &out)
           cut_away_cells.push_back(4);
           repetitions.push_back(4);
         }
-      GridGenerator::subdivided_hyper_L(
-        tr, repetitions, p1, p2, cut_away_cells);
+      GridGenerator::subdivided_hyper_L(tr, repetitions, p1, p2, cut_away_cells);
       if (tr.n_cells() > 0)
         go.write(tr, out, format);
     }

@@ -37,12 +37,10 @@
 
 template <int dim, int spacedim>
 void
-lost_particle_notification(
-  const typename Particles::ParticleIterator<dim, spacedim> &        particle,
-  const typename Triangulation<dim, spacedim>::active_cell_iterator &cell)
+lost_particle_notification(const typename Particles::ParticleIterator<dim, spacedim>         &particle,
+                           const typename Triangulation<dim, spacedim>::active_cell_iterator &cell)
 {
-  deallog << "Particle <" << particle->get_id()
-          << "> lost. Current position: " << particle->get_location()
+  deallog << "Particle <" << particle->get_id() << "> lost. Current position: " << particle->get_location()
           << std::endl;
 }
 
@@ -56,7 +54,7 @@ test()
     const bool         measure_time    = false;
 
     parallel::distributed::Triangulation<dim, spacedim> tr(MPI_COMM_WORLD);
-    TimerOutput timer(std::cout, TimerOutput::summary, TimerOutput::wall_times);
+    TimerOutput                                         timer(std::cout, TimerOutput::summary, TimerOutput::wall_times);
 
     if (measure_time == true)
       timer.enter_subsection("Generate grid");
@@ -73,14 +71,14 @@ test()
 
     Particles::ParticleHandler<dim, spacedim> particle_handler(tr, mapping);
     particle_handler.signals.particle_lost.connect(
-      [&](const typename Particles::ParticleIterator<dim, spacedim> &particle,
-          const typename Triangulation<dim, spacedim>::active_cell_iterator
-            &cell) { lost_particle_notification(particle, cell); });
+      [&](const typename Particles::ParticleIterator<dim, spacedim>         &particle,
+          const typename Triangulation<dim, spacedim>::active_cell_iterator &cell) {
+        lost_particle_notification(particle, cell);
+      });
 
     // Generate initial particle distribution
     Functions::ConstantFunction<spacedim> particle_density(1.0);
-    Particles::Generators::probabilistic_locations(
-      tr, particle_density, false, n_particles, particle_handler, mapping);
+    Particles::Generators::probabilistic_locations(tr, particle_density, false, n_particles, particle_handler, mapping);
 
     if (measure_time == true)
       timer.leave_subsection("Generate particles");

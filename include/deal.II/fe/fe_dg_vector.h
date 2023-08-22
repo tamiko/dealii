@@ -77,8 +77,7 @@ public:
    * For this element, we always return @p true.
    */
   virtual bool
-  has_support_on_face(const unsigned int shape_index,
-                      const unsigned int face_index) const override;
+  has_support_on_face(const unsigned int shape_index, const unsigned int face_index) const override;
 
   virtual std::size_t
   memory_consumption() const override;
@@ -172,8 +171,7 @@ public:
  * @ingroup fe
  */
 template <int dim, int spacedim = dim>
-class FE_DGRaviartThomas
-  : public FE_DGVector<PolynomialsRaviartThomas<dim>, dim, spacedim>
+class FE_DGRaviartThomas : public FE_DGVector<PolynomialsRaviartThomas<dim>, dim, spacedim>
 {
 public:
   /**

@@ -70,20 +70,13 @@ test<2>()
   // test FEFaceValues for FE_System(FE_Q)
   {
     const std::vector<hp::QCollection<dim - 1>> quad_ref = {
-      hp::QCollection<dim - 1>(QGauss<dim - 1>(1),
-                               QGauss<dim - 1>(2),
-                               QGauss<dim - 1>(3),
-                               QGauss<dim - 1>(4)),
-      hp::QCollection<dim - 1>(QGauss<dim - 1>(5),
-                               QGauss<dim - 1>(6),
-                               QGauss<dim - 1>(7),
-                               QGauss<dim - 1>(8))};
+      hp::QCollection<dim - 1>(QGauss<dim - 1>(1), QGauss<dim - 1>(2), QGauss<dim - 1>(3), QGauss<dim - 1>(4)),
+      hp::QCollection<dim - 1>(QGauss<dim - 1>(5), QGauss<dim - 1>(6), QGauss<dim - 1>(7), QGauss<dim - 1>(8))};
 
     hp::MappingCollection<dim> mapping(MappingFE<dim>(FE_Q<dim>(1)));
     hp::FECollection<dim>      fe(FESystem<dim>(FE_Q<dim>{3}, dim));
 
-    const UpdateFlags flags =
-      update_values | update_quadrature_points | update_JxW_values;
+    const UpdateFlags flags = update_values | update_quadrature_points | update_JxW_values;
 
 
     hp::FEFaceValues<dim> fe_face_values(mapping, fe, quad_ref, flags);
@@ -96,10 +89,7 @@ test<2>()
 
     Vector<double> vector_0(dof_handler.n_dofs());
 
-    VectorTools::interpolate(mapping[0 /*TODO*/],
-                             dof_handler,
-                             Fu<dim>(),
-                             vector_0);
+    VectorTools::interpolate(mapping[0 /*TODO*/], dof_handler, Fu<dim>(), vector_0);
 
     for (const auto &cell : dof_handler.active_cell_iterators())
       for (const auto face_no : cell->face_indices())
@@ -107,19 +97,15 @@ test<2>()
           {
             fe_face_values.reinit(cell, face_no, q_index);
 
-            std::vector<Vector<double>> values_0(
-              fe_face_values.get_present_fe_values().n_quadrature_points,
-              Vector<double>(dim));
+            std::vector<Vector<double>> values_0(fe_face_values.get_present_fe_values().n_quadrature_points,
+                                                 Vector<double>(dim));
 
-            fe_face_values.get_present_fe_values().get_function_values(
-              vector_0, values_0);
+            fe_face_values.get_present_fe_values().get_function_values(vector_0, values_0);
 
-            deallog << "q_index=" << q_index << " face_no=" << face_no << ':'
-                    << std::endl;
+            deallog << "q_index=" << q_index << " face_no=" << face_no << ':' << std::endl;
 
             for (unsigned int q = 0; q < values_0.size(); ++q)
-              deallog << values_0[q][0] << ' ' << values_0[q][1] << ' '
-                      << std::endl;
+              deallog << values_0[q][0] << ' ' << values_0[q][1] << ' ' << std::endl;
 
             deallog << std::endl;
           }

@@ -39,12 +39,9 @@ test()
       fe_collection.push_back(FE_Q<dim>(1));
       deallog << "size:" << fe_collection.size() << std::endl;
 
-      for (unsigned int fe_index = 0; fe_index < fe_collection.size();
-           ++fe_index)
-        deallog << " idx:" << fe_index
-                << " next:" << fe_collection.next_in_hierarchy(fe_index)
-                << " prev:" << fe_collection.previous_in_hierarchy(fe_index)
-                << std::endl;
+      for (unsigned int fe_index = 0; fe_index < fe_collection.size(); ++fe_index)
+        deallog << " idx:" << fe_index << " next:" << fe_collection.next_in_hierarchy(fe_index)
+                << " prev:" << fe_collection.previous_in_hierarchy(fe_index) << std::endl;
     }
 }
 

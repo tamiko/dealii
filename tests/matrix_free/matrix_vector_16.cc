@@ -44,15 +44,11 @@
 
 
 
-template <int dim,
-          int fe_degree,
-          typename Number,
-          typename VectorType = Vector<Number>>
+template <int dim, int fe_degree, typename Number, typename VectorType = Vector<Number>>
 class MatrixFreeTest
 {
 public:
-  MatrixFreeTest(const DoFHandler<dim> &          dof_handler,
-                 const AffineConstraints<double> &constraints)
+  MatrixFreeTest(const DoFHandler<dim> &dof_handler, const AffineConstraints<double> &constraints)
     : dof_handler(dof_handler)
     , constraints(constraints)
   {}
@@ -63,13 +59,9 @@ public:
     VectorType src_cpy = src;
     constraints.distribute(src_cpy);
     FEEvaluation<dim, fe_degree, fe_degree + 1, dim, Number> fe_eval(
-      dof_handler.get_fe(),
-      QGauss<1>(fe_degree + 1),
-      update_values | update_gradients | update_JxW_values);
-    dst = 0;
-    typename DoFHandler<dim>::active_cell_iterator cell =
-                                                     dof_handler.begin_active(),
-                                                   endc = dof_handler.end();
+      dof_handler.get_fe(), QGauss<1>(fe_degree + 1), update_values | update_gradients | update_JxW_values);
+    dst                                                 = 0;
+    typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
     for (; cell != endc; ++cell)
       {
         fe_eval.reinit(cell);
@@ -77,9 +69,7 @@ public:
         fe_eval.evaluate(EvaluationFlags::values | EvaluationFlags::gradients);
         for (unsigned int q = 0; q < fe_eval.n_q_points; ++q)
           {
-            fe_eval.submit_value(make_vectorized_array<Number>(10.) *
-                                   fe_eval.get_value(q),
-                                 q);
+            fe_eval.submit_value(make_vectorized_array<Number>(10.) * fe_eval.get_value(q), q);
             fe_eval.submit_gradient(fe_eval.get_gradient(q), q);
           }
         fe_eval.integrate(EvaluationFlags::values | EvaluationFlags::gradients);
@@ -89,7 +79,7 @@ public:
   };
 
 private:
-  const DoFHandler<dim> &          dof_handler;
+  const DoFHandler<dim>           &dof_handler;
   const AffineConstraints<double> &constraints;
 };
 
@@ -97,7 +87,7 @@ private:
 
 template <int dim, int fe_degree, typename number>
 void
-do_test(const DoFHandler<dim> &          dof,
+do_test(const DoFHandler<dim>           &dof,
         const AffineConstraints<double> &constraints,
         const unsigned int               parallel_option = 0)
 {
@@ -138,19 +128,15 @@ do_test(const DoFHandler<dim> &          dof,
   {
     QGauss<dim> quadrature_formula(fe_degree + 1);
 
-    FEValues<dim> fe_values(dof.get_fe(),
-                            quadrature_formula,
-                            update_values | update_gradients |
-                              update_JxW_values);
+    FEValues<dim> fe_values(dof.get_fe(), quadrature_formula, update_values | update_gradients | update_JxW_values);
 
     const unsigned int dofs_per_cell = dof.get_fe().dofs_per_cell;
     const unsigned int n_q_points    = quadrature_formula.size();
 
-    FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
+    FullMatrix<double>                   cell_matrix(dofs_per_cell, dofs_per_cell);
     std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
 
-    typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(),
-                                                   endc = dof.end();
+    typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(), endc = dof.end();
     for (; cell != endc; ++cell)
       {
         cell_matrix = 0;
@@ -160,20 +146,14 @@ do_test(const DoFHandler<dim> &          dof,
           for (unsigned int i = 0; i < dofs_per_cell; ++i)
             {
               for (unsigned int j = 0; j < dofs_per_cell; ++j)
-                if (dof.get_fe().system_to_component_index(i).first ==
-                    dof.get_fe().system_to_component_index(j).first)
-                  cell_matrix(i, j) +=
-                    ((fe_values.shape_grad(i, q_point) *
-                        fe_values.shape_grad(j, q_point) +
-                      10. * fe_values.shape_value(i, q_point) *
-                        fe_values.shape_value(j, q_point)) *
-                     fe_values.JxW(q_point));
+                if (dof.get_fe().system_to_component_index(i).first == dof.get_fe().system_to_component_index(j).first)
+                  cell_matrix(i, j) += ((fe_values.shape_grad(i, q_point) * fe_values.shape_grad(j, q_point) +
+                                         10. * fe_values.shape_value(i, q_point) * fe_values.shape_value(j, q_point)) *
+                                        fe_values.JxW(q_point));
             }
 
         cell->get_dof_indices(local_dof_indices);
-        constraints.distribute_local_to_global(cell_matrix,
-                                               local_dof_indices,
-                                               sparse_matrix);
+        constraints.distribute_local_to_global(cell_matrix, local_dof_indices, sparse_matrix);
       }
   }
 
@@ -193,8 +173,7 @@ test()
   const SphericalManifold<dim> manifold;
   Triangulation<dim>           tria;
   GridGenerator::hyper_ball(tria);
-  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(),
-                                                    endc = tria.end();
+  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
   for (; cell != endc; ++cell)
     for (const unsigned int f : GeometryInfo<dim>::face_indices())
       if (cell->at_boundary(f))
@@ -218,10 +197,7 @@ test()
   dof.distribute_dofs(fe);
   AffineConstraints<double> constraints;
   DoFTools::make_hanging_node_constraints(dof, constraints);
-  VectorTools::interpolate_boundary_values(dof,
-                                           0,
-                                           Functions::ZeroFunction<dim>(dim),
-                                           constraints);
+  VectorTools::interpolate_boundary_values(dof, 0, Functions::ZeroFunction<dim>(dim), constraints);
   constraints.close();
 
   do_test<dim, fe_degree, double>(dof, constraints);

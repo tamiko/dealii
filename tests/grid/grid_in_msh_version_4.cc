@@ -83,20 +83,17 @@ gmsh_grid(const char *name_v2, const char *name_v4)
     grid_in.read_msh(input_file);
   }
 
-  AssertThrow(tria_v2.n_active_cells() == tria_v4.n_active_cells(),
-              ExcInternalError());
+  AssertThrow(tria_v2.n_active_cells() == tria_v4.n_active_cells(), ExcInternalError());
   deallog << "  " << tria_v2.n_active_cells() << " active cells" << std::endl;
 
   // The cells and faces in the two files are in reversed order
   // but the vertex index is the same.
-  auto cell_v2 = tria_v2.begin_active();
-  auto cell_v4 =
-    std::next(tria_v4.begin_active(), tria_v4.n_active_cells() - 1);
-  const auto end_v2 = tria_v2.end();
+  auto       cell_v2 = tria_v2.begin_active();
+  auto       cell_v4 = std::next(tria_v4.begin_active(), tria_v4.n_active_cells() - 1);
+  const auto end_v2  = tria_v2.end();
   for (; cell_v2 != end_v2; ++cell_v2, --cell_v4)
     {
-      AssertThrow(cell_v2->material_id() == cell_v4->material_id(),
-                  ExcInternalError());
+      AssertThrow(cell_v2->material_id() == cell_v4->material_id(), ExcInternalError());
       std::set<unsigned int> vertices_v2;
       std::set<unsigned int> vertices_v4;
       for (const unsigned int i : GeometryInfo<dim>::vertex_indices())
@@ -117,20 +114,16 @@ gmsh_grid(const char *name_v2, const char *name_v4)
       std::map<Point<dim>, types::boundary_id, PointComparator<dim>> faces_v4;
       for (const unsigned int i : GeometryInfo<dim>::face_indices())
         {
-          faces_v2[cell_v2->face(i)->center()] =
-            cell_v2->face(i)->boundary_id();
-          faces_v4[cell_v4->face(i)->center()] =
-            cell_v4->face(i)->boundary_id();
+          faces_v2[cell_v2->face(i)->center()] = cell_v2->face(i)->boundary_id();
+          faces_v4[cell_v4->face(i)->center()] = cell_v4->face(i)->boundary_id();
         }
       AssertThrow(faces_v2 == faces_v4, ExcInternalError());
       std::map<Point<dim>, types::boundary_id, PointComparator<dim>> lines_v2;
       std::map<Point<dim>, types::boundary_id, PointComparator<dim>> lines_v4;
       for (unsigned int i = 0; i < GeometryInfo<dim>::lines_per_cell; ++i)
         {
-          lines_v2[cell_v2->line(i)->center()] =
-            cell_v2->line(i)->boundary_id();
-          lines_v4[cell_v4->line(i)->center()] =
-            cell_v4->line(i)->boundary_id();
+          lines_v2[cell_v2->line(i)->center()] = cell_v2->line(i)->boundary_id();
+          lines_v4[cell_v4->line(i)->center()] = cell_v4->line(i)->boundary_id();
         }
       AssertThrow(lines_v2 == lines_v4, ExcInternalError());
     }
@@ -141,11 +134,9 @@ void
 filename_resolution()
 {
   deallog << "grid_in_msh_version_2/hole81" << std::endl;
-  gmsh_grid<2>(SOURCE_DIR "/grid_in_msh_version_2/hole81.msh",
-               SOURCE_DIR "/grid_in_msh_version_4/hole81.msh");
+  gmsh_grid<2>(SOURCE_DIR "/grid_in_msh_version_2/hole81.msh", SOURCE_DIR "/grid_in_msh_version_4/hole81.msh");
   deallog << "grid_in_msh_version_2/hole8170" << std::endl;
-  gmsh_grid<2>(SOURCE_DIR "/grid_in_msh_version_2/hole8170.msh",
-               SOURCE_DIR "/grid_in_msh_version_4/hole8170.msh");
+  gmsh_grid<2>(SOURCE_DIR "/grid_in_msh_version_2/hole8170.msh", SOURCE_DIR "/grid_in_msh_version_4/hole8170.msh");
 }
 
 

@@ -149,21 +149,15 @@ namespace parallel
        *   on a cell whose children will get coarsened into.
        */
       CellDataTransfer(
-        const parallel::distributed::Triangulation<dim, spacedim>
-          &                               triangulation,
-        const bool                        transfer_variable_size_data = false,
-        const std::function<std::vector<value_type>(
-          const typename dealii::Triangulation<dim, spacedim>::cell_iterator
-            &              parent,
-          const value_type parent_value)> refinement_strategy =
-          &dealii::AdaptationStrategies::Refinement::
-            preserve<dim, spacedim, value_type>,
-        const std::function<value_type(
-          const typename dealii::Triangulation<dim, spacedim>::cell_iterator
-            &                            parent,
-          const std::vector<value_type> &children_values)> coarsening_strategy =
-          &dealii::AdaptationStrategies::Coarsening::
-            check_equality<dim, spacedim, value_type>);
+        const parallel::distributed::Triangulation<dim, spacedim> &triangulation,
+        const bool                                                 transfer_variable_size_data = false,
+        const std::function<
+          std::vector<value_type>(const typename dealii::Triangulation<dim, spacedim>::cell_iterator &parent,
+                                  const value_type parent_value)> refinement_strategy =
+          &dealii::AdaptationStrategies::Refinement::preserve<dim, spacedim, value_type>,
+        const std::function<value_type(const typename dealii::Triangulation<dim, spacedim>::cell_iterator &parent,
+                                       const std::vector<value_type> &children_values)> coarsening_strategy =
+          &dealii::AdaptationStrategies::Coarsening::check_equality<dim, spacedim, value_type>);
 
       /**
        * Prepare the current object for coarsening and refinement.
@@ -184,8 +178,7 @@ namespace parallel
        * Same as the function above, only for a list of vectors.
        */
       void
-      prepare_for_coarsening_and_refinement(
-        const std::vector<const VectorType *> &all_in);
+      prepare_for_coarsening_and_refinement(const std::vector<const VectorType *> &all_in);
 
       /**
        * Prepare the serialization of the given vector.
@@ -249,18 +242,16 @@ namespace parallel
        * %Function deciding how data will be stored on refined cells from its
        * parent cell.
        */
-      const std::function<std::vector<value_type>(
-        const typename Triangulation<dim, spacedim>::cell_iterator &parent,
-        const value_type parent_value)>
+      const std::function<std::vector<value_type>(const typename Triangulation<dim, spacedim>::cell_iterator &parent,
+                                                  const value_type parent_value)>
         refinement_strategy;
 
       /**
        * %Function deciding on how to process data from children to be stored on
        * the parent cell.
        */
-      const std::function<value_type(
-        const typename Triangulation<dim, spacedim>::cell_iterator &parent,
-        const std::vector<value_type> &children_values)>
+      const std::function<value_type(const typename Triangulation<dim, spacedim>::cell_iterator &parent,
+                                     const std::vector<value_type>                              &children_values)>
         coarsening_strategy;
 
       /**
@@ -288,9 +279,8 @@ namespace parallel
        * repartitioning.
        */
       std::vector<char>
-      pack_callback(const typename parallel::distributed::
-                      Triangulation<dim, spacedim>::cell_iterator &cell,
-                    const CellStatus                               status);
+      pack_callback(const typename parallel::distributed::Triangulation<dim, spacedim>::cell_iterator &cell,
+                    const CellStatus                                                                   status);
 
       /**
        * A callback function used to unpack the data on the current mesh that
@@ -298,13 +288,10 @@ namespace parallel
        * coarsening and repartitioning.
        */
       void
-      unpack_callback(
-        const typename parallel::distributed::Triangulation<dim, spacedim>::
-          cell_iterator &cell,
-        const CellStatus status,
-        const boost::iterator_range<std::vector<char>::const_iterator>
-          &                        data_range,
-        std::vector<VectorType *> &all_out);
+      unpack_callback(const typename parallel::distributed::Triangulation<dim, spacedim>::cell_iterator &cell,
+                      const CellStatus                                                                   status,
+                      const boost::iterator_range<std::vector<char>::const_iterator>                    &data_range,
+                      std::vector<VectorType *>                                                         &all_out);
     };
   } // namespace distributed
 } // namespace parallel

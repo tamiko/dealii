@@ -57,28 +57,22 @@ test(std::string filename)
 
   FEValues<dim, spacedim> fe_values(dummy_fe,
                                     quadrature,
-                                    update_JxW_values | update_normal_vectors |
-                                      update_quadrature_points);
+                                    update_JxW_values | update_normal_vectors | update_quadrature_points);
 
   dof_handler.distribute_dofs(dummy_fe);
 
   double area    = 0;
   double normals = 0;
 
-  typename DoFHandler<dim, spacedim>::active_cell_iterator
-    cell = dof_handler.begin_active(),
-    endc = dof_handler.end();
+  typename DoFHandler<dim, spacedim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
 
-  std::vector<Point<spacedim>> expectedcellnormals(
-    fe_values.n_quadrature_points);
+  std::vector<Point<spacedim>> expectedcellnormals(fe_values.n_quadrature_points);
 
   for (; cell != endc; ++cell)
     {
       fe_values.reinit(cell);
-      const std::vector<Tensor<1, spacedim>> &cellnormals =
-        fe_values.get_normal_vectors();
-      const std::vector<Point<spacedim>> &quad_points =
-        fe_values.get_quadrature_points();
+      const std::vector<Tensor<1, spacedim>> &cellnormals = fe_values.get_normal_vectors();
+      const std::vector<Point<spacedim>>     &quad_points = fe_values.get_quadrature_points();
 
       for (unsigned int i = 0; i < fe_values.n_quadrature_points; ++i)
         {
@@ -91,9 +85,7 @@ test(std::string filename)
   deallog << "Approximate measure of hyper sphere = " << area << std::endl;
   deallog << "Error = " << std::fabs(dim * 2 * numbers::PI - area) << std::endl;
   deallog << "Average error in norms: "
-          << (normals / dof_handler.get_triangulation().n_active_cells() /
-              fe_values.n_quadrature_points)
-          << std::endl;
+          << (normals / dof_handler.get_triangulation().n_active_cells() / fe_values.n_quadrature_points) << std::endl;
 }
 
 

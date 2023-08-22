@@ -55,8 +55,7 @@ namespace Functions
       Sphere(const Point<dim> &center = Point<dim>(), const double radius = 1);
 
       double
-      value(const Point<dim> & point,
-            const unsigned int component = 0) const override;
+      value(const Point<dim> &point, const unsigned int component = 0) const override;
 
       /**
        * @copydoc Function::gradient()
@@ -68,8 +67,7 @@ namespace Functions
        * singularity.
        */
       Tensor<1, dim>
-      gradient(const Point<dim> & point,
-               const unsigned int component = 0) const override;
+      gradient(const Point<dim> &point, const unsigned int component = 0) const override;
 
       /**
        * @copydoc Function::hessian()
@@ -81,8 +79,7 @@ namespace Functions
        * singularity.
        */
       SymmetricTensor<2, dim>
-      hessian(const Point<dim> & point,
-              const unsigned int component = 0) const override;
+      hessian(const Point<dim> &point, const unsigned int component = 0) const override;
 
     private:
       const Point<dim> center;
@@ -111,16 +108,13 @@ namespace Functions
       Plane(const Point<dim> &point, const Tensor<1, dim> &normal);
 
       double
-      value(const Point<dim> & point,
-            const unsigned int component = 0) const override;
+      value(const Point<dim> &point, const unsigned int component = 0) const override;
 
       Tensor<1, dim>
-      gradient(const Point<dim> &,
-               const unsigned int component = 0) const override;
+      gradient(const Point<dim> &, const unsigned int component = 0) const override;
 
       SymmetricTensor<2, dim>
-      hessian(const Point<dim> &,
-              const unsigned int component = 0) const override;
+      hessian(const Point<dim> &, const unsigned int component = 0) const override;
 
     private:
       const Point<dim>     point_in_plane;
@@ -153,22 +147,20 @@ namespace Functions
        * @param tolerance Tolerance of the distance computation.
        * @param max_iter Max. number of iteration of the distance computation algorithm.
        */
-      Ellipsoid(const Point<dim> &             center,
+      Ellipsoid(const Point<dim>              &center,
                 const std::array<double, dim> &radii,
                 const double                   tolerance = 1e-14,
                 const unsigned int             max_iter  = 10);
 
       double
-      value(const Point<dim> & point,
-            const unsigned int component = 0) const override;
+      value(const Point<dim> &point, const unsigned int component = 0) const override;
 
       /**
        * Calculates the gradient of the signed distance function via the normal
        * of the closest point on the ellipsoid.
        */
       Tensor<1, dim>
-      gradient(const Point<dim> &,
-               const unsigned int component = 0) const override;
+      gradient(const Point<dim> &, const unsigned int component = 0) const override;
 
     private:
       /**
@@ -254,8 +246,7 @@ namespace Functions
        * rectangle.
        */
       double
-      value(const Point<dim> & p,
-            const unsigned int component = 0) const override;
+      value(const Point<dim> &p, const unsigned int component = 0) const override;
 
     private:
       const BoundingBox<dim> bounding_box;
@@ -291,10 +282,7 @@ namespace Functions
        * @param notch_width Width of the notch of the disk.
        * @param notch_height Height of the notch of the disk.
        */
-      ZalesakDisk(const Point<dim> &center,
-                  const double      radius,
-                  const double      notch_width,
-                  const double      notch_height);
+      ZalesakDisk(const Point<dim> &center, const double radius, const double notch_width, const double notch_height);
 
       /**
        * Calculates the signed distance from a given point @p p to the disk.
@@ -303,8 +291,7 @@ namespace Functions
        * disk.
        */
       double
-      value(const Point<dim> & p,
-            const unsigned int component = 0) const override;
+      value(const Point<dim> &p, const unsigned int component = 0) const override;
 
     private:
       /**

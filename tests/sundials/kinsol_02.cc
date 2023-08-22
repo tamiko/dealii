@@ -70,8 +70,7 @@ main()
     F[1] += .1 * u[1] * u[1] - 2;
   };
 
-  kinsol.solve_with_jacobian =
-    [&](const VectorType &rhs, VectorType &dst, double) { dst = rhs; };
+  kinsol.solve_with_jacobian = [&](const VectorType &rhs, VectorType &dst, double) { dst = rhs; };
 
   VectorType v(N);
 

@@ -42,28 +42,24 @@ main()
 
   float                                            factor_float  = 2.f;
   double                                           factor_double = 3.;
-  SymmetricTensor<2, dim, VectorizedArray<float>>  r1 = factor_float * s1;
-  SymmetricTensor<2, dim, VectorizedArray<double>> r2 = factor_double * s2;
+  SymmetricTensor<2, dim, VectorizedArray<float>>  r1            = factor_float * s1;
+  SymmetricTensor<2, dim, VectorizedArray<double>> r2            = factor_double * s2;
 
   for (unsigned int i = 0; i < dim; ++i)
     for (unsigned int j = 0; j < dim; ++j)
       {
         deallog << i << "\t" << j << std::endl;
         deallog << r1[i][j][0] << std::endl;
-        AssertThrow(std::abs(r1[i][j][0] - factor_float * s1[i][j][0]) < 1.e-10,
-                    ExcInternalError());
+        AssertThrow(std::abs(r1[i][j][0] - factor_float * s1[i][j][0]) < 1.e-10, ExcInternalError());
         for (unsigned int k = 1; k < VectorizedArray<float>::size(); ++k)
           {
-            AssertThrow(std::abs(r1[i][j][k] - r1[i][j][0]) < 1.e-10,
-                        ExcInternalError());
+            AssertThrow(std::abs(r1[i][j][k] - r1[i][j][0]) < 1.e-10, ExcInternalError());
           }
         deallog << r2[i][j][0] << std::endl;
-        Assert(std::abs(r2[i][j][0] - factor_double * s2[i][j][0]) < 1.e-10,
-               ExcInternalError());
+        Assert(std::abs(r2[i][j][0] - factor_double * s2[i][j][0]) < 1.e-10, ExcInternalError());
         for (unsigned int k = 1; k < VectorizedArray<double>::size(); ++k)
           {
-            AssertThrow(std::abs(r2[i][j][k] - r2[i][j][0]) < 1.e-10,
-                        ExcInternalError());
+            AssertThrow(std::abs(r2[i][j][k] - r2[i][j][0]) < 1.e-10, ExcInternalError());
           }
         deallog << std::endl;
       }

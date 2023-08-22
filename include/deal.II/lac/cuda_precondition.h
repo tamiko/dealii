@@ -121,14 +121,13 @@ namespace CUDAWrappers
      * The @p additional_data determines if level information are used.
      */
     void
-    initialize(const SparseMatrix<Number> &matrix,
-               const AdditionalData &      additional_data = AdditionalData());
+    initialize(const SparseMatrix<Number> &matrix, const AdditionalData &additional_data = AdditionalData());
 
     /**
      * Apply the preconditioner.
      */
     void
-    vmult(LinearAlgebra::CUDAWrappers::Vector<Number> &      dst,
+    vmult(LinearAlgebra::CUDAWrappers::Vector<Number>       &dst,
           const LinearAlgebra::CUDAWrappers::Vector<Number> &src) const;
 
     /**
@@ -136,7 +135,7 @@ namespace CUDAWrappers
      * is the same as vmult().
      */
     void
-    Tvmult(LinearAlgebra::CUDAWrappers::Vector<Number> &      dst,
+    Tvmult(LinearAlgebra::CUDAWrappers::Vector<Number>       &dst,
            const LinearAlgebra::CUDAWrappers::Vector<Number> &src) const;
 
     /**
@@ -334,21 +333,20 @@ namespace CUDAWrappers
      * The @p additional_data determines if level information are used.
      */
     void
-    initialize(const SparseMatrix<Number> &matrix,
-               const AdditionalData &      additional_data = AdditionalData());
+    initialize(const SparseMatrix<Number> &matrix, const AdditionalData &additional_data = AdditionalData());
 
     /**
      * Apply the preconditioner.
      */
     void
-    vmult(LinearAlgebra::CUDAWrappers::Vector<Number> &      dst,
+    vmult(LinearAlgebra::CUDAWrappers::Vector<Number>       &dst,
           const LinearAlgebra::CUDAWrappers::Vector<Number> &src) const;
 
     /**
      * Apply the transposed preconditioner. Not yet implemented.
      */
     void
-    Tvmult(LinearAlgebra::CUDAWrappers::Vector<Number> &      dst,
+    Tvmult(LinearAlgebra::CUDAWrappers::Vector<Number>       &dst,
            const LinearAlgebra::CUDAWrappers::Vector<Number> &src) const;
 
     /**

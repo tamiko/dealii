@@ -75,8 +75,7 @@ namespace TrilinosWrappers
    * either the 32 or 64 bit function.
    */
   inline TrilinosWrappers::types::int_type
-  global_index(const Epetra_BlockMap &               map,
-               const dealii::types::global_dof_index i)
+  global_index(const Epetra_BlockMap &map, const dealii::types::global_dof_index i)
   {
 #  ifdef DEAL_II_WITH_64BIT_INDICES
     return map.GID64(i);
@@ -143,8 +142,7 @@ namespace TrilinosWrappers
    * either the 32 or 64 bit function.
    */
   inline TrilinosWrappers::types::int_type
-  global_row_index(const Epetra_CrsMatrix &              matrix,
-                   const dealii::types::global_dof_index i)
+  global_row_index(const Epetra_CrsMatrix &matrix, const dealii::types::global_dof_index i)
   {
 #  ifdef DEAL_II_WITH_64BIT_INDICES
     return matrix.GRID64(i);
@@ -158,8 +156,7 @@ namespace TrilinosWrappers
    * either the 32 or 64 bit function.
    */
   inline TrilinosWrappers::types::int_type
-  global_column_index(const Epetra_CrsMatrix &              matrix,
-                      const dealii::types::global_dof_index i)
+  global_column_index(const Epetra_CrsMatrix &matrix, const dealii::types::global_dof_index i)
   {
 #  ifdef DEAL_II_WITH_64BIT_INDICES
     return matrix.GCID64(i);

@@ -43,20 +43,15 @@ void
 test()
 {
   // generate a 100x3 mesh
-  Triangulation<2> triangulation(Triangulation<2>::eliminate_unrefined_islands);
+  Triangulation<2>          triangulation(Triangulation<2>::eliminate_unrefined_islands);
   std::vector<unsigned int> ref(2);
   ref[0] = 100;
   ref[1] = 3;
-  GridGenerator::subdivided_hyper_rectangle(triangulation,
-                                            ref,
-                                            Point<2>(),
-                                            Point<2>(100, 3));
+  GridGenerator::subdivided_hyper_rectangle(triangulation, ref, Point<2>(), Point<2>(100, 3));
 
   // refine all cells at the lower
   // boundary. we then have 600 cells
-  for (Triangulation<2>::cell_iterator cell = triangulation.begin();
-       cell != triangulation.end();
-       ++cell)
+  for (Triangulation<2>::cell_iterator cell = triangulation.begin(); cell != triangulation.end(); ++cell)
     if (cell->center()[1] < 1)
       cell->set_refine_flag();
   triangulation.execute_coarsening_and_refinement();
@@ -83,9 +78,7 @@ test()
   // other things). after the changes
   // to tria.cc, we now need 2
   // iterations
-  for (Triangulation<2>::cell_iterator cell = triangulation.begin();
-       cell != triangulation.end();
-       ++cell)
+  for (Triangulation<2>::cell_iterator cell = triangulation.begin(); cell != triangulation.end(); ++cell)
     if (cell->center()[1] > 2)
       if (cell->center()[0] < 99)
         cell->set_refine_flag();
@@ -116,28 +109,20 @@ main()
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
 

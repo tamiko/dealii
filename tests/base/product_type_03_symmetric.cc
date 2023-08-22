@@ -46,33 +46,17 @@ main()
   check<SymmetricTensor<2, 1, double>, float, SymmetricTensor<2, 1, double>>();
   check<float, SymmetricTensor<2, 1, double>, SymmetricTensor<2, 1, double>>();
 
-  check<SymmetricTensor<2, 1, double>,
-        std::complex<double>,
-        SymmetricTensor<2, 1, std::complex<double>>>();
-  check<std::complex<double>,
-        SymmetricTensor<2, 1, double>,
-        SymmetricTensor<2, 1, std::complex<double>>>();
+  check<SymmetricTensor<2, 1, double>, std::complex<double>, SymmetricTensor<2, 1, std::complex<double>>>();
+  check<std::complex<double>, SymmetricTensor<2, 1, double>, SymmetricTensor<2, 1, std::complex<double>>>();
 
-  check<SymmetricTensor<2, 1, double>,
-        std::complex<float>,
-        SymmetricTensor<2, 1, std::complex<double>>>();
-  check<std::complex<float>,
-        SymmetricTensor<2, 1, double>,
-        SymmetricTensor<2, 1, std::complex<double>>>();
+  check<SymmetricTensor<2, 1, double>, std::complex<float>, SymmetricTensor<2, 1, std::complex<double>>>();
+  check<std::complex<float>, SymmetricTensor<2, 1, double>, SymmetricTensor<2, 1, std::complex<double>>>();
 
-  check<SymmetricTensor<2, 1, float>,
-        std::complex<double>,
-        SymmetricTensor<2, 1, std::complex<double>>>();
-  check<std::complex<double>,
-        SymmetricTensor<2, 1, float>,
-        SymmetricTensor<2, 1, std::complex<double>>>();
+  check<SymmetricTensor<2, 1, float>, std::complex<double>, SymmetricTensor<2, 1, std::complex<double>>>();
+  check<std::complex<double>, SymmetricTensor<2, 1, float>, SymmetricTensor<2, 1, std::complex<double>>>();
 
-  check<SymmetricTensor<2, 1, float>,
-        std::complex<float>,
-        SymmetricTensor<2, 1, std::complex<float>>>();
-  check<std::complex<float>,
-        SymmetricTensor<2, 1, float>,
-        SymmetricTensor<2, 1, std::complex<float>>>();
+  check<SymmetricTensor<2, 1, float>, std::complex<float>, SymmetricTensor<2, 1, std::complex<float>>>();
+  check<std::complex<float>, SymmetricTensor<2, 1, float>, SymmetricTensor<2, 1, std::complex<float>>>();
 
   deallog << "OK" << std::endl;
 }

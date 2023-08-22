@@ -141,8 +141,8 @@ public:
      * @param anderson_subspace_size Size of the Anderson acceleration
      *   subspace, use 0 to disable.
      */
-    AdditionalData(const SolverType &      solver_type = automatic,
-                   const SolutionStrategy &strategy    = linesearch,
+    AdditionalData(const SolverType       &solver_type                   = automatic,
+                   const SolutionStrategy &strategy                      = linesearch,
                    const unsigned int      maximum_non_linear_iterations = 200,
                    const double            function_tolerance            = 1e-8,
                    const double            relative_tolerance            = 1e-5,
@@ -219,8 +219,7 @@ public:
    * @param additional_data NonlinearSolverSelector configuration data
    * @param mpi_communicator MPI communicator used by the nonlinear solver.
    */
-  NonlinearSolverSelector(const AdditionalData &additional_data,
-                          const MPI_Comm &      mpi_communicator);
+  NonlinearSolverSelector(const AdditionalData &additional_data, const MPI_Comm &mpi_communicator);
 
   /**
    * Select a new nonlinear solver. All solver names used in this class are
@@ -241,11 +240,8 @@ public:
  */
 #ifdef DEAL_II_TRILINOS_WITH_NOX
   void
-  set_data(
-    const typename TrilinosWrappers::NOXSolver<VectorType>::AdditionalData
-      &                                         additional_data,
-    const Teuchos::RCP<Teuchos::ParameterList> &parameters =
-      Teuchos::rcp(new Teuchos::ParameterList));
+  set_data(const typename TrilinosWrappers::NOXSolver<VectorType>::AdditionalData &additional_data,
+           const Teuchos::RCP<Teuchos::ParameterList> &parameters = Teuchos::rcp(new Teuchos::ParameterList));
 #endif
 
 /**
@@ -254,8 +250,7 @@ public:
  */
 #ifdef DEAL_II_WITH_SUNDIALS
   void
-  set_data(const typename SUNDIALS::KINSOL<VectorType>::AdditionalData
-             &additional_data);
+  set_data(const typename SUNDIALS::KINSOL<VectorType>::AdditionalData &additional_data);
 #endif
 
 /**
@@ -348,9 +343,7 @@ public:
    * throws an exception of type RecoverableUserCallbackError, then this
    * exception may or may not be treated like any other exception.
    */
-  std::function<
-    void(const VectorType &rhs, VectorType &dst, const double tolerance)>
-    solve_with_jacobian;
+  std::function<void(const VectorType &rhs, VectorType &dst, const double tolerance)> solve_with_jacobian;
 
 private:
   /**
@@ -375,10 +368,8 @@ private:
  * NOX configuration data
  */
 #ifdef DEAL_II_TRILINOS_WITH_NOX
-  typename TrilinosWrappers::NOXSolver<VectorType>::AdditionalData
-                                       additional_data_nox;
-  Teuchos::RCP<Teuchos::ParameterList> parameters_nox =
-    Teuchos::rcp(new Teuchos::ParameterList);
+  typename TrilinosWrappers::NOXSolver<VectorType>::AdditionalData additional_data_nox;
+  Teuchos::RCP<Teuchos::ParameterList> parameters_nox = Teuchos::rcp(new Teuchos::ParameterList);
 #endif
 
 /**
@@ -402,33 +393,23 @@ private:
 
 template <typename VectorType>
 void
-NonlinearSolverSelector<VectorType>::set_data(
-  const AdditionalData &additional_data)
+NonlinearSolverSelector<VectorType>::set_data(const AdditionalData &additional_data)
 {
 #ifdef DEAL_II_WITH_SUNDIALS
   // These if statements pass on the strategy to the other nonlinear solvers
-  if (additional_data.strategy ==
-      NonlinearSolverSelector<VectorType>::AdditionalData::linesearch)
-    additional_data_kinsol.strategy =
-      SUNDIALS::KINSOL<VectorType>::AdditionalData::linesearch;
-  else if (additional_data.strategy ==
-           NonlinearSolverSelector<VectorType>::AdditionalData::newton)
-    additional_data_kinsol.strategy =
-      SUNDIALS::KINSOL<VectorType>::AdditionalData::newton;
-  else if (additional_data.strategy ==
-           NonlinearSolverSelector<VectorType>::AdditionalData::picard)
-    additional_data_kinsol.strategy =
-      SUNDIALS::KINSOL<VectorType>::AdditionalData::picard;
+  if (additional_data.strategy == NonlinearSolverSelector<VectorType>::AdditionalData::linesearch)
+    additional_data_kinsol.strategy = SUNDIALS::KINSOL<VectorType>::AdditionalData::linesearch;
+  else if (additional_data.strategy == NonlinearSolverSelector<VectorType>::AdditionalData::newton)
+    additional_data_kinsol.strategy = SUNDIALS::KINSOL<VectorType>::AdditionalData::newton;
+  else if (additional_data.strategy == NonlinearSolverSelector<VectorType>::AdditionalData::picard)
+    additional_data_kinsol.strategy = SUNDIALS::KINSOL<VectorType>::AdditionalData::picard;
 
   // Setting data points in the KINSOL class from the NonlinearSolverSelector
   // class
-  additional_data_kinsol.maximum_non_linear_iterations =
-    additional_data.maximum_non_linear_iterations;
-  additional_data_kinsol.function_tolerance =
-    additional_data.function_tolerance;
-  additional_data_kinsol.step_tolerance = additional_data.step_tolerance;
-  additional_data_kinsol.anderson_subspace_size =
-    additional_data.anderson_subspace_size;
+  additional_data_kinsol.maximum_non_linear_iterations = additional_data.maximum_non_linear_iterations;
+  additional_data_kinsol.function_tolerance            = additional_data.function_tolerance;
+  additional_data_kinsol.step_tolerance                = additional_data.step_tolerance;
+  additional_data_kinsol.anderson_subspace_size        = additional_data.anderson_subspace_size;
 #endif
 
 // Do the same thing we did above but with NOX
@@ -446,36 +427,29 @@ NonlinearSolverSelector<VectorType>::set_data(
   additional_data_petsc_snes.options_prefix = "";
 
   if (additional_data.anderson_subspace_size > 0 &&
-      additional_data.strategy ==
-        NonlinearSolverSelector<VectorType>::AdditionalData::picard)
+      additional_data.strategy == NonlinearSolverSelector<VectorType>::AdditionalData::picard)
     {
       additional_data_petsc_snes.snes_type = "anderson";
       // TODO additional_data.anderson_subspace_size;
     }
-  else if (additional_data.strategy ==
-           NonlinearSolverSelector<VectorType>::AdditionalData::linesearch)
+  else if (additional_data.strategy == NonlinearSolverSelector<VectorType>::AdditionalData::linesearch)
     {
       additional_data_petsc_snes.snes_type            = "newtonls";
       additional_data_petsc_snes.snes_linesearch_type = "bt";
     }
-  else if (additional_data.strategy ==
-           NonlinearSolverSelector<VectorType>::AdditionalData::newton)
+  else if (additional_data.strategy == NonlinearSolverSelector<VectorType>::AdditionalData::newton)
     {
       additional_data_petsc_snes.snes_linesearch_type = "newtonls";
       additional_data_petsc_snes.snes_linesearch_type = "basic";
     }
-  else if (additional_data.strategy ==
-           NonlinearSolverSelector<VectorType>::AdditionalData::picard)
+  else if (additional_data.strategy == NonlinearSolverSelector<VectorType>::AdditionalData::picard)
     additional_data_petsc_snes.snes_type = "nrichardson";
 
-  additional_data_petsc_snes.absolute_tolerance =
-    additional_data.function_tolerance;
-  additional_data_petsc_snes.relative_tolerance =
-    additional_data.relative_tolerance;
-  additional_data_petsc_snes.step_tolerance = additional_data.step_tolerance;
-  additional_data_petsc_snes.maximum_non_linear_iterations =
-    additional_data.maximum_non_linear_iterations;
-  additional_data_petsc_snes.max_n_function_evaluations = -1;
+  additional_data_petsc_snes.absolute_tolerance            = additional_data.function_tolerance;
+  additional_data_petsc_snes.relative_tolerance            = additional_data.relative_tolerance;
+  additional_data_petsc_snes.step_tolerance                = additional_data.step_tolerance;
+  additional_data_petsc_snes.maximum_non_linear_iterations = additional_data.maximum_non_linear_iterations;
+  additional_data_petsc_snes.max_n_function_evaluations    = -1;
 
 #endif
 }
@@ -488,8 +462,7 @@ NonlinearSolverSelector<VectorType>::NonlinearSolverSelector() = default;
 
 
 template <typename VectorType>
-NonlinearSolverSelector<VectorType>::NonlinearSolverSelector(
-  const AdditionalData &additional_data)
+NonlinearSolverSelector<VectorType>::NonlinearSolverSelector(const AdditionalData &additional_data)
   : additional_data(additional_data)
 {
   set_data(additional_data);
@@ -498,9 +471,8 @@ NonlinearSolverSelector<VectorType>::NonlinearSolverSelector(
 
 
 template <typename VectorType>
-NonlinearSolverSelector<VectorType>::NonlinearSolverSelector(
-  const AdditionalData &additional_data,
-  const MPI_Comm &      mpi_communicator)
+NonlinearSolverSelector<VectorType>::NonlinearSolverSelector(const AdditionalData &additional_data,
+                                                             const MPI_Comm       &mpi_communicator)
   : additional_data(additional_data)
   , mpi_communicator(mpi_communicator)
 {
@@ -511,8 +483,7 @@ NonlinearSolverSelector<VectorType>::NonlinearSolverSelector(
 
 template <typename VectorType>
 void
-NonlinearSolverSelector<VectorType>::select(
-  const typename AdditionalData::SolverType &type)
+NonlinearSolverSelector<VectorType>::select(const typename AdditionalData::SolverType &type)
 {
   additional_data.solver_type = type;
 }
@@ -520,14 +491,13 @@ NonlinearSolverSelector<VectorType>::select(
 
 
 template <typename VectorType>
-NonlinearSolverSelector<VectorType>::AdditionalData::AdditionalData(
-  const SolverType &      solver_type,
-  const SolutionStrategy &strategy,
-  const unsigned int      maximum_non_linear_iterations,
-  const double            function_tolerance,
-  const double            relative_tolerance,
-  const double            step_tolerance,
-  const unsigned int      anderson_subspace_size)
+NonlinearSolverSelector<VectorType>::AdditionalData::AdditionalData(const SolverType       &solver_type,
+                                                                    const SolutionStrategy &strategy,
+                                                                    const unsigned int maximum_non_linear_iterations,
+                                                                    const double       function_tolerance,
+                                                                    const double       relative_tolerance,
+                                                                    const double       step_tolerance,
+                                                                    const unsigned int anderson_subspace_size)
   : solver_type(solver_type)
   , strategy(strategy)
   , maximum_non_linear_iterations(maximum_non_linear_iterations)
@@ -543,9 +513,8 @@ NonlinearSolverSelector<VectorType>::AdditionalData::AdditionalData(
 template <typename VectorType>
 void
 NonlinearSolverSelector<VectorType>::set_data(
-  const typename TrilinosWrappers::NOXSolver<VectorType>::AdditionalData
-    &                                         additional_data,
-  const Teuchos::RCP<Teuchos::ParameterList> &parameters)
+  const typename TrilinosWrappers::NOXSolver<VectorType>::AdditionalData &additional_data,
+  const Teuchos::RCP<Teuchos::ParameterList>                             &parameters)
 {
   additional_data_nox = additional_data;
   parameters_nox      = parameters;
@@ -568,11 +537,9 @@ NonlinearSolverSelector<VectorType>::set_data(
 
 template <typename VectorType>
 void
-NonlinearSolverSelector<VectorType>::solve_with_petsc(
-  VectorType & /*initial_guess_and_solution*/)
+NonlinearSolverSelector<VectorType>::solve_with_petsc(VectorType & /*initial_guess_and_solution*/)
 {
-  AssertThrow(false,
-              ExcMessage("PETSc SNES requires you to use PETSc vectors."));
+  AssertThrow(false, ExcMessage("PETSc SNES requires you to use PETSc vectors."));
 }
 
 
@@ -583,21 +550,19 @@ void
 NonlinearSolverSelector<PETScWrappers::MPI::Vector>::solve_with_petsc(
   PETScWrappers::MPI::Vector &initial_guess_and_solution)
 {
-  PETScWrappers::NonlinearSolver<PETScWrappers::MPI::Vector> nonlinear_solver(
-    additional_data_petsc_snes, mpi_communicator);
+  PETScWrappers::NonlinearSolver<PETScWrappers::MPI::Vector> nonlinear_solver(additional_data_petsc_snes,
+                                                                              mpi_communicator);
 
   nonlinear_solver.residual = residual;
 
   nonlinear_solver.setup_jacobian = setup_jacobian;
 
-  nonlinear_solver.solve_with_jacobian =
-    [&](const PETScWrappers::MPI::Vector &src,
-        PETScWrappers::MPI::Vector &      dst) {
-      // PETSc does not gives a tolerance, so we have to choose something
-      // reasonable to provide to the user:
-      const double tolerance = 1e-6;
-      solve_with_jacobian(src, dst, tolerance);
-    };
+  nonlinear_solver.solve_with_jacobian = [&](const PETScWrappers::MPI::Vector &src, PETScWrappers::MPI::Vector &dst) {
+    // PETSc does not gives a tolerance, so we have to choose something
+    // reasonable to provide to the user:
+    const double tolerance = 1e-6;
+    solve_with_jacobian(src, dst, tolerance);
+  };
 
   nonlinear_solver.solve(initial_guess_and_solution);
 }
@@ -607,8 +572,7 @@ NonlinearSolverSelector<PETScWrappers::MPI::Vector>::solve_with_petsc(
 
 template <typename VectorType>
 void
-NonlinearSolverSelector<VectorType>::solve(
-  VectorType &initial_guess_and_solution)
+NonlinearSolverSelector<VectorType>::solve(VectorType &initial_guess_and_solution)
 {
   // The "auto" solver_type will default to kinsol, however if KINSOL is not
   // available then we will use NOX.
@@ -632,16 +596,14 @@ NonlinearSolverSelector<VectorType>::solve(
   if (additional_data.solver_type == AdditionalData::SolverType::kinsol)
     {
 #ifdef DEAL_II_WITH_SUNDIALS
-      SUNDIALS::KINSOL<VectorType> nonlinear_solver(additional_data_kinsol,
-                                                    mpi_communicator);
+      SUNDIALS::KINSOL<VectorType> nonlinear_solver(additional_data_kinsol, mpi_communicator);
 
       nonlinear_solver.reinit_vector = reinit_vector;
       nonlinear_solver.residual      = residual;
 
       // We cannot simply set these two functions equal to each other
       // because they have a different number of inputs.
-      nonlinear_solver.setup_jacobian = [&](const VectorType &current_u,
-                                            const VectorType & /*current_f*/) {
+      nonlinear_solver.setup_jacobian = [&](const VectorType &current_u, const VectorType & /*current_f*/) {
         return NonlinearSolverSelector<VectorType>::setup_jacobian(current_u);
       };
 
@@ -649,16 +611,14 @@ NonlinearSolverSelector<VectorType>::solve(
 
       nonlinear_solver.solve(initial_guess_and_solution);
 #else
-      AssertThrow(
-        false, ExcMessage("You do not have SUNDIALS configured with deal.II!"));
+      AssertThrow(false, ExcMessage("You do not have SUNDIALS configured with deal.II!"));
 #endif
     }
   else if (additional_data.solver_type == AdditionalData::SolverType::nox)
     {
 #ifdef DEAL_II_TRILINOS_WITH_NOX
 
-      TrilinosWrappers::NOXSolver<VectorType> nonlinear_solver(
-        additional_data_nox, parameters_nox);
+      TrilinosWrappers::NOXSolver<VectorType> nonlinear_solver(additional_data_nox, parameters_nox);
 
       // Do the same thing for NOX that we did with KINSOL.
       nonlinear_solver.residual = residual;
@@ -671,12 +631,10 @@ NonlinearSolverSelector<VectorType>::solve(
 
       nonlinear_solver.solve(initial_guess_and_solution);
 #else
-      AssertThrow(
-        false, ExcMessage("You do not have Trilinos configured with deal.II"));
+      AssertThrow(false, ExcMessage("You do not have Trilinos configured with deal.II"));
 #endif
     }
-  else if (additional_data.solver_type ==
-           AdditionalData::SolverType::petsc_snes)
+  else if (additional_data.solver_type == AdditionalData::SolverType::petsc_snes)
     {
       // Forward to internal function specializations, which throws for
       // non-supported vector types:
@@ -697,10 +655,9 @@ NonlinearSolverSelector<VectorType>::solve(
         ;
 
       AssertThrow(false,
-                  ExcMessage(
-                    "Invalid nonlinear solver specified. "
-                    "The solvers available in your installation are:\n" +
-                    solvers));
+                  ExcMessage("Invalid nonlinear solver specified. "
+                             "The solvers available in your installation are:\n" +
+                             solvers));
     }
 }
 

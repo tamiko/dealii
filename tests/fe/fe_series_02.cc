@@ -52,8 +52,7 @@ public:
   {}
 
   virtual double
-  value(const dealii::Point<dim> &point,
-        const unsigned int        component = 0) const;
+  value(const dealii::Point<dim> &point, const unsigned int component = 0) const;
 
   const std::vector<double> &
   get_coefficients() const
@@ -67,8 +66,7 @@ private:
 
 template <int dim>
 double
-LegendreFunction<dim>::value(const dealii::Point<dim> &point,
-                             const unsigned int) const
+LegendreFunction<dim>::value(const dealii::Point<dim> &point, const unsigned int) const
 {
   Assert(dim == 1, dealii::ExcNotImplemented());
 
@@ -107,19 +105,15 @@ test(const LegendreFunction<dim> &func, const unsigned int poly_degree)
   VectorTools::interpolate(dof_handler, func, values);
 
   const unsigned int              N = poly_degree + 1;
-  const std::vector<unsigned int> n_coefficients_per_direction(
-    fe_collection.size(), N);
-  FESeries::Legendre<dim> legendre(n_coefficients_per_direction,
-                                   fe_collection,
-                                   quadrature_formula);
+  const std::vector<unsigned int> n_coefficients_per_direction(fe_collection.size(), N);
+  FESeries::Legendre<dim>         legendre(n_coefficients_per_direction, fe_collection, quadrature_formula);
 
   const std::vector<double> &coeff_in = func.get_coefficients();
   Table<1, double>           coeff_out(N);
 
   Vector<double> local_dof_values;
 
-  typename DoFHandler<dim>::active_cell_iterator cell =
-    dof_handler.begin_active();
+  typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active();
 
   {
     const unsigned int cell_n_dofs          = cell->get_fe().dofs_per_cell;

@@ -38,21 +38,16 @@ namespace Utilities
         class FlexibleIndexStorage
         {
         public:
-          using index_type = unsigned int;
-          static const index_type invalid_index_value =
-            numbers::invalid_unsigned_int;
+          using index_type                            = unsigned int;
+          static const index_type invalid_index_value = numbers::invalid_unsigned_int;
 
           FlexibleIndexStorage(const bool use_vector = true);
 
           void
-          reinit(const bool        use_vector,
-                 const bool        index_range_contiguous,
-                 const std::size_t size);
+          reinit(const bool use_vector, const bool index_range_contiguous, const std::size_t size);
 
           void
-          fill(const std::size_t start,
-               const std::size_t end,
-               const index_type &value);
+          fill(const std::size_t start, const std::size_t end, const index_type &value);
 
           index_type &
           operator[](const std::size_t index);
@@ -137,8 +132,7 @@ namespace Utilities
            * the dictionary, computed from `dofs_per_process`, the current
            * MPI rank, and range_minimum_grain_size.
            */
-          std::pair<types::global_dof_index, types::global_dof_index>
-            local_range;
+          std::pair<types::global_dof_index, types::global_dof_index> local_range;
 
           /**
            * The actual size, computed as the minimum of dofs_per_process and
@@ -194,8 +188,7 @@ namespace Utilities
            * `actually_owning_rank_list`.
            */
           unsigned int
-          get_owning_rank_index(const unsigned int rank_in_owned_indices,
-                                const unsigned int guess = 0);
+          get_owning_rank_index(const unsigned int rank_in_owned_indices, const unsigned int guess = 0);
 
         private:
           /**
@@ -214,21 +207,19 @@ namespace Utilities
          * Utilities::MPI::Partitioner::set_ghost_indices() with additional
          * payload.
          */
-        class ConsensusAlgorithmsPayload
-          : public ConsensusAlgorithms::Process<
-              std::vector<
-                std::pair<types::global_dof_index, types::global_dof_index>>,
-              std::vector<unsigned int>>
+        class ConsensusAlgorithmsPayload : public ConsensusAlgorithms::Process<
+                                             std::vector<std::pair<types::global_dof_index, types::global_dof_index>>,
+                                             std::vector<unsigned int>>
         {
         public:
           /**
            * Constructor.
            */
-          ConsensusAlgorithmsPayload(const IndexSet &owned_indices,
-                                     const IndexSet &indices_to_look_up,
-                                     const MPI_Comm  comm,
+          ConsensusAlgorithmsPayload(const IndexSet            &owned_indices,
+                                     const IndexSet            &indices_to_look_up,
+                                     const MPI_Comm             comm,
                                      std::vector<unsigned int> &owning_ranks,
-                                     const bool track_index_requests = false);
+                                     const bool                 track_index_requests = false);
 
           /**
            * The index space which describes the locally owned space.
@@ -280,9 +271,7 @@ namespace Utilities
            * ranks that have requested data, using the rank in the first pair
            * entry and a list of index ranges as the second entry.
            */
-          std::vector<std::vector<
-            std::pair<unsigned int,
-                      std::vector<std::pair<unsigned int, unsigned int>>>>>
+          std::vector<std::vector<std::pair<unsigned int, std::vector<std::pair<unsigned int, unsigned int>>>>>
             requesters;
 
           /**
@@ -295,9 +284,7 @@ namespace Utilities
            * local index among indices (second vector), sorted by the rank in
            * the dictionary.
            */
-          std::map<unsigned int,
-                   std::pair<std::vector<types::global_dof_index>,
-                             std::vector<unsigned int>>>
+          std::map<unsigned int, std::pair<std::vector<types::global_dof_index>, std::vector<unsigned int>>>
             indices_to_look_up_by_dict_rank;
 
           /**
@@ -308,11 +295,9 @@ namespace Utilities
            * information is also desired).
            */
           virtual void
-          answer_request(
-            const unsigned int                                     other_rank,
-            const std::vector<std::pair<types::global_dof_index,
-                                        types::global_dof_index>> &buffer_recv,
-            std::vector<unsigned int> &request_buffer) override;
+          answer_request(const unsigned int                                                              other_rank,
+                         const std::vector<std::pair<types::global_dof_index, types::global_dof_index>> &buffer_recv,
+                         std::vector<unsigned int> &request_buffer) override;
 
           /**
            * Implementation of
@@ -326,18 +311,16 @@ namespace Utilities
            * Utilities::MPI::ConsensusAlgorithms::Process::create_request().
            */
           virtual void
-          create_request(const unsigned int other_rank,
-                         std::vector<std::pair<types::global_dof_index,
-                                               types::global_dof_index>>
-                           &send_buffer) override;
+          create_request(
+            const unsigned int                                                        other_rank,
+            std::vector<std::pair<types::global_dof_index, types::global_dof_index>> &send_buffer) override;
 
           /**
            * Implementation of
            * Utilities::MPI::ConsensusAlgorithms::Process::read_answer().
            */
           virtual void
-          read_answer(const unsigned int               other_rank,
-                      const std::vector<unsigned int> &recv_buffer) override;
+          read_answer(const unsigned int other_rank, const std::vector<unsigned int> &recv_buffer) override;
 
           /**
            * Resolve the origin of the requests by sending the information
@@ -369,7 +352,7 @@ namespace Utilities
           append_index_origin(const unsigned int index_within_dictionary,
                               const unsigned int rank_of_request,
                               const unsigned int rank_of_owner,
-                              unsigned int &     owner_index_guess);
+                              unsigned int      &owner_index_guess);
         };
 
         /* ------------------------- inline functions ----------------------- */
@@ -387,18 +370,14 @@ namespace Utilities
         Dictionary::get_index_offset(const unsigned int rank)
         {
           return std::min(dofs_per_process *
-                            static_cast<types::global_dof_index>(
-                              (rank + stride_small_size - 1) /
-                              stride_small_size),
+                            static_cast<types::global_dof_index>((rank + stride_small_size - 1) / stride_small_size),
                           size);
         }
 
 
 
         inline unsigned int
-        Dictionary::get_owning_rank_index(
-          const unsigned int rank_in_owned_indices,
-          const unsigned int guess)
+        Dictionary::get_owning_rank_index(const unsigned int rank_in_owned_indices, const unsigned int guess)
         {
           AssertIndexRange(guess, actually_owning_rank_list.size());
           if (actually_owning_rank_list[guess] == rank_in_owned_indices)

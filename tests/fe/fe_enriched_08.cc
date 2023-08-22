@@ -72,8 +72,7 @@ public:
   gradient(const Point<dim> &point, const unsigned int component = 0) const
   {
     Tensor<1, dim> res = point;
-    Assert(point.norm() > 0,
-           dealii::ExcMessage("gradient is not defined at zero"));
+    Assert(point.norm() > 0, dealii::ExcMessage("gradient is not defined at zero"));
     res *= -value(point) / point.norm();
     return res;
   }
@@ -89,18 +88,14 @@ test2cells(const unsigned int p_feq = 2, const unsigned int p_feen = 1)
   {
     Triangulation<dim> triangulationL;
     Triangulation<dim> triangulationR;
-    GridGenerator::hyper_cube(triangulationL,
-                              -1,
+    GridGenerator::hyper_cube(triangulationL, -1,
                               0); // create a square [-1,0]^d domain
-    GridGenerator::hyper_cube(triangulationR,
-                              -1,
+    GridGenerator::hyper_cube(triangulationR, -1,
                               0); // create a square [-1,0]^d domain
     Point<dim> shift_vector;
     shift_vector[0] = 1.0;
     GridTools::shift(shift_vector, triangulationR);
-    GridGenerator::merge_triangulations(triangulationL,
-                                        triangulationR,
-                                        triangulation);
+    GridGenerator::merge_triangulations(triangulationL, triangulationR, triangulation);
   }
 
   DoFHandler<dim>         dof_handler(triangulation);
@@ -108,8 +103,7 @@ test2cells(const unsigned int p_feq = 2, const unsigned int p_feen = 1)
 
   hp::FECollection<dim> fe_collection;
   fe_collection.push_back(FE_Enriched<dim>(FE_Q<dim>(p_feq)));
-  fe_collection.push_back(
-    FE_Enriched<dim>(FE_Q<dim>(p_feen), FE_Q<dim>(1), &function));
+  fe_collection.push_back(FE_Enriched<dim>(FE_Q<dim>(p_feen), FE_Q<dim>(1), &function));
   // push back to be able to resolve hp-constrains:
   fe_collection.push_back(FE_Enriched<dim>(FE_Q<dim>(p_feen)));
 
@@ -138,13 +132,11 @@ test2cells(const unsigned int p_feq = 2, const unsigned int p_feen = 1)
       // if the dof is constrained, first output unconstrained vector
       if (constraints.is_constrained(s))
         {
-          names.push_back(std::string("UN_") +
-                          dealii::Utilities::int_to_string(s, 2));
+          names.push_back(std::string("UN_") + dealii::Utilities::int_to_string(s, 2));
           shape_functions.push_back(shape_function);
         }
 
-      names.push_back(std::string("N_") +
-                      dealii::Utilities::int_to_string(s, 2));
+      names.push_back(std::string("N_") + dealii::Utilities::int_to_string(s, 2));
 
       // make continuous/constrain:
       constraints.distribute(shape_function);
@@ -155,10 +147,8 @@ test2cells(const unsigned int p_feq = 2, const unsigned int p_feen = 1)
   data_out.attach_dof_handler(dof_handler);
 
   // get material ids:
-  Vector<float> fe_index(triangulation.n_active_cells());
-  typename DoFHandler<dim>::active_cell_iterator cell =
-                                                   dof_handler.begin_active(),
-                                                 endc = dof_handler.end();
+  Vector<float>                                  fe_index(triangulation.n_active_cells());
+  typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
   for (unsigned int index = 0; cell != endc; ++cell, ++index)
     {
       fe_index[index] = cell->active_fe_index();
@@ -170,10 +160,8 @@ test2cells(const unsigned int p_feq = 2, const unsigned int p_feen = 1)
 
   data_out.build_patches(patches);
 
-  std::string filename =
-    "2cell-shape_functions_p_feq=" + std::to_string(p_feq) +
-    "_p_feenr=" + std::to_string(p_feen) + "_" +
-    dealii::Utilities::int_to_string(dim) + "D.vtu";
+  std::string filename = "2cell-shape_functions_p_feq=" + std::to_string(p_feq) + "_p_feenr=" + std::to_string(p_feen) +
+                         "_" + dealii::Utilities::int_to_string(dim) + "D.vtu";
   std::ofstream output(filename);
   data_out.write_vtu(output);
 #endif
@@ -196,28 +184,20 @@ main(int argc, char **argv)
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

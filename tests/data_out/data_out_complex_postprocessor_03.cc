@@ -51,9 +51,8 @@ namespace DataPostprocessors
     ComplexMagnitude();
 
     virtual void
-    evaluate_vector_field(
-      const DataPostprocessorInputs::Vector<dim> &inputs,
-      std::vector<Vector<double>> &               computed_quantities) const;
+    evaluate_vector_field(const DataPostprocessorInputs::Vector<dim> &inputs,
+                          std::vector<Vector<double>>                &computed_quantities) const;
   };
 
   template <int dim>
@@ -64,24 +63,19 @@ namespace DataPostprocessors
 
   template <int dim>
   void
-  ComplexMagnitude<dim>::evaluate_vector_field(
-    const DataPostprocessorInputs::Vector<dim> &inputs,
-    std::vector<Vector<double>> &               computed_quantities) const
+  ComplexMagnitude<dim>::evaluate_vector_field(const DataPostprocessorInputs::Vector<dim> &inputs,
+                                               std::vector<Vector<double>>                &computed_quantities) const
   {
     Assert(computed_quantities.size() == inputs.solution_values.size(),
-           ExcDimensionMismatch(computed_quantities.size(),
-                                inputs.solution_values.size()));
+           ExcDimensionMismatch(computed_quantities.size(), inputs.solution_values.size()));
 
     for (unsigned int q = 0; q < computed_quantities.size(); ++q)
       {
-        Assert(computed_quantities[q].size() == 1,
-               ExcDimensionMismatch(computed_quantities[q].size(), 1));
-        Assert(inputs.solution_values[q].size() == 2,
-               ExcDimensionMismatch(inputs.solution_values[q].size(), 2));
+        Assert(computed_quantities[q].size() == 1, ExcDimensionMismatch(computed_quantities[q].size(), 1));
+        Assert(inputs.solution_values[q].size() == 2, ExcDimensionMismatch(inputs.solution_values[q].size(), 2));
 
         computed_quantities[q](0) =
-          std::abs(std::complex<double>(inputs.solution_values[q](0),
-                                        inputs.solution_values[q](1)));
+          std::abs(std::complex<double>(inputs.solution_values[q](0), inputs.solution_values[q](1)));
       }
   }
 
@@ -94,9 +88,8 @@ namespace DataPostprocessors
     ComplexPhase();
 
     virtual void
-    evaluate_vector_field(
-      const DataPostprocessorInputs::Vector<dim> &inputs,
-      std::vector<Vector<double>> &               computed_quantities) const;
+    evaluate_vector_field(const DataPostprocessorInputs::Vector<dim> &inputs,
+                          std::vector<Vector<double>>                &computed_quantities) const;
   };
 
   template <int dim>
@@ -107,24 +100,19 @@ namespace DataPostprocessors
 
   template <int dim>
   void
-  ComplexPhase<dim>::evaluate_vector_field(
-    const DataPostprocessorInputs::Vector<dim> &inputs,
-    std::vector<Vector<double>> &               computed_quantities) const
+  ComplexPhase<dim>::evaluate_vector_field(const DataPostprocessorInputs::Vector<dim> &inputs,
+                                           std::vector<Vector<double>>                &computed_quantities) const
   {
     Assert(computed_quantities.size() == inputs.solution_values.size(),
-           ExcDimensionMismatch(computed_quantities.size(),
-                                inputs.solution_values.size()));
+           ExcDimensionMismatch(computed_quantities.size(), inputs.solution_values.size()));
 
     for (unsigned int q = 0; q < computed_quantities.size(); ++q)
       {
-        Assert(computed_quantities[q].size() == 1,
-               ExcDimensionMismatch(computed_quantities[q].size(), 1));
-        Assert(inputs.solution_values[q].size() == 2,
-               ExcDimensionMismatch(inputs.solution_values[q].size(), 2));
+        Assert(computed_quantities[q].size() == 1, ExcDimensionMismatch(computed_quantities[q].size(), 1));
+        Assert(inputs.solution_values[q].size() == 2, ExcDimensionMismatch(inputs.solution_values[q].size(), 2));
 
         computed_quantities[q](0) =
-          std::arg(std::complex<double>(inputs.solution_values[q](0),
-                                        inputs.solution_values[q](1)));
+          std::arg(std::complex<double>(inputs.solution_values[q](0), inputs.solution_values[q](1)));
       }
   }
 
@@ -179,27 +167,19 @@ main()
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     }
 }

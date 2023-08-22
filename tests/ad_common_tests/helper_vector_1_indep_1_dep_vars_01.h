@@ -81,15 +81,12 @@ test_AD_vector_jacobian()
   // Configure tape
   const int  tape_no = 1;
   const bool is_recording =
-    ad_helper.start_recording_operations(tape_no /*material_id*/,
-                                         true /*overwrite_tape*/,
-                                         true /*keep*/);
+    ad_helper.start_recording_operations(tape_no /*material_id*/, true /*overwrite_tape*/, true /*keep*/);
   if (is_recording == true)
     {
       ad_helper.register_independent_variables(s);
 
-      const std::vector<ADNumberType> s_ad =
-        ad_helper.get_sensitive_variables();
+      const std::vector<ADNumberType> s_ad = ad_helper.get_sensitive_variables();
 
       // ADNumberType f0 (s_ad*s_ad*s_ad);
       std::vector<ADNumberType> f_ad(n_vars_dep, ADNumberType(0.0));
@@ -119,9 +116,7 @@ test_AD_vector_jacobian()
   // Set a new evaluation point
   if (AD::ADNumberTraits<ADNumberType>::is_taped == true)
     {
-      std::cout
-        << "Using tape with different values for independent variables..."
-        << std::endl;
+      std::cout << "Using tape with different values for independent variables..." << std::endl;
       s[0] = 1.5;
       ad_helper.activate_recorded_tape(tape_no);
       ad_helper.set_independent_variables(s);
@@ -143,15 +138,10 @@ test_AD_vector_jacobian()
   Dfuncs.print_formatted(std::cout, 3, true, 0, "0.0");
 
   // Verify the result
-  using func = FunctionsTestScalar<dim, ScalarNumberType>;
-  static const ScalarNumberType tol =
-    1e5 * std::numeric_limits<ScalarNumberType>::epsilon();
-  std::cout << "funcs[0]: " << funcs[0]
-            << "\t func::f0(s[0])): " << func::f0(s[0]) << std::endl;
-  std::cout << "Dfuncs[0][0]: " << Dfuncs[0][0]
-            << "\t func::df0_ds0(s[0])): " << func::df0_ds0(s[0]) << std::endl;
-  Assert(std::abs(funcs[0] - func::f0(s[0])) < tol,
-         ExcMessage("No match for function value."));
-  Assert(std::abs(Dfuncs[0][0] - func::df0_ds0(s[0])) < tol,
-         ExcMessage("No match for first derivative."));
+  using func                        = FunctionsTestScalar<dim, ScalarNumberType>;
+  static const ScalarNumberType tol = 1e5 * std::numeric_limits<ScalarNumberType>::epsilon();
+  std::cout << "funcs[0]: " << funcs[0] << "\t func::f0(s[0])): " << func::f0(s[0]) << std::endl;
+  std::cout << "Dfuncs[0][0]: " << Dfuncs[0][0] << "\t func::df0_ds0(s[0])): " << func::df0_ds0(s[0]) << std::endl;
+  Assert(std::abs(funcs[0] - func::f0(s[0])) < tol, ExcMessage("No match for function value."));
+  Assert(std::abs(Dfuncs[0][0] - func::df0_ds0(s[0])) < tol, ExcMessage("No match for first derivative."));
 }

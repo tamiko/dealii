@@ -34,8 +34,7 @@ template <class ACCESSOR>
 LogStream &
 operator<<(LogStream &log, const TriaIterator<ACCESSOR> &i)
 {
-  log << ACCESSOR::dimension << ' ' << ACCESSOR::structure_dimension << ' '
-      << ACCESSOR::space_dimension << ' ';
+  log << ACCESSOR::dimension << ' ' << ACCESSOR::structure_dimension << ' ' << ACCESSOR::space_dimension << ' ';
   i.print(log);
   return log;
 }
@@ -46,8 +45,7 @@ void
 test_in_dim(const DoFHandler<dim> &d1, const DoFHandler<dim> &d2)
 {
   typename DoFHandler<dim>::active_cell_iterator a = d1.begin_active();
-  typename DoFHandler<dim>::cell_iterator        l =
-    d1.begin(d1.get_triangulation().n_levels() - 1);
+  typename DoFHandler<dim>::cell_iterator        l = d1.begin(d1.get_triangulation().n_levels() - 1);
 
   deallog << "a " << a << std::endl << "l " << l << std::endl;
 }

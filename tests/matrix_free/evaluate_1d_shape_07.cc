@@ -53,13 +53,8 @@ test()
     }
 
   // apply function for tensor product
-  internal::EvaluatorTensorProduct<internal::evaluate_general,
-                                   1,
-                                   M,
-                                   N,
-                                   VectorizedArray<double>,
-                                   double>
-    evaluator(shape, shape, shape);
+  internal::EvaluatorTensorProduct<internal::evaluate_general, 1, M, N, VectorizedArray<double>, double> evaluator(
+    shape, shape, shape);
   if (type == 0)
     evaluator.template values<0, false, add>(x, y);
   if (type == 1)
@@ -72,8 +67,7 @@ test()
     {
       deallog << y[i][0] - y_ref[i][0] << ' ';
       for (unsigned int v = 1; v < VectorizedArray<double>::size(); ++v)
-        AssertThrow(std::abs(y[i][v] - y_ref[i][v]) < 1e-12,
-                    ExcInternalError());
+        AssertThrow(std::abs(y[i][v] - y_ref[i][v]) < 1e-12, ExcInternalError());
     }
   deallog << std::endl;
 
@@ -104,8 +98,7 @@ test()
     {
       deallog << x[i][0] - x_ref[i][0] << ' ';
       for (unsigned int v = 1; v < VectorizedArray<double>::size(); ++v)
-        AssertThrow(std::abs(x[i][v] - x_ref[i][v]) < 1e-12,
-                    ExcInternalError());
+        AssertThrow(std::abs(x[i][v] - x_ref[i][v]) < 1e-12, ExcInternalError());
     }
   deallog << std::endl;
 }

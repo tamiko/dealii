@@ -82,8 +82,7 @@ run()
   Triangulation<dim> tria;
 
   // indicator 6 = cylinder
-  GridGenerator::hyper_cube_with_cylindrical_hole(
-    tria, 0.25, 0.5, 0.5, 1, true);
+  GridGenerator::hyper_cube_with_cylindrical_hole(tria, 0.25, 0.5, 0.5, 1, true);
   tria.reset_manifold(0);
 
   /*  std::string filename = "Mesh.eps";
@@ -99,10 +98,7 @@ run()
   AffineConstraints<double>          constraints;
   const std::set<types::boundary_id> no_normal_flux_boundaries = {0, 5};
 
-  VectorTools::compute_no_normal_flux_constraints(dof_handler,
-                                                  0,
-                                                  no_normal_flux_boundaries,
-                                                  constraints);
+  VectorTools::compute_no_normal_flux_constraints(dof_handler, 0, no_normal_flux_boundaries, constraints);
 
   constraints.print(deallog.get_file_stream());
 

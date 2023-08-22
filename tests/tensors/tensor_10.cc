@@ -26,18 +26,16 @@ template <int rank, int dim>
 void
 test_same(const Tensor<rank, dim> &t, const Tensor<rank, dim> &compare)
 {
-  deallog << "Constant rank " << rank << " and dim " << dim << '\t'
-          << schur_product(t, t) << " compare " << compare << std::endl;
+  deallog << "Constant rank " << rank << " and dim " << dim << '\t' << schur_product(t, t) << " compare " << compare
+          << std::endl;
 }
 
 template <int rank, int dim>
 void
-test_different(const Tensor<rank, dim> &t,
-               const Tensor<rank, dim> &t2,
-               const Tensor<rank, dim> &compare)
+test_different(const Tensor<rank, dim> &t, const Tensor<rank, dim> &t2, const Tensor<rank, dim> &compare)
 {
-  deallog << "Constant rank " << rank << " and dim " << dim << '\t'
-          << schur_product(t, t2) << " compare " << compare << std::endl;
+  deallog << "Constant rank " << rank << " and dim " << dim << '\t' << schur_product(t, t2) << " compare " << compare
+          << std::endl;
 }
 
 int

@@ -41,8 +41,7 @@ namespace
     {
       const unsigned int   component = 0;
       const Point<dim - 1> low_dim_point(y, z);
-      const Point<dim>     point =
-        internal::create_higher_dim_point(low_dim_point, component, x);
+      const Point<dim>     point = internal::create_higher_dim_point(low_dim_point, component, x);
       deallog << "Point: " << point << std::endl;
     }
     {
@@ -50,15 +49,13 @@ namespace
       // The order (z,x) here follows convention in
       // coordinate_to_one_dim_higher.
       const Point<dim - 1> low_dim_point(z, x);
-      const Point<dim>     point =
-        internal::create_higher_dim_point(low_dim_point, component, y);
+      const Point<dim>     point = internal::create_higher_dim_point(low_dim_point, component, y);
       deallog << "Point: " << point << std::endl;
     }
     {
       const unsigned int component = 2;
       Point<dim - 1>     low_dim_point(x, y);
-      Point<dim>         point =
-        internal::create_higher_dim_point(low_dim_point, component, z);
+      Point<dim>         point = internal::create_higher_dim_point(low_dim_point, component, z);
       deallog << "Point: " << point << std::endl;
     }
   }
@@ -73,15 +70,13 @@ namespace
     {
       const unsigned int   component = 0;
       const Point<dim - 1> low_dim_point(y);
-      const Point<dim>     point =
-        internal::create_higher_dim_point(low_dim_point, component, x);
+      const Point<dim>     point = internal::create_higher_dim_point(low_dim_point, component, x);
       deallog << "Point: " << point << std::endl;
     }
     {
       const unsigned int   component = 1;
       const Point<dim - 1> low_dim_point(x);
-      const Point<dim>     point =
-        internal::create_higher_dim_point(low_dim_point, component, y);
+      const Point<dim>     point = internal::create_higher_dim_point(low_dim_point, component, y);
       deallog << "Point: " << point << std::endl;
     }
   }
@@ -95,8 +90,7 @@ namespace
     deallog << "dim=" << dim << std::endl;
     const unsigned int   component = 0;
     const Point<dim - 1> low_dim_point;
-    const Point<dim>     point =
-      internal::create_higher_dim_point(low_dim_point, component, x);
+    const Point<dim>     point = internal::create_higher_dim_point(low_dim_point, component, x);
     deallog << "Point: " << point << std::endl;
   }
 } // namespace

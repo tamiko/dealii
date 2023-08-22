@@ -65,29 +65,22 @@ template <int dim, typename Number>
 void
 do_test(const FiniteElement<dim> &fe_fine, const FiniteElement<dim> &fe_coarse)
 {
-  parallel::shared::Triangulation<dim> tria_fine(
-    MPI_COMM_WORLD,
-    ::Triangulation<dim>::none,
-    true,
-    parallel::shared::Triangulation<dim>::partition_custom_signal);
+  parallel::shared::Triangulation<dim> tria_fine(MPI_COMM_WORLD,
+                                                 ::Triangulation<dim>::none,
+                                                 true,
+                                                 parallel::shared::Triangulation<dim>::partition_custom_signal);
 
-  tria_fine.signals.post_refinement.connect([&]() {
-    GridTools::partition_triangulation_zorder(
-      Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD), tria_fine);
-  });
+  tria_fine.signals.post_refinement.connect(
+    [&]() { GridTools::partition_triangulation_zorder(Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD), tria_fine); });
 
-  parallel::shared::Triangulation<dim> tria_coarse(
-    MPI_COMM_WORLD,
-    ::Triangulation<dim>::none,
-    true,
-    parallel::shared::Triangulation<dim>::partition_custom_signal);
+  parallel::shared::Triangulation<dim> tria_coarse(MPI_COMM_WORLD,
+                                                   ::Triangulation<dim>::none,
+                                                   true,
+                                                   parallel::shared::Triangulation<dim>::partition_custom_signal);
 
   tria_coarse.signals.post_refinement.connect([&]() {
     GridTools::partition_triangulation_zorder(
-      std::max<unsigned int>(1,
-                             Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD) /
-                               2),
-      tria_coarse);
+      std::max<unsigned int>(1, Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD) / 2), tria_coarse);
   });
 
   // create grid
@@ -112,8 +105,7 @@ do_test(const FiniteElement<dim> &fe_fine, const FiniteElement<dim> &fe_coarse)
   dof_handler_coarse.distribute_dofs(fe_coarse);
 
   AffineConstraints<Number> constraint_coarse;
-  DoFTools::make_hanging_node_constraints(dof_handler_coarse,
-                                          constraint_coarse);
+  DoFTools::make_hanging_node_constraints(dof_handler_coarse, constraint_coarse);
   constraint_coarse.close();
 
   AffineConstraints<Number> constraint_fine;
@@ -122,10 +114,7 @@ do_test(const FiniteElement<dim> &fe_fine, const FiniteElement<dim> &fe_coarse)
 
   // setup transfer operator
   MGTwoLevelTransfer<dim, LinearAlgebra::distributed::Vector<Number>> transfer;
-  transfer.reinit(dof_handler_fine,
-                  dof_handler_coarse,
-                  constraint_fine,
-                  constraint_coarse);
+  transfer.reinit(dof_handler_fine, dof_handler_coarse, constraint_fine, constraint_coarse);
 
   test_transfer_operator(transfer, dof_handler_fine, dof_handler_coarse);
 }
@@ -139,22 +128,19 @@ test(int fe_degree_fine, int fe_degree_coarse)
 
   {
     deallog.push("CG<2>(" + str_fine + ")<->CG<2>(" + str_coarse + ")");
-    do_test<dim, Number>(FE_Q<dim>(fe_degree_fine),
-                         FE_Q<dim>(fe_degree_coarse));
+    do_test<dim, Number>(FE_Q<dim>(fe_degree_fine), FE_Q<dim>(fe_degree_coarse));
     deallog.pop();
   }
 
   {
     deallog.push("DG<2>(" + str_fine + ")<->CG<2>(" + str_coarse + ")");
-    do_test<dim, Number>(FE_DGQ<dim>(fe_degree_fine),
-                         FE_Q<dim>(fe_degree_coarse));
+    do_test<dim, Number>(FE_DGQ<dim>(fe_degree_fine), FE_Q<dim>(fe_degree_coarse));
     deallog.pop();
   }
 
   {
     deallog.push("DG<2>(" + str_fine + ")<->DG<2>(" + str_coarse + ")");
-    do_test<dim, Number>(FE_DGQ<dim>(fe_degree_fine),
-                         FE_DGQ<dim>(fe_degree_coarse));
+    do_test<dim, Number>(FE_DGQ<dim>(fe_degree_fine), FE_DGQ<dim>(fe_degree_coarse));
     deallog.pop();
   }
 }
@@ -168,7 +154,6 @@ main(int argc, char **argv)
   deallog.precision(8);
 
   for (unsigned int fe_degree_fine = 1; fe_degree_fine <= 5; ++fe_degree_fine)
-    for (unsigned int fe_degree_coarse = 1; fe_degree_coarse <= fe_degree_fine;
-         fe_degree_coarse++)
+    for (unsigned int fe_degree_coarse = 1; fe_degree_coarse <= fe_degree_fine; fe_degree_coarse++)
       test<2, double>(fe_degree_fine, fe_degree_coarse);
 }

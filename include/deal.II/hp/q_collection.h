@@ -149,15 +149,13 @@ namespace hp
     // compiler errors on GCC 7.1.1 so we define it separately:
     if (is_base_of_all<Quadrature<dim>, QTypes...>::value)
       {
-        const auto q_pointers = {
-          (reinterpret_cast<const Quadrature<dim> *>(&quadrature_objects))...};
+        const auto q_pointers = {(reinterpret_cast<const Quadrature<dim> *>(&quadrature_objects))...};
         for (const auto p : q_pointers)
           push_back(*p);
       }
     else if (is_base_of_all<Quadrature<1>, QTypes...>::value)
       {
-        const auto q_pointers = {
-          (reinterpret_cast<const Quadrature<1> *>(&quadrature_objects))...};
+        const auto q_pointers = {(reinterpret_cast<const Quadrature<1> *>(&quadrature_objects))...};
         for (const auto p : q_pointers)
           push_back(*p);
       }
@@ -173,8 +171,7 @@ namespace hp
   inline unsigned int
   QCollection<dim>::max_n_quadrature_points() const
   {
-    Assert(this->size() > 0,
-           ExcMessage("You can't call this function for an empty collection"));
+    Assert(this->size() > 0, ExcMessage("You can't call this function for an empty collection"));
 
     unsigned int max = 0;
     for (unsigned int i = 0; i < this->size(); ++i)
@@ -215,8 +212,7 @@ namespace hp
   inline void
   QCollection<dim>::push_back(const Quadrature<dim_in> &new_quadrature)
   {
-    Collection<Quadrature<dim>>::push_back(
-      std::make_shared<const Quadrature<dim>>(new_quadrature));
+    Collection<Quadrature<dim>>::push_back(std::make_shared<const Quadrature<dim>>(new_quadrature));
   }
 
 } // namespace hp

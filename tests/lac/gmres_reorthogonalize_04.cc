@@ -72,22 +72,20 @@ test(const unsigned int n_expected_steps)
   // compared to the 02 test, need to use a looser tolerance because linear
   // summation does not allow for 1e2*eps (at least with the current detection
   // of re-orthogonalization)
-  SolverControl control(1000, 1e3 * std::numeric_limits<number>::epsilon());
+  SolverControl                                        control(1000, 1e3 * std::numeric_limits<number>::epsilon());
   typename SolverGMRES<Vector<number>>::AdditionalData data;
   data.max_n_tmp_vectors = 202;
 
   SolverGMRES<Vector<number>> solver(control, data);
-  auto print_re_orthogonalization = [](int accumulated_iterations) {
-    deallog.get_file_stream() << "Re-orthogonalization enabled at step "
-                              << accumulated_iterations << std::endl;
+  auto                        print_re_orthogonalization = [](int accumulated_iterations) {
+    deallog.get_file_stream() << "Re-orthogonalization enabled at step " << accumulated_iterations << std::endl;
   };
   solver.connect_re_orthogonalization_slot(print_re_orthogonalization);
 
-  check_solver_within_range(
-    solver.solve(matrix, sol, rhs, PreconditionIdentity()),
-    control.last_step(),
-    n_expected_steps - 3,
-    n_expected_steps + 3);
+  check_solver_within_range(solver.solve(matrix, sol, rhs, PreconditionIdentity()),
+                            control.last_step(),
+                            n_expected_steps - 3,
+                            n_expected_steps + 3);
 }
 
 int

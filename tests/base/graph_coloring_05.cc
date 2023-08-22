@@ -38,11 +38,9 @@
 
 template <int dim>
 std::vector<types::global_dof_index>
-get_conflict_indices_cfem(
-  typename DoFHandler<dim>::active_cell_iterator const &it)
+get_conflict_indices_cfem(typename const DoFHandler<dim>::active_cell_iterator &it)
 {
-  std::vector<types::global_dof_index> local_dof_indices(
-    it->get_fe().dofs_per_cell);
+  std::vector<types::global_dof_index> local_dof_indices(it->get_fe().dofs_per_cell);
   it->get_dof_indices(local_dof_indices);
 
   return local_dof_indices;
@@ -61,8 +59,7 @@ check()
   dof_handler.distribute_dofs(fe);
 
   // Create an adapted mesh
-  typename DoFHandler<dim>::active_cell_iterator cell =
-    dof_handler.begin_active();
+  typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active();
   for (; cell < dof_handler.end(); ++cell)
     {
       if ((cell->center()[0] == 0.625) && (cell->center()[1] == 0.625))
@@ -72,13 +69,11 @@ check()
   dof_handler.distribute_dofs(fe);
 
   // Create the coloring
-  std::vector<std::vector<typename DoFHandler<dim>::active_cell_iterator>>
-    coloring(GraphColoring::make_graph_coloring(
-      dof_handler.begin_active(),
-      dof_handler.end(),
-      std::function<std::vector<types::global_dof_index>(
-        typename DoFHandler<dim>::active_cell_iterator const &)>(
-        &get_conflict_indices_cfem<dim>)));
+  std::vector<std::vector<typename DoFHandler<dim>::active_cell_iterator>> coloring(GraphColoring::make_graph_coloring(
+    dof_handler.begin_active(),
+    dof_handler.end(),
+    std::function<std::vector<types::global_dof_index>(typename const DoFHandler<dim>::active_cell_iterator &)>(
+      &get_conflict_indices_cfem<dim>)));
 
   // Check that a color does not contain a conflict index twice
   for (unsigned int color = 0; color < coloring.size(); ++color)
@@ -86,8 +81,7 @@ check()
       std::set<types::global_dof_index> color_set;
       for (unsigned int i = 0; i < coloring[color].size(); ++i)
         {
-          std::vector<types::global_dof_index> dofs =
-            get_conflict_indices_cfem<dim>(coloring[color][i]);
+          std::vector<types::global_dof_index> dofs = get_conflict_indices_cfem<dim>(coloring[color][i]);
           for (unsigned int j = 0; j < dofs.size(); ++j)
             {
               if (color_set.count(dofs[j]) != 0)

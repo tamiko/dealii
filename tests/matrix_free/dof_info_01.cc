@@ -45,8 +45,7 @@ void
 test(const bool adaptive_ref = true)
 {
   MPI_Comm           mpi_communicator(MPI_COMM_WORLD);
-  const unsigned int this_mpi_core =
-    dealii::Utilities::MPI::this_mpi_process(mpi_communicator);
+  const unsigned int this_mpi_core = dealii::Utilities::MPI::this_mpi_process(mpi_communicator);
 
   parallel::distributed::Triangulation<dim> tria(mpi_communicator);
   GridGenerator::hyper_cube(tria, 0, 1, true);
@@ -80,16 +79,12 @@ test(const bool adaptive_ref = true)
   AffineConstraints<double> constraints(relevant_set);
   DoFTools::make_hanging_node_constraints(dof, constraints);
   // constrain bottom part of the boundary (lower in y direction)
-  VectorTools::interpolate_boundary_values(dof,
-                                           2,
-                                           Functions::ZeroFunction<dim>(),
-                                           constraints);
+  VectorTools::interpolate_boundary_values(dof, 2, Functions::ZeroFunction<dim>(), constraints);
   constraints.close();
 
   deallog << "Testing " << dof.get_fe().get_name() << std::endl;
 
-  std::shared_ptr<MatrixFree<dim, number>> mf_data(
-    new MatrixFree<dim, number>());
+  std::shared_ptr<MatrixFree<dim, number>> mf_data(new MatrixFree<dim, number>());
   {
     const QGauss<1>                                  quad(fe_degree + 1);
     typename MatrixFree<dim, number>::AdditionalData data;
@@ -99,31 +94,25 @@ test(const bool adaptive_ref = true)
   }
 
   const unsigned int     n_cells         = mf_data->n_cell_batches();
-  const auto &           dof_info        = mf_data->get_dof_info();
+  const auto            &dof_info        = mf_data->get_dof_info();
   constexpr unsigned int n_vectorization = VectorizedArray<number>::size();
 
   std::vector<unsigned int> my_rows;
   my_rows.reserve(fe.dofs_per_cell * n_vectorization);
 
-  constexpr auto dof_access_index =
-    internal::MatrixFreeFunctions::DoFInfo::dof_access_cell;
+  constexpr auto dof_access_index = internal::MatrixFreeFunctions::DoFInfo::dof_access_cell;
 
   bool checked_interleaved = false;
   for (unsigned int cell = 0; cell < n_cells; ++cell)
     {
       deallog << "Cell: " << cell << std::endl;
-      checked_interleaved |=
-        (dof_info.index_storage_variants[dof_access_index][cell] ==
-         internal::MatrixFreeFunctions::DoFInfo::IndexStorageVariants::
-           interleaved);
+      checked_interleaved |= (dof_info.index_storage_variants[dof_access_index][cell] ==
+                              internal::MatrixFreeFunctions::DoFInfo::IndexStorageVariants::interleaved);
       auto get_and_log = [&](const bool apply_constraints) {
-        dof_info.get_dof_indices_on_cell_batch(my_rows,
-                                               cell,
-                                               apply_constraints);
+        dof_info.get_dof_indices_on_cell_batch(my_rows, cell, apply_constraints);
         // sort and make unique to make visual inspection easier:
         std::sort(my_rows.begin(), my_rows.end());
-        my_rows.erase(std::unique(my_rows.begin(), my_rows.end()),
-                      my_rows.end());
+        my_rows.erase(std::unique(my_rows.begin(), my_rows.end()), my_rows.end());
         for (auto el : my_rows)
           deallog << ' ' << el;
         deallog << std::endl;
@@ -144,19 +133,16 @@ test(const bool adaptive_ref = true)
       MappingQ1<dim>                                mapping;
       DoFTools::map_dofs_to_support_points(mapping, dof, support_points);
 
-      const std::string prefix =
-        std::is_same_v<float, number> ? "float_" : "double_";
-      const std::string href = (adaptive_ref ? "" : "global_");
-      const std::string base_filename =
-        prefix + href + "grid" + dealii::Utilities::int_to_string(dim) + "_" +
-        dealii::Utilities::int_to_string(fe_degree) + "_p" +
-        dealii::Utilities::int_to_string(this_mpi_core);
+      const std::string prefix        = std::is_same_v<float, number> ? "float_" : "double_";
+      const std::string href          = (adaptive_ref ? "" : "global_");
+      const std::string base_filename = prefix + href + "grid" + dealii::Utilities::int_to_string(dim) + "_" +
+                                        dealii::Utilities::int_to_string(fe_degree) + "_p" +
+                                        dealii::Utilities::int_to_string(this_mpi_core);
 
       const std::string filename = base_filename + ".gp";
       std::ofstream     f(filename);
 
-      f << "set terminal png size 400,410 enhanced font \"Helvetica,8\""
-        << std::endl
+      f << "set terminal png size 400,410 enhanced font \"Helvetica,8\"" << std::endl
         << "set output \"" << base_filename << ".png\"" << std::endl
         << "set size square" << std::endl
         << "set view equal xy" << std::endl
@@ -171,9 +157,7 @@ test(const bool adaptive_ref = true)
 
       // output cell blocks:
       for (unsigned int cell = 0; cell < n_cells; ++cell)
-        for (unsigned int c = 0;
-             c < mf_data->n_active_entries_per_cell_batch(cell);
-             ++c)
+        for (unsigned int c = 0; c < mf_data->n_active_entries_per_cell_batch(cell); ++c)
           {
             const auto dof_cell = mf_data->get_cell_iterator(cell, c);
             f << dof_cell->center() << " \"" << cell << "\"\n";
@@ -192,8 +176,7 @@ test(const bool adaptive_ref = true)
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   MPILogInitAll mpi_init_log;
 

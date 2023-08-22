@@ -71,8 +71,7 @@ struct CoupledFunction
           for (unsigned int l = 0; l < dim; ++l)
             dt_inv_trans_dt[i][j][k][l] = -t_inv[l][i] * t_inv[j][k];
 
-    return det_t(t) * outer_product(transpose(t_inv), transpose(t_inv)) +
-           det_t(t) * dt_inv_trans_dt;
+    return det_t(t) * outer_product(transpose(t_inv), transpose(t_inv)) + det_t(t) * dt_inv_trans_dt;
   }
 
   static NumberType
@@ -98,8 +97,7 @@ struct CoupledFunction
       for (unsigned int j = i; j < dim; ++j)
         for (unsigned int k = 0; k < dim; ++k)
           for (unsigned int l = k; l < dim; ++l)
-            dt_inv_dt[i][j][k][l] =
-              -0.5 * (t_inv[i][k] * t_inv[j][l] + t_inv[i][l] * t_inv[j][k]);
+            dt_inv_dt[i][j][k][l] = -0.5 * (t_inv[i][k] * t_inv[j][l] + t_inv[i][l] * t_inv[j][k]);
 
     return det_t(t) * outer_product(t_inv, t_inv) + det_t(t) * dt_inv_dt;
   }
@@ -131,17 +129,13 @@ struct CoupledFunction
   static const double sf;
 
   static NumberType
-  psi(const Tensor<2, dim, NumberType> &t,
-      const Tensor<1, dim, NumberType> &v,
-      const NumberType &                s)
+  psi(const Tensor<2, dim, NumberType> &t, const Tensor<1, dim, NumberType> &v, const NumberType &s)
   {
     return std::pow(det_t(t), 2) * std::pow(v_dot_v(v), 3) * std::pow(s, sf);
   };
 
   static NumberType
-  psi_optimised(const NumberType &det_t,
-                const NumberType &v_dot_v,
-                const NumberType &s)
+  psi_optimised(const NumberType &det_t, const NumberType &v_dot_v, const NumberType &s)
   {
     return std::pow(det_t, 2) * std::pow(v_dot_v, 3) * std::pow(s, sf);
   };
@@ -152,36 +146,25 @@ struct CoupledFunction
   // second derivatives. Lots of fun...
 
   static Tensor<2, dim, NumberType>
-  dpsi_dt(const Tensor<2, dim, NumberType> &t,
-          const Tensor<1, dim, NumberType> &v,
-          const NumberType &                s)
+  dpsi_dt(const Tensor<2, dim, NumberType> &t, const Tensor<1, dim, NumberType> &v, const NumberType &s)
   {
-    return 2.0 * std::pow(det_t(t), 1) * ddet_t_dt(t) *
-           std::pow(v_dot_v(v), 3) * std::pow(s, sf);
+    return 2.0 * std::pow(det_t(t), 1) * ddet_t_dt(t) * std::pow(v_dot_v(v), 3) * std::pow(s, sf);
   };
 
   static Tensor<1, dim, NumberType>
-  dpsi_dv(const Tensor<2, dim, NumberType> &t,
-          const Tensor<1, dim, NumberType> &v,
-          const NumberType &                s)
+  dpsi_dv(const Tensor<2, dim, NumberType> &t, const Tensor<1, dim, NumberType> &v, const NumberType &s)
   {
-    return std::pow(det_t(t), 2) * 3.0 * std::pow(v_dot_v(v), 2) *
-           dv_dot_v_dv(v) * std::pow(s, sf);
+    return std::pow(det_t(t), 2) * 3.0 * std::pow(v_dot_v(v), 2) * dv_dot_v_dv(v) * std::pow(s, sf);
   };
 
   static NumberType
-  dpsi_ds(const Tensor<2, dim, NumberType> &t,
-          const Tensor<1, dim, NumberType> &v,
-          const NumberType &                s)
+  dpsi_ds(const Tensor<2, dim, NumberType> &t, const Tensor<1, dim, NumberType> &v, const NumberType &s)
   {
-    return std::pow(det_t(t), 2) * std::pow(v_dot_v(v), 3) * sf *
-           std::pow(s, sf - 1.0);
+    return std::pow(det_t(t), 2) * std::pow(v_dot_v(v), 3) * sf * std::pow(s, sf - 1.0);
   };
 
   static Tensor<4, dim, NumberType>
-  d2psi_dt_dt(const Tensor<2, dim, NumberType> &t,
-              const Tensor<1, dim, NumberType> &v,
-              const NumberType &                s)
+  d2psi_dt_dt(const Tensor<2, dim, NumberType> &t, const Tensor<1, dim, NumberType> &v, const NumberType &s)
   {
     return 2.0 * std::pow(v_dot_v(v), 3) *
            (std::pow(det_t(t), 0) * outer_product(ddet_t_dt(t), ddet_t_dt(t)) +
@@ -190,103 +173,74 @@ struct CoupledFunction
   };
 
   static Tensor<3, dim, NumberType>
-  d2psi_dv_dt(const Tensor<2, dim, NumberType> &t,
-              const Tensor<1, dim, NumberType> &v,
-              const NumberType &                s)
+  d2psi_dv_dt(const Tensor<2, dim, NumberType> &t, const Tensor<1, dim, NumberType> &v, const NumberType &s)
   {
-    return 2.0 * std::pow(det_t(t), 1) * 3.0 * std::pow(v_dot_v(v), 2) *
-           outer_product(ddet_t_dt(t), dv_dot_v_dv(v)) * std::pow(s, sf);
+    return 2.0 * std::pow(det_t(t), 1) * 3.0 * std::pow(v_dot_v(v), 2) * outer_product(ddet_t_dt(t), dv_dot_v_dv(v)) *
+           std::pow(s, sf);
   };
 
   static Tensor<2, dim, NumberType>
-  d2psi_ds_dt(const Tensor<2, dim, NumberType> &t,
-              const Tensor<1, dim, NumberType> &v,
-              const NumberType &                s)
+  d2psi_ds_dt(const Tensor<2, dim, NumberType> &t, const Tensor<1, dim, NumberType> &v, const NumberType &s)
   {
-    return 2.0 * std::pow(det_t(t), 1) * ddet_t_dt(t) *
-           std::pow(v_dot_v(v), 3) * sf * std::pow(s, sf - 1.0);
+    return 2.0 * std::pow(det_t(t), 1) * ddet_t_dt(t) * std::pow(v_dot_v(v), 3) * sf * std::pow(s, sf - 1.0);
   };
 
   static Tensor<3, dim, NumberType>
-  d2psi_dt_dv(const Tensor<2, dim, NumberType> &t,
-              const Tensor<1, dim, NumberType> &v,
-              const NumberType &                s)
+  d2psi_dt_dv(const Tensor<2, dim, NumberType> &t, const Tensor<1, dim, NumberType> &v, const NumberType &s)
   {
-    return 2.0 * std::pow(det_t(t), 1) * 3.0 * std::pow(v_dot_v(v), 2) *
-           outer_product(dv_dot_v_dv(v), ddet_t_dt(t)) * std::pow(s, sf);
+    return 2.0 * std::pow(det_t(t), 1) * 3.0 * std::pow(v_dot_v(v), 2) * outer_product(dv_dot_v_dv(v), ddet_t_dt(t)) *
+           std::pow(s, sf);
   };
 
   static Tensor<2, dim, NumberType>
-  d2psi_dv_dv(const Tensor<2, dim, NumberType> &t,
-              const Tensor<1, dim, NumberType> &v,
-              const NumberType &                s)
+  d2psi_dv_dv(const Tensor<2, dim, NumberType> &t, const Tensor<1, dim, NumberType> &v, const NumberType &s)
   {
     return std::pow(det_t(t), 2) * 3.0 *
-           (2.0 * std::pow(v_dot_v(v), 1) *
-              outer_product(dv_dot_v_dv(v), dv_dot_v_dv(v)) +
+           (2.0 * std::pow(v_dot_v(v), 1) * outer_product(dv_dot_v_dv(v), dv_dot_v_dv(v)) +
             std::pow(v_dot_v(v), 2) * d2v_dot_v_dv_dv(v)) *
            std::pow(s, sf);
   };
 
   static Tensor<1, dim, NumberType>
-  d2psi_ds_dv(const Tensor<2, dim, NumberType> &t,
-              const Tensor<1, dim, NumberType> &v,
-              const NumberType &                s)
+  d2psi_ds_dv(const Tensor<2, dim, NumberType> &t, const Tensor<1, dim, NumberType> &v, const NumberType &s)
   {
-    return std::pow(det_t(t), 2) * 3.0 * std::pow(v_dot_v(v), 2) *
-           dv_dot_v_dv(v) * sf * std::pow(s, sf - 1.0);
+    return std::pow(det_t(t), 2) * 3.0 * std::pow(v_dot_v(v), 2) * dv_dot_v_dv(v) * sf * std::pow(s, sf - 1.0);
   };
 
   static Tensor<2, dim, NumberType>
-  d2psi_dt_ds(const Tensor<2, dim, NumberType> &t,
-              const Tensor<1, dim, NumberType> &v,
-              const NumberType &                s)
+  d2psi_dt_ds(const Tensor<2, dim, NumberType> &t, const Tensor<1, dim, NumberType> &v, const NumberType &s)
   {
-    return 2.0 * std::pow(det_t(t), 1) * ddet_t_dt(t) *
-           std::pow(v_dot_v(v), 3) * sf * std::pow(s, sf - 1.0);
+    return 2.0 * std::pow(det_t(t), 1) * ddet_t_dt(t) * std::pow(v_dot_v(v), 3) * sf * std::pow(s, sf - 1.0);
   };
 
   static Tensor<1, dim, NumberType>
-  d2psi_dv_ds(const Tensor<2, dim, NumberType> &t,
-              const Tensor<1, dim, NumberType> &v,
-              const NumberType &                s)
+  d2psi_dv_ds(const Tensor<2, dim, NumberType> &t, const Tensor<1, dim, NumberType> &v, const NumberType &s)
   {
-    return std::pow(det_t(t), 2) * 3.0 * std::pow(v_dot_v(v), 2) *
-           dv_dot_v_dv(v) * sf * std::pow(s, sf - 1.0);
+    return std::pow(det_t(t), 2) * 3.0 * std::pow(v_dot_v(v), 2) * dv_dot_v_dv(v) * sf * std::pow(s, sf - 1.0);
   };
 
   static NumberType
-  d2psi_ds_ds(const Tensor<2, dim, NumberType> &t,
-              const Tensor<1, dim, NumberType> &v,
-              const NumberType &                s)
+  d2psi_ds_ds(const Tensor<2, dim, NumberType> &t, const Tensor<1, dim, NumberType> &v, const NumberType &s)
   {
-    return std::pow(det_t(t), 2) * std::pow(v_dot_v(v), 3) * sf * (sf - 1.0) *
-           std::pow(s, sf - 2.0);
+    return std::pow(det_t(t), 2) * std::pow(v_dot_v(v), 3) * sf * (sf - 1.0) * std::pow(s, sf - 2.0);
   };
 };
 
 template <int dim, typename NumberType>
 const double CoupledFunction<dim, NumberType>::sf(2.2);
 
-template <int dim,
-          typename number_t,
-          enum SD::OptimizerType     opt_method,
-          enum SD::OptimizationFlags opt_flags>
+template <int dim, typename number_t, enum SD::OptimizerType opt_method, enum SD::OptimizationFlags opt_flags>
 void
-evaluate_SD_SD_stored_symbols_optimisation(const Tensor<2, dim> &t,
-                                           const Tensor<1, dim> &v,
-                                           const double &        s)
+evaluate_SD_SD_stored_symbols_optimisation(const Tensor<2, dim> &t, const Tensor<1, dim> &v, const double &s)
 {
   using SDNumberType = SD::Expression;
 
   // Compute the symbolic (derivative) tensors once off
   // ahead of time, and store them for each run of the function
   // Symbols
-  static const Tensor<2, dim, SDNumberType> symb_t(
-    SD::make_tensor_of_symbols<2, dim>("t"));
-  static const Tensor<1, dim, SDNumberType> symb_v(
-    SD::make_tensor_of_symbols<1, dim>("v"));
-  static const SDNumberType symb_s(SD::make_symbol("s"));
+  static const Tensor<2, dim, SDNumberType> symb_t(SD::make_tensor_of_symbols<2, dim>("t"));
+  static const Tensor<1, dim, SDNumberType> symb_v(SD::make_tensor_of_symbols<1, dim>("v"));
+  static const SDNumberType                 symb_s(SD::make_symbol("s"));
   // Value
   static SDNumberType symb_psi;
   // First derivatives
@@ -350,8 +304,7 @@ evaluate_SD_SD_stored_symbols_optimisation(const Tensor<2, dim> &t,
       print(std::cout, "symb_d2psi_dv_ds", symb_d2psi_dv_ds);
       print(std::cout, "symb_d2psi_ds_ds", symb_d2psi_ds_ds);
 
-      const SD::types::substitution_map sub_vals_optim =
-        SD::make_symbol_map(symb_t, symb_v, symb_s);
+      const SD::types::substitution_map sub_vals_optim = SD::make_symbol_map(symb_t, symb_v, symb_s);
       optimizer.register_symbols(sub_vals_optim);
 
       // Value
@@ -397,35 +350,23 @@ evaluate_SD_SD_stored_symbols_optimisation(const Tensor<2, dim> &t,
   const Tensor<1, dim, double> dpsi_dv = optimizer.evaluate(symb_dpsi_dv);
   const double                 dpsi_ds = optimizer.evaluate(symb_dpsi_ds);
   // Second derivatives
-  const Tensor<4, dim, double> d2psi_dt_dt =
-    optimizer.evaluate(symb_d2psi_dt_dt);
-  const Tensor<3, dim, double> d2psi_dv_dt =
-    optimizer.evaluate(symb_d2psi_dv_dt);
-  const Tensor<2, dim, double> d2psi_ds_dt =
-    optimizer.evaluate(symb_d2psi_ds_dt);
-  const Tensor<3, dim, double> d2psi_dt_dv =
-    optimizer.evaluate(symb_d2psi_dt_dv);
-  const Tensor<2, dim, double> d2psi_dv_dv =
-    optimizer.evaluate(symb_d2psi_dv_dv);
-  const Tensor<1, dim, double> d2psi_ds_dv =
-    optimizer.evaluate(symb_d2psi_ds_dv);
-  const Tensor<2, dim, double> d2psi_dt_ds =
-    optimizer.evaluate(symb_d2psi_dt_ds);
-  const Tensor<1, dim, double> d2psi_dv_ds =
-    optimizer.evaluate(symb_d2psi_dv_ds);
-  const double d2psi_ds_ds = optimizer.evaluate(symb_d2psi_ds_ds);
+  const Tensor<4, dim, double> d2psi_dt_dt = optimizer.evaluate(symb_d2psi_dt_dt);
+  const Tensor<3, dim, double> d2psi_dv_dt = optimizer.evaluate(symb_d2psi_dv_dt);
+  const Tensor<2, dim, double> d2psi_ds_dt = optimizer.evaluate(symb_d2psi_ds_dt);
+  const Tensor<3, dim, double> d2psi_dt_dv = optimizer.evaluate(symb_d2psi_dt_dv);
+  const Tensor<2, dim, double> d2psi_dv_dv = optimizer.evaluate(symb_d2psi_dv_dv);
+  const Tensor<1, dim, double> d2psi_ds_dv = optimizer.evaluate(symb_d2psi_ds_dv);
+  const Tensor<2, dim, double> d2psi_dt_ds = optimizer.evaluate(symb_d2psi_dt_ds);
+  const Tensor<1, dim, double> d2psi_dv_ds = optimizer.evaluate(symb_d2psi_dv_ds);
+  const double                 d2psi_ds_ds = optimizer.evaluate(symb_d2psi_ds_ds);
 
   // Verify the result
   using func              = CoupledFunction<dim, double>;
   static const double tol = 1e-12;
-  AssertThrow(std::abs(psi - func::psi(t, v, s)) < tol,
-              ExcMessage("No match for function value."));
-  AssertThrow(std::abs((dpsi_dt - func::dpsi_dt(t, v, s)).norm()) < tol,
-              ExcMessage("No match for first derivative."));
-  AssertThrow(std::abs((dpsi_dv - func::dpsi_dv(t, v, s)).norm()) < tol,
-              ExcMessage("No match for first derivative."));
-  AssertThrow(std::abs(dpsi_ds - func::dpsi_ds(t, v, s)) < tol,
-              ExcMessage("No match for first derivative."));
+  AssertThrow(std::abs(psi - func::psi(t, v, s)) < tol, ExcMessage("No match for function value."));
+  AssertThrow(std::abs((dpsi_dt - func::dpsi_dt(t, v, s)).norm()) < tol, ExcMessage("No match for first derivative."));
+  AssertThrow(std::abs((dpsi_dv - func::dpsi_dv(t, v, s)).norm()) < tol, ExcMessage("No match for first derivative."));
+  AssertThrow(std::abs(dpsi_ds - func::dpsi_ds(t, v, s)) < tol, ExcMessage("No match for first derivative."));
   AssertThrow(std::abs((d2psi_dt_dt - func::d2psi_dt_dt(t, v, s)).norm()) < tol,
               ExcMessage("No match for second derivative."));
   AssertThrow(std::abs((d2psi_dv_dt - func::d2psi_dv_dt(t, v, s)).norm()) < tol,
@@ -442,15 +383,12 @@ evaluate_SD_SD_stored_symbols_optimisation(const Tensor<2, dim> &t,
               ExcMessage("No match for second derivative."));
   AssertThrow(std::abs((d2psi_dv_ds - func::d2psi_dv_ds(t, v, s)).norm()) < tol,
               ExcMessage("No match for second derivative."));
-  AssertThrow(std::abs(d2psi_ds_ds - func::d2psi_ds_ds(t, v, s)) < tol,
-              ExcMessage("No match for second derivative."));
+  AssertThrow(std::abs(d2psi_ds_ds - func::d2psi_ds_ds(t, v, s)) < tol, ExcMessage("No match for second derivative."));
 
   deallog << "OK" << std::endl;
 }
 
-template <int                        dim,
-          enum SD::OptimizerType     opt_method,
-          enum SD::OptimizationFlags opt_flags>
+template <int dim, enum SD::OptimizerType opt_method, enum SD::OptimizationFlags opt_flags>
 void
 run(const unsigned int n_runs)
 {
@@ -470,10 +408,7 @@ run(const unsigned int n_runs)
   s *= 1.21;
 
   for (unsigned int i = 0; i < n_runs; ++i)
-    evaluate_SD_SD_stored_symbols_optimisation<dim,
-                                               double,
-                                               opt_method,
-                                               opt_flags>(t, v, s);
+    evaluate_SD_SD_stored_symbols_optimisation<dim, double, opt_method, opt_flags>(t, v, s);
 
   deallog.pop();
 

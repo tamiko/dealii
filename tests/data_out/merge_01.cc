@@ -37,8 +37,7 @@ main()
   DoFHandler<dim> ppDoFHandler_(triangulation_);
   ppDoFHandler_.distribute_dofs(ppFE_);
 
-  Vector<double> materialIDs_(
-    ppDoFHandler_.get_triangulation().n_active_cells());
+  Vector<double> materialIDs_(ppDoFHandler_.get_triangulation().n_active_cells());
 
 
   const std::string               fileNameBase     = "mwe-stresses";
@@ -50,14 +49,12 @@ main()
   dataOutPrimary.attach_dof_handler(ppDoFHandler_);
   dataOutSecondary.attach_dof_handler(ppDoFHandler_);
 
-  dataOutPrimary.set_cell_selection(
-    [](const typename Triangulation<dim>::cell_iterator &cell) {
-      return (cell->is_active() && cell->material_id() == 1);
-    });
-  dataOutSecondary.set_cell_selection(
-    [](const typename Triangulation<dim>::cell_iterator &cell) {
-      return (cell->is_active() && cell->material_id() == 2);
-    });
+  dataOutPrimary.set_cell_selection([](const typename Triangulation<dim>::cell_iterator &cell) {
+    return (cell->is_active() && cell->material_id() == 1);
+  });
+  dataOutSecondary.set_cell_selection([](const typename Triangulation<dim>::cell_iterator &cell) {
+    return (cell->is_active() && cell->material_id() == 2);
+  });
 
   {
     // first add the material-ID data

@@ -20,8 +20,7 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS)
     \{
 #if deal_II_dimension <= deal_II_space_dimension
       template void
-      generate_from_name_and_arguments<deal_II_dimension,
-                                       deal_II_space_dimension>(
+      generate_from_name_and_arguments<deal_II_dimension, deal_II_space_dimension>(
         Triangulation<deal_II_dimension, deal_II_space_dimension> &,
         const std::string &,
         const std::string &);

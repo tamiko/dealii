@@ -107,37 +107,27 @@ namespace MemorySpace
 
   template <typename T, typename MemorySpace>
   MemorySpaceData<T, MemorySpace>::MemorySpaceData()
-    : values_host_buffer(
-        (dealii::internal::ensure_kokkos_initialized(),
+    : values_host_buffer((dealii::internal::ensure_kokkos_initialized(),
 #  if KOKKOS_VERSION < 40000
-         Kokkos::View<T *, Kokkos::HostSpace>("host buffer", 0)))
+                          Kokkos::View<T *, Kokkos::HostSpace>("host buffer", 0)))
 #  else
-         Kokkos::View<T *, Kokkos::SharedHostPinnedSpace>("host pinned buffer",
-                                                          0)))
+                           Kokkos::View<T *, Kokkos::SharedHostPinnedSpace>("host pinned buffer", 0)))
 #  endif
-    , values(Kokkos::View<T *, typename MemorySpace::kokkos_space>(
-        "memoryspace data",
-        0))
+    , values(Kokkos::View<T *, typename MemorySpace::kokkos_space>("memoryspace data", 0))
   {}
 
 
 
   template <typename T, typename MemorySpace>
   void
-  MemorySpaceData<T, MemorySpace>::copy_to(T *               begin,
-                                           const std::size_t n_elements)
+  MemorySpaceData<T, MemorySpace>::copy_to(T *begin, const std::size_t n_elements)
   {
-    Assert(n_elements <= values.extent(0),
-           ExcMessage(
-             "n_elements is greater than the size of MemorySpaceData."));
+    Assert(n_elements <= values.extent(0), ExcMessage("n_elements is greater than the size of MemorySpaceData."));
     using ExecutionSpace = typename MemorySpace::kokkos_space::execution_space;
-    Kokkos::
-      View<T *, Kokkos::HostSpace, Kokkos::MemoryTraits<Kokkos::Unmanaged>>
-        begin_view(begin, n_elements);
-    Kokkos::deep_copy(
-      ExecutionSpace{},
-      begin_view,
-      Kokkos::subview(values, Kokkos::make_pair(std::size_t(0), n_elements)));
+    Kokkos::View<T *, Kokkos::HostSpace, Kokkos::MemoryTraits<Kokkos::Unmanaged>> begin_view(begin, n_elements);
+    Kokkos::deep_copy(ExecutionSpace{},
+                      begin_view,
+                      Kokkos::subview(values, Kokkos::make_pair(std::size_t(0), n_elements)));
     ExecutionSpace{}.fence();
   }
 
@@ -145,21 +135,14 @@ namespace MemorySpace
 
   template <typename T, typename MemorySpace>
   void
-  MemorySpaceData<T, MemorySpace>::copy_from(const T *         begin,
-                                             const std::size_t n_elements)
+  MemorySpaceData<T, MemorySpace>::copy_from(const T *begin, const std::size_t n_elements)
   {
-    Assert(n_elements <= values.extent(0),
-           ExcMessage(
-             "n_elements is greater than the size of MemorySpaceData."));
+    Assert(n_elements <= values.extent(0), ExcMessage("n_elements is greater than the size of MemorySpaceData."));
     using ExecutionSpace = typename MemorySpace::kokkos_space::execution_space;
-    Kokkos::View<const T *,
-                 Kokkos::HostSpace,
-                 Kokkos::MemoryTraits<Kokkos::Unmanaged>>
-      begin_view(begin, n_elements);
-    Kokkos::deep_copy(
-      ExecutionSpace{},
-      Kokkos::subview(values, Kokkos::make_pair(std::size_t(0), n_elements)),
-      begin_view);
+    Kokkos::View<const T *, Kokkos::HostSpace, Kokkos::MemoryTraits<Kokkos::Unmanaged>> begin_view(begin, n_elements);
+    Kokkos::deep_copy(ExecutionSpace{},
+                      Kokkos::subview(values, Kokkos::make_pair(std::size_t(0), n_elements)),
+                      begin_view);
     ExecutionSpace{}.fence();
   }
 

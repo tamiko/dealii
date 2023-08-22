@@ -66,12 +66,11 @@ test()
   sparsity_pattern.reinit(3, 3);
   for (unsigned int i = 0; i < 3; ++i)
     for (unsigned int j = 0; j < 3; ++j)
-      sparsity_pattern.block(i, j).reinit(
-        i != 2 ? dof_handler.n_dofs() / 3 :
-                 dof_handler.n_dofs() - 2 * (dof_handler.n_dofs() / 3),
-        j != 2 ? dof_handler.n_dofs() / 3 :
-                 dof_handler.n_dofs() - 2 * (dof_handler.n_dofs() / 3),
-        dof_handler.max_couplings_between_dofs());
+      sparsity_pattern.block(i, j).reinit(i != 2 ? dof_handler.n_dofs() / 3 :
+                                                   dof_handler.n_dofs() - 2 * (dof_handler.n_dofs() / 3),
+                                          j != 2 ? dof_handler.n_dofs() / 3 :
+                                                   dof_handler.n_dofs() - 2 * (dof_handler.n_dofs() / 3),
+                                          dof_handler.max_couplings_between_dofs());
   sparsity_pattern.collect_sizes();
   DoFTools::make_sparsity_pattern(dof_handler, sparsity_pattern);
   sparsity_pattern.compress();
@@ -84,9 +83,7 @@ test()
     // create block matrices directly
     // in matrixtools...
     SparsityPattern xsparsity_pattern;
-    xsparsity_pattern.reinit(dof_handler.n_dofs(),
-                             dof_handler.n_dofs(),
-                             dof_handler.max_couplings_between_dofs());
+    xsparsity_pattern.reinit(dof_handler.n_dofs(), dof_handler.n_dofs(), dof_handler.max_couplings_between_dofs());
     DoFTools::make_sparsity_pattern(dof_handler, xsparsity_pattern);
     xsparsity_pattern.compress();
 
@@ -108,12 +105,10 @@ test()
     // check that we've done it right
     for (SparseMatrix<double>::iterator p = xB.begin(); p != xB.end(); ++p)
       if (p->column() != p->row())
-        AssertThrow(xB(p->row(), p->column()) != xB(p->column(), p->row()),
-                    ExcInternalError());
+        AssertThrow(xB(p->row(), p->column()) != xB(p->column(), p->row()), ExcInternalError());
 
     // now copy stuff over
-    for (SparseMatrix<double>::const_iterator i = xB.begin(); i != xB.end();
-         ++i)
+    for (SparseMatrix<double>::const_iterator i = xB.begin(); i != xB.end(); ++i)
       B.set(i->row(), i->column(), i->value());
   }
 
@@ -126,8 +121,7 @@ test()
       BlockVector<std::complex<double>> solution(3);
       solution.block(0).reinit(dof_handler.n_dofs() / 3);
       solution.block(1).reinit(dof_handler.n_dofs() / 3);
-      solution.block(2).reinit(dof_handler.n_dofs() -
-                               2 * (dof_handler.n_dofs() / 3));
+      solution.block(2).reinit(dof_handler.n_dofs() - 2 * (dof_handler.n_dofs() / 3));
       solution.collect_sizes();
 
       // Pick a solution vector. Normalize it in such a way that we
@@ -136,12 +130,9 @@ test()
       // are free to normalize as we see fit.
       for (unsigned int j = 0; j < dof_handler.n_dofs(); ++j)
         {
-          solution(j) =
-            std::complex<double>(1 + j + j * (i + 1) * (i + 1), // real part
-                                 1 + i +
-                                   i * (j + 1) * (j + 1)); // imaginary part
-          solution(j) *=
-            1. * (j + j * (i + 1) * (i + 1)) / std::abs(solution(j));
+          solution(j) = std::complex<double>(1 + j + j * (i + 1) * (i + 1),  // real part
+                                             1 + i + i * (j + 1) * (j + 1)); // imaginary part
+          solution(j) *= 1. * (j + j * (i + 1) * (i + 1)) / std::abs(solution(j));
         }
 
       // Then choose as rhs for the linear system the vector
@@ -160,10 +151,8 @@ test()
 
       // Check that we really got what we expected
       x -= solution;
-      deallog << "relative norm distance = " << x.l2_norm() / solution.l2_norm()
-              << std::endl;
-      deallog << "absolute norms = " << x.l2_norm() << ' ' << solution.l2_norm()
-              << std::endl;
+      deallog << "relative norm distance = " << x.l2_norm() / solution.l2_norm() << std::endl;
+      deallog << "absolute norms = " << x.l2_norm() << ' ' << solution.l2_norm() << std::endl;
       Assert(x.l2_norm() / solution.l2_norm() < 1e-8, ExcInternalError());
     }
 }

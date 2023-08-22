@@ -66,8 +66,7 @@ test()
   AffineConstraints<double> constraints;
   DoFTools::make_hanging_node_constraints(dof_handler, constraints);
   constraints.close();
-  deallog << "Number of constraints: " << constraints.n_constraints()
-          << std::endl;
+  deallog << "Number of constraints: " << constraints.n_constraints() << std::endl;
 
   std::vector<types::global_dof_index> block_sizes(2);
   block_sizes[0] = dof_handler.n_dofs() / 3;
@@ -94,9 +93,7 @@ test()
         }
       else
         {
-          AssertThrow(std::fabs(b(i) - (1. + 1. * i * i) / 3) <
-                        1e-14 * std::fabs(b(i)),
-                      ExcInternalError());
+          AssertThrow(std::fabs(b(i) - (1. + 1. * i * i) / 3) < 1e-14 * std::fabs(b(i)), ExcInternalError());
         }
     }
 }
@@ -116,28 +113,20 @@ main()
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

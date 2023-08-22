@@ -38,28 +38,23 @@ main()
 
   const auto style = ParameterHandler::Short;
 
-  deallog << "ShortPRM format: " << std::endl
-          << "========================================" << std::endl;
+  deallog << "ShortPRM format: " << std::endl << "========================================" << std::endl;
   prm.print_parameters("output.prm", style);
   cat_file("output.prm");
 
-  deallog << "ShortXML format: " << std::endl
-          << "========================================" << std::endl;
+  deallog << "ShortXML format: " << std::endl << "========================================" << std::endl;
   prm.print_parameters("output.xml", style);
   cat_file("output.xml");
 
-  deallog << "ShortJSON format: " << std::endl
-          << "========================================" << std::endl;
+  deallog << "ShortJSON format: " << std::endl << "========================================" << std::endl;
   prm.print_parameters("output.json", style);
   cat_file("output.json");
 
-  deallog << "ShortLaTeX format: " << std::endl
-          << "========================================" << std::endl;
+  deallog << "ShortLaTeX format: " << std::endl << "========================================" << std::endl;
   prm.print_parameters("output.tex", style);
   cat_file("output.tex");
 
-  deallog << "Short | Description format: " << std::endl
-          << "========================================" << std::endl;
+  deallog << "Short | Description format: " << std::endl << "========================================" << std::endl;
   prm.print_parameters("output.dsc", ParameterHandler::Description | style);
   cat_file("output.dsc");
 }

@@ -58,22 +58,20 @@ template <int dim, int fe_degree, typename Number>
 class LaplaceOperator<dim, fe_degree, Number, MemorySpace::Host>
 {
 public:
-  using VectorType =
-    LinearAlgebra::distributed::Vector<Number, MemorySpace::Host>;
+  using VectorType = LinearAlgebra::distributed::Vector<Number, MemorySpace::Host>;
 
   LaplaceOperator() = default;
 
   void
-  reinit(const Mapping<dim> &             mapping,
-         const DoFHandler<dim> &          dof_handler,
+  reinit(const Mapping<dim>              &mapping,
+         const DoFHandler<dim>           &dof_handler,
          const AffineConstraints<Number> &constraints,
-         const Quadrature<1> &            quadrature)
+         const Quadrature<1>             &quadrature)
   {
     typename MatrixFree<dim, Number>::AdditionalData additional_data;
     additional_data.mapping_update_flags = update_gradients;
 
-    matrix_free.reinit(
-      mapping, dof_handler, constraints, quadrature, additional_data);
+    matrix_free.reinit(mapping, dof_handler, constraints, quadrature, additional_data);
   }
 
   void
@@ -90,9 +88,9 @@ public:
 
 private:
   void
-  local_apply(const MatrixFree<dim, Number> &              data,
-              VectorType &                                 dst,
-              const VectorType &                           src,
+  local_apply(const MatrixFree<dim, Number>               &data,
+              VectorType                                  &dst,
+              const VectorType                            &src,
               const std::pair<unsigned int, unsigned int> &cell_range) const
   {
     FEEvaluation<dim, fe_degree, fe_degree + 1, 1, Number> phi(data);
@@ -119,10 +117,7 @@ class LaplaceOperatorQuad
 {
 public:
   DEAL_II_HOST_DEVICE void
-  operator()(
-    CUDAWrappers::FEEvaluation<dim, fe_degree, fe_degree + 1, 1, Number>
-      *       fe_eval,
-    const int q_point) const
+  operator()(CUDAWrappers::FEEvaluation<dim, fe_degree, fe_degree + 1, 1, Number> *fe_eval, const int q_point) const
   {
     fe_eval->submit_gradient(fe_eval->get_gradient(q_point), q_point);
   }
@@ -133,21 +128,18 @@ class LaplaceOperatorLocal
 {
 public:
   DEAL_II_HOST_DEVICE void
-  operator()(
-    const unsigned int                                          cell,
-    const typename CUDAWrappers::MatrixFree<dim, Number>::Data *gpu_data,
-    CUDAWrappers::SharedData<dim, Number> *                     shared_data,
-    const Number *                                              src,
-    Number *                                                    dst) const
+  operator()(const unsigned int                                          cell,
+             const typename CUDAWrappers::MatrixFree<dim, Number>::Data *gpu_data,
+             CUDAWrappers::SharedData<dim, Number>                      *shared_data,
+             const Number                                               *src,
+             Number                                                     *dst) const
   {
     (void)cell; // TODO?
 
-    CUDAWrappers::FEEvaluation<dim, fe_degree, fe_degree + 1, 1, Number>
-      fe_eval(/*cell,*/ gpu_data, shared_data);
+    CUDAWrappers::FEEvaluation<dim, fe_degree, fe_degree + 1, 1, Number> fe_eval(/*cell,*/ gpu_data, shared_data);
     fe_eval.read_dof_values(src);
     fe_eval.evaluate(false, true);
-    fe_eval.apply_for_each_quad_point(
-      LaplaceOperatorQuad<dim, fe_degree, Number>());
+    fe_eval.apply_for_each_quad_point(LaplaceOperatorQuad<dim, fe_degree, Number>());
     fe_eval.integrate(false, true);
     fe_eval.distribute_local_to_global(dst);
   }
@@ -160,23 +152,20 @@ template <int dim, int fe_degree, typename Number>
 class LaplaceOperator<dim, fe_degree, Number, MemorySpace::Default>
 {
 public:
-  using VectorType =
-    LinearAlgebra::distributed::Vector<Number, MemorySpace::Default>;
+  using VectorType = LinearAlgebra::distributed::Vector<Number, MemorySpace::Default>;
 
   LaplaceOperator() = default;
 
   void
-  reinit(const Mapping<dim> &             mapping,
-         const DoFHandler<dim> &          dof_handler,
+  reinit(const Mapping<dim>              &mapping,
+         const DoFHandler<dim>           &dof_handler,
          const AffineConstraints<Number> &constraints,
-         const Quadrature<1> &            quadrature)
+         const Quadrature<1>             &quadrature)
   {
-    typename CUDAWrappers::MatrixFree<dim, Number>::AdditionalData
-      additional_data;
+    typename CUDAWrappers::MatrixFree<dim, Number>::AdditionalData additional_data;
     additional_data.mapping_update_flags = update_JxW_values | update_gradients;
 
-    matrix_free.reinit(
-      mapping, dof_handler, constraints, quadrature, additional_data);
+    matrix_free.reinit(mapping, dof_handler, constraints, quadrature, additional_data);
   }
 
   void
@@ -254,19 +243,15 @@ run(const unsigned int n_refinements)
   AffineConstraints<Number>                         constraints;
   LaplaceOperator<dim, degree, Number, MemorySpace> laplace_operator;
 
-  std::chrono::time_point<std::chrono::system_clock> now_setup =
-    std::chrono::system_clock::now();
+  std::chrono::time_point<std::chrono::system_clock> now_setup = std::chrono::system_clock::now();
 
   for (unsigned int i = 0; i < n_repetitions_setup; ++i)
     laplace_operator.reinit(mapping, dof_handler, constraints, quadrature);
 
-  double dt_setup = std::chrono::duration_cast<std::chrono::nanoseconds>(
-                      std::chrono::system_clock::now() - now_setup)
-                      .count() /
-                    1e9;
+  double dt_setup =
+    std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now() - now_setup).count() / 1e9;
 
-  dt_setup = Utilities::MPI::sum(dt_setup, MPI_COMM_WORLD) /
-             Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
+  dt_setup = Utilities::MPI::sum(dt_setup, MPI_COMM_WORLD) / Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
 
   VectorType src, dst;
 
@@ -276,31 +261,24 @@ run(const unsigned int n_refinements)
   {
     LinearAlgebra::distributed::Vector<Number> src_host(src.get_partitioner());
 
-    VectorTools::interpolate(dof_handler,
-                             AnalyticalFunction<dim, Number>(),
-                             src_host);
+    VectorTools::interpolate(dof_handler, AnalyticalFunction<dim, Number>(), src_host);
 
-    LinearAlgebra::ReadWriteVector<Number> rw_vector(
-      src.get_partitioner()->locally_owned_range());
+    LinearAlgebra::ReadWriteVector<Number> rw_vector(src.get_partitioner()->locally_owned_range());
     rw_vector.import_elements(src_host, VectorOperation::insert);
     src.import_elements(rw_vector, VectorOperation::insert);
 
     dst = 0.0;
   }
 
-  const std::chrono::time_point<std::chrono::system_clock> now_vmult =
-    std::chrono::system_clock::now();
+  const std::chrono::time_point<std::chrono::system_clock> now_vmult = std::chrono::system_clock::now();
 
   for (unsigned int i = 0; i < n_repetitions_vmult; ++i)
     laplace_operator.vmult(dst, src);
 
-  double dt_vmult = std::chrono::duration_cast<std::chrono::nanoseconds>(
-                      std::chrono::system_clock::now() - now_vmult)
-                      .count() /
-                    1e9;
+  double dt_vmult =
+    std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now() - now_vmult).count() / 1e9;
 
-  dt_vmult = Utilities::MPI::sum(dt_vmult, MPI_COMM_WORLD) /
-             Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
+  dt_vmult = Utilities::MPI::sum(dt_vmult, MPI_COMM_WORLD) / Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
 
 
   table.add_value("time_setup", dt_setup);
@@ -323,9 +301,7 @@ run(const unsigned int n_refinements)
 std::tuple<Metric, unsigned int, std::vector<std::string>>
 describe_measurements()
 {
-  return {Metric::timing,
-          4,
-          {"mf_setup", "mf_vmult", "mf_kokkos_setup", "mf_kokkos_vmult"}};
+  return {Metric::timing, 4, {"mf_setup", "mf_vmult", "mf_kokkos_setup", "mf_kokkos_vmult"}};
 }
 
 Measurement

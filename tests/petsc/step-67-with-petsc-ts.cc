@@ -165,8 +165,7 @@ namespace Euler_DG
   // -1)} + \frac 12 \rho \|u\|^2$.
   template <int dim>
   double
-  ExactSolution<dim>::value(const Point<dim> & x,
-                            const unsigned int component) const
+  ExactSolution<dim>::value(const Point<dim> &x, const unsigned int component) const
   {
     const double t = this->get_time();
 
@@ -178,16 +177,13 @@ namespace Euler_DG
             const double beta = 5;
 
             Point<dim> x0;
-            x0[0] = 5.;
-            const double radius_sqr =
-              (x - x0).norm_square() - 2. * (x[0] - x0[0]) * t + t * t;
-            const double factor =
-              beta / (numbers::PI * 2) * std::exp(1. - radius_sqr);
-            const double density_log = std::log2(
-              std::abs(1. - (gamma - 1.) / gamma * 0.25 * factor * factor));
-            const double density = std::exp2(density_log * (1. / (gamma - 1.)));
-            const double u       = 1. - factor * (x[1] - x0[1]);
-            const double v       = factor * (x[0] - t - x0[0]);
+            x0[0]                    = 5.;
+            const double radius_sqr  = (x - x0).norm_square() - 2. * (x[0] - x0[0]) * t + t * t;
+            const double factor      = beta / (numbers::PI * 2) * std::exp(1. - radius_sqr);
+            const double density_log = std::log2(std::abs(1. - (gamma - 1.) / gamma * 0.25 * factor * factor));
+            const double density     = std::exp2(density_log * (1. / (gamma - 1.)));
+            const double u           = 1. - factor * (x[1] - x0[1]);
+            const double v           = factor * (x[0] - t - x0[0]);
 
             if (component == 0)
               return density;
@@ -197,10 +193,8 @@ namespace Euler_DG
               return density * v;
             else
               {
-                const double pressure =
-                  std::exp2(density_log * (gamma / (gamma - 1.)));
-                return pressure / (gamma - 1.) +
-                       0.5 * (density * u * u + density * v * v);
+                const double pressure = std::exp2(density_log * (gamma / (gamma - 1.)));
+                return pressure / (gamma - 1.) + 0.5 * (density * u * u + density * v * v);
               }
           }
 
@@ -313,9 +307,7 @@ namespace Euler_DG
           default:
             AssertThrow(false, ExcNotImplemented());
         }
-      TimeStepping::LowStorageRungeKutta<
-        LinearAlgebra::distributed::Vector<Number>>
-        rk_integrator(lsrk);
+      TimeStepping::LowStorageRungeKutta<LinearAlgebra::distributed::Vector<Number>> rk_integrator(lsrk);
       rk_integrator.get_coefficients(ai, bi, ci);
     }
 
@@ -348,28 +340,21 @@ namespace Euler_DG
     perform_time_step(const Operator &pde_operator,
                       const double    current_time,
                       const double    time_step,
-                      VectorType &    solution,
-                      VectorType &    vec_ri,
-                      VectorType &    vec_ki) const
+                      VectorType     &solution,
+                      VectorType     &vec_ri,
+                      VectorType     &vec_ki) const
     {
       AssertDimension(ai.size() + 1, bi.size());
 
-      pde_operator.perform_stage(current_time,
-                                 bi[0] * time_step,
-                                 ai[0] * time_step,
-                                 solution,
-                                 vec_ri,
-                                 solution,
-                                 vec_ri);
+      pde_operator.perform_stage(
+        current_time, bi[0] * time_step, ai[0] * time_step, solution, vec_ri, solution, vec_ri);
 
       for (unsigned int stage = 1; stage < bi.size(); ++stage)
         {
           const double c_i = ci[stage];
           pde_operator.perform_stage(current_time + c_i * time_step,
                                      bi[stage] * time_step,
-                                     (stage == bi.size() - 1 ?
-                                        0 :
-                                        ai[stage] * time_step),
+                                     (stage == bi.size() - 1 ? 0 : ai[stage] * time_step),
                                      vec_ri,
                                      vec_ki,
                                      solution,
@@ -454,8 +439,7 @@ namespace Euler_DG
     Number
     euler_pressure(const Tensor<1, dim + 2, Number> &conserved_variables)
   {
-    const Tensor<1, dim, Number> velocity =
-      euler_velocity<dim>(conserved_variables);
+    const Tensor<1, dim, Number> velocity = euler_velocity<dim>(conserved_variables);
 
     Number rho_u_dot_u = conserved_variables[1] * velocity[0];
     for (unsigned int d = 1; d < dim; ++d)
@@ -473,9 +457,8 @@ namespace Euler_DG
     Tensor<1, dim + 2, Tensor<1, dim, Number>>
     euler_flux(const Tensor<1, dim + 2, Number> &conserved_variables)
   {
-    const Tensor<1, dim, Number> velocity =
-      euler_velocity<dim>(conserved_variables);
-    const Number pressure = euler_pressure<dim>(conserved_variables);
+    const Tensor<1, dim, Number> velocity = euler_velocity<dim>(conserved_variables);
+    const Number                 pressure = euler_pressure<dim>(conserved_variables);
 
     Tensor<1, dim + 2, Tensor<1, dim, Number>> flux;
     for (unsigned int d = 0; d < dim; ++d)
@@ -484,8 +467,7 @@ namespace Euler_DG
         for (unsigned int e = 0; e < dim; ++e)
           flux[e + 1][d] = conserved_variables[e + 1] * velocity[d];
         flux[d + 1][d] += pressure;
-        flux[dim + 1][d] =
-          velocity[d] * (conserved_variables[dim + 1] + pressure);
+        flux[dim + 1][d] = velocity[d] * (conserved_variables[dim + 1] + pressure);
       }
 
     return flux;
@@ -499,8 +481,7 @@ namespace Euler_DG
   template <int n_components, int dim, typename Number>
   inline DEAL_II_ALWAYS_INLINE //
     Tensor<1, n_components, Number>
-    operator*(const Tensor<1, n_components, Tensor<1, dim, Number>> &matrix,
-              const Tensor<1, dim, Number> &                         vector)
+    operator*(const Tensor<1, n_components, Tensor<1, dim, Number>> &matrix, const Tensor<1, dim, Number> &vector)
   {
     Tensor<1, n_components, Number> result;
     for (unsigned int d = 0; d < n_components; ++d)
@@ -582,7 +563,7 @@ namespace Euler_DG
     Tensor<1, dim + 2, Number>
     euler_numerical_flux(const Tensor<1, dim + 2, Number> &u_m,
                          const Tensor<1, dim + 2, Number> &u_p,
-                         const Tensor<1, dim, Number> &    normal)
+                         const Tensor<1, dim, Number>     &normal)
   {
     const auto velocity_m = euler_velocity<dim>(u_m);
     const auto velocity_p = euler_velocity<dim>(u_p);
@@ -598,31 +579,22 @@ namespace Euler_DG
         case lax_friedrichs_modified:
           {
             const auto lambda =
-              0.5 * std::sqrt(std::max(velocity_p.norm_square() +
-                                         gamma * pressure_p * (1. / u_p[0]),
-                                       velocity_m.norm_square() +
-                                         gamma * pressure_m * (1. / u_m[0])));
+              0.5 * std::sqrt(std::max(velocity_p.norm_square() + gamma * pressure_p * (1. / u_p[0]),
+                                       velocity_m.norm_square() + gamma * pressure_m * (1. / u_m[0])));
 
-            return 0.5 * (flux_m * normal + flux_p * normal) +
-                   0.5 * lambda * (u_m - u_p);
+            return 0.5 * (flux_m * normal + flux_p * normal) + 0.5 * lambda * (u_m - u_p);
           }
 
         case harten_lax_vanleer:
           {
-            const auto avg_velocity_normal =
-              0.5 * ((velocity_m + velocity_p) * normal);
-            const auto   avg_c = std::sqrt(std::abs(
-              0.5 * gamma *
-              (pressure_p * (1. / u_p[0]) + pressure_m * (1. / u_m[0]))));
-            const Number s_pos =
-              std::max(Number(), avg_velocity_normal + avg_c);
-            const Number s_neg =
-              std::min(Number(), avg_velocity_normal - avg_c);
+            const auto avg_velocity_normal = 0.5 * ((velocity_m + velocity_p) * normal);
+            const auto avg_c =
+              std::sqrt(std::abs(0.5 * gamma * (pressure_p * (1. / u_p[0]) + pressure_m * (1. / u_m[0]))));
+            const Number s_pos     = std::max(Number(), avg_velocity_normal + avg_c);
+            const Number s_neg     = std::min(Number(), avg_velocity_normal - avg_c);
             const Number inverse_s = Number(1.) / (s_pos - s_neg);
 
-            return inverse_s *
-                   ((s_pos * (flux_m * normal) - s_neg * (flux_p * normal)) -
-                    s_pos * s_neg * (u_m - u_p));
+            return inverse_s * ((s_pos * (flux_m * normal) - s_neg * (flux_p * normal)) - s_pos * s_neg * (u_m - u_p));
           }
 
         default:
@@ -644,7 +616,7 @@ namespace Euler_DG
   // where all components of the solution are set.
   template <int dim, typename Number>
   VectorizedArray<Number>
-  evaluate_function(const Function<dim> &                      function,
+  evaluate_function(const Function<dim>                       &function,
                     const Point<dim, VectorizedArray<Number>> &p_vectorized,
                     const unsigned int                         component)
   {
@@ -662,8 +634,7 @@ namespace Euler_DG
 
   template <int dim, typename Number, int n_components = dim + 2>
   Tensor<1, n_components, VectorizedArray<Number>>
-  evaluate_function(const Function<dim> &                      function,
-                    const Point<dim, VectorizedArray<Number>> &p_vectorized)
+  evaluate_function(const Function<dim> &function, const Point<dim, VectorizedArray<Number>> &p_vectorized)
   {
     AssertDimension(function.n_components, n_components);
     Tensor<1, n_components, VectorizedArray<Number>> result;
@@ -715,13 +686,10 @@ namespace Euler_DG
     reinit(const Mapping<dim> &mapping, const DoFHandler<dim> &dof_handler);
 
     void
-    set_inflow_boundary(const types::boundary_id       boundary_id,
-                        std::unique_ptr<Function<dim>> inflow_function);
+    set_inflow_boundary(const types::boundary_id boundary_id, std::unique_ptr<Function<dim>> inflow_function);
 
     void
-    set_subsonic_outflow_boundary(
-      const types::boundary_id       boundary_id,
-      std::unique_ptr<Function<dim>> outflow_energy);
+    set_subsonic_outflow_boundary(const types::boundary_id boundary_id, std::unique_ptr<Function<dim>> outflow_energy);
 
     void
     set_wall_boundary(const types::boundary_id boundary_id);
@@ -732,29 +700,25 @@ namespace Euler_DG
     void
     apply(const double                                      current_time,
           const LinearAlgebra::distributed::Vector<Number> &src,
-          LinearAlgebra::distributed::Vector<Number> &      dst) const;
+          LinearAlgebra::distributed::Vector<Number>       &dst) const;
 
     void
-    perform_stage(const Number cur_time,
-                  const Number factor_solution,
-                  const Number factor_ai,
+    perform_stage(const Number                                      cur_time,
+                  const Number                                      factor_solution,
+                  const Number                                      factor_ai,
                   const LinearAlgebra::distributed::Vector<Number> &current_ri,
-                  LinearAlgebra::distributed::Vector<Number> &      vec_ki,
-                  LinearAlgebra::distributed::Vector<Number> &      solution,
-                  LinearAlgebra::distributed::Vector<Number> &next_ri) const;
+                  LinearAlgebra::distributed::Vector<Number>       &vec_ki,
+                  LinearAlgebra::distributed::Vector<Number>       &solution,
+                  LinearAlgebra::distributed::Vector<Number>       &next_ri) const;
 
     void
-    project(const Function<dim> &                       function,
-            LinearAlgebra::distributed::Vector<Number> &solution) const;
+    project(const Function<dim> &function, LinearAlgebra::distributed::Vector<Number> &solution) const;
 
     std::array<double, 3>
-    compute_errors(
-      const Function<dim> &                             function,
-      const LinearAlgebra::distributed::Vector<Number> &solution) const;
+    compute_errors(const Function<dim> &function, const LinearAlgebra::distributed::Vector<Number> &solution) const;
 
     double
-    compute_cell_transport_speed(
-      const LinearAlgebra::distributed::Vector<Number> &solution) const;
+    compute_cell_transport_speed(const LinearAlgebra::distributed::Vector<Number> &solution) const;
 
     void
     initialize_vector(LinearAlgebra::distributed::Vector<Number> &vector) const;
@@ -764,40 +728,34 @@ namespace Euler_DG
 
     TimerOutput &timer;
 
-    std::map<types::boundary_id, std::unique_ptr<Function<dim>>>
-      inflow_boundaries;
-    std::map<types::boundary_id, std::unique_ptr<Function<dim>>>
-                                   subsonic_outflow_boundaries;
-    std::set<types::boundary_id>   wall_boundaries;
-    std::unique_ptr<Function<dim>> body_force;
+    std::map<types::boundary_id, std::unique_ptr<Function<dim>>> inflow_boundaries;
+    std::map<types::boundary_id, std::unique_ptr<Function<dim>>> subsonic_outflow_boundaries;
+    std::set<types::boundary_id>                                 wall_boundaries;
+    std::unique_ptr<Function<dim>>                               body_force;
 
     void
-    local_apply_inverse_mass_matrix(
-      const MatrixFree<dim, Number> &                   data,
-      LinearAlgebra::distributed::Vector<Number> &      dst,
-      const LinearAlgebra::distributed::Vector<Number> &src,
-      const std::pair<unsigned int, unsigned int> &     cell_range) const;
+    local_apply_inverse_mass_matrix(const MatrixFree<dim, Number>                    &data,
+                                    LinearAlgebra::distributed::Vector<Number>       &dst,
+                                    const LinearAlgebra::distributed::Vector<Number> &src,
+                                    const std::pair<unsigned int, unsigned int>      &cell_range) const;
 
     void
-    local_apply_cell(
-      const MatrixFree<dim, Number> &                   data,
-      LinearAlgebra::distributed::Vector<Number> &      dst,
-      const LinearAlgebra::distributed::Vector<Number> &src,
-      const std::pair<unsigned int, unsigned int> &     cell_range) const;
+    local_apply_cell(const MatrixFree<dim, Number>                    &data,
+                     LinearAlgebra::distributed::Vector<Number>       &dst,
+                     const LinearAlgebra::distributed::Vector<Number> &src,
+                     const std::pair<unsigned int, unsigned int>      &cell_range) const;
 
     void
-    local_apply_face(
-      const MatrixFree<dim, Number> &                   data,
-      LinearAlgebra::distributed::Vector<Number> &      dst,
-      const LinearAlgebra::distributed::Vector<Number> &src,
-      const std::pair<unsigned int, unsigned int> &     face_range) const;
+    local_apply_face(const MatrixFree<dim, Number>                    &data,
+                     LinearAlgebra::distributed::Vector<Number>       &dst,
+                     const LinearAlgebra::distributed::Vector<Number> &src,
+                     const std::pair<unsigned int, unsigned int>      &face_range) const;
 
     void
-    local_apply_boundary_face(
-      const MatrixFree<dim, Number> &                   data,
-      LinearAlgebra::distributed::Vector<Number> &      dst,
-      const LinearAlgebra::distributed::Vector<Number> &src,
-      const std::pair<unsigned int, unsigned int> &     face_range) const;
+    local_apply_boundary_face(const MatrixFree<dim, Number>                    &data,
+                              LinearAlgebra::distributed::Vector<Number>       &dst,
+                              const LinearAlgebra::distributed::Vector<Number> &src,
+                              const std::pair<unsigned int, unsigned int>      &face_range) const;
   };
 
 
@@ -829,39 +787,30 @@ namespace Euler_DG
   // necessary to ensure optimal computational efficiency overall.
   template <int dim, int degree, int n_points_1d>
   void
-  EulerOperator<dim, degree, n_points_1d>::reinit(
-    const Mapping<dim> &   mapping,
-    const DoFHandler<dim> &dof_handler)
+  EulerOperator<dim, degree, n_points_1d>::reinit(const Mapping<dim> &mapping, const DoFHandler<dim> &dof_handler)
   {
-    const std::vector<const DoFHandler<dim> *> dof_handlers = {&dof_handler};
-    const AffineConstraints<double>            dummy;
+    const std::vector<const DoFHandler<dim> *>           dof_handlers = {&dof_handler};
+    const AffineConstraints<double>                      dummy;
     const std::vector<const AffineConstraints<double> *> constraints = {&dummy};
-    const std::vector<Quadrature<1>> quadratures = {QGauss<1>(n_q_points_1d),
-                                                    QGauss<1>(fe_degree + 1)};
+    const std::vector<Quadrature<1>> quadratures = {QGauss<1>(n_q_points_1d), QGauss<1>(fe_degree + 1)};
 
     typename MatrixFree<dim, Number>::AdditionalData additional_data;
     additional_data.mapping_update_flags =
-      (update_gradients | update_JxW_values | update_quadrature_points |
-       update_values);
+      (update_gradients | update_JxW_values | update_quadrature_points | update_values);
     additional_data.mapping_update_flags_inner_faces =
-      (update_JxW_values | update_quadrature_points | update_normal_vectors |
-       update_values);
+      (update_JxW_values | update_quadrature_points | update_normal_vectors | update_values);
     additional_data.mapping_update_flags_boundary_faces =
-      (update_JxW_values | update_quadrature_points | update_normal_vectors |
-       update_values);
-    additional_data.tasks_parallel_scheme =
-      MatrixFree<dim, Number>::AdditionalData::none;
+      (update_JxW_values | update_quadrature_points | update_normal_vectors | update_values);
+    additional_data.tasks_parallel_scheme = MatrixFree<dim, Number>::AdditionalData::none;
 
-    data.reinit(
-      mapping, dof_handlers, constraints, quadratures, additional_data);
+    data.reinit(mapping, dof_handlers, constraints, quadratures, additional_data);
   }
 
 
 
   template <int dim, int degree, int n_points_1d>
   void
-  EulerOperator<dim, degree, n_points_1d>::initialize_vector(
-    LinearAlgebra::distributed::Vector<Number> &vector) const
+  EulerOperator<dim, degree, n_points_1d>::initialize_vector(LinearAlgebra::distributed::Vector<Number> &vector) const
   {
     data.initialize_dof_vector(vector);
   }
@@ -891,19 +840,14 @@ namespace Euler_DG
   // boundary as both an inflow and say a subsonic outflow boundary.
   template <int dim, int degree, int n_points_1d>
   void
-  EulerOperator<dim, degree, n_points_1d>::set_inflow_boundary(
-    const types::boundary_id       boundary_id,
-    std::unique_ptr<Function<dim>> inflow_function)
+  EulerOperator<dim, degree, n_points_1d>::set_inflow_boundary(const types::boundary_id       boundary_id,
+                                                               std::unique_ptr<Function<dim>> inflow_function)
   {
-    AssertThrow(subsonic_outflow_boundaries.find(boundary_id) ==
-                    subsonic_outflow_boundaries.end() &&
+    AssertThrow(subsonic_outflow_boundaries.find(boundary_id) == subsonic_outflow_boundaries.end() &&
                   wall_boundaries.find(boundary_id) == wall_boundaries.end(),
-                ExcMessage("You already set the boundary with id " +
-                           std::to_string(static_cast<int>(boundary_id)) +
-                           " to another type of boundary before now setting " +
-                           "it as inflow"));
-    AssertThrow(inflow_function->n_components == dim + 2,
-                ExcMessage("Expected function with dim+2 components"));
+                ExcMessage("You already set the boundary with id " + std::to_string(static_cast<int>(boundary_id)) +
+                           " to another type of boundary before now setting " + "it as inflow"));
+    AssertThrow(inflow_function->n_components == dim + 2, ExcMessage("Expected function with dim+2 components"));
 
     inflow_boundaries[boundary_id] = std::move(inflow_function);
   }
@@ -915,15 +859,11 @@ namespace Euler_DG
     const types::boundary_id       boundary_id,
     std::unique_ptr<Function<dim>> outflow_function)
   {
-    AssertThrow(inflow_boundaries.find(boundary_id) ==
-                    inflow_boundaries.end() &&
+    AssertThrow(inflow_boundaries.find(boundary_id) == inflow_boundaries.end() &&
                   wall_boundaries.find(boundary_id) == wall_boundaries.end(),
-                ExcMessage("You already set the boundary with id " +
-                           std::to_string(static_cast<int>(boundary_id)) +
-                           " to another type of boundary before now setting " +
-                           "it as subsonic outflow"));
-    AssertThrow(outflow_function->n_components == dim + 2,
-                ExcMessage("Expected function with dim+2 components"));
+                ExcMessage("You already set the boundary with id " + std::to_string(static_cast<int>(boundary_id)) +
+                           " to another type of boundary before now setting " + "it as subsonic outflow"));
+    AssertThrow(outflow_function->n_components == dim + 2, ExcMessage("Expected function with dim+2 components"));
 
     subsonic_outflow_boundaries[boundary_id] = std::move(outflow_function);
   }
@@ -931,17 +871,12 @@ namespace Euler_DG
 
   template <int dim, int degree, int n_points_1d>
   void
-  EulerOperator<dim, degree, n_points_1d>::set_wall_boundary(
-    const types::boundary_id boundary_id)
+  EulerOperator<dim, degree, n_points_1d>::set_wall_boundary(const types::boundary_id boundary_id)
   {
-    AssertThrow(inflow_boundaries.find(boundary_id) ==
-                    inflow_boundaries.end() &&
-                  subsonic_outflow_boundaries.find(boundary_id) ==
-                    subsonic_outflow_boundaries.end(),
-                ExcMessage("You already set the boundary with id " +
-                           std::to_string(static_cast<int>(boundary_id)) +
-                           " to another type of boundary before now setting " +
-                           "it as wall boundary"));
+    AssertThrow(inflow_boundaries.find(boundary_id) == inflow_boundaries.end() &&
+                  subsonic_outflow_boundaries.find(boundary_id) == subsonic_outflow_boundaries.end(),
+                ExcMessage("You already set the boundary with id " + std::to_string(static_cast<int>(boundary_id)) +
+                           " to another type of boundary before now setting " + "it as wall boundary"));
 
     wall_boundaries.insert(boundary_id);
   }
@@ -949,8 +884,7 @@ namespace Euler_DG
 
   template <int dim, int degree, int n_points_1d>
   void
-  EulerOperator<dim, degree, n_points_1d>::set_body_force(
-    std::unique_ptr<Function<dim>> body_force)
+  EulerOperator<dim, degree, n_points_1d>::set_body_force(std::unique_ptr<Function<dim>> body_force)
   {
     AssertDimension(body_force->n_components, dim);
 
@@ -1042,9 +976,9 @@ namespace Euler_DG
   void
   EulerOperator<dim, degree, n_points_1d>::local_apply_cell(
     const MatrixFree<dim, Number> &,
-    LinearAlgebra::distributed::Vector<Number> &      dst,
+    LinearAlgebra::distributed::Vector<Number>       &dst,
     const LinearAlgebra::distributed::Vector<Number> &src,
-    const std::pair<unsigned int, unsigned int> &     cell_range) const
+    const std::pair<unsigned int, unsigned int>      &cell_range) const
   {
     FEEvaluation<dim, degree, n_points_1d, dim + 2, Number> phi(data);
 
@@ -1053,8 +987,8 @@ namespace Euler_DG
       dynamic_cast<Functions::ConstantFunction<dim> *>(body_force.get());
 
     if (constant_function)
-      constant_body_force = evaluate_function<dim, Number, dim>(
-        *constant_function, Point<dim, VectorizedArray<Number>>());
+      constant_body_force =
+        evaluate_function<dim, Number, dim>(*constant_function, Point<dim, VectorizedArray<Number>>());
 
     for (unsigned int cell = cell_range.first; cell < cell_range.second; ++cell)
       {
@@ -1069,8 +1003,7 @@ namespace Euler_DG
               {
                 const Tensor<1, dim, VectorizedArray<Number>> force =
                   constant_function ? constant_body_force :
-                                      evaluate_function<dim, Number, dim>(
-                                        *body_force, phi.quadrature_point(q));
+                                      evaluate_function<dim, Number, dim>(*body_force, phi.quadrature_point(q));
 
                 Tensor<1, dim + 2, VectorizedArray<Number>> forcing;
                 for (unsigned int d = 0; d < dim; ++d)
@@ -1082,9 +1015,7 @@ namespace Euler_DG
               }
           }
 
-        phi.integrate_scatter(((body_force.get() != nullptr) ?
-                                 EvaluationFlags::values :
-                                 EvaluationFlags::nothing) |
+        phi.integrate_scatter(((body_force.get() != nullptr) ? EvaluationFlags::values : EvaluationFlags::nothing) |
                                 EvaluationFlags::gradients,
                               dst);
       }
@@ -1134,14 +1065,12 @@ namespace Euler_DG
   void
   EulerOperator<dim, degree, n_points_1d>::local_apply_face(
     const MatrixFree<dim, Number> &,
-    LinearAlgebra::distributed::Vector<Number> &      dst,
+    LinearAlgebra::distributed::Vector<Number>       &dst,
     const LinearAlgebra::distributed::Vector<Number> &src,
-    const std::pair<unsigned int, unsigned int> &     face_range) const
+    const std::pair<unsigned int, unsigned int>      &face_range) const
   {
-    FEFaceEvaluation<dim, degree, n_points_1d, dim + 2, Number> phi_m(data,
-                                                                      true);
-    FEFaceEvaluation<dim, degree, n_points_1d, dim + 2, Number> phi_p(data,
-                                                                      false);
+    FEFaceEvaluation<dim, degree, n_points_1d, dim + 2, Number> phi_m(data, true);
+    FEFaceEvaluation<dim, degree, n_points_1d, dim + 2, Number> phi_p(data, false);
 
     for (unsigned int face = face_range.first; face < face_range.second; ++face)
       {
@@ -1154,9 +1083,7 @@ namespace Euler_DG
         for (unsigned int q = 0; q < phi_m.n_q_points; ++q)
           {
             const auto numerical_flux =
-              euler_numerical_flux<dim>(phi_m.get_value(q),
-                                        phi_p.get_value(q),
-                                        phi_m.get_normal_vector(q));
+              euler_numerical_flux<dim>(phi_m.get_value(q), phi_p.get_value(q), phi_m.get_normal_vector(q));
             phi_m.submit_value(-numerical_flux, q);
             phi_p.submit_value(numerical_flux, q);
           }
@@ -1223,9 +1150,9 @@ namespace Euler_DG
   void
   EulerOperator<dim, degree, n_points_1d>::local_apply_boundary_face(
     const MatrixFree<dim, Number> &,
-    LinearAlgebra::distributed::Vector<Number> &      dst,
+    LinearAlgebra::distributed::Vector<Number>       &dst,
     const LinearAlgebra::distributed::Vector<Number> &src,
-    const std::pair<unsigned int, unsigned int> &     face_range) const
+    const std::pair<unsigned int, unsigned int>      &face_range) const
   {
     FEFaceEvaluation<dim, degree, n_points_1d, dim + 2, Number> phi(data, true);
 
@@ -1246,7 +1173,7 @@ namespace Euler_DG
             bool at_outflow = false;
 
             Tensor<1, dim + 2, VectorizedArray<Number>> w_p;
-            const auto boundary_id = data.get_boundary_id(face);
+            const auto                                  boundary_id = data.get_boundary_id(face);
             if (wall_boundaries.find(boundary_id) != wall_boundaries.end())
               {
                 w_p[0] = w_m[0];
@@ -1254,20 +1181,15 @@ namespace Euler_DG
                   w_p[d + 1] = w_m[d + 1] - 2. * rho_u_dot_n * normal[d];
                 w_p[dim + 1] = w_m[dim + 1];
               }
-            else if (inflow_boundaries.find(boundary_id) !=
-                     inflow_boundaries.end())
-              w_p =
-                evaluate_function(*inflow_boundaries.find(boundary_id)->second,
-                                  phi.quadrature_point(q));
-            else if (subsonic_outflow_boundaries.find(boundary_id) !=
-                     subsonic_outflow_boundaries.end())
+            else if (inflow_boundaries.find(boundary_id) != inflow_boundaries.end())
+              w_p = evaluate_function(*inflow_boundaries.find(boundary_id)->second, phi.quadrature_point(q));
+            else if (subsonic_outflow_boundaries.find(boundary_id) != subsonic_outflow_boundaries.end())
               {
                 w_p          = w_m;
-                w_p[dim + 1] = evaluate_function(
-                  *subsonic_outflow_boundaries.find(boundary_id)->second,
-                  phi.quadrature_point(q),
-                  dim + 1);
-                at_outflow = true;
+                w_p[dim + 1] = evaluate_function(*subsonic_outflow_boundaries.find(boundary_id)->second,
+                                                 phi.quadrature_point(q),
+                                                 dim + 1);
+                at_outflow   = true;
               }
             else
               AssertThrow(false,
@@ -1326,13 +1248,12 @@ namespace Euler_DG
   void
   EulerOperator<dim, degree, n_points_1d>::local_apply_inverse_mass_matrix(
     const MatrixFree<dim, Number> &,
-    LinearAlgebra::distributed::Vector<Number> &      dst,
+    LinearAlgebra::distributed::Vector<Number>       &dst,
     const LinearAlgebra::distributed::Vector<Number> &src,
-    const std::pair<unsigned int, unsigned int> &     cell_range) const
+    const std::pair<unsigned int, unsigned int>      &cell_range) const
   {
-    FEEvaluation<dim, degree, degree + 1, dim + 2, Number> phi(data, 0, 1);
-    MatrixFreeOperators::CellwiseInverseMassMatrix<dim, degree, dim + 2, Number>
-      inverse(phi);
+    FEEvaluation<dim, degree, degree + 1, dim + 2, Number>                       phi(data, 0, 1);
+    MatrixFreeOperators::CellwiseInverseMassMatrix<dim, degree, dim + 2, Number> inverse(phi);
 
     for (unsigned int cell = cell_range.first; cell < cell_range.second; ++cell)
       {
@@ -1383,10 +1304,9 @@ namespace Euler_DG
   // parts.
   template <int dim, int degree, int n_points_1d>
   void
-  EulerOperator<dim, degree, n_points_1d>::apply(
-    const double                                      current_time,
-    const LinearAlgebra::distributed::Vector<Number> &src,
-    LinearAlgebra::distributed::Vector<Number> &      dst) const
+  EulerOperator<dim, degree, n_points_1d>::apply(const double                                      current_time,
+                                                 const LinearAlgebra::distributed::Vector<Number> &src,
+                                                 LinearAlgebra::distributed::Vector<Number>       &dst) const
   {
     {
       TimerOutput::Scope t(timer, "apply - integrals");
@@ -1410,10 +1330,7 @@ namespace Euler_DG
     {
       TimerOutput::Scope t(timer, "apply - inverse mass");
 
-      data.cell_loop(&EulerOperator::local_apply_inverse_mass_matrix,
-                     this,
-                     dst,
-                     dst);
+      data.cell_loop(&EulerOperator::local_apply_inverse_mass_matrix, this, dst, dst);
     }
   }
 
@@ -1460,14 +1377,13 @@ namespace Euler_DG
   // speedup of around a third.
   template <int dim, int degree, int n_points_1d>
   void
-  EulerOperator<dim, degree, n_points_1d>::perform_stage(
-    const Number                                      current_time,
-    const Number                                      factor_solution,
-    const Number                                      factor_ai,
-    const LinearAlgebra::distributed::Vector<Number> &current_ri,
-    LinearAlgebra::distributed::Vector<Number> &      vec_ki,
-    LinearAlgebra::distributed::Vector<Number> &      solution,
-    LinearAlgebra::distributed::Vector<Number> &      next_ri) const
+  EulerOperator<dim, degree, n_points_1d>::perform_stage(const Number current_time,
+                                                         const Number factor_solution,
+                                                         const Number factor_ai,
+                                                         const LinearAlgebra::distributed::Vector<Number> &current_ri,
+                                                         LinearAlgebra::distributed::Vector<Number>       &vec_ki,
+                                                         LinearAlgebra::distributed::Vector<Number>       &solution,
+                                                         LinearAlgebra::distributed::Vector<Number> &next_ri) const
   {
     {
       TimerOutput::Scope t(timer, "rk_stage - integrals L_h");
@@ -1491,37 +1407,36 @@ namespace Euler_DG
 
     {
       TimerOutput::Scope t(timer, "rk_stage - inv mass + vec upd");
-      data.cell_loop(
-        &EulerOperator::local_apply_inverse_mass_matrix,
-        this,
-        next_ri,
-        vec_ki,
-        std::function<void(const unsigned int, const unsigned int)>(),
-        [&](const unsigned int start_range, const unsigned int end_range) {
-          const Number ai = factor_ai;
-          const Number bi = factor_solution;
-          if (ai == Number())
-            {
-              /* DEAL_II_OPENMP_SIMD_PRAGMA */
-              for (unsigned int i = start_range; i < end_range; ++i)
-                {
-                  const Number k_i          = next_ri.local_element(i);
-                  const Number sol_i        = solution.local_element(i);
-                  solution.local_element(i) = sol_i + bi * k_i;
-                }
-            }
-          else
-            {
-              /* DEAL_II_OPENMP_SIMD_PRAGMA */
-              for (unsigned int i = start_range; i < end_range; ++i)
-                {
-                  const Number k_i          = next_ri.local_element(i);
-                  const Number sol_i        = solution.local_element(i);
-                  solution.local_element(i) = sol_i + bi * k_i;
-                  next_ri.local_element(i)  = sol_i + ai * k_i;
-                }
-            }
-        });
+      data.cell_loop(&EulerOperator::local_apply_inverse_mass_matrix,
+                     this,
+                     next_ri,
+                     vec_ki,
+                     std::function<void(const unsigned int, const unsigned int)>(),
+                     [&](const unsigned int start_range, const unsigned int end_range) {
+                       const Number ai = factor_ai;
+                       const Number bi = factor_solution;
+                       if (ai == Number())
+                         {
+                           /* DEAL_II_OPENMP_SIMD_PRAGMA */
+                           for (unsigned int i = start_range; i < end_range; ++i)
+                             {
+                               const Number k_i          = next_ri.local_element(i);
+                               const Number sol_i        = solution.local_element(i);
+                               solution.local_element(i) = sol_i + bi * k_i;
+                             }
+                         }
+                       else
+                         {
+                           /* DEAL_II_OPENMP_SIMD_PRAGMA */
+                           for (unsigned int i = start_range; i < end_range; ++i)
+                             {
+                               const Number k_i          = next_ri.local_element(i);
+                               const Number sol_i        = solution.local_element(i);
+                               solution.local_element(i) = sol_i + bi * k_i;
+                               next_ri.local_element(i)  = sol_i + ai * k_i;
+                             }
+                         }
+                     });
     }
   }
 
@@ -1571,24 +1486,18 @@ namespace Euler_DG
   // cell for discontinuous Galerkin discretizations.
   template <int dim, int degree, int n_points_1d>
   void
-  EulerOperator<dim, degree, n_points_1d>::project(
-    const Function<dim> &                       function,
-    LinearAlgebra::distributed::Vector<Number> &solution) const
+  EulerOperator<dim, degree, n_points_1d>::project(const Function<dim>                        &function,
+                                                   LinearAlgebra::distributed::Vector<Number> &solution) const
   {
-    FEEvaluation<dim, degree, degree + 1, dim + 2, Number> phi(data, 0, 1);
-    MatrixFreeOperators::CellwiseInverseMassMatrix<dim, degree, dim + 2, Number>
-      inverse(phi);
+    FEEvaluation<dim, degree, degree + 1, dim + 2, Number>                       phi(data, 0, 1);
+    MatrixFreeOperators::CellwiseInverseMassMatrix<dim, degree, dim + 2, Number> inverse(phi);
     solution.zero_out_ghost_values();
     for (unsigned int cell = 0; cell < data.n_cell_batches(); ++cell)
       {
         phi.reinit(cell);
         for (unsigned int q = 0; q < phi.n_q_points; ++q)
-          phi.submit_dof_value(evaluate_function(function,
-                                                 phi.quadrature_point(q)),
-                               q);
-        inverse.transform_from_q_points_to_basis(dim + 2,
-                                                 phi.begin_dof_values(),
-                                                 phi.begin_dof_values());
+          phi.submit_dof_value(evaluate_function(function, phi.quadrature_point(q)), q);
+        inverse.transform_from_q_points_to_basis(dim + 2, phi.begin_dof_values(), phi.begin_dof_values());
         phi.set_dof_values(solution);
       }
   }
@@ -1621,11 +1530,11 @@ namespace Euler_DG
   template <int dim, int degree, int n_points_1d>
   std::array<double, 3>
   EulerOperator<dim, degree, n_points_1d>::compute_errors(
-    const Function<dim> &                             function,
+    const Function<dim>                              &function,
     const LinearAlgebra::distributed::Vector<Number> &solution) const
   {
-    TimerOutput::Scope t(timer, "compute errors");
-    double             errors_squared[3] = {};
+    TimerOutput::Scope                                      t(timer, "compute errors");
+    double                                                  errors_squared[3] = {};
     FEEvaluation<dim, degree, n_points_1d, dim + 2, Number> phi(data, 0, 0);
 
     for (unsigned int cell = 0; cell < data.n_cell_batches(); ++cell)
@@ -1635,18 +1544,15 @@ namespace Euler_DG
         VectorizedArray<Number> local_errors_squared[3] = {};
         for (unsigned int q = 0; q < phi.n_q_points; ++q)
           {
-            const auto error =
-              evaluate_function(function, phi.quadrature_point(q)) -
-              phi.get_value(q);
-            const auto JxW = phi.JxW(q);
+            const auto error = evaluate_function(function, phi.quadrature_point(q)) - phi.get_value(q);
+            const auto JxW   = phi.JxW(q);
 
             local_errors_squared[0] += error[0] * error[0] * JxW;
             for (unsigned int d = 0; d < dim; ++d)
               local_errors_squared[1] += (error[d + 1] * error[d + 1]) * JxW;
             local_errors_squared[2] += (error[dim + 1] * error[dim + 1]) * JxW;
           }
-        for (unsigned int v = 0; v < data.n_active_entries_per_cell_batch(cell);
-             ++v)
+        for (unsigned int v = 0; v < data.n_active_entries_per_cell_batch(cell); ++v)
           for (unsigned int d = 0; d < 3; ++d)
             errors_squared[d] += local_errors_squared[d][v];
       }
@@ -1707,8 +1613,8 @@ namespace Euler_DG
   EulerOperator<dim, degree, n_points_1d>::compute_cell_transport_speed(
     const LinearAlgebra::distributed::Vector<Number> &solution) const
   {
-    TimerOutput::Scope t(timer, "compute transport speed");
-    Number             max_transport = 0;
+    TimerOutput::Scope                                     t(timer, "compute transport speed");
+    Number                                                 max_transport = 0;
     FEEvaluation<dim, degree, degree + 1, dim + 2, Number> phi(data, 0, 1);
 
     for (unsigned int cell = 0; cell < data.n_cell_batches(); ++cell)
@@ -1722,41 +1628,33 @@ namespace Euler_DG
             const auto velocity = euler_velocity<dim>(solution);
             const auto pressure = euler_pressure<dim>(solution);
 
-            const auto inverse_jacobian = phi.inverse_jacobian(q);
-            const auto convective_speed = inverse_jacobian * velocity;
+            const auto              inverse_jacobian = phi.inverse_jacobian(q);
+            const auto              convective_speed = inverse_jacobian * velocity;
             VectorizedArray<Number> convective_limit = 0.;
             for (unsigned int d = 0; d < dim; ++d)
-              convective_limit =
-                std::max(convective_limit, std::abs(convective_speed[d]));
+              convective_limit = std::max(convective_limit, std::abs(convective_speed[d]));
 
-            const auto speed_of_sound =
-              std::sqrt(gamma * pressure * (1. / solution[0]));
+            const auto speed_of_sound = std::sqrt(gamma * pressure * (1. / solution[0]));
 
             Tensor<1, dim, VectorizedArray<Number>> eigenvector;
             for (unsigned int d = 0; d < dim; ++d)
               eigenvector[d] = 1.;
             for (unsigned int i = 0; i < 5; ++i)
               {
-                eigenvector = transpose(inverse_jacobian) *
-                              (inverse_jacobian * eigenvector);
+                eigenvector = transpose(inverse_jacobian) * (inverse_jacobian * eigenvector);
                 VectorizedArray<Number> eigenvector_norm = 0.;
                 for (unsigned int d = 0; d < dim; ++d)
-                  eigenvector_norm =
-                    std::max(eigenvector_norm, std::abs(eigenvector[d]));
+                  eigenvector_norm = std::max(eigenvector_norm, std::abs(eigenvector[d]));
                 eigenvector /= eigenvector_norm;
               }
             const auto jac_times_ev   = inverse_jacobian * eigenvector;
-            const auto max_eigenvalue = std::sqrt(
-              (jac_times_ev * jac_times_ev) / (eigenvector * eigenvector));
-            local_max =
-              std::max(local_max,
-                       max_eigenvalue * speed_of_sound + convective_limit);
+            const auto max_eigenvalue = std::sqrt((jac_times_ev * jac_times_ev) / (eigenvector * eigenvector));
+            local_max                 = std::max(local_max, max_eigenvalue * speed_of_sound + convective_limit);
           }
 
         // Similarly to the previous function, we must make sure to accumulate
         // speed only on the valid cells of a cell batch.
-        for (unsigned int v = 0; v < data.n_active_entries_per_cell_batch(cell);
-             ++v)
+        for (unsigned int v = 0; v < data.n_active_entries_per_cell_batch(cell); ++v)
           for (unsigned int d = 0; d < 3; ++d)
             max_transport = std::max(max_transport, local_max[v]);
       }
@@ -1833,15 +1731,13 @@ namespace Euler_DG
       Postprocessor();
 
       virtual void
-      evaluate_vector_field(
-        const DataPostprocessorInputs::Vector<dim> &inputs,
-        std::vector<Vector<double>> &computed_quantities) const override;
+      evaluate_vector_field(const DataPostprocessorInputs::Vector<dim> &inputs,
+                            std::vector<Vector<double>>                &computed_quantities) const override;
 
       virtual std::vector<std::string>
       get_names() const override;
 
-      virtual std::vector<
-        DataComponentInterpretation::DataComponentInterpretation>
+      virtual std::vector<DataComponentInterpretation::DataComponentInterpretation>
       get_data_component_interpretation() const override;
 
       virtual UpdateFlags
@@ -1873,22 +1769,17 @@ namespace Euler_DG
   // another example where we create a Schlieren plot.)
   template <int dim>
   void
-  EulerProblem<dim>::Postprocessor::evaluate_vector_field(
-    const DataPostprocessorInputs::Vector<dim> &inputs,
-    std::vector<Vector<double>> &               computed_quantities) const
+  EulerProblem<dim>::Postprocessor::evaluate_vector_field(const DataPostprocessorInputs::Vector<dim> &inputs,
+                                                          std::vector<Vector<double>> &computed_quantities) const
   {
     const unsigned int n_evaluation_points = inputs.solution_values.size();
 
     if (do_schlieren_plot == true)
-      Assert(inputs.solution_gradients.size() == n_evaluation_points,
-             ExcInternalError());
+      Assert(inputs.solution_gradients.size() == n_evaluation_points, ExcInternalError());
 
-    Assert(computed_quantities.size() == n_evaluation_points,
-           ExcInternalError());
+    Assert(computed_quantities.size() == n_evaluation_points, ExcInternalError());
     Assert(inputs.solution_values[0].size() == dim + 2, ExcInternalError());
-    Assert(computed_quantities[0].size() ==
-             dim + 2 + (do_schlieren_plot == true ? 1 : 0),
-           ExcInternalError());
+    Assert(computed_quantities[0].size() == dim + 2 + (do_schlieren_plot == true ? 1 : 0), ExcInternalError());
 
     for (unsigned int p = 0; p < n_evaluation_points; ++p)
       {
@@ -1906,8 +1797,7 @@ namespace Euler_DG
         computed_quantities[p](dim + 1) = std::sqrt(gamma * pressure / density);
 
         if (do_schlieren_plot == true)
-          computed_quantities[p](dim + 2) =
-            inputs.solution_gradients[p][0] * inputs.solution_gradients[p][0];
+          computed_quantities[p](dim + 2) = inputs.solution_gradients[p][0] * inputs.solution_gradients[p][0];
       }
   }
 
@@ -1938,17 +1828,14 @@ namespace Euler_DG
   std::vector<DataComponentInterpretation::DataComponentInterpretation>
   EulerProblem<dim>::Postprocessor::get_data_component_interpretation() const
   {
-    std::vector<DataComponentInterpretation::DataComponentInterpretation>
-      interpretation;
+    std::vector<DataComponentInterpretation::DataComponentInterpretation> interpretation;
     for (unsigned int d = 0; d < dim; ++d)
-      interpretation.push_back(
-        DataComponentInterpretation::component_is_part_of_vector);
+      interpretation.push_back(DataComponentInterpretation::component_is_part_of_vector);
     interpretation.push_back(DataComponentInterpretation::component_is_scalar);
     interpretation.push_back(DataComponentInterpretation::component_is_scalar);
 
     if (do_schlieren_plot == true)
-      interpretation.push_back(
-        DataComponentInterpretation::component_is_scalar);
+      interpretation.push_back(DataComponentInterpretation::component_is_scalar);
 
     return interpretation;
   }
@@ -1977,8 +1864,7 @@ namespace Euler_DG
   // and initialize the time and time step to zero.
   template <int dim>
   EulerProblem<dim>::EulerProblem()
-    : pcout(deallog.get_file_stream(),
-            Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
+    : pcout(deallog.get_file_stream(), Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
 #ifdef DEAL_II_WITH_P4EST
     , triangulation(MPI_COMM_WORLD)
 #endif
@@ -2028,34 +1914,27 @@ namespace Euler_DG
             for (unsigned int d = 1; d < dim; ++d)
               upper_right[d] = 5;
 
-            GridGenerator::hyper_rectangle(triangulation,
-                                           lower_left,
-                                           upper_right);
+            GridGenerator::hyper_rectangle(triangulation, lower_left, upper_right);
             triangulation.refine_global(2);
 
-            euler_operator.set_inflow_boundary(
-              0, std::make_unique<ExactSolution<dim>>(0));
+            euler_operator.set_inflow_boundary(0, std::make_unique<ExactSolution<dim>>(0));
 
             break;
           }
 
         case 1:
           {
-            GridGenerator::channel_with_cylinder(
-              triangulation, 0.03, 1, 0, true);
+            GridGenerator::channel_with_cylinder(triangulation, 0.03, 1, 0, true);
 
-            euler_operator.set_inflow_boundary(
-              0, std::make_unique<ExactSolution<dim>>(0));
-            euler_operator.set_subsonic_outflow_boundary(
-              1, std::make_unique<ExactSolution<dim>>(0));
+            euler_operator.set_inflow_boundary(0, std::make_unique<ExactSolution<dim>>(0));
+            euler_operator.set_subsonic_outflow_boundary(1, std::make_unique<ExactSolution<dim>>(0));
 
             euler_operator.set_wall_boundary(2);
             euler_operator.set_wall_boundary(3);
 
             if (dim == 3)
               euler_operator.set_body_force(
-                std::make_unique<Functions::ConstantFunction<dim>>(
-                  std::vector<double>({0., 0., -0.2})));
+                std::make_unique<Functions::ConstantFunction<dim>>(std::vector<double>({0., 0., -0.2})));
 
             break;
           }
@@ -2079,11 +1958,9 @@ namespace Euler_DG
     // detail.
     std::locale s = pcout.get_stream().getloc();
     pcout.get_stream().imbue(std::locale(""));
-    pcout << "Number of degrees of freedom: " << dof_handler.n_dofs()
-          << " ( = " << (dim + 2) << " [vars] x "
-          << triangulation.n_global_active_cells() << " [cells] x "
-          << Utilities::pow(fe_degree + 1, dim) << " [dofs/cell/var] )"
-          << std::endl;
+    pcout << "Number of degrees of freedom: " << dof_handler.n_dofs() << " ( = " << (dim + 2) << " [vars] x "
+          << triangulation.n_global_active_cells() << " [cells] x " << Utilities::pow(fe_degree + 1, dim)
+          << " [dofs/cell/var] )" << std::endl;
     pcout.get_stream().imbue(s);
   }
 
@@ -2136,15 +2013,12 @@ namespace Euler_DG
   {
     return;
 
-    const std::array<double, 3> errors =
-      euler_operator.compute_errors(ExactSolution<dim>(time), solution);
-    const std::string quantity_name = testcase == 0 ? "error" : "norm";
+    const std::array<double, 3> errors        = euler_operator.compute_errors(ExactSolution<dim>(time), solution);
+    const std::string           quantity_name = testcase == 0 ? "error" : "norm";
 
-    pcout << "Time:" << std::setw(8) << std::setprecision(3) << time
-          << ", dt: " << std::setw(8) << std::setprecision(2) << time_step
-          << ", " << quantity_name << " rho: " << std::setprecision(4)
-          << std::setw(10) << errors[0] << ", rho * u: " << std::setprecision(4)
-          << std::setw(10) << errors[1] << ", energy:" << std::setprecision(4)
+    pcout << "Time:" << std::setw(8) << std::setprecision(3) << time << ", dt: " << std::setw(8) << std::setprecision(2)
+          << time_step << ", " << quantity_name << " rho: " << std::setprecision(4) << std::setw(10) << errors[0]
+          << ", rho * u: " << std::setprecision(4) << std::setw(10) << errors[1] << ", energy:" << std::setprecision(4)
           << std::setw(10) << errors[2] << std::endl;
 
     {
@@ -2165,15 +2039,11 @@ namespace Euler_DG
           names.emplace_back("momentum");
         names.emplace_back("energy");
 
-        std::vector<DataComponentInterpretation::DataComponentInterpretation>
-          interpretation;
-        interpretation.push_back(
-          DataComponentInterpretation::component_is_scalar);
+        std::vector<DataComponentInterpretation::DataComponentInterpretation> interpretation;
+        interpretation.push_back(DataComponentInterpretation::component_is_scalar);
         for (unsigned int d = 0; d < dim; ++d)
-          interpretation.push_back(
-            DataComponentInterpretation::component_is_part_of_vector);
-        interpretation.push_back(
-          DataComponentInterpretation::component_is_scalar);
+          interpretation.push_back(DataComponentInterpretation::component_is_part_of_vector);
+        interpretation.push_back(DataComponentInterpretation::component_is_scalar);
 
         data_out.add_data_vector(dof_handler, solution, names, interpretation);
       }
@@ -2191,32 +2061,22 @@ namespace Euler_DG
             names.emplace_back("error_momentum");
           names.emplace_back("error_energy");
 
-          std::vector<DataComponentInterpretation::DataComponentInterpretation>
-            interpretation;
-          interpretation.push_back(
-            DataComponentInterpretation::component_is_scalar);
+          std::vector<DataComponentInterpretation::DataComponentInterpretation> interpretation;
+          interpretation.push_back(DataComponentInterpretation::component_is_scalar);
           for (unsigned int d = 0; d < dim; ++d)
-            interpretation.push_back(
-              DataComponentInterpretation::component_is_part_of_vector);
-          interpretation.push_back(
-            DataComponentInterpretation::component_is_scalar);
+            interpretation.push_back(DataComponentInterpretation::component_is_part_of_vector);
+          interpretation.push_back(DataComponentInterpretation::component_is_scalar);
 
-          data_out.add_data_vector(dof_handler,
-                                   reference,
-                                   names,
-                                   interpretation);
+          data_out.add_data_vector(dof_handler, reference, names, interpretation);
         }
 
       Vector<double> mpi_owner(triangulation.n_active_cells());
       mpi_owner = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
       data_out.add_data_vector(mpi_owner, "owner");
 
-      data_out.build_patches(mapping,
-                             fe.degree,
-                             DataOut<dim>::curved_inner_cells);
+      data_out.build_patches(mapping, fe.degree, DataOut<dim>::curved_inner_cells);
 
-      const std::string filename =
-        "solution_" + Utilities::int_to_string(result_number, 3) + ".vtu";
+      const std::string filename = "solution_" + Utilities::int_to_string(result_number, 3) + ".vtu";
       data_out.write_vtu_in_parallel(filename, MPI_COMM_WORLD);
     }
   }
@@ -2244,9 +2104,7 @@ namespace Euler_DG
       const unsigned int n_vect_number = VectorizedArray<Number>::size();
       const unsigned int n_vect_bits   = 8 * sizeof(Number) * n_vect_number;
 
-      pcout << "Running with "
-            << Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD)
-            << " MPI processes" << std::endl;
+      pcout << "Running with " << Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD) << " MPI processes" << std::endl;
       // pcout << "Vectorization over " << n_vect_number << ' '
       //       << (std::is_same_v<Number, double> ? "doubles" : "floats")
       //       << " = " << n_vect_bits << " bits ("
@@ -2268,18 +2126,12 @@ namespace Euler_DG
     double min_vertex_distance = std::numeric_limits<double>::max();
     for (const auto &cell : triangulation.active_cell_iterators())
       if (cell->is_locally_owned())
-        min_vertex_distance =
-          std::min(min_vertex_distance, cell->minimum_vertex_distance());
-    min_vertex_distance =
-      Utilities::MPI::min(min_vertex_distance, MPI_COMM_WORLD);
+        min_vertex_distance = std::min(min_vertex_distance, cell->minimum_vertex_distance());
+    min_vertex_distance = Utilities::MPI::min(min_vertex_distance, MPI_COMM_WORLD);
 
-    time_step = courant_number * integrator.n_stages() /
-                euler_operator.compute_cell_transport_speed(solution);
-    pcout << "Time step size: " << time_step
-          << ", minimal h: " << min_vertex_distance
-          << ", initial transport scaling: "
-          << 1. / euler_operator.compute_cell_transport_speed(solution)
-          << std::endl
+    time_step = courant_number * integrator.n_stages() / euler_operator.compute_cell_transport_speed(solution);
+    pcout << "Time step size: " << time_step << ", minimal h: " << min_vertex_distance
+          << ", initial transport scaling: " << 1. / euler_operator.compute_cell_transport_speed(solution) << std::endl
           << std::endl;
 
     output_results(0);
@@ -2307,21 +2159,18 @@ namespace Euler_DG
     // current implementation does not directly support this vector class.
     using VectorType = PETScWrappers::MPI::Vector;
 
-    auto copy_from_petsc = [](const VectorType &                          src,
-                              LinearAlgebra::distributed::Vector<Number> &dst) {
+    auto copy_from_petsc = [](const VectorType &src, LinearAlgebra::distributed::Vector<Number> &dst) {
       auto lr = src.local_range();
       for (unsigned int i = lr.first; i < lr.second; i++)
         dst[i] = src[i];
     };
 
-    auto copy_to_petsc =
-      [](const LinearAlgebra::distributed::Vector<Number> &src,
-         VectorType &                                      dst) {
-        auto lr = dst.local_range();
-        for (unsigned int i = lr.first; i < lr.second; i++)
-          dst[i] = src[i];
-        dst.compress(VectorOperation::insert);
-      };
+    auto copy_to_petsc = [](const LinearAlgebra::distributed::Vector<Number> &src, VectorType &dst) {
+      auto lr = dst.local_range();
+      for (unsigned int i = lr.first; i < lr.second; i++)
+        dst[i] = src[i];
+      dst.compress(VectorOperation::insert);
+    };
 
     // We construct our solver with parameters like initial time step and final
     // time, together with the solver type for Runge-Kutta. We also decide to
@@ -2342,40 +2191,35 @@ namespace Euler_DG
     // PETScWrappers::TimeStepper can solve ODE/DAE problems in explicit form
     // i.e., $\dot{u} = G(u,t)$, or in fully implicit form $F(\dot{u},u,t) = 0$.
     // This function implements the explicit interface for $G$.
-    petsc_time_stepper.explicit_function =
-      [&](const double t, const VectorType &y, VectorType &f) {
-        time = t;
-        copy_from_petsc(y, rk_register_1);
-        euler_operator.apply(t, rk_register_1, rk_register_2);
-        copy_to_petsc(rk_register_2, f);
-        return 0;
-      };
+    petsc_time_stepper.explicit_function = [&](const double t, const VectorType &y, VectorType &f) {
+      time = t;
+      copy_from_petsc(y, rk_register_1);
+      euler_operator.apply(t, rk_register_1, rk_register_2);
+      copy_to_petsc(rk_register_2, f);
+      return 0;
+    };
 
     // We can also attach a monitoring callback to inspect the solution.
-    petsc_time_stepper.monitor =
-      [&](const double t, const VectorType &y, const unsigned int) {
-        time      = t;
-        time_step = petsc_time_stepper.get_time_step();
-        copy_from_petsc(y, solution);
+    petsc_time_stepper.monitor = [&](const double t, const VectorType &y, const unsigned int) {
+      time      = t;
+      time_step = petsc_time_stepper.get_time_step();
+      copy_from_petsc(y, solution);
 
-        static int prev_tick = 0;
-        int        curr_tick = static_cast<int>(t / output_tick);
-        if (curr_tick != prev_tick)
-          {
-            pcout << "Monitor is at t=" << t << " with ||y||=" << y.l2_norm()
-                  << std::endl;
+      static int prev_tick = 0;
+      int        curr_tick = static_cast<int>(t / output_tick);
+      if (curr_tick != prev_tick)
+        {
+          pcout << "Monitor is at t=" << t << " with ||y||=" << y.l2_norm() << std::endl;
 
-            output_results(
-              static_cast<unsigned int>(std::round(t / output_tick)));
-          }
+          output_results(static_cast<unsigned int>(std::round(t / output_tick)));
+        }
 
-        prev_tick = curr_tick;
-        return 0;
-      };
+      prev_tick = curr_tick;
+      return 0;
+    };
 
     // We finally set the initial condition and integrate the ODE.
-    VectorType psolution(solution.locally_owned_elements(),
-                         solution.get_mpi_communicator());
+    VectorType psolution(solution.locally_owned_elements(), solution.get_mpi_communicator());
     copy_to_petsc(solution, psolution);
     petsc_time_stepper.solve(psolution);
     copy_from_petsc(psolution, solution);
@@ -2410,28 +2254,20 @@ main(int argc, char **argv)
     }
   catch (std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
 

@@ -52,12 +52,7 @@ main(int argc, char **argv)
 
     constraints.clear();
     VectorTools::project_boundary_values_curl_conforming_l2(
-      dof_handler,
-      dim,
-      Functions::ZeroFunction<dim>(dim + dim),
-      0,
-      constraints,
-      mapping);
+      dof_handler, dim, Functions::ZeroFunction<dim>(dim + dim), 0, constraints, mapping);
     constraints.close();
     deallog << "OK" << std::endl;
   }
@@ -71,12 +66,7 @@ main(int argc, char **argv)
 
     constraints.clear();
     VectorTools::project_boundary_values_curl_conforming_l2(
-      dof_handler,
-      dim,
-      Functions::ZeroFunction<dim>(dim + dim),
-      0,
-      constraints,
-      mapping);
+      dof_handler, dim, Functions::ZeroFunction<dim>(dim + dim), 0, constraints, mapping);
     constraints.close();
     deallog << "OK" << std::endl;
   }

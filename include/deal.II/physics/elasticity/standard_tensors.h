@@ -118,8 +118,7 @@ namespace Physics
        */
       static DEAL_II_CONSTEXPR const SymmetricTensor<4, dim> IxI
 #ifndef DEAL_II_CXX14_CONSTEXPR_BUG
-        = outer_product(unit_symmetric_tensor<dim>(),
-                        unit_symmetric_tensor<dim>())
+        = outer_product(unit_symmetric_tensor<dim>(), unit_symmetric_tensor<dim>())
 #endif
         ;
 
@@ -232,7 +231,7 @@ namespace Physics
        */
       template <typename Number>
       static DEAL_II_HOST DEAL_II_CONSTEXPR SymmetricTensor<4, dim, Number>
-      Dev_P(const Tensor<2, dim, Number> &F);
+                                            Dev_P(const Tensor<2, dim, Number> &F);
 
       /**
        * Return the transpose of the fourth-order referential deviatoric tensor,
@@ -247,7 +246,7 @@ namespace Physics
        */
       template <typename Number>
       static DEAL_II_HOST DEAL_II_CONSTEXPR SymmetricTensor<4, dim, Number>
-      Dev_P_T(const Tensor<2, dim, Number> &F);
+                                            Dev_P_T(const Tensor<2, dim, Number> &F);
 
       /** @} */
 
@@ -274,7 +273,7 @@ namespace Physics
        */
       template <typename Number>
       static DEAL_II_HOST DEAL_II_CONSTEXPR SymmetricTensor<2, dim, Number>
-      ddet_F_dC(const Tensor<2, dim, Number> &F);
+                                            ddet_F_dC(const Tensor<2, dim, Number> &F);
 
       /** @} */
 
@@ -299,7 +298,7 @@ namespace Physics
        */
       template <typename Number>
       static DEAL_II_HOST DEAL_II_CONSTEXPR SymmetricTensor<4, dim, Number>
-      dC_inv_dC(const Tensor<2, dim, Number> &F);
+                                            dC_inv_dC(const Tensor<2, dim, Number> &F);
 
       /** @} */
     };
@@ -317,24 +316,21 @@ namespace Physics
 template <int dim>
 template <typename Number>
 DEAL_II_HOST DEAL_II_CONSTEXPR inline SymmetricTensor<4, dim, Number>
-             Physics::Elasticity::StandardTensors<dim>::Dev_P(
-  const Tensor<2, dim, Number> &F)
+             Physics::Elasticity::StandardTensors<dim>::Dev_P(const Tensor<2, dim, Number> &F)
 {
   // Make things work with AD types
   using std::pow;
   const Number det_F = determinant(F);
-  Assert(numbers::value_is_greater_than(det_F, 0.0),
-         ExcMessage("Deformation gradient has a negative determinant."));
+  Assert(numbers::value_is_greater_than(det_F, 0.0), ExcMessage("Deformation gradient has a negative determinant."));
   const Tensor<2, dim, Number>          C_ns  = transpose(F) * F;
   const SymmetricTensor<2, dim, Number> C     = symmetrize(C_ns);
   const SymmetricTensor<2, dim, Number> C_inv = symmetrize(invert(C_ns));
 
   // See Wriggers p46 equ 3.125 (but transpose indices)
-  SymmetricTensor<4, dim, Number> Dev_P =
-    outer_product(C, C_inv);                   // Dev_P = C_x_C_inv
-  Dev_P /= -dim;                               // Dev_P = -[1/dim]C_x_C_inv
-  Dev_P += SymmetricTensor<4, dim, Number>(S); // Dev_P = S - [1/dim]C_x_C_inv
-  Dev_P *= pow(det_F, -2.0 / dim); // Dev_P = J^{-2/dim} [S - [1/dim]C_x_C_inv]
+  SymmetricTensor<4, dim, Number> Dev_P = outer_product(C, C_inv); // Dev_P = C_x_C_inv
+  Dev_P /= -dim;                                                   // Dev_P = -[1/dim]C_x_C_inv
+  Dev_P += SymmetricTensor<4, dim, Number>(S);                     // Dev_P = S - [1/dim]C_x_C_inv
+  Dev_P *= pow(det_F, -2.0 / dim);                                 // Dev_P = J^{-2/dim} [S - [1/dim]C_x_C_inv]
 
   return Dev_P;
 }
@@ -344,25 +340,21 @@ DEAL_II_HOST DEAL_II_CONSTEXPR inline SymmetricTensor<4, dim, Number>
 template <int dim>
 template <typename Number>
 DEAL_II_HOST DEAL_II_CONSTEXPR inline SymmetricTensor<4, dim, Number>
-             Physics::Elasticity::StandardTensors<dim>::Dev_P_T(
-  const Tensor<2, dim, Number> &F)
+             Physics::Elasticity::StandardTensors<dim>::Dev_P_T(const Tensor<2, dim, Number> &F)
 {
   // Make things work with AD types
   using std::pow;
   const Number det_F = determinant(F);
-  Assert(numbers::value_is_greater_than(det_F, 0.0),
-         ExcMessage("Deformation gradient has a negative determinant."));
+  Assert(numbers::value_is_greater_than(det_F, 0.0), ExcMessage("Deformation gradient has a negative determinant."));
   const Tensor<2, dim, Number>          C_ns  = transpose(F) * F;
   const SymmetricTensor<2, dim, Number> C     = symmetrize(C_ns);
   const SymmetricTensor<2, dim, Number> C_inv = symmetrize(invert(C_ns));
 
   // See Wriggers p46 equ 3.125 (not transposed)
-  SymmetricTensor<4, dim, Number> Dev_P_T =
-    outer_product(C_inv, C);                     // Dev_P = C_inv_x_C
-  Dev_P_T /= -dim;                               // Dev_P = -[1/dim]C_inv_x_C
-  Dev_P_T += SymmetricTensor<4, dim, Number>(S); // Dev_P = S - [1/dim]C_inv_x_C
-  Dev_P_T *=
-    pow(det_F, -2.0 / dim); // Dev_P = J^{-2/dim} [S - [1/dim]C_inv_x_C]
+  SymmetricTensor<4, dim, Number> Dev_P_T = outer_product(C_inv, C); // Dev_P = C_inv_x_C
+  Dev_P_T /= -dim;                                                   // Dev_P = -[1/dim]C_inv_x_C
+  Dev_P_T += SymmetricTensor<4, dim, Number>(S);                     // Dev_P = S - [1/dim]C_inv_x_C
+  Dev_P_T *= pow(det_F, -2.0 / dim);                                 // Dev_P = J^{-2/dim} [S - [1/dim]C_inv_x_C]
 
   return Dev_P_T;
 }
@@ -372,11 +364,9 @@ DEAL_II_HOST DEAL_II_CONSTEXPR inline SymmetricTensor<4, dim, Number>
 template <int dim>
 template <typename Number>
 DEAL_II_HOST DEAL_II_CONSTEXPR SymmetricTensor<2, dim, Number>
-Physics::Elasticity::StandardTensors<dim>::ddet_F_dC(
-  const Tensor<2, dim, Number> &F)
+                               Physics::Elasticity::StandardTensors<dim>::ddet_F_dC(const Tensor<2, dim, Number> &F)
 {
-  return internal::NumberType<Number>::value(0.5 * determinant(F)) *
-         symmetrize(invert(transpose(F) * F));
+  return internal::NumberType<Number>::value(0.5 * determinant(F)) * symmetrize(invert(transpose(F) * F));
 }
 
 
@@ -384,19 +374,16 @@ Physics::Elasticity::StandardTensors<dim>::ddet_F_dC(
 template <int dim>
 template <typename Number>
 DEAL_II_HOST DEAL_II_CONSTEXPR inline SymmetricTensor<4, dim, Number>
-             Physics::Elasticity::StandardTensors<dim>::dC_inv_dC(
-  const Tensor<2, dim, Number> &F)
+             Physics::Elasticity::StandardTensors<dim>::dC_inv_dC(const Tensor<2, dim, Number> &F)
 {
-  const SymmetricTensor<2, dim, Number> C_inv =
-    symmetrize(invert(transpose(F) * F));
+  const SymmetricTensor<2, dim, Number> C_inv = symmetrize(invert(transpose(F) * F));
 
   SymmetricTensor<4, dim, Number> dC_inv_dC;
   for (unsigned int A = 0; A < dim; ++A)
     for (unsigned int B = A; B < dim; ++B)
       for (unsigned int C = 0; C < dim; ++C)
         for (unsigned int D = C; D < dim; ++D)
-          dC_inv_dC[A][B][C][D] -=
-            0.5 * (C_inv[A][C] * C_inv[B][D] + C_inv[A][D] * C_inv[B][C]);
+          dC_inv_dC[A][B][C][D] -= 0.5 * (C_inv[A][C] * C_inv[B][D] + C_inv[A][D] * C_inv[B][C]);
 
   return dC_inv_dC;
 }

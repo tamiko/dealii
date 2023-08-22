@@ -41,20 +41,16 @@ template <int dim>
 constexpr unsigned int GeometryInfo<dim>::hexes_per_cell;
 
 template <int dim>
-constexpr std::array<int, GeometryInfo<dim>::faces_per_cell>
-  GeometryInfo<dim>::unit_normal_orientation;
+constexpr std::array<int, GeometryInfo<dim>::faces_per_cell> GeometryInfo<dim>::unit_normal_orientation;
 
 template <int dim>
-constexpr ndarray<unsigned int, GeometryInfo<dim>::vertices_per_cell, dim>
-  GeometryInfo<dim>::vertex_to_face;
+constexpr ndarray<unsigned int, GeometryInfo<dim>::vertices_per_cell, dim> GeometryInfo<dim>::vertex_to_face;
 
 template <int dim>
-constexpr std::array<unsigned int, GeometryInfo<dim>::faces_per_cell>
-  GeometryInfo<dim>::unit_normal_direction;
+constexpr std::array<unsigned int, GeometryInfo<dim>::faces_per_cell> GeometryInfo<dim>::unit_normal_direction;
 
 template <int dim>
-constexpr std::array<Tensor<1, dim>, GeometryInfo<dim>::faces_per_cell>
-  GeometryInfo<dim>::unit_normal_vector;
+constexpr std::array<Tensor<1, dim>, GeometryInfo<dim>::faces_per_cell> GeometryInfo<dim>::unit_normal_vector;
 
 template <int dim>
 constexpr ndarray<Tensor<1, dim>, GeometryInfo<dim>::faces_per_cell, dim - 1>
@@ -62,22 +58,17 @@ constexpr ndarray<Tensor<1, dim>, GeometryInfo<dim>::faces_per_cell, dim - 1>
   GeometryInfo<dim>::unit_tangential_vectors;
 
 template <int dim>
-constexpr std::array<unsigned int, GeometryInfo<dim>::vertices_per_cell>
-  GeometryInfo<dim>::dx_to_deal;
+constexpr std::array<unsigned int, GeometryInfo<dim>::vertices_per_cell> GeometryInfo<dim>::dx_to_deal;
 
 template <int dim>
-constexpr std::array<unsigned int, GeometryInfo<dim>::faces_per_cell>
-  GeometryInfo<dim>::opposite_face;
+constexpr std::array<unsigned int, GeometryInfo<dim>::faces_per_cell> GeometryInfo<dim>::opposite_face;
 
 template <int dim>
-constexpr std::array<unsigned int, GeometryInfo<dim>::vertices_per_cell>
-  GeometryInfo<dim>::ucd_to_deal;
+constexpr std::array<unsigned int, GeometryInfo<dim>::vertices_per_cell> GeometryInfo<dim>::ucd_to_deal;
 
-const std::array<unsigned int, GeometryInfo<0>::vertices_per_cell>
-  GeometryInfo<0>::ucd_to_deal = {{0}};
+const std::array<unsigned int, GeometryInfo<0>::vertices_per_cell> GeometryInfo<0>::ucd_to_deal = {{0}};
 
-const std::array<unsigned int, GeometryInfo<0>::vertices_per_cell>
-  GeometryInfo<0>::dx_to_deal = {{0}};
+const std::array<unsigned int, GeometryInfo<0>::vertices_per_cell> GeometryInfo<0>::dx_to_deal = {{0}};
 
 template struct GeometryInfo<1>;
 template struct GeometryInfo<2>;
@@ -87,8 +78,7 @@ template struct GeometryInfo<4>;
 template void
 GeometryInfo<1>::alternating_form_at_vertices
 #ifndef DEAL_II_CXX14_CONSTEXPR_BUG
-  (const Point<1> (&)[vertices_per_cell],
-   Tensor<1 - 1, 1> (&)[vertices_per_cell])
+  (const Point<1> (&)[vertices_per_cell], Tensor<1 - 1, 1> (&)[vertices_per_cell])
 #else
   (const Point<1> *, Tensor<1 - 1, 1> *)
 #endif
@@ -97,8 +87,7 @@ GeometryInfo<1>::alternating_form_at_vertices
 template void
 GeometryInfo<1>::alternating_form_at_vertices
 #ifndef DEAL_II_CXX14_CONSTEXPR_BUG
-  (const Point<2> (&)[vertices_per_cell],
-   Tensor<2 - 1, 2> (&)[vertices_per_cell])
+  (const Point<2> (&)[vertices_per_cell], Tensor<2 - 1, 2> (&)[vertices_per_cell])
 #else
   (const Point<2> *, Tensor<2 - 1, 2> *)
 #endif
@@ -107,8 +96,7 @@ GeometryInfo<1>::alternating_form_at_vertices
 template void
 GeometryInfo<2>::alternating_form_at_vertices
 #ifndef DEAL_II_CXX14_CONSTEXPR_BUG
-  (const Point<2> (&vertices)[vertices_per_cell],
-   Tensor<2 - 2, 2> (&forms)[vertices_per_cell])
+  (const Point<2> (&vertices)[vertices_per_cell], Tensor<2 - 2, 2> (&forms)[vertices_per_cell])
 #else
   (const Point<2> *, Tensor<2 - 2, 2> *)
 #endif
@@ -117,8 +105,7 @@ GeometryInfo<2>::alternating_form_at_vertices
 template void
 GeometryInfo<2>::alternating_form_at_vertices
 #ifndef DEAL_II_CXX14_CONSTEXPR_BUG
-  (const Point<3> (&vertices)[vertices_per_cell],
-   Tensor<3 - 2, 3> (&forms)[vertices_per_cell])
+  (const Point<3> (&vertices)[vertices_per_cell], Tensor<3 - 2, 3> (&forms)[vertices_per_cell])
 #else
   (const Point<3> *, Tensor<3 - 2, 3> *)
 #endif
@@ -128,8 +115,7 @@ GeometryInfo<2>::alternating_form_at_vertices
 template void
 GeometryInfo<3>::alternating_form_at_vertices
 #ifndef DEAL_II_CXX14_CONSTEXPR_BUG
-  (const Point<3> (&vertices)[vertices_per_cell],
-   Tensor<3 - 3, 3> (&forms)[vertices_per_cell])
+  (const Point<3> (&vertices)[vertices_per_cell], Tensor<3 - 3, 3> (&forms)[vertices_per_cell])
 #else
   (const Point<3> *, Tensor<3 - 3, 3> *)
 #endif

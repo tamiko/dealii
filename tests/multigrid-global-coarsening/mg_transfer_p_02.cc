@@ -101,10 +101,7 @@ do_test()
           for (auto &cell : dof_handler_fine.active_cell_iterators())
             {
               if (cell->is_locally_owned())
-                cell->set_active_fe_index(
-                  std::max((cell->active_fe_index() + 1u) / 2 /*bisection*/,
-                           1u) -
-                  1);
+                cell->set_active_fe_index(std::max((cell->active_fe_index() + 1u) / 2 /*bisection*/, 1u) - 1);
             }
         }
 
@@ -114,10 +111,7 @@ do_test()
         for (auto &cell : dof_handler_coarse.active_cell_iterators())
           {
             if (cell->is_locally_owned())
-              cell->set_active_fe_index(
-                std::max((cell_other->active_fe_index() + 1u) / 2 /*bisection*/,
-                         1u) -
-                1);
+              cell->set_active_fe_index(std::max((cell_other->active_fe_index() + 1u) / 2 /*bisection*/, 1u) - 1);
             cell_other++;
           }
       }
@@ -127,22 +121,16 @@ do_test()
       dof_handler_coarse.distribute_dofs(fe_collection);
 
       AffineConstraints<Number> constraint_coarse;
-      DoFTools::make_hanging_node_constraints(dof_handler_coarse,
-                                              constraint_coarse);
+      DoFTools::make_hanging_node_constraints(dof_handler_coarse, constraint_coarse);
       constraint_coarse.close();
 
       AffineConstraints<Number> constraint_fine;
-      DoFTools::make_hanging_node_constraints(dof_handler_fine,
-                                              constraint_fine);
+      DoFTools::make_hanging_node_constraints(dof_handler_fine, constraint_fine);
       constraint_fine.close();
 
       // setup transfer operator
-      MGTwoLevelTransfer<dim, LinearAlgebra::distributed::Vector<Number>>
-        transfer;
-      transfer.reinit(dof_handler_fine,
-                      dof_handler_coarse,
-                      constraint_fine,
-                      constraint_coarse);
+      MGTwoLevelTransfer<dim, LinearAlgebra::distributed::Vector<Number>> transfer;
+      transfer.reinit(dof_handler_fine, dof_handler_coarse, constraint_fine, constraint_coarse);
 
       test_transfer_operator(transfer, dof_handler_fine, dof_handler_coarse);
 

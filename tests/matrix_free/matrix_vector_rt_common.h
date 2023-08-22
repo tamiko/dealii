@@ -70,7 +70,7 @@ enum TestType : unsigned char
 };
 
 std::string
-enum_to_string(TestType const enum_type)
+enum_to_string(const TestType enum_type)
 {
   std::string string_type;
   switch (enum_type)
@@ -94,34 +94,28 @@ enum_to_string(TestType const enum_type)
   return string_type;
 }
 
-template <int dim,
-          int fe_degree,
-          int n_q_points_1d = fe_degree + 1,
-          typename Number   = double>
+template <int dim, int fe_degree, int n_q_points_1d = fe_degree + 1, typename Number = double>
 class MatrixFreeTest
 {
 public:
-  MatrixFreeTest(const MatrixFree<dim, Number> &data_in,
-                 const TestType                 test_type)
+  MatrixFreeTest(const MatrixFree<dim, Number> &data_in, const TestType test_type)
     : data(data_in)
     , test_type(test_type)
   {
-    evaluation_flag =
-      (test_type == TestType::values) ?
-        EvaluationFlags::values :
-        ((test_type == TestType::gradients) ?
-           EvaluationFlags::gradients :
-           ((test_type == TestType::values_gradients) ?
-              EvaluationFlags::values | EvaluationFlags::gradients :
-              EvaluationFlags::gradients));
+    evaluation_flag = (test_type == TestType::values) ?
+                        EvaluationFlags::values :
+                        ((test_type == TestType::gradients) ? EvaluationFlags::gradients :
+                                                              ((test_type == TestType::values_gradients) ?
+                                                                 EvaluationFlags::values | EvaluationFlags::gradients :
+                                                                 EvaluationFlags::gradients));
   };
 
   virtual ~MatrixFreeTest(){};
 
   void
-  operator()(const MatrixFree<dim, Number> &              data,
-             Vector<Number> &                             dst,
-             const Vector<Number> &                       src,
+  operator()(const MatrixFree<dim, Number>               &data,
+             Vector<Number>                              &dst,
+             const Vector<Number>                        &src,
              const std::pair<unsigned int, unsigned int> &cell_range) const
   {
     FEEvaluation<dim, fe_degree, n_q_points_1d, dim, Number> fe_eval(data);
@@ -135,8 +129,7 @@ public:
           {
             if (test_type < TestType::gradients)
               fe_eval.submit_value(Number(10) * fe_eval.get_value(q), q);
-            if (test_type == TestType::gradients ||
-                test_type == TestType::values_gradients)
+            if (test_type == TestType::gradients || test_type == TestType::values_gradients)
               fe_eval.submit_gradient(fe_eval.get_gradient(q), q);
             else if (test_type == TestType::divergence)
               fe_eval.submit_divergence(fe_eval.get_divergence(q), q);
@@ -154,7 +147,7 @@ public:
   };
 
 protected:
-  const MatrixFree<dim, Number> &  data;
+  const MatrixFree<dim, Number>   &data;
   EvaluationFlags::EvaluationFlags evaluation_flag;
   const TestType                   test_type;
 };
@@ -162,9 +155,7 @@ protected:
 
 template <int dim, int, typename Number>
 void
-do_test(const DoFHandler<dim> &          dof,
-        const AffineConstraints<double> &constraints,
-        const TestType                   test_type)
+do_test(const DoFHandler<dim> &dof, const AffineConstraints<double> &constraints, const TestType test_type)
 {
   deallog << "Testing " << enum_to_string(test_type) << std::endl;
   const unsigned int fe_degree = dof.get_fe().degree - 1;
@@ -211,12 +202,11 @@ do_test(const DoFHandler<dim> &          dof,
   FEValues<dim>       fe_val(mapping,
                        dof.get_fe(),
                        Quadrature<dim>(mf_data.get_quadrature(0)),
-                       update_values | update_gradients | update_piola |
-                         update_JxW_values);
+                       update_values | update_gradients | update_piola | update_JxW_values);
 
-  const unsigned int dofs_per_cell = fe_val.get_fe().dofs_per_cell;
+  const unsigned int                   dofs_per_cell = fe_val.get_fe().dofs_per_cell;
   std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
-  FullMatrix<double> local_matrix(dofs_per_cell, dofs_per_cell);
+  FullMatrix<double>                   local_matrix(dofs_per_cell, dofs_per_cell);
 
   std::vector<Tensor<1, dim>> phi_val(dofs_per_cell);
   std::vector<Tensor<2, dim>> phi_grad(dofs_per_cell);
@@ -244,18 +234,14 @@ do_test(const DoFHandler<dim> &          dof,
               {
                 if (test_type < TestType::gradients)
                   local_matrix(i, j) += 10. * (phi_val[j] * phi_val[i]) * JxW;
-                if (test_type == TestType::gradients ||
-                    test_type == TestType::values_gradients)
-                  local_matrix(i, j) +=
-                    scalar_product(phi_grad[i], phi_grad[j]) * JxW;
+                if (test_type == TestType::gradients || test_type == TestType::values_gradients)
+                  local_matrix(i, j) += scalar_product(phi_grad[i], phi_grad[j]) * JxW;
                 else if (test_type == TestType::divergence)
                   local_matrix(i, j) += phi_div[i] * phi_div[j] * JxW;
               }
         }
       cell->get_dof_indices(local_dof_indices);
-      constraints.distribute_local_to_global(local_matrix,
-                                             local_dof_indices,
-                                             system_matrix);
+      constraints.distribute_local_to_global(local_matrix, local_dof_indices, system_matrix);
     }
 
   Vector<Number> ref(solution.size());

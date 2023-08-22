@@ -75,8 +75,7 @@ main()
     std::vector<unsigned int> rep_vec({9, 2});
     Point<2>                  box_origin(3000000., 660000.);
     Point<2>                  extents(3000000., 660000.);
-    GridGenerator::subdivided_hyper_rectangle(
-      coarse_grid, rep_vec, box_origin, box_origin + extents, true);
+    GridGenerator::subdivided_hyper_rectangle(coarse_grid, rep_vec, box_origin, box_origin + extents, true);
     coarse_grid.refine_global(2);
     check(coarse_grid);
   }
@@ -86,8 +85,7 @@ main()
     std::vector<unsigned int> rep_vec({9, 9, 2});
     Point<3>                  box_origin(3000000., 3000000., 660000.);
     Point<3>                  extents(3000000., 3000000., 660000.);
-    GridGenerator::subdivided_hyper_rectangle(
-      coarse_grid, rep_vec, box_origin, box_origin + extents, true);
+    GridGenerator::subdivided_hyper_rectangle(coarse_grid, rep_vec, box_origin, box_origin + extents, true);
     coarse_grid.refine_global(2);
     check(coarse_grid);
   }

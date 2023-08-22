@@ -41,9 +41,7 @@ template <int dim>
 void
 test(const bool allow_artificial_cells)
 {
-  parallel::shared::Triangulation<dim> tria(MPI_COMM_WORLD,
-                                            Triangulation<dim>::none,
-                                            allow_artificial_cells);
+  parallel::shared::Triangulation<dim> tria(MPI_COMM_WORLD, Triangulation<dim>::none, allow_artificial_cells);
   GridGenerator::subdivided_hyper_cube(tria, 2);
 
   FE_Q<dim>       fe(1);

@@ -109,7 +109,7 @@ namespace TrilinosWrappers
        * the MPI processes.
        */
       explicit BlockVector(const std::vector<IndexSet> &parallel_partitioning,
-                           const MPI_Comm communicator = MPI_COMM_WORLD);
+                           const MPI_Comm               communicator = MPI_COMM_WORLD);
 
       /**
        * Creates a BlockVector with ghost elements. See the respective
@@ -226,11 +226,9 @@ namespace TrilinosWrappers
        * and is ignored for non-ghosted vectors.
        */
       void
-      reinit(
-        const std::vector<std::shared_ptr<const Utilities::MPI::Partitioner>>
-          &        partitioners,
-        const bool make_ghosted    = true,
-        const bool vector_writable = false);
+      reinit(const std::vector<std::shared_ptr<const Utilities::MPI::Partitioner>> &partitioners,
+             const bool                                                             make_ghosted    = true,
+             const bool                                                             vector_writable = false);
 
       /**
        * Change the dimension to that of the vector <tt>V</tt>. The same
@@ -276,8 +274,7 @@ namespace TrilinosWrappers
        * systems.
        */
       void
-      import_nonlocal_data_for_fe(const TrilinosWrappers::BlockSparseMatrix &m,
-                                  const BlockVector &                        v);
+      import_nonlocal_data_for_fe(const TrilinosWrappers::BlockSparseMatrix &m, const BlockVector &v);
 
       /**
        * Return if this Vector contains ghost elements.
@@ -312,7 +309,7 @@ namespace TrilinosWrappers
        * Print to a stream.
        */
       void
-      print(std::ostream &     out,
+      print(std::ostream      &out,
             const unsigned int precision  = 3,
             const bool         scientific = true,
             const bool         across     = true) const;
@@ -331,25 +328,19 @@ namespace TrilinosWrappers
 
 
     /*-------------------------- Inline functions ---------------------------*/
-    inline BlockVector::BlockVector(
-      const std::vector<IndexSet> &parallel_partitioning,
-      const MPI_Comm               communicator)
+    inline BlockVector::BlockVector(const std::vector<IndexSet> &parallel_partitioning, const MPI_Comm communicator)
     {
       reinit(parallel_partitioning, communicator, false);
     }
 
 
 
-    inline BlockVector::BlockVector(
-      const std::vector<IndexSet> &parallel_partitioning,
-      const std::vector<IndexSet> &ghost_values,
-      const MPI_Comm               communicator,
-      const bool                   vector_writable)
+    inline BlockVector::BlockVector(const std::vector<IndexSet> &parallel_partitioning,
+                                    const std::vector<IndexSet> &ghost_values,
+                                    const MPI_Comm               communicator,
+                                    const bool                   vector_writable)
     {
-      reinit(parallel_partitioning,
-             ghost_values,
-             communicator,
-             vector_writable);
+      reinit(parallel_partitioning, ghost_values, communicator, vector_writable);
     }
 
 
@@ -467,24 +458,16 @@ namespace internal
     public:
       template <typename Matrix>
       static void
-      reinit_range_vector(const Matrix &                      matrix,
-                          TrilinosWrappers::MPI::BlockVector &v,
-                          bool omit_zeroing_entries)
+      reinit_range_vector(const Matrix &matrix, TrilinosWrappers::MPI::BlockVector &v, bool omit_zeroing_entries)
       {
-        v.reinit(matrix.locally_owned_range_indices(),
-                 matrix.get_mpi_communicator(),
-                 omit_zeroing_entries);
+        v.reinit(matrix.locally_owned_range_indices(), matrix.get_mpi_communicator(), omit_zeroing_entries);
       }
 
       template <typename Matrix>
       static void
-      reinit_domain_vector(const Matrix &                      matrix,
-                           TrilinosWrappers::MPI::BlockVector &v,
-                           bool omit_zeroing_entries)
+      reinit_domain_vector(const Matrix &matrix, TrilinosWrappers::MPI::BlockVector &v, bool omit_zeroing_entries)
       {
-        v.reinit(matrix.locally_owned_domain_indices(),
-                 matrix.get_mpi_communicator(),
-                 omit_zeroing_entries);
+        v.reinit(matrix.locally_owned_domain_indices(), matrix.get_mpi_communicator(), omit_zeroing_entries);
       }
     };
 

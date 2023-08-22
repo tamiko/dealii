@@ -56,8 +56,7 @@ template <int dim, int spacedim = dim>
 void
 test_unit_support_points()
 {
-  deallog << "Test support points for dim = " << dim
-          << " and spacedim = " << spacedim << std::endl;
+  deallog << "Test support points for dim = " << dim << " and spacedim = " << spacedim << std::endl;
   for (unsigned int degree = 1; degree < 3; ++degree)
     {
       deallog << "approximation degree = " << degree << std::endl;

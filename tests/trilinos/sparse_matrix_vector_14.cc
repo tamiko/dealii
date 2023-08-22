@@ -31,8 +31,7 @@
 
 
 void
-test(LinearAlgebra::TpetraWrappers::Vector<double> &v,
-     LinearAlgebra::TpetraWrappers::Vector<double> &w)
+test(LinearAlgebra::TpetraWrappers::Vector<double> &v, LinearAlgebra::TpetraWrappers::Vector<double> &w)
 {
   LinearAlgebra::ReadWriteVector<double> read_write_v(v.size());
   LinearAlgebra::ReadWriteVector<double> read_write_w(w.size());
@@ -83,44 +82,33 @@ main(int argc, char **argv)
 {
   initlog();
 
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
 
   try
     {
       {
-        LinearAlgebra::TpetraWrappers::Vector<double> v(complete_index_set(100),
-                                                        MPI_COMM_SELF);
-        LinearAlgebra::TpetraWrappers::Vector<double> w(complete_index_set(95),
-                                                        MPI_COMM_SELF);
+        LinearAlgebra::TpetraWrappers::Vector<double> v(complete_index_set(100), MPI_COMM_SELF);
+        LinearAlgebra::TpetraWrappers::Vector<double> w(complete_index_set(95), MPI_COMM_SELF);
         test(v, w);
       }
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

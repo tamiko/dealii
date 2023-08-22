@@ -39,30 +39,25 @@ test()
 {
   deallog << "dim= " << dim << ",\t spacedim= " << spacedim << std::endl;
   using namespace ReferenceCells;
-  std::vector<std::vector<ReferenceCell>> ref_cells = {
-    {},
-    {Line},
-    {Triangle, Quadrilateral},
-    {Tetrahedron, Pyramid, Wedge, Hexahedron}};
+  std::vector<std::vector<ReferenceCell>> ref_cells = {{},
+                                                       {Line},
+                                                       {Triangle, Quadrilateral},
+                                                       {Tetrahedron, Pyramid, Wedge, Hexahedron}};
   for (const auto &r_cell : ref_cells[dim])
     {
       Triangulation<dim, spacedim>  tria;
       CGAL::Surface_mesh<CGALPoint> mesh;
 
-      const auto mapping =
-        r_cell.template get_default_mapping<dim, spacedim>(1);
+      const auto mapping = r_cell.template get_default_mapping<dim, spacedim>(1);
       GridGenerator::reference_cell(tria, r_cell);
 
       const auto cell = tria.begin_active();
       dealii_cell_to_cgal_surface_mesh(cell, *mapping, mesh);
 
       Assert(mesh.is_valid(), dealii::ExcMessage("The CGAL mesh is not valid"));
-      deallog << "deal vertices: " << cell->n_vertices() << ", cgal vertices "
-              << mesh.num_vertices() << std::endl;
-      deallog << "deal faces: " << cell->n_faces() << ", cgal faces "
-              << mesh.num_faces() << std::endl;
-      deallog << "Valid mesh: " << std::boolalpha << mesh.is_valid()
-              << std::endl;
+      deallog << "deal vertices: " << cell->n_vertices() << ", cgal vertices " << mesh.num_vertices() << std::endl;
+      deallog << "deal faces: " << cell->n_faces() << ", cgal faces " << mesh.num_faces() << std::endl;
+      deallog << "Valid mesh: " << std::boolalpha << mesh.is_valid() << std::endl;
       deallog << mesh << std::endl;
     }
 }

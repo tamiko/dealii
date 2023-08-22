@@ -40,26 +40,20 @@ test(const std::string &expression)
     p[i] = i + 1.0;
 
   // Output all symbolic stuff
-  deallog << "=========================================================="
-          << std::endl
+  deallog << "==========================================================" << std::endl
           << "dim = " << dim << ", Symengine" << std::endl
-          << "x: " << x << ", f: " << f << ", df: " << df << ", H:" << Hf
-          << std::endl;
+          << "x: " << x << ", f: " << f << ", df: " << df << ", H:" << Hf << std::endl;
 
   // Output the function and its evaluation
   deallog << "SymbolicFunction<dim>: " << fun << std::endl
-          << "p: " << p << ", f(p): " << fun.value(p)
-          << ", grad(f)(p): " << fun.gradient(p)
-          << ", laplacian(f)(p): " << fun.laplacian(p)
-          << ", H(f)(p): " << fun.hessian(p) << std::endl;
+          << "p: " << p << ", f(p): " << fun.value(p) << ", grad(f)(p): " << fun.gradient(p)
+          << ", laplacian(f)(p): " << fun.laplacian(p) << ", H(f)(p): " << fun.hessian(p) << std::endl;
 
   // Output its time derivative
   auto fun_t = fun.time_derivative();
   deallog << "Time derivative of SymbolicFunction<dim>: " << fun_t << std::endl
-          << "p: " << p << ", f_t(p): " << fun_t.value(p)
-          << ", grad(f_t)(p): " << fun_t.gradient(p)
-          << ", laplacian(f_t)(p): " << fun_t.laplacian(p)
-          << ", H(f_t)(p): " << fun_t.hessian(p) << std::endl;
+          << "p: " << p << ", f_t(p): " << fun_t.value(p) << ", grad(f_t)(p): " << fun_t.gradient(p)
+          << ", laplacian(f_t)(p): " << fun_t.laplacian(p) << ", H(f_t)(p): " << fun_t.hessian(p) << std::endl;
 
   return fun;
 }

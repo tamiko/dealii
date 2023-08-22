@@ -40,8 +40,7 @@ void
 test(std::ostream & /*out*/)
 {
   parallel::distributed::Triangulation<dim> tr(MPI_COMM_WORLD);
-  Triangulation<dim>                        tr2(
-    Triangulation<dim>::limit_level_difference_at_vertices);
+  Triangulation<dim>                        tr2(Triangulation<dim>::limit_level_difference_at_vertices);
 
   {
     GridIn<dim> gi;
@@ -77,9 +76,7 @@ test(std::ostream & /*out*/)
 
       // refine tr and tr2
       unsigned int index = 0;
-      for (typename Triangulation<dim>::active_cell_iterator cell =
-             tr.begin_active();
-           cell != tr.end();
+      for (typename Triangulation<dim>::active_cell_iterator cell = tr.begin_active(); cell != tr.end();
            ++cell, ++index)
         if (flags[index])
           {
@@ -93,9 +90,7 @@ test(std::ostream & /*out*/)
       // some of them will actually be
       // coarsened)
       index = 0;
-      for (typename Triangulation<dim>::active_cell_iterator cell =
-             tr.begin_active();
-           cell != tr.end();
+      for (typename Triangulation<dim>::active_cell_iterator cell = tr.begin_active(); cell != tr.end();
            ++cell, ++index)
         if (!flags[index])
           {
@@ -109,8 +104,7 @@ test(std::ostream & /*out*/)
       //      write_vtk(tr, "1");
       deallog << std::endl;
 
-      deallog << i << " Number of cells: " << tr.n_active_cells() << ' '
-              << tr2.n_active_cells() << std::endl;
+      deallog << i << " Number of cells: " << tr.n_active_cells() << ' ' << tr2.n_active_cells() << std::endl;
 
       assert_tria_equal(tr, tr2);
     }

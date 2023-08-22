@@ -83,8 +83,7 @@ namespace hp
     /**
      * Copy constructor.
      */
-    MappingCollection(
-      const MappingCollection<dim, spacedim> &mapping_collection);
+    MappingCollection(const MappingCollection<dim, spacedim> &mapping_collection);
 
     /**
      * Move constructor.
@@ -96,11 +95,9 @@ namespace hp
      * clang-tidy).
      */
     MappingCollection(MappingCollection<dim, spacedim> &&) noexcept(
-      std::is_nothrow_move_constructible<
-        std::vector<std::shared_ptr<const Mapping<dim, spacedim>>>>::value
+      std::is_nothrow_move_constructible<std::vector<std::shared_ptr<const Mapping<dim, spacedim>>>>::value
         &&std::is_nothrow_move_constructible<std::function<
-          unsigned int(const typename hp::MappingCollection<dim, spacedim> &,
-                       const unsigned int)>>::value) = default;
+          unsigned int(const typename hp::MappingCollection<dim, spacedim> &, const unsigned int)>>::value) = default;
 
     /**
      * Move assignment operator.
@@ -157,19 +154,16 @@ namespace hp
 
   template <int dim, int spacedim>
   template <class... MappingTypes>
-  MappingCollection<dim, spacedim>::MappingCollection(
-    const MappingTypes &...mappings)
+  MappingCollection<dim, spacedim>::MappingCollection(const MappingTypes &...mappings)
   {
-    static_assert(
-      is_base_of_all<Mapping<dim, spacedim>, MappingTypes...>::value,
-      "Not all of the input arguments of this function "
-      "are derived from Mapping<dim, spacedim>!");
+    static_assert(is_base_of_all<Mapping<dim, spacedim>, MappingTypes...>::value,
+                  "Not all of the input arguments of this function "
+                  "are derived from Mapping<dim, spacedim>!");
 
     // loop over all of the given arguments and add the mappings to
     // this collection. Inlining the definition of mapping_pointers causes
     // internal compiler errors on GCC 7.1.1 so we define it separately:
-    const auto mapping_pointers = {
-      (static_cast<const Mapping<dim, spacedim> *>(&mappings))...};
+    const auto mapping_pointers = {(static_cast<const Mapping<dim, spacedim> *>(&mappings))...};
     for (const auto p : mapping_pointers)
       push_back(*p);
   }
@@ -177,9 +171,8 @@ namespace hp
 
 
   template <int dim, int spacedim>
-  MappingCollection<dim, spacedim>
-    StaticMappingQ1<dim, spacedim>::mapping_collection =
-      MappingCollection<dim, spacedim>(MappingQ1<dim, spacedim>{});
+  MappingCollection<dim, spacedim> StaticMappingQ1<dim, spacedim>::mapping_collection =
+    MappingCollection<dim, spacedim>(MappingQ1<dim, spacedim>{});
 
 
 #ifndef DOXYGEN
@@ -194,18 +187,12 @@ namespace hp
   extern template struct StaticMappingQ1<3, 3>;
 
 #  ifndef _MSC_VER
-  extern template MappingCollection<1, 1>
-    StaticMappingQ1<1, 1>::mapping_collection;
-  extern template MappingCollection<1, 2>
-    StaticMappingQ1<1, 2>::mapping_collection;
-  extern template MappingCollection<1, 3>
-    StaticMappingQ1<1, 3>::mapping_collection;
-  extern template MappingCollection<2, 2>
-    StaticMappingQ1<2, 2>::mapping_collection;
-  extern template MappingCollection<2, 3>
-    StaticMappingQ1<2, 3>::mapping_collection;
-  extern template MappingCollection<3, 3>
-    StaticMappingQ1<3, 3>::mapping_collection;
+  extern template MappingCollection<1, 1> StaticMappingQ1<1, 1>::mapping_collection;
+  extern template MappingCollection<1, 2> StaticMappingQ1<1, 2>::mapping_collection;
+  extern template MappingCollection<1, 3> StaticMappingQ1<1, 3>::mapping_collection;
+  extern template MappingCollection<2, 2> StaticMappingQ1<2, 2>::mapping_collection;
+  extern template MappingCollection<2, 3> StaticMappingQ1<2, 3>::mapping_collection;
+  extern template MappingCollection<3, 3> StaticMappingQ1<3, 3>::mapping_collection;
 #  endif
 #endif
 

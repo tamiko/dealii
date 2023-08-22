@@ -60,8 +60,7 @@ namespace VectorTools
         {
           const unsigned int n = v.size();
 
-          Assert(p_select.size() == n,
-                 ExcDimensionMismatch(p_select.size(), n));
+          Assert(p_select.size() == n, ExcDimensionMismatch(p_select.size(), n));
 
           typename VectorType::value_type s       = 0.;
           unsigned int                    counter = 0;
@@ -74,8 +73,7 @@ namespace VectorTools
               }
           // Error out if we have not constrained anything. Note that in this
           // case the vector v is always nonempty.
-          Assert(n == 0 || counter > 0,
-                 ComponentMask::ExcNoComponentSelected());
+          Assert(n == 0 || counter > 0, ComponentMask::ExcNoComponentSelected());
 
           s /= counter;
 
@@ -119,9 +117,7 @@ namespace VectorTools
 
     template <typename Type>
     void
-    set_possibly_complex_number(const double        r,
-                                const double        i,
-                                std::complex<Type> &n)
+    set_possibly_complex_number(const double r, const double i, std::complex<Type> &n)
     {
       n = std::complex<Type>(r, i);
     }
@@ -131,8 +127,8 @@ namespace VectorTools
 
   template <typename VectorType, int dim, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
-  void add_constant(VectorType &                          solution,
-                    const DoFHandler<dim, spacedim> &     dof_handler,
+  void add_constant(VectorType                           &solution,
+                    const DoFHandler<dim, spacedim>      &dof_handler,
                     const unsigned int                    component,
                     const typename VectorType::value_type constant_adjustment)
   {
@@ -142,7 +138,7 @@ namespace VectorTools
     AssertIndexRange(component, dof_handler.get_fe().n_components());
 
     const FiniteElement<dim, spacedim> &fe_system = dof_handler.get_fe();
-    const FiniteElement<dim, spacedim> &fe = fe_system.get_sub_fe(component, 1);
+    const FiniteElement<dim, spacedim> &fe        = fe_system.get_sub_fe(component, 1);
 
     if ((dynamic_cast<const FE_DGP<dim, spacedim> *>(&fe) != nullptr))
       {
@@ -150,25 +146,21 @@ namespace VectorTools
         // element. The first shape function of a DGP element happens
         // to be the constant function, so we just have to adjust the
         // corresponding DoF on each cell:
-        std::vector<types::global_dof_index> local_dof_indices(
-          dof_handler.get_fe().dofs_per_cell);
+        std::vector<types::global_dof_index> local_dof_indices(dof_handler.get_fe().dofs_per_cell);
 
         for (const auto &cell : dof_handler.active_cell_iterators())
           if (cell->is_locally_owned())
             {
               cell->get_dof_indices(local_dof_indices);
-              const unsigned int first_pressure_dof =
-                fe_system.component_to_system_index(component, 0);
+              const unsigned int first_pressure_dof = fe_system.component_to_system_index(component, 0);
 
               // Make sure that this DoF is really owned by the
               // current processor:
-              Assert(dof_handler.locally_owned_dofs().is_element(
-                       local_dof_indices[first_pressure_dof]),
+              Assert(dof_handler.locally_owned_dofs().is_element(local_dof_indices[first_pressure_dof]),
                      ExcInternalError());
 
               // Then adjust its value:
-              solution(local_dof_indices[first_pressure_dof]) +=
-                constant_adjustment;
+              solution(local_dof_indices[first_pressure_dof]) += constant_adjustment;
             }
 
         solution.compress(VectorOperation::add);
@@ -185,8 +177,7 @@ namespace VectorTools
         VectorType copy(solution);
         copy = solution;
 
-        std::vector<types::global_dof_index> local_dof_indices(
-          dof_handler.get_fe().dofs_per_cell);
+        std::vector<types::global_dof_index> local_dof_indices(dof_handler.get_fe().dofs_per_cell);
 
         for (const auto &cell : dof_handler.active_cell_iterators())
           if (cell->is_locally_owned())
@@ -197,8 +188,7 @@ namespace VectorTools
                   if (!fe_system.is_primitive(i))
                     continue;
 
-                  const auto component_and_index =
-                    fe_system.system_to_component_index(i);
+                  const auto component_and_index = fe_system.system_to_component_index(i);
                   if (component_and_index.first == component)
                     {
                       const types::global_dof_index idx = local_dof_indices[i];
@@ -208,9 +198,7 @@ namespace VectorTools
                         continue;
 
                       // Then adjust its value:
-                      solution(idx) =
-                        typename VectorType::value_type(copy(idx)) +
-                        constant_adjustment;
+                      solution(idx) = typename VectorType::value_type(copy(idx)) + constant_adjustment;
                     }
                 }
             }
@@ -218,13 +206,11 @@ namespace VectorTools
         solution.compress(VectorOperation::insert);
       }
     else if ((dynamic_cast<const FE_DGQ<dim, spacedim> *>(&fe) != nullptr) ||
-             (dynamic_cast<const FE_SimplexDGP<dim, spacedim> *>(&fe) !=
-              nullptr))
+             (dynamic_cast<const FE_SimplexDGP<dim, spacedim> *>(&fe) != nullptr))
       {
         // Add the constant to every single shape function per cell
 
-        std::vector<types::global_dof_index> local_dof_indices(
-          dof_handler.get_fe().dofs_per_cell);
+        std::vector<types::global_dof_index> local_dof_indices(dof_handler.get_fe().dofs_per_cell);
 
         for (const auto &cell : dof_handler.active_cell_iterators())
           if (cell->is_locally_owned())
@@ -235,15 +221,12 @@ namespace VectorTools
                   if (!fe_system.is_primitive(i))
                     continue;
 
-                  const auto component_and_index =
-                    fe_system.system_to_component_index(i);
+                  const auto component_and_index = fe_system.system_to_component_index(i);
                   if (component_and_index.first == component)
                     {
                       // Make sure that this DoF is really owned by the
                       // current processor:
-                      Assert(dof_handler.locally_owned_dofs().is_element(
-                               local_dof_indices[i]),
-                             ExcInternalError());
+                      Assert(dof_handler.locally_owned_dofs().is_element(local_dof_indices[i]), ExcInternalError());
 
                       // Then adjust its value:
                       solution(local_dof_indices[i]) += constant_adjustment;
@@ -291,40 +274,34 @@ namespace VectorTools
 
   template <int dim, typename Number, int spacedim>
   Number
-  compute_mean_value(
-    const hp::MappingCollection<dim, spacedim> &mapping_collection,
-    const DoFHandler<dim, spacedim> &           dof,
-    const hp::QCollection<dim> &                q_collection,
-    const ReadVector<Number> &                  v,
-    const unsigned int                          component)
+  compute_mean_value(const hp::MappingCollection<dim, spacedim> &mapping_collection,
+                     const DoFHandler<dim, spacedim>            &dof,
+                     const hp::QCollection<dim>                 &q_collection,
+                     const ReadVector<Number>                   &v,
+                     const unsigned int                          component)
   {
-    const hp::FECollection<dim, spacedim> &fe_collection =
-      dof.get_fe_collection();
-    const unsigned int n_components = fe_collection.n_components();
+    const hp::FECollection<dim, spacedim> &fe_collection = dof.get_fe_collection();
+    const unsigned int                     n_components  = fe_collection.n_components();
 
     AssertDimension(v.size(), dof.n_dofs());
     AssertIndexRange(component, n_components);
 
-    hp::FEValues<dim, spacedim> fe_values_collection(
-      mapping_collection,
-      fe_collection,
-      q_collection,
-      UpdateFlags(update_JxW_values | update_values));
+    hp::FEValues<dim, spacedim> fe_values_collection(mapping_collection,
+                                                     fe_collection,
+                                                     q_collection,
+                                                     UpdateFlags(update_JxW_values | update_values));
 
     std::vector<Vector<Number>> values;
 
     Number                                            mean = Number();
     typename numbers::NumberTraits<Number>::real_type area = 0.;
     // Compute mean value
-    for (const auto &cell :
-         dof.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+    for (const auto &cell : dof.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
       {
         fe_values_collection.reinit(cell);
-        const FEValues<dim, spacedim> &fe_values =
-          fe_values_collection.get_present_fe_values();
+        const FEValues<dim, spacedim> &fe_values = fe_values_collection.get_present_fe_values();
 
-        values.resize(fe_values.n_quadrature_points,
-                      Vector<Number>(n_components));
+        values.resize(fe_values.n_quadrature_points, Vector<Number>(n_components));
         fe_values.get_function_values(v, values);
         for (unsigned int k = 0; k < fe_values.n_quadrature_points; ++k)
           {
@@ -337,29 +314,22 @@ namespace VectorTools
     // if this was a distributed DoFHandler, we need to do the reduction
     // over the entire domain
     if (const parallel::TriangulationBase<dim, spacedim> *p_triangulation =
-          dynamic_cast<const parallel::TriangulationBase<dim, spacedim> *>(
-            &dof.get_triangulation()))
+          dynamic_cast<const parallel::TriangulationBase<dim, spacedim> *>(&dof.get_triangulation()))
       {
         // The type used to store the elements of the global vector may be a
         // real or a complex number. Do the global reduction always with real
         // and imaginary types so that we don't have to distinguish, and to
         // this end just copy everything into a complex number and, later,
         // back into the original data type.
-        std::complex<double> mean_double = mean;
-        double my_values[3] = {mean_double.real(), mean_double.imag(), area};
-        double global_values[3];
+        std::complex<double> mean_double  = mean;
+        double               my_values[3] = {mean_double.real(), mean_double.imag(), area};
+        double               global_values[3];
 
-        const int ierr = MPI_Allreduce(my_values,
-                                       global_values,
-                                       3,
-                                       MPI_DOUBLE,
-                                       MPI_SUM,
-                                       p_triangulation->get_communicator());
+        const int ierr =
+          MPI_Allreduce(my_values, global_values, 3, MPI_DOUBLE, MPI_SUM, p_triangulation->get_communicator());
         AssertThrowMPI(ierr);
 
-        internal::set_possibly_complex_number(global_values[0],
-                                              global_values[1],
-                                              mean);
+        internal::set_possibly_complex_number(global_values[0], global_values[1], mean);
         area = global_values[2];
       }
 #endif
@@ -370,33 +340,25 @@ namespace VectorTools
 
   template <int dim, typename Number, int spacedim>
   Number
-  compute_mean_value(const Mapping<dim, spacedim> &   mapping,
+  compute_mean_value(const Mapping<dim, spacedim>    &mapping,
                      const DoFHandler<dim, spacedim> &dof,
-                     const Quadrature<dim> &          quadrature,
-                     const ReadVector<Number> &       v,
+                     const Quadrature<dim>           &quadrature,
+                     const ReadVector<Number>        &v,
                      const unsigned int               component)
   {
-    return compute_mean_value(hp::MappingCollection<dim, spacedim>(mapping),
-                              dof,
-                              hp::QCollection<dim>(quadrature),
-                              v,
-                              component);
+    return compute_mean_value(
+      hp::MappingCollection<dim, spacedim>(mapping), dof, hp::QCollection<dim>(quadrature), v, component);
   }
 
 
   template <int dim, typename Number, int spacedim>
   Number
   compute_mean_value(const DoFHandler<dim, spacedim> &dof,
-                     const Quadrature<dim> &          quadrature,
-                     const ReadVector<Number> &       v,
+                     const Quadrature<dim>           &quadrature,
+                     const ReadVector<Number>        &v,
                      const unsigned int               component)
   {
-    return compute_mean_value(get_default_linear_mapping(
-                                dof.get_triangulation()),
-                              dof,
-                              quadrature,
-                              v,
-                              component);
+    return compute_mean_value(get_default_linear_mapping(dof.get_triangulation()), dof, quadrature, v, component);
   }
 } // namespace VectorTools
 

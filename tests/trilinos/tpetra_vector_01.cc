@@ -46,8 +46,7 @@ test()
   parallel_partitioner_1.compress();
   parallel_partitioner_2.compress();
   LinearAlgebra::TpetraWrappers::Vector<Number> a;
-  LinearAlgebra::TpetraWrappers::Vector<Number> b(parallel_partitioner_1,
-                                                  MPI_COMM_WORLD);
+  LinearAlgebra::TpetraWrappers::Vector<Number> b(parallel_partitioner_1, MPI_COMM_WORLD);
   LinearAlgebra::TpetraWrappers::Vector<Number> c(b);
 
   AssertThrow(a.size() == 0, ExcMessage("Vector has the wrong size."));
@@ -57,10 +56,8 @@ test()
   a.reinit(parallel_partitioner_2, MPI_COMM_WORLD);
   AssertThrow(a.size() == 10, ExcMessage("Vector has the wrong size."));
 
-  AssertThrow(parallel_partitioner_1 == b.locally_owned_elements(),
-              ExcMessage("IndexSet has been modified."));
-  AssertThrow(parallel_partitioner_2 == a.locally_owned_elements(),
-              ExcMessage("IndexSet has been modified."));
+  AssertThrow(parallel_partitioner_1 == b.locally_owned_elements(), ExcMessage("IndexSet has been modified."));
+  AssertThrow(parallel_partitioner_2 == a.locally_owned_elements(), ExcMessage("IndexSet has been modified."));
 
   IndexSet read_write_index_set(10);
   if (rank == 0)
@@ -97,15 +94,13 @@ test()
     {
       for (unsigned int i = 0; i < 6; ++i)
         {
-          AssertThrow(read_write_2[i] == read_write_3[i],
-                      ExcMessage("Vector a has been modified."));
+          AssertThrow(read_write_2[i] == read_write_3[i], ExcMessage("Vector a has been modified."));
         }
     }
   else
     {
       for (unsigned int i = 4; i < 10; ++i)
-        AssertThrow(read_write_2[i] == read_write_3[i],
-                    ExcMessage("Vector a has been modified."));
+        AssertThrow(read_write_2[i] == read_write_3[i], ExcMessage("Vector a has been modified."));
     }
 
   b.import_elements(read_write_1, VectorOperation::insert);
@@ -115,14 +110,12 @@ test()
   if (rank == 0)
     {
       for (unsigned int i = 0; i < 6; ++i)
-        AssertThrow(read_write_1[i] == read_write_3[i],
-                    ExcMessage("Vector b has been modified."));
+        AssertThrow(read_write_1[i] == read_write_3[i], ExcMessage("Vector b has been modified."));
     }
   else
     {
       for (unsigned int i = 4; i < 10; ++i)
-        AssertThrow(read_write_1[i] == read_write_3[i],
-                    ExcMessage("Vector b has been modified."));
+        AssertThrow(read_write_1[i] == read_write_3[i], ExcMessage("Vector b has been modified."));
     }
 
   c.import_elements(read_write_2, VectorOperation::insert);
@@ -132,14 +125,12 @@ test()
   if (rank == 0)
     {
       for (unsigned int i = 0; i < 6; ++i)
-        AssertThrow(read_write_2[i] == read_write_3[i],
-                    ExcMessage("Vector c has been modified."));
+        AssertThrow(read_write_2[i] == read_write_3[i], ExcMessage("Vector c has been modified."));
     }
   else
     {
       for (unsigned int i = 4; i < 10; ++i)
-        AssertThrow(read_write_2[i] == read_write_3[i],
-                    ExcMessage("Vector c has been modified."));
+        AssertThrow(read_write_2[i] == read_write_3[i], ExcMessage("Vector c has been modified."));
     }
 
   a *= 2;
@@ -147,14 +138,12 @@ test()
   if (rank == 0)
     {
       for (unsigned int i = 0; i < 6; ++i)
-        AssertThrow(Number(2.) * read_write_2[i] == read_write_3[i],
-                    ExcMessage("Problem in operator *=."));
+        AssertThrow(Number(2.) * read_write_2[i] == read_write_3[i], ExcMessage("Problem in operator *=."));
     }
   else
     {
       for (unsigned int i = 4; i < 10; ++i)
-        AssertThrow(Number(2.) * read_write_2[i] == read_write_3[i],
-                    ExcMessage("Problem in operator *=."));
+        AssertThrow(Number(2.) * read_write_2[i] == read_write_3[i], ExcMessage("Problem in operator *=."));
     }
 
   c /= 2.;
@@ -162,14 +151,12 @@ test()
   if (rank == 0)
     {
       for (unsigned int i = 0; i < 6; ++i)
-        AssertThrow(Number(0.5) * read_write_2[i] == read_write_3[i],
-                    ExcMessage("Problem in operator /=."));
+        AssertThrow(Number(0.5) * read_write_2[i] == read_write_3[i], ExcMessage("Problem in operator /=."));
     }
   else
     {
       for (unsigned int i = 4; i < 10; ++i)
-        AssertThrow(Number(0.5) * read_write_2[i] == read_write_3[i],
-                    ExcMessage("Problem in operator /=."));
+        AssertThrow(Number(0.5) * read_write_2[i] == read_write_3[i], ExcMessage("Problem in operator /=."));
     }
 
   b += a;
@@ -177,15 +164,13 @@ test()
   if (rank == 0)
     {
       for (unsigned int i = 0; i < 6; ++i)
-        AssertThrow(Number(2.) * read_write_2[i] + read_write_1[i] ==
-                      read_write_3[i],
+        AssertThrow(Number(2.) * read_write_2[i] + read_write_1[i] == read_write_3[i],
                     ExcMessage("Problem in operator +=."));
     }
   else
     {
       for (unsigned int i = 4; i < 10; ++i)
-        AssertThrow(Number(2.) * read_write_2[i] + read_write_1[i] ==
-                      read_write_3[i],
+        AssertThrow(Number(2.) * read_write_2[i] + read_write_1[i] == read_write_3[i],
                     ExcMessage("Problem in operator +=."));
     }
 
@@ -194,15 +179,13 @@ test()
   if (rank == 0)
     {
       for (unsigned int i = 0; i < 6; ++i)
-        AssertThrow(Number(1.5) * read_write_2[i] + read_write_1[i] ==
-                      read_write_3[i],
+        AssertThrow(Number(1.5) * read_write_2[i] + read_write_1[i] == read_write_3[i],
                     ExcMessage("Problem in operator -=."));
     }
   else
     {
       for (unsigned int i = 4; i < 10; ++i)
-        AssertThrow(Number(1.5) * read_write_2[i] + read_write_1[i] ==
-                      read_write_3[i],
+        AssertThrow(Number(1.5) * read_write_2[i] + read_write_1[i] == read_write_3[i],
                     ExcMessage("Problem in operator -=."));
     }
 

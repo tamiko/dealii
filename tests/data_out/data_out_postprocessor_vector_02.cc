@@ -55,7 +55,7 @@ public:
 
   virtual void
   evaluate_vector_field(const DataPostprocessorInputs::Vector<dim> &input_data,
-                        std::vector<Vector<double>> &computed_quantities) const
+                        std::vector<Vector<double>>                &computed_quantities) const
   {
     for (unsigned int q = 0; q < input_data.solution_values.size(); ++q)
       {
@@ -64,12 +64,9 @@ public:
         Assert(computed_quantities[q].size() == dim, ExcInternalError());
 
         // get the cell this all belongs to
-        typename DoFHandler<dim>::cell_iterator cell =
-          input_data.template get_cell<dim>();
+        typename DoFHandler<dim>::cell_iterator cell = input_data.template get_cell<dim>();
 
-        Assert(input_data.solution_values[q](0) ==
-                 double(cell->active_cell_index()),
-               ExcInternalError());
+        Assert(input_data.solution_values[q](0) == double(cell->active_cell_index()), ExcInternalError());
 
         computed_quantities[q][0] = input_data.solution_values[q](0);
       }
@@ -97,13 +94,10 @@ test()
   // the vector so that on each cell the field has values equal to the
   // cell's active_cell_index
   Vector<double> solution(dof_handler.n_dofs());
-  for (typename DoFHandler<dim>::active_cell_iterator cell =
-         dof_handler.begin_active();
-       cell != dof_handler.end();
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(); cell != dof_handler.end();
        ++cell)
     {
-      std::vector<types::global_dof_index> local_dof_indices(
-        cell->get_fe().dofs_per_cell);
+      std::vector<types::global_dof_index> local_dof_indices(cell->get_fe().dofs_per_cell);
       cell->get_dof_indices(local_dof_indices);
       for (unsigned int i = 0; i < local_dof_indices.size(); ++i)
         solution(local_dof_indices[i]) = cell->active_cell_index();

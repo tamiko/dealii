@@ -69,20 +69,16 @@ location_to_string(const NonMatching::LocationToLevelSet location)
 // deallog, for the incoming cell and all of its faces.
 template <int dim>
 void
-print_cell_and_face_locations(
-  const NonMatching::MeshClassifier<dim> &                 classifier,
-  const typename Triangulation<dim>::active_cell_iterator &cell)
+print_cell_and_face_locations(const NonMatching::MeshClassifier<dim>                  &classifier,
+                              const typename Triangulation<dim>::active_cell_iterator &cell)
 {
-  const NonMatching::LocationToLevelSet cell_location =
-    classifier.location_to_level_set(cell);
+  const NonMatching::LocationToLevelSet cell_location = classifier.location_to_level_set(cell);
   deallog << "cell " << location_to_string(cell_location) << std::endl;
 
   for (const unsigned int f : cell->face_indices())
     {
-      const NonMatching::LocationToLevelSet face_location =
-        classifier.location_to_level_set(cell, f);
-      deallog << "face " << f << ' ' << location_to_string(face_location)
-              << std::endl;
+      const NonMatching::LocationToLevelSet face_location = classifier.location_to_level_set(cell, f);
+      deallog << "face " << f << ' ' << location_to_string(face_location) << std::endl;
     }
 }
 
@@ -112,8 +108,7 @@ classify_with_discrete_level_set(const Function<dim> &level_set)
   NonMatching::MeshClassifier<dim> classifier(dof_handler, discrete_level_set);
   classifier.reclassify();
 
-  const typename Triangulation<dim>::active_cell_iterator cell =
-    triangulation.begin_active();
+  const typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
   print_cell_and_face_locations(classifier, cell);
   deallog << std::endl;
 }
@@ -134,13 +129,10 @@ classify_with_analytic_level_set(const Function<dim> &level_set)
 
   const FE_Q<dim> element(1);
 
-  NonMatching::MeshClassifier<dim> classifier(triangulation,
-                                              level_set,
-                                              element);
+  NonMatching::MeshClassifier<dim> classifier(triangulation, level_set, element);
   classifier.reclassify();
 
-  const typename Triangulation<dim>::active_cell_iterator cell =
-    triangulation.begin_active();
+  const typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
   print_cell_and_face_locations(classifier, cell);
   deallog << std::endl;
 }
@@ -307,8 +299,7 @@ test_lagrange_coefficents_positive()
   NonMatching::MeshClassifier<dim> classifier(dof_handler, level_set);
   classifier.reclassify();
 
-  const typename Triangulation<dim>::active_cell_iterator cell =
-    triangulation.begin_active();
+  const typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
   print_cell_and_face_locations(classifier, cell);
   deallog << std::endl;
 }
@@ -339,8 +330,7 @@ test_reclassify_called_multiple_times()
   Vector<double>                   level_set(element.dofs_per_cell);
   NonMatching::MeshClassifier<dim> classifier(dof_handler, level_set);
 
-  const typename Triangulation<dim>::active_cell_iterator cell =
-    triangulation.begin_active();
+  const typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
 
   deallog << "Level set negative" << std::endl;
   level_set = -1;

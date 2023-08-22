@@ -37,10 +37,7 @@ print_triangulation(const Triangulation<dim, dim> &tria)
       deallog << cell->material_id() << ' ';
 
       for (const unsigned int f : GeometryInfo<dim>::face_indices())
-        deallog << (cell->face(f)->at_boundary() ?
-                      cell->face(f)->boundary_id() :
-                      -1)
-                << ' ';
+        deallog << (cell->face(f)->at_boundary() ? cell->face(f)->boundary_id() : -1) << ' ';
 
       for (const unsigned int v : GeometryInfo<dim>::vertex_indices())
         deallog << cell->vertex(v) << ' ';
@@ -71,17 +68,13 @@ check(const std::string type)
   // with periodic boundaries
   deallog.push("periodic");
   {
-    std::vector<GridTools::PeriodicFacePair<
-      typename Triangulation<dim, dim>::cell_iterator>>
-      periodic_faces;
+    std::vector<GridTools::PeriodicFacePair<typename Triangulation<dim, dim>::cell_iterator>> periodic_faces;
 
     Triangulation<dim, dim> tria;
 
     GridGenerator::Airfoil::AdditionalData additional_data;
     additional_data.airfoil_type = type;
-    GridGenerator::Airfoil::create_triangulation(tria,
-                                                 periodic_faces,
-                                                 additional_data);
+    GridGenerator::Airfoil::create_triangulation(tria, periodic_faces, additional_data);
 
     print_triangulation(tria);
   }

@@ -70,8 +70,7 @@ test()
 
   for (unsigned int i = 0; i < 3; ++i)
     {
-      deallog << "DoFs in the " << i
-              << ". component: " << dofs_per_component_hp.at(i) << std::endl;
+      deallog << "DoFs in the " << i << ". component: " << dofs_per_component_hp.at(i) << std::endl;
     }
 }
 

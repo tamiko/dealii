@@ -35,8 +35,8 @@ namespace Particles
 
 
   template <int dim, int spacedim>
-  Particle<dim, spacedim>::Particle(const Point<spacedim> &location,
-                                    const Point<dim> &     reference_location,
+  Particle<dim, spacedim>::Particle(const Point<spacedim>      &location,
+                                    const Point<dim>           &reference_location,
                                     const types::particle_index id)
     : property_pool(&global_property_pool)
     , property_pool_handle(property_pool->register_particle())
@@ -59,29 +59,21 @@ namespace Particles
 
     if (particle.has_properties())
       {
-        const ArrayView<const double> their_properties =
-          particle.get_properties();
-        const ArrayView<double> my_properties =
-          property_pool->get_properties(property_pool_handle);
+        const ArrayView<const double> their_properties = particle.get_properties();
+        const ArrayView<double>       my_properties    = property_pool->get_properties(property_pool_handle);
 
-        std::copy(their_properties.begin(),
-                  their_properties.end(),
-                  my_properties.begin());
+        std::copy(their_properties.begin(), their_properties.end(), my_properties.begin());
       }
   }
 
 
 
   template <int dim, int spacedim>
-  Particle<dim, spacedim>::Particle(
-    const void *&                      data,
-    PropertyPool<dim, spacedim> *const new_property_pool)
-    : property_pool(new_property_pool != nullptr ? new_property_pool :
-                                                   &global_property_pool)
+  Particle<dim, spacedim>::Particle(const void *&data, PropertyPool<dim, spacedim> *const new_property_pool)
+    : property_pool(new_property_pool != nullptr ? new_property_pool : &global_property_pool)
     , property_pool_handle(property_pool->register_particle())
   {
-    const types::particle_index *id_data =
-      static_cast<const types::particle_index *>(data);
+    const types::particle_index *id_data = static_cast<const types::particle_index *>(data);
     set_id(*id_data++);
     const double *pdata = reinterpret_cast<const double *>(id_data);
 
@@ -99,7 +91,7 @@ namespace Particles
     if (has_properties())
       {
         const ArrayView<double> particle_properties = this->get_properties();
-        const unsigned int      size = particle_properties.size();
+        const unsigned int      size                = particle_properties.size();
         for (unsigned int i = 0; i < size; ++i)
           particle_properties[i] = *pdata++;
       }
@@ -131,8 +123,7 @@ namespace Particles
   {
     if (this != &particle)
       {
-        Assert(this->property_pool->n_properties_per_slot() ==
-                 particle.property_pool->n_properties_per_slot(),
+        Assert(this->property_pool->n_properties_per_slot() == particle.property_pool->n_properties_per_slot(),
                ExcInternalError());
 
         set_location(particle.get_location());
@@ -141,14 +132,10 @@ namespace Particles
 
         if (particle.has_properties())
           {
-            const ArrayView<const double> their_properties =
-              particle.get_properties();
-            const ArrayView<double> my_properties =
-              property_pool->get_properties(property_pool_handle);
+            const ArrayView<const double> their_properties = particle.get_properties();
+            const ArrayView<double>       my_properties    = property_pool->get_properties(property_pool_handle);
 
-            std::copy(their_properties.begin(),
-                      their_properties.end(),
-                      my_properties.begin());
+            std::copy(their_properties.begin(), their_properties.end(), my_properties.begin());
           }
       }
 
@@ -159,8 +146,7 @@ namespace Particles
 
   template <int dim, int spacedim>
   Particle<dim, spacedim> &
-  Particle<dim, spacedim>::operator=(
-    Particle<dim, spacedim> &&particle) noexcept
+  Particle<dim, spacedim>::operator=(Particle<dim, spacedim> &&particle) noexcept
   {
     if (this != &particle)
       {
@@ -179,8 +165,7 @@ namespace Particles
         // We stole the rhs's properties, so we need to invalidate
         // the handle the rhs holds lest it releases the memory that
         // we still reference here.
-        particle.property_pool_handle =
-          PropertyPool<dim, spacedim>::invalid_handle;
+        particle.property_pool_handle = PropertyPool<dim, spacedim>::invalid_handle;
       }
     return *this;
   }
@@ -216,12 +201,10 @@ namespace Particles
 
   template <int dim, int spacedim>
   void *
-  Particle<dim, spacedim>::write_particle_data_to_memory(
-    void *data_pointer) const
+  Particle<dim, spacedim>::write_particle_data_to_memory(void *data_pointer) const
   {
-    types::particle_index *id_data =
-      static_cast<types::particle_index *>(data_pointer);
-    *id_data = get_id();
+    types::particle_index *id_data = static_cast<types::particle_index *>(data_pointer);
+    *id_data                       = get_id();
     ++id_data;
     double *pdata = reinterpret_cast<double *>(id_data);
 
@@ -236,8 +219,7 @@ namespace Particles
     // Write properties
     if (has_properties())
       {
-        const ArrayView<double> particle_properties =
-          property_pool->get_properties(property_pool_handle);
+        const ArrayView<double> particle_properties = property_pool->get_properties(property_pool_handle);
         for (unsigned int i = 0; i < particle_properties.size(); ++i, ++pdata)
           *pdata = particle_properties[i];
       }
@@ -249,11 +231,9 @@ namespace Particles
 
   template <int dim, int spacedim>
   const void *
-  Particle<dim, spacedim>::read_particle_data_from_memory(
-    const void *data_pointer)
+  Particle<dim, spacedim>::read_particle_data_from_memory(const void *data_pointer)
   {
-    const types::particle_index *id_data =
-      static_cast<const types::particle_index *>(data_pointer);
+    const types::particle_index *id_data = static_cast<const types::particle_index *>(data_pointer);
     set_id(*id_data++);
     const double *pdata = reinterpret_cast<const double *>(id_data);
 
@@ -270,9 +250,8 @@ namespace Particles
     // See if there are properties to load
     if (has_properties())
       {
-        const ArrayView<double> particle_properties =
-          property_pool->get_properties(property_pool_handle);
-        const unsigned int size = particle_properties.size();
+        const ArrayView<double> particle_properties = property_pool->get_properties(property_pool_handle);
+        const unsigned int      size                = particle_properties.size();
         for (unsigned int i = 0; i < size; ++i)
           particle_properties[i] = *pdata++;
       }
@@ -286,13 +265,11 @@ namespace Particles
   std::size_t
   Particle<dim, spacedim>::serialized_size_in_bytes() const
   {
-    std::size_t size = sizeof(get_id()) + sizeof(get_location()) +
-                       sizeof(get_reference_location());
+    std::size_t size = sizeof(get_id()) + sizeof(get_location()) + sizeof(get_reference_location());
 
     if (has_properties())
       {
-        const ArrayView<double> particle_properties =
-          property_pool->get_properties(property_pool_handle);
+        const ArrayView<double> particle_properties = property_pool->get_properties(property_pool_handle);
         size += sizeof(double) * particle_properties.size();
       }
     return size;
@@ -302,25 +279,18 @@ namespace Particles
 
   template <int dim, int spacedim>
   void
-  Particle<dim, spacedim>::set_properties(
-    const ArrayView<const double> &new_properties)
+  Particle<dim, spacedim>::set_properties(const ArrayView<const double> &new_properties)
   {
-    const ArrayView<double> property_values =
-      property_pool->get_properties(property_pool_handle);
+    const ArrayView<double> property_values = property_pool->get_properties(property_pool_handle);
 
     Assert(new_properties.size() == property_values.size(),
-           ExcMessage(
-             "You are trying to assign properties with an incompatible length. "
-             "The particle has space to store " +
-             std::to_string(property_values.size()) +
-             " properties, but you are trying to assign " +
-             std::to_string(new_properties.size()) +
-             " properties. This is not allowed."));
+           ExcMessage("You are trying to assign properties with an incompatible length. "
+                      "The particle has space to store " +
+                      std::to_string(property_values.size()) + " properties, but you are trying to assign " +
+                      std::to_string(new_properties.size()) + " properties. This is not allowed."));
 
     if (property_values.size() > 0)
-      std::copy(new_properties.begin(),
-                new_properties.end(),
-                property_values.begin());
+      std::copy(new_properties.begin(), new_properties.end(), property_values.begin());
   }
 
 

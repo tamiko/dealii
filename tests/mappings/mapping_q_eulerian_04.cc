@@ -64,12 +64,10 @@ test()
   QTrapezoid<dim>                                  quad;
   MappingQ1Eulerian<dim, Vector<double>, spacedim> mapping(shift_dh, shift);
 
-  typename Triangulation<dim, spacedim>::active_cell_iterator
-    cell = tria.begin_active(),
-    endc = tria.end();
-  Point<spacedim> real;
-  Point<dim>      unit;
-  double          eps = 1e-10;
+  typename Triangulation<dim, spacedim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
+  Point<spacedim>                                             real;
+  Point<dim>                                                  unit;
+  double                                                      eps = 1e-10;
   for (; cell != endc; ++cell)
     {
       deallog << cell << std::endl;

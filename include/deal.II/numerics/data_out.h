@@ -40,16 +40,13 @@ namespace internal
     template <int dim, int spacedim>
     struct ParallelData : public ParallelDataBase<dim, spacedim>
     {
-      ParallelData(
-        const unsigned int               n_datasets,
-        const unsigned int               n_subdivisions,
-        const std::vector<unsigned int> &n_postprocessor_outputs,
-        const dealii::hp::MappingCollection<dim, spacedim> &mapping,
-        const std::vector<
-          std::shared_ptr<dealii::hp::FECollection<dim, spacedim>>>
-          &                                           finite_elements,
-        const UpdateFlags                             update_flags,
-        const std::vector<std::vector<unsigned int>> &cell_to_patch_index_map);
+      ParallelData(const unsigned int                                                           n_datasets,
+                   const unsigned int                                                           n_subdivisions,
+                   const std::vector<unsigned int>                                             &n_postprocessor_outputs,
+                   const dealii::hp::MappingCollection<dim, spacedim>                          &mapping,
+                   const std::vector<std::shared_ptr<dealii::hp::FECollection<dim, spacedim>>> &finite_elements,
+                   const UpdateFlags                                                            update_flags,
+                   const std::vector<std::vector<unsigned int>> &cell_to_patch_index_map);
 
       std::vector<Point<spacedim>> patch_evaluation_points;
 
@@ -151,23 +148,20 @@ public:
    * Typedef to the iterator type of the dof handler class under
    * consideration.
    */
-  using cell_iterator =
-    typename DataOut_DoFData<dim, dim, spacedim, spacedim>::cell_iterator;
+  using cell_iterator = typename DataOut_DoFData<dim, dim, spacedim, spacedim>::cell_iterator;
 
   /**
    * The type of the function object returning the first cell as used in
    * set_cell_selection().
    */
-  using FirstCellFunctionType =
-    typename std::function<cell_iterator(const Triangulation<dim, spacedim> &)>;
+  using FirstCellFunctionType = typename std::function<cell_iterator(const Triangulation<dim, spacedim> &)>;
 
   /**
    * The type of the function object returning the next cell as used in
    * set_cell_selection().
    */
   using NextCellFunctionType =
-    typename std::function<cell_iterator(const Triangulation<dim, spacedim> &,
-                                         const cell_iterator &)>;
+    typename std::function<cell_iterator(const Triangulation<dim, spacedim> &, const cell_iterator &)>;
 
   /**
    * Enumeration describing the part of the domain in which cells
@@ -317,7 +311,7 @@ public:
   virtual void
   build_patches(const hp::MappingCollection<dim, spacedim> &mapping,
                 const unsigned int                          n_subdivisions = 0,
-                const CurvedCellRegion curved_region = curved_boundary);
+                const CurvedCellRegion                      curved_region  = curved_boundary);
 
   /**
    * A function that allows selecting for which cells output should be
@@ -365,10 +359,8 @@ public:
    */
   void
   set_cell_selection(
-    const std::function<cell_iterator(const Triangulation<dim, spacedim> &)>
-      &                                                        first_cell,
-    const std::function<cell_iterator(const Triangulation<dim, spacedim> &,
-                                      const cell_iterator &)> &next_cell);
+    const std::function<cell_iterator(const Triangulation<dim, spacedim> &)>                        &first_cell,
+    const std::function<cell_iterator(const Triangulation<dim, spacedim> &, const cell_iterator &)> &next_cell);
 
   /**
    * A variation of the previous function that selects a subset of all
@@ -422,17 +414,14 @@ private:
    * be on which to generate graphical output. See the set_cell_selection()
    * function for more information.
    */
-  std::function<cell_iterator(const Triangulation<dim, spacedim> &)>
-    first_cell_function;
+  std::function<cell_iterator(const Triangulation<dim, spacedim> &)> first_cell_function;
 
   /**
    * A function object that is used to select what the next cell is going to
    * be on which to generate graphical output, given a previous cell. See
    * the set_cell_selection() function for more information.
    */
-  std::function<cell_iterator(const Triangulation<dim, spacedim> &,
-                              const cell_iterator &)>
-    next_cell_function;
+  std::function<cell_iterator(const Triangulation<dim, spacedim> &, const cell_iterator &)> next_cell_function;
 
   /**
    * Build one patch. This function is called in a WorkStream context.
@@ -444,11 +433,10 @@ private:
    * reasons.
    */
   void
-  build_one_patch(
-    const std::pair<cell_iterator, unsigned int> *cell_and_index,
-    internal::DataOutImplementation::ParallelData<dim, spacedim> &scratch_data,
-    const unsigned int     n_subdivisions,
-    const CurvedCellRegion curved_cell_region);
+  build_one_patch(const std::pair<cell_iterator, unsigned int>                 *cell_and_index,
+                  internal::DataOutImplementation::ParallelData<dim, spacedim> &scratch_data,
+                  const unsigned int                                            n_subdivisions,
+                  const CurvedCellRegion                                        curved_cell_region);
 };
 
 

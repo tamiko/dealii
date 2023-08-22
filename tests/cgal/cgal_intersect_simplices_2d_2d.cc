@@ -41,13 +41,11 @@ test_inside_intersection(Triangulation<2> &tria0, Triangulation<2> &tria1)
   const auto   cell0         = tria0.begin_active();
   const auto   cell1         = tria1.begin_active();
 
-  const auto vec_of_arrays = CGALWrappers::compute_intersection_of_cells(
-    cell0, cell1, MappingQ1<2>(), MappingQ1<2>());
+  const auto vec_of_arrays = CGALWrappers::compute_intersection_of_cells(cell0, cell1, MappingQ1<2>(), MappingQ1<2>());
 
 
   const auto   quad = QGaussSimplex<2>(1).mapped_quadrature(vec_of_arrays);
-  const double sum =
-    std::accumulate(quad.get_weights().begin(), quad.get_weights().end(), 0.);
+  const double sum  = std::accumulate(quad.get_weights().begin(), quad.get_weights().end(), 0.);
   assert(std::abs(expected_area - sum) < 1e-15);
   deallog << "OK" << std::endl;
 }
@@ -64,12 +62,10 @@ test_intersection(Triangulation<2> &tria0, Triangulation<2> &tria1)
   const auto cell0 = tria0.begin_active();
   const auto cell1 = tria1.begin_active();
 
-  const auto vec_of_arrays = CGALWrappers::compute_intersection_of_cells(
-    cell0, cell1, MappingQ1<2>(), MappingQ1<2>());
+  const auto vec_of_arrays = CGALWrappers::compute_intersection_of_cells(cell0, cell1, MappingQ1<2>(), MappingQ1<2>());
 
   const auto   quad = QGaussSimplex<2>(1).mapped_quadrature(vec_of_arrays);
-  const double sum =
-    std::accumulate(quad.get_weights().begin(), quad.get_weights().end(), 0.);
+  const double sum  = std::accumulate(quad.get_weights().begin(), quad.get_weights().end(), 0.);
   assert(std::abs(expected_area - sum) < 1e-15);
   deallog << "OK" << std::endl;
 }
@@ -86,12 +82,10 @@ test_failing_intersection(Triangulation<2> &tria0, Triangulation<2> &tria1)
   const auto cell0 = tria0.begin_active();
   const auto cell1 = tria1.begin_active();
 
-  const auto vec_of_arrays = CGALWrappers::compute_intersection_of_cells(
-    cell0, cell1, MappingQ1<2>(), MappingQ1<2>());
+  const auto vec_of_arrays = CGALWrappers::compute_intersection_of_cells(cell0, cell1, MappingQ1<2>(), MappingQ1<2>());
 
   const auto   quad = QGaussSimplex<2>(1).mapped_quadrature(vec_of_arrays);
-  const double sum =
-    std::accumulate(quad.get_weights().begin(), quad.get_weights().end(), 0.);
+  const double sum  = std::accumulate(quad.get_weights().begin(), quad.get_weights().end(), 0.);
   assert(std::abs(expected_area - sum) < 1e-15);
   deallog << "OK" << std::endl;
 }

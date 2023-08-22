@@ -60,8 +60,7 @@ test(const unsigned int n_refinements)
 
   std::vector<BoundingBox<2>> all_boxes(tria.n_locally_owned_active_cells());
   unsigned int                i = 0;
-  for (const auto &cell :
-       tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     all_boxes[i++] = cell->bounding_box();
 
   const auto tree  = pack_rtree(all_boxes);

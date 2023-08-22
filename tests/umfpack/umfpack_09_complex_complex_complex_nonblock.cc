@@ -111,9 +111,7 @@ test()
       // the actual choice of rhs shouldn't matter for this test, we
       // are free to normalize as we see fit.
       for (unsigned int j = 0; j < dof_handler.n_dofs(); ++j)
-        solution(j) =
-          1. * (j + j * (i + 1) * (i + 1)) *
-          std::complex<double>(1. / std::sqrt(5.), 2. / std::sqrt(5.));
+        solution(j) = 1. * (j + j * (i + 1) * (i + 1)) * std::complex<double>(1. / std::sqrt(5.), 2. / std::sqrt(5.));
 
       // Then choose as rhs for the linear system the vector
       //   b = B*solution
@@ -137,10 +135,8 @@ test()
 
       // Check that we really got what we expected
       x -= solution;
-      deallog << "relative norm distance = " << x.l2_norm() / solution.l2_norm()
-              << std::endl;
-      deallog << "absolute norms = " << x.l2_norm() << ' ' << solution.l2_norm()
-              << std::endl;
+      deallog << "relative norm distance = " << x.l2_norm() / solution.l2_norm() << std::endl;
+      deallog << "absolute norms = " << x.l2_norm() << ' ' << solution.l2_norm() << std::endl;
       Assert(x.l2_norm() / solution.l2_norm() < 1e-8, ExcInternalError());
     }
 }

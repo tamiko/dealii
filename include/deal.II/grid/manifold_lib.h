@@ -121,9 +121,8 @@ public:
    * @copydoc Manifold::normal_vector()
    */
   virtual Tensor<1, spacedim>
-  normal_vector(
-    const typename Triangulation<dim, spacedim>::face_iterator &face,
-    const Point<spacedim> &p) const override;
+  normal_vector(const typename Triangulation<dim, spacedim>::face_iterator &face,
+                const Point<spacedim>                                      &p) const override;
 
   /**
    * The center of the spherical coordinate system.
@@ -255,34 +254,28 @@ public:
    * starting radii.
    */
   virtual Point<spacedim>
-  get_intermediate_point(const Point<spacedim> &p1,
-                         const Point<spacedim> &p2,
-                         const double           w) const override;
+  get_intermediate_point(const Point<spacedim> &p1, const Point<spacedim> &p2, const double w) const override;
 
   /**
    * Compute the derivative of the get_intermediate_point() function
    * with parameter w equal to zero.
    */
   virtual Tensor<1, spacedim>
-  get_tangent_vector(const Point<spacedim> &x1,
-                     const Point<spacedim> &x2) const override;
+  get_tangent_vector(const Point<spacedim> &x1, const Point<spacedim> &x2) const override;
 
   /**
    * @copydoc Manifold::normal_vector()
    */
   virtual Tensor<1, spacedim>
-  normal_vector(
-    const typename Triangulation<dim, spacedim>::face_iterator &face,
-    const Point<spacedim> &p) const override;
+  normal_vector(const typename Triangulation<dim, spacedim>::face_iterator &face,
+                const Point<spacedim>                                      &p) const override;
 
   /**
    * Compute the normal vectors to the boundary at each vertex.
    */
   virtual void
-  get_normals_at_vertices(
-    const typename Triangulation<dim, spacedim>::face_iterator &face,
-    typename Manifold<dim, spacedim>::FaceVertexNormals &face_vertex_normals)
-    const override;
+  get_normals_at_vertices(const typename Triangulation<dim, spacedim>::face_iterator &face,
+                          typename Manifold<dim, spacedim>::FaceVertexNormals &face_vertex_normals) const override;
 
   /**
    * Compute a new set of points that interpolate between the given points @p
@@ -300,8 +293,8 @@ public:
    */
   virtual void
   get_new_points(const ArrayView<const Point<spacedim>> &surrounding_points,
-                 const Table<2, double> &                weights,
-                 ArrayView<Point<spacedim>> new_points) const override;
+                 const Table<2, double>                 &weights,
+                 ArrayView<Point<spacedim>>              new_points) const override;
 
   /**
    * Return a point on the spherical manifold which is intermediate
@@ -309,7 +302,7 @@ public:
    */
   virtual Point<spacedim>
   get_new_point(const ArrayView<const Point<spacedim>> &vertices,
-                const ArrayView<const double> &         weights) const override;
+                const ArrayView<const double>          &weights) const override;
 
   /**
    * The center of the spherical coordinate system.
@@ -325,8 +318,8 @@ private:
    */
   std::pair<double, Tensor<1, spacedim>>
   guess_new_point(const ArrayView<const Tensor<1, spacedim>> &directions,
-                  const ArrayView<const double> &             distances,
-                  const ArrayView<const double> &             weights) const;
+                  const ArrayView<const double>              &distances,
+                  const ArrayView<const double>              &weights) const;
 
   /**
    * Return a point on the spherical manifold which is intermediate
@@ -345,9 +338,9 @@ private:
    */
   Point<spacedim>
   get_new_point(const ArrayView<const Tensor<1, spacedim>> &directions,
-                const ArrayView<const double> &             distances,
-                const ArrayView<const double> &             weights,
-                const Point<spacedim> &candidate_point) const;
+                const ArrayView<const double>              &distances,
+                const ArrayView<const double>              &weights,
+                const Point<spacedim>                      &candidate_point) const;
 
   /**
    * Compute a new set of points that interpolate between the given points @p
@@ -364,7 +357,7 @@ private:
    */
   virtual void
   get_new_points(const ArrayView<const Point<spacedim>> &surrounding_points,
-                 const ArrayView<const double> &         weights,
+                 const ArrayView<const double>          &weights,
                  ArrayView<Point<spacedim>>              new_points) const;
 
   /**
@@ -396,8 +389,7 @@ public:
    * <tt>axis=2</tt> for a tube along the y- or z-axis, respectively. The
    * tolerance value is used to determine if a point is on the axis.
    */
-  CylindricalManifold(const unsigned int axis      = 0,
-                      const double       tolerance = 1e-10);
+  CylindricalManifold(const unsigned int axis = 0, const double tolerance = 1e-10);
 
   /**
    * Constructor. If constructed with this constructor, the manifold described
@@ -407,7 +399,7 @@ public:
    * value is used to determine if a point is on the axis.
    */
   CylindricalManifold(const Tensor<1, spacedim> &direction,
-                      const Point<spacedim> &    point_on_axis,
+                      const Point<spacedim>     &point_on_axis,
                       const double               tolerance = 1e-10);
 
   /**
@@ -449,7 +441,7 @@ public:
    */
   virtual Point<spacedim>
   get_new_point(const ArrayView<const Point<spacedim>> &surrounding_points,
-                const ArrayView<const double> &         weights) const override;
+                const ArrayView<const double>          &weights) const override;
 
 private:
   /**
@@ -524,7 +516,7 @@ public:
    * @param eccentricity Eccentricity of the
    * manifold $e\in\left]0,1\right[$.
    */
-  EllipticalManifold(const Point<spacedim> &    center,
+  EllipticalManifold(const Point<spacedim>     &center,
                      const Tensor<1, spacedim> &major_axis_direction,
                      const double               eccentricity);
 
@@ -607,11 +599,10 @@ public:
    * push_forward and  pull_back functions. Therefore, one must guarantee that
    * the function objects are destroyed only after the constructed manifold.
    */
-  FunctionManifold(
-    const Function<chartdim> & push_forward_function,
-    const Function<spacedim> & pull_back_function,
-    const Tensor<1, chartdim> &periodicity = Tensor<1, chartdim>(),
-    const double               tolerance   = 1e-10);
+  FunctionManifold(const Function<chartdim>  &push_forward_function,
+                   const Function<spacedim>  &pull_back_function,
+                   const Tensor<1, chartdim> &periodicity = Tensor<1, chartdim>(),
+                   const double               tolerance   = 1e-10);
 
   /**
    * Same as previous, except this constructor takes ownership of the Function
@@ -624,11 +615,10 @@ public:
    * FunctionManifold<dim> manifold(std::make_unique<MyPushForward>(...),
    *                                std::make_unique<MyPullBack>(...));
    */
-  FunctionManifold(
-    std::unique_ptr<Function<chartdim>> push_forward,
-    std::unique_ptr<Function<spacedim>> pull_back,
-    const Tensor<1, chartdim> &         periodicity = Tensor<1, chartdim>(),
-    const double                        tolerance   = 1e-10);
+  FunctionManifold(std::unique_ptr<Function<chartdim>> push_forward,
+                   std::unique_ptr<Function<spacedim>> pull_back,
+                   const Tensor<1, chartdim>          &periodicity = Tensor<1, chartdim>(),
+                   const double                        tolerance   = 1e-10);
 
   /**
    * Expressions constructor. Takes the expressions of the push_forward
@@ -644,18 +634,14 @@ public:
    * The tolerance argument is used in debug mode to actually check that the
    * two functions are one the inverse of the other.
    */
-  FunctionManifold(
-    const std::string          push_forward_expression,
-    const std::string          pull_back_expression,
-    const Tensor<1, chartdim> &periodicity = Tensor<1, chartdim>(),
-    const typename FunctionParser<spacedim>::ConstMap =
-      typename FunctionParser<spacedim>::ConstMap(),
-    const std::string chart_vars =
-      FunctionParser<chartdim>::default_variable_names(),
-    const std::string space_vars =
-      FunctionParser<spacedim>::default_variable_names(),
-    const double tolerance = 1e-10,
-    const double h         = 1e-8);
+  FunctionManifold(const std::string          push_forward_expression,
+                   const std::string          pull_back_expression,
+                   const Tensor<1, chartdim> &periodicity            = Tensor<1, chartdim>(),
+                   const typename FunctionParser<spacedim>::ConstMap = typename FunctionParser<spacedim>::ConstMap(),
+                   const std::string chart_vars = FunctionParser<chartdim>::default_variable_names(),
+                   const std::string space_vars = FunctionParser<spacedim>::default_variable_names(),
+                   const double      tolerance  = 1e-10,
+                   const double      h          = 1e-8);
 
   /**
    * If needed, we delete the pointers we own.
@@ -716,16 +702,12 @@ private:
   /**
    * Pointer to the push_forward function.
    */
-  SmartPointer<const Function<chartdim>,
-               FunctionManifold<dim, spacedim, chartdim>>
-    push_forward_function;
+  SmartPointer<const Function<chartdim>, FunctionManifold<dim, spacedim, chartdim>> push_forward_function;
 
   /**
    * Pointer to the pull_back function.
    */
-  SmartPointer<const Function<spacedim>,
-               FunctionManifold<dim, spacedim, chartdim>>
-    pull_back_function;
+  SmartPointer<const Function<spacedim>, FunctionManifold<dim, spacedim, chartdim>> pull_back_function;
 
   /**
    * Relative tolerance. In debug mode, we check that the two functions
@@ -1016,7 +998,7 @@ public:
    */
   virtual Point<spacedim>
   get_new_point(const ArrayView<const Point<spacedim>> &surrounding_points,
-                const ArrayView<const double> &         weights) const override;
+                const ArrayView<const double>          &weights) const override;
 
   /**
    * Compute a new set of points that interpolate between the given points @p
@@ -1039,8 +1021,8 @@ public:
    */
   virtual void
   get_new_points(const ArrayView<const Point<spacedim>> &surrounding_points,
-                 const Table<2, double> &                weights,
-                 ArrayView<Point<spacedim>> new_points) const override;
+                 const Table<2, double>                 &weights,
+                 ArrayView<Point<spacedim>>              new_points) const override;
 
 private:
   /**
@@ -1055,8 +1037,7 @@ private:
    * the indices <tt>cell->index()</tt>.
    */
   std::array<unsigned int, 20>
-  get_possible_cells_around_points(
-    const ArrayView<const Point<spacedim>> &surrounding_points) const;
+  get_possible_cells_around_points(const ArrayView<const Point<spacedim>> &surrounding_points) const;
 
   /**
    * Finalizes the identification of the correct chart and populates @p
@@ -1066,9 +1047,8 @@ private:
    * Return an iterator to the cell on which the chart is defined.
    */
   typename Triangulation<dim, spacedim>::cell_iterator
-  compute_chart_points(
-    const ArrayView<const Point<spacedim>> &surrounding_points,
-    ArrayView<Point<dim>>                   chart_points) const;
+  compute_chart_points(const ArrayView<const Point<spacedim>> &surrounding_points,
+                       ArrayView<Point<dim>>                   chart_points) const;
 
   /**
    * Pull back operation into the unit coordinates on the given coarse cell.
@@ -1088,8 +1068,8 @@ private:
    */
   Point<dim>
   pull_back(const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-            const Point<spacedim> &                                     p,
-            const Point<dim> &initial_guess) const;
+            const Point<spacedim>                                      &p,
+            const Point<dim>                                           &initial_guess) const;
 
   /**
    * Push forward operation.
@@ -1103,8 +1083,7 @@ private:
    * between the chart space and the image space.
    */
   Point<spacedim>
-  push_forward(const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-               const Point<dim> &chart_point) const;
+  push_forward(const typename Triangulation<dim, spacedim>::cell_iterator &cell, const Point<dim> &chart_point) const;
 
   /**
    * Gradient of the push_forward method.
@@ -1118,10 +1097,9 @@ private:
    * by finite differences.
    */
   DerivativeForm<1, dim, spacedim>
-  push_forward_gradient(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const Point<dim> &                                          chart_point,
-    const Point<spacedim> &pushed_forward_chart_point) const;
+  push_forward_gradient(const typename Triangulation<dim, spacedim>::cell_iterator &cell,
+                        const Point<dim>                                           &chart_point,
+                        const Point<spacedim>                                      &pushed_forward_chart_point) const;
 
   /**
    * The underlying triangulation.
@@ -1151,9 +1129,7 @@ private:
    * A vector of quadratic approximations to the inverse map from real points
    * to chart points for each of the coarse mesh cells.
    */
-  std::vector<internal::MappingQImplementation::
-                InverseQuadraticApproximation<dim, spacedim>>
-    quadratic_approximation;
+  std::vector<internal::MappingQImplementation::InverseQuadraticApproximation<dim, spacedim>> quadratic_approximation;
 
   /**
    * The connection to Triangulation::signals::clear that must be reset once

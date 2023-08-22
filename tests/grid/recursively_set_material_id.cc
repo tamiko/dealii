@@ -52,10 +52,7 @@ test()
         tr.refine_global(1);
       else
         {
-          for (typename Triangulation<dim>::active_cell_iterator cell =
-                 tr.begin_active();
-               cell != tr.end();
-               ++cell)
+          for (typename Triangulation<dim>::active_cell_iterator cell = tr.begin_active(); cell != tr.end(); ++cell)
             cell->set_refine_flag(RefinementCase<dim>::cut_x);
           tr.execute_coarsening_and_refinement();
         }
@@ -71,10 +68,7 @@ test()
       // active cells inherited this
       // flag
       unsigned int n = 0;
-      for (typename Triangulation<dim>::active_cell_iterator cell =
-             tr.begin_active();
-           cell != tr.end();
-           ++cell)
+      for (typename Triangulation<dim>::active_cell_iterator cell = tr.begin_active(); cell != tr.end(); ++cell)
         if (cell->material_id() == 1)
           ++n;
 
@@ -82,8 +76,7 @@ test()
 
       if (t == 0)
         {
-          AssertThrow(n == GeometryInfo<dim>::max_children_per_cell,
-                      ExcInternalError());
+          AssertThrow(n == GeometryInfo<dim>::max_children_per_cell, ExcInternalError());
         }
       else
         {

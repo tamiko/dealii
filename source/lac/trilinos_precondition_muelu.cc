@@ -28,17 +28,16 @@ DEAL_II_NAMESPACE_OPEN
 
 namespace TrilinosWrappers
 {
-  PreconditionAMGMueLu::AdditionalData::AdditionalData(
-    const bool                            elliptic,
-    const unsigned int                    n_cycles,
-    const bool                            w_cycle,
-    const double                          aggregation_threshold,
-    const std::vector<std::vector<bool>> &constant_modes,
-    const unsigned int                    smoother_sweeps,
-    const unsigned int                    smoother_overlap,
-    const bool                            output_details,
-    const char *                          smoother_type,
-    const char *                          coarse_type)
+  PreconditionAMGMueLu::AdditionalData::AdditionalData(const bool                            elliptic,
+                                                       const unsigned int                    n_cycles,
+                                                       const bool                            w_cycle,
+                                                       const double                          aggregation_threshold,
+                                                       const std::vector<std::vector<bool>> &constant_modes,
+                                                       const unsigned int                    smoother_sweeps,
+                                                       const unsigned int                    smoother_overlap,
+                                                       const bool                            output_details,
+                                                       const char                           *smoother_type,
+                                                       const char                           *coarse_type)
     : elliptic(elliptic)
     , n_cycles(n_cycles)
     , w_cycle(w_cycle)
@@ -62,16 +61,13 @@ namespace TrilinosWrappers
 #    else
     constexpr bool enabled = true;
 #    endif
-    AssertThrow(enabled,
-                ExcMessage(
-                  "PreconditionAMGMueLu does not support 64bit-indices!"));
+    AssertThrow(enabled, ExcMessage("PreconditionAMGMueLu does not support 64bit-indices!"));
   }
 
 
 
   void
-  PreconditionAMGMueLu::initialize(const SparseMatrix &  matrix,
-                                   const AdditionalData &additional_data)
+  PreconditionAMGMueLu::initialize(const SparseMatrix &matrix, const AdditionalData &additional_data)
   {
     initialize(matrix.trilinos_matrix(), additional_data);
   }
@@ -79,8 +75,7 @@ namespace TrilinosWrappers
 
 
   void
-  PreconditionAMGMueLu::initialize(const Epetra_CrsMatrix &matrix,
-                                   const AdditionalData &  additional_data)
+  PreconditionAMGMueLu::initialize(const Epetra_CrsMatrix &matrix, const AdditionalData &additional_data)
   {
     // Build the AMG preconditioner.
     Teuchos::ParameterList parameter_list;
@@ -102,20 +97,16 @@ namespace TrilinosWrappers
     parameter_list.set("smoother: type", additional_data.smoother_type);
     parameter_list.set("coarse: type", additional_data.coarse_type);
 
-    parameter_list.set("smoother: sweeps",
-                       static_cast<int>(additional_data.smoother_sweeps));
-    parameter_list.set("cycle applications",
-                       static_cast<int>(additional_data.n_cycles));
+    parameter_list.set("smoother: sweeps", static_cast<int>(additional_data.smoother_sweeps));
+    parameter_list.set("cycle applications", static_cast<int>(additional_data.n_cycles));
     if (additional_data.w_cycle == true)
       parameter_list.set("prec type", "MGW");
     else
       parameter_list.set("prec type", "MGV");
 
     parameter_list.set("smoother: Chebyshev alpha", 10.);
-    parameter_list.set("smoother: ifpack overlap",
-                       static_cast<int>(additional_data.smoother_overlap));
-    parameter_list.set("aggregation: threshold",
-                       additional_data.aggregation_threshold);
+    parameter_list.set("smoother: ifpack overlap", static_cast<int>(additional_data.smoother_overlap));
+    parameter_list.set("aggregation: threshold", additional_data.aggregation_threshold);
     parameter_list.set("coarse: max size", 2000);
 
     if (additional_data.output_details)
@@ -125,29 +116,21 @@ namespace TrilinosWrappers
 
     const Epetra_Map &domain_map = matrix.OperatorDomainMap();
 
-    const size_type constant_modes_dimension =
-      additional_data.constant_modes.size();
-    Epetra_MultiVector distributed_constant_modes(
-      domain_map, constant_modes_dimension > 0 ? constant_modes_dimension : 1);
+    const size_type     constant_modes_dimension = additional_data.constant_modes.size();
+    Epetra_MultiVector  distributed_constant_modes(domain_map,
+                                                  constant_modes_dimension > 0 ? constant_modes_dimension : 1);
     std::vector<double> dummy(constant_modes_dimension);
 
     if (constant_modes_dimension > 0)
       {
-        const size_type n_rows = TrilinosWrappers::n_global_rows(matrix);
-        const bool      constant_modes_are_global =
-          additional_data.constant_modes[0].size() == n_rows;
-        const size_type n_relevant_rows =
-          constant_modes_are_global ? n_rows :
-                                      additional_data.constant_modes[0].size();
-        const size_type my_size = domain_map.NumMyElements();
+        const size_type n_rows                    = TrilinosWrappers::n_global_rows(matrix);
+        const bool      constant_modes_are_global = additional_data.constant_modes[0].size() == n_rows;
+        const size_type n_relevant_rows = constant_modes_are_global ? n_rows : additional_data.constant_modes[0].size();
+        const size_type my_size         = domain_map.NumMyElements();
         if (constant_modes_are_global == false)
-          Assert(n_relevant_rows == my_size,
-                 ExcDimensionMismatch(n_relevant_rows, my_size));
-        Assert(n_rows == static_cast<size_type>(TrilinosWrappers::global_length(
-                           distributed_constant_modes)),
-               ExcDimensionMismatch(n_rows,
-                                    TrilinosWrappers::global_length(
-                                      distributed_constant_modes)));
+          Assert(n_relevant_rows == my_size, ExcDimensionMismatch(n_relevant_rows, my_size));
+        Assert(n_rows == static_cast<size_type>(TrilinosWrappers::global_length(distributed_constant_modes)),
+               ExcDimensionMismatch(n_rows, TrilinosWrappers::global_length(distributed_constant_modes)));
 
         (void)n_relevant_rows;
         (void)global_length;
@@ -158,19 +141,15 @@ namespace TrilinosWrappers
           for (size_type row = 0; row < my_size; ++row)
             {
               TrilinosWrappers::types::int_type global_row_id =
-                constant_modes_are_global ?
-                  TrilinosWrappers::global_index(domain_map, row) :
-                  row;
-              distributed_constant_modes[d][row] = static_cast<double>(
-                additional_data.constant_modes[d][global_row_id]);
+                constant_modes_are_global ? TrilinosWrappers::global_index(domain_map, row) : row;
+              distributed_constant_modes[d][row] =
+                static_cast<double>(additional_data.constant_modes[d][global_row_id]);
             }
 
         parameter_list.set("null space: type", "pre-computed");
-        parameter_list.set("null space: dimension",
-                           distributed_constant_modes.NumVectors());
+        parameter_list.set("null space: dimension", distributed_constant_modes.NumVectors());
         if (my_size > 0)
-          parameter_list.set("null space: vectors",
-                             distributed_constant_modes.Values());
+          parameter_list.set("null space: vectors", distributed_constant_modes.Values());
         // We need to set a valid pointer to data even if there is no data on
         // the current processor. Therefore, pass a dummy in that case
         else
@@ -183,8 +162,7 @@ namespace TrilinosWrappers
 
 
   void
-  PreconditionAMGMueLu::initialize(const SparseMatrix &    matrix,
-                                   Teuchos::ParameterList &muelu_parameters)
+  PreconditionAMGMueLu::initialize(const SparseMatrix &matrix, Teuchos::ParameterList &muelu_parameters)
   {
     initialize(matrix.trilinos_matrix(), muelu_parameters);
   }
@@ -192,24 +170,20 @@ namespace TrilinosWrappers
 
 
   void
-  PreconditionAMGMueLu::initialize(const Epetra_CrsMatrix &matrix,
-                                   Teuchos::ParameterList &muelu_parameters)
+  PreconditionAMGMueLu::initialize(const Epetra_CrsMatrix &matrix, Teuchos::ParameterList &muelu_parameters)
   {
-    const auto teuchos_wrapped_matrix =
-      Teuchos::rcp(const_cast<Epetra_CrsMatrix *>(&matrix), false);
-    preconditioner = MueLu::CreateEpetraPreconditioner(teuchos_wrapped_matrix,
-                                                       muelu_parameters);
+    const auto teuchos_wrapped_matrix = Teuchos::rcp(const_cast<Epetra_CrsMatrix *>(&matrix), false);
+    preconditioner                    = MueLu::CreateEpetraPreconditioner(teuchos_wrapped_matrix, muelu_parameters);
   }
 
 
 
   template <typename number>
   void
-  PreconditionAMGMueLu::initialize(
-    const ::dealii::SparseMatrix<number> &deal_ii_sparse_matrix,
-    const AdditionalData &                additional_data,
-    const double                          drop_tolerance,
-    const ::dealii::SparsityPattern *     use_this_sparsity)
+  PreconditionAMGMueLu::initialize(const ::dealii::SparseMatrix<number> &deal_ii_sparse_matrix,
+                                   const AdditionalData                 &additional_data,
+                                   const double                          drop_tolerance,
+                                   const ::dealii::SparsityPattern      *use_this_sparsity)
   {
     preconditioner.reset();
     const size_type n_rows = deal_ii_sparse_matrix.m();
@@ -219,19 +193,13 @@ namespace TrilinosWrappers
     IndexSet           distributor(n_rows);
     const unsigned int n_mpi_processes = communicator.NumProc();
     const unsigned int my_id           = communicator.MyPID();
-    distributor.add_range(my_id * n_rows / n_mpi_processes,
-                          (my_id + 1) * n_rows / n_mpi_processes);
+    distributor.add_range(my_id * n_rows / n_mpi_processes, (my_id + 1) * n_rows / n_mpi_processes);
 
     if (trilinos_matrix.get() == nullptr)
       trilinos_matrix = std::make_shared<SparseMatrix>();
 
-    trilinos_matrix->reinit(distributor,
-                            distributor,
-                            deal_ii_sparse_matrix,
-                            communicator.Comm(),
-                            drop_tolerance,
-                            true,
-                            use_this_sparsity);
+    trilinos_matrix->reinit(
+      distributor, distributor, deal_ii_sparse_matrix, communicator.Comm(), drop_tolerance, true, use_this_sparsity);
 
     initialize(*trilinos_matrix, additional_data);
   }

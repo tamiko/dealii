@@ -43,20 +43,17 @@ template <int dim>
 void
 print_dofs(const DoFHandler<dim> &dof)
 {
-  const FiniteElement<dim> &           fe = dof.get_fe();
+  const FiniteElement<dim>            &fe = dof.get_fe();
   std::vector<types::global_dof_index> v(fe.dofs_per_cell);
   std::shared_ptr<FEValues<dim>>       fevalues;
 
   if (fe.has_support_points())
     {
       Quadrature<dim> quad(fe.get_unit_support_points());
-      fevalues = std::shared_ptr<FEValues<dim>>(
-        new FEValues<dim>(fe, quad, update_quadrature_points));
+      fevalues = std::shared_ptr<FEValues<dim>>(new FEValues<dim>(fe, quad, update_quadrature_points));
     }
 
-  for (typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active();
-       cell != dof.end();
-       ++cell)
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(); cell != dof.end(); ++cell)
     {
       Point<dim> p = cell->center();
       if (fevalues.get() != nullptr)
@@ -78,20 +75,17 @@ template <int dim>
 void
 print_dofs(const DoFHandler<dim> &dof, unsigned int level)
 {
-  const FiniteElement<dim> &           fe = dof.get_fe();
+  const FiniteElement<dim>            &fe = dof.get_fe();
   std::vector<types::global_dof_index> v(fe.dofs_per_cell);
   std::shared_ptr<FEValues<dim>>       fevalues;
 
   if (fe.has_support_points())
     {
       Quadrature<dim> quad(fe.get_unit_support_points());
-      fevalues = std::shared_ptr<FEValues<dim>>(
-        new FEValues<dim>(fe, quad, update_quadrature_points));
+      fevalues = std::shared_ptr<FEValues<dim>>(new FEValues<dim>(fe, quad, update_quadrature_points));
     }
 
-  for (typename DoFHandler<dim>::cell_iterator cell = dof.begin(level);
-       cell != dof.end(level);
-       ++cell)
+  for (typename DoFHandler<dim>::cell_iterator cell = dof.begin(level); cell != dof.end(level); ++cell)
     {
       Point<dim> p = cell->center();
       if (fevalues.get() != nullptr)
@@ -113,7 +107,7 @@ void
 check_renumbering(DoFHandler<dim> &mgdof)
 {
   const FiniteElement<dim> &element = mgdof.get_fe();
-  DoFHandler<dim> &         dof     = mgdof;
+  DoFHandler<dim>          &dof     = mgdof;
   deallog << element.get_name() << std::endl;
 
   // Prepare a reordering of
@@ -130,8 +124,7 @@ check_renumbering(DoFHandler<dim> &mgdof)
   DoFRenumbering::downstream(dof, direction);
   print_dofs(dof);
   // Check level ordering
-  for (unsigned int level = 0; level < dof.get_triangulation().n_levels();
-       ++level)
+  for (unsigned int level = 0; level < dof.get_triangulation().n_levels(); ++level)
     {
       deallog << "Level " << level << std::endl;
       DoFRenumbering::downstream(mgdof, level, direction);
@@ -142,8 +135,7 @@ check_renumbering(DoFHandler<dim> &mgdof)
   DoFRenumbering::downstream(dof, direction, true);
   print_dofs(dof);
   // Check level ordering
-  for (unsigned int level = 0; level < dof.get_triangulation().n_levels();
-       ++level)
+  for (unsigned int level = 0; level < dof.get_triangulation().n_levels(); ++level)
     {
       deallog << "Level " << level << std::endl;
       DoFRenumbering::downstream(mgdof, level, direction, true);

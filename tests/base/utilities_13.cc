@@ -108,9 +108,7 @@ test3()
 
   const int min_bits = std::min(bits_int, bits_num);
 
-  const Integer max =
-    (min_bits == bits_int ? std::numeric_limits<Integer>::max() :
-                            ((Integer)1 << min_bits) - 1);
+  const Integer max = (min_bits == bits_int ? std::numeric_limits<Integer>::max() : ((Integer)1 << min_bits) - 1);
 
   // make sure conversion is within bounds:
   {

@@ -61,8 +61,7 @@ test(const unsigned int v, const unsigned int degree)
 
   if (v == 0)
     {
-      GridGenerator::subdivided_hyper_cube_with_simplices(tria,
-                                                          dim == 2 ? 16 : 8);
+      GridGenerator::subdivided_hyper_cube_with_simplices(tria, dim == 2 ? 16 : 8);
       fe         = std::make_shared<FE_SimplexP<dim>>(degree);
       quad       = std::make_shared<QGaussSimplex<dim>>(degree + 1);
       fe_mapping = std::make_shared<FE_SimplexP<dim>>(1);
@@ -75,23 +74,22 @@ test(const unsigned int v, const unsigned int degree)
       quad       = std::make_shared<QGaussWedge<dim>>(degree + 1);
       fe_mapping = std::make_shared<FE_WedgeP<dim>>(1);
       face_quad  = hp::QCollection<dim - 1>{QGaussSimplex<dim - 1>(degree + 1),
-                                           QGaussSimplex<dim - 1>(degree + 1),
-                                           QGauss<dim - 1>(degree + 1),
-                                           QGauss<dim - 1>(degree + 1),
-                                           QGauss<dim - 1>(degree + 1)};
+                                            QGaussSimplex<dim - 1>(degree + 1),
+                                            QGauss<dim - 1>(degree + 1),
+                                            QGauss<dim - 1>(degree + 1),
+                                            QGauss<dim - 1>(degree + 1)};
     }
   else if (v == 2)
     {
-      GridGenerator::subdivided_hyper_cube_with_pyramids(tria,
-                                                         dim == 2 ? 16 : 8);
+      GridGenerator::subdivided_hyper_cube_with_pyramids(tria, dim == 2 ? 16 : 8);
       fe         = std::make_shared<FE_PyramidP<dim>>(degree);
       quad       = std::make_shared<QGaussPyramid<dim>>(degree + 1);
       fe_mapping = std::make_shared<FE_PyramidP<dim>>(1);
       face_quad  = hp::QCollection<dim - 1>{QGauss<dim - 1>(degree + 1),
-                                           QGaussSimplex<dim - 1>(degree + 1),
-                                           QGaussSimplex<dim - 1>(degree + 1),
-                                           QGaussSimplex<dim - 1>(degree + 1),
-                                           QGaussSimplex<dim - 1>(degree + 1)};
+                                            QGaussSimplex<dim - 1>(degree + 1),
+                                            QGaussSimplex<dim - 1>(degree + 1),
+                                            QGaussSimplex<dim - 1>(degree + 1),
+                                            QGaussSimplex<dim - 1>(degree + 1)};
     }
   else
     Assert(false, ExcNotImplemented());
@@ -114,13 +112,11 @@ test(const unsigned int v, const unsigned int degree)
   // compute vector with FEFaceEvaluation
   {
     typename MatrixFree<dim, double>::AdditionalData additional_data;
-    additional_data.mapping_update_flags = update_gradients | update_values;
-    additional_data.mapping_update_flags_boundary_faces =
-      update_gradients | update_values;
+    additional_data.mapping_update_flags                = update_gradients | update_values;
+    additional_data.mapping_update_flags_boundary_faces = update_gradients | update_values;
 
     MatrixFree<dim, double> matrix_free;
-    matrix_free.reinit(
-      mapping, dof_handler, constraints, *quad, additional_data);
+    matrix_free.reinit(mapping, dof_handler, constraints, *quad, additional_data);
 
     matrix_free.template loop<VectorType, VectorType>(
       [&](const auto &data, auto &dst, const auto &src, const auto cell_range) {
@@ -137,8 +133,7 @@ test(const unsigned int v, const unsigned int degree)
       },
       [&](const auto &data, auto &dst, const auto &src, const auto face_range) {
         FEFaceEvaluation<dim, -1, 0, 1, number> fe_eval(data, face_range, true);
-        for (unsigned int face = face_range.first; face < face_range.second;
-             face++)
+        for (unsigned int face = face_range.first; face < face_range.second; face++)
           {
             fe_eval.reinit(face);
             for (unsigned int q = 0; q < fe_eval.n_q_points; ++q)
@@ -153,9 +148,8 @@ test(const unsigned int v, const unsigned int degree)
 
   // compute vector with FEFaceValues
   {
-    const UpdateFlags flag = update_JxW_values | update_values |
-                             update_gradients | update_quadrature_points;
-    FEValues<dim> fe_values(mapping, *fe, *quad, flag);
+    const UpdateFlags flag = update_JxW_values | update_values | update_gradients | update_quadrature_points;
+    FEValues<dim>     fe_values(mapping, *fe, *quad, flag);
 
     FEFaceValues<dim> fe_face_values(mapping, *fe, face_quad, flag);
 
@@ -178,10 +172,9 @@ test(const unsigned int v, const unsigned int degree)
               fe_face_values.reinit(cell, face);
               for (const auto q : fe_face_values.quadrature_point_indices())
                 for (unsigned int i = 0; i < dofs_per_cell; ++i)
-                  cell_rhs(i) +=
-                    (1.0 *                              // 1.0
-                     fe_face_values.shape_value(i, q) * // phi_i(x_q)
-                     fe_face_values.JxW(q));            // dx
+                  cell_rhs(i) += (1.0 *                              // 1.0
+                                  fe_face_values.shape_value(i, q) * // phi_i(x_q)
+                                  fe_face_values.JxW(q));            // dx
             }
 
         cell->get_dof_indices(dof_indices);

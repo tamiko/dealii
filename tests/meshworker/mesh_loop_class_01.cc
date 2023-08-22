@@ -39,8 +39,7 @@ template <int dim, int spacedim>
 class TestClass
 {
 public:
-  using CellIteratorType =
-    typename Triangulation<dim, spacedim>::active_cell_iterator;
+  using CellIteratorType = typename Triangulation<dim, spacedim>::active_cell_iterator;
 
   void
   cell_worker(const CellIteratorType &cell, ScratchData &, CopyData &)
@@ -53,10 +52,7 @@ public:
   {}
 
   void
-  boundary_worker(const CellIteratorType &cell,
-                  const unsigned int      f,
-                  ScratchData &,
-                  CopyData &)
+  boundary_worker(const CellIteratorType &cell, const unsigned int f, ScratchData &, CopyData &)
   {
     deallog << "Boundary worker on : " << cell << ", Face : " << f << std::endl;
   }
@@ -71,10 +67,8 @@ public:
               ScratchData &,
               CopyData &)
   {
-    deallog << "Face worker on : " << cell << ", Neighbor cell : " << ncell
-            << ", Face : " << f << ", Neighbor Face : " << nf
-            << ", Subface: " << sf << ", Neighbor Subface: " << nsf
-            << std::endl;
+    deallog << "Face worker on : " << cell << ", Neighbor cell : " << ncell << ", Face : " << f
+            << ", Neighbor Face : " << nf << ", Subface: " << sf << ", Neighbor Subface: " << nsf << std::endl;
   }
 };
 
@@ -127,8 +121,7 @@ test()
             &TestClass<dim, spacedim>::copier,
             scratch,
             copy,
-            assemble_own_cells | assemble_boundary_faces |
-              assemble_own_interior_faces_once,
+            assemble_own_cells | assemble_boundary_faces | assemble_own_interior_faces_once,
             &TestClass<dim, spacedim>::boundary_worker,
             &TestClass<dim, spacedim>::face_worker);
 }

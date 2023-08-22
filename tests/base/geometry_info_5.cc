@@ -34,8 +34,7 @@ test()
     for (const unsigned int v : GeometryInfo<dim>::vertex_indices())
       {
         const Tensor<1, dim> phi_i_grad =
-          GeometryInfo<dim>::d_linear_shape_function_gradient(
-            GeometryInfo<dim>::unit_cell_vertex(v), i);
+          GeometryInfo<dim>::d_linear_shape_function_gradient(GeometryInfo<dim>::unit_cell_vertex(v), i);
 
         deallog << phi_i_grad << std::endl;
       }
@@ -50,8 +49,7 @@ test()
     {
       Tensor<1, dim> s;
       for (const unsigned int i : GeometryInfo<dim>::vertex_indices())
-        s += GeometryInfo<dim>::d_linear_shape_function_gradient(
-          GeometryInfo<dim>::unit_cell_vertex(v), i);
+        s += GeometryInfo<dim>::d_linear_shape_function_gradient(GeometryInfo<dim>::unit_cell_vertex(v), i);
       AssertThrow(s.norm() == 0, ExcInternalError());
 
       deallog << "Sum of shape functions: " << s << std::endl;

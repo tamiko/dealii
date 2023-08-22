@@ -19,39 +19,30 @@ for (DIM : DIMENSIONS; SCALAR : REAL_SCALARS)
     DEAL_II_NAMESPACE_OPEN
     namespace ArborXWrappers
     {
-      template PointIntersectPredicate::PointIntersectPredicate(
-        const std::vector<dealii::Point<DIM, SCALAR>> &points);
-      template PointNearestPredicate::PointNearestPredicate(
-        const std::vector<dealii::Point<DIM, SCALAR>> &points,
-        const unsigned int                             n_nearest_neighbors);
+      template PointIntersectPredicate::PointIntersectPredicate(const std::vector<dealii::Point<DIM, SCALAR>> &points);
+      template PointNearestPredicate::PointNearestPredicate(const std::vector<dealii::Point<DIM, SCALAR>> &points,
+                                                            const unsigned int n_nearest_neighbors);
 
       template BoundingBoxIntersectPredicate::BoundingBoxIntersectPredicate(
         const std::vector<dealii::BoundingBox<DIM, SCALAR>> &bb);
       template BoundingBoxNearestPredicate::BoundingBoxNearestPredicate(
         const std::vector<dealii::BoundingBox<DIM, SCALAR>> &bb,
-        const unsigned int n_nearest_neighbors);
+        const unsigned int                                   n_nearest_neighbors);
 
       template SphereIntersectPredicate::SphereIntersectPredicate(
-        const std::vector<std::pair<dealii::Point<DIM, SCALAR>, SCALAR>>
-          &spheres);
+        const std::vector<std::pair<dealii::Point<DIM, SCALAR>, SCALAR>> &spheres);
       template SphereNearestPredicate::SphereNearestPredicate(
-        const std::vector<std::pair<dealii::Point<DIM, SCALAR>, SCALAR>>
-          &                spheres,
-        const unsigned int n_nearest_neighbors);
+        const std::vector<std::pair<dealii::Point<DIM, SCALAR>, SCALAR>> &spheres,
+        const unsigned int                                                n_nearest_neighbors);
     \}
     DEAL_II_NAMESPACE_CLOSE
 
     namespace ArborX
     {
-      template struct AccessTraits<std::vector<dealii::Point<DIM, SCALAR>>,
-                                   PrimitivesTag>;
+      template struct AccessTraits<std::vector<dealii::Point<DIM, SCALAR>>, PrimitivesTag>;
 
-      template struct AccessTraits<
-        std::vector<dealii::BoundingBox<DIM, SCALAR>>,
-        PrimitivesTag>;
+      template struct AccessTraits<std::vector<dealii::BoundingBox<DIM, SCALAR>>, PrimitivesTag>;
 
-      template struct AccessTraits<
-        std::vector<std::pair<dealii::Point<DIM, SCALAR>, SCALAR>>,
-        PrimitivesTag>;
+      template struct AccessTraits<std::vector<std::pair<dealii::Point<DIM, SCALAR>, SCALAR>>, PrimitivesTag>;
     \}
   }

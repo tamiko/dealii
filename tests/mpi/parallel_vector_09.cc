@@ -56,21 +56,10 @@ test()
   local_owned.add_range(my_start, my_start + local_size);
   IndexSet local_relevant(global_size);
   local_relevant                 = local_owned;
-  unsigned int ghost_indices[10] = {1,
-                                    2,
-                                    13,
-                                    set - 2,
-                                    set - 1,
-                                    set,
-                                    set + 1,
-                                    2 * set,
-                                    2 * set + 1,
-                                    2 * set + 3};
+  unsigned int ghost_indices[10] = {1, 2, 13, set - 2, set - 1, set, set + 1, 2 * set, 2 * set + 1, 2 * set + 3};
   local_relevant.add_indices(&ghost_indices[0], &ghost_indices[0] + 10);
 
-  LinearAlgebra::distributed::Vector<double> v(local_owned,
-                                               local_relevant,
-                                               MPI_COMM_WORLD);
+  LinearAlgebra::distributed::Vector<double> v(local_owned, local_relevant, MPI_COMM_WORLD);
 
   // check number of ghosts everywhere (counted
   // the above)
@@ -95,13 +84,11 @@ test()
   // processors
   if (myid == 0)
     {
-      Assert(v.get_partitioner()->is_ghost_entry(13) == false,
-             ExcInternalError());
+      Assert(v.get_partitioner()->is_ghost_entry(13) == false, ExcInternalError());
     }
   else
     {
-      Assert(v.get_partitioner()->is_ghost_entry(13) == true,
-             ExcInternalError());
+      Assert(v.get_partitioner()->is_ghost_entry(13) == true, ExcInternalError());
     }
 
   // count that 27 is ghost nowhere
@@ -118,13 +105,11 @@ test()
   // element with number set is ghost
   if (myid == 1)
     {
-      Assert(v.get_partitioner()->is_ghost_entry(set) == false,
-             ExcInternalError());
+      Assert(v.get_partitioner()->is_ghost_entry(set) == false, ExcInternalError());
     }
   else
     {
-      Assert(v.get_partitioner()->is_ghost_entry(set) == true,
-             ExcInternalError());
+      Assert(v.get_partitioner()->is_ghost_entry(set) == true, ExcInternalError());
     }
 
   if (myid == 0)
@@ -136,8 +121,7 @@ test()
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   unsigned int myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
   deallog.push(Utilities::int_to_string(myid));

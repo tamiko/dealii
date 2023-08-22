@@ -104,8 +104,7 @@ public:
    * have an MPI based code.
    */
   static void
-  set_thread_limit(
-    const unsigned int max_threads = numbers::invalid_unsigned_int);
+  set_thread_limit(const unsigned int max_threads = numbers::invalid_unsigned_int);
 
   /**
    * Return if the TBB is running using a single thread either because of

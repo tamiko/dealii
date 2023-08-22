@@ -43,10 +43,8 @@ DEAL_II_NAMESPACE_OPEN
 template <typename Number>
 struct FloatingPointComparator
 {
-  using ScalarNumber =
-    typename dealii::internal::VectorizedArrayTrait<Number>::value_type;
-  static constexpr std::size_t width =
-    dealii::internal::VectorizedArrayTrait<Number>::width();
+  using ScalarNumber                 = typename dealii::internal::VectorizedArrayTrait<Number>::value_type;
+  static constexpr std::size_t width = dealii::internal::VectorizedArrayTrait<Number>::width();
 
   /**
    * An enum to decode whether a particular comparison returns less, larger,
@@ -63,10 +61,9 @@ struct FloatingPointComparator
   /**
    * Constructor.
    */
-  FloatingPointComparator(
-    const ScalarNumber        tolerance,
-    const bool                use_absolute_tolerance = true,
-    const std::bitset<width> &mask = std::bitset<width>().flip());
+  FloatingPointComparator(const ScalarNumber        tolerance,
+                          const bool                use_absolute_tolerance = true,
+                          const std::bitset<width> &mask                   = std::bitset<width>().flip());
 
   FloatingPointComparator(const FloatingPointComparator &rhs) = default;
 
@@ -122,8 +119,7 @@ struct FloatingPointComparator
    * Compare two VectorizedArray instances.
    */
   ComparisonResult
-  compare(const VectorizedArray<ScalarNumber, width> &v1,
-          const VectorizedArray<ScalarNumber, width> &v2) const;
+  compare(const VectorizedArray<ScalarNumber, width> &v1, const VectorizedArray<ScalarNumber, width> &v2) const;
 
 private:
   const ScalarNumber       tolerance;
@@ -136,10 +132,9 @@ private:
 
 
 template <typename Number>
-FloatingPointComparator<Number>::FloatingPointComparator(
-  const ScalarNumber        tolerance,
-  const bool                use_absolute_tolerance,
-  const std::bitset<width> &mask)
+FloatingPointComparator<Number>::FloatingPointComparator(const ScalarNumber        tolerance,
+                                                         const bool                use_absolute_tolerance,
+                                                         const std::bitset<width> &mask)
   : tolerance(tolerance)
   , use_absolute_tolerance(use_absolute_tolerance)
   , mask(mask)
@@ -152,8 +147,7 @@ FloatingPointComparator<Number>::FloatingPointComparator(
 template <typename Number>
 template <typename T>
 bool
-FloatingPointComparator<Number>::operator()(const T &object1,
-                                            const T &object2) const
+FloatingPointComparator<Number>::operator()(const T &object1, const T &object2) const
 {
   return compare(object1, object2) == ComparisonResult::less;
 }
@@ -163,8 +157,7 @@ FloatingPointComparator<Number>::operator()(const T &object1,
 template <typename Number>
 template <typename T>
 typename FloatingPointComparator<Number>::ComparisonResult
-FloatingPointComparator<Number>::compare(const std::vector<T> &v1,
-                                         const std::vector<T> &v2) const
+FloatingPointComparator<Number>::compare(const std::vector<T> &v1, const std::vector<T> &v2) const
 {
   const unsigned int s1 = v1.size(), s2 = v2.size();
   if (s1 < s2)
@@ -186,8 +179,7 @@ FloatingPointComparator<Number>::compare(const std::vector<T> &v1,
 template <typename Number>
 template <std::size_t dim, typename T>
 typename FloatingPointComparator<Number>::ComparisonResult
-FloatingPointComparator<Number>::compare(const std::array<T, dim> &t1,
-                                         const std::array<T, dim> &t2) const
+FloatingPointComparator<Number>::compare(const std::array<T, dim> &t1, const std::array<T, dim> &t2) const
 {
   for (unsigned int i = 0; i < t1.size(); ++i)
     {
@@ -203,8 +195,7 @@ FloatingPointComparator<Number>::compare(const std::array<T, dim> &t1,
 template <typename Number>
 template <int rank, int dim, typename T>
 typename FloatingPointComparator<Number>::ComparisonResult
-FloatingPointComparator<Number>::compare(const Tensor<rank, dim, T> &t1,
-                                         const Tensor<rank, dim, T> &t2) const
+FloatingPointComparator<Number>::compare(const Tensor<rank, dim, T> &t1, const Tensor<rank, dim, T> &t2) const
 {
   for (unsigned int i = 0; i < dim; ++i)
     {
@@ -220,8 +211,7 @@ FloatingPointComparator<Number>::compare(const Tensor<rank, dim, T> &t1,
 template <typename Number>
 template <typename T>
 typename FloatingPointComparator<Number>::ComparisonResult
-FloatingPointComparator<Number>::compare(const Table<2, T> &t1,
-                                         const Table<2, T> &t2) const
+FloatingPointComparator<Number>::compare(const Table<2, T> &t1, const Table<2, T> &t2) const
 {
   AssertDimension(t1.size(0), t2.size(0));
   AssertDimension(t1.size(1), t2.size(1));
@@ -240,15 +230,12 @@ FloatingPointComparator<Number>::compare(const Table<2, T> &t1,
 
 template <typename Number>
 typename FloatingPointComparator<Number>::ComparisonResult
-FloatingPointComparator<Number>::compare(const ScalarNumber s1,
-                                         const ScalarNumber s2) const
+FloatingPointComparator<Number>::compare(const ScalarNumber s1, const ScalarNumber s2) const
 {
   if (width == 1 || mask[0])
     {
       const ScalarNumber tolerance =
-        use_absolute_tolerance ?
-          this->tolerance :
-          ((std::abs(s1) + std::abs(s2)) * this->tolerance);
+        use_absolute_tolerance ? this->tolerance : ((std::abs(s1) + std::abs(s2)) * this->tolerance);
 
       if (s1 < s2 - tolerance)
         return ComparisonResult::less;
@@ -261,9 +248,8 @@ FloatingPointComparator<Number>::compare(const ScalarNumber s1,
 
 template <typename Number>
 typename FloatingPointComparator<Number>::ComparisonResult
-FloatingPointComparator<Number>::compare(
-  const VectorizedArray<ScalarNumber, width> &v1,
-  const VectorizedArray<ScalarNumber, width> &v2) const
+FloatingPointComparator<Number>::compare(const VectorizedArray<ScalarNumber, width> &v1,
+                                         const VectorizedArray<ScalarNumber, width> &v2) const
 {
   for (unsigned int i = 0; i < width; ++i)
     if (mask[i])

@@ -42,11 +42,9 @@ test(int n_refinements, MPI_Comm comm)
 
   for (const auto cell : tria.active_cell_iterators())
     if (!cell->is_artificial())
-      deallog << cell->id() << " -> " << cell->subdomain_id() << ' '
-              << cell->global_active_cell_index() << std::endl;
+      deallog << cell->id() << " -> " << cell->subdomain_id() << ' ' << cell->global_active_cell_index() << std::endl;
 
-  const Utilities::MPI::Partitioner &part =
-    *tria.global_active_cell_index_partitioner().lock();
+  const Utilities::MPI::Partitioner &part = *tria.global_active_cell_index_partitioner().lock();
 
   part.locally_owned_range().print(deallog);
   part.ghost_indices().print(deallog);

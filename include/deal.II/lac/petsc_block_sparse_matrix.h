@@ -115,8 +115,7 @@ namespace PETScWrappers
        * Create a BlockSparseMatrix with an array of PETSc matrices.
        */
       template <size_t block_rows, size_t block_columns>
-      explicit BlockSparseMatrix(
-        const std::array<std::array<Mat, block_columns>, block_rows> &);
+      explicit BlockSparseMatrix(const std::array<std::array<Mat, block_columns>, block_rows> &);
 
       /**
        * Destructor.
@@ -169,8 +168,8 @@ namespace PETScWrappers
        * arguments.
        */
       void
-      reinit(const std::vector<IndexSet> &      rows,
-             const std::vector<IndexSet> &      cols,
+      reinit(const std::vector<IndexSet>       &rows,
+             const std::vector<IndexSet>       &cols,
              const BlockDynamicSparsityPattern &bdsp,
              const MPI_Comm                     com);
 
@@ -179,9 +178,7 @@ namespace PETScWrappers
        * Same as above but for a symmetric structure only.
        */
       void
-      reinit(const std::vector<IndexSet> &      sizes,
-             const BlockDynamicSparsityPattern &bdsp,
-             const MPI_Comm                     com);
+      reinit(const std::vector<IndexSet> &sizes, const BlockDynamicSparsityPattern &bdsp, const MPI_Comm com);
 
 
       /**
@@ -373,8 +370,7 @@ namespace PETScWrappers
 
 
     template <size_t block_rows, size_t block_columns>
-    inline BlockSparseMatrix::BlockSparseMatrix(
-      const std::array<std::array<Mat, block_columns>, block_rows> &arrayA)
+    inline BlockSparseMatrix::BlockSparseMatrix(const std::array<std::array<Mat, block_columns>, block_rows> &arrayA)
       : BlockSparseMatrix()
     {
       this->reinit(block_rows, block_columns);

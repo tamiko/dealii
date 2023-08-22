@@ -38,8 +38,7 @@ make_two_elements()
 {
   Triangulation<dim> triangulation;
   GridGenerator::hyper_cube(triangulation, -2.0, 2.0);
-  triangulation.begin_active()->set_refine_flag(
-    RefinementCase<dim>::cut_axis(0));
+  triangulation.begin_active()->set_refine_flag(RefinementCase<dim>::cut_axis(0));
   triangulation.execute_coarsening_and_refinement();
   return triangulation;
 }
@@ -47,21 +46,18 @@ make_two_elements()
 
 template <int dim>
 bool
-is_face_on_OY(const typename DoFHandler<dim>::active_cell_iterator &cell,
-              const unsigned int                                    face_index)
+is_face_on_OY(const typename DoFHandler<dim>::active_cell_iterator &cell, const unsigned int face_index)
 {
-  deallog
-    << "This sentence should appear once when the corresponding face is visited only once on cell "
-    << cell->index() << std::endl;
+  deallog << "This sentence should appear once when the corresponding face is visited only once on cell "
+          << cell->index() << std::endl;
   return (std::abs(cell->face(face_index)->center()(0)) < 0.01);
 }
 
 template <int dim>
 void
 create_and_output_flux_sparsity_with_filter(
-  DoFHandler<dim> &                       dof_handler,
-  std::function<bool(const typename DoFHandler<dim>::active_cell_iterator,
-                     const unsigned int)> filter)
+  DoFHandler<dim>                                                                              &dof_handler,
+  std::function<bool(const typename DoFHandler<dim>::active_cell_iterator, const unsigned int)> filter)
 {
   DynamicSparsityPattern       dsp(dof_handler.n_dofs(), dof_handler.n_dofs());
   Table<2, DoFTools::Coupling> coupling(1, 1);
@@ -74,8 +70,7 @@ create_and_output_flux_sparsity_with_filter(
                                        coupling,
                                        coupling,
                                        numbers::invalid_subdomain_id,
-                                       [&](const auto &       cell,
-                                           const unsigned int face_index) {
+                                       [&](const auto &cell, const unsigned int face_index) {
                                          return filter(cell, face_index);
                                        });
   dsp.print(deallog.get_file_stream());
@@ -90,8 +85,7 @@ check()
   DoFHandler<dim> dof_handler(tria);
   dof_handler.distribute_dofs(FE_Q<dim>(1));
 
-  create_and_output_flux_sparsity_with_filter<dim>(dof_handler,
-                                                   is_face_on_OY<dim>);
+  create_and_output_flux_sparsity_with_filter<dim>(dof_handler, is_face_on_OY<dim>);
 }
 
 int

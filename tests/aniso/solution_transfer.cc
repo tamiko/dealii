@@ -88,8 +88,7 @@ transfer(std::ostream &out)
   SolutionTransfer<dim> soltrans(dof_handler);
 
   // test a): pure refinement
-  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(),
-                                                    endc = tria.end();
+  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
   for (; cell != endc; ++cell)
     cell->set_refine_flag(RefinementCase<dim>::cut_x);
 
@@ -106,9 +105,7 @@ transfer(std::ostream &out)
   data_out.clear_data_vectors();
   data_out.add_data_vector(solution, "solution");
   data_out.build_patches();
-  deallog << "Interpolated/transferred solution after pure refinement"
-          << std::endl
-          << std::endl;
+  deallog << "Interpolated/transferred solution after pure refinement" << std::endl << std::endl;
   data_out.write_gnuplot(out);
 
   // test b): with coarsening
@@ -128,8 +125,7 @@ transfer(std::ostream &out)
   data_out.clear_data_vectors();
   data_out.add_data_vector(solution, "solution");
   data_out.build_patches();
-  deallog << "Interpolated/transferred solution after coarsening" << std::endl
-          << std::endl;
+  deallog << "Interpolated/transferred solution after coarsening" << std::endl << std::endl;
   data_out.write_gnuplot(out);
 }
 

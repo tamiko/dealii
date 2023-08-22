@@ -67,9 +67,7 @@ namespace Differentiation
      *
      * This variant is used when the @p exponent is not a Expression.
      */
-    template <
-      typename NumberType,
-      typename = std::enable_if_t<!std::is_same_v<NumberType, Expression>>>
+    template <typename NumberType, typename = std::enable_if_t<!std::is_same_v<NumberType, Expression>>>
     Expression
     pow(const Expression &base, const NumberType &exponent)
     {
@@ -86,9 +84,7 @@ namespace Differentiation
      *
      * This variant is used when the @p base is not a Expression.
      */
-    template <
-      typename NumberType,
-      typename = std::enable_if_t<!std::is_same_v<NumberType, Expression>>>
+    template <typename NumberType, typename = std::enable_if_t<!std::is_same_v<NumberType, Expression>>>
     Expression
     pow(const NumberType &base, const Expression &exponent)
     {
@@ -152,9 +148,7 @@ namespace Differentiation
      *
      * This variant is used when the @p base is not a Expression.
      */
-    template <
-      typename NumberType,
-      typename = std::enable_if_t<!std::is_same_v<NumberType, Expression>>>
+    template <typename NumberType, typename = std::enable_if_t<!std::is_same_v<NumberType, Expression>>>
     Expression
     log(const Expression &x, const NumberType &base)
     {
@@ -171,9 +165,7 @@ namespace Differentiation
      *
      * This variant is used when the @p value is not a Expression.
      */
-    template <
-      typename NumberType,
-      typename = std::enable_if_t<!std::is_same_v<NumberType, Expression>>>
+    template <typename NumberType, typename = std::enable_if_t<!std::is_same_v<NumberType, Expression>>>
     Expression
     log(const NumberType &x, const Expression &base)
     {
@@ -311,9 +303,7 @@ namespace Differentiation
      *
      * This variant is used when the numerator @p y is not a Expression.
      */
-    template <
-      typename NumberType,
-      typename = std::enable_if_t<!std::is_same_v<NumberType, Expression>>>
+    template <typename NumberType, typename = std::enable_if_t<!std::is_same_v<NumberType, Expression>>>
     Expression
     atan2(const NumberType &y, const Expression &x)
     {
@@ -331,9 +321,7 @@ namespace Differentiation
      *
      * This variant is used when the denominator @p x is not a Expression.
      */
-    template <
-      typename NumberType,
-      typename = std::enable_if_t<!std::is_same_v<NumberType, Expression>>>
+    template <typename NumberType, typename = std::enable_if_t<!std::is_same_v<NumberType, Expression>>>
     Expression
     atan2(const Expression &y, const NumberType &x)
     {
@@ -600,9 +588,7 @@ namespace Differentiation
      *
      * This variant is used when @p b is not a Expression.
      */
-    template <
-      typename NumberType,
-      typename = std::enable_if_t<!std::is_same_v<NumberType, Expression>>>
+    template <typename NumberType, typename = std::enable_if_t<!std::is_same_v<NumberType, Expression>>>
     Expression
     max(const Expression &a, const NumberType &b)
     {
@@ -619,9 +605,7 @@ namespace Differentiation
      *
      * This variant is used when @p a is not a Expression.
      */
-    template <
-      typename NumberType,
-      typename = std::enable_if_t<!std::is_same_v<NumberType, Expression>>>
+    template <typename NumberType, typename = std::enable_if_t<!std::is_same_v<NumberType, Expression>>>
     Expression
     max(const NumberType &a, const Expression &b)
     {
@@ -648,9 +632,7 @@ namespace Differentiation
      *
      * This variant is used when @p b is not a Expression.
      */
-    template <
-      typename NumberType,
-      typename = std::enable_if_t<!std::is_same_v<NumberType, Expression>>>
+    template <typename NumberType, typename = std::enable_if_t<!std::is_same_v<NumberType, Expression>>>
     Expression
     min(const Expression &a, const NumberType &b)
     {
@@ -667,9 +649,7 @@ namespace Differentiation
      *
      * This variant is used when @p a is not a Expression.
      */
-    template <
-      typename NumberType,
-      typename = std::enable_if_t<!std::is_same_v<NumberType, Expression>>>
+    template <typename NumberType, typename = std::enable_if_t<!std::is_same_v<NumberType, Expression>>>
     Expression
     min(const NumberType &a, const Expression &b)
     {
@@ -715,11 +695,9 @@ namespace std
    * Expose SymEngine wrapper math functions
    */
 
-#    define DEAL_II_EXPOSE_SYMENGINE_UNARY_MATH_FUNCTION(func) \
-      using dealii::Differentiation::SD::func;
+#    define DEAL_II_EXPOSE_SYMENGINE_UNARY_MATH_FUNCTION(func) using dealii::Differentiation::SD::func;
 
-#    define DEAL_II_EXPOSE_SYMENGINE_BINARY_MATH_FUNCTION(func) \
-      using dealii::Differentiation::SD::func;
+#    define DEAL_II_EXPOSE_SYMENGINE_BINARY_MATH_FUNCTION(func) using dealii::Differentiation::SD::func;
 
   DEAL_II_EXPOSE_SYMENGINE_BINARY_MATH_FUNCTION(pow)
   DEAL_II_EXPOSE_SYMENGINE_BINARY_MATH_FUNCTION(max)

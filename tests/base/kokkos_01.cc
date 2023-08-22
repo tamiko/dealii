@@ -29,14 +29,11 @@ main()
 
   initlog();
 
-  GrowingVectorMemory<
-    LinearAlgebra::distributed::Vector<double, MemorySpace::Host>>{};
-  GrowingVectorMemory<
-    LinearAlgebra::distributed::Vector<float, MemorySpace::Host>>{};
+  GrowingVectorMemory<LinearAlgebra::distributed::Vector<double, MemorySpace::Host>>{};
+  GrowingVectorMemory<LinearAlgebra::distributed::Vector<float, MemorySpace::Host>>{};
 
   internal::ensure_kokkos_initialized();
-  deallog << "Kokkos initialized by Kokkos: "
-          << internal::dealii_initialized_kokkos << std::endl;
+  deallog << "Kokkos initialized by Kokkos: " << internal::dealii_initialized_kokkos << std::endl;
 
   Kokkos::finalize();
 

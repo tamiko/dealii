@@ -50,11 +50,10 @@ using NonMatching::QuadratureGenerator;
  */
 template <int dim>
 void
-create_and_print_quadratures(
-  const Function<dim> &                                    level_set,
-  const unsigned int                                       n_1D_points = 2,
-  const typename QuadratureGenerator<dim>::AdditionalData &additional_data =
-    typename QuadratureGenerator<dim>::AdditionalData())
+create_and_print_quadratures(const Function<dim>                                     &level_set,
+                             const unsigned int                                       n_1D_points = 2,
+                             const typename QuadratureGenerator<dim>::AdditionalData &additional_data =
+                               typename QuadratureGenerator<dim>::AdditionalData())
 {
   deallog << "dim=" << dim << std::endl;
 
@@ -97,7 +96,7 @@ test_vertical_cuts_through_center()
   for (int direction = 0; direction < dim; ++direction)
     {
       deallog << "direction=" << direction << std::endl;
-      const Tensor<1, dim> normal = Point<dim>::unit_vector(direction);
+      const Tensor<1, dim>                        normal = Point<dim>::unit_vector(direction);
       const Functions::SignedDistance::Plane<dim> level_set(center, normal);
       create_and_print_quadratures(level_set);
     }
@@ -221,8 +220,7 @@ test_sphere_cutting_corner_exactly()
 // except close to the unit box center, x_i = 0.5, where it has a very large
 // Hessian.
 template <int dim>
-class ConstantOneButLargeHessianInCenter
-  : public Functions::ConstantFunction<dim>
+class ConstantOneButLargeHessianInCenter : public Functions::ConstantFunction<dim>
 {
 public:
   ConstantOneButLargeHessianInCenter()
@@ -237,9 +235,8 @@ public:
   {
     SymmetricTensor<2, dim> hessian;
 
-    const double max_distance = 1e-3;
-    const double diagonal_value =
-      point.distance(unit_box_center) < max_distance ? 1E3 : 0;
+    const double max_distance   = 1e-3;
+    const double diagonal_value = point.distance(unit_box_center) < max_distance ? 1E3 : 0;
 
     for (int d = 0; d < dim; ++d)
       hessian[d][d] = diagonal_value;

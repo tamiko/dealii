@@ -44,8 +44,8 @@ template <int dim>
 void
 test()
 {
-  parallel::distributed::Triangulation<dim> triangulation(
-    MPI_COMM_WORLD, Triangulation<dim>::limit_level_difference_at_vertices);
+  parallel::distributed::Triangulation<dim> triangulation(MPI_COMM_WORLD,
+                                                          Triangulation<dim>::limit_level_difference_at_vertices);
 
   FESystem<dim> fe(FE_Q<dim>(3), 2, FE_DGQ<dim>(1), 1);
 
@@ -67,8 +67,7 @@ test()
 
       // refine triangulation
       unsigned int index = 0;
-      for (typename Triangulation<dim>::active_cell_iterator cell =
-             triangulation.begin_active();
+      for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
            cell != triangulation.end();
            ++cell, ++index)
         if (flags[index])
@@ -80,8 +79,7 @@ test()
       // some of them will actually be
       // coarsened)
       index = 0;
-      for (typename Triangulation<dim>::active_cell_iterator cell =
-             triangulation.begin_active();
+      for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
            cell != triangulation.end();
            ++cell, ++index)
         if (!flags[index])
@@ -90,22 +88,17 @@ test()
       triangulation.execute_coarsening_and_refinement();
       dof_handler.distribute_dofs(fe);
 
-      const std::vector<types::global_dof_index> dofs_per_block =
-        DoFTools::count_dofs_per_fe_block(dof_handler);
+      const std::vector<types::global_dof_index> dofs_per_block = DoFTools::count_dofs_per_fe_block(dof_handler);
 
-      AssertThrow(std::accumulate(dofs_per_block.begin(),
-                                  dofs_per_block.end(),
-                                  0U) == dof_handler.n_dofs(),
+      AssertThrow(std::accumulate(dofs_per_block.begin(), dofs_per_block.end(), 0U) == dof_handler.n_dofs(),
                   ExcInternalError());
 
       unsigned int myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
       if (myid == 0)
         {
-          deallog << "Total number of dofs: " << dof_handler.n_dofs()
-                  << std::endl;
+          deallog << "Total number of dofs: " << dof_handler.n_dofs() << std::endl;
           for (unsigned int i = 0; i < dofs_per_block.size(); ++i)
-            deallog << "Block " << i << " has " << dofs_per_block[i]
-                    << " global dofs" << std::endl;
+            deallog << "Block " << i << " has " << dofs_per_block[i] << " global dofs" << std::endl;
         }
     }
 }

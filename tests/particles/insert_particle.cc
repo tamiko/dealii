@@ -44,10 +44,8 @@ test(const unsigned int refinement)
 
     deallog << "Refinement: " << refinement << std::endl;
 
-    deallog << "Global active cells: " << tr.n_global_active_cells()
-            << std::endl;
-    deallog << "Locally owned active cells: "
-            << tr.n_locally_owned_active_cells() << std::endl;
+    deallog << "Global active cells: " << tr.n_global_active_cells() << std::endl;
+    deallog << "Locally owned active cells: " << tr.n_locally_owned_active_cells() << std::endl;
 
     Particles::ParticleHandler<dim, spacedim> particle_handler(tr, mapping);
 
@@ -57,10 +55,8 @@ test(const unsigned int refinement)
 
     particle_handler.insert_particles(positions);
 
-    deallog << "Global particles: " << particle_handler.n_global_particles()
-            << std::endl;
-    deallog << "Locally owned particles: "
-            << particle_handler.n_locally_owned_particles() << std::endl;
+    deallog << "Global particles: " << particle_handler.n_global_particles() << std::endl;
+    deallog << "Locally owned particles: " << particle_handler.n_locally_owned_particles() << std::endl;
   }
 
   deallog << "OK" << std::endl;

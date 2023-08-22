@@ -68,14 +68,12 @@ namespace Step39
   {
   public:
     void
-    cell(MeshWorker::DoFInfo<dim> &                 dinfo,
-         typename MeshWorker::IntegrationInfo<dim> &info) const;
+    cell(MeshWorker::DoFInfo<dim> &dinfo, typename MeshWorker::IntegrationInfo<dim> &info) const;
     void
-    boundary(MeshWorker::DoFInfo<dim> &                 dinfo,
-             typename MeshWorker::IntegrationInfo<dim> &info) const;
+    boundary(MeshWorker::DoFInfo<dim> &dinfo, typename MeshWorker::IntegrationInfo<dim> &info) const;
     void
-    face(MeshWorker::DoFInfo<dim> &                 dinfo1,
-         MeshWorker::DoFInfo<dim> &                 dinfo2,
+    face(MeshWorker::DoFInfo<dim>                  &dinfo1,
+         MeshWorker::DoFInfo<dim>                  &dinfo2,
          typename MeshWorker::IntegrationInfo<dim> &info1,
          typename MeshWorker::IntegrationInfo<dim> &info2) const;
   };
@@ -83,45 +81,38 @@ namespace Step39
 
   template <int dim>
   void
-  MatrixIntegrator<dim>::cell(
-    MeshWorker::DoFInfo<dim> &                 dinfo,
-    typename MeshWorker::IntegrationInfo<dim> &info) const
+  MatrixIntegrator<dim>::cell(MeshWorker::DoFInfo<dim> &dinfo, typename MeshWorker::IntegrationInfo<dim> &info) const
   {
-    LocalIntegrators::Laplace::cell_matrix(dinfo.matrix(0, false).matrix,
-                                           info.fe_values());
+    LocalIntegrators::Laplace::cell_matrix(dinfo.matrix(0, false).matrix, info.fe_values());
   }
 
 
   template <int dim>
   void
-  MatrixIntegrator<dim>::boundary(
-    MeshWorker::DoFInfo<dim> &                 dinfo,
-    typename MeshWorker::IntegrationInfo<dim> &info) const
+  MatrixIntegrator<dim>::boundary(MeshWorker::DoFInfo<dim>                  &dinfo,
+                                  typename MeshWorker::IntegrationInfo<dim> &info) const
   {
     const unsigned int deg = info.fe_values(0).get_fe().tensor_degree();
-    LocalIntegrators::Laplace::nitsche_matrix(
-      dinfo.matrix(0, false).matrix,
-      info.fe_values(0),
-      LocalIntegrators::Laplace::compute_penalty(dinfo, dinfo, deg, deg));
+    LocalIntegrators::Laplace::nitsche_matrix(dinfo.matrix(0, false).matrix,
+                                              info.fe_values(0),
+                                              LocalIntegrators::Laplace::compute_penalty(dinfo, dinfo, deg, deg));
   }
 
   template <int dim>
   void
-  MatrixIntegrator<dim>::face(
-    MeshWorker::DoFInfo<dim> &                 dinfo1,
-    MeshWorker::DoFInfo<dim> &                 dinfo2,
-    typename MeshWorker::IntegrationInfo<dim> &info1,
-    typename MeshWorker::IntegrationInfo<dim> &info2) const
+  MatrixIntegrator<dim>::face(MeshWorker::DoFInfo<dim>                  &dinfo1,
+                              MeshWorker::DoFInfo<dim>                  &dinfo2,
+                              typename MeshWorker::IntegrationInfo<dim> &info1,
+                              typename MeshWorker::IntegrationInfo<dim> &info2) const
   {
     const unsigned int deg = info1.fe_values(0).get_fe().tensor_degree();
-    LocalIntegrators::Laplace::ip_matrix(
-      dinfo1.matrix(0, false).matrix,
-      dinfo1.matrix(0, true).matrix,
-      dinfo2.matrix(0, true).matrix,
-      dinfo2.matrix(0, false).matrix,
-      info1.fe_values(0),
-      info2.fe_values(0),
-      LocalIntegrators::Laplace::compute_penalty(dinfo1, dinfo2, deg, deg));
+    LocalIntegrators::Laplace::ip_matrix(dinfo1.matrix(0, false).matrix,
+                                         dinfo1.matrix(0, true).matrix,
+                                         dinfo2.matrix(0, true).matrix,
+                                         dinfo2.matrix(0, false).matrix,
+                                         info1.fe_values(0),
+                                         info2.fe_values(0),
+                                         LocalIntegrators::Laplace::compute_penalty(dinfo1, dinfo2, deg, deg));
   }
 
   template <int dim>
@@ -129,14 +120,12 @@ namespace Step39
   {
   public:
     void
-    cell(MeshWorker::DoFInfo<dim> &                 dinfo,
-         typename MeshWorker::IntegrationInfo<dim> &info) const;
+    cell(MeshWorker::DoFInfo<dim> &dinfo, typename MeshWorker::IntegrationInfo<dim> &info) const;
     void
-    boundary(MeshWorker::DoFInfo<dim> &                 dinfo,
-             typename MeshWorker::IntegrationInfo<dim> &info) const;
+    boundary(MeshWorker::DoFInfo<dim> &dinfo, typename MeshWorker::IntegrationInfo<dim> &info) const;
     void
-    face(MeshWorker::DoFInfo<dim> &                 dinfo1,
-         MeshWorker::DoFInfo<dim> &                 dinfo2,
+    face(MeshWorker::DoFInfo<dim>                  &dinfo1,
+         MeshWorker::DoFInfo<dim>                  &dinfo2,
          typename MeshWorker::IntegrationInfo<dim> &info1,
          typename MeshWorker::IntegrationInfo<dim> &info2) const;
   };
@@ -144,33 +133,28 @@ namespace Step39
 
   template <int dim>
   void
-  RHSIntegrator<dim>::cell(MeshWorker::DoFInfo<dim> &,
-                           typename MeshWorker::IntegrationInfo<dim> &) const
+  RHSIntegrator<dim>::cell(MeshWorker::DoFInfo<dim> &, typename MeshWorker::IntegrationInfo<dim> &) const
   {}
 
 
   template <int dim>
   void
-  RHSIntegrator<dim>::boundary(
-    MeshWorker::DoFInfo<dim> &                 dinfo,
-    typename MeshWorker::IntegrationInfo<dim> &info) const
+  RHSIntegrator<dim>::boundary(MeshWorker::DoFInfo<dim> &dinfo, typename MeshWorker::IntegrationInfo<dim> &info) const
   {
     const FEValuesBase<dim> &fe           = info.fe_values();
-    Vector<double> &         local_vector = dinfo.vector(0).block(0);
+    Vector<double>          &local_vector = dinfo.vector(0).block(0);
 
     std::vector<double> boundary_values(fe.n_quadrature_points);
     exact_solution.value_list(fe.get_quadrature_points(), boundary_values);
 
-    const unsigned int deg = fe.get_fe().tensor_degree();
-    const double       penalty =
-      2. * deg * (deg + 1) * dinfo.face->measure() / dinfo.cell->measure();
+    const unsigned int deg     = fe.get_fe().tensor_degree();
+    const double       penalty = 2. * deg * (deg + 1) * dinfo.face->measure() / dinfo.cell->measure();
 
     for (unsigned k = 0; k < fe.n_quadrature_points; ++k)
       for (unsigned int i = 0; i < fe.dofs_per_cell; ++i)
-        local_vector(i) +=
-          (-fe.shape_value(i, k) * penalty * boundary_values[k] +
-           (fe.normal_vector(k) * fe.shape_grad(i, k)) * boundary_values[k]) *
-          fe.JxW(k);
+        local_vector(i) += (-fe.shape_value(i, k) * penalty * boundary_values[k] +
+                            (fe.normal_vector(k) * fe.shape_grad(i, k)) * boundary_values[k]) *
+                           fe.JxW(k);
   }
 
 
@@ -188,14 +172,12 @@ namespace Step39
   {
   public:
     void
-    cell(MeshWorker::DoFInfo<dim> &                 dinfo,
-         typename MeshWorker::IntegrationInfo<dim> &info) const;
+    cell(MeshWorker::DoFInfo<dim> &dinfo, typename MeshWorker::IntegrationInfo<dim> &info) const;
     void
-    boundary(MeshWorker::DoFInfo<dim> &                 dinfo,
-             typename MeshWorker::IntegrationInfo<dim> &info) const;
+    boundary(MeshWorker::DoFInfo<dim> &dinfo, typename MeshWorker::IntegrationInfo<dim> &info) const;
     void
-    face(MeshWorker::DoFInfo<dim> &                 dinfo1,
-         MeshWorker::DoFInfo<dim> &                 dinfo2,
+    face(MeshWorker::DoFInfo<dim>                  &dinfo1,
+         MeshWorker::DoFInfo<dim>                  &dinfo2,
          typename MeshWorker::IntegrationInfo<dim> &info1,
          typename MeshWorker::IntegrationInfo<dim> &info2) const;
   };
@@ -203,8 +185,7 @@ namespace Step39
 
   template <int dim>
   void
-  Estimator<dim>::cell(MeshWorker::DoFInfo<dim> &                 dinfo,
-                       typename MeshWorker::IntegrationInfo<dim> &info) const
+  Estimator<dim>::cell(MeshWorker::DoFInfo<dim> &dinfo, typename MeshWorker::IntegrationInfo<dim> &info) const
   {
     const FEValuesBase<dim> &fe = info.fe_values();
 
@@ -219,9 +200,7 @@ namespace Step39
 
   template <int dim>
   void
-  Estimator<dim>::boundary(
-    MeshWorker::DoFInfo<dim> &                 dinfo,
-    typename MeshWorker::IntegrationInfo<dim> &info) const
+  Estimator<dim>::boundary(MeshWorker::DoFInfo<dim> &dinfo, typename MeshWorker::IntegrationInfo<dim> &info) const
   {
     const FEValuesBase<dim> &fe = info.fe_values();
 
@@ -230,45 +209,39 @@ namespace Step39
 
     const std::vector<double> &uh = info.values[0][0];
 
-    const unsigned int deg = fe.get_fe().tensor_degree();
-    const double       penalty =
-      2. * deg * (deg + 1) * dinfo.face->measure() / dinfo.cell->measure();
+    const unsigned int deg     = fe.get_fe().tensor_degree();
+    const double       penalty = 2. * deg * (deg + 1) * dinfo.face->measure() / dinfo.cell->measure();
 
     for (unsigned k = 0; k < fe.n_quadrature_points; ++k)
-      dinfo.value(0) += penalty * (boundary_values[k] - uh[k]) *
-                        (boundary_values[k] - uh[k]) * fe.JxW(k);
+      dinfo.value(0) += penalty * (boundary_values[k] - uh[k]) * (boundary_values[k] - uh[k]) * fe.JxW(k);
     dinfo.value(0) = std::sqrt(dinfo.value(0));
   }
 
 
   template <int dim>
   void
-  Estimator<dim>::face(MeshWorker::DoFInfo<dim> &                 dinfo1,
-                       MeshWorker::DoFInfo<dim> &                 dinfo2,
+  Estimator<dim>::face(MeshWorker::DoFInfo<dim>                  &dinfo1,
+                       MeshWorker::DoFInfo<dim>                  &dinfo2,
                        typename MeshWorker::IntegrationInfo<dim> &info1,
                        typename MeshWorker::IntegrationInfo<dim> &info2) const
   {
-    const FEValuesBase<dim> &          fe   = info1.fe_values();
-    const std::vector<double> &        uh1  = info1.values[0][0];
-    const std::vector<double> &        uh2  = info2.values[0][0];
+    const FEValuesBase<dim>           &fe   = info1.fe_values();
+    const std::vector<double>         &uh1  = info1.values[0][0];
+    const std::vector<double>         &uh2  = info2.values[0][0];
     const std::vector<Tensor<1, dim>> &Duh1 = info1.gradients[0][0];
     const std::vector<Tensor<1, dim>> &Duh2 = info2.gradients[0][0];
 
-    const unsigned int deg = fe.get_fe().tensor_degree();
-    const double       penalty1 =
-      deg * (deg + 1) * dinfo1.face->measure() / dinfo1.cell->measure();
-    const double penalty2 =
-      deg * (deg + 1) * dinfo2.face->measure() / dinfo2.cell->measure();
-    const double penalty = penalty1 + penalty2;
-    const double h       = dinfo1.face->measure();
+    const unsigned int deg      = fe.get_fe().tensor_degree();
+    const double       penalty1 = deg * (deg + 1) * dinfo1.face->measure() / dinfo1.cell->measure();
+    const double       penalty2 = deg * (deg + 1) * dinfo2.face->measure() / dinfo2.cell->measure();
+    const double       penalty  = penalty1 + penalty2;
+    const double       h        = dinfo1.face->measure();
 
     for (unsigned k = 0; k < fe.n_quadrature_points; ++k)
       {
         double diff1 = uh1[k] - uh2[k];
-        double diff2 =
-          fe.normal_vector(k) * Duh1[k] - fe.normal_vector(k) * Duh2[k];
-        dinfo1.value(0) +=
-          (penalty * diff1 * diff1 + h * diff2 * diff2) * fe.JxW(k);
+        double diff2 = fe.normal_vector(k) * Duh1[k] - fe.normal_vector(k) * Duh2[k];
+        dinfo1.value(0) += (penalty * diff1 * diff1 + h * diff2 * diff2) * fe.JxW(k);
       }
     dinfo1.value(0) = std::sqrt(dinfo1.value(0));
     dinfo2.value(0) = dinfo1.value(0);
@@ -281,14 +254,12 @@ namespace Step39
   {
   public:
     void
-    cell(MeshWorker::DoFInfo<dim> &                 dinfo,
-         typename MeshWorker::IntegrationInfo<dim> &info) const;
+    cell(MeshWorker::DoFInfo<dim> &dinfo, typename MeshWorker::IntegrationInfo<dim> &info) const;
     void
-    boundary(MeshWorker::DoFInfo<dim> &                 dinfo,
-             typename MeshWorker::IntegrationInfo<dim> &info) const;
+    boundary(MeshWorker::DoFInfo<dim> &dinfo, typename MeshWorker::IntegrationInfo<dim> &info) const;
     void
-    face(MeshWorker::DoFInfo<dim> &                 dinfo1,
-         MeshWorker::DoFInfo<dim> &                 dinfo2,
+    face(MeshWorker::DoFInfo<dim>                  &dinfo1,
+         MeshWorker::DoFInfo<dim>                  &dinfo2,
          typename MeshWorker::IntegrationInfo<dim> &info1,
          typename MeshWorker::IntegrationInfo<dim> &info2) const;
   };
@@ -296,11 +267,9 @@ namespace Step39
 
   template <int dim>
   void
-  ErrorIntegrator<dim>::cell(
-    MeshWorker::DoFInfo<dim> &                 dinfo,
-    typename MeshWorker::IntegrationInfo<dim> &info) const
+  ErrorIntegrator<dim>::cell(MeshWorker::DoFInfo<dim> &dinfo, typename MeshWorker::IntegrationInfo<dim> &info) const
   {
-    const FEValuesBase<dim> &   fe = info.fe_values();
+    const FEValuesBase<dim>    &fe = info.fe_values();
     std::vector<Tensor<1, dim>> exact_gradients(fe.n_quadrature_points);
     std::vector<double>         exact_values(fe.n_quadrature_points);
 
@@ -308,7 +277,7 @@ namespace Step39
     exact_solution.value_list(fe.get_quadrature_points(), exact_values);
 
     const std::vector<Tensor<1, dim>> &Duh = info.gradients[0][0];
-    const std::vector<double> &        uh  = info.values[0][0];
+    const std::vector<double>         &uh  = info.values[0][0];
 
     for (unsigned k = 0; k < fe.n_quadrature_points; ++k)
       {
@@ -329,9 +298,7 @@ namespace Step39
 
   template <int dim>
   void
-  ErrorIntegrator<dim>::boundary(
-    MeshWorker::DoFInfo<dim> &                 dinfo,
-    typename MeshWorker::IntegrationInfo<dim> &info) const
+  ErrorIntegrator<dim>::boundary(MeshWorker::DoFInfo<dim> &dinfo, typename MeshWorker::IntegrationInfo<dim> &info) const
   {
     const FEValuesBase<dim> &fe = info.fe_values();
 
@@ -340,9 +307,8 @@ namespace Step39
 
     const std::vector<double> &uh = info.values[0][0];
 
-    const unsigned int deg = fe.get_fe().tensor_degree();
-    const double       penalty =
-      2. * deg * (deg + 1) * dinfo.face->measure() / dinfo.cell->measure();
+    const unsigned int deg     = fe.get_fe().tensor_degree();
+    const double       penalty = 2. * deg * (deg + 1) * dinfo.face->measure() / dinfo.cell->measure();
 
     for (unsigned k = 0; k < fe.n_quadrature_points; ++k)
       {
@@ -355,22 +321,19 @@ namespace Step39
 
   template <int dim>
   void
-  ErrorIntegrator<dim>::face(
-    MeshWorker::DoFInfo<dim> &                 dinfo1,
-    MeshWorker::DoFInfo<dim> &                 dinfo2,
-    typename MeshWorker::IntegrationInfo<dim> &info1,
-    typename MeshWorker::IntegrationInfo<dim> &info2) const
+  ErrorIntegrator<dim>::face(MeshWorker::DoFInfo<dim>                  &dinfo1,
+                             MeshWorker::DoFInfo<dim>                  &dinfo2,
+                             typename MeshWorker::IntegrationInfo<dim> &info1,
+                             typename MeshWorker::IntegrationInfo<dim> &info2) const
   {
-    const FEValuesBase<dim> &  fe  = info1.fe_values();
+    const FEValuesBase<dim>   &fe  = info1.fe_values();
     const std::vector<double> &uh1 = info1.values[0][0];
     const std::vector<double> &uh2 = info2.values[0][0];
 
-    const unsigned int deg = fe.get_fe().tensor_degree();
-    const double       penalty1 =
-      deg * (deg + 1) * dinfo1.face->measure() / dinfo1.cell->measure();
-    const double penalty2 =
-      deg * (deg + 1) * dinfo2.face->measure() / dinfo2.cell->measure();
-    const double penalty = penalty1 + penalty2;
+    const unsigned int deg      = fe.get_fe().tensor_degree();
+    const double       penalty1 = deg * (deg + 1) * dinfo1.face->measure() / dinfo1.cell->measure();
+    const double       penalty2 = deg * (deg + 1) * dinfo2.face->measure() / dinfo2.cell->measure();
+    const double       penalty  = penalty1 + penalty2;
 
     for (unsigned k = 0; k < fe.n_quadrature_points; ++k)
       {
@@ -433,8 +396,7 @@ namespace Step39
 
 
   template <int dim>
-  InteriorPenaltyProblem<dim>::InteriorPenaltyProblem(
-    const FiniteElement<dim> &fe)
+  InteriorPenaltyProblem<dim>::InteriorPenaltyProblem(const FiniteElement<dim> &fe)
     : triangulation(Triangulation<dim>::limit_level_difference_at_vertices)
     , mapping(1)
     , fe(fe)
@@ -470,9 +432,7 @@ namespace Step39
     mg_sparsity.resize(0, n_levels - 1);
     mg_sparsity_dg_interface.resize(0, n_levels - 1);
 
-    for (unsigned int level = mg_sparsity.min_level();
-         level <= mg_sparsity.max_level();
-         ++level)
+    for (unsigned int level = mg_sparsity.min_level(); level <= mg_sparsity.max_level(); ++level)
       {
         DynamicSparsityPattern dsp(dof_handler.n_dofs(level));
         MGTools::make_flux_sparsity_pattern(dof_handler, dsp, level);
@@ -482,8 +442,7 @@ namespace Step39
         if (level > 0)
           {
             DynamicSparsityPattern dsp;
-            dsp.reinit(dof_handler.n_dofs(level - 1),
-                       dof_handler.n_dofs(level));
+            dsp.reinit(dof_handler.n_dofs(level - 1), dof_handler.n_dofs(level));
             MGTools::make_flux_sparsity_pattern_edge(dof_handler, dsp, level);
             mg_sparsity_dg_interface[level].copy_from(dsp);
             mg_matrix_dg_up[level].reinit(mg_sparsity_dg_interface[level]);
@@ -498,7 +457,7 @@ namespace Step39
   InteriorPenaltyProblem<dim>::assemble_matrix()
   {
     MeshWorker::IntegrationInfoBox<dim> info_box;
-    UpdateFlags update_flags = update_values | update_gradients;
+    UpdateFlags                         update_flags = update_values | update_gradients;
     info_box.add_update_flags_all(update_flags);
     info_box.initialize(fe, mapping);
 
@@ -508,12 +467,8 @@ namespace Step39
     assembler.initialize(matrix);
 
     MatrixIntegrator<dim> integrator;
-    MeshWorker::integration_loop<dim, dim>(dof_handler.begin_active(),
-                                           dof_handler.end(),
-                                           dof_info,
-                                           info_box,
-                                           integrator,
-                                           assembler);
+    MeshWorker::integration_loop<dim, dim>(
+      dof_handler.begin_active(), dof_handler.end(), dof_info, info_box, integrator, assembler);
   }
 
 
@@ -522,7 +477,7 @@ namespace Step39
   InteriorPenaltyProblem<dim>::assemble_mg_matrix()
   {
     MeshWorker::IntegrationInfoBox<dim> info_box;
-    UpdateFlags update_flags = update_values | update_gradients;
+    UpdateFlags                         update_flags = update_values | update_gradients;
     info_box.add_update_flags_all(update_flags);
     info_box.initialize(fe, mapping);
 
@@ -533,12 +488,8 @@ namespace Step39
     assembler.initialize_fluxes(mg_matrix_dg_up, mg_matrix_dg_down);
 
     MatrixIntegrator<dim> integrator;
-    MeshWorker::integration_loop<dim, dim>(dof_handler.begin_mg(),
-                                           dof_handler.end_mg(),
-                                           dof_info,
-                                           info_box,
-                                           integrator,
-                                           assembler);
+    MeshWorker::integration_loop<dim, dim>(
+      dof_handler.begin_mg(), dof_handler.end_mg(), dof_info, info_box, integrator, assembler);
   }
 
 
@@ -547,8 +498,7 @@ namespace Step39
   InteriorPenaltyProblem<dim>::assemble_right_hand_side()
   {
     MeshWorker::IntegrationInfoBox<dim> info_box;
-    UpdateFlags                         update_flags =
-      update_quadrature_points | update_values | update_gradients;
+    UpdateFlags                         update_flags = update_quadrature_points | update_values | update_gradients;
     info_box.add_update_flags_all(update_flags);
     info_box.initialize(fe, mapping);
 
@@ -560,12 +510,8 @@ namespace Step39
     assembler.initialize(data);
 
     RHSIntegrator<dim> integrator;
-    MeshWorker::integration_loop<dim, dim>(dof_handler.begin_active(),
-                                           dof_handler.end(),
-                                           dof_info,
-                                           info_box,
-                                           integrator,
-                                           assembler);
+    MeshWorker::integration_loop<dim, dim>(
+      dof_handler.begin_active(), dof_handler.end(), dof_info, info_box, integrator, assembler);
 
     right_hand_side *= -1.;
   }
@@ -600,12 +546,12 @@ namespace Step39
     mg::Matrix<Vector<double>> mgdown(mg_matrix_dg_down);
     mg::Matrix<Vector<double>> mgup(mg_matrix_dg_up);
 
-    Multigrid<Vector<double>> mg(
-      mgmatrix, mg_coarse, mg_transfer, mg_smoother, mg_smoother);
+    Multigrid<Vector<double>> mg(mgmatrix, mg_coarse, mg_transfer, mg_smoother, mg_smoother);
     mg.set_edge_flux_matrices(mgdown, mgup);
 
-    PreconditionMG<dim, Vector<double>, MGTransferPrebuilt<Vector<double>>>
-      preconditioner(dof_handler, mg, mg_transfer);
+    PreconditionMG<dim, Vector<double>, MGTransferPrebuilt<Vector<double>>> preconditioner(dof_handler,
+                                                                                           mg,
+                                                                                           mg_transfer);
     solver.solve(matrix, solution, right_hand_side, preconditioner);
   }
 
@@ -619,18 +565,14 @@ namespace Step39
 
     estimates.block(0).reinit(triangulation.n_active_cells());
     unsigned int i = 0;
-    for (typename Triangulation<dim>::active_cell_iterator cell =
-           triangulation.begin_active();
+    for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
          cell != triangulation.end();
          ++cell, ++i)
       cell->set_user_index(i);
 
     MeshWorker::IntegrationInfoBox<dim> info_box;
-    const unsigned int                  n_gauss_points =
-      dof_handler.get_fe().tensor_degree() + 1;
-    info_box.initialize_gauss_quadrature(n_gauss_points,
-                                         n_gauss_points + 1,
-                                         n_gauss_points);
+    const unsigned int                  n_gauss_points = dof_handler.get_fe().tensor_degree() + 1;
+    info_box.initialize_gauss_quadrature(n_gauss_points, n_gauss_points + 1, n_gauss_points);
 
     AnyData solution_data;
     solution_data.add<const Vector<double> *>(&solution, "solution");
@@ -650,12 +592,8 @@ namespace Step39
     assembler.initialize(out_data, false);
 
     Estimator<dim> integrator;
-    MeshWorker::integration_loop<dim, dim>(dof_handler.begin_active(),
-                                           dof_handler.end(),
-                                           dof_info,
-                                           info_box,
-                                           integrator,
-                                           assembler);
+    MeshWorker::integration_loop<dim, dim>(
+      dof_handler.begin_active(), dof_handler.end(), dof_info, info_box, integrator, assembler);
 
     triangulation.load_user_indices(old_user_indices);
     return estimates.block(0).l2_norm();
@@ -670,18 +608,14 @@ namespace Step39
     errors.block(0).reinit(triangulation.n_active_cells());
     errors.block(1).reinit(triangulation.n_active_cells());
     unsigned int i = 0;
-    for (typename Triangulation<dim>::active_cell_iterator cell =
-           triangulation.begin_active();
+    for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
          cell != triangulation.end();
          ++cell, ++i)
       cell->set_user_index(i);
 
     MeshWorker::IntegrationInfoBox<dim> info_box;
-    const unsigned int                  n_gauss_points =
-      dof_handler.get_fe().tensor_degree() + 1;
-    info_box.initialize_gauss_quadrature(n_gauss_points,
-                                         n_gauss_points + 1,
-                                         n_gauss_points);
+    const unsigned int                  n_gauss_points = dof_handler.get_fe().tensor_degree() + 1;
+    info_box.initialize_gauss_quadrature(n_gauss_points, n_gauss_points + 1, n_gauss_points);
 
     AnyData solution_data;
     solution_data.add<Vector<double> *>(&solution, "solution");
@@ -702,12 +636,8 @@ namespace Step39
     assembler.initialize(out_data, false);
 
     ErrorIntegrator<dim> integrator;
-    MeshWorker::integration_loop<dim, dim>(dof_handler.begin_active(),
-                                           dof_handler.end(),
-                                           dof_info,
-                                           info_box,
-                                           integrator,
-                                           assembler);
+    MeshWorker::integration_loop<dim, dim>(
+      dof_handler.begin_active(), dof_handler.end(), dof_info, info_box, integrator, assembler);
 
     deallog << "energy-error: " << errors.block(0).l2_norm() << std::endl;
     deallog << "L2-error:     " << errors.block(1).l2_norm() << std::endl;
@@ -723,8 +653,7 @@ namespace Step39
 
     std::string filename(fn);
     filename += ".gnuplot";
-    deallog << "Writing solution to <" << filename << ">..." << std::endl
-            << std::endl;
+    deallog << "Writing solution to <" << filename << ">..." << std::endl << std::endl;
     std::ofstream gnuplot_output(filename);
 
     DataOut<dim> data_out;
@@ -749,14 +678,12 @@ namespace Step39
           triangulation.refine_global(1);
         else
           {
-            GridRefinement::refine_and_coarsen_fixed_fraction(
-              triangulation, estimates.block(0), 0.5, 0.0);
+            GridRefinement::refine_and_coarsen_fixed_fraction(triangulation, estimates.block(0), 0.5, 0.0);
             triangulation.execute_coarsening_and_refinement();
           }
 
-        deallog << "Triangulation " << triangulation.n_active_cells()
-                << " cells, " << triangulation.n_levels() << " levels"
-                << std::endl;
+        deallog << "Triangulation " << triangulation.n_active_cells() << " cells, " << triangulation.n_levels()
+                << " levels" << std::endl;
 
         setup_system();
         deallog << "DoFHandler " << dof_handler.n_dofs() << " dofs, level dofs";
@@ -795,27 +722,19 @@ main()
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
 

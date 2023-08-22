@@ -208,8 +208,7 @@ namespace internal
  * @ingroup Accessors
  */
 template <int structdim, int dim, int spacedim, bool level_dof_access>
-class DoFAccessor : public dealii::internal::DoFAccessorImplementation::
-                      Inheritance<structdim, dim, spacedim>::BaseClass
+class DoFAccessor : public dealii::internal::DoFAccessorImplementation::Inheritance<structdim, dim, spacedim>::BaseClass
 {
 public:
   /**
@@ -228,8 +227,8 @@ public:
    * Declare an alias to the base class to make accessing some of the
    * exception classes simpler.
    */
-  using BaseClass = typename dealii::internal::DoFAccessorImplementation::
-    Inheritance<structdim, dimension, space_dimension>::BaseClass;
+  using BaseClass =
+    typename dealii::internal::DoFAccessorImplementation::Inheritance<structdim, dimension, space_dimension>::BaseClass;
 
   /**
    * Data type passed by the iterator class.
@@ -266,13 +265,12 @@ public:
   DoFAccessor(const Triangulation<dim, spacedim> *tria,
               const int                           level,
               const int                           index,
-              const DoFHandler<dim, spacedim> *   dof_handler);
+              const DoFHandler<dim, spacedim>    *dof_handler);
 
   /**
    * Copy constructor.
    */
-  DoFAccessor(const DoFAccessor<structdim, dim, spacedim, level_dof_access> &) =
-    default;
+  DoFAccessor(const DoFAccessor<structdim, dim, spacedim, level_dof_access> &) = default;
 
   /**
    * Move constructor.
@@ -306,8 +304,7 @@ public:
    * like the previous one.
    */
   template <int structdim2, int dim2, int spacedim2, bool level_dof_access2>
-  DoFAccessor(
-    const DoFAccessor<structdim2, dim2, spacedim2, level_dof_access2> &);
+  DoFAccessor(const DoFAccessor<structdim2, dim2, spacedim2, level_dof_access2> &);
 
   /**
    * Copy constructor allowing to switch level access and active access.
@@ -325,8 +322,7 @@ public:
    * Consequently, this operator is declared as deleted and can not be used.
    */
   DoFAccessor<structdim, dim, spacedim, level_dof_access> &
-  operator=(const DoFAccessor<structdim, dim, spacedim, level_dof_access> &da) =
-    delete;
+  operator=(const DoFAccessor<structdim, dim, spacedim, level_dof_access> &da) = delete;
 
   /**
    * Move assignment operator.
@@ -385,18 +381,16 @@ public:
    * a line itself, then the only valid index is @p i equals to zero, and the
    * function returns an iterator to itself.
    */
-  typename dealii::internal::DoFHandlerImplementation::
-    Iterators<dim, spacedim, level_dof_access>::line_iterator
-    line(const unsigned int i) const;
+  typename dealii::internal::DoFHandlerImplementation::Iterators<dim, spacedim, level_dof_access>::line_iterator
+  line(const unsigned int i) const;
 
   /**
    * Pointer to the @p ith quad bounding this object. If the current object is
    * a quad itself, then the only valid index is @p i equals to zero, and the
    * function returns an iterator to itself.
    */
-  typename dealii::internal::DoFHandlerImplementation::
-    Iterators<dim, spacedim, level_dof_access>::quad_iterator
-    quad(const unsigned int i) const;
+  typename dealii::internal::DoFHandlerImplementation::Iterators<dim, spacedim, level_dof_access>::quad_iterator
+  quad(const unsigned int i) const;
 
   /**
    * @}
@@ -444,9 +438,8 @@ public:
    * <code>cell-@>active_fe_index</code> as last argument.
    */
   void
-  get_dof_indices(
-    std::vector<types::global_dof_index> &dof_indices,
-    const types::fe_index fe_index = numbers::invalid_fe_index) const;
+  get_dof_indices(std::vector<types::global_dof_index> &dof_indices,
+                  const types::fe_index                 fe_index = numbers::invalid_fe_index) const;
 
   /**
    * Return the global multilevel indices of the degrees of freedom that live
@@ -455,19 +448,17 @@ public:
    * level this line lives on.
    */
   void
-  get_mg_dof_indices(
-    const int                             level,
-    std::vector<types::global_dof_index> &dof_indices,
-    const types::fe_index fe_index = numbers::invalid_fe_index) const;
+  get_mg_dof_indices(const int                             level,
+                     std::vector<types::global_dof_index> &dof_indices,
+                     const types::fe_index                 fe_index = numbers::invalid_fe_index) const;
 
   /**
    * Set the level DoF indices that are returned by get_mg_dof_indices.
    */
   void
-  set_mg_dof_indices(
-    const int                                   level,
-    const std::vector<types::global_dof_index> &dof_indices,
-    const types::fe_index fe_index = numbers::invalid_fe_index);
+  set_mg_dof_indices(const int                                   level,
+                     const std::vector<types::global_dof_index> &dof_indices,
+                     const types::fe_index                       fe_index = numbers::invalid_fe_index);
 
   /**
    * Global DoF index of the <i>i</i> degree associated with the @p vertexth
@@ -491,10 +482,9 @@ public:
    * this is interpreted as equal to `cell->active_fe_index()`.
    */
   types::global_dof_index
-  vertex_dof_index(
-    const unsigned int    vertex,
-    const unsigned int    i,
-    const types::fe_index fe_index = numbers::invalid_fe_index) const;
+  vertex_dof_index(const unsigned int    vertex,
+                   const unsigned int    i,
+                   const types::fe_index fe_index = numbers::invalid_fe_index) const;
 
   /**
    * Return the global DoF index of the <code>i</code>th degree of freedom
@@ -502,11 +492,10 @@ public:
    * see vertex_dof_index().
    */
   types::global_dof_index
-  mg_vertex_dof_index(
-    const int             level,
-    const unsigned int    vertex,
-    const unsigned int    i,
-    const types::fe_index fe_index = numbers::invalid_fe_index) const;
+  mg_vertex_dof_index(const int             level,
+                      const unsigned int    vertex,
+                      const unsigned int    i,
+                      const types::fe_index fe_index = numbers::invalid_fe_index) const;
 
   /**
    * Index of the <i>i</i>th degree of freedom of this object.
@@ -536,8 +525,7 @@ public:
    * the face.
    */
   types::global_dof_index
-  dof_index(const unsigned int    i,
-            const types::fe_index fe_index = numbers::invalid_fe_index) const;
+  dof_index(const unsigned int i, const types::fe_index fe_index = numbers::invalid_fe_index) const;
 
   /**
    * Return the dof_index on the given level. Also see dof_index.
@@ -675,16 +663,14 @@ public:
    */
   template <int structdim2, int dim2, int spacedim2, bool level_dof_access2>
   bool
-  operator==(
-    const DoFAccessor<structdim2, dim2, spacedim2, level_dof_access2> &) const;
+  operator==(const DoFAccessor<structdim2, dim2, spacedim2, level_dof_access2> &) const;
 
   /**
    * Compare for inequality. The boolean not of operator==().
    */
   template <int structdim2, int dim2, int spacedim2, bool level_dof_access2>
   bool
-  operator!=(
-    const DoFAccessor<structdim2, dim2, spacedim2, level_dof_access2> &) const;
+  operator!=(const DoFAccessor<structdim2, dim2, spacedim2, level_dof_access2> &) const;
 
 protected:
   /**
@@ -712,23 +698,19 @@ protected:
    * active_fe_index().
    */
   void
-  set_dof_index(
-    const unsigned int            i,
-    const types::global_dof_index index,
-    const types::fe_index         fe_index = numbers::invalid_fe_index) const;
+  set_dof_index(const unsigned int            i,
+                const types::global_dof_index index,
+                const types::fe_index         fe_index = numbers::invalid_fe_index) const;
 
   void
-  set_mg_dof_index(const int                     level,
-                   const unsigned int            i,
-                   const types::global_dof_index index) const;
+  set_mg_dof_index(const int level, const unsigned int i, const types::global_dof_index index) const;
 
   void
-  set_mg_vertex_dof_index(
-    const int                     level,
-    const unsigned int            vertex,
-    const unsigned int            i,
-    const types::global_dof_index index,
-    const types::fe_index         fe_index = numbers::invalid_fe_index) const;
+  set_mg_vertex_dof_index(const int                     level,
+                          const unsigned int            vertex,
+                          const unsigned int            i,
+                          const types::global_dof_index index,
+                          const types::fe_index         fe_index = numbers::invalid_fe_index) const;
 
   // Iterator classes need to be friends because they need to access
   // operator== and operator!=.
@@ -742,8 +724,7 @@ private:
   // functions.
   friend class DoFHandler<dim, spacedim>;
 
-  friend struct dealii::internal::DoFHandlerImplementation::Policy::
-    Implementation;
+  friend struct dealii::internal::DoFHandlerImplementation::Policy::Implementation;
   friend struct dealii::internal::DoFHandlerImplementation::Implementation;
   friend struct dealii::internal::hp::DoFHandlerImplementation::Implementation;
   friend struct dealii::internal::DoFCellAccessorImplementation::Implementation;
@@ -760,8 +741,7 @@ private:
  * template, but the interface should look the same.
  */
 template <int spacedim, bool level_dof_access>
-class DoFAccessor<0, 1, spacedim, level_dof_access>
-  : public TriaAccessor<0, 1, spacedim>
+class DoFAccessor<0, 1, spacedim, level_dof_access> : public TriaAccessor<0, 1, spacedim>
 {
 public:
   /**
@@ -815,11 +795,10 @@ public:
    *
    * This iterator can only be called for one-dimensional triangulations.
    */
-  DoFAccessor(
-    const Triangulation<1, spacedim> *                      tria,
-    const typename TriaAccessor<0, 1, spacedim>::VertexKind vertex_kind,
-    const unsigned int                                      vertex_index,
-    const DoFHandler<1, spacedim> *                         dof_handler);
+  DoFAccessor(const Triangulation<1, spacedim>                       *tria,
+              const typename TriaAccessor<0, 1, spacedim>::VertexKind vertex_kind,
+              const unsigned int                                      vertex_index,
+              const DoFHandler<1, spacedim>                          *dof_handler);
 
   /**
    * Constructor. This constructor exists in order to maintain interface
@@ -852,8 +831,7 @@ public:
    * like the previous one.
    */
   template <int structdim2, int dim2, int spacedim2, bool level_dof_access2>
-  DoFAccessor(
-    const DoFAccessor<structdim2, dim2, spacedim2, level_dof_access2> &);
+  DoFAccessor(const DoFAccessor<structdim2, dim2, spacedim2, level_dof_access2> &);
 
   /**
    * Copy constructor.
@@ -887,8 +865,7 @@ public:
    * Move assignment operator.
    */
   DoFAccessor<0, 1, spacedim, level_dof_access> &
-  operator=(DoFAccessor<0, 1, spacedim, level_dof_access> &&) noexcept =
-    default;
+  operator=(DoFAccessor<0, 1, spacedim, level_dof_access> &&) noexcept = default;
 
   /**
    * @}
@@ -935,9 +912,8 @@ public:
    * Since meshes with dimension 1 do not have quads this method just throws
    * an exception.
    */
-  typename dealii::internal::DoFHandlerImplementation::
-    Iterators<1, spacedim, level_dof_access>::line_iterator
-    line(const unsigned int i) const;
+  typename dealii::internal::DoFHandlerImplementation::Iterators<1, spacedim, level_dof_access>::line_iterator
+  line(const unsigned int i) const;
 
   /**
    * Pointer to the @p ith quad bounding this object.
@@ -945,9 +921,8 @@ public:
    * Since meshes with dimension 1 do not have quads this method just throws
    * an exception.
    */
-  typename dealii::internal::DoFHandlerImplementation::
-    Iterators<1, spacedim, level_dof_access>::quad_iterator
-    quad(const unsigned int i) const;
+  typename dealii::internal::DoFHandlerImplementation::Iterators<1, spacedim, level_dof_access>::quad_iterator
+  quad(const unsigned int i) const;
 
   /**
    * @}
@@ -993,9 +968,8 @@ public:
    * <code>cell-@>active_fe_index</code> as last argument.
    */
   void
-  get_dof_indices(
-    std::vector<types::global_dof_index> &dof_indices,
-    const types::fe_index fe_index = numbers::invalid_fe_index) const;
+  get_dof_indices(std::vector<types::global_dof_index> &dof_indices,
+                  const types::fe_index                 fe_index = numbers::invalid_fe_index) const;
 
   /**
    * Return the global multilevel indices of the degrees of freedom that live
@@ -1004,10 +978,9 @@ public:
    * level this line lives on.
    */
   void
-  get_mg_dof_indices(
-    const int                             level,
-    std::vector<types::global_dof_index> &dof_indices,
-    const types::fe_index fe_index = numbers::invalid_fe_index) const;
+  get_mg_dof_indices(const int                             level,
+                     std::vector<types::global_dof_index> &dof_indices,
+                     const types::fe_index                 fe_index = numbers::invalid_fe_index) const;
 
   /**
    * Global DoF index of the <i>i</i> degree associated with the @p vertexth
@@ -1028,10 +1001,9 @@ public:
    * active_fe_index().
    */
   types::global_dof_index
-  vertex_dof_index(
-    const unsigned int    vertex,
-    const unsigned int    i,
-    const types::fe_index fe_index = numbers::invalid_fe_index) const;
+  vertex_dof_index(const unsigned int    vertex,
+                   const unsigned int    i,
+                   const types::fe_index fe_index = numbers::invalid_fe_index) const;
 
   /**
    * Index of the <i>i</i>th degree of freedom of this object.
@@ -1051,8 +1023,7 @@ public:
    * active_fe_index().
    */
   types::global_dof_index
-  dof_index(const unsigned int    i,
-            const types::fe_index fe_index = numbers::invalid_fe_index) const;
+  dof_index(const unsigned int i, const types::fe_index fe_index = numbers::invalid_fe_index) const;
 
   /**
    * @}
@@ -1160,16 +1131,14 @@ protected:
    */
   template <int structdim2, int dim2, int spacedim2, bool level_dof_access2>
   bool
-  operator==(
-    const DoFAccessor<structdim2, dim2, spacedim2, level_dof_access2> &) const;
+  operator==(const DoFAccessor<structdim2, dim2, spacedim2, level_dof_access2> &) const;
 
   /**
    * Compare for inequality.
    */
   template <int structdim2, int dim2, int spacedim2, bool level_dof_access2>
   bool
-  operator!=(
-    const DoFAccessor<structdim2, dim2, spacedim2, level_dof_access2> &) const;
+  operator!=(const DoFAccessor<structdim2, dim2, spacedim2, level_dof_access2> &) const;
 
   /**
    * Reset the DoF handler pointer.
@@ -1196,10 +1165,9 @@ protected:
    * active_fe_index().
    */
   void
-  set_dof_index(
-    const unsigned int            i,
-    const types::global_dof_index index,
-    const types::fe_index         fe_index = numbers::invalid_fe_index) const;
+  set_dof_index(const unsigned int            i,
+                const types::global_dof_index index,
+                const types::fe_index         fe_index = numbers::invalid_fe_index) const;
 
   // Iterator classes need to be friends because they need to access
   // operator== and operator!=.
@@ -1211,8 +1179,7 @@ protected:
   // functions.
   friend class DoFHandler<1, spacedim>;
 
-  friend struct dealii::internal::DoFHandlerImplementation::Policy::
-    Implementation;
+  friend struct dealii::internal::DoFHandlerImplementation::Policy::Implementation;
   friend struct dealii::internal::DoFHandlerImplementation::Implementation;
   friend struct dealii::internal::hp::DoFHandlerImplementation::Implementation;
   friend struct dealii::internal::DoFCellAccessorImplementation::Implementation;
@@ -1250,8 +1217,7 @@ public:
   /**
    * Propagate alias from base class to this class.
    */
-  using AccessorData =
-    typename InvalidAccessor<structdim, dim, spacedim>::AccessorData;
+  using AccessorData = typename InvalidAccessor<structdim, dim, spacedim>::AccessorData;
 
   /**
    * Constructor.  This class is used for iterators that do not make
@@ -1260,7 +1226,7 @@ public:
    * semantic sense, and we generate an exception when such an object is
    * actually generated.
    */
-  DoFInvalidAccessor(const void *        parent     = nullptr,
+  DoFInvalidAccessor(const void         *parent     = nullptr,
                      const int           level      = -1,
                      const int           index      = -1,
                      const AccessorData *local_data = nullptr);
@@ -1287,9 +1253,7 @@ public:
    * all other functions in this class this function only throws an exception.
    */
   types::global_dof_index
-  dof_index(const unsigned int    i,
-            const types::fe_index fe_index =
-              DoFHandler<dim, spacedim>::default_fe_index) const;
+  dof_index(const unsigned int i, const types::fe_index fe_index = DoFHandler<dim, spacedim>::default_fe_index) const;
 
   /**
    * Set the index of the <i>i</i>th degree of freedom of this object to @p
@@ -1297,10 +1261,9 @@ public:
    * all other functions in this class this function only throws an exception.
    */
   void
-  set_dof_index(
-    const unsigned int            i,
-    const types::global_dof_index index,
-    const types::fe_index         fe_index = numbers::invalid_fe_index) const;
+  set_dof_index(const unsigned int            i,
+                const types::global_dof_index index,
+                const types::fe_index         fe_index = numbers::invalid_fe_index) const;
 };
 
 
@@ -1320,10 +1283,7 @@ public:
  * @ingroup Accessors
  */
 template <int dimension_, int space_dimension_, bool level_dof_access>
-class DoFCellAccessor : public DoFAccessor<dimension_,
-                                           dimension_,
-                                           space_dimension_,
-                                           level_dof_access>
+class DoFCellAccessor : public DoFAccessor<dimension_, dimension_, space_dimension_, level_dof_access>
 {
 public:
   /**
@@ -1346,8 +1306,7 @@ public:
    * Declare an alias to the base class to make accessing some of the
    * exception classes simpler.
    */
-  using BaseClass =
-    DoFAccessor<dimension_, dimension_, space_dimension_, level_dof_access>;
+  using BaseClass = DoFAccessor<dimension_, dimension_, space_dimension_, level_dof_access>;
 
   /**
    * Define the type of the container this is part of.
@@ -1358,10 +1317,7 @@ public:
    * A type for an iterator over the faces of a cell. This is what the face()
    * function returns.
    */
-  using face_iterator = TriaIterator<DoFAccessor<dimension_ - 1,
-                                                 dimension_,
-                                                 space_dimension_,
-                                                 level_dof_access>>;
+  using face_iterator = TriaIterator<DoFAccessor<dimension_ - 1, dimension_, space_dimension_, level_dof_access>>;
 
   /**
    * @name Constructors and initialization
@@ -1376,7 +1332,7 @@ public:
   DoFCellAccessor(const Triangulation<dimension_, space_dimension_> *tria,
                   const int                                          level,
                   const int                                          index,
-                  const AccessorData *local_data);
+                  const AccessorData                                *local_data);
 
   /**
    * Conversion constructor. This constructor exists to make certain
@@ -1398,15 +1354,12 @@ public:
    * like the previous one.
    */
   template <int structdim2, int dim2, int spacedim2, bool level_dof_access2>
-  explicit DoFCellAccessor(
-    const DoFAccessor<structdim2, dim2, spacedim2, level_dof_access2> &);
+  explicit DoFCellAccessor(const DoFAccessor<structdim2, dim2, spacedim2, level_dof_access2> &);
 
   /**
    * Copy constructor.
    */
-  DoFCellAccessor(
-    const DoFCellAccessor<dimension_, space_dimension_, level_dof_access> &) =
-    default;
+  DoFCellAccessor(const DoFCellAccessor<dimension_, space_dimension_, level_dof_access> &) = default;
 
   /**
    * Move constructor.
@@ -1430,9 +1383,7 @@ public:
    * Consequently, this operator is declared as deleted and can not be used.
    */
   DoFCellAccessor<dimension_, space_dimension_, level_dof_access> &
-  operator=(
-    const DoFCellAccessor<dimension_, space_dimension_, level_dof_access> &da) =
-    delete;
+  operator=(const DoFCellAccessor<dimension_, space_dimension_, level_dof_access> &da) = delete;
 
   /**
    * Move assignment operator.
@@ -1500,10 +1451,8 @@ public:
   /**
    * Return an array of iterators to all children of this cell.
    */
-  boost::container::small_vector<
-    TriaIterator<
-      DoFCellAccessor<dimension_, space_dimension_, level_dof_access>>,
-    GeometryInfo<dimension_>::max_children_per_cell>
+  boost::container::small_vector<TriaIterator<DoFCellAccessor<dimension_, space_dimension_, level_dof_access>>,
+                                 GeometryInfo<dimension_>::max_children_per_cell>
   child_iterators() const;
 
   /**
@@ -1518,8 +1467,7 @@ public:
   /**
    * Return an array of iterators to all faces of this cell.
    */
-  boost::container::small_vector<face_iterator,
-                                 GeometryInfo<dimension_>::faces_per_cell>
+  boost::container::small_vector<face_iterator, GeometryInfo<dimension_>::faces_per_cell>
   face_iterators() const;
 
   /**
@@ -1529,8 +1477,7 @@ public:
    * triangulation data).
    */
   TriaIterator<DoFCellAccessor<dimension_, space_dimension_, level_dof_access>>
-  neighbor_child_on_subface(const unsigned int face_no,
-                            const unsigned int subface_no) const;
+  neighbor_child_on_subface(const unsigned int face_no, const unsigned int subface_no) const;
 
   /**
    * Return the result of the @p periodic_neighbor_child_on_subface function
@@ -1539,8 +1486,7 @@ public:
    * to the triangulation data).
    */
   TriaIterator<DoFCellAccessor<dimension_, space_dimension_, level_dof_access>>
-  periodic_neighbor_child_on_subface(const unsigned int face_no,
-                                     const unsigned int subface_no) const;
+  periodic_neighbor_child_on_subface(const unsigned int face_no, const unsigned int subface_no) const;
 
   /**
    * @}
@@ -1619,11 +1565,10 @@ public:
    */
   template <class InputVector, typename ForwardIterator>
   void
-  get_dof_values(
-    const AffineConstraints<typename InputVector::value_type> &constraints,
-    const InputVector &                                        values,
-    ForwardIterator local_values_begin,
-    ForwardIterator local_values_end) const;
+  get_dof_values(const AffineConstraints<typename InputVector::value_type> &constraints,
+                 const InputVector                                         &values,
+                 ForwardIterator                                            local_values_begin,
+                 ForwardIterator                                            local_values_end) const;
 
   /**
    * This function is the counterpart to get_dof_values(): it takes a vector
@@ -1651,8 +1596,7 @@ public:
    */
   template <class OutputVector, typename number>
   void
-  set_dof_values(const Vector<number> &local_values,
-                 OutputVector &        values) const;
+  set_dof_values(const Vector<number> &local_values, OutputVector &values) const;
 
   /**
    * Return the interpolation of the given finite element function to the
@@ -1687,10 +1631,9 @@ public:
    */
   template <typename Number>
   void
-  get_interpolated_dof_values(
-    const ReadVector<Number> &values,
-    Vector<Number> &          interpolated_values,
-    const types::fe_index     fe_index = numbers::invalid_fe_index) const;
+  get_interpolated_dof_values(const ReadVector<Number> &values,
+                              Vector<Number>           &interpolated_values,
+                              const types::fe_index     fe_index = numbers::invalid_fe_index) const;
 
   /**
    * This function is the counterpart to get_interpolated_dof_values(): you
@@ -1755,11 +1698,10 @@ public:
    */
   template <class OutputVector, typename number>
   void
-  set_dof_values_by_interpolation(
-    const Vector<number> &local_values,
-    OutputVector &        values,
-    const types::fe_index fe_index      = numbers::invalid_fe_index,
-    const bool            perform_check = false) const;
+  set_dof_values_by_interpolation(const Vector<number> &local_values,
+                                  OutputVector         &values,
+                                  const types::fe_index fe_index      = numbers::invalid_fe_index,
+                                  const bool            perform_check = false) const;
 
   /**
    * Similar to set_dof_values_by_interpolation() with the difference that
@@ -1772,10 +1714,9 @@ public:
    */
   template <class OutputVector, typename number>
   void
-  distribute_local_to_global_by_interpolation(
-    const Vector<number> &local_values,
-    OutputVector &        values,
-    const types::fe_index fe_index = numbers::invalid_fe_index) const;
+  distribute_local_to_global_by_interpolation(const Vector<number> &local_values,
+                                              OutputVector         &values,
+                                              const types::fe_index fe_index = numbers::invalid_fe_index) const;
 
   /**
    * Distribute a local (cell based) vector to a global one by mapping the
@@ -1793,8 +1734,7 @@ public:
    */
   template <typename number, typename OutputVector>
   void
-  distribute_local_to_global(const Vector<number> &local_source,
-                             OutputVector &        global_destination) const;
+  distribute_local_to_global(const Vector<number> &local_source, OutputVector &global_destination) const;
 
   /**
    * Distribute a local (cell based) vector in iterator format to a global one
@@ -1814,7 +1754,7 @@ public:
   void
   distribute_local_to_global(ForwardIterator local_source_begin,
                              ForwardIterator local_source_end,
-                             OutputVector &  global_destination) const;
+                             OutputVector   &global_destination) const;
 
   /**
    * Distribute a local (cell based) vector in iterator format to a global one
@@ -1831,11 +1771,10 @@ public:
    */
   template <typename ForwardIterator, typename OutputVector>
   void
-  distribute_local_to_global(
-    const AffineConstraints<typename OutputVector::value_type> &constraints,
-    ForwardIterator local_source_begin,
-    ForwardIterator local_source_end,
-    OutputVector &  global_destination) const;
+  distribute_local_to_global(const AffineConstraints<typename OutputVector::value_type> &constraints,
+                             ForwardIterator                                             local_source_begin,
+                             ForwardIterator                                             local_source_end,
+                             OutputVector                                               &global_destination) const;
 
   /**
    * This function does much the same as the
@@ -1845,8 +1784,7 @@ public:
    */
   template <typename number, typename OutputMatrix>
   void
-  distribute_local_to_global(const FullMatrix<number> &local_source,
-                             OutputMatrix &global_destination) const;
+  distribute_local_to_global(const FullMatrix<number> &local_source, OutputMatrix &global_destination) const;
 
   /**
    * This function does what the two <tt>distribute_local_to_global</tt>
@@ -1855,9 +1793,9 @@ public:
   template <typename number, typename OutputMatrix, typename OutputVector>
   void
   distribute_local_to_global(const FullMatrix<number> &local_matrix,
-                             const Vector<number> &    local_vector,
-                             OutputMatrix &            global_matrix,
-                             OutputVector &            global_vector) const;
+                             const Vector<number>     &local_vector,
+                             OutputMatrix             &global_matrix,
+                             OutputVector             &global_vector) const;
 
   /**
    * @}
@@ -1884,8 +1822,7 @@ public:
    * Examples for this use are in the implementation of DoFRenumbering.
    */
   void
-  get_active_or_mg_dof_indices(
-    std::vector<types::global_dof_index> &dof_indices) const;
+  get_active_or_mg_dof_indices(std::vector<types::global_dof_index> &dof_indices) const;
 
   /**
    * Return the <i>global</i> indices of the degrees of freedom located on
@@ -2127,8 +2064,7 @@ DoFAccessor<structdim, dim, spacedim, level_dof_access>::is_level_cell()
 
 template <int structdim, int dim, int spacedim>
 template <typename OtherAccessor>
-DoFInvalidAccessor<structdim, dim, spacedim>::DoFInvalidAccessor(
-  const OtherAccessor &)
+DoFInvalidAccessor<structdim, dim, spacedim>::DoFInvalidAccessor(const OtherAccessor &)
 {
   Assert(false,
          ExcMessage("You are attempting an illegal conversion between "

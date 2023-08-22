@@ -28,78 +28,51 @@ void
 test()
 {
   // make sure that is_serial_vector< dealii::Vector<Number> > is working
-  Assert(is_serial_vector<dealii::Vector<double>>::value == true,
-         ExcInternalError());
+  Assert(is_serial_vector<dealii::Vector<double>>::value == true, ExcInternalError());
 
   deallog << is_serial_vector<dealii::Vector<float>>::value << std::endl;
   deallog << is_serial_vector<dealii::Vector<double>>::value << std::endl;
   deallog << is_serial_vector<dealii::Vector<long double>>::value << std::endl;
   deallog << is_serial_vector<dealii::Vector<int>>::value << std::endl;
 
-  deallog << is_serial_vector<dealii::Vector<std::complex<float>>>::value
-          << std::endl;
-  deallog << is_serial_vector<dealii::Vector<std::complex<double>>>::value
-          << std::endl;
+  deallog << is_serial_vector<dealii::Vector<std::complex<float>>>::value << std::endl;
+  deallog << is_serial_vector<dealii::Vector<std::complex<double>>>::value << std::endl;
 
   deallog << "OK" << std::endl << std::endl;
 
   // make sure that is_serial_vector< dealii::BlockVector<Number> > is working
-  Assert(is_serial_vector<dealii::BlockVector<double>>::value == true,
-         ExcInternalError());
+  Assert(is_serial_vector<dealii::BlockVector<double>>::value == true, ExcInternalError());
 
   deallog << is_serial_vector<dealii::BlockVector<float>>::value << std::endl;
   deallog << is_serial_vector<dealii::BlockVector<double>>::value << std::endl;
 
-  deallog << is_serial_vector<dealii::BlockVector<std::complex<float>>>::value
-          << std::endl;
-  deallog << is_serial_vector<dealii::BlockVector<std::complex<double>>>::value
-          << std::endl;
+  deallog << is_serial_vector<dealii::BlockVector<std::complex<float>>>::value << std::endl;
+  deallog << is_serial_vector<dealii::BlockVector<std::complex<double>>>::value << std::endl;
 
   deallog << "OK" << std::endl << std::endl;
 
 
   // make sure that dealii::LinearAlgebra::distributed::Vector<Number> > is
   // working
-  Assert(is_serial_vector<
-           dealii::LinearAlgebra::distributed::Vector<double>>::value == false,
-         ExcInternalError());
+  Assert(is_serial_vector<dealii::LinearAlgebra::distributed::Vector<double>>::value == false, ExcInternalError());
 
-  deallog << is_serial_vector<
-               dealii::LinearAlgebra::distributed::Vector<float>>::value
-          << std::endl;
-  deallog << is_serial_vector<
-               dealii::LinearAlgebra::distributed::Vector<double>>::value
-          << std::endl;
+  deallog << is_serial_vector<dealii::LinearAlgebra::distributed::Vector<float>>::value << std::endl;
+  deallog << is_serial_vector<dealii::LinearAlgebra::distributed::Vector<double>>::value << std::endl;
 
-  deallog
-    << is_serial_vector<
-         dealii::LinearAlgebra::distributed::Vector<std::complex<float>>>::value
-    << std::endl;
-  deallog << is_serial_vector<dealii::LinearAlgebra::distributed::Vector<
-               std::complex<double>>>::value
-          << std::endl;
+  deallog << is_serial_vector<dealii::LinearAlgebra::distributed::Vector<std::complex<float>>>::value << std::endl;
+  deallog << is_serial_vector<dealii::LinearAlgebra::distributed::Vector<std::complex<double>>>::value << std::endl;
 
   deallog << "OK" << std::endl << std::endl;
 
   // make sure that dealii::LinearAlgebra::distributed::BlockVector<Number> > is
   // working
-  Assert(is_serial_vector<
-           dealii::LinearAlgebra::distributed::BlockVector<double>>::value ==
-           false,
-         ExcInternalError());
+  Assert(is_serial_vector<dealii::LinearAlgebra::distributed::BlockVector<double>>::value == false, ExcInternalError());
 
-  deallog << is_serial_vector<
-               dealii::LinearAlgebra::distributed::BlockVector<float>>::value
-          << std::endl;
-  deallog << is_serial_vector<
-               dealii::LinearAlgebra::distributed::BlockVector<double>>::value
-          << std::endl;
+  deallog << is_serial_vector<dealii::LinearAlgebra::distributed::BlockVector<float>>::value << std::endl;
+  deallog << is_serial_vector<dealii::LinearAlgebra::distributed::BlockVector<double>>::value << std::endl;
 
-  deallog << is_serial_vector<dealii::LinearAlgebra::distributed::BlockVector<
-               std::complex<float>>>::value
-          << std::endl;
-  deallog << is_serial_vector<dealii::LinearAlgebra::distributed::BlockVector<
-               std::complex<double>>>::value
+  deallog << is_serial_vector<dealii::LinearAlgebra::distributed::BlockVector<std::complex<float>>>::value << std::endl;
+  deallog << is_serial_vector<dealii::LinearAlgebra::distributed::BlockVector<std::complex<double>>>::value
           << std::endl;
 
   deallog << "OK" << std::endl;
@@ -116,28 +89,20 @@ main()
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

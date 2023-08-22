@@ -69,12 +69,11 @@ class MyDiagonalMatrixWithPreAndPost
 {
 public:
   void
-  vmult(VectorType &      dst,
-        const VectorType &src,
-        const std::function<void(const unsigned int, const unsigned int)>
-          &operation_before_matrix_vector_product = {},
-        const std::function<void(const unsigned int, const unsigned int)>
-          &operation_after_matrix_vector_product = {}) const
+  vmult(
+    VectorType                                                        &dst,
+    const VectorType                                                  &src,
+    const std::function<void(const unsigned int, const unsigned int)> &operation_before_matrix_vector_product = {},
+    const std::function<void(const unsigned int, const unsigned int)> &operation_after_matrix_vector_product = {}) const
   {
     if (operation_before_matrix_vector_product)
       operation_before_matrix_vector_product(0, src.size());
@@ -108,12 +107,11 @@ public:
 
   template <typename VectorType>
   void
-  vmult(VectorType &      dst,
-        const VectorType &src,
-        const std::function<void(const unsigned int, const unsigned int)>
-          &operation_before_matrix_vector_product = {},
-        const std::function<void(const unsigned int, const unsigned int)>
-          &operation_after_matrix_vector_product = {}) const
+  vmult(
+    VectorType                                                        &dst,
+    const VectorType                                                  &src,
+    const std::function<void(const unsigned int, const unsigned int)> &operation_before_matrix_vector_product = {},
+    const std::function<void(const unsigned int, const unsigned int)> &operation_after_matrix_vector_product = {}) const
   {
     if (operation_before_matrix_vector_product)
       operation_before_matrix_vector_product(0, src.size());
@@ -193,10 +191,7 @@ main()
   sparsity_pattern.copy_from(dsp);
   system_matrix.reinit(sparsity_pattern);
 
-  MatrixCreator::create_laplace_matrix(mapping,
-                                       dof_handler,
-                                       quad,
-                                       system_matrix);
+  MatrixCreator::create_laplace_matrix(mapping, dof_handler, quad, system_matrix);
 
   VectorType diagonal(dof_handler.n_dofs());
   VectorType src(dof_handler.n_dofs());
@@ -222,13 +217,11 @@ main()
 
         MyMatrixType my_system_matrix(system_matrix);
 
-        PreconditionChebyshev<MyMatrixType, VectorType, PreconditionerType>
-          preconditioner;
+        PreconditionChebyshev<MyMatrixType, VectorType, PreconditionerType> preconditioner;
 
-        PreconditionChebyshev<MyMatrixType, VectorType, PreconditionerType>::
-          AdditionalData ad;
-        ad.degree         = n_iterations;
-        ad.preconditioner = std::make_shared<PreconditionerType>();
+        PreconditionChebyshev<MyMatrixType, VectorType, PreconditionerType>::AdditionalData ad;
+        ad.degree                       = n_iterations;
+        ad.preconditioner               = std::make_shared<PreconditionerType>();
         ad.preconditioner->get_vector() = diagonal;
 
         preconditioner.initialize(my_system_matrix, ad);
@@ -241,13 +234,11 @@ main()
         // pre/post
         using PreconditionerType = DiagonalMatrix<VectorType>;
 
-        PreconditionChebyshev<MatrixType, VectorType, PreconditionerType>
-          preconditioner;
+        PreconditionChebyshev<MatrixType, VectorType, PreconditionerType> preconditioner;
 
-        PreconditionChebyshev<MatrixType, VectorType, PreconditionerType>::
-          AdditionalData ad;
-        ad.degree         = n_iterations;
-        ad.preconditioner = std::make_shared<PreconditionerType>();
+        PreconditionChebyshev<MatrixType, VectorType, PreconditionerType>::AdditionalData ad;
+        ad.degree                       = n_iterations;
+        ad.preconditioner               = std::make_shared<PreconditionerType>();
         ad.preconditioner->get_vector() = diagonal;
 
         preconditioner.initialize(system_matrix, ad);
@@ -260,13 +251,11 @@ main()
         // without pre/post
         using PreconditionerType = MyDiagonalMatrix<VectorType>;
 
-        PreconditionChebyshev<MatrixType, VectorType, PreconditionerType>
-          preconditioner;
+        PreconditionChebyshev<MatrixType, VectorType, PreconditionerType> preconditioner;
 
-        PreconditionChebyshev<MatrixType, VectorType, PreconditionerType>::
-          AdditionalData ad;
-        ad.degree         = n_iterations;
-        ad.preconditioner = std::make_shared<PreconditionerType>();
+        PreconditionChebyshev<MatrixType, VectorType, PreconditionerType>::AdditionalData ad;
+        ad.degree                       = n_iterations;
+        ad.preconditioner               = std::make_shared<PreconditionerType>();
         ad.preconditioner->get_vector() = diagonal;
 
         preconditioner.initialize(system_matrix, ad);
@@ -279,13 +268,11 @@ main()
         // matrix without pre/post
         using PreconditionerType = MyDiagonalMatrixWithPreAndPost<VectorType>;
 
-        PreconditionChebyshev<MatrixType, VectorType, PreconditionerType>
-          preconditioner;
+        PreconditionChebyshev<MatrixType, VectorType, PreconditionerType> preconditioner;
 
-        PreconditionChebyshev<MatrixType, VectorType, PreconditionerType>::
-          AdditionalData ad;
-        ad.degree         = n_iterations;
-        ad.preconditioner = std::make_shared<PreconditionerType>();
+        PreconditionChebyshev<MatrixType, VectorType, PreconditionerType>::AdditionalData ad;
+        ad.degree                       = n_iterations;
+        ad.preconditioner               = std::make_shared<PreconditionerType>();
         ad.preconditioner->get_vector() = diagonal;
 
         preconditioner.initialize(system_matrix, ad);
@@ -302,13 +289,11 @@ main()
 
         MyMatrixType my_system_matrix(system_matrix);
 
-        PreconditionChebyshev<MyMatrixType, VectorType, PreconditionerType>
-          preconditioner;
+        PreconditionChebyshev<MyMatrixType, VectorType, PreconditionerType> preconditioner;
 
-        PreconditionChebyshev<MyMatrixType, VectorType, PreconditionerType>::
-          AdditionalData ad;
-        ad.degree         = n_iterations;
-        ad.preconditioner = std::make_shared<PreconditionerType>();
+        PreconditionChebyshev<MyMatrixType, VectorType, PreconditionerType>::AdditionalData ad;
+        ad.degree                       = n_iterations;
+        ad.preconditioner               = std::make_shared<PreconditionerType>();
         ad.preconditioner->get_vector() = diagonal;
 
         preconditioner.initialize(my_system_matrix, ad);

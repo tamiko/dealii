@@ -27,8 +27,7 @@
 void
 merge_check()
 {
-  deallog << "Checking AffineConstraints<double>::merge with localized lines"
-          << std::endl;
+  deallog << "Checking AffineConstraints<double>::merge with localized lines" << std::endl;
 
   // set local lines to a very large range that
   // surely triggers an error if the

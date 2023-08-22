@@ -64,9 +64,7 @@ test()
   tr.refine_global(1);
   for (unsigned int step = 0; step < 5; ++step)
     {
-      typename Triangulation<dim>::active_cell_iterator cell =
-                                                          tr.begin_active(),
-                                                        endc = tr.end();
+      typename Triangulation<dim>::active_cell_iterator cell = tr.begin_active(), endc = tr.end();
 
       for (; cell != endc; ++cell)
         if (Testing::rand() % 42 == 1)
@@ -98,8 +96,7 @@ test()
 
   velocity_mask.set(dim, false);
 
-  VectorTools::interpolate_boundary_values(
-    dofh, 0, Functions::ZeroFunction<dim>(dim + 1), cm, velocity_mask);
+  VectorTools::interpolate_boundary_values(dofh, 0, Functions::ZeroFunction<dim>(dim + 1), cm, velocity_mask);
 
   cm.close();
 

@@ -38,15 +38,13 @@
 #include "../tests.h"
 
 bool
-compare_constraints(const AffineConstraints<double> &constraints1,
-                    const AffineConstraints<double> &constraints2)
+compare_constraints(const AffineConstraints<double> &constraints1, const AffineConstraints<double> &constraints2)
 {
   const double tol = 1.e-15;
   if (constraints1.n_constraints() != constraints2.n_constraints())
     {
       deallog << "n_constraints_1 = " << constraints1.n_constraints()
-              << "n_constraints_2 = " << constraints2.n_constraints()
-              << std::endl;
+              << "n_constraints_2 = " << constraints2.n_constraints() << std::endl;
       return false;
     }
 
@@ -60,56 +58,42 @@ compare_constraints(const AffineConstraints<double> &constraints1,
       const unsigned int line_index2 = line2->index;
       if (line_index != line_index2)
         {
-          deallog << " line_index_1 = " << line_index
-                  << " line_index_2 = " << line_index2 << std::endl;
+          deallog << " line_index_1 = " << line_index << " line_index_2 = " << line_index2 << std::endl;
           return false;
         }
 
-      const std::vector<std::pair<types::global_dof_index, double>>
-        *constraint_entries_1 = constraints1.get_constraint_entries(line_index);
-      const std::vector<std::pair<types::global_dof_index, double>>
-        *constraint_entries_2 = constraints2.get_constraint_entries(line_index);
+      const std::vector<std::pair<types::global_dof_index, double>> *constraint_entries_1 =
+        constraints1.get_constraint_entries(line_index);
+      const std::vector<std::pair<types::global_dof_index, double>> *constraint_entries_2 =
+        constraints2.get_constraint_entries(line_index);
       if (constraint_entries_1 == nullptr && constraint_entries_2 == nullptr)
         {
           return true;
         }
-      else if (constraint_entries_1 != nullptr &&
-               constraint_entries_2 != nullptr)
+      else if (constraint_entries_1 != nullptr && constraint_entries_2 != nullptr)
         {
           if (constraint_entries_1->size() != constraint_entries_2->size() ||
-              std::abs(constraints1.get_inhomogeneity(line_index) -
-                       constraints2.get_inhomogeneity(line_index)) > tol)
+              std::abs(constraints1.get_inhomogeneity(line_index) - constraints2.get_inhomogeneity(line_index)) > tol)
             {
-              deallog << " constraints1.get_inhomogeneity(line_index) "
-                      << constraints1.get_inhomogeneity(line_index)
-                      << " constraints2.get_inhomogeneity(line_index) "
-                      << constraints2.get_inhomogeneity(line_index) << std::endl
-                      << " constraint_entries_1->size() "
-                      << constraint_entries_1->size()
-                      << " constraint_entries_2->size() "
-                      << constraint_entries_2->size() << std::endl;
+              deallog << " constraints1.get_inhomogeneity(line_index) " << constraints1.get_inhomogeneity(line_index)
+                      << " constraints2.get_inhomogeneity(line_index) " << constraints2.get_inhomogeneity(line_index)
+                      << std::endl
+                      << " constraint_entries_1->size() " << constraint_entries_1->size()
+                      << " constraint_entries_2->size() " << constraint_entries_2->size() << std::endl;
               return false;
             }
           for (unsigned int i = 0; i < constraint_entries_1->size(); ++i)
             {
-              if ((*constraint_entries_1)[i].first !=
-                    (*constraint_entries_2)[i].first ||
-                  std::abs((*constraint_entries_1)[i].second -
-                           (*constraint_entries_2)[i].second) > tol)
+              if ((*constraint_entries_1)[i].first != (*constraint_entries_2)[i].first ||
+                  std::abs((*constraint_entries_1)[i].second - (*constraint_entries_2)[i].second) > tol)
                 {
-                  deallog << " (*constraint_entries_1)[i].first "
-                          << (*constraint_entries_1)[i].first
-                          << " (*constraint_entries_1)[i].second "
-                          << (*constraint_entries_1)[i].second << " diff: "
-                          << (*constraint_entries_1)[i].first -
-                               (*constraint_entries_2)[i].first
+                  deallog << " (*constraint_entries_1)[i].first " << (*constraint_entries_1)[i].first
+                          << " (*constraint_entries_1)[i].second " << (*constraint_entries_1)[i].second
+                          << " diff: " << (*constraint_entries_1)[i].first - (*constraint_entries_2)[i].first
                           << std::endl
-                          << " (*constraint_entries_2)[i].first "
-                          << (*constraint_entries_2)[i].first
-                          << " (*constraint_entries_2)[i].second "
-                          << (*constraint_entries_2)[i].second << " diff: "
-                          << (*constraint_entries_1)[i].first -
-                               (*constraint_entries_2)[i].first
+                          << " (*constraint_entries_2)[i].first " << (*constraint_entries_2)[i].first
+                          << " (*constraint_entries_2)[i].second " << (*constraint_entries_2)[i].second
+                          << " diff: " << (*constraint_entries_1)[i].first - (*constraint_entries_2)[i].first
                           << std::endl;
                   return false;
                 }
@@ -126,10 +110,9 @@ compare_constraints(const AffineConstraints<double> &constraints1,
 
 template <int dim>
 void
-get_constraints_on_active_cells(
-  const Triangulation<dim> &          tria,
-  const std::set<types::boundary_id> &no_normal_flux_boundaries,
-  AffineConstraints<double> &         constraints)
+get_constraints_on_active_cells(const Triangulation<dim>           &tria,
+                                const std::set<types::boundary_id> &no_normal_flux_boundaries,
+                                AffineConstraints<double>          &constraints)
 {
   MappingQ<dim> mapping(4);
 
@@ -138,8 +121,7 @@ get_constraints_on_active_cells(
 
   dofh.distribute_dofs(fe);
 
-  VectorTools::compute_no_normal_flux_constraints(
-    dofh, 0, no_normal_flux_boundaries, constraints, mapping);
+  VectorTools::compute_no_normal_flux_constraints(dofh, 0, no_normal_flux_boundaries, constraints, mapping);
   constraints.close();
   // deallog<<" ***active cell constraints:
   // "<<constraints.n_constraints()<<std::endl;
@@ -148,10 +130,9 @@ get_constraints_on_active_cells(
 
 template <int dim>
 void
-get_constraints_on_levels(
-  const Triangulation<dim> &                triangulation,
-  const std::set<types::boundary_id> &      no_flux_boundary,
-  MGLevelObject<AffineConstraints<double>> &level_constraints)
+get_constraints_on_levels(const Triangulation<dim>                 &triangulation,
+                          const std::set<types::boundary_id>       &no_flux_boundary,
+                          MGLevelObject<AffineConstraints<double>> &level_constraints)
 {
   FESystem<dim>   fe(FE_Q<dim>(1), dim);
   DoFHandler<dim> dof_handler(triangulation);
@@ -169,17 +150,10 @@ get_constraints_on_levels(
     {
       AffineConstraints<double> user_level_constraints;
 
-      const IndexSet &refinement_edge_indices =
-        mg_constrained_dofs.get_refinement_edge_indices(level);
+      const IndexSet &refinement_edge_indices = mg_constrained_dofs.get_refinement_edge_indices(level);
 
       VectorTools::compute_no_normal_flux_constraints_on_level(
-        dof_handler,
-        0,
-        no_flux_boundary,
-        user_level_constraints,
-        mapping,
-        refinement_edge_indices,
-        level);
+        dof_handler, 0, no_flux_boundary, user_level_constraints, mapping, refinement_edge_indices, level);
       user_level_constraints.close();
       level_constraints[level].copy_from(user_level_constraints);
       // deallog<<" ***level cell constraints:
@@ -190,27 +164,20 @@ get_constraints_on_levels(
 
 template <int dim>
 void
-run(Triangulation<dim> &         triangulation,
-    std::set<types::boundary_id> no_flux_boundary)
+run(Triangulation<dim> &triangulation, std::set<types::boundary_id> no_flux_boundary)
 {
   const unsigned int                     n_levels = 2;
   std::vector<AffineConstraints<double>> ref_constraints(n_levels);
 
-  get_constraints_on_active_cells<dim>(triangulation,
-                                       no_flux_boundary,
-                                       ref_constraints[0]);
+  get_constraints_on_active_cells<dim>(triangulation, no_flux_boundary, ref_constraints[0]);
   for (unsigned int level = 1; level < n_levels; ++level)
     {
       triangulation.refine_global(1);
-      get_constraints_on_active_cells<dim>(triangulation,
-                                           no_flux_boundary,
-                                           ref_constraints[level]);
+      get_constraints_on_active_cells<dim>(triangulation, no_flux_boundary, ref_constraints[level]);
     }
 
   MGLevelObject<AffineConstraints<double>> mg_level_constraints(0, n_levels);
-  get_constraints_on_levels<dim>(triangulation,
-                                 no_flux_boundary,
-                                 mg_level_constraints);
+  get_constraints_on_levels<dim>(triangulation, no_flux_boundary, mg_level_constraints);
 
   deallog << " dim " << dim << std::endl;
   for (unsigned int i = 0; i < n_levels; ++i)
@@ -232,16 +199,14 @@ main()
   {
     deallog << " quarter_hyper_ball: " << std::endl;
     const unsigned int dim = 2;
-    Triangulation<dim> triangulation(
-      Triangulation<dim>::limit_level_difference_at_vertices);
+    Triangulation<dim> triangulation(Triangulation<dim>::limit_level_difference_at_vertices);
     GridGenerator::quarter_hyper_ball(triangulation);
     std::set<types::boundary_id> no_flux_boundary{0, 1};
     run(triangulation, no_flux_boundary);
   }
   {
     const unsigned int dim = 3;
-    Triangulation<dim> triangulation(
-      Triangulation<dim>::limit_level_difference_at_vertices);
+    Triangulation<dim> triangulation(Triangulation<dim>::limit_level_difference_at_vertices);
     GridGenerator::quarter_hyper_ball(triangulation);
     std::set<types::boundary_id> no_flux_boundary{0, 1};
     run(triangulation, no_flux_boundary);
@@ -249,16 +214,14 @@ main()
   {
     deallog << " hyper_shell: " << std::endl;
     const unsigned int dim = 2;
-    Triangulation<dim> triangulation(
-      Triangulation<dim>::limit_level_difference_at_vertices);
+    Triangulation<dim> triangulation(Triangulation<dim>::limit_level_difference_at_vertices);
     GridGenerator::hyper_shell(triangulation, Point<dim>(), 0.5, 1.);
     std::set<types::boundary_id> no_flux_boundary{0};
     run(triangulation, no_flux_boundary);
   }
   {
     const unsigned int dim = 3;
-    Triangulation<dim> triangulation(
-      Triangulation<dim>::limit_level_difference_at_vertices);
+    Triangulation<dim> triangulation(Triangulation<dim>::limit_level_difference_at_vertices);
     GridGenerator::hyper_shell(triangulation, Point<dim>(), 0.5, 1.);
     std::set<types::boundary_id> no_flux_boundary{0};
     run(triangulation, no_flux_boundary);
@@ -266,16 +229,14 @@ main()
   {
     deallog << " half_hyper_shell: " << std::endl;
     const unsigned int dim = 2;
-    Triangulation<dim> triangulation(
-      Triangulation<dim>::limit_level_difference_at_vertices);
+    Triangulation<dim> triangulation(Triangulation<dim>::limit_level_difference_at_vertices);
     GridGenerator::half_hyper_shell(triangulation, Point<dim>(), 0.5, 1.);
     std::set<types::boundary_id> no_flux_boundary{0};
     run(triangulation, no_flux_boundary);
   }
   {
     const unsigned int dim = 3;
-    Triangulation<dim> triangulation(
-      Triangulation<dim>::limit_level_difference_at_vertices);
+    Triangulation<dim> triangulation(Triangulation<dim>::limit_level_difference_at_vertices);
     GridGenerator::half_hyper_shell(triangulation, Point<dim>(), 0.5, 1.);
     std::set<types::boundary_id> no_flux_boundary{0};
     run(triangulation, no_flux_boundary);
@@ -283,16 +244,14 @@ main()
   {
     deallog << " quarter_hyper_shell: " << std::endl;
     const unsigned int dim = 2;
-    Triangulation<dim> triangulation(
-      Triangulation<dim>::limit_level_difference_at_vertices);
+    Triangulation<dim> triangulation(Triangulation<dim>::limit_level_difference_at_vertices);
     GridGenerator::quarter_hyper_shell(triangulation, Point<dim>(), 0.5, 1.);
     std::set<types::boundary_id> no_flux_boundary{0};
     run(triangulation, no_flux_boundary);
   }
   {
     const unsigned int dim = 3;
-    Triangulation<dim> triangulation(
-      Triangulation<dim>::limit_level_difference_at_vertices);
+    Triangulation<dim> triangulation(Triangulation<dim>::limit_level_difference_at_vertices);
     GridGenerator::quarter_hyper_shell(triangulation, Point<dim>(), 0.5, 1.);
     std::set<types::boundary_id> no_flux_boundary{0};
     run(triangulation, no_flux_boundary);
@@ -304,8 +263,7 @@ main()
     for (unsigned int i = 0; i < GeometryInfo<dim>::faces_per_cell; ++i)
       {
         no_flux_boundary.insert(i);
-        Triangulation<dim> triangulation(
-          Triangulation<dim>::limit_level_difference_at_vertices);
+        Triangulation<dim> triangulation(Triangulation<dim>::limit_level_difference_at_vertices);
         GridGenerator::hyper_cube(triangulation, 0., 1., true);
         run(triangulation, no_flux_boundary);
       }
@@ -316,8 +274,7 @@ main()
     for (unsigned int i = 0; i < GeometryInfo<dim>::faces_per_cell; ++i)
       {
         no_flux_boundary.insert(i);
-        Triangulation<dim> triangulation(
-          Triangulation<dim>::limit_level_difference_at_vertices);
+        Triangulation<dim> triangulation(Triangulation<dim>::limit_level_difference_at_vertices);
         GridGenerator::hyper_cube(triangulation, 0., 1., true);
         run(triangulation, no_flux_boundary);
       }
@@ -332,8 +289,7 @@ main()
     FESystem<dim>      fe(FE_Q<dim>(2), dim);
 
     const MappingQ<dim> mapping(4);
-    Triangulation<dim>  triangulation(
-      Triangulation<dim>::limit_level_difference_at_vertices);
+    Triangulation<dim>  triangulation(Triangulation<dim>::limit_level_difference_at_vertices);
     GridGenerator::hyper_shell(triangulation, Point<dim>(), 0.5, 1.);
     std::set<types::boundary_id> no_flux_boundary{0};
     triangulation.begin_active()->set_refine_flag();
@@ -344,8 +300,7 @@ main()
 
     AffineConstraints<double> constraints;
 
-    VectorTools::compute_no_normal_flux_constraints(
-      dofh, 0, no_flux_boundary, constraints, mapping);
+    VectorTools::compute_no_normal_flux_constraints(dofh, 0, no_flux_boundary, constraints, mapping);
 
     constraints.print(deallog.get_file_stream());
   }

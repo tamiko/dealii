@@ -48,11 +48,9 @@ test(TimerOutput::OutputType output_type)
     burn(50);
     t.leave_subsection("hi");
 
-    t.enter_subsection(
-      "this is a very long section name that previously did not work");
+    t.enter_subsection("this is a very long section name that previously did not work");
     burn(50);
-    t.leave_subsection(
-      "this is a very long section name that previously did not work");
+    t.leave_subsection("this is a very long section name that previously did not work");
   }
 
   std::string s = ss.str();

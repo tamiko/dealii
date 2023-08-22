@@ -44,8 +44,7 @@ template <int N>
 class TableIndices
 {
 public:
-  static_assert(N > 0,
-                "TableIndices objects need to represent at least one index.");
+  static_assert(N > 0, "TableIndices objects need to represent at least one index.");
 
 
   /**
@@ -122,9 +121,8 @@ template <typename... T>
 constexpr TableIndices<N>::TableIndices(const T... args)
   : indices{static_cast<std::size_t>(args)...}
 {
-  static_assert(
-    internal::TemplateConstraints::all_true<std::is_integral_v<T>...>::value,
-    "Not all of the parameters have integral type!");
+  static_assert(internal::TemplateConstraints::all_true<std::is_integral_v<T>...>::value,
+                "Not all of the parameters have integral type!");
   static_assert(sizeof...(T) == N, "Wrong number of constructor arguments!");
 }
 
@@ -151,9 +149,7 @@ template <int N>
 constexpr bool
 TableIndices<N>::operator==(const TableIndices<N> &other) const
 {
-  return std::equal(std::begin(indices),
-                    std::end(indices),
-                    std::begin(other.indices));
+  return std::equal(std::begin(indices), std::end(indices), std::begin(other.indices));
 }
 
 

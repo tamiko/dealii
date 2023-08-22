@@ -40,8 +40,7 @@ main(int argc, char **argv)
   initlog();
   deallog << std::setprecision(4);
 
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
 
   {
@@ -75,10 +74,7 @@ main(int argc, char **argv)
       // Expects success
       IterationNumberControl     control(2000, 1.e-3);
       TrilinosWrappers::SolverCG solver(control);
-      check_solver_within_range(solver.solve(A, u, f, preconditioner),
-                                control.last_step(),
-                                42,
-                                44);
+      check_solver_within_range(solver.solve(A, u, f, preconditioner), control.last_step(), 42, 44);
     }
     deallog.pop();
 
@@ -88,10 +84,7 @@ main(int argc, char **argv)
       // Expects success
       IterationNumberControl     control(20, 1.e-3);
       TrilinosWrappers::SolverCG solver(control);
-      check_solver_within_range(solver.solve(A, u, f, preconditioner),
-                                control.last_step(),
-                                19,
-                                21);
+      check_solver_within_range(solver.solve(A, u, f, preconditioner), control.last_step(), 19, 21);
     }
     deallog.pop();
   }

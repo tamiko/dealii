@@ -30,8 +30,7 @@ void
 test()
 {
   // prepare two independent triangulations with the same coarse mesh
-  parallel::distributed::Triangulation<dim> tria1(MPI_COMM_WORLD),
-    tria2(MPI_COMM_WORLD);
+  parallel::distributed::Triangulation<dim> tria1(MPI_COMM_WORLD), tria2(MPI_COMM_WORLD);
   GridGenerator::subdivided_hyper_cube(tria1, 2);
   GridGenerator::subdivided_hyper_cube(tria2, 2);
 

@@ -23,13 +23,11 @@
 DEAL_II_NAMESPACE_OPEN
 
 void
-SparsityPatternBase::add_entries(
-  const ArrayView<const std::pair<size_type, size_type>> &inputs)
+SparsityPatternBase::add_entries(const ArrayView<const std::pair<size_type, size_type>> &inputs)
 {
   // We always want to sort so that we can use the optimized add_row_entries()
   // function
-  boost::container::small_vector<std::pair<size_type, size_type>, 128> entries(
-    inputs.begin(), inputs.end());
+  boost::container::small_vector<std::pair<size_type, size_type>, 128> entries(inputs.begin(), inputs.end());
   std::sort(entries.begin(), entries.end());
   boost::container::small_vector<size_type, 128> columns;
 
@@ -53,9 +51,7 @@ SparsityPatternBase::add_entries(
           ++entry;
         }
 
-      add_row_entries(row,
-                      make_array_view(columns.begin(), columns.end()),
-                      true);
+      add_row_entries(row, make_array_view(columns.begin(), columns.end()), true);
     }
 }
 

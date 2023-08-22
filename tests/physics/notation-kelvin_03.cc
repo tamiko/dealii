@@ -129,8 +129,7 @@ template <int rank, int dim>
 void
 test_tensors_012()
 {
-  static_assert((rank == 0 || rank == 1 || rank == 2),
-                "Must be rank 0, 1 or 2");
+  static_assert((rank == 0 || rank == 1 || rank == 2), "Must be rank 0, 1 or 2");
 
   Tensor<rank, dim, double> A;
   Tensor<rank, dim, double> C;
@@ -140,9 +139,7 @@ test_tensors_012()
   const Vector<double>     vA = Notation::Kelvin::to_vector(A);
   const FullMatrix<double> mC = Notation::Kelvin::to_matrix(C);
 
-  const std::string name = std::string("Rank-") +
-                           Utilities::int_to_string(rank) +
-                           std::string(" tensor");
+  const std::string name = std::string("Rank-") + Utilities::int_to_string(rank) + std::string(" tensor");
   deallog.push(name);
   {
     deallog << "Vector" << std::endl;
@@ -162,8 +159,7 @@ test_tensor_3()
     Tensor<3, dim, double> C;
     initialize(C);
 
-    const FullMatrix<double> mC =
-      Notation::Kelvin::to_matrix<dim, Tensor<1, dim>, Tensor<2, dim>>(C);
+    const FullMatrix<double> mC = Notation::Kelvin::to_matrix<dim, Tensor<1, dim>, Tensor<2, dim>>(C);
 
     deallog.push("Rank-3 tensor: NSymm 1");
     {
@@ -178,8 +174,7 @@ test_tensor_3()
     Tensor<3, dim, double> C;
     initialize(C);
 
-    const FullMatrix<double> mC =
-      Notation::Kelvin::to_matrix<dim, Tensor<2, dim>, Tensor<1, dim>>(C);
+    const FullMatrix<double> mC = Notation::Kelvin::to_matrix<dim, Tensor<2, dim>, Tensor<1, dim>>(C);
 
     deallog.push("Rank-3 tensor: NSymm 2");
     {
@@ -194,9 +189,7 @@ test_tensor_3()
     Tensor<3, dim, double> C;
     initialize(C);
 
-    const FullMatrix<double> mC =
-      Notation::Kelvin::to_matrix<dim, Tensor<1, dim>, SymmetricTensor<2, dim>>(
-        C);
+    const FullMatrix<double> mC = Notation::Kelvin::to_matrix<dim, Tensor<1, dim>, SymmetricTensor<2, dim>>(C);
 
     deallog.push("Rank-3 tensor: Symm 1");
     {
@@ -211,9 +204,7 @@ test_tensor_3()
     Tensor<3, dim, double> C;
     initialize(C);
 
-    const FullMatrix<double> mC =
-      Notation::Kelvin::to_matrix<dim, SymmetricTensor<2, dim>, Tensor<1, dim>>(
-        C);
+    const FullMatrix<double> mC = Notation::Kelvin::to_matrix<dim, SymmetricTensor<2, dim>, Tensor<1, dim>>(C);
 
     deallog.push("Rank-3 tensor: Symm 2");
     {

@@ -139,8 +139,7 @@ namespace hp
      * The result of the comparison will be returned as a boolean.
      */
     template <typename Number>
-    using ComparisonFunction =
-      std::function<bool(const Number &, const Number &)>;
+    using ComparisonFunction = std::function<bool(const Number &, const Number &)>;
 
     /**
      * @name Setting p-adaptivity flags
@@ -176,8 +175,7 @@ namespace hp
      */
     template <int dim, int spacedim>
     void
-    p_adaptivity_from_flags(const DoFHandler<dim, spacedim> &dof_handler,
-                            const std::vector<bool> &        p_flags);
+    p_adaptivity_from_flags(const DoFHandler<dim, spacedim> &dof_handler, const std::vector<bool> &p_flags);
 
     /**
      * Adapt which finite element to use on cells whose criteria meet a certain
@@ -207,14 +205,12 @@ namespace hp
     template <int dim, typename Number, int spacedim>
     void
     p_adaptivity_from_absolute_threshold(
-      const DoFHandler<dim, spacedim> &dof_handler,
-      const Vector<Number> &           criteria,
-      const Number                     p_refine_threshold,
-      const Number                     p_coarsen_threshold,
-      const ComparisonFunction<std_cxx20::type_identity_t<Number>>
-        &compare_refine = std::greater_equal<Number>(),
-      const ComparisonFunction<std_cxx20::type_identity_t<Number>>
-        &compare_coarsen = std::less_equal<Number>());
+      const DoFHandler<dim, spacedim>                              &dof_handler,
+      const Vector<Number>                                         &criteria,
+      const Number                                                  p_refine_threshold,
+      const Number                                                  p_coarsen_threshold,
+      const ComparisonFunction<std_cxx20::type_identity_t<Number>> &compare_refine  = std::greater_equal<Number>(),
+      const ComparisonFunction<std_cxx20::type_identity_t<Number>> &compare_coarsen = std::less_equal<Number>());
 
     /**
      * Adapt which finite element to use on cells whose criteria meet a certain
@@ -250,14 +246,12 @@ namespace hp
     template <int dim, typename Number, int spacedim>
     void
     p_adaptivity_from_relative_threshold(
-      const DoFHandler<dim, spacedim> &dof_handler,
-      const Vector<Number> &           criteria,
-      const double                     p_refine_fraction  = 0.5,
-      const double                     p_coarsen_fraction = 0.5,
-      const ComparisonFunction<std_cxx20::type_identity_t<Number>>
-        &compare_refine = std::greater_equal<Number>(),
-      const ComparisonFunction<std_cxx20::type_identity_t<Number>>
-        &compare_coarsen = std::less_equal<Number>());
+      const DoFHandler<dim, spacedim>                              &dof_handler,
+      const Vector<Number>                                         &criteria,
+      const double                                                  p_refine_fraction  = 0.5,
+      const double                                                  p_coarsen_fraction = 0.5,
+      const ComparisonFunction<std_cxx20::type_identity_t<Number>> &compare_refine     = std::greater_equal<Number>(),
+      const ComparisonFunction<std_cxx20::type_identity_t<Number>> &compare_coarsen    = std::less_equal<Number>());
 
     /**
      * Adapt which finite element to use on a given fraction of cells.
@@ -294,14 +288,12 @@ namespace hp
     template <int dim, typename Number, int spacedim>
     void
     p_adaptivity_fixed_number(
-      const DoFHandler<dim, spacedim> &dof_handler,
-      const Vector<Number> &           criteria,
-      const double                     p_refine_fraction  = 0.5,
-      const double                     p_coarsen_fraction = 0.5,
-      const ComparisonFunction<std_cxx20::type_identity_t<Number>>
-        &compare_refine = std::greater_equal<Number>(),
-      const ComparisonFunction<std_cxx20::type_identity_t<Number>>
-        &compare_coarsen = std::less_equal<Number>());
+      const DoFHandler<dim, spacedim>                              &dof_handler,
+      const Vector<Number>                                         &criteria,
+      const double                                                  p_refine_fraction  = 0.5,
+      const double                                                  p_coarsen_fraction = 0.5,
+      const ComparisonFunction<std_cxx20::type_identity_t<Number>> &compare_refine     = std::greater_equal<Number>(),
+      const ComparisonFunction<std_cxx20::type_identity_t<Number>> &compare_coarsen    = std::less_equal<Number>());
 
     /**
      * Adapt which finite element to use on cells based on the regularity of the
@@ -331,8 +323,7 @@ namespace hp
      */
     template <int dim, typename Number, int spacedim>
     void
-    p_adaptivity_from_regularity(const DoFHandler<dim, spacedim> &dof_handler,
-                                 const Vector<Number> &sobolev_indices);
+    p_adaptivity_from_regularity(const DoFHandler<dim, spacedim> &dof_handler, const Vector<Number> &sobolev_indices);
 
     /**
      * Adapt which finite element to use on each cell based on how its criterion
@@ -356,14 +347,11 @@ namespace hp
      */
     template <int dim, typename Number, int spacedim>
     void
-    p_adaptivity_from_reference(
-      const DoFHandler<dim, spacedim> &dof_handler,
-      const Vector<Number> &           criteria,
-      const Vector<Number> &           references,
-      const ComparisonFunction<std_cxx20::type_identity_t<Number>>
-        &compare_refine,
-      const ComparisonFunction<std_cxx20::type_identity_t<Number>>
-        &compare_coarsen);
+    p_adaptivity_from_reference(const DoFHandler<dim, spacedim>                              &dof_handler,
+                                const Vector<Number>                                         &criteria,
+                                const Vector<Number>                                         &references,
+                                const ComparisonFunction<std_cxx20::type_identity_t<Number>> &compare_refine,
+                                const ComparisonFunction<std_cxx20::type_identity_t<Number>> &compare_coarsen);
 
     /**
      * @}
@@ -596,8 +584,8 @@ namespace hp
     template <int dim, typename Number, int spacedim>
     void
     predict_error(const DoFHandler<dim, spacedim> &dof_handler,
-                  const Vector<Number> &           error_indicators,
-                  Vector<Number> &                 predicted_errors,
+                  const Vector<Number>            &error_indicators,
+                  Vector<Number>                  &predicted_errors,
                   const double                     gamma_p = std::sqrt(0.4),
                   const double                     gamma_h = 2.,
                   const double                     gamma_n = 1.);
@@ -718,8 +706,8 @@ namespace hp
     template <int dim, int spacedim>
     bool
     limit_p_level_difference(const DoFHandler<dim, spacedim> &dof_handler,
-                             const unsigned int max_difference    = 1,
-                             const unsigned int contains_fe_index = 0);
+                             const unsigned int               max_difference    = 1,
+                             const unsigned int               contains_fe_index = 0);
 
     /**
      * @}

@@ -64,9 +64,7 @@ test(PETScWrappers::MatrixBase &m)
   deallog << m.frobenius_norm() << ' ' << std::sqrt(norm_sqr) << std::endl;
   deallog << m.n_nonzero_elements() << ' ' << nnz << std::endl;
 
-  Assert(std::fabs(m.frobenius_norm() - std::sqrt(norm_sqr)) <
-           std::fabs(std::sqrt(norm_sqr)),
-         ExcInternalError());
+  Assert(std::fabs(m.frobenius_norm() - std::sqrt(norm_sqr)) < std::fabs(std::sqrt(norm_sqr)), ExcInternalError());
   Assert(m.n_nonzero_elements() - nnz == 0, ExcInternalError());
 
   // now remove the entries of row N/2
@@ -80,9 +78,7 @@ test(PETScWrappers::MatrixBase &m)
   deallog << m.frobenius_norm() << ' ' << std::sqrt(norm_sqr) << std::endl;
   deallog << m.n_nonzero_elements() << ' ' << nnz << std::endl;
 
-  Assert(std::fabs(m.frobenius_norm() - std::sqrt(norm_sqr)) <
-           std::fabs(std::sqrt(norm_sqr)),
-         ExcInternalError());
+  Assert(std::fabs(m.frobenius_norm() - std::sqrt(norm_sqr)) < std::fabs(std::sqrt(norm_sqr)), ExcInternalError());
 
   // make sure that zeroing out rows does at
   // least not add new nonzero entries (it
@@ -109,28 +105,20 @@ main(int argc, char **argv)
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

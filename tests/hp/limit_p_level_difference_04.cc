@@ -47,7 +47,7 @@ test(const unsigned int max_difference)
     fes.push_back(FE_Q<dim>(1));
 
   const unsigned int contains_fe_index = 0;
-  const auto         sequence = fes.get_hierarchy_sequence(contains_fe_index);
+  const auto         sequence          = fes.get_hierarchy_sequence(contains_fe_index);
 
   // set up line grid
   // - refine central cell and flag them for coarsening
@@ -82,24 +82,19 @@ test(const unsigned int max_difference)
       cell->set_active_fe_index(sequence.back());
   dofh.distribute_dofs(fes);
 
-  const bool fe_indices_changed =
-    hp::Refinement::limit_p_level_difference(dofh,
-                                             max_difference,
-                                             contains_fe_index);
+  const bool fe_indices_changed = hp::Refinement::limit_p_level_difference(dofh, max_difference, contains_fe_index);
   (void)fe_indices_changed;
   Assert(fe_indices_changed, ExcInternalError());
 
   deallog << "future FE indices before adaptation:" << std::endl;
   for (const auto &cell : dofh.active_cell_iterators())
-    deallog << ' ' << cell->id().to_string() << ' ' << cell->future_fe_index()
-            << std::endl;
+    deallog << ' ' << cell->id().to_string() << ' ' << cell->future_fe_index() << std::endl;
 
   tria.execute_coarsening_and_refinement();
 
   deallog << "active FE indices after adaptation:" << std::endl;
   for (const auto &cell : dofh.active_cell_iterators())
-    deallog << ' ' << cell->id().to_string() << ' ' << cell->active_fe_index()
-            << std::endl;
+    deallog << ' ' << cell->id().to_string() << ' ' << cell->active_fe_index() << std::endl;
 
   deallog << "OK" << std::endl;
 }

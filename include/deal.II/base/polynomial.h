@@ -87,8 +87,7 @@ namespace Polynomials
      * contain all points (including x_j, which will internally not be
      * stored).
      */
-    Polynomial(const std::vector<Point<1>> &lagrange_support_points,
-               const unsigned int           evaluation_point);
+    Polynomial(const std::vector<Point<1>> &lagrange_support_points, const unsigned int evaluation_point);
 
     /**
      * Default constructor creating an illegal object.
@@ -140,9 +139,7 @@ namespace Polynomials
      */
     template <typename Number2>
     void
-    value(const Number2      x,
-          const unsigned int n_derivatives,
-          Number2 *          values) const;
+    value(const Number2 x, const unsigned int n_derivatives, Number2 *values) const;
 
     /**
      * Similar to the function above, but evaluate the polynomials on several
@@ -160,7 +157,7 @@ namespace Polynomials
     void
     values_of_array(const std::array<Number2, n_entries> &points,
                     const unsigned int                    n_derivatives,
-                    std::array<Number2, n_entries> *      values) const;
+                    std::array<Number2, n_entries>       *values) const;
 
     /**
      * Degree of the polynomial. This is the degree reflected by the number of
@@ -395,9 +392,7 @@ namespace Polynomials
      * function is <tt>static</tt> to allow to be called in the constructor.
      */
     static void
-    compute_coefficients(const unsigned int   n,
-                         const unsigned int   support_point,
-                         std::vector<double> &a);
+    compute_coefficients(const unsigned int n, const unsigned int support_point, std::vector<double> &a);
   };
 
 
@@ -570,8 +565,7 @@ namespace Polynomials
      * unique_ptr in order to correctly free the memory of the vectors when
      * the global destructor is called.
      */
-    static std::vector<std::unique_ptr<const std::vector<double>>>
-      recursive_coefficients;
+    static std::vector<std::unique_ptr<const std::vector<double>>> recursive_coefficients;
   };
 
 
@@ -731,8 +725,7 @@ namespace Polynomials
      * Constructor for the polynomial with index <tt>index</tt> within the set
      * up polynomials of degree @p degree.
      */
-    HermiteLikeInterpolation(const unsigned int degree,
-                             const unsigned int index);
+    HermiteLikeInterpolation(const unsigned int degree, const unsigned int index);
 
     /**
      * Return the polynomials with index <tt>0</tt> up to <tt>degree+1</tt> in
@@ -755,10 +748,7 @@ namespace Polynomials
    */
   template <typename Number>
   Number
-  jacobi_polynomial_value(const unsigned int degree,
-                          const int          alpha,
-                          const int          beta,
-                          const Number       x);
+  jacobi_polynomial_value(const unsigned int degree, const int alpha, const int beta, const Number x);
 
 
   /**
@@ -775,9 +765,7 @@ namespace Polynomials
    */
   template <typename Number>
   std::vector<Number>
-  jacobi_polynomial_roots(const unsigned int degree,
-                          const int          alpha,
-                          const int          beta);
+  jacobi_polynomial_roots(const unsigned int degree, const int alpha, const int beta);
 } // namespace Polynomials
 
 
@@ -844,13 +832,9 @@ namespace Polynomials
   template <typename number>
   template <typename Number2>
   inline void
-  Polynomial<number>::value(const Number2      x,
-                            const unsigned int n_derivatives,
-                            Number2 *          values) const
+  Polynomial<number>::value(const Number2 x, const unsigned int n_derivatives, Number2 *values) const
   {
-    values_of_array(std::array<Number2, 1ul>{{x}},
-                    n_derivatives,
-                    reinterpret_cast<std::array<Number2, 1ul> *>(values));
+    values_of_array(std::array<Number2, 1ul>{{x}}, n_derivatives, reinterpret_cast<std::array<Number2, 1ul> *>(values));
   }
 
 
@@ -858,10 +842,9 @@ namespace Polynomials
   template <typename number>
   template <std::size_t n_entries, typename Number2>
   inline void
-  Polynomial<number>::values_of_array(
-    const std::array<Number2, n_entries> &x,
-    const unsigned int                    n_derivatives,
-    std::array<Number2, n_entries> *      values) const
+  Polynomial<number>::values_of_array(const std::array<Number2, n_entries> &x,
+                                      const unsigned int                    n_derivatives,
+                                      std::array<Number2, n_entries>       *values) const
   {
     // evaluate Lagrange polynomial and derivatives
     if (in_lagrange_product_form == true)
@@ -952,8 +935,7 @@ namespace Polynomials
 
             case 2:
               {
-                std::array<Number2, n_entries> value, derivative = {},
-                                                      second = {};
+                std::array<Number2, n_entries> value, derivative = {}, second = {};
                 for (unsigned int e = 0; e < n_entries; ++e)
                   value[e] = weight;
                 for (unsigned int i = 0; i < n_supp; ++i)
@@ -1029,13 +1011,9 @@ namespace Polynomials
 
   template <typename Number>
   Number
-  jacobi_polynomial_value(const unsigned int degree,
-                          const int          alpha,
-                          const int          beta,
-                          const Number       x)
+  jacobi_polynomial_value(const unsigned int degree, const int alpha, const int beta, const Number x)
   {
-    Assert(alpha >= 0 && beta >= 0,
-           ExcNotImplemented("Negative alpha/beta coefficients not supported"));
+    Assert(alpha >= 0 && beta >= 0, ExcNotImplemented("Negative alpha/beta coefficients not supported"));
     // the Jacobi polynomial is evaluated using a recursion formula.
     Number p0, p1;
 
@@ -1070,9 +1048,7 @@ namespace Polynomials
 
   template <typename Number>
   std::vector<Number>
-  jacobi_polynomial_roots(const unsigned int degree,
-                          const int          alpha,
-                          const int          beta)
+  jacobi_polynomial_roots(const unsigned int degree, const int alpha, const int beta)
   {
     std::vector<Number> x(degree, 0.5);
 
@@ -1086,8 +1062,7 @@ namespace Polynomials
     // Newton's method
 
     const Number tolerance =
-      4 * std::max(static_cast<Number>(std::numeric_limits<double>::epsilon()),
-                   std::numeric_limits<Number>::epsilon());
+      4 * std::max(static_cast<Number>(std::numeric_limits<double>::epsilon()), std::numeric_limits<Number>::epsilon());
 
     // The following implementation follows closely the one given in the
     // appendix of the book by Karniadakis and Sherwin: Spectral/hp element
@@ -1100,8 +1075,7 @@ namespace Polynomials
       {
         // we take the zeros of the Chebyshev polynomial (alpha=beta=-0.5) as
         // initial values, corrected by the initial value
-        Number r = 0.5 - 0.5 * std::cos(static_cast<Number>(2 * k + 1) /
-                                        (2 * degree) * numbers::PI);
+        Number r = 0.5 - 0.5 * std::cos(static_cast<Number>(2 * k + 1) / (2 * degree) * numbers::PI);
         if (k > 0)
           r = (r + x[k - 1]) / 2;
 
@@ -1114,15 +1088,13 @@ namespace Polynomials
 
             // derivative of P_n^{alpha,beta}, rescaled to [0, 1]
             const Number J_x =
-              (alpha + beta + degree + 1) *
-              jacobi_polynomial_value(degree - 1, alpha + 1, beta + 1, r);
+              (alpha + beta + degree + 1) * jacobi_polynomial_value(degree - 1, alpha + 1, beta + 1, r);
 
             // value of P_n^{alpha,beta}
-            const Number f = jacobi_polynomial_value(degree, alpha, beta, r);
+            const Number f     = jacobi_polynomial_value(degree, alpha, beta, r);
             const Number delta = f / (f * s - J_x);
             r += delta;
-            if (converged == numbers::invalid_unsigned_int &&
-                std::abs(delta) < tolerance)
+            if (converged == numbers::invalid_unsigned_int && std::abs(delta) < tolerance)
               converged = it;
 
             // do one more iteration to ensure accuracy also for tighter

@@ -69,14 +69,14 @@ public:
   {}
   virtual void
   value_list(const std::vector<Point<dim>> &points,
-             std::vector<double> &          values,
+             std::vector<double>           &values,
              const unsigned int             component = 0) const override;
 };
 
 template <int dim>
 void
 SmoothSolution<dim>::value_list(const std::vector<Point<dim>> &points,
-                                std::vector<double> &          values,
+                                std::vector<double>           &values,
                                 const unsigned int /*component*/) const
 {
   for (unsigned int i = 0; i < values.size(); ++i)
@@ -92,14 +92,14 @@ public:
   {}
   virtual void
   value_list(const std::vector<Point<dim>> &points,
-             std::vector<double> &          values,
+             std::vector<double>           &values,
              const unsigned int /*component*/ = 0) const override;
 };
 
 template <int dim>
 void
 SmoothRightHandSide<dim>::value_list(const std::vector<Point<dim>> &points,
-                                     std::vector<double> &          values,
+                                     std::vector<double>           &values,
                                      const unsigned int /*component*/) const
 {
   for (unsigned int i = 0; i < values.size(); ++i)
@@ -156,8 +156,7 @@ public:
       [&](const auto &data, auto &dst, const auto &src, const auto cell_range) {
         FEEvaluation<dim, -1, 0, 1, number> phi(data);
 
-        for (unsigned int cell = cell_range.first; cell < cell_range.second;
-             ++cell)
+        for (unsigned int cell = cell_range.first; cell < cell_range.second; ++cell)
           {
             phi.reinit(cell);
             phi.read_dof_values(src);
@@ -170,22 +169,15 @@ public:
       },
       [&](const auto &data, auto &dst, const auto &src, const auto face_range) {
         FEFaceEvaluation<dim, -1, 0, 1, number> fe_eval(data, face_range, true);
-        FEFaceEvaluation<dim, -1, 0, 1, number> fe_eval_neighbor(data,
-                                                                 face_range,
-                                                                 false);
+        FEFaceEvaluation<dim, -1, 0, 1, number> fe_eval_neighbor(data, face_range, false);
 
-        for (unsigned int face = face_range.first; face < face_range.second;
-             face++)
+        for (unsigned int face = face_range.first; face < face_range.second; face++)
           {
             fe_eval.reinit(face);
             fe_eval_neighbor.reinit(face);
 
-            fe_eval.gather_evaluate(src,
-                                    EvaluationFlags::values |
-                                      EvaluationFlags::gradients);
-            fe_eval_neighbor.gather_evaluate(src,
-                                             EvaluationFlags::values |
-                                               EvaluationFlags::gradients);
+            fe_eval.gather_evaluate(src, EvaluationFlags::values | EvaluationFlags::gradients);
+            fe_eval_neighbor.gather_evaluate(src, EvaluationFlags::values | EvaluationFlags::gradients);
             VectorizedArray<number> sigmaF = PENALTY;
             //  (std::abs((fe_eval.normal_vector(0) *
             //             fe_eval.inverse_jacobian(0))[dim - 1]) +
@@ -195,35 +187,26 @@ public:
 
             for (unsigned int q = 0; q < fe_eval.n_q_points; ++q)
               {
-                VectorizedArray<number> average_value =
-                  (fe_eval.get_value(q) - fe_eval_neighbor.get_value(q)) * 0.5;
+                VectorizedArray<number> average_value = (fe_eval.get_value(q) - fe_eval_neighbor.get_value(q)) * 0.5;
                 VectorizedArray<number> average_valgrad =
-                  fe_eval.get_normal_derivative(q) +
-                  fe_eval_neighbor.get_normal_derivative(q);
-                average_valgrad =
-                  average_value * 2. * sigmaF - average_valgrad * 0.5;
+                  fe_eval.get_normal_derivative(q) + fe_eval_neighbor.get_normal_derivative(q);
+                average_valgrad = average_value * 2. * sigmaF - average_valgrad * 0.5;
                 fe_eval.submit_normal_derivative(-average_value, q);
                 fe_eval_neighbor.submit_normal_derivative(-average_value, q);
                 fe_eval.submit_value(average_valgrad, q);
                 fe_eval_neighbor.submit_value(-average_valgrad, q);
               }
-            fe_eval.integrate_scatter(EvaluationFlags::values |
-                                        EvaluationFlags::gradients,
-                                      dst);
-            fe_eval_neighbor.integrate_scatter(EvaluationFlags::values |
-                                                 EvaluationFlags::gradients,
-                                               dst);
+            fe_eval.integrate_scatter(EvaluationFlags::values | EvaluationFlags::gradients, dst);
+            fe_eval_neighbor.integrate_scatter(EvaluationFlags::values | EvaluationFlags::gradients, dst);
           }
       },
       [&](const auto &data, auto &dst, const auto &src, const auto face_range) {
         FEFaceEvaluation<dim, -1, 0, 1, number> fe_eval(data, face_range, true);
-        for (unsigned int face = face_range.first; face < face_range.second;
-             face++)
+        for (unsigned int face = face_range.first; face < face_range.second; face++)
           {
             fe_eval.reinit(face);
             fe_eval.read_dof_values(src);
-            fe_eval.evaluate(EvaluationFlags::values |
-                             EvaluationFlags::gradients);
+            fe_eval.evaluate(EvaluationFlags::values | EvaluationFlags::gradients);
             VectorizedArray<number> sigmaF = PENALTY;
             //  std::abs((fe_eval.normal_vector(0) *
             //            fe_eval.inverse_jacobian(0))[dim - 1]) *
@@ -231,17 +214,14 @@ public:
 
             for (unsigned int q = 0; q < fe_eval.n_q_points; ++q)
               {
-                VectorizedArray<number> average_value = fe_eval.get_value(q);
-                VectorizedArray<number> average_valgrad =
-                  -fe_eval.get_normal_derivative(q);
+                VectorizedArray<number> average_value   = fe_eval.get_value(q);
+                VectorizedArray<number> average_valgrad = -fe_eval.get_normal_derivative(q);
                 average_valgrad += average_value * sigmaF;
                 fe_eval.submit_normal_derivative(-average_value, q);
                 fe_eval.submit_value(average_valgrad, q);
               }
 
-            fe_eval.integrate_scatter(EvaluationFlags::values |
-                                        EvaluationFlags::gradients,
-                                      dst);
+            fe_eval.integrate_scatter(EvaluationFlags::values | EvaluationFlags::gradients, dst);
           }
       },
       dst,
@@ -323,10 +303,8 @@ test(const unsigned int degree)
   constraints.close();
 
   const auto solve_and_postprocess =
-    [&](const auto &poisson_operator,
-        auto &      x,
-        auto &      b) -> std::pair<unsigned int, double> {
-    ReductionControl reduction_control(1000, 1e-7, 1e-3);
+    [&](const auto &poisson_operator, auto &x, auto &b) -> std::pair<unsigned int, double> {
+    ReductionControl                               reduction_control(1000, 1e-7, 1e-3);
     SolverCG<std::remove_reference_t<decltype(x)>> solver(reduction_control);
 
     try
@@ -357,35 +335,23 @@ test(const unsigned int degree)
     deallog << "dim=" << dim << ' ';
     deallog << "degree=" << degree << ' ';
 
-    VectorTools::integrate_difference(mapping,
-                                      dof_handler,
-                                      x,
-                                      Functions::ZeroFunction<dim>(),
-                                      difference,
-                                      quadrature,
-                                      VectorTools::NormType::L2_norm);
+    VectorTools::integrate_difference(
+      mapping, dof_handler, x, Functions::ZeroFunction<dim>(), difference, quadrature, VectorTools::NormType::L2_norm);
 
-    deallog << VectorTools::compute_global_error(tria,
-                                                 difference,
-                                                 VectorTools::NormType::L2_norm)
-            << std::endl;
+    deallog << VectorTools::compute_global_error(tria, difference, VectorTools::NormType::L2_norm) << std::endl;
 
     return {reduction_control.last_step(), reduction_control.last_value()};
   };
 
   const auto mf_algo = [&]() {
     typename MatrixFree<dim, double>::AdditionalData additional_data;
-    additional_data.mapping_update_flags = update_gradients | update_values;
-    additional_data.mapping_update_flags_inner_faces =
-      update_gradients | update_values;
-    additional_data.mapping_update_flags_boundary_faces =
-      update_gradients | update_values;
-    additional_data.tasks_parallel_scheme =
-      MatrixFree<dim, double>::AdditionalData::none;
+    additional_data.mapping_update_flags                = update_gradients | update_values;
+    additional_data.mapping_update_flags_inner_faces    = update_gradients | update_values;
+    additional_data.mapping_update_flags_boundary_faces = update_gradients | update_values;
+    additional_data.tasks_parallel_scheme               = MatrixFree<dim, double>::AdditionalData::none;
 
     MatrixFree<dim, double> matrix_free;
-    matrix_free.reinit(
-      mapping, dof_handler, constraints, quadrature, additional_data);
+    matrix_free.reinit(mapping, dof_handler, constraints, quadrature, additional_data);
 
     PoissonOperator<dim> poisson_operator(matrix_free);
 
@@ -417,113 +383,105 @@ test(const unsigned int degree)
     const auto exact_solution = std::make_shared<SmoothSolution<dim>>();
     const auto rhs_function   = std::make_shared<SmoothRightHandSide<dim>>();
 
-    const auto cell_worker =
-      [&](const auto &cell, auto &scratch_data, auto &copy_data) {
-        const FEValues<dim> &fe_v          = scratch_data.reinit(cell);
-        const unsigned int   dofs_per_cell = fe_v.dofs_per_cell;
-        copy_data.reinit(cell, dofs_per_cell);
+    const auto cell_worker = [&](const auto &cell, auto &scratch_data, auto &copy_data) {
+      const FEValues<dim> &fe_v          = scratch_data.reinit(cell);
+      const unsigned int   dofs_per_cell = fe_v.dofs_per_cell;
+      copy_data.reinit(cell, dofs_per_cell);
 
-        const auto &       q_points    = scratch_data.get_quadrature_points();
-        const unsigned int n_q_points  = q_points.size();
-        const std::vector<double> &JxW = scratch_data.get_JxW_values();
+      const auto                &q_points   = scratch_data.get_quadrature_points();
+      const unsigned int         n_q_points = q_points.size();
+      const std::vector<double> &JxW        = scratch_data.get_JxW_values();
 
-        std::vector<double> rhs(n_q_points);
-        rhs_function->value_list(q_points, rhs);
-
-        for (unsigned int point = 0; point < n_q_points; ++point)
-          for (unsigned int i = 0; i < fe_v.dofs_per_cell; ++i)
-            {
-              for (unsigned int j = 0; j < fe_v.dofs_per_cell; ++j)
-                copy_data.cell_matrix(i, j) +=
-                  diffusion_coefficient *     // nu
-                  fe_v.shape_grad(i, point) * // grad v_h
-                  fe_v.shape_grad(j, point) * // grad u_h
-                  JxW[point];                 // dx
-
-              copy_data.cell_rhs(i) += fe_v.shape_value(i, point) * // v_h
-                                       rhs[point] *                 // f
-                                       JxW[point];                  // dx
-            }
-      };
-
-    const auto boundary_worker = [&](const auto &        cell,
-                                     const unsigned int &face_no,
-                                     auto &              scratch_data,
-                                     auto &              copy_data) {
-      const FEFaceValuesBase<dim> &fe_fv = scratch_data.reinit(cell, face_no);
-
-      const auto &       q_points      = scratch_data.get_quadrature_points();
-      const unsigned int n_q_points    = q_points.size();
-      const unsigned int dofs_per_cell = fe_fv.dofs_per_cell;
-
-      const std::vector<double> &        JxW = scratch_data.get_JxW_values();
-      const std::vector<Tensor<1, dim>> &normals =
-        scratch_data.get_normal_vectors();
-
-      std::vector<double> g(n_q_points);
-      exact_solution->value_list(q_points, g);
-
-      const double penalty = PENALTY;
+      std::vector<double> rhs(n_q_points);
+      rhs_function->value_list(q_points, rhs);
 
       for (unsigned int point = 0; point < n_q_points; ++point)
-        {
-          for (unsigned int i = 0; i < dofs_per_cell; ++i)
-            for (unsigned int j = 0; j < dofs_per_cell; ++j)
-              copy_data.cell_matrix(i, j) +=
-                (-diffusion_coefficient *        // - nu
-                   fe_fv.shape_value(i, point) * // v_h
-                   (fe_fv.shape_grad(j, point) * // (grad u_h .
-                    normals[point])              //  n)
+        for (unsigned int i = 0; i < fe_v.dofs_per_cell; ++i)
+          {
+            for (unsigned int j = 0; j < fe_v.dofs_per_cell; ++j)
+              copy_data.cell_matrix(i, j) += diffusion_coefficient *     // nu
+                                             fe_v.shape_grad(i, point) * // grad v_h
+                                             fe_v.shape_grad(j, point) * // grad u_h
+                                             JxW[point];                 // dx
 
-                 - diffusion_coefficient *         // - nu
-                     (fe_fv.shape_grad(i, point) * // (grad v_h .
-                      normals[point]) *            //  n)
-                     fe_fv.shape_value(j, point)   // u_h
-
-                 + diffusion_coefficient * penalty * // + nu sigma
-                     fe_fv.shape_value(i, point) *   // v_h
-                     fe_fv.shape_value(j, point)     // u_h
-
-                 ) *
-                JxW[point]; // dx
-
-          for (unsigned int i = 0; i < dofs_per_cell; ++i)
-            copy_data.cell_rhs(i) +=
-              (-diffusion_coefficient *        // - nu
-                 (fe_fv.shape_grad(i, point) * // (grad v_h .
-                  normals[point]) *            //  n)
-                 g[point]                      // g
-
-
-               + diffusion_coefficient * penalty *        // + nu sigma
-                   fe_fv.shape_value(i, point) * g[point] // v_h g
-
-               ) *
-              JxW[point]; // dx
-        }
+            copy_data.cell_rhs(i) += fe_v.shape_value(i, point) * // v_h
+                                     rhs[point] *                 // f
+                                     JxW[point];                  // dx
+          }
     };
 
-    const auto face_worker = [&](const auto &        cell,
+    const auto boundary_worker =
+      [&](const auto &cell, const unsigned int &face_no, auto &scratch_data, auto &copy_data) {
+        const FEFaceValuesBase<dim> &fe_fv = scratch_data.reinit(cell, face_no);
+
+        const auto        &q_points      = scratch_data.get_quadrature_points();
+        const unsigned int n_q_points    = q_points.size();
+        const unsigned int dofs_per_cell = fe_fv.dofs_per_cell;
+
+        const std::vector<double>         &JxW     = scratch_data.get_JxW_values();
+        const std::vector<Tensor<1, dim>> &normals = scratch_data.get_normal_vectors();
+
+        std::vector<double> g(n_q_points);
+        exact_solution->value_list(q_points, g);
+
+        const double penalty = PENALTY;
+
+        for (unsigned int point = 0; point < n_q_points; ++point)
+          {
+            for (unsigned int i = 0; i < dofs_per_cell; ++i)
+              for (unsigned int j = 0; j < dofs_per_cell; ++j)
+                copy_data.cell_matrix(i, j) += (-diffusion_coefficient *        // - nu
+                                                  fe_fv.shape_value(i, point) * // v_h
+                                                  (fe_fv.shape_grad(j, point) * // (grad u_h .
+                                                   normals[point])              //  n)
+
+                                                - diffusion_coefficient *         // - nu
+                                                    (fe_fv.shape_grad(i, point) * // (grad v_h .
+                                                     normals[point]) *            //  n)
+                                                    fe_fv.shape_value(j, point)   // u_h
+
+                                                + diffusion_coefficient * penalty * // + nu sigma
+                                                    fe_fv.shape_value(i, point) *   // v_h
+                                                    fe_fv.shape_value(j, point)     // u_h
+
+                                                ) *
+                                               JxW[point]; // dx
+
+            for (unsigned int i = 0; i < dofs_per_cell; ++i)
+              copy_data.cell_rhs(i) += (-diffusion_coefficient *        // - nu
+                                          (fe_fv.shape_grad(i, point) * // (grad v_h .
+                                           normals[point]) *            //  n)
+                                          g[point]                      // g
+
+
+                                        + diffusion_coefficient * penalty *        // + nu sigma
+                                            fe_fv.shape_value(i, point) * g[point] // v_h g
+
+                                        ) *
+                                       JxW[point]; // dx
+          }
+      };
+
+    const auto face_worker = [&](const auto         &cell,
                                  const unsigned int &f,
                                  const unsigned int &sf,
-                                 const auto &        ncell,
+                                 const auto         &ncell,
                                  const unsigned int &nf,
                                  const unsigned int &nsf,
-                                 auto &              scratch_data,
-                                 auto &              copy_data) {
-      const FEInterfaceValues<dim> &fe_iv =
-        scratch_data.reinit(cell, f, sf, ncell, nf, nsf);
+                                 auto               &scratch_data,
+                                 auto               &copy_data) {
+      const FEInterfaceValues<dim> &fe_iv = scratch_data.reinit(cell, f, sf, ncell, nf, nsf);
 
-      const auto &       q_points   = fe_iv.get_quadrature_points();
+      const auto        &q_points   = fe_iv.get_quadrature_points();
       const unsigned int n_q_points = q_points.size();
 
       copy_data.face_data.emplace_back();
-      CopyDataFace &     copy_data_face = copy_data.face_data.back();
+      CopyDataFace      &copy_data_face = copy_data.face_data.back();
       const unsigned int n_dofs_face    = fe_iv.n_current_interface_dofs();
       copy_data_face.joint_dof_indices  = fe_iv.get_interface_dof_indices();
       copy_data_face.cell_matrix.reinit(n_dofs_face, n_dofs_face);
 
-      const std::vector<double> &        JxW     = fe_iv.get_JxW_values();
+      const std::vector<double>         &JxW     = fe_iv.get_JxW_values();
       const std::vector<Tensor<1, dim>> &normals = fe_iv.get_normal_vectors();
 
       const double penalty = PENALTY;
@@ -532,62 +490,50 @@ test(const unsigned int degree)
         {
           for (unsigned int i = 0; i < n_dofs_face; ++i)
             for (unsigned int j = 0; j < n_dofs_face; ++j)
-              copy_data_face.cell_matrix(i, j) +=
-                (-diffusion_coefficient *                 // - nu
-                   fe_iv.jump_in_shape_values(i, point) * // [v_h]
-                   (fe_iv.average_of_shape_gradients(j,
-                                                     point) * // ({grad u_h} .
-                    normals[point])                           //  n)
+              copy_data_face.cell_matrix(i, j) += (-diffusion_coefficient *                 // - nu
+                                                     fe_iv.jump_in_shape_values(i, point) * // [v_h]
+                                                     (fe_iv.average_of_shape_gradients(j,
+                                                                                       point) * // ({grad u_h} .
+                                                      normals[point])                           //  n)
 
-                 -
-                 diffusion_coefficient *                         // - nu
-                   (fe_iv.average_of_shape_gradients(i, point) * // (grad v_h .
-                    normals[point]) *                            //  n)
-                   fe_iv.jump_in_shape_values(j, point)          // [u_h]
+                                                   - diffusion_coefficient *                         // - nu
+                                                       (fe_iv.average_of_shape_gradients(i, point) * // (grad v_h .
+                                                        normals[point]) *                            //  n)
+                                                       fe_iv.jump_in_shape_values(j, point)          // [u_h]
 
-                 + diffusion_coefficient * penalty *        // + nu sigma
-                     fe_iv.jump_in_shape_values(i, point) * // [v_h]
-                     fe_iv.jump_in_shape_values(j, point)   // [u_h]
+                                                   + diffusion_coefficient * penalty *        // + nu sigma
+                                                       fe_iv.jump_in_shape_values(i, point) * // [v_h]
+                                                       fe_iv.jump_in_shape_values(j, point)   // [u_h]
 
-                 ) *
-                JxW[point]; // dx
+                                                   ) *
+                                                  JxW[point]; // dx
         }
     };
 
     AffineConstraints<double> constraints;
     constraints.close();
     const auto copier = [&](const auto &c) {
-      constraints.distribute_local_to_global(c.cell_matrix,
-                                             c.cell_rhs,
-                                             c.local_dof_indices,
-                                             system_matrix,
-                                             system_rhs);
+      constraints.distribute_local_to_global(c.cell_matrix, c.cell_rhs, c.local_dof_indices, system_matrix, system_rhs);
 
       for (auto &cdf : c.face_data)
         {
-          constraints.distribute_local_to_global(cdf.cell_matrix,
-                                                 cdf.joint_dof_indices,
-                                                 system_matrix);
+          constraints.distribute_local_to_global(cdf.cell_matrix, cdf.joint_dof_indices, system_matrix);
         }
     };
 
-    UpdateFlags cell_flags = update_values | update_gradients |
-                             update_quadrature_points | update_JxW_values;
-    UpdateFlags face_flags = update_values | update_gradients |
-                             update_quadrature_points | update_normal_vectors |
-                             update_JxW_values;
+    UpdateFlags cell_flags = update_values | update_gradients | update_quadrature_points | update_JxW_values;
+    UpdateFlags face_flags =
+      update_values | update_gradients | update_quadrature_points | update_normal_vectors | update_JxW_values;
 
-    MeshWorker::ScratchData<dim> scratch_data(
-      mapping, fe, quadrature, cell_flags, face_quadrature, face_flags);
-    CopyData cd;
+    MeshWorker::ScratchData<dim> scratch_data(mapping, fe, quadrature, cell_flags, face_quadrature, face_flags);
+    CopyData                     cd;
     MeshWorker::mesh_loop(dof_handler.begin_active(),
                           dof_handler.end(),
                           cell_worker,
                           copier,
                           scratch_data,
                           cd,
-                          MeshWorker::assemble_own_cells |
-                            MeshWorker::assemble_boundary_faces |
+                          MeshWorker::assemble_own_cells | MeshWorker::assemble_boundary_faces |
                             MeshWorker::assemble_own_interior_faces_once,
                           boundary_worker,
                           face_worker);

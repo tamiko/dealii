@@ -37,9 +37,7 @@ test(Vector<std::complex<double>> &v)
   v.compress();
 
   // then check the norm
-  AssertThrow(std::abs(v.mean_value() - sum / (1. * v.size())) <
-                1e-14 * std::abs(sum) / v.size(),
-              ExcInternalError());
+  AssertThrow(std::abs(v.mean_value() - sum / (1. * v.size())) < 1e-14 * std::abs(sum) / v.size(), ExcInternalError());
 
   deallog << "OK" << std::endl;
 }
@@ -58,28 +56,20 @@ main()
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

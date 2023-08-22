@@ -44,8 +44,7 @@ test()
   local_owned.add_range(myid * 3, myid * 3 + 3);
 
   // Create sparsity patterns
-  TrilinosWrappers::SparsityPattern sp1(local_owned, MPI_COMM_WORLD),
-    sp2(local_owned, MPI_COMM_WORLD);
+  TrilinosWrappers::SparsityPattern sp1(local_owned, MPI_COMM_WORLD), sp2(local_owned, MPI_COMM_WORLD);
 
   for (unsigned int i = myid * 3; i < myid * 3 + 3; ++i)
     {
@@ -93,8 +92,7 @@ main(int argc, char **argv)
 {
   initlog();
 
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   try
     {
@@ -102,28 +100,20 @@ main(int argc, char **argv)
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

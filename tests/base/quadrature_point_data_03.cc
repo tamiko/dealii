@@ -100,11 +100,7 @@ struct MyData : public MyDataBase
 };
 
 const double eps = 1e-10;
-DeclException3(ExcWrongValue,
-               double,
-               double,
-               double,
-               << arg1 << " != " << arg2 << " with delta = " << arg3);
+DeclException3(ExcWrongValue, double, double, double, << arg1 << " != " << arg2 << " with delta = " << arg3);
 
 
 /**
@@ -113,11 +109,10 @@ DeclException3(ExcWrongValue,
  */
 template <int dim>
 void
-check_qph(parallel::distributed::Triangulation<dim> &tr,
-          const CellDataStorage<typename Triangulation<dim, dim>::cell_iterator,
-                                MyDataBase> &        manager,
-          const Quadrature<dim> &                    rhs_quadrature,
-          const MyFunction<dim> &                    func)
+check_qph(parallel::distributed::Triangulation<dim>                                          &tr,
+          const CellDataStorage<typename Triangulation<dim, dim>::cell_iterator, MyDataBase> &manager,
+          const Quadrature<dim>                                                              &rhs_quadrature,
+          const MyFunction<dim>                                                              &func)
 {
   DoFHandler<dim> dof_handler(tr);
   FE_Q<dim>       dummy_fe(1);
@@ -130,20 +125,16 @@ check_qph(parallel::distributed::Triangulation<dim> &tr,
         const auto dof_cell = cell->as_dof_handler_iterator(dof_handler);
 
         fe_values.reinit(dof_cell);
-        const std::vector<Point<dim>> &q_points =
-          fe_values.get_quadrature_points();
-        const std::vector<std::shared_ptr<const MyData>> qpd =
-          manager.template get_data<MyData>(cell);
+        const std::vector<Point<dim>>                   &q_points = fe_values.get_quadrature_points();
+        const std::vector<std::shared_ptr<const MyData>> qpd      = manager.template get_data<MyData>(cell);
         for (unsigned int q = 0; q < q_points.size(); ++q)
           {
             const double f_1 = func.value(q_points[q], 0);
             const double f_2 = func.value(q_points[q], 1);
             const double d_1 = qpd[q]->value1;
             const double d_2 = qpd[q]->value2;
-            AssertThrow(std::fabs(f_1 - d_1) < eps,
-                        ExcWrongValue(f_1, d_1, f_1 - d_1));
-            AssertThrow(std::fabs(f_2 - d_2) < eps,
-                        ExcWrongValue(f_2, d_2, f_2 - d_2));
+            AssertThrow(std::fabs(f_1 - d_1) < eps, ExcWrongValue(f_1, d_1, f_1 - d_1));
+            AssertThrow(std::fabs(f_2 - d_2) < eps, ExcWrongValue(f_2, d_2, f_2 - d_2));
           }
       }
   dof_handler.clear();
@@ -165,11 +156,11 @@ test()
   typename Triangulation<dim, dim>::active_cell_iterator cell;
 
   // pppulate quadrature point data
-  QGauss<dim> rhs(4);
-  CellDataStorage<typename Triangulation<dim, dim>::cell_iterator, MyDataBase>
-    data_storage;
-  parallel::distributed::ContinuousQuadratureDataTransfer<dim, MyDataBase>
-    data_transfer(FE_Q<dim>(2), QGauss<dim>(3), rhs);
+  QGauss<dim>                                                                  rhs(4);
+  CellDataStorage<typename Triangulation<dim, dim>::cell_iterator, MyDataBase> data_storage;
+  parallel::distributed::ContinuousQuadratureDataTransfer<dim, MyDataBase>     data_transfer(FE_Q<dim>(2),
+                                                                                         QGauss<dim>(3),
+                                                                                         rhs);
   {
     DoFHandler<dim> dof_handler(tr);
     FE_Q<dim>       dummy_fe(1);
@@ -180,11 +171,9 @@ test()
         {
           const auto dof_cell = cell->as_dof_handler_iterator(dof_handler);
           fe_values.reinit(dof_cell);
-          const std::vector<Point<dim>> &q_points =
-            fe_values.get_quadrature_points();
+          const std::vector<Point<dim>> &q_points = fe_values.get_quadrature_points();
           data_storage.template initialize<MyData>(cell, rhs.size());
-          std::vector<std::shared_ptr<MyData>> qpd =
-            data_storage.template get_data<MyData>(cell);
+          std::vector<std::shared_ptr<MyData>> qpd = data_storage.template get_data<MyData>(cell);
           for (unsigned int q = 0; q < rhs.size(); ++q)
             {
               qpd[q]->value1 = my_func.value(q_points[q], 0);

@@ -42,17 +42,14 @@ test()
   {
     SolverGMRES<Vector<number>> solver(control);
     solver.connect_eigenvalues_slot(
-      [](const std::vector<std::complex<double>> &eigenvalues) {
-        deallog << "n_eigenvalues: " << eigenvalues.size();
-      });
+      [](const std::vector<std::complex<double>> &eigenvalues) { deallog << "n_eigenvalues: " << eigenvalues.size(); });
     solver.solve(matrix, sol, rhs, PreconditionIdentity());
   }
 
   {
     SolverCG<Vector<number>> solver(control);
-    solver.connect_eigenvalues_slot([](const std::vector<double> &eigenvalues) {
-      deallog << "n_eigenvalues: " << eigenvalues.size();
-    });
+    solver.connect_eigenvalues_slot(
+      [](const std::vector<double> &eigenvalues) { deallog << "n_eigenvalues: " << eigenvalues.size(); });
     solver.solve(matrix, sol, rhs, PreconditionIdentity());
   }
 

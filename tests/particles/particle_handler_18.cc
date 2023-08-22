@@ -39,24 +39,18 @@ test()
   GridGenerator::hyper_cube(tr);
   MappingQ<dim, spacedim>                   mapping(1);
   const unsigned int                        n_properties = spacedim;
-  Particles::ParticleHandler<dim, spacedim> particle_handler(tr,
-                                                             mapping,
-                                                             n_properties);
+  Particles::ParticleHandler<dim, spacedim> particle_handler(tr, mapping, n_properties);
 
-  std::vector<Point<dim>> particle_reference_locations =
-    QGauss<dim>(3).get_points();
+  std::vector<Point<dim>> particle_reference_locations = QGauss<dim>(3).get_points();
 
-  Particles::Generators::regular_reference_locations(
-    tr, particle_reference_locations, particle_handler, mapping);
+  Particles::Generators::regular_reference_locations(tr, particle_reference_locations, particle_handler, mapping);
 
   for (auto &particle : particle_handler)
     {
       particle.get_properties()[spacedim - 1] = particle.get_location()[0];
-      deallog << "Before copying particle id " << particle.get_id()
-              << " has first property " << particle.get_properties()[0]
-              << " and last property "
-              << particle.get_properties()[spacedim - 1] << " and position "
-              << particle.get_location() << std::endl;
+      deallog << "Before copying particle id " << particle.get_id() << " has first property "
+              << particle.get_properties()[0] << " and last property " << particle.get_properties()[spacedim - 1]
+              << " and position " << particle.get_location() << std::endl;
     }
 
   {
@@ -70,11 +64,9 @@ test()
     particle_handler.clear();
 
     for (const auto &particle : particle_handler_copy)
-      deallog << "After copying particle id " << particle.get_id()
-              << " has first property " << particle.get_properties()[0]
-              << " and last property "
-              << particle.get_properties()[spacedim - 1] << " and position "
-              << particle.get_location() << std::endl;
+      deallog << "After copying particle id " << particle.get_id() << " has first property "
+              << particle.get_properties()[0] << " and last property " << particle.get_properties()[spacedim - 1]
+              << " and position " << particle.get_location() << std::endl;
   }
 
   deallog << "OK" << std::endl;

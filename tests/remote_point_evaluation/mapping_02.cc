@@ -49,8 +49,7 @@ test()
 
   Vector<double> vec(dof_handler.n_dofs());
 
-  for (const auto &cell : dof_handler.active_cell_iterators() |
-                            IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : dof_handler.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     vec[cell->global_active_cell_index()] = cell->global_active_cell_index();
 
   MappingQ1<dim> mapping;
@@ -66,8 +65,7 @@ test()
   const auto local_reduced_box = extract_rtree_level(local_tree, 0);
 
   // gather bounding boxes of other processes
-  const auto global_bboxes =
-    Utilities::MPI::all_gather(tria.get_communicator(), local_reduced_box);
+  const auto global_bboxes = Utilities::MPI::all_gather(tria.get_communicator(), local_reduced_box);
 
   const GridTools::Cache<dim> cache(tria, mapping);
 
@@ -78,19 +76,15 @@ test()
       for (unsigned int i = 0; i <= 4; ++i)
         local_points.emplace_back(i * 0.25, j * 0.25);
 
-  const auto temp =
-    GridTools::distributed_compute_point_locations(cache,
-                                                   local_points,
-                                                   global_bboxes);
+  const auto temp = GridTools::distributed_compute_point_locations(cache, local_points, global_bboxes);
 
   unsigned int count = 0;
 
   for (const auto &i : std::get<1>(temp))
     count += i.size();
 
-  const auto global_count = Utilities::MPI::sum(count, MPI_COMM_WORLD);
-  const auto expected_global_count =
-    Utilities::MPI::sum(local_points.size(), MPI_COMM_WORLD);
+  const auto global_count          = Utilities::MPI::sum(count, MPI_COMM_WORLD);
+  const auto expected_global_count = Utilities::MPI::sum(local_points.size(), MPI_COMM_WORLD);
 
   deallog << global_count << ' ' << expected_global_count << std::endl;
 }

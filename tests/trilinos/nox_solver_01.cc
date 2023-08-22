@@ -64,12 +64,12 @@ main(int argc, char **argv)
   const double       rel_tolerance     = 1e-5;
   const double       lin_rel_tolerance = 1e-3;
 
-  TrilinosWrappers::NOXSolver<VectorType>::AdditionalData additional_data(
-    n_max_iterations, abs_tolerance, rel_tolerance);
+  TrilinosWrappers::NOXSolver<VectorType>::AdditionalData additional_data(n_max_iterations,
+                                                                          abs_tolerance,
+                                                                          rel_tolerance);
 
   // set up parameters
-  Teuchos::RCP<Teuchos::ParameterList> non_linear_parameters =
-    Teuchos::rcp(new Teuchos::ParameterList);
+  Teuchos::RCP<Teuchos::ParameterList> non_linear_parameters = Teuchos::rcp(new Teuchos::ParameterList);
 
   non_linear_parameters->set("Nonlinear Solver", "Line Search Based");
   non_linear_parameters->sublist("Printing").set("Output Information", 15);
@@ -85,8 +85,7 @@ main(int argc, char **argv)
    */
   {
     // set up solver
-    TrilinosWrappers::NOXSolver<VectorType> solver(additional_data,
-                                                   non_linear_parameters);
+    TrilinosWrappers::NOXSolver<VectorType> solver(additional_data, non_linear_parameters);
 
     // ... helper functions
     double J = 0.0;
@@ -125,14 +124,11 @@ main(int argc, char **argv)
    * Second check: Run the same test through the native NOX interfaces.
    */
   {
-    class NoxInterface : public NOX::Epetra::Interface::Required,
-                         public NOX::Epetra::Interface::Jacobian
+    class NoxInterface : public NOX::Epetra::Interface::Required, public NOX::Epetra::Interface::Jacobian
     {
     public:
       bool
-      computeF(const Epetra_Vector &                      x,
-               Epetra_Vector &                            f,
-               NOX::Epetra::Interface::Required::FillType F) override
+      computeF(const Epetra_Vector &x, Epetra_Vector &f, NOX::Epetra::Interface::Required::FillType F) override
       {
         (void)F;
 
@@ -174,13 +170,10 @@ main(int argc, char **argv)
 
     Epetra_Vector InitialGuess(Copy, solution.trilinos_vector(), 0);
 
-    auto A =
-      Teuchos::rcp(new Epetra_CrsMatrix(system_matrix.trilinos_matrix()));
+    auto A = Teuchos::rcp(new Epetra_CrsMatrix(system_matrix.trilinos_matrix()));
 
-    Teuchos::ParameterList &printParams =
-      non_linear_parameters->sublist("Printing");
-    Teuchos::ParameterList &lsParams =
-      non_linear_parameters->sublist("Newton").sublist("Linear Solver");
+    Teuchos::ParameterList &printParams = non_linear_parameters->sublist("Printing");
+    Teuchos::ParameterList &lsParams    = non_linear_parameters->sublist("Newton").sublist("Linear Solver");
 
     Teuchos::RCP<NoxInterface> interface = Teuchos::rcp(new NoxInterface());
 
@@ -188,28 +181,25 @@ main(int argc, char **argv)
     Teuchos::RCP<NOX::Epetra::Interface::Jacobian> iJac = interface;
 
     Teuchos::RCP<NOX::Epetra::LinearSystemAztecOO> linSys =
-      Teuchos::rcp(new NOX::Epetra::LinearSystemAztecOO(
-        printParams, lsParams, iReq, iJac, A, InitialGuess));
+      Teuchos::rcp(new NOX::Epetra::LinearSystemAztecOO(printParams, lsParams, iReq, iJac, A, InitialGuess));
 
     NOX::Epetra::Vector              noxInitGuess(InitialGuess, NOX::DeepCopy);
-    Teuchos::RCP<NOX::Epetra::Group> group = Teuchos::rcp(
-      new NOX::Epetra::Group(printParams, iReq, noxInitGuess, linSys));
+    Teuchos::RCP<NOX::Epetra::Group> group =
+      Teuchos::rcp(new NOX::Epetra::Group(printParams, iReq, noxInitGuess, linSys));
 
     // setup solver control
-    auto check =
-      Teuchos::rcp(new NOX::StatusTest::Combo(NOX::StatusTest::Combo::OR));
+    auto check = Teuchos::rcp(new NOX::StatusTest::Combo(NOX::StatusTest::Combo::OR));
 
     if (additional_data.abs_tol > 0.0)
       {
-        const auto additional_data_norm_f_abs =
-          Teuchos::rcp(new NOX::StatusTest::NormF(additional_data.abs_tol));
+        const auto additional_data_norm_f_abs = Teuchos::rcp(new NOX::StatusTest::NormF(additional_data.abs_tol));
         check->addStatusTest(additional_data_norm_f_abs);
       }
 
     if (additional_data.rel_tol > 0.0)
       {
-        const auto additional_data_norm_f_rel = Teuchos::rcp(
-          new NOX::StatusTest::RelativeNormF(additional_data.rel_tol));
+        const auto additional_data_norm_f_rel =
+          Teuchos::rcp(new NOX::StatusTest::RelativeNormF(additional_data.rel_tol));
         check->addStatusTest(additional_data_norm_f_rel);
       }
 
@@ -220,9 +210,8 @@ main(int argc, char **argv)
         check->addStatusTest(additional_data_max_iterations);
       }
 
-    Teuchos::RCP<NOX::Solver::Generic> solver =
-      NOX::Solver::buildSolver(group, check, non_linear_parameters);
-    auto status = solver->solve();
+    Teuchos::RCP<NOX::Solver::Generic> solver = NOX::Solver::buildSolver(group, check, non_linear_parameters);
+    auto                               status = solver->solve();
 
     AssertThrow(status == NOX::StatusTest::Converged, ExcInternalError());
 

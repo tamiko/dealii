@@ -44,8 +44,8 @@
 
 template <int dim>
 void
-test_hessians(const dealii::FE_Poly<dim> &                   fe,
-              const dealii::Quadrature<dim> &                quad,
+test_hessians(const dealii::FE_Poly<dim>                    &fe,
+              const dealii::Quadrature<dim>                 &quad,
               const dealii::EvaluationFlags::EvaluationFlags evaluation_flags)
 {
   using namespace dealii;
@@ -60,22 +60,18 @@ test_hessians(const dealii::FE_Poly<dim> &                   fe,
   MappingQGeneric<dim> mapping(1);
 
   AffineConstraints<double> constraints;
-  VectorTools::interpolate_boundary_values(
-    mapping, dof_handler, 0, Functions::ZeroFunction<dim>(), constraints);
+  VectorTools::interpolate_boundary_values(mapping, dof_handler, 0, Functions::ZeroFunction<dim>(), constraints);
   constraints.close();
 
   // FEEvaluation
-  typename MatrixFree<dim, double, VectorizedArrayType>::AdditionalData
-    additional_data;
-  additional_data.mapping_update_flags_inner_faces =
-    update_values | update_gradients | update_hessians;
+  typename MatrixFree<dim, double, VectorizedArrayType>::AdditionalData additional_data;
+  additional_data.mapping_update_flags_inner_faces = update_values | update_gradients | update_hessians;
 
   MatrixFree<dim, double, VectorizedArrayType> matrix_free;
   matrix_free.reinit(mapping, dof_handler, constraints, quad, additional_data);
 
   if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
-    deallog << "Working with " << fe.get_name() << " and "
-            << dof_handler.n_dofs() << " dofs" << std::endl;
+    deallog << "Working with " << fe.get_name() << " and " << dof_handler.n_dofs() << " dofs" << std::endl;
 
   LinearAlgebra::distributed::Vector<double> src, dst, dst2;
   matrix_free.initialize_dof_vector(src);
@@ -86,11 +82,7 @@ test_hessians(const dealii::FE_Poly<dim> &                   fe,
   matrix_free.initialize_dof_vector(dst2);
 
   // Setup FEFaceValues
-  FEValues<dim> fe_values(mapping,
-                          fe,
-                          quad,
-                          update_values | update_gradients | update_hessians |
-                            update_JxW_values);
+  FEValues<dim> fe_values(mapping, fe, quad, update_values | update_gradients | update_hessians | update_JxW_values);
 
   Vector<double>                       solution_values_local(fe.dofs_per_cell);
   std::vector<Tensor<2, dim>>          solution_hessians(quad.size());
@@ -100,12 +92,9 @@ test_hessians(const dealii::FE_Poly<dim> &                   fe,
   src.update_ghost_values();
   dst2 = 0;
 
-  matrix_free.template loop<LinearAlgebra::distributed::Vector<double>,
-                            LinearAlgebra::distributed::Vector<double>>(
-    [&](
-      const auto &matrix_free, auto &dst, const auto &src, const auto &range) {
-      FEEvaluation<dim, -1, 0, 1, double, VectorizedArrayType> fe_eval(
-        matrix_free);
+  matrix_free.template loop<LinearAlgebra::distributed::Vector<double>, LinearAlgebra::distributed::Vector<double>>(
+    [&](const auto &matrix_free, auto &dst, const auto &src, const auto &range) {
+      FEEvaluation<dim, -1, 0, 1, double, VectorizedArrayType> fe_eval(matrix_free);
       for (unsigned int cell = range.first; cell < range.second; ++cell)
         {
           // FEEvaluation
@@ -124,9 +113,7 @@ test_hessians(const dealii::FE_Poly<dim> &                   fe,
           fe_eval.distribute_local_to_global(dst);
 
           // FEValues
-          for (unsigned int v = 0;
-               v < matrix_free.n_active_entries_per_cell_batch(cell);
-               ++v)
+          for (unsigned int v = 0; v < matrix_free.n_active_entries_per_cell_batch(cell); ++v)
             {
               const auto cell_iterator = matrix_free.get_cell_iterator(cell, v);
 
@@ -146,14 +133,11 @@ test_hessians(const dealii::FE_Poly<dim> &                   fe,
                   for (unsigned int i = 0; i < fe.dofs_per_cell; ++i)
                     {
                       if (evaluation_flags & EvaluationFlags::hessians)
-                        hessians += solution_values_local(i) *
-                                    fe_values.shape_hessian(i, q);
+                        hessians += solution_values_local(i) * fe_values.shape_hessian(i, q);
                       if (evaluation_flags & EvaluationFlags::gradients)
-                        gradients +=
-                          solution_values_local(i) * fe_values.shape_grad(i, q);
+                        gradients += solution_values_local(i) * fe_values.shape_grad(i, q);
                       if (evaluation_flags & EvaluationFlags::values)
-                        values += solution_values_local(i) *
-                                  fe_values.shape_value(i, q);
+                        values += solution_values_local(i) * fe_values.shape_value(i, q);
                     }
                   solution_hessians[q]  = hessians * fe_values.JxW(q);
                   solution_gradients[q] = gradients * fe_values.JxW(q);
@@ -167,33 +151,26 @@ test_hessians(const dealii::FE_Poly<dim> &                   fe,
                   for (unsigned int q = 0; q < quad.size(); ++q)
                     {
                       if (evaluation_flags & EvaluationFlags::hessians)
-                        sum_hessians += double_contract<0, 0, 1, 1>(
-                          solution_hessians[q], fe_values.shape_hessian(i, q));
+                        sum_hessians +=
+                          double_contract<0, 0, 1, 1>(solution_hessians[q], fe_values.shape_hessian(i, q));
                       if (evaluation_flags & EvaluationFlags::gradients)
-                        sum_gradients +=
-                          solution_gradients[q] * fe_values.shape_grad(i, q);
+                        sum_gradients += solution_gradients[q] * fe_values.shape_grad(i, q);
                       if (evaluation_flags & EvaluationFlags::values)
-                        sum_values +=
-                          solution_values[q] * fe_values.shape_value(i, q);
+                        sum_values += solution_values[q] * fe_values.shape_value(i, q);
                     }
-                  solution_values_local(i) =
-                    sum_hessians + sum_gradients + sum_values;
+                  solution_values_local(i) = sum_hessians + sum_gradients + sum_values;
                 }
-              constraints.distribute_local_to_global(solution_values_local,
-                                                     dof_indices,
-                                                     dst2);
+              constraints.distribute_local_to_global(solution_values_local, dof_indices, dst2);
             }
         }
     },
-    [&](
-      const auto &matrix_free, auto &dst, const auto &src, const auto &range) {
+    [&](const auto &matrix_free, auto &dst, const auto &src, const auto &range) {
       (void)matrix_free;
       (void)dst;
       (void)src;
       (void)range;
     },
-    [&](
-      const auto &matrix_free, auto &dst, const auto &src, const auto &range) {
+    [&](const auto &matrix_free, auto &dst, const auto &src, const auto &range) {
       (void)matrix_free;
       (void)dst;
       (void)src;
@@ -203,8 +180,7 @@ test_hessians(const dealii::FE_Poly<dim> &                   fe,
     src,
     true);
 
-  const unsigned int end_of_print_dst =
-    dof_handler.n_dofs() > 9 ? 9 : dof_handler.n_dofs();
+  const unsigned int end_of_print_dst = dof_handler.n_dofs() > 9 ? 9 : dof_handler.n_dofs();
 
   deallog << "dst FEE: ";
   for (unsigned int i = 0; i < end_of_print_dst; ++i)
@@ -290,24 +266,21 @@ main(int argc, char **argv)
   deallog << std::setprecision(10);
 
   {
-    EvaluationFlags::EvaluationFlags evaluation_flags =
-      EvaluationFlags::hessians;
+    EvaluationFlags::EvaluationFlags evaluation_flags = EvaluationFlags::hessians;
     deallog << "test_hessians_only" << std::endl;
     test_qgauss(evaluation_flags);
     test_qiterated(evaluation_flags);
   }
 
   {
-    EvaluationFlags::EvaluationFlags evaluation_flags =
-      EvaluationFlags::values | EvaluationFlags::hessians;
+    EvaluationFlags::EvaluationFlags evaluation_flags = EvaluationFlags::values | EvaluationFlags::hessians;
     deallog << "test_hessians_with_values" << std::endl;
     test_qgauss(evaluation_flags);
     test_qiterated(evaluation_flags);
   }
 
   {
-    EvaluationFlags::EvaluationFlags evaluation_flags =
-      EvaluationFlags::gradients | EvaluationFlags::hessians;
+    EvaluationFlags::EvaluationFlags evaluation_flags = EvaluationFlags::gradients | EvaluationFlags::hessians;
     deallog << "test_hessians_with_gradients" << std::endl;
     test_qgauss(evaluation_flags);
     test_qiterated(evaluation_flags);
@@ -315,8 +288,7 @@ main(int argc, char **argv)
 
   {
     EvaluationFlags::EvaluationFlags evaluation_flags =
-      EvaluationFlags::values | EvaluationFlags::gradients |
-      EvaluationFlags::hessians;
+      EvaluationFlags::values | EvaluationFlags::gradients | EvaluationFlags::hessians;
     deallog << "test_hessians_with_gradients_and_values" << std::endl;
     test_qgauss(evaluation_flags);
     test_qiterated(evaluation_flags);

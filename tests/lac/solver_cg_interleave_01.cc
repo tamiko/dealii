@@ -33,20 +33,17 @@ struct MyDiagonalMatrix
   {}
 
   void
-  vmult(LinearAlgebra::distributed::Vector<double> &      dst,
-        const LinearAlgebra::distributed::Vector<double> &src) const
+  vmult(LinearAlgebra::distributed::Vector<double> &dst, const LinearAlgebra::distributed::Vector<double> &src) const
   {
     dst = src;
     dst.scale(diagonal);
   }
 
   void
-  vmult(
-    LinearAlgebra::distributed::Vector<double> &                       dst,
-    const LinearAlgebra::distributed::Vector<double> &                 src,
-    const std::function<void(const unsigned int, const unsigned int)> &before,
-    const std::function<void(const unsigned int, const unsigned int)> &after)
-    const
+  vmult(LinearAlgebra::distributed::Vector<double>                        &dst,
+        const LinearAlgebra::distributed::Vector<double>                  &src,
+        const std::function<void(const unsigned int, const unsigned int)> &before,
+        const std::function<void(const unsigned int, const unsigned int)> &after) const
   {
     before(0, dst.size());
     vmult(dst, src);
@@ -59,12 +56,9 @@ struct MyDiagonalMatrix
 
 
 SolverControl::State
-monitor_norm(const unsigned int iteration,
-             const double       check_value,
-             const LinearAlgebra::distributed::Vector<double> &)
+monitor_norm(const unsigned int iteration, const double check_value, const LinearAlgebra::distributed::Vector<double> &)
 {
-  deallog << "   CG estimated residual at iteration " << iteration << ": "
-          << check_value << std::endl;
+  deallog << "   CG estimated residual at iteration " << iteration << ": " << check_value << std::endl;
   return SolverControl::success;
 }
 
@@ -85,8 +79,7 @@ main()
     matrix_entries(i) = i + 1;
   MyDiagonalMatrix matrix(matrix_entries);
 
-  LinearAlgebra::distributed::Vector<double> rhs(unit_matrix.m()),
-    sol(unit_matrix.m());
+  LinearAlgebra::distributed::Vector<double> rhs(unit_matrix.m()), sol(unit_matrix.m());
   rhs = 1.;
 
   deallog << "Solve with PreconditionIdentity: " << std::endl;

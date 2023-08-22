@@ -52,16 +52,13 @@ test(const unsigned int degree)
   MatrixFree<dim, double>                          mf_data;
   const QGauss<1>                                  quad(degree);
   typename MatrixFree<dim, double>::AdditionalData data;
-  data.mapping_update_flags_boundary_faces =
-    (update_gradients | update_JxW_values);
+  data.mapping_update_flags_boundary_faces = (update_gradients | update_JxW_values);
 
   mf_data.reinit(mapping,
                  std::vector<const DoFHandler<dim> *>{&dof},
                  std::vector<const AffineConstraints<double> *>{&constraints},
                  std::vector<Quadrature<1>>{
-                   {QGauss<1>(std::max(degree / 2, 1U)),
-                    QGauss<1>(degree + 1),
-                    QGauss<1>(3 * degree / 2)}},
+                   {QGauss<1>(std::max(degree / 2, 1U)), QGauss<1>(degree + 1), QGauss<1>(3 * degree / 2)}},
                  data);
 
   deallog << std::setw(5) << degree;
@@ -75,14 +72,10 @@ test(const unsigned int degree)
           VectorizedArray<double> local = 0;
           for (unsigned int q = 0; q < fe_eval.n_q_points; ++q)
             local += fe_eval.JxW(q);
-          for (unsigned int v = 0;
-               v < mf_data.n_active_entries_per_cell_batch(cell);
-               ++v)
+          for (unsigned int v = 0; v < mf_data.n_active_entries_per_cell_batch(cell); ++v)
             volume += local[v];
         }
-      deallog << std::setw(11)
-              << std::abs((dim == 2 ? numbers::PI : 4. / 3. * numbers::PI) -
-                          volume);
+      deallog << std::setw(11) << std::abs((dim == 2 ? numbers::PI : 4. / 3. * numbers::PI) - volume);
     }
   deallog << "  ";
   for (unsigned int index = 0; index < 3; ++index)
@@ -90,17 +83,14 @@ test(const unsigned int degree)
       double                    area = 0;
       FEFaceEvaluation<dim, -1> fe_eval(mf_data, true, 0, index);
       for (unsigned int face = mf_data.n_inner_face_batches();
-           face <
-           mf_data.n_boundary_face_batches() + mf_data.n_inner_face_batches();
+           face < mf_data.n_boundary_face_batches() + mf_data.n_inner_face_batches();
            ++face)
         {
           fe_eval.reinit(face);
           VectorizedArray<double> local = 0;
           for (unsigned int q = 0; q < fe_eval.n_q_points; ++q)
             local += fe_eval.JxW(q);
-          for (unsigned int v = 0;
-               v < mf_data.n_active_entries_per_face_batch(face);
-               ++v)
+          for (unsigned int v = 0; v < mf_data.n_active_entries_per_face_batch(face); ++v)
             area += local[v];
         }
       deallog << std::setw(11) << std::abs(2. * (dim - 1) * numbers::PI - area);

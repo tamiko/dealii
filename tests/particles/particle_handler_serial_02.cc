@@ -57,46 +57,31 @@ test()
     if (dim > 2)
       reference_position(2) = 0.6;
 
-    Particles::Particle<dim, spacedim> particle(position,
-                                                reference_position,
-                                                7);
+    Particles::Particle<dim, spacedim> particle(position, reference_position, 7);
     deallog << "Particle location: " << particle.get_location() << std::endl;
 
 
-    auto cell_position =
-      GridTools::find_active_cell_around_point(mapping,
-                                               tr,
-                                               particle.get_location());
+    auto cell_position = GridTools::find_active_cell_around_point(mapping, tr, particle.get_location());
 
     particle_handler.insert_particle(particle, cell_position.first);
     particle_handler.insert_particle(particle, cell_position.first);
 
     position(0) = 0.7;
-    Particles::Particle<dim, spacedim> particle2(position,
-                                                 reference_position,
-                                                 9);
+    Particles::Particle<dim, spacedim> particle2(position, reference_position, 9);
 
-    cell_position =
-      GridTools::find_active_cell_around_point(mapping,
-                                               tr,
-                                               particle2.get_location());
+    cell_position = GridTools::find_active_cell_around_point(mapping, tr, particle2.get_location());
     particle_handler.insert_particle(particle2, cell_position.first);
 
     particle_handler.update_cached_numbers();
 
-    deallog << "Particle number: " << particle_handler.n_global_particles()
-            << std::endl;
-    deallog << "Next free particle index: "
-            << particle_handler.get_next_free_particle_index() << std::endl;
-    deallog << "Max particles per cell: "
-            << particle_handler.n_global_max_particles_per_cell() << std::endl;
+    deallog << "Particle number: " << particle_handler.n_global_particles() << std::endl;
+    deallog << "Next free particle index: " << particle_handler.get_next_free_particle_index() << std::endl;
+    deallog << "Max particles per cell: " << particle_handler.n_global_max_particles_per_cell() << std::endl;
 
     for (const auto &particle : particle_handler)
       {
-        deallog << "Particle location: " << particle.get_location()
-                << std::endl;
-        deallog << "Particle reference location: "
-                << particle.get_reference_location() << std::endl;
+        deallog << "Particle location: " << particle.get_location() << std::endl;
+        deallog << "Particle reference location: " << particle.get_reference_location() << std::endl;
       }
   }
 

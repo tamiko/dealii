@@ -86,8 +86,7 @@ check_file(unsigned int n_refinements = 0) // for dim = spaceim
   out_tria.refine_global(n_refinements);
 
   // write 2 outputs (total mesh and only surface mesh)
-  const auto grid_out = [](const auto &tria,
-                           const bool  surface_mesh_only = false) {
+  const auto grid_out = [](const auto &tria, const bool surface_mesh_only = false) {
     GridOutFlags::Vtk flags;
 
     if (surface_mesh_only)
@@ -121,29 +120,25 @@ main()
   initlog();
   // TRIANGULAR ELEMENTS
   // dim = spacedim = 2
-  deallog.push(
-    "2D: conversion triangulation with quad elements to tri elements: ");
+  deallog.push("2D: conversion triangulation with quad elements to tri elements: ");
   check_file<2, 2>();
   deallog.pop();
 
   // TETRAHEDRAL ELEMENTS
   // dim = 2, spacedim = 2
-  deallog.push(
-    "2D: conversion triangulation with quad elements to tri elements: ");
+  deallog.push("2D: conversion triangulation with quad elements to tri elements: ");
   check_file<2, 3>();
   deallog.pop();
 
   // TETRAHEDRAL ELEMENTS
   // dim = spacedim = 3
-  deallog.push(
-    "3D: conversion triangulation with tet elements to hex elements: ");
+  deallog.push("3D: conversion triangulation with tet elements to hex elements: ");
   check_file<3, 3>();
   deallog.pop();
 
   // TETRAHEDRAL ELEMENTS
   // dim = spacedim = 3
-  deallog.push(
-    "3D: conversion triangulation with tet elements to hex elements + refinement: ");
+  deallog.push("3D: conversion triangulation with tet elements to hex elements + refinement: ");
   check_file<3, 3>(1);
   deallog.pop();
 }

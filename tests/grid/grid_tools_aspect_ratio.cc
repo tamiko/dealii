@@ -49,18 +49,16 @@
  */
 template <int dim>
 double
-compute_aspect_ratio_hyper_rectangle(
-  Point<dim> const &               left,
-  Point<dim> const &               right,
-  std::vector<unsigned int> const &refinements,
-  unsigned int                     degree     = 1,
-  unsigned int                     n_q_points = 2,
-  bool                             deform     = false,
-  double                           factor     = 1.0)
+compute_aspect_ratio_hyper_rectangle(const Point<dim>                &left,
+                                     const Point<dim>                &right,
+                                     const std::vector<unsigned int> &refinements,
+                                     unsigned int                     degree     = 1,
+                                     unsigned int                     n_q_points = 2,
+                                     bool                             deform     = false,
+                                     double                           factor     = 1.0)
 {
   Triangulation<dim> tria;
-  GridGenerator::subdivided_hyper_rectangle(
-    tria, refinements, left, right, false);
+  GridGenerator::subdivided_hyper_rectangle(tria, refinements, left, right, false);
 
   if (deform)
     {
@@ -72,16 +70,14 @@ compute_aspect_ratio_hyper_rectangle(
       tria.begin_active()->vertex(0) += shift;
     }
 
-  MappingQ<dim> const mapping(degree);
-  QGauss<dim> const   gauss(n_q_points);
+  const MappingQ<dim> mapping(degree);
+  const QGauss<dim>   gauss(n_q_points);
 
-  Vector<double> ratios =
-    GridTools::compute_aspect_ratio_of_cells(mapping, tria, gauss);
+  Vector<double> ratios = GridTools::compute_aspect_ratio_of_cells(mapping, tria, gauss);
 
   deallog << std::endl
           << "Parameters:"
-          << " d = " << dim << ", degree = " << degree
-          << ", n_q_points = " << n_q_points << ", deform = " << deform
+          << " d = " << dim << ", degree = " << degree << ", n_q_points = " << n_q_points << ", deform = " << deform
           << ", factor = " << factor << std::endl;
 
   deallog << "Aspect ratio vector = " << std::endl;
@@ -130,12 +126,10 @@ main(int argc, char **argv)
         ar = compute_aspect_ratio_hyper_rectangle(left, right, refine, 1, 2);
         deallog << "aspect ratio max    = " << ar << std::endl << std::endl;
 
-        ar =
-          compute_aspect_ratio_hyper_rectangle(left, right, refine, 1, 2, true);
+        ar = compute_aspect_ratio_hyper_rectangle(left, right, refine, 1, 2, true);
         deallog << "aspect ratio max    = " << ar << std::endl << std::endl;
 
-        ar = compute_aspect_ratio_hyper_rectangle(
-          left, right, refine, 1, 2, true, 10);
+        ar = compute_aspect_ratio_hyper_rectangle(left, right, refine, 1, 2, true, 10);
         deallog << "aspect ratio max    = " << ar << std::endl << std::endl;
 
         refine[0] = 5;
@@ -143,20 +137,16 @@ main(int argc, char **argv)
         ar = compute_aspect_ratio_hyper_rectangle(left, right, refine, 1, 2);
         deallog << "aspect ratio max    = " << ar << std::endl << std::endl;
 
-        ar =
-          compute_aspect_ratio_hyper_rectangle(left, right, refine, 1, 2, true);
+        ar = compute_aspect_ratio_hyper_rectangle(left, right, refine, 1, 2, true);
         deallog << "aspect ratio max    = " << ar << std::endl << std::endl;
 
-        ar =
-          compute_aspect_ratio_hyper_rectangle(left, right, refine, 1, 5, true);
+        ar = compute_aspect_ratio_hyper_rectangle(left, right, refine, 1, 5, true);
         deallog << "aspect ratio max    = " << ar << std::endl << std::endl;
 
-        ar = compute_aspect_ratio_hyper_rectangle(
-          left, right, refine, 1, 15, true);
+        ar = compute_aspect_ratio_hyper_rectangle(left, right, refine, 1, 15, true);
         deallog << "aspect ratio max    = " << ar << std::endl << std::endl;
 
-        ar = compute_aspect_ratio_hyper_rectangle(
-          left, right, refine, 1, 2, true, 10);
+        ar = compute_aspect_ratio_hyper_rectangle(left, right, refine, 1, 2, true, 10);
         deallog << "aspect ratio max    = " << ar << std::endl << std::endl;
       }
 
@@ -172,12 +162,10 @@ main(int argc, char **argv)
         ar = compute_aspect_ratio_hyper_rectangle(left, right, refine, 1, 2);
         deallog << "aspect ratio max    = " << ar << std::endl << std::endl;
 
-        ar =
-          compute_aspect_ratio_hyper_rectangle(left, right, refine, 1, 2, true);
+        ar = compute_aspect_ratio_hyper_rectangle(left, right, refine, 1, 2, true);
         deallog << "aspect ratio max    = " << ar << std::endl << std::endl;
 
-        ar = compute_aspect_ratio_hyper_rectangle(
-          left, right, refine, 1, 2, true, 10);
+        ar = compute_aspect_ratio_hyper_rectangle(left, right, refine, 1, 2, true, 10);
         deallog << "aspect ratio max    = " << ar << std::endl << std::endl;
 
         refine[0] = 5;
@@ -186,46 +174,34 @@ main(int argc, char **argv)
         ar = compute_aspect_ratio_hyper_rectangle(left, right, refine, 1, 2);
         deallog << "aspect ratio max    = " << ar << std::endl << std::endl;
 
-        ar =
-          compute_aspect_ratio_hyper_rectangle(left, right, refine, 1, 2, true);
+        ar = compute_aspect_ratio_hyper_rectangle(left, right, refine, 1, 2, true);
         deallog << "aspect ratio max    = " << ar << std::endl << std::endl;
 
-        ar =
-          compute_aspect_ratio_hyper_rectangle(left, right, refine, 1, 5, true);
+        ar = compute_aspect_ratio_hyper_rectangle(left, right, refine, 1, 5, true);
         deallog << "aspect ratio max    = " << ar << std::endl << std::endl;
 
-        ar = compute_aspect_ratio_hyper_rectangle(
-          left, right, refine, 1, 15, true);
+        ar = compute_aspect_ratio_hyper_rectangle(left, right, refine, 1, 15, true);
         deallog << "aspect ratio max    = " << ar << std::endl << std::endl;
 
-        ar = compute_aspect_ratio_hyper_rectangle(
-          left, right, refine, 1, 2, true, 10);
+        ar = compute_aspect_ratio_hyper_rectangle(left, right, refine, 1, 2, true, 10);
         deallog << "aspect ratio max    = " << ar << std::endl << std::endl;
       }
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
 

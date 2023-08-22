@@ -112,23 +112,20 @@ test(const unsigned int degree)
       Vector<double>            solution(dof_handler.n_dofs());
       Solution<dim>             function;
       AffineConstraints<double> dummy;
-      const auto &              mapping =
-        reference_cell.template get_default_linear_mapping<dim>();
+      const auto               &mapping = reference_cell.template get_default_linear_mapping<dim>();
       dummy.close();
 
       const bool l2_projection = false;
 
       if (l2_projection)
         {
-          VectorTools::project(
-            mapping, dof_handler, dummy, quadrature, function, solution);
+          VectorTools::project(mapping, dof_handler, dummy, quadrature, function, solution);
         }
       else
         {
           SparsityPattern sparsity_pattern;
           {
-            DynamicSparsityPattern dsp(dof_handler.n_dofs(),
-                                       dof_handler.n_dofs());
+            DynamicSparsityPattern dsp(dof_handler.n_dofs(), dof_handler.n_dofs());
             DoFTools::make_sparsity_pattern(dof_handler, dsp);
             sparsity_pattern.copy_from(dsp);
           }
@@ -136,25 +133,15 @@ test(const unsigned int degree)
           SparseMatrix<double> h1_matrix(sparsity_pattern);
           SparseMatrix<double> laplace_matrix(sparsity_pattern);
 
-          MatrixCreator::create_mass_matrix(mapping,
-                                            dof_handler,
-                                            quadrature,
-                                            h1_matrix);
-          MatrixCreator::create_laplace_matrix(mapping,
-                                               dof_handler,
-                                               quadrature,
-                                               laplace_matrix);
+          MatrixCreator::create_mass_matrix(mapping, dof_handler, quadrature, h1_matrix);
+          MatrixCreator::create_laplace_matrix(mapping, dof_handler, quadrature, laplace_matrix);
 
           h1_matrix.add(0.0, laplace_matrix);
 
           Vector<double> rhs(solution.size());
-          VectorTools::create_right_hand_side(
-            mapping, dof_handler, quadrature, ForcingH1<dim>(), rhs);
+          VectorTools::create_right_hand_side(mapping, dof_handler, quadrature, ForcingH1<dim>(), rhs);
 
-          SolverControl            solver_control(1000,
-                                       1e-12 * rhs.l2_norm(),
-                                       false,
-                                       false);
+          SolverControl            solver_control(1000, 1e-12 * rhs.l2_norm(), false, false);
           SolverCG<Vector<double>> cg(solver_control);
 
           cg.solve(h1_matrix, solution, rhs, PreconditionIdentity());
@@ -165,12 +152,10 @@ test(const unsigned int degree)
                                         solution,
                                         function,
                                         cell_errors,
-                                        Quadrature<dim>(
-                                          fe.get_unit_support_points()),
+                                        Quadrature<dim>(fe.get_unit_support_points()),
                                         VectorTools::Linfty_norm);
 
-      const double max_error =
-        *std::max_element(cell_errors.begin(), cell_errors.end());
+      const double max_error = *std::max_element(cell_errors.begin(), cell_errors.end());
       deallog << "max error = " << max_error << std::endl;
       if (max_error != 0.0)
         deallog << "ratio = " << previous_error / max_error << std::endl;

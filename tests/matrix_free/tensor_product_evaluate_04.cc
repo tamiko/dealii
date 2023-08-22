@@ -53,15 +53,12 @@ test(const unsigned int degree)
     coefficients[i] = matrix * fe.get_unit_support_points()[i] + offset;
 
   const std::vector<Polynomials::Polynomial<double>> polynomials =
-    Polynomials::generate_complete_Lagrange_basis(
-      QGaussLobatto<1>(degree + 1).get_points());
+    Polynomials::generate_complete_Lagrange_basis(QGaussLobatto<1>(degree + 1).get_points());
 
   const std::vector<Point<dim>> evaluation_points =
-    dim == 3 ? QGauss<dim>(2).get_points() :
-               QIterated<dim>(QTrapezoid<1>(), 3).get_points();
+    dim == 3 ? QGauss<dim>(2).get_points() : QIterated<dim>(QTrapezoid<1>(), 3).get_points();
 
-  deallog << "Evaluate in " << dim << "d with polynomial degree " << degree
-          << std::endl;
+  deallog << "Evaluate in " << dim << "d with polynomial degree " << degree << std::endl;
   for (const auto &p : evaluation_points)
     {
       Point<dim, VectorizedArray<double>> p_vec;
@@ -69,8 +66,7 @@ test(const unsigned int degree)
         for (unsigned int d = 0; d < dim; ++d)
           p_vec[d][v] = p[d] + 0.01 * v;
 
-      const auto val = internal::evaluate_tensor_product_value_and_gradient(
-        polynomials, coefficients, p_vec, false);
+      const auto val = internal::evaluate_tensor_product_value_and_gradient(polynomials, coefficients, p_vec, false);
 
       const auto error_vec = val.first - matrix * p_vec;
       double     error     = 0;
@@ -83,8 +79,7 @@ test(const unsigned int degree)
           for (unsigned int e = 0; e < dim; ++e)
             gradient_error += std::abs(val.second[d][e][v] - matrix[e][d]);
 
-      deallog << "Value error " << error << " , gradient error "
-              << gradient_error << std::endl;
+      deallog << "Value error " << error << " , gradient error " << gradient_error << std::endl;
     }
 
   if (degree == 1)
@@ -97,8 +92,7 @@ test(const unsigned int degree)
             for (unsigned int d = 0; d < dim; ++d)
               p_vec[d][v] = p[d] + 0.01 * v;
 
-          const auto val = internal::evaluate_tensor_product_value_and_gradient(
-            polynomials, coefficients, p_vec, true);
+          const auto val = internal::evaluate_tensor_product_value_and_gradient(polynomials, coefficients, p_vec, true);
 
           const auto error_vec = val.first - matrix * p_vec;
           double     error     = 0;
@@ -111,8 +105,7 @@ test(const unsigned int degree)
               for (unsigned int e = 0; e < dim; ++e)
                 gradient_error += std::abs(val.second[d][e][v] - matrix[e][d]);
 
-          deallog << "Value error " << error << " , gradient error "
-                  << gradient_error << std::endl;
+          deallog << "Value error " << error << " , gradient error " << gradient_error << std::endl;
         }
     }
 }

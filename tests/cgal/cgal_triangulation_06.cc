@@ -34,11 +34,8 @@ using namespace CGALWrappers;
 using K         = CGAL::Exact_predicates_inexact_constructions_kernel;
 using CGALPoint = K::Point_3;
 
-using Mesh_domain =
-  CGAL::Polyhedral_mesh_domain_with_features_3<K,
-                                               CGAL::Surface_mesh<CGALPoint>>;
-using Tr = typename CGAL::
-  Mesh_triangulation_3<Mesh_domain, CGAL::Default, ConcurrencyTag>::type;
+using Mesh_domain   = CGAL::Polyhedral_mesh_domain_with_features_3<K, CGAL::Surface_mesh<CGALPoint>>;
+using Tr            = typename CGAL::Mesh_triangulation_3<Mesh_domain, CGAL::Default, ConcurrencyTag>::type;
 using Mesh_criteria = CGAL::Mesh_criteria_3<Tr>;
 using C3t3          = CGAL::Mesh_complex_3_in_triangulation_3<Tr>;
 
@@ -64,8 +61,7 @@ main()
   }
 
   C3t3 cgal_triangulation;
-  cgal_surface_mesh_to_cgal_triangulation(cgal_surface_mesh,
-                                          cgal_triangulation);
+  cgal_surface_mesh_to_cgal_triangulation(cgal_surface_mesh, cgal_triangulation);
 
   Triangulation<3> tria;
   cgal_triangulation_to_dealii_triangulation(cgal_triangulation, tria);

@@ -15,8 +15,7 @@
 
 
 
-for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS;
-     Vector : VECTOR_TYPES)
+for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS; Vector : VECTOR_TYPES)
   {
     namespace FETools
     \{
@@ -49,43 +48,38 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS)
     \}
   }
 
-for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS;
-     VEC : VECTOR_TYPES)
+for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS; VEC : VECTOR_TYPES)
   {
     namespace FETools
     \{
 #if deal_II_dimension == deal_II_space_dimension
       template void
-      back_interpolate<deal_II_dimension>(
-        const DoFHandler<deal_II_dimension> &,
-        const VEC &,
-        const FiniteElement<deal_II_dimension> &,
-        VEC &);
+      back_interpolate<deal_II_dimension>(const DoFHandler<deal_II_dimension> &,
+                                          const VEC &,
+                                          const FiniteElement<deal_II_dimension> &,
+                                          VEC &);
 
       template void
-      back_interpolate<deal_II_dimension>(
-        const DoFHandler<deal_II_dimension> &,
-        const AffineConstraints<VEC::value_type> &,
-        const VEC &,
-        const DoFHandler<deal_II_dimension> &,
-        const AffineConstraints<VEC::value_type> &,
-        VEC &);
+      back_interpolate<deal_II_dimension>(const DoFHandler<deal_II_dimension> &,
+                                          const AffineConstraints<VEC::value_type> &,
+                                          const VEC &,
+                                          const DoFHandler<deal_II_dimension> &,
+                                          const AffineConstraints<VEC::value_type> &,
+                                          VEC &);
 
       template void
-      interpolation_difference<deal_II_dimension>(
-        const DoFHandler<deal_II_dimension> &,
-        const VEC &,
-        const FiniteElement<deal_II_dimension> &,
-        VEC &);
+      interpolation_difference<deal_II_dimension>(const DoFHandler<deal_II_dimension> &,
+                                                  const VEC &,
+                                                  const FiniteElement<deal_II_dimension> &,
+                                                  VEC &);
 
       template void
-      interpolation_difference<deal_II_dimension>(
-        const DoFHandler<deal_II_dimension> &,
-        const AffineConstraints<VEC::value_type> &,
-        const VEC &,
-        const DoFHandler<deal_II_dimension> &,
-        const AffineConstraints<VEC::value_type> &,
-        VEC &);
+      interpolation_difference<deal_II_dimension>(const DoFHandler<deal_II_dimension> &,
+                                                  const AffineConstraints<VEC::value_type> &,
+                                                  const VEC &,
+                                                  const DoFHandler<deal_II_dimension> &,
+                                                  const AffineConstraints<VEC::value_type> &,
+                                                  VEC &);
 
       template void
       project_dg<deal_II_dimension>(const DoFHandler<deal_II_dimension> &,

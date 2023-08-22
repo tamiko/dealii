@@ -31,8 +31,7 @@
 
 template <typename Stream, int dim>
 void
-print_triangulation_data(Stream &                  stream,
-                         const Triangulation<dim> &triangulation)
+print_triangulation_data(Stream &stream, const Triangulation<dim> &triangulation)
 {
   // Boundary id count
   std::map<int, int> boundary_id_count;
@@ -87,9 +86,7 @@ main()
   const double       outer_radius = 0.5;
   const double       tol          = 1e-6;
   Triangulation<dim> tria;
-  GridGenerator::hyper_cube_with_cylindrical_hole(tria,
-                                                  inner_radius,
-                                                  outer_radius);
+  GridGenerator::hyper_cube_with_cylindrical_hole(tria, inner_radius, outer_radius);
   tria.reset_all_manifolds();
 
   // Enumerate the flat boundaries and the curved one separately. Also provide
@@ -102,9 +99,7 @@ main()
         {
           if (cell->face(face)->at_boundary())
             {
-              for (unsigned int vertex = 0;
-                   vertex < GeometryInfo<dim>::vertices_per_face;
-                   ++vertex)
+              for (unsigned int vertex = 0; vertex < GeometryInfo<dim>::vertices_per_face; ++vertex)
                 {
                   const Point<dim> pt_vertex = cell->face(face)->vertex(vertex);
 

@@ -44,11 +44,9 @@ check(const FE_Q<dim> &fe, const std::string &name)
 {
   deallog << "Checking " << name << " in " << dim << "d:" << std::endl;
 
-  const std::vector<unsigned int> n1 =
-    FETools::hierarchic_to_lexicographic_numbering<dim>(fe.degree);
+  const std::vector<unsigned int> n1 = FETools::hierarchic_to_lexicographic_numbering<dim>(fe.degree);
 
-  const std::vector<unsigned int> n2 =
-    FETools::lexicographic_to_hierarchic_numbering<dim>(fe.degree);
+  const std::vector<unsigned int> n2 = FETools::lexicographic_to_hierarchic_numbering<dim>(fe.degree);
 
   for (unsigned int i = 0; i < fe.dofs_per_cell; ++i)
     {
@@ -95,27 +93,19 @@ main()
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

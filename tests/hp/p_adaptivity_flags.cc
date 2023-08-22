@@ -63,8 +63,7 @@ setup(Triangulation<dim> &tria, const DoFHandler<dim> &dh)
   for (unsigned int counter = 0; cell != endc; ++counter, ++cell)
     {
       Assert(!cell->is_active(), ExcInternalError());
-      for (unsigned int child_index = 0; child_index < cell->n_children();
-           ++child_index)
+      for (unsigned int child_index = 0; child_index < cell->n_children(); ++child_index)
         {
           const auto &child = cell->child(child_index);
           Assert(child->is_active(), ExcInternalError());

@@ -32,8 +32,7 @@
 void
 print(TrilinosWrappers::MPI::Vector &v, unsigned int first_element)
 {
-  deallog << "size= " << v.size() << " el(" << first_element
-          << ")= " << v(first_element)
+  deallog << "size= " << v.size() << " el(" << first_element << ")= " << v(first_element)
           << " has_ghost_elements: " << v.has_ghost_elements() << std::endl
           << " locally_owned_elements: " << std::endl;
   v.locally_owned_elements().print(deallog);
@@ -43,7 +42,7 @@ print(TrilinosWrappers::MPI::Vector &v, unsigned int first_element)
 void
 test()
 {
-  unsigned int my_id = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  unsigned int                  my_id = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
   TrilinosWrappers::MPI::Vector v;
   IndexSet                      owned_indices_1(6);
   IndexSet                      ghosted_indices_1(6);
@@ -90,28 +89,20 @@ main(int argc, char **argv)
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

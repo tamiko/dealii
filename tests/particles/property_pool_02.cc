@@ -35,8 +35,7 @@ test()
     const unsigned int                     n_properties = 3;
     Particles::PropertyPool<dim, spacedim> pool(n_properties);
 
-    typename Particles::PropertyPool<dim, spacedim>::Handle handle =
-      pool.register_particle();
+    typename Particles::PropertyPool<dim, spacedim>::Handle handle = pool.register_particle();
 
     pool.get_properties(handle)[0] = 1.2;
     pool.get_properties(handle)[1] = 2.5;

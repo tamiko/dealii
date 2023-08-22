@@ -59,27 +59,23 @@ main()
 
   const double tol = 1.0e-8;
 
-  auto is_less_tol = [tol](const Point<spacedim> &p_1,
-                           const Point<spacedim> &p_2) {
+  auto is_less_tol = [tol](const Point<spacedim> &p_1, const Point<spacedim> &p_2) {
     if (p_1[0] < p_2[0] - tol)
       return true;
 
     if (p_1[0] <= p_2[0] + tol && p_1[1] < p_2[1] - tol)
       return true;
 
-    if (p_1[0] <= p_2[0] + tol && p_1[1] <= p_2[1] + tol &&
-        p_1[2] < p_2[2] - tol)
+    if (p_1[0] <= p_2[0] + tol && p_1[1] <= p_2[1] + tol && p_1[2] < p_2[2] - tol)
       return true;
 
     return false;
   };
 
-  std::set<Point<spacedim>, decltype(is_less_tol)> boundary_vertices(
-    is_less_tol);
+  std::set<Point<spacedim>, decltype(is_less_tol)> boundary_vertices(is_less_tol);
 
   for (const auto &boundary_cell : tria_boundary.active_cell_iterators())
-    for (unsigned int v = 0; v < GeometryInfo<spacedim - 1>::vertices_per_cell;
-         ++v)
+    for (unsigned int v = 0; v < GeometryInfo<spacedim - 1>::vertices_per_cell; ++v)
       boundary_vertices.insert(boundary_cell->vertex(v));
 
   std::set<Point<spacedim>, decltype(is_less_tol)> domain_vertices(is_less_tol);
@@ -87,8 +83,7 @@ main()
   for (const auto &domain_cell : tria_domain.active_cell_iterators())
     for (unsigned int f = 0; f < GeometryInfo<spacedim>::faces_per_cell; ++f)
       if (domain_cell->face(f)->at_boundary())
-        for (unsigned int v = 0; v < GeometryInfo<spacedim>::vertices_per_face;
-             ++v)
+        for (unsigned int v = 0; v < GeometryInfo<spacedim>::vertices_per_face; ++v)
           {
             domain_vertices.insert(domain_cell->face(f)->vertex(v));
           }

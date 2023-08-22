@@ -36,23 +36,21 @@ test()
 
   const auto box1 = box.create_extended(.5);
 
-  deallog << "New points: " << box1.get_boundary_points().first << ", "
-          << box1.get_boundary_points().second << std::endl;
+  deallog << "New points: " << box1.get_boundary_points().first << ", " << box1.get_boundary_points().second
+          << std::endl;
 
   box.extend(.5);
 
-  deallog << "New points: " << box.get_boundary_points().first << ", "
-          << box.get_boundary_points().second << std::endl;
+  deallog << "New points: " << box.get_boundary_points().first << ", " << box.get_boundary_points().second << std::endl;
 
   const auto box2 = box.create_extended(-.8);
 
-  deallog << "New points: " << box2.get_boundary_points().first << ", "
-          << box2.get_boundary_points().second << std::endl;
+  deallog << "New points: " << box2.get_boundary_points().first << ", " << box2.get_boundary_points().second
+          << std::endl;
 
   box.extend(-.8);
 
-  deallog << "New points: " << box.get_boundary_points().first << ", "
-          << box.get_boundary_points().second << std::endl;
+  deallog << "New points: " << box.get_boundary_points().first << ", " << box.get_boundary_points().second << std::endl;
 }
 
 

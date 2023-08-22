@@ -113,7 +113,7 @@ public:
   template <typename number>
   void
   evaluate(const std::vector<Vector<number>> &values,
-           const std::vector<double> &        y_values,
+           const std::vector<double>         &y_values,
            const unsigned int                 n_intervals,
            const IntervalSpacing              interval_spacing = linear);
 
@@ -169,15 +169,13 @@ public:
   DeclException2(ExcIncompatibleArraySize,
                  int,
                  int,
-                 << "The two array sizes " << arg1 << " and " << arg2
-                 << " must match, but don't.");
+                 << "The two array sizes " << arg1 << " and " << arg2 << " must match, but don't.");
   /**
    * Exception.
    */
   DeclException1(ExcInvalidName,
                  std::string,
-                 << "The given name <" << arg1
-                 << "> does not match any of the known formats.");
+                 << "The given name <" << arg1 << "> does not match any of the known formats.");
 
 private:
   /**

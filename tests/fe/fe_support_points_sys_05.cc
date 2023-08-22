@@ -25,11 +25,6 @@ main()
 {
   initlog();
 
-  CHECK_SYS3((FESystem<2>(FE_Q<2>(1), 3)),
-             3,
-             FE_DGQArbitraryNodes<2>(QIterated<1>(QTrapezoid<1>(), 3)),
-             1,
-             FE_Q<2>(1),
-             3,
-             2);
+  CHECK_SYS3(
+    (FESystem<2>(FE_Q<2>(1), 3)), 3, FE_DGQArbitraryNodes<2>(QIterated<1>(QTrapezoid<1>(), 3)), 1, FE_Q<2>(1), 3, 2);
 }

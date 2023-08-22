@@ -48,8 +48,7 @@ test()
   dh.distribute_dofs(fe);
 
   deallog << "dim, spacedim: " << dim << ", " << spacedim << std::endl
-          << "cells: " << tria.n_active_cells() << ", dofs: " << dh.n_dofs()
-          << std::endl;
+          << "cells: " << tria.n_active_cells() << ", dofs: " << dh.n_dofs() << std::endl;
 
   // Create a Mapping
   Vector<double> map_vector(dh.n_dofs());
@@ -66,10 +65,8 @@ test()
       fe_values_ref.reinit(cell);
       fe_values.reinit(cell);
 
-      if (fe_values_ref.quadrature_point(0).distance(
-            fe_values.quadrature_point(0)) > 1e-12)
-        deallog << "Mapped point should be "
-                << fe_values_ref.quadrature_point(0) << " and is "
+      if (fe_values_ref.quadrature_point(0).distance(fe_values.quadrature_point(0)) > 1e-12)
+        deallog << "Mapped point should be " << fe_values_ref.quadrature_point(0) << " and is "
                 << fe_values.quadrature_point(0) << std::endl;
     }
   deallog << "OK" << std::endl;

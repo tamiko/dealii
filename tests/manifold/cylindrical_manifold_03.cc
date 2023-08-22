@@ -40,24 +40,19 @@ main()
   // take two points symmetric about cylinder axis
   const double          offset = 1.0;
   std::vector<Point<3>> surrounding_points_vector(
-    {Point<3>(origin[0] + offset, origin[1], origin[2]),
-     Point<3>(origin[0] - offset, origin[1], origin[2])});
-  const ArrayView<const Point<3>> surrounding_points =
-    make_array_view(surrounding_points_vector);
-  const std::vector<double>     weights_vector({0.5, 0.5});
-  const ArrayView<const double> weights = make_array_view(weights_vector);
+    {Point<3>(origin[0] + offset, origin[1], origin[2]), Point<3>(origin[0] - offset, origin[1], origin[2])});
+  const ArrayView<const Point<3>> surrounding_points = make_array_view(surrounding_points_vector);
+  const std::vector<double>       weights_vector({0.5, 0.5});
+  const ArrayView<const double>   weights = make_array_view(weights_vector);
 
-  deallog << "New point is at "
-          << cylinder.get_new_point(surrounding_points, weights)
-          << " and it should be " << origin << std::endl;
+  deallog << "New point is at " << cylinder.get_new_point(surrounding_points, weights) << " and it should be " << origin
+          << std::endl;
 
   surrounding_points_vector[0][2] = -1;
   surrounding_points_vector[1][2] = -1;
 
-  deallog << "New point is at "
-          << cylinder.get_new_point(surrounding_points, weights)
-          << " and it should be " << Point<3>(origin[0], origin[1], -1.0)
-          << std::endl;
+  deallog << "New point is at " << cylinder.get_new_point(surrounding_points, weights) << " and it should be "
+          << Point<3>(origin[0], origin[1], -1.0) << std::endl;
 
   axis[0] = 0.3;
   axis[1] = 0.6;
@@ -67,9 +62,8 @@ main()
   surrounding_points_vector[1][2] = origin[2];
 
   const CylindricalManifold<3> second_cylinder(axis, origin, tolerance);
-  deallog << "New point is at "
-          << second_cylinder.get_new_point(surrounding_points, weights)
-          << " and it should be " << origin << std::endl;
+  deallog << "New point is at " << second_cylinder.get_new_point(surrounding_points, weights) << " and it should be "
+          << origin << std::endl;
 
   return 0;
 }

@@ -41,9 +41,9 @@ public:
     : data(data_in){};
 
   void
-  local_apply(const MatrixFree<dim, Number> &              data,
-              Vector<Number> &                             dst,
-              const Vector<Number> &                       src,
+  local_apply(const MatrixFree<dim, Number>               &data,
+              Vector<Number>                              &dst,
+              const Vector<Number>                        &src,
               const std::pair<unsigned int, unsigned int> &cell_range) const
   {
     helmholtz_operator_no_template<dim>(data, dst, src, cell_range);
@@ -76,9 +76,7 @@ do_test(const unsigned int parallel_option)
   // refine a few cells
   for (unsigned int i = 0; i < 11 - 3 * dim; ++i)
     {
-      typename Triangulation<dim>::active_cell_iterator cell =
-                                                          tria.begin_active(),
-                                                        endc = tria.end();
+      typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
       for (; cell != endc; ++cell)
         if (Testing::rand() % (7 - i) == 0)
           cell->set_refine_flag();
@@ -99,8 +97,7 @@ do_test(const unsigned int parallel_option)
   DoFHandler<dim> dof(tria);
   // set the active FE index in a random order
   {
-    typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(),
-                                                   endc = dof.end();
+    typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(), endc = dof.end();
     for (; cell != endc; ++cell)
       {
         const unsigned int fe_index = Testing::rand() % max_degree;
@@ -112,10 +109,7 @@ do_test(const unsigned int parallel_option)
   dof.distribute_dofs(fe_collection);
   AffineConstraints<double> constraints;
   DoFTools::make_hanging_node_constraints(dof, constraints);
-  VectorTools::interpolate_boundary_values(dof,
-                                           0,
-                                           Functions::ZeroFunction<dim>(),
-                                           constraints);
+  VectorTools::interpolate_boundary_values(dof, 0, Functions::ZeroFunction<dim>(), constraints);
   constraints.close();
 
   // std::cout << "Number of cells: " <<
@@ -127,8 +121,7 @@ do_test(const unsigned int parallel_option)
   MatrixFree<dim, number>                          mf_data;
   typename MatrixFree<dim, number>::AdditionalData data;
   data.tasks_parallel_scheme = MatrixFree<dim, number>::AdditionalData::none;
-  mf_data.reinit(
-    MappingQ1<dim>{}, dof, constraints, quadrature_collection_mf, data);
+  mf_data.reinit(MappingQ1<dim>{}, dof, constraints, quadrature_collection_mf, data);
   MatrixFreeTestHP<dim, number> mf(mf_data);
 
   // test different block sizes, starting from
@@ -139,25 +132,21 @@ do_test(const unsigned int parallel_option)
       MatrixFree<dim, number> mf_data_par;
       if (parallel_option == 0)
         {
-          data.tasks_parallel_scheme =
-            MatrixFree<dim, number>::AdditionalData::partition_partition;
+          data.tasks_parallel_scheme = MatrixFree<dim, number>::AdditionalData::partition_partition;
           deallog << "Parallel option partition/partition" << std::endl;
         }
       else if (parallel_option == 1)
         {
-          data.tasks_parallel_scheme =
-            MatrixFree<dim, number>::AdditionalData::partition_color;
+          data.tasks_parallel_scheme = MatrixFree<dim, number>::AdditionalData::partition_color;
           deallog << "Parallel option partition/color" << std::endl;
         }
       else
         {
-          data.tasks_parallel_scheme =
-            MatrixFree<dim, number>::AdditionalData::color;
+          data.tasks_parallel_scheme = MatrixFree<dim, number>::AdditionalData::color;
           deallog << "Parallel option partition/color" << std::endl;
         }
       data.tasks_block_size = 1;
-      mf_data_par.reinit(
-        MappingQ1<dim>{}, dof, constraints, quadrature_collection_mf, data);
+      mf_data_par.reinit(MappingQ1<dim>{}, dof, constraints, quadrature_collection_mf, data);
       MatrixFreeTestHP<dim, number> mf_par(mf_data_par);
 
       // fill a right hand side vector with random

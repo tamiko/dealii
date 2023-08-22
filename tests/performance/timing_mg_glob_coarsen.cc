@@ -89,43 +89,36 @@ public:
   LaplaceOperator(){};
 
   void
-  initialize(const Mapping<dim> &             mapping,
-             const DoFHandler<dim> &          dof_handler,
+  initialize(const Mapping<dim>              &mapping,
+             const DoFHandler<dim>           &dof_handler,
              const AffineConstraints<number> &constraints,
-             const DoFHandler<dim> &          dg_dof_handler)
+             const DoFHandler<dim>           &dg_dof_handler)
   {
-    const QGauss<1> quad(dof_handler.get_fe().degree + 1);
-    const QGauss<1> dg_quad(dg_dof_handler.get_fe().degree + 1);
+    const QGauss<1>                                  quad(dof_handler.get_fe().degree + 1);
+    const QGauss<1>                                  dg_quad(dg_dof_handler.get_fe().degree + 1);
     typename MatrixFree<dim, number>::AdditionalData mf_data;
-    mf_data.tasks_parallel_scheme =
-      MatrixFree<dim, number>::AdditionalData::none;
+    mf_data.tasks_parallel_scheme = MatrixFree<dim, number>::AdditionalData::none;
     mf_data.mapping_update_flags |= update_quadrature_points;
-    mf_data.mapping_update_flags_inner_faces =
-      (update_gradients | update_JxW_values);
-    mf_data.mapping_update_flags_boundary_faces =
-      (update_gradients | update_JxW_values);
+    mf_data.mapping_update_flags_inner_faces    = (update_gradients | update_JxW_values);
+    mf_data.mapping_update_flags_boundary_faces = (update_gradients | update_JxW_values);
     AffineConstraints<number> dg_constraints;
 
     data.reinit(mapping,
-                std::vector<const DoFHandler<dim> *>{
-                  {&dof_handler, &dg_dof_handler}},
-                std::vector<const AffineConstraints<number> *>{
-                  {&constraints, &dg_constraints}},
+                std::vector<const DoFHandler<dim> *>{{&dof_handler, &dg_dof_handler}},
+                std::vector<const AffineConstraints<number> *>{{&constraints, &dg_constraints}},
                 std::vector<Quadrature<1>>{{quad, dg_quad}},
                 mf_data);
   }
 
   void
-  initialize(const Mapping<dim> &             mapping,
-             const DoFHandler<dim> &          dof_handler,
+  initialize(const Mapping<dim>              &mapping,
+             const DoFHandler<dim>           &dof_handler,
              const AffineConstraints<number> &constraints)
   {
-    const QGauss<1> quad(dof_handler.get_fe().degree + 1);
+    const QGauss<1>                                  quad(dof_handler.get_fe().degree + 1);
     typename MatrixFree<dim, number>::AdditionalData mf_data;
-    mf_data.tasks_parallel_scheme =
-      MatrixFree<dim, number>::AdditionalData::none;
-    Assert(dof_handler.get_fe().dofs_per_vertex > 0,
-           ExcNotImplemented("Only continuous elements implemented"));
+    mf_data.tasks_parallel_scheme = MatrixFree<dim, number>::AdditionalData::none;
+    Assert(dof_handler.get_fe().dofs_per_vertex > 0, ExcNotImplemented("Only continuous elements implemented"));
 
     data.reinit(mapping, dof_handler, constraints, quad, mf_data);
   }
@@ -139,19 +132,12 @@ public:
   }
 
   void
-  vmult(VectorType &      dst,
-        const VectorType &src,
-        const std::function<void(const unsigned int, const unsigned int)>
-          &operation_before_loop,
-        const std::function<void(const unsigned int, const unsigned int)>
-          &operation_after_loop) const
+  vmult(VectorType                                                        &dst,
+        const VectorType                                                  &src,
+        const std::function<void(const unsigned int, const unsigned int)> &operation_before_loop,
+        const std::function<void(const unsigned int, const unsigned int)> &operation_after_loop) const
   {
-    data.cell_loop(&LaplaceOperator::local_apply,
-                   this,
-                   dst,
-                   src,
-                   operation_before_loop,
-                   operation_after_loop);
+    data.cell_loop(&LaplaceOperator::local_apply, this, dst, src, operation_before_loop, operation_after_loop);
   }
 
   void
@@ -180,8 +166,7 @@ public:
   }
 
   void
-  initialize_dof_vector(VectorType &       vector,
-                        const unsigned int component = 0) const
+  initialize_dof_vector(VectorType &vector, const unsigned int component = 0) const
   {
     data.initialize_dof_vector(vector, component);
   }
@@ -191,14 +176,13 @@ public:
   {
     inverse_diagonal_entries = std::make_shared<DiagonalMatrix<VectorType>>();
     data.initialize_dof_vector(inverse_diagonal_entries->get_vector());
-    MatrixFreeTools::
-      compute_diagonal<dim, -1, 0, 1, number, VectorizedArray<number>>(
-        data, inverse_diagonal_entries->get_vector(), [](auto &eval) {
-          eval.evaluate(EvaluationFlags::gradients);
-          for (unsigned int q = 0; q < eval.n_q_points; ++q)
-            eval.submit_gradient(eval.get_gradient(q), q);
-          eval.integrate(EvaluationFlags::gradients);
-        });
+    MatrixFreeTools::compute_diagonal<dim, -1, 0, 1, number, VectorizedArray<number>>(
+      data, inverse_diagonal_entries->get_vector(), [](auto &eval) {
+        eval.evaluate(EvaluationFlags::gradients);
+        for (unsigned int q = 0; q < eval.n_q_points; ++q)
+          eval.submit_gradient(eval.get_gradient(q), q);
+        eval.integrate(EvaluationFlags::gradients);
+      });
 
     for (number &entry : inverse_diagonal_entries->get_vector())
       if (std::abs(entry) > 1e-10)
@@ -221,9 +205,9 @@ public:
 
 private:
   void
-  local_apply(const MatrixFree<dim, number> &              data,
-              VectorType &                                 dst,
-              const VectorType &                           src,
+  local_apply(const MatrixFree<dim, number>               &data,
+              VectorType                                  &dst,
+              const VectorType                            &src,
               const std::pair<unsigned int, unsigned int> &cell_range) const
   {
     FEEvaluation<dim, -1, 0, 1, number> eval(data);
@@ -246,8 +230,7 @@ private:
 
 template <typename Number>
 void
-make_zero_mean(const std::vector<unsigned int> &           constrained_dofs,
-               LinearAlgebra::distributed::Vector<Number> &vec)
+make_zero_mean(const std::vector<unsigned int> &constrained_dofs, LinearAlgebra::distributed::Vector<Number> &vec)
 {
   // set constrained entries to zero
   for (const unsigned int index : constrained_dofs)
@@ -255,19 +238,14 @@ make_zero_mean(const std::vector<unsigned int> &           constrained_dofs,
 
   // rescale mean value computed among all vector entries to the vector size
   // without constraints
-  const unsigned int n_unconstrained_dofs =
-    vec.locally_owned_size() - constrained_dofs.size();
-  vec.add(
-    -vec.mean_value() * vec.size() /
-    Utilities::MPI::sum(n_unconstrained_dofs, vec.get_mpi_communicator()));
+  const unsigned int n_unconstrained_dofs = vec.locally_owned_size() - constrained_dofs.size();
+  vec.add(-vec.mean_value() * vec.size() / Utilities::MPI::sum(n_unconstrained_dofs, vec.get_mpi_communicator()));
 
   // set constrained entries to zero again, this should now have zero mean
   for (const unsigned int index : constrained_dofs)
     vec.local_element(index) = 0.;
 
-  Assert(std::abs(vec.mean_value()) <
-           std::numeric_limits<Number>::epsilon() * vec.size(),
-         ExcInternalError());
+  Assert(std::abs(vec.mean_value()) < std::numeric_limits<Number>::epsilon() * vec.size(), ExcInternalError());
 }
 
 
@@ -284,17 +262,14 @@ public:
   }
 
   void
-  initialize(const MGSmootherBase<VectorType> &coarse_smooth,
-             const std::vector<unsigned int> & constrained_dofs)
+  initialize(const MGSmootherBase<VectorType> &coarse_smooth, const std::vector<unsigned int> &constrained_dofs)
   {
     this->coarse_smooth    = &coarse_smooth;
     this->constrained_dofs = &constrained_dofs;
   }
 
   void
-  operator()(const unsigned int level,
-             VectorType &       dst,
-             const VectorType & src) const override
+  operator()(const unsigned int level, VectorType &dst, const VectorType &src) const override
   {
     src_copy.reinit(src, true);
     src_copy.copy_locally_owned_data_from(src);
@@ -305,14 +280,13 @@ public:
 
 private:
   SmartPointer<const MGSmootherBase<VectorType>> coarse_smooth;
-  const std::vector<unsigned int> *              constrained_dofs;
+  const std::vector<unsigned int>               *constrained_dofs;
 
   mutable VectorType src_copy;
 };
 
 
-const Tensor<2, 3> deformation{
-  {{1.05, 1e-3, 1e-2}, {1e-3, 1., -1e-3}, {1e-2, -1e-3, 0.95}}};
+const Tensor<2, 3> deformation{{{1.05, 1e-3, 1e-2}, {1e-3, 1., -1e-3}, {1e-2, -1e-3, 0.95}}};
 
 template <int dim>
 class Solution : public Function<dim>
@@ -399,8 +373,7 @@ private:
   MGLevelObject<LaplaceOperator<dim, float>> level_matrices;
   using VectorTypeMG = LinearAlgebra::distributed::Vector<float>;
 
-  using SmootherType =
-    PreconditionChebyshev<LaplaceOperator<dim, float>, VectorTypeMG>;
+  using SmootherType = PreconditionChebyshev<LaplaceOperator<dim, float>, VectorTypeMG>;
   mg::SmootherRelaxation<SmootherType, VectorTypeMG> mg_smoother;
 
   MGLevelObject<MGTwoLevelTransfer<dim, VectorTypeMG>>           mg_transfers;
@@ -428,8 +401,7 @@ void
 LaplaceProblem<dim>::setup_grid()
 {
   GridGenerator::hyper_cube(triangulation, 0., 1.);
-  GridTools::transform([](const Point<dim> &p) { return deformation * p; },
-                       triangulation);
+  GridTools::transform([](const Point<dim> &p) { return deformation * p; }, triangulation);
 
   switch (get_testing_environment())
     {
@@ -449,8 +421,7 @@ LaplaceProblem<dim>::setup_grid()
       cell->set_refine_flag();
   triangulation.execute_coarsening_and_refinement();
   for (const auto &cell : triangulation.active_cell_iterators())
-    if (cell->is_locally_owned() &&
-        cell->center().distance(Point<dim>(0.3, 0.3, 0.3)) < 0.5)
+    if (cell->is_locally_owned() && cell->center().distance(Point<dim>(0.3, 0.3, 0.3)) < 0.5)
       cell->set_refine_flag();
   triangulation.execute_coarsening_and_refinement();
 }
@@ -484,19 +455,14 @@ LaplaceProblem<dim>::setup_dofs()
     p_levels.push_back(std::max(p_levels.back() - 2, 2u));
   fes.resize(0, p_levels.size() - 1);
   for (unsigned int level = 0; level < p_levels.size(); ++level)
-    fes[level] =
-      std::make_unique<FE_Q<dim>>(p_levels[p_levels.size() - 1 - level]);
+    fes[level] = std::make_unique<FE_Q<dim>>(p_levels[p_levels.size() - 1 - level]);
 
   dof_handlers.resize(0, coarse_triangulations.size() - 1 + fes.max_level());
   level_constraints.resize(0, dof_handlers.max_level());
-  for (unsigned int level = dof_handlers.min_level();
-       level <= dof_handlers.max_level();
-       ++level)
+  for (unsigned int level = dof_handlers.min_level(); level <= dof_handlers.max_level(); ++level)
     {
       DoFHandler<dim> &dof_h = dof_handlers[level];
-      dof_h.reinit(
-        *coarse_triangulations[std::min(level,
-                                        triangulation.n_global_levels() - 1)]);
+      dof_h.reinit(*coarse_triangulations[std::min(level, triangulation.n_global_levels() - 1)]);
       if (level < coarse_triangulations.size())
         dof_h.distribute_dofs(*fes[0]);
       else
@@ -509,12 +475,9 @@ LaplaceProblem<dim>::setup_dofs()
       DoFTools::make_hanging_node_constraints(dof_h, constraints);
       constraints.close();
       typename MatrixFree<dim, float>::AdditionalData additional_data;
-      additional_data.tasks_parallel_scheme =
-        MatrixFree<dim, float>::AdditionalData::none;
+      additional_data.tasks_parallel_scheme = MatrixFree<dim, float>::AdditionalData::none;
 
-      DoFRenumbering::matrix_free_data_locality(dof_h,
-                                                constraints,
-                                                additional_data);
+      DoFRenumbering::matrix_free_data_locality(dof_h, constraints, additional_data);
 
       // now create the final constraints object
       DoFTools::extract_locally_relevant_dofs(dof_h, relevant_dofs);
@@ -534,23 +497,16 @@ LaplaceProblem<dim>::setup_matrix_free()
   AffineConstraints<double> constraints_fine;
   constraints_fine.reinit(level_constraints.back().get_local_lines());
   constraints_fine.copy_from(level_constraints.back());
-  system_matrix.initialize(mapping,
-                           dof_handlers.back(),
-                           constraints_fine,
-                           dg_dof_handler);
+  system_matrix.initialize(mapping, dof_handlers.back(), constraints_fine, dg_dof_handler);
   system_matrix.initialize_dof_vector(dg_rhs, 1);
   system_matrix.initialize_dof_vector(dg_solution, 1);
   system_matrix.initialize_dof_vector(rhs, 0);
   system_matrix.initialize_dof_vector(solution, 0);
 
   level_matrices.resize(0, dof_handlers.max_level());
-  for (unsigned int level = dof_handlers.min_level();
-       level <= dof_handlers.max_level();
-       ++level)
+  for (unsigned int level = dof_handlers.min_level(); level <= dof_handlers.max_level(); ++level)
     {
-      level_matrices[level].initialize(mapping,
-                                       dof_handlers[level],
-                                       level_constraints[level]);
+      level_matrices[level].initialize(mapping, dof_handlers[level], level_constraints[level]);
     }
 }
 
@@ -559,11 +515,8 @@ template <int dim>
 void
 LaplaceProblem<dim>::setup_smoother()
 {
-  MGLevelObject<typename SmootherType::AdditionalData> smoother_data(
-    0, dof_handlers.max_level());
-  for (unsigned int level = dof_handlers.min_level();
-       level <= dof_handlers.max_level();
-       ++level)
+  MGLevelObject<typename SmootherType::AdditionalData> smoother_data(0, dof_handlers.max_level());
+  for (unsigned int level = dof_handlers.min_level(); level <= dof_handlers.max_level(); ++level)
     {
       level_matrices[level].compute_inverse_diagonal();
 
@@ -572,13 +525,10 @@ LaplaceProblem<dim>::setup_smoother()
       IterationNumberControl control(12, 1e-6, false, false);
 
       using VectorType = LinearAlgebra::distributed::Vector<float>;
-      SolverCG<VectorType> solver(control);
-      internal::PreconditionChebyshevImplementation::EigenvalueTracker
-        eigenvalue_tracker;
+      SolverCG<VectorType>                                             solver(control);
+      internal::PreconditionChebyshevImplementation::EigenvalueTracker eigenvalue_tracker;
       solver.connect_eigenvalues_slot(
-        [&eigenvalue_tracker](const std::vector<double> &eigenvalues) {
-          eigenvalue_tracker.slot(eigenvalues);
-        });
+        [&eigenvalue_tracker](const std::vector<double> &eigenvalues) { eigenvalue_tracker.slot(eigenvalues); });
 
       VectorType sol, rhs;
       level_matrices[level].initialize_dof_vector(sol);
@@ -586,12 +536,8 @@ LaplaceProblem<dim>::setup_smoother()
 
       for (float &a : rhs)
         a = (double)rand() / RAND_MAX;
-      make_zero_mean(
-        level_matrices[level].get_matrix_free().get_constrained_dofs(), rhs);
-      solver.solve(level_matrices[level],
-                   sol,
-                   rhs,
-                   *level_matrices[level].get_matrix_diagonal_inverse());
+      make_zero_mean(level_matrices[level].get_matrix_free().get_constrained_dofs(), rhs);
+      solver.solve(level_matrices[level], sol, rhs, *level_matrices[level].get_matrix_diagonal_inverse());
 
       if (level > 0)
         {
@@ -602,15 +548,12 @@ LaplaceProblem<dim>::setup_smoother()
         {
           // Coarse level: Use MG smoother as solver (should use p-multigrid
           // or AMG for complicated meshes)
-          smoother_data[level].smoothing_range =
-            eigenvalue_tracker.values.back() /
-            eigenvalue_tracker.values.front();
-          smoother_data[0].degree = numbers::invalid_unsigned_int;
+          smoother_data[level].smoothing_range = eigenvalue_tracker.values.back() / eigenvalue_tracker.values.front();
+          smoother_data[0].degree              = numbers::invalid_unsigned_int;
         }
-      smoother_data[level].max_eigenvalue = eigenvalue_tracker.values.back();
+      smoother_data[level].max_eigenvalue      = eigenvalue_tracker.values.back();
       smoother_data[level].eig_cg_n_iterations = 0;
-      smoother_data[level].preconditioner =
-        level_matrices[level].get_matrix_diagonal_inverse();
+      smoother_data[level].preconditioner      = level_matrices[level].get_matrix_diagonal_inverse();
     }
 
   mg_smoother.initialize(level_matrices, smoother_data);
@@ -631,9 +574,7 @@ LaplaceProblem<dim>::setup_transfer()
     }
 
   mg_transfer = std::make_unique<MGTransferGlobalCoarsening<dim, VectorTypeMG>>(
-    mg_transfers, [&](const unsigned level, VectorTypeMG &vec) {
-      level_matrices[level].initialize_dof_vector(vec);
-    });
+    mg_transfers, [&](const unsigned level, VectorTypeMG &vec) { level_matrices[level].initialize_dof_vector(vec); });
 }
 
 
@@ -642,22 +583,15 @@ void
 LaplaceProblem<dim>::compute_rhs()
 {
   // interpolate to nodes
-  VectorTools::interpolate(mapping,
-                           dg_dof_handler,
-                           RightHandSide<dim>(),
-                           dg_rhs);
+  VectorTools::interpolate(mapping, dg_dof_handler, RightHandSide<dim>(), dg_rhs);
 
   // do the interpolation 10 times to get better significance in the numbers
   for (unsigned int i = 0; i < 10; ++i)
     {
       rhs = 0.;
-      FEEvaluation<dim, -1, 0, 1, double> dg_eval(
-        system_matrix.get_matrix_free(), 1);
-      FEEvaluation<dim, -1, 0, 1, double> eval(system_matrix.get_matrix_free(),
-                                               0);
-      for (unsigned int cell = 0;
-           cell < system_matrix.get_matrix_free().n_cell_batches();
-           ++cell)
+      FEEvaluation<dim, -1, 0, 1, double> dg_eval(system_matrix.get_matrix_free(), 1);
+      FEEvaluation<dim, -1, 0, 1, double> eval(system_matrix.get_matrix_free(), 0);
+      for (unsigned int cell = 0; cell < system_matrix.get_matrix_free().n_cell_batches(); ++cell)
         {
           eval.reinit(cell);
           dg_eval.reinit(cell);
@@ -670,8 +604,7 @@ LaplaceProblem<dim>::compute_rhs()
 
       // since we use Neumann boundary conditions on the whole boundary, the
       // right hand side must have zero mean value to ensure a solvable system
-      make_zero_mean(system_matrix.get_matrix_free().get_constrained_dofs(),
-                     rhs);
+      make_zero_mean(system_matrix.get_matrix_free().get_constrained_dofs(), rhs);
     }
 }
 
@@ -682,23 +615,19 @@ void
 LaplaceProblem<dim>::solve()
 {
   MGCoarseSolverSingular<VectorTypeMG> mg_coarse;
-  mg_coarse.initialize(
-    mg_smoother, level_matrices[0].get_matrix_free().get_constrained_dofs());
+  mg_coarse.initialize(mg_smoother, level_matrices[0].get_matrix_free().get_constrained_dofs());
   mg::Matrix<VectorTypeMG> mg_matrix(level_matrices);
 
-  Multigrid<VectorTypeMG> mg(
-    mg_matrix, mg_coarse, *mg_transfer, mg_smoother, mg_smoother);
-  PreconditionMG<dim,
-                 VectorTypeMG,
-                 MGTransferGlobalCoarsening<dim, VectorTypeMG>>
-    preconditioner(dof_handlers.back(), mg, *mg_transfer);
+  Multigrid<VectorTypeMG> mg(mg_matrix, mg_coarse, *mg_transfer, mg_smoother, mg_smoother);
+  PreconditionMG<dim, VectorTypeMG, MGTransferGlobalCoarsening<dim, VectorTypeMG>> preconditioner(dof_handlers.back(),
+                                                                                                  mg,
+                                                                                                  *mg_transfer);
 
-  SolverControl control(20, 1e-10 * rhs.l2_norm());
+  SolverControl                                        control(20, 1e-10 * rhs.l2_norm());
   SolverCG<LinearAlgebra::distributed::Vector<double>> solver(control);
 
   solver.solve(system_matrix, solution, rhs, preconditioner);
-  AssertThrow(control.last_step() < 10,
-              ExcMessage("Solve should converge in at most 10 iterations"));
+  AssertThrow(control.last_step() < 10, ExcMessage("Solve should converge in at most 10 iterations"));
 }
 
 
@@ -707,26 +636,21 @@ template <int dim>
 void
 LaplaceProblem<dim>::embed_solution_to_dg()
 {
-  make_zero_mean(system_matrix.get_matrix_free().get_constrained_dofs(),
-                 solution);
+  make_zero_mean(system_matrix.get_matrix_free().get_constrained_dofs(), solution);
 
-  FEEvaluation<dim, -1, 0, 1, double> dg_eval(system_matrix.get_matrix_free(),
-                                              1);
+  FEEvaluation<dim, -1, 0, 1, double>                     dg_eval(system_matrix.get_matrix_free(), 1);
   MatrixFreeOperators::CellwiseInverseMassMatrix<dim, -1> inverse_mass(dg_eval);
-  FEEvaluation<dim, -1, 0, 1, double> eval(system_matrix.get_matrix_free(), 0);
+  FEEvaluation<dim, -1, 0, 1, double>                     eval(system_matrix.get_matrix_free(), 0);
   // to get better timings, run the evaluation 10 times
   for (unsigned int i = 0; i < 10; ++i)
     {
       solution.update_ghost_values();
-      for (unsigned int cell = 0;
-           cell < system_matrix.get_matrix_free().n_cell_batches();
-           ++cell)
+      for (unsigned int cell = 0; cell < system_matrix.get_matrix_free().n_cell_batches(); ++cell)
         {
           eval.reinit(cell);
           dg_eval.reinit(cell);
           eval.gather_evaluate(solution, EvaluationFlags::values);
-          inverse_mass.transform_from_q_points_to_basis(
-            1, eval.begin_values(), dg_eval.begin_dof_values());
+          inverse_mass.transform_from_q_points_to_basis(1, eval.begin_values(), dg_eval.begin_dof_values());
           dg_eval.set_dof_values(dg_solution);
         }
       solution.zero_out_ghost_values();
@@ -734,33 +658,24 @@ LaplaceProblem<dim>::embed_solution_to_dg()
 
   // compute error
   double error = 0;
-  for (unsigned int cell = 0;
-       cell < system_matrix.get_matrix_free().n_cell_batches();
-       ++cell)
+  for (unsigned int cell = 0; cell < system_matrix.get_matrix_free().n_cell_batches(); ++cell)
     {
       dg_eval.reinit(cell);
       dg_eval.gather_evaluate(dg_solution, EvaluationFlags::values);
       Solution<dim> solution;
       double        local_error = 0;
       for (const unsigned int q : dg_eval.quadrature_point_indices())
-        for (unsigned int v = 0;
-             v <
-             system_matrix.get_matrix_free().n_active_entries_per_cell_batch(
-               cell);
-             ++v)
+        for (unsigned int v = 0; v < system_matrix.get_matrix_free().n_active_entries_per_cell_batch(cell); ++v)
           {
             Point<dim> quadrature_point;
             for (unsigned int d = 0; d < dim; ++d)
               quadrature_point[d] = dg_eval.quadrature_point(q)[d][v];
             local_error +=
-              Utilities::fixed_power<2>(solution.value(quadrature_point) -
-                                        dg_eval.get_value(q)[v]) *
-              dg_eval.JxW(q)[v];
+              Utilities::fixed_power<2>(solution.value(quadrature_point) - dg_eval.get_value(q)[v]) * dg_eval.JxW(q)[v];
           }
       error += local_error;
     }
-  error =
-    std::sqrt(Utilities::MPI::sum(error, dg_solution.get_mpi_communicator()));
+  error = std::sqrt(Utilities::MPI::sum(error, dg_solution.get_mpi_communicator()));
   // do to the deformed mesh, the chosen right hand side and solution match
   // only approximately - we request a tolerance of 1e-2
   AssertThrow(error < 1e-2, ExcMessage("Error should be less than 1e-2"));

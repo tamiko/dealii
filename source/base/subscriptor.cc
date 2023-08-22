@@ -85,34 +85,23 @@ Subscriptor::check_no_subscribers() const noexcept
           for (const auto &map_entry : counter_map)
             {
               if (map_entry.second > 0)
-                infostring += std::string("\n  from Subscriber ") +
-                              std::string(map_entry.first);
+                infostring += std::string("\n  from Subscriber ") + std::string(map_entry.first);
             }
 
           if (infostring.empty())
             infostring = "<none>";
 
-          AssertNothrow(counter == 0,
-                        ExcInUse(counter.load(),
-                                 object_info->name(),
-                                 infostring));
+          AssertNothrow(counter == 0, ExcInUse(counter.load(), object_info->name(), infostring));
         }
       else
         {
-          std::cerr
-            << "---------------------------------------------------------"
-            << std::endl
-            << "An object pointed to by a SmartPointer is being destroyed."
-            << std::endl
-            << "Under normal circumstances, this would abort the program."
-            << std::endl
-            << "However, another exception is being processed at the"
-            << std::endl
-            << "moment, so the program will continue to run to allow"
-            << std::endl
-            << "this exception to be processed." << std::endl
-            << "---------------------------------------------------------"
-            << std::endl;
+          std::cerr << "---------------------------------------------------------" << std::endl
+                    << "An object pointed to by a SmartPointer is being destroyed." << std::endl
+                    << "Under normal circumstances, this would abort the program." << std::endl
+                    << "However, another exception is being processed at the" << std::endl
+                    << "moment, so the program will continue to run to allow" << std::endl
+                    << "this exception to be processed." << std::endl
+                    << "---------------------------------------------------------" << std::endl;
         }
     }
 #endif
@@ -133,8 +122,7 @@ Subscriptor::operator=(Subscriptor &&s) noexcept
 
 
 void
-Subscriptor::subscribe(std::atomic<bool> *const validity,
-                       const std::string &      id) const
+Subscriptor::subscribe(std::atomic<bool> *const validity, const std::string &id) const
 {
   std::lock_guard<std::mutex> lock(mutex);
 
@@ -153,8 +141,7 @@ Subscriptor::subscribe(std::atomic<bool> *const validity,
 
 
 void
-Subscriptor::unsubscribe(std::atomic<bool> *const validity,
-                         const std::string &      id) const
+Subscriptor::unsubscribe(std::atomic<bool> *const validity, const std::string &id) const
 {
   const std::string &name = id.empty() ? unknown_subscriber : id;
 
@@ -170,8 +157,7 @@ Subscriptor::unsubscribe(std::atomic<bool> *const validity,
   map_iterator it = counter_map.find(name);
   if (it == counter_map.end())
     {
-      AssertNothrow(it != counter_map.end(),
-                    ExcNoSubscriber(object_info->name(), name));
+      AssertNothrow(it != counter_map.end(), ExcNoSubscriber(object_info->name(), name));
       // This is for the case that we do not abort after the exception
       return;
     }
@@ -182,14 +168,11 @@ Subscriptor::unsubscribe(std::atomic<bool> *const validity,
       return;
     }
 
-  auto validity_ptr_it =
-    std::find(validity_pointers.begin(), validity_pointers.end(), validity);
+  auto validity_ptr_it = std::find(validity_pointers.begin(), validity_pointers.end(), validity);
   if (validity_ptr_it == validity_pointers.end())
     {
-      AssertNothrow(
-        validity_ptr_it != validity_pointers.end(),
-        ExcMessage(
-          "This Subscriptor object does not know anything about the supplied pointer!"));
+      AssertNothrow(validity_ptr_it != validity_pointers.end(),
+                    ExcMessage("This Subscriptor object does not know anything about the supplied pointer!"));
       return;
     }
 

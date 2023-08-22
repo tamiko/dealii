@@ -72,9 +72,7 @@ test()
   tr.refine_global(1);
   for (unsigned int step = 0; step < 20; ++step)
     {
-      typename Triangulation<dim>::active_cell_iterator cell =
-                                                          tr.begin_active(),
-                                                        endc = tr.end();
+      typename Triangulation<dim>::active_cell_iterator cell = tr.begin_active(), endc = tr.end();
 
       for (; cell != endc; ++cell)
         if (Testing::rand() % 42 == 1)
@@ -110,17 +108,13 @@ test()
 
   velocity_mask.set(dim, false);
 
-  VectorTools::interpolate_boundary_values(
-    dofh, 0, Functions::ZeroFunction<dim>(dim + 1), cm, velocity_mask);
+  VectorTools::interpolate_boundary_values(dofh, 0, Functions::ZeroFunction<dim>(dim + 1), cm, velocity_mask);
 
   std::set<types::boundary_id> no_normal_flux_boundaries;
   no_normal_flux_boundaries.insert(1);
 
 
-  VectorTools::compute_no_normal_flux_constraints(dofh,
-                                                  0,
-                                                  no_normal_flux_boundaries,
-                                                  cm);
+  VectorTools::compute_no_normal_flux_constraints(dofh, 0, no_normal_flux_boundaries, cm);
 
   cm.close();
 

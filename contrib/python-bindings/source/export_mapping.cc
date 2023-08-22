@@ -43,10 +43,9 @@ namespace python
   void
   export_mapping()
   {
-    boost::python::class_<MappingQWrapper>(
-      "MappingQ",
-      boost::python::init<const int, const int, const int>(
-        boost::python::args("dim", "spacedim", "degree")))
+    boost::python::class_<MappingQWrapper>("MappingQ",
+                                           boost::python::init<const int, const int, const int>(
+                                             boost::python::args("dim", "spacedim", "degree")))
       .def("transform_real_to_unit_cell",
            &MappingQWrapper::transform_real_to_unit_cell,
            transform_real_to_unit_cell_docstring,

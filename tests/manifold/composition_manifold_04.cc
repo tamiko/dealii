@@ -78,8 +78,7 @@ main()
       w[0] = 1.0 - (double)i / ((double)n_intermediates);
       w[1] = 1.0 - w[0];
 
-      Point<spacedim> ip =
-        manifold.get_new_point(make_array_view(sp), make_array_view(w));
+      Point<spacedim>     ip = manifold.get_new_point(make_array_view(sp), make_array_view(w));
       Tensor<1, spacedim> t1 = manifold.get_tangent_vector(ip, sp[0]);
       Tensor<1, spacedim> t2 = manifold.get_tangent_vector(ip, sp[1]);
 
@@ -88,17 +87,14 @@ main()
 
   out << 'e' << std::endl;
 
-  out << "set terminal aqua " << 1 << std::endl
-      << "set size ratio -1" << std::endl
-      << "plot '-' w lp " << std::endl;
+  out << "set terminal aqua " << 1 << std::endl << "set size ratio -1" << std::endl << "plot '-' w lp " << std::endl;
 
   for (unsigned int i = 0; i < n_intermediates + 1; ++i)
     {
       w[0] = 1.0 - (double)i / ((double)n_intermediates);
       w[1] = 1.0 - w[0];
 
-      Point<spacedim> ip = manifold.pull_back(
-        manifold.get_new_point(make_array_view(sp), make_array_view(w)));
+      Point<spacedim> ip = manifold.pull_back(manifold.get_new_point(make_array_view(sp), make_array_view(w)));
 
       ip[0] = w[1];
 

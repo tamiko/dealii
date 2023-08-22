@@ -45,8 +45,7 @@ test()
   deallog << Utilities::MPI::is_mpi_type<bool> << std::endl;
   deallog << Utilities::MPI::is_mpi_type<std::complex<float>> << std::endl;
   deallog << Utilities::MPI::is_mpi_type<std::complex<double>> << std::endl;
-  deallog
-    << Utilities::MPI::is_mpi_type<std::complex<long double>> << std::endl;
+  deallog << Utilities::MPI::is_mpi_type<std::complex<long double>> << std::endl;
   deallog << Utilities::MPI::is_mpi_type<wchar_t> << std::endl;
 
 

@@ -38,8 +38,7 @@ check_grid()
       Triangulation<dim> triangulation;
       GridGenerator::hyper_ball_balanced(triangulation, center, 1.);
       deallog << "Number of cells: " << triangulation.n_cells() << std::endl;
-      deallog << "Number of vertices: " << triangulation.n_vertices()
-              << std::endl;
+      deallog << "Number of vertices: " << triangulation.n_vertices() << std::endl;
       triangulation.refine_global();
 
       GridOut            go;

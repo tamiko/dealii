@@ -43,25 +43,20 @@ test(MPI_Comm comm)
   GridGenerator::subdivided_hyper_cube(basetria, 10);
   basetria.refine_global(2);
 
-  GridTools::partition_triangulation_zorder(
-    Utilities::MPI::n_mpi_processes(comm), basetria);
+  GridTools::partition_triangulation_zorder(Utilities::MPI::n_mpi_processes(comm), basetria);
 
   // create instance of pft
   parallel::fullydistributed::Triangulation<dim> tria_pft(comm);
 
   // register dynamic construction data
-  auto construction_data =
-    TriangulationDescription::Utilities::create_description_from_triangulation(
-      basetria, comm);
+  auto construction_data = TriangulationDescription::Utilities::create_description_from_triangulation(basetria, comm);
 
   // actually create triangulation
   tria_pft.create_triangulation(construction_data);
 
-  auto min_max_avg =
-    Utilities::MPI::min_max_avg(tria_pft.memory_consumption(), comm);
+  auto min_max_avg = Utilities::MPI::min_max_avg(tria_pft.memory_consumption(), comm);
 
-  Assert((min_max_avg.min / min_max_avg.max >= 0.75),
-         ExcMessage("Memory consumption difference is too big!"));
+  Assert((min_max_avg.min / min_max_avg.max >= 0.75), ExcMessage("Memory consumption difference is too big!"));
 
   deallog << "OK!" << std::endl;
 }

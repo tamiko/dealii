@@ -72,8 +72,7 @@ test()
           // set refinement/coarsening flags
           if (cell->id().to_string() == "0_1:0")
             cell->set_refine_flag();
-          else if (cell->parent()->id().to_string() ==
-                   ((dim == 2) ? "3_0:" : "7_0:"))
+          else if (cell->parent()->id().to_string() == ((dim == 2) ? "3_0:" : "7_0:"))
             cell->set_coarsen_flag();
         }
     }
@@ -92,15 +91,12 @@ test()
       solution(i) = i;
 
   TrilinosWrappers::MPI::Vector old_solution;
-  old_solution.reinit(locally_owned_dofs,
-                      locally_relevant_dofs,
-                      MPI_COMM_WORLD);
+  old_solution.reinit(locally_owned_dofs, locally_relevant_dofs, MPI_COMM_WORLD);
   old_solution = solution;
 
 
   // ----- transfer -----
-  parallel::distributed::SolutionTransfer<dim, TrilinosWrappers::MPI::Vector>
-    soltrans(dh);
+  parallel::distributed::SolutionTransfer<dim, TrilinosWrappers::MPI::Vector> soltrans(dh);
 
   soltrans.prepare_for_coarsening_and_refinement(old_solution);
   tria.execute_coarsening_and_refinement();

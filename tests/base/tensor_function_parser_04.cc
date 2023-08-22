@@ -55,24 +55,21 @@ main()
                                    constants,
                                    /* time dependent */ true);
 
-        deallog << "Initialize Succeeded with dim = 2, rank = 1, "
-                << expressions.size() << " expressions, " << variables
-                << " as variables." << std::endl;
+        deallog << "Initialize Succeeded with dim = 2, rank = 1, " << expressions.size() << " expressions, "
+                << variables << " as variables." << std::endl;
 
         for (unsigned int t = 0; t < 5; ++t)
           {
             tensor_function.set_time(t);
             deallog << "Value at p = (0.5,0.5): " << std::endl
-                    << tensor_function.value(p)[0] << "   "
-                    << tensor_function.value(p)[1] << "   at time t = " << t
+                    << tensor_function.value(p)[0] << "   " << tensor_function.value(p)[1] << "   at time t = " << t
                     << std::endl;
           }
       }
     }
   catch (...)
     {
-      deallog << "Initialization or Evaluation Failed with dim = 2, rank = 2, "
-              << expressions.size() << " expressions, " << variables
-              << " as variables." << std::endl;
+      deallog << "Initialization or Evaluation Failed with dim = 2, rank = 2, " << expressions.size()
+              << " expressions, " << variables << " as variables." << std::endl;
     }
 }

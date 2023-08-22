@@ -47,24 +47,17 @@ check(const unsigned int n)
 
   // this is the test that failed
   // before
-  for (typename Triangulation<dim>::active_cell_iterator cell =
-         tria.begin_active();
-       cell != tria.end();
-       ++cell)
+  for (typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(); cell != tria.end(); ++cell)
     for (const unsigned int f : GeometryInfo<dim>::face_indices())
-      AssertThrow(cell->face(f)->at_boundary() == cell->at_boundary(f),
-                  ExcInternalError());
+      AssertThrow(cell->face(f)->at_boundary() == cell->at_boundary(f), ExcInternalError());
 
   // also output something slightly
   // more useful
-  for (typename Triangulation<dim>::active_cell_iterator cell =
-         tria.begin_active();
-       cell != tria.end();
-       ++cell)
+  for (typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(); cell != tria.end(); ++cell)
     for (const unsigned int f : GeometryInfo<dim>::face_indices())
       if (cell->at_boundary(f))
-        deallog << cell->face(f) << ' ' << (int)cell->face(f)->boundary_id()
-                << ' ' << cell->face(f)->center().norm() << std::endl;
+        deallog << cell->face(f) << ' ' << (int)cell->face(f)->boundary_id() << ' ' << cell->face(f)->center().norm()
+                << std::endl;
 }
 
 

@@ -52,12 +52,10 @@ check_1d_parallelepiped_by_comparison(bool log)
     {
       std::ostream &logfile = deallog.get_file_stream();
       logfile << "\ncheck 1d parallelepiped (hyper_cube): ";
-      if (GridTools::have_same_coarse_mesh(triangulation_parallelepiped,
-                                           triangulation_cube))
+      if (GridTools::have_same_coarse_mesh(triangulation_parallelepiped, triangulation_cube))
         logfile << "OK";
       else
-        logfile
-          << "not OK... coarse grids are different but they should be the same";
+        logfile << "not OK... coarse grids are different but they should be the same";
     }
 }
 
@@ -82,13 +80,11 @@ check_2d_parallelepiped_by_comparison(bool log)
     {
       std::ostream &logfile = deallog.get_file_stream();
       logfile << "\ncheck 2d parallelepiped (parallelogram): ";
-      if (GridTools::have_same_coarse_mesh(triangulation_parallelepiped,
-                                           triangulation_parallelogram))
+      if (GridTools::have_same_coarse_mesh(triangulation_parallelepiped, triangulation_parallelogram))
         logfile << "OK";
 
       else
-        logfile
-          << "not OK... coarse grids are different but they should be the same";
+        logfile << "not OK... coarse grids are different but they should be the same";
     }
 }
 

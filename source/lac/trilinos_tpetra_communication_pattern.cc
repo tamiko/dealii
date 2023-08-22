@@ -29,17 +29,14 @@ namespace LinearAlgebra
 {
   namespace TpetraWrappers
   {
-    CommunicationPattern::CommunicationPattern(
-      const IndexSet &locally_owned_indices,
-      const IndexSet &ghost_indices,
-      const MPI_Comm  communicator)
+    CommunicationPattern::CommunicationPattern(const IndexSet &locally_owned_indices,
+                                               const IndexSet &ghost_indices,
+                                               const MPI_Comm  communicator)
     {
       // virtual functions called in constructors and destructors never use the
       // override in a derived class
       // for clarity be explicit on which function is called
-      CommunicationPattern::reinit(locally_owned_indices,
-                                   ghost_indices,
-                                   communicator);
+      CommunicationPattern::reinit(locally_owned_indices, ghost_indices, communicator);
     }
 
 
@@ -51,22 +48,18 @@ namespace LinearAlgebra
     {
       comm = std::make_shared<const MPI_Comm>(communicator);
 
-      auto vector_space_vector_map =
-        Teuchos::rcp(new Tpetra::Map<int, types::signed_global_dof_index>(
-          locally_owned_indices.make_tpetra_map(*comm, false)));
+      auto vector_space_vector_map = Teuchos::rcp(
+        new Tpetra::Map<int, types::signed_global_dof_index>(locally_owned_indices.make_tpetra_map(*comm, false)));
       auto read_write_vector_map =
-        Teuchos::rcp(new Tpetra::Map<int, types::signed_global_dof_index>(
-          ghost_indices.make_tpetra_map(*comm, true)));
+        Teuchos::rcp(new Tpetra::Map<int, types::signed_global_dof_index>(ghost_indices.make_tpetra_map(*comm, true)));
 
       // Target map is read_write_vector_map
       // Source map is vector_space_vector_map. This map must have uniquely
       // owned GID.
-      tpetra_import =
-        std::make_unique<Tpetra::Import<int, types::signed_global_dof_index>>(
-          read_write_vector_map, vector_space_vector_map);
-      tpetra_export =
-        std::make_unique<Tpetra::Export<int, types::signed_global_dof_index>>(
-          read_write_vector_map, vector_space_vector_map);
+      tpetra_import = std::make_unique<Tpetra::Import<int, types::signed_global_dof_index>>(read_write_vector_map,
+                                                                                            vector_space_vector_map);
+      tpetra_export = std::make_unique<Tpetra::Export<int, types::signed_global_dof_index>>(read_write_vector_map,
+                                                                                            vector_space_vector_map);
     }
 
 

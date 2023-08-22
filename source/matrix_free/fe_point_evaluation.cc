@@ -39,27 +39,23 @@ namespace internal
      */
     template <int dim, int spacedim>
     bool
-    is_fast_path_supported(const FiniteElement<dim, spacedim> &fe,
-                           const unsigned int base_element_number)
+    is_fast_path_supported(const FiniteElement<dim, spacedim> &fe, const unsigned int base_element_number)
     {
       // check if supported
       const bool flag = [&]() {
         if (dim != spacedim)
           return false;
 
-        const FiniteElement<dim, spacedim> *fe_ptr =
-          &(fe.base_element(base_element_number));
+        const FiniteElement<dim, spacedim> *fe_ptr = &(fe.base_element(base_element_number));
         if (fe_ptr->n_components() != 1)
           return false;
 
         // then check if the base element is supported or not
         if (dynamic_cast<const FE_Poly<dim, spacedim> *>(fe_ptr) != nullptr)
           {
-            const FE_Poly<dim, spacedim> *fe_poly_ptr =
-              dynamic_cast<const FE_Poly<dim, spacedim> *>(fe_ptr);
+            const FE_Poly<dim, spacedim> *fe_poly_ptr = dynamic_cast<const FE_Poly<dim, spacedim> *>(fe_ptr);
 
-            if (dynamic_cast<const TensorProductPolynomials<dim> *>(
-                  &fe_poly_ptr->get_poly_space()) == nullptr)
+            if (dynamic_cast<const TensorProductPolynomials<dim> *>(&fe_poly_ptr->get_poly_space()) == nullptr)
               return false;
           }
         else
@@ -70,9 +66,7 @@ namespace internal
 
       // make sure that if supported also ShapeInfo is supporting it
       if (flag)
-        Assert(internal::MatrixFreeFunctions::ShapeInfo<double>::is_supported(
-                 fe),
-               ExcInternalError());
+        Assert(internal::MatrixFreeFunctions::ShapeInfo<double>::is_supported(fe), ExcInternalError());
 
       return flag;
     }
@@ -101,15 +95,12 @@ namespace internal
     get_polynomial_space(const FiniteElement<dim, spacedim> &fe)
     {
       Assert(fe.n_components() == 1, ExcNotImplemented());
-      const FE_Poly<dim, spacedim> *fe_poly_ptr =
-        dynamic_cast<const FE_Poly<dim, spacedim> *>(&fe);
+      const FE_Poly<dim, spacedim> *fe_poly_ptr = dynamic_cast<const FE_Poly<dim, spacedim> *>(&fe);
 
       // we should catch the case that we cannot dynamic cast in
       // is_fast_path_supported
       Assert(fe_poly_ptr != nullptr, ExcNotImplemented());
-      if (const auto polyspace =
-            dynamic_cast<const TensorProductPolynomials<dim> *>(
-              &fe_poly_ptr->get_poly_space()))
+      if (const auto polyspace = dynamic_cast<const TensorProductPolynomials<dim> *>(&fe_poly_ptr->get_poly_space()))
         return polyspace->get_underlying_polynomials();
       else
         Assert(false, ExcNotImplemented());

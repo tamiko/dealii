@@ -46,19 +46,16 @@ namespace Differentiation
 
 #  ifndef DOXYGEN
     Expression
-    make_symbolic_function(const std::string &             symbol,
-                           const SD::types::symbol_vector &arguments)
+    make_symbolic_function(const std::string &symbol, const SD::types::symbol_vector &arguments)
     {
       return Expression(symbol, arguments);
     }
 
 
     Expression
-    make_symbolic_function(const std::string &                symbol,
-                           const SD::types::substitution_map &arguments)
+    make_symbolic_function(const std::string &symbol, const SD::types::substitution_map &arguments)
     {
-      return make_symbolic_function(symbol,
-                                    SD::Utilities::extract_symbols(arguments));
+      return make_symbolic_function(symbol, SD::Utilities::extract_symbols(arguments));
     }
 #  endif
 
@@ -113,10 +110,8 @@ namespace Differentiation
               {
                 // ...and that there is only one entry and that its a
                 // Derivative type
-                const SE::map_basic_basic &entry_mul_dict =
-                  entry_mul.get_dict();
-                if (entry_mul_dict.size() == 1 &&
-                    SE::is_a<SE::Derivative>(*(entry_mul_dict.begin()->first)))
+                const SE::map_basic_basic &entry_mul_dict = entry_mul.get_dict();
+                if (entry_mul_dict.size() == 1 && SE::is_a<SE::Derivative>(*(entry_mul_dict.begin()->first)))
                   return true;
               }
           }
@@ -126,19 +121,15 @@ namespace Differentiation
 
 
       void
-      set_value_in_symbol_map(
-        types::substitution_map &                     substitution_map,
-        const SymEngine::RCP<const SymEngine::Basic> &symbol,
-        const SymEngine::RCP<const SymEngine::Basic> &value)
+      set_value_in_symbol_map(types::substitution_map                      &substitution_map,
+                              const SymEngine::RCP<const SymEngine::Basic> &symbol,
+                              const SymEngine::RCP<const SymEngine::Basic> &value)
       {
-        Assert(
-          internal::is_valid_substitution_symbol(*symbol),
-          ExcMessage(
-            "Substitution with a number that does not represent a symbol or symbolic derivative"));
+        Assert(internal::is_valid_substitution_symbol(*symbol),
+               ExcMessage("Substitution with a number that does not represent a symbol or symbolic derivative"));
 
         auto it_sym = substitution_map.find(Expression(symbol));
-        Assert(it_sym != substitution_map.end(),
-               ExcMessage("Did not find this symbol in the map."));
+        Assert(it_sym != substitution_map.end(), ExcMessage("Did not find this symbol in the map."));
 
         it_sym->second = Expression(value);
       }
@@ -148,18 +139,15 @@ namespace Differentiation
 
     void
     set_value_in_symbol_map(types::substitution_map &substitution_map,
-                            const Expression &       symbol,
-                            const Expression &       value)
+                            const Expression        &symbol,
+                            const Expression        &value)
     {
-      internal::set_value_in_symbol_map(substitution_map,
-                                        symbol.get_RCP(),
-                                        value.get_RCP());
+      internal::set_value_in_symbol_map(substitution_map, symbol.get_RCP(), value.get_RCP());
     }
 
 
     void
-    set_value_in_symbol_map(types::substitution_map &      substitution_map,
-                            const types::substitution_map &symbol_values)
+    set_value_in_symbol_map(types::substitution_map &substitution_map, const types::substitution_map &symbol_values)
     {
       for (const auto &entry : symbol_values)
         set_value_in_symbol_map(substitution_map, entry.first, entry.second);
@@ -184,20 +172,17 @@ namespace Differentiation
 
 
     void
-    merge_substitution_maps(types::substitution_map &      symb_map_out,
-                            const types::substitution_map &symb_map_in)
+    merge_substitution_maps(types::substitution_map &symb_map_out, const types::substitution_map &symb_map_in)
     {
       // Do this by hand so that we can perform some sanity checks
       for (const auto &entry : symb_map_in)
         {
-          const typename types::substitution_map::const_iterator it_other =
-            symb_map_out.find(entry.first);
+          const typename types::substitution_map::const_iterator it_other = symb_map_out.find(entry.first);
           if (it_other == symb_map_out.end())
             symb_map_out.insert(std::make_pair(entry.first, entry.second));
           else
             {
-              Assert(SE::eq(*(entry.second.get_RCP()),
-                            *(it_other->second.get_RCP())),
+              Assert(SE::eq(*(entry.second.get_RCP()), *(it_other->second.get_RCP())),
                      ExcMessage("Key already in map, but values don't match"));
             }
         }
@@ -209,7 +194,7 @@ namespace Differentiation
 
     types::substitution_map
     resolve_explicit_dependencies(const types::substitution_map &symbol_values,
-                                  const bool force_cyclic_dependency_resolution)
+                                  const bool                     force_cyclic_dependency_resolution)
     {
       types::substitution_map symbol_values_resolved = symbol_values;
       const std::size_t       size                   = symbol_values.size();
@@ -221,7 +206,7 @@ namespace Differentiation
           // Instead of checking by value (and thus having
           // to store a temporary value), we check to see
           // if the hash of the map entry changes.
-          Expression & out = entry.second;
+          Expression  &out = entry.second;
           SE::hash_t   hash_old;
           SE::hash_t   hash_new = out.get_RCP()->hash();
           unsigned int iter     = 0;
@@ -246,10 +231,7 @@ namespace Differentiation
               // Compute and store the hash of the new object
               hash_old = hash_new;
               hash_new = out.get_RCP()->hash();
-              AssertThrow(
-                iter < size,
-                ExcMessage(
-                  "Unresolvable cyclic dependency detected in substitution map."));
+              AssertThrow(iter < size, ExcMessage("Unresolvable cyclic dependency detected in substitution map."));
               ++iter;
             }
           while (hash_new != hash_old);
@@ -260,8 +242,7 @@ namespace Differentiation
 
 
     Expression
-    substitute(const Expression &             expression,
-               const types::substitution_map &substitution_map)
+    substitute(const Expression &expression, const types::substitution_map &substitution_map)
     {
       return expression.substitute(substitution_map);
     }

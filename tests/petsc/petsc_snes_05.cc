@@ -49,8 +49,7 @@ main(int argc, char **argv)
       F.compress(VectorOperation::insert);
     };
 
-    solver.jacobian =
-      [&](const VectorType &X, MatrixType &A, MatrixType &P) -> void {
+    solver.jacobian = [&](const VectorType &X, MatrixType &A, MatrixType &P) -> void {
       deallog << "Evaluating the Jacobian at x=" << X(0) << std::endl;
 
       P.set(0, 0, std::cos(X(0)));
@@ -69,8 +68,7 @@ main(int argc, char **argv)
       {
         const auto nit = solver.solve(x);
 
-        deallog << "Found the solution x=" << x(0) << " after " << nit
-                << " iterations." << std::endl;
+        deallog << "Found the solution x=" << x(0) << " after " << nit << " iterations." << std::endl;
       }
     catch (const std::exception &exc)
       {

@@ -45,8 +45,7 @@ BoundaryFunction<dim>::BoundaryFunction()
 
 template <int dim>
 void
-BoundaryFunction<dim>::vector_value(const Point<dim> &,
-                                    Vector<double> &values) const
+BoundaryFunction<dim>::vector_value(const Point<dim> &, Vector<double> &values) const
 {
   for (unsigned int d = 0; d < dim; ++d)
     values(d) = d + 1.0;
@@ -69,12 +68,7 @@ test_boundary_values(const FiniteElement<dim> &fe)
 
   constraints.clear();
   VectorTools::project_boundary_values_div_conforming(
-    dof_handler,
-    0,
-    boundary_function,
-    0,
-    constraints,
-    StaticMappingQ1<dim>::mapping);
+    dof_handler, 0, boundary_function, 0, constraints, StaticMappingQ1<dim>::mapping);
   constraints.close();
   constraints.print(deallog.get_file_stream());
 }

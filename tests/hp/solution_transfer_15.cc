@@ -47,18 +47,16 @@
 
 template <typename DH>
 void
-initialize_indexsets(IndexSet &             locally_owned_dofs,
-                     IndexSet &             locally_relevant_dofs,
-                     std::vector<IndexSet> &locally_owned_partitioning,
-                     std::vector<IndexSet> &locally_relevant_partitioning,
-                     const DH &             dof_handler,
+initialize_indexsets(IndexSet                        &locally_owned_dofs,
+                     IndexSet                        &locally_relevant_dofs,
+                     std::vector<IndexSet>           &locally_owned_partitioning,
+                     std::vector<IndexSet>           &locally_relevant_partitioning,
+                     const DH                        &dof_handler,
                      const std::vector<unsigned int> &block_component,
                      const unsigned int               this_mpi_process)
 {
-  locally_owned_dofs =
-    DoFTools::locally_owned_dofs_per_subdomain(dof_handler)[this_mpi_process];
-  locally_relevant_dofs = DoFTools::locally_relevant_dofs_per_subdomain(
-    dof_handler)[this_mpi_process];
+  locally_owned_dofs    = DoFTools::locally_owned_dofs_per_subdomain(dof_handler)[this_mpi_process];
+  locally_relevant_dofs = DoFTools::locally_relevant_dofs_per_subdomain(dof_handler)[this_mpi_process];
 
   const unsigned int                         n_blocks = block_component.size();
   const std::vector<types::global_dof_index> dofs_per_block =
@@ -72,17 +70,11 @@ initialize_indexsets(IndexSet &             locally_owned_dofs,
   for (unsigned int b = 0; b < n_blocks; ++b)
     {
       const types::global_dof_index idx_begin =
-        std::accumulate(dofs_per_block.begin(),
-                        std::next(dofs_per_block.begin(), b),
-                        0);
+        std::accumulate(dofs_per_block.begin(), std::next(dofs_per_block.begin(), b), 0);
       const types::global_dof_index idx_end =
-        std::accumulate(dofs_per_block.begin(),
-                        std::next(dofs_per_block.begin(), b + 1),
-                        0);
-      locally_owned_partitioning.push_back(
-        locally_owned_dofs.get_view(idx_begin, idx_end));
-      locally_relevant_partitioning.push_back(
-        locally_relevant_dofs.get_view(idx_begin, idx_end));
+        std::accumulate(dofs_per_block.begin(), std::next(dofs_per_block.begin(), b + 1), 0);
+      locally_owned_partitioning.push_back(locally_owned_dofs.get_view(idx_begin, idx_end));
+      locally_relevant_partitioning.push_back(locally_relevant_dofs.get_view(idx_begin, idx_end));
     }
 }
 
@@ -91,14 +83,12 @@ template <int dim>
 void
 transfer(const MPI_Comm mpi_communicator)
 {
-  const unsigned int this_mpi_process =
-    Utilities::MPI::this_mpi_process(mpi_communicator);
+  const unsigned int this_mpi_process = Utilities::MPI::this_mpi_process(mpi_communicator);
 
   Triangulation<dim> tria;
   GridGenerator::hyper_cube(tria);
   tria.refine_global(1);
-  GridTools::partition_triangulation(Utilities::MPI::n_mpi_processes(
-                                       mpi_communicator),
+  GridTools::partition_triangulation(Utilities::MPI::n_mpi_processes(mpi_communicator),
                                      tria,
                                      SparsityTools::Partitioner::zoltan);
 
@@ -116,8 +106,7 @@ transfer(const MPI_Comm mpi_communicator)
   DoFRenumbering::component_wise(dof_handler, block_component);
 
   IndexSet              locally_owned_dofs, locally_relevant_dofs;
-  std::vector<IndexSet> locally_owned_partitioning,
-    locally_relevant_partitioning;
+  std::vector<IndexSet> locally_owned_partitioning, locally_relevant_partitioning;
   initialize_indexsets(locally_owned_dofs,
                        locally_relevant_dofs,
                        locally_owned_partitioning,
@@ -132,22 +121,18 @@ transfer(const MPI_Comm mpi_communicator)
     if (locally_owned_dofs.is_element(i))
       solution(i) = i;
 
-  SolutionTransfer<dim, TrilinosWrappers::MPI::BlockVector> soltrans(
-    dof_handler);
+  SolutionTransfer<dim, TrilinosWrappers::MPI::BlockVector> soltrans(dof_handler);
 
 
 
-  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(),
-                                                    endc = tria.end();
+  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
   ++cell;
   ++cell;
   for (; cell != endc; ++cell)
     cell->set_refine_flag();
 
   TrilinosWrappers::MPI::BlockVector old_solution;
-  old_solution.reinit(locally_owned_partitioning,
-                      locally_relevant_partitioning,
-                      mpi_communicator);
+  old_solution.reinit(locally_owned_partitioning, locally_relevant_partitioning, mpi_communicator);
   old_solution = solution;
 
   tria.prepare_coarsening_and_refinement();

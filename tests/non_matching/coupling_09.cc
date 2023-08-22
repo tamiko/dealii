@@ -47,8 +47,7 @@ test()
 {
   static_assert(dim0 >= dim1, "Only dim0>=dim1 is possible");
 
-  deallog << "dim0: " << dim0 << ", dim1: " << dim1
-          << ", spacedim: " << spacedim << std::endl;
+  deallog << "dim0: " << dim0 << ", dim1: " << dim1 << ", spacedim: " << spacedim << std::endl;
 
   Triangulation<dim0, spacedim> tria0;
   Triangulation<dim1, spacedim> tria1;
@@ -99,10 +98,8 @@ test()
           << "FE1                : " << fe1.get_name() << std::endl
           << "Dofs 0             : " << dh0.n_dofs() << std::endl
           << "Dofs 1             : " << dh1.n_dofs() << std::endl
-          << "Constrained dofs 0 : " << constraints0.n_constraints()
-          << std::endl
-          << "Constrained dofs 1 : " << constraints1.n_constraints()
-          << std::endl;
+          << "Constrained dofs 0 : " << constraints0.n_constraints() << std::endl
+          << "Constrained dofs 1 : " << constraints1.n_constraints() << std::endl;
 
   QGauss<dim0> quad0(2); // Quadrature for coupling
   QGauss<dim1> quad1(2); // Quadrature for coupling
@@ -110,32 +107,30 @@ test()
   SparsityPattern sparsity;
   {
     DynamicSparsityPattern dsp(dh0.n_dofs(), dh1.n_dofs());
-    NonMatching::create_coupling_sparsity_pattern(
-      cache0,
-      dh0,
-      dh1,
-      quad1,
-      dsp,
-      constraints0,
-      ComponentMask(),
-      ComponentMask(),
-      StaticMappingQ1<dim1, spacedim>::mapping,
-      constraints1);
+    NonMatching::create_coupling_sparsity_pattern(cache0,
+                                                  dh0,
+                                                  dh1,
+                                                  quad1,
+                                                  dsp,
+                                                  constraints0,
+                                                  ComponentMask(),
+                                                  ComponentMask(),
+                                                  StaticMappingQ1<dim1, spacedim>::mapping,
+                                                  constraints1);
     sparsity.copy_from(dsp);
   }
   SparseMatrix<double> coupling(sparsity);
 
-  NonMatching::create_coupling_mass_matrix(
-    cache0,
-    dh0,
-    dh1,
-    quad1,
-    coupling,
-    constraints0,
-    ComponentMask(),
-    ComponentMask(),
-    StaticMappingQ1<dim1, spacedim>::mapping,
-    constraints1);
+  NonMatching::create_coupling_mass_matrix(cache0,
+                                           dh0,
+                                           dh1,
+                                           quad1,
+                                           coupling,
+                                           constraints0,
+                                           ComponentMask(),
+                                           ComponentMask(),
+                                           StaticMappingQ1<dim1, spacedim>::mapping,
+                                           constraints1);
 
   SparsityPattern mass_sparsity1;
   {
@@ -144,12 +139,8 @@ test()
     mass_sparsity1.copy_from(dsp);
   }
   SparseMatrix<double> mass_matrix1(mass_sparsity1);
-  MatrixTools::create_mass_matrix(dh1,
-                                  quad1,
-                                  mass_matrix1,
-                                  static_cast<const Function<spacedim> *>(
-                                    nullptr),
-                                  constraints1);
+  MatrixTools::create_mass_matrix(
+    dh1, quad1, mass_matrix1, static_cast<const Function<spacedim> *>(nullptr), constraints1);
 
   SparseDirectUMFPACK mass_matrix1_inv;
   mass_matrix1_inv.factorize(mass_matrix1);

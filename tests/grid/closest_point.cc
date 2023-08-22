@@ -4,27 +4,21 @@
 
 template <int dim>
 void
-test(const ReferenceCell &reference_cell,
-     const Point<dim> &   p,
-     const bool           print = true)
+test(const ReferenceCell &reference_cell, const Point<dim> &p, const bool print = true)
 {
   const Point<dim> projected       = reference_cell.closest_point(p);
   const double     distance_square = projected.distance_square(p);
   // its difficult to place points exactly on sloped surfaces (e.g., for
   // pyramids), but we should always be close
-  AssertThrow(reference_cell.contains_point(
-                projected, 2.0 * std::numeric_limits<double>::epsilon()),
+  AssertThrow(reference_cell.contains_point(projected, 2.0 * std::numeric_limits<double>::epsilon()),
               ExcInternalError());
   if (print)
-    deallog << "point = " << p << std::endl
-            << "  d^2 = " << distance_square << std::endl;
+    deallog << "point = " << p << std::endl << "  d^2 = " << distance_square << std::endl;
 
   // The distance we get should be at least as good as the distance to the
   // nearest vertex
   for (const unsigned int vertex_no : reference_cell.vertex_indices())
-    AssertThrow(distance_square <=
-                  p.distance_square(
-                    reference_cell.template vertex<dim>(vertex_no)),
+    AssertThrow(distance_square <= p.distance_square(reference_cell.template vertex<dim>(vertex_no)),
                 ExcInternalError());
 
   // Also generate a lot of points in the unit cell - we should be closer than
@@ -35,11 +29,9 @@ test(const ReferenceCell &reference_cell,
       for (unsigned int i = 0; i < n_points_1d; ++i)
         for (unsigned int j = 0; j < n_points_1d; ++j)
           {
-            const Point<dim> grid_point(i / double(n_points_1d),
-                                        j / double(n_points_1d));
+            const Point<dim> grid_point(i / double(n_points_1d), j / double(n_points_1d));
             if (reference_cell.contains_point(grid_point))
-              AssertThrow(distance_square <= grid_point.distance_square(p),
-                          ExcInternalError());
+              AssertThrow(distance_square <= grid_point.distance_square(p), ExcInternalError());
           }
     }
   else if (dim == 3)
@@ -54,8 +46,7 @@ test(const ReferenceCell &reference_cell,
                                           -1.0 + 2.0 * j / double(n_points_1d),
                                           k / double(n_points_1d));
               if (reference_cell.contains_point(grid_point))
-                AssertThrow(distance_square <= grid_point.distance_square(p),
-                            ExcInternalError());
+                AssertThrow(distance_square <= grid_point.distance_square(p), ExcInternalError());
             }
     }
 }
@@ -75,8 +66,7 @@ main()
       test(reference_cell, Point<1>(1.25));
     }
 
-  for (const auto &reference_cell :
-       {ReferenceCells::Triangle, ReferenceCells::Quadrilateral})
+  for (const auto &reference_cell : {ReferenceCells::Triangle, ReferenceCells::Quadrilateral})
     {
       deallog << "reference cell = " << reference_cell.to_string() << std::endl;
       test(reference_cell, Point<2>(-0.5, 0.5));
@@ -87,15 +77,11 @@ main()
       test(reference_cell, Point<2>(0.25, 0.25));
 
       for (unsigned int i = 0; i < 1e3; ++i)
-        test(reference_cell,
-             Point<2>(random_value(-4.0, 4.0), random_value(-4.0, 4.0)),
-             false);
+        test(reference_cell, Point<2>(random_value(-4.0, 4.0), random_value(-4.0, 4.0)), false);
     }
 
-  for (const auto &reference_cell : {ReferenceCells::Tetrahedron,
-                                     ReferenceCells::Pyramid,
-                                     ReferenceCells::Wedge,
-                                     ReferenceCells::Hexahedron})
+  for (const auto &reference_cell :
+       {ReferenceCells::Tetrahedron, ReferenceCells::Pyramid, ReferenceCells::Wedge, ReferenceCells::Hexahedron})
     {
       deallog << "reference cell = " << reference_cell.to_string() << std::endl;
       test(reference_cell, Point<3>(-0.5, 0.5, 0.5));
@@ -113,9 +99,7 @@ main()
 
       for (unsigned int i = 0; i < 1e3; ++i)
         test(reference_cell,
-             Point<3>(random_value(-4.0, 4.0),
-                      random_value(-4.0, 4.0),
-                      random_value(-4.0, 4.0)),
+             Point<3>(random_value(-4.0, 4.0), random_value(-4.0, 4.0), random_value(-4.0, 4.0)),
              false);
     }
   deallog << "OK!" << std::endl;

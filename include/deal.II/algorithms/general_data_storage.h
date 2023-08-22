@@ -244,9 +244,7 @@ public:
    */
   template <typename Type, typename Arg, typename... Args>
   Type &
-  get_or_add_object_with_name(const std::string &name,
-                              Arg &              argument,
-                              Args &...arguments);
+  get_or_add_object_with_name(const std::string &name, Arg &argument, Args &...arguments);
 
   /**
    * Return a reference to the object with given name. If the object does
@@ -271,9 +269,7 @@ public:
    */
   template <typename Type, typename Arg, typename... Args>
   Type &
-  get_or_add_object_with_name(const std::string &name,
-                              Arg &&             argument,
-                              Args &&...arguments);
+  get_or_add_object_with_name(const std::string &name, Arg &&argument, Args &&...arguments);
 
   /**
    * Return a reference to the object with given name. If the object does
@@ -332,16 +328,12 @@ public:
   /**
    * An entry with this name does not exist in the internal boost::any map.
    */
-  DeclException1(ExcNameNotFound,
-                 std::string,
-                 << "No entry with the name " << arg1 << " exists.");
+  DeclException1(ExcNameNotFound, std::string, << "No entry with the name " << arg1 << " exists.");
 
   /**
    * An entry with this name does not exist in the internal boost::any map.
    */
-  DeclException1(ExcNameHasBeenFound,
-                 std::string,
-                 << "An entry with the name " << arg1 << " already exists.");
+  DeclException1(ExcNameHasBeenFound, std::string, << "An entry with the name " << arg1 << " already exists.");
 
   /**
    * The requested type and the stored type are different.
@@ -350,8 +342,8 @@ public:
                  std::string,
                  const char *,
                  const char *,
-                 << "The stored type for entry with name \"" << arg1 << "\" is "
-                 << arg2 << " but you requested type " << arg3 << '.');
+                 << "The stored type for entry with name \"" << arg1 << "\" is " << arg2 << " but you requested type "
+                 << arg3 << '.');
 
 private:
   /**
@@ -373,8 +365,7 @@ GeneralDataStorage::print_info(Stream &os)
 {
   for (const auto &it : any_data)
     {
-      os << it.first << '\t' << '\t'
-         << boost::core::demangle(it.second.type().name()) << std::endl;
+      os << it.first << '\t' << '\t' << boost::core::demangle(it.second.type().name()) << std::endl;
     }
 }
 
@@ -390,8 +381,7 @@ GeneralDataStorage::add_unique_copy(const std::string &name, const Type &entry)
 
 template <typename Type>
 void
-GeneralDataStorage::add_or_overwrite_copy(const std::string &name,
-                                          const Type &       entry)
+GeneralDataStorage::add_or_overwrite_copy(const std::string &name, const Type &entry)
 {
   any_data[name] = entry;
 }
@@ -408,8 +398,7 @@ GeneralDataStorage::add_unique_reference(const std::string &name, Type &entry)
 
 template <typename Type>
 void
-GeneralDataStorage::add_or_overwrite_reference(const std::string &name,
-                                               Type &             entry)
+GeneralDataStorage::add_or_overwrite_reference(const std::string &name, Type &entry)
 {
   Type *ptr      = &entry;
   any_data[name] = ptr;
@@ -434,10 +423,7 @@ GeneralDataStorage::get_object_with_name(const std::string &name)
     }
   else
     {
-      AssertThrow(false,
-                  ExcTypeMismatch(name,
-                                  any_data[name].type().name(),
-                                  typeid(Type).name()));
+      AssertThrow(false, ExcTypeMismatch(name, any_data[name].type().name(), typeid(Type).name()));
     }
 
   return *p;
@@ -464,10 +450,7 @@ GeneralDataStorage::get_object_with_name(const std::string &name) const
     }
   else
     {
-      AssertThrow(false,
-                  ExcTypeMismatch(name,
-                                  it->second.type().name(),
-                                  typeid(Type).name()));
+      AssertThrow(false, ExcTypeMismatch(name, it->second.type().name(), typeid(Type).name()));
       const Type *p = nullptr;
       return *p;
     }
@@ -477,8 +460,7 @@ GeneralDataStorage::get_object_with_name(const std::string &name) const
 
 template <typename Type, typename Arg>
 Type &
-GeneralDataStorage::get_or_add_object_with_name(const std::string &name,
-                                                Arg &              argument)
+GeneralDataStorage::get_or_add_object_with_name(const std::string &name, Arg &argument)
 {
   if (!stores_object_with_name(name))
     add_unique_copy(name, Type(argument));
@@ -490,9 +472,7 @@ GeneralDataStorage::get_or_add_object_with_name(const std::string &name,
 
 template <typename Type, typename Arg, typename... Args>
 Type &
-GeneralDataStorage::get_or_add_object_with_name(const std::string &name,
-                                                Arg &              argument,
-                                                Args &...arguments)
+GeneralDataStorage::get_or_add_object_with_name(const std::string &name, Arg &argument, Args &...arguments)
 {
   if (!stores_object_with_name(name))
     add_unique_copy(name, Type(argument, arguments...));
@@ -504,8 +484,7 @@ GeneralDataStorage::get_or_add_object_with_name(const std::string &name,
 
 template <typename Type, typename Arg>
 Type &
-GeneralDataStorage::get_or_add_object_with_name(const std::string &name,
-                                                Arg &&             argument)
+GeneralDataStorage::get_or_add_object_with_name(const std::string &name, Arg &&argument)
 {
   if (!stores_object_with_name(name))
     add_unique_copy(name, Type(std::forward<Arg>(argument)));
@@ -517,14 +496,10 @@ GeneralDataStorage::get_or_add_object_with_name(const std::string &name,
 
 template <typename Type, typename Arg, typename... Args>
 Type &
-GeneralDataStorage::get_or_add_object_with_name(const std::string &name,
-                                                Arg &&             argument,
-                                                Args &&...arguments)
+GeneralDataStorage::get_or_add_object_with_name(const std::string &name, Arg &&argument, Args &&...arguments)
 {
   if (!stores_object_with_name(name))
-    add_unique_copy(name,
-                    Type(std::forward<Arg>(argument),
-                         std::forward<Args>(arguments)...));
+    add_unique_copy(name, Type(std::forward<Arg>(argument), std::forward<Args>(arguments)...));
 
   return get_object_with_name<Type>(name);
 }

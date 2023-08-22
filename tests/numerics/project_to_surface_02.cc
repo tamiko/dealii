@@ -81,24 +81,18 @@ create_triangulation(const bool rotate, Triangulation<dim> &tria)
 
 template <int dim>
 typename Triangulation<dim>::quad_iterator
-get_quad_iterator(const typename Triangulation<dim>::active_cell_iterator &cell,
-                  const unsigned int quad);
+get_quad_iterator(const typename Triangulation<dim>::active_cell_iterator &cell, const unsigned int quad);
 
 template <>
 typename Triangulation<2>::quad_iterator
-get_quad_iterator<2>(
-  const typename Triangulation<2>::active_cell_iterator &cell,
-  const unsigned int /*quad*/)
+get_quad_iterator<2>(const typename Triangulation<2>::active_cell_iterator &cell, const unsigned int /*quad*/)
 {
-  return *reinterpret_cast<const typename Triangulation<2>::quad_iterator *>(
-    &cell);
+  return *reinterpret_cast<const typename Triangulation<2>::quad_iterator *>(&cell);
 }
 
 template <>
 typename Triangulation<3>::quad_iterator
-get_quad_iterator<3>(
-  const typename Triangulation<3>::active_cell_iterator &cell,
-  const unsigned int                                     quad)
+get_quad_iterator<3>(const typename Triangulation<3>::active_cell_iterator &cell, const unsigned int quad)
 {
   return cell->quad(quad);
 }
@@ -117,16 +111,14 @@ test()
       deallog << "  Case " << case_no << std::endl;
       create_triangulation((case_no == 1), tria);
 
-      const typename Triangulation<dim>::active_cell_iterator cell =
-        tria.begin_active();
-      Point<dim> trial_point;
+      const typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active();
+      Point<dim>                                              trial_point;
       for (unsigned int i = 0; i < dim; ++i)
         trial_point[i] = 1.5;
 
       for (unsigned int e = 0; e < GeometryInfo<dim>::quads_per_cell; ++e)
         {
-          const typename Triangulation<dim>::quad_iterator quad =
-            get_quad_iterator<dim>(cell, e);
+          const typename Triangulation<dim>::quad_iterator quad = get_quad_iterator<dim>(cell, e);
 
           deallog << "    Quad " << e << ", projected point=";
 
@@ -147,9 +139,7 @@ test()
           // trial_point than any of
           // the vertices of the quad
           for (unsigned int v = 0; v < 4; ++v)
-            AssertThrow(p.distance(trial_point) <=
-                          quad->vertex(v).distance(trial_point),
-                        ExcInternalError());
+            AssertThrow(p.distance(trial_point) <= quad->vertex(v).distance(trial_point), ExcInternalError());
         }
       tria.clear();
     }

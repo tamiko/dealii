@@ -55,8 +55,7 @@ test()
   FE_Q<dim, spacedim>      fe(1);
   FE_Q<spacedim, spacedim> space_fe(1);
 
-  deallog << "FE      : " << fe.get_name() << std::endl
-          << "Space FE: " << space_fe.get_name() << std::endl;
+  deallog << "FE      : " << fe.get_name() << std::endl << "Space FE: " << space_fe.get_name() << std::endl;
 
   DoFHandler<dim, spacedim>      dh(tria);
   DoFHandler<spacedim, spacedim> space_dh(space_tria);
@@ -64,8 +63,7 @@ test()
   dh.distribute_dofs(fe);
   space_dh.distribute_dofs(space_fe);
 
-  deallog << "Dofs      : " << dh.n_dofs() << std::endl
-          << "Space dofs: " << space_dh.n_dofs() << std::endl;
+  deallog << "Dofs      : " << dh.n_dofs() << std::endl << "Space dofs: " << space_dh.n_dofs() << std::endl;
 
   QGauss<dim> quad(3); // Quadrature for coupling
 

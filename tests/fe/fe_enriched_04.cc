@@ -71,8 +71,7 @@ public:
   gradient(const Point<dim> &point, const unsigned int component = 0) const
   {
     Tensor<1, dim> res = point;
-    Assert(point.norm() > 0,
-           dealii::ExcMessage("gradient is not defined at zero"));
+    Assert(point.norm() > 0, dealii::ExcMessage("gradient is not defined at zero"));
     res *= -value(point) / point.norm();
     return res;
   }
@@ -84,8 +83,7 @@ void
 test3()
 {
   deallog << "FEValues.get_function_values()" << std::endl;
-  deallog << "for same underlying FEs: f(qp) * N_{fe}(qp) == N_{pou}(qp)"
-          << std::endl;
+  deallog << "for same underlying FEs: f(qp) * N_{fe}(qp) == N_{pou}(qp)" << std::endl;
   Triangulation<dim> triangulation;
   DoFHandler<dim>    dof_handler(triangulation);
 
@@ -96,12 +94,9 @@ test3()
   dof_handler.distribute_dofs(fe);
 
   QGauss<dim>   quadrature(2);
-  FEValues<dim> fe_values(fe,
-                          quadrature,
-                          update_values | update_gradients | update_JxW_values);
+  FEValues<dim> fe_values(fe, quadrature, update_values | update_gradients | update_JxW_values);
 
-  Vector<double> solution_fe(dof_handler.n_dofs()),
-    solution_pou(dof_handler.n_dofs()), solution(dof_handler.n_dofs());
+  Vector<double> solution_fe(dof_handler.n_dofs()), solution_pou(dof_handler.n_dofs()), solution(dof_handler.n_dofs());
   solution_fe  = 0;
   solution_pou = 0;
 
@@ -114,27 +109,21 @@ test3()
 
   const unsigned int n_q_points = quadrature.size();
 
-  std::vector<double> solution_values_fe(n_q_points),
-    solution_values_pou(n_q_points), solution_values(n_q_points);
-  typename DoFHandler<dim>::active_cell_iterator cell =
-                                                   dof_handler.begin_active(),
-                                                 endc = dof_handler.end();
+  std::vector<double> solution_values_fe(n_q_points), solution_values_pou(n_q_points), solution_values(n_q_points);
+  typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
   for (; cell != endc; ++cell)
     {
       fe_values.reinit(cell);
 
       const unsigned int                     dofs_per_cell = fe.dofs_per_cell;
-      const std::vector<dealii::Point<dim>> &q_points =
-        fe_values.get_quadrature_points();
+      const std::vector<dealii::Point<dim>> &q_points      = fe_values.get_quadrature_points();
       fe_values.get_function_values(solution_fe, solution_values_fe);
       fe_values.get_function_values(solution_pou, solution_values_pou);
       fe_values.get_function_values(solution, solution_values);
 
       for (const auto q_point : fe_values.quadrature_point_indices())
-        deallog << " qp=" << q_points[q_point]
-                << " f(qp)=" << function.value(q_points[q_point])
-                << " U_fe(qp)=" << solution_values_fe[q_point]
-                << " U_pou(qp)=" << solution_values_pou[q_point]
+        deallog << " qp=" << q_points[q_point] << " f(qp)=" << function.value(q_points[q_point])
+                << " U_fe(qp)=" << solution_values_fe[q_point] << " U_pou(qp)=" << solution_values_pou[q_point]
                 << " U_[fe+pou](qp)=" << solution_values[q_point] << std::endl;
     }
   dof_handler.clear();
@@ -182,8 +171,7 @@ plot_shape_function()
 
   data_out.build_patches(patches);
 
-  std::string filename =
-    "shape_functions_" + dealii::Utilities::int_to_string(dim) + "D.vtu";
+  std::string   filename = "shape_functions_" + dealii::Utilities::int_to_string(dim) + "D.vtu";
   std::ofstream output(filename);
   data_out.write_vtu(output);
 
@@ -209,28 +197,20 @@ main(int argc, char **argv)
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

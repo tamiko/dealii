@@ -66,11 +66,10 @@ private:
   {}
 
   void
-  local_apply_face(
-    const MatrixFree<dim, number> &data,
-    Vector<number> &,
-    const Vector<number> &                       src,
-    const std::pair<unsigned int, unsigned int> &face_range) const
+  local_apply_face(const MatrixFree<dim, number> &data,
+                   Vector<number> &,
+                   const Vector<number>                        &src,
+                   const std::pair<unsigned int, unsigned int> &face_range) const
   {
     FEFaceEvaluation<dim, -1, 0, 1, number> ref(data, true);
     FEFaceEvaluation<dim, -1, 0, 1, number> check(data, true);
@@ -86,28 +85,22 @@ private:
 
         for (unsigned int q = 0; q < ref.n_q_points; ++q)
           {
-            VectorizedArray<number> diff =
-              (ref.get_value(q) - check.get_value(q));
+            VectorizedArray<number> diff = (ref.get_value(q) - check.get_value(q));
             for (unsigned int v = 0; v < VectorizedArray<number>::size(); ++v)
               {
                 if (std::abs(diff[v]) > 1e-12)
                   {
-                    deallog << "Error detected on face" << face << ", v=" << v
-                            << '!' << std::endl;
+                    deallog << "Error detected on face" << face << ", v=" << v << '!' << std::endl;
                     deallog << "ref: ";
                     for (unsigned int i = 0; i < ref.dofs_per_cell; ++i)
                       deallog << ref.get_dof_value(i)[v] << ' ';
                     deallog << std::endl;
-                    deallog << "done: " << check.get_value(q)[v]
-                            << " instead of " << ref.get_value(q)[v]
-                            << std::endl;
+                    deallog << "done: " << check.get_value(q)[v] << " instead of " << ref.get_value(q)[v] << std::endl;
 
-                    deallog
-                      << data.get_face_info(face).cells_interior[v] << ' '
-                      << (int)data.get_face_info(face).interior_face_no << ' '
-                      << (int)data.get_face_info(face).face_orientation << ' '
-                      << (int)data.get_face_info(face).subface_index
-                      << std::endl;
+                    deallog << data.get_face_info(face).cells_interior[v] << ' '
+                            << (int)data.get_face_info(face).interior_face_no << ' '
+                            << (int)data.get_face_info(face).face_orientation << ' '
+                            << (int)data.get_face_info(face).subface_index << std::endl;
                     deallog << std::endl;
                   }
                 error[0] += std::abs(diff[v]);
@@ -116,14 +109,10 @@ private:
           }
       }
 
-    FEFaceEvaluation<dim, fe_degree, fe_degree + 1, 1, number> refr(data,
-                                                                    false);
-    FEFaceEvaluation<dim, fe_degree, fe_degree + 1, 1, number> checkr(data,
-                                                                      false);
+    FEFaceEvaluation<dim, fe_degree, fe_degree + 1, 1, number> refr(data, false);
+    FEFaceEvaluation<dim, fe_degree, fe_degree + 1, 1, number> checkr(data, false);
 
-    for (unsigned int face = face_range.first;
-         face < std::min(data.n_inner_face_batches(), face_range.second);
-         face++)
+    for (unsigned int face = face_range.first; face < std::min(data.n_inner_face_batches(), face_range.second); face++)
       {
         refr.reinit(face);
         checkr.reinit(face);
@@ -134,28 +123,22 @@ private:
 
         for (unsigned int q = 0; q < ref.n_q_points; ++q)
           {
-            VectorizedArray<number> diff =
-              (refr.get_value(q) - checkr.get_value(q));
+            VectorizedArray<number> diff = (refr.get_value(q) - checkr.get_value(q));
             for (unsigned int v = 0; v < VectorizedArray<number>::size(); ++v)
               {
                 if (std::abs(diff[v]) > 1e-12)
                   {
-                    deallog << "Error detected on face" << face << ", v=" << v
-                            << '!' << std::endl;
+                    deallog << "Error detected on face" << face << ", v=" << v << '!' << std::endl;
                     deallog << "ref: ";
                     for (unsigned int i = 0; i < ref.dofs_per_cell; ++i)
                       deallog << refr.get_dof_value(i)[v] << ' ';
                     deallog << std::endl;
-                    deallog << "done: " << check.get_value(q)[v]
-                            << " instead of " << ref.get_value(q)[v]
-                            << std::endl;
+                    deallog << "done: " << check.get_value(q)[v] << " instead of " << ref.get_value(q)[v] << std::endl;
 
-                    deallog
-                      << data.get_face_info(face).cells_exterior[v] << ' '
-                      << (int)data.get_face_info(face).exterior_face_no << ' '
-                      << (int)data.get_face_info(face).face_orientation << ' '
-                      << (int)data.get_face_info(face).subface_index
-                      << std::endl;
+                    deallog << data.get_face_info(face).cells_exterior[v] << ' '
+                            << (int)data.get_face_info(face).exterior_face_no << ' '
+                            << (int)data.get_face_info(face).face_orientation << ' '
+                            << (int)data.get_face_info(face).subface_index << std::endl;
                     deallog << std::endl;
                   }
                 error[0] += std::abs(diff[v]);
@@ -214,12 +197,10 @@ test()
   {
     const QGauss<1>                                  quad(fe_degree + 1);
     typename MatrixFree<dim, number>::AdditionalData data;
-    data.tasks_parallel_scheme = MatrixFree<dim, number>::AdditionalData::none;
-    data.tasks_block_size      = 3;
-    data.mapping_update_flags_inner_faces =
-      (update_gradients | update_JxW_values);
-    data.mapping_update_flags_boundary_faces =
-      (update_gradients | update_JxW_values);
+    data.tasks_parallel_scheme               = MatrixFree<dim, number>::AdditionalData::none;
+    data.tasks_block_size                    = 3;
+    data.mapping_update_flags_inner_faces    = (update_gradients | update_JxW_values);
+    data.mapping_update_flags_boundary_faces = (update_gradients | update_JxW_values);
 
     mf_data.reinit(MappingQ1<dim>{}, dof, constraints, quad, data);
   }

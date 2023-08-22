@@ -62,9 +62,7 @@ test()
   // FE_Nothing, while outside the
   // circle to be of type FE_Q(1)
 
-  typename DoFHandler<dim>::active_cell_iterator cell =
-                                                   dof_handler.begin_active(),
-                                                 endc = dof_handler.end();
+  typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
 
   for (; cell != endc; ++cell)
     {
@@ -77,10 +75,8 @@ test()
 
   dof_handler.distribute_dofs(fe_collection);
 
-  deallog << "   Number of active cells:       "
-          << triangulation.n_active_cells() << std::endl
-          << "   Number of degrees of freedom: " << dof_handler.n_dofs()
-          << std::endl;
+  deallog << "   Number of active cells:       " << triangulation.n_active_cells() << std::endl
+          << "   Number of degrees of freedom: " << dof_handler.n_dofs() << std::endl;
 
 
 
@@ -92,8 +88,7 @@ test()
 
   constraints.close();
 
-  deallog << "   Number of constraints:        " << constraints.n_constraints()
-          << std::endl;
+  deallog << "   Number of constraints:        " << constraints.n_constraints() << std::endl;
 }
 
 

@@ -53,22 +53,13 @@ test()
   local_owned.add_range(my_start, my_start + local_size);
   IndexSet local_relevant_1(global_size), local_relevant_2(global_size);
   local_relevant_1                          = local_owned;
-  types::global_dof_index ghost_indices[10] = {1,
-                                               2,
-                                               13,
-                                               set - 2,
-                                               set - 1,
-                                               set,
-                                               set + 1,
-                                               2 * set,
-                                               2 * set + 1,
-                                               2 * set + 3};
+  types::global_dof_index ghost_indices[10] = {
+    1, 2, 13, set - 2, set - 1, set, set + 1, 2 * set, 2 * set + 1, 2 * set + 3};
   local_relevant_1.add_indices(&ghost_indices[0], ghost_indices + 10);
   if (myid > 0)
     local_relevant_1.add_range(my_start - 10, my_start);
   if (myid < numproc - 1)
-    local_relevant_1.add_range(my_start + local_size,
-                               my_start + local_size + 10);
+    local_relevant_1.add_range(my_start + local_size, my_start + local_size + 10);
 
   local_relevant_2 = local_owned;
   local_relevant_2.add_indices(&ghost_indices[0], ghost_indices + 10);
@@ -100,11 +91,8 @@ test()
   std::vector<MPI_Request>  requests;
 
   // send the full array
-  v.export_to_ghosted_array_start(3,
-                                  make_array_view(locally_owned_data),
-                                  make_array_view(temp_array),
-                                  make_array_view(ghosts),
-                                  requests);
+  v.export_to_ghosted_array_start(
+    3, make_array_view(locally_owned_data), make_array_view(temp_array), make_array_view(ghosts), requests);
   v.export_to_ghosted_array_finish(make_array_view(ghosts), requests);
   deallog << "All ghosts: ";
   for (unsigned int i = 0; i < ghosts.size(); ++i)
@@ -115,11 +103,8 @@ test()
   std::fill(ghosts.begin(), ghosts.end(), 0);
 
   temp_array.resize(w.n_import_indices());
-  w.export_to_ghosted_array_start(3,
-                                  make_array_view(locally_owned_data),
-                                  make_array_view(temp_array),
-                                  make_array_view(ghosts),
-                                  requests);
+  w.export_to_ghosted_array_start(
+    3, make_array_view(locally_owned_data), make_array_view(temp_array), make_array_view(ghosts), requests);
 
   // start a second send operation for the x partitioner in parallel to make
   // sure communication does not get messed up
@@ -127,11 +112,8 @@ test()
   std::vector<unsigned int> ghosts2(x.n_ghost_indices());
 
   std::vector<MPI_Request> requests2;
-  x.export_to_ghosted_array_start(4,
-                                  make_array_view(locally_owned_data),
-                                  make_array_view(temp_array2),
-                                  make_array_view(ghosts2),
-                                  requests2);
+  x.export_to_ghosted_array_start(
+    4, make_array_view(locally_owned_data), make_array_view(temp_array2), make_array_view(ghosts2), requests2);
 
   w.export_to_ghosted_array_finish(make_array_view(ghosts), requests);
   deallog << "Ghosts on reduced 1: ";
@@ -142,11 +124,8 @@ test()
   std::fill(ghosts.begin(), ghosts.end(), 0);
 
   temp_array.resize(x.n_import_indices());
-  x.export_to_ghosted_array_start(3,
-                                  make_array_view(locally_owned_data),
-                                  make_array_view(temp_array),
-                                  make_array_view(ghosts),
-                                  requests);
+  x.export_to_ghosted_array_start(
+    3, make_array_view(locally_owned_data), make_array_view(temp_array), make_array_view(ghosts), requests);
   x.export_to_ghosted_array_finish(make_array_view(ghosts), requests);
   deallog << "Ghosts on reduced 2: ";
   for (unsigned int i = 0; i < ghosts.size(); ++i)
@@ -159,11 +138,8 @@ test()
     deallog << ghosts2[i] << ' ';
   deallog << std::endl;
 
-  x.export_to_ghosted_array_start(3,
-                                  make_array_view(locally_owned_data),
-                                  make_array_view(temp_array),
-                                  make_array_view(ghosts),
-                                  requests);
+  x.export_to_ghosted_array_start(
+    3, make_array_view(locally_owned_data), make_array_view(temp_array), make_array_view(ghosts), requests);
   x.export_to_ghosted_array_finish(make_array_view(ghosts), requests);
   deallog << "Ghosts on reduced 2: ";
   for (unsigned int i = 0; i < ghosts.size(); ++i)

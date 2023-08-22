@@ -69,13 +69,11 @@ test()
     {
       const QGauss<1>                                  quad(fe_degree + 1);
       typename MatrixFree<dim, double>::AdditionalData data;
-      data.tasks_parallel_scheme =
-        MatrixFree<dim, double>::AdditionalData::none;
+      data.tasks_parallel_scheme = MatrixFree<dim, double>::AdditionalData::none;
       mf_data.reinit(MappingQ1<dim>{}, dof, constraints, quad, data);
     }
 
-    MatrixFreeTest<dim, fe_degree, double, Vector<double>, fe_degree + 1> mf(
-      mf_data);
+    MatrixFreeTest<dim, fe_degree, double, Vector<double>, fe_degree + 1> mf(mf_data);
     mf.vmult(ref, in);
   }
 
@@ -84,14 +82,11 @@ test()
   MatrixFree<dim, double> mf_data;
 
   {
-    mf_data.reinit(
-      MappingQ1<dim>{}, dof, constraints, QGauss<1>(fe_degree + 2), data);
-    MatrixFreeTest<dim, fe_degree, double, Vector<double>, fe_degree + 2> mf(
-      mf_data);
+    mf_data.reinit(MappingQ1<dim>{}, dof, constraints, QGauss<1>(fe_degree + 2), data);
+    MatrixFreeTest<dim, fe_degree, double, Vector<double>, fe_degree + 2> mf(mf_data);
     mf.vmult(out, in);
     out -= ref;
-    deallog << "Error with " << fe_degree + 2 << '^' << dim
-            << " quadrature points: " << out.l2_norm() << std::endl;
+    deallog << "Error with " << fe_degree + 2 << '^' << dim << " quadrature points: " << out.l2_norm() << std::endl;
   }
 
   // unfortunately we cannot use for loops due to the template, so duplicate
@@ -101,32 +96,28 @@ test()
     MatrixFreeTest<dim, fe_degree, double, Vector<double>, 100> mf(mf_data);
     mf.vmult(out, in);
     out -= ref;
-    deallog << "Error with " << 100 << '^' << dim
-            << " quadrature points: " << out.l2_norm() << std::endl;
+    deallog << "Error with " << 100 << '^' << dim << " quadrature points: " << out.l2_norm() << std::endl;
   }
   {
     mf_data.reinit(MappingQ1<dim>{}, dof, constraints, QGauss<1>(200), data);
     MatrixFreeTest<dim, fe_degree, double, Vector<double>, 200> mf(mf_data);
     mf.vmult(out, in);
     out -= ref;
-    deallog << "Error with " << 200 << '^' << dim
-            << " quadrature points: " << out.l2_norm() << std::endl;
+    deallog << "Error with " << 200 << '^' << dim << " quadrature points: " << out.l2_norm() << std::endl;
   }
   {
     mf_data.reinit(MappingQ1<dim>{}, dof, constraints, QGauss<1>(500), data);
     MatrixFreeTest<dim, fe_degree, double, Vector<double>, 500> mf(mf_data);
     mf.vmult(out, in);
     out -= ref;
-    deallog << "Error with " << 500 << '^' << dim
-            << " quadrature points: " << out.l2_norm() << std::endl;
+    deallog << "Error with " << 500 << '^' << dim << " quadrature points: " << out.l2_norm() << std::endl;
   }
   {
     mf_data.reinit(MappingQ1<dim>{}, dof, constraints, QGauss<1>(1000), data);
     MatrixFreeTest<dim, fe_degree, double, Vector<double>, 1000> mf(mf_data);
     mf.vmult(out, in);
     out -= ref;
-    deallog << "Error with " << 1000 << '^' << dim
-            << " quadrature points: " << out.l2_norm() << std::endl;
+    deallog << "Error with " << 1000 << '^' << dim << " quadrature points: " << out.l2_norm() << std::endl;
   }
 }
 

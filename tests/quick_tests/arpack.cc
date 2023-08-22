@@ -61,9 +61,7 @@ test()
   deallog << "Number of dofs = " << dof_handler.n_dofs() << std::endl;
 
   SparsityPattern sparsity_pattern;
-  sparsity_pattern.reinit(dof_handler.n_dofs(),
-                          dof_handler.n_dofs(),
-                          dof_handler.max_couplings_between_dofs());
+  sparsity_pattern.reinit(dof_handler.n_dofs(), dof_handler.n_dofs(), dof_handler.max_couplings_between_dofs());
   DoFTools::make_sparsity_pattern(dof_handler, sparsity_pattern);
   sparsity_pattern.compress();
 
@@ -71,8 +69,7 @@ test()
   A.reinit(sparsity_pattern);
   B.reinit(sparsity_pattern);
 
-  std::vector<Vector<double>> eigenvectors(
-    n_eigenvalues, Vector<double>(dof_handler.n_dofs()));
+  std::vector<Vector<double>>       eigenvectors(n_eigenvalues, Vector<double>(dof_handler.n_dofs()));
   std::vector<std::complex<double>> eigenvalues(n_eigenvalues);
 
   QGauss<dim> qr(2);
@@ -83,12 +80,9 @@ test()
   SparseDirectUMFPACK inverse;
   inverse.initialize(A);
   const unsigned int           num_arnoldi_vectors = 2 * eigenvalues.size() + 2;
-  ArpackSolver::AdditionalData additional_data(num_arnoldi_vectors,
-                                               ArpackSolver::largest_magnitude,
-                                               true);
+  ArpackSolver::AdditionalData additional_data(num_arnoldi_vectors, ArpackSolver::largest_magnitude, true);
   ArpackSolver                 eigensolver(solver_control, additional_data);
-  eigensolver.solve(
-    A, B, inverse, eigenvalues, eigenvectors, eigenvalues.size());
+  eigensolver.solve(A, B, inverse, eigenvalues, eigenvectors, eigenvalues.size());
 
   {
     const double   precision = 1e-7;
@@ -99,15 +93,13 @@ test()
 
         for (unsigned int j = 0; j < eigenvectors.size(); ++j)
           Assert(std::abs(eigenvectors[j] * Bx - (i == j)) < precision,
-                 ExcMessage("Eigenvectors " + Utilities::int_to_string(i) +
-                            " and " + Utilities::int_to_string(j) +
+                 ExcMessage("Eigenvectors " + Utilities::int_to_string(i) + " and " + Utilities::int_to_string(j) +
                             " are not orthonormal!"));
 
         A.vmult(Ax, eigenvectors[i]);
         Ax.add(-1.0 * std::real(eigenvalues[i]), Bx);
         Assert(Ax.l2_norm() < precision,
-               ExcMessage("Returned vector " + Utilities::int_to_string(i) +
-                          " is not an eigenvector!"));
+               ExcMessage("Returned vector " + Utilities::int_to_string(i) + " is not an eigenvector!"));
       }
   }
 }

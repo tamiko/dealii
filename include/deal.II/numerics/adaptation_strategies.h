@@ -64,9 +64,7 @@ namespace AdaptationStrategies
      */
     template <int dim, int spacedim, typename value_type>
     std::vector<value_type>
-    preserve(const typename dealii::Triangulation<dim, spacedim>::cell_iterator
-               &              parent,
-             const value_type parent_value);
+    preserve(const typename dealii::Triangulation<dim, spacedim>::cell_iterator &parent, const value_type parent_value);
 
     /**
      * Return a vector which contains data of the parent cell being equally
@@ -83,9 +81,7 @@ namespace AdaptationStrategies
      */
     template <int dim, int spacedim, typename value_type>
     std::vector<value_type>
-    split(const typename dealii::Triangulation<dim, spacedim>::cell_iterator
-            &              parent,
-          const value_type parent_value);
+    split(const typename dealii::Triangulation<dim, spacedim>::cell_iterator &parent, const value_type parent_value);
 
     /**
      * Return a vector which contains squared data of the parent cell being
@@ -102,9 +98,7 @@ namespace AdaptationStrategies
      */
     template <int dim, int spacedim, typename value_type>
     std::vector<value_type>
-    l2_norm(const typename dealii::Triangulation<dim, spacedim>::cell_iterator
-              &              parent,
-            const value_type parent_value);
+    l2_norm(const typename dealii::Triangulation<dim, spacedim>::cell_iterator &parent, const value_type parent_value);
   } // namespace Refinement
 
   /**
@@ -128,10 +122,8 @@ namespace AdaptationStrategies
      */
     template <int dim, int spacedim, typename value_type>
     value_type
-    check_equality(
-      const typename dealii::Triangulation<dim, spacedim>::cell_iterator
-        &                            parent,
-      const std::vector<value_type> &children_values);
+    check_equality(const typename dealii::Triangulation<dim, spacedim>::cell_iterator &parent,
+                   const std::vector<value_type>                                      &children_values);
 
     /**
      * Return sum of data on all children.
@@ -147,9 +139,8 @@ namespace AdaptationStrategies
      */
     template <int dim, int spacedim, typename value_type>
     value_type
-    sum(const typename dealii::Triangulation<dim, spacedim>::cell_iterator
-          &                            parent,
-        const std::vector<value_type> &children_values);
+    sum(const typename dealii::Triangulation<dim, spacedim>::cell_iterator &parent,
+        const std::vector<value_type>                                      &children_values);
 
     /**
      * Return $ l_2 $-norm of data on all children.
@@ -165,9 +156,8 @@ namespace AdaptationStrategies
      */
     template <int dim, int spacedim, typename value_type>
     value_type
-    l2_norm(const typename dealii::Triangulation<dim, spacedim>::cell_iterator
-              &                            parent,
-            const std::vector<value_type> &children_values);
+    l2_norm(const typename dealii::Triangulation<dim, spacedim>::cell_iterator &parent,
+            const std::vector<value_type>                                      &children_values);
 
     /**
      * Return mean value of data on all children.
@@ -180,9 +170,8 @@ namespace AdaptationStrategies
      */
     template <int dim, int spacedim, typename value_type>
     value_type
-    mean(const typename dealii::Triangulation<dim, spacedim>::cell_iterator
-           &                            parent,
-         const std::vector<value_type> &children_values);
+    mean(const typename dealii::Triangulation<dim, spacedim>::cell_iterator &parent,
+         const std::vector<value_type>                                      &children_values);
 
     /**
      * Return maximum value of data on all children.
@@ -195,9 +184,8 @@ namespace AdaptationStrategies
      */
     template <int dim, int spacedim, typename value_type>
     value_type
-    max(const typename dealii::Triangulation<dim, spacedim>::cell_iterator
-          &                            parent,
-        const std::vector<value_type> &children_values);
+    max(const typename dealii::Triangulation<dim, spacedim>::cell_iterator &parent,
+        const std::vector<value_type>                                      &children_values);
   } // namespace Coarsening
 } // namespace AdaptationStrategies
 
@@ -213,9 +201,7 @@ namespace AdaptationStrategies
   {
     template <int dim, int spacedim, typename value_type>
     std::vector<value_type>
-    preserve(const typename dealii::Triangulation<dim, spacedim>::cell_iterator
-               &              parent,
-             const value_type parent_value)
+    preserve(const typename dealii::Triangulation<dim, spacedim>::cell_iterator &parent, const value_type parent_value)
     {
       Assert(parent->n_children() > 0, ExcInternalError());
       return std::vector<value_type>(parent->n_children(), parent_value);
@@ -225,37 +211,28 @@ namespace AdaptationStrategies
 
     template <int dim, int spacedim, typename value_type>
     std::vector<value_type>
-    split(const typename dealii::Triangulation<dim, spacedim>::cell_iterator
-            &              parent,
-          const value_type parent_value)
+    split(const typename dealii::Triangulation<dim, spacedim>::cell_iterator &parent, const value_type parent_value)
     {
-      static_assert(std::is_arithmetic_v<value_type> &&
-                      !std::is_same_v<value_type, bool>,
+      static_assert(std::is_arithmetic_v<value_type> && !std::is_same_v<value_type, bool>,
                     "The provided value_type may not meet the requirements "
                     "of this function.");
 
       Assert(parent->n_children() > 0, ExcInternalError());
-      return std::vector<value_type>(parent->n_children(),
-                                     parent_value / parent->n_children());
+      return std::vector<value_type>(parent->n_children(), parent_value / parent->n_children());
     }
 
 
 
     template <int dim, int spacedim, typename value_type>
     std::vector<value_type>
-    l2_norm(const typename dealii::Triangulation<dim, spacedim>::cell_iterator
-              &              parent,
-            const value_type parent_value)
+    l2_norm(const typename dealii::Triangulation<dim, spacedim>::cell_iterator &parent, const value_type parent_value)
     {
-      static_assert(std::is_arithmetic_v<value_type> &&
-                      !std::is_same_v<value_type, bool>,
+      static_assert(std::is_arithmetic_v<value_type> && !std::is_same_v<value_type, bool>,
                     "The provided value_type may not meet the requirements "
                     "of this function.");
 
       Assert(parent->n_children() > 0, ExcInternalError());
-      return std::vector<value_type>(parent->n_children(),
-                                     parent_value /
-                                       std::sqrt(parent->n_children()));
+      return std::vector<value_type>(parent->n_children(), parent_value / std::sqrt(parent->n_children()));
     }
   } // namespace Refinement
 
@@ -265,19 +242,14 @@ namespace AdaptationStrategies
   {
     template <int dim, int spacedim, typename value_type>
     value_type
-    check_equality(
-      const typename dealii::Triangulation<dim, spacedim>::cell_iterator &,
-      const std::vector<value_type> &children_values)
+    check_equality(const typename dealii::Triangulation<dim, spacedim>::cell_iterator &,
+                   const std::vector<value_type> &children_values)
     {
       Assert(!children_values.empty(), ExcInternalError());
 
       const auto first_child = children_values.cbegin();
-      for (auto other_child = first_child + 1;
-           other_child != children_values.cend();
-           ++other_child)
-        Assert(*first_child == *other_child,
-               ExcMessage(
-                 "Values on cells that will be coarsened are not equal!"));
+      for (auto other_child = first_child + 1; other_child != children_values.cend(); ++other_child)
+        Assert(*first_child == *other_child, ExcMessage("Values on cells that will be coarsened are not equal!"));
 
       return *first_child;
     }
@@ -289,47 +261,38 @@ namespace AdaptationStrategies
     sum(const typename dealii::Triangulation<dim, spacedim>::cell_iterator &,
         const std::vector<value_type> &children_values)
     {
-      static_assert(std::is_arithmetic_v<value_type> &&
-                      !std::is_same_v<value_type, bool>,
+      static_assert(std::is_arithmetic_v<value_type> && !std::is_same_v<value_type, bool>,
                     "The provided value_type may not meet the requirements "
                     "of this function.");
 
       Assert(!children_values.empty(), ExcInternalError());
-      return std::accumulate(children_values.cbegin(),
-                             children_values.cend(),
-                             static_cast<value_type>(0));
+      return std::accumulate(children_values.cbegin(), children_values.cend(), static_cast<value_type>(0));
     }
 
 
 
     template <int dim, int spacedim, typename value_type>
     value_type
-    l2_norm(
-      const typename dealii::Triangulation<dim, spacedim>::cell_iterator &,
-      const std::vector<value_type> &children_values)
+    l2_norm(const typename dealii::Triangulation<dim, spacedim>::cell_iterator &,
+            const std::vector<value_type> &children_values)
     {
-      static_assert(std::is_arithmetic_v<value_type> &&
-                      !std::is_same_v<value_type, bool>,
+      static_assert(std::is_arithmetic_v<value_type> && !std::is_same_v<value_type, bool>,
                     "The provided value_type may not meet the requirements "
                     "of this function.");
 
       Assert(!children_values.empty(), ExcInternalError());
-      return std::sqrt(std::inner_product(children_values.cbegin(),
-                                          children_values.cend(),
-                                          children_values.cbegin(),
-                                          static_cast<value_type>(0)));
+      return std::sqrt(std::inner_product(
+        children_values.cbegin(), children_values.cend(), children_values.cbegin(), static_cast<value_type>(0)));
     }
 
 
 
     template <int dim, int spacedim, typename value_type>
     value_type
-    mean(const typename dealii::Triangulation<dim, spacedim>::cell_iterator
-           &                            parent,
-         const std::vector<value_type> &children_values)
+    mean(const typename dealii::Triangulation<dim, spacedim>::cell_iterator &parent,
+         const std::vector<value_type>                                      &children_values)
     {
-      return sum<dim, spacedim, value_type>(parent, children_values) /
-             children_values.size();
+      return sum<dim, spacedim, value_type>(parent, children_values) / children_values.size();
     }
 
 
@@ -340,8 +303,7 @@ namespace AdaptationStrategies
         const std::vector<value_type> &children_values)
     {
       Assert(!children_values.empty(), ExcInternalError());
-      return *std::max_element(children_values.cbegin(),
-                               children_values.cend());
+      return *std::max_element(children_values.cbegin(), children_values.cend());
     }
   } // namespace Coarsening
 } // namespace AdaptationStrategies

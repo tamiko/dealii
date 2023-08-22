@@ -44,10 +44,7 @@
 
 #include "create_mesh.h"
 
-template <int dim,
-          int fe_degree,
-          int n_q_points_1d = fe_degree + 1,
-          typename number   = double>
+template <int dim, int fe_degree, int n_q_points_1d = fe_degree + 1, typename number = double>
 class LaplaceOperator : public Subscriptor
 {
 public:
@@ -56,22 +53,18 @@ public:
   LaplaceOperator(){};
 
   void
-  initialize(const Mapping<dim> &   mapping,
+  initialize(const Mapping<dim>    &mapping,
              const DoFHandler<dim> &dof_handler,
              const unsigned int     level = numbers::invalid_unsigned_int)
   {
     const QGauss<1>                                  quad(n_q_points_1d);
     typename MatrixFree<dim, number>::AdditionalData addit_data;
-    addit_data.tasks_parallel_scheme =
-      MatrixFree<dim, number>::AdditionalData::none;
-    addit_data.tasks_block_size = 3;
-    addit_data.mg_level         = level;
-    addit_data.mapping_update_flags_inner_faces =
-      update_JxW_values | update_normal_vectors | update_jacobians;
-    addit_data.mapping_update_flags_boundary_faces =
-      update_JxW_values | update_normal_vectors | update_jacobians;
-    addit_data.mapping_update_flags_faces_by_cells =
-      update_JxW_values | update_normal_vectors | update_jacobians;
+    addit_data.tasks_parallel_scheme               = MatrixFree<dim, number>::AdditionalData::none;
+    addit_data.tasks_block_size                    = 3;
+    addit_data.mg_level                            = level;
+    addit_data.mapping_update_flags_inner_faces    = update_JxW_values | update_normal_vectors | update_jacobians;
+    addit_data.mapping_update_flags_boundary_faces = update_JxW_values | update_normal_vectors | update_jacobians;
+    addit_data.mapping_update_flags_faces_by_cells = update_JxW_values | update_normal_vectors | update_jacobians;
     AffineConstraints<double> constraints;
     constraints.close();
 
@@ -79,8 +72,7 @@ public:
   }
 
   void
-  compute_diagonal_by_face(
-    LinearAlgebra::distributed::Vector<number> &result) const
+  compute_diagonal_by_face(LinearAlgebra::distributed::Vector<number> &result) const
   {
     int dummy = 0;
     result    = 0;
@@ -93,20 +85,15 @@ public:
   }
 
   void
-  compute_diagonal_by_cell(
-    LinearAlgebra::distributed::Vector<number> &result) const
+  compute_diagonal_by_cell(LinearAlgebra::distributed::Vector<number> &result) const
   {
     int dummy = 0;
     result.zero_out_ghost_values();
-    data.cell_loop(&LaplaceOperator::local_diagonal_by_cell,
-                   this,
-                   result,
-                   dummy);
+    data.cell_loop(&LaplaceOperator::local_diagonal_by_cell, this, result, dummy);
   }
 
   void
-  initialize_dof_vector(
-    LinearAlgebra::distributed::Vector<number> &vector) const
+  initialize_dof_vector(LinearAlgebra::distributed::Vector<number> &vector) const
   {
     data.initialize_dof_vector(vector);
   }
@@ -121,15 +108,13 @@ private:
   {}
 
   void
-  local_diagonal_face(
-    const MatrixFree<dim, number> &             data,
-    LinearAlgebra::distributed::Vector<number> &dst,
-    const int &,
-    const std::pair<unsigned int, unsigned int> &face_range) const
+  local_diagonal_face(const MatrixFree<dim, number>              &data,
+                      LinearAlgebra::distributed::Vector<number> &dst,
+                      const int &,
+                      const std::pair<unsigned int, unsigned int> &face_range) const
   {
     FEFaceEvaluation<dim, fe_degree, n_q_points_1d, 1, number> phi(data, true);
-    FEFaceEvaluation<dim, fe_degree, n_q_points_1d, 1, number> phi_outer(data,
-                                                                         false);
+    FEFaceEvaluation<dim, fe_degree, n_q_points_1d, 1, number> phi_outer(data, false);
 
     for (unsigned int face = face_range.first; face < face_range.second; ++face)
       {
@@ -141,15 +126,13 @@ private:
         // Choose a one-sided definition of sigmaF rather than the actual
         // penalty parameter because the cell-based method cannot read the
         // sigma parameter on the neighbor
-        VectorizedArray<number> sigmaF =
-          std::abs((phi.normal_vector(0) * phi.inverse_jacobian(0))[dim - 1]) *
-          (number)(std::max(fe_degree, 1) * (fe_degree + 1.0)) * 2.0;
+        VectorizedArray<number> sigmaF = std::abs((phi.normal_vector(0) * phi.inverse_jacobian(0))[dim - 1]) *
+                                         (number)(std::max(fe_degree, 1) * (fe_degree + 1.0)) * 2.0;
 
         // Compute phi part
         for (unsigned int j = 0; j < phi.dofs_per_cell; ++j)
           phi_outer.begin_dof_values()[j] = VectorizedArray<number>();
-        phi_outer.evaluate(EvaluationFlags::values |
-                           EvaluationFlags::gradients);
+        phi_outer.evaluate(EvaluationFlags::values | EvaluationFlags::gradients);
         for (unsigned int i = 0; i < phi.dofs_per_cell; ++i)
           {
             for (unsigned int j = 0; j < phi.dofs_per_cell; ++j)
@@ -159,13 +142,10 @@ private:
 
             for (unsigned int q = 0; q < phi.n_q_points; ++q)
               {
-                VectorizedArray<number> average_value =
-                  (phi.get_value(q) - phi_outer.get_value(q)) * 0.5;
+                VectorizedArray<number> average_value = (phi.get_value(q) - phi_outer.get_value(q)) * 0.5;
                 VectorizedArray<number> average_valgrad =
-                  phi.get_normal_derivative(q) +
-                  phi_outer.get_normal_derivative(q);
-                average_valgrad =
-                  average_value * 2. * sigmaF - average_valgrad * 0.5;
+                  phi.get_normal_derivative(q) + phi_outer.get_normal_derivative(q);
+                average_valgrad = average_value * 2. * sigmaF - average_valgrad * 0.5;
                 phi.submit_normal_derivative(-average_value, q);
                 phi.submit_value(average_valgrad, q);
               }
@@ -177,8 +157,7 @@ private:
         phi.distribute_local_to_global(dst);
 
         // Compute phi_outer part
-        sigmaF = std::abs((phi.normal_vector(0) *
-                           phi_outer.inverse_jacobian(0))[dim - 1]) *
+        sigmaF = std::abs((phi.normal_vector(0) * phi_outer.inverse_jacobian(0))[dim - 1]) *
                  (number)(std::max(fe_degree, 1) * (fe_degree + 1.0)) * 2.0;
         for (unsigned int j = 0; j < phi.dofs_per_cell; ++j)
           phi.begin_dof_values()[j] = VectorizedArray<number>();
@@ -188,23 +167,18 @@ private:
             for (unsigned int j = 0; j < phi.dofs_per_cell; ++j)
               phi_outer.begin_dof_values()[j] = VectorizedArray<number>();
             phi_outer.begin_dof_values()[i] = 1.;
-            phi_outer.evaluate(EvaluationFlags::values |
-                               EvaluationFlags::gradients);
+            phi_outer.evaluate(EvaluationFlags::values | EvaluationFlags::gradients);
 
             for (unsigned int q = 0; q < phi.n_q_points; ++q)
               {
-                VectorizedArray<number> average_value =
-                  (phi.get_value(q) - phi_outer.get_value(q)) * 0.5;
+                VectorizedArray<number> average_value = (phi.get_value(q) - phi_outer.get_value(q)) * 0.5;
                 VectorizedArray<number> average_valgrad =
-                  phi.get_normal_derivative(q) +
-                  phi_outer.get_normal_derivative(q);
-                average_valgrad =
-                  average_value * 2. * sigmaF - average_valgrad * 0.5;
+                  phi.get_normal_derivative(q) + phi_outer.get_normal_derivative(q);
+                average_valgrad = average_value * 2. * sigmaF - average_valgrad * 0.5;
                 phi_outer.submit_normal_derivative(-average_value, q);
                 phi_outer.submit_value(-average_valgrad, q);
               }
-            phi_outer.integrate(EvaluationFlags::values |
-                                EvaluationFlags::gradients);
+            phi_outer.integrate(EvaluationFlags::values | EvaluationFlags::gradients);
             local_diagonal_vector[i] = phi_outer.begin_dof_values()[i];
           }
         for (unsigned int i = 0; i < phi.dofs_per_cell; ++i)
@@ -214,11 +188,10 @@ private:
   }
 
   void
-  local_diagonal_boundary(
-    const MatrixFree<dim, number> &             data,
-    LinearAlgebra::distributed::Vector<number> &dst,
-    const int &,
-    const std::pair<unsigned int, unsigned int> &face_range) const
+  local_diagonal_boundary(const MatrixFree<dim, number>              &data,
+                          LinearAlgebra::distributed::Vector<number> &dst,
+                          const int &,
+                          const std::pair<unsigned int, unsigned int> &face_range) const
   {
     FEFaceEvaluation<dim, fe_degree, n_q_points_1d, 1, number> phi(data);
 
@@ -227,9 +200,8 @@ private:
         phi.reinit(face);
 
         VectorizedArray<number> local_diagonal_vector[phi.static_dofs_per_cell];
-        VectorizedArray<number> sigmaF =
-          std::abs((phi.normal_vector(0) * phi.inverse_jacobian(0))[dim - 1]) *
-          (number)(std::max(1, fe_degree) * (fe_degree + 1.0)) * 2.;
+        VectorizedArray<number> sigmaF = std::abs((phi.normal_vector(0) * phi.inverse_jacobian(0))[dim - 1]) *
+                                         (number)(std::max(1, fe_degree) * (fe_degree + 1.0)) * 2.;
 
         for (unsigned int i = 0; i < phi.dofs_per_cell; ++i)
           {
@@ -240,9 +212,8 @@ private:
 
             for (unsigned int q = 0; q < phi.n_q_points; ++q)
               {
-                VectorizedArray<number> average_value = phi.get_value(q);
-                VectorizedArray<number> average_valgrad =
-                  -phi.get_normal_derivative(q);
+                VectorizedArray<number> average_value   = phi.get_value(q);
+                VectorizedArray<number> average_valgrad = -phi.get_normal_derivative(q);
                 average_valgrad += average_value * sigmaF * 2.0;
                 phi.submit_normal_derivative(-average_value, q);
                 phi.submit_value(average_valgrad, q);
@@ -257,30 +228,26 @@ private:
   }
 
   void
-  local_diagonal_by_cell(
-    const MatrixFree<dim, number> &             data,
-    LinearAlgebra::distributed::Vector<number> &dst,
-    const int &,
-    const std::pair<unsigned int, unsigned int> &cell_range) const
+  local_diagonal_by_cell(const MatrixFree<dim, number>              &data,
+                         LinearAlgebra::distributed::Vector<number> &dst,
+                         const int &,
+                         const std::pair<unsigned int, unsigned int> &cell_range) const
   {
     FEFaceEvaluation<dim, fe_degree, n_q_points_1d, 1, number> phif(data);
 
     for (unsigned int cell = cell_range.first; cell < cell_range.second; ++cell)
       {
-        VectorizedArray<number>
-          local_diagonal_vector[phif.static_dofs_per_cell];
+        VectorizedArray<number> local_diagonal_vector[phif.static_dofs_per_cell];
         for (unsigned int i = 0; i < phif.static_dofs_per_cell; ++i)
           local_diagonal_vector[i] = 0.;
         for (const unsigned int face : GeometryInfo<dim>::face_indices())
           {
             phif.reinit(cell, face);
-            VectorizedArray<number> sigmaF =
-              std::abs(
-                (phif.normal_vector(0) * phif.inverse_jacobian(0))[dim - 1]) *
-              (number)(std::max(1, fe_degree) * (fe_degree + 1.0)) * 2.;
+            VectorizedArray<number> sigmaF = std::abs((phif.normal_vector(0) * phif.inverse_jacobian(0))[dim - 1]) *
+                                             (number)(std::max(1, fe_degree) * (fe_degree + 1.0)) * 2.;
 
-            std::array<types::boundary_id, VectorizedArray<number>::size()>
-              boundary_ids = data.get_faces_by_cells_boundary_id(cell, face);
+            std::array<types::boundary_id, VectorizedArray<number>::size()> boundary_ids =
+              data.get_faces_by_cells_boundary_id(cell, face);
             VectorizedArray<number> factor_boundary;
             for (unsigned int v = 0; v < VectorizedArray<number>::size(); ++v)
               // interior face
@@ -294,21 +261,16 @@ private:
                 for (unsigned int j = 0; j < phif.dofs_per_cell; ++j)
                   phif.begin_dof_values()[j] = VectorizedArray<number>();
                 phif.begin_dof_values()[i] = 1.;
-                phif.evaluate(EvaluationFlags::values |
-                              EvaluationFlags::gradients);
+                phif.evaluate(EvaluationFlags::values | EvaluationFlags::gradients);
                 for (unsigned int q = 0; q < phif.n_q_points; ++q)
                   {
-                    VectorizedArray<number> average_value =
-                      phif.get_value(q) * factor_boundary;
-                    VectorizedArray<number> average_valgrad =
-                      phif.get_normal_derivative(q) * factor_boundary;
-                    average_valgrad =
-                      average_value * 2. * sigmaF - average_valgrad;
+                    VectorizedArray<number> average_value   = phif.get_value(q) * factor_boundary;
+                    VectorizedArray<number> average_valgrad = phif.get_normal_derivative(q) * factor_boundary;
+                    average_valgrad                         = average_value * 2. * sigmaF - average_valgrad;
                     phif.submit_normal_derivative(-average_value, q);
                     phif.submit_value(average_valgrad, q);
                   }
-                phif.integrate(EvaluationFlags::values |
-                               EvaluationFlags::gradients);
+                phif.integrate(EvaluationFlags::values | EvaluationFlags::gradients);
                 local_diagonal_vector[i] += phif.begin_dof_values()[i];
               }
           }
@@ -351,12 +313,9 @@ test()
   fine_matrix.compute_diagonal_by_face(res1);
   fine_matrix.compute_diagonal_by_cell(res2);
   res2 -= res1;
-  deallog << "Error in diagonal on active cells: " << (double)res2.linfty_norm()
-          << std::endl;
+  deallog << "Error in diagonal on active cells: " << (double)res2.linfty_norm() << std::endl;
 
-  for (unsigned int level = 0;
-       level < dof.get_triangulation().n_global_levels();
-       ++level)
+  for (unsigned int level = 0; level < dof.get_triangulation().n_global_levels(); ++level)
     {
       LaplaceOperator<dim, fe_degree, n_q_points_1d, number> fine_matrix;
       fine_matrix.initialize(mapping, dof, level);
@@ -368,8 +327,7 @@ test()
       fine_matrix.compute_diagonal_by_face(res1);
       fine_matrix.compute_diagonal_by_cell(res2);
       res2 -= res1;
-      deallog << "Error in diagonal on level " << level << ":      "
-              << (double)res2.linfty_norm() << std::endl;
+      deallog << "Error in diagonal on level " << level << ":      " << (double)res2.linfty_norm() << std::endl;
     }
 }
 

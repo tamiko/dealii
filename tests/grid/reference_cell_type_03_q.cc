@@ -54,11 +54,9 @@ test(const ReferenceCell &reference_cell)
 
   deallog << "ReferenceCell: " << reference_cell.to_string() << std::endl;
   deallog << "  computed barycenter = " << barycenter << std::endl;
-  deallog << "  self-reported barycenter = " << reference_cell.barycenter<dim>()
-          << std::endl;
+  deallog << "  self-reported barycenter = " << reference_cell.barycenter<dim>() << std::endl;
 
-  Assert((barycenter - reference_cell.barycenter<dim>()).norm() <= 1e-12,
-         ExcInternalError());
+  Assert((barycenter - reference_cell.barycenter<dim>()).norm() <= 1e-12, ExcInternalError());
 }
 
 int
@@ -70,9 +68,7 @@ main()
     deallog.push("0D");
     // It doesn't make sense to integrate in 0D, but make sure that
     // get_gauss_type_quadrature() still works
-    deallog << "0D quadrature size: "
-            << ReferenceCells::Vertex.get_gauss_type_quadrature<0>(1).size()
-            << std::endl;
+    deallog << "0D quadrature size: " << ReferenceCells::Vertex.get_gauss_type_quadrature<0>(1).size() << std::endl;
     deallog.pop();
   }
 

@@ -42,12 +42,9 @@ test()
   // setup one particle in first cell
   Particles::ParticleHandler<dim, spacedim> particle_handler(tr, mapping);
 
-  Particles::Particle<dim, spacedim> particle(Point<spacedim>(),
-                                              Point<dim>(),
-                                              0);
+  Particles::Particle<dim, spacedim> particle(Point<spacedim>(), Point<dim>(), 0);
 
-  typename Triangulation<dim, spacedim>::active_cell_iterator cell =
-    tr.begin_active();
+  typename Triangulation<dim, spacedim>::active_cell_iterator cell = tr.begin_active();
   while (!cell->is_locally_owned())
     ++cell;
 

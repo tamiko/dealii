@@ -56,8 +56,7 @@ test()
   TrilinosWrappers::MPI::Vector vector_linear;
   vector_linear.reinit(locally_owned_dofs, mpi_communicator);
 
-  const int is_linear_index_set =
-    locally_owned_dofs.is_ascending_and_one_to_one(mpi_communicator);
+  const int is_linear_index_set = locally_owned_dofs.is_ascending_and_one_to_one(mpi_communicator);
 
   const int is_linear_map = vector_linear.trilinos_vector().Map().LinearMap();
 

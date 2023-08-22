@@ -52,18 +52,13 @@ template <>
 std::array<Point<3>, 4>
 get_simplex()
 {
-  return {{Point<3>(4, 2, 0),
-           Point<3>(3, 3, 0),
-           Point<3>(2, 2.5, 0),
-           Point<3>(4.5, 3, 2)}};
+  return {{Point<3>(4, 2, 0), Point<3>(3, 3, 0), Point<3>(2, 2.5, 0), Point<3>(4.5, 3, 2)}};
 }
 
 
 // Exact integral of 1/R times a polynomial computed using Maple.
 double
-exact_integral_one_over_r(const unsigned int vertex_index,
-                          const unsigned int i,
-                          const unsigned int j)
+exact_integral_one_over_r(const unsigned int vertex_index, const unsigned int i, const unsigned int j)
 {
   Assert(vertex_index < 4, ExcInternalError());
   Assert(i < 6, ExcNotImplemented());

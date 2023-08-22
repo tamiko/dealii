@@ -43,18 +43,14 @@ test(const unsigned int degree, const unsigned int n_q_points)
   Triangulation<dim> tria;
   GridGenerator::hyper_ball(tria);
 
-  deallog << "Checking " << dim << "D with mapping degree " << degree
-          << " with " << n_q_points << " points per coordinate direction"
-          << std::endl;
+  deallog << "Checking " << dim << "D with mapping degree " << degree << " with " << n_q_points
+          << " points per coordinate direction" << std::endl;
 
   // for QGaussLobatto, MappingQ will choose the tensor product code
   // path, whereas for the copy it will not as we do not know the tensor
   // product property on general points
   FEValues<dim> fe_val(mapping, dummy, quadrature, update_quadrature_points);
-  FEValues<dim> fe_val_copy(mapping,
-                            dummy,
-                            quadrature_copy,
-                            update_quadrature_points);
+  FEValues<dim> fe_val_copy(mapping, dummy, quadrature_copy, update_quadrature_points);
 
   for (const auto &cell : tria.active_cell_iterators())
     {
@@ -63,12 +59,8 @@ test(const unsigned int degree, const unsigned int n_q_points)
 
       for (unsigned int q = 0; q < quadrature.size(); ++q)
         {
-          deallog << "GL: " << fe_val.quadrature_point(q)
-                  << "  copy: " << fe_val_copy.quadrature_point(q)
-                  << "  difference: "
-                  << fe_val.quadrature_point(q) -
-                       fe_val_copy.quadrature_point(q)
-                  << std::endl;
+          deallog << "GL: " << fe_val.quadrature_point(q) << "  copy: " << fe_val_copy.quadrature_point(q)
+                  << "  difference: " << fe_val.quadrature_point(q) - fe_val_copy.quadrature_point(q) << std::endl;
         }
       deallog << std::endl;
     }

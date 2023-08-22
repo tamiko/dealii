@@ -54,27 +54,24 @@ main()
 
   double kappa = 1.0;
 
-  ode.explicit_function =
-    [&](const double t, const VectorType &y, VectorType &ydot) {
-      deallog << "Evaluating right hand side at t=" << t << " with y=" << y[0]
-              << std::endl;
+  ode.explicit_function = [&](const double t, const VectorType &y, VectorType &ydot) {
+    deallog << "Evaluating right hand side at t=" << t << " with y=" << y[0] << std::endl;
 
-      // Error out in a recoverable way if asked to evaluate at a
-      // point where y<0. This can happen with explicit methods if the
-      // time step is too large.
-      if (y[0] < 0)
-        {
-          deallog << "Reporting a recoverable error." << std::endl;
-          throw RecoverableUserCallbackError();
-        }
+    // Error out in a recoverable way if asked to evaluate at a
+    // point where y<0. This can happen with explicit methods if the
+    // time step is too large.
+    if (y[0] < 0)
+      {
+        deallog << "Reporting a recoverable error." << std::endl;
+        throw RecoverableUserCallbackError();
+      }
 
-      ydot[0] = -y[0];
-    };
+    ydot[0] = -y[0];
+  };
 
-  ode.output_step =
-    [&](const double t, const VectorType &sol, const unsigned int step_number) {
-      deallog << "Monitor called at t=" << t << ' ' << sol[0] << std::endl;
-    };
+  ode.output_step = [&](const double t, const VectorType &sol, const unsigned int step_number) {
+    deallog << "Monitor called at t=" << t << ' ' << sol[0] << std::endl;
+  };
 
   Vector<double> y(1);
   y[0] = 1;
@@ -85,8 +82,6 @@ main()
     }
   catch (const std::exception &exc)
     {
-      deallog << "ARKODE did not succeed with the following error message:"
-              << std::endl
-              << exc.what() << std::endl;
+      deallog << "ARKODE did not succeed with the following error message:" << std::endl << exc.what() << std::endl;
     }
 }

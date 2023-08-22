@@ -45,8 +45,7 @@
 
 template <int dim>
 void
-write_mesh(const parallel::shared::Triangulation<dim> &tria,
-           const char *                                filename_)
+write_mesh(const parallel::shared::Triangulation<dim> &tria, const char *filename_)
 {
   DataOut<dim> data_out;
   data_out.attach_triangulation(tria);
@@ -56,8 +55,7 @@ write_mesh(const parallel::shared::Triangulation<dim> &tria,
   data_out.add_data_vector(subdomain, "subdomain");
 
   data_out.build_patches();
-  const std::string filename =
-    (filename_ + Utilities::int_to_string(tria.locally_owned_subdomain(), 4));
+  const std::string filename = (filename_ + Utilities::int_to_string(tria.locally_owned_subdomain(), 4));
   {
     std::ofstream output(filename + ".vtu");
     data_out.write_vtu(output);
@@ -70,11 +68,10 @@ template <int dim>
 void
 test()
 {
-  parallel::shared::Triangulation<dim> triangulation(
-    MPI_COMM_WORLD,
-    ::Triangulation<dim>::none,
-    false,
-    parallel::shared::Triangulation<dim>::partition_zorder);
+  parallel::shared::Triangulation<dim> triangulation(MPI_COMM_WORLD,
+                                                     ::Triangulation<dim>::none,
+                                                     false,
+                                                     parallel::shared::Triangulation<dim>::partition_zorder);
 
   hp::FECollection<dim> fe;
   fe.push_back(FESystem<dim>(FE_Q<dim>(3), 2, FE_DGQ<dim>(1), 1));
@@ -91,10 +88,8 @@ test()
   const std::vector<IndexSet> locally_relevant_dofs_per_subdomain =
     DoFTools::locally_relevant_dofs_per_subdomain(dof_handler);
 
-  deallog << "locally_relevant_dofs on subdomain "
-          << triangulation.locally_owned_subdomain() << ": ";
-  locally_relevant_dofs_per_subdomain[triangulation.locally_owned_subdomain()]
-    .print(deallog);
+  deallog << "locally_relevant_dofs on subdomain " << triangulation.locally_owned_subdomain() << ": ";
+  locally_relevant_dofs_per_subdomain[triangulation.locally_owned_subdomain()].print(deallog);
   deallog << "\n" << std::endl;
 }
 

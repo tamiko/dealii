@@ -51,8 +51,7 @@ setup_tria(parallel::distributed::Triangulation<dim> &tr)
   GridGenerator::hyper_cube(tr);
   tr.refine_global(2);
 
-  for (typename parallel::distributed::Triangulation<dim>::active_cell_iterator
-         cell = tr.begin_active();
+  for (typename parallel::distributed::Triangulation<dim>::active_cell_iterator cell = tr.begin_active();
        cell != tr.end();
        ++cell)
     {
@@ -98,28 +97,22 @@ check_fe(FiniteElement<dim> &fe)
     // std::map<std::string,std::vector<types::global_dof_index> > dofmap;
     std::map<std::string, std::vector<types::global_dof_index>> mgdofmap;
 
-    for (typename DoFHandler<dim>::level_cell_iterator cell = dofhref.begin();
-         cell != dofhref.end();
-         ++cell)
+    for (typename DoFHandler<dim>::level_cell_iterator cell = dofhref.begin(); cell != dofhref.end(); ++cell)
       {
         if (!cell->is_locally_owned_on_level())
           continue;
 
-        std::vector<types::global_dof_index> &d =
-          mgdofmap[cell->id().to_string()];
+        std::vector<types::global_dof_index> &d = mgdofmap[cell->id().to_string()];
         d.resize(fe.dofs_per_cell);
         cell->get_mg_dof_indices(d);
       }
 
-    for (typename DoFHandler<dim>::level_cell_iterator cell = dofh.begin();
-         cell != dofh.end();
-         ++cell)
+    for (typename DoFHandler<dim>::level_cell_iterator cell = dofh.begin(); cell != dofh.end(); ++cell)
       {
         if (cell->level_subdomain_id() == numbers::artificial_subdomain_id)
           continue;
 
-        std::vector<types::global_dof_index> &renumbered =
-          mgdofmap[cell->id().to_string()];
+        std::vector<types::global_dof_index> &renumbered = mgdofmap[cell->id().to_string()];
         cell->set_mg_dof_indices(renumbered);
       }
 
@@ -154,17 +147,9 @@ check_fe(FiniteElement<dim> &fe)
 
       // the indexsets should be the same when run in parallel (on the
       // relevant subset):
-      deallog
-        << ((rei ==
-             (relevant &
-              mg_constrained_dofs_ref.get_refinement_edge_indices(level))) ?
-              "ok " :
-              "FAIL ")
-        << ((bi ==
-             (relevant & mg_constrained_dofs_ref.get_boundary_indices(level))) ?
-              "ok " :
-              "FAIL ")
-        << std::endl;
+      deallog << ((rei == (relevant & mg_constrained_dofs_ref.get_refinement_edge_indices(level))) ? "ok " : "FAIL ")
+              << ((bi == (relevant & mg_constrained_dofs_ref.get_boundary_indices(level))) ? "ok " : "FAIL ")
+              << std::endl;
     }
 
   {
@@ -189,9 +174,7 @@ check_fe(FiniteElement<dim> &fe)
         mg_boundary_constraints[level].reinit(relevant);
         mg_boundary_constraints[level].add_lines(boundary_indices[level]);
 
-        mg_constrained_dofs_1.add_boundary_indices(dofh,
-                                                   level,
-                                                   boundary_indices[level]);
+        mg_constrained_dofs_1.add_boundary_indices(dofh, level, boundary_indices[level]);
         const auto &bi = mg_constrained_dofs_1.get_boundary_indices(level);
 
         deallog << "get_boundary_indices test:" << std::endl;
@@ -200,11 +183,7 @@ check_fe(FiniteElement<dim> &fe)
         deallog << "relevant:" << std::endl;
         relevant.print(deallog);
 
-        deallog << ((bi ==
-                     (relevant &
-                      mg_constrained_dofs_ref.get_boundary_indices(level))) ?
-                      "ok " :
-                      "FAIL test")
+        deallog << ((bi == (relevant & mg_constrained_dofs_ref.get_boundary_indices(level))) ? "ok " : "FAIL test")
                 << std::endl;
       }
 
@@ -224,19 +203,13 @@ check_fe(FiniteElement<dim> &fe)
                 level_boundary_indices.add_index(line.index);
               }
           }
-        mg_constrained_dofs_1.add_boundary_indices(dofh,
-                                                   level,
-                                                   level_boundary_indices);
+        mg_constrained_dofs_1.add_boundary_indices(dofh, level, level_boundary_indices);
         const auto &bi = mg_constrained_dofs_1.get_boundary_indices(level);
 
         IndexSet relevant;
         DoFTools::extract_locally_relevant_level_dofs(dofh, level, relevant);
 
-        deallog << ((bi ==
-                     (relevant &
-                      mg_constrained_dofs_ref.get_boundary_indices(level))) ?
-                      "ok " :
-                      "FAIL test")
+        deallog << ((bi == (relevant & mg_constrained_dofs_ref.get_boundary_indices(level))) ? "ok " : "FAIL test")
                 << std::endl;
       }
   }

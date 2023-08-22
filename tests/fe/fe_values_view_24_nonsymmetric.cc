@@ -65,9 +65,7 @@ test(const Triangulation<dim> &tr, const FiniteElement<dim> &fe)
       deallog << "i=" << i << std::endl;
 
       for (unsigned int q = 0; q < quadrature.size(); ++q)
-        deallog << "  q_point=" << q << std::endl
-                << "    div= " << fe_values[extractor].divergence(i, q)
-                << std::endl;
+        deallog << "  q_point=" << q << std::endl << "    div= " << fe_values[extractor].divergence(i, q) << std::endl;
     }
 }
 

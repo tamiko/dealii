@@ -52,11 +52,10 @@ DEAL_II_NAMESPACE_OPEN
 namespace GridTools
 {
   template <int dim, template <int, int> class MeshType, int spacedim>
-  DEAL_II_CXX20_REQUIRES(
-    (concepts::is_triangulation_or_dof_handler<MeshType<dim, spacedim>>))
+  DEAL_II_CXX20_REQUIRES((concepts::is_triangulation_or_dof_handler<MeshType<dim, spacedim>>))
   unsigned int find_closest_vertex(const MeshType<dim, spacedim> &mesh,
-                                   const Point<spacedim> &        p,
-                                   const std::vector<bool> &marked_vertices)
+                                   const Point<spacedim>         &p,
+                                   const std::vector<bool>       &marked_vertices)
   {
     // first get the underlying
     // triangulation from the
@@ -66,10 +65,8 @@ namespace GridTools
 
     const std::vector<Point<spacedim>> &vertices = tria.get_vertices();
 
-    Assert(tria.get_vertices().size() == marked_vertices.size() ||
-             marked_vertices.empty(),
-           ExcDimensionMismatch(tria.get_vertices().size(),
-                                marked_vertices.size()));
+    Assert(tria.get_vertices().size() == marked_vertices.size() || marked_vertices.empty(),
+           ExcDimensionMismatch(tria.get_vertices().size(), marked_vertices.size()));
 
     // If p is an element of marked_vertices,
     // and q is that of used_Vertices,
@@ -78,15 +75,12 @@ namespace GridTools
     // I.e., if p is true q must be true
     // (if p is false, q could be false or true).
     // p implies q logic is encapsulated in ~p|q.
-    Assert(
-      marked_vertices.empty() ||
-        std::equal(marked_vertices.begin(),
-                   marked_vertices.end(),
-                   tria.get_used_vertices().begin(),
-                   [](bool p, bool q) { return !p || q; }),
-      ExcMessage(
-        "marked_vertices should be a subset of used vertices in the triangulation "
-        "but marked_vertices contains one or more vertices that are not used vertices!"));
+    Assert(marked_vertices.empty() || std::equal(marked_vertices.begin(),
+                                                 marked_vertices.end(),
+                                                 tria.get_used_vertices().begin(),
+                                                 [](bool p, bool q) { return !p || q; }),
+           ExcMessage("marked_vertices should be a subset of used vertices in the triangulation "
+                      "but marked_vertices contains one or more vertices that are not used vertices!"));
 
     // In addition, if a vector bools
     // is specified (marked_vertices)
@@ -94,13 +88,11 @@ namespace GridTools
     // could be the potentially closest
     // vertex to the point, use it instead
     // of used vertices
-    const std::vector<bool> &used =
-      (marked_vertices.empty()) ? tria.get_used_vertices() : marked_vertices;
+    const std::vector<bool> &used = (marked_vertices.empty()) ? tria.get_used_vertices() : marked_vertices;
 
     // At the beginning, the first
     // used vertex is the closest one
-    std::vector<bool>::const_iterator first =
-      std::find(used.begin(), used.end(), true);
+    std::vector<bool>::const_iterator first = std::find(used.begin(), used.end(), true);
 
     // Assert that at least one vertex
     // is actually used
@@ -128,12 +120,11 @@ namespace GridTools
 
 
   template <int dim, template <int, int> class MeshType, int spacedim>
-  DEAL_II_CXX20_REQUIRES(
-    (concepts::is_triangulation_or_dof_handler<MeshType<dim, spacedim>>))
-  unsigned int find_closest_vertex(const Mapping<dim, spacedim> & mapping,
+  DEAL_II_CXX20_REQUIRES((concepts::is_triangulation_or_dof_handler<MeshType<dim, spacedim>>))
+  unsigned int find_closest_vertex(const Mapping<dim, spacedim>  &mapping,
                                    const MeshType<dim, spacedim> &mesh,
-                                   const Point<spacedim> &        p,
-                                   const std::vector<bool> &marked_vertices)
+                                   const Point<spacedim>         &p,
+                                   const std::vector<bool>       &marked_vertices)
   {
     // Take a shortcut in the simple case.
     if (mapping.preserves_vertex_locations() == true)
@@ -147,10 +138,8 @@ namespace GridTools
 
     auto vertices = extract_used_vertices(tria, mapping);
 
-    Assert(tria.get_vertices().size() == marked_vertices.size() ||
-             marked_vertices.empty(),
-           ExcDimensionMismatch(tria.get_vertices().size(),
-                                marked_vertices.size()));
+    Assert(tria.get_vertices().size() == marked_vertices.size() || marked_vertices.empty(),
+           ExcDimensionMismatch(tria.get_vertices().size(), marked_vertices.size()));
 
     // If p is an element of marked_vertices,
     // and q is that of used_Vertices,
@@ -159,15 +148,12 @@ namespace GridTools
     // I.e., if p is true q must be true
     // (if p is false, q could be false or true).
     // p implies q logic is encapsulated in ~p|q.
-    Assert(
-      marked_vertices.empty() ||
-        std::equal(marked_vertices.begin(),
-                   marked_vertices.end(),
-                   tria.get_used_vertices().begin(),
-                   [](bool p, bool q) { return !p || q; }),
-      ExcMessage(
-        "marked_vertices should be a subset of used vertices in the triangulation "
-        "but marked_vertices contains one or more vertices that are not used vertices!"));
+    Assert(marked_vertices.empty() || std::equal(marked_vertices.begin(),
+                                                 marked_vertices.end(),
+                                                 tria.get_used_vertices().begin(),
+                                                 [](bool p, bool q) { return !p || q; }),
+           ExcMessage("marked_vertices should be a subset of used vertices in the triangulation "
+                      "but marked_vertices contains one or more vertices that are not used vertices!"));
 
     // Remove from the map unwanted elements.
     if (marked_vertices.size())
@@ -194,12 +180,9 @@ namespace GridTools
   std::vector<typename MeshType::active_cell_iterator>
 #else
   std::vector<
-    typename dealii::internal::ActiveCellIterator<MeshType::dimension,
-                                                  MeshType::space_dimension,
-                                                  MeshType>::type>
+    typename dealii::internal::ActiveCellIterator<MeshType::dimension, MeshType::space_dimension, MeshType>::type>
 #endif
-    find_cells_adjacent_to_vertex(const MeshType &   mesh,
-                                  const unsigned int vertex)
+    find_cells_adjacent_to_vertex(const MeshType &mesh, const unsigned int vertex)
   {
     const int dim      = MeshType::dimension;
     const int spacedim = MeshType::space_dimension;
@@ -208,19 +191,15 @@ namespace GridTools
     // an active vertex of the underlying
     // triangulation
     AssertIndexRange(vertex, mesh.get_triangulation().n_vertices());
-    Assert(mesh.get_triangulation().get_used_vertices()[vertex],
-           ExcVertexNotUsed(vertex));
+    Assert(mesh.get_triangulation().get_used_vertices()[vertex], ExcVertexNotUsed(vertex));
 
     // use a set instead of a vector
     // to ensure that cells are inserted only
     // once
-    std::set<typename dealii::internal::
-               ActiveCellIterator<dim, spacedim, MeshType>::type>
-      adjacent_cells;
+    std::set<typename dealii::internal::ActiveCellIterator<dim, spacedim, MeshType>::type> adjacent_cells;
 
-    typename dealii::internal::ActiveCellIterator<dim, spacedim, MeshType>::type
-      cell = mesh.begin_active(),
-      endc = mesh.end();
+    typename dealii::internal::ActiveCellIterator<dim, spacedim, MeshType>::type cell = mesh.begin_active(),
+                                                                                 endc = mesh.end();
 
     // go through all active cells and look if the vertex is part of that cell
     //
@@ -270,10 +249,8 @@ namespace GridTools
               // (possibly) coarser neighbor. if this is the case,
               // then we need to also add this neighbor
               if (dim >= 2)
-                for (const auto face :
-                     cell->reference_cell().faces_for_given_vertex(v))
-                  if (!cell->at_boundary(face) &&
-                      cell->neighbor(face)->is_active())
+                for (const auto face : cell->reference_cell().faces_for_given_vertex(v))
+                  if (!cell->at_boundary(face) && cell->neighbor(face)->is_active())
                     {
                       // there is a (possibly) coarser cell behind a
                       // face to which the vertex belongs. the
@@ -323,8 +300,7 @@ namespace GridTools
     Assert(adjacent_cells.size() > 0, ExcInternalError());
 
     // return the result as a vector, rather than the set we built above
-    return std::vector<typename dealii::internal::
-                         ActiveCellIterator<dim, spacedim, MeshType>::type>(
+    return std::vector<typename dealii::internal::ActiveCellIterator<dim, spacedim, MeshType>::type>(
       adjacent_cells.begin(), adjacent_cells.end());
   }
 
@@ -333,32 +309,23 @@ namespace GridTools
   namespace
   {
     template <int dim, template <int, int> class MeshType, int spacedim>
-    DEAL_II_CXX20_REQUIRES(
-      (concepts::is_triangulation_or_dof_handler<MeshType<dim, spacedim>>))
+    DEAL_II_CXX20_REQUIRES((concepts::is_triangulation_or_dof_handler<MeshType<dim, spacedim>>))
     void find_active_cell_around_point_internal(
       const MeshType<dim, spacedim> &mesh,
 #ifndef _MSC_VER
-      std::set<typename MeshType<dim, spacedim>::active_cell_iterator>
-        &searched_cells,
-      std::set<typename MeshType<dim, spacedim>::active_cell_iterator>
-        &adjacent_cells)
+      std::set<typename MeshType<dim, spacedim>::active_cell_iterator> &searched_cells,
+      std::set<typename MeshType<dim, spacedim>::active_cell_iterator> &adjacent_cells)
 #else
-      std::set<
-        typename dealii::internal::
-          ActiveCellIterator<dim, spacedim, MeshType<dim, spacedim>>::type>
+      std::set<typename dealii::internal::ActiveCellIterator<dim, spacedim, MeshType<dim, spacedim>>::type>
         &searched_cells,
-      std::set<
-        typename dealii::internal::
-          ActiveCellIterator<dim, spacedim, MeshType<dim, spacedim>>::type>
+      std::set<typename dealii::internal::ActiveCellIterator<dim, spacedim, MeshType<dim, spacedim>>::type>
         &adjacent_cells)
 #endif
     {
 #ifndef _MSC_VER
-      using cell_iterator =
-        typename MeshType<dim, spacedim>::active_cell_iterator;
+      using cell_iterator = typename MeshType<dim, spacedim>::active_cell_iterator;
 #else
-      using cell_iterator = typename dealii::internal::
-        ActiveCellIterator<dim, spacedim, MeshType<dim, spacedim>>::type;
+      using cell_iterator = typename dealii::internal::ActiveCellIterator<dim, spacedim, MeshType<dim, spacedim>>::type;
 #endif
 
       // update the searched cells
@@ -373,13 +340,11 @@ namespace GridTools
           std::vector<cell_iterator> active_neighbors;
           get_active_neighbors<MeshType<dim, spacedim>>(cell, active_neighbors);
           for (unsigned int i = 0; i < active_neighbors.size(); ++i)
-            if (searched_cells.find(active_neighbors[i]) ==
-                searched_cells.end())
+            if (searched_cells.find(active_neighbors[i]) == searched_cells.end())
               adjacent_cells_new.insert(active_neighbors[i]);
         }
       adjacent_cells.clear();
-      adjacent_cells.insert(adjacent_cells_new.begin(),
-                            adjacent_cells_new.end());
+      adjacent_cells.insert(adjacent_cells_new.begin(), adjacent_cells_new.end());
       if (adjacent_cells.empty())
         {
           // we haven't found any other cell that would be a
@@ -402,48 +367,39 @@ namespace GridTools
 
 
   template <int dim, template <int, int> class MeshType, int spacedim>
-  DEAL_II_CXX20_REQUIRES(
-    (concepts::is_triangulation_or_dof_handler<MeshType<dim, spacedim>>))
+  DEAL_II_CXX20_REQUIRES((concepts::is_triangulation_or_dof_handler<MeshType<dim, spacedim>>))
 #ifndef _MSC_VER
   typename MeshType<dim, spacedim>::active_cell_iterator
 #else
-  typename dealii::internal::
-    ActiveCellIterator<dim, spacedim, MeshType<dim, spacedim>>::type
+  typename dealii::internal::ActiveCellIterator<dim, spacedim, MeshType<dim, spacedim>>::type
 #endif
     find_active_cell_around_point(const MeshType<dim, spacedim> &mesh,
-                                  const Point<spacedim> &        p,
-                                  const std::vector<bool> &marked_vertices,
-                                  const double             tolerance)
+                                  const Point<spacedim>         &p,
+                                  const std::vector<bool>       &marked_vertices,
+                                  const double                   tolerance)
   {
     return find_active_cell_around_point<dim, MeshType, spacedim>(
-             get_default_linear_mapping(mesh.get_triangulation()),
-             mesh,
-             p,
-             marked_vertices,
-             tolerance)
+             get_default_linear_mapping(mesh.get_triangulation()), mesh, p, marked_vertices, tolerance)
       .first;
   }
 
 
 
   template <int dim, template <int, int> class MeshType, int spacedim>
-  DEAL_II_CXX20_REQUIRES(
-    (concepts::is_triangulation_or_dof_handler<MeshType<dim, spacedim>>))
+  DEAL_II_CXX20_REQUIRES((concepts::is_triangulation_or_dof_handler<MeshType<dim, spacedim>>))
 #ifndef _MSC_VER
   std::pair<typename MeshType<dim, spacedim>::active_cell_iterator, Point<dim>>
 #else
-  std::pair<typename dealii::internal::
-              ActiveCellIterator<dim, spacedim, MeshType<dim, spacedim>>::type,
-            Point<dim>>
+  std::pair<typename dealii::internal::ActiveCellIterator<dim, spacedim, MeshType<dim, spacedim>>::type, Point<dim>>
 #endif
-    find_active_cell_around_point(const Mapping<dim, spacedim> & mapping,
+    find_active_cell_around_point(const Mapping<dim, spacedim>  &mapping,
                                   const MeshType<dim, spacedim> &mesh,
-                                  const Point<spacedim> &        p,
-                                  const std::vector<bool> &marked_vertices,
-                                  const double             tolerance)
+                                  const Point<spacedim>         &p,
+                                  const std::vector<bool>       &marked_vertices,
+                                  const double                   tolerance)
   {
-    using active_cell_iterator = typename dealii::internal::
-      ActiveCellIterator<dim, spacedim, MeshType<dim, spacedim>>::type;
+    using active_cell_iterator =
+      typename dealii::internal::ActiveCellIterator<dim, spacedim, MeshType<dim, spacedim>>::type;
 
     // The best distance is set to the
     // maximum allowable distance from
@@ -459,16 +415,14 @@ namespace GridTools
     // Find closest vertex and determine
     // all adjacent cells
     std::vector<active_cell_iterator> adjacent_cells_tmp =
-      find_cells_adjacent_to_vertex(
-        mesh, find_closest_vertex(mapping, mesh, p, marked_vertices));
+      find_cells_adjacent_to_vertex(mesh, find_closest_vertex(mapping, mesh, p, marked_vertices));
 
     // Make sure that we have found
     // at least one cell adjacent to vertex.
     Assert(adjacent_cells_tmp.size() > 0, ExcInternalError());
 
     // Copy all the cells into a std::set
-    std::set<active_cell_iterator> adjacent_cells(adjacent_cells_tmp.begin(),
-                                                  adjacent_cells_tmp.end());
+    std::set<active_cell_iterator> adjacent_cells(adjacent_cells_tmp.begin(), adjacent_cells_tmp.end());
     std::set<active_cell_iterator> searched_cells;
 
     // Determine the maximal number of cells
@@ -504,22 +458,17 @@ namespace GridTools
 
                 try
                   {
-                    const Point<dim> p_cell =
-                      mapping.transform_real_to_unit_cell(cell, p);
+                    const Point<dim> p_cell = mapping.transform_real_to_unit_cell(cell, p);
 
                     // calculate the Euclidean norm of
                     // the distance vector to the unit cell.
-                    const double dist =
-                      cell->reference_cell().closest_point(p_cell).distance(
-                        p_cell);
+                    const double dist = cell->reference_cell().closest_point(p_cell).distance(p_cell);
 
                     // We compare if the point is inside the
                     // unit cell (or at least not too far
                     // outside). If it is, it is also checked
                     // that the cell has a more refined state
-                    if ((dist < best_distance) ||
-                        ((dist == best_distance) &&
-                         (cell->level() > best_level)))
+                    if ((dist < best_distance) || ((dist == best_distance) && (cell->level() > best_level)))
                       {
                         found         = true;
                         best_distance = dist;
@@ -527,8 +476,7 @@ namespace GridTools
                         best_cell     = std::make_pair(cell, p_cell);
                       }
                   }
-                catch (
-                  typename MappingQ<dim, spacedim>::ExcTransformationFailed &)
+                catch (typename MappingQ<dim, spacedim>::ExcTransformationFailed &)
                   {
                     // ok, the transformation
                     // failed presumably
@@ -557,8 +505,7 @@ namespace GridTools
         // is for.
         if (!found && cells_searched < n_active_cells)
           {
-            find_active_cell_around_point_internal<dim, MeshType, spacedim>(
-              mesh, searched_cells, adjacent_cells);
+            find_active_cell_around_point_internal<dim, MeshType, spacedim>(mesh, searched_cells, adjacent_cells);
           }
       }
 
@@ -568,62 +515,46 @@ namespace GridTools
 
 
   template <int dim, template <int, int> class MeshType, int spacedim>
-  DEAL_II_CXX20_REQUIRES(
-    (concepts::is_triangulation_or_dof_handler<MeshType<dim, spacedim>>))
+  DEAL_II_CXX20_REQUIRES((concepts::is_triangulation_or_dof_handler<MeshType<dim, spacedim>>))
 #ifndef _MSC_VER
-  std::vector<std::pair<typename MeshType<dim, spacedim>::active_cell_iterator,
-                        Point<dim>>>
+  std::vector<std::pair<typename MeshType<dim, spacedim>::active_cell_iterator, Point<dim>>>
 #else
-  std::vector<std::pair<
-    typename dealii::internal::
-      ActiveCellIterator<dim, spacedim, MeshType<dim, spacedim>>::type,
-    Point<dim>>>
+  std::vector<
+    std::pair<typename dealii::internal::ActiveCellIterator<dim, spacedim, MeshType<dim, spacedim>>::type, Point<dim>>>
 #endif
-    find_all_active_cells_around_point(const Mapping<dim, spacedim> & mapping,
+    find_all_active_cells_around_point(const Mapping<dim, spacedim>  &mapping,
                                        const MeshType<dim, spacedim> &mesh,
-                                       const Point<spacedim> &        p,
+                                       const Point<spacedim>         &p,
                                        const double                   tolerance,
-                                       const std::vector<bool> &marked_vertices)
+                                       const std::vector<bool>       &marked_vertices)
   {
-    const auto cell_and_point = find_active_cell_around_point(
-      mapping, mesh, p, marked_vertices, tolerance);
+    const auto cell_and_point = find_active_cell_around_point(mapping, mesh, p, marked_vertices, tolerance);
 
     if (cell_and_point.first == mesh.end())
       return {};
 
-    return find_all_active_cells_around_point(
-      mapping, mesh, p, tolerance, cell_and_point);
+    return find_all_active_cells_around_point(mapping, mesh, p, tolerance, cell_and_point);
   }
 
 
 
   template <int dim, template <int, int> class MeshType, int spacedim>
-  DEAL_II_CXX20_REQUIRES(
-    (concepts::is_triangulation_or_dof_handler<MeshType<dim, spacedim>>))
+  DEAL_II_CXX20_REQUIRES((concepts::is_triangulation_or_dof_handler<MeshType<dim, spacedim>>))
 #ifndef _MSC_VER
-  std::vector<std::pair<typename MeshType<dim, spacedim>::active_cell_iterator,
-                        Point<dim>>>
+  std::vector<std::pair<typename MeshType<dim, spacedim>::active_cell_iterator, Point<dim>>>
 #else
-  std::vector<std::pair<
-    typename dealii::internal::
-      ActiveCellIterator<dim, spacedim, MeshType<dim, spacedim>>::type,
-    Point<dim>>>
+  std::vector<
+    std::pair<typename dealii::internal::ActiveCellIterator<dim, spacedim, MeshType<dim, spacedim>>::type, Point<dim>>>
 #endif
     find_all_active_cells_around_point(
-      const Mapping<dim, spacedim> & mapping,
-      const MeshType<dim, spacedim> &mesh,
-      const Point<spacedim> &        p,
-      const double                   tolerance,
-      const std::pair<typename MeshType<dim, spacedim>::active_cell_iterator,
-                      Point<dim>> &  first_cell,
-      const std::vector<
-        std::set<typename MeshType<dim, spacedim>::active_cell_iterator>>
-        *vertex_to_cells)
+      const Mapping<dim, spacedim>                                                        &mapping,
+      const MeshType<dim, spacedim>                                                       &mesh,
+      const Point<spacedim>                                                               &p,
+      const double                                                                         tolerance,
+      const std::pair<typename MeshType<dim, spacedim>::active_cell_iterator, Point<dim>> &first_cell,
+      const std::vector<std::set<typename MeshType<dim, spacedim>::active_cell_iterator>> *vertex_to_cells)
   {
-    std::vector<
-      std::pair<typename MeshType<dim, spacedim>::active_cell_iterator,
-                Point<dim>>>
-      cells_and_points;
+    std::vector<std::pair<typename MeshType<dim, spacedim>::active_cell_iterator, Point<dim>>> cells_and_points;
 
     // insert the fist cell and point into the vector
     cells_and_points.push_back(first_cell);
@@ -631,8 +562,7 @@ namespace GridTools
     const Point<dim> unit_point = cells_and_points.front().second;
     const auto       my_cell    = cells_and_points.front().first;
 
-    std::vector<typename MeshType<dim, spacedim>::active_cell_iterator>
-      cells_to_add;
+    std::vector<typename MeshType<dim, spacedim>::active_cell_iterator> cells_to_add;
 
     if (my_cell->reference_cell().is_hyper_cube())
       {
@@ -656,8 +586,7 @@ namespace GridTools
         if (n_dirs_at_threshold == 1)
           {
             unsigned int neighbor_index =
-              2 * last_point_at_threshold +
-              (unit_point[last_point_at_threshold] > 0.5 ? 1 : 0);
+              2 * last_point_at_threshold + (unit_point[last_point_at_threshold] > 0.5 ? 1 : 0);
             if (!my_cell->at_boundary(neighbor_index))
               {
                 const auto neighbor_cell = my_cell->neighbor(neighbor_index);
@@ -665,8 +594,7 @@ namespace GridTools
                 if (neighbor_cell->is_active())
                   cells_to_add.push_back(neighbor_cell);
                 else
-                  for (const auto &child_cell :
-                       neighbor_cell->child_iterators())
+                  for (const auto &child_cell : neighbor_cell->child_iterators())
                     {
                       if (child_cell->is_active())
                         cells_to_add.push_back(child_cell);
@@ -702,14 +630,13 @@ namespace GridTools
           {
             std::pair<unsigned int, unsigned int> vertex_indices[3];
             unsigned int                          count_vertex_indices = 0;
-            unsigned int free_direction = numbers::invalid_unsigned_int;
+            unsigned int                          free_direction       = numbers::invalid_unsigned_int;
             for (unsigned int d = 0; d < dim; ++d)
               {
                 if (distance_to_center[d] > 0.5 - tolerance)
                   {
-                    vertex_indices[count_vertex_indices].first = d;
-                    vertex_indices[count_vertex_indices].second =
-                      unit_point[d] > 0.5 ? 1 : 0;
+                    vertex_indices[count_vertex_indices].first  = d;
+                    vertex_indices[count_vertex_indices].second = unit_point[d] > 0.5 ? 1 : 0;
                     count_vertex_indices++;
                   }
                 else
@@ -717,12 +644,10 @@ namespace GridTools
               }
 
             AssertDimension(count_vertex_indices, 2);
-            Assert(free_direction != numbers::invalid_unsigned_int,
-                   ExcInternalError());
+            Assert(free_direction != numbers::invalid_unsigned_int, ExcInternalError());
 
-            const unsigned int first_vertex =
-              (vertex_indices[0].second << vertex_indices[0].first) +
-              (vertex_indices[1].second << vertex_indices[1].first);
+            const unsigned int first_vertex = (vertex_indices[0].second << vertex_indices[0].first) +
+                                              (vertex_indices[1].second << vertex_indices[1].first);
             for (unsigned int d = 0; d < 2; ++d)
               {
                 const auto fu = [&](const auto &tentative_cells) {
@@ -740,8 +665,7 @@ namespace GridTools
                     }
                 };
 
-                const auto vertex_index =
-                  my_cell->vertex_index(first_vertex + (d << free_direction));
+                const auto vertex_index = my_cell->vertex_index(first_vertex + (d << free_direction));
 
                 if (vertex_to_cells != nullptr)
                   fu((*vertex_to_cells)[vertex_index]);
@@ -789,8 +713,7 @@ namespace GridTools
         if (cell != my_cell)
           try
             {
-              const Point<dim> p_unit =
-                mapping.transform_real_to_unit_cell(cell, p);
+              const Point<dim> p_unit = mapping.transform_real_to_unit_cell(cell, p);
               if (cell->reference_cell().contains_point(p_unit, tolerance))
                 cells_and_points.emplace_back(cell, p_unit);
             }
@@ -798,13 +721,12 @@ namespace GridTools
             {}
       }
 
-    std::sort(
-      cells_and_points.begin(),
-      cells_and_points.end(),
-      [](const std::pair<typename MeshType<dim, spacedim>::active_cell_iterator,
-                         Point<dim>> &a,
-         const std::pair<typename MeshType<dim, spacedim>::active_cell_iterator,
-                         Point<dim>> &b) { return a.first < b.first; });
+    std::sort(cells_and_points.begin(),
+              cells_and_points.end(),
+              [](const std::pair<typename MeshType<dim, spacedim>::active_cell_iterator, Point<dim>> &a,
+                 const std::pair<typename MeshType<dim, spacedim>::active_cell_iterator, Point<dim>> &b) {
+                return a.first < b.first;
+              });
 
     return cells_and_points;
   }
@@ -813,15 +735,12 @@ namespace GridTools
 
   template <typename MeshType>
   DEAL_II_CXX20_REQUIRES(concepts::is_triangulation_or_dof_handler<MeshType>)
-  std::
-    vector<typename MeshType::active_cell_iterator> compute_active_cell_halo_layer(
-      const MeshType &mesh,
-      const std::function<bool(const typename MeshType::active_cell_iterator &)>
-        &predicate)
+  std::vector<typename MeshType::active_cell_iterator> compute_active_cell_halo_layer(
+    const MeshType                                                             &mesh,
+    const std::function<bool(const typename MeshType::active_cell_iterator &)> &predicate)
   {
     std::vector<typename MeshType::active_cell_iterator> active_halo_layer;
-    std::vector<bool> locally_active_vertices_on_subdomain(
-      mesh.get_triangulation().n_vertices(), false);
+    std::vector<bool> locally_active_vertices_on_subdomain(mesh.get_triangulation().n_vertices(), false);
 
     // Find the cells for which the predicate is true
     // These are the cells around which we wish to construct
@@ -837,8 +756,7 @@ namespace GridTools
     for (const auto &cell : mesh.active_cell_iterators())
       if (!predicate(cell)) // False predicate --> Potential halo cell
         for (const auto v : cell->vertex_indices())
-          if (locally_active_vertices_on_subdomain[cell->vertex_index(v)] ==
-              true)
+          if (locally_active_vertices_on_subdomain[cell->vertex_index(v)] == true)
             {
               active_halo_layer.push_back(cell);
               break;
@@ -851,38 +769,29 @@ namespace GridTools
 
   template <typename MeshType>
   DEAL_II_CXX20_REQUIRES(concepts::is_triangulation_or_dof_handler<MeshType>)
-  std::
-    vector<typename MeshType::cell_iterator> compute_cell_halo_layer_on_level(
-      const MeshType &mesh,
-      const std::function<bool(const typename MeshType::cell_iterator &)>
-        &                predicate,
-      const unsigned int level)
+  std::vector<typename MeshType::cell_iterator> compute_cell_halo_layer_on_level(
+    const MeshType                                                      &mesh,
+    const std::function<bool(const typename MeshType::cell_iterator &)> &predicate,
+    const unsigned int                                                   level)
   {
     std::vector<typename MeshType::cell_iterator> level_halo_layer;
-    std::vector<bool> locally_active_vertices_on_level_subdomain(
-      mesh.get_triangulation().n_vertices(), false);
+    std::vector<bool> locally_active_vertices_on_level_subdomain(mesh.get_triangulation().n_vertices(), false);
 
     // Find the cells for which the predicate is true
     // These are the cells around which we wish to construct
     // the halo layer
-    for (typename MeshType::cell_iterator cell = mesh.begin(level);
-         cell != mesh.end(level);
-         ++cell)
+    for (typename MeshType::cell_iterator cell = mesh.begin(level); cell != mesh.end(level); ++cell)
       if (predicate(cell)) // True predicate --> Part of subdomain
         for (const unsigned int v : cell->vertex_indices())
-          locally_active_vertices_on_level_subdomain[cell->vertex_index(v)] =
-            true;
+          locally_active_vertices_on_level_subdomain[cell->vertex_index(v)] = true;
 
     // Find the cells that do not conform to the predicate
     // but share a vertex with the selected subdomain on that level
     // These comprise the halo layer
-    for (typename MeshType::cell_iterator cell = mesh.begin(level);
-         cell != mesh.end(level);
-         ++cell)
+    for (typename MeshType::cell_iterator cell = mesh.begin(level); cell != mesh.end(level); ++cell)
       if (!predicate(cell)) // False predicate --> Potential halo cell
         for (const unsigned int v : cell->vertex_indices())
-          if (locally_active_vertices_on_level_subdomain[cell->vertex_index(
-                v)] == true)
+          if (locally_active_vertices_on_level_subdomain[cell->vertex_index(v)] == true)
             {
               level_halo_layer.push_back(cell);
               break;
@@ -896,12 +805,9 @@ namespace GridTools
   {
     template <typename MeshType>
     DEAL_II_CXX20_REQUIRES(concepts::is_triangulation_or_dof_handler<MeshType>)
-    bool contains_locally_owned_cells(
-      const std::vector<typename MeshType::active_cell_iterator> &cells)
+    bool contains_locally_owned_cells(const std::vector<typename MeshType::active_cell_iterator> &cells)
     {
-      for (typename std::vector<
-             typename MeshType::active_cell_iterator>::const_iterator it =
-             cells.begin();
+      for (typename std::vector<typename MeshType::active_cell_iterator>::const_iterator it = cells.begin();
            it != cells.end();
            ++it)
         {
@@ -913,12 +819,9 @@ namespace GridTools
 
     template <typename MeshType>
     DEAL_II_CXX20_REQUIRES(concepts::is_triangulation_or_dof_handler<MeshType>)
-    bool contains_artificial_cells(
-      const std::vector<typename MeshType::active_cell_iterator> &cells)
+    bool contains_artificial_cells(const std::vector<typename MeshType::active_cell_iterator> &cells)
     {
-      for (typename std::vector<
-             typename MeshType::active_cell_iterator>::const_iterator it =
-             cells.begin();
+      for (typename std::vector<typename MeshType::active_cell_iterator>::const_iterator it = cells.begin();
            it != cells.end();
            ++it)
         {
@@ -933,15 +836,13 @@ namespace GridTools
 
   template <typename MeshType>
   DEAL_II_CXX20_REQUIRES(concepts::is_triangulation_or_dof_handler<MeshType>)
-  std::vector<
-    typename MeshType::
-      active_cell_iterator> compute_ghost_cell_halo_layer(const MeshType &mesh)
+  std::vector<typename MeshType::active_cell_iterator> compute_ghost_cell_halo_layer(const MeshType &mesh)
   {
-    std::function<bool(const typename MeshType::active_cell_iterator &)>
-      predicate = IteratorFilters::LocallyOwnedCell();
+    std::function<bool(const typename MeshType::active_cell_iterator &)> predicate =
+      IteratorFilters::LocallyOwnedCell();
 
-    const std::vector<typename MeshType::active_cell_iterator>
-      active_halo_layer = compute_active_cell_halo_layer(mesh, predicate);
+    const std::vector<typename MeshType::active_cell_iterator> active_halo_layer =
+      compute_active_cell_halo_layer(mesh, predicate);
 
     // Check that we never return locally owned or artificial cells
     // What is left should only be the ghost cells
@@ -957,17 +858,13 @@ namespace GridTools
 
   template <typename MeshType>
   DEAL_II_CXX20_REQUIRES(concepts::is_triangulation_or_dof_handler<MeshType>)
-  std::
-    vector<typename MeshType::active_cell_iterator> compute_active_cell_layer_within_distance(
-      const MeshType &mesh,
-      const std::function<bool(const typename MeshType::active_cell_iterator &)>
-        &          predicate,
-      const double layer_thickness)
+  std::vector<typename MeshType::active_cell_iterator> compute_active_cell_layer_within_distance(
+    const MeshType                                                             &mesh,
+    const std::function<bool(const typename MeshType::active_cell_iterator &)> &predicate,
+    const double                                                                layer_thickness)
   {
-    std::vector<typename MeshType::active_cell_iterator>
-      subdomain_boundary_cells, active_cell_layer_within_distance;
-    std::vector<bool> vertices_outside_subdomain(
-      mesh.get_triangulation().n_vertices(), false);
+    std::vector<typename MeshType::active_cell_iterator> subdomain_boundary_cells, active_cell_layer_within_distance;
+    std::vector<bool> vertices_outside_subdomain(mesh.get_triangulation().n_vertices(), false);
 
     const unsigned int spacedim = MeshType::space_dimension;
 
@@ -991,8 +888,7 @@ namespace GridTools
     // or if none of the active cells conform to the predicate
     // there is no active cell layer around the predicate
     // subdomain (within any distance)
-    if (n_non_predicate_cells == 0 ||
-        n_non_predicate_cells == mesh.get_triangulation().n_active_cells())
+    if (n_non_predicate_cells == 0 || n_non_predicate_cells == mesh.get_triangulation().n_active_cells())
       return std::vector<typename MeshType::active_cell_iterator>();
 
     // Find the cells that conform to the predicate
@@ -1009,8 +905,7 @@ namespace GridTools
 
     // To cheaply filter out some cells located far away from the predicate
     // subdomain, get the bounding box of the predicate subdomain.
-    std::pair<Point<spacedim>, Point<spacedim>> bounding_box =
-      compute_bounding_box(mesh, predicate);
+    std::pair<Point<spacedim>, Point<spacedim>> bounding_box = compute_bounding_box(mesh, predicate);
 
     // DOUBLE_EPSILON to compare really close double values
     const double DOUBLE_EPSILON = 100. * std::numeric_limits<double>::epsilon();
@@ -1022,33 +917,25 @@ namespace GridTools
         bounding_box.second[d] += (layer_thickness + DOUBLE_EPSILON); // maxp
       }
 
-    std::vector<Point<spacedim>>
-      subdomain_boundary_cells_centers; // cache all the subdomain boundary
-                                        // cells centers here
-    std::vector<double>
-      subdomain_boundary_cells_radii; // cache all the subdomain boundary cells
-                                      // radii
+    std::vector<Point<spacedim>> subdomain_boundary_cells_centers; // cache all the subdomain boundary
+                                                                   // cells centers here
+    std::vector<double> subdomain_boundary_cells_radii;            // cache all the subdomain boundary cells
+                                                                   // radii
     subdomain_boundary_cells_centers.reserve(subdomain_boundary_cells.size());
     subdomain_boundary_cells_radii.reserve(subdomain_boundary_cells.size());
     // compute cell radius for each boundary cell of the predicate subdomain
-    for (typename std::vector<typename MeshType::active_cell_iterator>::
-           const_iterator subdomain_boundary_cell_iterator =
-             subdomain_boundary_cells.begin();
+    for (typename std::vector<typename MeshType::active_cell_iterator>::const_iterator
+           subdomain_boundary_cell_iterator = subdomain_boundary_cells.begin();
          subdomain_boundary_cell_iterator != subdomain_boundary_cells.end();
          ++subdomain_boundary_cell_iterator)
       {
-        const std::pair<Point<spacedim>, double>
-          &subdomain_boundary_cell_enclosing_ball =
-            (*subdomain_boundary_cell_iterator)->enclosing_ball();
+        const std::pair<Point<spacedim>, double> &subdomain_boundary_cell_enclosing_ball =
+          (*subdomain_boundary_cell_iterator)->enclosing_ball();
 
-        subdomain_boundary_cells_centers.push_back(
-          subdomain_boundary_cell_enclosing_ball.first);
-        subdomain_boundary_cells_radii.push_back(
-          subdomain_boundary_cell_enclosing_ball.second);
+        subdomain_boundary_cells_centers.push_back(subdomain_boundary_cell_enclosing_ball.first);
+        subdomain_boundary_cells_radii.push_back(subdomain_boundary_cell_enclosing_ball.second);
       }
-    AssertThrow(subdomain_boundary_cells_radii.size() ==
-                  subdomain_boundary_cells_centers.size(),
-                ExcInternalError());
+    AssertThrow(subdomain_boundary_cells_radii.size() == subdomain_boundary_cells_centers.size(), ExcInternalError());
 
     // Find the cells that are within layer_thickness of predicate subdomain
     // boundary distance but are inside the extended bounding box. Most cells
@@ -1062,32 +949,24 @@ namespace GridTools
         if (predicate(cell))
           continue;
 
-        const std::pair<Point<spacedim>, double> &cell_enclosing_ball =
-          cell->enclosing_ball();
+        const std::pair<Point<spacedim>, double> &cell_enclosing_ball = cell->enclosing_ball();
 
-        const Point<spacedim> cell_enclosing_ball_center =
-          cell_enclosing_ball.first;
-        const double cell_enclosing_ball_radius = cell_enclosing_ball.second;
+        const Point<spacedim> cell_enclosing_ball_center = cell_enclosing_ball.first;
+        const double          cell_enclosing_ball_radius = cell_enclosing_ball.second;
 
         bool cell_inside = true; // reset for each cell
 
         for (unsigned int d = 0; d < spacedim; ++d)
-          cell_inside &=
-            (cell_enclosing_ball_center[d] + cell_enclosing_ball_radius >
-             bounding_box.first[d]) &&
-            (cell_enclosing_ball_center[d] - cell_enclosing_ball_radius <
-             bounding_box.second[d]);
+          cell_inside &= (cell_enclosing_ball_center[d] + cell_enclosing_ball_radius > bounding_box.first[d]) &&
+                         (cell_enclosing_ball_center[d] - cell_enclosing_ball_radius < bounding_box.second[d]);
         // cell_inside is true if its enclosing ball intersects the extended
         // bounding box
 
         // Ignore all the cells that are outside the extended bounding box
         if (cell_inside)
-          for (unsigned int i = 0; i < subdomain_boundary_cells_radii.size();
-               ++i)
-            if (cell_enclosing_ball_center.distance_square(
-                  subdomain_boundary_cells_centers[i]) <
-                Utilities::fixed_power<2>(cell_enclosing_ball_radius +
-                                          subdomain_boundary_cells_radii[i] +
+          for (unsigned int i = 0; i < subdomain_boundary_cells_radii.size(); ++i)
+            if (cell_enclosing_ball_center.distance_square(subdomain_boundary_cells_centers[i]) <
+                Utilities::fixed_power<2>(cell_enclosing_ball_radius + subdomain_boundary_cells_radii[i] +
                                           layer_thickness + DOUBLE_EPSILON))
               {
                 active_cell_layer_within_distance.push_back(cell);
@@ -1102,38 +981,25 @@ namespace GridTools
 
   template <typename MeshType>
   DEAL_II_CXX20_REQUIRES(concepts::is_triangulation_or_dof_handler<MeshType>)
-  std::vector<
-    typename MeshType::
-      active_cell_iterator> compute_ghost_cell_layer_within_distance(const MeshType
-                                                                       &mesh,
-                                                                     const double
-                                                                       layer_thickness)
+  std::vector<typename MeshType::active_cell_iterator> compute_ghost_cell_layer_within_distance(
+    const MeshType &mesh,
+    const double    layer_thickness)
   {
-    IteratorFilters::LocallyOwnedCell locally_owned_cell_predicate;
-    std::function<bool(const typename MeshType::active_cell_iterator &)>
-      predicate(locally_owned_cell_predicate);
+    IteratorFilters::LocallyOwnedCell                                    locally_owned_cell_predicate;
+    std::function<bool(const typename MeshType::active_cell_iterator &)> predicate(locally_owned_cell_predicate);
 
-    const std::vector<typename MeshType::active_cell_iterator>
-      ghost_cell_layer_within_distance =
-        compute_active_cell_layer_within_distance(mesh,
-                                                  predicate,
-                                                  layer_thickness);
+    const std::vector<typename MeshType::active_cell_iterator> ghost_cell_layer_within_distance =
+      compute_active_cell_layer_within_distance(mesh, predicate, layer_thickness);
 
     // Check that we never return locally owned or artificial cells
     // What is left should only be the ghost cells
-    Assert(
-      contains_locally_owned_cells<MeshType>(
-        ghost_cell_layer_within_distance) == false,
-      ExcMessage(
-        "Ghost cells within layer_thickness contains locally owned cells."));
-    Assert(
-      contains_artificial_cells<MeshType>(ghost_cell_layer_within_distance) ==
-        false,
-      ExcMessage(
-        "Ghost cells within layer_thickness contains artificial cells. "
-        "The function compute_ghost_cell_layer_within_distance "
-        "is probably called while using parallel::distributed::Triangulation. "
-        "In such case please refer to the description of this function."));
+    Assert(contains_locally_owned_cells<MeshType>(ghost_cell_layer_within_distance) == false,
+           ExcMessage("Ghost cells within layer_thickness contains locally owned cells."));
+    Assert(contains_artificial_cells<MeshType>(ghost_cell_layer_within_distance) == false,
+           ExcMessage("Ghost cells within layer_thickness contains artificial cells. "
+                      "The function compute_ghost_cell_layer_within_distance "
+                      "is probably called while using parallel::distributed::Triangulation. "
+                      "In such case please refer to the description of this function."));
 
     return ghost_cell_layer_within_distance;
   }
@@ -1142,17 +1008,11 @@ namespace GridTools
 
   template <typename MeshType>
   DEAL_II_CXX20_REQUIRES(concepts::is_triangulation_or_dof_handler<MeshType>)
-  std::pair<
-    Point<MeshType::space_dimension>,
-    Point<MeshType::
-            space_dimension>> compute_bounding_box(const MeshType &mesh,
-                                                   const std::function<bool(
-                                                     const typename MeshType::
-                                                       active_cell_iterator &)>
-                                                     &predicate)
+  std::pair<Point<MeshType::space_dimension>, Point<MeshType::space_dimension>> compute_bounding_box(
+    const MeshType                                                             &mesh,
+    const std::function<bool(const typename MeshType::active_cell_iterator &)> &predicate)
   {
-    std::vector<bool> locally_active_vertices_on_subdomain(
-      mesh.get_triangulation().n_vertices(), false);
+    std::vector<bool> locally_active_vertices_on_subdomain(mesh.get_triangulation().n_vertices(), false);
 
     const unsigned int spacedim = MeshType::space_dimension;
 
@@ -1174,11 +1034,9 @@ namespace GridTools
     for (const auto &cell : mesh.active_cell_iterators())
       if (predicate(cell)) // True predicate --> Part of subdomain
         for (const unsigned int v : cell->vertex_indices())
-          if (locally_active_vertices_on_subdomain[cell->vertex_index(v)] ==
-              false)
+          if (locally_active_vertices_on_subdomain[cell->vertex_index(v)] == false)
             {
-              locally_active_vertices_on_subdomain[cell->vertex_index(v)] =
-                true;
+              locally_active_vertices_on_subdomain[cell->vertex_index(v)] = true;
               for (unsigned int d = 0; d < spacedim; ++d)
                 {
                   minp[d] = std::min(minp[d], cell->vertex(v)[d]);
@@ -1193,12 +1051,9 @@ namespace GridTools
 
   template <typename MeshType>
   DEAL_II_CXX20_REQUIRES(concepts::is_triangulation_or_dof_handler<MeshType>)
-  std::list<std::pair<
-    typename MeshType::cell_iterator,
-    typename MeshType::cell_iterator>> get_finest_common_cells(const MeshType
-                                                                 &mesh_1,
-                                                               const MeshType
-                                                                 &mesh_2)
+  std::list<std::pair<typename MeshType::cell_iterator, typename MeshType::cell_iterator>> get_finest_common_cells(
+    const MeshType &mesh_1,
+    const MeshType &mesh_2)
   {
     Assert(have_same_coarse_mesh(mesh_1, mesh_2),
            ExcMessage("The two meshes must be represent triangulations that "
@@ -1214,10 +1069,10 @@ namespace GridTools
     {
       constexpr int dim      = MeshType::dimension;
       constexpr int spacedim = MeshType::space_dimension;
-      if (dynamic_cast<const parallel::distributed::Triangulation<dim, spacedim>
-                         *>(&mesh_1.get_triangulation()) != nullptr ||
-          dynamic_cast<const parallel::distributed::Triangulation<dim, spacedim>
-                         *>(&mesh_2.get_triangulation()) != nullptr)
+      if (dynamic_cast<const parallel::distributed::Triangulation<dim, spacedim> *>(&mesh_1.get_triangulation()) !=
+            nullptr ||
+          dynamic_cast<const parallel::distributed::Triangulation<dim, spacedim> *>(&mesh_2.get_triangulation()) !=
+            nullptr)
         {
           Assert(&mesh_1.get_triangulation() == &mesh_2.get_triangulation(),
                  ExcMessage("This function can only be used with meshes "
@@ -1235,13 +1090,11 @@ namespace GridTools
     // pairs of iterators to their children to the back. if these again both
     // correspond to non-active cells, we will get to the later on for further
     // consideration
-    using CellList = std::list<std::pair<typename MeshType::cell_iterator,
-                                         typename MeshType::cell_iterator>>;
+    using CellList = std::list<std::pair<typename MeshType::cell_iterator, typename MeshType::cell_iterator>>;
     CellList cell_list;
 
     // first push the coarse level cells
-    typename MeshType::cell_iterator cell_1 = mesh_1.begin(0),
-                                     cell_2 = mesh_2.begin(0);
+    typename MeshType::cell_iterator cell_1 = mesh_1.begin(0), cell_2 = mesh_2.begin(0);
     for (; cell_1 != mesh_1.end(0); ++cell_1, ++cell_2)
       cell_list.emplace_back(cell_1, cell_2);
 
@@ -1251,15 +1104,11 @@ namespace GridTools
       {
         // if both cells in this pair have children, then erase this element
         // and push their children instead
-        if (cell_pair->first->has_children() &&
-            cell_pair->second->has_children())
+        if (cell_pair->first->has_children() && cell_pair->second->has_children())
           {
-            Assert(cell_pair->first->refinement_case() ==
-                     cell_pair->second->refinement_case(),
-                   ExcNotImplemented());
+            Assert(cell_pair->first->refinement_case() == cell_pair->second->refinement_case(), ExcNotImplemented());
             for (unsigned int c = 0; c < cell_pair->first->n_children(); ++c)
-              cell_list.emplace_back(cell_pair->first->child(c),
-                                     cell_pair->second->child(c));
+              cell_list.emplace_back(cell_pair->first->child(c), cell_pair->second->child(c));
 
             // erasing an iterator keeps other iterators valid, so already
             // advance the present iterator by one and then delete the element
@@ -1271,11 +1120,8 @@ namespace GridTools
         else
           {
             // at least one cell is active
-            if (remove_ghost_cells &&
-                ((cell_pair->first->is_active() &&
-                  !cell_pair->first->is_locally_owned()) ||
-                 (cell_pair->second->is_active() &&
-                  !cell_pair->second->is_locally_owned())))
+            if (remove_ghost_cells && ((cell_pair->first->is_active() && !cell_pair->first->is_locally_owned()) ||
+                                       (cell_pair->second->is_active() && !cell_pair->second->is_locally_owned())))
               {
                 // we only exclude ghost cells for distributed Triangulations
                 const auto previous_cell_pair = cell_pair;
@@ -1289,11 +1135,9 @@ namespace GridTools
 
     // just to make sure everything is ok, validate that all pairs have at
     // least one active iterator or have different refinement_cases
-    for (cell_pair = cell_list.begin(); cell_pair != cell_list.end();
-         ++cell_pair)
+    for (cell_pair = cell_list.begin(); cell_pair != cell_list.end(); ++cell_pair)
       Assert(cell_pair->first->is_active() || cell_pair->second->is_active() ||
-               (cell_pair->first->refinement_case() !=
-                cell_pair->second->refinement_case()),
+               (cell_pair->first->refinement_case() != cell_pair->second->refinement_case()),
              ExcInternalError());
 
     return cell_list;
@@ -1303,8 +1147,7 @@ namespace GridTools
 
   template <int dim, int spacedim>
   bool
-  have_same_coarse_mesh(const Triangulation<dim, spacedim> &mesh_1,
-                        const Triangulation<dim, spacedim> &mesh_2)
+  have_same_coarse_mesh(const Triangulation<dim, spacedim> &mesh_1, const Triangulation<dim, spacedim> &mesh_2)
   {
     // make sure the two meshes have
     // the same number of coarse cells
@@ -1314,10 +1157,7 @@ namespace GridTools
     // if so, also make sure they have
     // the same vertices on the cells
     // of the coarse mesh
-    typename Triangulation<dim, spacedim>::cell_iterator cell_1 =
-                                                           mesh_1.begin(0),
-                                                         cell_2 =
-                                                           mesh_2.begin(0),
+    typename Triangulation<dim, spacedim>::cell_iterator cell_1 = mesh_1.begin(0), cell_2 = mesh_2.begin(0),
                                                          endc = mesh_1.end(0);
     for (; cell_1 != endc; ++cell_1, ++cell_2)
       {
@@ -1341,29 +1181,24 @@ namespace GridTools
   DEAL_II_CXX20_REQUIRES(concepts::is_triangulation_or_dof_handler<MeshType>)
   bool have_same_coarse_mesh(const MeshType &mesh_1, const MeshType &mesh_2)
   {
-    return have_same_coarse_mesh(mesh_1.get_triangulation(),
-                                 mesh_2.get_triangulation());
+    return have_same_coarse_mesh(mesh_1.get_triangulation(), mesh_2.get_triangulation());
   }
 
 
 
   template <int dim, int spacedim>
-  std::pair<typename DoFHandler<dim, spacedim>::active_cell_iterator,
-            Point<dim>>
-  find_active_cell_around_point(
-    const hp::MappingCollection<dim, spacedim> &mapping,
-    const DoFHandler<dim, spacedim> &           mesh,
-    const Point<spacedim> &                     p,
-    const double                                tolerance)
+  std::pair<typename DoFHandler<dim, spacedim>::active_cell_iterator, Point<dim>>
+  find_active_cell_around_point(const hp::MappingCollection<dim, spacedim> &mapping,
+                                const DoFHandler<dim, spacedim>            &mesh,
+                                const Point<spacedim>                      &p,
+                                const double                                tolerance)
   {
-    Assert((mapping.size() == 1) ||
-             (mapping.size() == mesh.get_fe_collection().size()),
+    Assert((mapping.size() == 1) || (mapping.size() == mesh.get_fe_collection().size()),
            ExcMessage("Mapping collection needs to have either size 1 "
                       "or size equal to the number of elements in "
                       "the FECollection."));
 
-    using cell_iterator =
-      typename DoFHandler<dim, spacedim>::active_cell_iterator;
+    using cell_iterator = typename DoFHandler<dim, spacedim>::active_cell_iterator;
 
     std::pair<cell_iterator, Point<dim>> best_cell;
     // If we have only one element in the MappingCollection,
@@ -1372,8 +1207,7 @@ namespace GridTools
     if (mapping.size() == 1)
       {
         const std::vector<bool> marked_vertices = {};
-        best_cell                               = find_active_cell_around_point(
-          mapping[0], mesh, p, marked_vertices, tolerance);
+        best_cell = find_active_cell_around_point(mapping[0], mesh, p, marked_vertices, tolerance);
       }
     else
       {
@@ -1388,16 +1222,14 @@ namespace GridTools
         // all adjacent cells
         unsigned int vertex = find_closest_vertex(mesh, p);
 
-        std::vector<cell_iterator> adjacent_cells_tmp =
-          find_cells_adjacent_to_vertex(mesh, vertex);
+        std::vector<cell_iterator> adjacent_cells_tmp = find_cells_adjacent_to_vertex(mesh, vertex);
 
         // Make sure that we have found
         // at least one cell adjacent to vertex.
         Assert(adjacent_cells_tmp.size() > 0, ExcInternalError());
 
         // Copy all the cells into a std::set
-        std::set<cell_iterator> adjacent_cells(adjacent_cells_tmp.begin(),
-                                               adjacent_cells_tmp.end());
+        std::set<cell_iterator> adjacent_cells(adjacent_cells_tmp.begin(), adjacent_cells_tmp.end());
         std::set<cell_iterator> searched_cells;
 
         // Determine the maximal number of cells
@@ -1415,23 +1247,18 @@ namespace GridTools
               {
                 try
                   {
-                    const Point<dim> p_cell =
-                      mapping[cell->active_fe_index()]
-                        .transform_real_to_unit_cell(cell, p);
+                    const Point<dim> p_cell = mapping[cell->active_fe_index()].transform_real_to_unit_cell(cell, p);
 
 
                     // calculate the Euclidean norm of
                     // the distance vector to the unit cell.
-                    const double dist =
-                      cell->reference_cell().closest_point(p_cell).distance(
-                        p_cell);
+                    const double dist = cell->reference_cell().closest_point(p_cell).distance(p_cell);
 
                     // We compare if the point is inside the
                     // unit cell (or at least not too far
                     // outside). If it is, it is also checked
                     // that the cell has a more refined state
-                    if (dist < best_distance ||
-                        (dist == best_distance && cell->level() > best_level))
+                    if (dist < best_distance || (dist == best_distance && cell->level() > best_level))
                       {
                         found         = true;
                         best_distance = dist;
@@ -1439,8 +1266,7 @@ namespace GridTools
                         best_cell     = std::make_pair(cell, p_cell);
                       }
                   }
-                catch (
-                  typename MappingQ<dim, spacedim>::ExcTransformationFailed &)
+                catch (typename MappingQ<dim, spacedim>::ExcTransformationFailed &)
                   {
                     // ok, the transformation
                     // failed presumably
@@ -1464,10 +1290,7 @@ namespace GridTools
             // the cells in adjacent_cells.
             if (!found && cells_searched < n_cells)
               {
-                find_active_cell_around_point_internal<dim,
-                                                       DoFHandler,
-                                                       spacedim>(
-                  mesh, searched_cells, adjacent_cells);
+                find_active_cell_around_point_internal<dim, DoFHandler, spacedim>(mesh, searched_cells, adjacent_cells);
               }
           }
       }
@@ -1498,26 +1321,21 @@ namespace GridTools
             // children of the neighbor because they can not be further refined
             // and, consequently, the children is active
             if (MeshType::dimension > 1)
-            {
-              for (unsigned int subface = 0;
-                   subface < cell->face(face_number)->n_children();
-                   ++subface)
-                patch.push_back(
-                  cell->neighbor_child_on_subface(face_number, subface));
-            }
-          else
-            {
-              // in 1d, we need to work a bit harder: iterate until we find
-              // the child by going from cell to child to child etc
-              typename MeshType::cell_iterator neighbor =
-                cell->neighbor(face_number);
-              while (neighbor->has_children())
-                neighbor = neighbor->child(1 - face_number);
+              {
+                for (unsigned int subface = 0; subface < cell->face(face_number)->n_children(); ++subface)
+                  patch.push_back(cell->neighbor_child_on_subface(face_number, subface));
+              }
+            else
+              {
+                // in 1d, we need to work a bit harder: iterate until we find
+                // the child by going from cell to child to child etc
+                typename MeshType::cell_iterator neighbor = cell->neighbor(face_number);
+                while (neighbor->has_children())
+                  neighbor = neighbor->child(1 - face_number);
 
-              Assert(neighbor->neighbor(1 - face_number) == cell,
-                     ExcInternalError());
-              patch.push_back(neighbor);
-            }
+                Assert(neighbor->neighbor(1 - face_number) == cell, ExcInternalError());
+                patch.push_back(neighbor);
+              }
         }
     return patch;
   }
@@ -1526,12 +1344,9 @@ namespace GridTools
 
   template <class Container>
   std::vector<typename Container::cell_iterator>
-  get_cells_at_coarsest_common_level(
-    const std::vector<typename Container::active_cell_iterator> &patch)
+  get_cells_at_coarsest_common_level(const std::vector<typename Container::active_cell_iterator> &patch)
   {
-    Assert(patch.size() > 0,
-           ExcMessage(
-             "Vector containing patch cells should not be an empty vector!"));
+    Assert(patch.size() > 0, ExcMessage("Vector containing patch cells should not be an empty vector!"));
     // In order to extract the set of cells with the coarsest common level from
     // the give vector of cells: First it finds the number associated with the
     // minimum level of refinement, namely "min_level"
@@ -1539,9 +1354,8 @@ namespace GridTools
 
     for (unsigned int i = 0; i < patch.size(); ++i)
       min_level = std::min(min_level, patch[i]->level());
-    std::set<typename Container::cell_iterator> uniform_cells;
-    typename std::vector<
-      typename Container::active_cell_iterator>::const_iterator patch_cell;
+    std::set<typename Container::cell_iterator>                                    uniform_cells;
+    typename std::vector<typename Container::active_cell_iterator>::const_iterator patch_cell;
     // it loops through all cells of the input vector
     for (patch_cell = patch.begin(); patch_cell != patch.end(); ++patch_cell)
       {
@@ -1564,8 +1378,7 @@ namespace GridTools
           }
       }
 
-    return std::vector<typename Container::cell_iterator>(uniform_cells.begin(),
-                                                          uniform_cells.end());
+    return std::vector<typename Container::cell_iterator>(uniform_cells.begin(), uniform_cells.end());
   }
 
 
@@ -1573,35 +1386,28 @@ namespace GridTools
   template <class Container>
   void
   build_triangulation_from_patch(
-    const std::vector<typename Container::active_cell_iterator> &patch,
-    Triangulation<Container::dimension, Container::space_dimension>
-      &local_triangulation,
-    std::map<
-      typename Triangulation<Container::dimension,
-                             Container::space_dimension>::active_cell_iterator,
-      typename Container::active_cell_iterator> &patch_to_global_tria_map)
+    const std::vector<typename Container::active_cell_iterator>     &patch,
+    Triangulation<Container::dimension, Container::space_dimension> &local_triangulation,
+    std::map<typename Triangulation<Container::dimension, Container::space_dimension>::active_cell_iterator,
+             typename Container::active_cell_iterator>              &patch_to_global_tria_map)
 
   {
     const std::vector<typename Container::cell_iterator> uniform_cells =
       get_cells_at_coarsest_common_level<Container>(patch);
     // First it creates triangulation from the vector of "uniform_cells"
     local_triangulation.clear();
-    std::vector<Point<Container::space_dimension>> vertices;
-    const unsigned int n_uniform_cells = uniform_cells.size();
-    std::vector<CellData<Container::dimension>> cells(n_uniform_cells);
-    unsigned int                                k = 0; // for enumerating cells
-    unsigned int i = 0; // for enumerating vertices
-    typename std::vector<typename Container::cell_iterator>::const_iterator
-      uniform_cell;
-    for (uniform_cell = uniform_cells.begin();
-         uniform_cell != uniform_cells.end();
-         ++uniform_cell)
+    std::vector<Point<Container::space_dimension>>                          vertices;
+    const unsigned int                                                      n_uniform_cells = uniform_cells.size();
+    std::vector<CellData<Container::dimension>>                             cells(n_uniform_cells);
+    unsigned int                                                            k = 0; // for enumerating cells
+    unsigned int                                                            i = 0; // for enumerating vertices
+    typename std::vector<typename Container::cell_iterator>::const_iterator uniform_cell;
+    for (uniform_cell = uniform_cells.begin(); uniform_cell != uniform_cells.end(); ++uniform_cell)
       {
         for (const unsigned int v : (*uniform_cell)->vertex_indices())
           {
-            Point<Container::space_dimension> position =
-              (*uniform_cell)->vertex(v);
-            bool repeat_vertex = false;
+            Point<Container::space_dimension> position      = (*uniform_cell)->vertex(v);
+            bool                              repeat_vertex = false;
 
             for (unsigned int m = 0; m < i; ++m)
               {
@@ -1623,28 +1429,23 @@ namespace GridTools
         k = k + 1;
       }
     local_triangulation.create_triangulation(vertices, cells, SubCellData());
-    Assert(local_triangulation.n_active_cells() == uniform_cells.size(),
-           ExcInternalError());
+    Assert(local_triangulation.n_active_cells() == uniform_cells.size(), ExcInternalError());
     local_triangulation.clear_user_flags();
     unsigned int index = 0;
     // Create a map between cells of class DoFHandler into class Triangulation
-    std::map<typename Triangulation<Container::dimension,
-                                    Container::space_dimension>::cell_iterator,
+    std::map<typename Triangulation<Container::dimension, Container::space_dimension>::cell_iterator,
              typename Container::cell_iterator>
       patch_to_global_tria_map_tmp;
-    for (typename Triangulation<Container::dimension,
-                                Container::space_dimension>::cell_iterator
-           coarse_cell = local_triangulation.begin();
+    for (typename Triangulation<Container::dimension, Container::space_dimension>::cell_iterator coarse_cell =
+           local_triangulation.begin();
          coarse_cell != local_triangulation.end();
          ++coarse_cell, ++index)
       {
-        patch_to_global_tria_map_tmp.insert(
-          std::make_pair(coarse_cell, uniform_cells[index]));
+        patch_to_global_tria_map_tmp.insert(std::make_pair(coarse_cell, uniform_cells[index]));
         // To ensure that the cells with the same coordinates (here, we compare
         // their centers) are mapped into each other.
 
-        Assert(coarse_cell->center().distance(uniform_cells[index]->center()) <=
-                 1e-15 * coarse_cell->diameter(),
+        Assert(coarse_cell->center().distance(uniform_cells[index]->center()) <= 1e-15 * coarse_cell->diameter(),
                ExcInternalError());
       }
     bool refinement_necessary;
@@ -1653,8 +1454,7 @@ namespace GridTools
     do
       {
         refinement_necessary = false;
-        for (const auto &active_tria_cell :
-             local_triangulation.active_cell_iterators())
+        for (const auto &active_tria_cell : local_triangulation.active_cell_iterators())
           {
             if (patch_to_global_tria_map_tmp[active_tria_cell]->has_children())
               {
@@ -1667,18 +1467,15 @@ namespace GridTools
                   // Even though vertices may not be exactly the same, the
                   // appropriate cells will match since == for TriAccessors
                   // checks only cell level and index.
-                  if (patch_to_global_tria_map_tmp[active_tria_cell] ==
-                      patch[i])
+                  if (patch_to_global_tria_map_tmp[active_tria_cell] == patch[i])
                     {
                       // adjust the cell vertices of the local_triangulation to
                       // match cell vertices of the global triangulation
-                      for (const unsigned int v :
-                           active_tria_cell->vertex_indices())
+                      for (const unsigned int v : active_tria_cell->vertex_indices())
                         active_tria_cell->vertex(v) = patch[i]->vertex(v);
 
                       Assert(active_tria_cell->center().distance(
-                               patch_to_global_tria_map_tmp[active_tria_cell]
-                                 ->center()) <=
+                               patch_to_global_tria_map_tmp[active_tria_cell]->center()) <=
                                1e-15 * active_tria_cell->diameter(),
                              ExcInternalError());
 
@@ -1692,15 +1489,12 @@ namespace GridTools
           {
             local_triangulation.execute_coarsening_and_refinement();
 
-            for (typename Triangulation<
-                   Container::dimension,
-                   Container::space_dimension>::cell_iterator cell =
+            for (typename Triangulation<Container::dimension, Container::space_dimension>::cell_iterator cell =
                    local_triangulation.begin();
                  cell != local_triangulation.end();
                  ++cell)
               {
-                if (patch_to_global_tria_map_tmp.find(cell) !=
-                    patch_to_global_tria_map_tmp.end())
+                if (patch_to_global_tria_map_tmp.find(cell) != patch_to_global_tria_map_tmp.end())
                   {
                     if (cell->has_children())
                       {
@@ -1711,14 +1505,10 @@ namespace GridTools
                         // these children may not yet be in the map
                         for (unsigned int c = 0; c < cell->n_children(); ++c)
                           {
-                            if (patch_to_global_tria_map_tmp.find(cell->child(
-                                  c)) == patch_to_global_tria_map_tmp.end())
+                            if (patch_to_global_tria_map_tmp.find(cell->child(c)) == patch_to_global_tria_map_tmp.end())
                               {
                                 patch_to_global_tria_map_tmp.insert(
-                                  std::make_pair(
-                                    cell->child(c),
-                                    patch_to_global_tria_map_tmp[cell]->child(
-                                      c)));
+                                  std::make_pair(cell->child(c), patch_to_global_tria_map_tmp[cell]->child(c)));
 
                                 // One might be tempted to assert that the cell
                                 // being added here has the same center as the
@@ -1750,32 +1540,24 @@ namespace GridTools
 
     // Last assertion check to make sure we have the right cells and centers
     // in the map, and hence the correct vertices of the triangulation
-    for (typename Triangulation<Container::dimension,
-                                Container::space_dimension>::cell_iterator
-           cell = local_triangulation.begin();
+    for (typename Triangulation<Container::dimension, Container::space_dimension>::cell_iterator cell =
+           local_triangulation.begin();
          cell != local_triangulation.end();
          ++cell)
       {
         if (cell->user_flag_set())
           {
-            Assert(patch_to_global_tria_map_tmp.find(cell) !=
-                     patch_to_global_tria_map_tmp.end(),
-                   ExcInternalError());
+            Assert(patch_to_global_tria_map_tmp.find(cell) != patch_to_global_tria_map_tmp.end(), ExcInternalError());
 
-            Assert(cell->center().distance(
-                     patch_to_global_tria_map_tmp[cell]->center()) <=
-                     1e-15 * cell->diameter(),
+            Assert(cell->center().distance(patch_to_global_tria_map_tmp[cell]->center()) <= 1e-15 * cell->diameter(),
                    ExcInternalError());
           }
       }
 
 
-    typename std::map<
-      typename Triangulation<Container::dimension,
-                             Container::space_dimension>::cell_iterator,
-      typename Container::cell_iterator>::iterator
-      map_tmp_it  = patch_to_global_tria_map_tmp.begin(),
-      map_tmp_end = patch_to_global_tria_map_tmp.end();
+    typename std::map<typename Triangulation<Container::dimension, Container::space_dimension>::cell_iterator,
+                      typename Container::cell_iterator>::iterator map_tmp_it  = patch_to_global_tria_map_tmp.begin(),
+                                                                   map_tmp_end = patch_to_global_tria_map_tmp.end();
     // Now we just need to take the temporary map of pairs of type cell_iterator
     // "patch_to_global_tria_map_tmp" making pair of active_cell_iterators so
     // that filling out the final map "patch_to_global_tria_map"
@@ -1786,9 +1568,7 @@ namespace GridTools
 
 
   template <int dim, int spacedim>
-  std::map<
-    types::global_dof_index,
-    std::vector<typename DoFHandler<dim, spacedim>::active_cell_iterator>>
+  std::map<types::global_dof_index, std::vector<typename DoFHandler<dim, spacedim>::active_cell_iterator>>
   get_dof_to_support_patch_map(DoFHandler<dim, spacedim> &dof_handler)
   {
     // This is the map from global_dof_index to
@@ -1801,8 +1581,7 @@ namespace GridTools
     // constructed, we will copy to a map of vectors
     // since that is the preferred output for other
     // functions.
-    std::map<types::global_dof_index,
-             std::set<typename DoFHandler<dim, spacedim>::active_cell_iterator>>
+    std::map<types::global_dof_index, std::set<typename DoFHandler<dim, spacedim>::active_cell_iterator>>
       dof_to_set_of_cells_map;
 
     std::vector<types::global_dof_index> local_dof_indices;
@@ -1823,14 +1602,11 @@ namespace GridTools
       {
         // save user flags as they will be modified and then later restored
         dof_handler.get_triangulation().save_user_flags(user_flags);
-        const_cast<dealii::Triangulation<dim, spacedim> &>(
-          dof_handler.get_triangulation())
-          .clear_user_flags();
+        const_cast<dealii::Triangulation<dim, spacedim> &>(dof_handler.get_triangulation()).clear_user_flags();
 
 
-        typename DoFHandler<dim, spacedim>::active_cell_iterator
-          cell = dof_handler.begin_active(),
-          endc = dof_handler.end();
+        typename DoFHandler<dim, spacedim>::active_cell_iterator cell = dof_handler.begin_active(),
+                                                                 endc = dof_handler.end();
         for (; cell != endc; ++cell)
           {
             // We only want lines that are locally_relevant
@@ -1841,11 +1617,9 @@ namespace GridTools
               {
                 for (unsigned int l = 0; l < cell->n_lines(); ++l)
                   if (cell->line(l)->has_children())
-                    for (unsigned int c = 0; c < cell->line(l)->n_children();
-                         ++c)
+                    for (unsigned int c = 0; c < cell->line(l)->n_children(); ++c)
                       {
-                        lines_to_parent_lines_map[cell->line(l)->child(c)] =
-                          cell->line(l);
+                        lines_to_parent_lines_map[cell->line(l)->child(c)] = cell->line(l);
                         // set flags to know that child
                         // line has an active parent.
                         cell->line(l)->child(c)->set_user_flag();
@@ -1861,9 +1635,8 @@ namespace GridTools
     // which it is a part, mainly the ones that must
     // be added on account of adaptivity hanging node
     // constraints.
-    typename DoFHandler<dim, spacedim>::active_cell_iterator
-      cell = dof_handler.begin_active(),
-      endc = dof_handler.end();
+    typename DoFHandler<dim, spacedim>::active_cell_iterator cell = dof_handler.begin_active(),
+                                                             endc = dof_handler.end();
     for (; cell != endc; ++cell)
       {
         // Need to loop through all cells that could
@@ -1871,8 +1644,7 @@ namespace GridTools
         // cells including ghost cells
         if (cell->is_artificial() == false)
           {
-            const unsigned int n_dofs_per_cell =
-              cell->get_fe().n_dofs_per_cell();
+            const unsigned int n_dofs_per_cell = cell->get_fe().n_dofs_per_cell();
             local_dof_indices.resize(n_dofs_per_cell);
 
             // Take care of adding cell pointer to each
@@ -1893,8 +1665,7 @@ namespace GridTools
               {
                 if (cell->face(f)->has_children())
                   {
-                    for (unsigned int c = 0; c < cell->face(f)->n_children();
-                         ++c)
+                    for (unsigned int c = 0; c < cell->face(f)->n_children(); ++c)
                       {
                         //  Add cell to dofs of all subfaces
                         //
@@ -1908,22 +1679,17 @@ namespace GridTools
                         //   |                   |of subface|         |
                         //   *-------------------*----------*---------*
                         //
-                        Assert(cell->face(f)->child(c)->has_children() == false,
-                               ExcInternalError());
+                        Assert(cell->face(f)->child(c)->has_children() == false, ExcInternalError());
 
-                        const unsigned int n_dofs_per_face =
-                          cell->get_fe().n_dofs_per_face(f, c);
+                        const unsigned int n_dofs_per_face = cell->get_fe().n_dofs_per_face(f, c);
                         local_face_dof_indices.resize(n_dofs_per_face);
 
-                        cell->face(f)->child(c)->get_dof_indices(
-                          local_face_dof_indices);
+                        cell->face(f)->child(c)->get_dof_indices(local_face_dof_indices);
                         for (unsigned int i = 0; i < n_dofs_per_face; ++i)
-                          dof_to_set_of_cells_map[local_face_dof_indices[i]]
-                            .insert(cell);
+                          dof_to_set_of_cells_map[local_face_dof_indices[i]].insert(cell);
                       }
                   }
-                else if ((cell->face(f)->at_boundary() == false) &&
-                         (cell->neighbor_is_coarser(f)))
+                else if ((cell->face(f)->at_boundary() == false) && (cell->neighbor_is_coarser(f)))
                   {
                     // Add cell to dofs of parent face and all
                     // child faces of parent face
@@ -1940,47 +1706,33 @@ namespace GridTools
                     //
 
                     // Add cell to all dofs of parent face
-                    std::pair<unsigned int, unsigned int>
-                      neighbor_face_no_subface_no =
-                        cell->neighbor_of_coarser_neighbor(f);
+                    std::pair<unsigned int, unsigned int> neighbor_face_no_subface_no =
+                      cell->neighbor_of_coarser_neighbor(f);
                     unsigned int face_no = neighbor_face_no_subface_no.first;
                     unsigned int subface = neighbor_face_no_subface_no.second;
 
-                    const unsigned int n_dofs_per_face =
-                      cell->get_fe().n_dofs_per_face(face_no);
+                    const unsigned int n_dofs_per_face = cell->get_fe().n_dofs_per_face(face_no);
                     local_face_dof_indices.resize(n_dofs_per_face);
 
-                    cell->neighbor(f)->face(face_no)->get_dof_indices(
-                      local_face_dof_indices);
+                    cell->neighbor(f)->face(face_no)->get_dof_indices(local_face_dof_indices);
                     for (unsigned int i = 0; i < n_dofs_per_face; ++i)
-                      dof_to_set_of_cells_map[local_face_dof_indices[i]].insert(
-                        cell);
+                      dof_to_set_of_cells_map[local_face_dof_indices[i]].insert(cell);
 
                     // Add cell to all dofs of children of
                     // parent face
-                    for (unsigned int c = 0;
-                         c < cell->neighbor(f)->face(face_no)->n_children();
-                         ++c)
+                    for (unsigned int c = 0; c < cell->neighbor(f)->face(face_no)->n_children(); ++c)
                       {
                         if (c != subface) // don't repeat work on dofs of
                                           // original cell
                           {
-                            const unsigned int n_dofs_per_face =
-                              cell->get_fe().n_dofs_per_face(face_no, c);
+                            const unsigned int n_dofs_per_face = cell->get_fe().n_dofs_per_face(face_no, c);
                             local_face_dof_indices.resize(n_dofs_per_face);
 
-                            Assert(cell->neighbor(f)
-                                       ->face(face_no)
-                                       ->child(c)
-                                       ->has_children() == false,
+                            Assert(cell->neighbor(f)->face(face_no)->child(c)->has_children() == false,
                                    ExcInternalError());
-                            cell->neighbor(f)
-                              ->face(face_no)
-                              ->child(c)
-                              ->get_dof_indices(local_face_dof_indices);
+                            cell->neighbor(f)->face(face_no)->child(c)->get_dof_indices(local_face_dof_indices);
                             for (unsigned int i = 0; i < n_dofs_per_face; ++i)
-                              dof_to_set_of_cells_map[local_face_dof_indices[i]]
-                                .insert(cell);
+                              dof_to_set_of_cells_map[local_face_dof_indices[i]].insert(cell);
                           }
                       }
                   }
@@ -2000,26 +1752,19 @@ namespace GridTools
                   {
                     if (cell->line(l)->has_children())
                       {
-                        for (unsigned int c = 0;
-                             c < cell->line(l)->n_children();
-                             ++c)
+                        for (unsigned int c = 0; c < cell->line(l)->n_children(); ++c)
                           {
-                            Assert(cell->line(l)->child(c)->has_children() ==
-                                     false,
-                                   ExcInternalError());
+                            Assert(cell->line(l)->child(c)->has_children() == false, ExcInternalError());
 
                             // dofs_per_line returns number of dofs
                             // on line not including the vertices of the line.
                             const unsigned int n_dofs_per_line =
-                              2 * cell->get_fe().n_dofs_per_vertex() +
-                              cell->get_fe().n_dofs_per_line();
+                              2 * cell->get_fe().n_dofs_per_vertex() + cell->get_fe().n_dofs_per_line();
                             local_line_dof_indices.resize(n_dofs_per_line);
 
-                            cell->line(l)->child(c)->get_dof_indices(
-                              local_line_dof_indices);
+                            cell->line(l)->child(c)->get_dof_indices(local_line_dof_indices);
                             for (unsigned int i = 0; i < n_dofs_per_line; ++i)
-                              dof_to_set_of_cells_map[local_line_dof_indices[i]]
-                                .insert(cell);
+                              dof_to_set_of_cells_map[local_line_dof_indices[i]].insert(cell);
                           }
                       }
                     // user flag was set above to denote that
@@ -2028,40 +1773,31 @@ namespace GridTools
                     // children
                     else if (cell->line(l)->user_flag_set() == true)
                       {
-                        typename DoFHandler<dim, spacedim>::line_iterator
-                          parent_line =
-                            lines_to_parent_lines_map[cell->line(l)];
+                        typename DoFHandler<dim, spacedim>::line_iterator parent_line =
+                          lines_to_parent_lines_map[cell->line(l)];
                         Assert(parent_line->has_children(), ExcInternalError());
 
                         // dofs_per_line returns number of dofs
                         // on line not including the vertices of the line.
                         const unsigned int n_dofs_per_line =
-                          2 * cell->get_fe().n_dofs_per_vertex() +
-                          cell->get_fe().n_dofs_per_line();
+                          2 * cell->get_fe().n_dofs_per_vertex() + cell->get_fe().n_dofs_per_line();
                         local_line_dof_indices.resize(n_dofs_per_line);
 
                         parent_line->get_dof_indices(local_line_dof_indices);
                         for (unsigned int i = 0; i < n_dofs_per_line; ++i)
-                          dof_to_set_of_cells_map[local_line_dof_indices[i]]
-                            .insert(cell);
+                          dof_to_set_of_cells_map[local_line_dof_indices[i]].insert(cell);
 
-                        for (unsigned int c = 0; c < parent_line->n_children();
-                             ++c)
+                        for (unsigned int c = 0; c < parent_line->n_children(); ++c)
                           {
-                            Assert(parent_line->child(c)->has_children() ==
-                                     false,
-                                   ExcInternalError());
+                            Assert(parent_line->child(c)->has_children() == false, ExcInternalError());
 
                             const unsigned int n_dofs_per_line =
-                              2 * cell->get_fe().n_dofs_per_vertex() +
-                              cell->get_fe().n_dofs_per_line();
+                              2 * cell->get_fe().n_dofs_per_vertex() + cell->get_fe().n_dofs_per_line();
                             local_line_dof_indices.resize(n_dofs_per_line);
 
-                            parent_line->child(c)->get_dof_indices(
-                              local_line_dof_indices);
+                            parent_line->child(c)->get_dof_indices(local_line_dof_indices);
                             for (unsigned int i = 0; i < n_dofs_per_line; ++i)
-                              dof_to_set_of_cells_map[local_line_dof_indices[i]]
-                                .insert(cell);
+                              dof_to_set_of_cells_map[local_line_dof_indices[i]].insert(cell);
                           }
                       }
                   } // for lines l
@@ -2075,26 +1811,20 @@ namespace GridTools
         // finally, restore user flags that were changed above
         // to when we constructed the pointers to parent of lines
         // Since dof_handler is const, we must leave it unchanged.
-        const_cast<dealii::Triangulation<dim, spacedim> &>(
-          dof_handler.get_triangulation())
-          .load_user_flags(user_flags);
+        const_cast<dealii::Triangulation<dim, spacedim> &>(dof_handler.get_triangulation()).load_user_flags(user_flags);
       }
 
     // Finally, we copy map of sets to
     // map of vectors using the std::vector::assign() function
-    std::map<
-      types::global_dof_index,
-      std::vector<typename DoFHandler<dim, spacedim>::active_cell_iterator>>
+    std::map<types::global_dof_index, std::vector<typename DoFHandler<dim, spacedim>::active_cell_iterator>>
       dof_to_cell_patches;
 
-    typename std::map<
-      types::global_dof_index,
-      std::set<typename DoFHandler<dim, spacedim>::active_cell_iterator>>::
-      iterator it     = dof_to_set_of_cells_map.begin(),
-               it_end = dof_to_set_of_cells_map.end();
+    typename std::map<types::global_dof_index,
+                      std::set<typename DoFHandler<dim, spacedim>::active_cell_iterator>>::iterator
+      it     = dof_to_set_of_cells_map.begin(),
+      it_end = dof_to_set_of_cells_map.end();
     for (; it != it_end; ++it)
-      dof_to_cell_patches[it->first].assign(it->second.begin(),
-                                            it->second.end());
+      dof_to_cell_patches[it->first].assign(it->second.begin(), it->second.end());
 
     return dof_to_cell_patches;
   }
@@ -2104,15 +1834,12 @@ namespace GridTools
    */
   template <typename CellIterator>
   void
-  match_periodic_face_pairs(
-    std::set<std::pair<CellIterator, unsigned int>> &pairs1,
-    std::set<std::pair<std_cxx20::type_identity_t<CellIterator>, unsigned int>>
-      &                                          pairs2,
-    const unsigned int                           direction,
-    std::vector<PeriodicFacePair<CellIterator>> &matched_pairs,
-    const dealii::Tensor<1, CellIterator::AccessorType::space_dimension>
-      &                       offset,
-    const FullMatrix<double> &matrix)
+  match_periodic_face_pairs(std::set<std::pair<CellIterator, unsigned int>>                             &pairs1,
+                            std::set<std::pair<std_cxx20::type_identity_t<CellIterator>, unsigned int>> &pairs2,
+                            const unsigned int                                                           direction,
+                            std::vector<PeriodicFacePair<CellIterator>>                                 &matched_pairs,
+                            const dealii::Tensor<1, CellIterator::AccessorType::space_dimension>        &offset,
+                            const FullMatrix<double>                                                    &matrix)
   {
     static const int space_dim = CellIterator::AccessorType::space_dimension;
     (void)space_dim;
@@ -2126,16 +1853,11 @@ namespace GridTools
       // faces on periodic boundaries on the coarse grid, which results that
       // this assert is not fulfilled (not a bug!). See also the discussion in
       // the method collect_periodic_faces.
-      if (!(((pairs1.size() > 0) &&
-             (dynamic_cast<const parallel::fullydistributed::
-                             Triangulation<dim, spacedim> *>(
-                &pairs1.begin()->first->get_triangulation()) != nullptr)) ||
-            ((pairs2.size() > 0) &&
-             (dynamic_cast<
-                const parallel::fullydistributed::Triangulation<dim, spacedim>
-                  *>(&pairs2.begin()->first->get_triangulation()) != nullptr))))
-        Assert(pairs1.size() == pairs2.size(),
-               ExcMessage("Unmatched faces on periodic boundaries"));
+      if (!(((pairs1.size() > 0) && (dynamic_cast<const parallel::fullydistributed::Triangulation<dim, spacedim> *>(
+                                       &pairs1.begin()->first->get_triangulation()) != nullptr)) ||
+            ((pairs2.size() > 0) && (dynamic_cast<const parallel::fullydistributed::Triangulation<dim, spacedim> *>(
+                                       &pairs2.begin()->first->get_triangulation()) != nullptr))))
+        Assert(pairs1.size() == pairs2.size(), ExcMessage("Unmatched faces on periodic boundaries"));
     }
 #endif
 
@@ -2143,8 +1865,7 @@ namespace GridTools
 
     // Match with a complexity of O(n^2). This could be improved...
     std::bitset<3> orientation;
-    using PairIterator =
-      typename std::set<std::pair<CellIterator, unsigned int>>::const_iterator;
+    using PairIterator = typename std::set<std::pair<CellIterator, unsigned int>>::const_iterator;
     for (PairIterator it1 = pairs1.begin(); it1 != pairs1.end(); ++it1)
       {
         for (PairIterator it2 = pairs2.begin(); it2 != pairs2.end(); ++it2)
@@ -2153,18 +1874,16 @@ namespace GridTools
             const CellIterator cell2     = it2->first;
             const unsigned int face_idx1 = it1->second;
             const unsigned int face_idx2 = it2->second;
-            if (GridTools::orthogonal_equality(orientation,
-                                               cell1->face(face_idx1),
-                                               cell2->face(face_idx2),
-                                               direction,
-                                               offset,
-                                               matrix))
+            if (GridTools::orthogonal_equality(
+                  orientation, cell1->face(face_idx1), cell2->face(face_idx2), direction, offset, matrix))
               {
                 // We have a match, so insert the matching pairs and
                 // remove the matched cell in pairs2 to speed up the
                 // matching:
-                const PeriodicFacePair<CellIterator> matched_face = {
-                  {cell1, cell2}, {face_idx1, face_idx2}, orientation, matrix};
+                const PeriodicFacePair<CellIterator> matched_face = {{cell1, cell2},
+                                                                     {face_idx1, face_idx2},
+                                                                     orientation,
+                                                                     matrix};
                 matched_pairs.push_back(matched_face);
                 pairs2.erase(it2);
                 ++n_matches;
@@ -2181,16 +1900,11 @@ namespace GridTools
     {
       constexpr int dim      = CellIterator::AccessorType::dimension;
       constexpr int spacedim = CellIterator::AccessorType::space_dimension;
-      if (!(((pairs1.size() > 0) &&
-             (dynamic_cast<const parallel::fullydistributed::
-                             Triangulation<dim, spacedim> *>(
-                &pairs1.begin()->first->get_triangulation()) != nullptr)) ||
-            ((pairs2.size() > 0) &&
-             (dynamic_cast<
-                const parallel::fullydistributed::Triangulation<dim, spacedim>
-                  *>(&pairs2.begin()->first->get_triangulation()) != nullptr))))
-        AssertThrow(n_matches == pairs1.size() && pairs2.empty(),
-                    ExcMessage("Unmatched faces on periodic boundaries"));
+      if (!(((pairs1.size() > 0) && (dynamic_cast<const parallel::fullydistributed::Triangulation<dim, spacedim> *>(
+                                       &pairs1.begin()->first->get_triangulation()) != nullptr)) ||
+            ((pairs2.size() > 0) && (dynamic_cast<const parallel::fullydistributed::Triangulation<dim, spacedim> *>(
+                                       &pairs2.begin()->first->get_triangulation()) != nullptr))))
+        AssertThrow(n_matches == pairs1.size() && pairs2.empty(), ExcMessage("Unmatched faces on periodic boundaries"));
     }
   }
 
@@ -2198,14 +1912,12 @@ namespace GridTools
 
   template <typename MeshType>
   DEAL_II_CXX20_REQUIRES(concepts::is_triangulation_or_dof_handler<MeshType>)
-  void collect_periodic_faces(
-    const MeshType &         mesh,
-    const types::boundary_id b_id,
-    const unsigned int       direction,
-    std::vector<PeriodicFacePair<typename MeshType::cell_iterator>>
-      &                                         matched_pairs,
-    const Tensor<1, MeshType::space_dimension> &offset,
-    const FullMatrix<double> &                  matrix)
+  void collect_periodic_faces(const MeshType                                                  &mesh,
+                              const types::boundary_id                                         b_id,
+                              const unsigned int                                               direction,
+                              std::vector<PeriodicFacePair<typename MeshType::cell_iterator>> &matched_pairs,
+                              const Tensor<1, MeshType::space_dimension>                      &offset,
+                              const FullMatrix<double>                                        &matrix)
   {
     static const int dim       = MeshType::dimension;
     static const int space_dim = MeshType::space_dimension;
@@ -2221,32 +1933,26 @@ namespace GridTools
     std::set<std::pair<typename MeshType::cell_iterator, unsigned int>> pairs1;
     std::set<std::pair<typename MeshType::cell_iterator, unsigned int>> pairs2;
 
-    for (typename MeshType::cell_iterator cell = mesh.begin(0);
-         cell != mesh.end(0);
-         ++cell)
+    for (typename MeshType::cell_iterator cell = mesh.begin(0); cell != mesh.end(0); ++cell)
       {
-        const typename MeshType::face_iterator face_1 =
-          cell->face(2 * direction);
-        const typename MeshType::face_iterator face_2 =
-          cell->face(2 * direction + 1);
+        const typename MeshType::face_iterator face_1 = cell->face(2 * direction);
+        const typename MeshType::face_iterator face_2 = cell->face(2 * direction + 1);
 
         if (face_1->at_boundary() && face_1->boundary_id() == b_id)
           {
-            const std::pair<typename MeshType::cell_iterator, unsigned int>
-              pair1 = std::make_pair(cell, 2 * direction);
+            const std::pair<typename MeshType::cell_iterator, unsigned int> pair1 = std::make_pair(cell, 2 * direction);
             pairs1.insert(pair1);
           }
 
         if (face_2->at_boundary() && face_2->boundary_id() == b_id)
           {
-            const std::pair<typename MeshType::cell_iterator, unsigned int>
-              pair2 = std::make_pair(cell, 2 * direction + 1);
+            const std::pair<typename MeshType::cell_iterator, unsigned int> pair2 =
+              std::make_pair(cell, 2 * direction + 1);
             pairs2.insert(pair2);
           }
       }
 
-    Assert(pairs1.size() == pairs2.size(),
-           ExcMessage("Unmatched faces on periodic boundaries"));
+    Assert(pairs1.size() == pairs2.size(), ExcMessage("Unmatched faces on periodic boundaries"));
 
     Assert(pairs1.size() > 0,
            ExcMessage("No new periodic face pairs have been found. "
@@ -2258,8 +1964,7 @@ namespace GridTools
 #endif
 
     // and call match_periodic_face_pairs that does the actual matching:
-    match_periodic_face_pairs(
-      pairs1, pairs2, direction, matched_pairs, offset, matrix);
+    match_periodic_face_pairs(pairs1, pairs2, direction, matched_pairs, offset, matrix);
 
 #ifdef DEBUG
     // check for standard orientation
@@ -2267,10 +1972,9 @@ namespace GridTools
     for (unsigned int i = size_old; i < size_new; ++i)
       {
         Assert(matched_pairs[i].orientation == 1,
-               ExcMessage(
-                 "Found a face match with non standard orientation. "
-                 "This function is only suitable for meshes with cells "
-                 "in default orientation"));
+               ExcMessage("Found a face match with non standard orientation. "
+                          "This function is only suitable for meshes with cells "
+                          "in default orientation"));
       }
 #endif
   }
@@ -2279,15 +1983,13 @@ namespace GridTools
 
   template <typename MeshType>
   DEAL_II_CXX20_REQUIRES(concepts::is_triangulation_or_dof_handler<MeshType>)
-  void collect_periodic_faces(
-    const MeshType &         mesh,
-    const types::boundary_id b_id1,
-    const types::boundary_id b_id2,
-    const unsigned int       direction,
-    std::vector<PeriodicFacePair<typename MeshType::cell_iterator>>
-      &                                         matched_pairs,
-    const Tensor<1, MeshType::space_dimension> &offset,
-    const FullMatrix<double> &                  matrix)
+  void collect_periodic_faces(const MeshType                                                  &mesh,
+                              const types::boundary_id                                         b_id1,
+                              const types::boundary_id                                         b_id2,
+                              const unsigned int                                               direction,
+                              std::vector<PeriodicFacePair<typename MeshType::cell_iterator>> &matched_pairs,
+                              const Tensor<1, MeshType::space_dimension>                      &offset,
+                              const FullMatrix<double>                                        &matrix)
   {
     static const int dim       = MeshType::dimension;
     static const int space_dim = MeshType::space_dimension;
@@ -2301,24 +2003,20 @@ namespace GridTools
     std::set<std::pair<typename MeshType::cell_iterator, unsigned int>> pairs1;
     std::set<std::pair<typename MeshType::cell_iterator, unsigned int>> pairs2;
 
-    for (typename MeshType::cell_iterator cell = mesh.begin(0);
-         cell != mesh.end(0);
-         ++cell)
+    for (typename MeshType::cell_iterator cell = mesh.begin(0); cell != mesh.end(0); ++cell)
       {
         for (const unsigned int i : cell->face_indices())
           {
             const typename MeshType::face_iterator face = cell->face(i);
             if (face->at_boundary() && face->boundary_id() == b_id1)
               {
-                const std::pair<typename MeshType::cell_iterator, unsigned int>
-                  pair1 = std::make_pair(cell, i);
+                const std::pair<typename MeshType::cell_iterator, unsigned int> pair1 = std::make_pair(cell, i);
                 pairs1.insert(pair1);
               }
 
             if (face->at_boundary() && face->boundary_id() == b_id2)
               {
-                const std::pair<typename MeshType::cell_iterator, unsigned int>
-                  pair2 = std::make_pair(cell, i);
+                const std::pair<typename MeshType::cell_iterator, unsigned int> pair2 = std::make_pair(cell, i);
                 pairs2.insert(pair2);
               }
           }
@@ -2330,29 +2028,20 @@ namespace GridTools
     // requirement has not to be met neither (consider faces on the outside of a
     // ghost cell that are periodic but for which the ghost neighbor doesn't
     // exist).
-    if (!(((pairs1.size() > 0) &&
-           (dynamic_cast<
-              const parallel::fullydistributed::Triangulation<dim, space_dim>
-                *>(&pairs1.begin()->first->get_triangulation()) != nullptr)) ||
-          ((pairs2.size() > 0) &&
-           (dynamic_cast<
-              const parallel::fullydistributed::Triangulation<dim, space_dim>
-                *>(&pairs2.begin()->first->get_triangulation()) != nullptr))))
-      Assert(pairs1.size() == pairs2.size(),
-             ExcMessage("Unmatched faces on periodic boundaries"));
+    if (!(((pairs1.size() > 0) && (dynamic_cast<const parallel::fullydistributed::Triangulation<dim, space_dim> *>(
+                                     &pairs1.begin()->first->get_triangulation()) != nullptr)) ||
+          ((pairs2.size() > 0) && (dynamic_cast<const parallel::fullydistributed::Triangulation<dim, space_dim> *>(
+                                     &pairs2.begin()->first->get_triangulation()) != nullptr))))
+      Assert(pairs1.size() == pairs2.size(), ExcMessage("Unmatched faces on periodic boundaries"));
 
-    Assert(
-      (pairs1.size() > 0 ||
-       (dynamic_cast<
-          const parallel::fullydistributed::Triangulation<dim, space_dim> *>(
-          &mesh.begin()->get_triangulation()) != nullptr)),
-      ExcMessage("No new periodic face pairs have been found. "
-                 "Are you sure that you've selected the correct boundary "
-                 "id's and that the coarsest level mesh is colorized?"));
+    Assert((pairs1.size() > 0 || (dynamic_cast<const parallel::fullydistributed::Triangulation<dim, space_dim> *>(
+                                    &mesh.begin()->get_triangulation()) != nullptr)),
+           ExcMessage("No new periodic face pairs have been found. "
+                      "Are you sure that you've selected the correct boundary "
+                      "id's and that the coarsest level mesh is colorized?"));
 
     // and call match_periodic_face_pairs that does the actual matching:
-    match_periodic_face_pairs(
-      pairs1, pairs2, direction, matched_pairs, offset, matrix);
+    match_periodic_face_pairs(pairs1, pairs2, direction, matched_pairs, offset, matrix);
   }
 
 
@@ -2368,11 +2057,11 @@ namespace GridTools
    */
   template <int spacedim>
   inline bool
-  orthogonal_equality(const Point<spacedim> &    point1,
-                      const Point<spacedim> &    point2,
+  orthogonal_equality(const Point<spacedim>     &point1,
+                      const Point<spacedim>     &point2,
                       const unsigned int         direction,
                       const Tensor<1, spacedim> &offset,
-                      const FullMatrix<double> & matrix)
+                      const FullMatrix<double>  &matrix)
   {
     AssertIndexRange(direction, spacedim);
 
@@ -2420,8 +2109,7 @@ namespace GridTools
   template <>
   struct OrientationLookupTable<1>
   {
-    using MATCH_T =
-      std::array<unsigned int, GeometryInfo<1>::vertices_per_face>;
+    using MATCH_T = std::array<unsigned int, GeometryInfo<1>::vertices_per_face>;
     static inline std::bitset<3>
     lookup(const MATCH_T &)
     {
@@ -2433,8 +2121,7 @@ namespace GridTools
   template <>
   struct OrientationLookupTable<2>
   {
-    using MATCH_T =
-      std::array<unsigned int, GeometryInfo<2>::vertices_per_face>;
+    using MATCH_T = std::array<unsigned int, GeometryInfo<2>::vertices_per_face>;
     static inline std::bitset<3>
     lookup(const MATCH_T &matching)
     {
@@ -2459,8 +2146,7 @@ namespace GridTools
   template <>
   struct OrientationLookupTable<3>
   {
-    using MATCH_T =
-      std::array<unsigned int, GeometryInfo<3>::vertices_per_face>;
+    using MATCH_T = std::array<unsigned int, GeometryInfo<3>::vertices_per_face>;
 
     static inline std::bitset<3>
     lookup(const MATCH_T &matching)
@@ -2505,16 +2191,14 @@ namespace GridTools
 
   template <typename FaceIterator>
   inline bool
-  orthogonal_equality(
-    std::bitset<3> &                                              orientation,
-    const FaceIterator &                                          face1,
-    const FaceIterator &                                          face2,
-    const unsigned int                                            direction,
-    const Tensor<1, FaceIterator::AccessorType::space_dimension> &offset,
-    const FullMatrix<double> &                                    matrix)
+  orthogonal_equality(std::bitset<3>                                               &orientation,
+                      const FaceIterator                                           &face1,
+                      const FaceIterator                                           &face2,
+                      const unsigned int                                            direction,
+                      const Tensor<1, FaceIterator::AccessorType::space_dimension> &offset,
+                      const FullMatrix<double>                                     &matrix)
   {
-    Assert(matrix.m() == matrix.n(),
-           ExcMessage("The supplied matrix must be a square matrix"));
+    Assert(matrix.m() == matrix.n(), ExcMessage("The supplied matrix must be a square matrix"));
 
     static const int dim = FaceIterator::AccessorType::dimension;
 
@@ -2530,15 +2214,9 @@ namespace GridTools
 
     for (unsigned int i = 0; i < face1->n_vertices(); ++i)
       {
-        for (std::set<unsigned int>::iterator it = face2_vertices.begin();
-             it != face2_vertices.end();
-             ++it)
+        for (std::set<unsigned int>::iterator it = face2_vertices.begin(); it != face2_vertices.end(); ++it)
           {
-            if (orthogonal_equality(face1->vertex(i),
-                                    face2->vertex(*it),
-                                    direction,
-                                    offset,
-                                    matrix))
+            if (orthogonal_equality(face1->vertex(i), face2->vertex(*it), direction, offset, matrix))
               {
                 matching[i] = *it;
                 face2_vertices.erase(it);
@@ -2558,12 +2236,11 @@ namespace GridTools
 
   template <typename FaceIterator>
   inline bool
-  orthogonal_equality(
-    const FaceIterator &                                          face1,
-    const FaceIterator &                                          face2,
-    const unsigned int                                            direction,
-    const Tensor<1, FaceIterator::AccessorType::space_dimension> &offset,
-    const FullMatrix<double> &                                    matrix)
+  orthogonal_equality(const FaceIterator                                           &face1,
+                      const FaceIterator                                           &face2,
+                      const unsigned int                                            direction,
+                      const Tensor<1, FaceIterator::AccessorType::space_dimension> &offset,
+                      const FullMatrix<double>                                     &matrix)
   {
     // Call the function above with a dummy orientation array
     std::bitset<3> dummy;

@@ -53,8 +53,7 @@ main(int argc, char **argv)
 {
   initlog();
 
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
 
   try
@@ -68,10 +67,8 @@ main(int argc, char **argv)
 
         // check
         // TrilinosWrappers::SparseMatrix
-        const unsigned int n_jobs =
-          Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
-        const unsigned int my_id =
-          Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+        const unsigned int n_jobs = Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
+        const unsigned int my_id  = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
         Assert(n_dofs % n_jobs == 0, ExcInternalError());
         const unsigned int n_local_dofs = n_dofs / n_jobs;
         IndexSet           local_rows(n_dofs);
@@ -82,28 +79,20 @@ main(int argc, char **argv)
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

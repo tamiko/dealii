@@ -35,12 +35,8 @@ main(int argc, char **argv)
 
   deallog.push("Double");
   {
-    test_tensor_vector_scalar_coupled<2,
-                                      double,
-                                      AD::NumberTypes::adolc_tapeless>();
-    test_tensor_vector_scalar_coupled<3,
-                                      double,
-                                      AD::NumberTypes::adolc_tapeless>();
+    test_tensor_vector_scalar_coupled<2, double, AD::NumberTypes::adolc_tapeless>();
+    test_tensor_vector_scalar_coupled<3, double, AD::NumberTypes::adolc_tapeless>();
     deallog << "OK" << std::endl;
   }
   deallog.pop();

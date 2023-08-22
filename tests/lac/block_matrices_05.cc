@@ -58,8 +58,7 @@ main()
   const double correct_frob_norm = 10.0;
   const double frob_norm         = bsm.frobenius_norm();
 
-  Assert(std::fabs(frob_norm - correct_frob_norm) < accuracy,
-         ExcInternalError());
+  Assert(std::fabs(frob_norm - correct_frob_norm) < accuracy, ExcInternalError());
 
   deallog << "OK" << std::endl;
 

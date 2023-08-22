@@ -69,16 +69,13 @@ test(const FiniteElement<dim, spacedim> &fe_0,
 
   hp::FECollection<dim, spacedim> fe(fe_0, fe_1);
 
-  hp::QCollection<dim> quadrature(QGaussSimplex<dim>(degree + 1),
-                                  QGauss<dim>(degree + 1));
+  hp::QCollection<dim> quadrature(QGaussSimplex<dim>(degree + 1), QGauss<dim>(degree + 1));
 
-  hp::MappingCollection<dim, spacedim> mapping(MappingFE<dim, spacedim>(
-                                                 FE_SimplexP<dim, spacedim>(1)),
+  hp::MappingCollection<dim, spacedim> mapping(MappingFE<dim, spacedim>(FE_SimplexP<dim, spacedim>(1)),
                                                MappingQ<dim, spacedim>(1));
 
   Triangulation<dim, spacedim> tria;
-  GridGenerator::subdivided_hyper_cube_with_simplices_mix(tria,
-                                                          dim == 2 ? 4 : 2);
+  GridGenerator::subdivided_hyper_cube_with_simplices_mix(tria, dim == 2 ? 4 : 2);
 
   DoFHandler<dim> dof_handler(tria);
 
@@ -102,18 +99,11 @@ test(const FiniteElement<dim, spacedim> &fe_0,
   AffineConstraints<double> dummy;
   dummy.close();
 
-  VectorTools::project(mapping,
-                       dof_handler,
-                       dummy,
-                       quadrature,
-                       RightHandSideFunction<dim>(n_components),
-                       solution);
+  VectorTools::project(mapping, dof_handler, dummy, quadrature, RightHandSideFunction<dim>(n_components), solution);
 
   static unsigned int counter = 0;
 
-  for (unsigned int n_subdivisions = 1;
-       n_subdivisions <= (do_high_order ? 4 : 2);
-       ++n_subdivisions)
+  for (unsigned int n_subdivisions = 1; n_subdivisions <= (do_high_order ? 4 : 2); ++n_subdivisions)
     {
       DataOutBase::VtkFlags flags;
       flags.write_higher_order_cells = do_high_order;
@@ -151,16 +141,12 @@ main()
           const unsigned int dim = 2;
           test<dim>(FE_SimplexP<dim>(2), FE_Q<dim>(2), 1, do_high_order);
 
-          test<dim>(FESystem<dim>(FE_SimplexP<dim>(2), dim),
-                    FESystem<dim>(FE_Q<dim>(2), dim),
-                    dim,
-                    do_high_order);
+          test<dim>(FESystem<dim>(FE_SimplexP<dim>(2), dim), FESystem<dim>(FE_Q<dim>(2), dim), dim, do_high_order);
 
-          test<dim>(
-            FESystem<dim>(FE_SimplexP<dim>(2), dim, FE_SimplexP<dim>(1), 1),
-            FESystem<dim>(FE_Q<dim>(2), dim, FE_Q<dim>(1), 1),
-            dim + 1,
-            do_high_order);
+          test<dim>(FESystem<dim>(FE_SimplexP<dim>(2), dim, FE_SimplexP<dim>(1), 1),
+                    FESystem<dim>(FE_Q<dim>(2), dim, FE_Q<dim>(1), 1),
+                    dim + 1,
+                    do_high_order);
         }
     }
 }

@@ -44,19 +44,13 @@ test(const unsigned int ref = 2, const unsigned int n_points = 10)
   const auto &b_tree = cache.get_cell_bounding_boxes_rtree();
 
   std::vector<Point<spacedim>> points(n_points);
-  std::generate(points.begin(), points.end(), []() {
-    return random_point<spacedim>();
-  });
+  std::generate(points.begin(), points.end(), []() { return random_point<spacedim>(); });
 
-  deallog << "Testing dim = " << dim << ", spacedim = " << spacedim
-          << std::endl;
+  deallog << "Testing dim = " << dim << ", spacedim = " << spacedim << std::endl;
 
   for (const auto &p : points)
     {
-      std::vector<
-        std::pair<BoundingBox<spacedim>,
-                  typename Triangulation<dim, spacedim>::active_cell_iterator>>
-        res;
+      std::vector<std::pair<BoundingBox<spacedim>, typename Triangulation<dim, spacedim>::active_cell_iterator>> res;
       b_tree.query(bgi::nearest(p, 1), std::back_inserter(res));
       deallog << "Nearest cell to " << p << ":  " << res[0].second << std::endl;
     }

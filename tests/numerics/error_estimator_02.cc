@@ -107,8 +107,7 @@ public:
   MyFunction(const double k);
 
   virtual double
-  value(const dealii::Point<dim> &point,
-        const unsigned int        component = 0) const;
+  value(const dealii::Point<dim> &point, const unsigned int component = 0) const;
 
   double
   get_k() const;
@@ -125,8 +124,7 @@ MyFunction<dim>::MyFunction(const double k)
 
 template <int dim>
 double
-MyFunction<dim>::value(const dealii::Point<dim> &point,
-                       const unsigned int) const
+MyFunction<dim>::value(const dealii::Point<dim> &point, const unsigned int) const
 {
   const double x = point[0] - 1.0;
 
@@ -151,8 +149,7 @@ public:
   NeumanBC(const double c);
 
   virtual double
-  value(const dealii::Point<dim> &point,
-        const unsigned int        component = 0) const;
+  value(const dealii::Point<dim> &point, const unsigned int component = 0) const;
 
   double
   get_c() const;
@@ -230,15 +227,13 @@ template <int dim>
 void
 output(const std::string         name,
        const Triangulation<dim> &triangulation,
-       const DoFHandler<dim> &   dof_handler,
-       const Vector<double> &    values,
-       const Vector<float> &     error)
+       const DoFHandler<dim>    &dof_handler,
+       const Vector<double>     &values,
+       const Vector<float>      &error)
 {
   dealii::Vector<double> fe_degrees(triangulation.n_active_cells());
   {
-    typename dealii::DoFHandler<dim>::active_cell_iterator
-      cell = dof_handler.begin_active(),
-      endc = dof_handler.end();
+    typename dealii::DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
     for (unsigned int index = 0; cell != endc; ++cell, ++index)
       fe_degrees(index) = dof_handler.get_fe(cell->active_fe_index()).degree;
   }
@@ -302,18 +297,17 @@ test_neumann(const NeumanBC<dim> &func)
   function_map[0] = &func;
 
   dealii::Vector<float> error(dof_handler.n_dofs());
-  dealii::KellyErrorEstimator<dim>::estimate(
-    dof_handler,
-    face_quadrature_formula,
-    function_map,
-    values,
-    error,
-    dealii::ComponentMask(),
-    nullptr,
-    dealii::numbers::invalid_unsigned_int,
-    dealii::numbers::invalid_subdomain_id,
-    dealii::numbers::invalid_material_id,
-    dealii::KellyErrorEstimator<dim>::face_diameter_over_twice_max_degree);
+  dealii::KellyErrorEstimator<dim>::estimate(dof_handler,
+                                             face_quadrature_formula,
+                                             function_map,
+                                             values,
+                                             error,
+                                             dealii::ComponentMask(),
+                                             nullptr,
+                                             dealii::numbers::invalid_unsigned_int,
+                                             dealii::numbers::invalid_subdomain_id,
+                                             dealii::numbers::invalid_material_id,
+                                             dealii::KellyErrorEstimator<dim>::face_diameter_over_twice_max_degree);
 
   dealii::deallog << "error:" << std::endl;
   for (unsigned int i = 0; i < error.size(); ++i)
@@ -329,11 +323,9 @@ test_neumann(const NeumanBC<dim> &func)
   double h, A;
   get_h_area<dim>(h, A, L);
   const double expected_value_squared = h * A * std::pow(func.get_c(), 2) / p;
-  dealii::deallog << "expected:" << std::endl
-                  << ' ' << std::sqrt(expected_value_squared) << std::endl;
+  dealii::deallog << "expected:" << std::endl << ' ' << std::sqrt(expected_value_squared) << std::endl;
 
-  AssertThrow(std::fabs(std::sqrt(expected_value_squared) - error[0]) < 1e-5,
-              dealii::ExcInternalError());
+  AssertThrow(std::fabs(std::sqrt(expected_value_squared) - error[0]) < 1e-5, dealii::ExcInternalError());
 
   dof_handler.clear();
 }
@@ -362,8 +354,7 @@ test_regular(const MyFunction<dim> &func)
   for (unsigned int i = 0; i < p_degree.size(); ++i)
     {
       const unsigned int &p = p_degree[i];
-      fe_collection.push_back(
-        dealii::FE_Q<dim>(QIterated<1>(QTrapezoid<1>(), p)));
+      fe_collection.push_back(dealii::FE_Q<dim>(QIterated<1>(QTrapezoid<1>(), p)));
       quadrature_formula.push_back(dealii::QGauss<dim>(p + 5));
       face_quadrature_formula.push_back(dealii::QGauss<dim - 1>(p + 5));
     }
@@ -387,9 +378,7 @@ test_regular(const MyFunction<dim> &func)
                                               p2,
                                               /*colorize*/ false);
 
-    typename dealii::DoFHandler<dim>::active_cell_iterator
-      cell = dof_handler.begin_active(),
-      endc = dof_handler.end();
+    typename dealii::DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
     for (; cell != endc; ++cell)
       if (cell->center()[0] > 1.0)
         {
@@ -416,18 +405,17 @@ test_regular(const MyFunction<dim> &func)
 
   // call Kelly
   dealii::Vector<float> error(dof_handler.n_dofs());
-  dealii::KellyErrorEstimator<dim>::estimate(
-    dof_handler,
-    face_quadrature_formula,
-    std::map<types::boundary_id, const Function<dim> *>(),
-    values,
-    error,
-    dealii::ComponentMask(),
-    nullptr,
-    dealii::numbers::invalid_unsigned_int,
-    dealii::numbers::invalid_subdomain_id,
-    dealii::numbers::invalid_material_id,
-    dealii::KellyErrorEstimator<dim>::face_diameter_over_twice_max_degree);
+  dealii::KellyErrorEstimator<dim>::estimate(dof_handler,
+                                             face_quadrature_formula,
+                                             std::map<types::boundary_id, const Function<dim> *>(),
+                                             values,
+                                             error,
+                                             dealii::ComponentMask(),
+                                             nullptr,
+                                             dealii::numbers::invalid_unsigned_int,
+                                             dealii::numbers::invalid_subdomain_id,
+                                             dealii::numbers::invalid_material_id,
+                                             dealii::KellyErrorEstimator<dim>::face_diameter_over_twice_max_degree);
 
   dealii::deallog << "error:" << std::endl;
   for (unsigned int i = 0; i < error.size(); ++i)
@@ -442,13 +430,10 @@ test_regular(const MyFunction<dim> &func)
 
   double h, A;
   get_h_area<dim>(h, A, L);
-  const double expected_value_squared =
-    h * A * std::pow(func.get_k(), 2) / 2.0 / std::max(p1, p2);
-  dealii::deallog << "expected:" << std::endl
-                  << ' ' << std::sqrt(expected_value_squared) << std::endl;
+  const double expected_value_squared = h * A * std::pow(func.get_k(), 2) / 2.0 / std::max(p1, p2);
+  dealii::deallog << "expected:" << std::endl << ' ' << std::sqrt(expected_value_squared) << std::endl;
   for (unsigned int i = 0; i < error.size(); ++i)
-    AssertThrow(std::fabs(std::sqrt(expected_value_squared) - error[i]) < 1e-6,
-                dealii::ExcInternalError());
+    AssertThrow(std::fabs(std::sqrt(expected_value_squared) - error[i]) < 1e-6, dealii::ExcInternalError());
 
   dof_handler.clear();
 }
@@ -479,8 +464,7 @@ test_irregular(const MyFunction<dim> &func)
   for (unsigned int i = 0; i < p_degree.size(); ++i)
     {
       const unsigned int &p = p_degree[i];
-      fe_collection.push_back(
-        dealii::FE_Q<dim>(QIterated<1>(QTrapezoid<1>(), p)));
+      fe_collection.push_back(dealii::FE_Q<dim>(QIterated<1>(QTrapezoid<1>(), p)));
       quadrature_formula.push_back(dealii::QGauss<dim>(p + 5));
       face_quadrature_formula.push_back(dealii::QGauss<dim - 1>(p + 5));
     }
@@ -505,15 +489,12 @@ test_irregular(const MyFunction<dim> &func)
                                               /*colorize*/ false);
     // refine left side
     {
-      typename dealii::DoFHandler<dim>::active_cell_iterator cell =
-        dof_handler.begin_active();
+      typename dealii::DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active();
       cell->set_refine_flag();
       triangulation.execute_coarsening_and_refinement();
     }
 
-    typename dealii::DoFHandler<dim>::active_cell_iterator
-      cell = dof_handler.begin_active(),
-      endc = dof_handler.end();
+    typename dealii::DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
     for (; cell != endc; ++cell)
       if (cell->center()[0] > 1.0) // right
         {
@@ -547,18 +528,17 @@ test_irregular(const MyFunction<dim> &func)
 
   // call Kelly
   dealii::Vector<float> error(dof_handler.n_dofs());
-  dealii::KellyErrorEstimator<dim>::estimate(
-    dof_handler,
-    face_quadrature_formula,
-    std::map<types::boundary_id, const Function<dim> *>(),
-    values,
-    error,
-    dealii::ComponentMask(),
-    nullptr,
-    dealii::numbers::invalid_unsigned_int,
-    dealii::numbers::invalid_subdomain_id,
-    dealii::numbers::invalid_material_id,
-    dealii::KellyErrorEstimator<dim>::face_diameter_over_twice_max_degree);
+  dealii::KellyErrorEstimator<dim>::estimate(dof_handler,
+                                             face_quadrature_formula,
+                                             std::map<types::boundary_id, const Function<dim> *>(),
+                                             values,
+                                             error,
+                                             dealii::ComponentMask(),
+                                             nullptr,
+                                             dealii::numbers::invalid_unsigned_int,
+                                             dealii::numbers::invalid_subdomain_id,
+                                             dealii::numbers::invalid_material_id,
+                                             dealii::KellyErrorEstimator<dim>::face_diameter_over_twice_max_degree);
 
   dealii::deallog << "error:" << std::endl;
   for (unsigned int i = 0; i < error.size(); ++i)
@@ -574,13 +554,10 @@ test_irregular(const MyFunction<dim> &func)
   double h, A;
   get_h_area_sub<dim>(h, A, L);
   //
-  const double expected_squared_1 =
-    h * A * std::pow(func.get_k(), 2) / 2.0 / std::max(p3, p1);
-  const double expected_squared_2 =
-    h * A * std::pow(func.get_k(), 2) / 2.0 / std::max(p2, p1);
+  const double expected_squared_1 = h * A * std::pow(func.get_k(), 2) / 2.0 / std::max(p3, p1);
+  const double expected_squared_2 = h * A * std::pow(func.get_k(), 2) / 2.0 / std::max(p2, p1);
   const double expected_squared_3 =
-    (dim == 2) ? expected_squared_1 + expected_squared_2 :
-                 2 * expected_squared_1 + 2 * expected_squared_2;
+    (dim == 2) ? expected_squared_1 + expected_squared_2 : 2 * expected_squared_1 + 2 * expected_squared_2;
 
   std::vector<double> expected_error(error.size(), 0.0);
 
@@ -600,8 +577,7 @@ test_irregular(const MyFunction<dim> &func)
   deallog << std::endl;
 
   for (unsigned int i = 0; i < expected_error.size(); ++i)
-    AssertThrow(std::fabs(expected_error[i] - error[i]) < 1e-6,
-                dealii::ExcInternalError());
+    AssertThrow(std::fabs(expected_error[i] - error[i]) < 1e-6, dealii::ExcInternalError());
 
   dof_handler.clear();
 }
@@ -613,8 +589,7 @@ public:
   MySecondFunction();
 
   virtual double
-  value(const dealii::Point<dim> &point,
-        const unsigned int        component = 0) const;
+  value(const dealii::Point<dim> &point, const unsigned int component = 0) const;
 };
 
 template <int dim>
@@ -624,8 +599,7 @@ MySecondFunction<dim>::MySecondFunction()
 
 template <int dim>
 double
-MySecondFunction<dim>::value(const dealii::Point<dim> &point,
-                             const unsigned int) const
+MySecondFunction<dim>::value(const dealii::Point<dim> &point, const unsigned int) const
 {
   double        f = 0.0;
   const double &x = point[0];
@@ -651,8 +625,7 @@ test(const MySecondFunction<dim> &func)
   dealii::AffineConstraints<double> constraints;
   for (unsigned int p = 1; p <= 3; ++p)
     {
-      fe_collection.push_back(
-        dealii::FE_Q<dim>(QIterated<1>(QTrapezoid<1>(), p)));
+      fe_collection.push_back(dealii::FE_Q<dim>(QIterated<1>(QTrapezoid<1>(), p)));
       quadrature_formula.push_back(dealii::QGauss<dim>(p + 1));
       face_quadrature_formula.push_back(dealii::QGauss<dim - 1>(p + 1));
     }
@@ -666,9 +639,7 @@ test(const MySecondFunction<dim> &func)
     // will not carry to the child cells.
     dof_handler.distribute_dofs(fe_collection);
 
-    typename dealii::DoFHandler<dim>::active_cell_iterator
-      cell = dof_handler.begin_active(),
-      endc = dof_handler.end();
+    typename dealii::DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
     for (; cell != endc; ++cell)
       {
         bool in_top_left = true;
@@ -717,18 +688,17 @@ test(const MySecondFunction<dim> &func)
 
   // call Kelly
   dealii::Vector<float> error(dof_handler.n_dofs());
-  dealii::KellyErrorEstimator<dim>::estimate(
-    dof_handler,
-    face_quadrature_formula,
-    std::map<types::boundary_id, const Function<dim> *>(),
-    values,
-    error,
-    dealii::ComponentMask(),
-    nullptr,
-    dealii::numbers::invalid_unsigned_int,
-    dealii::numbers::invalid_subdomain_id,
-    dealii::numbers::invalid_material_id,
-    dealii::KellyErrorEstimator<dim>::face_diameter_over_twice_max_degree);
+  dealii::KellyErrorEstimator<dim>::estimate(dof_handler,
+                                             face_quadrature_formula,
+                                             std::map<types::boundary_id, const Function<dim> *>(),
+                                             values,
+                                             error,
+                                             dealii::ComponentMask(),
+                                             nullptr,
+                                             dealii::numbers::invalid_unsigned_int,
+                                             dealii::numbers::invalid_subdomain_id,
+                                             dealii::numbers::invalid_material_id,
+                                             dealii::KellyErrorEstimator<dim>::face_diameter_over_twice_max_degree);
 
   dealii::deallog << "error:" << std::endl;
   for (unsigned int i = 0; i < error.size(); ++i)

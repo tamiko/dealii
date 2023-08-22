@@ -47,7 +47,8 @@ test()
       set_ghost.add_range(45, 100);
     }
   else
-    {}
+    {
+    }
 
   auto check = [&](IndexSet &idxset) {
     deallog << "IndexSet before size=" << idxset.size() << " values: ";
@@ -67,8 +68,7 @@ test()
 
   v.reinit(set_my, set_ghost, MPI_COMM_WORLD);
   IndexSet from_partitioner(v.trilinos_partitioner());
-  deallog << "vec size: " << v.size()
-          << " from_partitioner: " << from_partitioner.size() << std::endl;
+  deallog << "vec size: " << v.size() << " from_partitioner: " << from_partitioner.size() << std::endl;
 
   from_partitioner.print(deallog);
 }

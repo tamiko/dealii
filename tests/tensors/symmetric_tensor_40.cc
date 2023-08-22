@@ -22,18 +22,13 @@
 #include "../tests.h"
 
 void
-check_value(const int    dim,
-            const int    index,
-            const double expected,
-            const double actual,
-            const double tol = 1e-12)
+check_value(const int dim, const int index, const double expected, const double actual, const double tol = 1e-12)
 {
   const double rel_error = std::abs(expected - actual) / std::abs(actual);
   if (rel_error > tol)
     {
       deallog << "Incorrect value calculated: "
-              << "Dim " << dim << ", eigenvalue " << index << ". Expected "
-              << expected << ", actual: " << actual
+              << "Dim " << dim << ", eigenvalue " << index << ". Expected " << expected << ", actual: " << actual
               << ", relative error: " << rel_error << std::endl;
     }
 };
@@ -66,10 +61,7 @@ test_dim_1(const double e1, const double tol = 1e-12)
 }
 
 void
-test_dim_2(const double e1,
-           Tensor<1, 2> v1,
-           const double e2,
-           const double tol = 1e-12)
+test_dim_2(const double e1, Tensor<1, 2> v1, const double e2, const double tol = 1e-12)
 {
   const unsigned int dim = 2;
   v1 /= v1.norm();
@@ -79,8 +71,7 @@ test_dim_2(const double e1,
   Assert(is_unit_vector(v2), ExcMessage("Vector is not of unit length."));
   Assert(e1 >= e2, ExcMessage("Input eigenvalue ordering is not correct."));
 
-  const SymmetricTensor<2, dim> T = e1 * symmetrize(outer_product(v1, v1)) +
-                                    e2 * symmetrize(outer_product(v2, v2));
+  const SymmetricTensor<2, dim> T = e1 * symmetrize(outer_product(v1, v1)) + e2 * symmetrize(outer_product(v2, v2));
 
   const std::array<double, dim> eig_vals = eigenvalues(T);
 
@@ -110,14 +101,12 @@ test_dim_3(const double e1,
   Assert(is_unit_vector(v1), ExcMessage("Vector is not of unit length."));
   Assert(is_unit_vector(v2), ExcMessage("Vector is not of unit length."));
   Assert(is_unit_vector(v3), ExcMessage("Vector is not of unit length."));
-  Assert(check_orientation(v2, cross_product_3d(v3, v1)),
-         ExcMessage("Vectors are not orthogonal."));
+  Assert(check_orientation(v2, cross_product_3d(v3, v1)), ExcMessage("Vectors are not orthogonal."));
   Assert(e1 >= e2, ExcMessage("Input eigenvalue ordering is not correct."));
   Assert(e2 >= e3, ExcMessage("Input eigenvalue ordering is not correct."));
 
 
-  const SymmetricTensor<2, dim> T = e1 * symmetrize(outer_product(v1, v1)) +
-                                    e2 * symmetrize(outer_product(v2, v2)) +
+  const SymmetricTensor<2, dim> T = e1 * symmetrize(outer_product(v1, v1)) + e2 * symmetrize(outer_product(v2, v2)) +
                                     e3 * symmetrize(outer_product(v3, v3));
 
   const std::array<double, dim> eig_vals = eigenvalues(T);
@@ -194,55 +183,42 @@ main()
     // Diagonal
     deallog.push("Test 3a");
     {
-      test_dim_3(
-        3.6, Tensor<1, 3>({1, 0, 0}), 2.4, Tensor<1, 3>({0, 1, 0}), 1.2);
+      test_dim_3(3.6, Tensor<1, 3>({1, 0, 0}), 2.4, Tensor<1, 3>({0, 1, 0}), 1.2);
     }
     deallog.pop();
 
     // Diagonal (large difference)
     deallog.push("Test 3b");
     {
-      test_dim_3(1.2e7,
-                 Tensor<1, 3>({1, 0, 0}),
-                 -0.2e-8,
-                 Tensor<1, 3>({0, 1, 0}),
-                 -6.5e8);
+      test_dim_3(1.2e7, Tensor<1, 3>({1, 0, 0}), -0.2e-8, Tensor<1, 3>({0, 1, 0}), -6.5e8);
     }
     deallog.pop();
 
     // Diagonal (2 equal)
     deallog.push("Test 3c");
     {
-      test_dim_3(
-        16.7, Tensor<1, 3>({1, 0, 0}), 16.7, Tensor<1, 3>({0, 1, 0}), 1e-6);
+      test_dim_3(16.7, Tensor<1, 3>({1, 0, 0}), 16.7, Tensor<1, 3>({0, 1, 0}), 1e-6);
     }
     deallog.pop();
 
     // Diagonal (3 equal)
     deallog.push("Test 3d");
     {
-      test_dim_3(
-        4.2, Tensor<1, 3>({1, 0, 0}), 4.2, Tensor<1, 3>({0, 1, 0}), 4.2);
+      test_dim_3(4.2, Tensor<1, 3>({1, 0, 0}), 4.2, Tensor<1, 3>({0, 1, 0}), 4.2);
     }
     deallog.pop();
 
     // Non-diagonal
     deallog.push("Test 3e");
     {
-      test_dim_3(
-        115.7, Tensor<1, 3>({1, 1, 1}), 13.6, Tensor<1, 3>({-1, 1, -1}), -45.2);
+      test_dim_3(115.7, Tensor<1, 3>({1, 1, 1}), 13.6, Tensor<1, 3>({-1, 1, -1}), -45.2);
     }
     deallog.pop();
 
     // Non-diagonal (1 large difference)
     deallog.push("Test 3f");
     {
-      test_dim_3(7.2956e8,
-                 Tensor<1, 3>({3, 2, 5}),
-                 -4.856e3,
-                 Tensor<1, 3>({-0.2, 3, 1}),
-                 -5.284e3,
-                 1e-5);
+      test_dim_3(7.2956e8, Tensor<1, 3>({3, 2, 5}), -4.856e3, Tensor<1, 3>({-0.2, 3, 1}), -5.284e3, 1e-5);
     }
     deallog.pop();
 
@@ -250,12 +226,7 @@ main()
     deallog.push("Test 3g");
     {
       const double tol = 1e-7;
-      test_dim_3(9.274e7,
-                 Tensor<1, 3>({2, -0.7, 1.4}),
-                 2.59343,
-                 Tensor<1, 3>({0.5, -0.22, -1.42}),
-                 -5.292e8,
-                 tol);
+      test_dim_3(9.274e7, Tensor<1, 3>({2, -0.7, 1.4}), 2.59343, Tensor<1, 3>({0.5, -0.22, -1.42}), -5.292e8, tol);
     }
     deallog.pop();
   }

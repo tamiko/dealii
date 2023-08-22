@@ -41,8 +41,7 @@ test()
   deallog << "Shrinking..." << std::endl;
   v.resize(1);
 
-  deallog << "Checking: size=" << v[0].size() << ", element=" << v[0][0]
-          << std::endl;
+  deallog << "Checking: size=" << v[0].size() << ", element=" << v[0][0] << std::endl;
 
   deallog << "Clearing..." << std::endl;
   v.clear();

@@ -33,7 +33,7 @@ test_mpi()
 {
   Assert(Utilities::MPI::job_supports_mpi(), ExcInternalError());
 
-  unsigned int       myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  unsigned int       myid     = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
   const unsigned int numprocs = Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
 
   if (myid == 0)
@@ -60,15 +60,11 @@ test_mpi()
 
   if (myid == 0)
     {
-      deallog << "blocks: " << csp.n_block_rows() << 'x' << csp.n_block_cols()
-              << std::endl;
+      deallog << "blocks: " << csp.n_block_rows() << 'x' << csp.n_block_cols() << std::endl;
       deallog << "size: " << csp.n_rows() << 'x' << csp.n_cols() << std::endl;
     }
 
-  SparsityTools::distribute_sparsity_pattern(csp,
-                                             locally_owned_dofs,
-                                             MPI_COMM_WORLD,
-                                             locally_rel);
+  SparsityTools::distribute_sparsity_pattern(csp, locally_owned_dofs, MPI_COMM_WORLD, locally_rel);
   /*  {
       std::ofstream
      f((std::string("after")+Utilities::int_to_string(myid)).c_str());
@@ -111,15 +107,11 @@ test_mpi()
   for (unsigned int i = 0; i < n; ++i)
     csp.add(i, myid);
 
-  SparsityTools::distribute_sparsity_pattern(csp,
-                                             locally_owned_dofs,
-                                             MPI_COMM_WORLD,
-                                             locally_rel);
+  SparsityTools::distribute_sparsity_pattern(csp, locally_owned_dofs, MPI_COMM_WORLD, locally_rel);
 
   if (myid == 0)
     {
-      deallog << "blocks: " << csp.n_block_rows() << 'x' << csp.n_block_cols()
-              << std::endl;
+      deallog << "blocks: " << csp.n_block_rows() << 'x' << csp.n_block_cols() << std::endl;
       deallog << "size: " << csp.n_rows() << 'x' << csp.n_cols() << std::endl;
     }
 
@@ -153,8 +145,7 @@ int
 main(int argc, char *argv[])
 {
 #ifdef DEAL_II_WITH_MPI
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 #else
   (void)argc;
   (void)argv;

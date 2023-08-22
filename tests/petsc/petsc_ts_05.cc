@@ -52,14 +52,12 @@ public:
   {
     throw_error = false;
 
-    time_stepper.explicit_function =
-      [&](const real_type t, const VectorType &y, VectorType &res) -> void {
+    time_stepper.explicit_function = [&](const real_type t, const VectorType &y, VectorType &res) -> void {
       deallog << "Evaluating explicit function at t=" << t << std::endl;
 
       if (testerr && (t > last_eval_time + 0.1))
         {
-          deallog << "Time step too large: last_eval_time=" << last_eval_time
-                  << ", t=" << t << std::endl;
+          deallog << "Time step too large: last_eval_time=" << last_eval_time << ", t=" << t << std::endl;
           testerr     = false;
           throw_error = true;
         }
@@ -70,13 +68,10 @@ public:
       last_eval_time = t;
     };
 
-    time_stepper.monitor = [&](const real_type   t,
-                               const VectorType &sol,
-                               const unsigned int) -> void {
+    time_stepper.monitor = [&](const real_type t, const VectorType &sol, const unsigned int) -> void {
       deallog << "Intermediate output:" << std::endl;
       deallog << "  t =" << t << std::endl;
-      deallog << "  y =" << sol[0] << "  (exact: " << std::exp(-kappa * t)
-              << ')' << std::endl;
+      deallog << "  y =" << sol[0] << "  (exact: " << std::exp(-kappa * t) << ')' << std::endl;
     };
 
     if (!testcase)
@@ -85,26 +80,21 @@ public:
                                              const VectorType &y,
                                              const VectorType &y_dot,
                                              const real_type   shift,
-                                             MatrixType &      A,
-                                             MatrixType &      P) -> void {
+                                             MatrixType       &A,
+                                             MatrixType       &P) -> void {
           deallog << "Evaluating implicit Jacobian at t=" << t << std::endl;
           if (throw_error)
             {
               throw_error = false;
               if (testerrrecoverable)
                 {
-                  deallog
-                    << "Throwing a recoverable exception from implicit_jacobian."
-                    << std::endl;
+                  deallog << "Throwing a recoverable exception from implicit_jacobian." << std::endl;
                   throw RecoverableUserCallbackError();
                 }
               else
                 {
-                  deallog
-                    << "Throwing a unrecoverable exception from implicit_jacobian."
-                    << std::endl;
-                  throw std::runtime_error(
-                    "Unrecoverable error in implicit_jacobian.");
+                  deallog << "Throwing a unrecoverable exception from implicit_jacobian." << std::endl;
+                  throw std::runtime_error("Unrecoverable error in implicit_jacobian.");
                 }
             }
           P.set(0, 0, shift + kappa);
@@ -113,10 +103,8 @@ public:
       }
     else
       {
-        time_stepper.setup_jacobian = [&](const real_type   t,
-                                          const VectorType &y,
-                                          const VectorType &y_dot,
-                                          const real_type   shift) -> void {
+        time_stepper.setup_jacobian =
+          [&](const real_type t, const VectorType &y, const VectorType &y_dot, const real_type shift) -> void {
           deallog << "Setting up Jacobian at t=" << t << std::endl;
           myshift = shift;
           if (throw_error && testcase == 1)
@@ -124,42 +112,31 @@ public:
               throw_error = false;
               if (testerrrecoverable)
                 {
-                  deallog
-                    << "Throwing a recoverable exception from setup_jacobian."
-                    << std::endl;
+                  deallog << "Throwing a recoverable exception from setup_jacobian." << std::endl;
                   throw RecoverableUserCallbackError();
                 }
               else
                 {
-                  deallog
-                    << "Throwing a unrecoverable exception from setup_jacobian."
-                    << std::endl;
-                  throw std::runtime_error(
-                    "Unrecoverable error in setup_jacobian.");
+                  deallog << "Throwing a unrecoverable exception from setup_jacobian." << std::endl;
+                  throw std::runtime_error("Unrecoverable error in setup_jacobian.");
                 }
             }
         };
 
-        time_stepper.solve_with_jacobian = [&](const VectorType &src,
-                                               VectorType &      dst) -> void {
+        time_stepper.solve_with_jacobian = [&](const VectorType &src, VectorType &dst) -> void {
           deallog << "Solving with Jacobian" << std::endl;
           if (throw_error && testcase == 2)
             {
               throw_error = false;
               if (testerrrecoverable)
                 {
-                  deallog
-                    << "Throwing a recoverable exception from solve_with_jacobian."
-                    << std::endl;
+                  deallog << "Throwing a recoverable exception from solve_with_jacobian." << std::endl;
                   throw RecoverableUserCallbackError();
                 }
               else
                 {
-                  deallog
-                    << "Throwing a unrecoverable exception from solve_with_jacobian."
-                    << std::endl;
-                  throw std::runtime_error(
-                    "Unrecoverable error in setup_jacobian.");
+                  deallog << "Throwing a unrecoverable exception from solve_with_jacobian." << std::endl;
+                  throw std::runtime_error("Unrecoverable error in setup_jacobian.");
                 }
             }
           dst(0) = src(0) / (myshift + kappa);
@@ -184,8 +161,7 @@ public:
       }
     catch (const std::exception &exc)
       {
-        deallog << "Time stepper aborted with an exception:" << std::endl
-                << exc.what() << std::endl;
+        deallog << "Time stepper aborted with an exception:" << std::endl << exc.what() << std::endl;
       }
   }
 
@@ -223,8 +199,7 @@ main(int argc, char **argv)
 
   // This test triggers false positives in FPE trapping for some versions of
   // PETSc
-#if DEAL_II_PETSC_VERSION_LT(3, 19, 2) && defined(DEBUG) && \
-  defined(DEAL_II_HAVE_FP_EXCEPTIONS)
+#if DEAL_II_PETSC_VERSION_LT(3, 19, 2) && defined(DEBUG) && defined(DEAL_II_HAVE_FP_EXCEPTIONS)
   PetscErrorCode ierr = PetscFPTrapPush(PETSC_FP_TRAP_OFF);
   (void)ierr;
 #endif
@@ -243,8 +218,7 @@ main(int argc, char **argv)
           ode_expl.run();
           if (seterr)
             {
-              deallog << "# Testcase " << testcase
-                      << " with unrecoverable error " << std::endl;
+              deallog << "# Testcase " << testcase << " with unrecoverable error " << std::endl;
               ExponentialDecay ode_expl(1.0, data, seterr, false, testcase);
               ode_expl.run();
             }

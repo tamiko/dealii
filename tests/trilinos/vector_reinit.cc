@@ -42,11 +42,10 @@ test()
 {
   MPI_Comm mpi_communicator(MPI_COMM_WORLD);
 
-  parallel::distributed::Triangulation<dim> tria(
-    mpi_communicator,
-    typename Triangulation<dim>::MeshSmoothing(
-      Triangulation<dim>::smoothing_on_refinement |
-      Triangulation<dim>::smoothing_on_coarsening));
+  parallel::distributed::Triangulation<dim> tria(mpi_communicator,
+                                                 typename Triangulation<dim>::MeshSmoothing(
+                                                   Triangulation<dim>::smoothing_on_refinement |
+                                                   Triangulation<dim>::smoothing_on_coarsening));
 
   GridGenerator::hyper_cube(tria, -1, 0);
   tria.refine_global(2);

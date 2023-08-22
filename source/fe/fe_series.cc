@@ -32,12 +32,9 @@ namespace FESeries
     FullMatrix<double> K(2, 2), invK(2, 2);
     Vector<double>     X(2), B(2);
 
-    Assert(x.size() == y.size(),
-           ExcMessage("x and y are expected to have the same size"));
+    Assert(x.size() == y.size(), ExcMessage("x and y are expected to have the same size"));
 
-    Assert(x.size() >= 2,
-           dealii::ExcMessage(
-             "at least two points are required for linear regression fit"));
+    Assert(x.size() >= 2, dealii::ExcMessage("at least two points are required for linear regression fit"));
 
     double sum_1 = 0.0, sum_x = 0.0, sum_x2 = 0.0, sum_y = 0.0, sum_xy = 0.0;
 

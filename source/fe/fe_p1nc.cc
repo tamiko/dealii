@@ -22,10 +22,9 @@ DEAL_II_NAMESPACE_OPEN
 
 
 FE_P1NC::FE_P1NC()
-  : FiniteElement<2, 2>(
-      FiniteElementData<2>(get_dpo_vector(), 1, 1, FiniteElementData<2>::L2),
-      std::vector<bool>(1, false),
-      std::vector<ComponentMask>(4, ComponentMask(1, true)))
+  : FiniteElement<2, 2>(FiniteElementData<2>(get_dpo_vector(), 1, 1, FiniteElementData<2>::L2),
+                        std::vector<bool>(1, false),
+                        std::vector<ComponentMask>(4, ComponentMask(1, true)))
 {
   // face support points: 2 end vertices
   unit_face_support_points[0].resize(2);
@@ -86,8 +85,7 @@ FE_P1NC::get_dpo_vector()
 
 
 ndarray<double, 4, 3>
-FE_P1NC::get_linear_shape_coefficients(
-  const Triangulation<2, 2>::cell_iterator &cell)
+FE_P1NC::get_linear_shape_coefficients(const Triangulation<2, 2>::cell_iterator &cell)
 {
   // edge midpoints
   const Point<2> mpt[4] = {(cell->vertex(0) + cell->vertex(2)) / 2,
@@ -96,31 +94,21 @@ FE_P1NC::get_linear_shape_coefficients(
                            (cell->vertex(2) + cell->vertex(3)) / 2};
 
   // center point
-  const Point<2> cpt =
-    (cell->vertex(0) + cell->vertex(1) + cell->vertex(2) + cell->vertex(3)) / 4;
+  const Point<2> cpt = (cell->vertex(0) + cell->vertex(1) + cell->vertex(2) + cell->vertex(3)) / 4;
 
-  const double det = (mpt[0](0) - mpt[1](0)) * (mpt[2](1) - mpt[3](1)) -
-                     (mpt[2](0) - mpt[3](0)) * (mpt[0](1) - mpt[1](1));
+  const double det =
+    (mpt[0](0) - mpt[1](0)) * (mpt[2](1) - mpt[3](1)) - (mpt[2](0) - mpt[3](0)) * (mpt[0](1) - mpt[1](1));
 
   ndarray<double, 4, 3> coeffs;
-  coeffs[0][0] =
-    ((mpt[2](1) - mpt[3](1)) * (0.5) - (mpt[0](1) - mpt[1](1)) * (0.5)) / det;
-  coeffs[1][0] =
-    ((mpt[2](1) - mpt[3](1)) * (-0.5) - (mpt[0](1) - mpt[1](1)) * (0.5)) / det;
-  coeffs[2][0] =
-    ((mpt[2](1) - mpt[3](1)) * (0.5) - (mpt[0](1) - mpt[1](1)) * (-0.5)) / det;
-  coeffs[3][0] =
-    ((mpt[2](1) - mpt[3](1)) * (-0.5) - (mpt[0](1) - mpt[1](1)) * (-0.5)) / det;
+  coeffs[0][0] = ((mpt[2](1) - mpt[3](1)) * (0.5) - (mpt[0](1) - mpt[1](1)) * (0.5)) / det;
+  coeffs[1][0] = ((mpt[2](1) - mpt[3](1)) * (-0.5) - (mpt[0](1) - mpt[1](1)) * (0.5)) / det;
+  coeffs[2][0] = ((mpt[2](1) - mpt[3](1)) * (0.5) - (mpt[0](1) - mpt[1](1)) * (-0.5)) / det;
+  coeffs[3][0] = ((mpt[2](1) - mpt[3](1)) * (-0.5) - (mpt[0](1) - mpt[1](1)) * (-0.5)) / det;
 
-  coeffs[0][1] =
-    (-(mpt[2](0) - mpt[3](0)) * (0.5) + (mpt[0](0) - mpt[1](0)) * (0.5)) / det;
-  coeffs[1][1] =
-    (-(mpt[2](0) - mpt[3](0)) * (-0.5) + (mpt[0](0) - mpt[1](0)) * (0.5)) / det;
-  coeffs[2][1] =
-    (-(mpt[2](0) - mpt[3](0)) * (0.5) + (mpt[0](0) - mpt[1](0)) * (-0.5)) / det;
-  coeffs[3][1] =
-    (-(mpt[2](0) - mpt[3](0)) * (-0.5) + (mpt[0](0) - mpt[1](0)) * (-0.5)) /
-    det;
+  coeffs[0][1] = (-(mpt[2](0) - mpt[3](0)) * (0.5) + (mpt[0](0) - mpt[1](0)) * (0.5)) / det;
+  coeffs[1][1] = (-(mpt[2](0) - mpt[3](0)) * (-0.5) + (mpt[0](0) - mpt[1](0)) * (0.5)) / det;
+  coeffs[2][1] = (-(mpt[2](0) - mpt[3](0)) * (0.5) + (mpt[0](0) - mpt[1](0)) * (-0.5)) / det;
+  coeffs[3][1] = (-(mpt[2](0) - mpt[3](0)) * (-0.5) + (mpt[0](0) - mpt[1](0)) * (-0.5)) / det;
 
   coeffs[0][2] = 0.25 - cpt(0) * coeffs[0][0] - cpt(1) * coeffs[0][1];
   coeffs[1][2] = 0.25 - cpt(0) * coeffs[1][0] - cpt(1) * coeffs[1][1];
@@ -133,12 +121,10 @@ FE_P1NC::get_linear_shape_coefficients(
 
 
 std::unique_ptr<FiniteElement<2, 2>::InternalDataBase>
-FE_P1NC::get_data(
-  const UpdateFlags update_flags,
-  const Mapping<2, 2> &,
-  const Quadrature<2> &quadrature,
-  dealii::internal::FEValuesImplementation::FiniteElementRelatedData<2, 2>
-    &output_data) const
+FE_P1NC::get_data(const UpdateFlags update_flags,
+                  const Mapping<2, 2> &,
+                  const Quadrature<2>                                                      &quadrature,
+                  dealii::internal::FEValuesImplementation::FiniteElementRelatedData<2, 2> &output_data) const
 {
   auto data_ptr = std::make_unique<FiniteElement<2, 2>::InternalDataBase>();
 
@@ -157,12 +143,10 @@ FE_P1NC::get_data(
 
 
 std::unique_ptr<FiniteElement<2, 2>::InternalDataBase>
-FE_P1NC::get_face_data(
-  const UpdateFlags update_flags,
-  const Mapping<2, 2> &,
-  const hp::QCollection<1> &quadrature,
-  dealii::internal::FEValuesImplementation::FiniteElementRelatedData<2, 2>
-    &output_data) const
+FE_P1NC::get_face_data(const UpdateFlags update_flags,
+                       const Mapping<2, 2> &,
+                       const hp::QCollection<1>                                                 &quadrature,
+                       dealii::internal::FEValuesImplementation::FiniteElementRelatedData<2, 2> &output_data) const
 {
   AssertDimension(quadrature.size(), 1);
 
@@ -183,12 +167,10 @@ FE_P1NC::get_face_data(
 
 
 std::unique_ptr<FiniteElement<2, 2>::InternalDataBase>
-FE_P1NC::get_subface_data(
-  const UpdateFlags update_flags,
-  const Mapping<2, 2> &,
-  const Quadrature<1> &quadrature,
-  dealii::internal::FEValuesImplementation::FiniteElementRelatedData<2, 2>
-    &output_data) const
+FE_P1NC::get_subface_data(const UpdateFlags update_flags,
+                          const Mapping<2, 2> &,
+                          const Quadrature<1>                                                      &quadrature,
+                          dealii::internal::FEValuesImplementation::FiniteElementRelatedData<2, 2> &output_data) const
 {
   auto data_ptr = std::make_unique<FiniteElement<2, 2>::InternalDataBase>();
 
@@ -207,17 +189,14 @@ FE_P1NC::get_subface_data(
 
 
 void
-FE_P1NC::fill_fe_values(
-  const Triangulation<2, 2>::cell_iterator &cell,
-  const CellSimilarity::Similarity,
-  const Quadrature<2> &,
-  const Mapping<2, 2> &,
-  const Mapping<2, 2>::InternalDataBase &,
-  const internal::FEValuesImplementation::MappingRelatedData<2, 2>
-    &                                          mapping_data,
-  const FiniteElement<2, 2>::InternalDataBase &fe_internal,
-  internal::FEValuesImplementation::FiniteElementRelatedData<2, 2> &output_data)
-  const
+FE_P1NC::fill_fe_values(const Triangulation<2, 2>::cell_iterator &cell,
+                        const CellSimilarity::Similarity,
+                        const Quadrature<2> &,
+                        const Mapping<2, 2> &,
+                        const Mapping<2, 2>::InternalDataBase &,
+                        const internal::FEValuesImplementation::MappingRelatedData<2, 2> &mapping_data,
+                        const FiniteElement<2, 2>::InternalDataBase                      &fe_internal,
+                        internal::FEValuesImplementation::FiniteElementRelatedData<2, 2> &output_data) const
 {
   const UpdateFlags flags(fe_internal.update_each);
 
@@ -230,15 +209,13 @@ FE_P1NC::fill_fe_values(
   if (flags & update_values)
     for (unsigned int i = 0; i < n_q_points; ++i)
       for (unsigned int k = 0; k < this->n_dofs_per_cell(); ++k)
-        output_data.shape_values[k][i] =
-          (coeffs[k][0] * mapping_data.quadrature_points[i](0) +
-           coeffs[k][1] * mapping_data.quadrature_points[i](1) + coeffs[k][2]);
+        output_data.shape_values[k][i] = (coeffs[k][0] * mapping_data.quadrature_points[i](0) +
+                                          coeffs[k][1] * mapping_data.quadrature_points[i](1) + coeffs[k][2]);
 
   if (flags & update_gradients)
     for (unsigned int i = 0; i < n_q_points; ++i)
       for (unsigned int k = 0; k < this->n_dofs_per_cell(); ++k)
-        output_data.shape_gradients[k][i] =
-          Point<2>(coeffs[k][0], coeffs[k][1]);
+        output_data.shape_gradients[k][i] = Point<2>(coeffs[k][0], coeffs[k][1]);
 }
 
 
@@ -247,13 +224,12 @@ void
 FE_P1NC::fill_fe_face_values(
   const Triangulation<2, 2>::cell_iterator &cell,
   const unsigned int                        face_no,
-  const hp::QCollection<1> &                quadrature,
-  const Mapping<2, 2> &                     mapping,
+  const hp::QCollection<1>                 &quadrature,
+  const Mapping<2, 2>                      &mapping,
   const Mapping<2, 2>::InternalDataBase &,
   const internal::FEValuesImplementation::MappingRelatedData<2, 2> &,
-  const InternalDataBase &fe_internal,
-  dealii::internal::FEValuesImplementation::FiniteElementRelatedData<2, 2>
-    &output_data) const
+  const InternalDataBase                                                   &fe_internal,
+  dealii::internal::FEValuesImplementation::FiniteElementRelatedData<2, 2> &output_data) const
 {
   AssertDimension(quadrature.size(), 1);
 
@@ -264,28 +240,22 @@ FE_P1NC::fill_fe_face_values(
 
   // compute on the face
   const Quadrature<2> quadrature_on_face =
-    QProjector<2>::project_to_face(this->reference_cell(),
-                                   quadrature[0],
-                                   face_no);
+    QProjector<2>::project_to_face(this->reference_cell(), quadrature[0], face_no);
 
   if (flags & update_values)
     for (unsigned int i = 0; i < quadrature_on_face.size(); ++i)
       for (unsigned int k = 0; k < this->n_dofs_per_cell(); ++k)
         {
-          const Point<2> quadrature_point =
-            mapping.transform_unit_to_real_cell(cell,
-                                                quadrature_on_face.point(i));
+          const Point<2> quadrature_point = mapping.transform_unit_to_real_cell(cell, quadrature_on_face.point(i));
 
           output_data.shape_values[k][i] =
-            (coeffs[k][0] * quadrature_point(0) +
-             coeffs[k][1] * quadrature_point(1) + coeffs[k][2]);
+            (coeffs[k][0] * quadrature_point(0) + coeffs[k][1] * quadrature_point(1) + coeffs[k][2]);
         }
 
   if (flags & update_gradients)
     for (unsigned int i = 0; i < quadrature_on_face.size(); ++i)
       for (unsigned int k = 0; k < this->n_dofs_per_cell(); ++k)
-        output_data.shape_gradients[k][i] =
-          Point<2>(coeffs[k][0], coeffs[k][1]);
+        output_data.shape_gradients[k][i] = Point<2>(coeffs[k][0], coeffs[k][1]);
 }
 
 
@@ -295,13 +265,12 @@ FE_P1NC::fill_fe_subface_values(
   const Triangulation<2, 2>::cell_iterator &cell,
   const unsigned int                        face_no,
   const unsigned int                        sub_no,
-  const Quadrature<1> &                     quadrature,
-  const Mapping<2, 2> &                     mapping,
+  const Quadrature<1>                      &quadrature,
+  const Mapping<2, 2>                      &mapping,
   const Mapping<2, 2>::InternalDataBase &,
   const internal::FEValuesImplementation::MappingRelatedData<2, 2> &,
-  const InternalDataBase &fe_internal,
-  dealii::internal::FEValuesImplementation::FiniteElementRelatedData<2, 2>
-    &output_data) const
+  const InternalDataBase                                                   &fe_internal,
+  dealii::internal::FEValuesImplementation::FiniteElementRelatedData<2, 2> &output_data) const
 {
   const UpdateFlags flags(fe_internal.update_each);
 
@@ -309,29 +278,25 @@ FE_P1NC::fill_fe_subface_values(
   const ndarray<double, 4, 3> coeffs = get_linear_shape_coefficients(cell);
 
   // compute on the subface
-  const Quadrature<2> quadrature_on_subface = QProjector<2>::project_to_subface(
-    this->reference_cell(), quadrature, face_no, sub_no);
+  const Quadrature<2> quadrature_on_subface =
+    QProjector<2>::project_to_subface(this->reference_cell(), quadrature, face_no, sub_no);
 
   if (flags & update_values)
     for (unsigned int i = 0; i < quadrature_on_subface.size(); ++i)
       {
         for (unsigned int k = 0; k < this->n_dofs_per_cell(); ++k)
           {
-            const Point<2> quadrature_point =
-              mapping.transform_unit_to_real_cell(
-                cell, quadrature_on_subface.point(i));
+            const Point<2> quadrature_point = mapping.transform_unit_to_real_cell(cell, quadrature_on_subface.point(i));
 
             output_data.shape_values[k][i] =
-              (coeffs[k][0] * quadrature_point(0) +
-               coeffs[k][1] * quadrature_point(1) + coeffs[k][2]);
+              (coeffs[k][0] * quadrature_point(0) + coeffs[k][1] * quadrature_point(1) + coeffs[k][2]);
           }
       }
 
   if (flags & update_gradients)
     for (unsigned int i = 0; i < quadrature_on_subface.size(); ++i)
       for (unsigned int k = 0; k < this->n_dofs_per_cell(); ++k)
-        output_data.shape_gradients[k][i] =
-          Point<2>(coeffs[k][0], coeffs[k][1]);
+        output_data.shape_gradients[k][i] = Point<2>(coeffs[k][0], coeffs[k][1]);
 }
 
 
@@ -340,8 +305,7 @@ void
 FE_P1NC::initialize_constraints()
 {
   // coefficient relation between children and mother
-  interface_constraints.TableBase<2, double>::reinit(
-    interface_constraints_size());
+  interface_constraints.TableBase<2, double>::reinit(interface_constraints_size());
 
   interface_constraints(0, 0) = 0.5;
   interface_constraints(0, 1) = 0.5;

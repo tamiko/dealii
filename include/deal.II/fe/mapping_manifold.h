@@ -86,15 +86,13 @@ public:
 
   // for documentation, see the Mapping base class
   virtual Point<spacedim>
-  transform_unit_to_real_cell(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const Point<dim> &p) const override;
+  transform_unit_to_real_cell(const typename Triangulation<dim, spacedim>::cell_iterator &cell,
+                              const Point<dim>                                           &p) const override;
 
   // for documentation, see the Mapping base class
   virtual Point<dim>
-  transform_real_to_unit_cell(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const Point<spacedim> &p) const override;
+  transform_real_to_unit_cell(const typename Triangulation<dim, spacedim>::cell_iterator &cell,
+                              const Point<spacedim>                                      &p) const override;
 
   /**
    * @}
@@ -107,38 +105,38 @@ public:
 
   // for documentation, see the Mapping base class
   virtual void
-  transform(const ArrayView<const Tensor<1, dim>> &                  input,
+  transform(const ArrayView<const Tensor<1, dim>>                   &input,
             const MappingKind                                        kind,
             const typename Mapping<dim, spacedim>::InternalDataBase &internal,
-            const ArrayView<Tensor<1, spacedim>> &output) const override;
+            const ArrayView<Tensor<1, spacedim>>                    &output) const override;
 
   // for documentation, see the Mapping base class
   virtual void
   transform(const ArrayView<const DerivativeForm<1, dim, spacedim>> &input,
             const MappingKind                                        kind,
             const typename Mapping<dim, spacedim>::InternalDataBase &internal,
-            const ArrayView<Tensor<2, spacedim>> &output) const override;
+            const ArrayView<Tensor<2, spacedim>>                    &output) const override;
 
   // for documentation, see the Mapping base class
   virtual void
-  transform(const ArrayView<const Tensor<2, dim>> &                  input,
+  transform(const ArrayView<const Tensor<2, dim>>                   &input,
             const MappingKind                                        kind,
             const typename Mapping<dim, spacedim>::InternalDataBase &internal,
-            const ArrayView<Tensor<2, spacedim>> &output) const override;
+            const ArrayView<Tensor<2, spacedim>>                    &output) const override;
 
   // for documentation, see the Mapping base class
   virtual void
   transform(const ArrayView<const DerivativeForm<2, dim, spacedim>> &input,
             const MappingKind                                        kind,
             const typename Mapping<dim, spacedim>::InternalDataBase &internal,
-            const ArrayView<Tensor<3, spacedim>> &output) const override;
+            const ArrayView<Tensor<3, spacedim>>                    &output) const override;
 
   // for documentation, see the Mapping base class
   virtual void
-  transform(const ArrayView<const Tensor<3, dim>> &                  input,
+  transform(const ArrayView<const Tensor<3, dim>>                   &input,
             const MappingKind                                        kind,
             const typename Mapping<dim, spacedim>::InternalDataBase &internal,
-            const ArrayView<Tensor<3, spacedim>> &output) const override;
+            const ArrayView<Tensor<3, spacedim>>                    &output) const override;
 
   /**
    * @}
@@ -203,8 +201,7 @@ public:
      * Store vertices internally.
      */
     void
-    store_vertices(
-      const typename Triangulation<dim, spacedim>::cell_iterator &cell) const;
+    store_vertices(const typename Triangulation<dim, spacedim>::cell_iterator &cell) const;
 
     /**
      * Return an estimate (in bytes) for the memory consumption of this object.
@@ -282,9 +279,7 @@ public:
      *
      * Filled once.
      */
-    std::array<std::vector<Tensor<1, dim>>,
-               GeometryInfo<dim>::faces_per_cell *(dim - 1)>
-      unit_tangentials;
+    std::array<std::vector<Tensor<1, dim>>, GeometryInfo<dim>::faces_per_cell *(dim - 1)> unit_tangentials;
 
     /**
      * Tensors of covariant transformation at each of the quadrature points.
@@ -338,46 +333,39 @@ private:
 
   // documentation can be found in Mapping::get_face_data()
   virtual std::unique_ptr<typename Mapping<dim, spacedim>::InternalDataBase>
-  get_face_data(const UpdateFlags               flags,
-                const hp::QCollection<dim - 1> &quadrature) const override;
+  get_face_data(const UpdateFlags flags, const hp::QCollection<dim - 1> &quadrature) const override;
 
   // documentation can be found in Mapping::get_subface_data()
   virtual std::unique_ptr<typename Mapping<dim, spacedim>::InternalDataBase>
-  get_subface_data(const UpdateFlags          flags,
-                   const Quadrature<dim - 1> &quadrature) const override;
+  get_subface_data(const UpdateFlags flags, const Quadrature<dim - 1> &quadrature) const override;
 
   // documentation can be found in Mapping::fill_fe_values()
   virtual CellSimilarity::Similarity
-  fill_fe_values(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const CellSimilarity::Similarity                            cell_similarity,
-    const Quadrature<dim> &                                     quadrature,
-    const typename Mapping<dim, spacedim>::InternalDataBase &   internal_data,
-    internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &output_data) const override;
+  fill_fe_values(const typename Triangulation<dim, spacedim>::cell_iterator          &cell,
+                 const CellSimilarity::Similarity                                     cell_similarity,
+                 const Quadrature<dim>                                               &quadrature,
+                 const typename Mapping<dim, spacedim>::InternalDataBase             &internal_data,
+                 internal::FEValuesImplementation::MappingRelatedData<dim, spacedim> &output_data) const override;
 
   using Mapping<dim, spacedim>::fill_fe_face_values;
 
   // documentation can be found in Mapping::fill_fe_face_values()
   virtual void
-  fill_fe_face_values(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const unsigned int                                          face_no,
-    const hp::QCollection<dim - 1> &                            quadrature,
-    const typename Mapping<dim, spacedim>::InternalDataBase &   internal_data,
-    internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &output_data) const override;
+  fill_fe_face_values(const typename Triangulation<dim, spacedim>::cell_iterator          &cell,
+                      const unsigned int                                                   face_no,
+                      const hp::QCollection<dim - 1>                                      &quadrature,
+                      const typename Mapping<dim, spacedim>::InternalDataBase             &internal_data,
+                      internal::FEValuesImplementation::MappingRelatedData<dim, spacedim> &output_data) const override;
 
   // documentation can be found in Mapping::fill_fe_subface_values()
   virtual void
   fill_fe_subface_values(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const unsigned int                                          face_no,
-    const unsigned int                                          subface_no,
-    const Quadrature<dim - 1> &                                 quadrature,
-    const typename Mapping<dim, spacedim>::InternalDataBase &   internal_data,
-    internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &output_data) const override;
+    const typename Triangulation<dim, spacedim>::cell_iterator          &cell,
+    const unsigned int                                                   face_no,
+    const unsigned int                                                   subface_no,
+    const Quadrature<dim - 1>                                           &quadrature,
+    const typename Mapping<dim, spacedim>::InternalDataBase             &internal_data,
+    internal::FEValuesImplementation::MappingRelatedData<dim, spacedim> &output_data) const override;
 
   /**
    * @}
@@ -406,17 +394,14 @@ MappingManifold<dim, spacedim>::InternalData::store_vertices(
 
 template <int dim, int spacedim>
 inline void
-MappingManifold<dim, spacedim>::InternalData::
-  compute_manifold_quadrature_weights(const Quadrature<dim> &quad)
+MappingManifold<dim, spacedim>::InternalData::compute_manifold_quadrature_weights(const Quadrature<dim> &quad)
 {
-  cell_manifold_quadrature_weights.resize(
-    quad.size(), std::vector<double>(GeometryInfo<dim>::vertices_per_cell));
+  cell_manifold_quadrature_weights.resize(quad.size(), std::vector<double>(GeometryInfo<dim>::vertices_per_cell));
   for (unsigned int q = 0; q < quad.size(); ++q)
     {
       for (const unsigned int i : GeometryInfo<dim>::vertex_indices())
         {
-          cell_manifold_quadrature_weights[q][i] =
-            GeometryInfo<dim>::d_linear_shape_function(quad.point(q), i);
+          cell_manifold_quadrature_weights[q][i] = GeometryInfo<dim>::d_linear_shape_function(quad.point(q), i);
         }
     }
 }
@@ -433,8 +418,7 @@ MappingManifold<dim, spacedim>::preserves_vertex_locations() const
 
 template <int dim, int spacedim>
 bool
-MappingManifold<dim, spacedim>::is_compatible_with(
-  const ReferenceCell &cell_type) const
+MappingManifold<dim, spacedim>::is_compatible_with(const ReferenceCell &cell_type) const
 {
   if (cell_type.get_dimension() != dim)
     return false; // TODO: or is this an error?

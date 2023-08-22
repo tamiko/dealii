@@ -193,9 +193,7 @@ public:
   /**
    * Constructor.
    */
-  SolverCG(SolverControl &           cn,
-           VectorMemory<VectorType> &mem,
-           const AdditionalData &    data = AdditionalData());
+  SolverCG(SolverControl &cn, VectorMemory<VectorType> &mem, const AdditionalData &data = AdditionalData());
 
   /**
    * Constructor. Use an object of type GrowingVectorMemory as a default to
@@ -213,10 +211,7 @@ public:
    */
   template <typename MatrixType, typename PreconditionerType>
   void
-  solve(const MatrixType &        A,
-        VectorType &              x,
-        const VectorType &        b,
-        const PreconditionerType &preconditioner);
+  solve(const MatrixType &A, VectorType &x, const VectorType &b, const PreconditionerType &preconditioner);
 
   /**
    * Connect a slot to retrieve the CG coefficients. The slot will be called
@@ -226,8 +221,7 @@ public:
    */
   boost::signals2::connection
   connect_coefficients_slot(
-    const std::function<void(typename VectorType::value_type,
-                             typename VectorType::value_type)> &slot);
+    const std::function<void(typename VectorType::value_type, typename VectorType::value_type)> &slot);
 
   /**
    * Connect a slot to retrieve the estimated condition number. Called on each
@@ -236,8 +230,7 @@ public:
    * divergence has been detected).
    */
   boost::signals2::connection
-  connect_condition_number_slot(const std::function<void(double)> &slot,
-                                const bool every_iteration = false);
+  connect_condition_number_slot(const std::function<void(double)> &slot, const bool every_iteration = false);
 
   /**
    * Connect a slot to retrieve the estimated eigenvalues. Called on each
@@ -246,9 +239,8 @@ public:
    * divergence has been detected).
    */
   boost::signals2::connection
-  connect_eigenvalues_slot(
-    const std::function<void(const std::vector<double> &)> &slot,
-    const bool every_iteration = false);
+  connect_eigenvalues_slot(const std::function<void(const std::vector<double> &)> &slot,
+                           const bool                                              every_iteration = false);
 
 protected:
   /**
@@ -257,10 +249,7 @@ protected:
    * for graphical output of the convergence history.
    */
   virtual void
-  print_vectors(const unsigned int step,
-                const VectorType & x,
-                const VectorType & r,
-                const VectorType & d) const;
+  print_vectors(const unsigned int step, const VectorType &x, const VectorType &r, const VectorType &d) const;
 
   /**
    * Estimates the eigenvalues from diagonal and offdiagonal. Uses these
@@ -268,12 +257,10 @@ protected:
    * eigenvalues_signal and cond_signal with these estimates as arguments.
    */
   static void
-  compute_eigs_and_cond(
-    const std::vector<typename VectorType::value_type> &diagonal,
-    const std::vector<typename VectorType::value_type> &offdiagonal,
-    const boost::signals2::signal<void(const std::vector<double> &)>
-      &                                          eigenvalues_signal,
-    const boost::signals2::signal<void(double)> &cond_signal);
+  compute_eigs_and_cond(const std::vector<typename VectorType::value_type>               &diagonal,
+                        const std::vector<typename VectorType::value_type>               &offdiagonal,
+                        const boost::signals2::signal<void(const std::vector<double> &)> &eigenvalues_signal,
+                        const boost::signals2::signal<void(double)>                      &cond_signal);
 
   /**
    * Additional parameters.
@@ -283,9 +270,7 @@ protected:
   /**
    * Signal used to retrieve the CG coefficients. Called on each iteration.
    */
-  boost::signals2::signal<void(typename VectorType::value_type,
-                               typename VectorType::value_type)>
-    coefficients_signal;
+  boost::signals2::signal<void(typename VectorType::value_type, typename VectorType::value_type)> coefficients_signal;
 
   /**
    * Signal used to retrieve the estimated condition number. Called once when
@@ -309,8 +294,7 @@ protected:
    * Signal used to retrieve the estimated eigenvalues. Called on each
    * iteration.
    */
-  boost::signals2::signal<void(const std::vector<double> &)>
-    all_eigenvalues_signal;
+  boost::signals2::signal<void(const std::vector<double> &)> all_eigenvalues_signal;
 
   /**
    * Flag to indicate whether the classical Fletcher--Reeves update formula
@@ -370,16 +354,13 @@ public:
   /**
    * Constructor.
    */
-  SolverFlexibleCG(SolverControl &           cn,
-                   VectorMemory<VectorType> &mem,
-                   const AdditionalData &    data = AdditionalData());
+  SolverFlexibleCG(SolverControl &cn, VectorMemory<VectorType> &mem, const AdditionalData &data = AdditionalData());
 
   /**
    * Constructor. Use an object of type GrowingVectorMemory as a default to
    * allocate memory.
    */
-  SolverFlexibleCG(SolverControl &       cn,
-                   const AdditionalData &data = AdditionalData());
+  SolverFlexibleCG(SolverControl &cn, const AdditionalData &data = AdditionalData());
 };
 
 
@@ -392,9 +373,7 @@ public:
 
 
 template <typename VectorType>
-SolverCG<VectorType>::SolverCG(SolverControl &           cn,
-                               VectorMemory<VectorType> &mem,
-                               const AdditionalData &    data)
+SolverCG<VectorType>::SolverCG(SolverControl &cn, VectorMemory<VectorType> &mem, const AdditionalData &data)
   : SolverBase<VectorType>(cn, mem)
   , additional_data(data)
   , determine_beta_by_flexible_formula(false)
@@ -424,17 +403,15 @@ SolverCG<VectorType>::print_vectors(const unsigned int,
 template <typename VectorType>
 inline void
 SolverCG<VectorType>::compute_eigs_and_cond(
-  const std::vector<typename VectorType::value_type> &diagonal,
-  const std::vector<typename VectorType::value_type> &offdiagonal,
-  const boost::signals2::signal<void(const std::vector<double> &)>
-    &                                          eigenvalues_signal,
-  const boost::signals2::signal<void(double)> &cond_signal)
+  const std::vector<typename VectorType::value_type>               &diagonal,
+  const std::vector<typename VectorType::value_type>               &offdiagonal,
+  const boost::signals2::signal<void(const std::vector<double> &)> &eigenvalues_signal,
+  const boost::signals2::signal<void(double)>                      &cond_signal)
 {
   // Avoid computing eigenvalues unless they are needed.
   if (!cond_signal.empty() || !eigenvalues_signal.empty())
     {
-      TridiagonalMatrix<typename VectorType::value_type> T(diagonal.size(),
-                                                           true);
+      TridiagonalMatrix<typename VectorType::value_type> T(diagonal.size(), true);
       for (size_type i = 0; i < diagonal.size(); ++i)
         {
           T(i, i) = diagonal[i];
@@ -478,17 +455,15 @@ namespace internal
     // IterationWork below, but there is also a specialized variant further
     // down that uses SFINAE to identify whether matrices and preconditioners
     // support special operations on sub-ranges of the vectors.
-    template <typename VectorType,
-              typename MatrixType,
-              typename PreconditionerType>
+    template <typename VectorType, typename MatrixType, typename PreconditionerType>
     struct IterationWorkerBase
     {
       using Number = typename VectorType::value_type;
 
-      const MatrixType &        A;
+      const MatrixType         &A;
       const PreconditionerType &preconditioner;
       const bool                flexible;
-      VectorType &              x;
+      VectorType               &x;
 
       typename VectorMemory<VectorType>::Pointer r_pointer;
       typename VectorMemory<VectorType>::Pointer p_pointer;
@@ -512,11 +487,11 @@ namespace internal
       double residual_norm;
       Number previous_alpha;
 
-      IterationWorkerBase(const MatrixType &        A,
+      IterationWorkerBase(const MatrixType         &A,
                           const PreconditionerType &preconditioner,
                           const bool                flexible,
                           VectorMemory<VectorType> &memory,
-                          VectorType &              x)
+                          VectorType               &x)
         : A(A)
         , preconditioner(preconditioner)
         , flexible(flexible)
@@ -565,21 +540,16 @@ namespace internal
 
     // Implementation of a conjugate gradient operation with matrices and
     // preconditioners without special capabilities
-    template <typename VectorType,
-              typename MatrixType,
-              typename PreconditionerType,
-              typename = int>
-    struct IterationWorker
-      : public IterationWorkerBase<VectorType, MatrixType, PreconditionerType>
+    template <typename VectorType, typename MatrixType, typename PreconditionerType, typename = int>
+    struct IterationWorker : public IterationWorkerBase<VectorType, MatrixType, PreconditionerType>
     {
-      using BaseClass =
-        IterationWorkerBase<VectorType, MatrixType, PreconditionerType>;
+      using BaseClass = IterationWorkerBase<VectorType, MatrixType, PreconditionerType>;
 
-      IterationWorker(const MatrixType &        A,
+      IterationWorker(const MatrixType         &A,
                       const PreconditionerType &preconditioner,
                       const bool                flexible,
                       VectorMemory<VectorType> &memory,
-                      VectorType &              x)
+                      VectorType               &x)
         : BaseClass(A, preconditioner, flexible, memory, x)
       {}
 
@@ -600,8 +570,7 @@ namespace internal
       {
         using Number = typename VectorType::value_type;
 
-        const Number previous_r_dot_preconditioner_dot_r =
-          r_dot_preconditioner_dot_r;
+        const Number previous_r_dot_preconditioner_dot_r = r_dot_preconditioner_dot_r;
 
         if (std::is_same_v<PreconditionerType, PreconditionIdentity> == false)
           {
@@ -611,15 +580,12 @@ namespace internal
         else
           r_dot_preconditioner_dot_r = residual_norm * residual_norm;
 
-        const VectorType &direction =
-          std::is_same_v<PreconditionerType, PreconditionIdentity> ? r : v;
+        const VectorType &direction = std::is_same_v<PreconditionerType, PreconditionIdentity> ? r : v;
 
         if (iteration_index > 1)
           {
-            Assert(std::abs(previous_r_dot_preconditioner_dot_r) != 0.,
-                   ExcDivideByZero());
-            beta =
-              r_dot_preconditioner_dot_r / previous_r_dot_preconditioner_dot_r;
+            Assert(std::abs(previous_r_dot_preconditioner_dot_r) != 0., ExcDivideByZero());
+            beta = r_dot_preconditioner_dot_r / previous_r_dot_preconditioner_dot_r;
             if (this->flexible)
               beta -= (r * z) / previous_r_dot_preconditioner_dot_r;
             p.sadd(beta, 1., direction);
@@ -656,78 +622,60 @@ namespace internal
     // ... MatrixType::vmult(VectorType &, const VectorType&,
     // std::function<...>, std::function<...>) const
     template <typename MatrixType, typename VectorType>
-    using vmult_functions_t = decltype(std::declval<MatrixType const>().vmult(
+    using vmult_functions_t = decltype(std::declval<const MatrixType>().vmult(
       std::declval<VectorType &>(),
       std::declval<const VectorType &>(),
-      std::declval<
-        const std::function<void(const unsigned int, const unsigned int)> &>(),
-      std::declval<const std::function<void(const unsigned int,
-                                            const unsigned int)> &>()));
+      std::declval<const std::function<void(const unsigned int, const unsigned int)> &>(),
+      std::declval<const std::function<void(const unsigned int, const unsigned int)> &>()));
 
     template <typename MatrixType, typename VectorType>
-    constexpr bool has_vmult_functions =
-      is_supported_operation<vmult_functions_t, MatrixType, VectorType>;
+    constexpr bool has_vmult_functions = is_supported_operation<vmult_functions_t, MatrixType, VectorType>;
 
     // a helper type-trait that leverage SFINAE to figure out if
     // PreconditionerType has ... PreconditionerType::apply_to_subrange(const
     // unsigned int, const unsigned int, const Number*, Number*) const
     template <typename PreconditionerType>
     using apply_to_subrange_t =
-      decltype(std::declval<PreconditionerType const>()
-                 .apply_to_subrange(0U, 0U, nullptr, nullptr));
+      decltype(std::declval<const PreconditionerType>().apply_to_subrange(0U, 0U, nullptr, nullptr));
 
     template <typename PreconditionerType>
-    constexpr bool has_apply_to_subrange =
-      is_supported_operation<apply_to_subrange_t, PreconditionerType>;
+    constexpr bool has_apply_to_subrange = is_supported_operation<apply_to_subrange_t, PreconditionerType>;
 
     // a helper type-trait that leverage SFINAE to figure out if
     // PreconditionerType has ... PreconditionerType::apply(const
     // unsigned int, const Number) const
     template <typename PreconditionerType>
-    using apply_t =
-      decltype(std::declval<PreconditionerType const>().apply(0U, 0.0));
+    using apply_t = decltype(std::declval<const PreconditionerType>().apply(0U, 0.0));
 
     template <typename PreconditionerType>
-    constexpr bool has_apply =
-      is_supported_operation<apply_t, PreconditionerType>;
+    constexpr bool has_apply = is_supported_operation<apply_t, PreconditionerType>;
 
 
     // Internal function to run one iteration of the conjugate gradient solver
     // for matrices and preconditioners that support interleaving the vector
     // updates with the matrix-vector product.
-    template <typename VectorType,
-              typename MatrixType,
-              typename PreconditionerType>
+    template <typename VectorType, typename MatrixType, typename PreconditionerType>
     struct IterationWorker<
       VectorType,
       MatrixType,
       PreconditionerType,
       std::enable_if_t<has_vmult_functions<MatrixType, VectorType> &&
-                         (has_apply_to_subrange<PreconditionerType> ||
-                          has_apply<PreconditionerType>)&&std::
-                           is_same_v<VectorType,
-                                     LinearAlgebra::distributed::Vector<
-                                       typename VectorType::value_type,
-                                       MemorySpace::Host>>,
-                       int>>
-      : public IterationWorkerBase<VectorType, MatrixType, PreconditionerType>
+                         (has_apply_to_subrange<PreconditionerType> || has_apply<PreconditionerType>)&&std::is_same_v<
+                           VectorType,
+                           LinearAlgebra::distributed::Vector<typename VectorType::value_type, MemorySpace::Host>>,
+                       int>> : public IterationWorkerBase<VectorType, MatrixType, PreconditionerType>
     {
       using Number = typename VectorType::value_type;
 
       Number next_r_dot_preconditioner_dot_r;
       Number previous_beta;
 
-      IterationWorker(const MatrixType &        A,
+      IterationWorker(const MatrixType         &A,
                       const PreconditionerType &preconditioner,
                       const bool                flexible,
                       VectorMemory<VectorType> &memory,
-                      VectorType &              x)
-        : IterationWorkerBase<VectorType, MatrixType, PreconditionerType>(
-            A,
-            preconditioner,
-            flexible,
-            memory,
-            x)
+                      VectorType               &x)
+        : IterationWorkerBase<VectorType, MatrixType, PreconditionerType>(A, preconditioner, flexible, memory, x)
         , next_r_dot_preconditioner_dot_r(0.)
         , previous_beta(0.)
       {}
@@ -740,8 +688,7 @@ namespace internal
         if (iteration_index > 1)
           {
             previous_beta = this->beta;
-            this->beta    = next_r_dot_preconditioner_dot_r /
-                         this->r_dot_preconditioner_dot_r;
+            this->beta    = next_r_dot_preconditioner_dot_r / this->r_dot_preconditioner_dot_r;
           }
 
         std::array<VectorizedArray<Number>, 7> vectorized_sums = {};
@@ -749,12 +696,8 @@ namespace internal
         this->A.vmult(
           this->v,
           this->p,
-          [&](const unsigned int begin, const unsigned int end) {
-            operation_before_loop(iteration_index, begin, end);
-          },
-          [&](const unsigned int begin, const unsigned int end) {
-            operation_after_loop(begin, end, vectorized_sums);
-          });
+          [&](const unsigned int begin, const unsigned int end) { operation_before_loop(iteration_index, begin, end); },
+          [&](const unsigned int begin, const unsigned int end) { operation_after_loop(begin, end, vectorized_sums); });
 
         std::array<Number, 7> scalar_sums;
         for (unsigned int i = 0; i < 7; ++i)
@@ -763,8 +706,7 @@ namespace internal
           for (unsigned int i = 0; i < 7; ++i)
             scalar_sums[i] += vectorized_sums[i][l];
 
-        Utilities::MPI::sum(dealii::ArrayView<const Number>(scalar_sums.data(),
-                                                            7),
+        Utilities::MPI::sum(dealii::ArrayView<const Number>(scalar_sums.data(), 7),
                             this->r.get_mpi_communicator(),
                             dealii::ArrayView<Number>(scalar_sums.data(), 7));
 
@@ -778,13 +720,11 @@ namespace internal
 
         // Round-off errors near zero might yield negative values, so take
         // the absolute value in the next two formulas
-        this->residual_norm = std::sqrt(std::abs(
-          scalar_sums[3] +
-          this->alpha * (-2. * scalar_sums[2] + this->alpha * scalar_sums[1])));
+        this->residual_norm =
+          std::sqrt(std::abs(scalar_sums[3] + this->alpha * (-2. * scalar_sums[2] + this->alpha * scalar_sums[1])));
 
-        next_r_dot_preconditioner_dot_r = std::abs(
-          this->r_dot_preconditioner_dot_r +
-          this->alpha * (-2. * scalar_sums[4] + this->alpha * scalar_sums[5]));
+        next_r_dot_preconditioner_dot_r = std::abs(this->r_dot_preconditioner_dot_r +
+                                                   this->alpha * (-2. * scalar_sums[4] + this->alpha * scalar_sums[5]));
       }
 
       // Function that we use if the PreconditionerType implements an apply()
@@ -795,15 +735,14 @@ namespace internal
                             const unsigned int start_range,
                             const unsigned int end_range) const
       {
-        Number *               x       = this->x.begin();
-        Number *               r       = this->r.begin();
-        Number *               p       = this->p.begin();
-        Number *               v       = this->v.begin();
-        const Number           alpha   = this->alpha;
-        const Number           beta    = this->beta;
-        constexpr unsigned int n_lanes = VectorizedArray<Number>::size();
-        const unsigned int     end_regular =
-          start_range + (end_range - start_range) / n_lanes * n_lanes;
+        Number                *x           = this->x.begin();
+        Number                *r           = this->r.begin();
+        Number                *p           = this->p.begin();
+        Number                *v           = this->v.begin();
+        const Number           alpha       = this->alpha;
+        const Number           beta        = this->beta;
+        constexpr unsigned int n_lanes     = VectorizedArray<Number>::size();
+        const unsigned int     end_regular = start_range + (end_range - start_range) / n_lanes * n_lanes;
         if (iteration_index == 1)
           {
             // Vectorize by hand since compilers are often pretty bad at
@@ -884,10 +823,8 @@ namespace internal
           }
         else
           {
-            const Number alpha_plus_previous_alpha_over_beta =
-              alpha + this->previous_alpha / this->previous_beta;
-            const Number previous_alpha_over_beta =
-              this->previous_alpha / this->previous_beta;
+            const Number alpha_plus_previous_alpha_over_beta = alpha + this->previous_alpha / this->previous_beta;
+            const Number previous_alpha_over_beta            = this->previous_alpha / this->previous_beta;
             for (unsigned int j = start_range; j < end_regular; j += n_lanes)
               {
                 VectorizedArray<Number> rj, vj, pj, xj, prec_rj, prec_vj;
@@ -915,8 +852,7 @@ namespace internal
             for (unsigned int j = end_regular; j < end_range; ++j)
               {
                 x[j] += alpha_plus_previous_alpha_over_beta * p[j];
-                x[j] -= previous_alpha_over_beta *
-                        this->preconditioner.apply(j, r[j]);
+                x[j] -= previous_alpha_over_beta * this->preconditioner.apply(j, r[j]);
                 r[j] -= alpha * v[j];
                 p[j] = beta * p[j] + this->preconditioner.apply(j, r[j]);
                 v[j] = Number();
@@ -928,18 +864,16 @@ namespace internal
       // function
       template <typename U = void>
       std::enable_if_t<has_apply<PreconditionerType>, U>
-      operation_after_loop(
-        const unsigned int                      start_range,
-        const unsigned int                      end_range,
-        std::array<VectorizedArray<Number>, 7> &vectorized_sums) const
+      operation_after_loop(const unsigned int                      start_range,
+                           const unsigned int                      end_range,
+                           std::array<VectorizedArray<Number>, 7> &vectorized_sums) const
       {
-        const Number *                         r       = this->r.begin();
-        const Number *                         p       = this->p.begin();
-        const Number *                         v       = this->v.begin();
+        const Number                          *r       = this->r.begin();
+        const Number                          *p       = this->p.begin();
+        const Number                          *v       = this->v.begin();
         std::array<VectorizedArray<Number>, 7> my_sums = {};
-        constexpr unsigned int n_lanes = VectorizedArray<Number>::size();
-        const unsigned int     end_regular =
-          start_range + (end_range - start_range) / n_lanes * n_lanes;
+        constexpr unsigned int                 n_lanes = VectorizedArray<Number>::size();
+        const unsigned int end_regular                 = start_range + (end_range - start_range) / n_lanes * n_lanes;
         for (unsigned int j = start_range; j < end_regular; j += n_lanes)
           {
             VectorizedArray<Number> pj, vj, rj, prec_vj, prec_rj;
@@ -997,17 +931,14 @@ namespace internal
             // formula above, which is because the shift in beta ->
             // previous_beta has not been applied at this stage, allowing us
             // to recover the previous search direction
-            const Number alpha_plus_previous_alpha_over_beta =
-              this->alpha + this->previous_alpha / this->beta;
-            const Number previous_alpha_over_beta =
-              this->previous_alpha / this->beta;
+            const Number alpha_plus_previous_alpha_over_beta = this->alpha + this->previous_alpha / this->beta;
+            const Number previous_alpha_over_beta            = this->previous_alpha / this->beta;
 
             DEAL_II_OPENMP_SIMD_PRAGMA
             for (unsigned int j = 0; j < end_range; ++j)
               {
                 x[j] += alpha_plus_previous_alpha_over_beta * p[j] -
-                        previous_alpha_over_beta *
-                          this->preconditioner.apply(j, r[j]);
+                        previous_alpha_over_beta * this->preconditioner.apply(j, r[j]);
               }
           }
       }
@@ -1021,12 +952,12 @@ namespace internal
                             const unsigned int start_range,
                             const unsigned int end_range) const
       {
-        Number *                       x     = this->x.begin() + start_range;
-        Number *                       r     = this->r.begin() + start_range;
-        Number *                       p     = this->p.begin() + start_range;
-        Number *                       v     = this->v.begin() + start_range;
-        const Number                   alpha = this->alpha;
-        const Number                   beta  = this->beta;
+        Number                        *x          = this->x.begin() + start_range;
+        Number                        *r          = this->r.begin() + start_range;
+        Number                        *p          = this->p.begin() + start_range;
+        Number                        *v          = this->v.begin() + start_range;
+        const Number                   alpha      = this->alpha;
+        const Number                   beta       = this->beta;
         constexpr unsigned int         grain_size = 128;
         std::array<Number, grain_size> prec_r;
         if (iteration_index == 1)
@@ -1034,10 +965,7 @@ namespace internal
             for (unsigned int j = start_range; j < end_range; j += grain_size)
               {
                 const unsigned int length = std::min(grain_size, end_range - j);
-                this->preconditioner.apply_to_subrange(j,
-                                                       j + length,
-                                                       r,
-                                                       prec_r.data());
+                this->preconditioner.apply_to_subrange(j, j + length, r, prec_r.data());
                 DEAL_II_OPENMP_SIMD_PRAGMA
                 for (unsigned int i = 0; i < length; ++i)
                   {
@@ -1057,10 +985,7 @@ namespace internal
                 DEAL_II_OPENMP_SIMD_PRAGMA
                 for (unsigned int i = 0; i < length; ++i)
                   r[i] -= this->alpha * v[i];
-                this->preconditioner.apply_to_subrange(j,
-                                                       j + length,
-                                                       r,
-                                                       prec_r.data());
+                this->preconditioner.apply_to_subrange(j, j + length, r, prec_r.data());
                 DEAL_II_OPENMP_SIMD_PRAGMA
                 for (unsigned int i = 0; i < length; ++i)
                   {
@@ -1083,10 +1008,7 @@ namespace internal
                 DEAL_II_OPENMP_SIMD_PRAGMA
                 for (unsigned int i = 0; i < length; ++i)
                   r[i] -= this->alpha * v[i];
-                this->preconditioner.apply_to_subrange(j,
-                                                       j + length,
-                                                       r,
-                                                       prec_r.data());
+                this->preconditioner.apply_to_subrange(j, j + length, r, prec_r.data());
                 DEAL_II_OPENMP_SIMD_PRAGMA
                 for (unsigned int i = 0; i < length; ++i)
                   {
@@ -1101,28 +1023,19 @@ namespace internal
           }
         else
           {
-            const Number alpha_plus_previous_alpha_over_beta =
-              this->alpha + this->previous_alpha / this->previous_beta;
-            const Number previous_alpha_over_beta =
-              this->previous_alpha / this->previous_beta;
+            const Number alpha_plus_previous_alpha_over_beta = this->alpha + this->previous_alpha / this->previous_beta;
+            const Number previous_alpha_over_beta            = this->previous_alpha / this->previous_beta;
             for (unsigned int j = start_range; j < end_range; j += grain_size)
               {
                 const unsigned int length = std::min(grain_size, end_range - j);
-                this->preconditioner.apply_to_subrange(j,
-                                                       j + length,
-                                                       r,
-                                                       prec_r.data());
+                this->preconditioner.apply_to_subrange(j, j + length, r, prec_r.data());
                 DEAL_II_OPENMP_SIMD_PRAGMA
                 for (unsigned int i = 0; i < length; ++i)
                   {
-                    x[i] += alpha_plus_previous_alpha_over_beta * p[i] -
-                            previous_alpha_over_beta * prec_r[i];
+                    x[i] += alpha_plus_previous_alpha_over_beta * p[i] - previous_alpha_over_beta * prec_r[i];
                     r[i] -= this->alpha * v[i];
                   }
-                this->preconditioner.apply_to_subrange(j,
-                                                       j + length,
-                                                       r,
-                                                       prec_r.data());
+                this->preconditioner.apply_to_subrange(j, j + length, r, prec_r.data());
                 DEAL_II_OPENMP_SIMD_PRAGMA
                 for (unsigned int i = 0; i < length; ++i)
                   {
@@ -1142,35 +1055,25 @@ namespace internal
       // apply_to_subrange function
       template <typename U = void>
       std::enable_if_t<!has_apply<PreconditionerType>, U>
-      operation_after_loop(
-        const unsigned int                      start_range,
-        const unsigned int                      end_range,
-        std::array<VectorizedArray<Number>, 7> &vectorized_sums) const
+      operation_after_loop(const unsigned int                      start_range,
+                           const unsigned int                      end_range,
+                           std::array<VectorizedArray<Number>, 7> &vectorized_sums) const
       {
-        const Number *                         r          = this->r.begin();
-        const Number *                         p          = this->p.begin();
-        const Number *                         v          = this->v.begin();
+        const Number                          *r          = this->r.begin();
+        const Number                          *p          = this->p.begin();
+        const Number                          *v          = this->v.begin();
         std::array<VectorizedArray<Number>, 7> my_sums    = {};
         constexpr unsigned int                 grain_size = 128;
-        Assert(grain_size % VectorizedArray<Number>::size() == 0,
-               ExcNotImplemented());
-        const unsigned int end_regular =
-          start_range + (end_range - start_range) / grain_size * grain_size;
+        Assert(grain_size % VectorizedArray<Number>::size() == 0, ExcNotImplemented());
+        const unsigned int             end_regular = start_range + (end_range - start_range) / grain_size * grain_size;
         std::array<Number, grain_size> prec_r;
         std::array<Number, grain_size> prec_v;
         for (unsigned int j = start_range; j < end_regular; j += grain_size)
           {
-            this->preconditioner.apply_to_subrange(j,
-                                                   j + grain_size,
-                                                   r + j,
-                                                   prec_r.data());
-            this->preconditioner.apply_to_subrange(j,
-                                                   j + grain_size,
-                                                   v + j,
-                                                   prec_v.data());
+            this->preconditioner.apply_to_subrange(j, j + grain_size, r + j, prec_r.data());
+            this->preconditioner.apply_to_subrange(j, j + grain_size, v + j, prec_v.data());
             VectorizedArray<Number> pj, vj, rj, prec_vj, prec_rj;
-            for (unsigned int i = 0; i < grain_size;
-                 i += VectorizedArray<Number>::size())
+            for (unsigned int i = 0; i < grain_size; i += VectorizedArray<Number>::size())
               {
                 pj.load(p + j + i);
                 vj.load(v + j + i);
@@ -1189,14 +1092,8 @@ namespace internal
           }
         const unsigned int length = end_range - end_regular;
         AssertIndexRange(length, grain_size);
-        this->preconditioner.apply_to_subrange(end_regular,
-                                               end_regular + length,
-                                               r + end_regular,
-                                               prec_r.data());
-        this->preconditioner.apply_to_subrange(end_regular,
-                                               end_regular + length,
-                                               v + end_regular,
-                                               prec_v.data());
+        this->preconditioner.apply_to_subrange(end_regular, end_regular + length, r + end_regular, prec_r.data());
+        this->preconditioner.apply_to_subrange(end_regular, end_regular + length, v + end_regular, prec_v.data());
         for (unsigned int j = end_regular; j < end_range; ++j)
           {
             my_sums[0][0] += p[j] * v[j];
@@ -1224,27 +1121,21 @@ namespace internal
           {
             const unsigned int end_range = this->x.locally_owned_size();
 
-            Number *     x = this->x.begin();
-            Number *     r = this->r.begin();
-            Number *     p = this->p.begin();
-            const Number alpha_plus_previous_alpha_over_beta =
-              this->alpha + this->previous_alpha / this->beta;
-            const Number previous_alpha_over_beta =
-              this->previous_alpha / this->beta;
+            Number      *x                                   = this->x.begin();
+            Number      *r                                   = this->r.begin();
+            Number      *p                                   = this->p.begin();
+            const Number alpha_plus_previous_alpha_over_beta = this->alpha + this->previous_alpha / this->beta;
+            const Number previous_alpha_over_beta            = this->previous_alpha / this->beta;
 
             constexpr unsigned int         grain_size = 128;
             std::array<Number, grain_size> prec_r;
             for (unsigned int j = 0; j < end_range; j += grain_size)
               {
                 const unsigned int length = std::min(grain_size, end_range - j);
-                this->preconditioner.apply_to_subrange(j,
-                                                       j + length,
-                                                       r,
-                                                       prec_r.data());
+                this->preconditioner.apply_to_subrange(j, j + length, r, prec_r.data());
                 DEAL_II_OPENMP_SIMD_PRAGMA
                 for (unsigned int i = 0; i < length; ++i)
-                  x[i] += alpha_plus_previous_alpha_over_beta * p[i] -
-                          previous_alpha_over_beta * prec_r[i];
+                  x[i] += alpha_plus_previous_alpha_over_beta * p[i] - previous_alpha_over_beta * prec_r[i];
 
                 x += length;
                 r += length;
@@ -1261,9 +1152,9 @@ namespace internal
 template <typename VectorType>
 template <typename MatrixType, typename PreconditionerType>
 void
-SolverCG<VectorType>::solve(const MatrixType &        A,
-                            VectorType &              x,
-                            const VectorType &        b,
+SolverCG<VectorType>::solve(const MatrixType         &A,
+                            VectorType               &x,
+                            const VectorType         &b,
                             const PreconditionerType &preconditioner)
 {
   using number = typename VectorType::value_type;
@@ -1273,9 +1164,8 @@ SolverCG<VectorType>::solve(const MatrixType &        A,
   LogStream::Prefix prefix("cg");
 
   // Should we build the matrix for eigenvalue computations?
-  const bool do_eigenvalues =
-    !condition_number_signal.empty() || !all_condition_numbers_signal.empty() ||
-    !eigenvalues_signal.empty() || !all_eigenvalues_signal.empty();
+  const bool do_eigenvalues = !condition_number_signal.empty() || !all_condition_numbers_signal.empty() ||
+                              !eigenvalues_signal.empty() || !all_eigenvalues_signal.empty();
 
   // vectors used for eigenvalue computations
   std::vector<typename VectorType::value_type> diagonal;
@@ -1285,10 +1175,8 @@ SolverCG<VectorType>::solve(const MatrixType &        A,
 
   int it = 0;
 
-  internal::SolverCG::
-    IterationWorker<VectorType, MatrixType, PreconditionerType>
-      worker(
-        A, preconditioner, determine_beta_by_flexible_formula, this->memory, x);
+  internal::SolverCG::IterationWorker<VectorType, MatrixType, PreconditionerType> worker(
+    A, preconditioner, determine_beta_by_flexible_formula, this->memory, x);
 
   worker.startup(b);
 
@@ -1311,16 +1199,11 @@ SolverCG<VectorType>::solve(const MatrixType &        A,
           // of the projected matrix.
           if (do_eigenvalues)
             {
-              diagonal.push_back(number(1.) / worker.previous_alpha +
-                                 eigen_beta_alpha);
+              diagonal.push_back(number(1.) / worker.previous_alpha + eigen_beta_alpha);
               eigen_beta_alpha = worker.beta / worker.previous_alpha;
-              offdiagonal.push_back(std::sqrt(worker.beta) /
-                                    worker.previous_alpha);
+              offdiagonal.push_back(std::sqrt(worker.beta) / worker.previous_alpha);
             }
-          compute_eigs_and_cond(diagonal,
-                                offdiagonal,
-                                all_eigenvalues_signal,
-                                all_condition_numbers_signal);
+          compute_eigs_and_cond(diagonal, offdiagonal, all_eigenvalues_signal, all_condition_numbers_signal);
         }
 
       solver_state = this->iteration_status(it, worker.residual_norm, x);
@@ -1328,13 +1211,9 @@ SolverCG<VectorType>::solve(const MatrixType &        A,
 
   worker.finalize_after_convergence(it);
 
-  compute_eigs_and_cond(diagonal,
-                        offdiagonal,
-                        eigenvalues_signal,
-                        condition_number_signal);
+  compute_eigs_and_cond(diagonal, offdiagonal, eigenvalues_signal, condition_number_signal);
 
-  AssertThrow(solver_state == SolverControl::success,
-              SolverControl::NoConvergence(it, worker.residual_norm));
+  AssertThrow(solver_state == SolverControl::success, SolverControl::NoConvergence(it, worker.residual_norm));
 }
 
 
@@ -1342,8 +1221,7 @@ SolverCG<VectorType>::solve(const MatrixType &        A,
 template <typename VectorType>
 boost::signals2::connection
 SolverCG<VectorType>::connect_coefficients_slot(
-  const std::function<void(typename VectorType::value_type,
-                           typename VectorType::value_type)> &slot)
+  const std::function<void(typename VectorType::value_type, typename VectorType::value_type)> &slot)
 {
   return coefficients_signal.connect(slot);
 }
@@ -1352,9 +1230,7 @@ SolverCG<VectorType>::connect_coefficients_slot(
 
 template <typename VectorType>
 boost::signals2::connection
-SolverCG<VectorType>::connect_condition_number_slot(
-  const std::function<void(double)> &slot,
-  const bool                         every_iteration)
+SolverCG<VectorType>::connect_condition_number_slot(const std::function<void(double)> &slot, const bool every_iteration)
 {
   if (every_iteration)
     {
@@ -1370,9 +1246,8 @@ SolverCG<VectorType>::connect_condition_number_slot(
 
 template <typename VectorType>
 boost::signals2::connection
-SolverCG<VectorType>::connect_eigenvalues_slot(
-  const std::function<void(const std::vector<double> &)> &slot,
-  const bool                                              every_iteration)
+SolverCG<VectorType>::connect_eigenvalues_slot(const std::function<void(const std::vector<double> &)> &slot,
+                                               const bool                                              every_iteration)
 {
   if (every_iteration)
     {
@@ -1387,9 +1262,7 @@ SolverCG<VectorType>::connect_eigenvalues_slot(
 
 
 template <typename VectorType>
-SolverFlexibleCG<VectorType>::SolverFlexibleCG(SolverControl &           cn,
-                                               VectorMemory<VectorType> &mem,
-                                               const AdditionalData &)
+SolverFlexibleCG<VectorType>::SolverFlexibleCG(SolverControl &cn, VectorMemory<VectorType> &mem, const AdditionalData &)
   : SolverCG<VectorType>(cn, mem)
 {
   this->determine_beta_by_flexible_formula = true;
@@ -1398,8 +1271,7 @@ SolverFlexibleCG<VectorType>::SolverFlexibleCG(SolverControl &           cn,
 
 
 template <typename VectorType>
-SolverFlexibleCG<VectorType>::SolverFlexibleCG(SolverControl &cn,
-                                               const AdditionalData &)
+SolverFlexibleCG<VectorType>::SolverFlexibleCG(SolverControl &cn, const AdditionalData &)
   : SolverCG<VectorType>(cn)
 {
   this->determine_beta_by_flexible_formula = true;

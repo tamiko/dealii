@@ -29,8 +29,7 @@
 // this is not accounted for (for n_cells>5) and the child lines are deleted,
 // although they are still needed.
 void
-create_star_structured_cylinder(Triangulation<3> & coarse_grid,
-                                const unsigned int n_cells)
+create_star_structured_cylinder(Triangulation<3> &coarse_grid, const unsigned int n_cells)
 {
   Assert(n_cells > 1, ExcNotImplemented());
 
@@ -39,9 +38,7 @@ create_star_structured_cylinder(Triangulation<3> & coarse_grid,
   points[1] = Point<3>(1, 0, 0);
   for (unsigned int i = 0; i < 2 * n_cells - 1; ++i)
     {
-      points[2 + i] = Point<3>(std::cos(numbers::PI / n_cells * (i + 1)),
-                               std::sin(numbers::PI / n_cells * (i + 1)),
-                               0);
+      points[2 + i] = Point<3>(std::cos(numbers::PI / n_cells * (i + 1)), std::sin(numbers::PI / n_cells * (i + 1)), 0);
     }
 
   for (unsigned int i = 0; i < 2 * n_cells + 1; ++i)

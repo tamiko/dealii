@@ -56,8 +56,7 @@ check(const unsigned int fe_degree)
 
   // run a few different sizes...
   unsigned int sizes[] = {1, 2, 3};
-  for (unsigned int cycle = 0; cycle < sizeof(sizes) / sizeof(unsigned int);
-       ++cycle)
+  for (unsigned int cycle = 0; cycle < sizeof(sizes) / sizeof(unsigned int); ++cycle)
     {
       unsigned int n_refinements = 0;
       unsigned int n_subdiv      = sizes[cycle];
@@ -74,33 +73,21 @@ check(const unsigned int fe_degree)
       parallel::distributed::Triangulation<dim> tr(
         MPI_COMM_WORLD,
         Triangulation<dim>::limit_level_difference_at_vertices,
-        parallel::distributed::Triangulation<
-          dim>::construct_multigrid_hierarchy);
+        parallel::distributed::Triangulation<dim>::construct_multigrid_hierarchy);
       GridGenerator::subdivided_hyper_cube(tr, n_subdiv);
       tr.refine_global(n_refinements);
 
       // adaptive refinement into a circle
-      for (typename Triangulation<dim>::active_cell_iterator cell =
-             tr.begin_active();
-           cell != tr.end();
-           ++cell)
+      for (typename Triangulation<dim>::active_cell_iterator cell = tr.begin_active(); cell != tr.end(); ++cell)
         if (cell->is_locally_owned() && cell->center().norm() < 0.5)
           cell->set_refine_flag();
       tr.execute_coarsening_and_refinement();
-      for (typename Triangulation<dim>::active_cell_iterator cell =
-             tr.begin_active();
-           cell != tr.end();
-           ++cell)
-        if (cell->is_locally_owned() && cell->center().norm() > 0.3 &&
-            cell->center().norm() < 0.4)
+      for (typename Triangulation<dim>::active_cell_iterator cell = tr.begin_active(); cell != tr.end(); ++cell)
+        if (cell->is_locally_owned() && cell->center().norm() > 0.3 && cell->center().norm() < 0.4)
           cell->set_refine_flag();
       tr.execute_coarsening_and_refinement();
-      for (typename Triangulation<dim>::active_cell_iterator cell =
-             tr.begin_active();
-           cell != tr.end();
-           ++cell)
-        if (cell->is_locally_owned() && cell->center().norm() > 0.33 &&
-            cell->center().norm() < 0.37)
+      for (typename Triangulation<dim>::active_cell_iterator cell = tr.begin_active(); cell != tr.end(); ++cell)
+        if (cell->is_locally_owned() && cell->center().norm() > 0.33 && cell->center().norm() < 0.37)
           cell->set_refine_flag();
       tr.execute_coarsening_and_refinement();
 
@@ -120,8 +107,7 @@ check(const unsigned int fe_degree)
       for (unsigned int i = 0; i < mgdof_ptr.size(); ++i)
         {
           mg_constrained_dofs_vector[i].initialize(*mgdof_ptr[i]);
-          mg_constrained_dofs_vector[i].make_zero_boundary_constraints(
-            *mgdof_ptr[i], {0});
+          mg_constrained_dofs_vector[i].make_zero_boundary_constraints(*mgdof_ptr[i], {0});
         }
 
       // build reference non-block
@@ -133,17 +119,14 @@ check(const unsigned int fe_degree)
         }
 
       // build matrix-free block transfer
-      MGTransferBlockMatrixFree<dim, Number> transfer(
-        mg_constrained_dofs_vector);
+      MGTransferBlockMatrixFree<dim, Number> transfer(mg_constrained_dofs_vector);
       transfer.build(mgdof_ptr);
 
-      MGLevelObject<LinearAlgebra::distributed::BlockVector<Number>> lbv(
-        0, tr.n_global_levels() - 1);
-      LinearAlgebra::distributed::BlockVector<Number> bv(nb);
+      MGLevelObject<LinearAlgebra::distributed::BlockVector<Number>> lbv(0, tr.n_global_levels() - 1);
+      LinearAlgebra::distributed::BlockVector<Number>                bv(nb);
 
-      MGLevelObject<LinearAlgebra::distributed::Vector<Number>> lv(
-        0, tr.n_global_levels() - 1);
-      LinearAlgebra::distributed::Vector<Number> v(nb);
+      MGLevelObject<LinearAlgebra::distributed::Vector<Number>> lv(0, tr.n_global_levels() - 1);
+      LinearAlgebra::distributed::Vector<Number>                v(nb);
 
       // initialize
       for (unsigned int b = 0; b < nb; ++b)
@@ -153,15 +136,13 @@ check(const unsigned int fe_degree)
         {
           lbv[l].reinit(nb);
           for (unsigned int b = 0; b < nb; ++b)
-            lbv[l].block(b).reinit(mgdof_ptr[b]->locally_owned_mg_dofs(l),
-                                   MPI_COMM_WORLD);
+            lbv[l].block(b).reinit(mgdof_ptr[b]->locally_owned_mg_dofs(l), MPI_COMM_WORLD);
 
           lbv[l].collect_sizes();
 
           // set values:
           for (unsigned int b = 0; b < nb; ++b)
-            for (unsigned int i = 0; i < lbv[l].block(b).locally_owned_size();
-                 ++i)
+            for (unsigned int i = 0; i < lbv[l].block(b).locally_owned_size(); ++i)
               lbv[l].block(b).local_element(i) = random_value<double>();
 
           lbv[l].compress(VectorOperation::insert);
@@ -175,22 +156,19 @@ check(const unsigned int fe_degree)
 
           for (unsigned int l = lv.min_level(); l <= lv.max_level(); ++l)
             {
-              lv[l].reinit(mgdof_ptr[b]->locally_owned_mg_dofs(l),
-                           MPI_COMM_WORLD);
+              lv[l].reinit(mgdof_ptr[b]->locally_owned_mg_dofs(l), MPI_COMM_WORLD);
               lv[l] = lbv[l].block(b);
             }
 
           transfer_ref[b].copy_from_mg(*mgdof_ptr[b], v, lv);
           v -= bv.block(b);
-          deallog << "Diff copy_from_mg b" << b << ": " << v.l2_norm()
-                  << std::endl;
+          deallog << "Diff copy_from_mg b" << b << ": " << v.l2_norm() << std::endl;
         }
 
       // check copy_to_mg
       // use un-initialized level-block vector to make sure that it will be
       // set correctly in copy_to_mg().
-      MGLevelObject<LinearAlgebra::distributed::BlockVector<Number>> lbv2(
-        0, tr.n_global_levels() - 1);
+      MGLevelObject<LinearAlgebra::distributed::BlockVector<Number>> lbv2(0, tr.n_global_levels() - 1);
       for (unsigned int b = 0; b < nb; ++b)
         for (unsigned int i = 0; i < bv.block(b).locally_owned_size(); ++i)
           bv.block(b).local_element(i) = random_value<double>();
@@ -204,8 +182,7 @@ check(const unsigned int fe_degree)
           for (unsigned int b = 0; b < nb; ++b)
             total_size += lbv2[l].block(b).size();
 
-          AssertThrow(total_size == lbv2[l].size(),
-                      ExcDimensionMismatch(total_size, lbv2[l].size()));
+          AssertThrow(total_size == lbv2[l].size(), ExcDimensionMismatch(total_size, lbv2[l].size()));
         }
 
       // Finally check the difference:
@@ -218,8 +195,7 @@ check(const unsigned int fe_degree)
           for (unsigned int l = lv.min_level(); l <= lv.max_level(); ++l)
             {
               lv[l] -= lbv2[l].block(b);
-              deallog << "Diff copy_to_mg   l" << l << ": " << lv[l].l2_norm()
-                      << std::endl;
+              deallog << "Diff copy_to_mg   l" << l << ": " << lv[l].l2_norm() << std::endl;
             }
         }
 

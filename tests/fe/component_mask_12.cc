@@ -42,16 +42,14 @@ test()
   // try all possible component
   // masks, which we encode as bit
   // strings
-  for (unsigned int int_mask = 0; int_mask < (1U << fe.n_components());
-       ++int_mask)
+  for (unsigned int int_mask = 0; int_mask < (1U << fe.n_components()); ++int_mask)
     {
       ComponentMask component_mask(fe.n_components(), false);
       for (unsigned int c = 0; c < fe.n_components(); ++c)
         component_mask.set(c, (int_mask & (1 << c)));
 
       // make sure that the round-trip works
-      Assert(ComponentMask(component_mask) ==
-               fe.component_mask(fe.block_mask(ComponentMask(component_mask))),
+      Assert(ComponentMask(component_mask) == fe.component_mask(fe.block_mask(ComponentMask(component_mask))),
              ExcInternalError());
 
       // then compare elementwise with
@@ -62,8 +60,7 @@ test()
       // element corresponds to a
       // block)
       for (unsigned int c = 0; c < fe.n_components(); ++c)
-        AssertThrow(component_mask[c] == fe.block_mask(component_mask)[c],
-                    ExcInternalError());
+        AssertThrow(component_mask[c] == fe.block_mask(component_mask)[c], ExcInternalError());
     }
 
   deallog << "OK" << std::endl;

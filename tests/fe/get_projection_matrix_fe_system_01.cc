@@ -31,9 +31,7 @@
 
 template <int dim>
 void
-test(const FiniteElement<dim> &fe_0,
-     const FiniteElement<dim> &fe_1,
-     const bool                do_scalar_test)
+test(const FiniteElement<dim> &fe_0, const FiniteElement<dim> &fe_1, const bool do_scalar_test)
 {
   {
     FullMatrix<double> matrix(fe_1.n_dofs_per_cell(), fe_0.n_dofs_per_cell());
@@ -43,11 +41,8 @@ test(const FiniteElement<dim> &fe_0,
 
     if (do_scalar_test)
       {
-        FullMatrix<double> matrix_1(fe_1.base_element(0).n_dofs_per_cell(),
-                                    fe_0.base_element(0).n_dofs_per_cell());
-        FETools::get_projection_matrix(fe_0.base_element(0),
-                                       fe_1.base_element(0),
-                                       matrix_1);
+        FullMatrix<double> matrix_1(fe_1.base_element(0).n_dofs_per_cell(), fe_0.base_element(0).n_dofs_per_cell());
+        FETools::get_projection_matrix(fe_0.base_element(0), fe_1.base_element(0), matrix_1);
 
         for (unsigned i = 0; i < matrix.m(); ++i)
           for (unsigned j = 0; j < matrix.n(); ++j)
@@ -61,9 +56,7 @@ test(const FiniteElement<dim> &fe_0,
                 }
               else
                 {
-                  Assert(std::abs(matrix[i][j] -
-                                  matrix_1[component_index_i.second]
-                                          [component_index_j.second]) < 1e-8,
+                  Assert(std::abs(matrix[i][j] - matrix_1[component_index_i.second][component_index_j.second]) < 1e-8,
                          ExcInternalError());
                 }
             }
@@ -76,26 +69,14 @@ template <int dim>
 void
 test(const unsigned int fe_degree_0, const unsigned int fe_degree_1)
 {
-  test<dim>(FESystem<dim>(FE_Q<dim>(fe_degree_0), dim),
-            FESystem<dim>(FE_Q<dim>(fe_degree_1), dim),
-            true);
-  test<dim>(FESystem<dim>(FE_Q<dim>(fe_degree_1), dim),
-            FESystem<dim>(FE_Q<dim>(fe_degree_0), dim),
-            true);
+  test<dim>(FESystem<dim>(FE_Q<dim>(fe_degree_0), dim), FESystem<dim>(FE_Q<dim>(fe_degree_1), dim), true);
+  test<dim>(FESystem<dim>(FE_Q<dim>(fe_degree_1), dim), FESystem<dim>(FE_Q<dim>(fe_degree_0), dim), true);
 
-  test<dim>(FE_RaviartThomas<dim>(fe_degree_0),
-            FE_RaviartThomas<dim>(fe_degree_1),
-            false);
-  test<dim>(FE_RaviartThomas<dim>(fe_degree_1),
-            FE_RaviartThomas<dim>(fe_degree_0),
-            false);
+  test<dim>(FE_RaviartThomas<dim>(fe_degree_0), FE_RaviartThomas<dim>(fe_degree_1), false);
+  test<dim>(FE_RaviartThomas<dim>(fe_degree_1), FE_RaviartThomas<dim>(fe_degree_0), false);
 
-  test<dim>(FE_RaviartThomasNodal<dim>(fe_degree_0),
-            FE_RaviartThomas<dim>(fe_degree_1),
-            false);
-  test<dim>(FE_RaviartThomasNodal<dim>(fe_degree_1),
-            FE_RaviartThomas<dim>(fe_degree_0),
-            false);
+  test<dim>(FE_RaviartThomasNodal<dim>(fe_degree_0), FE_RaviartThomas<dim>(fe_degree_1), false);
+  test<dim>(FE_RaviartThomasNodal<dim>(fe_degree_1), FE_RaviartThomas<dim>(fe_degree_0), false);
 
   test<dim>(FE_Nedelec<dim>(fe_degree_0), FE_Nedelec<dim>(fe_degree_1), false);
   test<dim>(FE_Nedelec<dim>(fe_degree_1), FE_Nedelec<dim>(fe_degree_0), false);

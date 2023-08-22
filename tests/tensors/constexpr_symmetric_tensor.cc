@@ -29,14 +29,10 @@ test_symmetric_tensor()
 
   constexpr Number                 a = 1.0;
   constexpr Tensor<1, dim, Number> v{};
-  DEAL_II_CONSTEXPR const SymmetricTensor<2, dim, Number> A(
-    unit_symmetric_tensor<dim, Number>());
-  DEAL_II_CONSTEXPR const SymmetricTensor<2, dim, Number> B(
-    unit_symmetric_tensor<dim, Number>());
-  DEAL_II_CONSTEXPR const Tensor<2, dim, Number> A_ns(
-    unit_symmetric_tensor<dim, Number>());
-  DEAL_II_CONSTEXPR const SymmetricTensor<4, dim, Number> HH(
-    identity_tensor<dim, Number>());
+  DEAL_II_CONSTEXPR const SymmetricTensor<2, dim, Number> A(unit_symmetric_tensor<dim, Number>());
+  DEAL_II_CONSTEXPR const SymmetricTensor<2, dim, Number> B(unit_symmetric_tensor<dim, Number>());
+  DEAL_II_CONSTEXPR const Tensor<2, dim, Number> A_ns(unit_symmetric_tensor<dim, Number>());
+  DEAL_II_CONSTEXPR const SymmetricTensor<4, dim, Number> HH(identity_tensor<dim, Number>());
 
   DEAL_II_CONSTEXPR const SymmetricTensor<2, dim, Number> C1 = A + B;
   DEAL_II_CONSTEXPR const SymmetricTensor<2, dim, Number> C2 = A - B;
@@ -112,21 +108,19 @@ main()
   deallog << "SymmetricTensor<4,2> = " << B << std::endl;
 
   {
-    constexpr double a_init[3][3] = {{1., 0., 0.}, {2., 1., 0.}, {3., 2., 1.}};
+    constexpr double        a_init[3][3] = {{1., 0., 0.}, {2., 1., 0.}, {3., 2., 1.}};
     constexpr Tensor<2, 3>  dummy_a{a_init};
-    DEAL_II_CONSTEXPR const SymmetricTensor<2, 3> a = symmetrize(dummy_a);
-    DEAL_II_CONSTEXPR const auto                  inverted = invert(a);
-    constexpr double        ref_init[3][3]                 = {{0., -2., 2.},
-                                       {-2., 5., -2.},
-                                       {2., -2., 0.}};
-    constexpr Tensor<2, 3>  dummy_ref{ref_init};
+    DEAL_II_CONSTEXPR const SymmetricTensor<2, 3> a              = symmetrize(dummy_a);
+    DEAL_II_CONSTEXPR const auto                  inverted       = invert(a);
+    constexpr double                              ref_init[3][3] = {{0., -2., 2.}, {-2., 5., -2.}, {2., -2., 0.}};
+    constexpr Tensor<2, 3>                        dummy_ref{ref_init};
     DEAL_II_CONSTEXPR const SymmetricTensor<2, 3> ref = symmetrize(dummy_ref);
     Assert(inverted == ref, ExcInternalError());
   }
   {
-    constexpr double a_init[3][3] = {{1., 2., 3.}, {2., 1., 2.}, {3., 2., 1.}};
+    constexpr double        a_init[3][3] = {{1., 2., 3.}, {2., 1., 2.}, {3., 2., 1.}};
     constexpr Tensor<2, 3>  dummy_a{a_init};
-    DEAL_II_CONSTEXPR const SymmetricTensor<2, 3> a = symmetrize(dummy_a);
+    DEAL_II_CONSTEXPR const SymmetricTensor<2, 3> a          = symmetrize(dummy_a);
     DEAL_II_CONSTEXPR const auto                  transposed = transpose(a);
     Assert(transposed == a, ExcInternalError());
     DEAL_II_CONSTEXPR const auto dummy   = scalar_product(a, a);

@@ -42,11 +42,9 @@ make_grid(Triangulation<2> &triangulation)
 
   const Point<2> center(1, 0);
   const double   inner_radius = 0.5, outer_radius = 1.0;
-  GridGenerator::hyper_shell(
-    triangulation_temp, center, inner_radius, outer_radius, 5);
+  GridGenerator::hyper_shell(triangulation_temp, center, inner_radius, outer_radius, 5);
 
-  GridGenerator::convert_hypercube_to_simplex_mesh(triangulation_temp,
-                                                   triangulation);
+  GridGenerator::convert_hypercube_to_simplex_mesh(triangulation_temp, triangulation);
 }
 
 int
@@ -71,16 +69,14 @@ main()
     }
   while (points.size() < n_points);
 
-  deallog << "Transforming " << n_points << " from reference to real."
-          << std::endl
+  deallog << "Transforming " << n_points << " from reference to real." << std::endl
           << "Points: " << Patterns::Tools::to_string(points) << std::endl;
 
   for (const auto &cell : triangulation.active_cell_iterators())
     for (const auto &p : points)
       {
-        const auto real_p = mapping.transform_unit_to_real_cell(cell, p);
-        const auto pull_back_p =
-          mapping.transform_real_to_unit_cell(cell, real_p);
+        const auto real_p      = mapping.transform_unit_to_real_cell(cell, p);
+        const auto pull_back_p = mapping.transform_real_to_unit_cell(cell, real_p);
         deallog << "F(" << p << ")=" << real_p << " --- "
                 << "F^-1(" << real_p << ")=" << pull_back_p << std::endl;
         if (p.distance(pull_back_p) > 1e-10)

@@ -282,12 +282,10 @@ namespace Step70
     std::string name_of_fluid_grid       = "hyper_cube";
     std::string arguments_for_fluid_grid = "-1: 1: false";
     std::string name_of_solid_grid       = "hyper_rectangle";
-    std::string arguments_for_solid_grid = spacedim == 2 ?
-                                             "-.5, -.1: .5, .1: false" :
-                                             "-.5, -.1, -.1: .5, .1, .1: false";
-    std::string name_of_particle_grid    = "hyper_ball";
-    std::string arguments_for_particle_grid =
-      spacedim == 2 ? "0.3, 0.3: 0.1: false" : "0.3, 0.3, 0.3 : 0.1: false";
+    std::string arguments_for_solid_grid =
+      spacedim == 2 ? "-.5, -.1: .5, .1: false" : "-.5, -.1, -.1: .5, .1, .1: false";
+    std::string name_of_particle_grid       = "hyper_ball";
+    std::string arguments_for_particle_grid = spacedim == 2 ? "0.3, 0.3: 0.1: false" : "0.3, 0.3, 0.3 : 0.1: false";
 
     // Similarly, we allow for different local refinement strategies. In
     // particular, we limit the maximum number of refinement levels, in order
@@ -322,8 +320,7 @@ namespace Step70
     // solid, governed by a function that can be specified in the parameter
     // file:
     mutable ParameterAcceptorProxy<Functions::ParsedFunction<spacedim>> rhs;
-    mutable ParameterAcceptorProxy<Functions::ParsedFunction<spacedim>>
-      angular_velocity;
+    mutable ParameterAcceptorProxy<Functions::ParsedFunction<spacedim>> angular_velocity;
   };
 
 
@@ -334,14 +331,12 @@ namespace Step70
   // declaring all the global parameters used by StokesImmersedProblem
   // in the global scope:
   template <int dim, int spacedim>
-  StokesImmersedProblemParameters<dim,
-                                  spacedim>::StokesImmersedProblemParameters()
+  StokesImmersedProblemParameters<dim, spacedim>::StokesImmersedProblemParameters()
     : ParameterAcceptor("Stokes Immersed Problem/")
     , rhs("Right hand side", spacedim + 1)
     , angular_velocity("Angular velocity")
   {
-    add_parameter(
-      "Velocity degree", velocity_degree, "", this->prm, Patterns::Integer(1));
+    add_parameter("Velocity degree", velocity_degree, "", this->prm, Patterns::Integer(1));
 
     add_parameter("Number of time steps", number_of_time_steps);
     add_parameter("Output frequency", output_frequency);
@@ -367,15 +362,13 @@ namespace Step70
                   "Extraction level of the rtree used to construct global "
                   "bounding boxes");
 
-    add_parameter(
-      "Particle insertion refinement",
-      particle_insertion_refinement,
-      "Refinement of the volumetric mesh used to insert the particles");
+    add_parameter("Particle insertion refinement",
+                  particle_insertion_refinement,
+                  "Refinement of the volumetric mesh used to insert the particles");
 
-    add_parameter(
-      "Homogeneous Dirichlet boundary ids",
-      homogeneous_dirichlet_ids,
-      "Boundary Ids over which homogeneous Dirichlet boundary conditions are applied");
+    add_parameter("Homogeneous Dirichlet boundary ids",
+                  homogeneous_dirichlet_ids,
+                  "Boundary Ids over which homogeneous Dirichlet boundary conditions are applied");
 
     // Next section is dedicated to the parameters used to create the
     // various grids. We will need three different triangulations: `Fluid
@@ -392,8 +385,7 @@ namespace Step70
       add_parameter("Solid grid generator arguments", arguments_for_solid_grid);
 
       add_parameter("Particle grid generator", name_of_particle_grid);
-      add_parameter("Particle grid generator arguments",
-                    arguments_for_particle_grid);
+      add_parameter("Particle grid generator arguments", arguments_for_particle_grid);
     }
     leave_subsection();
 
@@ -404,11 +396,8 @@ namespace Step70
       add_parameter("Refinement step frequency", refinement_frequency);
       add_parameter("Refinement maximal level", max_level_refinement);
       add_parameter("Refinement minimal level", min_level_refinement);
-      add_parameter("Refinement strategy",
-                    refinement_strategy,
-                    "",
-                    this->prm,
-                    Patterns::Selection("fixed_fraction|fixed_number"));
+      add_parameter(
+        "Refinement strategy", refinement_strategy, "", this->prm, Patterns::Selection("fixed_fraction|fixed_number"));
       add_parameter("Refinement coarsening fraction", coarsening_fraction);
       add_parameter("Refinement fraction", refinement_fraction);
       add_parameter("Maximum number of cells", max_cells);
@@ -418,14 +407,10 @@ namespace Step70
     // The final task is to correct the default dimension for the right hand
     // side function and define a meaningful default angular velocity instead of
     // zero.
-    rhs.declare_parameters_call_back.connect([&]() {
-      Functions::ParsedFunction<spacedim>::declare_parameters(this->prm,
-                                                              spacedim + 1);
-    });
-    angular_velocity.declare_parameters_call_back.connect([&]() {
-      this->prm.set("Function expression",
-                    "t < .500001 ? 6.283185 : -6.283185");
-    });
+    rhs.declare_parameters_call_back.connect(
+      [&]() { Functions::ParsedFunction<spacedim>::declare_parameters(this->prm, spacedim + 1); });
+    angular_velocity.declare_parameters_call_back.connect(
+      [&]() { this->prm.set("Function expression", "t < .500001 ? 6.283185 : -6.283185"); });
   }
 
 
@@ -438,8 +423,7 @@ namespace Step70
   class SolidVelocity : public Function<spacedim>
   {
   public:
-    static_assert(spacedim > 1,
-                  "Cannot instantiate SolidVelocity for spacedim == 1");
+    static_assert(spacedim > 1, "Cannot instantiate SolidVelocity for spacedim == 1");
 
     SolidVelocity(const Functions::ParsedFunction<spacedim> &angular_velocity)
       : angular_velocity(angular_velocity)
@@ -474,11 +458,9 @@ namespace Step70
   class SolidPosition : public Function<spacedim>
   {
   public:
-    static_assert(spacedim > 1,
-                  "Cannot instantiate SolidPosition for spacedim == 1");
+    static_assert(spacedim > 1, "Cannot instantiate SolidPosition for spacedim == 1");
 
-    SolidPosition(const Functions::ParsedFunction<spacedim> &angular_velocity,
-                  const double                               time_step)
+    SolidPosition(const Functions::ParsedFunction<spacedim> &angular_velocity, const double time_step)
       : Function<spacedim>(spacedim)
       , angular_velocity(angular_velocity)
       , time_step(time_step)
@@ -519,8 +501,7 @@ namespace Step70
   class StokesImmersedProblem
   {
   public:
-    StokesImmersedProblem(
-      const StokesImmersedProblemParameters<dim, spacedim> &par);
+    StokesImmersedProblem(const StokesImmersedProblemParameters<dim, spacedim> &par);
 
     void
     run();
@@ -785,14 +766,12 @@ namespace Step70
   // Using the mpi_communicator, both the ConditionalOStream and TimerOutput
   // object are constructed.
   template <int dim, int spacedim>
-  StokesImmersedProblem<dim, spacedim>::StokesImmersedProblem(
-    const StokesImmersedProblemParameters<dim, spacedim> &par)
+  StokesImmersedProblem<dim, spacedim>::StokesImmersedProblem(const StokesImmersedProblemParameters<dim, spacedim> &par)
     : par(par)
     , mpi_communicator(MPI_COMM_WORLD)
     , fluid_tria(mpi_communicator,
-                 typename Triangulation<spacedim>::MeshSmoothing(
-                   Triangulation<spacedim>::smoothing_on_refinement |
-                   Triangulation<spacedim>::smoothing_on_coarsening))
+                 typename Triangulation<spacedim>::MeshSmoothing(Triangulation<spacedim>::smoothing_on_refinement |
+                                                                 Triangulation<spacedim>::smoothing_on_coarsening))
     , solid_tria(mpi_communicator,
                  typename Triangulation<dim, spacedim>::MeshSmoothing(
                    Triangulation<dim, spacedim>::smoothing_on_refinement |
@@ -811,8 +790,8 @@ namespace Step70
   // namespace facilities. At the top, we read the file into a triangulation:
   template <int dim, int spacedim>
   void
-  read_grid_and_cad_files(const std::string &           grid_file_name,
-                          const std::string &           ids_and_cad_file_names,
+  read_grid_and_cad_files(const std::string            &grid_file_name,
+                          const std::string            &ids_and_cad_file_names,
                           Triangulation<dim, spacedim> &tria)
   {
     GridIn<dim, spacedim> grid_in;
@@ -841,12 +820,10 @@ namespace Step70
         const auto &manifold_id   = pair.first;
         const auto &cad_file_name = pair.second;
 
-        std::string extension =
-          cad_file_name.substr(cad_file_name.find_last_of('.') + 1);
-        std::transform(extension.begin(),
-                       extension.end(),
-                       extension.begin(),
-                       [](const char c) -> char { return std::tolower(c); });
+        std::string extension = cad_file_name.substr(cad_file_name.find_last_of('.') + 1);
+        std::transform(extension.begin(), extension.end(), extension.begin(), [](const char c) -> char {
+          return std::tolower(c);
+        });
 
         TopoDS_Shape shape;
         if (extension == "iges" || extension == "igs")
@@ -866,9 +843,7 @@ namespace Step70
         // OpenCASCADE::NURBSPatchManifold in `spacedim` = 2.
         const auto n_elements = OpenCASCADE::count_elements(shape);
         if ((std::get<0>(n_elements) == 0))
-          tria.set_manifold(
-            manifold_id,
-            OpenCASCADE::ArclengthProjectionLineManifold<dim, spacedim>(shape));
+          tria.set_manifold(manifold_id, OpenCASCADE::ArclengthProjectionLineManifold<dim, spacedim>(shape));
         else if (spacedim == 3)
           {
             // We use this trick, because
@@ -876,17 +851,13 @@ namespace Step70
             // for spacedim = 3. The check above makes sure that things actually
             // work correctly.
             const auto t = reinterpret_cast<Triangulation<dim, 3> *>(&tria);
-            t->set_manifold(manifold_id,
-                            OpenCASCADE::NormalToMeshProjectionManifold<dim, 3>(
-                              shape));
+            t->set_manifold(manifold_id, OpenCASCADE::NormalToMeshProjectionManifold<dim, 3>(shape));
           }
         else
           // We also allow surface descriptions in two dimensional spaces based
           // on single NURBS patches. For this to work, the CAD file must
           // contain a single `TopoDS_Face`.
-          tria.set_manifold(manifold_id,
-                            OpenCASCADE::NURBSPatchManifold<dim, spacedim>(
-                              TopoDS::Face(shape)));
+          tria.set_manifold(manifold_id, OpenCASCADE::NURBSPatchManifold<dim, spacedim>(TopoDS::Face(shape)));
       }
 #else
     (void)ids_and_cad_file_names;
@@ -908,29 +879,27 @@ namespace Step70
   {
     try
       {
-        GridGenerator::generate_from_name_and_arguments(
-          fluid_tria, par.name_of_fluid_grid, par.arguments_for_fluid_grid);
+        GridGenerator::generate_from_name_and_arguments(fluid_tria,
+                                                        par.name_of_fluid_grid,
+                                                        par.arguments_for_fluid_grid);
       }
     catch (...)
       {
         deallog << "Generating from name and argument failed." << std::endl
                 << "Trying to read from file name." << std::endl;
-        read_grid_and_cad_files(par.name_of_fluid_grid,
-                                par.arguments_for_fluid_grid,
-                                fluid_tria);
+        read_grid_and_cad_files(par.name_of_fluid_grid, par.arguments_for_fluid_grid, fluid_tria);
       }
     fluid_tria.refine_global(par.initial_fluid_refinement);
 
     try
       {
-        GridGenerator::generate_from_name_and_arguments(
-          solid_tria, par.name_of_solid_grid, par.arguments_for_solid_grid);
+        GridGenerator::generate_from_name_and_arguments(solid_tria,
+                                                        par.name_of_solid_grid,
+                                                        par.arguments_for_solid_grid);
       }
     catch (...)
       {
-        read_grid_and_cad_files(par.name_of_solid_grid,
-                                par.arguments_for_solid_grid,
-                                solid_tria);
+        read_grid_and_cad_files(par.name_of_solid_grid, par.arguments_for_solid_grid, solid_tria);
       }
 
     solid_tria.refine_global(par.initial_solid_refinement);
@@ -985,12 +954,10 @@ namespace Step70
   void
   StokesImmersedProblem<dim, spacedim>::setup_tracer_particles()
   {
-    parallel::distributed::Triangulation<spacedim> particle_insert_tria(
-      mpi_communicator);
-    GridGenerator::generate_from_name_and_arguments(
-      particle_insert_tria,
-      par.name_of_particle_grid,
-      par.arguments_for_particle_grid);
+    parallel::distributed::Triangulation<spacedim> particle_insert_tria(mpi_communicator);
+    GridGenerator::generate_from_name_and_arguments(particle_insert_tria,
+                                                    par.name_of_particle_grid,
+                                                    par.arguments_for_particle_grid);
     particle_insert_tria.refine_global(par.particle_insertion_refinement);
 
     FE_Q<spacedim>       particles_fe(1);
@@ -1023,9 +990,8 @@ namespace Step70
       if (cell->is_locally_owned())
         all_boxes.emplace_back(cell->bounding_box());
 
-    const auto tree = pack_rtree(all_boxes);
-    const auto local_boxes =
-      extract_rtree_level(tree, par.fluid_rtree_extraction_level);
+    const auto tree        = pack_rtree(all_boxes);
+    const auto local_boxes = extract_rtree_level(tree, par.fluid_rtree_extraction_level);
 
     // Each process now has a collection of bounding boxes that completely
     // enclose all locally owned processes (but that may overlap the bounding
@@ -1043,18 +1009,15 @@ namespace Step70
     // have been distributed to the correct process (i.e., the process that owns
     // the fluid cell where the particle lives). We also output their number to
     // the screen at this point.
-    global_fluid_bounding_boxes =
-      Utilities::MPI::all_gather(mpi_communicator, local_boxes);
+    global_fluid_bounding_boxes = Utilities::MPI::all_gather(mpi_communicator, local_boxes);
 
-    tracer_particle_handler.initialize(fluid_tria,
-                                       StaticMappingQ1<spacedim>::mapping);
+    tracer_particle_handler.initialize(fluid_tria, StaticMappingQ1<spacedim>::mapping);
 
     Particles::Generators::dof_support_points(particles_dof_handler,
                                               global_fluid_bounding_boxes,
                                               tracer_particle_handler);
 
-    deallog << "Tracer particles: "
-            << tracer_particle_handler.n_global_particles() << std::endl;
+    deallog << "Tracer particles: " << tracer_particle_handler.n_global_particles() << std::endl;
 
     // Each particle so created has a unique ID. At some point in the
     // algorithm below, we will need vectors containing position and velocity
@@ -1071,8 +1034,7 @@ namespace Step70
     // successive vector elements (this is what the IndexSet::tensor_priduct()
     // function does).
     locally_owned_tracer_particle_coordinates =
-      tracer_particle_handler.locally_owned_particle_ids().tensor_product(
-        complete_index_set(spacedim));
+      tracer_particle_handler.locally_owned_particle_ids().tensor_product(complete_index_set(spacedim));
 
     // At the beginning of the simulation, all particles are in their original
     // position. When particles move, they may traverse to a part of the domain
@@ -1089,8 +1051,7 @@ namespace Step70
     // problem was solved in the solid domain (as in fluid-structure
     // interaction. In this latter case, additional DOFs on the solid domain
     // would be coupled to what is occurring in the fluid domain.
-    locally_relevant_tracer_particle_coordinates =
-      locally_owned_tracer_particle_coordinates;
+    locally_relevant_tracer_particle_coordinates = locally_owned_tracer_particle_coordinates;
   }
 
 
@@ -1117,25 +1078,19 @@ namespace Step70
     QGauss<dim> quadrature(fluid_fe->degree + 1);
 
     const unsigned int n_properties = 1;
-    solid_particle_handler.initialize(fluid_tria,
-                                      StaticMappingQ1<spacedim>::mapping,
-                                      n_properties);
+    solid_particle_handler.initialize(fluid_tria, StaticMappingQ1<spacedim>::mapping, n_properties);
 
     // The number of particles that we generate locally is equal to the total
     // number of locally owned cells times the number of quadrature points used
     // in each cell. We store all these points in a vector, and their
     // corresponding properties in a vector of vectors:
     std::vector<Point<spacedim>> quadrature_points_vec;
-    quadrature_points_vec.reserve(quadrature.size() *
-                                  solid_tria.n_locally_owned_active_cells());
+    quadrature_points_vec.reserve(quadrature.size() * solid_tria.n_locally_owned_active_cells());
 
     std::vector<std::vector<double>> properties;
-    properties.reserve(quadrature.size() *
-                       solid_tria.n_locally_owned_active_cells());
+    properties.reserve(quadrature.size() * solid_tria.n_locally_owned_active_cells());
 
-    FEValues<dim, spacedim> fe_v(*solid_fe,
-                                 quadrature,
-                                 update_JxW_values | update_quadrature_points);
+    FEValues<dim, spacedim> fe_v(*solid_fe, quadrature, update_JxW_values | update_quadrature_points);
     for (const auto &cell : solid_dh.active_cell_iterators())
       if (cell->is_locally_owned())
         {
@@ -1146,8 +1101,7 @@ namespace Step70
           for (unsigned int q = 0; q < points.size(); ++q)
             {
               quadrature_points_vec.emplace_back(points[q]);
-              properties.emplace_back(
-                std::vector<double>(n_properties, JxW[q]));
+              properties.emplace_back(std::vector<double>(n_properties, JxW[q]));
             }
         }
 
@@ -1166,18 +1120,14 @@ namespace Step70
     // the `solid_particle_handler` instead of having to go through a
     // Particles::Generators function:
     Assert(!global_fluid_bounding_boxes.empty(),
-           ExcInternalError(
-             "I was expecting the "
-             "global_fluid_bounding_boxes to be filled at this stage. "
-             "Make sure you fill this vector before trying to use it "
-             "here. Bailing out."));
+           ExcInternalError("I was expecting the "
+                            "global_fluid_bounding_boxes to be filled at this stage. "
+                            "Make sure you fill this vector before trying to use it "
+                            "here. Bailing out."));
 
-    solid_particle_handler.insert_global_particles(quadrature_points_vec,
-                                                   global_fluid_bounding_boxes,
-                                                   properties);
+    solid_particle_handler.insert_global_particles(quadrature_points_vec, global_fluid_bounding_boxes, properties);
 
-    deallog << "Solid particles: "
-            << solid_particle_handler.n_global_particles() << std::endl;
+    deallog << "Solid particles: " << solid_particle_handler.n_global_particles() << std::endl;
   }
 
 
@@ -1201,12 +1151,10 @@ namespace Step70
   void
   StokesImmersedProblem<dim, spacedim>::initial_setup()
   {
-    fluid_fe =
-      std::make_unique<FESystem<spacedim>>(FE_Q<spacedim>(par.velocity_degree),
-                                           spacedim,
-                                           FE_Q<spacedim>(par.velocity_degree -
-                                                          1),
-                                           1);
+    fluid_fe = std::make_unique<FESystem<spacedim>>(FE_Q<spacedim>(par.velocity_degree),
+                                                    spacedim,
+                                                    FE_Q<spacedim>(par.velocity_degree - 1),
+                                                    1);
 
 
     solid_fe = std::make_unique<FE_Nothing<dim, spacedim>>();
@@ -1227,23 +1175,19 @@ namespace Step70
     stokes_sub_blocks[spacedim] = 1;
     DoFRenumbering::component_wise(fluid_dh, stokes_sub_blocks);
 
-    auto dofs_per_block =
-      DoFTools::count_dofs_per_fe_block(fluid_dh, stokes_sub_blocks);
+    auto dofs_per_block = DoFTools::count_dofs_per_fe_block(fluid_dh, stokes_sub_blocks);
 
     const unsigned int n_u = dofs_per_block[0], n_p = dofs_per_block[1];
 
-    deallog << "   Number of degrees of freedom: " << fluid_dh.n_dofs() << " ("
-            << n_u << '+' << n_p << " -- "
-            << solid_particle_handler.n_global_particles() << '+'
-            << tracer_particle_handler.n_global_particles() << ')' << std::endl;
+    deallog << "   Number of degrees of freedom: " << fluid_dh.n_dofs() << " (" << n_u << '+' << n_p << " -- "
+            << solid_particle_handler.n_global_particles() << '+' << tracer_particle_handler.n_global_particles() << ')'
+            << std::endl;
 
     fluid_owned_dofs.resize(2);
     fluid_owned_dofs[0] = fluid_dh.locally_owned_dofs().get_view(0, n_u);
-    fluid_owned_dofs[1] =
-      fluid_dh.locally_owned_dofs().get_view(n_u, n_u + n_p);
+    fluid_owned_dofs[1] = fluid_dh.locally_owned_dofs().get_view(n_u, n_u + n_p);
 
-    const IndexSet locally_relevant_dofs =
-      DoFTools::extract_locally_relevant_dofs(fluid_dh);
+    const IndexSet locally_relevant_dofs = DoFTools::extract_locally_relevant_dofs(fluid_dh);
     fluid_relevant_dofs.resize(2);
     fluid_relevant_dofs[0] = locally_relevant_dofs.get_view(0, n_u);
     fluid_relevant_dofs[1] = locally_relevant_dofs.get_view(n_u, n_u + n_p);
@@ -1253,18 +1197,15 @@ namespace Step70
 
       const FEValuesExtractors::Vector velocities(0);
       DoFTools::make_hanging_node_constraints(fluid_dh, constraints);
-      VectorTools::interpolate_boundary_values(
-        fluid_dh,
-        0,
-        Functions::ZeroFunction<spacedim>(spacedim + 1),
-        constraints,
-        fluid_fe->component_mask(velocities));
+      VectorTools::interpolate_boundary_values(fluid_dh,
+                                               0,
+                                               Functions::ZeroFunction<spacedim>(spacedim + 1),
+                                               constraints,
+                                               fluid_fe->component_mask(velocities));
       constraints.close();
     }
 
-    auto locally_owned_dofs_per_processor =
-      Utilities::MPI::all_gather(mpi_communicator,
-                                 fluid_dh.locally_owned_dofs());
+    auto locally_owned_dofs_per_processor = Utilities::MPI::all_gather(mpi_communicator, fluid_dh.locally_owned_dofs());
     {
       system_matrix.clear();
 
@@ -1280,14 +1221,12 @@ namespace Step70
 
       BlockDynamicSparsityPattern dsp(dofs_per_block, dofs_per_block);
 
-      DoFTools::make_sparsity_pattern(
-        fluid_dh, coupling, dsp, constraints, false);
+      DoFTools::make_sparsity_pattern(fluid_dh, coupling, dsp, constraints, false);
 
-      SparsityTools::distribute_sparsity_pattern(
-        dsp,
-        locally_owned_dofs_per_processor,
-        mpi_communicator,
-        locally_relevant_dofs);
+      SparsityTools::distribute_sparsity_pattern(dsp,
+                                                 locally_owned_dofs_per_processor,
+                                                 mpi_communicator,
+                                                 locally_relevant_dofs);
 
       system_matrix.reinit(fluid_owned_dofs, dsp, mpi_communicator);
     }
@@ -1305,19 +1244,15 @@ namespace Step70
 
       BlockDynamicSparsityPattern dsp(dofs_per_block, dofs_per_block);
 
-      DoFTools::make_sparsity_pattern(
-        fluid_dh, coupling, dsp, constraints, false);
-      SparsityTools::distribute_sparsity_pattern(
-        dsp,
-        locally_owned_dofs_per_processor,
-        mpi_communicator,
-        locally_relevant_dofs);
+      DoFTools::make_sparsity_pattern(fluid_dh, coupling, dsp, constraints, false);
+      SparsityTools::distribute_sparsity_pattern(dsp,
+                                                 locally_owned_dofs_per_processor,
+                                                 mpi_communicator,
+                                                 locally_relevant_dofs);
       preconditioner_matrix.reinit(fluid_owned_dofs, dsp, mpi_communicator);
     }
 
-    locally_relevant_solution.reinit(fluid_owned_dofs,
-                                     fluid_relevant_dofs,
-                                     mpi_communicator);
+    locally_relevant_solution.reinit(fluid_owned_dofs, fluid_relevant_dofs, mpi_communicator);
     system_rhs.reinit(fluid_owned_dofs, mpi_communicator);
     solution.reinit(fluid_owned_dofs, mpi_communicator);
   }
@@ -1340,9 +1275,7 @@ namespace Step70
     QGauss<spacedim>   quadrature_formula(fluid_fe->degree + 1);
     FEValues<spacedim> fe_values(*fluid_fe,
                                  quadrature_formula,
-                                 update_values | update_gradients |
-                                   update_quadrature_points |
-                                   update_JxW_values);
+                                 update_values | update_gradients | update_quadrature_points | update_JxW_values);
 
     const unsigned int dofs_per_cell = fluid_fe->n_dofs_per_cell();
     const unsigned int n_q_points    = quadrature_formula.size();
@@ -1351,8 +1284,7 @@ namespace Step70
     FullMatrix<double> cell_matrix2(dofs_per_cell, dofs_per_cell);
     Vector<double>     cell_rhs(dofs_per_cell);
 
-    std::vector<Vector<double>> rhs_values(n_q_points,
-                                           Vector<double>(spacedim + 1));
+    std::vector<Vector<double>> rhs_values(n_q_points, Vector<double>(spacedim + 1));
 
     std::vector<Tensor<2, spacedim>> grad_phi_u(dofs_per_cell);
     std::vector<double>              div_phi_u(dofs_per_cell);
@@ -1370,8 +1302,7 @@ namespace Step70
           cell_rhs     = 0;
 
           fe_values.reinit(cell);
-          par.rhs.vector_value_list(fe_values.get_quadrature_points(),
-                                    rhs_values);
+          par.rhs.vector_value_list(fe_values.get_quadrature_points(), rhs_values);
           for (unsigned int q = 0; q < n_q_points; ++q)
             {
               for (unsigned int k = 0; k < dofs_per_cell; ++k)
@@ -1385,34 +1316,23 @@ namespace Step70
                 {
                   for (unsigned int j = 0; j < dofs_per_cell; ++j)
                     {
-                      cell_matrix(i, j) +=
-                        (par.viscosity *
-                           scalar_product(grad_phi_u[i], grad_phi_u[j]) -
-                         div_phi_u[i] * phi_p[j] - phi_p[i] * div_phi_u[j]) *
-                        fe_values.JxW(q);
+                      cell_matrix(i, j) += (par.viscosity * scalar_product(grad_phi_u[i], grad_phi_u[j]) -
+                                            div_phi_u[i] * phi_p[j] - phi_p[i] * div_phi_u[j]) *
+                                           fe_values.JxW(q);
 
-                      cell_matrix2(i, j) += 1.0 / par.viscosity * phi_p[i] *
-                                            phi_p[j] * fe_values.JxW(q);
+                      cell_matrix2(i, j) += 1.0 / par.viscosity * phi_p[i] * phi_p[j] * fe_values.JxW(q);
                     }
 
-                  const unsigned int component_i =
-                    fluid_fe->system_to_component_index(i).first;
-                  cell_rhs(i) += fe_values.shape_value(i, q) *
-                                 rhs_values[q](component_i) * fe_values.JxW(q);
+                  const unsigned int component_i = fluid_fe->system_to_component_index(i).first;
+                  cell_rhs(i) += fe_values.shape_value(i, q) * rhs_values[q](component_i) * fe_values.JxW(q);
                 }
             }
 
 
           cell->get_dof_indices(local_dof_indices);
-          constraints.distribute_local_to_global(cell_matrix,
-                                                 cell_rhs,
-                                                 local_dof_indices,
-                                                 system_matrix,
-                                                 system_rhs);
+          constraints.distribute_local_to_global(cell_matrix, cell_rhs, local_dof_indices, system_matrix, system_rhs);
 
-          constraints.distribute_local_to_global(cell_matrix2,
-                                                 local_dof_indices,
-                                                 preconditioner_matrix);
+          constraints.distribute_local_to_global(cell_matrix2, local_dof_indices, preconditioner_matrix);
         }
 
     system_matrix.compress(VectorOperation::add);
@@ -1435,15 +1355,12 @@ namespace Step70
 
     SolidVelocity<spacedim> solid_velocity(par.angular_velocity);
 
-    std::vector<types::global_dof_index> fluid_dof_indices(
-      fluid_fe->n_dofs_per_cell());
+    std::vector<types::global_dof_index> fluid_dof_indices(fluid_fe->n_dofs_per_cell());
 
-    FullMatrix<double> local_matrix(fluid_fe->n_dofs_per_cell(),
-                                    fluid_fe->n_dofs_per_cell());
+    FullMatrix<double> local_matrix(fluid_fe->n_dofs_per_cell(), fluid_fe->n_dofs_per_cell());
     Vector<double>     local_rhs(fluid_fe->n_dofs_per_cell());
 
-    const auto penalty_parameter =
-      1.0 / GridTools::minimal_cell_diameter(fluid_tria);
+    const auto penalty_parameter = 1.0 / GridTools::minimal_cell_diameter(fluid_tria);
 
     // We loop over all the local particles. Although this could be achieved
     // directly by looping over all the cells, this would force us
@@ -1466,9 +1383,8 @@ namespace Step70
         // the particle itself. We can then assemble the additional
         // terms in the system matrix and the right hand side as we would
         // normally.
-        const auto &cell = particle->get_surrounding_cell();
-        const auto &dh_cell =
-          typename DoFHandler<spacedim>::cell_iterator(*cell, &fluid_dh);
+        const auto &cell    = particle->get_surrounding_cell();
+        const auto &dh_cell = typename DoFHandler<spacedim>::cell_iterator(*cell, &fluid_dh);
         dh_cell->get_dof_indices(fluid_dof_indices);
 
         // So then let us get the collection of cells that are located on this
@@ -1492,33 +1408,23 @@ namespace Step70
 
             for (unsigned int i = 0; i < fluid_fe->n_dofs_per_cell(); ++i)
               {
-                const auto comp_i =
-                  fluid_fe->system_to_component_index(i).first;
+                const auto comp_i = fluid_fe->system_to_component_index(i).first;
                 if (comp_i < spacedim)
                   {
-                    for (unsigned int j = 0; j < fluid_fe->n_dofs_per_cell();
-                         ++j)
+                    for (unsigned int j = 0; j < fluid_fe->n_dofs_per_cell(); ++j)
                       {
-                        const auto comp_j =
-                          fluid_fe->system_to_component_index(j).first;
+                        const auto comp_j = fluid_fe->system_to_component_index(j).first;
                         if (comp_i == comp_j)
-                          local_matrix(i, j) +=
-                            penalty_parameter * par.penalty_term *
-                            fluid_fe->shape_value(i, ref_q) *
-                            fluid_fe->shape_value(j, ref_q) * JxW;
+                          local_matrix(i, j) += penalty_parameter * par.penalty_term * fluid_fe->shape_value(i, ref_q) *
+                                                fluid_fe->shape_value(j, ref_q) * JxW;
                       }
-                    local_rhs(i) += penalty_parameter * par.penalty_term *
-                                    solid_velocity.value(real_q, comp_i) *
+                    local_rhs(i) += penalty_parameter * par.penalty_term * solid_velocity.value(real_q, comp_i) *
                                     fluid_fe->shape_value(i, ref_q) * JxW;
                   }
               }
           }
 
-        constraints.distribute_local_to_global(local_matrix,
-                                               local_rhs,
-                                               fluid_dof_indices,
-                                               system_matrix,
-                                               system_rhs);
+        constraints.distribute_local_to_global(local_matrix, local_rhs, fluid_dof_indices, system_matrix, system_rhs);
         particle = pic.end();
       }
 
@@ -1559,26 +1465,21 @@ namespace Step70
       prec_S.initialize(preconditioner_matrix.block(1, 1), data);
     }
 
-    const auto A = linear_operator<LA::MPI::Vector>(system_matrix.block(0, 0));
+    const auto A    = linear_operator<LA::MPI::Vector>(system_matrix.block(0, 0));
     const auto amgA = linear_operator(A, prec_A);
 
-    const auto S =
-      linear_operator<LA::MPI::Vector>(preconditioner_matrix.block(1, 1));
+    const auto S    = linear_operator<LA::MPI::Vector>(preconditioner_matrix.block(1, 1));
     const auto amgS = linear_operator(S, prec_S);
 
-    ReductionControl          inner_solver_control(100,
-                                          1e-8 * system_rhs.l2_norm(),
-                                          1.e-2);
+    ReductionControl          inner_solver_control(100, 1e-8 * system_rhs.l2_norm(), 1.e-2);
     SolverCG<LA::MPI::Vector> cg(inner_solver_control);
 
     const auto invS = inverse_operator(S, cg, amgS);
 
     const auto P = block_diagonal_operator<2, LA::MPI::BlockVector>(
-      std::array<LinearOperator<typename LA::MPI::BlockVector::BlockType>, 2>{
-        {amgA, amgS}});
+      std::array<LinearOperator<typename LA::MPI::BlockVector::BlockType>, 2>{{amgA, amgS}});
 
-    SolverControl solver_control(system_matrix.m(),
-                                 1e-10 * system_rhs.l2_norm());
+    SolverControl solver_control(system_matrix.m(), 1e-10 * system_rhs.l2_norm());
 
     SolverFGMRES<LA::MPI::BlockVector> solver(solver_control);
 
@@ -1587,17 +1488,15 @@ namespace Step70
     solver.solve(system_matrix, solution, system_rhs, P);
 
 
-    deallog << "   Solved in " << solver_control.last_step() << " iterations."
-            << std::endl;
+    deallog << "   Solved in " << solver_control.last_step() << " iterations." << std::endl;
 
     constraints.distribute(solution);
 
-    locally_relevant_solution = solution;
-    const double mean_pressure =
-      VectorTools::compute_mean_value(fluid_dh,
-                                      QGauss<spacedim>(par.velocity_degree + 2),
-                                      locally_relevant_solution,
-                                      spacedim);
+    locally_relevant_solution  = solution;
+    const double mean_pressure = VectorTools::compute_mean_value(fluid_dh,
+                                                                 QGauss<spacedim>(par.velocity_degree + 2),
+                                                                 locally_relevant_solution,
+                                                                 spacedim);
     solution.block(1).add(-mean_pressure);
     locally_relevant_solution.block(1) = solution.block(1);
   }
@@ -1626,8 +1525,7 @@ namespace Step70
 
     Vector<float> error_per_cell(fluid_tria.n_active_cells());
     KellyErrorEstimator<spacedim>::estimate(fluid_dh,
-                                            QGauss<spacedim - 1>(
-                                              par.velocity_degree + 1),
+                                            QGauss<spacedim - 1>(par.velocity_degree + 1),
                                             {},
                                             locally_relevant_solution,
                                             error_per_cell,
@@ -1635,34 +1533,26 @@ namespace Step70
 
     if (par.refinement_strategy == "fixed_fraction")
       {
-        parallel::distributed::GridRefinement::
-          refine_and_coarsen_fixed_fraction(fluid_tria,
-                                            error_per_cell,
-                                            par.refinement_fraction,
-                                            par.coarsening_fraction);
+        parallel::distributed::GridRefinement::refine_and_coarsen_fixed_fraction(fluid_tria,
+                                                                                 error_per_cell,
+                                                                                 par.refinement_fraction,
+                                                                                 par.coarsening_fraction);
       }
     else if (par.refinement_strategy == "fixed_number")
       {
         parallel::distributed::GridRefinement::refine_and_coarsen_fixed_number(
-          fluid_tria,
-          error_per_cell,
-          par.refinement_fraction,
-          par.coarsening_fraction,
-          par.max_cells);
+          fluid_tria, error_per_cell, par.refinement_fraction, par.coarsening_fraction, par.max_cells);
       }
 
     for (const auto &cell : fluid_tria.active_cell_iterators())
       {
-        if (cell->refine_flag_set() &&
-            cell->level() == par.max_level_refinement)
+        if (cell->refine_flag_set() && cell->level() == par.max_level_refinement)
           cell->clear_refine_flag();
-        if (cell->coarsen_flag_set() &&
-            cell->level() == par.min_level_refinement)
+        if (cell->coarsen_flag_set() && cell->level() == par.min_level_refinement)
           cell->clear_coarsen_flag();
       }
 
-    parallel::distributed::SolutionTransfer<spacedim, LA::MPI::BlockVector>
-      transfer(fluid_dh);
+    parallel::distributed::SolutionTransfer<spacedim, LA::MPI::BlockVector> transfer(fluid_dh);
 
     fluid_tria.prepare_coarsening_and_refinement();
     transfer.prepare_for_coarsening_and_refinement(locally_relevant_solution);
@@ -1691,16 +1581,13 @@ namespace Step70
   // vtu files.
   template <int dim, int spacedim>
   void
-  StokesImmersedProblem<dim, spacedim>::output_results(const unsigned int cycle,
-                                                       double time) const
+  StokesImmersedProblem<dim, spacedim>::output_results(const unsigned int cycle, double time) const
   {
     std::vector<std::string> solution_names(spacedim, "velocity");
     solution_names.emplace_back("pressure");
-    std::vector<DataComponentInterpretation::DataComponentInterpretation>
-      data_component_interpretation(
-        spacedim, DataComponentInterpretation::component_is_part_of_vector);
-    data_component_interpretation.push_back(
-      DataComponentInterpretation::component_is_scalar);
+    std::vector<DataComponentInterpretation::DataComponentInterpretation> data_component_interpretation(
+      spacedim, DataComponentInterpretation::component_is_part_of_vector);
+    data_component_interpretation.push_back(DataComponentInterpretation::component_is_scalar);
 
     DataOut<spacedim> data_out;
     data_out.attach_dof_handler(fluid_dh);
@@ -1717,10 +1604,8 @@ namespace Step70
 
     data_out.build_patches();
 
-    const std::string filename =
-      "solution-" + Utilities::int_to_string(cycle) + ".vtu";
-    data_out.write_vtu_in_parallel(par.output_directory + "/" + filename,
-                                   mpi_communicator);
+    const std::string filename = "solution-" + Utilities::int_to_string(cycle) + ".vtu";
+    data_out.write_vtu_in_parallel(par.output_directory + "/" + filename, mpi_communicator);
 
     static std::vector<std::pair<double, std::string>> times_and_names;
     times_and_names.emplace_back(time, filename);
@@ -1737,22 +1622,18 @@ namespace Step70
   // anyway, so no information that we may have wanted to visualize is lost.
   template <int dim, int spacedim>
   void
-  StokesImmersedProblem<dim, spacedim>::output_particles(
-    const Particles::ParticleHandler<spacedim> &particles,
-    std::string                                 fprefix,
-    const unsigned int                          iter,
-    const double                                time) const
+  StokesImmersedProblem<dim, spacedim>::output_particles(const Particles::ParticleHandler<spacedim> &particles,
+                                                         std::string                                 fprefix,
+                                                         const unsigned int                          iter,
+                                                         const double                                time) const
   {
     Particles::DataOut<spacedim> particles_out;
     particles_out.build_patches(particles);
-    const std::string filename =
-      (fprefix + "-" + Utilities::int_to_string(iter) + ".vtu");
-    particles_out.write_vtu_in_parallel(par.output_directory + "/" + filename,
-                                        mpi_communicator);
+    const std::string filename = (fprefix + "-" + Utilities::int_to_string(iter) + ".vtu");
+    particles_out.write_vtu_in_parallel(par.output_directory + "/" + filename, mpi_communicator);
 
 
-    static std::map<std::string, std::vector<std::pair<double, std::string>>>
-      times_and_names;
+    static std::map<std::string, std::vector<std::pair<double, std::string>>> times_and_names;
     if (times_and_names.find(fprefix) != times_and_names.end())
       times_and_names[fprefix].push_back(std::make_pair(time, filename));
     else
@@ -1774,12 +1655,10 @@ namespace Step70
   StokesImmersedProblem<dim, spacedim>::run()
   {
 #ifdef USE_PETSC_LA
-    deallog << "Running StokesImmersedProblem<"
-            << Utilities::dim_string(dim, spacedim) << "> using PETSc."
+    deallog << "Running StokesImmersedProblem<" << Utilities::dim_string(dim, spacedim) << "> using PETSc."
             << std::endl;
 #else
-    deallog << "Running StokesImmersedProblem<"
-            << Utilities::dim_string(dim, spacedim) << "> using Trilinos."
+    deallog << "Running StokesImmersedProblem<" << Utilities::dim_string(dim, spacedim) << "> using Trilinos."
             << std::endl;
 #endif
 
@@ -1789,13 +1668,11 @@ namespace Step70
     double       time         = 0;
     unsigned int output_cycle = 0;
 
-    for (unsigned int cycle = 0; cycle < par.number_of_time_steps;
-         ++cycle, time += time_step)
+    for (unsigned int cycle = 0; cycle < par.number_of_time_steps; ++cycle, time += time_step)
       {
         par.set_time(time);
         deallog << "Cycle " << cycle << ':' << std::endl
-                << "Time : " << time << ", time step: " << time_step
-                << std::endl;
+                << "Time : " << time << ", time step: " << time_step << std::endl;
 
         if (cycle == 0)
           {
@@ -1804,20 +1681,13 @@ namespace Step70
             setup_dofs();
             setup_tracer_particles();
             setup_solid_particles();
-            tracer_particle_velocities.reinit(
-              locally_owned_tracer_particle_coordinates, mpi_communicator);
+            tracer_particle_velocities.reinit(locally_owned_tracer_particle_coordinates, mpi_communicator);
             output_results(output_cycle, time);
             {
-              output_particles(tracer_particle_handler,
-                               "tracer",
-                               output_cycle,
-                               time);
+              output_particles(tracer_particle_handler, "tracer", output_cycle, time);
             }
             {
-              output_particles(solid_particle_handler,
-                               "solid",
-                               output_cycle,
-                               time);
+              output_particles(solid_particle_handler, "solid", output_cycle, time);
             }
           }
         // After the first time step, we displace the solid body at the
@@ -1825,10 +1695,8 @@ namespace Step70
         // moved.
         else
           {
-            SolidPosition<spacedim> solid_position(par.angular_velocity,
-                                                   time_step);
-            solid_particle_handler.set_particle_positions(solid_position,
-                                                          false);
+            SolidPosition<spacedim> solid_position(par.angular_velocity, time_step);
+            solid_particle_handler.set_particle_positions(solid_position, false);
           }
 
         // In order to update the state of the system, we first
@@ -1836,28 +1704,24 @@ namespace Step70
         // particles and, with a naive explicit Euler scheme, advect the
         // massless tracer particles.
         {
-          Particles::Utilities::interpolate_field_on_particles(
-            fluid_dh,
-            tracer_particle_handler,
-            locally_relevant_solution,
-            tracer_particle_velocities,
-            fluid_fe->component_mask(FEValuesExtractors::Vector(0)));
+          Particles::Utilities::interpolate_field_on_particles(fluid_dh,
+                                                               tracer_particle_handler,
+                                                               locally_relevant_solution,
+                                                               tracer_particle_velocities,
+                                                               fluid_fe->component_mask(FEValuesExtractors::Vector(0)));
 
           tracer_particle_velocities *= time_step;
 
           locally_relevant_tracer_particle_coordinates =
-            tracer_particle_handler.locally_owned_particle_ids().tensor_product(
-              complete_index_set(spacedim));
+            tracer_particle_handler.locally_owned_particle_ids().tensor_product(complete_index_set(spacedim));
 
-          relevant_tracer_particle_displacements.reinit(
-            locally_owned_tracer_particle_coordinates,
-            locally_relevant_tracer_particle_coordinates,
-            mpi_communicator);
+          relevant_tracer_particle_displacements.reinit(locally_owned_tracer_particle_coordinates,
+                                                        locally_relevant_tracer_particle_coordinates,
+                                                        mpi_communicator);
 
           relevant_tracer_particle_displacements = tracer_particle_velocities;
 
-          tracer_particle_handler.set_particle_positions(
-            relevant_tracer_particle_displacements);
+          tracer_particle_handler.set_particle_positions(relevant_tracer_particle_displacements);
         }
 
         // Using these new locations, we can then assemble the Stokes system and
@@ -1873,21 +1737,14 @@ namespace Step70
           {
             output_results(output_cycle, time);
             {
-              output_particles(tracer_particle_handler,
-                               "tracer",
-                               output_cycle,
-                               time);
+              output_particles(tracer_particle_handler, "tracer", output_cycle, time);
             }
             {
-              output_particles(solid_particle_handler,
-                               "solid",
-                               output_cycle,
-                               time);
+              output_particles(solid_particle_handler, "solid", output_cycle, time);
             }
             ++output_cycle;
           }
-        if (cycle % par.refinement_frequency == 0 &&
-            cycle != par.number_of_time_steps - 1)
+        if (cycle % par.refinement_frequency == 0 && cycle != par.number_of_time_steps - 1)
           refine_and_transfer();
       }
   }
@@ -1932,28 +1789,20 @@ main(int argc, char *argv[])
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
 

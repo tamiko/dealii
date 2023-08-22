@@ -73,10 +73,8 @@ main(int argc, char *argv[])
   deallog.push("Intermediate reduced expressions");
   for (unsigned i = 0; i < intermediate_symbols_exprs.size(); ++i)
     {
-      const SE::RCP<const SE::Basic> &cse_symbol =
-        intermediate_symbols_exprs[i].first;
-      const SE::RCP<const SE::Basic> &cse_expr =
-        intermediate_symbols_exprs[i].second;
+      const SE::RCP<const SE::Basic> &cse_symbol = intermediate_symbols_exprs[i].first;
+      const SE::RCP<const SE::Basic> &cse_expr   = intermediate_symbols_exprs[i].second;
       deallog << i << ": " << *cse_symbol << " = " << *cse_expr << std::endl;
     }
   deallog.pop();

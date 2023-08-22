@@ -59,8 +59,7 @@ class PoissonOperator
 public:
   using VectorType = Vector<double>;
 
-  PoissonOperator(const MatrixFree<dim, double> &matrix_free,
-                  const bool                     do_helmholtz)
+  PoissonOperator(const MatrixFree<dim, double> &matrix_free, const bool do_helmholtz)
     : matrix_free(matrix_free)
     , do_helmholtz(do_helmholtz)
   {}
@@ -100,8 +99,7 @@ public:
     matrix_free.template cell_loop<VectorType, VectorType>(
       [&](const auto &, auto &dst, const auto &src, const auto cells) {
         FEEvaluation<dim, -1, 0, 1, double> phi(matrix_free);
-        EvaluationFlags::EvaluationFlags    fe_eval_flags =
-          EvaluationFlags::gradients;
+        EvaluationFlags::EvaluationFlags    fe_eval_flags = EvaluationFlags::gradients;
         if (do_helmholtz)
           fe_eval_flags |= EvaluationFlags::values;
         for (unsigned int cell = cells.first; cell < cells.second; ++cell)
@@ -142,8 +140,7 @@ test(const unsigned int v, const unsigned int degree, const bool do_helmholtz)
 
   if (v == 0)
     {
-      GridGenerator::subdivided_hyper_cube_with_simplices(tria,
-                                                          dim == 2 ? 16 : 8);
+      GridGenerator::subdivided_hyper_cube_with_simplices(tria, dim == 2 ? 16 : 8);
       fe         = std::make_shared<FE_SimplexP<dim>>(degree);
       quad       = std::make_shared<QGaussSimplex<dim>>(degree + 1);
       fe_mapping = std::make_shared<FE_SimplexP<dim>>(1);
@@ -157,8 +154,7 @@ test(const unsigned int v, const unsigned int degree, const bool do_helmholtz)
     }
   else if (v == 2)
     {
-      GridGenerator::subdivided_hyper_cube_with_pyramids(tria,
-                                                         dim == 2 ? 16 : 8);
+      GridGenerator::subdivided_hyper_cube_with_pyramids(tria, dim == 2 ? 16 : 8);
       fe         = std::make_shared<FE_PyramidP<dim>>(degree);
       quad       = std::make_shared<QGaussPyramid<dim>>(degree + 1);
       fe_mapping = std::make_shared<FE_PyramidP<dim>>(1);
@@ -181,9 +177,7 @@ test(const unsigned int v, const unsigned int degree, const bool do_helmholtz)
   constraints.close();
 
   const auto solve_and_postprocess =
-    [&](const auto &poisson_operator,
-        auto &      x,
-        auto &      b) -> std::pair<unsigned int, double> {
+    [&](const auto &poisson_operator, auto &x, auto &b) -> std::pair<unsigned int, double> {
     ReductionControl                               reduction_control;
     SolverCG<std::remove_reference_t<decltype(x)>> solver(reduction_control);
     solver.solve(poisson_operator, x, b, PreconditionIdentity());
@@ -210,8 +204,7 @@ test(const unsigned int v, const unsigned int degree, const bool do_helmholtz)
     additional_data.mapping_update_flags = update_gradients | update_values;
 
     MatrixFree<dim, double> matrix_free;
-    matrix_free.reinit(
-      mapping, dof_handler, constraints, *quad, additional_data);
+    matrix_free.reinit(mapping, dof_handler, constraints, *quad, additional_data);
 
     PoissonOperator<dim> poisson_operator(matrix_free, do_helmholtz);
 
@@ -278,8 +271,7 @@ test(const unsigned int v, const unsigned int degree, const bool do_helmholtz)
         local_dof_indices.resize(cell->get_fe().dofs_per_cell);
         cell->get_dof_indices(local_dof_indices);
 
-        constraints.distribute_local_to_global(
-          cell_matrix, cell_rhs, local_dof_indices, A, b);
+        constraints.distribute_local_to_global(cell_matrix, cell_rhs, local_dof_indices, A, b);
       }
 
     return solve_and_postprocess(A, x, b);
@@ -287,8 +279,7 @@ test(const unsigned int v, const unsigned int degree, const bool do_helmholtz)
 
   const auto compare = [&](const auto result_mf, const auto result_mb) {
     AssertDimension(result_mf.first, result_mb.first);
-    Assert(std::abs(result_mf.second - result_mb.second) < 1e-8,
-           ExcNotImplemented());
+    Assert(std::abs(result_mf.second - result_mb.second) < 1e-8, ExcNotImplemented());
 
     deallog << "dim=" << dim << ' ';
     deallog << "degree=" << degree << ' ';
@@ -301,8 +292,7 @@ test(const unsigned int v, const unsigned int degree, const bool do_helmholtz)
       deallog << "Possion  "
               << " : ";
 
-    deallog << "Convergence step " << result_mf.first << " value "
-            << result_mf.second << '.' << std::endl;
+    deallog << "Convergence step " << result_mf.first << " value " << result_mf.second << '.' << std::endl;
   };
 
   compare(mf_algo(), mb_algo());
@@ -340,8 +330,7 @@ main(int argc, char **argv)
       test<3>(i, /*degree=*/1, /*do_helmholtz*/ false);
       test<3>(i, /*degree=*/1, /*do_helmholtz*/ true);
 
-      if (i !=
-          2) // for pyramids no quadratic elements have been implemented yet
+      if (i != 2) // for pyramids no quadratic elements have been implemented yet
         {
           test<3>(i, /*degree=*/2, /*do_helmholtz*/ false);
           test<3>(i, /*degree=*/2, /*do_helmholtz*/ true);

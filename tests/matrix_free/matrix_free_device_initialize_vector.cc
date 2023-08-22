@@ -38,23 +38,19 @@
 
 template <typename Number>
 void
-check(const LinearAlgebra::distributed::Vector<Number, MemorySpace::Default>
-        &                                vector,
-      const Utilities::MPI::Partitioner &reference_partitioner)
+check(const LinearAlgebra::distributed::Vector<Number, MemorySpace::Default> &vector,
+      const Utilities::MPI::Partitioner                                      &reference_partitioner)
 {
-  Assert(vector.get_partitioner()->locally_owned_range() ==
-           reference_partitioner.locally_owned_range(),
+  Assert(vector.get_partitioner()->locally_owned_range() == reference_partitioner.locally_owned_range(),
          ExcInternalError());
-  Assert(vector.get_partitioner()->ghost_indices() ==
-           reference_partitioner.ghost_indices(),
-         ExcInternalError());
+  Assert(vector.get_partitioner()->ghost_indices() == reference_partitioner.ghost_indices(), ExcInternalError());
 }
 
 #ifdef DEAL_II_WITH_CUDA
 template <typename Number>
 void
 check(const LinearAlgebra::CUDAWrappers::Vector<Number> &vector,
-      const Utilities::MPI::Partitioner &                reference_partitioner)
+      const Utilities::MPI::Partitioner                 &reference_partitioner)
 {
   AssertDimension(vector.size(), reference_partitioner.size());
 }
@@ -87,19 +83,16 @@ test()
   AffineConstraints<double> constraints(relevant_set);
   constraints.close();
 
-  MappingQ<dim>                         mapping(fe_degree);
-  CUDAWrappers::MatrixFree<dim, Number> mf_data;
-  const QGauss<1>                       quad(fe_degree + 1);
-  typename CUDAWrappers::MatrixFree<dim, Number>::AdditionalData
-    additional_data;
+  MappingQ<dim>                                                  mapping(fe_degree);
+  CUDAWrappers::MatrixFree<dim, Number>                          mf_data;
+  const QGauss<1>                                                quad(fe_degree + 1);
+  typename CUDAWrappers::MatrixFree<dim, Number>::AdditionalData additional_data;
   mf_data.reinit(mapping, dof, constraints, quad, additional_data);
 
   VectorType vector;
   mf_data.initialize_dof_vector(vector);
 
-  Utilities::MPI::Partitioner reference_partitioner(owned_set,
-                                                    relevant_set,
-                                                    MPI_COMM_WORLD);
+  Utilities::MPI::Partitioner reference_partitioner(owned_set, relevant_set, MPI_COMM_WORLD);
   check(vector, reference_partitioner);
 
   deallog << "OK" << std::endl;
@@ -109,17 +102,14 @@ test()
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   unsigned int myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
   deallog.push(Utilities::int_to_string(myid));
 
   MPILogInitAll mpi_inilog;
 
-  test<2,
-       1,
-       LinearAlgebra::distributed::Vector<double, MemorySpace::Default>>();
+  test<2, 1, LinearAlgebra::distributed::Vector<double, MemorySpace::Default>>();
 
 #ifdef DEAL_II_WITH_CUDA
   if (Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD) == 1)

@@ -49,8 +49,7 @@ fails(const FiniteElement<dim> &fe, const ComponentMask &m)
   try
     {
       const FiniteElement<dim> &child = fe.get_sub_fe(m);
-      deallog << "  ERROR: we succeeded and got " << child.get_name()
-              << " but we should have failed!" << std::endl;
+      deallog << "  ERROR: we succeeded and got " << child.get_name() << " but we should have failed!" << std::endl;
     }
   catch (...)
     {
@@ -63,21 +62,14 @@ template <int dim>
 void
 check()
 {
-  auto mask_none = [](const unsigned int n_components) -> ComponentMask {
-    return ComponentMask(n_components, false);
-  };
-  auto mask_all = [](const unsigned int n_components) -> ComponentMask {
-    return ComponentMask(n_components, true);
-  };
-  auto mask_single = [](const unsigned int n_components,
-                        const unsigned int single) -> ComponentMask {
+  auto mask_none = [](const unsigned int n_components) -> ComponentMask { return ComponentMask(n_components, false); };
+  auto mask_all  = [](const unsigned int n_components) -> ComponentMask { return ComponentMask(n_components, true); };
+  auto mask_single = [](const unsigned int n_components, const unsigned int single) -> ComponentMask {
     ComponentMask c(n_components, false);
     c.set(single, true);
     return c;
   };
-  auto mask = [](const unsigned int n_components,
-                 const unsigned int first,
-                 const unsigned int last) -> ComponentMask {
+  auto mask = [](const unsigned int n_components, const unsigned int first, const unsigned int last) -> ComponentMask {
     ComponentMask c(n_components, false);
     for (unsigned int i = first; i <= last; ++i)
       c.set(i, true);
@@ -115,10 +107,8 @@ check()
     FESystem<dim> fe(fe_q, 3);
     works(fe, mask_all(3));       // keep system
     works(fe, mask_single(3, 1)); // select one component
-    fails(fe,
-          mask(3,
-               1,
-               2)); // select more than one component but not the whole FESystem
+    fails(fe, mask(3, 1,
+                   2)); // select more than one component but not the whole FESystem
   }
 
   // more systems:

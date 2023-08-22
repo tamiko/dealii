@@ -72,18 +72,13 @@ template <int dim>
 void
 test(const Function<dim> &function)
 {
-  parallel::shared::Triangulation<dim> tria(MPI_COMM_WORLD,
-                                            Triangulation<dim>::none,
-                                            false);
-  parallel::shared::Triangulation<dim> tria_artificial(MPI_COMM_WORLD,
-                                                       Triangulation<dim>::none,
-                                                       true);
+  parallel::shared::Triangulation<dim> tria(MPI_COMM_WORLD, Triangulation<dim>::none, false);
+  parallel::shared::Triangulation<dim> tria_artificial(MPI_COMM_WORLD, Triangulation<dim>::none, true);
   GridGenerator::subdivided_hyper_cube(tria, 2);
   GridGenerator::subdivided_hyper_cube(tria_artificial, 2);
 
-  Vector<double> sol = refine_and_transfer(function, tria);
-  Vector<double> sol_artificial =
-    refine_and_transfer(function, tria_artificial);
+  Vector<double> sol            = refine_and_transfer(function, tria);
+  Vector<double> sol_artificial = refine_and_transfer(function, tria_artificial);
 
   AssertDimension(sol.size(), sol_artificial.size());
   AssertThrow(sol == sol_artificial, ExcInternalError());

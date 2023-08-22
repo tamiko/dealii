@@ -34,17 +34,15 @@ template <int dim>
 void
 test()
 {
-  const unsigned int this_mpi_process =
-    Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  const unsigned int this_mpi_process = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
 
   FESystem<dim> fe(FE_Q<dim>(1), 2);
 
   {
-    parallel::shared::Triangulation<dim> tria(
-      MPI_COMM_WORLD,
-      Triangulation<dim>::none,
-      false,
-      parallel::shared::Triangulation<dim>::Settings::partition_zorder);
+    parallel::shared::Triangulation<dim> tria(MPI_COMM_WORLD,
+                                              Triangulation<dim>::none,
+                                              false,
+                                              parallel::shared::Triangulation<dim>::Settings::partition_zorder);
     GridGenerator::hyper_cube(tria, -1, 1);
     tria.refine_global(2);
 
@@ -53,21 +51,16 @@ test()
 
     DoFRenumbering::block_wise(dh);
 
-    const std::vector<IndexSet> locally_owned_dofs_per_subdomain =
-      DoFTools::locally_owned_dofs_per_subdomain(dh);
+    const std::vector<IndexSet> locally_owned_dofs_per_subdomain = DoFTools::locally_owned_dofs_per_subdomain(dh);
 
     const types::global_dof_index dofs_per_block = dh.n_dofs() / 2;
     std::vector<IndexSet>         locally_owned_dofs_per_block(2);
-    locally_owned_dofs_per_block[0] =
-      locally_owned_dofs_per_subdomain[this_mpi_process].get_view(
-        0, dofs_per_block);
+    locally_owned_dofs_per_block[0] = locally_owned_dofs_per_subdomain[this_mpi_process].get_view(0, dofs_per_block);
     locally_owned_dofs_per_block[1] =
-      locally_owned_dofs_per_subdomain[this_mpi_process].get_view(
-        dofs_per_block, dh.n_dofs());
+      locally_owned_dofs_per_subdomain[this_mpi_process].get_view(dofs_per_block, dh.n_dofs());
 
     if (locally_owned_dofs_per_block[0] != locally_owned_dofs_per_block[1])
-      AssertThrow(false,
-                  ExcMessage("Locally owned dofs differ across blocks."));
+      AssertThrow(false, ExcMessage("Locally owned dofs differ across blocks."));
   }
 
   if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)

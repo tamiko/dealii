@@ -48,30 +48,24 @@ test(const MPI_Comm comm)
 
     for (auto cell : tria.active_cell_iterators())
       if (!cell->is_artificial())
-        n_coarse_cells =
-          std::max(n_coarse_cells, cell->id().get_coarse_cell_id());
+        n_coarse_cells = std::max(n_coarse_cells, cell->id().get_coarse_cell_id());
 
     return Utilities::MPI::max(n_coarse_cells, comm) + 1;
   };
 
   // create translator: CellID <-> unique ID
-  internal::CellIDTranslator<dim> cell_id_translator(
-    deterimine_n_coarse_cells(basetria), basetria.n_global_levels());
+  internal::CellIDTranslator<dim> cell_id_translator(deterimine_n_coarse_cells(basetria), basetria.n_global_levels());
 
 
   for (auto cell : basetria.cell_iterators())
     {
-      Assert(cell->id() == cell_id_translator.to_cell_id(
-                             cell_id_translator.translate(cell)),
-             ExcNotImplemented());
+      Assert(cell->id() == cell_id_translator.to_cell_id(cell_id_translator.translate(cell)), ExcNotImplemented());
 
       if (cell->has_children())
         {
           for (unsigned int c = 0; c < cell->n_children(); ++c)
             {
-              Assert(cell->child(c)->id() ==
-                       cell_id_translator.to_cell_id(
-                         cell_id_translator.translate(cell, c)),
+              Assert(cell->child(c)->id() == cell_id_translator.to_cell_id(cell_id_translator.translate(cell, c)),
                      ExcNotImplemented());
             }
         }

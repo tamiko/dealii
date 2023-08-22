@@ -257,13 +257,10 @@ Laplace<dim>::setup_system()
 
   locally_relevant_dofs.clear();
   DoFTools::extract_locally_relevant_dofs(dof_handler, locally_relevant_dofs);
-  AssertThrow(locally_relevant_dofs.n_elements() == dof_handler.n_dofs(),
-              ExcInternalError());
+  AssertThrow(locally_relevant_dofs.n_elements() == dof_handler.n_dofs(), ExcInternalError());
 
   // init vectors
-  solution_locally_relevant.reinit(locally_owned_dofs,
-                                   locally_relevant_dofs,
-                                   mpi_communicator);
+  solution_locally_relevant.reinit(locally_owned_dofs, locally_relevant_dofs, mpi_communicator);
   solution.reinit(locally_owned_dofs, mpi_communicator);
   solution                  = 0;
   solution_locally_relevant = solution;
@@ -273,20 +270,13 @@ Laplace<dim>::setup_system()
   constraints.clear();
   // constraints.reinit(locally_relevant_dofs);
   DoFTools::make_hanging_node_constraints(dof_handler, constraints);
-  VectorTools::interpolate_boundary_values(dof_handler,
-                                           0,
-                                           boundary_conditions,
-                                           constraints);
+  VectorTools::interpolate_boundary_values(dof_handler, 0, boundary_conditions, constraints);
   if (dim == 1)
-    VectorTools::interpolate_boundary_values(dof_handler,
-                                             1,
-                                             boundary_conditions,
-                                             constraints);
+    VectorTools::interpolate_boundary_values(dof_handler, 1, boundary_conditions, constraints);
   constraints.close();
 
   TrilinosWrappers::SparsityPattern sp(locally_owned_dofs, mpi_communicator);
-  DoFTools::make_sparsity_pattern(
-    dof_handler, sp, constraints, false, this_mpi_process);
+  DoFTools::make_sparsity_pattern(dof_handler, sp, constraints, false, this_mpi_process);
   sp.compress();
 
   system_matrix.reinit(sp);
@@ -294,10 +284,8 @@ Laplace<dim>::setup_system()
   estimated_error_per_cell.reinit(triangulation.n_active_cells());
 
   // print out some info:
-  pcout << "Number of active cells:       " << triangulation.n_active_cells()
-        << std::endl;
-  pcout << "Number of degrees of freedom: " << dof_handler.n_dofs()
-        << std::endl;
+  pcout << "Number of active cells:       " << triangulation.n_active_cells() << std::endl;
+  pcout << "Number of degrees of freedom: " << dof_handler.n_dofs() << std::endl;
 }
 
 
@@ -310,9 +298,7 @@ Laplace<dim>::assemble()
 
   hp::FEValues<dim> hp_fe_values(fe,
                                  quadrature,
-                                 update_values | update_gradients |
-                                   update_quadrature_points |
-                                   update_JxW_values);
+                                 update_values | update_gradients | update_quadrature_points | update_JxW_values);
 
   FullMatrix<double> cell_matrix;
   Vector<double>     cell_rhs;
@@ -323,8 +309,8 @@ Laplace<dim>::assemble()
     if (cell->subdomain_id() == this_mpi_process)
       {
         hp_fe_values.reinit(cell);
-        const FEValues<dim> &fe_values = hp_fe_values.get_present_fe_values();
-        const unsigned int & dofs_per_cell = fe_values.dofs_per_cell;
+        const FEValues<dim> &fe_values     = hp_fe_values.get_present_fe_values();
+        const unsigned int  &dofs_per_cell = fe_values.dofs_per_cell;
 
         local_dof_indices.resize(dofs_per_cell);
         cell_matrix.reinit(dofs_per_cell, dofs_per_cell);
@@ -333,22 +319,19 @@ Laplace<dim>::assemble()
         cell_matrix = 0.;
         cell_rhs    = 0.;
 
-        const unsigned int n_q_points =
-          hp_fe_values.get_present_fe_values().n_quadrature_points;
+        const unsigned int n_q_points = hp_fe_values.get_present_fe_values().n_quadrature_points;
         for (unsigned int q_index = 0; q_index < n_q_points; ++q_index)
           {
             for (unsigned int i = 0; i < dofs_per_cell; ++i)
               {
                 for (unsigned int j = i; j < dofs_per_cell; ++j)
                   {
-                    cell_matrix(i, j) += (fe_values.shape_grad(i, q_index) *
-                                          fe_values.shape_grad(j, q_index)) *
-                                         fe_values.JxW(q_index);
+                    cell_matrix(i, j) +=
+                      (fe_values.shape_grad(i, q_index) * fe_values.shape_grad(j, q_index)) * fe_values.JxW(q_index);
                   }
 
-                cell_rhs(i) +=
-                  force_function.value(fe_values.quadrature_point(q_index)) *
-                  fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
+                cell_rhs(i) += force_function.value(fe_values.quadrature_point(q_index)) *
+                               fe_values.shape_value(i, q_index) * fe_values.JxW(q_index);
               }
           }
 
@@ -359,8 +342,7 @@ Laplace<dim>::assemble()
 
 
         cell->get_dof_indices(local_dof_indices);
-        constraints.distribute_local_to_global(
-          cell_matrix, cell_rhs, local_dof_indices, system_matrix, system_rhs);
+        constraints.distribute_local_to_global(cell_matrix, cell_rhs, local_dof_indices, system_matrix, system_rhs);
       }
 
   system_matrix.compress(VectorOperation::add);
@@ -371,7 +353,7 @@ Laplace<dim>::assemble()
 
 
 
-//#define DIRECT
+// #define DIRECT
 
 template <int dim>
 void
@@ -387,18 +369,16 @@ Laplace<dim>::solve()
   constraints.set_zero(solution);
   constraints.set_zero(system_rhs);
 #ifdef DIRECT
-  std::string solver_name =
-    "Amesos_Superludist"; //"Amesos_Mumps" ||  "Amesos_Klu"
+  std::string solver_name = "Amesos_Superludist"; //"Amesos_Mumps" ||  "Amesos_Klu"
 
-  TrilinosWrappers::SolverDirect::AdditionalData additional_data(false,
-                                                                 solver_name);
+  TrilinosWrappers::SolverDirect::AdditionalData additional_data(false, solver_name);
 
   TrilinosWrappers::SolverDirect solver(solver_control, additional_data);
 
   solver.solve(system_matrix, solution, system_rhs);
 
   TrilinosWrappers::MPI::Vector tmp(solution);
-  const double l2 = system_matrix.residual(tmp, solution, system_rhs);
+  const double                  l2 = system_matrix.residual(tmp, solution, system_rhs);
   solver_control.check(1, l2);
 #else
   TrilinosWrappers::SolverCG cg(solver_control);
@@ -449,9 +429,7 @@ Laplace<dim>::refine_grid(const unsigned int cycle)
 
   // copy current functions
   TrilinosWrappers::MPI::Vector solution_coarse;
-  solution_coarse.reinit(locally_owned_dofs,
-                         locally_relevant_dofs,
-                         mpi_communicator);
+  solution_coarse.reinit(locally_owned_dofs, locally_relevant_dofs, mpi_communicator);
   solution_coarse = solution;
   soltrans.prepare_for_coarsening_and_refinement(solution_coarse);
 
@@ -478,14 +456,10 @@ Laplace<dim>::calculate_error()
   H1_error     = 0.0;
   Linfty_error = 0.0;
 
-  hp::FEValues<dim> hp_fe_values_linf(fe,
-                                      quadrature_infty,
-                                      update_values | update_quadrature_points);
+  hp::FEValues<dim> hp_fe_values_linf(fe, quadrature_infty, update_values | update_quadrature_points);
   hp::FEValues<dim> hp_fe_values(fe,
                                  quadrature,
-                                 update_values | update_gradients |
-                                   update_quadrature_points |
-                                   update_JxW_values);
+                                 update_values | update_gradients | update_quadrature_points | update_JxW_values);
 
   std::vector<double>         values, exact_values;
   std::vector<double>         values_linf, exact_values_linf;
@@ -499,9 +473,8 @@ Laplace<dim>::calculate_error()
         const FEValues<dim> &fe_values  = hp_fe_values.get_present_fe_values();
         const unsigned int   n_q_points = fe_values.n_quadrature_points;
 
-        const FEValues<dim> &fe_values_linf =
-          hp_fe_values_linf.get_present_fe_values();
-        const unsigned int n_q_points_linf = fe_values_linf.n_quadrature_points;
+        const FEValues<dim> &fe_values_linf  = hp_fe_values_linf.get_present_fe_values();
+        const unsigned int   n_q_points_linf = fe_values_linf.n_quadrature_points;
 
         values_linf.resize(n_q_points_linf);
         exact_values_linf.resize(n_q_points_linf);
@@ -512,35 +485,28 @@ Laplace<dim>::calculate_error()
         exact_gradients.resize(n_q_points);
 
         fe_values.get_function_values(solution_locally_relevant, values);
-        fe_values_linf.get_function_values(solution_locally_relevant,
-                                           values_linf);
+        fe_values_linf.get_function_values(solution_locally_relevant, values_linf);
         fe_values.get_function_gradients(solution_locally_relevant, gradients);
 
-        exact_solution.value_list(fe_values.get_quadrature_points(),
-                                  exact_values);
+        exact_solution.value_list(fe_values.get_quadrature_points(), exact_values);
 
-        exact_solution.value_list(fe_values_linf.get_quadrature_points(),
-                                  exact_values_linf);
+        exact_solution.value_list(fe_values_linf.get_quadrature_points(), exact_values_linf);
 
-        exact_solution.gradient_list(fe_values.get_quadrature_points(),
-                                     exact_gradients);
+        exact_solution.gradient_list(fe_values.get_quadrature_points(), exact_gradients);
 
         double cell_L2 = 0.0, cell_Linf = 0.0, cell_H1 = 0.0;
 
         for (unsigned int q_point = 0; q_point < n_q_points; ++q_point)
           {
-            const double diff_values = exact_values[q_point] - values[q_point];
-            const Tensor<1, dim> diff_grad =
-              exact_gradients[q_point] - gradients[q_point];
+            const double         diff_values = exact_values[q_point] - values[q_point];
+            const Tensor<1, dim> diff_grad   = exact_gradients[q_point] - gradients[q_point];
             cell_L2 += diff_values * diff_values * fe_values.JxW(q_point);
             cell_H1 += (diff_grad * diff_grad) * fe_values.JxW(q_point);
           }
 
         for (unsigned int q_point = 0; q_point < n_q_points_linf; ++q_point)
           {
-            cell_Linf = std::max(cell_Linf,
-                                 std::abs(exact_values_linf[q_point] -
-                                          values_linf[q_point]));
+            cell_Linf = std::max(cell_Linf, std::abs(exact_values_linf[q_point] - values_linf[q_point]));
           }
 
 
@@ -575,10 +541,9 @@ Laplace<dim>::output_results(int cycle)
   error_table.add_value("estimated", total_error);
 
   if (this_mpi_process == 0)
-    deallog << cycle << sp << triangulation.n_active_cells() << sp
-            << hp_number.first << sp << hp_number.second << sp
-            << dof_handler.n_dofs() << sp << L2_error << sp << H1_error << sp
-            << Linfty_error << sp << total_error << sp << std::endl;
+    deallog << cycle << sp << triangulation.n_active_cells() << sp << hp_number.first << sp << hp_number.second << sp
+            << dof_handler.n_dofs() << sp << L2_error << sp << H1_error << sp << Linfty_error << sp << total_error << sp
+            << std::endl;
 }
 
 
@@ -609,23 +574,20 @@ Laplace<dim>::print_errors()
       error_table.write_text(output);
       output << "EOD" << std::endl << std::endl;
 
-      output
-        << "set terminal postscript eps enhanced color dashed \"Helvetica\" 22"
-        << std::endl
-        << "set style line 1  linetype 1 linecolor rgb \"#e41a1c\"  linewidth 2.000 pointtype 4 pointsize 2.0"
-        << std::endl
-        << "set style line 2  linetype 1 linecolor rgb \"#377eb8\"  linewidth 2.000 pointtype 6 pointsize 2.0"
-        << std::endl
-        << "set xlabel \"DoF\"" << std::endl
-        << "set ylabel \"L2+H1\"" << std::endl
-        << "set logscale xy" << std::endl
-        << "set format x \"10^{%T}\"" << std::endl
-        << "set format y \"10^{%T}\"" << std::endl
-        << "set output \'" << output_name << ".eps\'" << std::endl
-        << "plot \"$data\" using ($5):($6+$7) axis x1y1 with lp ls 1 title  \"error\", \\"
-        << std::endl
-        << "     \"$data\" using ($5):($9) axis x1y1 with lp ls 2 title     \"{/Symbol h}_{/Symbol W}\""
-        << std::endl;
+      output << "set terminal postscript eps enhanced color dashed \"Helvetica\" 22" << std::endl
+             << "set style line 1  linetype 1 linecolor rgb \"#e41a1c\"  linewidth 2.000 pointtype 4 pointsize 2.0"
+             << std::endl
+             << "set style line 2  linetype 1 linecolor rgb \"#377eb8\"  linewidth 2.000 pointtype 6 pointsize 2.0"
+             << std::endl
+             << "set xlabel \"DoF\"" << std::endl
+             << "set ylabel \"L2+H1\"" << std::endl
+             << "set logscale xy" << std::endl
+             << "set format x \"10^{%T}\"" << std::endl
+             << "set format y \"10^{%T}\"" << std::endl
+             << "set output \'" << output_name << ".eps\'" << std::endl
+             << "plot \"$data\" using ($5):($6+$7) axis x1y1 with lp ls 1 title  \"error\", \\" << std::endl
+             << "     \"$data\" using ($5):($9) axis x1y1 with lp ls 2 title     \"{/Symbol h}_{/Symbol W}\""
+             << std::endl;
     }
 }
 

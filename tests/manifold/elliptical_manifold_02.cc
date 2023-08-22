@@ -37,13 +37,11 @@ template <int dim, int spacedim>
 Point<spacedim>
 test_push(const Tensor<1, spacedim> &axis,
           const double               eccentricity,
-          const Point<spacedim> &    space_point,
+          const Point<spacedim>     &space_point,
           unsigned int               ref = 1)
 {
-  EllipticalManifold<dim, spacedim> manifold(Point<spacedim>(),
-                                             axis,
-                                             eccentricity);
-  const Point<spacedim> chart_point(manifold.push_forward(space_point));
+  EllipticalManifold<dim, spacedim> manifold(Point<spacedim>(), axis, eccentricity);
+  const Point<spacedim>             chart_point(manifold.push_forward(space_point));
   deallog << space_point << " -> ";
   deallog << chart_point << std::endl;
   return chart_point;
@@ -55,13 +53,11 @@ template <int dim, int spacedim>
 Point<spacedim>
 test_pull(const Tensor<1, spacedim> &axis,
           const double               eccentricity,
-          const Point<spacedim> &    chart_point,
+          const Point<spacedim>     &chart_point,
           unsigned int               ref = 1)
 {
-  EllipticalManifold<dim, spacedim> manifold(Point<spacedim>(),
-                                             axis,
-                                             eccentricity);
-  const Point<spacedim> space_point(manifold.pull_back(chart_point));
+  EllipticalManifold<dim, spacedim> manifold(Point<spacedim>(), axis, eccentricity);
+  const Point<spacedim>             space_point(manifold.pull_back(chart_point));
   deallog << space_point << " <- ";
   deallog << chart_point << std::endl;
   return space_point;
@@ -71,9 +67,7 @@ test_pull(const Tensor<1, spacedim> &axis,
 
 // Function that tests pull_back() and push_forward().
 void
-local_test(const Tensor<1, 2> &axis,
-           const double        eccentricity,
-           const Point<2> &    space_point)
+local_test(const Tensor<1, 2> &axis, const double eccentricity, const Point<2> &space_point)
 {
   const Point<2> pt1 = test_push<2, 2>(axis, eccentricity, space_point);
   const Point<2> pt2 = test_pull<2, 2>(axis, eccentricity, pt1);

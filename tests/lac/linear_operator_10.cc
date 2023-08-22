@@ -46,9 +46,7 @@ template <class PRECONDITIONER,
           class VECTOR,
           class ADDITIONAL_DATA = typename PRECONDITIONER::AdditionalData>
 void
-test_preconditioner(const MATRIX &         A,
-                    const VECTOR &         b,
-                    const ADDITIONAL_DATA &data = ADDITIONAL_DATA())
+test_preconditioner(const MATRIX &A, const VECTOR &b, const ADDITIONAL_DATA &data = ADDITIONAL_DATA())
 {
   // This test might trigger spurious floating point exceptions in Trilinos
   // despite functioning properly. Simply disable floating point exceptions
@@ -105,8 +103,7 @@ test_preconditioner(const MATRIX &         A,
   {
     // Using exemplar matrix
     deallog.push("Exemp");
-    const auto lo_A_inv_approx =
-      linear_operator<VECTOR, VECTOR>(A, preconditioner);
+    const auto lo_A_inv_approx = linear_operator<VECTOR, VECTOR>(A, preconditioner);
     // Note: The above should be equivalent to the following:
     //
     //    typedef
@@ -135,10 +132,8 @@ test_preconditioner(const MATRIX &         A,
   {
     // Stand-alone
     deallog.push("S.A.");
-    using PAYLOAD = dealii::TrilinosWrappers::internal::
-      LinearOperatorImplementation::TrilinosPayload;
-    const auto lo_A_inv_approx =
-      linear_operator<VECTOR, VECTOR, PAYLOAD>(preconditioner);
+    using PAYLOAD              = dealii::TrilinosWrappers::internal::LinearOperatorImplementation::TrilinosPayload;
+    const auto lo_A_inv_approx = linear_operator<VECTOR, VECTOR, PAYLOAD>(preconditioner);
 
     // Singular operation
     {
@@ -233,8 +228,7 @@ main(int argc, char *argv[])
   // TrilinosWrappers::SparseMatrix
   {
     const unsigned int                rc = 10;
-    TrilinosWrappers::SparsityPattern sparsity_pattern(
-      rc, rc, /*n_entries_per_row =*/1);
+    TrilinosWrappers::SparsityPattern sparsity_pattern(rc, rc, /*n_entries_per_row =*/1);
     for (unsigned int i = 0; i < rc; ++i)
       {
         sparsity_pattern.add(i, i);

@@ -41,8 +41,7 @@ check(const unsigned int fe_degree)
 
   // run a few different sizes...
   unsigned int sizes[] = {1, 2, 3};
-  for (unsigned int cycle = 0; cycle < sizeof(sizes) / sizeof(unsigned int);
-       ++cycle)
+  for (unsigned int cycle = 0; cycle < sizeof(sizes) / sizeof(unsigned int); ++cycle)
     {
       unsigned int n_refinements = 0;
       unsigned int n_subdiv      = sizes[cycle];
@@ -59,33 +58,21 @@ check(const unsigned int fe_degree)
       parallel::distributed::Triangulation<dim> tr(
         MPI_COMM_WORLD,
         Triangulation<dim>::limit_level_difference_at_vertices,
-        parallel::distributed::Triangulation<
-          dim>::construct_multigrid_hierarchy);
+        parallel::distributed::Triangulation<dim>::construct_multigrid_hierarchy);
       GridGenerator::subdivided_hyper_cube(tr, n_subdiv);
       tr.refine_global(n_refinements);
 
       // adaptive refinement into a circle
-      for (typename Triangulation<dim>::active_cell_iterator cell =
-             tr.begin_active();
-           cell != tr.end();
-           ++cell)
+      for (typename Triangulation<dim>::active_cell_iterator cell = tr.begin_active(); cell != tr.end(); ++cell)
         if (cell->is_locally_owned() && cell->center().norm() < 0.5)
           cell->set_refine_flag();
       tr.execute_coarsening_and_refinement();
-      for (typename Triangulation<dim>::active_cell_iterator cell =
-             tr.begin_active();
-           cell != tr.end();
-           ++cell)
-        if (cell->is_locally_owned() && cell->center().norm() > 0.3 &&
-            cell->center().norm() < 0.4)
+      for (typename Triangulation<dim>::active_cell_iterator cell = tr.begin_active(); cell != tr.end(); ++cell)
+        if (cell->is_locally_owned() && cell->center().norm() > 0.3 && cell->center().norm() < 0.4)
           cell->set_refine_flag();
       tr.execute_coarsening_and_refinement();
-      for (typename Triangulation<dim>::active_cell_iterator cell =
-             tr.begin_active();
-           cell != tr.end();
-           ++cell)
-        if (cell->is_locally_owned() && cell->center().norm() > 0.33 &&
-            cell->center().norm() < 0.37)
+      for (typename Triangulation<dim>::active_cell_iterator cell = tr.begin_active(); cell != tr.end(); ++cell)
+        if (cell->is_locally_owned() && cell->center().norm() > 0.33 && cell->center().norm() < 0.37)
           cell->set_refine_flag();
       tr.execute_coarsening_and_refinement();
 
@@ -96,8 +83,7 @@ check(const unsigned int fe_degree)
       mgdof.distribute_mg_dofs();
 
       // build reference
-      MGTransferPrebuilt<LinearAlgebra::distributed::Vector<double>>
-        transfer_ref;
+      MGTransferPrebuilt<LinearAlgebra::distributed::Vector<double>> transfer_ref;
       transfer_ref.build(mgdof);
 
       // build matrix-free transfer
@@ -107,9 +93,7 @@ check(const unsigned int fe_degree)
       const Number tolerance = 1000. * std::numeric_limits<Number>::epsilon();
 
       // check prolongation for all levels using random vector
-      for (unsigned int level = 1;
-           level < mgdof.get_triangulation().n_global_levels();
-           ++level)
+      for (unsigned int level = 1; level < mgdof.get_triangulation().n_global_levels(); ++level)
         {
           LinearAlgebra::distributed::Vector<Number> v1, v2;
           LinearAlgebra::distributed::Vector<double> v1_cpy, v2_cpy, v3;
@@ -123,15 +107,12 @@ check(const unsigned int fe_degree)
           transfer_ref.prolongate(level, v3, v1_cpy);
           v2_cpy = v2;
           v3 -= v2_cpy;
-          deallog << "Diff prolongate   l" << level << ": "
-                  << filter_out_small_numbers(v3.l2_norm(), tolerance)
+          deallog << "Diff prolongate   l" << level << ": " << filter_out_small_numbers(v3.l2_norm(), tolerance)
                   << std::endl;
         }
 
       // check restriction for all levels using random vector
-      for (unsigned int level = 1;
-           level < mgdof.get_triangulation().n_global_levels();
-           ++level)
+      for (unsigned int level = 1; level < mgdof.get_triangulation().n_global_levels(); ++level)
         {
           LinearAlgebra::distributed::Vector<Number> v1, v2;
           LinearAlgebra::distributed::Vector<double> v1_cpy, v2_cpy, v3;
@@ -145,8 +126,7 @@ check(const unsigned int fe_degree)
           transfer_ref.restrict_and_add(level, v3, v1_cpy);
           v2_cpy = v2;
           v3 -= v2_cpy;
-          deallog << "Diff restrict     l" << level << ": "
-                  << filter_out_small_numbers(v3.l2_norm(), tolerance)
+          deallog << "Diff restrict     l" << level << ": " << filter_out_small_numbers(v3.l2_norm(), tolerance)
                   << std::endl;
 
           v2 = 1.;
@@ -155,8 +135,7 @@ check(const unsigned int fe_degree)
           transfer_ref.restrict_and_add(level, v3, v1_cpy);
           v2_cpy = v2;
           v3 -= v2_cpy;
-          deallog << "Diff restrict add l" << level << ": "
-                  << filter_out_small_numbers(v3.l2_norm(), tolerance)
+          deallog << "Diff restrict add l" << level << ": " << filter_out_small_numbers(v3.l2_norm(), tolerance)
                   << std::endl;
         }
       deallog << std::endl;

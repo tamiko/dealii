@@ -72,8 +72,7 @@ namespace EvaluationFlags
   inline EvaluationFlags
   operator|(const EvaluationFlags f1, const EvaluationFlags f2)
   {
-    return static_cast<EvaluationFlags>(static_cast<unsigned int>(f1) |
-                                        static_cast<unsigned int>(f2));
+    return static_cast<EvaluationFlags>(static_cast<unsigned int>(f1) | static_cast<unsigned int>(f2));
   }
 
 
@@ -104,8 +103,7 @@ namespace EvaluationFlags
   inline EvaluationFlags
   operator&(const EvaluationFlags f1, const EvaluationFlags f2)
   {
-    return static_cast<EvaluationFlags>(static_cast<unsigned int>(f1) &
-                                        static_cast<unsigned int>(f2));
+    return static_cast<EvaluationFlags>(static_cast<unsigned int>(f1) & static_cast<unsigned int>(f2));
   }
 
 

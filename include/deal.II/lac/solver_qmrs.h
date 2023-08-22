@@ -161,9 +161,7 @@ public:
   /**
    * Constructor.
    */
-  SolverQMRS(SolverControl &           cn,
-             VectorMemory<VectorType> &mem,
-             const AdditionalData &    data = AdditionalData());
+  SolverQMRS(SolverControl &cn, VectorMemory<VectorType> &mem, const AdditionalData &data = AdditionalData());
 
   /**
    * Constructor. Use an object of type GrowingVectorMemory as a default to
@@ -176,10 +174,7 @@ public:
    */
   template <typename MatrixType, typename PreconditionerType>
   void
-  solve(const MatrixType &        A,
-        VectorType &              x,
-        const VectorType &        b,
-        const PreconditionerType &preconditioner);
+  solve(const MatrixType &A, VectorType &x, const VectorType &b, const PreconditionerType &preconditioner);
 
   /**
    * Interface for derived class. This function gets the current iteration
@@ -187,10 +182,7 @@ public:
    * for a graphical output of the convergence history.
    */
   virtual void
-  print_vectors(const unsigned int step,
-                const VectorType & x,
-                const VectorType & r,
-                const VectorType & d) const;
+  print_vectors(const unsigned int step, const VectorType &x, const VectorType &r, const VectorType &d) const;
 
 protected:
   /**
@@ -208,8 +200,7 @@ private:
     SolverControl::State state;
     double               last_residual;
 
-    IterationResult(const SolverControl::State state,
-                    const double               last_residual);
+    IterationResult(const SolverControl::State state, const double last_residual);
   };
 
   /**
@@ -218,15 +209,15 @@ private:
    */
   template <typename MatrixType, typename PreconditionerType>
   IterationResult
-  iterate(const MatrixType &        A,
-          VectorType &              x,
-          const VectorType &        b,
+  iterate(const MatrixType         &A,
+          VectorType               &x,
+          const VectorType         &b,
           const PreconditionerType &preconditioner,
-          VectorType &              r,
-          VectorType &              u,
-          VectorType &              q,
-          VectorType &              t,
-          VectorType &              d);
+          VectorType               &r,
+          VectorType               &u,
+          VectorType               &q,
+          VectorType               &t,
+          VectorType               &d);
 
   /**
    * Number of the current iteration (accumulated over restarts)
@@ -241,9 +232,7 @@ private:
 
 
 template <typename VectorType>
-SolverQMRS<VectorType>::IterationResult::IterationResult(
-  const SolverControl::State state,
-  const double               last_residual)
+SolverQMRS<VectorType>::IterationResult::IterationResult(const SolverControl::State state, const double last_residual)
   : state(state)
   , last_residual(last_residual)
 {}
@@ -251,17 +240,14 @@ SolverQMRS<VectorType>::IterationResult::IterationResult(
 
 
 template <typename VectorType>
-SolverQMRS<VectorType>::SolverQMRS(SolverControl &           cn,
-                                   VectorMemory<VectorType> &mem,
-                                   const AdditionalData &    data)
+SolverQMRS<VectorType>::SolverQMRS(SolverControl &cn, VectorMemory<VectorType> &mem, const AdditionalData &data)
   : SolverBase<VectorType>(cn, mem)
   , additional_data(data)
   , step(0)
 {}
 
 template <typename VectorType>
-SolverQMRS<VectorType>::SolverQMRS(SolverControl &       cn,
-                                   const AdditionalData &data)
+SolverQMRS<VectorType>::SolverQMRS(SolverControl &cn, const AdditionalData &data)
   : SolverBase<VectorType>(cn)
   , additional_data(data)
   , step(0)
@@ -278,9 +264,9 @@ SolverQMRS<VectorType>::print_vectors(const unsigned int,
 template <typename VectorType>
 template <typename MatrixType, typename PreconditionerType>
 void
-SolverQMRS<VectorType>::solve(const MatrixType &        A,
-                              VectorType &              x,
-                              const VectorType &        b,
+SolverQMRS<VectorType>::solve(const MatrixType         &A,
+                              VectorType               &x,
+                              const VectorType         &b,
                               const PreconditionerType &preconditioner)
 {
   LogStream::Prefix prefix("SQMR");
@@ -318,23 +304,22 @@ SolverQMRS<VectorType>::solve(const MatrixType &        A,
 
 
   // in case of failure: throw exception
-  AssertThrow(state.state == SolverControl::success,
-              SolverControl::NoConvergence(step, state.last_residual));
+  AssertThrow(state.state == SolverControl::success, SolverControl::NoConvergence(step, state.last_residual));
   // otherwise exit as normal
 }
 
 template <typename VectorType>
 template <typename MatrixType, typename PreconditionerType>
 typename SolverQMRS<VectorType>::IterationResult
-SolverQMRS<VectorType>::iterate(const MatrixType &        A,
-                                VectorType &              x,
-                                const VectorType &        b,
+SolverQMRS<VectorType>::iterate(const MatrixType         &A,
+                                VectorType               &x,
+                                const VectorType         &b,
                                 const PreconditionerType &preconditioner,
-                                VectorType &              r,
-                                VectorType &              u,
-                                VectorType &              q,
-                                VectorType &              t,
-                                VectorType &              d)
+                                VectorType               &r,
+                                VectorType               &u,
+                                VectorType               &q,
+                                VectorType               &t,
+                                VectorType               &d)
 {
   SolverControl::State state = SolverControl::iterate;
 
@@ -380,8 +365,7 @@ SolverQMRS<VectorType>::iterate(const MatrixType &        A,
       const double sigma = q * t;
 
       // Check the breakdown criterion
-      if (additional_data.breakdown_testing == true &&
-          std::fabs(sigma) < additional_data.breakdown_threshold)
+      if (additional_data.breakdown_testing == true && std::fabs(sigma) < additional_data.breakdown_threshold)
         return IterationResult(SolverControl::iterate, res);
       // Update the residual
       const double alpha = rho / sigma;
@@ -428,15 +412,13 @@ SolverQMRS<VectorType>::iterate(const MatrixType &        A,
           res = u.l2_norm();
         }
       state = this->iteration_status(step, res, x);
-      if ((state == SolverControl::success) ||
-          (state == SolverControl::failure))
+      if ((state == SolverControl::success) || (state == SolverControl::failure))
         return IterationResult(state, res);
 
       //--------------------------------------------------------------
       // Step 3: check breakdown criterion and update the vectors
       //--------------------------------------------------------------
-      if (additional_data.breakdown_testing == true &&
-          std::fabs(sigma) < additional_data.breakdown_threshold)
+      if (additional_data.breakdown_testing == true && std::fabs(sigma) < additional_data.breakdown_threshold)
         return IterationResult(SolverControl::iterate, res);
 
       const double rho_old = rho;

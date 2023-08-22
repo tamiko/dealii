@@ -48,15 +48,10 @@ check(Triangulation<3> &tria)
 
   QGauss<2> q_face(3);
 
-  FEFaceValues<3>    fe_face_values(fe,
-                                 q_face,
-                                 update_normal_vectors | update_JxW_values);
-  FESubfaceValues<3> fe_subface_values(
-    fe, q_face, update_normal_vectors | update_JxW_values);
+  FEFaceValues<3>    fe_face_values(fe, q_face, update_normal_vectors | update_JxW_values);
+  FESubfaceValues<3> fe_subface_values(fe, q_face, update_normal_vectors | update_JxW_values);
 
-  for (DoFHandler<3>::active_cell_iterator cell = dof_handler.begin_active();
-       cell != dof_handler.end();
-       ++cell)
+  for (DoFHandler<3>::active_cell_iterator cell = dof_handler.begin_active(); cell != dof_handler.end(); ++cell)
     {
       Tensor<1, 3> n1, n2;
 
@@ -71,23 +66,19 @@ check(Triangulation<3> &tria)
             n1 += fe_face_values.normal_vector(q) * fe_face_values.JxW(q);
         }
       Assert(n1 * n1 < 1e-24, ExcInternalError());
-      deallog << cell << " face integration is ok: " << std::sqrt(n1 * n1)
-              << std::endl;
+      deallog << cell << " face integration is ok: " << std::sqrt(n1 * n1) << std::endl;
 
       // now same for subface
       // integration
       for (const unsigned int f : GeometryInfo<3>::face_indices())
-        for (unsigned int sf = 0; sf < GeometryInfo<3>::max_children_per_face;
-             ++sf)
+        for (unsigned int sf = 0; sf < GeometryInfo<3>::max_children_per_face; ++sf)
           {
             fe_subface_values.reinit(cell, f, sf);
             for (unsigned int q = 0; q < q_face.size(); ++q)
-              n2 +=
-                fe_subface_values.normal_vector(q) * fe_subface_values.JxW(q);
+              n2 += fe_subface_values.normal_vector(q) * fe_subface_values.JxW(q);
           }
       Assert(n2 * n2 < 1e-24, ExcInternalError());
-      deallog << cell << " subface integration is ok: " << std::sqrt(n2 * n2)
-              << std::endl;
+      deallog << cell << " subface integration is ok: " << std::sqrt(n2 * n2) << std::endl;
     }
 }
 

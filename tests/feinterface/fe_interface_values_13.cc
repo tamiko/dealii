@@ -61,8 +61,7 @@ test()
   dofh.distribute_dofs(fe_collection);
 
 
-  const UpdateFlags update_flags = update_values | update_gradients |
-                                   update_quadrature_points | update_JxW_values;
+  const UpdateFlags      update_flags = update_values | update_gradients | update_quadrature_points | update_JxW_values;
   FEInterfaceValues<dim> fiv(fe_collection, q_collection, update_flags);
 
   try

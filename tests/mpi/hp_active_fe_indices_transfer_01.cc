@@ -66,12 +66,10 @@ test()
         // set refinement/coarsening flags
         if (cell->id().to_string() == "0_1:0")
           cell->set_refine_flag();
-        else if (cell->parent()->id().to_string() ==
-                 ((dim == 2) ? "3_0:" : "7_0:"))
+        else if (cell->parent()->id().to_string() == ((dim == 2) ? "3_0:" : "7_0:"))
           cell->set_coarsen_flag();
 
-        deallog << "cellid=" << cell->id()
-                << " fe_index=" << cell->active_fe_index()
+        deallog << "cellid=" << cell->id() << " fe_index=" << cell->active_fe_index()
                 << " feq_degree=" << max_degree - cell->active_fe_index();
         if (cell->coarsen_flag_set())
           deallog << " coarsening";
@@ -91,8 +89,7 @@ test()
   for (auto &cell : dh.active_cell_iterators())
     if (!cell->is_artificial())
       {
-        deallog << "cellid=" << cell->id()
-                << " fe_index=" << cell->active_fe_index();
+        deallog << "cellid=" << cell->id() << " fe_index=" << cell->active_fe_index();
         if (cell->is_ghost())
           deallog << " ghost";
         deallog << std::endl;

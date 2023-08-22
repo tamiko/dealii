@@ -82,10 +82,9 @@ template <int dim>
 std::shared_ptr<Utilities::MPI::Partitioner>
 create_partitioner(const DoFHandler<dim> &dof_handler)
 {
-  return std::make_shared<Utilities::MPI::Partitioner>(
-    dof_handler.locally_owned_dofs(),
-    DoFTools::extract_locally_active_dofs(dof_handler),
-    dof_handler.get_communicator());
+  return std::make_shared<Utilities::MPI::Partitioner>(dof_handler.locally_owned_dofs(),
+                                                       DoFTools::extract_locally_active_dofs(dof_handler),
+                                                       dof_handler.get_communicator());
 }
 
 
@@ -111,9 +110,7 @@ public:
 
 template <int dim, typename Number = double>
 void
-test(const unsigned int n_refinements,
-     const unsigned int fe_degree_fine,
-     const bool         do_dg)
+test(const unsigned int n_refinements, const unsigned int fe_degree_fine, const bool do_dg)
 {
   using VectorType = LinearAlgebra::distributed::Vector<Number>;
 
@@ -123,12 +120,10 @@ test(const unsigned int n_refinements,
   parallel::distributed::Triangulation<dim> tria(MPI_COMM_WORLD);
   create_quadrant(tria, n_refinements);
 
-  const auto trias =
-    MGTransferGlobalCoarseningTools::create_geometric_coarsening_sequence(tria);
+  const auto trias = MGTransferGlobalCoarseningTools::create_geometric_coarsening_sequence(tria);
 
-  MGLevelObject<DoFHandler<dim>> dof_handlers(min_level, max_level);
-  MGLevelObject<MGTwoLevelTransfer<dim, VectorType>> transfers(min_level,
-                                                               max_level);
+  MGLevelObject<DoFHandler<dim>>                     dof_handlers(min_level, max_level);
+  MGLevelObject<MGTwoLevelTransfer<dim, VectorType>> transfers(min_level, max_level);
 
   for (auto l = min_level; l <= max_level; ++l)
     {
@@ -145,10 +140,9 @@ test(const unsigned int n_refinements,
   for (unsigned int l = min_level; l < max_level; ++l)
     transfers[l + 1].reinit(dof_handlers[l + 1], dof_handlers[l]);
 
-  MGTransferGlobalCoarsening<dim, VectorType> transfer(
-    transfers, [&](const auto l, auto &vec) {
-      vec.reinit(create_partitioner(dof_handlers[l]));
-    });
+  MGTransferGlobalCoarsening<dim, VectorType> transfer(transfers, [&](const auto l, auto &vec) {
+    vec.reinit(create_partitioner(dof_handlers[l]));
+  });
 
   VectorType vec;
   vec.reinit(create_partitioner(dof_handlers[max_level]));
@@ -165,20 +159,12 @@ test(const unsigned int n_refinements,
     {
       results[l].update_ghost_values();
       Vector<float> norm_per_cell(trias[l]->n_active_cells());
-      VectorTools::integrate_difference(dof_handlers[l],
-                                        results[l],
-                                        fu,
-                                        norm_per_cell,
-                                        QGauss<dim>(fe_degree_fine + 2),
-                                        VectorTools::L2_norm);
-      const double error_L2_norm =
-        VectorTools::compute_global_error(*trias[l],
-                                          norm_per_cell,
-                                          VectorTools::L2_norm);
+      VectorTools::integrate_difference(
+        dof_handlers[l], results[l], fu, norm_per_cell, QGauss<dim>(fe_degree_fine + 2), VectorTools::L2_norm);
+      const double error_L2_norm = VectorTools::compute_global_error(*trias[l], norm_per_cell, VectorTools::L2_norm);
 
 
-      deallog << l << " " << results[l].l2_norm() << " " << error_L2_norm
-              << std::endl;
+      deallog << l << " " << results[l].l2_norm() << " " << error_L2_norm << std::endl;
     }
 
   deallog << std::endl;

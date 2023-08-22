@@ -122,7 +122,7 @@ namespace VectorTools
     template <int dim>
     void
     add_constraint(const VectorDoFTuple<dim> &dof_indices,
-                   const Tensor<1, dim> &     constraining_vector,
+                   const Tensor<1, dim>      &constraining_vector,
                    AffineConstraints<double> &constraints,
                    const double               inhomogeneity = 0)
     {
@@ -164,27 +164,22 @@ namespace VectorTools
         {
           case 2:
             {
-              if (std::fabs(constraining_vector[0]) >
-                  std::fabs(constraining_vector[1]) + 1e-10)
+              if (std::fabs(constraining_vector[0]) > std::fabs(constraining_vector[1]) + 1e-10)
                 {
                   if (!constraints.is_constrained(dof_indices.dof_indices[0]) &&
                       constraints.can_store_line(dof_indices.dof_indices[0]))
                     {
                       constraints.add_line(dof_indices.dof_indices[0]);
 
-                      if (std::fabs(constraining_vector[1] /
-                                    constraining_vector[0]) >
+                      if (std::fabs(constraining_vector[1] / constraining_vector[0]) >
                           std::numeric_limits<double>::epsilon())
                         constraints.add_entry(dof_indices.dof_indices[0],
                                               dof_indices.dof_indices[1],
-                                              -constraining_vector[1] /
-                                                constraining_vector[0]);
+                                              -constraining_vector[1] / constraining_vector[0]);
 
-                      if (std::fabs(inhomogeneity / constraining_vector[0]) >
-                          std::numeric_limits<double>::epsilon())
-                        constraints.set_inhomogeneity(
-                          dof_indices.dof_indices[0],
-                          inhomogeneity / constraining_vector[0]);
+                      if (std::fabs(inhomogeneity / constraining_vector[0]) > std::numeric_limits<double>::epsilon())
+                        constraints.set_inhomogeneity(dof_indices.dof_indices[0],
+                                                      inhomogeneity / constraining_vector[0]);
                     }
                 }
               else
@@ -194,19 +189,15 @@ namespace VectorTools
                     {
                       constraints.add_line(dof_indices.dof_indices[1]);
 
-                      if (std::fabs(constraining_vector[0] /
-                                    constraining_vector[1]) >
+                      if (std::fabs(constraining_vector[0] / constraining_vector[1]) >
                           std::numeric_limits<double>::epsilon())
                         constraints.add_entry(dof_indices.dof_indices[1],
                                               dof_indices.dof_indices[0],
-                                              -constraining_vector[0] /
-                                                constraining_vector[1]);
+                                              -constraining_vector[0] / constraining_vector[1]);
 
-                      if (std::fabs(inhomogeneity / constraining_vector[1]) >
-                          std::numeric_limits<double>::epsilon())
-                        constraints.set_inhomogeneity(
-                          dof_indices.dof_indices[1],
-                          inhomogeneity / constraining_vector[1]);
+                      if (std::fabs(inhomogeneity / constraining_vector[1]) > std::numeric_limits<double>::epsilon())
+                        constraints.set_inhomogeneity(dof_indices.dof_indices[1],
+                                                      inhomogeneity / constraining_vector[1]);
                     }
                 }
               break;
@@ -214,70 +205,54 @@ namespace VectorTools
 
           case 3:
             {
-              if ((std::fabs(constraining_vector[0]) >=
-                   std::fabs(constraining_vector[1]) + 1e-10) &&
-                  (std::fabs(constraining_vector[0]) >=
-                   std::fabs(constraining_vector[2]) + 2e-10))
+              if ((std::fabs(constraining_vector[0]) >= std::fabs(constraining_vector[1]) + 1e-10) &&
+                  (std::fabs(constraining_vector[0]) >= std::fabs(constraining_vector[2]) + 2e-10))
                 {
                   if (!constraints.is_constrained(dof_indices.dof_indices[0]) &&
                       constraints.can_store_line(dof_indices.dof_indices[0]))
                     {
                       constraints.add_line(dof_indices.dof_indices[0]);
 
-                      if (std::fabs(constraining_vector[1] /
-                                    constraining_vector[0]) >
+                      if (std::fabs(constraining_vector[1] / constraining_vector[0]) >
                           std::numeric_limits<double>::epsilon())
                         constraints.add_entry(dof_indices.dof_indices[0],
                                               dof_indices.dof_indices[1],
-                                              -constraining_vector[1] /
-                                                constraining_vector[0]);
+                                              -constraining_vector[1] / constraining_vector[0]);
 
-                      if (std::fabs(constraining_vector[2] /
-                                    constraining_vector[0]) >
+                      if (std::fabs(constraining_vector[2] / constraining_vector[0]) >
                           std::numeric_limits<double>::epsilon())
                         constraints.add_entry(dof_indices.dof_indices[0],
                                               dof_indices.dof_indices[2],
-                                              -constraining_vector[2] /
-                                                constraining_vector[0]);
+                                              -constraining_vector[2] / constraining_vector[0]);
 
-                      if (std::fabs(inhomogeneity / constraining_vector[0]) >
-                          std::numeric_limits<double>::epsilon())
-                        constraints.set_inhomogeneity(
-                          dof_indices.dof_indices[0],
-                          inhomogeneity / constraining_vector[0]);
+                      if (std::fabs(inhomogeneity / constraining_vector[0]) > std::numeric_limits<double>::epsilon())
+                        constraints.set_inhomogeneity(dof_indices.dof_indices[0],
+                                                      inhomogeneity / constraining_vector[0]);
                     }
                 }
-              else if ((std::fabs(constraining_vector[1]) + 1e-10 >=
-                        std::fabs(constraining_vector[0])) &&
-                       (std::fabs(constraining_vector[1]) >=
-                        std::fabs(constraining_vector[2]) + 1e-10))
+              else if ((std::fabs(constraining_vector[1]) + 1e-10 >= std::fabs(constraining_vector[0])) &&
+                       (std::fabs(constraining_vector[1]) >= std::fabs(constraining_vector[2]) + 1e-10))
                 {
                   if (!constraints.is_constrained(dof_indices.dof_indices[1]) &&
                       constraints.can_store_line(dof_indices.dof_indices[1]))
                     {
                       constraints.add_line(dof_indices.dof_indices[1]);
 
-                      if (std::fabs(constraining_vector[0] /
-                                    constraining_vector[1]) >
+                      if (std::fabs(constraining_vector[0] / constraining_vector[1]) >
                           std::numeric_limits<double>::epsilon())
                         constraints.add_entry(dof_indices.dof_indices[1],
                                               dof_indices.dof_indices[0],
-                                              -constraining_vector[0] /
-                                                constraining_vector[1]);
+                                              -constraining_vector[0] / constraining_vector[1]);
 
-                      if (std::fabs(constraining_vector[2] /
-                                    constraining_vector[1]) >
+                      if (std::fabs(constraining_vector[2] / constraining_vector[1]) >
                           std::numeric_limits<double>::epsilon())
                         constraints.add_entry(dof_indices.dof_indices[1],
                                               dof_indices.dof_indices[2],
-                                              -constraining_vector[2] /
-                                                constraining_vector[1]);
+                                              -constraining_vector[2] / constraining_vector[1]);
 
-                      if (std::fabs(inhomogeneity / constraining_vector[1]) >
-                          std::numeric_limits<double>::epsilon())
-                        constraints.set_inhomogeneity(
-                          dof_indices.dof_indices[1],
-                          inhomogeneity / constraining_vector[1]);
+                      if (std::fabs(inhomogeneity / constraining_vector[1]) > std::numeric_limits<double>::epsilon())
+                        constraints.set_inhomogeneity(dof_indices.dof_indices[1],
+                                                      inhomogeneity / constraining_vector[1]);
                     }
                 }
               else
@@ -287,27 +262,21 @@ namespace VectorTools
                     {
                       constraints.add_line(dof_indices.dof_indices[2]);
 
-                      if (std::fabs(constraining_vector[0] /
-                                    constraining_vector[2]) >
+                      if (std::fabs(constraining_vector[0] / constraining_vector[2]) >
                           std::numeric_limits<double>::epsilon())
                         constraints.add_entry(dof_indices.dof_indices[2],
                                               dof_indices.dof_indices[0],
-                                              -constraining_vector[0] /
-                                                constraining_vector[2]);
+                                              -constraining_vector[0] / constraining_vector[2]);
 
-                      if (std::fabs(constraining_vector[1] /
-                                    constraining_vector[2]) >
+                      if (std::fabs(constraining_vector[1] / constraining_vector[2]) >
                           std::numeric_limits<double>::epsilon())
                         constraints.add_entry(dof_indices.dof_indices[2],
                                               dof_indices.dof_indices[1],
-                                              -constraining_vector[1] /
-                                                constraining_vector[2]);
+                                              -constraining_vector[1] / constraining_vector[2]);
 
-                      if (std::fabs(inhomogeneity / constraining_vector[2]) >
-                          std::numeric_limits<double>::epsilon())
-                        constraints.set_inhomogeneity(
-                          dof_indices.dof_indices[2],
-                          inhomogeneity / constraining_vector[2]);
+                      if (std::fabs(inhomogeneity / constraining_vector[2]) > std::numeric_limits<double>::epsilon())
+                        constraints.set_inhomogeneity(dof_indices.dof_indices[2],
+                                                      inhomogeneity / constraining_vector[2]);
                     }
                 }
 
@@ -333,11 +302,10 @@ namespace VectorTools
      */
     template <int dim>
     void
-    add_tangentiality_constraints(
-      const VectorDoFTuple<dim> &dof_indices,
-      const Tensor<1, dim> &     tangent_vector,
-      AffineConstraints<double> &constraints,
-      const Vector<double> &     b_values = Vector<double>(dim))
+    add_tangentiality_constraints(const VectorDoFTuple<dim> &dof_indices,
+                                  const Tensor<1, dim>      &tangent_vector,
+                                  AffineConstraints<double> &constraints,
+                                  const Vector<double>      &b_values = Vector<double>(dim))
     {
       // choose the DoF that has the
       // largest component in the
@@ -351,8 +319,7 @@ namespace VectorTools
       // x1=(b[1]*t[0]-b[0]*t[1])/t[0]+t[1]/t[0]*x_0, etc.
       unsigned int largest_component = 0;
       for (unsigned int d = 1; d < dim; ++d)
-        if (std::fabs(tangent_vector[d]) >
-            std::fabs(tangent_vector[largest_component]) + 1e-10)
+        if (std::fabs(tangent_vector[d]) > std::fabs(tangent_vector[largest_component]) + 1e-10)
           largest_component = d;
 
       // then constrain all of the
@@ -365,23 +332,18 @@ namespace VectorTools
             {
               constraints.add_line(dof_indices.dof_indices[d]);
 
-              if (std::fabs(tangent_vector[d] /
-                            tangent_vector[largest_component]) >
+              if (std::fabs(tangent_vector[d] / tangent_vector[largest_component]) >
                   std::numeric_limits<double>::epsilon())
-                constraints.add_entry(
-                  dof_indices.dof_indices[d],
-                  dof_indices.dof_indices[largest_component],
-                  tangent_vector[d] / tangent_vector[largest_component]);
+                constraints.add_entry(dof_indices.dof_indices[d],
+                                      dof_indices.dof_indices[largest_component],
+                                      tangent_vector[d] / tangent_vector[largest_component]);
 
               const double inhomogeneity =
-                (b_values(d) * tangent_vector[largest_component] -
-                 b_values(largest_component) * tangent_vector[d]) /
+                (b_values(d) * tangent_vector[largest_component] - b_values(largest_component) * tangent_vector[d]) /
                 tangent_vector[largest_component];
 
-              if (std::fabs(inhomogeneity) >
-                  std::numeric_limits<double>::epsilon())
-                constraints.set_inhomogeneity(dof_indices.dof_indices[d],
-                                              inhomogeneity);
+              if (std::fabs(inhomogeneity) > std::numeric_limits<double>::epsilon())
+                constraints.set_inhomogeneity(dof_indices.dof_indices[d], inhomogeneity);
             }
     }
 
@@ -393,8 +355,7 @@ namespace VectorTools
      */
     template <int dim>
     void
-    compute_orthonormal_vectors(const Tensor<1, dim> &vector,
-                                Tensor<1, dim> (&orthonormals)[dim - 1])
+    compute_orthonormal_vectors(const Tensor<1, dim> &vector, Tensor<1, dim> (&orthonormals)[dim - 1])
     {
       switch (dim)
         {
@@ -428,8 +389,7 @@ namespace VectorTools
               // with the average
               // tangent
               Tensor<1, dim> tmp = vector;
-              if ((std::fabs(tmp[0]) > std::fabs(tmp[1])) &&
-                  (std::fabs(tmp[0]) > std::fabs(tmp[2])))
+              if ((std::fabs(tmp[0]) > std::fabs(tmp[1])) && (std::fabs(tmp[0]) > std::fabs(tmp[2])))
                 {
                   // entry zero
                   // is the
@@ -441,8 +401,7 @@ namespace VectorTools
 
                   tmp[0] *= -1;
                 }
-              else if ((std::fabs(tmp[1]) > std::fabs(tmp[0])) &&
-                       (std::fabs(tmp[1]) > std::fabs(tmp[2])))
+              else if ((std::fabs(tmp[1]) > std::fabs(tmp[0])) && (std::fabs(tmp[1]) > std::fabs(tmp[2])))
                 {
                   // entry one
                   // is the
@@ -469,9 +428,7 @@ namespace VectorTools
 
               // make sure the two vectors
               // are indeed not collinear
-              Assert(std::fabs(vector * tmp / vector.norm() / tmp.norm()) <
-                       (1 - 1e-12),
-                     ExcInternalError());
+              Assert(std::fabs(vector * tmp / vector.norm() / tmp.norm()) < (1 - 1e-12), ExcInternalError());
 
               // now compute the
               // two normals
@@ -495,71 +452,53 @@ namespace VectorTools
      */
     template <int dim, int spacedim>
     void
-    map_face_dof_to_vector_dof(
-      const typename DoFHandler<dim, spacedim>::cell_iterator &cell,
-      const unsigned int                  first_vector_component,
-      const std::set<types::boundary_id> &boundary_ids,
-      hp::FEFaceValues<dim, spacedim> &   x_fe_face_values,
-      const IndexSet &                    refinement_edge_indices,
-      const unsigned int                  level,
-      std::map<FaceDoFInfo, std::array<unsigned int, dim>> &dof_to_vector_dof)
+    map_face_dof_to_vector_dof(const typename DoFHandler<dim, spacedim>::cell_iterator &cell,
+                               const unsigned int                                       first_vector_component,
+                               const std::set<types::boundary_id>                      &boundary_ids,
+                               hp::FEFaceValues<dim, spacedim>                         &x_fe_face_values,
+                               const IndexSet                                          &refinement_edge_indices,
+                               const unsigned int                                       level,
+                               std::map<FaceDoFInfo, std::array<unsigned int, dim>>    &dof_to_vector_dof)
     {
       std::set<types::boundary_id>::iterator b_id;
       for (const unsigned int face_no : cell->face_indices())
-        if ((b_id = boundary_ids.find(cell->face(face_no)->boundary_id())) !=
-            boundary_ids.end())
+        if ((b_id = boundary_ids.find(cell->face(face_no)->boundary_id())) != boundary_ids.end())
           {
-            const FiniteElement<dim> &fe = cell->get_fe();
-            typename DoFHandler<dim, spacedim>::level_face_iterator face =
-              cell->face(face_no);
+            const FiniteElement<dim>                               &fe   = cell->get_fe();
+            typename DoFHandler<dim, spacedim>::level_face_iterator face = cell->face(face_no);
 
             std::vector<types::global_dof_index> face_dofs;
             // get the indices of the dofs on this cell...
             face_dofs.resize(fe.n_dofs_per_face(face_no));
 
             if (level != numbers::invalid_unsigned_int)
-              face->get_mg_dof_indices(level,
-                                       face_dofs,
-                                       cell->active_fe_index());
+              face->get_mg_dof_indices(level, face_dofs, cell->active_fe_index());
             else
               face->get_dof_indices(face_dofs, cell->active_fe_index());
 
             x_fe_face_values.reinit(cell, face_no);
 
-            const auto &face_quadrature_collection =
-              x_fe_face_values.get_quadrature_collection();
+            const auto &face_quadrature_collection = x_fe_face_values.get_quadrature_collection();
 
             std::array<unsigned int, dim> local_vector_indices;
             for (unsigned int i = 0; i < face_dofs.size(); ++i)
               {
-                if (fe.face_system_to_component_index(i, face_no).first ==
-                    first_vector_component)
-                  if (level == numbers::invalid_unsigned_int ||
-                      !refinement_edge_indices.is_element(face_dofs[i]))
+                if (fe.face_system_to_component_index(i, face_no).first == first_vector_component)
+                  if (level == numbers::invalid_unsigned_int || !refinement_edge_indices.is_element(face_dofs[i]))
                     {
                       local_vector_indices[0]               = i;
-                      const FaceDoFInfo local_face_dof_info = {
-                        {{cell->active_fe_index(), face_no, i}}};
-                      for (unsigned int k = 0; k < fe.n_dofs_per_face(face_no);
-                           ++k)
+                      const FaceDoFInfo local_face_dof_info = {{{cell->active_fe_index(), face_no, i}}};
+                      for (unsigned int k = 0; k < fe.n_dofs_per_face(face_no); ++k)
                         if ((k != i) &&
-                            (face_quadrature_collection[cell->active_fe_index()]
-                               .point(k) ==
-                             face_quadrature_collection[cell->active_fe_index()]
-                               .point(i)) &&
-                            (fe.face_system_to_component_index(k, face_no)
-                               .first >= first_vector_component) &&
-                            (fe.face_system_to_component_index(k, face_no)
-                               .first < first_vector_component + dim))
+                            (face_quadrature_collection[cell->active_fe_index()].point(k) ==
+                             face_quadrature_collection[cell->active_fe_index()].point(i)) &&
+                            (fe.face_system_to_component_index(k, face_no).first >= first_vector_component) &&
+                            (fe.face_system_to_component_index(k, face_no).first < first_vector_component + dim))
                           {
-                            local_vector_indices
-                              [fe.face_system_to_component_index(k, face_no)
-                                 .first -
-                               first_vector_component] = k;
+                            local_vector_indices[fe.face_system_to_component_index(k, face_no).first -
+                                                 first_vector_component] = k;
                           }
-                      dof_to_vector_dof.insert(
-                        std::make_pair(local_face_dof_info,
-                                       local_vector_indices));
+                      dof_to_vector_dof.insert(std::make_pair(local_face_dof_info, local_vector_indices));
                     }
               }
           }
@@ -574,20 +513,16 @@ namespace VectorTools
     template <int dim, int spacedim>
     void
     map_dofs_to_normal_vectors_and_normal_fluxes(
-      const typename DoFHandler<dim, spacedim>::cell_iterator &cell,
-      const unsigned int                  first_vector_component,
-      const std::set<types::boundary_id> &boundary_ids,
-      const std::map<types::boundary_id, const Function<spacedim> *>
-        &                              function_map,
-      hp::FEFaceValues<dim, spacedim> &x_fe_face_values,
-      const unsigned int               n_dofs,
-      const IndexSet &                 refinement_edge_indices,
-      const unsigned int               level,
-      std::multimap<
-        VectorDoFTuple<dim>,
-        std::pair<Tensor<1, dim>,
-                  typename DoFHandler<dim, spacedim>::cell_iterator>>
-        &                                            dof_to_normals_map,
+      const typename DoFHandler<dim, spacedim>::cell_iterator        &cell,
+      const unsigned int                                              first_vector_component,
+      const std::set<types::boundary_id>                             &boundary_ids,
+      const std::map<types::boundary_id, const Function<spacedim> *> &function_map,
+      hp::FEFaceValues<dim, spacedim>                                &x_fe_face_values,
+      const unsigned int                                              n_dofs,
+      const IndexSet                                                 &refinement_edge_indices,
+      const unsigned int                                              level,
+      std::multimap<VectorDoFTuple<dim>, std::pair<Tensor<1, dim>, typename DoFHandler<dim, spacedim>::cell_iterator>>
+                                                    &dof_to_normals_map,
       std::map<VectorDoFTuple<dim>, Vector<double>> &dof_vector_to_b_values)
     {
       // mapping from (active_fe_index, face_no and local
@@ -605,62 +540,49 @@ namespace VectorTools
 
       std::set<types::boundary_id>::iterator b_id;
       for (const unsigned int face_no : cell->face_indices())
-        if ((b_id = boundary_ids.find(cell->face(face_no)->boundary_id())) !=
-            boundary_ids.end())
+        if ((b_id = boundary_ids.find(cell->face(face_no)->boundary_id())) != boundary_ids.end())
           {
-            const FiniteElement<dim> &fe = cell->get_fe();
-            typename DoFHandler<dim, spacedim>::level_face_iterator face =
-              cell->face(face_no);
+            const FiniteElement<dim>                               &fe   = cell->get_fe();
+            typename DoFHandler<dim, spacedim>::level_face_iterator face = cell->face(face_no);
 
             std::vector<types::global_dof_index> face_dofs;
             // get the indices of the dofs on this cell...
             face_dofs.resize(fe.n_dofs_per_face(face_no));
 
             if (level != numbers::invalid_unsigned_int)
-              face->get_mg_dof_indices(level,
-                                       face_dofs,
-                                       cell->active_fe_index());
+              face->get_mg_dof_indices(level, face_dofs, cell->active_fe_index());
             else
               face->get_dof_indices(face_dofs, cell->active_fe_index());
 
             x_fe_face_values.reinit(cell, face_no);
-            const FEFaceValues<dim> &fe_values =
-              x_fe_face_values.get_present_fe_values();
+            const FEFaceValues<dim> &fe_values = x_fe_face_values.get_present_fe_values();
 
             // then identify which of them correspond to the selected set of
             // vector components
             for (unsigned int i = 0; i < face_dofs.size(); ++i)
-              if (fe.face_system_to_component_index(i, face_no).first ==
-                  first_vector_component)
+              if (fe.face_system_to_component_index(i, face_no).first == first_vector_component)
                 // Refinement edge indices are going to be constrained to 0
                 // during a multigrid cycle and do not need no-normal-flux
                 // constraints, so skip them:
-                if (level == numbers::invalid_unsigned_int ||
-                    !refinement_edge_indices.is_element(face_dofs[i]))
+                if (level == numbers::invalid_unsigned_int || !refinement_edge_indices.is_element(face_dofs[i]))
                   {
-                    const FaceDoFInfo face_dof_info = {
-                      {{cell->active_fe_index(), face_no, i}}};
-                    const auto it = dof_to_vector_dof.find(face_dof_info);
+                    const FaceDoFInfo face_dof_info = {{{cell->active_fe_index(), face_no, i}}};
+                    const auto        it            = dof_to_vector_dof.find(face_dof_info);
                     Assert(it != dof_to_vector_dof.end(), ExcInternalError());
-                    const std::array<unsigned int, dim> local_vector_indices =
-                      it->second;
+                    const std::array<unsigned int, dim> local_vector_indices = it->second;
 
-                    Assert(
-                      first_vector_component + dim <= fe.n_components(),
-                      ExcMessage(
-                        "Error: the finite element does not have enough components "
-                        "to define a normal direction."));
+                    Assert(first_vector_component + dim <= fe.n_components(),
+                           ExcMessage("Error: the finite element does not have enough components "
+                                      "to define a normal direction."));
 
                     VectorDoFTuple<dim> vector_dofs;
                     for (unsigned int d = 0; d < dim; ++d)
                       {
-                        vector_dofs.dof_indices[d] =
-                          face_dofs[local_vector_indices[d]];
+                        vector_dofs.dof_indices[d] = face_dofs[local_vector_indices[d]];
                       }
 
                     for (unsigned int d = 0; d < dim; ++d)
-                      Assert(vector_dofs.dof_indices[d] < n_dofs,
-                             ExcInternalError());
+                      Assert(vector_dofs.dof_indices[d] < n_dofs, ExcInternalError());
                     (void)n_dofs;
 
                     // we need the normal vector on this face. we know that
@@ -712,12 +634,11 @@ namespace VectorTools
                     // should point in different directions. this is the
                     // case in tests/deal.II/no_flux_11.
                     Tensor<1, dim> normal_vector =
-                      (cell->face(face_no)->get_manifold().normal_vector(
-                        cell->face(face_no), fe_values.quadrature_point(i)));
+                      (cell->face(face_no)->get_manifold().normal_vector(cell->face(face_no),
+                                                                         fe_values.quadrature_point(i)));
                     if (normal_vector * fe_values.normal_vector(i) < 0)
                       normal_vector *= -1;
-                    Assert(std::fabs(normal_vector.norm() - 1) < 1e-14,
-                           ExcInternalError());
+                    Assert(std::fabs(normal_vector.norm() - 1) < 1e-14, ExcInternalError());
                     for (unsigned int d = 0; d < dim; ++d)
                       if (std::fabs(normal_vector[d]) < 1e-13)
                         normal_vector[d] = 0;
@@ -729,17 +650,13 @@ namespace VectorTools
 
                     // now enter the (dofs,(normal_vector,cell)) entry into
                     // the map
-                    dof_to_normals_map.insert(
-                      std::make_pair(vector_dofs,
-                                     std::make_pair(normal_vector, cell)));
-                    dof_vector_to_b_values.insert(
-                      std::make_pair(vector_dofs, b_values));
+                    dof_to_normals_map.insert(std::make_pair(vector_dofs, std::make_pair(normal_vector, cell)));
+                    dof_vector_to_b_values.insert(std::make_pair(vector_dofs, b_values));
 
 #ifdef DEBUG_NO_NORMAL_FLUX
                     std::cout << "Adding normal vector:" << std::endl
                               << "   dofs=" << vector_dofs << std::endl
-                              << "   cell=" << cell << " at " << cell->center()
-                              << std::endl
+                              << "   cell=" << cell << " at " << cell->center() << std::endl
                               << "   normal=" << normal_vector << std::endl;
 #endif
                   }
@@ -759,15 +676,14 @@ namespace VectorTools
     template <int dim, int spacedim>
     void
     compute_nonzero_normal_flux_constraints_active_or_level(
-      const DoFHandler<dim, spacedim> &   dof_handler,
-      const unsigned int                  first_vector_component,
-      const std::set<types::boundary_id> &boundary_ids,
-      const std::map<types::boundary_id, const Function<spacedim> *>
-        &                           function_map,
-      AffineConstraints<double> &   constraints,
-      const Mapping<dim, spacedim> &mapping,
-      const IndexSet &              refinement_edge_indices = IndexSet(),
-      const unsigned int            level = numbers::invalid_unsigned_int)
+      const DoFHandler<dim, spacedim>                                &dof_handler,
+      const unsigned int                                              first_vector_component,
+      const std::set<types::boundary_id>                             &boundary_ids,
+      const std::map<types::boundary_id, const Function<spacedim> *> &function_map,
+      AffineConstraints<double>                                      &constraints,
+      const Mapping<dim, spacedim>                                   &mapping,
+      const IndexSet                                                 &refinement_edge_indices = IndexSet(),
+      const unsigned int                                              level = numbers::invalid_unsigned_int)
     {
       Assert(dim > 1,
              ExcMessage("This function is not useful in 1d because it amounts "
@@ -776,9 +692,8 @@ namespace VectorTools
 
       // create FE and mapping collections for all elements in use by this
       // DoFHandler
-      const hp::FECollection<dim, spacedim> &fe_collection =
-        dof_handler.get_fe_collection();
-      hp::MappingCollection<dim, spacedim> mapping_collection;
+      const hp::FECollection<dim, spacedim> &fe_collection = dof_handler.get_fe_collection();
+      hp::MappingCollection<dim, spacedim>   mapping_collection;
       for (unsigned int i = 0; i < fe_collection.size(); ++i)
         mapping_collection.push_back(mapping);
 
@@ -796,20 +711,16 @@ namespace VectorTools
           const std::vector<Point<dim - 1>> &unit_support_points =
             fe_collection[i].get_unit_face_support_points(face_no);
 
-          Assert(unit_support_points.size() ==
-                   fe_collection[i].n_dofs_per_face(face_no),
-                 ExcInternalError());
+          Assert(unit_support_points.size() == fe_collection[i].n_dofs_per_face(face_no), ExcInternalError());
 
-          face_quadrature_collection.push_back(
-            Quadrature<dim - 1>(unit_support_points));
+          face_quadrature_collection.push_back(Quadrature<dim - 1>(unit_support_points));
         }
 
       // now create the object with which we will generate the normal vectors
-      hp::FEFaceValues<dim, spacedim> x_fe_face_values(
-        mapping_collection,
-        fe_collection,
-        face_quadrature_collection,
-        update_quadrature_points | update_normal_vectors);
+      hp::FEFaceValues<dim, spacedim> x_fe_face_values(mapping_collection,
+                                                       fe_collection,
+                                                       face_quadrature_collection,
+                                                       update_quadrature_points | update_normal_vectors);
 
       // have a map that stores normal vectors for each vector-dof tuple we want
       // to constrain. since we can get at the same vector dof tuple more than
@@ -822,10 +733,9 @@ namespace VectorTools
       // (i.e. constrain not just the *average normal direction* but *all normal
       // directions* we find). consequently, we also have to store which cell a
       // normal vector was computed on
-      using DoFToNormalsMap = std::multimap<
-        VectorDoFTuple<dim>,
-        std::pair<Tensor<1, dim>,
-                  typename DoFHandler<dim, spacedim>::cell_iterator>>;
+      using DoFToNormalsMap =
+        std::multimap<VectorDoFTuple<dim>,
+                      std::pair<Tensor<1, dim>, typename DoFHandler<dim, spacedim>::cell_iterator>>;
       std::map<VectorDoFTuple<dim>, Vector<double>> dof_vector_to_b_values;
 
       DoFToNormalsMap dof_to_normals_map;
@@ -838,38 +748,35 @@ namespace VectorTools
           for (const auto &cell : dof_handler.active_cell_iterators())
             if (!cell->is_artificial())
               {
-                map_dofs_to_normal_vectors_and_normal_fluxes(
-                  cell,
-                  first_vector_component,
-                  boundary_ids,
-                  function_map,
-                  x_fe_face_values,
-                  n_dof,
-                  refinement_edge_indices,
-                  level,
-                  dof_to_normals_map,
-                  dof_vector_to_b_values);
+                map_dofs_to_normal_vectors_and_normal_fluxes(cell,
+                                                             first_vector_component,
+                                                             boundary_ids,
+                                                             function_map,
+                                                             x_fe_face_values,
+                                                             n_dof,
+                                                             refinement_edge_indices,
+                                                             level,
+                                                             dof_to_normals_map,
+                                                             dof_vector_to_b_values);
               }
         }
       else
         {
           // level cells
           for (const auto &cell : dof_handler.cell_iterators_on_level(level))
-            if (cell->level_subdomain_id() !=
-                  numbers::artificial_subdomain_id &&
+            if (cell->level_subdomain_id() != numbers::artificial_subdomain_id &&
                 cell->level_subdomain_id() != numbers::invalid_subdomain_id)
               {
-                map_dofs_to_normal_vectors_and_normal_fluxes(
-                  cell,
-                  first_vector_component,
-                  boundary_ids,
-                  function_map,
-                  x_fe_face_values,
-                  n_dof,
-                  refinement_edge_indices,
-                  level,
-                  dof_to_normals_map,
-                  dof_vector_to_b_values);
+                map_dofs_to_normal_vectors_and_normal_fluxes(cell,
+                                                             first_vector_component,
+                                                             boundary_ids,
+                                                             function_map,
+                                                             x_fe_face_values,
+                                                             n_dof,
+                                                             refinement_edge_indices,
+                                                             level,
+                                                             dof_to_normals_map,
+                                                             dof_vector_to_b_values);
               }
         }
 
@@ -896,13 +803,9 @@ namespace VectorTools
             same_dof_range[1] = dof_to_normals_map.end();
 
 #ifdef DEBUG_NO_NORMAL_FLUX
-          std::cout << "For dof indices <" << p->first
-                    << ">, found the following normals" << std::endl;
-          for (typename DoFToNormalsMap::const_iterator q = same_dof_range[0];
-               q != same_dof_range[1];
-               ++q)
-            std::cout << "   " << q->second.first << " from cell "
-                      << q->second.second << std::endl;
+          std::cout << "For dof indices <" << p->first << ">, found the following normals" << std::endl;
+          for (typename DoFToNormalsMap::const_iterator q = same_dof_range[0]; q != same_dof_range[1]; ++q)
+            std::cout << "   " << q->second.first << " from cell " << q->second.second << std::endl;
 #endif
 
 
@@ -911,53 +814,41 @@ namespace VectorTools
           // vectors. the values of the map are pairs of normal vectors and
           // number of cells that have contributed
           using CellToNormalsMap =
-            std::map<typename DoFHandler<dim, spacedim>::cell_iterator,
-                     std::pair<Tensor<1, dim>, unsigned int>>;
+            std::map<typename DoFHandler<dim, spacedim>::cell_iterator, std::pair<Tensor<1, dim>, unsigned int>>;
 
           CellToNormalsMap cell_to_normals_map;
-          for (typename DoFToNormalsMap::const_iterator q = same_dof_range[0];
-               q != same_dof_range[1];
-               ++q)
-            if (cell_to_normals_map.find(q->second.second) ==
-                cell_to_normals_map.end())
-              cell_to_normals_map[q->second.second] =
-                std::make_pair(q->second.first, 1U);
+          for (typename DoFToNormalsMap::const_iterator q = same_dof_range[0]; q != same_dof_range[1]; ++q)
+            if (cell_to_normals_map.find(q->second.second) == cell_to_normals_map.end())
+              cell_to_normals_map[q->second.second] = std::make_pair(q->second.first, 1U);
             else
               {
-                const Tensor<1, dim> old_normal =
-                  cell_to_normals_map[q->second.second].first;
-                const unsigned int old_count =
-                  cell_to_normals_map[q->second.second].second;
+                const Tensor<1, dim> old_normal = cell_to_normals_map[q->second.second].first;
+                const unsigned int   old_count  = cell_to_normals_map[q->second.second].second;
 
                 Assert(old_count > 0, ExcInternalError());
 
                 // in the same entry, store again the now averaged normal vector
                 // and the new count
                 cell_to_normals_map[q->second.second] =
-                  std::make_pair((old_normal * old_count + q->second.first) /
-                                   (old_count + 1),
-                                 old_count + 1);
+                  std::make_pair((old_normal * old_count + q->second.first) / (old_count + 1), old_count + 1);
               }
           Assert(cell_to_normals_map.size() >= 1, ExcInternalError());
 
 #ifdef DEBUG_NO_NORMAL_FLUX
           std::cout << "   cell_to_normals_map:" << std::endl;
-          for (typename CellToNormalsMap::const_iterator x =
-                 cell_to_normals_map.begin();
+          for (typename CellToNormalsMap::const_iterator x = cell_to_normals_map.begin();
                x != cell_to_normals_map.end();
                ++x)
-            std::cout << "      " << x->first << " -> (" << x->second.first
-                      << ',' << x->second.second << ')' << std::endl;
+            std::cout << "      " << x->first << " -> (" << x->second.first << ',' << x->second.second << ')'
+                      << std::endl;
 #endif
 
           // count the maximum number of contributions from each cell
           unsigned int max_n_contributions_per_cell = 1;
-          for (typename CellToNormalsMap::const_iterator x =
-                 cell_to_normals_map.begin();
+          for (typename CellToNormalsMap::const_iterator x = cell_to_normals_map.begin();
                x != cell_to_normals_map.end();
                ++x)
-            max_n_contributions_per_cell =
-              std::max(max_n_contributions_per_cell, x->second.second);
+            max_n_contributions_per_cell = std::max(max_n_contributions_per_cell, x->second.second);
 
           // verify that each cell can have only contributed at most dim times,
           // since that is the maximum number of faces that come together at a
@@ -984,8 +875,7 @@ namespace VectorTools
                   // them by the number of additions, or simply normalize them
                   // right away since we want them to have unit length anyway
                   Tensor<1, dim> normal;
-                  for (typename CellToNormalsMap::const_iterator x =
-                         cell_to_normals_map.begin();
+                  for (typename CellToNormalsMap::const_iterator x = cell_to_normals_map.begin();
                        x != cell_to_normals_map.end();
                        ++x)
                     normal += x->second.first;
@@ -998,17 +888,12 @@ namespace VectorTools
                   normal /= normal.norm();
 
                   // then construct constraints from this:
-                  const VectorDoFTuple<dim> &dof_indices =
-                    same_dof_range[0]->first;
-                  double               normal_value = 0.;
-                  const Vector<double> b_values =
-                    dof_vector_to_b_values[dof_indices];
+                  const VectorDoFTuple<dim> &dof_indices  = same_dof_range[0]->first;
+                  double                     normal_value = 0.;
+                  const Vector<double>       b_values     = dof_vector_to_b_values[dof_indices];
                   for (unsigned int i = 0; i < dim; ++i)
                     normal_value += b_values[i] * normal[i];
-                  add_constraint(dof_indices,
-                                 normal,
-                                 constraints,
-                                 normal_value);
+                  add_constraint(dof_indices, normal, constraints, normal_value);
 
                   break;
                 }
@@ -1037,37 +922,28 @@ namespace VectorTools
                   {
                     Tensor<2, dim> t;
 
-                    typename DoFToNormalsMap::const_iterator x =
-                      same_dof_range[0];
+                    typename DoFToNormalsMap::const_iterator x = same_dof_range[0];
                     for (unsigned int i = 0; i < dim; ++i, ++x)
                       for (unsigned int j = 0; j < dim; ++j)
                         t[i][j] = x->second.first[j];
 
-                    Assert(
-                      std::fabs(determinant(t)) > 1e-3,
-                      ExcMessage(
-                        "Found a set of normal vectors that are nearly collinear."));
+                    Assert(std::fabs(determinant(t)) > 1e-3,
+                           ExcMessage("Found a set of normal vectors that are nearly collinear."));
                   }
 
                   // so all components of this vector dof are constrained. enter
                   // this into the AffineConstraints object
                   //
                   // ignore dofs already constrained
-                  const VectorDoFTuple<dim> &dof_indices =
-                    same_dof_range[0]->first;
-                  const Vector<double> b_values =
-                    dof_vector_to_b_values[dof_indices];
+                  const VectorDoFTuple<dim> &dof_indices = same_dof_range[0]->first;
+                  const Vector<double>       b_values    = dof_vector_to_b_values[dof_indices];
                   for (unsigned int i = 0; i < dim; ++i)
-                    if (!constraints.is_constrained(
-                          same_dof_range[0]->first.dof_indices[i]) &&
-                        constraints.can_store_line(
-                          same_dof_range[0]->first.dof_indices[i]))
+                    if (!constraints.is_constrained(same_dof_range[0]->first.dof_indices[i]) &&
+                        constraints.can_store_line(same_dof_range[0]->first.dof_indices[i]))
                       {
-                        const types::global_dof_index line =
-                          dof_indices.dof_indices[i];
+                        const types::global_dof_index line = dof_indices.dof_indices[i];
                         constraints.add_line(line);
-                        if (std::fabs(b_values[i]) >
-                            std::numeric_limits<double>::epsilon())
+                        if (std::fabs(b_values[i]) > std::numeric_limits<double>::epsilon())
                           constraints.set_inhomogeneity(line, b_values[i]);
                         // no add_entries here
                       }
@@ -1088,16 +964,11 @@ namespace VectorTools
                   // natural) because std::set requires that the stored elements
                   // are comparable with operator<
                   using CellContributions =
-                    std::map<typename DoFHandler<dim, spacedim>::cell_iterator,
-                             std::list<Tensor<1, dim>>>;
+                    std::map<typename DoFHandler<dim, spacedim>::cell_iterator, std::list<Tensor<1, dim>>>;
                   CellContributions cell_contributions;
 
-                  for (typename DoFToNormalsMap::const_iterator q =
-                         same_dof_range[0];
-                       q != same_dof_range[1];
-                       ++q)
-                    cell_contributions[q->second.second].push_back(
-                      q->second.first);
+                  for (typename DoFToNormalsMap::const_iterator q = same_dof_range[0]; q != same_dof_range[1]; ++q)
+                    cell_contributions[q->second.second].push_back(q->second.first);
                   Assert(cell_contributions.size() >= 1, ExcInternalError());
 
                   // now for each cell that has contributed determine the number
@@ -1125,20 +996,15 @@ namespace VectorTools
                   // for each contributing cell compute the tangential vector
                   // that remains unconstrained
                   std::list<Tensor<1, dim>> tangential_vectors;
-                  for (typename CellContributions::const_iterator contribution =
-                         cell_contributions.begin();
+                  for (typename CellContributions::const_iterator contribution = cell_contributions.begin();
                        contribution != cell_contributions.end();
                        ++contribution)
                     {
 #ifdef DEBUG_NO_NORMAL_FLUX
-                      std::cout
-                        << "   Treating edge case with dim-1 contributions."
-                        << std::endl
-                        << "   Looking at cell " << contribution->first
-                        << " which has contributed these normal vectors:"
-                        << std::endl;
-                      for (typename std::list<Tensor<1, dim>>::const_iterator
-                             t = contribution->second.begin();
+                      std::cout << "   Treating edge case with dim-1 contributions." << std::endl
+                                << "   Looking at cell " << contribution->first
+                                << " which has contributed these normal vectors:" << std::endl;
+                      for (typename std::list<Tensor<1, dim>>::const_iterator t = contribution->second.begin();
                            t != contribution->second.end();
                            ++t)
                         std::cout << "      " << *t << std::endl;
@@ -1152,8 +1018,7 @@ namespace VectorTools
                       Tensor<1, dim> normals[dim - 1];
                       {
                         unsigned int index = 0;
-                        for (typename std::list<Tensor<1, dim>>::const_iterator
-                               t = contribution->second.begin();
+                        for (typename std::list<Tensor<1, dim>>::const_iterator t = contribution->second.begin();
                              t != contribution->second.end();
                              ++t, ++index)
                           normals[index] = *t;
@@ -1179,18 +1044,15 @@ namespace VectorTools
                             // bogus since we get here only for dim==3, but at
                             // least one isn't quite smart enough to notice this
                             // and warns when compiling the function in 2d
-                            tangent =
-                              cross_product_3d(normals[0], normals[dim - 2]);
+                            tangent = cross_product_3d(normals[0], normals[dim - 2]);
                             break;
                           default:
                             Assert(false, ExcNotImplemented());
                         }
 
-                      Assert(
-                        std::fabs(tangent.norm()) > 1e-12,
-                        ExcMessage(
-                          "Two normal vectors from adjacent faces are almost "
-                          "parallel."));
+                      Assert(std::fabs(tangent.norm()) > 1e-12,
+                             ExcMessage("Two normal vectors from adjacent faces are almost "
+                                        "parallel."));
                       tangent /= tangent.norm();
 
                       tangential_vectors.push_back(tangent);
@@ -1201,10 +1063,8 @@ namespace VectorTools
                   // have an angle less than 90 degrees); if they don't then
                   // flip their sign
                   {
-                    const Tensor<1, dim> first_tangent =
-                      tangential_vectors.front();
-                    typename std::list<Tensor<1, dim>>::iterator t =
-                      tangential_vectors.begin();
+                    const Tensor<1, dim>                         first_tangent = tangential_vectors.front();
+                    typename std::list<Tensor<1, dim>>::iterator t             = tangential_vectors.begin();
                     ++t;
                     for (; t != tangential_vectors.end(); ++t)
                       if (*t * first_tangent < 0)
@@ -1213,8 +1073,7 @@ namespace VectorTools
 
                   // now compute the average tangent and normalize it
                   Tensor<1, dim> average_tangent;
-                  for (typename std::list<Tensor<1, dim>>::const_iterator t =
-                         tangential_vectors.begin();
+                  for (typename std::list<Tensor<1, dim>>::const_iterator t = tangential_vectors.begin();
                        t != tangential_vectors.end();
                        ++t)
                     average_tangent += *t;
@@ -1222,14 +1081,9 @@ namespace VectorTools
 
                   // now all that is left is that we add the constraints that
                   // the vector is parallel to the tangent
-                  const VectorDoFTuple<dim> &dof_indices =
-                    same_dof_range[0]->first;
-                  const Vector<double> b_values =
-                    dof_vector_to_b_values[dof_indices];
-                  add_tangentiality_constraints(dof_indices,
-                                                average_tangent,
-                                                constraints,
-                                                b_values);
+                  const VectorDoFTuple<dim> &dof_indices = same_dof_range[0]->first;
+                  const Vector<double>       b_values    = dof_vector_to_b_values[dof_indices];
+                  add_tangentiality_constraints(dof_indices, average_tangent, constraints, b_values);
                 }
             }
         }
@@ -1241,22 +1095,15 @@ namespace VectorTools
 
   template <int dim, int spacedim>
   void
-  compute_nonzero_normal_flux_constraints(
-    const DoFHandler<dim, spacedim> &   dof_handler,
-    const unsigned int                  first_vector_component,
-    const std::set<types::boundary_id> &boundary_ids,
-    const std::map<types::boundary_id, const Function<spacedim> *>
-      &                           function_map,
-    AffineConstraints<double> &   constraints,
-    const Mapping<dim, spacedim> &mapping)
+  compute_nonzero_normal_flux_constraints(const DoFHandler<dim, spacedim>    &dof_handler,
+                                          const unsigned int                  first_vector_component,
+                                          const std::set<types::boundary_id> &boundary_ids,
+                                          const std::map<types::boundary_id, const Function<spacedim> *> &function_map,
+                                          AffineConstraints<double>                                      &constraints,
+                                          const Mapping<dim, spacedim>                                   &mapping)
   {
     internal::compute_nonzero_normal_flux_constraints_active_or_level(
-      dof_handler,
-      first_vector_component,
-      boundary_ids,
-      function_map,
-      constraints,
-      mapping);
+      dof_handler, first_vector_component, boundary_ids, function_map, constraints, mapping);
   }
 
 
@@ -1264,25 +1111,23 @@ namespace VectorTools
   template <int dim, int spacedim>
   void
   compute_nonzero_normal_flux_constraints_on_level(
-    const DoFHandler<dim, spacedim> &   dof_handler,
-    const unsigned int                  first_vector_component,
-    const std::set<types::boundary_id> &boundary_ids,
-    const std::map<types::boundary_id, const Function<spacedim> *>
-      &                           function_map,
-    AffineConstraints<double> &   constraints,
-    const Mapping<dim, spacedim> &mapping,
-    const IndexSet &              refinement_edge_indices,
-    const unsigned int            level)
+    const DoFHandler<dim, spacedim>                                &dof_handler,
+    const unsigned int                                              first_vector_component,
+    const std::set<types::boundary_id>                             &boundary_ids,
+    const std::map<types::boundary_id, const Function<spacedim> *> &function_map,
+    AffineConstraints<double>                                      &constraints,
+    const Mapping<dim, spacedim>                                   &mapping,
+    const IndexSet                                                 &refinement_edge_indices,
+    const unsigned int                                              level)
   {
-    internal::compute_nonzero_normal_flux_constraints_active_or_level(
-      dof_handler,
-      first_vector_component,
-      boundary_ids,
-      function_map,
-      constraints,
-      mapping,
-      refinement_edge_indices,
-      level);
+    internal::compute_nonzero_normal_flux_constraints_active_or_level(dof_handler,
+                                                                      first_vector_component,
+                                                                      boundary_ids,
+                                                                      function_map,
+                                                                      constraints,
+                                                                      mapping,
+                                                                      refinement_edge_indices,
+                                                                      level);
   }
 
   namespace internal
@@ -1305,26 +1150,19 @@ namespace VectorTools
   template <int dim, int spacedim>
   void
   compute_nonzero_tangential_flux_constraints(
-    const DoFHandler<dim, spacedim> &   dof_handler,
-    const unsigned int                  first_vector_component,
-    const std::set<types::boundary_id> &boundary_ids,
-    const std::map<types::boundary_id, const Function<spacedim> *>
-      &                           function_map,
-    AffineConstraints<double> &   constraints,
-    const Mapping<dim, spacedim> &mapping)
+    const DoFHandler<dim, spacedim>                                &dof_handler,
+    const unsigned int                                              first_vector_component,
+    const std::set<types::boundary_id>                             &boundary_ids,
+    const std::map<types::boundary_id, const Function<spacedim> *> &function_map,
+    AffineConstraints<double>                                      &constraints,
+    const Mapping<dim, spacedim>                                   &mapping)
   {
-    AffineConstraints<double> no_normal_flux_constraints(
-      constraints.get_local_lines());
-    compute_nonzero_normal_flux_constraints(dof_handler,
-                                            first_vector_component,
-                                            boundary_ids,
-                                            function_map,
-                                            no_normal_flux_constraints,
-                                            mapping);
+    AffineConstraints<double> no_normal_flux_constraints(constraints.get_local_lines());
+    compute_nonzero_normal_flux_constraints(
+      dof_handler, first_vector_component, boundary_ids, function_map, no_normal_flux_constraints, mapping);
 
-    const hp::FECollection<dim, spacedim> &fe_collection =
-      dof_handler.get_fe_collection();
-    hp::MappingCollection<dim, spacedim> mapping_collection;
+    const hp::FECollection<dim, spacedim> &fe_collection = dof_handler.get_fe_collection();
+    hp::MappingCollection<dim, spacedim>   mapping_collection;
     for (unsigned int i = 0; i < fe_collection.size(); ++i)
       mapping_collection.push_back(mapping);
 
@@ -1339,54 +1177,43 @@ namespace VectorTools
     hp::QCollection<dim - 1> face_quadrature_collection;
     for (unsigned int i = 0; i < fe_collection.size(); ++i)
       {
-        const std::vector<Point<dim - 1>> &unit_support_points =
-          fe_collection[i].get_unit_face_support_points(face_no);
+        const std::vector<Point<dim - 1>> &unit_support_points = fe_collection[i].get_unit_face_support_points(face_no);
 
-        Assert(unit_support_points.size() ==
-                 fe_collection[i].n_dofs_per_face(face_no),
-               ExcInternalError());
+        Assert(unit_support_points.size() == fe_collection[i].n_dofs_per_face(face_no), ExcInternalError());
 
-        face_quadrature_collection.push_back(
-          Quadrature<dim - 1>(unit_support_points));
+        face_quadrature_collection.push_back(Quadrature<dim - 1>(unit_support_points));
       }
 
     // now create the object with which we will generate the normal vectors
     hp::FEFaceValues<dim, spacedim> x_fe_face_values(mapping_collection,
                                                      fe_collection,
                                                      face_quadrature_collection,
-                                                     update_quadrature_points |
-                                                       update_normal_vectors);
+                                                     update_quadrature_points | update_normal_vectors);
 
     // Extract a list that collects all vector components that belong to the
     // same node (scalar basis function). When creating that list, we use an
     // array of dim components that stores the global degree of freedom.
-    std::set<std::array<types::global_dof_index, dim>,
-             internal::PointComparator<dim>>
-                                         vector_dofs;
-    std::vector<types::global_dof_index> face_dofs;
+    std::set<std::array<types::global_dof_index, dim>, internal::PointComparator<dim>> vector_dofs;
+    std::vector<types::global_dof_index>                                               face_dofs;
 
-    std::map<std::array<types::global_dof_index, dim>, Vector<double>>
-      dof_vector_to_b_values;
+    std::map<std::array<types::global_dof_index, dim>, Vector<double>> dof_vector_to_b_values;
 
     std::set<types::boundary_id>::iterator                b_id;
     std::vector<std::array<types::global_dof_index, dim>> cell_vector_dofs;
     for (const auto &cell : dof_handler.active_cell_iterators())
       if (!cell->is_artificial())
         for (const unsigned int face_no : cell->face_indices())
-          if ((b_id = boundary_ids.find(cell->face(face_no)->boundary_id())) !=
-              boundary_ids.end())
+          if ((b_id = boundary_ids.find(cell->face(face_no)->boundary_id())) != boundary_ids.end())
             {
-              const FiniteElement<dim> &fe = cell->get_fe();
-              typename DoFHandler<dim, spacedim>::face_iterator face =
-                cell->face(face_no);
+              const FiniteElement<dim>                         &fe   = cell->get_fe();
+              typename DoFHandler<dim, spacedim>::face_iterator face = cell->face(face_no);
 
               // get the indices of the dofs on this cell...
               face_dofs.resize(fe.n_dofs_per_face(face_no));
               face->get_dof_indices(face_dofs, cell->active_fe_index());
 
               x_fe_face_values.reinit(cell, face_no);
-              const FEFaceValues<dim> &fe_values =
-                x_fe_face_values.get_present_fe_values();
+              const FEFaceValues<dim> &fe_values = x_fe_face_values.get_present_fe_values();
 
               std::map<types::global_dof_index, double> dof_to_b_value;
 
@@ -1394,27 +1221,18 @@ namespace VectorTools
               cell_vector_dofs.resize(fe.n_dofs_per_face(face_no));
               for (unsigned int i = 0; i < fe.n_dofs_per_face(face_no); ++i)
                 {
-                  if (fe.face_system_to_component_index(i, face_no).first >=
-                        first_vector_component &&
-                      fe.face_system_to_component_index(i, face_no).first <
-                        first_vector_component + dim)
+                  if (fe.face_system_to_component_index(i, face_no).first >= first_vector_component &&
+                      fe.face_system_to_component_index(i, face_no).first < first_vector_component + dim)
                     {
                       const unsigned int component =
-                        fe.face_system_to_component_index(i, face_no).first -
-                        first_vector_component;
-                      n_scalar_indices = std::max(
-                        n_scalar_indices,
-                        fe.face_system_to_component_index(i, face_no).second +
-                          1);
-                      cell_vector_dofs[fe.face_system_to_component_index(
-                                           i, face_no)
-                                         .second][component] = face_dofs[i];
+                        fe.face_system_to_component_index(i, face_no).first - first_vector_component;
+                      n_scalar_indices =
+                        std::max(n_scalar_indices, fe.face_system_to_component_index(i, face_no).second + 1);
+                      cell_vector_dofs[fe.face_system_to_component_index(i, face_no).second][component] = face_dofs[i];
 
-                      const Point<dim> &point = fe_values.quadrature_point(i);
-                      const double      b_value =
-                        function_map.at(*b_id)->value(point, component);
-                      dof_to_b_value.insert(
-                        std::make_pair(face_dofs[i], b_value));
+                      const Point<dim> &point   = fe_values.quadrature_point(i);
+                      const double      b_value = function_map.at(*b_id)->value(point, component);
+                      dof_to_b_value.insert(std::make_pair(face_dofs[i], b_value));
                     }
                 }
 
@@ -1427,8 +1245,7 @@ namespace VectorTools
                   Vector<double> b_values(dim);
                   for (unsigned int j = 0; j < dim; ++j)
                     b_values[j] = dof_to_b_value[cell_vector_dofs[i][j]];
-                  dof_vector_to_b_values.insert(
-                    std::make_pair(cell_vector_dofs[i], b_values));
+                  dof_vector_to_b_values.insert(std::make_pair(cell_vector_dofs[i], b_values));
                 }
             }
 
@@ -1479,9 +1296,8 @@ namespace VectorTools
                   normal[d]         = 1.;
                 }
             AssertIndexRange(constrained_index, dim);
-            const std::vector<std::pair<types::global_dof_index, double>>
-              *constrained = no_normal_flux_constraints.get_constraint_entries(
-                dofs[constrained_index]);
+            const std::vector<std::pair<types::global_dof_index, double>> *constrained =
+              no_normal_flux_constraints.get_constraint_entries(dofs[constrained_index]);
             // find components to which this index is constrained to
             Assert(constrained != nullptr, ExcInternalError());
             Assert(constrained->size() < dim, ExcInternalError());
@@ -1504,91 +1320,75 @@ namespace VectorTools
                   {
                     constraints.add_line(new_index);
                     if (std::abs(normal[d]) > 1e-13)
-                      constraints.add_entry(new_index,
-                                            dofs[constrained_index],
-                                            -normal[d]);
+                      constraints.add_entry(new_index, dofs[constrained_index], -normal[d]);
                     constraints.set_inhomogeneity(new_index, boundary_value[d]);
                   }
               }
           }
       }
-    AssertDimension(n_total_constraints_found,
-                    no_normal_flux_constraints.n_constraints());
+    AssertDimension(n_total_constraints_found, no_normal_flux_constraints.n_constraints());
     (void)n_total_constraints_found;
   }
 
 
   template <int dim, int spacedim>
   void
-  compute_no_normal_flux_constraints(
-    const DoFHandler<dim, spacedim> &   dof_handler,
-    const unsigned int                  first_vector_component,
-    const std::set<types::boundary_id> &boundary_ids,
-    AffineConstraints<double> &         constraints,
-    const Mapping<dim, spacedim> &      mapping)
+  compute_no_normal_flux_constraints(const DoFHandler<dim, spacedim>    &dof_handler,
+                                     const unsigned int                  first_vector_component,
+                                     const std::set<types::boundary_id> &boundary_ids,
+                                     AffineConstraints<double>          &constraints,
+                                     const Mapping<dim, spacedim>       &mapping)
   {
     Functions::ZeroFunction<dim>                             zero_function(dim);
     std::map<types::boundary_id, const Function<spacedim> *> function_map;
     for (const types::boundary_id boundary_id : boundary_ids)
       function_map[boundary_id] = &zero_function;
     internal::compute_nonzero_normal_flux_constraints_active_or_level(
-      dof_handler,
-      first_vector_component,
-      boundary_ids,
-      function_map,
-      constraints,
-      mapping);
+      dof_handler, first_vector_component, boundary_ids, function_map, constraints, mapping);
   }
 
 
 
   template <int dim, int spacedim>
   void
-  compute_no_normal_flux_constraints_on_level(
-    const DoFHandler<dim, spacedim> &   dof_handler,
-    const unsigned int                  first_vector_component,
-    const std::set<types::boundary_id> &boundary_ids,
-    AffineConstraints<double> &         constraints,
-    const Mapping<dim, spacedim> &      mapping,
-    const IndexSet &                    refinement_edge_indices,
-    const unsigned int                  level)
+  compute_no_normal_flux_constraints_on_level(const DoFHandler<dim, spacedim>    &dof_handler,
+                                              const unsigned int                  first_vector_component,
+                                              const std::set<types::boundary_id> &boundary_ids,
+                                              AffineConstraints<double>          &constraints,
+                                              const Mapping<dim, spacedim>       &mapping,
+                                              const IndexSet                     &refinement_edge_indices,
+                                              const unsigned int                  level)
   {
     Functions::ZeroFunction<dim>                             zero_function(dim);
     std::map<types::boundary_id, const Function<spacedim> *> function_map;
     for (const types::boundary_id boundary_id : boundary_ids)
       function_map[boundary_id] = &zero_function;
-    internal::compute_nonzero_normal_flux_constraints_active_or_level(
-      dof_handler,
-      first_vector_component,
-      boundary_ids,
-      function_map,
-      constraints,
-      mapping,
-      refinement_edge_indices,
-      level);
+    internal::compute_nonzero_normal_flux_constraints_active_or_level(dof_handler,
+                                                                      first_vector_component,
+                                                                      boundary_ids,
+                                                                      function_map,
+                                                                      constraints,
+                                                                      mapping,
+                                                                      refinement_edge_indices,
+                                                                      level);
   }
 
 
 
   template <int dim, int spacedim>
   void
-  compute_normal_flux_constraints(
-    const DoFHandler<dim, spacedim> &   dof_handler,
-    const unsigned int                  first_vector_component,
-    const std::set<types::boundary_id> &boundary_ids,
-    AffineConstraints<double> &         constraints,
-    const Mapping<dim, spacedim> &      mapping)
+  compute_normal_flux_constraints(const DoFHandler<dim, spacedim>    &dof_handler,
+                                  const unsigned int                  first_vector_component,
+                                  const std::set<types::boundary_id> &boundary_ids,
+                                  AffineConstraints<double>          &constraints,
+                                  const Mapping<dim, spacedim>       &mapping)
   {
     Functions::ZeroFunction<dim>                             zero_function(dim);
     std::map<types::boundary_id, const Function<spacedim> *> function_map;
     for (const types::boundary_id boundary_id : boundary_ids)
       function_map[boundary_id] = &zero_function;
-    compute_nonzero_tangential_flux_constraints(dof_handler,
-                                                first_vector_component,
-                                                boundary_ids,
-                                                function_map,
-                                                constraints,
-                                                mapping);
+    compute_nonzero_tangential_flux_constraints(
+      dof_handler, first_vector_component, boundary_ids, function_map, constraints, mapping);
   }
 } // namespace VectorTools
 

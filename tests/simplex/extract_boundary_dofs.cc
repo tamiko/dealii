@@ -37,11 +37,10 @@ template <int dim>
 void
 test()
 {
-  parallel::shared::Triangulation<dim> tr(
-    MPI_COMM_WORLD,
-    Triangulation<dim>::MeshSmoothing::none,
-    true,
-    parallel::shared::Triangulation<dim>::Settings::partition_zorder);
+  parallel::shared::Triangulation<dim> tr(MPI_COMM_WORLD,
+                                          Triangulation<dim>::MeshSmoothing::none,
+                                          true,
+                                          parallel::shared::Triangulation<dim>::Settings::partition_zorder);
 
   GridGenerator::subdivided_hyper_cube_with_simplices(tr, 4);
 
@@ -49,8 +48,7 @@ test()
   DoFHandler<dim>        dofh(tr);
   dofh.distribute_dofs(fe);
 
-  IndexSet boundary_dofs =
-    DoFTools::extract_boundary_dofs(dofh, ComponentMask(1, true));
+  IndexSet boundary_dofs = DoFTools::extract_boundary_dofs(dofh, ComponentMask(1, true));
   if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
     boundary_dofs.write(deallog.get_file_stream());
 

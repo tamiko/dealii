@@ -52,21 +52,16 @@ public:
   virtual LinearAlgebra::distributed::Vector<double>
   partition(const Triangulation<dim, spacedim> &tria_in) const override
   {
-    const auto tria =
-      dynamic_cast<const parallel::TriangulationBase<dim, spacedim> *>(
-        &tria_in);
+    const auto tria = dynamic_cast<const parallel::TriangulationBase<dim, spacedim> *>(&tria_in);
 
     Assert(tria, ExcNotImplemented());
 
-    LinearAlgebra::distributed::Vector<double> partition(
-      tria->global_active_cell_index_partitioner().lock());
+    LinearAlgebra::distributed::Vector<double> partition(tria->global_active_cell_index_partitioner().lock());
 
     const unsigned int n_partitions = Utilities::MPI::n_mpi_processes(comm);
 
-    for (const auto &cell :
-         tria_in.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
-      partition[cell->global_active_cell_index()] =
-        std::floor(cell->center()[direction] * n_partitions);
+    for (const auto &cell : tria_in.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+      partition[cell->global_active_cell_index()] = std::floor(cell->center()[direction] * n_partitions);
 
     partition.update_ghost_values();
 
@@ -84,9 +79,7 @@ void
 test(const MPI_Comm comm)
 {
   parallel::distributed::Triangulation<dim> tria(
-    comm,
-    Triangulation<dim>::none,
-    parallel::distributed::Triangulation<dim>::construct_multigrid_hierarchy);
+    comm, Triangulation<dim>::none, parallel::distributed::Triangulation<dim>::construct_multigrid_hierarchy);
   GridGenerator::subdivided_hyper_cube(tria, 4);
   tria.refine_global(2);
 
@@ -95,13 +88,11 @@ test(const MPI_Comm comm)
 
   const auto partition_0 = policy_0.partition(tria);
 
-  const auto settings =
-    TriangulationDescription::Settings::construct_multigrid_hierarchy;
+  const auto settings = TriangulationDescription::Settings::construct_multigrid_hierarchy;
 
   // repartition triangulation so that it has strided partitioning
   const auto construction_data =
-    TriangulationDescription::Utilities::create_description_from_triangulation(
-      tria, partition_0, settings);
+    TriangulationDescription::Utilities::create_description_from_triangulation(tria, partition_0, settings);
 
   parallel::fullydistributed::Triangulation<dim> tria_pft(comm);
   tria_pft.create_triangulation(construction_data);

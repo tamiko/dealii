@@ -14,46 +14,38 @@
 // ---------------------------------------------------------------------
 
 
-for (deal_II_dimension : DIMENSIONS;
-     deal_II_scalar_vectorized : REAL_SCALARS_VECTORIZED)
+for (deal_II_dimension : DIMENSIONS; deal_II_scalar_vectorized : REAL_SCALARS_VECTORIZED)
   {
     template void select_vmult<1>(
       deal_II_scalar_vectorized * dst,
-      const deal_II_scalar_vectorized *         src,
-      AlignedVector<deal_II_scalar_vectorized> &tmp,
-      const unsigned int                        n_rows,
-      const std::array<const deal_II_scalar_vectorized *, deal_II_dimension>
-        &mass_matrix,
-      const std::array<const deal_II_scalar_vectorized *, deal_II_dimension>
-        &derivative_matrix);
+      const deal_II_scalar_vectorized                                        *src,
+      AlignedVector<deal_II_scalar_vectorized>                               &tmp,
+      const unsigned int                                                      n_rows,
+      const std::array<const deal_II_scalar_vectorized *, deal_II_dimension> &mass_matrix,
+      const std::array<const deal_II_scalar_vectorized *, deal_II_dimension> &derivative_matrix);
 
     template void select_apply_inverse<1>(
       deal_II_scalar_vectorized * dst,
-      const deal_II_scalar_vectorized *src,
-      const unsigned int               n_rows,
-      const std::array<const deal_II_scalar_vectorized *, deal_II_dimension>
-        &eigenvectors,
-      const std::array<const deal_II_scalar_vectorized *, deal_II_dimension>
-        &                              eigenvalues,
-      const deal_II_scalar_vectorized *inverted_eigenvalues);
+      const deal_II_scalar_vectorized                                        *src,
+      const unsigned int                                                      n_rows,
+      const std::array<const deal_II_scalar_vectorized *, deal_II_dimension> &eigenvectors,
+      const std::array<const deal_II_scalar_vectorized *, deal_II_dimension> &eigenvalues,
+      const deal_II_scalar_vectorized                                        *inverted_eigenvalues);
   }
 
 for (deal_II_dimension : DIMENSIONS; deal_II_scalar : REAL_SCALARS)
   {
-    template void select_vmult<1>(
-      deal_II_scalar * dst,
-      const deal_II_scalar *                                       src,
-      AlignedVector<deal_II_scalar> &                              tmp,
-      const unsigned int                                           n_rows,
-      const std::array<const deal_II_scalar *, deal_II_dimension> &mass_matrix,
-      const std::array<const deal_II_scalar *, deal_II_dimension>
-        &derivative_matrix);
+    template void select_vmult<1>(deal_II_scalar * dst,
+                                  const deal_II_scalar                                        *src,
+                                  AlignedVector<deal_II_scalar>                               &tmp,
+                                  const unsigned int                                           n_rows,
+                                  const std::array<const deal_II_scalar *, deal_II_dimension> &mass_matrix,
+                                  const std::array<const deal_II_scalar *, deal_II_dimension> &derivative_matrix);
 
-    template void select_apply_inverse<1>(
-      deal_II_scalar * dst,
-      const deal_II_scalar *                                       src,
-      const unsigned int                                           n_rows,
-      const std::array<const deal_II_scalar *, deal_II_dimension> &eigenvectors,
-      const std::array<const deal_II_scalar *, deal_II_dimension> &eigenvalues,
-      const deal_II_scalar *inverted_eigenvalues);
+    template void select_apply_inverse<1>(deal_II_scalar * dst,
+                                          const deal_II_scalar                                        *src,
+                                          const unsigned int                                           n_rows,
+                                          const std::array<const deal_II_scalar *, deal_II_dimension> &eigenvectors,
+                                          const std::array<const deal_II_scalar *, deal_II_dimension> &eigenvalues,
+                                          const deal_II_scalar *inverted_eigenvalues);
   }

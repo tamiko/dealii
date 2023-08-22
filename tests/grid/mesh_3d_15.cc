@@ -52,11 +52,8 @@ check_this(Triangulation<3> &tria)
   DoFHandler<3>::active_cell_iterator cell = dof_handler.begin_active();
   for (; cell != dof_handler.end(); ++cell)
     for (const unsigned int face_no : GeometryInfo<3>::face_indices())
-      if (!cell->at_boundary(face_no) &&
-          cell->neighbor(face_no)->has_children())
-        for (unsigned int subface_no = 0;
-             subface_no < GeometryInfo<3>::max_children_per_face;
-             ++subface_no)
+      if (!cell->at_boundary(face_no) && cell->neighbor(face_no)->has_children())
+        for (unsigned int subface_no = 0; subface_no < GeometryInfo<3>::max_children_per_face; ++subface_no)
           {
             // get an iterator
             // pointing to the cell
@@ -66,18 +63,14 @@ check_this(Triangulation<3> &tria)
             // way a) construct it ourselves,
             // considering orientation and
             // rotation of the face
-            const DoFHandler<3>::cell_iterator neighbor =
-              cell->neighbor(face_no);
-            const unsigned int neighbor_neighbor =
-              cell->neighbor_of_neighbor(face_no);
-            const unsigned int neighbor_child_index =
-              (GeometryInfo<3>::child_cell_on_face(
-                RefinementCase<3>::isotropic_refinement,
-                neighbor_neighbor,
-                (subface_no),
-                neighbor->face_orientation(neighbor_neighbor)));
-            const DoFHandler<3>::active_cell_iterator neighbor_child =
-              neighbor->child(neighbor_child_index);
+            const DoFHandler<3>::cell_iterator neighbor          = cell->neighbor(face_no);
+            const unsigned int                 neighbor_neighbor = cell->neighbor_of_neighbor(face_no);
+            const unsigned int                 neighbor_child_index =
+              (GeometryInfo<3>::child_cell_on_face(RefinementCase<3>::isotropic_refinement,
+                                                   neighbor_neighbor,
+                                                   (subface_no),
+                                                   neighbor->face_orientation(neighbor_neighbor)));
+            const DoFHandler<3>::active_cell_iterator neighbor_child = neighbor->child(neighbor_child_index);
 
             // way b) use the convenient
             // function
@@ -85,9 +78,7 @@ check_this(Triangulation<3> &tria)
 
             // make sure, that both ways yield
             // the same result
-            AssertThrow(neighbor_child ==
-                          cell->neighbor_child_on_subface(face_no, subface_no),
-                        ExcInternalError());
+            AssertThrow(neighbor_child == cell->neighbor_child_on_subface(face_no, subface_no), ExcInternalError());
           }
 }
 

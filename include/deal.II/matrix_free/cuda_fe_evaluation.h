@@ -64,11 +64,7 @@ namespace CUDAWrappers
    *
    * @ingroup CUDAWrappers
    */
-  template <int dim,
-            int fe_degree,
-            int n_q_points_1d = fe_degree + 1,
-            int n_components_ = 1,
-            typename Number   = double>
+  template <int dim, int fe_degree, int n_q_points_1d = fe_degree + 1, int n_components_ = 1, typename Number = double>
   class FEEvaluation
   {
   public:
@@ -100,14 +96,12 @@ namespace CUDAWrappers
     /**
      * Number of quadrature points per cell.
      */
-    static constexpr unsigned int n_q_points =
-      Utilities::pow(n_q_points_1d, dim);
+    static constexpr unsigned int n_q_points = Utilities::pow(n_q_points_1d, dim);
 
     /**
      * Number of tensor degrees of freedoms per cell.
      */
-    static constexpr unsigned int tensor_dofs_per_cell =
-      Utilities::pow(fe_degree + 1, dim);
+    static constexpr unsigned int tensor_dofs_per_cell = Utilities::pow(fe_degree + 1, dim);
 
     /**
      * Constructor.
@@ -214,21 +208,17 @@ namespace CUDAWrappers
     apply_for_each_quad_point(const Functor &func);
 
   private:
-    const data_type *        data;
+    const data_type         *data;
     SharedData<dim, Number> *shared_data;
     int                      cell_id;
   };
 
 
 
-  template <int dim,
-            int fe_degree,
-            int n_q_points_1d,
-            int n_components_,
-            typename Number>
+  template <int dim, int fe_degree, int n_q_points_1d, int n_components_, typename Number>
   DEAL_II_HOST_DEVICE
-  FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::
-    FEEvaluation(const data_type *data, SharedData<dim, Number> *shdata)
+  FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::FEEvaluation(const data_type         *data,
+                                                                                   SharedData<dim, Number> *shdata)
     : data(data)
     , shared_data(shdata)
     , cell_id(shared_data->team_member.league_rank())
@@ -236,107 +226,73 @@ namespace CUDAWrappers
 
 
 
-  template <int dim,
-            int fe_degree,
-            int n_q_points_1d,
-            int n_components_,
-            typename Number>
+  template <int dim, int fe_degree, int n_q_points_1d, int n_components_, typename Number>
   DEAL_II_HOST_DEVICE void
-  FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::
-    read_dof_values(const Number *src)
+  FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::read_dof_values(const Number *src)
   {
     static_assert(n_components_ == 1, "This function only supports FE with one \
                   components");
     // Populate the scratch memory
-    Kokkos::parallel_for(Kokkos::TeamThreadRange(shared_data->team_member,
-                                                 n_q_points),
-                         [&](const int &i) {
-                           shared_data->values(i) =
-                             src[data->local_to_global(cell_id, i)];
-                         });
+    Kokkos::parallel_for(Kokkos::TeamThreadRange(shared_data->team_member, n_q_points),
+                         [&](const int &i) { shared_data->values(i) = src[data->local_to_global(cell_id, i)]; });
     shared_data->team_member.team_barrier();
 
-    internal::resolve_hanging_nodes<dim, fe_degree, false>(
-      shared_data->team_member,
-      data->constraint_weights,
-      data->constraint_mask(cell_id),
-      shared_data->values);
+    internal::resolve_hanging_nodes<dim, fe_degree, false>(shared_data->team_member,
+                                                           data->constraint_weights,
+                                                           data->constraint_mask(cell_id),
+                                                           shared_data->values);
   }
 
 
 
-  template <int dim,
-            int fe_degree,
-            int n_q_points_1d,
-            int n_components_,
-            typename Number>
+  template <int dim, int fe_degree, int n_q_points_1d, int n_components_, typename Number>
   DEAL_II_HOST_DEVICE void
-  FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::
-    distribute_local_to_global(Number *dst) const
+  FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::distribute_local_to_global(Number *dst) const
   {
     static_assert(n_components_ == 1, "This function only supports FE with one \
                   components");
 
-    internal::resolve_hanging_nodes<dim, fe_degree, true>(
-      shared_data->team_member,
-      data->constraint_weights,
-      data->constraint_mask(cell_id),
-      shared_data->values);
+    internal::resolve_hanging_nodes<dim, fe_degree, true>(shared_data->team_member,
+                                                          data->constraint_weights,
+                                                          data->constraint_mask(cell_id),
+                                                          shared_data->values);
 
     if (data->use_coloring)
       {
-        Kokkos::parallel_for(Kokkos::TeamThreadRange(shared_data->team_member,
-                                                     n_q_points),
-                             [&](const int &i) {
-                               dst[data->local_to_global(cell_id, i)] +=
-                                 shared_data->values(i);
-                             });
+        Kokkos::parallel_for(Kokkos::TeamThreadRange(shared_data->team_member, n_q_points),
+                             [&](const int &i) { dst[data->local_to_global(cell_id, i)] += shared_data->values(i); });
       }
     else
       {
-        Kokkos::parallel_for(
-          Kokkos::TeamThreadRange(shared_data->team_member, n_q_points),
-          [&](const int &i) {
-            Kokkos::atomic_add(&dst[data->local_to_global(cell_id, i)],
-                               shared_data->values(i));
-          });
+        Kokkos::parallel_for(Kokkos::TeamThreadRange(shared_data->team_member, n_q_points), [&](const int &i) {
+          Kokkos::atomic_add(&dst[data->local_to_global(cell_id, i)], shared_data->values(i));
+        });
       }
   }
 
 
 
-  template <int dim,
-            int fe_degree,
-            int n_q_points_1d,
-            int n_components_,
-            typename Number>
+  template <int dim, int fe_degree, int n_q_points_1d, int n_components_, typename Number>
   DEAL_II_HOST_DEVICE void
-  FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::evaluate(
-    const bool evaluate_val,
-    const bool evaluate_grad)
+  FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::evaluate(const bool evaluate_val,
+                                                                               const bool evaluate_grad)
   {
     // First evaluate the gradients because it requires values that will be
     // changed if evaluate_val is true
-    internal::EvaluatorTensorProduct<
-      internal::EvaluatorVariant::evaluate_general,
-      dim,
-      fe_degree,
-      n_q_points_1d,
-      Number>
-      evaluator_tensor_product(shared_data->team_member,
-                               data->shape_values,
-                               data->shape_gradients,
-                               data->co_shape_gradients);
+    internal::
+      EvaluatorTensorProduct<internal::EvaluatorVariant::evaluate_general, dim, fe_degree, n_q_points_1d, Number>
+        evaluator_tensor_product(shared_data->team_member,
+                                 data->shape_values,
+                                 data->shape_gradients,
+                                 data->co_shape_gradients);
     if (evaluate_val == true && evaluate_grad == true)
       {
-        evaluator_tensor_product.value_and_gradient_at_quad_pts(
-          shared_data->values, shared_data->gradients);
+        evaluator_tensor_product.value_and_gradient_at_quad_pts(shared_data->values, shared_data->gradients);
         shared_data->team_member.team_barrier();
       }
     else if (evaluate_grad == true)
       {
-        evaluator_tensor_product.gradient_at_quad_pts(shared_data->values,
-                                                      shared_data->gradients);
+        evaluator_tensor_product.gradient_at_quad_pts(shared_data->values, shared_data->gradients);
         shared_data->team_member.team_barrier();
       }
     else if (evaluate_val == true)
@@ -348,30 +304,20 @@ namespace CUDAWrappers
 
 
 
-  template <int dim,
-            int fe_degree,
-            int n_q_points_1d,
-            int n_components_,
-            typename Number>
+  template <int dim, int fe_degree, int n_q_points_1d, int n_components_, typename Number>
   DEAL_II_HOST_DEVICE void
-  FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::integrate(
-    const bool integrate_val,
-    const bool integrate_grad)
+  FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::integrate(const bool integrate_val,
+                                                                                const bool integrate_grad)
   {
-    internal::EvaluatorTensorProduct<
-      internal::EvaluatorVariant::evaluate_general,
-      dim,
-      fe_degree,
-      n_q_points_1d,
-      Number>
-      evaluator_tensor_product(shared_data->team_member,
-                               data->shape_values,
-                               data->shape_gradients,
-                               data->co_shape_gradients);
+    internal::
+      EvaluatorTensorProduct<internal::EvaluatorVariant::evaluate_general, dim, fe_degree, n_q_points_1d, Number>
+        evaluator_tensor_product(shared_data->team_member,
+                                 data->shape_values,
+                                 data->shape_gradients,
+                                 data->co_shape_gradients);
     if (integrate_val == true && integrate_grad == true)
       {
-        evaluator_tensor_product.integrate_value_and_gradient(
-          shared_data->values, shared_data->gradients);
+        evaluator_tensor_product.integrate_value_and_gradient(shared_data->values, shared_data->gradients);
       }
     else if (integrate_val == true)
       {
@@ -380,90 +326,54 @@ namespace CUDAWrappers
       }
     else if (integrate_grad == true)
       {
-        evaluator_tensor_product.template integrate_gradient<false>(
-          shared_data->values, shared_data->gradients);
+        evaluator_tensor_product.template integrate_gradient<false>(shared_data->values, shared_data->gradients);
         shared_data->team_member.team_barrier();
       }
   }
 
 
 
-  template <int dim,
-            int fe_degree,
-            int n_q_points_1d,
-            int n_components_,
-            typename Number>
-  DEAL_II_HOST_DEVICE typename FEEvaluation<dim,
-                                            fe_degree,
-                                            n_q_points_1d,
-                                            n_components_,
-                                            Number>::value_type
-  FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::get_value(
-    int q_point) const
+  template <int dim, int fe_degree, int n_q_points_1d, int n_components_, typename Number>
+  DEAL_II_HOST_DEVICE typename FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::value_type
+  FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::get_value(int q_point) const
   {
     return shared_data->values(q_point);
   }
 
 
 
-  template <int dim,
-            int fe_degree,
-            int n_q_points_1d,
-            int n_components_,
-            typename Number>
-  DEAL_II_HOST_DEVICE typename FEEvaluation<dim,
-                                            fe_degree,
-                                            n_q_points_1d,
-                                            n_components_,
-                                            Number>::value_type
-  FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::
-    get_dof_value(int q_point) const
+  template <int dim, int fe_degree, int n_q_points_1d, int n_components_, typename Number>
+  DEAL_II_HOST_DEVICE typename FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::value_type
+  FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::get_dof_value(int q_point) const
   {
     return shared_data->values(q_point);
   }
 
 
 
-  template <int dim,
-            int fe_degree,
-            int n_q_points_1d,
-            int n_components_,
-            typename Number>
+  template <int dim, int fe_degree, int n_q_points_1d, int n_components_, typename Number>
   DEAL_II_HOST_DEVICE void
-  FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::
-    submit_value(const value_type &val_in, int q_point)
+  FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::submit_value(const value_type &val_in,
+                                                                                   int               q_point)
   {
     shared_data->values(q_point) = val_in * data->JxW(cell_id, q_point);
   }
 
 
 
-  template <int dim,
-            int fe_degree,
-            int n_q_points_1d,
-            int n_components_,
-            typename Number>
+  template <int dim, int fe_degree, int n_q_points_1d, int n_components_, typename Number>
   DEAL_II_HOST_DEVICE void
-  FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::
-    submit_dof_value(const value_type &val_in, int q_point)
+  FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::submit_dof_value(const value_type &val_in,
+                                                                                       int               q_point)
   {
     shared_data->values(q_point) = val_in;
   }
 
 
 
-  template <int dim,
-            int fe_degree,
-            int n_q_points_1d,
-            int n_components_,
-            typename Number>
-  DEAL_II_HOST_DEVICE typename FEEvaluation<dim,
-                                            fe_degree,
-                                            n_q_points_1d,
-                                            n_components_,
-                                            Number>::gradient_type
-  FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::
-    get_gradient(int q_point) const
+  template <int dim, int fe_degree, int n_q_points_1d, int n_components_, typename Number>
+  DEAL_II_HOST_DEVICE typename FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::gradient_type
+  FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::get_gradient(int q_point) const
   {
     static_assert(n_components_ == 1, "This function only supports FE with one \
                   components");
@@ -473,8 +383,7 @@ namespace CUDAWrappers
       {
         Number tmp = 0.;
         for (unsigned int d_2 = 0; d_2 < dim; ++d_2)
-          tmp += data->inv_jacobian(cell_id, q_point, d_2, d_1) *
-                 shared_data->gradients(q_point, d_2);
+          tmp += data->inv_jacobian(cell_id, q_point, d_2, d_1) * shared_data->gradients(q_point, d_2);
         grad[d_1] = tmp;
       }
 
@@ -483,39 +392,28 @@ namespace CUDAWrappers
 
 
 
-  template <int dim,
-            int fe_degree,
-            int n_q_points_1d,
-            int n_components_,
-            typename Number>
+  template <int dim, int fe_degree, int n_q_points_1d, int n_components_, typename Number>
   DEAL_II_HOST_DEVICE void
-  FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::
-    submit_gradient(const gradient_type &grad_in, int q_point)
+  FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::submit_gradient(const gradient_type &grad_in,
+                                                                                      int                  q_point)
   {
     for (unsigned int d_1 = 0; d_1 < dim; ++d_1)
       {
         Number tmp = 0.;
         for (unsigned int d_2 = 0; d_2 < dim; ++d_2)
           tmp += data->inv_jacobian(cell_id, q_point, d_1, d_2) * grad_in[d_2];
-        shared_data->gradients(q_point, d_1) =
-          tmp * data->JxW(cell_id, q_point);
+        shared_data->gradients(q_point, d_1) = tmp * data->JxW(cell_id, q_point);
       }
   }
 
 
 
-  template <int dim,
-            int fe_degree,
-            int n_q_points_1d,
-            int n_components_,
-            typename Number>
+  template <int dim, int fe_degree, int n_q_points_1d, int n_components_, typename Number>
   template <typename Functor>
   DEAL_II_HOST_DEVICE void
-  FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::
-    apply_for_each_quad_point(const Functor &func)
+  FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::apply_for_each_quad_point(const Functor &func)
   {
-    Kokkos::parallel_for(Kokkos::TeamThreadRange(shared_data->team_member,
-                                                 n_q_points),
+    Kokkos::parallel_for(Kokkos::TeamThreadRange(shared_data->team_member, n_q_points),
                          [&](const int &i) { func(this, i); });
     shared_data->team_member.team_barrier();
   }
@@ -523,14 +421,8 @@ namespace CUDAWrappers
 
 
 #ifndef DOXYGEN
-  template <int dim,
-            int fe_degree,
-            int n_q_points_1d,
-            int n_components_,
-            typename Number>
-  constexpr unsigned int
-    FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::
-      n_q_points;
+  template <int dim, int fe_degree, int n_q_points_1d, int n_components_, typename Number>
+  constexpr unsigned int FEEvaluation<dim, fe_degree, n_q_points_1d, n_components_, Number>::n_q_points;
 #endif
 } // namespace CUDAWrappers
 

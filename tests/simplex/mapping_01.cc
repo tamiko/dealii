@@ -69,26 +69,19 @@ test(const unsigned int mapping_degree)
 
   Vector<double> position_vector(position_dof_handler.n_dofs());
   MappingFE<dim> mapping_interpolation(FE_SimplexP<dim>(1));
-  VectorTools::interpolate(mapping_interpolation,
-                           position_dof_handler,
-                           Position<dim>(),
-                           position_vector);
+  VectorTools::interpolate(mapping_interpolation, position_dof_handler, Position<dim>(), position_vector);
 
   MappingFEField<dim> mapping(position_dof_handler, position_vector);
 
   for (const auto &cell : tria.active_cell_iterators())
     {
       deallog << "cell = " << cell << std::endl;
-      deallog << "mapped barycenter       = " << mapping.get_center(cell, true)
-              << std::endl;
+      deallog << "mapped barycenter       = " << mapping.get_center(cell, true) << std::endl;
       Point<dim> manually_mapped_center;
       for (unsigned int d = 0; d < dim; ++d)
-        manually_mapped_center[d] =
-          Position<dim>().value(cell->barycenter(), d);
-      deallog << "exact mapped barycenter = " << manually_mapped_center
-              << std::endl;
-      deallog << "mapped vertex mean      = " << mapping.get_center(cell, false)
-              << std::endl;
+        manually_mapped_center[d] = Position<dim>().value(cell->barycenter(), d);
+      deallog << "exact mapped barycenter = " << manually_mapped_center << std::endl;
+      deallog << "mapped vertex mean      = " << mapping.get_center(cell, false) << std::endl;
     }
 }
 

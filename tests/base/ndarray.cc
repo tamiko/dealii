@@ -34,20 +34,12 @@ main()
   dealii::ndarray<double, 1, 2, 3, 4> r4;
 
   static_assert(std::is_same_v<decltype(r0), double>, "types must be the same");
-  static_assert(std::is_same_v<decltype(r1), std::array<double, 1>>,
+  static_assert(std::is_same_v<decltype(r1), std::array<double, 1>>, "types must be the same");
+  static_assert(std::is_same_v<decltype(r2), std::array<std::array<double, 2>, 1>>, "types must be the same");
+  static_assert(std::is_same<decltype(r3), std::array<std::array<std::array<double, 3>, 2>, 1>>::value,
                 "types must be the same");
-  static_assert(
-    std::is_same_v<decltype(r2), std::array<std::array<double, 2>, 1>>,
-    "types must be the same");
-  static_assert(
-    std::is_same<decltype(r3),
-                 std::array<std::array<std::array<double, 3>, 2>, 1>>::value,
-    "types must be the same");
-  static_assert(
-    std::is_same<decltype(r4),
-                 std::array<std::array<std::array<std::array<double, 4>, 3>, 2>,
-                            1>>::value,
-    "types must be the same");
+  static_assert(std::is_same<decltype(r4), std::array<std::array<std::array<std::array<double, 4>, 3>, 2>, 1>>::value,
+                "types must be the same");
 
   return 0;
 }

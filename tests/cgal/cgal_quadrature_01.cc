@@ -41,11 +41,9 @@ void
 test()
 {
   const std::vector<std::string> fnames{SOURCE_DIR "/input_grids/cube.off",
-                                        SOURCE_DIR
-                                        "/input_grids/tetrahedron.off",
+                                        SOURCE_DIR "/input_grids/tetrahedron.off",
                                         SOURCE_DIR "/input_grids/hedra.off",
-                                        SOURCE_DIR
-                                        "/input_grids/octahedron.off"};
+                                        SOURCE_DIR "/input_grids/octahedron.off"};
   CGAL::Surface_mesh<CGALPoint>  sm;
   CGALTriangulation              tria;
   constexpr int                  degree = 3;
@@ -56,11 +54,8 @@ test()
       tria.insert(sm.points().begin(), sm.points().end());
       auto b = compute_quadrature(tria, degree);
       deallog << "Volume of poly with Quadrature: " << std::setprecision(12)
-              << std::accumulate(b.get_weights().begin(),
-                                 b.get_weights().end(),
-                                 0.)
-              << "\t Expected:" << std::setprecision(12)
-              << CGAL::to_double(CGAL::Polygon_mesh_processing::volume(sm))
+              << std::accumulate(b.get_weights().begin(), b.get_weights().end(), 0.)
+              << "\t Expected:" << std::setprecision(12) << CGAL::to_double(CGAL::Polygon_mesh_processing::volume(sm))
               << std::endl;
       sm.clear(); // reset surface
       tria.clear();

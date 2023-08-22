@@ -83,9 +83,7 @@ test(MappingEnum::type mapping_name, unsigned int refinements = 1)
   // static const RotatedSphericalManifold rotated_sphere;
   // triangulation.set_manifold (1, rotated_sphere);
 
-  for (Triangulation<2, 3>::active_cell_iterator cell =
-         triangulation.begin_active();
-       cell != triangulation.end();
+  for (Triangulation<2, 3>::active_cell_iterator cell = triangulation.begin_active(); cell != triangulation.end();
        ++cell)
     {
       cell->set_all_manifold_ids(0);
@@ -123,13 +121,11 @@ test(MappingEnum::type mapping_name, unsigned int refinements = 1)
         break;
     }
 
-  FEValues<2, 3> fe_values(*mapping, fe, cell_quadrature, update_JxW_values);
+  FEValues<2, 3>     fe_values(*mapping, fe, cell_quadrature, update_JxW_values);
   const unsigned int n_q_points = cell_quadrature.size();
 
   double surface_area = 0;
-  for (DoFHandler<2, 3>::active_cell_iterator cell = dof_handler.begin_active(),
-                                              endc = dof_handler.end();
-       cell != endc;
+  for (DoFHandler<2, 3>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end(); cell != endc;
        ++cell)
     {
       double patch_surface = 0;
@@ -149,9 +145,7 @@ test(MappingEnum::type mapping_name, unsigned int refinements = 1)
   deallog << " Ref      = " << std::setw(5) << refinements;
   // deallog << " Surface area     = "
   //         << surface_area << std::endl;
-  deallog << "  RelErr  = "
-          << (surface_area - 4 * numbers::PI * radius * radius) /
-               (4 * numbers::PI * radius * radius)
+  deallog << "  RelErr  = " << (surface_area - 4 * numbers::PI * radius * radius) / (4 * numbers::PI * radius * radius)
           << std::endl;
 
   return;

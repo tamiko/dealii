@@ -45,8 +45,8 @@ struct SelectEvaluator
   static void
   evaluate(const unsigned int                     n_components,
            const EvaluationFlags::EvaluationFlags evaluation_flag,
-           const Number *                         values_dofs,
-           FEEvaluationData<dim, Number, false> & eval);
+           const Number                          *values_dofs,
+           FEEvaluationData<dim, Number, false>  &eval);
 
   /**
    * Chooses an appropriate evaluation strategy for the integrate function, i.e.
@@ -58,9 +58,9 @@ struct SelectEvaluator
   static void
   integrate(const unsigned int                     n_components,
             const EvaluationFlags::EvaluationFlags integration_flag,
-            Number *                               values_dofs,
-            FEEvaluationData<dim, Number, false> & eval,
-            const bool sum_into_values_array = false);
+            Number                                *values_dofs,
+            FEEvaluationData<dim, Number, false>  &eval,
+            const bool                             sum_into_values_array = false);
 };
 
 //----------------------Implementation for SelectEvaluator---------------------
@@ -68,17 +68,17 @@ struct SelectEvaluator
 
 template <int dim, int fe_degree, int n_q_points_1d, typename Number>
 inline void
-SelectEvaluator<dim, fe_degree, n_q_points_1d, Number>::evaluate(
-  const unsigned int                     n_components,
-  const EvaluationFlags::EvaluationFlags evaluation_flag,
-  const Number *                         values_dofs,
-  FEEvaluationData<dim, Number, false> & eval)
+SelectEvaluator<dim, fe_degree, n_q_points_1d, Number>::evaluate(const unsigned int                     n_components,
+                                                                 const EvaluationFlags::EvaluationFlags evaluation_flag,
+                                                                 const Number                          *values_dofs,
+                                                                 FEEvaluationData<dim, Number, false>  &eval)
 {
   Assert(fe_degree >= 0 && n_q_points_1d > 0, ExcInternalError());
 
-  internal::FEEvaluationImplSelector<dim, Number, false>::template run<
-    fe_degree,
-    n_q_points_1d>(n_components, evaluation_flag, values_dofs, eval);
+  internal::FEEvaluationImplSelector<dim, Number, false>::template run<fe_degree, n_q_points_1d>(n_components,
+                                                                                                 evaluation_flag,
+                                                                                                 values_dofs,
+                                                                                                 eval);
 }
 
 
@@ -88,15 +88,14 @@ inline void
 SelectEvaluator<dim, fe_degree, n_q_points_1d, Number>::integrate(
   const unsigned int                     n_components,
   const EvaluationFlags::EvaluationFlags integration_flag,
-  Number *                               values_dofs,
-  FEEvaluationData<dim, Number, false> & eval,
+  Number                                *values_dofs,
+  FEEvaluationData<dim, Number, false>  &eval,
   const bool                             sum_into_values_array)
 {
   Assert(fe_degree >= 0 && n_q_points_1d > 0, ExcInternalError());
 
-  internal::FEEvaluationImplSelector<dim, Number, true>::
-    template run<fe_degree, n_q_points_1d>(
-      n_components, integration_flag, values_dofs, eval, sum_into_values_array);
+  internal::FEEvaluationImplSelector<dim, Number, true>::template run<fe_degree, n_q_points_1d>(
+    n_components, integration_flag, values_dofs, eval, sum_into_values_array);
 }
 #endif // DOXYGEN
 

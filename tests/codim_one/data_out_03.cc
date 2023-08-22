@@ -74,9 +74,7 @@ main()
 
   Triangulation<2, 3> tria;
 
-  std::map<Triangulation<2, 3>::cell_iterator,
-           Triangulation<3, 3>::face_iterator>
-    surface_to_volume_mapping;
+  std::map<Triangulation<2, 3>::cell_iterator, Triangulation<3, 3>::face_iterator> surface_to_volume_mapping;
 
   SphericalManifold<3> boundary_description;
   Triangulation<3>     volume_mesh;
@@ -103,18 +101,14 @@ main()
   Vector<double> position(dh_test.n_dofs());
   VectorTools::interpolate(mapping, dh_test, Identity<3>(), position);
 
-  std::vector<DataComponentInterpretation::DataComponentInterpretation>
-    data_component_interpretation(
-      3, DataComponentInterpretation::component_is_part_of_vector);
+  std::vector<DataComponentInterpretation::DataComponentInterpretation> data_component_interpretation(
+    3, DataComponentInterpretation::component_is_part_of_vector);
 
   std::vector<std::string> solution_names(3, "position");
 
   DataOut<2, 3> data_out;
   data_out.attach_dof_handler(dh_test);
-  data_out.add_data_vector(position,
-                           solution_names,
-                           DataOut<2, 3>::type_dof_data,
-                           data_component_interpretation);
+  data_out.add_data_vector(position, solution_names, DataOut<2, 3>::type_dof_data, data_component_interpretation);
   data_out.build_patches(mapping, 2);
 
   data_out.write_gnuplot(deallog.get_file_stream());

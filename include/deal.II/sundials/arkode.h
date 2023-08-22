@@ -534,9 +534,7 @@ namespace SUNDIALS
      *   calls to this function.
      */
     unsigned int
-    solve_ode_incrementally(VectorType & solution,
-                            const double intermediate_time,
-                            const bool   reset_solver = false);
+    solve_ode_incrementally(VectorType &solution, const double intermediate_time, const bool reset_solver = false);
 
     /**
      * Clear internal memory and start with clean objects. This function is
@@ -590,9 +588,7 @@ namespace SUNDIALS
      * with "recoverable" errors in some circumstances, so callbacks
      * can throw exceptions of type RecoverableUserCallbackError.
      */
-    std::function<
-      void(const double t, const VectorType &y, VectorType &explicit_f)>
-      explicit_function;
+    std::function<void(const double t, const VectorType &y, VectorType &explicit_f)> explicit_function;
 
     /**
      * A function object that users may supply and that is intended to compute
@@ -610,8 +606,7 @@ namespace SUNDIALS
      * with "recoverable" errors in some circumstances, so callbacks
      * can throw exceptions of type RecoverableUserCallbackError.
      */
-    std::function<void(const double t, const VectorType &y, VectorType &res)>
-      implicit_function;
+    std::function<void(const double t, const VectorType &y, VectorType &res)> implicit_function;
 
     /**
      * A function object that users may supply and that is intended to compute
@@ -630,8 +625,7 @@ namespace SUNDIALS
      * with "recoverable" errors in some circumstances, so callbacks
      * can throw exceptions of type RecoverableUserCallbackError.
      */
-    std::function<void(const double t, const VectorType &v, VectorType &Mv)>
-      mass_times_vector;
+    std::function<void(const double t, const VectorType &v, VectorType &Mv)> mass_times_vector;
 
     /**
      * A function object that users may supply and that is intended to set up
@@ -695,11 +689,7 @@ namespace SUNDIALS
      * with "recoverable" errors in some circumstances, so callbacks
      * can throw exceptions of type RecoverableUserCallbackError.
      */
-    std::function<void(const VectorType &v,
-                       VectorType &      Jv,
-                       const double      t,
-                       const VectorType &y,
-                       const VectorType &fy)>
+    std::function<void(const VectorType &v, VectorType &Jv, const double t, const VectorType &y, const VectorType &fy)>
       jacobian_times_vector;
 
     /**
@@ -736,9 +726,7 @@ namespace SUNDIALS
      * with "recoverable" errors in some circumstances, so callbacks
      * can throw exceptions of type RecoverableUserCallbackError.
      */
-    std::function<
-      void(const double t, const VectorType &y, const VectorType &fy)>
-      jacobian_times_setup;
+    std::function<void(const double t, const VectorType &y, const VectorType &fy)> jacobian_times_setup;
 
     /**
      * A LinearSolveFunction object that users may supply and that is intended
@@ -827,7 +815,7 @@ namespace SUNDIALS
                        const VectorType &y,
                        const VectorType &fy,
                        const VectorType &r,
-                       VectorType &      z,
+                       VectorType       &z,
                        const double      gamma,
                        const double      tol,
                        const int         lr)>
@@ -875,12 +863,8 @@ namespace SUNDIALS
      * with "recoverable" errors in some circumstances, so callbacks
      * can throw exceptions of type RecoverableUserCallbackError.
      */
-    std::function<void(const double      t,
-                       const VectorType &y,
-                       const VectorType &fy,
-                       const int         jok,
-                       int &             jcur,
-                       const double      gamma)>
+    std::function<
+      void(const double t, const VectorType &y, const VectorType &fy, const int jok, int &jcur, const double gamma)>
       jacobian_preconditioner_setup;
 
     /**
@@ -910,11 +894,7 @@ namespace SUNDIALS
      * with "recoverable" errors in some circumstances, so callbacks
      * can throw exceptions of type RecoverableUserCallbackError.
      */
-    std::function<void(const double      t,
-                       const VectorType &r,
-                       VectorType &      z,
-                       const double      tol,
-                       const int         lr)>
+    std::function<void(const double t, const VectorType &r, VectorType &z, const double tol, const int lr)>
       mass_preconditioner_solve;
 
     /**
@@ -957,10 +937,7 @@ namespace SUNDIALS
      *   many times this function is called and how many time steps have
      *   actually been computed.
      */
-    std::function<void(const double       t,
-                       const VectorType & sol,
-                       const unsigned int step_number)>
-      output_step;
+    std::function<void(const double t, const VectorType &sol, const unsigned int step_number)> output_step;
 
     /**
      * A function object that users may supply and that is intended to evaluate
@@ -1022,16 +999,13 @@ namespace SUNDIALS
      */
     DeclException1(ExcFunctionNotProvided,
                    std::string,
-                   << "Please provide an implementation for the function \""
-                   << arg1 << "\"");
+                   << "Please provide an implementation for the function \"" << arg1 << "\"");
 
     /**
      * Internal routine to call ARKode repeatedly.
      */
     int
-    do_evolve_time(VectorType &          solution,
-                   dealii::DiscreteTime &time,
-                   const bool            do_reset);
+    do_evolve_time(VectorType &solution, dealii::DiscreteTime &time, const bool do_reset);
 
     /**
      * Set up the (non)linear solver and preconditioners in the ARKODE memory
@@ -1117,8 +1091,7 @@ namespace SUNDIALS
   DeclException1(ExcARKodeError,
                  int,
                  << "One of the SUNDIALS ARKode internal functions "
-                 << " returned a negative error code: " << arg1
-                 << ". Please consult SUNDIALS manual.");
+                 << " returned a negative error code: " << arg1 << ". Please consult SUNDIALS manual.");
 
 
   template <typename VectorType>
@@ -1149,8 +1122,7 @@ namespace SUNDIALS
     , output_period(output_period)
     , maximum_non_linear_iterations(maximum_non_linear_iterations)
     , implicit_function_is_linear(implicit_function_is_linear)
-    , implicit_function_is_time_independent(
-        implicit_function_is_time_independent)
+    , implicit_function_is_time_independent(implicit_function_is_time_independent)
     , mass_is_time_independent(mass_is_time_independent)
     , anderson_acceleration_subspace(anderson_acceleration_subspace)
   {}
@@ -1168,15 +1140,11 @@ namespace SUNDIALS
     prm.add_parameter("Initial step size", initial_step_size);
     prm.add_parameter("Minimum step size", minimum_step_size);
     prm.add_parameter("Maximum order of ARK", maximum_order);
-    prm.add_parameter("Maximum number of nonlinear iterations",
-                      maximum_non_linear_iterations);
-    prm.add_parameter("Implicit function is linear",
-                      implicit_function_is_linear);
-    prm.add_parameter("Implicit function is time independent",
-                      implicit_function_is_time_independent);
+    prm.add_parameter("Maximum number of nonlinear iterations", maximum_non_linear_iterations);
+    prm.add_parameter("Implicit function is linear", implicit_function_is_linear);
+    prm.add_parameter("Implicit function is time independent", implicit_function_is_time_independent);
     prm.add_parameter("Mass is time independent", mass_is_time_independent);
-    prm.add_parameter("Anderson-acceleration subspace",
-                      anderson_acceleration_subspace);
+    prm.add_parameter("Anderson-acceleration subspace", anderson_acceleration_subspace);
     prm.leave_subsection();
     prm.enter_subsection("Error control");
     prm.add_parameter("Absolute error tolerance", absolute_tolerance);

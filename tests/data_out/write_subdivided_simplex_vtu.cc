@@ -62,10 +62,7 @@ test()
 
   MappingFE<dim> mapping(FE_SimplexP<dim>(1));
 
-  VectorTools::interpolate(mapping,
-                           dof_handler,
-                           RightHandSideFunction<dim>(),
-                           solution);
+  VectorTools::interpolate(mapping, dof_handler, RightHandSideFunction<dim>(), solution);
 
   // Switch off compression to make the resulting file easier to read
   // as a human

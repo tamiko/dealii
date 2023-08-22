@@ -34,10 +34,10 @@ test()
   DoFHandler<dim>    dof_handler(triangulation);
   GridGenerator::hyper_cube(triangulation);
 
-  FilteredIterator<typename DoFHandler<dim>::level_cell_iterator> begin(
-    IteratorFilters::LocallyOwnedLevelCell(), dof_handler.begin());
-  FilteredIterator<typename DoFHandler<dim>::level_cell_iterator> end(
-    IteratorFilters::LocallyOwnedLevelCell(), dof_handler.end());
+  FilteredIterator<typename DoFHandler<dim>::level_cell_iterator> begin(IteratorFilters::LocallyOwnedLevelCell(),
+                                                                        dof_handler.begin());
+  FilteredIterator<typename DoFHandler<dim>::level_cell_iterator> end(IteratorFilters::LocallyOwnedLevelCell(),
+                                                                      dof_handler.end());
   end = begin;
 
   deallog << "OK" << std::endl;

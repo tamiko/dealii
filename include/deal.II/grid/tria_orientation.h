@@ -30,12 +30,9 @@ namespace internal
    * Combine orientation flags.
    */
   inline unsigned char
-  combined_face_orientation(const bool face_orientation,
-                            const bool face_rotation,
-                            const bool face_flip)
+  combined_face_orientation(const bool face_orientation, const bool face_rotation, const bool face_flip)
   {
-    return (face_orientation ? 1 : 0) + (face_rotation ? 2 : 0) +
-           (face_flip ? 4 : 0);
+    return (face_orientation ? 1 : 0) + (face_rotation ? 2 : 0) + (face_flip ? 4 : 0);
   }
 
   /**

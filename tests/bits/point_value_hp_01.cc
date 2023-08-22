@@ -98,8 +98,7 @@ make_mesh(Triangulation<dim> &tria)
   const double steps[4] = {/*d=0*/ 0, 7, 3, 3};
   for (unsigned int i = 0; i < steps[dim]; ++i)
     {
-      typename Triangulation<dim>::active_cell_iterator cell =
-        tria.begin_active();
+      typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active();
       for (unsigned int index = 0; cell != tria.end(); ++cell, ++index)
         if (index % (3 * dim) == 0)
           cell->set_refine_flag();
@@ -123,9 +122,7 @@ check()
 
   DoFHandler<dim> dof_handler(tria);
 
-  typename DoFHandler<dim>::active_cell_iterator cell =
-                                                   dof_handler.begin_active(),
-                                                 endc = dof_handler.end();
+  typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
   for (; cell != endc; ++cell)
     {
       cell->set_active_fe_index(Testing::rand() % fe.size());
@@ -143,8 +140,7 @@ check()
       static const Functions::CosineFunction<dim> function_2;
 
       const Function<dim> &function =
-        (i == 0 ? static_cast<const Function<dim> &>(function_1) :
-                  static_cast<const Function<dim> &>(function_2));
+        (i == 0 ? static_cast<const Function<dim> &>(function_1) : static_cast<const Function<dim> &>(function_2));
 
       Vector<double> v(dof_handler.n_dofs());
       VectorTools::interpolate(dof_handler, function, v);
@@ -170,11 +166,9 @@ check()
           VectorTools::point_value(dof_handler, v, p[i], value);
           deallog << -value(0) << std::endl;
 
-          Assert(std::abs(value(0) - function.value(p[i])) < 1e-4,
-                 ExcInternalError());
+          Assert(std::abs(value(0) - function.value(p[i])) < 1e-4, ExcInternalError());
 
-          const double scalar_value =
-            VectorTools::point_value(dof_handler, v, p[i]);
+          const double scalar_value = VectorTools::point_value(dof_handler, v, p[i]);
           Assert(std::abs(value(0) - scalar_value) < 1e-4, ExcInternalError());
         }
     }

@@ -48,8 +48,7 @@ test()
   local_relevant = local_owned;
   local_relevant.add_range(1, 2);
 
-  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> v(
-    local_owned, local_owned, MPI_COMM_WORLD);
+  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> v(local_owned, local_owned, MPI_COMM_WORLD);
 
   // set local values
   LinearAlgebra::ReadWriteVector<double> rw_vector(local_owned);
@@ -62,8 +61,7 @@ test()
   {
     rw_vector.import_elements(v, VectorOperation::insert);
     AssertThrow(rw_vector(myid * 2) == myid * 4.0, ExcInternalError());
-    AssertThrow(rw_vector(myid * 2 + 1) == myid * 4.0 + 2.0,
-                ExcInternalError());
+    AssertThrow(rw_vector(myid * 2 + 1) == myid * 4.0 + 2.0, ExcInternalError());
   }
 
   // check l2 norm
@@ -95,8 +93,7 @@ test()
     if (myid == 0)
       deallog << "Mean value: " << mean << std::endl;
 
-    Assert(std::fabs(mean * v.size() - v.l1_norm()) < 1e-15,
-           ExcInternalError());
+    Assert(std::fabs(mean * v.size() - v.l1_norm()) < 1e-15, ExcInternalError());
   }
   // check inner product
   {
@@ -137,8 +134,7 @@ test()
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   unsigned int myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
   deallog.push(Utilities::int_to_string(myid));

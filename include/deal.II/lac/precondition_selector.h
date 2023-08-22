@@ -96,8 +96,7 @@ class SparseMatrix;
  * started (that is several times e.g. in a nonlinear iteration) this
  * preselected solver and preconditioner is called.
  */
-template <typename MatrixType = SparseMatrix<double>,
-          typename VectorType = dealii::Vector<double>>
+template <typename MatrixType = SparseMatrix<double>, typename VectorType = dealii::Vector<double>>
 class PreconditionSelector : public Subscriptor
 {
 public:
@@ -110,8 +109,7 @@ public:
    * Constructor. @p omega denotes the damping parameter of the
    * preconditioning.
    */
-  PreconditionSelector(const std::string &                    preconditioning,
-                       const typename VectorType::value_type &omega = 1.);
+  PreconditionSelector(const std::string &preconditioning, const typename VectorType::value_type &omega = 1.);
 
   /**
    * Destructor.
@@ -189,8 +187,7 @@ private:
    * Matrix that is used for the matrix-builtin preconditioning function. cf.
    * also @p PreconditionUseMatrix.
    */
-  SmartPointer<const MatrixType, PreconditionSelector<MatrixType, VectorType>>
-    A;
+  SmartPointer<const MatrixType, PreconditionSelector<MatrixType, VectorType>> A;
 
   /**
    * Stores the damping parameter of the preconditioner.
@@ -203,9 +200,8 @@ private:
 
 
 template <typename MatrixType, typename VectorType>
-PreconditionSelector<MatrixType, VectorType>::PreconditionSelector(
-  const std::string &                    preconditioning,
-  const typename VectorType::value_type &omega)
+PreconditionSelector<MatrixType, VectorType>::PreconditionSelector(const std::string &preconditioning,
+                                                                   const typename VectorType::value_type &omega)
   : preconditioning(preconditioning)
   , omega(omega)
 {}
@@ -248,8 +244,7 @@ PreconditionSelector<MatrixType, VectorType>::n() const
 
 template <typename MatrixType, typename VectorType>
 void
-PreconditionSelector<MatrixType, VectorType>::vmult(VectorType &      dst,
-                                                    const VectorType &src) const
+PreconditionSelector<MatrixType, VectorType>::vmult(VectorType &dst, const VectorType &src) const
 {
   if (preconditioning == "none")
     {
@@ -279,9 +274,7 @@ PreconditionSelector<MatrixType, VectorType>::vmult(VectorType &      dst,
 
 template <typename MatrixType, typename VectorType>
 void
-PreconditionSelector<MatrixType, VectorType>::Tvmult(
-  VectorType &      dst,
-  const VectorType &src) const
+PreconditionSelector<MatrixType, VectorType>::Tvmult(VectorType &dst, const VectorType &src) const
 {
   if (preconditioning == "none")
     {

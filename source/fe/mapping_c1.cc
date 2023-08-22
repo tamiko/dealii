@@ -38,8 +38,7 @@ MappingC1<dim, spacedim>::MappingC1()
 
 template <>
 void
-MappingC1<1>::add_line_support_points(const Triangulation<1>::cell_iterator &,
-                                      std::vector<Point<1>> &) const
+MappingC1<1>::add_line_support_points(const Triangulation<1>::cell_iterator &, std::vector<Point<1>> &) const
 {
   const unsigned int dim = 1;
   (void)dim;
@@ -50,19 +49,15 @@ MappingC1<1>::add_line_support_points(const Triangulation<1>::cell_iterator &,
 
 template <>
 void
-MappingC1<2>::add_line_support_points(
-  const Triangulation<2>::cell_iterator &cell,
-  std::vector<Point<2>> &                a) const
+MappingC1<2>::add_line_support_points(const Triangulation<2>::cell_iterator &cell, std::vector<Point<2>> &a) const
 {
   const unsigned int          dim = 2;
-  const std::array<double, 2> interior_gl_points{
-    {0.5 - 0.5 * std::sqrt(1.0 / 5.0), 0.5 + 0.5 * std::sqrt(1.0 / 5.0)}};
+  const std::array<double, 2> interior_gl_points{{0.5 - 0.5 * std::sqrt(1.0 / 5.0), 0.5 + 0.5 * std::sqrt(1.0 / 5.0)}};
 
   // loop over each of the lines, and if it is at the boundary, then first get
   // the boundary description and second compute the points on it. if not at
   // the boundary, get the respective points from another function
-  for (unsigned int line_no = 0; line_no < GeometryInfo<dim>::lines_per_cell;
-       ++line_no)
+  for (unsigned int line_no = 0; line_no < GeometryInfo<dim>::lines_per_cell; ++line_no)
     {
       const Triangulation<dim>::line_iterator line = cell->line(line_no);
 
@@ -98,23 +93,19 @@ MappingC1<2>::add_line_support_points(
           // @p{(1,-b-2c)} at the two vertices, respectively. We then have to
           // make sure by matching @p{b,c} that these tangentials are
           // orthogonal to the normals returned by the boundary object
-          const Tensor<1, 2> coordinate_vector =
-            line->vertex(1) - line->vertex(0);
-          const double h = std::sqrt(coordinate_vector * coordinate_vector);
-          Tensor<1, 2> coordinate_axis = coordinate_vector;
+          const Tensor<1, 2> coordinate_vector = line->vertex(1) - line->vertex(0);
+          const double       h                 = std::sqrt(coordinate_vector * coordinate_vector);
+          Tensor<1, 2>       coordinate_axis   = coordinate_vector;
           coordinate_axis /= h;
 
-          const double alpha =
-            std::atan2(coordinate_axis[1], coordinate_axis[0]);
-          const double c = -((face_vertex_normals[0][1] * std::sin(alpha) +
-                              face_vertex_normals[0][0] * std::cos(alpha)) /
-                             (face_vertex_normals[0][1] * std::cos(alpha) -
-                              face_vertex_normals[0][0] * std::sin(alpha)));
-          const double b = ((face_vertex_normals[1][1] * std::sin(alpha) +
-                             face_vertex_normals[1][0] * std::cos(alpha)) /
-                            (face_vertex_normals[1][1] * std::cos(alpha) -
-                             face_vertex_normals[1][0] * std::sin(alpha))) -
-                           2 * c;
+          const double alpha = std::atan2(coordinate_axis[1], coordinate_axis[0]);
+          const double c =
+            -((face_vertex_normals[0][1] * std::sin(alpha) + face_vertex_normals[0][0] * std::cos(alpha)) /
+              (face_vertex_normals[0][1] * std::cos(alpha) - face_vertex_normals[0][0] * std::sin(alpha)));
+          const double b =
+            ((face_vertex_normals[1][1] * std::sin(alpha) + face_vertex_normals[1][0] * std::cos(alpha)) /
+             (face_vertex_normals[1][1] * std::cos(alpha) - face_vertex_normals[1][0] * std::sin(alpha))) -
+            2 * c;
 
           const double t1   = interior_gl_points[0];
           const double t2   = interior_gl_points[1];
@@ -123,16 +114,13 @@ MappingC1<2>::add_line_support_points(
 
           // next evaluate the so determined cubic polynomial at the points
           // 1/3 and 2/3, first in unit coordinates
-          const Point<2> new_unit_points[2] = {Point<2>(t1, s_t1),
-                                               Point<2>(t2, s_t2)};
+          const Point<2> new_unit_points[2] = {Point<2>(t1, s_t1), Point<2>(t2, s_t2)};
           // then transform these points to real coordinates by rotating,
           // scaling and shifting
           for (const auto &new_unit_point : new_unit_points)
             {
-              Point<2> real_point(std::cos(alpha) * new_unit_point[0] -
-                                    std::sin(alpha) * new_unit_point[1],
-                                  std::sin(alpha) * new_unit_point[0] +
-                                    std::cos(alpha) * new_unit_point[1]);
+              Point<2> real_point(std::cos(alpha) * new_unit_point[0] - std::sin(alpha) * new_unit_point[1],
+                                  std::sin(alpha) * new_unit_point[0] + std::cos(alpha) * new_unit_point[1]);
               real_point *= h;
               real_point += line->vertex(0);
               a.push_back(real_point);
@@ -144,10 +132,8 @@ MappingC1<2>::add_line_support_points(
         {
           // Note that the zeroth Gauss-Lobatto point is a boundary point, so
           // we push back mapped versions of the first and second.
-          a.push_back((1.0 - interior_gl_points[0]) * line->vertex(0) +
-                      (interior_gl_points[0] * line->vertex(1)));
-          a.push_back((1.0 - interior_gl_points[1]) * line->vertex(0) +
-                      (interior_gl_points[1] * line->vertex(1)));
+          a.push_back((1.0 - interior_gl_points[0]) * line->vertex(0) + (interior_gl_points[0] * line->vertex(1)));
+          a.push_back((1.0 - interior_gl_points[1]) * line->vertex(0) + (interior_gl_points[1] * line->vertex(1)));
         }
     }
 }
@@ -156,9 +142,8 @@ MappingC1<2>::add_line_support_points(
 
 template <int dim, int spacedim>
 void
-MappingC1<dim, spacedim>::add_line_support_points(
-  const typename Triangulation<dim>::cell_iterator &,
-  std::vector<Point<dim>> &) const
+MappingC1<dim, spacedim>::add_line_support_points(const typename Triangulation<dim>::cell_iterator &,
+                                                  std::vector<Point<dim>> &) const
 {
   Assert(false, ExcNotImplemented());
 }
@@ -167,8 +152,7 @@ MappingC1<dim, spacedim>::add_line_support_points(
 
 template <>
 void
-MappingC1<1>::add_quad_support_points(const Triangulation<1>::cell_iterator &,
-                                      std::vector<Point<1>> &) const
+MappingC1<1>::add_quad_support_points(const Triangulation<1>::cell_iterator &, std::vector<Point<1>> &) const
 {
   const unsigned int dim = 1;
   (void)dim;
@@ -179,8 +163,7 @@ MappingC1<1>::add_quad_support_points(const Triangulation<1>::cell_iterator &,
 
 template <>
 void
-MappingC1<2>::add_quad_support_points(const Triangulation<2>::cell_iterator &,
-                                      std::vector<Point<2>> &) const
+MappingC1<2>::add_quad_support_points(const Triangulation<2>::cell_iterator &, std::vector<Point<2>> &) const
 {
   const unsigned int dim = 2;
   (void)dim;
@@ -191,9 +174,8 @@ MappingC1<2>::add_quad_support_points(const Triangulation<2>::cell_iterator &,
 
 template <int dim, int spacedim>
 void
-MappingC1<dim, spacedim>::add_quad_support_points(
-  const typename Triangulation<dim>::cell_iterator &,
-  std::vector<Point<dim>> &) const
+MappingC1<dim, spacedim>::add_quad_support_points(const typename Triangulation<dim>::cell_iterator &,
+                                                  std::vector<Point<dim>> &) const
 {
   Assert(false, ExcNotImplemented());
 }

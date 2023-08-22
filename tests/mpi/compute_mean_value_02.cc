@@ -88,8 +88,7 @@ test()
   {
     // set fe indices arbitrarily
     unsigned int i = 0;
-    for (const auto &cell :
-         dofh.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+    for (const auto &cell : dofh.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
       cell->set_active_fe_index(i++ % fe_collection.size());
     dofh.distribute_dofs(fe_collection);
   }
@@ -98,14 +97,12 @@ test()
   DoFTools::extract_locally_relevant_dofs(dofh, relevant_set);
   TrilinosWrappers::MPI::Vector x_rel(relevant_set, dofh.get_communicator());
   {
-    TrilinosWrappers::MPI::Vector interpolated(dofh.locally_owned_dofs(),
-                                               dofh.get_communicator());
+    TrilinosWrappers::MPI::Vector interpolated(dofh.locally_owned_dofs(), dofh.get_communicator());
     VectorTools::interpolate(dofh, LinearFunction<dim>(), interpolated);
     x_rel = interpolated;
   }
 
-  const double mean = VectorTools::compute_mean_value(
-    mapping_collection, dofh, q_collection, x_rel, 0);
+  const double mean = VectorTools::compute_mean_value(mapping_collection, dofh, q_collection, x_rel, 0);
 
   deallog << "mean=" << mean << std::endl;
 

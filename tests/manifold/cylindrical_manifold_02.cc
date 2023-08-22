@@ -39,9 +39,7 @@ test(unsigned int ref = 1)
   Triangulation<dim, spacedim> tria;
   GridGenerator::cylinder_shell(tria, .5, .1, .25);
 
-  for (typename Triangulation<dim, spacedim>::active_cell_iterator cell =
-         tria.begin_active();
-       cell != tria.end();
+  for (typename Triangulation<dim, spacedim>::active_cell_iterator cell = tria.begin_active(); cell != tria.end();
        ++cell)
     {
       cell->set_all_manifold_ids(1);

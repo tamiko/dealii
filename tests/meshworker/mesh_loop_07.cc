@@ -53,34 +53,23 @@ run()
 
   // Volume integral
   {
-    ScratchData scratch(dof_handler.get_fe(),
-                        cell_quadrature,
-                        update_JxW_values);
+    ScratchData scratch(dof_handler.get_fe(), cell_quadrature, update_JxW_values);
     CopyData    copy(1);
 
-    auto cell_worker = [](const CellIteratorType &cell,
-                          ScratchData &           scratch_data,
-                          CopyData &              copy_data) {
+    auto cell_worker = [](const CellIteratorType &cell, ScratchData &scratch_data, CopyData &copy_data) {
       const auto &fe_values = scratch_data.reinit(cell);
 
-      for (unsigned int q_point = 0; q_point < fe_values.n_quadrature_points;
-           ++q_point)
+      for (unsigned int q_point = 0; q_point < fe_values.n_quadrature_points; ++q_point)
         {
           copy_data.vectors[0][0] += 1.0 * fe_values.JxW(q_point);
         }
     };
 
     double volume = 0.0;
-    auto   copier = [&volume](const CopyData &copy_data) {
-      volume += copy_data.vectors[0][0];
-    };
+    auto   copier = [&volume](const CopyData &copy_data) { volume += copy_data.vectors[0][0]; };
 
-    MeshWorker::mesh_loop(dof_handler.active_cell_iterators(),
-                          cell_worker,
-                          copier,
-                          scratch,
-                          copy,
-                          MeshWorker::assemble_own_cells);
+    MeshWorker::mesh_loop(
+      dof_handler.active_cell_iterators(), cell_worker, copier, scratch, copy, MeshWorker::assemble_own_cells);
     deallog << "Volume: " << volume << std::endl;
 
     double reference_volume = 0.0;
@@ -88,36 +77,26 @@ run()
       reference_volume += cell->measure();
 
     Assert(std::abs(volume - reference_volume) < 1e-6,
-           ExcMessage("Volumes do not match. Reference value: " +
-                      Utilities::to_string(reference_volume) +
+           ExcMessage("Volumes do not match. Reference value: " + Utilities::to_string(reference_volume) +
                       "; Calculated value: " + Utilities::to_string(volume)));
   }
 
   // Boundary integral
   {
-    ScratchData scratch(dof_handler.get_fe(),
-                        cell_quadrature,
-                        update_default,
-                        face_quadrature,
-                        update_JxW_values);
+    ScratchData scratch(dof_handler.get_fe(), cell_quadrature, update_default, face_quadrature, update_JxW_values);
     CopyData    copy(1);
 
-    std::function<void(const CellIteratorType &, ScratchData &, CopyData &)>
-      empty_cell_worker;
+    std::function<void(const CellIteratorType &, ScratchData &, CopyData &)> empty_cell_worker;
 
-    auto boundary_worker = [](const CellIteratorType &cell,
-                              const unsigned int      face,
-                              ScratchData &           scratch_data,
-                              CopyData &              copy_data) {
-      const auto &fe_face_values = scratch_data.reinit(cell, face);
+    auto boundary_worker =
+      [](const CellIteratorType &cell, const unsigned int face, ScratchData &scratch_data, CopyData &copy_data) {
+        const auto &fe_face_values = scratch_data.reinit(cell, face);
 
-      for (unsigned int q_point = 0;
-           q_point < fe_face_values.n_quadrature_points;
-           ++q_point)
-        {
-          copy_data.vectors[0][0] += 1.0 * fe_face_values.JxW(q_point);
-        }
-    };
+        for (unsigned int q_point = 0; q_point < fe_face_values.n_quadrature_points; ++q_point)
+          {
+            copy_data.vectors[0][0] += 1.0 * fe_face_values.JxW(q_point);
+          }
+      };
 
     double area   = 0.0;
     auto   copier = [&area](const CopyData &copy_data) {
@@ -147,8 +126,7 @@ run()
           }
 
     Assert(std::abs(area - reference_area) < 1e-6,
-           ExcMessage("Areas do not match. Reference value: " +
-                      Utilities::to_string(reference_area) +
+           ExcMessage("Areas do not match. Reference value: " + Utilities::to_string(reference_area) +
                       "; Calculated value: " + Utilities::to_string(area)));
   }
 

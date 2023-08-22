@@ -53,15 +53,13 @@ test()
       for (unsigned int i = 0; i < dim; ++i)
         position(i) = 0.525;
 
-    Particles::Particle<dim, spacedim> particle(
-      position,
-      reference_position,
-      Utilities::MPI::this_mpi_process(tr.get_communicator()));
+    Particles::Particle<dim, spacedim> particle(position,
+                                                reference_position,
+                                                Utilities::MPI::this_mpi_process(tr.get_communicator()));
 
     // We give a local random cell hint to check that sorting and
     // transferring ghost particles works.
-    typename Triangulation<dim, spacedim>::active_cell_iterator cell =
-      tr.begin_active();
+    typename Triangulation<dim, spacedim>::active_cell_iterator cell = tr.begin_active();
     while (!cell->is_locally_owned())
       ++cell;
 
@@ -70,21 +68,13 @@ test()
     particle_handler.sort_particles_into_subdomains_and_cells();
     particle_handler.exchange_ghost_particles();
 
-    for (auto particle = particle_handler.begin();
-         particle != particle_handler.end();
-         ++particle)
-      deallog << "Particle id " << particle->get_id()
-              << " is local particle on process "
-              << Utilities::MPI::this_mpi_process(tr.get_communicator())
-              << std::endl;
+    for (auto particle = particle_handler.begin(); particle != particle_handler.end(); ++particle)
+      deallog << "Particle id " << particle->get_id() << " is local particle on process "
+              << Utilities::MPI::this_mpi_process(tr.get_communicator()) << std::endl;
 
-    for (auto particle = particle_handler.begin_ghost();
-         particle != particle_handler.end_ghost();
-         ++particle)
-      deallog << "Particle id " << particle->get_id()
-              << " is ghost particle on process "
-              << Utilities::MPI::this_mpi_process(tr.get_communicator())
-              << std::endl;
+    for (auto particle = particle_handler.begin_ghost(); particle != particle_handler.end_ghost(); ++particle)
+      deallog << "Particle id " << particle->get_id() << " is ghost particle on process "
+              << Utilities::MPI::this_mpi_process(tr.get_communicator()) << std::endl;
   }
 
   deallog << "OK" << std::endl;

@@ -53,8 +53,7 @@ test()
 
   ComponentMask mask(fe.n_components(), true);
 
-  std::vector<IndexSet> dofs_per_components =
-    DoFTools::locally_owned_dofs_per_component(dof, mask);
+  std::vector<IndexSet> dofs_per_components = DoFTools::locally_owned_dofs_per_component(dof, mask);
 
   MappingQ<dim>                                 mapping(1);
   std::map<types::global_dof_index, Point<dim>> support_points;

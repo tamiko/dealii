@@ -105,14 +105,12 @@ LaplaceProblem<dim>::setup_system()
   mg_dof_handler.distribute_dofs(fe);
   mg_dof_handler.distribute_mg_dofs();
 
-  deallog << "   Number of degrees of freedom: " << mg_dof_handler.n_dofs()
-          << std::endl;
+  deallog << "   Number of degrees of freedom: " << mg_dof_handler.n_dofs() << std::endl;
 
   sparsity_pattern.reinit(mg_dof_handler.n_dofs(),
                           mg_dof_handler.n_dofs(),
                           mg_dof_handler.max_couplings_between_dofs());
-  DoFTools::make_sparsity_pattern(
-    static_cast<const DoFHandler<dim> &>(mg_dof_handler), sparsity_pattern);
+  DoFTools::make_sparsity_pattern(static_cast<const DoFHandler<dim> &>(mg_dof_handler), sparsity_pattern);
   sparsity_pattern.compress();
 
   system_matrix.reinit(sparsity_pattern);
@@ -143,8 +141,7 @@ LaplaceProblem<dim>::assemble_system()
 
   FEValues<dim> fe_values(fe,
                           quadrature_formula,
-                          update_values | update_gradients |
-                            update_quadrature_points | update_JxW_values);
+                          update_values | update_gradients | update_quadrature_points | update_JxW_values);
 
   const unsigned int dofs_per_cell = fe.dofs_per_cell;
   const unsigned int n_q_points    = quadrature_formula.size();
@@ -154,9 +151,7 @@ LaplaceProblem<dim>::assemble_system()
 
   std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
 
-  typename DoFHandler<dim>::active_cell_iterator cell = mg_dof_handler
-                                                          .begin_active(),
-                                                 endc = mg_dof_handler.end();
+  typename DoFHandler<dim>::active_cell_iterator cell = mg_dof_handler.begin_active(), endc = mg_dof_handler.end();
   for (; cell != endc; ++cell)
     {
       cell_matrix = 0;
@@ -168,14 +163,11 @@ LaplaceProblem<dim>::assemble_system()
         for (unsigned int i = 0; i < dofs_per_cell; ++i)
           {
             for (unsigned int j = 0; j < dofs_per_cell; ++j)
-              cell_matrix(i, j) += ((fe_values.shape_grad(i, q_point) *
-                                     fe_values.shape_grad(j, q_point)) +
-                                    fe_values.shape_value(i, q_point) *
-                                      fe_values.shape_value(j, q_point)) *
+              cell_matrix(i, j) += ((fe_values.shape_grad(i, q_point) * fe_values.shape_grad(j, q_point)) +
+                                    fe_values.shape_value(i, q_point) * fe_values.shape_value(j, q_point)) *
                                    fe_values.JxW(q_point);
 
-            cell_rhs(i) += (fe_values.shape_value(i, q_point) * 1.0 *
-                            fe_values.JxW(q_point));
+            cell_rhs(i) += (fe_values.shape_value(i, q_point) * 1.0 * fe_values.JxW(q_point));
           };
 
 
@@ -183,9 +175,7 @@ LaplaceProblem<dim>::assemble_system()
       for (unsigned int i = 0; i < dofs_per_cell; ++i)
         {
           for (unsigned int j = 0; j < dofs_per_cell; ++j)
-            system_matrix.add(local_dof_indices[i],
-                              local_dof_indices[j],
-                              cell_matrix(i, j));
+            system_matrix.add(local_dof_indices[i], local_dof_indices[j], cell_matrix(i, j));
 
           system_rhs(local_dof_indices[i]) += cell_rhs(i);
         };
@@ -202,8 +192,7 @@ LaplaceProblem<dim>::assemble_multigrid()
 
   FEValues<dim> fe_values(fe,
                           quadrature_formula,
-                          update_values | update_gradients |
-                            update_quadrature_points | update_JxW_values);
+                          update_values | update_gradients | update_quadrature_points | update_JxW_values);
 
   const unsigned int dofs_per_cell = fe.dofs_per_cell;
   const unsigned int n_q_points    = quadrature_formula.size();
@@ -212,8 +201,7 @@ LaplaceProblem<dim>::assemble_multigrid()
 
   std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
 
-  typename DoFHandler<dim>::cell_iterator cell = mg_dof_handler.begin(),
-                                          endc = mg_dof_handler.end();
+  typename DoFHandler<dim>::cell_iterator cell = mg_dof_handler.begin(), endc = mg_dof_handler.end();
   for (; cell != endc; ++cell)
     {
       const unsigned int level = cell->level();
@@ -225,10 +213,8 @@ LaplaceProblem<dim>::assemble_multigrid()
         for (unsigned int i = 0; i < dofs_per_cell; ++i)
           {
             for (unsigned int j = 0; j < dofs_per_cell; ++j)
-              cell_matrix(i, j) += ((fe_values.shape_grad(i, q_point) *
-                                     fe_values.shape_grad(j, q_point)) +
-                                    fe_values.shape_value(i, q_point) *
-                                      fe_values.shape_value(j, q_point)) *
+              cell_matrix(i, j) += ((fe_values.shape_grad(i, q_point) * fe_values.shape_grad(j, q_point)) +
+                                    fe_values.shape_value(i, q_point) * fe_values.shape_value(j, q_point)) *
                                    fe_values.JxW(q_point);
           };
 
@@ -237,9 +223,7 @@ LaplaceProblem<dim>::assemble_multigrid()
       for (unsigned int i = 0; i < dofs_per_cell; ++i)
         {
           for (unsigned int j = 0; j < dofs_per_cell; ++j)
-            mg_matrices[level].add(local_dof_indices[i],
-                                   local_dof_indices[j],
-                                   cell_matrix(i, j));
+            mg_matrices[level].add(local_dof_indices[i], local_dof_indices[j], cell_matrix(i, j));
         };
     };
 }
@@ -259,8 +243,7 @@ LaplaceProblem<dim>::solve()
   mg_coarse.initialize(coarse_matrix);
 
   using RELAXATION = PreconditionSOR<SparseMatrix<float>>;
-  MGSmootherRelaxation<SparseMatrix<float>, RELAXATION, Vector<double>>
-    mg_smoother;
+  MGSmootherRelaxation<SparseMatrix<float>, RELAXATION, Vector<double>> mg_smoother;
 
   RELAXATION::AdditionalData smoother_data;
   mg_smoother.initialize(mg_matrices, smoother_data);
@@ -269,10 +252,10 @@ LaplaceProblem<dim>::solve()
   mg_smoother.set_symmetric(true);
 
   mg::Matrix<Vector<double>> mg_matrix(mg_matrices);
-  Multigrid<Vector<double>>  mg(
-    mg_matrix, mg_coarse, mg_transfer, mg_smoother, mg_smoother);
-  PreconditionMG<dim, Vector<double>, MGTransferPrebuilt<Vector<double>>>
-    preconditioner(mg_dof_handler, mg, mg_transfer);
+  Multigrid<Vector<double>>  mg(mg_matrix, mg_coarse, mg_transfer, mg_smoother, mg_smoother);
+  PreconditionMG<dim, Vector<double>, MGTransferPrebuilt<Vector<double>>> preconditioner(mg_dof_handler,
+                                                                                         mg,
+                                                                                         mg_transfer);
 
   SolverControl solver_control(1000, 1e-12);
   SolverCG<>    cg(solver_control);
@@ -280,8 +263,7 @@ LaplaceProblem<dim>::solve()
 
   cg.solve(system_matrix, solution, system_rhs, preconditioner);
 
-  deallog << "   " << solver_control.last_step()
-          << " CG iterations needed to obtain convergence." << std::endl;
+  deallog << "   " << solver_control.last_step() << " CG iterations needed to obtain convergence." << std::endl;
 }
 
 
@@ -319,10 +301,8 @@ LaplaceProblem<dim>::run()
       else
         triangulation.refine_global(1);
 
-      deallog << "   Number of active cells: " << triangulation.n_active_cells()
-              << std::endl
-              << "   Total number of cells: " << triangulation.n_cells()
-              << std::endl;
+      deallog << "   Number of active cells: " << triangulation.n_active_cells() << std::endl
+              << "   Total number of cells: " << triangulation.n_cells() << std::endl;
 
       setup_system();
       assemble_system();

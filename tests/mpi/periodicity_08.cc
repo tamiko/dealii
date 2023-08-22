@@ -44,28 +44,22 @@ test()
 {
   MPI_Comm mpi_communicator = MPI_COMM_WORLD;
 
-  const unsigned int n_mpi_processes =
-    Utilities::MPI::n_mpi_processes(mpi_communicator);
-  const unsigned int this_mpi_process =
-    Utilities::MPI::this_mpi_process(mpi_communicator);
+  const unsigned int n_mpi_processes  = Utilities::MPI::n_mpi_processes(mpi_communicator);
+  const unsigned int this_mpi_process = Utilities::MPI::this_mpi_process(mpi_communicator);
 
   const double L = 20;
 
   dealii::parallel::distributed::Triangulation<dim> triangulation(
     mpi_communicator,
     typename Triangulation<dim>::MeshSmoothing(
-      Triangulation<dim>::limit_level_difference_at_vertices |
-      Triangulation<dim>::eliminate_unrefined_islands |
-      Triangulation<dim>::eliminate_refined_inner_islands |
-      Triangulation<dim>::eliminate_refined_boundary_islands |
+      Triangulation<dim>::limit_level_difference_at_vertices | Triangulation<dim>::eliminate_unrefined_islands |
+      Triangulation<dim>::eliminate_refined_inner_islands | Triangulation<dim>::eliminate_refined_boundary_islands |
       Triangulation<dim>::do_not_produce_unrefined_islands));
   GridGenerator::hyper_cube(triangulation, 0, 1, /*colorize*/ true);
 
 
 
-  std::vector<
-    GridTools::PeriodicFacePair<typename Triangulation<dim>::cell_iterator>>
-    periodicity_vector;
+  std::vector<GridTools::PeriodicFacePair<typename Triangulation<dim>::cell_iterator>> periodicity_vector;
   if (true)
     for (int d = 0; d < dim; ++d)
       GridTools::collect_periodic_faces(triangulation,
@@ -107,8 +101,7 @@ test()
     }
   triangulation.execute_coarsening_and_refinement();
 
-  deallog << "number of elements: " << triangulation.n_global_active_cells()
-          << std::endl;
+  deallog << "number of elements: " << triangulation.n_global_active_cells() << std::endl;
 
   // create dof_handler
   FESystem<dim>   FE(FE_Q<dim>(QGaussLobatto<1>(2)), 1);
@@ -123,8 +116,7 @@ test()
     subdomain(i) = triangulation.locally_owned_subdomain();
   data_out.add_data_vector(subdomain, "subdomain");
   data_out.build_patches();
-  data_out.write_vtu_in_parallel(std::string("mesh.vtu").c_str(),
-                                 mpi_communicator);
+  data_out.write_vtu_in_parallel(std::string("mesh.vtu").c_str(), mpi_communicator);
 
   IndexSet locally_relevant_dofs;
   DoFTools::extract_locally_relevant_dofs(dof_handler, locally_relevant_dofs);
@@ -133,13 +125,10 @@ test()
   DoFTools::extract_locally_active_dofs(dof_handler, locally_active_dofs);
 
   const std::vector<IndexSet> locally_owned_dofs =
-    Utilities::MPI::all_gather(MPI_COMM_WORLD,
-                               dof_handler.locally_owned_dofs());
+    Utilities::MPI::all_gather(MPI_COMM_WORLD, dof_handler.locally_owned_dofs());
 
   std::map<types::global_dof_index, Point<dim>> supportPoints;
-  DoFTools::map_dofs_to_support_points(MappingQ1<dim>(),
-                                       dof_handler,
-                                       supportPoints);
+  DoFTools::map_dofs_to_support_points(MappingQ1<dim>(), dof_handler, supportPoints);
 
   /// creating combined hanging node and periodic constraint matrix
   AffineConstraints<double> constraints;
@@ -147,27 +136,21 @@ test()
   constraints.reinit(locally_relevant_dofs);
 
   for (int d = 0; d < dim; ++d)
-    DoFTools::make_periodicity_constraints(
-      dof_handler, 2 * d, 2 * d + 1, d, constraints);
+    DoFTools::make_periodicity_constraints(dof_handler, 2 * d, 2 * d + 1, d, constraints);
 
-  const bool consistent =
-    constraints.is_consistent_in_parallel(locally_owned_dofs,
-                                          locally_active_dofs,
-                                          mpi_communicator,
-                                          /*verbose*/ true);
+  const bool consistent = constraints.is_consistent_in_parallel(locally_owned_dofs,
+                                                                locally_active_dofs,
+                                                                mpi_communicator,
+                                                                /*verbose*/ true);
 
-  deallog << "Periodicity constraints are consistent in parallel: "
-          << consistent << std::endl;
+  deallog << "Periodicity constraints are consistent in parallel: " << consistent << std::endl;
 
   DoFTools::make_hanging_node_constraints(dof_handler, constraints);
 
   const bool hanging_consistent =
-    constraints.is_consistent_in_parallel(locally_owned_dofs,
-                                          locally_active_dofs,
-                                          mpi_communicator);
+    constraints.is_consistent_in_parallel(locally_owned_dofs, locally_active_dofs, mpi_communicator);
 
-  deallog << "Hanging nodes constraints are consistent in parallel: "
-          << hanging_consistent << std::endl;
+  deallog << "Hanging nodes constraints are consistent in parallel: " << hanging_consistent << std::endl;
 
   constraints.close();
   deallog << "OK" << std::endl;

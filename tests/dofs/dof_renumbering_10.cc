@@ -42,8 +42,7 @@ void
 test(const bool adaptive_ref = true)
 {
   MPI_Comm           mpi_communicator(MPI_COMM_WORLD);
-  const unsigned int this_mpi_core =
-    dealii::Utilities::MPI::this_mpi_process(mpi_communicator);
+  const unsigned int this_mpi_core = dealii::Utilities::MPI::this_mpi_process(mpi_communicator);
 
   parallel::distributed::Triangulation<dim> tria(mpi_communicator);
   GridGenerator::hyper_cube(tria, 0, 1, true);
@@ -76,20 +75,15 @@ test(const bool adaptive_ref = true)
     if (cell->is_locally_owned())
       cell_order.push_back(cell);
 
-  std::sort(cell_order.begin(),
-            cell_order.end(),
-            [](const CELL &a, const CELL &b) {
-              std::vector<double> p1(dim), p2(dim);
-              for (unsigned int d = 0; d < dim; ++d)
-                {
-                  p1[d] = a->center()[d];
-                  p2[d] = b->center()[d];
-                }
-              return std::lexicographical_compare(p1.begin(),
-                                                  p1.end(),
-                                                  p2.begin(),
-                                                  p2.end());
-            });
+  std::sort(cell_order.begin(), cell_order.end(), [](const CELL &a, const CELL &b) {
+    std::vector<double> p1(dim), p2(dim);
+    for (unsigned int d = 0; d < dim; ++d)
+      {
+        p1[d] = a->center()[d];
+        p2[d] = b->center()[d];
+      }
+    return std::lexicographical_compare(p1.begin(), p1.end(), p2.begin(), p2.end());
+  });
 
   DoFRenumbering::cell_wise(dof, cell_order);
 
@@ -113,17 +107,15 @@ test(const bool adaptive_ref = true)
       MappingQ1<dim>                                mapping;
       DoFTools::map_dofs_to_support_points(mapping, dof, support_points);
 
-      const std::string href = (adaptive_ref ? "" : "global_");
-      const std::string base_filename =
-        href + "grid" + dealii::Utilities::int_to_string(dim) + "_" +
-        dealii::Utilities::int_to_string(fe_degree) + "_p" +
-        dealii::Utilities::int_to_string(this_mpi_core);
+      const std::string href          = (adaptive_ref ? "" : "global_");
+      const std::string base_filename = href + "grid" + dealii::Utilities::int_to_string(dim) + "_" +
+                                        dealii::Utilities::int_to_string(fe_degree) + "_p" +
+                                        dealii::Utilities::int_to_string(this_mpi_core);
 
       const std::string filename = base_filename + ".gp";
       std::ofstream     f(filename);
 
-      f << "set terminal png size 400,410 enhanced font \"Helvetica,8\""
-        << std::endl
+      f << "set terminal png size 400,410 enhanced font \"Helvetica,8\"" << std::endl
         << "set output \"" << base_filename << ".png\"" << std::endl
         << "set size square" << std::endl
         << "set view equal xy" << std::endl

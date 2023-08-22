@@ -72,8 +72,7 @@ test()
   VectorTools::interpolate(dofh, Functions::ConstantFunction<dim>(1), x);
   const double norm = x.l2_norm();
   if (myid == 0)
-    deallog << dofh.n_locally_owned_dofs() << ' ' << dofh.n_dofs() << std::endl
-            << norm << std::endl;
+    deallog << dofh.n_locally_owned_dofs() << ' ' << dofh.n_dofs() << std::endl << norm << std::endl;
 }
 
 
@@ -81,8 +80,7 @@ int
 main(int argc, char *argv[])
 {
 #ifdef DEAL_II_WITH_MPI
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 #else
   (void)argc;
   (void)argv;

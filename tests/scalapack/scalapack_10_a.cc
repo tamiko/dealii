@@ -46,8 +46,7 @@ test(const unsigned int size, const unsigned int block_size)
   const std::string filename_parallel("scalapack_10_a_p_test.h5");
 
   MPI_Comm           mpi_communicator(MPI_COMM_WORLD);
-  const unsigned int this_mpi_process(
-    Utilities::MPI::this_mpi_process(mpi_communicator));
+  const unsigned int this_mpi_process(Utilities::MPI::this_mpi_process(mpi_communicator));
   ConditionalOStream pcout(std::cout, (this_mpi_process == 0));
 
   // create FullMatrix and fill it
@@ -59,16 +58,14 @@ test(const unsigned int size, const unsigned int block_size)
 
   // create 2d process grid
   std::shared_ptr<Utilities::MPI::ProcessGrid> grid =
-    std::make_shared<Utilities::MPI::ProcessGrid>(
-      mpi_communicator, size, size, block_size, block_size);
+    std::make_shared<Utilities::MPI::ProcessGrid>(mpi_communicator, size, size, block_size, block_size);
 
   // create process grid containing only one process
   std::shared_ptr<Utilities::MPI::ProcessGrid> grid_one =
     std::make_shared<Utilities::MPI::ProcessGrid>(mpi_communicator, 1, 1);
 
   ScaLAPACKMatrix<NumberType> matrix(size, size, grid, block_size, block_size);
-  ScaLAPACKMatrix<NumberType> matrix_one(
-    size, size, grid, block_size, block_size);
+  ScaLAPACKMatrix<NumberType> matrix_one(size, size, grid, block_size, block_size);
 
   matrix     = full;
   matrix_one = full;
@@ -114,8 +111,7 @@ main(int argc, char **argv)
   }
 #endif
 
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, numbers::invalid_unsigned_int);
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, numbers::invalid_unsigned_int);
 
   const std::vector<unsigned int> sizes       = {{200, 300}};
   const std::vector<unsigned int> block_sizes = {{16, 32}};

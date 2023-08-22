@@ -70,8 +70,7 @@ test(std::string filename, unsigned int n)
   real_one.add(-1, interpolated_one);
 
   deallog << "L2 Norm of difference: " << real_one.l2_norm() << std::endl
-          << "Linfty Norm of difference: " << real_one.linfty_norm()
-          << std::endl;
+          << "Linfty Norm of difference: " << real_one.linfty_norm() << std::endl;
 }
 
 

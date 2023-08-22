@@ -54,9 +54,9 @@ public:
     : data(data_in){};
 
   void
-  operator()(const MatrixFree<dim, Number> &              data,
-             VectorType &                                 dst,
-             const VectorType &                           src,
+  operator()(const MatrixFree<dim, Number>               &data,
+             VectorType                                  &dst,
+             const VectorType                            &src,
              const std::pair<unsigned int, unsigned int> &cell_range) const;
 
   void
@@ -64,20 +64,13 @@ public:
   {
     for (unsigned int i = 0; i < 5; ++i)
       errors[i] = 0;
-    data.cell_loop(&MatrixFreeTest<dim, fe_degree, Number>::operator(),
-                   this,
-                   const_cast<VectorType &>(src),
-                   src);
+    data.cell_loop(&MatrixFreeTest<dim, fe_degree, Number>::operator(), this, const_cast<VectorType &>(src), src);
 
     deallog << "Error val, function values alone: " << errors[0] << std::endl;
-    deallog << "Error grad, function gradients alone: " << errors[1]
-            << std::endl;
-    deallog << "Error val, function values and gradients alone: " << errors[2]
-            << std::endl;
-    deallog << "Error grad, function values and gradients alone: " << errors[3]
-            << std::endl;
-    deallog << "Error Lapl, function Laplacians alone: " << errors[4]
-            << std::endl;
+    deallog << "Error grad, function gradients alone: " << errors[1] << std::endl;
+    deallog << "Error val, function values and gradients alone: " << errors[2] << std::endl;
+    deallog << "Error grad, function values and gradients alone: " << errors[3] << std::endl;
+    deallog << "Error Lapl, function Laplacians alone: " << errors[4] << std::endl;
   };
 
 private:
@@ -89,11 +82,10 @@ private:
 
 template <int dim, int fe_degree, typename Number>
 void
-MatrixFreeTest<dim, fe_degree, Number>::operator()(
-  const MatrixFree<dim, Number> &data,
-  VectorType &,
-  const VectorType &                           src,
-  const std::pair<unsigned int, unsigned int> &cell_range) const
+MatrixFreeTest<dim, fe_degree, Number>::operator()(const MatrixFree<dim, Number> &data,
+                                                   VectorType &,
+                                                   const VectorType                            &src,
+                                                   const std::pair<unsigned int, unsigned int> &cell_range) const
 {
   FEEvaluation<dim, fe_degree, fe_degree + 1, 1, Number> fe_eval(data);
   FEEvaluation<dim, fe_degree, fe_degree + 1, 1, Number> fe_eval2(data);
@@ -104,8 +96,7 @@ MatrixFreeTest<dim, fe_degree, Number>::operator()(
     {
       fe_eval.reinit(cell);
       fe_eval.read_dof_values(src);
-      fe_eval.evaluate(EvaluationFlags::values | EvaluationFlags::gradients |
-                       EvaluationFlags::hessians);
+      fe_eval.evaluate(EvaluationFlags::values | EvaluationFlags::gradients | EvaluationFlags::hessians);
 
       // only for values (additional test)
       fe_eval2.reinit(cell);
@@ -135,19 +126,14 @@ MatrixFreeTest<dim, fe_degree, Number>::operator()(
       for (unsigned int q = 0; q < fe_eval.n_q_points; ++q)
         for (unsigned int j = 0; j < VectorizedArray<Number>::size(); ++j)
           {
-            errors[0] +=
-              std::fabs(fe_eval.get_value(q)[j] - fe_eval2.get_value(q)[j]);
-            errors[2] +=
-              std::fabs(fe_eval.get_value(q)[j] - fe_eval4.get_value(q)[j]);
+            errors[0] += std::fabs(fe_eval.get_value(q)[j] - fe_eval2.get_value(q)[j]);
+            errors[2] += std::fabs(fe_eval.get_value(q)[j] - fe_eval4.get_value(q)[j]);
             for (unsigned int d = 0; d < dim; ++d)
               {
-                errors[1] += std::fabs(fe_eval.get_gradient(q)[d][j] -
-                                       fe_eval3.get_gradient(q)[d][j]);
-                errors[3] += std::fabs(fe_eval.get_gradient(q)[d][j] -
-                                       fe_eval4.get_gradient(q)[d][j]);
+                errors[1] += std::fabs(fe_eval.get_gradient(q)[d][j] - fe_eval3.get_gradient(q)[d][j]);
+                errors[3] += std::fabs(fe_eval.get_gradient(q)[d][j] - fe_eval4.get_gradient(q)[d][j]);
               }
-            errors[4] += std::fabs(fe_eval.get_laplacian(q)[j] -
-                                   fe_eval5.get_laplacian(q)[j]);
+            errors[4] += std::fabs(fe_eval.get_laplacian(q)[j] - fe_eval5.get_laplacian(q)[j]);
           }
     }
 }

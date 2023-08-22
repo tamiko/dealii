@@ -67,11 +67,10 @@ plot_shape_function(DoFHandler<dim> &dof_handler, unsigned int patches = 5)
   for (auto &cell : dof_handler.active_cell_iterators())
     if (cell->active_fe_index() != 0)
       {
-        unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
+        unsigned int                         dofs_per_cell = cell->get_fe().dofs_per_cell;
         std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
         cell->get_dof_indices(local_dof_indices);
-        enriched_cell_dofs.insert(local_dof_indices.begin(),
-                                  local_dof_indices.end());
+        enriched_cell_dofs.insert(local_dof_indices.begin(), local_dof_indices.end());
       }
 
   // output to check if all is good:
@@ -84,8 +83,7 @@ plot_shape_function(DoFHandler<dim> &dof_handler, unsigned int patches = 5)
       shape_function[dof] = 1.0;
 
       // if the dof is constrained, first output unconstrained vector
-      names.push_back(std::string("C_") +
-                      dealii::Utilities::int_to_string(dof, 2));
+      names.push_back(std::string("C_") + dealii::Utilities::int_to_string(dof, 2));
       shape_functions.push_back(shape_function);
 
       //      names.push_back(std::string("UC_") +
@@ -105,19 +103,15 @@ plot_shape_function(DoFHandler<dim> &dof_handler, unsigned int patches = 5)
       hp::MappingCollection<dim>                    hp_mapping;
       for (unsigned int i = 0; i < dof_handler.get_fe_collection().size(); ++i)
         hp_mapping.push_back(mapping);
-      DoFTools::map_dofs_to_support_points(hp_mapping,
-                                           dof_handler,
-                                           support_points);
+      DoFTools::map_dofs_to_support_points(hp_mapping, dof_handler, support_points);
 
       const std::string base_filename =
-        "DOFs" + dealii::Utilities::int_to_string(dim) + "_p" +
-        dealii::Utilities::int_to_string(0);
+        "DOFs" + dealii::Utilities::int_to_string(dim) + "_p" + dealii::Utilities::int_to_string(0);
 
       const std::string filename = base_filename + ".gp";
       std::ofstream     f(filename);
 
-      f << "set terminal png size 400,410 enhanced font \"Helvetica,8\""
-        << std::endl
+      f << "set terminal png size 400,410 enhanced font \"Helvetica,8\"" << std::endl
         << "set output \"" << base_filename << ".png\"" << std::endl
         << "set size square" << std::endl
         << "set view equal xy" << std::endl
@@ -208,8 +202,7 @@ private:
  * ColorEnriched::internal::color_predicates.
  */
 template <int dim>
-using predicate_function =
-  std::function<bool(const typename Triangulation<dim>::cell_iterator &)>;
+using predicate_function = std::function<bool(const typename Triangulation<dim>::cell_iterator &)>;
 
 
 
@@ -243,20 +236,15 @@ main(int argc, char **argv)
     {
       // constant function.
       Functions::ConstantFunction<dim> func(10 + i); // constant function
-      vec_enrichments.push_back(
-        std::make_shared<Functions::ConstantFunction<dim>>(func));
+      vec_enrichments.push_back(std::make_shared<Functions::ConstantFunction<dim>>(func));
     }
 
   // Construct helper class to construct FE collection
   FE_Q<dim> fe_base(2);
   FE_Q<dim> fe_enriched(1);
 
-  static ColorEnriched::Helper<dim> fe_space(fe_base,
-                                             fe_enriched,
-                                             vec_predicates,
-                                             vec_enrichments);
-  hp::FECollection<dim>             fe_collection(
-    fe_space.build_fe_collection(dof_handler));
+  static ColorEnriched::Helper<dim> fe_space(fe_base, fe_enriched, vec_predicates, vec_enrichments);
+  hp::FECollection<dim>             fe_collection(fe_space.build_fe_collection(dof_handler));
 
   // check if fe_collection is correctly constructed by function
   deallog << "fe_collection[index] mapping:" << std::endl;
@@ -265,12 +253,10 @@ main(int argc, char **argv)
       deallog << "name:" << fe_collection[index].get_name() << std::endl;
       deallog << "n_blocks:" << fe_collection[index].n_blocks() << std::endl;
       deallog << "n_comp:" << fe_collection[index].n_components() << std::endl;
-      deallog << "n_dofs:" << fe_collection[index].n_dofs_per_cell()
-              << std::endl;
+      deallog << "n_dofs:" << fe_collection[index].n_dofs_per_cell() << std::endl;
     }
 
-  deallog << "Face dominating set for 1 and 2: "
-          << fe_collection.find_dominating_fe_extended({1, 2}, /*codim=*/1)
+  deallog << "Face dominating set for 1 and 2: " << fe_collection.find_dominating_fe_extended({1, 2}, /*codim=*/1)
           << std::endl;
 
   dof_handler.distribute_dofs(fe_collection);

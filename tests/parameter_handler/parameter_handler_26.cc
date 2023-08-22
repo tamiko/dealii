@@ -28,16 +28,9 @@ success(const std::string &filename)
   ParameterHandler prm;
   prm.enter_subsection("General");
   // this one does not have to be set
-  prm.add_parameter("dim",
-                    dim,
-                    "Number of space dimensions",
-                    Patterns::Integer(2, 3));
+  prm.add_parameter("dim", dim, "Number of space dimensions", Patterns::Integer(2, 3));
   // this one has to be set
-  prm.declare_entry("Precision",
-                    precision,
-                    Patterns::Selection("float|double"),
-                    "Floating point precision",
-                    true);
+  prm.declare_entry("Precision", precision, Patterns::Selection("float|double"), "Floating point precision", true);
   prm.leave_subsection();
 
   try
@@ -61,13 +54,8 @@ fail(const std::string &filename)
   ParameterHandler prm;
   prm.enter_subsection("General");
   // both parameters have to be set
-  prm.add_parameter(
-    "dim", dim, "Number of space dimensions", Patterns::Integer(2, 3), true);
-  prm.add_parameter("Precision",
-                    precision,
-                    "Floating point precision",
-                    Patterns::Selection("float|double"),
-                    true);
+  prm.add_parameter("dim", dim, "Number of space dimensions", Patterns::Integer(2, 3), true);
+  prm.add_parameter("Precision", precision, "Floating point precision", Patterns::Selection("float|double"), true);
   prm.leave_subsection();
 
   try

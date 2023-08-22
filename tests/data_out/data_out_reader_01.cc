@@ -42,19 +42,11 @@ check()
   names[3] = "x4";
   names[4] = "i";
   std::vector<
-    std::tuple<unsigned int,
-               unsigned int,
-               std::string,
-               DataComponentInterpretation::DataComponentInterpretation>>
+    std::tuple<unsigned int, unsigned int, std::string, DataComponentInterpretation::DataComponentInterpretation>>
     vectors;
 
   std::ostringstream old_data;
-  DataOutBase::write_deal_II_intermediate(
-    patches,
-    names,
-    vectors,
-    DataOutBase::Deal_II_IntermediateFlags(),
-    old_data);
+  DataOutBase::write_deal_II_intermediate(patches, names, vectors, DataOutBase::Deal_II_IntermediateFlags(), old_data);
 
   DataOutReader<dim, spacedim> data;
   {

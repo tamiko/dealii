@@ -41,9 +41,8 @@ main(int argc, char *argv[])
   std::ifstream f(SOURCE_DIR "/periodicity_05.inp");
   gridin.read_ucd(f);
 
-  typename parallel::distributed::Triangulation<3>::active_cell_iterator
-    cell = triangulation.begin_active(),
-    endc = triangulation.end();
+  typename parallel::distributed::Triangulation<3>::active_cell_iterator cell = triangulation.begin_active(),
+                                                                         endc = triangulation.end();
   for (; cell != endc; ++cell)
     {
       for (const unsigned int f : GeometryInfo<3>::face_indices())
@@ -67,8 +66,7 @@ main(int argc, char *argv[])
         }
     }
 
-  std::vector<GridTools::PeriodicFacePair<
-    typename parallel::distributed::Triangulation<3>::cell_iterator>>
+  std::vector<GridTools::PeriodicFacePair<typename parallel::distributed::Triangulation<3>::cell_iterator>>
     periodicity_vector;
   for (int i = 0; i < 3; ++i)
     GridTools::collect_periodic_faces(triangulation,

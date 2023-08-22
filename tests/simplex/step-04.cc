@@ -121,8 +121,7 @@ public:
 
 template <int dim>
 double
-RightHandSide<dim>::value(const Point<dim> &p,
-                          const unsigned int /*component*/) const
+RightHandSide<dim>::value(const Point<dim> &p, const unsigned int /*component*/) const
 {
   double return_value = 0.0;
   for (unsigned int i = 0; i < dim; ++i)
@@ -134,8 +133,7 @@ RightHandSide<dim>::value(const Point<dim> &p,
 
 template <int dim>
 double
-BoundaryValues<dim>::value(const Point<dim> &p,
-                           const unsigned int /*component*/) const
+BoundaryValues<dim>::value(const Point<dim> &p, const unsigned int /*component*/) const
 {
   return p.square();
 }
@@ -156,13 +154,10 @@ Step4<dim>::make_grid()
 {
   Triangulation<dim, dim> temp_tria;
   GridGenerator::subdivided_hyper_cube(temp_tria, 8, -1., 1., false);
-  GridGenerator::convert_hypercube_to_simplex_mesh<dim, dim>(temp_tria,
-                                                             triangulation);
+  GridGenerator::convert_hypercube_to_simplex_mesh<dim, dim>(temp_tria, triangulation);
 
-  deallog << "   Number of active cells: " << triangulation.n_active_cells()
-          << std::endl
-          << "   Total number of cells: " << triangulation.n_cells()
-          << std::endl;
+  deallog << "   Number of active cells: " << triangulation.n_active_cells() << std::endl
+          << "   Total number of cells: " << triangulation.n_cells() << std::endl;
 }
 
 
@@ -172,8 +167,7 @@ Step4<dim>::setup_system()
 {
   dof_handler.distribute_dofs(fe);
 
-  deallog << "   Number of degrees of freedom: " << dof_handler.n_dofs()
-          << std::endl;
+  deallog << "   Number of degrees of freedom: " << dof_handler.n_dofs() << std::endl;
 
   DynamicSparsityPattern dsp(dof_handler.n_dofs());
   DoFTools::make_sparsity_pattern(dof_handler, dsp);
@@ -194,8 +188,7 @@ Step4<dim>::assemble_system()
 
   RightHandSide<dim> right_hand_side;
 
-  const UpdateFlags flag = update_JxW_values | update_values |
-                           update_gradients | update_quadrature_points;
+  const UpdateFlags flag = update_JxW_values | update_values | update_gradients | update_quadrature_points;
 
   FEValues<dim> fe_values(mapping, fe, quadrature_formula, flag);
 
@@ -217,10 +210,9 @@ Step4<dim>::assemble_system()
         for (const unsigned int i : fe_values.dof_indices())
           {
             for (const unsigned int j : fe_values.dof_indices())
-              cell_matrix(i, j) +=
-                (fe_values.shape_grad(i, q_index) * // grad phi_i(x_q)
-                 fe_values.shape_grad(j, q_index) * // grad phi_j(x_q)
-                 fe_values.JxW(q_index));           // dx
+              cell_matrix(i, j) += (fe_values.shape_grad(i, q_index) * // grad phi_i(x_q)
+                                    fe_values.shape_grad(j, q_index) * // grad phi_j(x_q)
+                                    fe_values.JxW(q_index));           // dx
 
             const auto x_q = fe_values.quadrature_point(q_index);
             cell_rhs(i) += (fe_values.shape_value(i, q_index) * // phi_i(x_q)
@@ -232,21 +224,15 @@ Step4<dim>::assemble_system()
       for (const unsigned int i : fe_values.dof_indices())
         {
           for (const unsigned int j : fe_values.dof_indices())
-            system_matrix.add(local_dof_indices[i],
-                              local_dof_indices[j],
-                              cell_matrix(i, j));
+            system_matrix.add(local_dof_indices[i], local_dof_indices[j], cell_matrix(i, j));
 
           system_rhs(local_dof_indices[i]) += cell_rhs(i);
         }
     }
 
   std::map<types::global_dof_index, double> boundary_values;
-  VectorTools::interpolate_boundary_values(
-    mapping, dof_handler, 0, BoundaryValues<dim>(), boundary_values);
-  MatrixTools::apply_boundary_values(boundary_values,
-                                     system_matrix,
-                                     solution,
-                                     system_rhs);
+  VectorTools::interpolate_boundary_values(mapping, dof_handler, 0, BoundaryValues<dim>(), boundary_values);
+  MatrixTools::apply_boundary_values(boundary_values, system_matrix, solution, system_rhs);
 }
 
 
@@ -259,8 +245,7 @@ Step4<dim>::solve()
   SolverCG<Vector<double>> solver(solver_control);
   solver.solve(system_matrix, solution, system_rhs, PreconditionIdentity());
 
-  deallog << "   " << solver_control.last_step()
-          << " CG iterations needed to obtain convergence." << std::endl;
+  deallog << "   " << solver_control.last_step() << " CG iterations needed to obtain convergence." << std::endl;
 }
 
 

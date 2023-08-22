@@ -39,8 +39,7 @@ template <typename Container>
 std::size_t
 size_in_bytes(const Container &container)
 {
-  return sizeof(Container) +
-         (sizeof(typename Container::value_type) * container.size());
+  return sizeof(Container) + (sizeof(typename Container::value_type) * container.size());
 }
 
 
@@ -52,9 +51,7 @@ benchmark(const unsigned int n_global_refinements)
   // be generous with the estimate
   const std::size_t size_estimate_per_cellid_in_bytes = 96;
 
-  TimerOutput computing_timer(std::cout,
-                              TimerOutput::summary,
-                              TimerOutput::wall_times);
+  TimerOutput computing_timer(std::cout, TimerOutput::summary, TimerOutput::wall_times);
 
   Triangulation<dim> tria;
   GridGenerator::hyper_cube(tria);
@@ -92,7 +89,7 @@ benchmark(const unsigned int n_global_refinements)
       boost::iostreams::filtering_ostreambuf fosb;
       fosb.push(boost::iostreams::back_inserter(buffer));
       boost::archive::binary_oarchive oa(fosb);
-      oa &                            cell_ids;
+      oa                             &cell_ids;
     }
     {
       TimerOutput::Scope t(computing_timer, "boost binary_archive load");
@@ -100,15 +97,12 @@ benchmark(const unsigned int n_global_refinements)
       boost::iostreams::filtering_istreambuf fisb;
       fisb.push(boost::iostreams::array_source(buffer.data(), buffer.size()));
       boost::archive::binary_iarchive ia(fisb);
-      ia &                            deserialized;
+      ia                             &deserialized;
     }
-    AssertThrow(cell_ids == deserialized,
-                ExcMessage("Serialization with boost binary archives failed."));
-    deallog << "Serialization with boost binary archives successful."
-            << std::endl;
+    AssertThrow(cell_ids == deserialized, ExcMessage("Serialization with boost binary archives failed."));
+    deallog << "Serialization with boost binary archives successful." << std::endl;
     std::cout << "Buffer size in bytes with ..."
-              << "  boost binary_archive : " << size_in_bytes(buffer)
-              << std::endl;
+              << "  boost binary_archive : " << size_in_bytes(buffer) << std::endl;
   }
 
 
@@ -126,8 +120,7 @@ benchmark(const unsigned int n_global_refinements)
       TimerOutput::Scope t(computing_timer, "Utilities::pack uncompressed");
 
       for (const auto &cell_id : cell_ids)
-        sizes.push_back(
-          Utilities::pack(cell_id, buffer, /*allow_compression*/ false));
+        sizes.push_back(Utilities::pack(cell_id, buffer, /*allow_compression*/ false));
     }
     {
       TimerOutput::Scope t(computing_timer, "Utilities::unpack uncompressed");
@@ -136,17 +129,14 @@ benchmark(const unsigned int n_global_refinements)
       for (const auto &size : sizes)
         {
           cend = cbegin + size;
-          deserialized.push_back(Utilities::unpack<CellId>(
-            cbegin, cend, /*allow_compression*/ false));
+          deserialized.push_back(Utilities::unpack<CellId>(cbegin, cend, /*allow_compression*/ false));
           cbegin = cend;
         }
       Assert(cend == buffer.cend(), ExcInternalError());
     }
-    AssertThrow(cell_ids == deserialized,
-                ExcMessage("Serialization with Utilities failed."));
+    AssertThrow(cell_ids == deserialized, ExcMessage("Serialization with Utilities failed."));
     deallog << "Serialization with Utilities successful." << std::endl;
-    std::cout << "  Utilities            : " << size_in_bytes(buffer)
-              << std::endl;
+    std::cout << "  Utilities            : " << size_in_bytes(buffer) << std::endl;
   }
 
 
@@ -170,12 +160,9 @@ benchmark(const unsigned int n_global_refinements)
       for (const auto &binary : buffer)
         deserialized.emplace_back(binary);
     }
-    AssertThrow(cell_ids == deserialized,
-                ExcMessage("Serialization with binary representation failed."));
-    deallog << "Serialization with binary representation successful."
-            << std::endl;
-    std::cout << "  binary representation: " << size_in_bytes(buffer)
-              << std::endl;
+    AssertThrow(cell_ids == deserialized, ExcMessage("Serialization with binary representation failed."));
+    deallog << "Serialization with binary representation successful." << std::endl;
+    std::cout << "  binary representation: " << size_in_bytes(buffer) << std::endl;
   }
 
   deallog << "OK" << std::endl;

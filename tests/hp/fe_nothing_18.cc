@@ -21,10 +21,10 @@
 #include <deal.II/base/quadrature_lib.h> //needed for assembling the matrix using quadrature on each cell
 
 #include <deal.II/dofs/dof_accessor.h> //provides information about the degrees of freedom local to a cell
-#include <deal.II/dofs/dof_handler.h> //associate DoF to cells/vertices/lines
+#include <deal.II/dofs/dof_handler.h>  //associate DoF to cells/vertices/lines
 #include <deal.II/dofs/dof_handler.h>
 #include <deal.II/dofs/dof_renumbering.h> //use to renumber DoF to have a better sparsity pattern
-#include <deal.II/dofs/dof_tools.h> //needed for the creation of sparsity patterns of sparse matrices
+#include <deal.II/dofs/dof_tools.h>       //needed for the creation of sparsity patterns of sparse matrices
 
 #include <deal.II/fe/fe_nothing.h>
 #include <deal.II/fe/fe_q.h> /*Q1 FE: 1 DoF in each vertex, none on sides...)*/
@@ -96,24 +96,21 @@ private:
 
   std::vector<types::global_dof_index> dofs_per_block;
 
-  Triangulation<dim>
-    triangulation; // a triangulation object of the "dim"-dimensional domain;
-  DoFHandler<dim> dof_handler; // is associated with triangulation;
+  Triangulation<dim> triangulation; // a triangulation object of the "dim"-dimensional domain;
+  DoFHandler<dim>    dof_handler;   // is associated with triangulation;
 
   FESystem<dim>         elasticity_fe;
   FESystem<dim>         elasticity_w_lagrange_fe;
   hp::FECollection<dim> fe; // used to stack several other elements together to
                             // form one vector-valued finite element.
 
-  AffineConstraints<double>
-    hanging_node_constraints; // object to hold hanging node
-                              // constraints after refinement
+  AffineConstraints<double> hanging_node_constraints; // object to hold hanging node
+                                                      // constraints after refinement
   AffineConstraints<double> constraints;
 
   BlockSparsityPattern sparsity_pattern; // store sparsity pattern
 
-  SymmetricTensor<4, dim>
-    stress_strain_tensor; // elastic constitutive equations
+  SymmetricTensor<4, dim> stress_strain_tensor; // elastic constitutive equations
 
   hp::QCollection<dim> quadrature_formula; // a Gauss quadrature formula to be
                                            // used for integral evaluation
@@ -138,8 +135,7 @@ get_stress_strain_tensor(const double lambda, const double mu)
     for (unsigned int j = 0; j < dim; ++j)
       for (unsigned int k = 0; k < dim; ++k)
         for (unsigned int l = 0; l < dim; ++l)
-          tmp[i][j][k][l] = (((i == k) && (j == l) ? mu : 0.0) +
-                             ((i == l) && (j == k) ? mu : 0.0) +
+          tmp[i][j][k][l] = (((i == k) && (j == l) ? mu : 0.0) + ((i == l) && (j == k) ? mu : 0.0) +
                              ((i == j) && (k == l) ? lambda : 0.0));
   return tmp;
 }
@@ -162,8 +158,7 @@ public:
 
 template <int dim>
 inline void
-BoundaryValues<dim>::vector_value(const Point<dim> &p,
-                                  Vector<double> &  values) const
+BoundaryValues<dim>::vector_value(const Point<dim> &p, Vector<double> &values) const
 {
   values(0) = -0.001;
 }
@@ -186,12 +181,10 @@ public:
                      // components the function consists; default - 1
   virtual void
   vector_value(const Point<dim> &p,
-               Vector<double> &  values)
-    const; // returns calculated values in the second argument;
+               Vector<double>   &values) const; // returns calculated values in the second argument;
   virtual void
   vector_value_list(const std::vector<Point<dim>> &points,
-                    std::vector<Vector<double>> &  value_list)
-    const; // values at several points at once
+                    std::vector<Vector<double>>   &value_list) const; // values at several points at once
   // prevent from calling virtual function "vector_value" to frequently
 };
 
@@ -203,29 +196,24 @@ ConstrainValues<dim>::ConstrainValues()
 
 template <int dim>
 inline void
-ConstrainValues<dim>::vector_value(const Point<dim> &p,
-                                   Vector<double> &  values) const
+ConstrainValues<dim>::vector_value(const Point<dim> &p, Vector<double> &values) const
 {
-  Assert(values.size() == dim,
-         ExcDimensionMismatch(values.size(),
-                              dim)); // check is the size of "values" is correct
+  Assert(values.size() == dim, ExcDimensionMismatch(values.size(),
+                                                    dim)); // check is the size of "values" is correct
   // Assert (dim >= 2, ExcNotImplemented());//not implemented for 1d
   values[0] = 0.0;
 }
 
 template <int dim>
 void
-ConstrainValues<dim>::vector_value_list(
-  const std::vector<Point<dim>> &points,
-  std::vector<Vector<double>> &  value_list) const
+ConstrainValues<dim>::vector_value_list(const std::vector<Point<dim>> &points,
+                                        std::vector<Vector<double>>   &value_list) const
 {
-  Assert(
-    value_list.size() == points.size(),
-    ExcDimensionMismatch(value_list.size(),
-                         points.size())); // check if input-output is consistent
+  Assert(value_list.size() == points.size(),
+         ExcDimensionMismatch(value_list.size(),
+                              points.size())); // check if input-output is consistent
 
-  const unsigned int n_points =
-    points.size(); // number of points at which the function is to be evaluated
+  const unsigned int n_points = points.size(); // number of points at which the function is to be evaluated
 
   for (unsigned int p = 0; p < n_points; ++p)
     ConstrainValues<dim>::vector_value(points[p], value_list[p]);
@@ -243,12 +231,11 @@ ElasticProblem<dim>::ElasticProblem()
   , dofs_per_block(n_blocks)
   , dof_handler(triangulation)
   , /*assotiate dof_handler to the triangulation */
-  elasticity_fe(
-    FE_Q<dim>(degree),
-    dim, // use dim FE_Q of a given degree to represent displacements
-    FE_Nothing<dim>(),
-    dim // zero extension of lagrange multipliers elsewhere in the domain
-    )
+  elasticity_fe(FE_Q<dim>(degree),
+                dim, // use dim FE_Q of a given degree to represent displacements
+                FE_Nothing<dim>(),
+                dim // zero extension of lagrange multipliers elsewhere in the domain
+                )
   , elasticity_w_lagrange_fe(FE_Q<dim>(degree),
                              dim,
                              FE_Q<dim>(degree),
@@ -282,11 +269,9 @@ ElasticProblem<dim>::make_grid()
 {
   Triangulation<dim> triangulationL;
   Triangulation<dim> triangulationR;
-  GridGenerator::hyper_cube(triangulationL,
-                            -1,
+  GridGenerator::hyper_cube(triangulationL, -1,
                             0); // create a square [-1,1]^d domain
-  GridGenerator::hyper_cube(triangulationR,
-                            -1,
+  GridGenerator::hyper_cube(triangulationR, -1,
                             0); // create a square [-1,1]^d domain
   Point<dim> shift_vector;
   shift_vector[0] = 1.0;
@@ -300,13 +285,10 @@ ElasticProblem<dim>::make_grid()
   for (unsigned int i = 0; i < n_faces_per_cell; ++i)
     {
       triangulationL.begin_active()->face(i)->set_boundary_id(i);
-      triangulationR.begin_active()->face(i)->set_boundary_id(n_faces_per_cell +
-                                                              i);
+      triangulationR.begin_active()->face(i)->set_boundary_id(n_faces_per_cell + i);
     }
 
-  GridGenerator::merge_triangulations(triangulationL,
-                                      triangulationR,
-                                      triangulation);
+  GridGenerator::merge_triangulations(triangulationL, triangulationR, triangulation);
 
   // triangulation.refine_global (2); //refine twice globally before solving
 }
@@ -316,17 +298,14 @@ template <int dim>
 void
 ElasticProblem<dim>::setup_system()
 {
-  std::vector<unsigned int> block_component(
-    n_components, u_block); // init to represent u everywhere
+  std::vector<unsigned int> block_component(n_components, u_block); // init to represent u everywhere
   for (unsigned int i = 0; i < dim; ++i)
     block_component[i + dim] = lambda_block;
 
   //(1) set active FE indices based in material id...
-  typename DoFHandler<dim>::active_cell_iterator cell =
-                                                   dof_handler.begin_active(),
-                                                 endc = dof_handler.end();
-  unsigned int n_lagrange_cells                       = 0;
-  unsigned int n_elasticity_cells                     = 0;
+  typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
+  unsigned int                                   n_lagrange_cells   = 0;
+  unsigned int                                   n_elasticity_cells = 0;
   for (; cell != endc; ++cell) // loop over all cells
     {
       if (cell->material_id() == id_of_lagrange_mult)
@@ -340,35 +319,28 @@ ElasticProblem<dim>::setup_system()
           n_elasticity_cells++;
         }
     }
-  deallog << " number of cells (L/E): " << n_lagrange_cells << "; "
-          << n_elasticity_cells << std::endl;
+  deallog << " number of cells (L/E): " << n_lagrange_cells << "; " << n_elasticity_cells << std::endl;
   Assert(n_lagrange_cells > 0,
          ExcInternalError()); // there should be at least 1 cell! Otherwise
                               // DoFHanlder crashes with 0 dofs for block 2!
   //
   //(2) distribute DoFs
-  dof_handler.distribute_dofs(
-    fe); /*enumerate DoF based on fe object (which knows about shape-functions
-            used, their order and dimension*/
-  DoFRenumbering::Cuthill_McKee(
-    dof_handler); // do renumberring; must be done
-                  // right after distributing DoF !!!
+  dof_handler.distribute_dofs(fe);            /*enumerate DoF based on fe object (which knows about shape-functions
+                                                 used, their order and dimension*/
+  DoFRenumbering::Cuthill_McKee(dof_handler); // do renumberring; must be done
+                                              // right after distributing DoF !!!
   DoFRenumbering::component_wise(dof_handler, block_component);
-  dofs_per_block =
-    DoFTools::count_dofs_per_fe_block(dof_handler, block_component);
+  dofs_per_block = DoFTools::count_dofs_per_fe_block(dof_handler, block_component);
 
-  deallog << "dofs per block:  U=" << dofs_per_block[u_block]
-          << " L=" << dofs_per_block[lambda_block] << std::endl;
+  deallog << "dofs per block:  U=" << dofs_per_block[u_block] << " L=" << dofs_per_block[lambda_block] << std::endl;
 
   // related to hanging nodes and refinement:
   //(3) create hanging nodes constrains (also add normal diricle BC here?
-  hanging_node_constraints
-    .clear(); // clear all content that may left from previous calculations
-  DoFTools::make_hanging_node_constraints(
-    dof_handler,
-    hanging_node_constraints);      // fill the object representing constraints
-  hanging_node_constraints.close(); // close the object - sort and rearrange
-                                    // constraints for effective calculations
+  hanging_node_constraints.clear(); // clear all content that may left from previous calculations
+  DoFTools::make_hanging_node_constraints(dof_handler,
+                                          hanging_node_constraints); // fill the object representing constraints
+  hanging_node_constraints.close();                                  // close the object - sort and rearrange
+                                                                     // constraints for effective calculations
 
   //(4) create block sparsity pattern (define which elements in sparse matrix
   // are non-zero; prescribe coupling between blocks)
@@ -376,12 +348,9 @@ ElasticProblem<dim>::setup_system()
   // efficiency
   BlockDynamicSparsityPattern dynamic_sparsity_pattern(n_blocks, n_blocks);
 
-  dynamic_sparsity_pattern.block(u_block, u_block)
-    .reinit(dofs_per_block[u_block], dofs_per_block[u_block]);
-  dynamic_sparsity_pattern.block(u_block, lambda_block)
-    .reinit(dofs_per_block[u_block], dofs_per_block[lambda_block]);
-  dynamic_sparsity_pattern.block(lambda_block, u_block)
-    .reinit(dofs_per_block[lambda_block], dofs_per_block[u_block]);
+  dynamic_sparsity_pattern.block(u_block, u_block).reinit(dofs_per_block[u_block], dofs_per_block[u_block]);
+  dynamic_sparsity_pattern.block(u_block, lambda_block).reinit(dofs_per_block[u_block], dofs_per_block[lambda_block]);
+  dynamic_sparsity_pattern.block(lambda_block, u_block).reinit(dofs_per_block[lambda_block], dofs_per_block[u_block]);
   dynamic_sparsity_pattern.block(lambda_block, lambda_block)
     .reinit(dofs_per_block[lambda_block], dofs_per_block[lambda_block]);
 
@@ -391,8 +360,7 @@ ElasticProblem<dim>::setup_system()
   for (unsigned int ii = 0; ii < n_components; ++ii)
     for (unsigned int jj = 0; jj < n_components; ++jj)
       {
-        if ((block_component[ii] == lambda_block) &&
-            (block_component[jj] == lambda_block))
+        if ((block_component[ii] == lambda_block) && (block_component[jj] == lambda_block))
           coupling[ii][jj] = DoFTools::none; // diagonal = 0
         else
           coupling[ii][jj] = DoFTools::always; // full coupling (u,u),
@@ -401,11 +369,7 @@ ElasticProblem<dim>::setup_system()
 
   hanging_node_constraints.condense(dynamic_sparsity_pattern);
 
-  DoFTools::make_sparsity_pattern(dof_handler,
-                                  coupling,
-                                  dynamic_sparsity_pattern,
-                                  hanging_node_constraints,
-                                  false);
+  DoFTools::make_sparsity_pattern(dof_handler, coupling, dynamic_sparsity_pattern, hanging_node_constraints, false);
 
   dynamic_sparsity_pattern.print(deallog.get_file_stream());
   hanging_node_constraints.print(deallog.get_file_stream());

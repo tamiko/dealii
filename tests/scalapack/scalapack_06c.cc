@@ -41,24 +41,19 @@
 
 template <typename NumberType>
 void
-test(const unsigned int size,
-     const unsigned int block_size,
-     const NumberType   tol)
+test(const unsigned int size, const unsigned int block_size, const NumberType tol)
 {
   MPI_Comm           mpi_communicator(MPI_COMM_WORLD);
-  const unsigned int n_mpi_processes(
-    Utilities::MPI::n_mpi_processes(mpi_communicator));
-  const unsigned int this_mpi_process(
-    Utilities::MPI::this_mpi_process(mpi_communicator));
+  const unsigned int n_mpi_processes(Utilities::MPI::n_mpi_processes(mpi_communicator));
+  const unsigned int this_mpi_process(Utilities::MPI::this_mpi_process(mpi_communicator));
 
   ConditionalOStream pcout(std::cout, (this_mpi_process == 0));
 
   std::shared_ptr<Utilities::MPI::ProcessGrid> grid =
-    std::make_shared<Utilities::MPI::ProcessGrid>(
-      mpi_communicator, size, size, block_size, block_size);
+    std::make_shared<Utilities::MPI::ProcessGrid>(mpi_communicator, size, size, block_size, block_size);
 
-  pcout << size << ' ' << block_size << ' ' << grid->get_process_grid_rows()
-        << ' ' << grid->get_process_grid_columns() << std::endl;
+  pcout << size << ' ' << block_size << ' ' << grid->get_process_grid_rows() << ' ' << grid->get_process_grid_columns()
+        << std::endl;
 
   const unsigned int n_eigenvalues     = size;
   const unsigned int max_n_eigenvalues = 5;
@@ -80,11 +75,11 @@ test(const unsigned int size,
       for (unsigned int j = 0; j < size; ++j)
         lapack_A[i * size + j] = full_A(i, j);
 
-    int info; // Variable containing information about the successful exit of
-              // the lapack routine
-    char jobz = 'V'; //'V': all eigenpairs of A are computed
-    char uplo = 'U'; // storage format of the matrix A; not so important as
-                     // matrix is symmetric
+    int info;                           // Variable containing information about the successful exit of
+                                        // the lapack routine
+    char jobz = 'V';                    //'V': all eigenpairs of A are computed
+    char uplo = 'U';                    // storage format of the matrix A; not so important as
+                                        // matrix is symmetric
     int                     LDA = size; // leading dimension of the matrix A
     int                     lwork;      // length of vector/array work
     std::vector<NumberType> work(1);
@@ -92,61 +87,35 @@ test(const unsigned int size,
     // by setting lwork to -1 a workspace query for work is done
     // as matrix is symmetric: LDA == size of matrix
     lwork = -1;
-    syev(&jobz,
-         &uplo,
-         &LDA,
-         &*lapack_A.begin(),
-         &LDA,
-         &*eigenvalues_Lapack.begin(),
-         &*work.begin(),
-         &lwork,
-         &info);
+    syev(&jobz, &uplo, &LDA, &*lapack_A.begin(), &LDA, &*eigenvalues_Lapack.begin(), &*work.begin(), &lwork, &info);
     lwork = static_cast<int>(work[0]);
     work.resize(lwork);
-    syev(&jobz,
-         &uplo,
-         &LDA,
-         &*lapack_A.begin(),
-         &LDA,
-         &*eigenvalues_Lapack.begin(),
-         &*work.begin(),
-         &lwork,
-         &info);
+    syev(&jobz, &uplo, &LDA, &*lapack_A.begin(), &LDA, &*eigenvalues_Lapack.begin(), &*work.begin(), &lwork, &info);
     AssertThrow(info == 0, LAPACKSupport::ExcErrorCode("syev", info));
   }
 
   // the actual test:
 
   pcout << "comparing " << max_n_eigenvalues
-        << " eigenvalues computed using LAPACK and ScaLAPACK pdsyevx:"
-        << std::endl;
+        << " eigenvalues computed using LAPACK and ScaLAPACK pdsyevx:" << std::endl;
   const std::vector<NumberType> eigenvalues_psyevx =
-    scalapack_syevx.eigenpairs_symmetric_by_index(
-      std::make_pair(size - max_n_eigenvalues, size - 1), false);
+    scalapack_syevx.eigenpairs_symmetric_by_index(std::make_pair(size - max_n_eigenvalues, size - 1), false);
   for (unsigned int i = eigenvalues_psyevx.size() - 1; i > 0; --i)
     {
-      if (!(std::abs(eigenvalues_psyevx[i] -
-                     eigenvalues_Lapack[size - eigenvalues_psyevx.size() + i]) /
-              std::abs(
-                eigenvalues_Lapack[size - eigenvalues_psyevx.size() + i]) <
+      if (!(std::abs(eigenvalues_psyevx[i] - eigenvalues_Lapack[size - eigenvalues_psyevx.size() + i]) /
+              std::abs(eigenvalues_Lapack[size - eigenvalues_psyevx.size() + i]) <
             tol))
         {
-          std::cout << "process #" << this_mpi_process
-                    << ": eigenvalues do not fit: " << eigenvalues_psyevx[i]
-                    << " <--> "
-                    << eigenvalues_Lapack[size - eigenvalues_psyevx.size() + i]
-                    << std::endl;
+          std::cout << "process #" << this_mpi_process << ": eigenvalues do not fit: " << eigenvalues_psyevx[i]
+                    << " <--> " << eigenvalues_Lapack[size - eigenvalues_psyevx.size() + i] << std::endl;
         }
 
-      AssertThrow(
-        std::abs(eigenvalues_psyevx[i] -
-                 eigenvalues_Lapack[size - eigenvalues_psyevx.size() + i]) /
-            std::abs(eigenvalues_Lapack[size - eigenvalues_psyevx.size() + i]) <
-          tol,
-        ExcInternalError());
+      AssertThrow(std::abs(eigenvalues_psyevx[i] - eigenvalues_Lapack[size - eigenvalues_psyevx.size() + i]) /
+                      std::abs(eigenvalues_Lapack[size - eigenvalues_psyevx.size() + i]) <
+                    tol,
+                  ExcInternalError());
     }
-  pcout << "   with respect to the given tolerance the eigenvalues coincide"
-        << std::endl;
+  pcout << "   with respect to the given tolerance the eigenvalues coincide" << std::endl;
 }
 
 
@@ -154,8 +123,7 @@ test(const unsigned int size,
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, numbers::invalid_unsigned_int);
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, numbers::invalid_unsigned_int);
 
   const std::vector<unsigned int> sizes  = {{200, 400, 600}};
   const std::vector<unsigned int> blocks = {{32, 64}};

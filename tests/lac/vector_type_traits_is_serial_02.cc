@@ -27,23 +27,17 @@ test()
 {
   // make sure that is_serial_vector< dealii::TrilinosWrappers::MPI::Vector > is
   // working
-  Assert(is_serial_vector<dealii::TrilinosWrappers::MPI::Vector>::value ==
-           false,
-         ExcInternalError());
+  Assert(is_serial_vector<dealii::TrilinosWrappers::MPI::Vector>::value == false, ExcInternalError());
 
-  deallog << is_serial_vector<dealii::TrilinosWrappers::MPI::Vector>::value
-          << std::endl;
+  deallog << is_serial_vector<dealii::TrilinosWrappers::MPI::Vector>::value << std::endl;
 
   deallog << "OK" << std::endl << std::endl;
 
 
   // make sure that dealii::TrilinosWrappers::MPI::BlockVector > is working
-  Assert(is_serial_vector<dealii::TrilinosWrappers::MPI::BlockVector>::value ==
-           false,
-         ExcInternalError());
+  Assert(is_serial_vector<dealii::TrilinosWrappers::MPI::BlockVector>::value == false, ExcInternalError());
 
-  deallog << is_serial_vector<dealii::TrilinosWrappers::MPI::BlockVector>::value
-          << std::endl;
+  deallog << is_serial_vector<dealii::TrilinosWrappers::MPI::BlockVector>::value << std::endl;
 
   deallog << "OK" << std::endl;
 }
@@ -59,28 +53,20 @@ main()
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

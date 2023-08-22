@@ -63,15 +63,12 @@ check()
   dof_handler.distribute_dofs(fe);
 
   QGauss<dim>   quadrature(3);
-  FEValues<dim> fe_values(fe,
-                          quadrature,
-                          update_gradients | update_quadrature_points);
+  FEValues<dim> fe_values(fe, quadrature, update_gradients | update_quadrature_points);
   fe_values.reinit(dof_handler.begin_active());
 
   for (unsigned int q = 0; q < quadrature.size(); ++q)
     {
-      deallog << "index=" << q << " position=" << fe_values.quadrature_point(q)
-              << " values=";
+      deallog << "index=" << q << " position=" << fe_values.quadrature_point(q) << " values=";
       for (unsigned int i = 0; i < fe.dofs_per_cell; ++i)
         deallog << '[' << fe_values.shape_grad(i, q) << "] ";
       deallog << std::endl;

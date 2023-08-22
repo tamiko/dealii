@@ -89,8 +89,7 @@ test()
   // ----- connect error predictor -----
   Vector<float> predicted_errors;
   tria.signals.post_p4est_refinement.connect([&]() {
-    const parallel::distributed::TemporarilyMatchRefineFlags<dim>
-      refine_modifier(tria);
+    const parallel::distributed::TemporarilyMatchRefineFlags<dim> refine_modifier(tria);
     predicted_errors.reinit(tria.n_active_cells());
     hp::Refinement::predict_error(dh,
                                   error_indicators,
@@ -102,11 +101,9 @@ test()
 
   // ----- verify ------
   deallog << "pre_adaptation" << std::endl;
-  for (const auto &cell :
-       dh.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : dh.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     {
-      deallog << " cell:" << cell->id().to_string()
-              << " fe_deg:" << cell->get_fe().degree
+      deallog << " cell:" << cell->id().to_string() << " fe_deg:" << cell->get_fe().degree
               << " error:" << error_indicators[cell->active_cell_index()];
 
       if (cell->coarsen_flag_set())
@@ -121,11 +118,11 @@ test()
     }
 
   // ----- execute adaptation -----
-  parallel::distributed::CellDataTransfer<dim, dim, Vector<float>>
-    data_transfer(tria,
-                  /*transfer_variable_size_data=*/false,
-                  &AdaptationStrategies::Refinement::l2_norm<dim, dim, float>,
-                  &AdaptationStrategies::Coarsening::l2_norm<dim, dim, float>);
+  parallel::distributed::CellDataTransfer<dim, dim, Vector<float>> data_transfer(
+    tria,
+    /*transfer_variable_size_data=*/false,
+    &AdaptationStrategies::Refinement::l2_norm<dim, dim, float>,
+    &AdaptationStrategies::Coarsening::l2_norm<dim, dim, float>);
 
   data_transfer.prepare_for_coarsening_and_refinement(predicted_errors);
   tria.execute_coarsening_and_refinement();
@@ -135,10 +132,8 @@ test()
 
   // ------ verify ------
   deallog << "post_adaptation" << std::endl;
-  for (const auto &cell :
-       dh.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
-    deallog << " cell:" << cell->id().to_string()
-            << " predicted:" << predicted_errors(cell->active_cell_index())
+  for (const auto &cell : dh.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+    deallog << " cell:" << cell->id().to_string() << " predicted:" << predicted_errors(cell->active_cell_index())
             << std::endl;
 
   // make sure no processor is hanging

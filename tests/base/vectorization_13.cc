@@ -23,11 +23,9 @@
 
 template <typename VectorizedArrayType>
 void
-do_test(const VectorizedArrayType                      array,
-        const typename VectorizedArrayType::value_type number)
+do_test(const VectorizedArrayType array, const typename VectorizedArrayType::value_type number)
 {
-  deallog << "  test " << VectorizedArrayType::size() << " array elements"
-          << std::endl;
+  deallog << "  test " << VectorizedArrayType::size() << " array elements" << std::endl;
 
   auto exponentiated_array = std::pow(array, number);
 
@@ -41,8 +39,7 @@ template <typename VectorizedArrayType>
 void
 do_test(const VectorizedArrayType array, const VectorizedArrayType number)
 {
-  deallog << "  test " << VectorizedArrayType::size() << " array elements"
-          << std::endl;
+  deallog << "  test " << VectorizedArrayType::size() << " array elements" << std::endl;
 
   auto exponentiated_array = std::pow(array, number);
 

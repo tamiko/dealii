@@ -64,32 +64,25 @@ check_support(const FiniteElement<dim> &finel, const char *name)
   for (unsigned int k = 0; k < cell_points.size(); ++k)
     deallog << std::setprecision(3) << cell_points[k] << std::endl;
 
-  const std::vector<Point<dim - 1>> &face_points =
-    finel.get_unit_face_support_points();
-  const std::vector<double> dummy_weights(face_points.size());
+  const std::vector<Point<dim - 1>> &face_points = finel.get_unit_face_support_points();
+  const std::vector<double>          dummy_weights(face_points.size());
 
   Quadrature<dim - 1> q(face_points, dummy_weights);
 
   for (const unsigned int i : GeometryInfo<dim>::face_indices())
     {
       std::vector<Point<dim>> q_points(q.get_points().size());
-      QProjector<dim>::project_to_face(ReferenceCells::get_hypercube<dim>(),
-                                       q,
-                                       i,
-                                       q_points);
+      QProjector<dim>::project_to_face(ReferenceCells::get_hypercube<dim>(), q, i, q_points);
       Quadrature<dim> qp(q_points);
-      deallog << name << '<' << dim << '>' << " face " << i << " support points"
-              << std::endl;
+      deallog << name << '<' << dim << '>' << " face " << i << " support points" << std::endl;
 
       for (unsigned int k = 0; k < face_points.size(); ++k)
         deallog << std::setprecision(3) << qp.point(k) << std::endl;
     }
 
-  deallog << name << '<' << dim << '>' << " cell generalized support points"
-          << std::endl;
+  deallog << name << '<' << dim << '>' << " cell generalized support points" << std::endl;
 
-  const std::vector<Point<dim>> &cell_g_points =
-    finel.get_generalized_support_points();
+  const std::vector<Point<dim>> &cell_g_points = finel.get_generalized_support_points();
 
   for (unsigned int k = 0; k < cell_g_points.size(); ++k)
     deallog << std::setprecision(3) << cell_g_points[k] << std::endl;

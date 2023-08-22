@@ -36,8 +36,7 @@ main()
   // deallog << std::setprecision(3);
 
   const enum SD::OptimizerType     opt_method = SD::OptimizerType::lambda;
-  const enum SD::OptimizationFlags opt_flags =
-    SD::OptimizationFlags::optimize_default;
+  const enum SD::OptimizationFlags opt_flags  = SD::OptimizationFlags::optimize_default;
 
   const int dim = 2;
   run_tests<dim, opt_method, opt_flags>();

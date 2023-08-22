@@ -64,25 +64,17 @@ main(int argc, char **argv)
 
     for (unsigned int k = 4; k < 10; ++k)
       {
-        const double est = Utilities::LinearAlgebra::lanczos_largest_eigenvalue(
-          A, v0, k, vector_memory);
+        const double est = Utilities::LinearAlgebra::lanczos_largest_eigenvalue(A, v0, k, vector_memory);
         Assert(est > 3.98974, ExcInternalError());
         deallog << k << std::endl << "Lanczos " << est << std::endl;
 
         // estimate from CG
         {
-          ReductionControl                     control(k,
-                                   std::sqrt(
-                                     std::numeric_limits<double>::epsilon()),
-                                   1e-10,
-                                   false,
-                                   false);
-          std::vector<double>                  estimated_eigenvalues;
+          ReductionControl    control(k, std::sqrt(std::numeric_limits<double>::epsilon()), 1e-10, false, false);
+          std::vector<double> estimated_eigenvalues;
           SolverCG<PETScWrappers::MPI::Vector> solver(control);
           solver.connect_eigenvalues_slot(
-            [&estimated_eigenvalues](const std::vector<double> &ev) -> void {
-              estimated_eigenvalues = ev;
-            });
+            [&estimated_eigenvalues](const std::vector<double> &ev) -> void { estimated_eigenvalues = ev; });
           y = v0;
           PreconditionIdentity preconditioner;
           try

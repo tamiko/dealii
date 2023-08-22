@@ -44,8 +44,7 @@ main()
   deallog << "Construct symbol map" << std::endl;
   SD::types::substitution_map symbol_map;
   SD::add_to_symbol_map(symbol_map, SD::make_tensor_of_symbols<2, dim>("t1"));
-  SD::add_to_symbol_map(symbol_map,
-                        SD::make_symmetric_tensor_of_symbols<2, dim>("st1"));
+  SD::add_to_symbol_map(symbol_map, SD::make_symmetric_tensor_of_symbols<2, dim>("st1"));
   SD::add_to_symbol_map(symbol_map,
                         SD::make_tensor_of_symbols<2, dim>("t2"),
                         SD::make_symmetric_tensor_of_symbols<2, dim>("st2"));
@@ -54,15 +53,11 @@ main()
 
 
   deallog << "Set values in symbol map" << std::endl;
+  SD::set_value_in_symbol_map(symbol_map, SD::make_tensor_of_symbols<2, dim>("t1"), t);
+  SD::set_value_in_symbol_map(symbol_map, SD::make_symmetric_tensor_of_symbols<2, dim>("st1"), st);
   SD::set_value_in_symbol_map(symbol_map,
-                              SD::make_tensor_of_symbols<2, dim>("t1"),
-                              t);
-  SD::set_value_in_symbol_map(
-    symbol_map, SD::make_symmetric_tensor_of_symbols<2, dim>("st1"), st);
-  SD::set_value_in_symbol_map(
-    symbol_map,
-    std::make_pair(SD::make_tensor_of_symbols<2, dim>("t2"), t),
-    std::make_pair(SD::make_symmetric_tensor_of_symbols<2, dim>("st2"), st));
+                              std::make_pair(SD::make_tensor_of_symbols<2, dim>("t2"), t),
+                              std::make_pair(SD::make_symmetric_tensor_of_symbols<2, dim>("st2"), st));
 
   SD::Utilities::print_substitution_map(deallog, symbol_map);
 

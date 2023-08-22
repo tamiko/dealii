@@ -38,8 +38,7 @@ check1()
         p[d] = i + d;
 
       for (unsigned int c = 0; c < 3; ++c)
-        AssertThrow(object.value(p, c) == (c == 1 ? p.norm() : 0),
-                    ExcInternalError());
+        AssertThrow(object.value(p, c) == (c == 1 ? p.norm() : 0), ExcInternalError());
 
       Vector<double> v(3);
       object.vector_value(p, v);
@@ -59,8 +58,7 @@ check2()
   for (unsigned int d = 0; d < dim; ++d)
     q[d] = d;
 
-  ScalarFunctionFromFunctionObject<dim> object(
-    std::bind(&Point<dim>::distance, q, std::placeholders::_1));
+  ScalarFunctionFromFunctionObject<dim> object(std::bind(&Point<dim>::distance, q, std::placeholders::_1));
 
   for (unsigned int i = 0; i < 10; ++i)
     {

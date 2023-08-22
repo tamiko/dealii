@@ -121,8 +121,7 @@ namespace internal
       insert_new_index(const std::pair<size_type, number> &pair);
 
       void
-      append_index(const size_type                     index,
-                   const std::pair<size_type, number> &pair);
+      append_index(const size_type index, const std::pair<size_type, number> &pair);
 
       size_type
       get_size(const size_type index) const;
@@ -180,9 +179,7 @@ namespace internal
       reinit(const size_type n_local_rows);
 
       void
-      insert_index(const size_type global_row,
-                   const size_type local_row,
-                   const number    constraint_value);
+      insert_index(const size_type global_row, const size_type local_row, const number constraint_value);
       void
       sort();
 
@@ -234,16 +231,14 @@ namespace internal
        * position of constraints.
        */
       size_type
-      local_row(const size_type counter_index,
-                const size_type index_in_constraint) const;
+      local_row(const size_type counter_index, const size_type index_in_constraint) const;
 
       /**
        * Return the value of the constraint in the counter_index-th entry in
        * the list in the index_in_constraint-th position of constraints.
        */
       number
-      constraint_value(const size_type counter_index,
-                       const size_type index_in_constraint) const;
+      constraint_value(const size_type counter_index, const size_type index_in_constraint) const;
 
       /**
        * Return whether there is one row with indirect contributions (i.e.,
@@ -412,18 +407,15 @@ namespace internal
   {
     template <typename VectorType>
     void
-    set_zero_all(const std::vector<types::global_dof_index> &cm,
-                 VectorType &                                vec);
+    set_zero_all(const std::vector<types::global_dof_index> &cm, VectorType &vec);
 
     template <class T>
     void
-    set_zero_all(const std::vector<types::global_dof_index> &cm,
-                 dealii::Vector<T> &                         vec);
+    set_zero_all(const std::vector<types::global_dof_index> &cm, dealii::Vector<T> &vec);
 
     template <class T>
     void
-    set_zero_all(const std::vector<types::global_dof_index> &cm,
-                 dealii::BlockVector<T> &                    vec);
+    set_zero_all(const std::vector<types::global_dof_index> &cm, dealii::BlockVector<T> &vec);
   } // namespace AffineConstraintsImplementation
 } // namespace internal
 #endif
@@ -574,8 +566,7 @@ public:
   /**
    * Move constructor
    */
-  AffineConstraints(AffineConstraints &&affine_constraints) noexcept =
-    default; // NOLINT
+  AffineConstraints(AffineConstraints &&affine_constraints) noexcept = default; // NOLINT
 
   /**
    * Copy operator. Like for many other large objects, this operator
@@ -593,8 +584,7 @@ public:
    * Move assignment operator
    */
   AffineConstraints &
-  operator=(AffineConstraints &&affine_constraints) noexcept =
-    default; // NOLINT
+  operator=(AffineConstraints &&affine_constraints) noexcept = default; // NOLINT
 
   /**
    * Copy the given object to the current one.
@@ -653,8 +643,7 @@ public:
    * AffineConstraints. The block is specified by the IndexSet argument.
    */
   void
-  add_selected_constraints(const AffineConstraints &constraints_in,
-                           const IndexSet &         filter);
+  add_selected_constraints(const AffineConstraints &constraints_in, const IndexSet &filter);
 
   /**
    * @name Adding constraints
@@ -729,9 +718,7 @@ public:
    * @param[in] weight The factor $a_{ij}$ that multiplies $x_j$.
    */
   void
-  add_entry(const size_type constrained_dof_index,
-            const size_type column,
-            const number    weight);
+  add_entry(const size_type constrained_dof_index, const size_type column, const number weight);
 
   /**
    * Add a whole series of entries, denoted by pairs of column indices and
@@ -739,9 +726,7 @@ public:
    * calling the preceding function several times, but is faster.
    */
   void
-  add_entries(
-    const size_type                                  constrained_dof_index,
-    const std::vector<std::pair<size_type, number>> &col_weight_pairs);
+  add_entries(const size_type constrained_dof_index, const std::vector<std::pair<size_type, number>> &col_weight_pairs);
 
   /**
    * Set an inhomogeneity to the constraint for a degree of freedom. In other
@@ -823,10 +808,9 @@ public:
    */
   template <typename other_number>
   void
-  merge(
-    const AffineConstraints<other_number> &other_constraints,
-    const MergeConflictBehavior merge_conflict_behavior = no_conflicts_allowed,
-    const bool                  allow_different_local_lines = false);
+  merge(const AffineConstraints<other_number> &other_constraints,
+        const MergeConflictBehavior            merge_conflict_behavior     = no_conflicts_allowed,
+        const bool                             allow_different_local_lines = false);
 
   /**
    * Shift all entries of this matrix down @p offset rows and over @p offset
@@ -916,8 +900,7 @@ public:
    * <code>index2=index1</code>.
    */
   bool
-  are_identity_constrained(const size_type line_n_1,
-                           const size_type line_n_2) const;
+  are_identity_constrained(const size_type line_n_1, const size_type line_n_2) const;
 
   /**
    * Return the maximum number of other dofs that one dof is constrained to.
@@ -1195,9 +1178,9 @@ public:
    */
   template <class InVector, class OutVector>
   void
-  distribute_local_to_global(const InVector &              local_vector,
+  distribute_local_to_global(const InVector               &local_vector,
                              const std::vector<size_type> &local_dof_indices,
-                             OutVector &                   global_vector) const;
+                             OutVector                    &global_vector) const;
 
   /**
    * This function takes a vector of local contributions (@p local_vector)
@@ -1248,10 +1231,10 @@ public:
    */
   template <typename VectorType>
   void
-  distribute_local_to_global(const Vector<number> &        local_vector,
+  distribute_local_to_global(const Vector<number>         &local_vector,
                              const std::vector<size_type> &local_dof_indices,
-                             VectorType &                  global_vector,
-                             const FullMatrix<number> &    local_matrix) const;
+                             VectorType                   &global_vector,
+                             const FullMatrix<number>     &local_matrix) const;
 
   /**
    * Same as the previous function, except that it uses two (possibly) different
@@ -1274,22 +1257,19 @@ public:
    */
   template <typename VectorType>
   void
-  distribute_local_to_global(
-    const Vector<number> &        local_vector,
-    const std::vector<size_type> &local_dof_indices_row,
-    const std::vector<size_type> &local_dof_indices_col,
-    VectorType &                  global_vector,
-    const FullMatrix<number> &    local_matrix,
-    bool                          diagonal = false) const;
+  distribute_local_to_global(const Vector<number>         &local_vector,
+                             const std::vector<size_type> &local_dof_indices_row,
+                             const std::vector<size_type> &local_dof_indices_col,
+                             VectorType                   &global_vector,
+                             const FullMatrix<number>     &local_matrix,
+                             bool                          diagonal = false) const;
 
   /**
    * Enter a single value into a result vector, obeying constraints.
    */
   template <typename VectorType>
   void
-  distribute_local_to_global(const size_type index,
-                             const number    value,
-                             VectorType &    global_vector) const;
+  distribute_local_to_global(const size_type index, const number value, VectorType &global_vector) const;
 
   /**
    * This function takes a pointer to a vector of local contributions (@p
@@ -1323,14 +1303,12 @@ public:
    * site. There is no locking mechanism inside this method to prevent data
    * races.
    */
-  template <typename ForwardIteratorVec,
-            typename ForwardIteratorInd,
-            typename VectorType>
+  template <typename ForwardIteratorVec, typename ForwardIteratorInd, typename VectorType>
   void
   distribute_local_to_global(ForwardIteratorVec local_vector_begin,
                              ForwardIteratorVec local_vector_end,
                              ForwardIteratorInd local_indices_begin,
-                             VectorType &       global_vector) const;
+                             VectorType        &global_vector) const;
 
   /**
    * This function takes a matrix of local contributions (@p local_matrix)
@@ -1385,9 +1363,9 @@ public:
    */
   template <typename MatrixType>
   void
-  distribute_local_to_global(const FullMatrix<number> &    local_matrix,
+  distribute_local_to_global(const FullMatrix<number>     &local_matrix,
                              const std::vector<size_type> &local_dof_indices,
-                             MatrixType &                  global_matrix) const;
+                             MatrixType                   &global_matrix) const;
 
   /**
    * This function does almost the same as the function above but can treat
@@ -1418,10 +1396,10 @@ public:
    */
   template <typename MatrixType>
   void
-  distribute_local_to_global(const FullMatrix<number> &    local_matrix,
+  distribute_local_to_global(const FullMatrix<number>     &local_matrix,
                              const std::vector<size_type> &row_indices,
                              const std::vector<size_type> &col_indices,
-                             MatrixType &                  global_matrix) const;
+                             MatrixType                   &global_matrix) const;
 
   /**
    * This function does almost the same as the function above for general
@@ -1441,11 +1419,11 @@ public:
    */
   template <typename MatrixType>
   void
-  distribute_local_to_global(const FullMatrix<number> &    local_matrix,
+  distribute_local_to_global(const FullMatrix<number>     &local_matrix,
                              const std::vector<size_type> &row_indices,
-                             const AffineConstraints &column_affine_constraints,
+                             const AffineConstraints      &column_affine_constraints,
                              const std::vector<size_type> &column_indices,
-                             MatrixType &                  global_matrix) const;
+                             MatrixType                   &global_matrix) const;
 
   /**
    * This function simultaneously writes elements into matrix and vector,
@@ -1469,12 +1447,12 @@ public:
    */
   template <typename MatrixType, typename VectorType>
   void
-  distribute_local_to_global(const FullMatrix<number> &    local_matrix,
-                             const Vector<number> &        local_vector,
+  distribute_local_to_global(const FullMatrix<number>     &local_matrix,
+                             const Vector<number>         &local_vector,
                              const std::vector<size_type> &local_dof_indices,
-                             MatrixType &                  global_matrix,
-                             VectorType &                  global_vector,
-                             bool use_inhomogeneities_for_rhs = false) const;
+                             MatrixType                   &global_matrix,
+                             VectorType                   &global_vector,
+                             bool                          use_inhomogeneities_for_rhs = false) const;
 
   /**
    * Do a similar operation as the distribute_local_to_global() function that
@@ -1530,35 +1508,32 @@ public:
    * prevent data races.
    */
   void
-  add_entries_local_to_global(
-    const std::vector<size_type> &local_dof_indices,
-    SparsityPatternBase &         sparsity_pattern,
-    const bool                    keep_constrained_entries = true,
-    const Table<2, bool> &        dof_mask = Table<2, bool>()) const;
+  add_entries_local_to_global(const std::vector<size_type> &local_dof_indices,
+                              SparsityPatternBase          &sparsity_pattern,
+                              const bool                    keep_constrained_entries = true,
+                              const Table<2, bool>         &dof_mask                 = Table<2, bool>()) const;
 
   /**
    * Similar to the other function, but for non-quadratic sparsity patterns.
    */
   void
-  add_entries_local_to_global(
-    const std::vector<size_type> &row_indices,
-    const std::vector<size_type> &col_indices,
-    SparsityPatternBase &         sparsity_pattern,
-    const bool                    keep_constrained_entries = true,
-    const Table<2, bool> &        dof_mask = Table<2, bool>()) const;
+  add_entries_local_to_global(const std::vector<size_type> &row_indices,
+                              const std::vector<size_type> &col_indices,
+                              SparsityPatternBase          &sparsity_pattern,
+                              const bool                    keep_constrained_entries = true,
+                              const Table<2, bool>         &dof_mask                 = Table<2, bool>()) const;
 
   /**
    * Similar to the other function, but for non-quadratic sparsity patterns, and
    * for different constraints in the column space.
    */
   void
-  add_entries_local_to_global(
-    const std::vector<size_type> &   row_indices,
-    const AffineConstraints<number> &col_constraints,
-    const std::vector<size_type> &   col_indices,
-    SparsityPatternBase &            sparsity_pattern,
-    const bool                       keep_constrained_entries = true,
-    const Table<2, bool> &           dof_mask = Table<2, bool>()) const;
+  add_entries_local_to_global(const std::vector<size_type>    &row_indices,
+                              const AffineConstraints<number> &col_constraints,
+                              const std::vector<size_type>    &col_indices,
+                              SparsityPatternBase             &sparsity_pattern,
+                              const bool                       keep_constrained_entries = true,
+                              const Table<2, bool>            &dof_mask                 = Table<2, bool>()) const;
 
   /**
    * This function imports values from a global vector (@p global_vector) by
@@ -1579,11 +1554,9 @@ public:
    * class, this function does not need the constrained values to be correctly
    * set (i.e., distribute to be called).
    */
-  template <typename ForwardIteratorVec,
-            typename ForwardIteratorInd,
-            typename VectorType>
+  template <typename ForwardIteratorVec, typename ForwardIteratorInd, typename VectorType>
   void
-  get_dof_values(const VectorType & global_vector,
+  get_dof_values(const VectorType  &global_vector,
                  ForwardIteratorInd local_indices_begin,
                  ForwardIteratorVec local_vector_begin,
                  ForwardIteratorVec local_vector_end) const;
@@ -1653,9 +1626,8 @@ public:
      * Default constructor.
      */
     ConstraintLine(const size_type &index = numbers::invalid_dof_index,
-                   const typename AffineConstraints<
-                     number>::ConstraintLine::Entries &entries       = {},
-                   const number                        inhomogeneity = 0.0);
+                   const typename AffineConstraints<number>::ConstraintLine::Entries &entries       = {},
+                   const number                                                       inhomogeneity = 0.0);
 
     /**
      * Copy constructor.
@@ -1761,7 +1733,7 @@ public:
    */
   bool
   is_consistent_in_parallel(const std::vector<IndexSet> &locally_owned_dofs,
-                            const IndexSet &             locally_active_dofs,
+                            const IndexSet              &locally_active_dofs,
                             const MPI_Comm               mpi_communicator,
                             const bool                   verbose = false) const;
 
@@ -1792,9 +1764,7 @@ public:
    *
    * @ingroup Exceptions
    */
-  DeclException1(ExcLineInexistant,
-                 size_type,
-                 << "The specified line " << arg1 << " does not exist.");
+  DeclException1(ExcLineInexistant, size_type, << "The specified line " << arg1 << " does not exist.");
   /**
    * Exception
    *
@@ -1805,9 +1775,8 @@ public:
                  size_type,
                  number,
                  number,
-                 << "The entry for the indices " << arg1 << " and " << arg2
-                 << " already exists, but the values " << arg3 << " (old) and "
-                 << arg4 << " (new) differ "
+                 << "The entry for the indices " << arg1 << " and " << arg2 << " already exists, but the values "
+                 << arg3 << " (old) and " << arg4 << " (new) differ "
                  << "by " << (arg4 - arg3) << '.');
   /**
    * Exception
@@ -1826,8 +1795,7 @@ public:
    */
   DeclException1(ExcDoFIsConstrainedFromBothObjects,
                  size_type,
-                 << "Degree of freedom " << arg1
-                 << " is constrained from both object in a merge operation.");
+                 << "Degree of freedom " << arg1 << " is constrained from both object in a merge operation.");
   /**
    * Exception
    *
@@ -1872,12 +1840,10 @@ public:
   DeclException2(ExcIncorrectConstraint,
                  int,
                  int,
-                 << "While distributing the constraint for DoF " << arg1
-                 << ", it turns out that one of the processors "
-                 << "who own the " << arg2 << " degrees of freedom that x_"
-                 << arg1 << " is constrained against does not know about "
-                 << "the constraint on x_" << arg1
-                 << ". Did you not initialize the AffineConstraints container "
+                 << "While distributing the constraint for DoF " << arg1 << ", it turns out that one of the processors "
+                 << "who own the " << arg2 << " degrees of freedom that x_" << arg1
+                 << " is constrained against does not know about "
+                 << "the constraint on x_" << arg1 << ". Did you not initialize the AffineConstraints container "
                  << "with the appropriate locally_relevant set so "
                  << "that every processor who owns a DoF that constrains "
                  << "another DoF also knows about this constraint?");
@@ -1945,9 +1911,7 @@ private:
    */
   bool sorted;
 
-  mutable Threads::ThreadLocalStorage<
-    internal::AffineConstraints::ScratchData<number>>
-    scratch_data;
+  mutable Threads::ThreadLocalStorage<internal::AffineConstraints::ScratchData<number>> scratch_data;
 
   /**
    * Internal function to calculate the index of line @p line_n in the vector
@@ -1962,12 +1926,12 @@ private:
    */
   template <typename MatrixType, typename VectorType>
   void
-  distribute_local_to_global(const FullMatrix<number> &    local_matrix,
-                             const Vector<number> &        local_vector,
+  distribute_local_to_global(const FullMatrix<number>     &local_matrix,
+                             const Vector<number>         &local_vector,
                              const std::vector<size_type> &local_dof_indices,
-                             MatrixType &                  global_matrix,
-                             VectorType &                  global_vector,
-                             const bool use_inhomogeneities_for_rhs,
+                             MatrixType                   &global_matrix,
+                             VectorType                   &global_vector,
+                             const bool                    use_inhomogeneities_for_rhs,
                              const std::integral_constant<bool, false>) const;
 
   /**
@@ -1976,12 +1940,12 @@ private:
    */
   template <typename MatrixType, typename VectorType>
   void
-  distribute_local_to_global(const FullMatrix<number> &    local_matrix,
-                             const Vector<number> &        local_vector,
+  distribute_local_to_global(const FullMatrix<number>     &local_matrix,
+                             const Vector<number>         &local_vector,
                              const std::vector<size_type> &local_dof_indices,
-                             MatrixType &                  global_matrix,
-                             VectorType &                  global_vector,
-                             const bool use_inhomogeneities_for_rhs,
+                             MatrixType                   &global_matrix,
+                             VectorType                   &global_vector,
+                             const bool                    use_inhomogeneities_for_rhs,
                              const std::integral_constant<bool, true>) const;
 
   /**
@@ -1992,9 +1956,8 @@ private:
    * the global row indices.
    */
   void
-  make_sorted_row_list(const std::vector<size_type> &local_dof_indices,
-                       internal::AffineConstraints::GlobalRowsFromLocal<number>
-                         &global_rows) const;
+  make_sorted_row_list(const std::vector<size_type>                             &local_dof_indices,
+                       internal::AffineConstraints::GlobalRowsFromLocal<number> &global_rows) const;
 
   /**
    * Internal helper function for add_entries_local_to_global function.
@@ -2004,27 +1967,24 @@ private:
    * function.
    */
   void
-  make_sorted_row_list(const std::vector<size_type> &local_dof_indices,
-                       std::vector<size_type> &      active_dofs) const;
+  make_sorted_row_list(const std::vector<size_type> &local_dof_indices, std::vector<size_type> &active_dofs) const;
 
   /**
    * Internal helper function for distribute_local_to_global function.
    */
   template <typename MatrixScalar, typename VectorScalar>
   typename ProductType<VectorScalar, MatrixScalar>::type
-  resolve_vector_entry(
-    const size_type                                                 i,
-    const internal::AffineConstraints::GlobalRowsFromLocal<number> &global_rows,
-    const Vector<VectorScalar> &    local_vector,
-    const std::vector<size_type> &  local_dof_indices,
-    const FullMatrix<MatrixScalar> &local_matrix) const;
+  resolve_vector_entry(const size_type                                                 i,
+                       const internal::AffineConstraints::GlobalRowsFromLocal<number> &global_rows,
+                       const Vector<VectorScalar>                                     &local_vector,
+                       const std::vector<size_type>                                   &local_dof_indices,
+                       const FullMatrix<MatrixScalar>                                 &local_matrix) const;
 };
 
 /* ---------------- template and inline functions ----------------- */
 
 template <typename number>
-inline AffineConstraints<number>::AffineConstraints(
-  const IndexSet &local_constraints)
+inline AffineConstraints<number>::AffineConstraints(const IndexSet &local_constraints)
   : lines()
   , local_lines(local_constraints)
   , sorted(false)
@@ -2036,8 +1996,7 @@ inline AffineConstraints<number>::AffineConstraints(
 }
 
 template <typename number>
-inline AffineConstraints<number>::AffineConstraints(
-  const AffineConstraints &affine_constraints)
+inline AffineConstraints<number>::AffineConstraints(const AffineConstraints &affine_constraints)
   : Subscriptor()
   , lines(affine_constraints.lines)
   , lines_cache(affine_constraints.lines_cache)
@@ -2064,8 +2023,7 @@ AffineConstraints<number>::add_line(const size_type line_n)
 
   // if necessary enlarge vector of existing entries for cache
   if (line_index >= lines_cache.size())
-    lines_cache.resize(std::max(2 * static_cast<size_type>(lines_cache.size()),
-                                line_index + 1),
+    lines_cache.resize(std::max(2 * static_cast<size_type>(lines_cache.size()), line_index + 1),
                        numbers::invalid_size_type);
 
   // push a new line to the end of the list
@@ -2079,13 +2037,10 @@ AffineConstraints<number>::add_line(const size_type line_n)
 
 template <typename number>
 inline void
-AffineConstraints<number>::add_entry(const size_type constrained_dof_index,
-                                     const size_type column,
-                                     const number    weight)
+AffineConstraints<number>::add_entry(const size_type constrained_dof_index, const size_type column, const number weight)
 {
   Assert(sorted == false, ExcMatrixIsClosed());
-  Assert(constrained_dof_index != column,
-         ExcMessage("Can't constrain a degree of freedom to itself"));
+  Assert(constrained_dof_index != column, ExcMessage("Can't constrain a degree of freedom to itself"));
 
   // Ensure that the current line is present in the cache:
   const size_type line_index = calculate_line_index(constrained_dof_index);
@@ -2099,18 +2054,15 @@ AffineConstraints<number>::add_entry(const size_type constrained_dof_index,
   //
   // in any case: exit the function if an entry for this column already
   // exists, since we don't want to enter it twice
-  Assert(lines_cache[line_index] != numbers::invalid_size_type,
-         ExcInternalError());
-  Assert(!local_lines.size() || local_lines.is_element(column),
-         ExcColumnNotStoredHere(constrained_dof_index, column));
+  Assert(lines_cache[line_index] != numbers::invalid_size_type, ExcInternalError());
+  Assert(!local_lines.size() || local_lines.is_element(column), ExcColumnNotStoredHere(constrained_dof_index, column));
   ConstraintLine *line_ptr = &lines[lines_cache[line_index]];
   Assert(line_ptr->index == constrained_dof_index, ExcInternalError());
   for (const auto &p : line_ptr->entries)
     if (p.first == column)
       {
         Assert(std::abs(p.second - weight) < 1.e-14,
-               ExcEntryAlreadyExists(
-                 constrained_dof_index, column, p.second, weight));
+               ExcEntryAlreadyExists(constrained_dof_index, column, p.second, weight));
         return;
       }
 
@@ -2121,13 +2073,10 @@ AffineConstraints<number>::add_entry(const size_type constrained_dof_index,
 
 template <typename number>
 inline void
-AffineConstraints<number>::set_inhomogeneity(
-  const size_type constrained_dof_index,
-  const number    value)
+AffineConstraints<number>::set_inhomogeneity(const size_type constrained_dof_index, const number value)
 {
   const size_type line_index = calculate_line_index(constrained_dof_index);
-  Assert(line_index < lines_cache.size() &&
-           lines_cache[line_index] != numbers::invalid_size_type,
+  Assert(line_index < lines_cache.size() && lines_cache[line_index] != numbers::invalid_size_type,
          ExcMessage("call add_line() before calling set_inhomogeneity()"));
   Assert(lines_cache[line_index] < lines.size(), ExcInternalError());
   ConstraintLine *line_ptr = &lines[lines_cache[line_index]];
@@ -2146,8 +2095,7 @@ AffineConstraints<number>::set_zero(VectorType &vec) const
   std::vector<size_type> constrained_lines(lines.size());
   for (unsigned int i = 0; i < lines.size(); ++i)
     constrained_lines[i] = lines[i].index;
-  internal::AffineConstraintsImplementation::set_zero_all(constrained_lines,
-                                                          vec);
+  internal::AffineConstraintsImplementation::set_zero_all(constrained_lines, vec);
 }
 
 template <typename number>
@@ -2161,23 +2109,18 @@ template <typename number>
 inline types::global_dof_index
 AffineConstraints<number>::n_identities() const
 {
-  return std::count_if(lines.begin(),
-                       lines.end(),
-                       [](const ConstraintLine &line) {
-                         return (line.entries.size() == 1) &&
-                                (line.entries[0].second == number(1.));
-                       });
+  return std::count_if(lines.begin(), lines.end(), [](const ConstraintLine &line) {
+    return (line.entries.size() == 1) && (line.entries[0].second == number(1.));
+  });
 }
 
 template <typename number>
 inline types::global_dof_index
 AffineConstraints<number>::n_inhomogeneities() const
 {
-  return std::count_if(lines.begin(),
-                       lines.end(),
-                       [](const ConstraintLine &line) {
-                         return (line.inhomogeneity != number(0.));
-                       });
+  return std::count_if(lines.begin(), lines.end(), [](const ConstraintLine &line) {
+    return (line.inhomogeneity != number(0.));
+  });
 }
 
 template <typename number>
@@ -2188,20 +2131,17 @@ AffineConstraints<number>::is_constrained(const size_type index) const
     return false;
 
   const size_type line_index = calculate_line_index(index);
-  return ((line_index < lines_cache.size()) &&
-          (lines_cache[line_index] != numbers::invalid_size_type));
+  return ((line_index < lines_cache.size()) && (lines_cache[line_index] != numbers::invalid_size_type));
 }
 
 template <typename number>
 inline bool
-AffineConstraints<number>::is_inhomogeneously_constrained(
-  const size_type line_n) const
+AffineConstraints<number>::is_inhomogeneously_constrained(const size_type line_n) const
 {
   // check whether the entry is constrained. could use is_constrained, but
   // that means computing the line index twice
   const size_type line_index = calculate_line_index(line_n);
-  if (line_index >= lines_cache.size() ||
-      lines_cache[line_index] == numbers::invalid_size_type)
+  if (line_index >= lines_cache.size() || lines_cache[line_index] == numbers::invalid_size_type)
     return false;
   else
     {
@@ -2220,8 +2160,7 @@ AffineConstraints<number>::get_constraint_entries(const size_type line_n) const
   // check whether the entry is constrained. could use is_constrained, but
   // that means computing the line index twice
   const size_type line_index = calculate_line_index(line_n);
-  if (line_index >= lines_cache.size() ||
-      lines_cache[line_index] == numbers::invalid_size_type)
+  if (line_index >= lines_cache.size() || lines_cache[line_index] == numbers::invalid_size_type)
     return nullptr;
   else
     return &lines[lines_cache[line_index]].entries;
@@ -2234,8 +2173,7 @@ AffineConstraints<number>::get_inhomogeneity(const size_type line_n) const
   // check whether the entry is constrained. could use is_constrained, but
   // that means computing the line index twice
   const size_type line_index = calculate_line_index(line_n);
-  if (line_index >= lines_cache.size() ||
-      lines_cache[line_index] == numbers::invalid_size_type)
+  if (line_index >= lines_cache.size() || lines_cache[line_index] == numbers::invalid_size_type)
     return 0;
   else
     return lines[lines_cache[line_index]].inhomogeneity;
@@ -2271,10 +2209,9 @@ AffineConstraints<number>::get_local_lines() const
 template <typename number>
 template <typename VectorType>
 inline void
-AffineConstraints<number>::distribute_local_to_global(
-  const size_type index,
-  const number    value,
-  VectorType &    global_vector) const
+AffineConstraints<number>::distribute_local_to_global(const size_type index,
+                                                      const number    value,
+                                                      VectorType     &global_vector) const
 {
   Assert(lines.empty() || sorted == true, ExcMatrixNotClosed());
 
@@ -2282,42 +2219,32 @@ AffineConstraints<number>::distribute_local_to_global(
     global_vector(index) += value;
   else
     {
-      const ConstraintLine &position =
-        lines[lines_cache[calculate_line_index(index)]];
+      const ConstraintLine &position = lines[lines_cache[calculate_line_index(index)]];
       for (size_type j = 0; j < position.entries.size(); ++j)
-        global_vector(position.entries[j].first) +=
-          value * position.entries[j].second;
+        global_vector(position.entries[j].first) += value * position.entries[j].second;
     }
 }
 
 template <typename number>
-template <typename ForwardIteratorVec,
-          typename ForwardIteratorInd,
-          typename VectorType>
+template <typename ForwardIteratorVec, typename ForwardIteratorInd, typename VectorType>
 inline void
-AffineConstraints<number>::distribute_local_to_global(
-  ForwardIteratorVec local_vector_begin,
-  ForwardIteratorVec local_vector_end,
-  ForwardIteratorInd local_indices_begin,
-  VectorType &       global_vector) const
+AffineConstraints<number>::distribute_local_to_global(ForwardIteratorVec local_vector_begin,
+                                                      ForwardIteratorVec local_vector_end,
+                                                      ForwardIteratorInd local_indices_begin,
+                                                      VectorType        &global_vector) const
 {
   Assert(lines.empty() || sorted == true, ExcMatrixNotClosed());
-  for (; local_vector_begin != local_vector_end;
-       ++local_vector_begin, ++local_indices_begin)
+  for (; local_vector_begin != local_vector_end; ++local_vector_begin, ++local_indices_begin)
     {
       if (is_constrained(*local_indices_begin) == false)
-        internal::ElementAccess<VectorType>::add(*local_vector_begin,
-                                                 *local_indices_begin,
-                                                 global_vector);
+        internal::ElementAccess<VectorType>::add(*local_vector_begin, *local_indices_begin, global_vector);
       else
         {
-          const ConstraintLine &position =
-            lines[lines_cache[calculate_line_index(*local_indices_begin)]];
+          const ConstraintLine &position = lines[lines_cache[calculate_line_index(*local_indices_begin)]];
           for (size_type j = 0; j < position.entries.size(); ++j)
-            internal::ElementAccess<VectorType>::add(
-              (*local_vector_begin) * position.entries[j].second,
-              position.entries[j].first,
-              global_vector);
+            internal::ElementAccess<VectorType>::add((*local_vector_begin) * position.entries[j].second,
+                                                     position.entries[j].first,
+                                                     global_vector);
         }
     }
 }
@@ -2325,44 +2252,34 @@ AffineConstraints<number>::distribute_local_to_global(
 template <typename number>
 template <class InVector, class OutVector>
 inline void
-AffineConstraints<number>::distribute_local_to_global(
-  const InVector &              local_vector,
-  const std::vector<size_type> &local_dof_indices,
-  OutVector &                   global_vector) const
+AffineConstraints<number>::distribute_local_to_global(const InVector               &local_vector,
+                                                      const std::vector<size_type> &local_dof_indices,
+                                                      OutVector                    &global_vector) const
 {
   Assert(local_vector.size() == local_dof_indices.size(),
          ExcDimensionMismatch(local_vector.size(), local_dof_indices.size()));
-  distribute_local_to_global(local_vector.begin(),
-                             local_vector.end(),
-                             local_dof_indices.begin(),
-                             global_vector);
+  distribute_local_to_global(local_vector.begin(), local_vector.end(), local_dof_indices.begin(), global_vector);
 }
 
 template <typename number>
-template <typename ForwardIteratorVec,
-          typename ForwardIteratorInd,
-          typename VectorType>
+template <typename ForwardIteratorVec, typename ForwardIteratorInd, typename VectorType>
 inline void
-AffineConstraints<number>::get_dof_values(
-  const VectorType & global_vector,
-  ForwardIteratorInd local_indices_begin,
-  ForwardIteratorVec local_vector_begin,
-  ForwardIteratorVec local_vector_end) const
+AffineConstraints<number>::get_dof_values(const VectorType  &global_vector,
+                                          ForwardIteratorInd local_indices_begin,
+                                          ForwardIteratorVec local_vector_begin,
+                                          ForwardIteratorVec local_vector_end) const
 {
   Assert(lines.empty() || sorted == true, ExcMatrixNotClosed());
-  for (; local_vector_begin != local_vector_end;
-       ++local_vector_begin, ++local_indices_begin)
+  for (; local_vector_begin != local_vector_end; ++local_vector_begin, ++local_indices_begin)
     {
       if (is_constrained(*local_indices_begin) == false)
         *local_vector_begin = global_vector(*local_indices_begin);
       else
         {
-          const ConstraintLine &position =
-            lines[lines_cache[calculate_line_index(*local_indices_begin)]];
-          typename VectorType::value_type value = position.inhomogeneity;
+          const ConstraintLine           &position = lines[lines_cache[calculate_line_index(*local_indices_begin)]];
+          typename VectorType::value_type value    = position.inhomogeneity;
           for (size_type j = 0; j < position.entries.size(); ++j)
-            value += (global_vector(position.entries[j].first) *
-                      position.entries[j].second);
+            value += (global_vector(position.entries[j].first) * position.entries[j].second);
           *local_vector_begin = value;
         }
     }
@@ -2433,9 +2350,7 @@ namespace internal
        * derived from BlockMatrixBase<T> or is one of the other block matrix
        * types).
        */
-      static const bool value =
-        std::is_same_v<decltype(check(std::declval<MatrixType *>())),
-                       std::true_type>;
+      static const bool value = std::is_same_v<decltype(check(std::declval<MatrixType *>())), std::true_type>;
     };
 
     // instantiation of the static member
@@ -2451,17 +2366,13 @@ namespace internal
 template <typename number>
 template <typename other_number>
 inline void
-AffineConstraints<number>::copy_from(
-  const AffineConstraints<other_number> &other)
+AffineConstraints<number>::copy_from(const AffineConstraints<other_number> &other)
 {
   lines.clear();
   lines.reserve(other.lines.size());
 
   for (const auto l : other.lines)
-    lines.emplace_back(l.index,
-                       typename ConstraintLine::Entries(l.entries.begin(),
-                                                        l.entries.end()),
-                       l.inhomogeneity);
+    lines.emplace_back(l.index, typename ConstraintLine::Entries(l.entries.begin(), l.entries.end()), l.inhomogeneity);
 
   lines_cache = other.lines_cache;
   local_lines = other.local_lines;
@@ -2472,17 +2383,14 @@ AffineConstraints<number>::copy_from(
 template <typename number>
 template <typename other_number>
 void
-AffineConstraints<number>::merge(
-  const AffineConstraints<other_number> &other_constraints,
-  const MergeConflictBehavior            merge_conflict_behavior,
-  const bool                             allow_different_local_lines)
+AffineConstraints<number>::merge(const AffineConstraints<other_number> &other_constraints,
+                                 const MergeConflictBehavior            merge_conflict_behavior,
+                                 const bool                             allow_different_local_lines)
 {
   (void)allow_different_local_lines;
-  Assert(allow_different_local_lines ||
-           local_lines == other_constraints.local_lines,
-         ExcMessage(
-           "local_lines for this and the other objects are not the same "
-           "although allow_different_local_lines is false."));
+  Assert(allow_different_local_lines || local_lines == other_constraints.local_lines,
+         ExcMessage("local_lines for this and the other objects are not the same "
+                    "although allow_different_local_lines is false."));
 
   // store the previous state with respect to sorting
   const bool object_was_sorted = sorted;
@@ -2506,11 +2414,9 @@ AffineConstraints<number>::merge(
           // won't take the constraint from the other object, then simply copy
           // it over
           if ((other_constraints.local_lines.size() != 0. &&
-               other_constraints.local_lines.is_element(entry.first) ==
-                 false) ||
+               other_constraints.local_lines.is_element(entry.first) == false) ||
               other_constraints.is_constrained(entry.first) == false ||
-              ((merge_conflict_behavior != right_object_wins) &&
-               other_constraints.is_constrained(entry.first) &&
+              ((merge_conflict_behavior != right_object_wins) && other_constraints.is_constrained(entry.first) &&
                this->is_constrained(entry.first)))
             tmp.push_back(entry);
           else
@@ -2518,18 +2424,15 @@ AffineConstraints<number>::merge(
             // entry by a sequence of new entries taken from the other
             // object, but with multiplied weights
             {
-              const auto *other_entries =
-                other_constraints.get_constraint_entries(entry.first);
+              const auto *other_entries = other_constraints.get_constraint_entries(entry.first);
               Assert(other_entries != nullptr, ExcInternalError());
 
               const number weight = entry.second;
 
               for (const auto &other_entry : *other_entries)
-                tmp.emplace_back(other_entry.first,
-                                 other_entry.second * weight);
+                tmp.emplace_back(other_entry.first, other_entry.second * weight);
 
-              line.inhomogeneity +=
-                other_constraints.get_inhomogeneity(entry.first) * weight;
+              line.inhomogeneity += other_constraints.get_inhomogeneity(entry.first) * weight;
             }
         }
       // finally exchange old and newly resolved line
@@ -2542,9 +2445,7 @@ AffineConstraints<number>::merge(
   {
     // do not bother to resize the lines cache exactly since it is pretty
     // cheap to adjust it along the way.
-    std::fill(lines_cache.begin(),
-              lines_cache.end(),
-              numbers::invalid_size_type);
+    std::fill(lines_cache.begin(), lines_cache.end(), numbers::invalid_size_type);
 
     // reset lines_cache for our own constraints
     size_type index = 0;
@@ -2564,8 +2465,7 @@ AffineConstraints<number>::merge(
           {
             lines_cache.resize(local_line_no + 1, numbers::invalid_size_type);
             lines.emplace_back(line.index,
-                               typename ConstraintLine::Entries(
-                                 line.entries.begin(), line.entries.end()),
+                               typename ConstraintLine::Entries(line.entries.begin(), line.entries.end()),
                                line.inhomogeneity);
             lines_cache[local_line_no] = index++;
           }
@@ -2573,8 +2473,7 @@ AffineConstraints<number>::merge(
           {
             // there are no constraints for that line yet
             lines.emplace_back(line.index,
-                               typename ConstraintLine::Entries(
-                                 line.entries.begin(), line.entries.end()),
+                               typename ConstraintLine::Entries(line.entries.begin(), line.entries.end()),
                                line.inhomogeneity);
             AssertIndexRange(local_line_no, lines_cache.size());
             lines_cache[local_line_no] = index++;
@@ -2585,8 +2484,7 @@ AffineConstraints<number>::merge(
             switch (merge_conflict_behavior)
               {
                 case no_conflicts_allowed:
-                  AssertThrow(false,
-                              ExcDoFIsConstrainedFromBothObjects(line.index));
+                  AssertThrow(false, ExcDoFIsConstrainedFromBothObjects(line.index));
                   break;
 
                 case left_object_wins:
@@ -2595,11 +2493,10 @@ AffineConstraints<number>::merge(
 
                 case right_object_wins:
                   AssertIndexRange(local_line_no, lines_cache.size());
-                  lines[lines_cache[local_line_no]] = {
-                    line.index,
-                    typename ConstraintLine::Entries(line.entries.begin(),
-                                                     line.entries.end()),
-                    static_cast<number>(line.inhomogeneity)};
+                  lines[lines_cache[local_line_no]] = {line.index,
+                                                       typename ConstraintLine::Entries(line.entries.begin(),
+                                                                                        line.entries.end()),
+                                                       static_cast<number>(line.inhomogeneity)};
                   break;
 
                 default:
@@ -2611,8 +2508,7 @@ AffineConstraints<number>::merge(
     // check that we set the pointers correctly
     for (size_type i = 0; i < lines_cache.size(); ++i)
       if (lines_cache[i] != numbers::invalid_size_type)
-        Assert(i == calculate_line_index(lines[lines_cache[i]].index),
-               ExcInternalError());
+        Assert(i == calculate_line_index(lines[lines_cache[i]].index), ExcInternalError());
   }
 
   // if the object was sorted before, then make sure it is so afterward as
@@ -2626,10 +2522,9 @@ AffineConstraints<number>::merge(
 template <typename number>
 template <typename MatrixType>
 inline void
-AffineConstraints<number>::distribute_local_to_global(
-  const FullMatrix<number> &    local_matrix,
-  const std::vector<size_type> &local_dof_indices,
-  MatrixType &                  global_matrix) const
+AffineConstraints<number>::distribute_local_to_global(const FullMatrix<number>     &local_matrix,
+                                                      const std::vector<size_type> &local_dof_indices,
+                                                      MatrixType                   &global_matrix) const
 {
   // create a dummy and hand on to the function actually implementing this
   // feature in the cm.templates.h file.
@@ -2641,9 +2536,7 @@ AffineConstraints<number>::distribute_local_to_global(
     global_matrix,
     dummy,
     false,
-    std::integral_constant<
-      bool,
-      internal::AffineConstraints::IsBlockMatrix<MatrixType>::value>());
+    std::integral_constant<bool, internal::AffineConstraints::IsBlockMatrix<MatrixType>::value>());
 }
 
 
@@ -2651,13 +2544,12 @@ AffineConstraints<number>::distribute_local_to_global(
 template <typename number>
 template <typename MatrixType, typename VectorType>
 inline void
-AffineConstraints<number>::distribute_local_to_global(
-  const FullMatrix<number> &    local_matrix,
-  const Vector<number> &        local_vector,
-  const std::vector<size_type> &local_dof_indices,
-  MatrixType &                  global_matrix,
-  VectorType &                  global_vector,
-  bool                          use_inhomogeneities_for_rhs) const
+AffineConstraints<number>::distribute_local_to_global(const FullMatrix<number>     &local_matrix,
+                                                      const Vector<number>         &local_vector,
+                                                      const std::vector<size_type> &local_dof_indices,
+                                                      MatrixType                   &global_matrix,
+                                                      VectorType                   &global_vector,
+                                                      bool                          use_inhomogeneities_for_rhs) const
 {
   // enter the internal function with the respective block information set,
   // the actual implementation follows in the cm.templates.h file.
@@ -2668,18 +2560,16 @@ AffineConstraints<number>::distribute_local_to_global(
     global_matrix,
     global_vector,
     use_inhomogeneities_for_rhs,
-    std::integral_constant<
-      bool,
-      internal::AffineConstraints::IsBlockMatrix<MatrixType>::value>());
+    std::integral_constant<bool, internal::AffineConstraints::IsBlockMatrix<MatrixType>::value>());
 }
 
 
 
 template <typename number>
 inline AffineConstraints<number>::ConstraintLine::ConstraintLine(
-  const size_type &                                                  index,
+  const size_type                                                   &index,
   const typename AffineConstraints<number>::ConstraintLine::Entries &entries,
-  const number inhomogeneity)
+  const number                                                       inhomogeneity)
   : index(index)
   , entries(entries)
   , inhomogeneity(inhomogeneity)

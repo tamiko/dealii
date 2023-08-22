@@ -41,11 +41,10 @@ template <int dim>
 void
 test(const MPI_Comm comm)
 {
-  parallel::shared::Triangulation<dim> tria(
-    comm,
-    Triangulation<dim>::none,
-    true,
-    parallel::shared::Triangulation<dim>::partition_custom_signal);
+  parallel::shared::Triangulation<dim> tria(comm,
+                                            Triangulation<dim>::none,
+                                            true,
+                                            parallel::shared::Triangulation<dim>::partition_custom_signal);
 
   tria.signals.create.connect([&tria]() {
     for (const auto &cell : tria.active_cell_iterators())
@@ -68,16 +67,13 @@ test(const MPI_Comm comm)
 
   GridGenerator::subdivided_hyper_cube(tria, 2);
 
-  const auto construction_data =
-    TriangulationDescription::Utilities::create_description_from_triangulation(
-      tria,
-      RepartitioningPolicyTools::DefaultPolicy<dim>(true).partition(tria));
+  const auto construction_data = TriangulationDescription::Utilities::create_description_from_triangulation(
+    tria, RepartitioningPolicyTools::DefaultPolicy<dim>(true).partition(tria));
 
   parallel::fullydistributed::Triangulation<dim> tria_pft(comm);
   tria_pft.create_triangulation(construction_data);
 
-  deallog << tria.n_locally_owned_active_cells() << ' '
-          << tria_pft.n_locally_owned_active_cells() << std::endl;
+  deallog << tria.n_locally_owned_active_cells() << ' ' << tria_pft.n_locally_owned_active_cells() << std::endl;
 }
 
 

@@ -40,12 +40,7 @@ test(const unsigned int degree)
 
   for (unsigned int i = 0; i < quad.size(); ++i)
     {
-      poly.evaluate(quad.point(i),
-                    values,
-                    grads,
-                    grad_grads,
-                    third_derivatives,
-                    fourth_derivatives);
+      poly.evaluate(quad.point(i), values, grads, grad_grads, third_derivatives, fourth_derivatives);
 
       for (auto v : values)
         deallog << v << ' ';

@@ -24,8 +24,7 @@
 void
 print_it(const Utilities::MPI::MinMaxAvg &result)
 {
-  deallog << "sum: " << result.sum << " avg: " << result.avg
-          << " min: " << result.min << " @" << result.min_index
+  deallog << "sum: " << result.sum << " avg: " << result.avg << " min: " << result.min << " @" << result.min_index
           << " max: " << result.max << " @" << result.max_index << std::endl;
 }
 

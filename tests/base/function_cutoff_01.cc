@@ -56,15 +56,10 @@ struct Domain
   void
   integrate(const Function &fun)
   {
-    deallog << "Integrating " << Utilities::type_to_string(fun)
-            << " -2,2 cube: ";
+    deallog << "Integrating " << Utilities::type_to_string(fun) << " -2,2 cube: ";
 
-    VectorTools::integrate_difference(
-      dh, zero, fun, cell_integral, quad, VectorTools::L1_norm);
-    const double integral =
-      VectorTools::compute_global_error(tria,
-                                        cell_integral,
-                                        VectorTools::L1_norm);
+    VectorTools::integrate_difference(dh, zero, fun, cell_integral, quad, VectorTools::L1_norm);
+    const double integral = VectorTools::compute_global_error(tria, cell_integral, VectorTools::L1_norm);
 
     deallog << integral << std::endl;
   }
@@ -87,8 +82,7 @@ test()
                               1,
                               Functions::CutOffFunctionBase<dim>::no_component,
                               /*integrate_to_one = */ true);
-  deallog << "Center: " << fun.get_center() << std::endl
-          << "Radius: " << fun.get_radius() << std::endl;
+  deallog << "Center: " << fun.get_center() << std::endl << "Radius: " << fun.get_radius() << std::endl;
 
   domain.integrate(fun);
 
@@ -99,8 +93,7 @@ test()
   fun.set_center(new_center);
   fun.set_radius(.5);
 
-  deallog << "Center: " << fun.get_center() << std::endl
-          << "Radius: " << fun.get_radius() << std::endl;
+  deallog << "Center: " << fun.get_center() << std::endl << "Radius: " << fun.get_radius() << std::endl;
 
   domain.integrate(fun);
 }

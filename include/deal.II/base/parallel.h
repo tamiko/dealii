@@ -81,14 +81,9 @@ namespace parallel
      */
     template <typename Iterator, typename Functor>
     void
-    parallel_for(Iterator           x_begin,
-                 Iterator           x_end,
-                 const Functor &    functor,
-                 const unsigned int grainsize)
+    parallel_for(Iterator x_begin, Iterator x_end, const Functor &functor, const unsigned int grainsize)
     {
-      tbb::parallel_for(tbb::blocked_range<Iterator>(x_begin, x_end, grainsize),
-                        functor,
-                        tbb::auto_partitioner());
+      tbb::parallel_for(tbb::blocked_range<Iterator>(x_begin, x_end, grainsize), functor, tbb::auto_partitioner());
     }
 
 
@@ -100,13 +95,11 @@ namespace parallel
     void
     parallel_for(Iterator                                          x_begin,
                  Iterator                                          x_end,
-                 const Functor &                                   functor,
+                 const Functor                                    &functor,
                  const unsigned int                                grainsize,
                  const std::shared_ptr<tbb::affinity_partitioner> &partitioner)
     {
-      tbb::parallel_for(tbb::blocked_range<Iterator>(x_begin, x_end, grainsize),
-                        functor,
-                        *partitioner);
+      tbb::parallel_for(tbb::blocked_range<Iterator>(x_begin, x_end, grainsize), functor, *partitioner);
     }
 
 #else
@@ -116,10 +109,7 @@ namespace parallel
      */
     template <typename Iterator, typename Functor>
     void
-    parallel_for(Iterator       x_begin,
-                 Iterator       x_end,
-                 const Functor &functor,
-                 const unsigned int)
+    parallel_for(Iterator x_begin, Iterator x_end, const Functor &functor, const unsigned int)
     {
       functor(boost::iterator_range<Iterator>(x_begin, x_end));
     }
@@ -159,14 +149,12 @@ namespace parallel
   template <typename InputIterator, typename OutputIterator, typename Function>
   DEAL_II_CXX20_REQUIRES(
     (std::invocable<Function, decltype(*std::declval<InputIterator>())> &&
-     std::assignable_from<
-       decltype(*std::declval<OutputIterator>()),
-       std::invoke_result_t<Function,
-                            decltype(*std::declval<InputIterator>())>>))
+     std::assignable_from<decltype(*std::declval<OutputIterator>()),
+                          std::invoke_result_t<Function, decltype(*std::declval<InputIterator>())>>))
   void transform(const InputIterator &begin_in,
                  const InputIterator &end_in,
                  OutputIterator       out,
-                 const Function &     function,
+                 const Function      &function,
                  const unsigned int   grainsize)
   {
 #ifndef DEAL_II_WITH_TBB
@@ -225,24 +213,18 @@ namespace parallel
    * decltype(*std::declval<InputIterator1>()),
    *    decltype(*std::declval<InputIterator2>())>>)}
    */
-  template <typename InputIterator1,
-            typename InputIterator2,
-            typename OutputIterator,
-            typename Function>
+  template <typename InputIterator1, typename InputIterator2, typename OutputIterator, typename Function>
   DEAL_II_CXX20_REQUIRES(
-    (std::invocable<Function,
-                    decltype(*std::declval<InputIterator1>()),
-                    decltype(*std::declval<InputIterator2>())> &&
-     std::assignable_from<
-       decltype(*std::declval<OutputIterator>()),
-       std::invoke_result_t<Function,
-                            decltype(*std::declval<InputIterator1>()),
-                            decltype(*std::declval<InputIterator2>())>>))
+    (std::invocable<Function, decltype(*std::declval<InputIterator1>()), decltype(*std::declval<InputIterator2>())> &&
+     std::assignable_from<decltype(*std::declval<OutputIterator>()),
+                          std::invoke_result_t<Function,
+                                               decltype(*std::declval<InputIterator1>()),
+                                               decltype(*std::declval<InputIterator2>())>>))
   void transform(const InputIterator1 &begin_in1,
                  const InputIterator1 &end_in1,
                  InputIterator2        in2,
                  OutputIterator        out,
-                 const Function &      function,
+                 const Function       &function,
                  const unsigned int    grainsize)
   {
 #ifndef DEAL_II_WITH_TBB
@@ -253,8 +235,7 @@ namespace parallel
     for (OutputIterator in1 = begin_in1; in1 != end_in1;)
       *out++ = function(*in1++, *in2++);
 #else
-    using Iterators =
-      std::tuple<InputIterator1, InputIterator2, OutputIterator>;
+    using Iterators     = std::tuple<InputIterator1, InputIterator2, OutputIterator>;
     using SyncIterators = SynchronousIterators<Iterators>;
     Iterators x_begin(begin_in1, in2, out);
     Iterators x_end(end_in1, InputIterator2(), OutputIterator());
@@ -309,23 +290,21 @@ namespace parallel
             typename InputIterator3,
             typename OutputIterator,
             typename Function>
-  DEAL_II_CXX20_REQUIRES(
-    (std::invocable<Function,
-                    decltype(*std::declval<InputIterator1>()),
-                    decltype(*std::declval<InputIterator2>()),
-                    decltype(*std::declval<InputIterator3>())> &&
-     std::assignable_from<
-       decltype(*std::declval<OutputIterator>()),
-       std::invoke_result_t<Function,
-                            decltype(*std::declval<InputIterator1>()),
-                            decltype(*std::declval<InputIterator2>()),
-                            decltype(*std::declval<InputIterator3>())>>))
+  DEAL_II_CXX20_REQUIRES((std::invocable<Function,
+                                         decltype(*std::declval<InputIterator1>()),
+                                         decltype(*std::declval<InputIterator2>()),
+                                         decltype(*std::declval<InputIterator3>())> &&
+                          std::assignable_from<decltype(*std::declval<OutputIterator>()),
+                                               std::invoke_result_t<Function,
+                                                                    decltype(*std::declval<InputIterator1>()),
+                                                                    decltype(*std::declval<InputIterator2>()),
+                                                                    decltype(*std::declval<InputIterator3>())>>))
   void transform(const InputIterator1 &begin_in1,
                  const InputIterator1 &end_in1,
                  InputIterator2        in2,
                  InputIterator3        in3,
                  OutputIterator        out,
-                 const Function &      function,
+                 const Function       &function,
                  const unsigned int    grainsize)
   {
 #ifndef DEAL_II_WITH_TBB
@@ -336,21 +315,16 @@ namespace parallel
     for (OutputIterator in1 = begin_in1; in1 != end_in1;)
       *out++ = function(*in1++, *in2++, *in3++);
 #else
-    using Iterators = std::
-      tuple<InputIterator1, InputIterator2, InputIterator3, OutputIterator>;
+    using Iterators     = std::tuple<InputIterator1, InputIterator2, InputIterator3, OutputIterator>;
     using SyncIterators = SynchronousIterators<Iterators>;
     Iterators x_begin(begin_in1, in2, in3, out);
-    Iterators x_end(end_in1,
-                    InputIterator2(),
-                    InputIterator3(),
-                    OutputIterator());
+    Iterators x_end(end_in1, InputIterator2(), InputIterator3(), OutputIterator());
     internal::parallel_for(
       SyncIterators(x_begin),
       SyncIterators(x_end),
       [function](const auto &range) {
         for (const auto &p : range)
-          *std::get<3>(p) =
-            function(*std::get<0>(p), *std::get<1>(p), *std::get<2>(p));
+          *std::get<3>(p) = function(*std::get<0>(p), *std::get<1>(p), *std::get<2>(p));
       },
       grainsize);
 #endif
@@ -368,8 +342,7 @@ namespace parallel
      */
     template <typename Iterator, typename Function>
     DEAL_II_CXX20_REQUIRES((std::invocable<Function, Iterator, Iterator>))
-    void apply_to_subranges(const tbb::blocked_range<Iterator> &range,
-                            const Function &                    f)
+    void apply_to_subranges(const tbb::blocked_range<Iterator> &range, const Function &f)
     {
       f(range.begin(), range.end());
     }
@@ -450,9 +423,9 @@ namespace parallel
    */
   template <typename Iterator, typename Function>
   DEAL_II_CXX20_REQUIRES((std::invocable<Function, Iterator, Iterator>))
-  void apply_to_subranges(const Iterator &                            begin,
+  void apply_to_subranges(const Iterator                             &begin,
                           const std_cxx20::type_identity_t<Iterator> &end,
-                          const Function &                            f,
+                          const Function                             &f,
                           const unsigned int                          grainsize)
   {
 #ifndef DEAL_II_WITH_TBB
@@ -465,9 +438,7 @@ namespace parallel
     internal::parallel_for(
       begin,
       end,
-      [&f](const tbb::blocked_range<Iterator> &range) {
-        internal::apply_to_subranges<Iterator, Function>(range, f);
-      },
+      [&f](const tbb::blocked_range<Iterator> &range) { internal::apply_to_subranges<Iterator, Function>(range, f); },
       grainsize);
 #endif
   }
@@ -518,9 +489,7 @@ namespace parallel
      * data simultaneously.
      */
     void
-    apply_parallel(const std::size_t begin,
-                   const std::size_t end,
-                   const std::size_t minimum_parallel_grain_size) const;
+    apply_parallel(const std::size_t begin, const std::size_t end, const std::size_t minimum_parallel_grain_size) const;
 
     /**
      * Virtual function for working on subrange to be defined in a derived
@@ -601,15 +570,12 @@ namespace parallel
    *    ResultType>)}
    */
   template <typename ResultType, typename Iterator, typename Function>
-  DEAL_II_CXX20_REQUIRES(
-    (std::invocable<Function, Iterator, Iterator> &&
-     std::convertible_to<std::invoke_result_t<Function, Iterator, Iterator>,
-                         ResultType>))
-  ResultType
-    accumulate_from_subranges(const Function &                            f,
-                              const Iterator &                            begin,
-                              const std_cxx20::type_identity_t<Iterator> &end,
-                              const unsigned int grainsize)
+  DEAL_II_CXX20_REQUIRES((std::invocable<Function, Iterator, Iterator> &&
+                          std::convertible_to<std::invoke_result_t<Function, Iterator, Iterator>, ResultType>))
+  ResultType accumulate_from_subranges(const Function                             &f,
+                                       const Iterator                             &begin,
+                                       const std_cxx20::type_identity_t<Iterator> &end,
+                                       const unsigned int                          grainsize)
   {
 #ifndef DEAL_II_WITH_TBB
     // make sure we don't get compiler
@@ -740,10 +706,9 @@ namespace internal
 namespace parallel
 {
   inline void
-  ParallelForInteger::apply_parallel(
-    const std::size_t begin,
-    const std::size_t end,
-    const std::size_t minimum_parallel_grain_size) const
+  ParallelForInteger::apply_parallel(const std::size_t begin,
+                                     const std::size_t end,
+                                     const std::size_t minimum_parallel_grain_size) const
   {
 #ifndef DEAL_II_WITH_TBB
     // make sure we don't get compiler
@@ -755,9 +720,7 @@ namespace parallel
     internal::parallel_for(
       begin,
       end,
-      [this](const tbb::blocked_range<std::size_t> &range) {
-        apply_to_subrange(range.begin(), range.end());
-      },
+      [this](const tbb::blocked_range<std::size_t> &range) { apply_to_subrange(range.begin(), range.end()); },
       minimum_parallel_grain_size);
 #endif
   }

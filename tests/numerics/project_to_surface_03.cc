@@ -32,24 +32,18 @@
 
 template <int dim>
 typename Triangulation<dim>::quad_iterator
-get_quad_iterator(const typename Triangulation<dim>::active_cell_iterator &cell,
-                  const unsigned int quad);
+get_quad_iterator(const typename Triangulation<dim>::active_cell_iterator &cell, const unsigned int quad);
 
 template <>
 typename Triangulation<2>::quad_iterator
-get_quad_iterator<2>(
-  const typename Triangulation<2>::active_cell_iterator &cell,
-  const unsigned int /*quad*/)
+get_quad_iterator<2>(const typename Triangulation<2>::active_cell_iterator &cell, const unsigned int /*quad*/)
 {
-  return *reinterpret_cast<const typename Triangulation<2>::quad_iterator *>(
-    &cell);
+  return *reinterpret_cast<const typename Triangulation<2>::quad_iterator *>(&cell);
 }
 
 template <>
 typename Triangulation<3>::quad_iterator
-get_quad_iterator<3>(
-  const typename Triangulation<3>::active_cell_iterator &cell,
-  const unsigned int                                     quad)
+get_quad_iterator<3>(const typename Triangulation<3>::active_cell_iterator &cell, const unsigned int quad)
 {
   return cell->quad(quad);
 }
@@ -65,8 +59,7 @@ test()
 
   GridGenerator::hyper_cube(tria, 0, 1);
 
-  const typename Triangulation<dim>::active_cell_iterator cell =
-    tria.begin_active();
+  const typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active();
 
   // distort the cell a bit. all
   // faces but face 0 stay planar;
@@ -82,16 +75,13 @@ test()
       // choose the 8 vertices of the
       // original unit cell as well
       // as the center point
-      const Point<dim> trial_point =
-        (point < 8 ? GeometryInfo<dim>::unit_cell_vertex(point) :
-                     Point<dim>(.5, .5, .5));
+      const Point<dim> trial_point = (point < 8 ? GeometryInfo<dim>::unit_cell_vertex(point) : Point<dim>(.5, .5, .5));
 
       deallog << "Trial point = " << trial_point << std::endl;
 
       for (unsigned int e = 0; e < GeometryInfo<dim>::quads_per_cell; ++e)
         {
-          const typename Triangulation<dim>::quad_iterator quad =
-            get_quad_iterator<dim>(cell, e);
+          const typename Triangulation<dim>::quad_iterator quad = get_quad_iterator<dim>(cell, e);
 
           deallog << "    Quad " << e << ", projected point=";
 
@@ -112,9 +102,7 @@ test()
           // trial_point than any of
           // the vertices of the quad
           for (unsigned int v = 0; v < 4; ++v)
-            AssertThrow(p.distance(trial_point) <=
-                          quad->vertex(v).distance(trial_point),
-                        ExcInternalError());
+            AssertThrow(p.distance(trial_point) <= quad->vertex(v).distance(trial_point), ExcInternalError());
         }
       deallog << std::endl;
     }

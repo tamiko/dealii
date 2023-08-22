@@ -296,11 +296,10 @@ namespace Patterns
       static std::unique_ptr<Patterns::PatternBase>
       to_pattern()
       {
-        return std::make_unique<Patterns::Selection>(
-          "mean|L1_norm|L2_norm|Lp_norm|"
-          "Linfty_norm|H1_seminorm|Hdiv_seminorm|"
-          "H1_norm|W1p_seminorm|W1p_norm|"
-          "W1infty_seminorm|W1infty_norm");
+        return std::make_unique<Patterns::Selection>("mean|L1_norm|L2_norm|Lp_norm|"
+                                                     "Linfty_norm|H1_seminorm|Hdiv_seminorm|"
+                                                     "H1_norm|W1p_seminorm|W1p_norm|"
+                                                     "W1infty_seminorm|W1infty_norm");
       }
 
 
@@ -310,8 +309,7 @@ namespace Patterns
        */
       static std::string
       to_string(const VectorTools::NormType &s,
-                const Patterns::PatternBase &p =
-                  *Convert<VectorTools::NormType>::to_pattern())
+                const Patterns::PatternBase &p = *Convert<VectorTools::NormType>::to_pattern())
       {
         std::string str;
         if (s == VectorTools::mean)
@@ -351,15 +349,10 @@ namespace Patterns
        * Convert a string to a NormType.
        */
       static VectorTools::NormType
-      to_value(const std::string &          str,
-               const Patterns::PatternBase &p =
-                 *Convert<VectorTools::NormType>::to_pattern())
+      to_value(const std::string &str, const Patterns::PatternBase &p = *Convert<VectorTools::NormType>::to_pattern())
       {
         VectorTools::NormType norm = VectorTools::mean;
-        AssertThrow(p.match(str),
-                    ExcMessage(
-                      "String " + str +
-                      " cannot be converted to VectorTools::NormType"));
+        AssertThrow(p.match(str), ExcMessage("String " + str + " cannot be converted to VectorTools::NormType"));
 
         if (str == "mean")
           norm = VectorTools::mean;

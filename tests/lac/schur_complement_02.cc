@@ -28,8 +28,7 @@
 
 #include "../tests.h"
 
-#define PRINTME(name, var) \
-  deallog << "RHS vector: " << name << ": " << var << std::endl;
+#define PRINTME(name, var) deallog << "RHS vector: " << name << ": " << var << std::endl;
 
 
 

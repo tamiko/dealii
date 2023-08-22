@@ -42,10 +42,10 @@ namespace Functions
 
   template <int dim, typename RangeNumberType>
   SymbolicFunction<dim, RangeNumberType>::SymbolicFunction(
-    const std::vector<Differentiation::SD::Expression> &   functions,
+    const std::vector<Differentiation::SD::Expression>    &functions,
     const Tensor<1, dim, Differentiation::SD::Expression> &argument,
-    const Differentiation::SD::Expression &                time,
-    const Differentiation::SD::types::substitution_map &user_substitution_map)
+    const Differentiation::SD::Expression                 &time,
+    const Differentiation::SD::types::substitution_map    &user_substitution_map)
     : Function<dim, RangeNumberType>(functions.size(), 0.0)
     , user_function(functions)
     , user_substitution_map(user_substitution_map)
@@ -56,13 +56,9 @@ namespace Functions
 
 
   template <int dim, typename RangeNumberType>
-  SymbolicFunction<dim, RangeNumberType>::SymbolicFunction(
-    const std::string &expressions)
-    : Function<dim, RangeNumberType>(
-        Utilities::split_string_list(expressions, ';').size(),
-        0.0)
-    , user_function(
-        to_expressions(Utilities::split_string_list(expressions, ';')))
+  SymbolicFunction<dim, RangeNumberType>::SymbolicFunction(const std::string &expressions)
+    : Function<dim, RangeNumberType>(Utilities::split_string_list(expressions, ';').size(), 0.0)
+    , user_function(to_expressions(Utilities::split_string_list(expressions, ';')))
     , coordinate_symbols(get_default_coordinate_symbols())
     , time_symbol(Differentiation::SD::make_symbol("t"))
   {}
@@ -99,9 +95,7 @@ namespace Functions
         function_gradient.resize(user_function.size());
         for (unsigned int i = 0; i < user_function.size(); ++i)
           {
-            function_gradient[i] =
-              Differentiation::SD::differentiate(function[i],
-                                                 coordinate_symbols);
+            function_gradient[i] = Differentiation::SD::differentiate(function[i], coordinate_symbols);
           }
       }
   }
@@ -122,9 +116,7 @@ namespace Functions
 
         for (unsigned int i = 0; i < user_function.size(); ++i)
           {
-            function_hessian[i] =
-              Differentiation::SD::differentiate(function_gradient[i],
-                                                 coordinate_symbols);
+            function_hessian[i]   = Differentiation::SD::differentiate(function_gradient[i], coordinate_symbols);
             function_laplacian[i] = trace(function_hessian[i]);
           }
       }
@@ -192,8 +184,7 @@ namespace Functions
 
   template <int dim, typename RangeNumberType>
   const std::vector<Differentiation::SD::Expression> &
-  SymbolicFunction<dim, RangeNumberType>::get_symbolic_function_expressions()
-    const
+  SymbolicFunction<dim, RangeNumberType>::get_symbolic_function_expressions() const
   {
     return user_function;
   }
@@ -216,81 +207,68 @@ namespace Functions
     std::vector<Differentiation::SD::Expression> df_dt(user_function.size());
     for (unsigned int i = 0; i < user_function.size(); ++i)
       df_dt[i] = user_function[i].differentiate(time_symbol);
-    return SymbolicFunction<dim, RangeNumberType>(df_dt,
-                                                  coordinate_symbols,
-                                                  time_symbol,
-                                                  user_substitution_map);
+    return SymbolicFunction<dim, RangeNumberType>(df_dt, coordinate_symbols, time_symbol, user_substitution_map);
   }
 
 
 
   template <int dim, typename RangeNumberType>
   RangeNumberType
-  SymbolicFunction<dim, RangeNumberType>::value(
-    const Point<dim> & p,
-    const unsigned int component) const
+  SymbolicFunction<dim, RangeNumberType>::value(const Point<dim> &p, const unsigned int component) const
   {
     update_values();
     AssertIndexRange(component, function.size());
-    return Differentiation::SD::substitute_and_evaluate<RangeNumberType>(
-      function[component], create_evaluation_substitution_map(p));
+    return Differentiation::SD::substitute_and_evaluate<RangeNumberType>(function[component],
+                                                                         create_evaluation_substitution_map(p));
   }
 
 
 
   template <int dim, typename RangeNumberType>
   Tensor<1, dim, RangeNumberType>
-  SymbolicFunction<dim, RangeNumberType>::gradient(
-    const Point<dim> & p,
-    const unsigned int component) const
+  SymbolicFunction<dim, RangeNumberType>::gradient(const Point<dim> &p, const unsigned int component) const
   {
     update_first_derivatives();
     AssertIndexRange(component, function.size());
-    return Differentiation::SD::substitute_and_evaluate<RangeNumberType>(
-      function_gradient[component], create_evaluation_substitution_map(p));
+    return Differentiation::SD::substitute_and_evaluate<RangeNumberType>(function_gradient[component],
+                                                                         create_evaluation_substitution_map(p));
   }
 
 
 
   template <int dim, typename RangeNumberType>
   RangeNumberType
-  SymbolicFunction<dim, RangeNumberType>::laplacian(
-    const Point<dim> & p,
-    const unsigned int component) const
+  SymbolicFunction<dim, RangeNumberType>::laplacian(const Point<dim> &p, const unsigned int component) const
   {
     update_second_derivatives();
     AssertIndexRange(component, function.size());
-    return Differentiation::SD::substitute_and_evaluate<RangeNumberType>(
-      function_laplacian[component], create_evaluation_substitution_map(p));
+    return Differentiation::SD::substitute_and_evaluate<RangeNumberType>(function_laplacian[component],
+                                                                         create_evaluation_substitution_map(p));
   }
 
 
 
   template <int dim, typename RangeNumberType>
   SymmetricTensor<2, dim, RangeNumberType>
-  SymbolicFunction<dim, RangeNumberType>::hessian(
-    const Point<dim> & p,
-    const unsigned int component) const
+  SymbolicFunction<dim, RangeNumberType>::hessian(const Point<dim> &p, const unsigned int component) const
   {
     update_second_derivatives();
     AssertIndexRange(component, function.size());
     return SymmetricTensor<2, dim, RangeNumberType>(
-      Differentiation::SD::substitute_and_evaluate<RangeNumberType>(
-        function_hessian[component], create_evaluation_substitution_map(p)));
+      Differentiation::SD::substitute_and_evaluate<RangeNumberType>(function_hessian[component],
+                                                                    create_evaluation_substitution_map(p)));
   }
 
 
 
   template <int dim, typename RangeNumberType>
   Differentiation::SD::types::substitution_map
-  SymbolicFunction<dim, RangeNumberType>::create_evaluation_substitution_map(
-    const Point<dim> &p) const
+  SymbolicFunction<dim, RangeNumberType>::create_evaluation_substitution_map(const Point<dim> &p) const
   {
     auto map = additional_function_arguments;
-    Differentiation::SD::add_to_substitution_map(
-      map,
-      std::make_pair(time_symbol, this->get_time()),
-      std::make_pair(coordinate_symbols, p));
+    Differentiation::SD::add_to_substitution_map(map,
+                                                 std::make_pair(time_symbol, this->get_time()),
+                                                 std::make_pair(coordinate_symbols, p));
     return map;
   }
 #endif

@@ -36,9 +36,7 @@ FunctionParser<dim>::get_expressions() const
 
 
 template <int dim>
-FunctionParser<dim>::FunctionParser(const unsigned int n_components,
-                                    const double       initial_time,
-                                    const double       h)
+FunctionParser<dim>::FunctionParser(const unsigned int n_components, const double initial_time, const double h)
   : AutoDerivativeFunction<dim>(h, n_components, initial_time)
 {}
 
@@ -48,61 +46,50 @@ FunctionParser<dim>::FunctionParser(const std::string &expression,
                                     const std::string &constants,
                                     const std::string &variable_names,
                                     const double       h)
-  : AutoDerivativeFunction<dim>(
-      h,
-      Utilities::split_string_list(expression, ';').size())
+  : AutoDerivativeFunction<dim>(h, Utilities::split_string_list(expression, ';').size())
 {
   auto constants_map = Patterns::Tools::Convert<ConstMap>::to_value(
-    constants,
-    Patterns::Map(Patterns::Anything(),
-                  Patterns::Double(),
-                  0,
-                  Patterns::Map::max_int_value,
-                  ",",
-                  "="));
+    constants, Patterns::Map(Patterns::Anything(), Patterns::Double(), 0, Patterns::Map::max_int_value, ",", "="));
   initialize(variable_names,
              expression,
              constants_map,
-             Utilities::split_string_list(variable_names, ",").size() ==
-               dim + 1);
+             Utilities::split_string_list(variable_names, ",").size() == dim + 1);
 }
 
 
 
 template <int dim>
 void
-FunctionParser<dim>::initialize(const std::string &             variables,
-                                const std::vector<std::string> &expressions,
+FunctionParser<dim>::initialize(const std::string                   &variables,
+                                const std::vector<std::string>      &expressions,
                                 const std::map<std::string, double> &constants,
-                                const bool time_dependent)
+                                const bool                           time_dependent)
 {
   AssertThrow(this->n_components == expressions.size(),
               ExcInvalidExpressionSize(this->n_components, expressions.size()));
-  internal::FunctionParser::ParserImplementation<dim, double>::initialize(
-    variables, expressions, constants, time_dependent);
+  internal::FunctionParser::ParserImplementation<dim, double>::initialize(variables,
+                                                                          expressions,
+                                                                          constants,
+                                                                          time_dependent);
 }
 
 
 
 template <int dim>
 void
-FunctionParser<dim>::initialize(const std::string &                  vars,
-                                const std::string &                  expression,
+FunctionParser<dim>::initialize(const std::string                   &vars,
+                                const std::string                   &expression,
                                 const std::map<std::string, double> &constants,
-                                const bool time_dependent)
+                                const bool                           time_dependent)
 {
-  initialize(vars,
-             Utilities::split_string_list(expression, ';'),
-             constants,
-             time_dependent);
+  initialize(vars, Utilities::split_string_list(expression, ';'), constants, time_dependent);
 }
 
 
 
 template <int dim>
 double
-FunctionParser<dim>::value(const Point<dim> & p,
-                           const unsigned int component) const
+FunctionParser<dim>::value(const Point<dim> &p, const unsigned int component) const
 {
   return this->do_value(p, this->get_time(), component);
 }

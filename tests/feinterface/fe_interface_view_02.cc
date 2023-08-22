@@ -52,8 +52,7 @@ test(const Triangulation<dim> &tr, const FiniteElement<dim> &fe)
   const QGauss<dim - 1>  face_quadrature(2);
   FEInterfaceValues<dim> fe_iv(fe,
                                face_quadrature,
-                               update_values | update_gradients |
-                                 update_quadrature_points | update_hessians |
+                               update_values | update_gradients | update_quadrature_points | update_hessians |
                                  update_3rd_derivatives);
   auto                   cell = dof.begin_active();
 
@@ -67,7 +66,7 @@ test(const Triangulation<dim> &tr, const FiniteElement<dim> &fe)
                      cell->neighbor(f),
                      cell->neighbor_of_neighbor(f),
                      numbers::invalid_unsigned_int);
-        const auto &       q_points    = fe_iv.get_quadrature_points();
+        const auto        &q_points    = fe_iv.get_quadrature_points();
         const unsigned int n_q_points  = q_points.size();
         const unsigned int n_dofs_face = fe_iv.n_current_interface_dofs();
 
@@ -84,62 +83,40 @@ test(const Triangulation<dim> &tr, const FiniteElement<dim> &fe)
                   for (unsigned int q = 0; q < n_q_points; ++q)
                     {
                       if (fe_iv[vec_components].value(true, i, q).norm() != 0)
-                        deallog << fe_iv[vec_components].value(true, i, q)
-                                << "  ";
+                        deallog << fe_iv[vec_components].value(true, i, q) << "  ";
                       if (fe_iv[vec_components].value(false, i, q).norm() != 0)
-                        deallog << fe_iv[vec_components].value(false, i, q)
-                                << "  ";
-                      if (fe_iv[vec_components].jump_in_values(i, q).norm() !=
-                          0)
-                        deallog << fe_iv[vec_components].jump_in_values(i, q)
-                                << "  ";
-                      if (fe_iv[vec_components]
-                            .average_of_values(i, q)
-                            .norm() != 0)
-                        deallog << fe_iv[vec_components].average_of_values(i, q)
-                                << "  ";
-                      if (fe_iv[vec_components]
-                            .jump_in_gradients(i, q)
-                            .norm() != 0)
-                        deallog << fe_iv[vec_components].jump_in_gradients(i, q)
-                                << "  ";
-                      if (fe_iv[vec_components]
-                            .average_of_gradients(i, q)
-                            .norm() != 0)
-                        deallog
-                          << fe_iv[vec_components].average_of_gradients(i, q)
-                          << std::endl;
+                        deallog << fe_iv[vec_components].value(false, i, q) << "  ";
+                      if (fe_iv[vec_components].jump_in_values(i, q).norm() != 0)
+                        deallog << fe_iv[vec_components].jump_in_values(i, q) << "  ";
+                      if (fe_iv[vec_components].average_of_values(i, q).norm() != 0)
+                        deallog << fe_iv[vec_components].average_of_values(i, q) << "  ";
+                      if (fe_iv[vec_components].jump_in_gradients(i, q).norm() != 0)
+                        deallog << fe_iv[vec_components].jump_in_gradients(i, q) << "  ";
+                      if (fe_iv[vec_components].average_of_gradients(i, q).norm() != 0)
+                        deallog << fe_iv[vec_components].average_of_gradients(i, q) << std::endl;
 
                       for (unsigned int d = 0; d < dim; ++d)
                         {
-                          Assert(fe_iv[vec_components].value(true, i, q)[d] ==
-                                   fe_iv.shape_value(true, i, q, c + d),
+                          Assert(fe_iv[vec_components].value(true, i, q)[d] == fe_iv.shape_value(true, i, q, c + d),
                                  ExcInternalError());
-                          Assert(fe_iv[vec_components].value(false, i, q)[d] ==
-                                   fe_iv.shape_value(false, i, q, c + d),
+                          Assert(fe_iv[vec_components].value(false, i, q)[d] == fe_iv.shape_value(false, i, q, c + d),
                                  ExcInternalError());
-                          Assert(fe_iv[vec_components].jump_in_values(i,
-                                                                      q)[d] ==
+                          Assert(fe_iv[vec_components].jump_in_values(i, q)[d] ==
                                    fe_iv.jump_in_shape_values(i, q, c + d),
                                  ExcInternalError());
-                          Assert(
-                            fe_iv[vec_components].average_of_values(i, q)[d] ==
-                              fe_iv.average_of_shape_values(i, q, c + d),
-                            ExcInternalError());
-                          Assert(fe_iv[vec_components].average_of_hessians(
-                                   i, q)[d] ==
+                          Assert(fe_iv[vec_components].average_of_values(i, q)[d] ==
+                                   fe_iv.average_of_shape_values(i, q, c + d),
+                                 ExcInternalError());
+                          Assert(fe_iv[vec_components].average_of_hessians(i, q)[d] ==
                                    fe_iv.average_of_shape_hessians(i, q, c + d),
                                  ExcInternalError());
-                          Assert(fe_iv[vec_components].jump_in_hessians(i,
-                                                                        q)[d] ==
+                          Assert(fe_iv[vec_components].jump_in_hessians(i, q)[d] ==
                                    fe_iv.jump_in_shape_hessians(i, q, c + d),
                                  ExcInternalError());
 
-                          Assert(
-                            fe_iv[vec_components].jump_in_third_derivatives(
-                              i, q)[d] ==
-                              fe_iv.jump_in_shape_3rd_derivatives(i, q, c + d),
-                            ExcInternalError());
+                          Assert(fe_iv[vec_components].jump_in_third_derivatives(i, q)[d] ==
+                                   fe_iv.jump_in_shape_3rd_derivatives(i, q, c + d),
+                                 ExcInternalError());
                         }
                     }
               }
@@ -160,10 +137,7 @@ test_hyper_sphere()
   static const SphericalManifold<dim> boundary;
   tr.set_manifold(0, boundary);
 
-  FESystem<dim> fe(FE_Q<dim>(1),
-                   1,
-                   FE_DGQArbitraryNodes<dim>(QGauss<1>(2)),
-                   dim);
+  FESystem<dim> fe(FE_Q<dim>(1), 1, FE_DGQArbitraryNodes<dim>(QGauss<1>(2)), dim);
   test(tr, fe);
 }
 

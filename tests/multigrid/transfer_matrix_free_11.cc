@@ -44,9 +44,7 @@ check(const unsigned int fe_degree)
     Triangulation<dim>::limit_level_difference_at_vertices,
     parallel::distributed::Triangulation<dim>::construct_multigrid_hierarchy);
   GridGenerator::hyper_cube(tr, -1, 1, true);
-  std::vector<
-    GridTools::PeriodicFacePair<typename Triangulation<dim>::cell_iterator>>
-    periodicity_vector;
+  std::vector<GridTools::PeriodicFacePair<typename Triangulation<dim>::cell_iterator>> periodicity_vector;
   GridTools::collect_periodic_faces(tr, 0, 1, 0, periodicity_vector);
   GridTools::collect_periodic_faces(tr, 2, 3, 1, periodicity_vector);
   tr.add_periodicity(periodicity_vector);
@@ -61,8 +59,7 @@ check(const unsigned int fe_degree)
   mg_constrained_dofs.initialize(mgdof);
 
   // build reference
-  MGTransferPrebuilt<LinearAlgebra::distributed::Vector<double>> transfer_ref(
-    mg_constrained_dofs);
+  MGTransferPrebuilt<LinearAlgebra::distributed::Vector<double>> transfer_ref(mg_constrained_dofs);
   transfer_ref.build(mgdof);
   deallog << "Transfer matrices: " << std::endl;
   transfer_ref.print_matrices(deallog.get_file_stream());
@@ -73,9 +70,7 @@ check(const unsigned int fe_degree)
   transfer.build(mgdof);
 
   // check prolongation for all levels using random vector
-  for (unsigned int level = 1;
-       level < mgdof.get_triangulation().n_global_levels();
-       ++level)
+  for (unsigned int level = 1; level < mgdof.get_triangulation().n_global_levels(); ++level)
     {
       LinearAlgebra::distributed::Vector<Number> v1, v2;
       LinearAlgebra::distributed::Vector<double> v1_cpy, v2_cpy, v3;
@@ -89,8 +84,7 @@ check(const unsigned int fe_degree)
       transfer_ref.prolongate(level, v3, v1_cpy);
       v2_cpy = v2;
       v3 -= v2_cpy;
-      deallog << "Diff prolongate   l" << level << ": " << v3.l2_norm()
-              << std::endl;
+      deallog << "Diff prolongate   l" << level << ": " << v3.l2_norm() << std::endl;
       if (v3.l2_norm() > 1e-12)
         {
           // On level 0, we expect the matrix-based constraints to be wrong
@@ -102,9 +96,7 @@ check(const unsigned int fe_degree)
     }
 
   // check restriction for all levels using random vector
-  for (unsigned int level = 1;
-       level < mgdof.get_triangulation().n_global_levels();
-       ++level)
+  for (unsigned int level = 1; level < mgdof.get_triangulation().n_global_levels(); ++level)
     {
       LinearAlgebra::distributed::Vector<Number> v1, v2;
       LinearAlgebra::distributed::Vector<double> v1_cpy, v2_cpy, v3;
@@ -118,8 +110,7 @@ check(const unsigned int fe_degree)
       transfer_ref.restrict_and_add(level, v3, v1_cpy);
       v2_cpy = v2;
       v3 -= v2_cpy;
-      deallog << "Diff restrict     l" << level << ": " << v3.l2_norm()
-              << std::endl;
+      deallog << "Diff restrict     l" << level << ": " << v3.l2_norm() << std::endl;
 
       v2 = 1.;
       v3 = 1.;
@@ -127,8 +118,7 @@ check(const unsigned int fe_degree)
       transfer_ref.restrict_and_add(level, v3, v1_cpy);
       v2_cpy = v2;
       v3 -= v2_cpy;
-      deallog << "Diff restrict add l" << level << ": " << v3.l2_norm()
-              << std::endl;
+      deallog << "Diff restrict add l" << level << ": " << v3.l2_norm() << std::endl;
     }
   deallog << std::endl;
 }

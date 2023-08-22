@@ -51,26 +51,23 @@ test(Function<spacedim> &probability_density_function)
       tr, probability_density_function, true, 16, particle_handler, mapping);
 
     deallog << "Rank: " << Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)
-            << ". Locally owned active cells: "
-            << tr.n_locally_owned_active_cells() << ". Local particles: "
-            << particle_handler.n_locally_owned_particles() << std::endl;
+            << ". Locally owned active cells: " << tr.n_locally_owned_active_cells()
+            << ". Local particles: " << particle_handler.n_locally_owned_particles() << std::endl;
 
     for (const auto &cell : tr.active_cell_iterators())
       {
         if (cell->is_locally_owned())
           {
-            deallog << "Cell " << cell << " has "
-                    << particle_handler.n_particles_in_cell(cell)
-                    << " particles." << std::endl;
+            deallog << "Cell " << cell << " has " << particle_handler.n_particles_in_cell(cell) << " particles."
+                    << std::endl;
           }
       }
 
     for (const auto &particle : particle_handler)
       {
-        deallog << "Particle index " << particle.get_id() << " is in cell "
-                << particle.get_surrounding_cell(tr) << std::endl;
-        deallog << "Particle location: " << particle.get_location()
+        deallog << "Particle index " << particle.get_id() << " is in cell " << particle.get_surrounding_cell(tr)
                 << std::endl;
+        deallog << "Particle location: " << particle.get_location() << std::endl;
       }
   }
 

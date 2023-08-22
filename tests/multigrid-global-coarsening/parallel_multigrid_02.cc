@@ -52,8 +52,7 @@
 
 
 template <typename MatrixType, typename Number>
-class MGCoarseIterative
-  : public MGCoarseGridBase<LinearAlgebra::distributed::Vector<Number>>
+class MGCoarseIterative : public MGCoarseGridBase<LinearAlgebra::distributed::Vector<Number>>
 {
 public:
   MGCoarseIterative()
@@ -67,12 +66,11 @@ public:
 
   virtual void
   operator()(const unsigned int                                level,
-             LinearAlgebra::distributed::Vector<double> &      dst,
+             LinearAlgebra::distributed::Vector<double>       &dst,
              const LinearAlgebra::distributed::Vector<double> &src) const
   {
-    ReductionControl solver_control(1e4, 1e-50, 1e-10);
-    SolverCG<LinearAlgebra::distributed::Vector<double>> solver_coarse(
-      solver_control);
+    ReductionControl                                     solver_control(1e4, 1e-50, 1e-10);
+    SolverCG<LinearAlgebra::distributed::Vector<double>> solver_coarse(solver_control);
     solver_coarse.solve(*coarse_matrix, dst, src, PreconditionIdentity());
   }
 
@@ -91,7 +89,8 @@ do_test(const DoFHandler<dim> &dof)
       deallog.push("float");
     }
   else
-    {}
+    {
+    }
 
   deallog << "Testing " << dof.get_fe().get_name();
   deallog << std::endl;
@@ -109,9 +108,7 @@ do_test(const DoFHandler<dim> &dof)
   AffineConstraints<double> constraints;
   constraints.reinit(locally_relevant_dofs);
   DoFTools::make_hanging_node_constraints(dof, constraints);
-  VectorTools::interpolate_boundary_values(dof,
-                                           dirichlet_boundary,
-                                           constraints);
+  VectorTools::interpolate_boundary_values(dof, dirichlet_boundary, constraints);
   constraints.close();
 
   // level constraints:
@@ -121,23 +118,12 @@ do_test(const DoFHandler<dim> &dof)
 
   MappingQ<dim> mapping(fe_degree + 1);
 
-  LaplaceOperator<dim,
-                  fe_degree,
-                  n_q_points_1d,
-                  1,
-                  LinearAlgebra::distributed::Vector<number>>
-                                           fine_matrix;
-  std::shared_ptr<MatrixFree<dim, number>> fine_level_data(
-    new MatrixFree<dim, number>());
+  LaplaceOperator<dim, fe_degree, n_q_points_1d, 1, LinearAlgebra::distributed::Vector<number>> fine_matrix;
+  std::shared_ptr<MatrixFree<dim, number>> fine_level_data(new MatrixFree<dim, number>());
 
   typename MatrixFree<dim, number>::AdditionalData fine_level_additional_data;
-  fine_level_additional_data.tasks_parallel_scheme =
-    MatrixFree<dim, number>::AdditionalData::none;
-  fine_level_data->reinit(mapping,
-                          dof,
-                          constraints,
-                          QGauss<1>(n_q_points_1d),
-                          fine_level_additional_data);
+  fine_level_additional_data.tasks_parallel_scheme = MatrixFree<dim, number>::AdditionalData::none;
+  fine_level_data->reinit(mapping, dof, constraints, QGauss<1>(n_q_points_1d), fine_level_additional_data);
 
   fine_matrix.initialize(fine_level_data);
   fine_matrix.compute_diagonal();
@@ -151,41 +137,27 @@ do_test(const DoFHandler<dim> &dof)
   in = 1.;
 
   // set up multigrid in analogy to step-37
-  using LevelMatrixType =
-    LaplaceOperator<dim,
-                    fe_degree,
-                    n_q_points_1d,
-                    1,
-                    LinearAlgebra::distributed::Vector<number>>;
+  using LevelMatrixType = LaplaceOperator<dim, fe_degree, n_q_points_1d, 1, LinearAlgebra::distributed::Vector<number>>;
 
   MGLevelObject<LevelMatrixType>         mg_matrices;
   MGLevelObject<MatrixFree<dim, number>> mg_level_data;
   mg_matrices.resize(0, dof.get_triangulation().n_global_levels() - 1);
   mg_level_data.resize(0, dof.get_triangulation().n_global_levels() - 1);
-  for (unsigned int level = 0;
-       level < dof.get_triangulation().n_global_levels();
-       ++level)
+  for (unsigned int level = 0; level < dof.get_triangulation().n_global_levels(); ++level)
     {
       typename MatrixFree<dim, number>::AdditionalData mg_additional_data;
-      mg_additional_data.tasks_parallel_scheme =
-        MatrixFree<dim, number>::AdditionalData::none;
-      mg_additional_data.mg_level = level;
+      mg_additional_data.tasks_parallel_scheme = MatrixFree<dim, number>::AdditionalData::none;
+      mg_additional_data.mg_level              = level;
 
       AffineConstraints<double> level_constraints;
       IndexSet                  relevant_dofs;
       DoFTools::extract_locally_relevant_level_dofs(dof, level, relevant_dofs);
       level_constraints.reinit(relevant_dofs);
-      level_constraints.add_lines(
-        mg_constrained_dofs.get_boundary_indices(level));
+      level_constraints.add_lines(mg_constrained_dofs.get_boundary_indices(level));
       level_constraints.close();
 
-      mg_level_data[level].reinit(mapping,
-                                  dof,
-                                  level_constraints,
-                                  QGauss<1>(n_q_points_1d),
-                                  mg_additional_data);
-      mg_matrices[level].initialize(std::make_shared<MatrixFree<dim, number>>(
-                                      mg_level_data[level]),
+      mg_level_data[level].reinit(mapping, dof, level_constraints, QGauss<1>(n_q_points_1d), mg_additional_data);
+      mg_matrices[level].initialize(std::make_shared<MatrixFree<dim, number>>(mg_level_data[level]),
                                     mg_constrained_dofs,
                                     level);
       mg_matrices[level].compute_diagonal();
@@ -197,39 +169,28 @@ do_test(const DoFHandler<dim> &dof)
   MGCoarseIterative<LevelMatrixType, number> mg_coarse;
   mg_coarse.initialize(mg_matrices[0]);
 
-  using SMOOTHER =
-    PreconditionChebyshev<LevelMatrixType,
-                          LinearAlgebra::distributed::Vector<number>>;
-  MGSmootherPrecondition<LevelMatrixType,
-                         SMOOTHER,
-                         LinearAlgebra::distributed::Vector<number>>
-    mg_smoother;
+  using SMOOTHER = PreconditionChebyshev<LevelMatrixType, LinearAlgebra::distributed::Vector<number>>;
+  MGSmootherPrecondition<LevelMatrixType, SMOOTHER, LinearAlgebra::distributed::Vector<number>> mg_smoother;
 
   MGLevelObject<typename SMOOTHER::AdditionalData> smoother_data;
   smoother_data.resize(0, dof.get_triangulation().n_global_levels() - 1);
-  for (unsigned int level = 0;
-       level < dof.get_triangulation().n_global_levels();
-       ++level)
+  for (unsigned int level = 0; level < dof.get_triangulation().n_global_levels(); ++level)
     {
       smoother_data[level].smoothing_range     = 15.;
       smoother_data[level].degree              = 5;
       smoother_data[level].eig_cg_n_iterations = 15;
-      smoother_data[level].preconditioner =
-        mg_matrices[level].get_matrix_diagonal_inverse();
+      smoother_data[level].preconditioner      = mg_matrices[level].get_matrix_diagonal_inverse();
     }
   mg_smoother.initialize(mg_matrices, smoother_data);
 
   mg::Matrix<LinearAlgebra::distributed::Vector<double>> mg_matrix(mg_matrices);
 
-  Multigrid<LinearAlgebra::distributed::Vector<double>> mg(
-    mg_matrix, mg_coarse, mg_transfer, mg_smoother, mg_smoother);
-  PreconditionMG<dim,
-                 LinearAlgebra::distributed::Vector<double>,
-                 MGTransferMF<dim, double>>
-    preconditioner(dof, mg, mg_transfer);
+  Multigrid<LinearAlgebra::distributed::Vector<double>> mg(mg_matrix, mg_coarse, mg_transfer, mg_smoother, mg_smoother);
+  PreconditionMG<dim, LinearAlgebra::distributed::Vector<double>, MGTransferMF<dim, double>> preconditioner(
+    dof, mg, mg_transfer);
 
   {
-    ReductionControl control(30, 1e-20, 1e-7);
+    ReductionControl                                     control(30, 1e-20, 1e-7);
     SolverCG<LinearAlgebra::distributed::Vector<double>> solver(control);
     solver.solve(fine_matrix, sol, in, preconditioner);
   }
@@ -238,9 +199,7 @@ do_test(const DoFHandler<dim> &dof)
     deallog.pop();
 
   fine_matrix.clear();
-  for (unsigned int level = 0;
-       level < dof.get_triangulation().n_global_levels();
-       ++level)
+  for (unsigned int level = 0; level < dof.get_triangulation().n_global_levels(); ++level)
     mg_matrices[level].clear();
 }
 
@@ -255,8 +214,7 @@ test()
       parallel::distributed::Triangulation<dim> tria(
         MPI_COMM_WORLD,
         Triangulation<dim>::limit_level_difference_at_vertices,
-        parallel::distributed::Triangulation<
-          dim>::construct_multigrid_hierarchy);
+        parallel::distributed::Triangulation<dim>::construct_multigrid_hierarchy);
       GridGenerator::hyper_cube(tria);
       tria.refine_global(i - dim);
 

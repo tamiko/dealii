@@ -64,8 +64,7 @@ main(int argc, char *argv[])
             continue;
 
           for (unsigned int f = 0; f < GeometryInfo<3>::faces_per_cell; ++f)
-            if (cell->at_boundary(f) == false &&
-                cell->neighbor(f)->material_id() == 1)
+            if (cell->at_boundary(f) == false && cell->neighbor(f)->material_id() == 1)
               cell->set_refine_flag();
         }
 
@@ -75,8 +74,7 @@ main(int argc, char *argv[])
   parallel::fullydistributed::Triangulation<3> tria_pft(MPI_COMM_WORLD);
 
   auto construction_data =
-    TriangulationDescription::Utilities::create_description_from_triangulation(
-      tria, MPI_COMM_WORLD);
+    TriangulationDescription::Utilities::create_description_from_triangulation(tria, MPI_COMM_WORLD);
 
   tria_pft.create_triangulation(construction_data);
 

@@ -51,7 +51,7 @@ namespace Utilities
       /**
        * Copy constructor is deleted.
        */
-      Handle(Handle const &) = delete;
+      Handle(const Handle &) = delete;
 
       /**
        * Destructor. Destroy the handles.
@@ -84,8 +84,7 @@ namespace Utilities
     inline void
     malloc(T *&pointer, const unsigned int n_elements)
     {
-      cudaError_t cuda_error_code =
-        cudaMalloc(&pointer, n_elements * sizeof(T));
+      cudaError_t cuda_error_code = cudaMalloc(&pointer, n_elements * sizeof(T));
       AssertCuda(cuda_error_code);
     }
 
@@ -129,14 +128,10 @@ namespace Utilities
      */
     template <typename T>
     inline void
-    copy_to_host(const ArrayView<const T, MemorySpace::CUDA> &in,
-                 ArrayView<T, MemorySpace::Host> &            out)
+    copy_to_host(const ArrayView<const T, MemorySpace::CUDA> &in, ArrayView<T, MemorySpace::Host> &out)
     {
       AssertDimension(in.size(), out.size());
-      cudaError_t cuda_error_code = cudaMemcpy(out.data(),
-                                               in.data(),
-                                               in.size() * sizeof(T),
-                                               cudaMemcpyDeviceToHost);
+      cudaError_t cuda_error_code = cudaMemcpy(out.data(), in.data(), in.size() * sizeof(T), cudaMemcpyDeviceToHost);
       AssertCuda(cuda_error_code);
     }
 
@@ -145,14 +140,10 @@ namespace Utilities
      */
     template <typename T>
     inline void
-    copy_to_dev(const ArrayView<const T, MemorySpace::Host> &in,
-                ArrayView<T, MemorySpace::CUDA> &            out)
+    copy_to_dev(const ArrayView<const T, MemorySpace::Host> &in, ArrayView<T, MemorySpace::CUDA> &out)
     {
       AssertDimension(in.size(), out.size());
-      cudaError_t cuda_error_code = cudaMemcpy(out.data(),
-                                               in.data(),
-                                               in.size() * sizeof(T),
-                                               cudaMemcpyHostToDevice);
+      cudaError_t cuda_error_code = cudaMemcpy(out.data(), in.data(), in.size() * sizeof(T), cudaMemcpyHostToDevice);
       AssertCuda(cuda_error_code);
     }
 

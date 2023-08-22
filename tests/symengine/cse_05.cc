@@ -45,29 +45,23 @@ test_derived()
   const SD::Expression sf_sat_0("sf_sat_0");
   const SD::Expression H_sat_0("H_sat_0");
 
-  const Tensor<1, dim, SD::Expression> H =
-    SD::make_tensor_of_symbols<1, dim>("H");
-  const SymmetricTensor<2, dim, SD::Expression> C =
-    SD::make_symmetric_tensor_of_symbols<2, dim>("C");
+  const Tensor<1, dim, SD::Expression>          H = SD::make_tensor_of_symbols<1, dim>("H");
+  const SymmetricTensor<2, dim, SD::Expression> C = SD::make_symmetric_tensor_of_symbols<2, dim>("C");
 
-  const SymmetricTensor<2, dim, SD::Expression> C_inv = invert(C);
-  const SymmetricTensor<2, dim, SD::Expression> C_bar =
-    std::pow(determinant(C), -1.0 / dim) * C;
-  const SD::Expression det_C  = determinant(C);
-  const SD::Expression J      = std::sqrt(det_C);
-  const SD::Expression I1_bar = trace(C_bar);
-  const SD::Expression I4     = H * H;
-  const SD::Expression I7     = contract3(H, C_inv, H); // H*C_inv*H;
+  const SymmetricTensor<2, dim, SD::Expression> C_inv  = invert(C);
+  const SymmetricTensor<2, dim, SD::Expression> C_bar  = std::pow(determinant(C), -1.0 / dim) * C;
+  const SD::Expression                          det_C  = determinant(C);
+  const SD::Expression                          J      = std::sqrt(det_C);
+  const SD::Expression                          I1_bar = trace(C_bar);
+  const SD::Expression                          I4     = H * H;
+  const SD::Expression                          I7     = contract3(H, C_inv, H); // H*C_inv*H;
 
-  const SD::Expression psi_vol =
-    (kappa / 4.0) * (J * J - 1.0 - 2.0 * std::log(J));
-  const SD::Expression psi_sat =
-    1.0 +
-    sf_sat_0 * std::erf(std::sqrt(numbers::PI) * I4 / (H_sat_0 * H_sat_0));
-  const SD::Expression psi_NH = (0.5 * mu_e) * (I1_bar - dim);
-  const double         mu_0   = 4.0 * numbers::PI * 1.0e-7;
-  const SD::Expression psi_ME = -0.5 * mu_0 * mu_r * J * I7;
-  const SD::Expression psi    = psi_vol + psi_sat * psi_NH + psi_ME;
+  const SD::Expression psi_vol = (kappa / 4.0) * (J * J - 1.0 - 2.0 * std::log(J));
+  const SD::Expression psi_sat = 1.0 + sf_sat_0 * std::erf(std::sqrt(numbers::PI) * I4 / (H_sat_0 * H_sat_0));
+  const SD::Expression psi_NH  = (0.5 * mu_e) * (I1_bar - dim);
+  const double         mu_0    = 4.0 * numbers::PI * 1.0e-7;
+  const SD::Expression psi_ME  = -0.5 * mu_0 * mu_r * J * I7;
+  const SD::Expression psi     = psi_vol + psi_sat * psi_NH + psi_ME;
 
   // These two things should lead to the same result, but when
   // using CSE they do not..
@@ -105,24 +99,17 @@ test_derived()
   SD::add_to_substitution_map(symbol_value_map, C, C_vals);
 
   auto eval_deal_II =
-    [&symbol_value_map, &psi, &S, &B](const bool         with_lambda_opt,
-                                      const bool         with_cse,
-                                      const unsigned int n_evals) {
+    [&symbol_value_map, &psi, &S, &B](const bool with_lambda_opt, const bool with_cse, const unsigned int n_evals) {
       // Configure optimiser
       SD::BatchOptimizer<double> optimiser;
       if (with_lambda_opt == false && with_cse == false)
-        optimiser.set_optimization_method(
-          SD::OptimizerType::dictionary,
-          SD::OptimizationFlags::optimize_default);
+        optimiser.set_optimization_method(SD::OptimizerType::dictionary, SD::OptimizationFlags::optimize_default);
       else if (with_lambda_opt == false && with_cse == true)
-        optimiser.set_optimization_method(SD::OptimizerType::dictionary,
-                                          SD::OptimizationFlags::optimize_cse);
+        optimiser.set_optimization_method(SD::OptimizerType::dictionary, SD::OptimizationFlags::optimize_cse);
       else if (with_lambda_opt == true && with_cse == false)
-        optimiser.set_optimization_method(
-          SD::OptimizerType::lambda, SD::OptimizationFlags::optimize_default);
+        optimiser.set_optimization_method(SD::OptimizerType::lambda, SD::OptimizationFlags::optimize_default);
       else // if (with_lambda_opt == true && with_cse == true)
-        optimiser.set_optimization_method(SD::OptimizerType::lambda,
-                                          SD::OptimizationFlags::optimize_cse);
+        optimiser.set_optimization_method(SD::OptimizerType::lambda, SD::OptimizationFlags::optimize_cse);
 
       // Set independent and dependent variables, then finalise
       optimiser.register_symbols(symbol_value_map);
@@ -134,8 +121,7 @@ test_derived()
 
       // Substitute and get result
       std::cout << "Derived: eval_deal_II: "
-                << "  with_lambda_opt: " << with_lambda_opt
-                << "  with_cse: " << with_cse << "  n_evals: " << n_evals
+                << "  with_lambda_opt: " << with_lambda_opt << "  with_cse: " << with_cse << "  n_evals: " << n_evals
                 << std::endl;
       double res = 0.0;
       for (unsigned int r = 0; r < n_evals; ++r)

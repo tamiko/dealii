@@ -39,18 +39,14 @@ test()
     const unsigned int                     id = 6;
     Particles::PropertyPool<dim, spacedim> property_pool(2);
 
-    Particles::Particle<dim, spacedim> particle(location,
-                                                reference_location,
-                                                id);
+    Particles::Particle<dim, spacedim> particle(location, reference_location, id);
     particle.set_property_pool(property_pool);
     particle.get_properties()[0] = 0.1;
     particle.get_properties()[1] = 0.7;
 
-    deallog << "Before serialization particle id " << particle.get_id()
-            << " has location " << particle.get_location()
-            << ", has reference location " << particle.get_reference_location()
-            << ", and has properties " << particle.get_properties()[0] << ' '
-            << particle.get_properties()[1] << std::endl;
+    deallog << "Before serialization particle id " << particle.get_id() << " has location " << particle.get_location()
+            << ", has reference location " << particle.get_reference_location() << ", and has properties "
+            << particle.get_properties()[0] << ' ' << particle.get_properties()[1] << std::endl;
 
     boost::archive::text_oarchive oa(oss, boost::archive::no_header);
     oa << particle;
@@ -72,11 +68,9 @@ test()
 
     ia >> particle;
 
-    deallog << "After serialization particle id " << particle.get_id()
-            << " has location " << particle.get_location()
-            << ", has reference location " << particle.get_reference_location()
-            << ", and has properties " << particle.get_properties()[0] << ' '
-            << particle.get_properties()[1] << std::endl;
+    deallog << "After serialization particle id " << particle.get_id() << " has location " << particle.get_location()
+            << ", has reference location " << particle.get_reference_location() << ", and has properties "
+            << particle.get_properties()[0] << ' ' << particle.get_properties()[1] << std::endl;
   }
 
   deallog << "OK" << std::endl << std::endl;

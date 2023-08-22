@@ -83,13 +83,11 @@ main(int argc, char **argv)
       F.compress(VectorOperation::insert);
     };
 
-    solver.jacobian =
-      [&](const VectorType &X, MatrixType &A, MatrixType &P) -> void {
+    solver.jacobian = [&](const VectorType &X, MatrixType &A, MatrixType &P) -> void {
       auto x    = X.block(0)[0];
       auto y    = X.block(1)[0];
       auto f0_x = 3 * std::pow(x - std::pow(y, 3) + 1, 2);
-      auto f0_y = -9 * std::pow(x - std::pow(y, 3) + 1, 2) * std::pow(y, 2) -
-                  3 * std::pow(y, 2);
+      auto f0_y = -9 * std::pow(x - std::pow(y, 3) + 1, 2) * std::pow(y, 2) - 3 * std::pow(y, 2);
       P.block(0, 0).set(0, 0, f0_x);
       P.block(0, 1).set(0, 0, f0_y);
       P.block(1, 0).set(0, 0, 1);
@@ -141,11 +139,10 @@ main(int argc, char **argv)
     FullMatrix<double> Jinv(2, 2);
 
     solver.setup_jacobian = [&](const VectorType &X) -> void {
-      auto x    = X.block(0)[0];
-      auto y    = X.block(1)[0];
-      auto f0_x = 3 * std::pow(x - std::pow(y, 3) + 1, 2);
-      auto f0_y = -9 * std::pow(x - std::pow(y, 3) + 1, 2) * std::pow(y, 2) -
-                  3 * std::pow(y, 2);
+      auto               x    = X.block(0)[0];
+      auto               y    = X.block(1)[0];
+      auto               f0_x = 3 * std::pow(x - std::pow(y, 3) + 1, 2);
+      auto               f0_y = -9 * std::pow(x - std::pow(y, 3) + 1, 2) * std::pow(y, 2) - 3 * std::pow(y, 2);
       FullMatrix<double> J(2, 2);
       J(0, 0) = f0_x;
       J(0, 1) = f0_y;
@@ -154,12 +151,9 @@ main(int argc, char **argv)
       Jinv.invert(J);
     };
 
-    solver.solve_with_jacobian = [&](const VectorType &src,
-                                     VectorType &      dst) -> void {
-      dst.block(0)[0] =
-        Jinv(0, 0) * src.block(0)[0] + Jinv(0, 1) * src.block(1)[0];
-      dst.block(1)[0] =
-        Jinv(1, 0) * src.block(0)[0] + Jinv(1, 1) * src.block(1)[0];
+    solver.solve_with_jacobian = [&](const VectorType &src, VectorType &dst) -> void {
+      dst.block(0)[0] = Jinv(0, 0) * src.block(0)[0] + Jinv(0, 1) * src.block(1)[0];
+      dst.block(1)[0] = Jinv(1, 0) * src.block(0)[0] + Jinv(1, 1) * src.block(1)[0];
       dst.compress(VectorOperation::insert);
     };
 

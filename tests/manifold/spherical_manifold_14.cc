@@ -51,8 +51,7 @@ main()
 
   {
     const unsigned int dim = 3;
-    Triangulation<dim> triangulation(
-      Triangulation<dim>::limit_level_difference_at_vertices);
+    Triangulation<dim> triangulation(Triangulation<dim>::limit_level_difference_at_vertices);
     GridGenerator::half_hyper_shell(triangulation, Point<dim>(), 0.5, 1.);
 
     std::set<types::boundary_id> no_flux_boundary{0};
@@ -66,21 +65,15 @@ main()
     AffineConstraints<double> constraints;
 
 
-    const unsigned int                 face_no = 0;
-    const std::vector<Point<dim - 1>> &unit_support_points =
-      fe.get_unit_face_support_points(face_no);
+    const unsigned int                 face_no             = 0;
+    const std::vector<Point<dim - 1>> &unit_support_points = fe.get_unit_face_support_points(face_no);
 
-    Assert(unit_support_points.size() == fe.n_dofs_per_face(),
-           ExcInternalError());
+    Assert(unit_support_points.size() == fe.n_dofs_per_face(), ExcInternalError());
 
 
     Quadrature<dim - 1> face_quadrature(unit_support_points);
 
-    FEFaceValues<dim> fe_face_values(mapping,
-                                     fe,
-                                     face_quadrature,
-                                     update_quadrature_points |
-                                       update_normal_vectors);
+    FEFaceValues<dim> fe_face_values(mapping, fe, face_quadrature, update_quadrature_points | update_normal_vectors);
 
 
     std::set<types::boundary_id>::iterator b_id;
@@ -88,14 +81,13 @@ main()
     for (const auto &cell : dofh.active_cell_iterators())
       if (!cell->is_artificial())
         for (const unsigned int face_no : cell->face_indices())
-          if ((b_id = no_flux_boundary.find(
-                 cell->face(face_no)->boundary_id())) != no_flux_boundary.end())
+          if ((b_id = no_flux_boundary.find(cell->face(face_no)->boundary_id())) != no_flux_boundary.end())
             {
               fe_face_values.reinit(cell, face_no);
               for (unsigned int i = 0; i < face_quadrature.size(); ++i)
                 Tensor<1, dim> normal_vector =
-                  (cell->face(face_no)->get_manifold().normal_vector(
-                    cell->face(face_no), fe_face_values.quadrature_point(i)));
+                  (cell->face(face_no)->get_manifold().normal_vector(cell->face(face_no),
+                                                                     fe_face_values.quadrature_point(i)));
             }
 
     deallog << " OK! " << std::endl;

@@ -32,9 +32,8 @@
 void
 test()
 {
-  const unsigned int myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
-  const unsigned int n_processes =
-    Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
+  const unsigned int myid        = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+  const unsigned int n_processes = Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
 
   // create a vector that consists of elements indexed from 0 to n
   TrilinosWrappers::MPI::Vector vec;
@@ -46,24 +45,21 @@ test()
   AssertThrow(vec.locally_owned_size() == 100, ExcInternalError());
   AssertThrow(vec.local_range().first == 100 * myid, ExcInternalError());
   AssertThrow(vec.local_range().second == 100 * myid + 100, ExcInternalError());
-  for (unsigned int i = vec.local_range().first; i < vec.local_range().second;
-       ++i)
+  for (unsigned int i = vec.local_range().first; i < vec.local_range().second; ++i)
     vec(i) = i;
   vec.compress(VectorOperation::insert);
 
   // verify correctness so far
   {
     bool exact_non_negative = true;
-    AssertThrow(vec.is_non_negative() == exact_non_negative,
-                ExcInternalError());
+    AssertThrow(vec.is_non_negative() == exact_non_negative, ExcInternalError());
   }
 
   if (vec.in_local_range(vec.size() / 2))
     vec[vec.size() / 2] = -1;
   {
     bool exact_non_negative = false;
-    AssertThrow(vec.is_non_negative() == exact_non_negative,
-                ExcInternalError());
+    AssertThrow(vec.is_non_negative() == exact_non_negative, ExcInternalError());
   }
 
   deallog << "OK" << std::endl;

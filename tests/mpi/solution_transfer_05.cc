@@ -62,32 +62,27 @@ test()
   DoFHandler<dim> dgq_dof_handler(tria);
 
   // randomly assign FEs
-  for (const auto &cell : dgq_dof_handler.active_cell_iterators() |
-                            IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : dgq_dof_handler.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     cell->set_active_fe_index(Testing::rand() % max_degree);
   dgq_dof_handler.distribute_dofs(fe_dgq);
 
   // prepare index sets
   IndexSet dgq_locally_owned_dofs = dgq_dof_handler.locally_owned_dofs();
   IndexSet dgq_locally_relevant_dofs;
-  DoFTools::extract_locally_relevant_dofs(dgq_dof_handler,
-                                          dgq_locally_relevant_dofs);
+  DoFTools::extract_locally_relevant_dofs(dgq_dof_handler, dgq_locally_relevant_dofs);
   IndexSet dgq_ghost_dofs = dgq_locally_relevant_dofs;
   dgq_ghost_dofs.subtract_set(dgq_locally_owned_dofs);
 
   // prepare dof_values
   LinearAlgebra::distributed::Vector<double> dgq_solution;
   dgq_solution.reinit(dgq_locally_owned_dofs, dgq_ghost_dofs, MPI_COMM_WORLD);
-  VectorTools::interpolate(dgq_dof_handler,
-                           Functions::ZeroFunction<dim>(),
-                           dgq_solution);
+  VectorTools::interpolate(dgq_dof_handler, Functions::ZeroFunction<dim>(), dgq_solution);
   dgq_solution.update_ghost_values();
 
-  parallel::distributed::
-    SolutionTransfer<dim, LinearAlgebra::distributed::Vector<double>>
+  parallel::distributed::SolutionTransfer<dim, LinearAlgebra::distributed::Vector<double>>
 
 
-      dgq_soltrans(dgq_dof_handler);
+    dgq_soltrans(dgq_dof_handler);
   dgq_soltrans.prepare_for_coarsening_and_refinement(dgq_solution);
 
   // refine and transfer
@@ -108,8 +103,7 @@ test()
 
   // prepare index sets
   dgq_locally_owned_dofs = dgq_dof_handler.locally_owned_dofs();
-  DoFTools::extract_locally_relevant_dofs(dgq_dof_handler,
-                                          dgq_locally_relevant_dofs);
+  DoFTools::extract_locally_relevant_dofs(dgq_dof_handler, dgq_locally_relevant_dofs);
   dgq_ghost_dofs = dgq_locally_relevant_dofs;
   dgq_ghost_dofs.subtract_set(dgq_locally_owned_dofs);
 

@@ -106,14 +106,11 @@ namespace parallel
      */
     template <int dim, int spacedim = dim>
     DEAL_II_CXX20_REQUIRES((concepts::is_valid_dim_spacedim<dim, spacedim>))
-    class Triangulation
-      : public dealii::parallel::TriangulationBase<dim, spacedim>
+    class Triangulation : public dealii::parallel::TriangulationBase<dim, spacedim>
     {
     public:
-      using active_cell_iterator =
-        typename dealii::Triangulation<dim, spacedim>::active_cell_iterator;
-      using cell_iterator =
-        typename dealii::Triangulation<dim, spacedim>::cell_iterator;
+      using active_cell_iterator = typename dealii::Triangulation<dim, spacedim>::active_cell_iterator;
+      using cell_iterator        = typename dealii::Triangulation<dim, spacedim>::cell_iterator;
 
       /**
        * Configuration flags for distributed Triangulations to be set in the
@@ -256,12 +253,11 @@ namespace parallel
        * ghost-value updates are the bottleneck in your code, you may want to
        * consider enabling artificial cells.
        */
-      Triangulation(
-        const MPI_Comm mpi_communicator,
-        const typename dealii::Triangulation<dim, spacedim>::MeshSmoothing =
-          (dealii::Triangulation<dim, spacedim>::none),
-        const bool     allow_artificial_cells = false,
-        const Settings settings               = partition_auto);
+      Triangulation(const MPI_Comm mpi_communicator,
+                    const typename dealii::Triangulation<dim, spacedim>::MeshSmoothing =
+                      (dealii::Triangulation<dim, spacedim>::none),
+                    const bool     allow_artificial_cells = false,
+                    const Settings settings               = partition_auto);
 
       /**
        * Destructor.
@@ -293,8 +289,8 @@ namespace parallel
        */
       virtual void
       create_triangulation(const std::vector<Point<spacedim>> &vertices,
-                           const std::vector<CellData<dim>> &  cells,
-                           const SubCellData &subcelldata) override;
+                           const std::vector<CellData<dim>>   &cells,
+                           const SubCellData                  &subcelldata) override;
 
       /**
        * @copydoc Triangulation::create_triangulation()
@@ -302,9 +298,7 @@ namespace parallel
        * @note Not implemented yet.
        */
       virtual void
-      create_triangulation(
-        const TriangulationDescription::Description<dim, spacedim>
-          &construction_data) override;
+      create_triangulation(const TriangulationDescription::Description<dim, spacedim> &construction_data) override;
 
       /**
        * Copy @p other_tria to this triangulation.
@@ -317,8 +311,7 @@ namespace parallel
        * around the ones it locally owns, and a number of artificial cells.
        */
       virtual void
-      copy_triangulation(
-        const dealii::Triangulation<dim, spacedim> &other_tria) override;
+      copy_triangulation(const dealii::Triangulation<dim, spacedim> &other_tria) override;
 
       /**
        * Save the triangulation into the given file. This file needs to be
@@ -417,8 +410,7 @@ namespace parallel
        * DoF distribution and partitioning functions with semi-artificial
        * cells.
        */
-      std::vector<std::vector<types::subdomain_id>>
-        true_level_subdomain_ids_of_cells;
+      std::vector<std::vector<types::subdomain_id>> true_level_subdomain_ids_of_cells;
     };
 
 
@@ -426,8 +418,7 @@ namespace parallel
     template <int dim, int spacedim>
     DEAL_II_CXX20_REQUIRES((concepts::is_valid_dim_spacedim<dim, spacedim>))
     template <class Archive>
-    void Triangulation<dim, spacedim>::load(Archive &          ar,
-                                            const unsigned int version)
+    void Triangulation<dim, spacedim>::load(Archive &ar, const unsigned int version)
     {
       dealii::Triangulation<dim, spacedim>::load(ar, version);
       partition();
@@ -453,8 +444,7 @@ namespace parallel
      */
     template <int dim, int spacedim = dim>
     DEAL_II_CXX20_REQUIRES((concepts::is_valid_dim_spacedim<dim, spacedim>))
-    class Triangulation
-      : public dealii::parallel::TriangulationBase<dim, spacedim>
+    class Triangulation : public dealii::parallel::TriangulationBase<dim, spacedim>
     {
     public:
       /**
@@ -542,8 +532,7 @@ namespace internal
          *
          * Replaces them by their true subdomain ID equivalent.
          */
-        TemporarilyRestoreSubdomainIds(
-          const Triangulation<dim, spacedim> &tria);
+        TemporarilyRestoreSubdomainIds(const Triangulation<dim, spacedim> &tria);
 
         /**
          * Destructor.
@@ -557,9 +546,7 @@ namespace internal
         /**
          * The modified parallel::shared::Triangulation.
          */
-        const SmartPointer<
-          const dealii::parallel::shared::Triangulation<dim, spacedim>>
-          shared_tria;
+        const SmartPointer<const dealii::parallel::shared::Triangulation<dim, spacedim>> shared_tria;
 
         /**
          * A vector that temporarily stores the subdomain IDs on all active

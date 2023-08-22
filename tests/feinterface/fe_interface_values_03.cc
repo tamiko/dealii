@@ -50,13 +50,9 @@ test(unsigned int fe_degree)
   dofh.distribute_dofs(fe);
 
   MappingQ<dim> mapping(1);
-  UpdateFlags   update_flags = update_values | update_gradients |
-                             update_quadrature_points | update_JxW_values;
+  UpdateFlags   update_flags = update_values | update_gradients | update_quadrature_points | update_JxW_values;
 
-  FEInterfaceValues<dim> fiv(mapping,
-                             fe,
-                             QGauss<dim - 1>(fe.degree + 1),
-                             update_flags);
+  FEInterfaceValues<dim> fiv(mapping, fe, QGauss<dim - 1>(fe.degree + 1), update_flags);
 
   auto cell = dofh.begin(1);
   ++cell;
@@ -68,56 +64,44 @@ test(unsigned int fe_degree)
           continue;
 
         auto nn = cell->neighbor_of_coarser_neighbor(f);
-        fiv.reinit(cell,
-                   f,
-                   numbers::invalid_unsigned_int,
-                   cell->neighbor(f),
-                   nn.first,
-                   nn.second);
+        fiv.reinit(cell, f, numbers::invalid_unsigned_int, cell->neighbor(f), nn.first, nn.second);
 
         const unsigned int n_dofs = fiv.n_current_interface_dofs();
         Vector<double>     cell_vector(n_dofs);
 
         const auto &q_points = fiv.get_quadrature_points();
         for (unsigned int qpoint = 0; qpoint < q_points.size(); ++qpoint)
-          deallog << "qpoint " << qpoint << ": " << q_points[qpoint]
-                  << std::endl;
+          deallog << "qpoint " << qpoint << ": " << q_points[qpoint] << std::endl;
 
         for (unsigned int idx = 0; idx < n_dofs; ++idx)
           {
             const auto pair = fiv.interface_dof_to_dof_indices(idx);
-            deallog << "  idx: " << idx
-                    << " global: " << fiv.get_interface_dof_indices()[idx]
-                    << " dof indices: " << static_cast<int>(pair[0]) << " | "
-                    << static_cast<int>(pair[1]) << std::endl;
+            deallog << "  idx: " << idx << " global: " << fiv.get_interface_dof_indices()[idx]
+                    << " dof indices: " << static_cast<int>(pair[0]) << " | " << static_cast<int>(pair[1]) << std::endl;
           }
 
         cell_vector = 0.0;
         for (unsigned int qpoint = 0; qpoint < q_points.size(); ++qpoint)
           for (unsigned int i = 0; i < n_dofs; ++i)
-            cell_vector(i) +=
-              fiv.shape_value(true, i, qpoint) * fiv.get_JxW_values()[qpoint];
+            cell_vector(i) += fiv.shape_value(true, i, qpoint) * fiv.get_JxW_values()[qpoint];
         deallog << "shape_value(true): " << cell_vector << std::endl;
 
         cell_vector = 0.0;
         for (unsigned int qpoint = 0; qpoint < q_points.size(); ++qpoint)
           for (unsigned int i = 0; i < n_dofs; ++i)
-            cell_vector(i) +=
-              fiv.shape_value(false, i, qpoint) * fiv.get_JxW_values()[qpoint];
+            cell_vector(i) += fiv.shape_value(false, i, qpoint) * fiv.get_JxW_values()[qpoint];
         deallog << "shape_value(false): " << cell_vector << std::endl;
 
         cell_vector = 0.0;
         for (unsigned int qpoint = 0; qpoint < q_points.size(); ++qpoint)
           for (unsigned int i = 0; i < n_dofs; ++i)
-            cell_vector(i) += fiv.jump_in_shape_values(i, qpoint) *
-                              fiv.get_JxW_values()[qpoint];
+            cell_vector(i) += fiv.jump_in_shape_values(i, qpoint) * fiv.get_JxW_values()[qpoint];
         deallog << "jump_in_shape_values(): " << cell_vector << std::endl;
 
         cell_vector = 0.0;
         for (unsigned int qpoint = 0; qpoint < q_points.size(); ++qpoint)
           for (unsigned int i = 0; i < n_dofs; ++i)
-            cell_vector(i) += fiv.average_of_shape_values(i, qpoint) *
-                              fiv.get_JxW_values()[qpoint];
+            cell_vector(i) += fiv.average_of_shape_values(i, qpoint) * fiv.get_JxW_values()[qpoint];
         deallog << "average_of_shape_values(): " << cell_vector << std::endl;
       }
 }

@@ -66,8 +66,7 @@ public:
    * Constructor. This takes the degree of the space, @p deg from the finite element
    * class, and @p n, the number of polynomials for the space.
    */
-  TensorPolynomialsBase(const unsigned int deg,
-                        const unsigned int n_polynomials);
+  TensorPolynomialsBase(const unsigned int deg, const unsigned int n_polynomials);
 
   /**
    * Move constructor.
@@ -98,7 +97,7 @@ public:
    * in a loop over all tensor product polynomials.
    */
   virtual void
-  evaluate(const Point<dim> &           unit_point,
+  evaluate(const Point<dim>            &unit_point,
            std::vector<Tensor<1, dim>> &values,
            std::vector<Tensor<2, dim>> &grads,
            std::vector<Tensor<3, dim>> &grad_grads,

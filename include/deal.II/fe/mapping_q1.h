@@ -102,8 +102,7 @@ struct StaticMappingQ1
 /** @} */
 
 template <int dim, int spacedim>
-MappingQ<dim, spacedim> StaticMappingQ1<dim, spacedim>::mapping =
-  MappingQ1<dim, spacedim>{};
+MappingQ<dim, spacedim> StaticMappingQ1<dim, spacedim>::mapping = MappingQ1<dim, spacedim>{};
 
 DEAL_II_NAMESPACE_CLOSE
 

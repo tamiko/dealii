@@ -48,23 +48,18 @@
 
 template <int fe_degree, int n_q_points_1d>
 void
-do_test(const DoFHandler<2> &dof,
-        MatrixFreeTest<
-          2,
-          fe_degree,
-          double,
-          LinearAlgebra::distributed::Vector<double, MemorySpace::Default>,
-          n_q_points_1d> &               mf,
-        unsigned int                     n_dofs,
-        MappingQ<2> &                    mapping,
-        const AffineConstraints<double> &constraints)
+do_test(
+  const DoFHandler<2> &dof,
+  MatrixFreeTest<2, fe_degree, double, LinearAlgebra::distributed::Vector<double, MemorySpace::Default>, n_q_points_1d>
+                                  &mf,
+  unsigned int                     n_dofs,
+  MappingQ<2>                     &mapping,
+  const AffineConstraints<double> &constraints)
 {
-  Vector<double>                         in_host(n_dofs), out_host(n_dofs);
-  LinearAlgebra::ReadWriteVector<double> in(n_dofs), out(n_dofs);
-  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> in_device(
-    n_dofs);
-  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> out_device(
-    n_dofs);
+  Vector<double>                                                   in_host(n_dofs), out_host(n_dofs);
+  LinearAlgebra::ReadWriteVector<double>                           in(n_dofs), out(n_dofs);
+  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> in_device(n_dofs);
+  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> out_device(n_dofs);
 
   for (unsigned int i = 0; i < n_dofs; ++i)
     {
@@ -93,17 +88,15 @@ do_test(const DoFHandler<2> &dof,
     FEValues<2> fe_values(mapping,
                           dof.get_fe(),
                           quadrature_formula,
-                          update_values | update_gradients |
-                            update_quadrature_points | update_JxW_values);
+                          update_values | update_gradients | update_quadrature_points | update_JxW_values);
 
     const unsigned int dofs_per_cell = dof.get_fe().dofs_per_cell;
     const unsigned int n_q_points    = quadrature_formula.size();
 
-    FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
+    FullMatrix<double>                   cell_matrix(dofs_per_cell, dofs_per_cell);
     std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
 
-    typename DoFHandler<2>::active_cell_iterator cell = dof.begin_active(),
-                                                 endc = dof.end();
+    typename DoFHandler<2>::active_cell_iterator cell = dof.begin_active(), endc = dof.end();
     for (; cell != endc; ++cell)
       {
         cell_matrix = 0;
@@ -115,19 +108,14 @@ do_test(const DoFHandler<2> &dof,
             for (unsigned int i = 0; i < dofs_per_cell; ++i)
               {
                 for (unsigned int j = 0; j < dofs_per_cell; ++j)
-                  cell_matrix(i, j) +=
-                    ((fe_values.shape_grad(i, q_point) *
-                        fe_values.shape_grad(j, q_point) +
-                      coef * fe_values.shape_value(i, q_point) *
-                        fe_values.shape_value(j, q_point)) *
-                     fe_values.JxW(q_point));
+                  cell_matrix(i, j) += ((fe_values.shape_grad(i, q_point) * fe_values.shape_grad(j, q_point) +
+                                         coef * fe_values.shape_value(i, q_point) * fe_values.shape_value(j, q_point)) *
+                                        fe_values.JxW(q_point));
               }
           }
 
         cell->get_dof_indices(local_dof_indices);
-        constraints.distribute_local_to_global(cell_matrix,
-                                               local_dof_indices,
-                                               sparse_matrix);
+        constraints.distribute_local_to_global(cell_matrix, local_dof_indices, sparse_matrix);
       }
   }
   for (unsigned i = 0; i < n_dofs; ++i)
@@ -170,21 +158,17 @@ main()
     MappingQ<2>                                         mapping_1(fe_degree_1);
     CUDAWrappers::MatrixFree<2, double>                 mf_data_1;
     CUDAWrappers::MatrixFree<2, double>::AdditionalData additional_data_1;
-    additional_data_1.mapping_update_flags = update_values | update_gradients |
-                                             update_JxW_values |
-                                             update_quadrature_points;
+    additional_data_1.mapping_update_flags =
+      update_values | update_gradients | update_JxW_values | update_quadrature_points;
     const QGauss<1> quad_1(n_q_points_1d_1);
     mf_data_1.reinit(mapping_1, dof_1, constraints, quad_1, additional_data_1);
     const unsigned int n_dofs_1 = dof_1.n_dofs();
-    MatrixFreeTest<
-      2,
-      fe_degree_1,
-      double,
-      LinearAlgebra::distributed::Vector<double, MemorySpace::Default>,
-      n_q_points_1d_1>
-      mf_1(mf_data_1,
-           n_dofs_1 * std::pow(n_q_points_1d_1, 2),
-           constant_coefficient);
+    MatrixFreeTest<2,
+                   fe_degree_1,
+                   double,
+                   LinearAlgebra::distributed::Vector<double, MemorySpace::Default>,
+                   n_q_points_1d_1>
+      mf_1(mf_data_1, n_dofs_1 * std::pow(n_q_points_1d_1, 2), constant_coefficient);
 
     // Create the second MatrixFree object
     constexpr unsigned int fe_degree_2     = 2;
@@ -195,29 +179,23 @@ main()
     MappingQ<2>                                         mapping_2(fe_degree_2);
     CUDAWrappers::MatrixFree<2, double>                 mf_data_2;
     CUDAWrappers::MatrixFree<2, double>::AdditionalData additional_data_2;
-    additional_data_2.mapping_update_flags = update_values | update_gradients |
-                                             update_JxW_values |
-                                             update_quadrature_points;
+    additional_data_2.mapping_update_flags =
+      update_values | update_gradients | update_JxW_values | update_quadrature_points;
     const QGauss<1> quad_2(n_q_points_1d_2);
     mf_data_2.reinit(mapping_2, dof_2, constraints, quad_2, additional_data_2);
     const unsigned int n_dofs_2 = dof_2.n_dofs();
-    MatrixFreeTest<
-      2,
-      fe_degree_2,
-      double,
-      LinearAlgebra::distributed::Vector<double, MemorySpace::Default>,
-      n_q_points_1d_2>
-      mf_2(mf_data_2,
-           n_dofs_2 * std::pow(n_q_points_1d_2, 2),
-           constant_coefficient);
+    MatrixFreeTest<2,
+                   fe_degree_2,
+                   double,
+                   LinearAlgebra::distributed::Vector<double, MemorySpace::Default>,
+                   n_q_points_1d_2>
+      mf_2(mf_data_2, n_dofs_2 * std::pow(n_q_points_1d_2, 2), constant_coefficient);
 
     // Perform MV with the first object
-    do_test<fe_degree_1, n_q_points_1d_1>(
-      dof_1, mf_1, n_dofs_1, mapping_1, constraints);
+    do_test<fe_degree_1, n_q_points_1d_1>(dof_1, mf_1, n_dofs_1, mapping_1, constraints);
 
     // Perform MV with the second object
-    do_test<fe_degree_2, n_q_points_1d_2>(
-      dof_2, mf_2, n_dofs_2, mapping_2, constraints);
+    do_test<fe_degree_2, n_q_points_1d_2>(dof_2, mf_2, n_dofs_2, mapping_2, constraints);
   }
   Kokkos::finalize();
 

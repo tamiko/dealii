@@ -37,28 +37,23 @@ main()
   prm.add_parameter("A string", a_string);
   prm.leave_subsection();
 
-  deallog << "PRM format: " << std::endl
-          << "========================================" << std::endl;
+  deallog << "PRM format: " << std::endl << "========================================" << std::endl;
   prm.print_parameters("output.prm");
   cat_file("output.prm");
 
-  deallog << "XML format: " << std::endl
-          << "========================================" << std::endl;
+  deallog << "XML format: " << std::endl << "========================================" << std::endl;
   prm.print_parameters("output.xml");
   cat_file("output.xml");
 
-  deallog << "JSON format: " << std::endl
-          << "========================================" << std::endl;
+  deallog << "JSON format: " << std::endl << "========================================" << std::endl;
   prm.print_parameters("output.json");
   cat_file("output.json");
 
-  deallog << "LaTeX format: " << std::endl
-          << "========================================" << std::endl;
+  deallog << "LaTeX format: " << std::endl << "========================================" << std::endl;
   prm.print_parameters("output.tex");
   cat_file("output.tex");
 
-  deallog << "Description format: " << std::endl
-          << "========================================" << std::endl;
+  deallog << "Description format: " << std::endl << "========================================" << std::endl;
   prm.print_parameters("output.dsc", ParameterHandler::Description);
   cat_file("output.dsc");
 }

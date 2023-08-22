@@ -50,12 +50,10 @@ main(int, char **)
           FE_Nedelec<dim> fe(fe_degree);
 
           {
-            for (unsigned int this_switch = 0; this_switch < (dim == 2 ? 4 : 8);
-                 ++this_switch)
+            for (unsigned int this_switch = 0; this_switch < (dim == 2 ? 4 : 8); ++this_switch)
               {
                 deallog << std::endl
-                        << "*******   degree " << fe_degree
-                        << "   *******   orientation case " << this_switch
+                        << "*******   degree " << fe_degree << "   *******   orientation case " << this_switch
                         << "   *******" << std::endl;
 
                 FEConformityTest<dim> fe_conformity_tester(fe, this_switch);
@@ -66,28 +64,20 @@ main(int, char **)
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
 

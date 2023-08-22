@@ -39,11 +39,9 @@ test(PETScWrappers::MPI::Vector &v)
   w = v;
 
   // make sure they're equal
-  deallog << v * w << ' ' << v.l2_norm() * w.l2_norm() << ' '
-          << v * w - v.l2_norm() * w.l2_norm() << std::endl;
+  deallog << v * w << ' ' << v.l2_norm() * w.l2_norm() << ' ' << v * w - v.l2_norm() * w.l2_norm() << std::endl;
   const double eps = typeid(PetscScalar) == typeid(double) ? 1e-14 : 1e-5;
-  Assert(std::fabs(v * w - v.l2_norm() * w.l2_norm()) < eps * (v * w),
-         ExcInternalError());
+  Assert(std::fabs(v * w - v.l2_norm() * w.l2_norm()) < eps * (v * w), ExcInternalError());
 
   deallog << "OK" << std::endl;
 }
@@ -67,28 +65,20 @@ main(int argc, char **argv)
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

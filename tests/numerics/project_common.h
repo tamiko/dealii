@@ -118,11 +118,7 @@ do_project(const Triangulation<dim> &triangulation,
   for (unsigned int q = 0; q <= p + 2 - order_difference; ++q)
     {
       // project the function
-      VectorTools::project(dof_handler,
-                           constraints,
-                           QGauss<dim>(p + 2),
-                           F<dim>(q, fe.n_components()),
-                           projection);
+      VectorTools::project(dof_handler, constraints, QGauss<dim>(p + 2), F<dim>(q, fe.n_components()), projection);
       // just to make sure it doesn't get
       // forgotten: handle hanging node
       // constraints
@@ -135,14 +131,11 @@ do_project(const Triangulation<dim> &triangulation,
                                         error,
                                         QGauss<dim>(std::max(p, q) + 1),
                                         VectorTools::L2_norm);
-      deallog << fe.get_name() << ", P_" << q
-              << ", rel. error=" << error.l2_norm() / projection.l2_norm()
-              << std::endl;
+      deallog << fe.get_name() << ", P_" << q << ", rel. error=" << error.l2_norm() / projection.l2_norm() << std::endl;
 
       if (q <= p - order_difference)
         if (error.l2_norm() > 1e-10 * projection.l2_norm())
-          deallog << "Projection failed with relative error "
-                  << error.l2_norm() / projection.l2_norm() << std::endl;
+          deallog << "Projection failed with relative error " << error.l2_norm() / projection.l2_norm() << std::endl;
     }
 }
 
@@ -154,9 +147,7 @@ do_project(const Triangulation<dim> &triangulation,
 // can only represent polynomials of degree p-1 exactly. the gap is then 1.
 template <int dim>
 void
-test_no_hanging_nodes(const FiniteElement<dim> &fe,
-                      const unsigned int        p,
-                      const unsigned int        order_difference = 0)
+test_no_hanging_nodes(const FiniteElement<dim> &fe, const unsigned int p, const unsigned int order_difference = 0)
 {
   Triangulation<dim> triangulation;
   GridGenerator::hyper_cube(triangulation);
@@ -170,9 +161,7 @@ test_no_hanging_nodes(const FiniteElement<dim> &fe,
 // same test as above, but this time with a mesh that has hanging nodes
 template <int dim>
 void
-test_with_hanging_nodes(const FiniteElement<dim> &fe,
-                        const unsigned int        p,
-                        const unsigned int        order_difference = 0)
+test_with_hanging_nodes(const FiniteElement<dim> &fe, const unsigned int p, const unsigned int order_difference = 0)
 {
   Triangulation<dim> triangulation;
   GridGenerator::hyper_cube(triangulation);
@@ -210,8 +199,7 @@ test_with_wrong_face_orientation(const FiniteElement<dim> &fe,
       Triangulation<dim> triangulation;
       GridGenerator::hyper_ball(triangulation);
       triangulation.reset_manifold(0);
-      typename Triangulation<dim>::active_cell_iterator cell =
-        triangulation.begin_active();
+      typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
       std::advance(cell, i);
       cell->set_refine_flag();
       triangulation.execute_coarsening_and_refinement();
@@ -227,9 +215,7 @@ test_with_wrong_face_orientation(const FiniteElement<dim> &fe,
 // fe_poly_tensor.cc
 template <int dim>
 void
-test_with_2d_deformed_mesh(const FiniteElement<dim> &fe,
-                           const unsigned int        p,
-                           const unsigned int        order_difference = 0)
+test_with_2d_deformed_mesh(const FiniteElement<dim> &fe, const unsigned int p, const unsigned int order_difference = 0)
 {
   if (dim != 2)
     return;
@@ -280,7 +266,7 @@ template <int dim>
 void
 test_with_2d_deformed_refined_mesh(const FiniteElement<dim> &fe,
                                    const unsigned int        p,
-                                   const unsigned int order_difference = 0)
+                                   const unsigned int        order_difference = 0)
 {
   if (dim != 2)
     return;

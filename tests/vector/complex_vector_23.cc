@@ -47,8 +47,7 @@ test(Vector<std::complex<double>> &v, Vector<std::complex<double>> &w)
 
 
   // make sure the scalar product is correct
-  deallog << v * w << ' ' << w * v << ' ' << product << ' '
-          << std::conj(product) << std::endl;
+  deallog << v * w << ' ' << w * v << ' ' << product << ' ' << std::conj(product) << std::endl;
 
   AssertThrow(v * w == product, ExcInternalError());
 
@@ -73,28 +72,20 @@ main()
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

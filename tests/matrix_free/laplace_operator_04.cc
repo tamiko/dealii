@@ -57,41 +57,27 @@ test()
 
   deallog << "Testing " << dof.get_fe().get_name() << std::endl;
 
-  std::shared_ptr<MatrixFree<dim, number>> mf_data(
-    new MatrixFree<dim, number>());
+  std::shared_ptr<MatrixFree<dim, number>> mf_data(new MatrixFree<dim, number>());
   {
     const QGauss<1>                                  quad(fe_degree + 1);
     typename MatrixFree<dim, number>::AdditionalData data;
     data.tasks_parallel_scheme = MatrixFree<dim, number>::AdditionalData::none;
-    data.mapping_update_flags =
-      update_quadrature_points | update_gradients | update_JxW_values;
+    data.mapping_update_flags  = update_quadrature_points | update_gradients | update_JxW_values;
     mf_data->reinit(MappingQ1<dim>{}, dof, constraints, quad, data);
   }
 
-  MatrixFreeOperators::LaplaceOperator<
-    dim,
-    fe_degree,
-    fe_degree + 1,
-    1,
-    LinearAlgebra::distributed::Vector<number>>
+  MatrixFreeOperators::LaplaceOperator<dim, fe_degree, fe_degree + 1, 1, LinearAlgebra::distributed::Vector<number>>
     mf_scalar;
-  MatrixFreeOperators::LaplaceOperator<
-    dim,
-    fe_degree,
-    fe_degree + 1,
-    dim,
-    LinearAlgebra::distributed::Vector<number>>
+  MatrixFreeOperators::LaplaceOperator<dim, fe_degree, fe_degree + 1, dim, LinearAlgebra::distributed::Vector<number>>
     mf_vector;
   mf_scalar.initialize(mf_data);
   mf_vector.initialize(mf_data);
   mf_scalar.compute_diagonal();
   mf_vector.compute_diagonal();
   deallog << "Matrix diagonal scalar: " << std::endl;
-  mf_scalar.get_matrix_diagonal()->get_vector().print(
-    deallog.get_file_stream());
+  mf_scalar.get_matrix_diagonal()->get_vector().print(deallog.get_file_stream());
   deallog << "Matrix diagonal vector: " << std::endl;
-  mf_vector.get_matrix_diagonal()->get_vector().print(
-    deallog.get_file_stream());
+  mf_vector.get_matrix_diagonal()->get_vector().print(deallog.get_file_stream());
 }
 
 

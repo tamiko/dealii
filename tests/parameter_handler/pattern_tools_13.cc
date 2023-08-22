@@ -32,6 +32,5 @@ main()
 
   Patterns::Tools::to_value("4,5 ; 6,7", points);
 
-  deallog << "From: " << s << " to " << Patterns::Tools::to_string(points)
-          << std::endl;
+  deallog << "From: " << s << " to " << Patterns::Tools::to_string(points) << std::endl;
 }

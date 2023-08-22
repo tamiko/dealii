@@ -21,11 +21,9 @@ DEAL_II_NAMESPACE_OPEN
 
 template class SparseLUDecomposition<double>;
 template void
-SparseLUDecomposition<double>::initialize<double>(const SparseMatrix<double> &,
-                                                  const AdditionalData data);
+SparseLUDecomposition<double>::initialize<double>(const SparseMatrix<double> &, const AdditionalData data);
 template void
-SparseLUDecomposition<double>::initialize<float>(const SparseMatrix<float> &,
-                                                 const AdditionalData data);
+SparseLUDecomposition<double>::initialize<float>(const SparseMatrix<float> &, const AdditionalData data);
 
 template void
 SparseLUDecomposition<double>::copy_from<double>(const SparseMatrix<double> &);
@@ -35,11 +33,9 @@ SparseLUDecomposition<double>::copy_from<float>(const SparseMatrix<float> &);
 
 template class SparseLUDecomposition<float>;
 template void
-SparseLUDecomposition<float>::initialize<double>(const SparseMatrix<double> &,
-                                                 const AdditionalData data);
+SparseLUDecomposition<float>::initialize<double>(const SparseMatrix<double> &, const AdditionalData data);
 template void
-SparseLUDecomposition<float>::initialize<float>(const SparseMatrix<float> &,
-                                                const AdditionalData data);
+SparseLUDecomposition<float>::initialize<float>(const SparseMatrix<float> &, const AdditionalData data);
 
 template void
 SparseLUDecomposition<float>::copy_from<double>(const SparseMatrix<double> &);

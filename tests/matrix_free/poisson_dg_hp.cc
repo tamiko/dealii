@@ -58,9 +58,7 @@ using namespace dealii;
 
 
 double
-get_penalty_parameter(const unsigned int i,
-                      const unsigned int j,
-                      const unsigned int degree)
+get_penalty_parameter(const unsigned int i, const unsigned int j, const unsigned int degree)
 {
   if (degree == 1)
     {
@@ -98,8 +96,7 @@ public:
   using FECellIntegrator = FEEvaluation<dim, -1, 0, 1, number>;
   using FEFaceIntegrator = FEFaceEvaluation<dim, -1, 0, 1, number>;
 
-  PoissonOperator(const MatrixFree<dim, double> &matrix_free,
-                  const unsigned int             degree)
+  PoissonOperator(const MatrixFree<dim, double> &matrix_free, const unsigned int degree)
     : matrix_free(matrix_free)
     , degree(degree)
   {}
@@ -158,37 +155,25 @@ public:
             fe_eval.reinit(face);
             fe_eval_neighbor.reinit(face);
 
-            fe_eval.gather_evaluate(src,
-                                    EvaluationFlags::values |
-                                      EvaluationFlags::gradients);
-            fe_eval_neighbor.gather_evaluate(src,
-                                             EvaluationFlags::values |
-                                               EvaluationFlags::gradients);
-            VectorizedArray<number> sigmaF =
-              get_penalty_parameter(data.get_face_active_fe_index(range, true),
-                                    data.get_face_active_fe_index(range, false),
-                                    degree);
+            fe_eval.gather_evaluate(src, EvaluationFlags::values | EvaluationFlags::gradients);
+            fe_eval_neighbor.gather_evaluate(src, EvaluationFlags::values | EvaluationFlags::gradients);
+            VectorizedArray<number> sigmaF = get_penalty_parameter(data.get_face_active_fe_index(range, true),
+                                                                   data.get_face_active_fe_index(range, false),
+                                                                   degree);
 
             for (unsigned int q = 0; q < fe_eval.n_q_points; ++q)
               {
-                VectorizedArray<number> average_value =
-                  (fe_eval.get_value(q) - fe_eval_neighbor.get_value(q)) * 0.5;
+                VectorizedArray<number> average_value = (fe_eval.get_value(q) - fe_eval_neighbor.get_value(q)) * 0.5;
                 VectorizedArray<number> average_valgrad =
-                  fe_eval.get_normal_derivative(q) +
-                  fe_eval_neighbor.get_normal_derivative(q);
-                average_valgrad =
-                  average_value * 2. * sigmaF - average_valgrad * 0.5;
+                  fe_eval.get_normal_derivative(q) + fe_eval_neighbor.get_normal_derivative(q);
+                average_valgrad = average_value * 2. * sigmaF - average_valgrad * 0.5;
                 fe_eval.submit_normal_derivative(-average_value, q);
                 fe_eval_neighbor.submit_normal_derivative(-average_value, q);
                 fe_eval.submit_value(average_valgrad, q);
                 fe_eval_neighbor.submit_value(-average_valgrad, q);
               }
-            fe_eval.integrate_scatter(EvaluationFlags::values |
-                                        EvaluationFlags::gradients,
-                                      dst);
-            fe_eval_neighbor.integrate_scatter(EvaluationFlags::values |
-                                                 EvaluationFlags::gradients,
-                                               dst);
+            fe_eval.integrate_scatter(EvaluationFlags::values | EvaluationFlags::gradients, dst);
+            fe_eval_neighbor.integrate_scatter(EvaluationFlags::values | EvaluationFlags::gradients, dst);
           }
       },
       [&](const auto &data, auto &dst, const auto &src, const auto range) {
@@ -197,27 +182,20 @@ public:
         for (unsigned int face = range.first; face < range.second; ++face)
           {
             fe_eval.reinit(face);
-            fe_eval.gather_evaluate(src,
-                                    EvaluationFlags::values |
-                                      EvaluationFlags::gradients);
+            fe_eval.gather_evaluate(src, EvaluationFlags::values | EvaluationFlags::gradients);
             VectorizedArray<number> sigmaF =
-              get_penalty_parameter(data.get_face_active_fe_index(range),
-                                    data.get_face_active_fe_index(range),
-                                    degree);
+              get_penalty_parameter(data.get_face_active_fe_index(range), data.get_face_active_fe_index(range), degree);
 
             for (unsigned int q = 0; q < fe_eval.n_q_points; ++q)
               {
-                VectorizedArray<number> average_value = fe_eval.get_value(q);
-                VectorizedArray<number> average_valgrad =
-                  -fe_eval.get_normal_derivative(q);
+                VectorizedArray<number> average_value   = fe_eval.get_value(q);
+                VectorizedArray<number> average_valgrad = -fe_eval.get_normal_derivative(q);
                 average_valgrad += average_value * sigmaF;
                 fe_eval.submit_normal_derivative(-average_value, q);
                 fe_eval.submit_value(average_valgrad, q);
               }
 
-            fe_eval.integrate_scatter(EvaluationFlags::values |
-                                        EvaluationFlags::gradients,
-                                      dst);
+            fe_eval.integrate_scatter(EvaluationFlags::values | EvaluationFlags::gradients, dst);
           }
       },
       dst,
@@ -264,10 +242,8 @@ test(const unsigned int degree)
   constraints.close();
 
   const auto solve_and_postprocess =
-    [&](const auto &poisson_operator,
-        auto &      x,
-        auto &      b) -> std::pair<unsigned int, double> {
-    ReductionControl reduction_control(2000, 1e-7, 1e-2);
+    [&](const auto &poisson_operator, auto &x, auto &b) -> std::pair<unsigned int, double> {
+    ReductionControl                               reduction_control(2000, 1e-7, 1e-2);
     SolverCG<std::remove_reference_t<decltype(x)>> solver(reduction_control);
 
     solver.solve(poisson_operator, x, b, PreconditionIdentity());
@@ -284,8 +260,7 @@ test(const unsigned int degree)
     data_out.add_data_vector(dof_handler, x, "solution");
     data_out.build_patches(mapping, degree + 1);
     data_out.write_vtu_with_pvtu_record("./",
-                                        "result-" + std::to_string(dim) + "-" +
-                                          std::to_string(degree),
+                                        "result-" + std::to_string(dim) + "-" + std::to_string(degree),
                                         0,
                                         MPI_COMM_WORLD);
 #endif
@@ -295,18 +270,10 @@ test(const unsigned int degree)
     deallog << "dim=" << dim << ' ';
     deallog << "degree=" << degree << ' ';
 
-    VectorTools::integrate_difference(mapping,
-                                      dof_handler,
-                                      x,
-                                      Functions::ZeroFunction<dim>(),
-                                      difference,
-                                      quad,
-                                      VectorTools::NormType::L2_norm);
+    VectorTools::integrate_difference(
+      mapping, dof_handler, x, Functions::ZeroFunction<dim>(), difference, quad, VectorTools::NormType::L2_norm);
 
-    const double error =
-      VectorTools::compute_global_error(tria,
-                                        difference,
-                                        VectorTools::NormType::L2_norm);
+    const double error = VectorTools::compute_global_error(tria, difference, VectorTools::NormType::L2_norm);
 
     if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
       printf("Error %f.\n", error);
@@ -321,17 +288,13 @@ test(const unsigned int degree)
 
   const auto mf_algo = [&]() {
     typename MatrixFree<dim, double>::AdditionalData additional_data;
-    additional_data.mapping_update_flags = update_gradients | update_values;
-    additional_data.mapping_update_flags_inner_faces =
-      update_gradients | update_values;
-    additional_data.mapping_update_flags_boundary_faces =
-      update_gradients | update_values;
-    additional_data.tasks_parallel_scheme =
-      MatrixFree<dim, double>::AdditionalData::none;
+    additional_data.mapping_update_flags                = update_gradients | update_values;
+    additional_data.mapping_update_flags_inner_faces    = update_gradients | update_values;
+    additional_data.mapping_update_flags_boundary_faces = update_gradients | update_values;
+    additional_data.tasks_parallel_scheme               = MatrixFree<dim, double>::AdditionalData::none;
 
     MatrixFree<dim, double> matrix_free;
-    matrix_free.reinit(
-      mapping, dof_handler, constraints, quad, additional_data);
+    matrix_free.reinit(mapping, dof_handler, constraints, quad, additional_data);
 
     PoissonOperator<dim> poisson_operator(matrix_free, degree);
 

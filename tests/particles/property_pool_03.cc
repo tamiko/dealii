@@ -35,8 +35,7 @@ test()
     const unsigned int                     n_properties = 3;
     Particles::PropertyPool<dim, spacedim> pool(n_properties);
 
-    std::vector<typename Particles::PropertyPool<dim, spacedim>::Handle>
-      particle_handles;
+    std::vector<typename Particles::PropertyPool<dim, spacedim>::Handle> particle_handles;
 
     // Allocate some space in non-contigous locations
     particle_handles.push_back(pool.register_particle());
@@ -51,8 +50,7 @@ test()
       pool.set_id(particle, i++);
 
     for (const auto &particle : particle_handles)
-      deallog << "Before removal unsorted ID: " << pool.get_id(particle)
-              << ". Handle: " << particle << std::endl;
+      deallog << "Before removal unsorted ID: " << pool.get_id(particle) << ". Handle: " << particle << std::endl;
 
     pool.sort_memory_slots(particle_handles);
 
@@ -61,8 +59,7 @@ test()
       particle = h++;
 
     for (const auto &particle : particle_handles)
-      deallog << "Before removal sorted ID: " << pool.get_id(particle)
-              << ". Handle: " << particle << std::endl;
+      deallog << "Before removal sorted ID: " << pool.get_id(particle) << ". Handle: " << particle << std::endl;
 
     // Deallocate some space in the same way the particle handler would
     // remove particles
@@ -76,8 +73,7 @@ test()
     particle_handles.resize(particle_handles.size() - 1);
 
     for (const auto &particle : particle_handles)
-      deallog << "After removal unsorted ID: " << pool.get_id(particle)
-              << ". Handle: " << particle << std::endl;
+      deallog << "After removal unsorted ID: " << pool.get_id(particle) << ". Handle: " << particle << std::endl;
 
     pool.sort_memory_slots(particle_handles);
 
@@ -86,8 +82,7 @@ test()
       particle = h++;
 
     for (const auto &particle : particle_handles)
-      deallog << "After removal sorted ID: " << pool.get_id(particle)
-              << ". Handle: " << particle << std::endl;
+      deallog << "After removal sorted ID: " << pool.get_id(particle) << ". Handle: " << particle << std::endl;
 
     for (auto &particle : particle_handles)
       pool.deregister_particle(particle);

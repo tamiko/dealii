@@ -45,8 +45,7 @@ test()
   triangulation_2.set_manifold(1, tfi_manifold_2);
 
   Triangulation<3> triangulation_3;
-  GridGenerator::extrude_triangulation(
-    triangulation_2, 3, 1.0, triangulation_3, true);
+  GridGenerator::extrude_triangulation(triangulation_2, 3, 1.0, triangulation_3, true);
   TransfiniteInterpolationManifold<3> tfi_manifold;
   tfi_manifold.initialize(triangulation_3);
   CylindricalManifold<3> cylinder_manifold(2);
@@ -62,23 +61,18 @@ test()
     {
       cell_centers[cell->manifold_id()].push_back(cell->center());
       for (const unsigned int face_n : GeometryInfo<3>::face_indices())
-        face_centers[cell->face(face_n)->manifold_id()].push_back(
-          cell->face(face_n)->center());
-      for (unsigned int line_n = 0; line_n < GeometryInfo<3>::lines_per_cell;
-           ++line_n)
-        line_centers[cell->line(line_n)->manifold_id()].push_back(
-          cell->line(line_n)->center());
+        face_centers[cell->face(face_n)->manifold_id()].push_back(cell->face(face_n)->center());
+      for (unsigned int line_n = 0; line_n < GeometryInfo<3>::lines_per_cell; ++line_n)
+        line_centers[cell->line(line_n)->manifold_id()].push_back(cell->line(line_n)->center());
     }
 
   deallog << "cell centers:" << std::endl;
-  for (const std::pair<const types::manifold_id, std::vector<Point<3>>> &key :
-       cell_centers)
+  for (const std::pair<const types::manifold_id, std::vector<Point<3>>> &key : cell_centers)
     {
       // cell centers are already unique: we only visited each cell once
       deallog << "manifold id: " << key.first << std::endl;
       for (const Point<3> &point : key.second)
-        deallog << point[0] << ", " << point[1] << ", " << point[2]
-                << std::endl;
+        deallog << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
     }
   deallog << std::endl;
 
@@ -87,34 +81,27 @@ test()
   auto point_comparator = [](const Point<3> &a, const Point<3> &b) {
     // to minimize roundoff problems, align numbers in some lexicographic-like
     // order
-    return 1e-10 * a[0] + 1e-5 * a[1] + a[2] <
-           1e-10 * b[0] + 1e-5 * b[1] + b[2];
+    return 1e-10 * a[0] + 1e-5 * a[1] + a[2] < 1e-10 * b[0] + 1e-5 * b[1] + b[2];
   };
 
   deallog << "face centers:" << std::endl;
-  for (std::pair<const types::manifold_id, std::vector<Point<3>>> &key :
-       face_centers)
+  for (std::pair<const types::manifold_id, std::vector<Point<3>>> &key : face_centers)
     {
       deallog << "manifold id: " << key.first << std::endl;
       std::sort(key.second.begin(), key.second.end(), point_comparator);
-      key.second.erase(std::unique(key.second.begin(), key.second.end()),
-                       key.second.end());
+      key.second.erase(std::unique(key.second.begin(), key.second.end()), key.second.end());
       for (const Point<3> &point : key.second)
-        deallog << point[0] << ", " << point[1] << ", " << point[2]
-                << std::endl;
+        deallog << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
     }
 
   deallog << "line centers:" << std::endl;
-  for (std::pair<const types::manifold_id, std::vector<Point<3>>> &key :
-       line_centers)
+  for (std::pair<const types::manifold_id, std::vector<Point<3>>> &key : line_centers)
     {
       deallog << "manifold id: " << key.first << std::endl;
       std::sort(key.second.begin(), key.second.end(), point_comparator);
-      key.second.erase(std::unique(key.second.begin(), key.second.end()),
-                       key.second.end());
+      key.second.erase(std::unique(key.second.begin(), key.second.end()), key.second.end());
       for (const Point<3> &point : key.second)
-        deallog << point[0] << ", " << point[1] << ", " << point[2]
-                << std::endl;
+        deallog << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
     }
 
   // reenable if we want to look at pictures

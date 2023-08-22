@@ -15,8 +15,7 @@
 
 for (deal_II_dimension : DIMENSIONS)
   {
-    template void
-    FunctionTools::taylor_estimate_function_bounds<deal_II_dimension>(
+    template void FunctionTools::taylor_estimate_function_bounds<deal_II_dimension>(
       const Function<deal_II_dimension> &,
       const BoundingBox<deal_II_dimension> &,
       std::pair<double, double> &,

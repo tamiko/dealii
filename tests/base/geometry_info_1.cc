@@ -52,14 +52,11 @@ test()
 
   Point<dim> p;
 
-  for (unsigned int ref_case_no = 1;
-       ref_case_no <= RefinementPossibilities<dim>::isotropic_refinement;
-       ++ref_case_no)
+  for (unsigned int ref_case_no = 1; ref_case_no <= RefinementPossibilities<dim>::isotropic_refinement; ++ref_case_no)
     {
       RefinementCase<dim> ref_case(ref_case_no);
 
-      deallog << "RefinementCase=" << static_cast<unsigned int>(ref_case)
-              << std::endl;
+      deallog << "RefinementCase=" << static_cast<unsigned int>(ref_case) << std::endl;
       // generate N random points in
       // [-2:2]^d, and transform them
       // back and forth between mother
@@ -70,22 +67,15 @@ test()
           for (unsigned int d = 0; d < dim; ++d)
             p[d] = rand_2();
 
-          deallog << i << ' ' << p << ' '
-                  << GeometryInfo<dim>::is_inside_unit_cell(p) << std::endl;
-          for (unsigned int c = 0; c < GeometryInfo<dim>::n_children(ref_case);
-               ++c)
+          deallog << i << ' ' << p << ' ' << GeometryInfo<dim>::is_inside_unit_cell(p) << std::endl;
+          for (unsigned int c = 0; c < GeometryInfo<dim>::n_children(ref_case); ++c)
             {
-              const Point<dim> q =
-                GeometryInfo<dim>::cell_to_child_coordinates(p, c);
-              const Point<dim> pp =
-                GeometryInfo<dim>::child_to_cell_coordinates(q, c);
+              const Point<dim> q  = GeometryInfo<dim>::cell_to_child_coordinates(p, c);
+              const Point<dim> pp = GeometryInfo<dim>::child_to_cell_coordinates(q, c);
 
-              deallog << "    " << c << " [" << q << "] [" << pp << ']'
-                      << std::endl;
-              AssertThrow((p - pp).norm_square() < 1e-15 * 1e-15,
-                          ExcInternalError());
-              AssertThrow(GeometryInfo<dim>::is_inside_unit_cell(p) ==
-                            GeometryInfo<dim>::is_inside_unit_cell(pp),
+              deallog << "    " << c << " [" << q << "] [" << pp << ']' << std::endl;
+              AssertThrow((p - pp).norm_square() < 1e-15 * 1e-15, ExcInternalError());
+              AssertThrow(GeometryInfo<dim>::is_inside_unit_cell(p) == GeometryInfo<dim>::is_inside_unit_cell(pp),
                           ExcInternalError());
             }
         }

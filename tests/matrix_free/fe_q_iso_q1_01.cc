@@ -62,13 +62,11 @@ test(const unsigned int n_subdivisions)
           for (unsigned int k = 0; k < fe_eval.dofs_per_cell; ++k)
             fe_eval.begin_dof_values()[k] = static_cast<number>(j == k);
 
-          fe_eval.evaluate(EvaluationFlags::values |
-                           EvaluationFlags::gradients);
+          fe_eval.evaluate(EvaluationFlags::values | EvaluationFlags::gradients);
 
           for (unsigned int q = 0; q < fe_eval.n_q_points; ++q)
             {
-              const auto temp = (i == 0) ? fe_eval.get_value(q) :
-                                           fe_eval.get_gradient(q)[i - 1];
+              const auto temp = (i == 0) ? fe_eval.get_value(q) : fe_eval.get_gradient(q)[i - 1];
               deallog << ((std::abs(temp[0]) > 1e-8) ? 1 : 0) << " ";
             }
 

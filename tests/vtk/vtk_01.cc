@@ -29,9 +29,8 @@ main()
   // Test conversion from deal.II Point to VTK array.
   {
     const Point<3> point_dealii(1.0, 2.0, 3.0);
-    const auto point_vtk = VTKWrappers::dealii_point_to_vtk_array(point_dealii);
-    deallog << "VTK Point: " << point_vtk->GetComponent(0, 0) << ", "
-            << point_vtk->GetComponent(0, 1) << ", "
+    const auto     point_vtk = VTKWrappers::dealii_point_to_vtk_array(point_dealii);
+    deallog << "VTK Point: " << point_vtk->GetComponent(0, 0) << ", " << point_vtk->GetComponent(0, 1) << ", "
             << point_vtk->GetComponent(0, 2) << std::endl;
   }
 

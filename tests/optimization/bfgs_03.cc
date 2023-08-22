@@ -74,7 +74,7 @@ test()
 
   // safety measure to not modify L or b within Lambda.
   const FullMatrix<number> &L_const = L;
-  const VectorType &        b_const = b;
+  const VectorType         &b_const = b;
   const auto                func    = [&](const VectorType &x, VectorType &g) {
     L_const.vmult(g, x);
     number res = 0.5 * (g * x) - x * b_const;
@@ -99,47 +99,44 @@ test()
   int        iteration = 0;
   VectorType dx(x);
 
-  const auto line_min =
-    [&](number &f, VectorType &x, VectorType &g, const VectorType &p) {
-      deallog << "-------------------" << std::endl
-              << "Line search " << iteration++ << ':' << std::endl;
+  const auto line_min = [&](number &f, VectorType &x, VectorType &g, const VectorType &p) {
+    deallog << "-------------------" << std::endl << "Line search " << iteration++ << ':' << std::endl;
 
-      const number g_norm_sqr = g.norm_sqr();
+    const number g_norm_sqr = g.norm_sqr();
 
-      deallog << "Gradient:" << std::endl;
-      g.print(deallog.get_file_stream(), 5, false);
+    deallog << "Gradient:" << std::endl;
+    g.print(deallog.get_file_stream(), 5, false);
 
-      // directional derivative
-      const number df = g * p;
-      Assert(df < 0, ExcInternalError());
-      // do the full step
-      x.add(1., p);
-      // save old value
-      const number f_old = f;
-      // calculate new value
-      f = func(x, g);
-      // get the step size
-      const number denom = -df + f - f_old;
-      Assert(denom != 0., ExcDivideByZero());
-      Assert(denom > 0, ExcInternalError());
-      const number step = -df * 0.5 / denom;
-      // do the step
-      x.add(step - 1., p);
-      f = func(x, g);
+    // directional derivative
+    const number df = g * p;
+    Assert(df < 0, ExcInternalError());
+    // do the full step
+    x.add(1., p);
+    // save old value
+    const number f_old = f;
+    // calculate new value
+    f = func(x, g);
+    // get the step size
+    const number denom = -df + f - f_old;
+    Assert(denom != 0., ExcDivideByZero());
+    Assert(denom > 0, ExcInternalError());
+    const number step = -df * 0.5 / denom;
+    // do the step
+    x.add(step - 1., p);
+    f = func(x, g);
 
-      first_step = false;
-      deallog << "Function value: " << f_old << " stepsize: " << step
-              << " new value: " << f << std::endl;
-      deallog << "Change:" << std::endl;
-      dx = p;
-      dx *= step;
-      dx.print(deallog.get_file_stream(), 5, false);
+    first_step = false;
+    deallog << "Function value: " << f_old << " stepsize: " << step << " new value: " << f << std::endl;
+    deallog << "Change:" << std::endl;
+    dx = p;
+    dx *= step;
+    dx.print(deallog.get_file_stream(), 5, false);
 
-      // finally return the step size
-      return step;
-    };
+    // finally return the step size
+    return step;
+  };
 
-  SolverControl solver_control(itmax, tol, true);
+  SolverControl                                   solver_control(itmax, tol, true);
   typename SolverBFGS<VectorType>::AdditionalData data(10, false);
   SolverBFGS<VectorType>                          solver(solver_control, data);
   solver.connect_line_search_slot(line_min);

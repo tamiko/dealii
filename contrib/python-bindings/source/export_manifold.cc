@@ -21,48 +21,37 @@ DEAL_II_NAMESPACE_OPEN
 
 namespace python
 {
-  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(create_cylindrical_overloads,
-                                         create_cylindrical,
-                                         0,
-                                         2)
+  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(create_cylindrical_overloads, create_cylindrical, 0, 2)
 
 
-  const char create_spherical_docstring[] =
-    " Create spherical manifold with a given center point.      \n";
+  const char create_spherical_docstring[] = " Create spherical manifold with a given center point.      \n";
 
 
-  const char create_polar_docstring[] =
-    " Create polar manifold with a given center point.          \n";
+  const char create_polar_docstring[] = " Create polar manifold with a given center point.          \n";
 
 
-  const char create_function_docstring[] =
-    " Create manifold with the given python push forward and    \n"
-    " pull back functions.                                      \n";
+  const char create_function_docstring[] = " Create manifold with the given python push forward and    \n"
+                                           " pull back functions.                                      \n";
 
 
-  const char create_function_string_docstring[] =
-    " Create manifold with given string expression for the push \n"
-    " forward and pull back functions.                          \n";
+  const char create_function_string_docstring[] = " Create manifold with given string expression for the push \n"
+                                                  " forward and pull back functions.                          \n";
 
 
-  const char create_cylindrical_fixed_docstring[] =
-    " Create cylindrical manifold oriented along a given axis   \n"
-    " (0 - x, 1 - y, 2 - z).                                    \n";
+  const char create_cylindrical_fixed_docstring[] = " Create cylindrical manifold oriented along a given axis   \n"
+                                                    " (0 - x, 1 - y, 2 - z).                                    \n";
 
 
-  const char create_cylindrical_direction_docstring[] =
-    " Create cylindrical manifold with an axis that points in   \n"
-    " direction direction and goes through the given point on   \n"
-    " axis.                                                     \n";
+  const char create_cylindrical_direction_docstring[] = " Create cylindrical manifold with an axis that points in   \n"
+                                                        " direction direction and goes through the given point on   \n"
+                                                        " axis.                                                     \n";
 
 
   void
   export_manifold()
   {
     boost::python::class_<ManifoldWrapper>(
-      "Manifold",
-      boost::python::init<const int, const int>(
-        boost::python::args("dim", "spacedim")))
+      "Manifold", boost::python::init<const int, const int>(boost::python::args("dim", "spacedim")))
       .def("create_spherical",
            &ManifoldWrapper::create_spherical,
            create_spherical_docstring,
@@ -72,14 +61,11 @@ namespace python
            create_polar_docstring,
            boost::python::args("self", "center"))
       .def("create_cylindrical",
-           static_cast<void (ManifoldWrapper::*)(const int, const double)>(
-             &ManifoldWrapper::create_cylindrical),
-           create_cylindrical_overloads(
-             boost::python::args("self", "axis", "tolerance"),
-             create_cylindrical_fixed_docstring))
+           static_cast<void (ManifoldWrapper::*)(const int, const double)>(&ManifoldWrapper::create_cylindrical),
+           create_cylindrical_overloads(boost::python::args("self", "axis", "tolerance"),
+                                        create_cylindrical_fixed_docstring))
       .def("create_cylindrical",
-           static_cast<void (ManifoldWrapper::*)(const boost::python::list &,
-                                                 const boost::python::list &)>(
+           static_cast<void (ManifoldWrapper::*)(const boost::python::list &, const boost::python::list &)>(
              &ManifoldWrapper::create_cylindrical),
            create_cylindrical_direction_docstring,
            boost::python::args("self", "direction", "axial_point"))

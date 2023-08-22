@@ -130,8 +130,7 @@ public:
    * underlying the object to be copied is presently empty. Refinement flags
    * as well as the pointer to the coarse grid are copied, however.
    */
-  PersistentTriangulation(
-    const PersistentTriangulation<dim, spacedim> &old_tria);
+  PersistentTriangulation(const PersistentTriangulation<dim, spacedim> &old_tria);
 
   /**
    * Destructor.
@@ -198,8 +197,8 @@ public:
    */
   virtual void
   create_triangulation(const std::vector<Point<spacedim>> &vertices,
-                       const std::vector<CellData<dim>> &  cells,
-                       const SubCellData &subcelldata) override;
+                       const std::vector<CellData<dim>>   &cells,
+                       const SubCellData                  &subcelldata) override;
 
   /**
    * @copydoc Triangulation::create_triangulation()
@@ -207,9 +206,7 @@ public:
    * @note Not implemented yet.
    */
   virtual void
-  create_triangulation(
-    const TriangulationDescription::Description<dim, spacedim>
-      &construction_data) override;
+  create_triangulation(const TriangulationDescription::Description<dim, spacedim> &construction_data) override;
 
   /**
    * Write all refine and coarsen flags to the ostream @p out.
@@ -251,9 +248,7 @@ private:
   /**
    * This grid shall be used as coarse grid.
    */
-  SmartPointer<const Triangulation<dim, spacedim>,
-               PersistentTriangulation<dim, spacedim>>
-    coarse_grid;
+  SmartPointer<const Triangulation<dim, spacedim>, PersistentTriangulation<dim, spacedim>> coarse_grid;
 
   /**
    * Vectors holding the refinement and coarsening flags of the different

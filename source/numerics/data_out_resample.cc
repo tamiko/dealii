@@ -31,9 +31,8 @@ DEAL_II_NAMESPACE_OPEN
 
 
 template <int dim, int patch_dim, int spacedim>
-DataOutResample<dim, patch_dim, spacedim>::DataOutResample(
-  const Triangulation<patch_dim, spacedim> &patch_tria,
-  const Mapping<patch_dim, spacedim> &      patch_mapping)
+DataOutResample<dim, patch_dim, spacedim>::DataOutResample(const Triangulation<patch_dim, spacedim> &patch_tria,
+                                                           const Mapping<patch_dim, spacedim>       &patch_mapping)
   : patch_dof_handler(patch_tria)
   , patch_mapping(&patch_mapping)
 {}
@@ -42,53 +41,42 @@ DataOutResample<dim, patch_dim, spacedim>::DataOutResample(
 
 template <int dim, int patch_dim, int spacedim>
 void
-DataOutResample<dim, patch_dim, spacedim>::update_mapping(
-  const Mapping<dim, spacedim> &mapping,
-  const unsigned int            n_subdivisions)
+DataOutResample<dim, patch_dim, spacedim>::update_mapping(const Mapping<dim, spacedim> &mapping,
+                                                          const unsigned int            n_subdivisions)
 {
   this->mapping = &mapping;
   this->point_to_local_vector_indices.clear();
 
-  FE_Q_iso_Q1<patch_dim, spacedim> fe(
-    std::max<unsigned int>(1, n_subdivisions));
+  FE_Q_iso_Q1<patch_dim, spacedim> fe(std::max<unsigned int>(1, n_subdivisions));
   patch_dof_handler.distribute_dofs(fe);
 
   std::vector<std::pair<types::global_dof_index, Point<spacedim>>> points_all;
 
   Quadrature<patch_dim> quadrature(fe.get_unit_support_points());
 
-  FEValues<patch_dim, spacedim> fe_values(*patch_mapping,
-                                          fe,
-                                          quadrature,
-                                          update_quadrature_points);
+  FEValues<patch_dim, spacedim> fe_values(*patch_mapping, fe, quadrature, update_quadrature_points);
 
   std::vector<types::global_dof_index> dof_indices(fe.n_dofs_per_cell());
 
   IndexSet active_dofs;
   DoFTools::extract_locally_active_dofs(patch_dof_handler, active_dofs);
-  partitioner = std::make_shared<Utilities::MPI::Partitioner>(
-    patch_dof_handler.locally_owned_dofs(), active_dofs, MPI_COMM_WORLD);
+  partitioner =
+    std::make_shared<Utilities::MPI::Partitioner>(patch_dof_handler.locally_owned_dofs(), active_dofs, MPI_COMM_WORLD);
 
-  for (const auto &cell : patch_dof_handler.active_cell_iterators() |
-                            IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : patch_dof_handler.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     {
       fe_values.reinit(cell);
 
       cell->get_dof_indices(dof_indices);
 
       for (unsigned int i = 0; i < dof_indices.size(); ++i)
-        points_all.emplace_back(partitioner->global_to_local(dof_indices[i]),
-                                fe_values.quadrature_point(i));
+        points_all.emplace_back(partitioner->global_to_local(dof_indices[i]), fe_values.quadrature_point(i));
     }
 
-  std::sort(points_all.begin(),
-            points_all.end(),
-            [](const auto &a, const auto &b) { return a.first < b.first; });
+  std::sort(points_all.begin(), points_all.end(), [](const auto &a, const auto &b) { return a.first < b.first; });
   points_all.erase(std::unique(points_all.begin(),
                                points_all.end(),
-                               [](const auto &a, const auto &b) {
-                                 return a.first == b.first;
-                               }),
+                               [](const auto &a, const auto &b) { return a.first == b.first; }),
                    points_all.end());
 
   std::vector<Point<spacedim>> points;
@@ -107,7 +95,7 @@ DataOutResample<dim, patch_dim, spacedim>::update_mapping(
 template <int dim, int patch_dim, int spacedim>
 void
 DataOutResample<dim, patch_dim, spacedim>::build_patches(
-  const Mapping<dim, spacedim> &                                mapping,
+  const Mapping<dim, spacedim>                                 &mapping,
   const unsigned int                                            n_subdivisions,
   const typename DataOut<patch_dim, spacedim>::CurvedCellRegion curved_region)
 {
@@ -126,16 +114,13 @@ DataOutResample<dim, patch_dim, spacedim>::build_patches(
 
   if (rpe.is_ready() == false)
     {
-      Assert(
-        this->mapping,
-        ExcMessage(
-          "Mapping is not valid anymore! Please register a new mapping via "
-          "update_mapping() or the other build_patches() function."));
+      Assert(this->mapping,
+             ExcMessage("Mapping is not valid anymore! Please register a new mapping via "
+                        "update_mapping() or the other build_patches() function."));
       update_mapping(*this->mapping, patch_dof_handler.get_fe().degree);
     }
 
-  std::vector<std::shared_ptr<LinearAlgebra::distributed::Vector<double>>>
-    vectors;
+  std::vector<std::shared_ptr<LinearAlgebra::distributed::Vector<double>>> vectors;
 
   patch_data_out.attach_dof_handler(patch_dof_handler);
 
@@ -143,9 +128,8 @@ DataOutResample<dim, patch_dim, spacedim>::build_patches(
 
   for (const auto &data : this->dof_data)
     {
-      const auto data_ptr = dynamic_cast<
-        internal::DataOutImplementation::DataEntry<dim, spacedim, double> *>(
-        data.get());
+      const auto data_ptr =
+        dynamic_cast<internal::DataOutImplementation::DataEntry<dim, spacedim, double> *>(data.get());
 
       Assert(data_ptr, ExcNotImplemented());
 
@@ -153,26 +137,20 @@ DataOutResample<dim, patch_dim, spacedim>::build_patches(
 
 #ifdef DEBUG
       for (const auto &fe : dh.get_fe_collection())
-        Assert(
-          fe.n_base_elements() == 1,
-          ExcMessage(
-            "This class currently only supports scalar elements and elements "
-            "with a single base element."));
+        Assert(fe.n_base_elements() == 1,
+               ExcMessage("This class currently only supports scalar elements and elements "
+                          "with a single base element."));
 #endif
 
-      for (unsigned int comp = 0; comp < dh.get_fe_collection().n_components();
-           ++comp)
+      for (unsigned int comp = 0; comp < dh.get_fe_collection().n_components(); ++comp)
         {
-          const auto values = VectorTools::point_values<1>(
-            rpe, dh, data_ptr->vector, VectorTools::EvaluationFlags::avg, comp);
+          const auto values =
+            VectorTools::point_values<1>(rpe, dh, data_ptr->vector, VectorTools::EvaluationFlags::avg, comp);
 
-          vectors.emplace_back(
-            std::make_shared<LinearAlgebra::distributed::Vector<double>>(
-              partitioner));
+          vectors.emplace_back(std::make_shared<LinearAlgebra::distributed::Vector<double>>(partitioner));
 
           for (unsigned int j = 0; j < values.size(); ++j)
-            vectors.back()->local_element(point_to_local_vector_indices[j]) =
-              values[j];
+            vectors.back()->local_element(point_to_local_vector_indices[j]) = values[j];
 
           vectors.back()->set_ghost_state(true);
 
@@ -182,16 +160,13 @@ DataOutResample<dim, patch_dim, spacedim>::build_patches(
           patch_data_out.add_data_vector(
             *vectors.back(),
             std::string("temp_" + std::to_string(counter)),
-            DataOut_DoFData<patch_dim, patch_dim, spacedim, spacedim>::
-              DataVectorType::type_dof_data);
+            DataOut_DoFData<patch_dim, patch_dim, spacedim, spacedim>::DataVectorType::type_dof_data);
 
           counter++;
         }
     }
 
-  patch_data_out.build_patches(*patch_mapping,
-                               patch_dof_handler.get_fe().degree,
-                               curved_region);
+  patch_data_out.build_patches(*patch_mapping, patch_dof_handler.get_fe().degree, curved_region);
 }
 
 

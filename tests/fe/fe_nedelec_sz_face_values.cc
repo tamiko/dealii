@@ -45,9 +45,7 @@ test(unsigned p)
   dof_handler.distribute_dofs(fe);
 
   QGauss<dim - 1>   quadrature(3);
-  FEFaceValues<dim> fe_face_values(fe,
-                                   quadrature,
-                                   update_values | update_gradients);
+  FEFaceValues<dim> fe_face_values(fe, quadrature, update_values | update_gradients);
   fe_face_values.reinit(dof_handler.begin_active(), 0);
 
   deallog << "OK" << std::endl;

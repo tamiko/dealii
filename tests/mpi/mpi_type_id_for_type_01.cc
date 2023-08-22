@@ -29,8 +29,7 @@
 
 template <typename T>
 using mpi_type_id_for_type_t =
-  decltype(Utilities::MPI::internal::MPIDataTypes::mpi_type_id(
-    &std::declval<const T &>()));
+  decltype(Utilities::MPI::internal::MPIDataTypes::mpi_type_id(&std::declval<const T &>()));
 
 
 template <typename T>
@@ -39,18 +38,11 @@ test(const char *type, MPI_Datatype mpi_type)
 {
   deallog << std::boolalpha;
   deallog << "--------- Checking <" << type << "> ---------------" << std::endl;
-  deallog
-    << "T is supported: "
-    << internal::is_supported_operation<mpi_type_id_for_type_t, T> << std::endl;
-  deallog << "T[] is supported: "
-          << internal::is_supported_operation<mpi_type_id_for_type_t,
-                                              T[]> << std::endl;
-  deallog << "T* is supported: "
-          << internal::is_supported_operation<mpi_type_id_for_type_t,
-                                              T *> << std::endl;
+  deallog << "T is supported: " << internal::is_supported_operation<mpi_type_id_for_type_t, T> << std::endl;
+  deallog << "T[] is supported: " << internal::is_supported_operation<mpi_type_id_for_type_t, T[]> << std::endl;
+  deallog << "T* is supported: " << internal::is_supported_operation<mpi_type_id_for_type_t, T *> << std::endl;
 
-  Assert(Utilities::MPI::mpi_type_id_for_type<T> == mpi_type,
-         ExcInternalError());
+  Assert(Utilities::MPI::mpi_type_id_for_type<T> == mpi_type, ExcInternalError());
 }
 
 
@@ -101,7 +93,5 @@ main(int argc, char *argv[])
 
   using T = X;
   deallog << "--------- Checking <X> ---------------" << std::endl;
-  deallog
-    << "T is supported: "
-    << internal::is_supported_operation<mpi_type_id_for_type_t, T> << std::endl;
+  deallog << "T is supported: " << internal::is_supported_operation<mpi_type_id_for_type_t, T> << std::endl;
 }

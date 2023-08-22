@@ -1024,7 +1024,7 @@ public:
    * value does not satisfy its pattern is ignored.
    */
   virtual void
-  parse_input(std::istream &     input,
+  parse_input(std::istream      &input,
               const std::string &filename       = "input file",
               const std::string &last_line      = "",
               const bool         skip_undefined = false);
@@ -1065,9 +1065,7 @@ public:
    * there for more information.
    */
   virtual void
-  parse_input_from_string(const std::string &s,
-                          const std::string &last_line      = "",
-                          const bool         skip_undefined = false);
+  parse_input_from_string(const std::string &s, const std::string &last_line = "", const bool skip_undefined = false);
 
   /**
    * Parse input from an XML stream to populate known parameter fields. This
@@ -1122,10 +1120,10 @@ public:
    * error, for example to override an earlier default value.
    */
   void
-  declare_entry(const std::string &          entry,
-                const std::string &          default_value,
-                const Patterns::PatternBase &pattern = Patterns::Anything(),
-                const std::string &          documentation = "",
+  declare_entry(const std::string           &entry,
+                const std::string           &default_value,
+                const Patterns::PatternBase &pattern       = Patterns::Anything(),
+                const std::string           &documentation = "",
                 const bool                   has_to_be_set = false);
 
   /**
@@ -1176,9 +1174,9 @@ public:
    *  ParameterHandler::parse_input() for more information.
    */
   void
-  add_action(const std::string &                                  entry,
+  add_action(const std::string                                   &entry,
              const std::function<void(const std::string &value)> &action,
-             const bool execute_action = true);
+             const bool                                           execute_action = true);
 
   /**
    * Declare a new entry name @p entry, set its default value to the content of
@@ -1197,12 +1195,11 @@ public:
    */
   template <typename ParameterType>
   void
-  add_parameter(const std::string &          entry,
-                ParameterType &              parameter,
-                const std::string &          documentation = "",
-                const Patterns::PatternBase &pattern =
-                  *Patterns::Tools::Convert<ParameterType>::to_pattern(),
-                const bool has_to_be_set = false);
+  add_parameter(const std::string           &entry,
+                ParameterType               &parameter,
+                const std::string           &documentation = "",
+                const Patterns::PatternBase &pattern       = *Patterns::Tools::Convert<ParameterType>::to_pattern(),
+                const bool                   has_to_be_set = false);
 
   /**
    * Create an alias for an existing entry. This provides a way to refer to a
@@ -1291,8 +1288,7 @@ public:
    * name of a subsection of the one before it.
    */
   std::string
-  get(const std::vector<std::string> &entry_subsection_path,
-      const std::string &             entry_string) const;
+  get(const std::vector<std::string> &entry_subsection_path, const std::string &entry_string) const;
 
   /**
    * Return value of entry @p entry_string as <code>long int</code>. (A long
@@ -1311,8 +1307,7 @@ public:
    * subsection.
    */
   long int
-  get_integer(const std::vector<std::string> &entry_subsection_path,
-              const std::string &             entry_string) const;
+  get_integer(const std::vector<std::string> &entry_subsection_path, const std::string &entry_string) const;
 
   /**
    * Return value of entry @p entry_name as @p double.
@@ -1327,8 +1322,7 @@ public:
    * subsection.
    */
   double
-  get_double(const std::vector<std::string> &entry_subsection_path,
-             const std::string &             entry_string) const;
+  get_double(const std::vector<std::string> &entry_subsection_path, const std::string &entry_string) const;
   /**
    * Return value of entry @p entry_name as @p bool. The entry may
    * be "true" or "yes" for @p true, "false" or "no" for @p false
@@ -1346,8 +1340,7 @@ public:
    * subsection.
    */
   bool
-  get_bool(const std::vector<std::string> &entry_subsection_path,
-           const std::string &             entry_string) const;
+  get_bool(const std::vector<std::string> &entry_subsection_path, const std::string &entry_string) const;
 
   /**
    * Change the value presently stored for <tt>entry_name</tt> to the one
@@ -1512,8 +1505,7 @@ public:
    * @param style The style with which output is produced.
    */
   void
-  print_parameters(const std::string &filename,
-                   const OutputStyle  style = DefaultStyle) const;
+  print_parameters(const std::string &filename, const OutputStyle style = DefaultStyle) const;
 
   /**
    * Print parameters to a logstream. This function allows to print all
@@ -1551,8 +1543,7 @@ public:
    * it called recursively by the previous function.
    */
   void
-  log_parameters_section(LogStream &       out,
-                         const OutputStyle style = DefaultStyle);
+  log_parameters_section(LogStream &out, const OutputStyle style = DefaultStyle);
 
   /**
    * Determine an estimate for the memory consumption (in bytes) of this
@@ -1627,31 +1618,26 @@ public:
   /**
    * Exception
    */
-  DeclException1(ExcEntryAlreadyExists,
-                 std::string,
-                 << "The following entry already exists: " << arg1 << '.');
+  DeclException1(ExcEntryAlreadyExists, std::string, << "The following entry already exists: " << arg1 << '.');
   /**
    * Exception
    */
   DeclException2(ExcValueDoesNotMatchPattern,
                  std::string,
                  std::string,
-                 << "The string <" << arg1
-                 << "> does not match the given pattern <" << arg2 << ">.");
+                 << "The string <" << arg1 << "> does not match the given pattern <" << arg2 << ">.");
   /**
    * Exception
    */
-  DeclExceptionMsg(
-    ExcAlreadyAtTopLevel,
-    "You can't leave a subsection if you are already at the top level "
-    "of the subsection hierarchy.");
+  DeclExceptionMsg(ExcAlreadyAtTopLevel,
+                   "You can't leave a subsection if you are already at the top level "
+                   "of the subsection hierarchy.");
   /**
    * Exception
    */
   DeclException1(ExcEntryUndeclared,
                  std::string,
-                 << "You can't ask for entry <" << arg1
-                 << "> you have not yet declared.");
+                 << "You can't ask for entry <" << arg1 << "> you have not yet declared.");
 
   /**
    * Exception for when there are an unequal number of 'subsection' and 'end'
@@ -1674,8 +1660,7 @@ public:
                  int,
                  std::string,
                  std::string,
-                 << "Line <" << arg1 << "> of file <" << arg2
-                 << ">: You are trying to enter a subsection '" << arg3
+                 << "Line <" << arg1 << "> of file <" << arg2 << ">: You are trying to enter a subsection '" << arg3
                  << "', but the ParameterHandler object does "
                  << "not know of any such subsection.");
 
@@ -1725,16 +1710,15 @@ public:
    * statement, current parameter file name, and the name of the file intended
    * for inclusion.
    */
-  DeclException3(
-    ExcCannotOpenIncludeStatementFile,
-    int,
-    std::string,
-    std::string,
-    << "Line <" << arg1 << "> of file <" << arg2
-    << ">: This line "
-       "contains an 'include' or 'INCLUDE' statement, but the given "
-       "file to include <"
-    << arg3 << "> cannot be opened.");
+  DeclException3(ExcCannotOpenIncludeStatementFile,
+                 int,
+                 std::string,
+                 std::string,
+                 << "Line <" << arg1 << "> of file <" << arg2
+                 << ">: This line "
+                    "contains an 'include' or 'INCLUDE' statement, but the given "
+                    "file to include <"
+                 << arg3 << "> cannot be opened.");
 
   /** @} */
 
@@ -1808,8 +1792,7 @@ private:
    * from the current subsection and the name of an entry.
    */
   std::string
-  get_current_full_path(const std::vector<std::string> &sub_path,
-                        const std::string &             name) const;
+  get_current_full_path(const std::vector<std::string> &sub_path, const std::string &name) const;
 
   /**
    * Scan one line of input. <tt>input_filename</tt> and
@@ -1847,12 +1830,11 @@ private:
    * sections.
    */
   void
-  recursively_print_parameters(
-    const boost::property_tree::ptree & tree,
-    const std::vector<std::string> &    target_subsection_path,
-    const ParameterHandler::OutputStyle style,
-    const unsigned int                  indent_level,
-    std::ostream &                      out) const;
+  recursively_print_parameters(const boost::property_tree::ptree  &tree,
+                               const std::vector<std::string>     &target_subsection_path,
+                               const ParameterHandler::OutputStyle style,
+                               const unsigned int                  indent_level,
+                               std::ostream                       &out) const;
 
   friend class MultipleParameterLoop;
 };
@@ -1865,11 +1847,9 @@ private:
  * assign it to an object of type ParameterHandler::OutputStyle.
  */
 inline ParameterHandler::OutputStyle
-operator|(const ParameterHandler::OutputStyle f1,
-          const ParameterHandler::OutputStyle f2)
+operator|(const ParameterHandler::OutputStyle f1, const ParameterHandler::OutputStyle f2)
 {
-  return static_cast<ParameterHandler::OutputStyle>(
-    static_cast<unsigned int>(f1) | static_cast<unsigned int>(f2));
+  return static_cast<ParameterHandler::OutputStyle>(static_cast<unsigned int>(f1) | static_cast<unsigned int>(f2));
 }
 
 /**
@@ -2150,7 +2130,7 @@ public:
    * just reformat their inputs and then call this version.
    */
   virtual void
-  parse_input(std::istream &     input,
+  parse_input(std::istream      &input,
               const std::string &filename       = "input file",
               const std::string &last_line      = "",
               const bool         skip_undefined = false) override;
@@ -2213,9 +2193,7 @@ private:
      * splitting up into the different variants is done later by
      * <tt>split_different_values</tt>.
      */
-    Entry(const std::vector<std::string> &Path,
-          const std::string &             Name,
-          const std::string &             Value);
+    Entry(const std::vector<std::string> &Path, const std::string &Name, const std::string &Value);
 
     /**
      * Split the entry value into the different branches.
@@ -2323,7 +2301,7 @@ ParameterHandler::load(Archive &ar, const unsigned int)
   ar &*entries.get();
 
   std::vector<std::string> descriptions;
-  ar &                     descriptions;
+  ar                      &descriptions;
 
   patterns.clear();
   for (const auto &description : descriptions)
@@ -2333,9 +2311,9 @@ ParameterHandler::load(Archive &ar, const unsigned int)
 
 template <typename ParameterType>
 void
-ParameterHandler::add_parameter(const std::string &          entry,
-                                ParameterType &              parameter,
-                                const std::string &          documentation,
+ParameterHandler::add_parameter(const std::string           &entry,
+                                ParameterType               &parameter,
+                                const std::string           &documentation,
                                 const Patterns::PatternBase &pattern,
                                 const bool                   has_to_be_set)
 {
@@ -2344,19 +2322,16 @@ ParameterHandler::add_parameter(const std::string &          entry,
                 "that is const. Use a non-const type.");
 
   declare_entry(entry,
-                Patterns::Tools::Convert<ParameterType>::to_string(parameter,
-                                                                   pattern),
+                Patterns::Tools::Convert<ParameterType>::to_string(parameter, pattern),
                 pattern,
                 documentation,
                 has_to_be_set);
 
-  std::string        path = get_current_full_path(entry);
-  const unsigned int pattern_index =
-    entries->get<unsigned int>(path + path_separator + "pattern");
+  std::string        path          = get_current_full_path(entry);
+  const unsigned int pattern_index = entries->get<unsigned int>(path + path_separator + "pattern");
 
   auto action = [&, pattern_index](const std::string &val) {
-    parameter = Patterns::Tools::Convert<ParameterType>::to_value(
-      val, *patterns[pattern_index]);
+    parameter = Patterns::Tools::Convert<ParameterType>::to_value(val, *patterns[pattern_index]);
   };
   add_action(entry, action, false);
 }

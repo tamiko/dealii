@@ -165,8 +165,7 @@ namespace internal
          * Quadrature weights separated by dimension for use in specific
          * situations.
          */
-        std::array<AlignedVector<ScalarNumber>, structdim>
-          tensor_quadrature_weights;
+        std::array<AlignedVector<ScalarNumber>, structdim> tensor_quadrature_weights;
 
         /**
          * A cached vector of quadrature weights in the given number format
@@ -253,10 +252,7 @@ namespace internal
        * but the default case (cell integrals or boundary integrals) only
        * fills the zeroth component and ignores the first one.
        */
-      std::array<
-        AlignedVector<
-          Tensor<1, spacedim *(spacedim + 1) / 2, Tensor<1, spacedim, Number>>>,
-        2>
+      std::array<AlignedVector<Tensor<1, spacedim *(spacedim + 1) / 2, Tensor<1, spacedim, Number>>>, 2>
         jacobian_gradients;
 
       /**
@@ -274,10 +270,7 @@ namespace internal
        * but the default case (cell integrals or boundary integrals) only
        * fills the zeroth component and ignores the first one.
        */
-      std::array<
-        AlignedVector<
-          Tensor<1, spacedim *(spacedim + 1) / 2, Tensor<1, spacedim, Number>>>,
-        2>
+      std::array<AlignedVector<Tensor<1, spacedim *(spacedim + 1) / 2, Tensor<1, spacedim, Number>>>, 2>
         jacobian_gradients_non_inverse;
 
       /**
@@ -287,8 +280,7 @@ namespace internal
        *
        * Indexed by @p data_index_offsets.
        */
-      std::array<AlignedVector<Tensor<1, spacedim, Number>>, 2>
-        normals_times_jacobians;
+      std::array<AlignedVector<Tensor<1, spacedim, Number>>, 2> normals_times_jacobians;
 
       /**
        * Stores the index offset of a particular cell into the quadrature
@@ -329,9 +321,8 @@ namespace internal
       static UpdateFlags
       compute_update_flags(
         const UpdateFlags                                     update_flags,
-        const std::vector<dealii::hp::QCollection<spacedim>> &quads =
-          std::vector<dealii::hp::QCollection<spacedim>>(),
-        const bool piola_transform = false);
+        const std::vector<dealii::hp::QCollection<spacedim>> &quads = std::vector<dealii::hp::QCollection<spacedim>>(),
+        const bool                                            piola_transform = false);
 
       /**
        * Prints a detailed summary of memory consumption in the different
@@ -339,8 +330,7 @@ namespace internal
        */
       template <typename StreamType>
       void
-      print_memory_consumption(StreamType &    out,
-                               const TaskInfo &task_info) const;
+      print_memory_consumption(StreamType &out, const TaskInfo &task_info) const;
 
       /**
        * Returns the memory consumption in bytes.
@@ -355,8 +345,7 @@ namespace internal
 
     template <int structdim, int spacedim, typename Number>
     inline unsigned int
-    MappingInfoStorage<structdim, spacedim, Number>::quad_index_from_n_q_points(
-      const unsigned int n_q_points) const
+    MappingInfoStorage<structdim, spacedim, Number>::quad_index_from_n_q_points(const unsigned int n_q_points) const
     {
       for (unsigned int i = 0; i < descriptor.size(); ++i)
         if (n_q_points == descriptor[i].n_q_points)

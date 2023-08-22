@@ -37,15 +37,10 @@ main()
   const FESystem<2> finite_element(FE_Q<2>(1), 2);
   dof_handler.distribute_dofs(finite_element);
   const auto vertex_end = triangulation.end_vertex();
-  for (auto vertex = triangulation.begin_active_vertex(); vertex != vertex_end;
-       ++vertex)
+  for (auto vertex = triangulation.begin_active_vertex(); vertex != vertex_end; ++vertex)
     {
-      DoFAccessor<0, 2, 2, false> vertex_dofs(&triangulation,
-                                              vertex->level(),
-                                              vertex->index(),
-                                              &dof_handler);
-      deallog << vertex_dofs.dof_index(0) << ", " << vertex_dofs.dof_index(1)
-              << std::endl;
+      DoFAccessor<0, 2, 2, false> vertex_dofs(&triangulation, vertex->level(), vertex->index(), &dof_handler);
+      deallog << vertex_dofs.dof_index(0) << ", " << vertex_dofs.dof_index(1) << std::endl;
     }
   return 0;
 }

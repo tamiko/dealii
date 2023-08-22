@@ -23,9 +23,7 @@
 DEAL_II_NAMESPACE_OPEN
 
 template <int dim>
-ScalarPolynomialsBase<dim>::ScalarPolynomialsBase(
-  const unsigned int deg,
-  const unsigned int n_polynomials)
+ScalarPolynomialsBase<dim>::ScalarPolynomialsBase(const unsigned int deg, const unsigned int n_polynomials)
   : polynomial_degree(deg)
   , n_pols(n_polynomials)
 {

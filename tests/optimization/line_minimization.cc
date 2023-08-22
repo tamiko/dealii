@@ -55,19 +55,9 @@ test()
     };
 
     const auto fg0 = func(0);
-    const auto res =
-      LineMinimization::line_search<double>(func,
-                                            fg0.first,
-                                            fg0.second,
-                                            LineMinimization::poly_fit<double>,
-                                            0.1,
-                                            0.1,
-                                            0.01,
-                                            100,
-                                            20,
-                                            true);
-    deallog << "Solution: " << res.first << std::endl
-            << "Distance: " << std::fabs(res.first - min_x) << std::endl;
+    const auto res = LineMinimization::line_search<double>(
+      func, fg0.first, fg0.second, LineMinimization::poly_fit<double>, 0.1, 0.1, 0.01, 100, 20, true);
+    deallog << "Solution: " << res.first << std::endl << "Distance: " << std::fabs(res.first - min_x) << std::endl;
   }
 }
 

@@ -72,8 +72,7 @@ test()
   // of the matrix norm
   IndexSet indices(N * N);
   indices.add_range(0, N * N);
-  PETScWrappers::MPI::Vector v1(indices, MPI_COMM_WORLD),
-    v2(indices, MPI_COMM_WORLD);
+  PETScWrappers::MPI::Vector v1(indices, MPI_COMM_WORLD), v2(indices, MPI_COMM_WORLD);
   for (unsigned int i = 0; i < N * N; ++i)
     v1(i) = i;
   v1.compress(VectorOperation::insert);
@@ -99,28 +98,20 @@ main(int argc, char **argv)
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

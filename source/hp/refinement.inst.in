@@ -49,8 +49,7 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS)
 #endif
   }
 
-for (deal_II_dimension : DIMENSIONS; S : REAL_SCALARS;
-     deal_II_space_dimension : SPACE_DIMENSIONS)
+for (deal_II_dimension : DIMENSIONS; S : REAL_SCALARS; deal_II_space_dimension : SPACE_DIMENSIONS)
   {
 #if deal_II_dimension <= deal_II_space_dimension
     namespace hp
@@ -58,9 +57,7 @@ for (deal_II_dimension : DIMENSIONS; S : REAL_SCALARS;
       namespace Refinement
       \{
         template void
-        p_adaptivity_from_absolute_threshold<deal_II_dimension,
-                                             S,
-                                             deal_II_space_dimension>(
+        p_adaptivity_from_absolute_threshold<deal_II_dimension, S, deal_II_space_dimension>(
           const DoFHandler<deal_II_dimension, deal_II_space_dimension> &,
           const Vector<S> &,
           const S,
@@ -69,9 +66,7 @@ for (deal_II_dimension : DIMENSIONS; S : REAL_SCALARS;
           const ComparisonFunction<std_cxx20::type_identity_t<S>> &);
 
         template void
-        p_adaptivity_from_relative_threshold<deal_II_dimension,
-                                             S,
-                                             deal_II_space_dimension>(
+        p_adaptivity_from_relative_threshold<deal_II_dimension, S, deal_II_space_dimension>(
           const DoFHandler<deal_II_dimension, deal_II_space_dimension> &,
           const Vector<S> &,
           const double,
@@ -80,9 +75,7 @@ for (deal_II_dimension : DIMENSIONS; S : REAL_SCALARS;
           const ComparisonFunction<std_cxx20::type_identity_t<S>> &);
 
         template void
-        p_adaptivity_fixed_number<deal_II_dimension,
-                                  S,
-                                  deal_II_space_dimension>(
+        p_adaptivity_fixed_number<deal_II_dimension, S, deal_II_space_dimension>(
           const DoFHandler<deal_II_dimension, deal_II_space_dimension> &,
           const Vector<S> &,
           const double,
@@ -91,16 +84,12 @@ for (deal_II_dimension : DIMENSIONS; S : REAL_SCALARS;
           const ComparisonFunction<std_cxx20::type_identity_t<S>> &);
 
         template void
-        p_adaptivity_from_regularity<deal_II_dimension,
-                                     S,
-                                     deal_II_space_dimension>(
+        p_adaptivity_from_regularity<deal_II_dimension, S, deal_II_space_dimension>(
           const DoFHandler<deal_II_dimension, deal_II_space_dimension> &,
           const Vector<S> &);
 
         template void
-        p_adaptivity_from_reference<deal_II_dimension,
-                                    S,
-                                    deal_II_space_dimension>(
+        p_adaptivity_from_reference<deal_II_dimension, S, deal_II_space_dimension>(
           const DoFHandler<deal_II_dimension, deal_II_space_dimension> &,
           const Vector<S> &,
           const Vector<S> &,

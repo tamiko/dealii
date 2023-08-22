@@ -41,14 +41,10 @@ check()
   names[3] = "x4";
   names[4] = "i";
   std::vector<
-    std::tuple<unsigned int,
-               unsigned int,
-               std::string,
-               DataComponentInterpretation::DataComponentInterpretation>>
+    std::tuple<unsigned int, unsigned int, std::string, DataComponentInterpretation::DataComponentInterpretation>>
     vectors;
 
-  DataOutBase::DataOutFilter data_filter(
-    DataOutBase::DataOutFilterFlags(false, false));
+  DataOutBase::DataOutFilter data_filter(DataOutBase::DataOutFilterFlags(false, false));
 
   DataOutBase::write_filtered_data(patches, names, vectors, data_filter);
 
@@ -57,8 +53,7 @@ check()
   DataOutBase::Hdf5Flags hdf5Flags;
   hdf5Flags.compression_level = DataOutBase::CompressionLevel::no_compression;
 
-  DataOutBase::write_hdf5_parallel(
-    patches, data_filter, hdf5Flags, output_basename + ".h5", MPI_COMM_WORLD);
+  DataOutBase::write_hdf5_parallel(patches, data_filter, hdf5Flags, output_basename + ".h5", MPI_COMM_WORLD);
 
   const double current_time = 0.0;
   XDMFEntry    entry(output_basename + ".h5",
@@ -73,8 +68,7 @@ check()
   // The vector names generated here must match those generated in the HDF5 file
   for (unsigned int i = 0; i < n_data_sets; ++i)
     {
-      entry.add_attribute(data_filter.get_data_set_name(i),
-                          data_filter.get_data_set_dim(i));
+      entry.add_attribute(data_filter.get_data_set_name(i), data_filter.get_data_set_dim(i));
     }
 
   std::ofstream xdmf_file(output_basename + ".xdmf");
@@ -83,8 +77,7 @@ check()
   xdmf_file << "<!DOCTYPE Xdmf SYSTEM \"Xdmf.dtd\" []>\n";
   xdmf_file << "<Xdmf Version=\"2.0\">\n";
   xdmf_file << "  <Domain>\n";
-  xdmf_file
-    << "    <Grid Name=\"CellTime\" GridType=\"Collection\" CollectionType=\"Temporal\">\n";
+  xdmf_file << "    <Grid Name=\"CellTime\" GridType=\"Collection\" CollectionType=\"Temporal\">\n";
 
   // Write out the entry
   xdmf_file << entry.get_xdmf_content(3);
@@ -134,27 +127,19 @@ main(int argc, char *argv[])
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

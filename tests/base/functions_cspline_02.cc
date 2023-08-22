@@ -38,7 +38,7 @@ check()
 
   // native:
   gsl_interp_accel *acc    = gsl_interp_accel_alloc();
-  gsl_spline *      spline = gsl_spline_alloc(gsl_interp_cspline, n_points);
+  gsl_spline       *spline = gsl_spline_alloc(gsl_interp_cspline, n_points);
 
   gsl_spline_init(spline, &x[0], &y[0], n_points);
 
@@ -57,11 +57,9 @@ check()
 
       AssertThrow(std::fabs(f - y) <= std::fabs(f) * 1e-10, ExcInternalError());
 
-      AssertThrow(std::fabs(df - dy[0]) <= std::fabs(df) * 1e-10,
-                  ExcInternalError());
+      AssertThrow(std::fabs(df - dy[0]) <= std::fabs(df) * 1e-10, ExcInternalError());
 
-      AssertThrow(std::fabs(ddf - ddy) <= std::fabs(ddf) * 1e-10,
-                  ExcInternalError());
+      AssertThrow(std::fabs(ddf - ddy) <= std::fabs(ddf) * 1e-10, ExcInternalError());
     }
   gsl_spline_free(spline);
   gsl_interp_accel_free(acc);

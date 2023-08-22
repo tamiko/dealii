@@ -38,9 +38,7 @@ void
 check(const Triangulation<dim> &tria)
 {
   unsigned int index = 0;
-  for (typename Triangulation<dim>::active_cell_iterator cell =
-         tria.begin_active();
-       cell != tria.end();
+  for (typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(); cell != tria.end();
        ++cell, ++index)
     Assert(cell->active_cell_index() == index, ExcInternalError());
 }
@@ -117,10 +115,7 @@ check()
 
   // coarsen the mesh globally and
   // verify again
-  for (typename Triangulation<dim>::active_cell_iterator cell =
-         tria.begin_active();
-       cell != tria.end();
-       ++cell)
+  for (typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(); cell != tria.end(); ++cell)
     cell->set_coarsen_flag();
 
   tria.execute_coarsening_and_refinement();

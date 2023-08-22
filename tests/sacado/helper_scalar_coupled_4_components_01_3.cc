@@ -32,14 +32,8 @@ main(int argc, char **argv)
 
   deallog.push("Double");
   {
-    test_symmetric_tensor_tensor_vector_scalar_coupled<
-      2,
-      double,
-      AD::NumberTypes::sacado_rad>();
-    test_symmetric_tensor_tensor_vector_scalar_coupled<
-      3,
-      double,
-      AD::NumberTypes::sacado_rad>();
+    test_symmetric_tensor_tensor_vector_scalar_coupled<2, double, AD::NumberTypes::sacado_rad>();
+    test_symmetric_tensor_tensor_vector_scalar_coupled<3, double, AD::NumberTypes::sacado_rad>();
     deallog << "OK" << std::endl;
   }
   deallog.pop();

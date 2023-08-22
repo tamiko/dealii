@@ -51,13 +51,11 @@ test()
   dof_handler.distribute_dofs(fe_system);
 
   // count dofs per component and show them on the screen
-  const std::vector<types::global_dof_index> dofs_per_component =
-    DoFTools::count_dofs_per_fe_component(dof_handler);
+  const std::vector<types::global_dof_index> dofs_per_component = DoFTools::count_dofs_per_fe_component(dof_handler);
 
   for (unsigned int i = 0; i < 3; ++i)
     {
-      deallog << "DoFs in the " << i
-              << ". component: " << dofs_per_component.at(i) << std::endl;
+      deallog << "DoFs in the " << i << ". component: " << dofs_per_component.at(i) << std::endl;
     }
 }
 

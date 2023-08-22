@@ -93,10 +93,8 @@ test(const unsigned int n_refinements = 1)
 
   VectorTools::interpolate(dof_handler, ExactSolution<dim>(), src);
 
-  FEEvaluation<dim, fe_degree, n_points, 1, Number, VectorizedArrayType> phi(
-    matrix_free);
-  FEFaceEvaluation<dim, fe_degree, n_points, 1, Number, VectorizedArrayType>
-    phi_m(matrix_free, true);
+  FEEvaluation<dim, fe_degree, n_points, 1, Number, VectorizedArrayType>     phi(matrix_free);
+  FEFaceEvaluation<dim, fe_degree, n_points, 1, Number, VectorizedArrayType> phi_m(matrix_free, true);
 
   matrix_free.template loop_cell_centric<VectorType, VectorType>(
     [&](const auto &, auto &, const auto &src, const auto range) {
@@ -106,36 +104,25 @@ test(const unsigned int n_refinements = 1)
 
           phi.gather_evaluate(src, EvaluationFlags::values);
 
-          for (unsigned int face = 0; face < GeometryInfo<dim>::faces_per_cell;
-               face++)
+          for (unsigned int face = 0; face < GeometryInfo<dim>::faces_per_cell; face++)
             {
               phi_m.reinit(cell, face);
               phi_m.gather_evaluate(src, EvaluationFlags::values);
 
-              AlignedVector<VectorizedArrayType> temp(
-                phi_m.static_dofs_per_cell);
+              AlignedVector<VectorizedArrayType> temp(phi_m.static_dofs_per_cell);
 
-              internal::FEFaceNormalEvaluationImpl<dim,
-                                                   n_points - 1,
-                                                   VectorizedArrayType>::
+              internal::FEFaceNormalEvaluationImpl<dim, n_points - 1, VectorizedArrayType>::
                 template interpolate_quadrature<true, false>(
-                  1,
-                  EvaluationFlags::values,
-                  matrix_free.get_shape_info(),
-                  phi.begin_values(),
-                  temp.data(),
-                  face);
+                  1, EvaluationFlags::values, matrix_free.get_shape_info(), phi.begin_values(), temp.data(), face);
 
               for (unsigned int q = 0; q < phi_m.n_q_points; ++q)
                 {
                   const auto u_cell = temp[q];
                   const auto u_face = phi_m.get_value(q);
 
-                  for (unsigned int v = 0; v < VectorizedArray<double>::size();
-                       ++v)
+                  for (unsigned int v = 0; v < VectorizedArray<double>::size(); ++v)
                     {
-                      Assert(std::abs(u_cell[v] - u_face[v]) < 1e-10,
-                             ExcMessage("Entries do not match!"));
+                      Assert(std::abs(u_cell[v] - u_face[v]) < 1e-10, ExcMessage("Entries do not match!"));
                     }
                 }
             }

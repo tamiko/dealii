@@ -23,16 +23,14 @@ DEAL_II_NAMESPACE_OPEN
 
 template <int spacedim, typename Number>
 bool
-BoundingBox<spacedim, Number>::point_inside(const Point<spacedim, Number> &p,
-                                            const double tolerance) const
+BoundingBox<spacedim, Number>::point_inside(const Point<spacedim, Number> &p, const double tolerance) const
 {
   for (unsigned int i = 0; i < spacedim; ++i)
     {
       // Bottom left-top right convention: the point is outside if it's smaller
       // than the first or bigger than the second boundary point The bounding
       // box is defined as a closed set
-      if ((p[i] <
-           this->boundary_points.first[i] - tolerance * side_length(i)) ||
+      if ((p[i] < this->boundary_points.first[i] - tolerance * side_length(i)) ||
           (p[i] > this->boundary_points.second[i] + tolerance * side_length(i)))
         return false;
     }
@@ -43,33 +41,25 @@ BoundingBox<spacedim, Number>::point_inside(const Point<spacedim, Number> &p,
 
 template <int spacedim, typename Number>
 void
-BoundingBox<spacedim, Number>::merge_with(
-  const BoundingBox<spacedim, Number> &other_bbox)
+BoundingBox<spacedim, Number>::merge_with(const BoundingBox<spacedim, Number> &other_bbox)
 {
   for (unsigned int i = 0; i < spacedim; ++i)
     {
-      this->boundary_points.first[i] =
-        std::min(this->boundary_points.first[i],
-                 other_bbox.boundary_points.first[i]);
-      this->boundary_points.second[i] =
-        std::max(this->boundary_points.second[i],
-                 other_bbox.boundary_points.second[i]);
+      this->boundary_points.first[i]  = std::min(this->boundary_points.first[i], other_bbox.boundary_points.first[i]);
+      this->boundary_points.second[i] = std::max(this->boundary_points.second[i], other_bbox.boundary_points.second[i]);
     }
 }
 
 template <int spacedim, typename Number>
 bool
-BoundingBox<spacedim, Number>::has_overlap_with(
-  const BoundingBox<spacedim, Number> &other_bbox,
-  const double                         tolerance) const
+BoundingBox<spacedim, Number>::has_overlap_with(const BoundingBox<spacedim, Number> &other_bbox,
+                                                const double                         tolerance) const
 {
   for (unsigned int i = 0; i < spacedim; ++i)
     {
       // testing if the boxes are close enough to intersect
-      if ((other_bbox.boundary_points.second[i] <
-           this->boundary_points.first[i] - tolerance * side_length(i)) ||
-          (other_bbox.boundary_points.first[i] >
-           this->boundary_points.second[i] + tolerance * side_length(i)))
+      if ((other_bbox.boundary_points.second[i] < this->boundary_points.first[i] - tolerance * side_length(i)) ||
+          (other_bbox.boundary_points.first[i] > this->boundary_points.second[i] + tolerance * side_length(i)))
         return false;
     }
   return true;
@@ -77,9 +67,8 @@ BoundingBox<spacedim, Number>::has_overlap_with(
 
 template <int spacedim, typename Number>
 NeighborType
-BoundingBox<spacedim, Number>::get_neighbor_type(
-  const BoundingBox<spacedim, Number> &other_bbox,
-  const double                         tolerance) const
+BoundingBox<spacedim, Number>::get_neighbor_type(const BoundingBox<spacedim, Number> &other_bbox,
+                                                 const double                         tolerance) const
 {
   if (!has_overlap_with(other_bbox, tolerance))
     return NeighborType::not_neighbors;
@@ -93,11 +82,9 @@ BoundingBox<spacedim, Number>::get_neighbor_type(
   else
     {
       const std::array<Point<spacedim, Number>, 2> bbox1 = {
-        {this->get_boundary_points().first,
-         this->get_boundary_points().second}};
+        {this->get_boundary_points().first, this->get_boundary_points().second}};
       const std::array<Point<spacedim, Number>, 2> bbox2 = {
-        {other_bbox.get_boundary_points().first,
-         other_bbox.get_boundary_points().second}};
+        {other_bbox.get_boundary_points().first, other_bbox.get_boundary_points().second}};
 
       // The boxes intersect: we need to understand now how they intersect.
       // We begin by computing the intersection:
@@ -113,8 +100,7 @@ BoundingBox<spacedim, Number>::get_neighbor_type(
       int intersect_dim = spacedim;
       for (unsigned int d = 0; d < spacedim; ++d)
         if (std::abs(intersect_bbox_min[d] - intersect_bbox_max[d]) <=
-            tolerance * (std::abs(intersect_bbox_min[d]) +
-                         std::abs(intersect_bbox_max[d])))
+            tolerance * (std::abs(intersect_bbox_min[d]) + std::abs(intersect_bbox_max[d])))
           --intersect_dim;
 
       if (intersect_dim == 0 || intersect_dim == spacedim - 2)
@@ -126,11 +112,9 @@ BoundingBox<spacedim, Number>::get_neighbor_type(
       bool         same_direction = true;
       for (unsigned int d = 0; d < spacedim; ++d)
         {
-          if (std::abs(bbox2[0][d] - bbox1[0][d]) >
-              tolerance * (std::abs(bbox2[0][d]) + std::abs(bbox1[0][d])))
+          if (std::abs(bbox2[0][d] - bbox1[0][d]) > tolerance * (std::abs(bbox2[0][d]) + std::abs(bbox1[0][d])))
             ++not_align_1;
-          if (std::abs(bbox1[1][d] - bbox2[1][d]) >
-              tolerance * (std::abs(bbox1[1][d]) + std::abs(bbox2[1][d])))
+          if (std::abs(bbox1[1][d] - bbox2[1][d]) > tolerance * (std::abs(bbox1[1][d]) + std::abs(bbox2[1][d])))
             ++not_align_2;
           if (not_align_1 != not_align_2)
             {
@@ -144,8 +128,7 @@ BoundingBox<spacedim, Number>::get_neighbor_type(
 
       // Second: one box is contained/equal to the other
       if ((this->point_inside(bbox2[0]) && this->point_inside(bbox2[1])) ||
-          (other_bbox.point_inside(bbox1[0], tolerance) &&
-           other_bbox.point_inside(bbox1[1], tolerance)))
+          (other_bbox.point_inside(bbox1[0], tolerance) && other_bbox.point_inside(bbox1[1], tolerance)))
         return NeighborType::mergeable_neighbors;
 
       // Degenerate and mergeable cases have been found, it remains:
@@ -234,8 +217,7 @@ BoundingBox<spacedim, Number>::vertex(const unsigned int index) const
 {
   AssertIndexRange(index, GeometryInfo<spacedim>::vertices_per_cell);
 
-  const Point<spacedim> unit_cell_vertex =
-    GeometryInfo<spacedim>::unit_cell_vertex(index);
+  const Point<spacedim> unit_cell_vertex = GeometryInfo<spacedim>::unit_cell_vertex(index);
 
   Point<spacedim, Number> point;
   for (unsigned int i = 0; i < spacedim; ++i)
@@ -257,24 +239,19 @@ BoundingBox<spacedim, Number>::child(const unsigned int index) const
   const Point<spacedim, Number> parent_center = center();
 
   const Point<spacedim> upper_corner_unit_cell =
-    GeometryInfo<spacedim>::unit_cell_vertex(
-      GeometryInfo<spacedim>::vertices_per_cell - 1);
+    GeometryInfo<spacedim>::unit_cell_vertex(GeometryInfo<spacedim>::vertices_per_cell - 1);
 
-  const Point<spacedim> lower_corner_unit_cell =
-    GeometryInfo<spacedim>::unit_cell_vertex(0);
+  const Point<spacedim> lower_corner_unit_cell = GeometryInfo<spacedim>::unit_cell_vertex(0);
 
-  std::pair<Point<spacedim, Number>, Point<spacedim, Number>>
-    child_lower_upper_corner;
+  std::pair<Point<spacedim, Number>, Point<spacedim, Number>> child_lower_upper_corner;
   for (unsigned int i = 0; i < spacedim; ++i)
     {
       const double child_side_length = side_length(i) / 2;
 
       const double child_center = (parent_center[i] + parent_vertex[i]) / 2;
 
-      child_lower_upper_corner.first[i] =
-        child_center + child_side_length * (lower_corner_unit_cell[i] - .5);
-      child_lower_upper_corner.second[i] =
-        child_center + child_side_length * (upper_corner_unit_cell[i] - .5);
+      child_lower_upper_corner.first[i]  = child_center + child_side_length * (lower_corner_unit_cell[i] - .5);
+      child_lower_upper_corner.second[i] = child_center + child_side_length * (upper_corner_unit_cell[i] - .5);
     }
 
   return BoundingBox<spacedim, Number>(child_lower_upper_corner);
@@ -288,18 +265,14 @@ BoundingBox<spacedim, Number>::cross_section(const unsigned int direction) const
 {
   AssertIndexRange(direction, spacedim);
 
-  std::pair<Point<spacedim - 1, Number>, Point<spacedim - 1, Number>>
-    cross_section_lower_upper_corner;
+  std::pair<Point<spacedim - 1, Number>, Point<spacedim - 1, Number>> cross_section_lower_upper_corner;
   for (unsigned int d = 0; d < spacedim - 1; ++d)
     {
-      const int index_to_write_from =
-        internal::coordinate_to_one_dim_higher<spacedim - 1>(direction, d);
+      const int index_to_write_from = internal::coordinate_to_one_dim_higher<spacedim - 1>(direction, d);
 
-      cross_section_lower_upper_corner.first[d] =
-        boundary_points.first[index_to_write_from];
+      cross_section_lower_upper_corner.first[d] = boundary_points.first[index_to_write_from];
 
-      cross_section_lower_upper_corner.second[d] =
-        boundary_points.second[index_to_write_from];
+      cross_section_lower_upper_corner.second[d] = boundary_points.second[index_to_write_from];
     }
 
   return BoundingBox<spacedim - 1, Number>(cross_section_lower_upper_corner);
@@ -309,8 +282,7 @@ BoundingBox<spacedim, Number>::cross_section(const unsigned int direction) const
 
 template <int spacedim, typename Number>
 Point<spacedim, Number>
-BoundingBox<spacedim, Number>::real_to_unit(
-  const Point<spacedim, Number> &point) const
+BoundingBox<spacedim, Number>::real_to_unit(const Point<spacedim, Number> &point) const
 {
   auto       unit = point;
   const auto diag = boundary_points.second - boundary_points.first;
@@ -324,8 +296,7 @@ BoundingBox<spacedim, Number>::real_to_unit(
 
 template <int spacedim, typename Number>
 Point<spacedim, Number>
-BoundingBox<spacedim, Number>::unit_to_real(
-  const Point<spacedim, Number> &point) const
+BoundingBox<spacedim, Number>::unit_to_real(const Point<spacedim, Number> &point) const
 {
   auto       real = boundary_points.first;
   const auto diag = boundary_points.second - boundary_points.first;
@@ -338,9 +309,7 @@ BoundingBox<spacedim, Number>::unit_to_real(
 
 template <int spacedim, typename Number>
 Number
-BoundingBox<spacedim, Number>::signed_distance(
-  const Point<spacedim, Number> &point,
-  const unsigned int             direction) const
+BoundingBox<spacedim, Number>::signed_distance(const Point<spacedim, Number> &point, const unsigned int direction) const
 {
   const Number p1 = lower_bound(direction);
   const Number p2 = upper_bound(direction);
@@ -357,8 +326,7 @@ BoundingBox<spacedim, Number>::signed_distance(
 
 template <int spacedim, typename Number>
 Number
-BoundingBox<spacedim, Number>::signed_distance(
-  const Point<spacedim, Number> &point) const
+BoundingBox<spacedim, Number>::signed_distance(const Point<spacedim, Number> &point) const
 {
   // calculate vector of orthogonal signed distances
   std::array<Number, spacedim> distances;
@@ -367,9 +335,7 @@ BoundingBox<spacedim, Number>::signed_distance(
 
   // determine the number of positive signed distances
   const unsigned int n_positive_signed_distances =
-    std::count_if(distances.begin(), distances.end(), [](const auto &a) {
-      return a > 0.0;
-    });
+    std::count_if(distances.begin(), distances.end(), [](const auto &a) { return a > 0.0; });
 
   if (n_positive_signed_distances <= 1)
     // point is inside of bounding box (0: all signed distances are
@@ -381,12 +347,9 @@ BoundingBox<spacedim, Number>::signed_distance(
     // point is next to a corner (2D/3D: all signed distances are
     // positive) or a line (3D: all signed distances are positive
     // but one) -> take the l2-norm of all positive signed distances
-    return std::sqrt(std::accumulate(distances.begin(),
-                                     distances.end(),
-                                     0.0,
-                                     [](const auto &a, const auto &b) {
-                                       return a + (b > 0 ? b * b : 0.0);
-                                     }));
+    return std::sqrt(std::accumulate(distances.begin(), distances.end(), 0.0, [](const auto &a, const auto &b) {
+      return a + (b > 0 ? b * b : 0.0);
+    }));
 }
 
 

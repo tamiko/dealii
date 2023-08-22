@@ -118,8 +118,7 @@ namespace Step20
       {}
 
       virtual double
-      value(const Point<dim> & p,
-            const unsigned int component = 0) const override;
+      value(const Point<dim> &p, const unsigned int component = 0) const override;
     };
 
 
@@ -133,8 +132,7 @@ namespace Step20
       {}
 
       virtual double
-      value(const Point<dim> & p,
-            const unsigned int component = 0) const override;
+      value(const Point<dim> &p, const unsigned int component = 0) const override;
     };
 
 
@@ -153,8 +151,7 @@ namespace Step20
 
     template <int dim>
     double
-    RightHandSide<dim>::value(const Point<dim> & /*p*/,
-                              const unsigned int /*component*/) const
+    RightHandSide<dim>::value(const Point<dim> & /*p*/, const unsigned int /*component*/) const
     {
       return 0;
     }
@@ -163,27 +160,22 @@ namespace Step20
 
     template <int dim>
     double
-    PressureBoundaryValues<dim>::value(const Point<dim> &p,
-                                       const unsigned int /*component*/) const
+    PressureBoundaryValues<dim>::value(const Point<dim> &p, const unsigned int /*component*/) const
     {
-      return -(alpha * p[0] * p[1] * p[1] / 2 + beta * p[0] -
-               alpha * p[0] * p[0] * p[0] / 6);
+      return -(alpha * p[0] * p[1] * p[1] / 2 + beta * p[0] - alpha * p[0] * p[0] * p[0] / 6);
     }
 
 
 
     template <int dim>
     void
-    ExactSolution<dim>::vector_value(const Point<dim> &p,
-                                     Vector<double> &  values) const
+    ExactSolution<dim>::vector_value(const Point<dim> &p, Vector<double> &values) const
     {
-      Assert(values.size() == dim + 1,
-             ExcDimensionMismatch(values.size(), dim + 1));
+      Assert(values.size() == dim + 1, ExcDimensionMismatch(values.size(), dim + 1));
 
       values(0) = alpha * p[1] * p[1] / 2 + beta - alpha * p[0] * p[0] / 2;
       values(1) = alpha * p[0] * p[1];
-      values(2) = -(alpha * p[0] * p[1] * p[1] / 2 + beta * p[0] -
-                    alpha * p[0] * p[0] * p[0] / 6);
+      values(2) = -(alpha * p[0] * p[1] * p[1] / 2 + beta * p[0] - alpha * p[0] * p[0] * p[0] / 6);
     }
 
     template <int dim>
@@ -195,14 +187,12 @@ namespace Step20
       {}
 
       virtual void
-      value_list(const std::vector<Point<dim>> &points,
-                 std::vector<Tensor<2, dim>> &  values) const override;
+      value_list(const std::vector<Point<dim>> &points, std::vector<Tensor<2, dim>> &values) const override;
     };
 
     template <int dim>
     void
-    KInverse<dim>::value_list(const std::vector<Point<dim>> &points,
-                              std::vector<Tensor<2, dim>> &  values) const
+    KInverse<dim>::value_list(const std::vector<Point<dim>> &points, std::vector<Tensor<2, dim>> &values) const
     {
       (void)points;
       AssertDimension(points.size(), values.size());
@@ -215,10 +205,7 @@ namespace Step20
   template <int dim>
   MixedLaplaceProblem<dim>::MixedLaplaceProblem(const unsigned int degree)
     : degree(degree)
-    , fe(FESystem<dim>(FE_SimplexP<dim>(degree), dim),
-         1,
-         FE_SimplexDGP<dim>(degree - 1),
-         1)
+    , fe(FESystem<dim>(FE_SimplexP<dim>(degree), dim), 1, FE_SimplexDGP<dim>(degree - 1), 1)
     , dof_handler(triangulation)
   {}
 
@@ -226,26 +213,20 @@ namespace Step20
   void
   MixedLaplaceProblem<dim>::make_grid_and_dofs()
   {
-    GridGenerator::subdivided_hyper_cube_with_simplices(triangulation,
-                                                        2,
-                                                        -1,
-                                                        1);
+    GridGenerator::subdivided_hyper_cube_with_simplices(triangulation, 2, -1, 1);
     triangulation.refine_global(3);
 
     dof_handler.distribute_dofs(fe);
 
     DoFRenumbering::component_wise(dof_handler);
 
-    const std::vector<types::global_dof_index> dofs_per_component =
-      DoFTools::count_dofs_per_fe_component(dof_handler);
-    const unsigned int n_u = dofs_per_component[0] + dofs_per_component[1],
-                       n_p = dofs_per_component[dim];
+    const std::vector<types::global_dof_index> dofs_per_component = DoFTools::count_dofs_per_fe_component(dof_handler);
+    const unsigned int n_u = dofs_per_component[0] + dofs_per_component[1], n_p = dofs_per_component[dim];
 
-    deallog << "Number of active cells: " << triangulation.n_active_cells()
-            << std::endl
+    deallog << "Number of active cells: " << triangulation.n_active_cells() << std::endl
             << "Total number of cells: " << triangulation.n_cells() << std::endl
-            << "Number of degrees of freedom: " << dof_handler.n_dofs() << " ("
-            << n_u << '+' << n_p << ')' << std::endl;
+            << "Number of degrees of freedom: " << dof_handler.n_dofs() << " (" << n_u << '+' << n_p << ')'
+            << std::endl;
 
     BlockDynamicSparsityPattern dsp(2, 2);
     dsp.block(0, 0).reinit(n_u, n_u);
@@ -280,13 +261,11 @@ namespace Step20
     FEValues<dim>     fe_values(mapping,
                             fe,
                             quadrature_formula,
-                            update_values | update_gradients |
-                              update_quadrature_points | update_JxW_values);
+                            update_values | update_gradients | update_quadrature_points | update_JxW_values);
     FEFaceValues<dim> fe_face_values(mapping,
                                      fe,
                                      face_quadrature_formula,
-                                     update_values | update_normal_vectors |
-                                       update_quadrature_points |
+                                     update_values | update_normal_vectors | update_quadrature_points |
                                        update_JxW_values);
 
     const unsigned int dofs_per_cell   = fe.n_dofs_per_cell();
@@ -298,10 +277,9 @@ namespace Step20
 
     std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
 
-    const PrescribedSolution::RightHandSide<dim> right_hand_side;
-    const PrescribedSolution::PressureBoundaryValues<dim>
-                                            pressure_boundary_values;
-    const PrescribedSolution::KInverse<dim> k_inverse;
+    const PrescribedSolution::RightHandSide<dim>          right_hand_side;
+    const PrescribedSolution::PressureBoundaryValues<dim> pressure_boundary_values;
+    const PrescribedSolution::KInverse<dim>               k_inverse;
 
     std::vector<double>         rhs_values(n_q_points);
     std::vector<double>         boundary_values(n_face_q_points);
@@ -316,31 +294,26 @@ namespace Step20
         local_matrix = 0;
         local_rhs    = 0;
 
-        right_hand_side.value_list(fe_values.get_quadrature_points(),
-                                   rhs_values);
-        k_inverse.value_list(fe_values.get_quadrature_points(),
-                             k_inverse_values);
+        right_hand_side.value_list(fe_values.get_quadrature_points(), rhs_values);
+        k_inverse.value_list(fe_values.get_quadrature_points(), k_inverse_values);
 
         for (unsigned int q = 0; q < n_q_points; ++q)
           for (unsigned int i = 0; i < dofs_per_cell; ++i)
             {
-              const Tensor<1, dim> phi_i_u = fe_values[velocities].value(i, q);
-              const double div_phi_i_u = fe_values[velocities].divergence(i, q);
-              const double phi_i_p     = fe_values[pressure].value(i, q);
+              const Tensor<1, dim> phi_i_u     = fe_values[velocities].value(i, q);
+              const double         div_phi_i_u = fe_values[velocities].divergence(i, q);
+              const double         phi_i_p     = fe_values[pressure].value(i, q);
 
               for (unsigned int j = 0; j < dofs_per_cell; ++j)
                 {
-                  const Tensor<1, dim> phi_j_u =
-                    fe_values[velocities].value(j, q);
-                  const double div_phi_j_u =
-                    fe_values[velocities].divergence(j, q);
-                  const double phi_j_p = fe_values[pressure].value(j, q);
+                  const Tensor<1, dim> phi_j_u     = fe_values[velocities].value(j, q);
+                  const double         div_phi_j_u = fe_values[velocities].divergence(j, q);
+                  const double         phi_j_p     = fe_values[pressure].value(j, q);
 
-                  local_matrix(i, j) +=
-                    (phi_i_u * k_inverse_values[q] * phi_j_u //
-                     - phi_i_p * div_phi_j_u                 //
-                     - div_phi_i_u * phi_j_p)                //
-                    * fe_values.JxW(q);
+                  local_matrix(i, j) += (phi_i_u * k_inverse_values[q] * phi_j_u //
+                                         - phi_i_p * div_phi_j_u                 //
+                                         - div_phi_i_u * phi_j_p)                //
+                                        * fe_values.JxW(q);
                 }
 
               local_rhs(i) += -phi_i_p * rhs_values[q] * fe_values.JxW(q);
@@ -351,8 +324,7 @@ namespace Step20
             {
               fe_face_values.reinit(cell, face);
 
-              pressure_boundary_values.value_list(
-                fe_face_values.get_quadrature_points(), boundary_values);
+              pressure_boundary_values.value_list(fe_face_values.get_quadrature_points(), boundary_values);
 
               for (unsigned int q = 0; q < n_face_q_points; ++q)
                 for (unsigned int i = 0; i < dofs_per_cell; ++i)
@@ -365,9 +337,7 @@ namespace Step20
         cell->get_dof_indices(local_dof_indices);
         for (unsigned int i = 0; i < dofs_per_cell; ++i)
           for (unsigned int j = 0; j < dofs_per_cell; ++j)
-            system_matrix.add(local_dof_indices[i],
-                              local_dof_indices[j],
-                              local_matrix(i, j));
+            system_matrix.add(local_dof_indices[i], local_dof_indices[j], local_matrix(i, j));
         for (unsigned int i = 0; i < dofs_per_cell; ++i)
           system_rhs(local_dof_indices[i]) += local_rhs(i);
       }
@@ -389,23 +359,21 @@ namespace Step20
     const auto op_M = linear_operator(M);
     const auto op_B = linear_operator(B);
 
-    ReductionControl         reduction_control_M(2000, 1.0e-18, 1.0e-10);
-    SolverCG<Vector<double>> solver_M(reduction_control_M);
+    ReductionControl                         reduction_control_M(2000, 1.0e-18, 1.0e-10);
+    SolverCG<Vector<double>>                 solver_M(reduction_control_M);
     PreconditionJacobi<SparseMatrix<double>> preconditioner_M;
 
     preconditioner_M.initialize(M);
 
     const auto op_M_inv = inverse_operator(op_M, solver_M, preconditioner_M);
 
-    const auto op_S = transpose_operator(op_B) * op_M_inv * op_B;
-    const auto op_aS =
-      transpose_operator(op_B) * linear_operator(preconditioner_M) * op_B;
+    const auto op_S  = transpose_operator(op_B) * op_M_inv * op_B;
+    const auto op_aS = transpose_operator(op_B) * linear_operator(preconditioner_M) * op_B;
 
     IterationNumberControl   iteration_number_control_aS(30, 1.e-18);
     SolverCG<Vector<double>> solver_aS(iteration_number_control_aS);
 
-    const auto preconditioner_S =
-      inverse_operator(op_aS, solver_aS, PreconditionIdentity());
+    const auto preconditioner_S = inverse_operator(op_aS, solver_aS, PreconditionIdentity());
 
     const auto schur_rhs = transpose_operator(op_B) * op_M_inv * F - G;
 
@@ -416,9 +384,7 @@ namespace Step20
 
     P = op_S_inv * schur_rhs;
 
-    deallog << solver_control_S.last_step()
-            << " CG Schur complement iterations to obtain convergence."
-            << std::endl;
+    deallog << solver_control_S.last_step() << " CG Schur complement iterations to obtain convergence." << std::endl;
 
     U = op_M_inv * (F - op_B * P);
   }
@@ -428,11 +394,10 @@ namespace Step20
   MixedLaplaceProblem<dim>::compute_errors() const
   {
     const ComponentSelectFunction<dim> pressure_mask(dim, dim + 1);
-    const ComponentSelectFunction<dim> velocity_mask(std::make_pair(0, dim),
-                                                     dim + 1);
+    const ComponentSelectFunction<dim> velocity_mask(std::make_pair(0, dim), dim + 1);
 
     PrescribedSolution::ExactSolution<dim> exact_solution;
-    Vector<double> cellwise_errors(triangulation.n_active_cells());
+    Vector<double>                         cellwise_errors(triangulation.n_active_cells());
 
     QTrapezoid<1>  q_trapez;
     QIterated<dim> quadrature(q_trapez, degree + 2);
@@ -446,10 +411,7 @@ namespace Step20
                                       quadrature,
                                       VectorTools::L2_norm,
                                       &pressure_mask);
-    const double p_l2_error =
-      VectorTools::compute_global_error(triangulation,
-                                        cellwise_errors,
-                                        VectorTools::L2_norm);
+    const double p_l2_error = VectorTools::compute_global_error(triangulation, cellwise_errors, VectorTools::L2_norm);
 
     VectorTools::integrate_difference(mapping,
                                       dof_handler,
@@ -459,13 +421,9 @@ namespace Step20
                                       quadrature,
                                       VectorTools::L2_norm,
                                       &velocity_mask);
-    const double u_l2_error =
-      VectorTools::compute_global_error(triangulation,
-                                        cellwise_errors,
-                                        VectorTools::L2_norm);
+    const double u_l2_error = VectorTools::compute_global_error(triangulation, cellwise_errors, VectorTools::L2_norm);
 
-    deallog << "Errors: ||e_p||_L2 = " << p_l2_error
-            << ",   ||e_u||_L2 = " << u_l2_error << std::endl;
+    deallog << "Errors: ||e_p||_L2 = " << p_l2_error << ",   ||e_u||_L2 = " << u_l2_error << std::endl;
   }
 
   template <int dim>
@@ -475,16 +433,12 @@ namespace Step20
     MappingFE<dim>           mapping(FE_SimplexDGP<dim>(1));
     std::vector<std::string> solution_names(dim, "u");
     solution_names.emplace_back("p");
-    std::vector<DataComponentInterpretation::DataComponentInterpretation>
-      interpretation(dim,
-                     DataComponentInterpretation::component_is_part_of_vector);
+    std::vector<DataComponentInterpretation::DataComponentInterpretation> interpretation(
+      dim, DataComponentInterpretation::component_is_part_of_vector);
     interpretation.push_back(DataComponentInterpretation::component_is_scalar);
 
     DataOut<dim> data_out;
-    data_out.add_data_vector(dof_handler,
-                             solution,
-                             solution_names,
-                             interpretation);
+    data_out.add_data_vector(dof_handler, solution, solution_names, interpretation);
 
     data_out.build_patches(mapping, degree);
 
@@ -520,28 +474,20 @@ main()
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
 

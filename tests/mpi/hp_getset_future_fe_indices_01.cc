@@ -61,10 +61,7 @@ test()
   const unsigned int n_indices_copied =
     std::count_if(dofh_dst.active_cell_iterators().begin(),
                   dofh_dst.active_cell_iterators().end(),
-                  [](const auto &cell) {
-                    return (cell->is_locally_owned() &&
-                            cell->future_fe_index_set());
-                  });
+                  [](const auto &cell) { return (cell->is_locally_owned() && cell->future_fe_index_set()); });
   deallog << "indices copied: " << n_indices_copied << std::endl;
 
   // verify that future FE indices match
@@ -74,11 +71,8 @@ test()
         const auto cell_src = cell->as_dof_handler_iterator(dofh_src);
         const auto cell_dst = cell->as_dof_handler_iterator(dofh_dst);
 
-        AssertThrow(cell_src->future_fe_index_set() ==
-                      cell_dst->future_fe_index_set(),
-                    ExcInternalError());
-        AssertThrow(cell_src->future_fe_index() == cell_dst->future_fe_index(),
-                    ExcInternalError());
+        AssertThrow(cell_src->future_fe_index_set() == cell_dst->future_fe_index_set(), ExcInternalError());
+        AssertThrow(cell_src->future_fe_index() == cell_dst->future_fe_index(), ExcInternalError());
       }
 
   deallog << "OK" << std::endl;

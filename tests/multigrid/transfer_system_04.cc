@@ -43,8 +43,7 @@
 
 template <int dim, typename number, int spacedim>
 void
-reinit_vector(const dealii::DoFHandler<dim, spacedim> &mg_dof,
-              MGLevelObject<dealii::Vector<number>> &  v)
+reinit_vector(const dealii::DoFHandler<dim, spacedim> &mg_dof, MGLevelObject<dealii::Vector<number>> &v)
 {
   for (unsigned int level = v.min_level(); level <= v.max_leve(); ++level)
     {
@@ -56,9 +55,7 @@ reinit_vector(const dealii::DoFHandler<dim, spacedim> &mg_dof,
 
 template <typename Transfer>
 void
-make_matrix(const Transfer &    transfer,
-            const unsigned int  high_level,
-            FullMatrix<double> &matrix)
+make_matrix(const Transfer &transfer, const unsigned int high_level, FullMatrix<double> &matrix)
 {
   Vector<double> src(matrix.n());
   Vector<double> dst(matrix.m());
@@ -112,11 +109,9 @@ check(const FiniteElement<dim> &fe)
 
   transfer.build(mg_dof_handler, 0, 0, block_component, block_component);
 
-  std::vector<std::vector<types::global_dof_index>> dofs_per_block(
-    tr.n_levels(), std::vector<types::global_dof_index>(2));
-  MGTools::count_dofs_per_block(mg_dof_handler,
-                                dofs_per_block,
-                                block_component);
+  std::vector<std::vector<types::global_dof_index>> dofs_per_block(tr.n_levels(),
+                                                                   std::vector<types::global_dof_index>(2));
+  MGTools::count_dofs_per_block(mg_dof_handler, dofs_per_block, block_component);
   FullMatrix<double> prolong_0_1(dofs_per_block[1][0], dofs_per_block[0][0]);
   FullMatrix<double> prolong_1_2(dofs_per_block[2][0], dofs_per_block[1][0]);
 

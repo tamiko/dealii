@@ -105,11 +105,9 @@ namespace Step8
 
   template <int dim>
   void
-  right_hand_side(const std::vector<Point<dim>> &points,
-                  std::vector<Tensor<1, dim>> &  values)
+  right_hand_side(const std::vector<Point<dim>> &points, std::vector<Tensor<1, dim>> &values)
   {
-    Assert(values.size() == points.size(),
-           ExcDimensionMismatch(values.size(), points.size()));
+    Assert(values.size() == points.size(), ExcDimensionMismatch(values.size(), points.size()));
     Assert(dim >= 2, ExcNotImplemented());
 
     Point<dim> point_1, point_2;
@@ -149,8 +147,7 @@ namespace Step8
 
     constraints.clear();
     DoFTools::make_hanging_node_constraints(dof_handler, constraints);
-    VectorTools::interpolate_boundary_values(
-      mapping, dof_handler, 0, Functions::ZeroFunction<dim>(dim), constraints);
+    VectorTools::interpolate_boundary_values(mapping, dof_handler, 0, Functions::ZeroFunction<dim>(dim), constraints);
     constraints.close();
 
     DynamicSparsityPattern dsp(dof_handler.n_dofs(), dof_handler.n_dofs());
@@ -168,8 +165,7 @@ namespace Step8
     FEValues<dim>      fe_values(mapping,
                             fe,
                             quadrature_formula,
-                            update_values | update_gradients |
-                              update_quadrature_points | update_JxW_values);
+                            update_values | update_gradients | update_quadrature_points | update_JxW_values);
 
     const unsigned int dofs_per_cell = fe.n_dofs_per_cell();
     const unsigned int n_q_points    = quadrature_formula.size();
@@ -199,50 +195,40 @@ namespace Step8
 
         for (const unsigned int i : fe_values.dof_indices())
           {
-            const unsigned int component_i =
-              fe.system_to_component_index(i).first;
+            const unsigned int component_i = fe.system_to_component_index(i).first;
 
             for (const unsigned int j : fe_values.dof_indices())
               {
-                const unsigned int component_j =
-                  fe.system_to_component_index(j).first;
+                const unsigned int component_j = fe.system_to_component_index(j).first;
 
-                for (const unsigned int q_point :
-                     fe_values.quadrature_point_indices())
+                for (const unsigned int q_point : fe_values.quadrature_point_indices())
                   {
-                    cell_matrix(i, j) +=
-                      ((fe_values.shape_grad(i, q_point)[component_i] *
-                        fe_values.shape_grad(j, q_point)[component_j] *
-                        lambda_values[q_point]) +
-                       (fe_values.shape_grad(i, q_point)[component_j] *
-                        fe_values.shape_grad(j, q_point)[component_i] *
-                        mu_values[q_point]) +
-                       ((component_i == component_j) ?        //
-                          (fe_values.shape_grad(i, q_point) * //
-                           fe_values.shape_grad(j, q_point) * //
-                           mu_values[q_point]) :              //
-                          0)                                  //
-                       ) *                                    //
-                      fe_values.JxW(q_point);                 //
+                    cell_matrix(i, j) += ((fe_values.shape_grad(i, q_point)[component_i] *
+                                           fe_values.shape_grad(j, q_point)[component_j] * lambda_values[q_point]) +
+                                          (fe_values.shape_grad(i, q_point)[component_j] *
+                                           fe_values.shape_grad(j, q_point)[component_i] * mu_values[q_point]) +
+                                          ((component_i == component_j) ?        //
+                                             (fe_values.shape_grad(i, q_point) * //
+                                              fe_values.shape_grad(j, q_point) * //
+                                              mu_values[q_point]) :              //
+                                             0)                                  //
+                                          ) *                                    //
+                                         fe_values.JxW(q_point);                 //
                   }
               }
           }
 
         for (const unsigned int i : fe_values.dof_indices())
           {
-            const unsigned int component_i =
-              fe.system_to_component_index(i).first;
+            const unsigned int component_i = fe.system_to_component_index(i).first;
 
-            for (const unsigned int q_point :
-                 fe_values.quadrature_point_indices())
-              cell_rhs(i) += fe_values.shape_value(i, q_point) *
-                             rhs_values[q_point][component_i] *
-                             fe_values.JxW(q_point);
+            for (const unsigned int q_point : fe_values.quadrature_point_indices())
+              cell_rhs(i) +=
+                fe_values.shape_value(i, q_point) * rhs_values[q_point][component_i] * fe_values.JxW(q_point);
           }
 
         cell->get_dof_indices(local_dof_indices);
-        constraints.distribute_local_to_global(
-          cell_matrix, cell_rhs, local_dof_indices, system_matrix, system_rhs);
+        constraints.distribute_local_to_global(cell_matrix, cell_rhs, local_dof_indices, system_matrix, system_rhs);
       }
   }
 
@@ -268,13 +254,9 @@ namespace Step8
     Vector<float> estimated_error_per_cell(triangulation.n_active_cells());
 
     QGaussSimplex<dim - 1> quadrature(fe.degree + 1);
-    KellyErrorEstimator<dim>::estimate(
-      mapping, dof_handler, quadrature, {}, solution, estimated_error_per_cell);
+    KellyErrorEstimator<dim>::estimate(mapping, dof_handler, quadrature, {}, solution, estimated_error_per_cell);
 
-    GridRefinement::refine_and_coarsen_fixed_number(triangulation,
-                                                    estimated_error_per_cell,
-                                                    0.3,
-                                                    0.03);
+    GridRefinement::refine_and_coarsen_fixed_number(triangulation, estimated_error_per_cell, 0.3, 0.03);
 
     triangulation.refine_global();
   }
@@ -324,19 +306,16 @@ namespace Step8
           {
             Triangulation<dim> temp;
             GridGenerator::hyper_cube(temp, -1, 1);
-            GridGenerator::convert_hypercube_to_simplex_mesh(temp,
-                                                             triangulation);
+            GridGenerator::convert_hypercube_to_simplex_mesh(temp, triangulation);
           }
         else
           refine_grid();
 
-        std::cout << "   Number of active cells:       "
-                  << triangulation.n_active_cells() << std::endl;
+        std::cout << "   Number of active cells:       " << triangulation.n_active_cells() << std::endl;
 
         setup_system();
 
-        std::cout << "   Number of degrees of freedom: " << dof_handler.n_dofs()
-                  << std::endl;
+        std::cout << "   Number of degrees of freedom: " << dof_handler.n_dofs() << std::endl;
 
         assemble_system();
         solve();
@@ -355,28 +334,20 @@ main()
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
 

@@ -40,8 +40,8 @@ template <int dim>
 void
 test()
 {
-  parallel::distributed::Triangulation<dim> triangulation(
-    MPI_COMM_WORLD, Triangulation<dim>::limit_level_difference_at_vertices);
+  parallel::distributed::Triangulation<dim> triangulation(MPI_COMM_WORLD,
+                                                          Triangulation<dim>::limit_level_difference_at_vertices);
 
   std::vector<unsigned int> reps(dim, 1U);
   reps[0] = 2;
@@ -49,10 +49,7 @@ test()
   Point<dim> top_right;
   for (unsigned int d = 0; d < dim; ++d)
     top_right[d] = (d == 0 ? 2 : 1);
-  GridGenerator::subdivided_hyper_rectangle(triangulation,
-                                            reps,
-                                            Point<dim>(),
-                                            top_right);
+  GridGenerator::subdivided_hyper_rectangle(triangulation, reps, Point<dim>(), top_right);
   Assert(triangulation.n_global_active_cells() == 4, ExcInternalError());
   Assert(triangulation.n_active_cells() == 4, ExcInternalError());
 
@@ -61,8 +58,7 @@ test()
     fe.push_back(FE_Q<dim>(d));
 
   DoFHandler<dim> dof_handler(triangulation);
-  for (const auto &cell : dof_handler.active_cell_iterators() |
-                            IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : dof_handler.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     {
       if (cell->id().to_string() == "0_0:")
         cell->set_active_fe_index(0);

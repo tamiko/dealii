@@ -77,8 +77,7 @@ transfer(std::ostream &out)
   SolutionTransfer<dim, Vector<double>> soltrans(dof_handler);
 
 
-  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(),
-                                                    endc = tria.end();
+  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
   ++cell;
   ++cell;
   for (; cell != endc; ++cell)

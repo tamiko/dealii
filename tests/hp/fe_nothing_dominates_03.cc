@@ -47,16 +47,14 @@ test()
 
   {
     deallog << "(FE_Nothing(true)xFE_Q, FE_QxFE_Nothing(false))" << std::endl;
-    hp::FECollection<dim> fe_collection(
-      FESystem<dim>(FE_Nothing<dim>(1, true), FE_Q<dim>(1)),
-      FESystem<dim>(FE_Q<dim>(1), FE_Nothing<dim>(1, false)));
+    hp::FECollection<dim> fe_collection(FESystem<dim>(FE_Nothing<dim>(1, true), FE_Q<dim>(1)),
+                                        FESystem<dim>(FE_Q<dim>(1), FE_Nothing<dim>(1, false)));
     project(fe_collection, q_collection, function);
   }
   {
     deallog << "(FE_QxFE_Nothing(false), FE_Nothing(true)xFE_Q)" << std::endl;
-    hp::FECollection<dim> fe_collection(
-      FESystem<dim>(FE_Q<dim>(1), FE_Nothing<dim>(1, false)),
-      FESystem<dim>(FE_Nothing<dim>(1, true), FE_Q<dim>(1)));
+    hp::FECollection<dim> fe_collection(FESystem<dim>(FE_Q<dim>(1), FE_Nothing<dim>(1, false)),
+                                        FESystem<dim>(FE_Nothing<dim>(1, true), FE_Q<dim>(1)));
     project(fe_collection, q_collection, function);
   }
 }

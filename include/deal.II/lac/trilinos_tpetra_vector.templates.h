@@ -49,10 +49,7 @@ namespace LinearAlgebra
       : Subscriptor()
       , vector(new Tpetra::Vector<Number, int, types::signed_global_dof_index>(
           Teuchos::RCP<Tpetra::Map<int, types::signed_global_dof_index>>(
-            new Tpetra::Map<int, types::signed_global_dof_index>(
-              0,
-              0,
-              Utilities::Trilinos::tpetra_comm_self()))))
+            new Tpetra::Map<int, types::signed_global_dof_index>(0, 0, Utilities::Trilinos::tpetra_comm_self()))))
     {}
 
 
@@ -60,16 +57,13 @@ namespace LinearAlgebra
     template <typename Number>
     Vector<Number>::Vector(const Vector<Number> &V)
       : Subscriptor()
-      , vector(new Tpetra::Vector<Number, int, types::signed_global_dof_index>(
-          V.trilinos_vector(),
-          Teuchos::Copy))
+      , vector(new Tpetra::Vector<Number, int, types::signed_global_dof_index>(V.trilinos_vector(), Teuchos::Copy))
     {}
 
 
 
     template <typename Number>
-    Vector<Number>::Vector(const IndexSet &parallel_partitioner,
-                           const MPI_Comm  communicator)
+    Vector<Number>::Vector(const IndexSet &parallel_partitioner, const MPI_Comm communicator)
       : Subscriptor()
       , vector(new Tpetra::Vector<Number, int, types::signed_global_dof_index>(
           Teuchos::rcp(new Tpetra::Map<int, types::signed_global_dof_index>(
@@ -87,10 +81,8 @@ namespace LinearAlgebra
       Tpetra::Map<int, types::signed_global_dof_index> input_map =
         parallel_partitioner.make_tpetra_map(communicator, false);
       if (vector->getMap()->isSameAs(input_map) == false)
-        vector = std::make_unique<
-          Tpetra::Vector<Number, int, types::signed_global_dof_index>>(
-          Teuchos::rcp(
-            new Tpetra::Map<int, types::signed_global_dof_index>(input_map)));
+        vector = std::make_unique<Tpetra::Vector<Number, int, types::signed_global_dof_index>>(
+          Teuchos::rcp(new Tpetra::Map<int, types::signed_global_dof_index>(input_map)));
       else if (omit_zeroing_entries == false)
         {
           vector->putScalar(0.);
@@ -101,29 +93,24 @@ namespace LinearAlgebra
 
     template <typename Number>
     void
-    Vector<Number>::reinit(const Vector<Number> &V,
-                           const bool            omit_zeroing_entries)
+    Vector<Number>::reinit(const Vector<Number> &V, const bool omit_zeroing_entries)
     {
-      reinit(V.locally_owned_elements(),
-             V.get_mpi_communicator(),
-             omit_zeroing_entries);
+      reinit(V.locally_owned_elements(), V.get_mpi_communicator(), omit_zeroing_entries);
     }
 
 
 
     template <typename Number>
     void
-    Vector<Number>::extract_subvector_to(
-      const ArrayView<const types::global_dof_index> &indices,
-      ArrayView<Number> &                             elements) const
+    Vector<Number>::extract_subvector_to(const ArrayView<const types::global_dof_index> &indices,
+                                         ArrayView<Number>                              &elements) const
     {
       AssertDimension(indices.size(), elements.size());
       const auto &vector = trilinos_vector();
       const auto &map    = vector.getMap();
 
 #  if DEAL_II_TRILINOS_VERSION_GTE(13, 2, 0)
-      auto vector_2d = vector.template getLocalView<Kokkos::HostSpace>(
-        Tpetra::Access::ReadOnly);
+      auto vector_2d = vector.template getLocalView<Kokkos::HostSpace>(Tpetra::Access::ReadOnly);
 #  else
       /*
        * For Trilinos older than 13.2 we would normally have to call
@@ -142,9 +129,8 @@ namespace LinearAlgebra
       for (unsigned int i = 0; i < indices.size(); ++i)
         {
           AssertIndexRange(indices[i], size());
-          const auto trilinos_i = map->getLocalElement(
-            static_cast<TrilinosWrappers::types::int_type>(indices[i]));
-          elements[i] = vector_1d(trilinos_i);
+          const auto trilinos_i = map->getLocalElement(static_cast<TrilinosWrappers::types::int_type>(indices[i]));
+          elements[i]           = vector_1d(trilinos_i);
         }
     }
 
@@ -164,17 +150,13 @@ namespace LinearAlgebra
         {
           if (size() == V.size())
             {
-              Tpetra::Import<int, types::signed_global_dof_index> data_exchange(
-                vector->getMap(), V.trilinos_vector().getMap());
+              Tpetra::Import<int, types::signed_global_dof_index> data_exchange(vector->getMap(),
+                                                                                V.trilinos_vector().getMap());
 
-              vector->doImport(V.trilinos_vector(),
-                               data_exchange,
-                               Tpetra::REPLACE);
+              vector->doImport(V.trilinos_vector(), data_exchange, Tpetra::REPLACE);
             }
           else
-            vector = std::make_unique<
-              Tpetra::Vector<Number, int, types::signed_global_dof_index>>(
-              V.trilinos_vector());
+            vector = std::make_unique<Tpetra::Vector<Number, int, types::signed_global_dof_index>>(V.trilinos_vector());
         }
 
       return *this;
@@ -186,8 +168,7 @@ namespace LinearAlgebra
     Vector<Number> &
     Vector<Number>::operator=(const Number s)
     {
-      Assert(s == Number(0.),
-             ExcMessage("Only 0 can be assigned to a vector."));
+      Assert(s == Number(0.), ExcMessage("Only 0 can be assigned to a vector."));
 
       vector->putScalar(s);
 
@@ -199,10 +180,9 @@ namespace LinearAlgebra
     template <typename Number>
     void
     Vector<Number>::import_elements(
-      const ReadWriteVector<Number> &V,
-      VectorOperation::values        operation,
-      const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase>
-        &communication_pattern)
+      const ReadWriteVector<Number>                                         &V,
+      VectorOperation::values                                                operation,
+      const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase> &communication_pattern)
     {
       // If no communication pattern is given, create one. Otherwise, use the
       // one given.
@@ -211,38 +191,30 @@ namespace LinearAlgebra
           // The first time import is called, a communication pattern is
           // created. Check if the communication pattern already exists and if
           // it can be reused.
-          if ((source_stored_elements.size() !=
-               V.get_stored_elements().size()) ||
+          if ((source_stored_elements.size() != V.get_stored_elements().size()) ||
               (source_stored_elements != V.get_stored_elements()))
             {
               const Teuchos::MpiComm<int> *mpi_comm =
-                dynamic_cast<const Teuchos::MpiComm<int> *>(
-                  vector->getMap()->getComm().get());
+                dynamic_cast<const Teuchos::MpiComm<int> *>(vector->getMap()->getComm().get());
               Assert(mpi_comm != nullptr, ExcInternalError());
-              create_tpetra_comm_pattern(V.get_stored_elements(),
-                                         *(mpi_comm->getRawMpiComm())());
+              create_tpetra_comm_pattern(V.get_stored_elements(), *(mpi_comm->getRawMpiComm())());
             }
         }
       else
         {
-          tpetra_comm_pattern = std::dynamic_pointer_cast<
-            const TpetraWrappers::CommunicationPattern>(communication_pattern);
-          AssertThrow(
-            tpetra_comm_pattern != nullptr,
-            ExcMessage(
-              std::string("The communication pattern is not of type ") +
-              "LinearAlgebra::TpetraWrappers::CommunicationPattern."));
+          tpetra_comm_pattern =
+            std::dynamic_pointer_cast<const TpetraWrappers::CommunicationPattern>(communication_pattern);
+          AssertThrow(tpetra_comm_pattern != nullptr,
+                      ExcMessage(std::string("The communication pattern is not of type ") +
+                                 "LinearAlgebra::TpetraWrappers::CommunicationPattern."));
         }
 
-      Tpetra::Export<int, types::signed_global_dof_index> tpetra_export(
-        tpetra_comm_pattern->get_tpetra_export());
-      Tpetra::Vector<Number, int, types::signed_global_dof_index> source_vector(
-        tpetra_export.getSourceMap());
+      Tpetra::Export<int, types::signed_global_dof_index> tpetra_export(tpetra_comm_pattern->get_tpetra_export());
+      Tpetra::Vector<Number, int, types::signed_global_dof_index> source_vector(tpetra_export.getSourceMap());
 
       {
 #  if DEAL_II_TRILINOS_VERSION_GTE(13, 2, 0)
-        auto x_2d = source_vector.template getLocalView<Kokkos::HostSpace>(
-          Tpetra::Access::ReadWrite);
+        auto x_2d = source_vector.template getLocalView<Kokkos::HostSpace>(Tpetra::Access::ReadWrite);
 #  else
         source_vector.template sync<Kokkos::HostSpace>();
         auto x_2d = source_vector.template getLocalView<Kokkos::HostSpace>();
@@ -257,8 +229,7 @@ namespace LinearAlgebra
           x_1d(k) = *values_it++;
 #  if !DEAL_II_TRILINOS_VERSION_GTE(13, 2, 0)
         source_vector.template sync<
-          typename Tpetra::Vector<Number, int, types::signed_global_dof_index>::
-            device_type::memory_space>();
+          typename Tpetra::Vector<Number, int, types::signed_global_dof_index>::device_type::memory_space>();
 #  endif
       }
       if (operation == VectorOperation::insert)
@@ -307,15 +278,13 @@ namespace LinearAlgebra
         }
       else
         {
-          Assert(this->size() == V.size(),
-                 ExcDimensionMismatch(this->size(), V.size()));
+          Assert(this->size() == V.size(), ExcDimensionMismatch(this->size(), V.size()));
 
           // TODO: Tpetra doesn't have a combine mode that also updates local
           // elements, maybe there is a better workaround.
-          Tpetra::Vector<Number, int, types::signed_global_dof_index> dummy(
-            vector->getMap(), false);
-          Tpetra::Import<int, types::signed_global_dof_index> data_exchange(
-            V.trilinos_vector().getMap(), dummy.getMap());
+          Tpetra::Vector<Number, int, types::signed_global_dof_index> dummy(vector->getMap(), false);
+          Tpetra::Import<int, types::signed_global_dof_index>         data_exchange(V.trilinos_vector().getMap(),
+                                                                            dummy.getMap());
 
           dummy.doImport(V.trilinos_vector(), data_exchange, Tpetra::INSERT);
 
@@ -342,10 +311,8 @@ namespace LinearAlgebra
     Number
     Vector<Number>::operator*(const Vector<Number> &V) const
     {
-      Assert(this->size() == V.size(),
-             ExcDimensionMismatch(this->size(), V.size()));
-      Assert(vector->getMap()->isSameAs(*V.trilinos_vector().getMap()),
-             ExcDifferentParallelPartitioning());
+      Assert(this->size() == V.size(), ExcDimensionMismatch(this->size(), V.size()));
+      Assert(vector->getMap()->isSameAs(*V.trilinos_vector().getMap()), ExcDifferentParallelPartitioning());
 
       return vector->dot(V.trilinos_vector());
     }
@@ -359,8 +326,7 @@ namespace LinearAlgebra
       AssertIsFinite(a);
 
 #  if DEAL_II_TRILINOS_VERSION_GTE(13, 2, 0)
-      auto vector_2d = vector->template getLocalView<Kokkos::HostSpace>(
-        Tpetra::Access::ReadWrite);
+      auto vector_2d = vector->template getLocalView<Kokkos::HostSpace>(Tpetra::Access::ReadWrite);
 #  else
       vector->template sync<Kokkos::HostSpace>();
       auto vector_2d = vector->template getLocalView<Kokkos::HostSpace>();
@@ -376,8 +342,7 @@ namespace LinearAlgebra
         }
 #  if !DEAL_II_TRILINOS_VERSION_GTE(13, 2, 0)
       vector->template sync<
-        typename Tpetra::Vector<Number, int, types::signed_global_dof_index>::
-          device_type::memory_space>();
+        typename Tpetra::Vector<Number, int, types::signed_global_dof_index>::device_type::memory_space>();
 #  endif
     }
 
@@ -388,8 +353,7 @@ namespace LinearAlgebra
     Vector<Number>::add(const Number a, const Vector<Number> &V)
     {
       AssertIsFinite(a);
-      Assert(vector->getMap()->isSameAs(*(V.trilinos_vector().getMap())),
-             ExcDifferentParallelPartitioning());
+      Assert(vector->getMap()->isSameAs(*(V.trilinos_vector().getMap())), ExcDifferentParallelPartitioning());
 
       vector->update(a, V.trilinos_vector(), 1.);
     }
@@ -398,15 +362,10 @@ namespace LinearAlgebra
 
     template <typename Number>
     void
-    Vector<Number>::add(const Number          a,
-                        const Vector<Number> &V,
-                        const Number          b,
-                        const Vector<Number> &W)
+    Vector<Number>::add(const Number a, const Vector<Number> &V, const Number b, const Vector<Number> &W)
     {
-      Assert(vector->getMap()->isSameAs(*(V.trilinos_vector().getMap())),
-             ExcDifferentParallelPartitioning());
-      Assert(vector->getMap()->isSameAs(*(W.trilinos_vector().getMap())),
-             ExcDifferentParallelPartitioning());
+      Assert(vector->getMap()->isSameAs(*(V.trilinos_vector().getMap())), ExcDifferentParallelPartitioning());
+      Assert(vector->getMap()->isSameAs(*(W.trilinos_vector().getMap())), ExcDifferentParallelPartitioning());
       AssertIsFinite(a);
       AssertIsFinite(b);
 
@@ -417,9 +376,7 @@ namespace LinearAlgebra
 
     template <typename Number>
     void
-    Vector<Number>::sadd(const Number          s,
-                         const Number          a,
-                         const Vector<Number> &V)
+    Vector<Number>::sadd(const Number s, const Number a, const Vector<Number> &V)
     {
       *this *= s;
 
@@ -434,8 +391,7 @@ namespace LinearAlgebra
     void
     Vector<Number>::scale(const Vector<Number> &scaling_factors)
     {
-      Assert(vector->getMap()->isSameAs(
-               *(scaling_factors.trilinos_vector().getMap())),
+      Assert(vector->getMap()->isSameAs(*(scaling_factors.trilinos_vector().getMap())),
              ExcDifferentParallelPartitioning());
 
       vector->elementWiseMultiply(1., *scaling_factors.vector, *vector, 0.);
@@ -465,10 +421,9 @@ namespace LinearAlgebra
     {
       // get a representation of the vector and
       // loop over all the elements
-      Number *      start_ptr = vector->getDataNonConst().get();
-      const Number *ptr       = start_ptr,
-                   *eptr      = start_ptr + vector->getLocalLength();
-      unsigned int flag       = 0;
+      Number       *start_ptr = vector->getDataNonConst().get();
+      const Number *ptr = start_ptr, *eptr = start_ptr + vector->getLocalLength();
+      unsigned int  flag = 0;
       while (ptr != eptr)
         {
           if (*ptr != Number(0))
@@ -481,11 +436,9 @@ namespace LinearAlgebra
 
       // Check that the vector is zero on _all_ processors.
       const Teuchos::MpiComm<int> *mpi_comm =
-        dynamic_cast<const Teuchos::MpiComm<int> *>(
-          vector->getMap()->getComm().get());
+        dynamic_cast<const Teuchos::MpiComm<int> *>(vector->getMap()->getComm().get());
       Assert(mpi_comm != nullptr, ExcInternalError());
-      unsigned int num_nonzero =
-        Utilities::MPI::sum(flag, *(mpi_comm->getRawMpiComm())());
+      unsigned int num_nonzero = Utilities::MPI::sum(flag, *(mpi_comm->getRawMpiComm())());
 
       return num_nonzero == 0;
     }
@@ -530,9 +483,7 @@ namespace LinearAlgebra
 
     template <typename Number>
     Number
-    Vector<Number>::add_and_dot(const Number          a,
-                                const Vector<Number> &V,
-                                const Vector<Number> &W)
+    Vector<Number>::add_and_dot(const Number a, const Vector<Number> &V, const Vector<Number> &W)
     {
       this->add(a, V);
 
@@ -563,9 +514,7 @@ namespace LinearAlgebra
     MPI_Comm
     Vector<Number>::get_mpi_communicator() const
     {
-      const auto *const tpetra_comm =
-        dynamic_cast<const Teuchos::MpiComm<int> *>(
-          vector->getMap()->getComm().get());
+      const auto *const tpetra_comm = dynamic_cast<const Teuchos::MpiComm<int> *>(vector->getMap()->getComm().get());
       Assert(tpetra_comm != nullptr, ExcInternalError());
       return *(tpetra_comm->getRawMpiComm())();
     }
@@ -581,19 +530,17 @@ namespace LinearAlgebra
       // easy case: local range is contiguous
       if (vector->getMap()->isContiguous())
         {
-          is.add_range(vector->getMap()->getMinGlobalIndex(),
-                       vector->getMap()->getMaxGlobalIndex() + 1);
+          is.add_range(vector->getMap()->getMinGlobalIndex(), vector->getMap()->getMaxGlobalIndex() + 1);
         }
       else if (vector->getLocalLength() > 0)
         {
-          const size_type n_indices = vector->getLocalLength();
+          const size_type                      n_indices = vector->getLocalLength();
           std::vector<types::global_dof_index> vector_indices;
           vector_indices.reserve(n_indices);
           for (unsigned int i = 0; i < n_indices; ++i)
             vector_indices.push_back(vector->getMap()->getGlobalElement(i));
 
-          is.add_indices(vector_indices.data(),
-                         vector_indices.data() + n_indices);
+          is.add_indices(vector_indices.data(), vector_indices.data() + n_indices);
         }
       is.compress();
 
@@ -628,7 +575,7 @@ namespace LinearAlgebra
 
     template <typename Number>
     void
-    Vector<Number>::print(std::ostream &     out,
+    Vector<Number>::print(std::ostream      &out,
                           const unsigned int precision,
                           const bool         scientific,
                           const bool         across) const
@@ -647,8 +594,7 @@ namespace LinearAlgebra
         out.setf(std::ios::fixed, std::ios::floatfield);
 
 #  if DEAL_II_TRILINOS_VERSION_GTE(13, 2, 0)
-      auto vector_2d = vector->template getLocalView<Kokkos::HostSpace>(
-        Tpetra::Access::ReadOnly);
+      auto vector_2d = vector->template getLocalView<Kokkos::HostSpace>(Tpetra::Access::ReadOnly);
 #  else
       vector->template sync<Kokkos::HostSpace>();
       auto vector_2d = vector->template getLocalView<Kokkos::HostSpace>();
@@ -675,22 +621,18 @@ namespace LinearAlgebra
     std::size_t
     Vector<Number>::memory_consumption() const
     {
-      return sizeof(*this) +
-             vector->getLocalLength() *
-               (sizeof(Number) + sizeof(TrilinosWrappers::types::int_type));
+      return sizeof(*this) + vector->getLocalLength() * (sizeof(Number) + sizeof(TrilinosWrappers::types::int_type));
     }
 
 
 
     template <typename Number>
     void
-    Vector<Number>::create_tpetra_comm_pattern(const IndexSet &source_index_set,
-                                               const MPI_Comm  mpi_comm)
+    Vector<Number>::create_tpetra_comm_pattern(const IndexSet &source_index_set, const MPI_Comm mpi_comm)
     {
       source_stored_elements = source_index_set;
       tpetra_comm_pattern =
-        std::make_shared<TpetraWrappers::CommunicationPattern>(
-          locally_owned_elements(), source_index_set, mpi_comm);
+        std::make_shared<TpetraWrappers::CommunicationPattern>(locally_owned_elements(), source_index_set, mpi_comm);
     }
   } // namespace TpetraWrappers
 } // namespace LinearAlgebra

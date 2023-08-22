@@ -52,9 +52,8 @@ check()
   for (unsigned int i = 0; i < size; ++i)
     in(i) = random_value<double>();
 
-  PreconditionChebyshev<FullMatrixModified, Vector<double>> prec;
-  PreconditionChebyshev<FullMatrixModified, Vector<double>>::AdditionalData
-    data;
+  PreconditionChebyshev<FullMatrixModified, Vector<double>>                 prec;
+  PreconditionChebyshev<FullMatrixModified, Vector<double>>::AdditionalData data;
   data.smoothing_range = 2 * size;
   data.degree          = 4;
   prec.initialize(m, data);

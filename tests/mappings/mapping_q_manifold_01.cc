@@ -148,8 +148,7 @@ VectorFunction<dim>::value(const Point<dim> &p, Vector<double> &values) const
 
 template <int dim>
 void
-VectorFunction<dim>::vector_value(const Point<dim> &p,
-                                  Vector<double> &  values) const
+VectorFunction<dim>::vector_value(const Point<dim> &p, Vector<double> &values) const
 {
   for (int i = 0; i < dim; ++i)
     values(i) = value(p, i);
@@ -162,16 +161,11 @@ create_tria(Triangulation<dim> &triangulation, const Geometry<dim> &geometry)
   GridGenerator::hyper_cube(triangulation, -1., 1.);
   triangulation.refine_global(3);
 
-  GridTools::transform(std::bind(&Geometry<dim>::push_forward,
-                                 std::cref(geometry),
-                                 std::placeholders::_1),
+  GridTools::transform(std::bind(&Geometry<dim>::push_forward, std::cref(geometry), std::placeholders::_1),
                        triangulation);
 
   triangulation.set_manifold(0, geometry);
-  for (Triangulation<3>::active_cell_iterator cell =
-         triangulation.begin_active();
-       cell != triangulation.end();
-       ++cell)
+  for (Triangulation<3>::active_cell_iterator cell = triangulation.begin_active(); cell != triangulation.end(); ++cell)
     cell->set_all_manifold_ids(0);
 }
 
@@ -200,29 +194,18 @@ test(const FiniteElement<dim> &fe)
       constraints.close();
 
       Vector<double> v(dof_handler.n_dofs());
-      VectorTools::project(mapping,
-                           dof_handler,
-                           constraints,
-                           QGauss<dim>(fe.degree + 2),
-                           fe_function,
-                           v);
+      VectorTools::project(mapping, dof_handler, constraints, QGauss<dim>(fe.degree + 2), fe_function, v);
 
       Vector<float> diff(triangulation.n_active_cells());
-      VectorTools::integrate_difference(mapping,
-                                        dof_handler,
-                                        v,
-                                        fe_function,
-                                        diff,
-                                        QGauss<dim>(fe.degree + 2),
-                                        VectorTools::L2_norm);
+      VectorTools::integrate_difference(
+        mapping, dof_handler, v, fe_function, diff, QGauss<dim>(fe.degree + 2), VectorTools::L2_norm);
 
       deallog << mapping.get_degree() << "\t" << diff.l2_norm() << std::endl;
 
       if (false) // enable for visualization
         {
           DataOut<dim>  data_out;
-          std::ofstream output(
-            ("output_" + Utilities::int_to_string(mapping_p) + ".vtk").c_str());
+          std::ofstream output(("output_" + Utilities::int_to_string(mapping_p) + ".vtk").c_str());
           data_out.attach_dof_handler(dof_handler);
           data_out.add_data_vector(v, "v");
           data_out.add_data_vector(diff, "e");

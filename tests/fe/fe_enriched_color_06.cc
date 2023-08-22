@@ -83,8 +83,7 @@ private:
  * ColorEnriched::internal::color_predicates.
  */
 template <int dim>
-using predicate_function =
-  std::function<bool(const typename Triangulation<dim>::cell_iterator &)>;
+using predicate_function = std::function<bool(const typename Triangulation<dim>::cell_iterator &)>;
 
 
 
@@ -115,19 +114,14 @@ main(int argc, char **argv)
     {
       // constant function.
       Functions::ConstantFunction<dim> func(10 + i); // constant function
-      vec_enrichments.push_back(
-        std::make_shared<Functions::ConstantFunction<dim>>(func));
+      vec_enrichments.push_back(std::make_shared<Functions::ConstantFunction<dim>>(func));
     }
 
   // Construct helper class to construct FE collection
   FE_Q<dim>                         fe_base(2);
   FE_Q<dim>                         fe_enriched(1);
-  static ColorEnriched::Helper<dim> fe_space(fe_base,
-                                             fe_enriched,
-                                             vec_predicates,
-                                             vec_enrichments);
-  const hp::FECollection<dim> &     fe_collection(
-    fe_space.build_fe_collection(dof_handler));
+  static ColorEnriched::Helper<dim> fe_space(fe_base, fe_enriched, vec_predicates, vec_enrichments);
+  const hp::FECollection<dim>      &fe_collection(fe_space.build_fe_collection(dof_handler));
 
   // check if fe_collection is correctly constructed by function
   deallog << "fe_collection[index] mapping:" << std::endl;
@@ -136,8 +130,7 @@ main(int argc, char **argv)
       deallog << "name:" << fe_collection[index].get_name() << std::endl;
       deallog << "n_blocks:" << fe_collection[index].n_blocks() << std::endl;
       deallog << "n_comp:" << fe_collection[index].n_components() << std::endl;
-      deallog << "n_dofs:" << fe_collection[index].n_dofs_per_cell()
-              << std::endl;
+      deallog << "n_dofs:" << fe_collection[index].n_dofs_per_cell() << std::endl;
     }
 
   dof_handler.clear();

@@ -47,8 +47,7 @@ test1()
   A.precede(C);
   B.precede(C);
 
-  auto p =
-    taskflow.for_each_index(1, 11, 1, [&](int idx) { counter.fetch_add(idx); });
+  auto p = taskflow.for_each_index(1, 11, 1, [&](int idx) { counter.fetch_add(idx); });
 
   C.precede(p);
 
@@ -56,8 +55,7 @@ test1()
 
   if (counter != 55)
     {
-      std::cout << "error: counter is " << counter << " and not 55."
-                << std::endl;
+      std::cout << "error: counter is " << counter << " and not 55." << std::endl;
       exit(1);
     }
 
@@ -71,12 +69,9 @@ main()
 {
   MultithreadInfo::set_thread_limit();
 
-  std::cout << "taskflow will use "
-            << MultithreadInfo::get_taskflow_executor().num_workers()
-            << " out of " << MultithreadInfo::n_cores() << " cores."
-            << std::endl
-            << "MultithreadInfo::n_thread()= " << MultithreadInfo::n_threads()
-            << std::endl;
+  std::cout << "taskflow will use " << MultithreadInfo::get_taskflow_executor().num_workers() << " out of "
+            << MultithreadInfo::n_cores() << " cores." << std::endl
+            << "MultithreadInfo::n_thread()= " << MultithreadInfo::n_threads() << std::endl;
 
   test1();
 }

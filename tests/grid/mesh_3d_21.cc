@@ -52,30 +52,22 @@ check_this(Triangulation<3> &tria)
         {
           if (cell->neighbor(face_no)->has_children())
             // we are coarser than the neighbor
-            for (unsigned int subface_no = 0;
-                 subface_no < cell->face(face_no)->n_children();
-                 ++subface_no)
+            for (unsigned int subface_no = 0; subface_no < cell->face(face_no)->n_children(); ++subface_no)
               {
                 // get an iterator
                 // pointing to the cell
                 // behind the present
                 // subface
-                const unsigned int neighbor_neighbor =
-                  cell->neighbor_of_neighbor(face_no);
+                const unsigned int neighbor_neighbor = cell->neighbor_of_neighbor(face_no);
 
                 const DoFHandler<3>::active_cell_iterator neighbor_child =
                   cell->neighbor_child_on_subface(face_no, subface_no);
 
                 // make sure, that we find the
                 // way back
-                const unsigned int our_face_no =
-                  neighbor_child
-                    ->neighbor_of_coarser_neighbor(neighbor_neighbor)
-                    .first;
+                const unsigned int our_face_no = neighbor_child->neighbor_of_coarser_neighbor(neighbor_neighbor).first;
                 const unsigned int our_subface_no =
-                  neighbor_child
-                    ->neighbor_of_coarser_neighbor(neighbor_neighbor)
-                    .second;
+                  neighbor_child->neighbor_of_coarser_neighbor(neighbor_neighbor).second;
 
                 AssertThrow(our_face_no == face_no, ExcInternalError());
                 AssertThrow(our_subface_no == subface_no, ExcInternalError());
@@ -84,15 +76,12 @@ check_this(Triangulation<3> &tria)
           else if (cell->neighbor(face_no)->level() < cell->level())
             // the neighbor is coarser
             {
-              const unsigned int neighbor_face_no =
-                cell->neighbor_of_coarser_neighbor(face_no).first;
-              const unsigned int neighbor_subface_no =
-                cell->neighbor_of_coarser_neighbor(face_no).second;
+              const unsigned int neighbor_face_no    = cell->neighbor_of_coarser_neighbor(face_no).first;
+              const unsigned int neighbor_subface_no = cell->neighbor_of_coarser_neighbor(face_no).second;
 
               // try to find the way back to our cell
               const DoFHandler<3>::active_cell_iterator our_cell =
-                cell->neighbor(face_no)->neighbor_child_on_subface(
-                  neighbor_face_no, neighbor_subface_no);
+                cell->neighbor(face_no)->neighbor_child_on_subface(neighbor_face_no, neighbor_subface_no);
               AssertThrow(our_cell == cell, ExcInternalError());
               deallog << "from fine to coarse and back: OK" << std::endl;
             }

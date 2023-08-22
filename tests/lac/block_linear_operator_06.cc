@@ -58,9 +58,8 @@ main()
 
   dof_handler.distribute_dofs(fe);
 
-  const std::vector<types::global_dof_index> dofs_per_component =
-    DoFTools::count_dofs_per_fe_component(dof_handler);
-  const unsigned int n_u = dofs_per_component[0], n_p = dofs_per_component[1];
+  const std::vector<types::global_dof_index> dofs_per_component = DoFTools::count_dofs_per_fe_component(dof_handler);
+  const unsigned int                         n_u = dofs_per_component[0], n_p = dofs_per_component[1];
 
   BlockDynamicSparsityPattern dsp(2, 2);
   dsp.block(0, 0).reinit(n_u, n_u);
@@ -111,9 +110,8 @@ main()
   auto op_b10 = linear_operator(a.block(1, 0));
   auto op_b11 = linear_operator(a.block(1, 1));
 
-  std::array<std::array<decltype(op_b00), 2>, 2> temp{
-    {{{op_b00, op_b01}}, {{op_b10, op_b11}}}};
-  auto op_b = block_operator<2, 2, BlockVector<double>>(temp);
+  std::array<std::array<decltype(op_b00), 2>, 2> temp{{{{op_b00, op_b01}}, {{op_b10, op_b11}}}};
+  auto                                           op_b = block_operator<2, 2, BlockVector<double>>(temp);
 
   // vmult:
 

@@ -47,8 +47,7 @@ test(Vector<std::complex<double>> &v)
   // check that they are ok, and this time
   // all of them
   for (unsigned int i = 0; i < v.size(); ++i)
-    AssertThrow(((pattern[i] == true) &&
-                 (v(i) == std::complex<double>(i + 1., i + 2.))) ||
+    AssertThrow(((pattern[i] == true) && (v(i) == std::complex<double>(i + 1., i + 2.))) ||
                   ((pattern[i] == false) && (v(i) == std::complex<double>(0))),
                 ExcInternalError());
 
@@ -69,28 +68,20 @@ main()
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

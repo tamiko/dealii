@@ -45,8 +45,7 @@ test()
   DoFHandler<dim> dof_handler(triangulation);
   dof_handler.distribute_dofs(fe);
 
-  std::vector<IndexSet> locally_owned_dofs_per_proc =
-    DoFTools::locally_owned_dofs_per_subdomain(dof_handler);
+  std::vector<IndexSet> locally_owned_dofs_per_proc = DoFTools::locally_owned_dofs_per_subdomain(dof_handler);
 
   for (unsigned int p = 0; p < nproc; ++p)
     {
@@ -58,8 +57,7 @@ test()
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   MPILogInitAll all;
 

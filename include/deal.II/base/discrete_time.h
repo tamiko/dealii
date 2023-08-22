@@ -252,9 +252,7 @@ public:
    * in the code. In this case, the created object cannot increment time until
    * the step size is changed by calling set_desired_next_step_size().
    */
-  DiscreteTime(const double start_time,
-               const double end_time,
-               const double desired_start_step_size = 0.);
+  DiscreteTime(const double start_time, const double end_time, const double desired_start_step_size = 0.);
 
   /**
    * Return the current time.

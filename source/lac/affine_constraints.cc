@@ -29,82 +29,67 @@ DEAL_II_NAMESPACE_OPEN
  * matrix and vector types).
  */
 
-#define INSTANTIATE_DLTG_VECTOR(VectorType)                                    \
-  template void AffineConstraints<VectorType::value_type>::condense<           \
-    VectorType>(const VectorType &, VectorType &) const;                       \
-  template void                                                                \
-  AffineConstraints<VectorType::value_type>::condense<VectorType>(             \
-    VectorType &) const;                                                       \
-  template void                                                                \
-  AffineConstraints<VectorType::value_type>::distribute_local_to_global<       \
-    VectorType>(                                                               \
-    const Vector<VectorType::value_type> &,                                    \
-    const std::vector<AffineConstraints<VectorType::value_type>::size_type> &, \
-    VectorType &,                                                              \
-    const FullMatrix<VectorType::value_type> &) const;                         \
-  template void                                                                \
-  AffineConstraints<VectorType::value_type>::distribute_local_to_global<       \
-    VectorType>(                                                               \
-    const Vector<VectorType::value_type> &,                                    \
-    const std::vector<AffineConstraints<VectorType::value_type>::size_type> &, \
-    const std::vector<AffineConstraints<VectorType::value_type>::size_type> &, \
-    VectorType &,                                                              \
-    const FullMatrix<VectorType::value_type> &,                                \
+#define INSTANTIATE_DLTG_VECTOR(VectorType)                                                                       \
+  template void AffineConstraints<VectorType::value_type>::condense<VectorType>(const VectorType &, VectorType &) \
+    const;                                                                                                        \
+  template void AffineConstraints<VectorType::value_type>::condense<VectorType>(VectorType &) const;              \
+  template void AffineConstraints<VectorType::value_type>::distribute_local_to_global<VectorType>(                \
+    const Vector<VectorType::value_type> &,                                                                       \
+    const std::vector<AffineConstraints<VectorType::value_type>::size_type> &,                                    \
+    VectorType &,                                                                                                 \
+    const FullMatrix<VectorType::value_type> &) const;                                                            \
+  template void AffineConstraints<VectorType::value_type>::distribute_local_to_global<VectorType>(                \
+    const Vector<VectorType::value_type> &,                                                                       \
+    const std::vector<AffineConstraints<VectorType::value_type>::size_type> &,                                    \
+    const std::vector<AffineConstraints<VectorType::value_type>::size_type> &,                                    \
+    VectorType &,                                                                                                 \
+    const FullMatrix<VectorType::value_type> &,                                                                   \
     bool) const
 
-#define INSTANTIATE_DLTG_VECTORMATRIX(MatrixType, VectorType) \
-  template void AffineConstraints<MatrixType::value_type>::   \
-    distribute_local_to_global<MatrixType, VectorType>(       \
-      const FullMatrix<MatrixType::value_type> &,             \
-      const Vector<VectorType::value_type> &,                 \
-      const std::vector<AffineConstraints::size_type> &,      \
-      MatrixType &,                                           \
-      VectorType &,                                           \
-      bool,                                                   \
-      std::integral_constant<bool, false>) const
+#define INSTANTIATE_DLTG_VECTORMATRIX(MatrixType, VectorType)                                                  \
+  template void AffineConstraints<MatrixType::value_type>::distribute_local_to_global<MatrixType, VectorType>( \
+    const FullMatrix<MatrixType::value_type> &,                                                                \
+    const Vector<VectorType::value_type> &,                                                                    \
+    const std::vector<AffineConstraints::size_type> &,                                                         \
+    MatrixType &,                                                                                              \
+    VectorType &,                                                                                              \
+    bool,                                                                                                      \
+    std::integral_constant<bool, false>) const
 
-#define INSTANTIATE_DLTG_BLOCK_VECTORMATRIX(MatrixType, VectorType) \
-  template void AffineConstraints<MatrixType::value_type>::         \
-    distribute_local_to_global<MatrixType, VectorType>(             \
-      const FullMatrix<MatrixType::value_type> &,                   \
-      const Vector<VectorType::value_type> &,                       \
-      const std::vector<AffineConstraints::size_type> &,            \
-      MatrixType &,                                                 \
-      VectorType &,                                                 \
-      bool,                                                         \
-      std::integral_constant<bool, true>) const
+#define INSTANTIATE_DLTG_BLOCK_VECTORMATRIX(MatrixType, VectorType)                                            \
+  template void AffineConstraints<MatrixType::value_type>::distribute_local_to_global<MatrixType, VectorType>( \
+    const FullMatrix<MatrixType::value_type> &,                                                                \
+    const Vector<VectorType::value_type> &,                                                                    \
+    const std::vector<AffineConstraints::size_type> &,                                                         \
+    MatrixType &,                                                                                              \
+    VectorType &,                                                                                              \
+    bool,                                                                                                      \
+    std::integral_constant<bool, true>) const
 
-#define INSTANTIATE_DLTG_MATRIX(MatrixType)                              \
-  template void                                                          \
-  AffineConstraints<MatrixType::value_type>::distribute_local_to_global< \
-    MatrixType>(const FullMatrix<MatrixType::value_type> &,              \
-                const std::vector<AffineConstraints::size_type> &,       \
-                const std::vector<AffineConstraints::size_type> &,       \
-                MatrixType &) const;                                     \
-  template void                                                          \
-  AffineConstraints<MatrixType::value_type>::distribute_local_to_global< \
-    MatrixType>(const FullMatrix<MatrixType::value_type> &,              \
-                const std::vector<AffineConstraints::size_type> &,       \
-                const AffineConstraints<MatrixType::value_type> &,       \
-                const std::vector<AffineConstraints::size_type> &,       \
-                MatrixType &) const
+#define INSTANTIATE_DLTG_MATRIX(MatrixType)                                                        \
+  template void AffineConstraints<MatrixType::value_type>::distribute_local_to_global<MatrixType>( \
+    const FullMatrix<MatrixType::value_type> &,                                                    \
+    const std::vector<AffineConstraints::size_type> &,                                             \
+    const std::vector<AffineConstraints::size_type> &,                                             \
+    MatrixType &) const;                                                                           \
+  template void AffineConstraints<MatrixType::value_type>::distribute_local_to_global<MatrixType>( \
+    const FullMatrix<MatrixType::value_type> &,                                                    \
+    const std::vector<AffineConstraints::size_type> &,                                             \
+    const AffineConstraints<MatrixType::value_type> &,                                             \
+    const std::vector<AffineConstraints::size_type> &,                                             \
+    MatrixType &) const
 
 #ifdef DEAL_II_WITH_PETSC
 INSTANTIATE_DLTG_VECTOR(PETScWrappers::MPI::Vector);
 INSTANTIATE_DLTG_VECTOR(PETScWrappers::MPI::BlockVector);
 
 INSTANTIATE_DLTG_VECTORMATRIX(PETScWrappers::SparseMatrix, Vector<PetscScalar>);
-INSTANTIATE_DLTG_VECTORMATRIX(PETScWrappers::SparseMatrix,
-                              PETScWrappers::MPI::Vector);
-INSTANTIATE_DLTG_VECTORMATRIX(PETScWrappers::MPI::SparseMatrix,
-                              Vector<PetscScalar>);
-INSTANTIATE_DLTG_VECTORMATRIX(PETScWrappers::MPI::SparseMatrix,
-                              PETScWrappers::MPI::Vector);
+INSTANTIATE_DLTG_VECTORMATRIX(PETScWrappers::SparseMatrix, PETScWrappers::MPI::Vector);
+INSTANTIATE_DLTG_VECTORMATRIX(PETScWrappers::MPI::SparseMatrix, Vector<PetscScalar>);
+INSTANTIATE_DLTG_VECTORMATRIX(PETScWrappers::MPI::SparseMatrix, PETScWrappers::MPI::Vector);
 
-INSTANTIATE_DLTG_BLOCK_VECTORMATRIX(PETScWrappers::MPI::BlockSparseMatrix,
-                                    Vector<PetscScalar>);
-INSTANTIATE_DLTG_BLOCK_VECTORMATRIX(PETScWrappers::MPI::BlockSparseMatrix,
-                                    PETScWrappers::MPI::BlockVector);
+INSTANTIATE_DLTG_BLOCK_VECTORMATRIX(PETScWrappers::MPI::BlockSparseMatrix, Vector<PetscScalar>);
+INSTANTIATE_DLTG_BLOCK_VECTORMATRIX(PETScWrappers::MPI::BlockSparseMatrix, PETScWrappers::MPI::BlockVector);
 
 INSTANTIATE_DLTG_MATRIX(PETScWrappers::SparseMatrix);
 INSTANTIATE_DLTG_MATRIX(PETScWrappers::MPI::SparseMatrix);
@@ -112,8 +97,7 @@ INSTANTIATE_DLTG_MATRIX(PETScWrappers::MPI::BlockSparseMatrix);
 #  ifndef DOXYGEN
 #    ifdef DEAL_II_PETSC_WITH_COMPLEX
 template void
-dealii::AffineConstraints<double>::distribute<
-  dealii::PETScWrappers::MPI::Vector>(
+dealii::AffineConstraints<double>::distribute<dealii::PETScWrappers::MPI::Vector>(
   dealii::PETScWrappers::MPI::Vector &) const;
 #    endif
 #  endif
@@ -123,18 +107,13 @@ dealii::AffineConstraints<double>::distribute<
 INSTANTIATE_DLTG_VECTOR(TrilinosWrappers::MPI::Vector);
 
 INSTANTIATE_DLTG_VECTORMATRIX(TrilinosWrappers::SparseMatrix, Vector<double>);
-INSTANTIATE_DLTG_VECTORMATRIX(TrilinosWrappers::SparseMatrix,
-                              LinearAlgebra::distributed::Vector<double>);
-INSTANTIATE_DLTG_VECTORMATRIX(TrilinosWrappers::SparseMatrix,
-                              TrilinosWrappers::MPI::Vector);
+INSTANTIATE_DLTG_VECTORMATRIX(TrilinosWrappers::SparseMatrix, LinearAlgebra::distributed::Vector<double>);
+INSTANTIATE_DLTG_VECTORMATRIX(TrilinosWrappers::SparseMatrix, TrilinosWrappers::MPI::Vector);
 
+INSTANTIATE_DLTG_BLOCK_VECTORMATRIX(TrilinosWrappers::BlockSparseMatrix, Vector<double>);
 INSTANTIATE_DLTG_BLOCK_VECTORMATRIX(TrilinosWrappers::BlockSparseMatrix,
-                                    Vector<double>);
-INSTANTIATE_DLTG_BLOCK_VECTORMATRIX(
-  TrilinosWrappers::BlockSparseMatrix,
-  LinearAlgebra::distributed::BlockVector<double>);
-INSTANTIATE_DLTG_BLOCK_VECTORMATRIX(TrilinosWrappers::BlockSparseMatrix,
-                                    TrilinosWrappers::MPI::BlockVector);
+                                    LinearAlgebra::distributed::BlockVector<double>);
+INSTANTIATE_DLTG_BLOCK_VECTORMATRIX(TrilinosWrappers::BlockSparseMatrix, TrilinosWrappers::MPI::BlockVector);
 
 INSTANTIATE_DLTG_MATRIX(TrilinosWrappers::SparseMatrix);
 INSTANTIATE_DLTG_MATRIX(TrilinosWrappers::BlockSparseMatrix);
@@ -143,8 +122,7 @@ INSTANTIATE_DLTG_MATRIX(TrilinosWrappers::BlockSparseMatrix);
 #    if defined(DEAL_II_TRILINOS_WITH_TPETRA) && defined(HAVE_TPETRA_INST_FLOAT)
 // FIXME: This mixed variant is needed for multigrid and matrix free.
 template void
-dealii::AffineConstraints<double>::distribute<
-  dealii::LinearAlgebra::TpetraWrappers::Vector<float>>(
+dealii::AffineConstraints<double>::distribute<dealii::LinearAlgebra::TpetraWrappers::Vector<float>>(
   dealii::LinearAlgebra::TpetraWrappers::Vector<float> &) const;
 #    endif
 #  endif
@@ -156,25 +134,21 @@ namespace internal
   namespace AffineConstraintsImplementation
   {
     template void
-    set_zero_all(
-      const std::vector<types::global_dof_index> &                     cm,
-      LinearAlgebra::distributed::Vector<float, MemorySpace::Default> &vec);
+    set_zero_all(const std::vector<types::global_dof_index>                      &cm,
+                 LinearAlgebra::distributed::Vector<float, MemorySpace::Default> &vec);
 
     template void
-    set_zero_all(
-      const std::vector<types::global_dof_index> &                      cm,
-      LinearAlgebra::distributed::Vector<double, MemorySpace::Default> &vec);
+    set_zero_all(const std::vector<types::global_dof_index>                       &cm,
+                 LinearAlgebra::distributed::Vector<double, MemorySpace::Default> &vec);
   } // namespace AffineConstraintsImplementation
 } // namespace internal
 
 template void
-AffineConstraints<float>::set_zero<
-  LinearAlgebra::distributed::Vector<float, MemorySpace::Default>>(
+AffineConstraints<float>::set_zero<LinearAlgebra::distributed::Vector<float, MemorySpace::Default>>(
   LinearAlgebra::distributed::Vector<float, MemorySpace::Default> &) const;
 
 template void
-AffineConstraints<double>::set_zero<
-  LinearAlgebra::distributed::Vector<double, MemorySpace::Default>>(
+AffineConstraints<double>::set_zero<LinearAlgebra::distributed::Vector<double, MemorySpace::Default>>(
   LinearAlgebra::distributed::Vector<double, MemorySpace::Default> &) const;
 #endif
 

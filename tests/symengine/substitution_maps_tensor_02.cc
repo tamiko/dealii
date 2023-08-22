@@ -41,18 +41,13 @@ main()
 
 
   SD::types::substitution_map substitution_map;
-  SD::add_to_substitution_map(substitution_map,
-                              SD::Expression("x1"),
-                              SD::Expression(1));
+  SD::add_to_substitution_map(substitution_map, SD::Expression("x1"), SD::Expression(1));
 
-  SD::merge_substitution_maps(
-    substitution_map,
-    SD::make_substitution_map(SD::make_tensor_of_symbols<2, dim>("t1"), t),
-    SD::make_substitution_map(
-      SD::make_symmetric_tensor_of_symbols<2, dim>("st1"), st),
-    SD::make_substitution_map(SD::make_tensor_of_symbols<2, dim>("t2"), t),
-    SD::make_substitution_map(
-      SD::make_symmetric_tensor_of_symbols<2, dim>("st2"), st));
+  SD::merge_substitution_maps(substitution_map,
+                              SD::make_substitution_map(SD::make_tensor_of_symbols<2, dim>("t1"), t),
+                              SD::make_substitution_map(SD::make_symmetric_tensor_of_symbols<2, dim>("st1"), st),
+                              SD::make_substitution_map(SD::make_tensor_of_symbols<2, dim>("t2"), t),
+                              SD::make_substitution_map(SD::make_symmetric_tensor_of_symbols<2, dim>("st2"), st));
 
   SD::Utilities::print_substitution_map(deallog, substitution_map);
 

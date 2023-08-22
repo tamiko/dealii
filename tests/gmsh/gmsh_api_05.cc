@@ -28,8 +28,7 @@ template <int dim, int spacedim>
 void
 test()
 {
-  deallog << "Testing hypercube in dimensions " << '<' << dim << ',' << spacedim
-          << '>' << std::endl;
+  deallog << "Testing hypercube in dimensions " << '<' << dim << ',' << spacedim << '>' << std::endl;
 
   Triangulation<dim, spacedim> tria;
   GridGenerator::hyper_cube(tria, 0, 1, true);

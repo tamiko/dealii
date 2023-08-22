@@ -66,20 +66,14 @@ public:
     : data(data_in){};
 
   void
-  local_apply(const MatrixFree<dim, Number> &              data,
-              VectorType &                                 dst,
-              const VectorType &                           src,
+  local_apply(const MatrixFree<dim, Number>               &data,
+              VectorType                                  &dst,
+              const VectorType                            &src,
               const std::pair<unsigned int, unsigned int> &cell_range) const
   {
     using vector_t = VectorizedArray<Number>;
-    FEEvaluation<dim, degree_p + 1, degree_p + 2, dim, Number> velocity(data,
-                                                                        0,
-                                                                        0,
-                                                                        0);
-    FEEvaluation<dim, degree_p, degree_p + 2, 1, Number>       pressure(data,
-                                                                  0,
-                                                                  0,
-                                                                  dim);
+    FEEvaluation<dim, degree_p + 1, degree_p + 2, dim, Number> velocity(data, 0, 0, 0);
+    FEEvaluation<dim, degree_p, degree_p + 2, 1, Number>       pressure(data, 0, 0, dim);
 
     for (unsigned int cell = cell_range.first; cell < cell_range.second; ++cell)
       {
@@ -92,10 +86,9 @@ public:
 
         for (unsigned int q = 0; q < velocity.n_q_points; ++q)
           {
-            SymmetricTensor<2, dim, vector_t> sym_grad_u =
-              velocity.get_symmetric_gradient(q);
-            vector_t pres = pressure.get_value(q);
-            vector_t div  = -trace(sym_grad_u);
+            SymmetricTensor<2, dim, vector_t> sym_grad_u = velocity.get_symmetric_gradient(q);
+            vector_t                          pres       = pressure.get_value(q);
+            vector_t                          div        = -trace(sym_grad_u);
             pressure.submit_value(div, q);
 
             // subtract p * I
@@ -117,10 +110,7 @@ public:
   vmult(VectorType &dst, const VectorType &src) const
   {
     dst = 0;
-    data.cell_loop(&MatrixFreeTest<dim, degree_p, VectorType>::local_apply,
-                   this,
-                   dst,
-                   src);
+    data.cell_loop(&MatrixFreeTest<dim, degree_p, VectorType>::local_apply, this, dst, src);
   };
 
 private:
@@ -164,8 +154,7 @@ test(const FESystem<dim> &fe)
   const std::set<types::boundary_id> no_normal_flux_boundaries = {0, 1};
   DoFTools::make_hanging_node_constraints(dof_handler, constraints);
   if (fe.dofs_per_vertex > 0)
-    VectorTools::compute_no_normal_flux_constraints(
-      dof_handler, 0, no_normal_flux_boundaries, constraints, mapping);
+    VectorTools::compute_no_normal_flux_constraints(dof_handler, 0, no_normal_flux_boundaries, constraints, mapping);
   constraints.close();
 
   // std::cout << "Number of active cells: "
@@ -189,11 +178,7 @@ test(const FESystem<dim> &fe)
   {
     QGauss<dim> quadrature_formula(fe_degree + 2);
 
-    FEValues<dim> fe_values(mapping,
-                            fe,
-                            quadrature_formula,
-                            update_values | update_JxW_values |
-                              update_gradients);
+    FEValues<dim> fe_values(mapping, fe, quadrature_formula, update_values | update_JxW_values | update_gradients);
 
     const unsigned int dofs_per_cell = fe.dofs_per_cell;
     const unsigned int n_q_points    = quadrature_formula.size();
@@ -209,9 +194,7 @@ test(const FESystem<dim> &fe)
     std::vector<double>                  div_phi_u(dofs_per_cell);
     std::vector<double>                  phi_p(dofs_per_cell);
 
-    typename DoFHandler<dim>::active_cell_iterator cell =
-                                                     dof_handler.begin_active(),
-                                                   endc = dof_handler.end();
+    typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
     for (; cell != endc; ++cell)
       {
         fe_values.reinit(cell);
@@ -231,8 +214,7 @@ test(const FESystem<dim> &fe)
                 for (unsigned int j = 0; j <= i; ++j)
                   {
                     local_matrix(i, j) +=
-                      (phi_grads_u[i] * phi_grads_u[j] -
-                       div_phi_u[i] * phi_p[j] - phi_p[i] * div_phi_u[j]) *
+                      (phi_grads_u[i] * phi_grads_u[j] - div_phi_u[i] * phi_p[j] - phi_p[i] * div_phi_u[j]) *
                       fe_values.JxW(q);
                   }
               }
@@ -242,9 +224,7 @@ test(const FESystem<dim> &fe)
             local_matrix(i, j) = local_matrix(j, i);
 
         cell->get_dof_indices(local_dof_indices);
-        constraints.distribute_local_to_global(local_matrix,
-                                               local_dof_indices,
-                                               system_matrix);
+        constraints.distribute_local_to_global(local_matrix, local_dof_indices, system_matrix);
       }
   }
 
@@ -268,8 +248,7 @@ test(const FESystem<dim> &fe)
                    dof_handler,
                    constraints,
                    quad,
-                   typename MatrixFree<dim>::AdditionalData(
-                     MatrixFree<dim>::AdditionalData::none));
+                   typename MatrixFree<dim>::AdditionalData(MatrixFree<dim>::AdditionalData::none));
   }
 
   system_matrix.vmult(solution, system_rhs);
@@ -281,9 +260,7 @@ test(const FESystem<dim> &fe)
   mf_solution -= solution;
   const double error    = mf_solution.linfty_norm();
   const double relative = solution.linfty_norm();
-  deallog << "Verification " << fe.get_name() << ": " << error / relative
-          << std::endl
-          << std::endl;
+  deallog << "Verification " << fe.get_name() << ": " << error / relative << std::endl << std::endl;
 }
 
 

@@ -116,8 +116,7 @@ namespace Step4
 
   template <int dim>
   double
-  RightHandSide<dim>::value(const Point<dim> &p,
-                            const unsigned int /*component*/) const
+  RightHandSide<dim>::value(const Point<dim> &p, const unsigned int /*component*/) const
   {
     double return_value = 0.0;
     for (unsigned int i = 0; i < dim; ++i)
@@ -132,9 +131,8 @@ namespace Step4
   Step4<dim>::Step4()
     : communicator(MPI_COMM_WORLD)
     , triangulation(communicator,
-                    typename Triangulation<dim>::MeshSmoothing(
-                      Triangulation<dim>::smoothing_on_refinement |
-                      Triangulation<dim>::smoothing_on_coarsening))
+                    typename Triangulation<dim>::MeshSmoothing(Triangulation<dim>::smoothing_on_refinement |
+                                                               Triangulation<dim>::smoothing_on_coarsening))
     , dof_handler(triangulation)
     , pcout(std::cout, (Utilities::MPI::this_mpi_process(communicator) == 0))
   {
@@ -201,18 +199,16 @@ namespace Step4
     // We did not think about hp-constraints on ghost cells yet.
     // Thus, we are content with verifying their consistency for now.
     const std::vector<IndexSet> locally_owned_dofs_per_processor =
-      Utilities::MPI::all_gather(communicator,
-                                 dof_handler.locally_owned_dofs());
+      Utilities::MPI::all_gather(communicator, dof_handler.locally_owned_dofs());
 
     IndexSet locally_active_dofs;
     DoFTools::extract_locally_active_dofs(dof_handler, locally_active_dofs);
 
-    AssertThrow(
-      constraints.is_consistent_in_parallel(locally_owned_dofs_per_processor,
-                                            locally_active_dofs,
-                                            communicator,
-                                            /*verbose=*/true),
-      ExcMessage("AffineConstraints object contains inconsistencies!"));
+    AssertThrow(constraints.is_consistent_in_parallel(locally_owned_dofs_per_processor,
+                                                      locally_active_dofs,
+                                                      communicator,
+                                                      /*verbose=*/true),
+                ExcMessage("AffineConstraints object contains inconsistencies!"));
 #endif
 
     constraints.close();
@@ -221,15 +217,9 @@ namespace Step4
 
     DoFTools::make_sparsity_pattern(dof_handler, dsp, constraints, false);
 
-    SparsityTools::distribute_sparsity_pattern(dsp,
-                                               locally_owned_dofs,
-                                               communicator,
-                                               locally_relevant_dofs);
+    SparsityTools::distribute_sparsity_pattern(dsp, locally_owned_dofs, communicator, locally_relevant_dofs);
 
-    system_matrix.reinit(locally_owned_dofs,
-                         locally_owned_dofs,
-                         dsp,
-                         communicator);
+    system_matrix.reinit(locally_owned_dofs, locally_owned_dofs, dsp, communicator);
 
     solution.reinit(locally_relevant_dofs, communicator);
 
@@ -249,8 +239,7 @@ namespace Step4
 
     hp::FEValues<dim> hp_fe_v(dof_handler.get_fe_collection(),
                               q_collection,
-                              update_JxW_values | update_gradients |
-                                update_values | update_quadrature_points);
+                              update_JxW_values | update_gradients | update_values | update_quadrature_points);
 
     std::vector<types::global_dof_index> local_dof_indices;
 
@@ -267,11 +256,9 @@ namespace Step4
               {
                 hp_fe_v.reinit(cell);
 
-                const FEValues<dim> &fe_values =
-                  hp_fe_v.get_present_fe_values();
+                const FEValues<dim> &fe_values = hp_fe_v.get_present_fe_values();
 
-                cell_matrix.reinit(fe[active_fe_index].dofs_per_cell,
-                                   fe[active_fe_index].dofs_per_cell);
+                cell_matrix.reinit(fe[active_fe_index].dofs_per_cell, fe[active_fe_index].dofs_per_cell);
 
                 cell_rhs.reinit(fe[active_fe_index].dofs_per_cell);
 
@@ -279,28 +266,23 @@ namespace Step4
 
                 cell->get_dof_indices(local_dof_indices);
 
-                const unsigned int dofs_per_cell =
-                  fe[active_fe_index].dofs_per_cell;
+                const unsigned int dofs_per_cell = fe[active_fe_index].dofs_per_cell;
 
-                const unsigned int n_q_points =
-                  q_collection[active_fe_index].size();
+                const unsigned int n_q_points = q_collection[active_fe_index].size();
 
                 for (unsigned int q_index = 0; q_index < n_q_points; ++q_index)
                   for (unsigned int i = 0; i < dofs_per_cell; ++i)
                     {
                       for (unsigned int j = 0; j < dofs_per_cell; ++j)
-                        cell_matrix(i, j) += (fe_values.shape_grad(i, q_index) *
-                                              fe_values.shape_grad(j, q_index) *
+                        cell_matrix(i, j) += (fe_values.shape_grad(i, q_index) * fe_values.shape_grad(j, q_index) *
                                               fe_values.JxW(q_index));
 
                       const auto x_q = fe_values.quadrature_point(q_index);
                       cell_rhs(i) +=
-                        (fe_values.shape_value(i, q_index) *
-                         right_hand_side.value(x_q) * fe_values.JxW(q_index));
+                        (fe_values.shape_value(i, q_index) * right_hand_side.value(x_q) * fe_values.JxW(q_index));
                     }
 
-                constraints.distribute_local_to_global(
-                  cell_matrix, cell_rhs, local_dof_indices, system_matrix, rhs);
+                constraints.distribute_local_to_global(cell_matrix, cell_rhs, local_dof_indices, system_matrix, rhs);
               }
           }
       }
@@ -317,13 +299,11 @@ namespace Step4
   {
     SolverControl solver_control(system_matrix.m(), 1e-12 * rhs.l2_norm());
 
-    TrilinosWrappers::SolverDirect::AdditionalData add_data(false,
-                                                            "Amesos_Mumps");
+    TrilinosWrappers::SolverDirect::AdditionalData add_data(false, "Amesos_Mumps");
 
     TrilinosWrappers::SolverDirect direct_solver(solver_control, add_data);
 
-    TrilinosWrappers::MPI::Vector completely_distributed_solution(
-      locally_owned_dofs, communicator);
+    TrilinosWrappers::MPI::Vector completely_distributed_solution(locally_owned_dofs, communicator);
 
     direct_solver.solve(system_matrix, completely_distributed_solution, rhs);
 
@@ -344,11 +324,9 @@ namespace Step4
 
     setup_system();
 
-    pcout << "   Number of active cells:       "
-          << triangulation.n_global_active_cells() << std::endl;
+    pcout << "   Number of active cells:       " << triangulation.n_global_active_cells() << std::endl;
 
-    pcout << "   Number of degrees of freedom: " << dof_handler.n_dofs()
-          << std::endl;
+    pcout << "   Number of degrees of freedom: " << dof_handler.n_dofs() << std::endl;
 
     assemble_system();
     solve();

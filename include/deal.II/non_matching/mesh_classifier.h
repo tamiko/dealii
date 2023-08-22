@@ -115,8 +115,7 @@ namespace NonMatching
      * classified.
      */
     template <typename VectorType>
-    MeshClassifier(const DoFHandler<dim> &level_set_dof_handler,
-                   const VectorType &     level_set);
+    MeshClassifier(const DoFHandler<dim> &level_set_dof_handler, const VectorType &level_set);
 
     /**
      * Constructor. Takes the triangulation that should be classified, a
@@ -126,7 +125,7 @@ namespace NonMatching
      * @note The Function and the FiniteElement must both have a single component.
      */
     MeshClassifier(const Triangulation<dim> &triangulation,
-                   const Function<dim> &     level_set,
+                   const Function<dim>      &level_set,
                    const FiniteElement<dim> &element);
 
     /**
@@ -141,17 +140,14 @@ namespace NonMatching
      * function.
      */
     LocationToLevelSet
-    location_to_level_set(
-      const typename Triangulation<dim>::cell_iterator &cell) const;
+    location_to_level_set(const typename Triangulation<dim>::cell_iterator &cell) const;
 
     /**
      * Return how a face of the incoming cell is located relative to the level
      * set function.
      */
     LocationToLevelSet
-    location_to_level_set(
-      const typename Triangulation<dim>::cell_iterator &cell,
-      const unsigned int                                face_index) const;
+    location_to_level_set(const typename Triangulation<dim>::cell_iterator &cell, const unsigned int face_index) const;
 
   private:
     /**
@@ -166,9 +162,8 @@ namespace NonMatching
      * located relative to the level set function.
      */
     LocationToLevelSet
-    determine_face_location_to_levelset(
-      const typename Triangulation<dim>::active_cell_iterator &cell,
-      const unsigned int                                       face_index);
+    determine_face_location_to_levelset(const typename Triangulation<dim>::active_cell_iterator &cell,
+                                        const unsigned int                                       face_index);
 
     /**
      * Pointer to the triangulation that should be classified.
@@ -181,9 +176,7 @@ namespace NonMatching
      * depending on whether the level set function is discrete
      * (DoFHandler, Vector) or described by a Function.
      */
-    const std::unique_ptr<
-      internal::MeshClassifierImplementation::LevelSetDescription<dim>>
-      level_set_description;
+    const std::unique_ptr<internal::MeshClassifierImplementation::LevelSetDescription<dim>> level_set_description;
 
     /**
      * A vector that stores how each active cell is located relative to the
@@ -204,9 +197,7 @@ namespace NonMatching
      * face dofs implies that the underlying function is positive/negative
      * definite over the face.
      */
-    std::vector<
-      std::array<LAPACKFullMatrix<double>, GeometryInfo<dim>::faces_per_cell>>
-      lagrange_to_bernstein_face;
+    std::vector<std::array<LAPACKFullMatrix<double>, GeometryInfo<dim>::faces_per_cell>> lagrange_to_bernstein_face;
   };
 
 
@@ -240,8 +231,7 @@ namespace NonMatching
          * with the level set function on the incoming cell.
          */
         virtual unsigned int
-        active_fe_index(const typename Triangulation<dim>::active_cell_iterator
-                          &cell) const = 0;
+        active_fe_index(const typename Triangulation<dim>::active_cell_iterator &cell) const = 0;
 
         /**
          * Fill the DoF values of the associated level set representation on the
@@ -252,10 +242,9 @@ namespace NonMatching
          * it assumes that the underlying element has face support points.
          */
         virtual void
-        get_local_level_set_values(
-          const typename Triangulation<dim>::active_cell_iterator &cell,
-          const unsigned int                                       face_index,
-          Vector<double> &local_dofs) = 0;
+        get_local_level_set_values(const typename Triangulation<dim>::active_cell_iterator &cell,
+                                   const unsigned int                                       face_index,
+                                   Vector<double>                                          &local_dofs) = 0;
       };
 
     } // namespace MeshClassifierImplementation

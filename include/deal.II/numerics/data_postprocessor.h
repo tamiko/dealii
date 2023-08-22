@@ -261,9 +261,7 @@ namespace DataPostprocessorInputs
      */
     template <int dim>
     void
-    set_cell_and_face(
-      const typename DoFHandler<dim, spacedim>::cell_iterator &cell,
-      const unsigned int                                       face_number);
+    set_cell_and_face(const typename DoFHandler<dim, spacedim>::cell_iterator &cell, const unsigned int face_number);
 
     /**
      * Query the cell on which we currently produce graphical output.
@@ -612,7 +610,7 @@ public:
    */
   virtual void
   evaluate_scalar_field(const DataPostprocessorInputs::Scalar<dim> &input_data,
-                        std::vector<Vector<double>> &computed_quantities) const;
+                        std::vector<Vector<double>>                &computed_quantities) const;
 
   /**
    * Same as the evaluate_scalar_field() function, but this
@@ -626,7 +624,7 @@ public:
    */
   virtual void
   evaluate_vector_field(const DataPostprocessorInputs::Vector<dim> &input_data,
-                        std::vector<Vector<double>> &computed_quantities) const;
+                        std::vector<Vector<double>>                &computed_quantities) const;
 
   /**
    * Return the vector of strings describing the names of the computed
@@ -740,8 +738,7 @@ public:
    *   at Gauss points or the quadrature points of any of the typical
    *   quadrature rules.)
    */
-  DataPostprocessorScalar(const std::string &name,
-                          const UpdateFlags  update_flags);
+  DataPostprocessorScalar(const std::string &name, const UpdateFlags update_flags);
 
   /**
    * Return the vector of strings describing the names of the computed
@@ -1002,8 +999,7 @@ public:
    *   at Gauss points or the quadrature points of any of the typical
    *   quadrature rules.)
    */
-  DataPostprocessorVector(const std::string &name,
-                          const UpdateFlags  update_flags);
+  DataPostprocessorVector(const std::string &name, const UpdateFlags update_flags);
 
   /**
    * Return the vector of strings describing the names of the computed
@@ -1268,8 +1264,7 @@ public:
    *   at Gauss points or the quadrature points of any of the typical
    *   quadrature rules.)
    */
-  DataPostprocessorTensor(const std::string &name,
-                          const UpdateFlags  update_flags);
+  DataPostprocessorTensor(const std::string &name, const UpdateFlags update_flags);
 
   /**
    * Return the vector of strings describing the names of the computed
@@ -1350,9 +1345,8 @@ namespace DataPostprocessors
      * of each face into the appropriate output fields.
      */
     virtual void
-    evaluate_scalar_field(
-      const DataPostprocessorInputs::Scalar<dim> &inputs,
-      std::vector<Vector<double>> &computed_quantities) const override;
+    evaluate_scalar_field(const DataPostprocessorInputs::Scalar<dim> &inputs,
+                          std::vector<Vector<double>>                &computed_quantities) const override;
   };
 } // namespace DataPostprocessors
 
@@ -1366,15 +1360,13 @@ namespace DataPostprocessorInputs
   template <int spacedim>
   template <int dim>
   void
-  CommonInputs<spacedim>::set_cell(
-    const typename DoFHandler<dim, spacedim>::cell_iterator &new_cell)
+  CommonInputs<spacedim>::set_cell(const typename DoFHandler<dim, spacedim>::cell_iterator &new_cell)
   {
     // see if we had previously already stored a cell that has the same
     // data type; if so, reuse the memory location and avoid calling 'new'
     // inside boost::any
     if (typename DoFHandler<dim, spacedim>::cell_iterator *storage_location =
-          boost::any_cast<typename DoFHandler<dim, spacedim>::cell_iterator>(
-            &cell))
+          boost::any_cast<typename DoFHandler<dim, spacedim>::cell_iterator>(&cell))
       *storage_location = new_cell;
     else
       // if we had nothing stored before, or if we had stored a different
@@ -1391,9 +1383,8 @@ namespace DataPostprocessorInputs
   template <int spacedim>
   template <int dim>
   void
-  CommonInputs<spacedim>::set_cell_and_face(
-    const typename DoFHandler<dim, spacedim>::cell_iterator &new_cell,
-    const unsigned int                                       new_face_number)
+  CommonInputs<spacedim>::set_cell_and_face(const typename DoFHandler<dim, spacedim>::cell_iterator &new_cell,
+                                            const unsigned int                                       new_face_number)
   {
     set_cell<dim>(new_cell);
     face_number = new_face_number;
@@ -1407,24 +1398,20 @@ namespace DataPostprocessorInputs
   CommonInputs<spacedim>::get_cell() const
   {
     Assert(cell.empty() == false,
-           ExcMessage(
-             "You are trying to access the cell associated with a "
-             "DataPostprocessorInputs::Scalar object for which no cell has "
-             "been set."));
-    Assert((boost::any_cast<typename DoFHandler<dim, spacedim>::cell_iterator>(
-              &cell) != nullptr),
-           ExcMessage(
-             "You are trying to access the cell associated with a "
-             "DataPostprocessorInputs::Scalar with a DoFHandler type that is "
-             "different from the type with which it has been set. For example, "
-             "if the cell for which output is currently being generated "
-             "belongs to a DoFHandler<2, 3> object, then you can only call the "
-             "current function with a template argument equal to "
-             "DoFHandler<2, 3>, but not with any other class type or dimension "
-             "template argument."));
+           ExcMessage("You are trying to access the cell associated with a "
+                      "DataPostprocessorInputs::Scalar object for which no cell has "
+                      "been set."));
+    Assert((boost::any_cast<typename DoFHandler<dim, spacedim>::cell_iterator>(&cell) != nullptr),
+           ExcMessage("You are trying to access the cell associated with a "
+                      "DataPostprocessorInputs::Scalar with a DoFHandler type that is "
+                      "different from the type with which it has been set. For example, "
+                      "if the cell for which output is currently being generated "
+                      "belongs to a DoFHandler<2, 3> object, then you can only call the "
+                      "current function with a template argument equal to "
+                      "DoFHandler<2, 3>, but not with any other class type or dimension "
+                      "template argument."));
 
-    return boost::any_cast<typename DoFHandler<dim, spacedim>::cell_iterator>(
-      cell);
+    return boost::any_cast<typename DoFHandler<dim, spacedim>::cell_iterator>(cell);
   }
 } // namespace DataPostprocessorInputs
 

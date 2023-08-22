@@ -57,8 +57,7 @@ test(const unsigned int n_refinements)
   additional_data.mapping_update_flags                = update_values;
   additional_data.mapping_update_flags_inner_faces    = update_values;
   additional_data.mapping_update_flags_boundary_faces = update_values;
-  additional_data.tasks_parallel_scheme =
-    MatrixFree<dim, double>::AdditionalData::none;
+  additional_data.tasks_parallel_scheme               = MatrixFree<dim, double>::AdditionalData::none;
 
   AffineConstraints<double> dummy;
   dummy.close();
@@ -67,8 +66,7 @@ test(const unsigned int n_refinements)
     bool result = true;
 
     MatrixFree<dim, double> data;
-    data.reinit(
-      MappingQ1<dim>{}, dof_handler, dummy, quadrature, additional_data);
+    data.reinit(MappingQ1<dim>{}, dof_handler, dummy, quadrature, additional_data);
 
     using VectorType = Vector<double>;
 
@@ -77,18 +75,13 @@ test(const unsigned int n_refinements)
 
     data.template cell_loop<VectorType, VectorType>(
       [&](const auto &, auto &, const auto &, const auto cell_range) {
-        for (unsigned int cell = cell_range.first; cell < cell_range.second;
-             ++cell)
+        for (unsigned int cell = cell_range.first; cell < cell_range.second; ++cell)
           {
-            for (unsigned int face = 0;
-                 face < GeometryInfo<dim>::faces_per_cell;
-                 ++face)
+            for (unsigned int face = 0; face < GeometryInfo<dim>::faces_per_cell; ++face)
               {
                 bool temp = true;
 
-                for (unsigned int v = 1;
-                     v < data.n_active_entries_per_cell_batch(cell);
-                     ++v)
+                for (unsigned int v = 1; v < data.n_active_entries_per_cell_batch(cell); ++v)
                   temp &= (data.get_faces_by_cells_boundary_id(cell, face)[0] ==
                            data.get_faces_by_cells_boundary_id(cell, face)[v]);
 

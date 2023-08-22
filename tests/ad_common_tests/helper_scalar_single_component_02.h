@@ -97,15 +97,12 @@ test_vector()
 
   const int  tape_no = 1;
   const bool is_recording =
-    ad_helper.start_recording_operations(tape_no /*material_id*/,
-                                         true /*overwrite_tape*/,
-                                         true /*keep*/);
+    ad_helper.start_recording_operations(tape_no /*material_id*/, true /*overwrite_tape*/, true /*keep*/);
   if (is_recording == true)
     {
       ad_helper.register_independent_variable(v, v_dof);
 
-      const Tensor<1, dim, ADNumberType> v_ad =
-        ad_helper.get_sensitive_variables(v_dof);
+      const Tensor<1, dim, ADNumberType> v_ad = ad_helper.get_sensitive_variables(v_dof);
 
       const ADNumberType psi = func_ad::psi(v_ad);
 
@@ -128,9 +125,7 @@ test_vector()
   // Set a new evaluation point
   if (AD::ADNumberTraits<ADNumberType>::is_taped == true)
     {
-      std::cout
-        << "Using tape with different values for independent variables..."
-        << std::endl;
+      std::cout << "Using tape with different values for independent variables..." << std::endl;
       ad_helper.activate_recorded_tape(tape_no);
       v *= 2.2;
       ad_helper.set_independent_variable(v, v_dof);
@@ -159,28 +154,22 @@ test_vector()
     }
 
   // Extract components of the solution
-  const Tensor<1, dim, ScalarNumberType> dpsi_dv =
-    ad_helper.extract_gradient_component(Dpsi, v_dof);
+  const Tensor<1, dim, ScalarNumberType> dpsi_dv = ad_helper.extract_gradient_component(Dpsi, v_dof);
 
   // Verify the result
-  using func = FunctionsTestVector<dim, ScalarNumberType>;
-  static const ScalarNumberType tol =
-    1e5 * std::numeric_limits<ScalarNumberType>::epsilon();
+  using func                        = FunctionsTestVector<dim, ScalarNumberType>;
+  static const ScalarNumberType tol = 1e5 * std::numeric_limits<ScalarNumberType>::epsilon();
   std::cout << "psi:              " << psi << std::endl;
   std::cout << "func::psi(v):     " << func::psi(v) << std::endl;
-  Assert(std::abs(psi - func::psi(v)) < tol,
-         ExcMessage("No match for function value."));
+  Assert(std::abs(psi - func::psi(v)) < tol, ExcMessage("No match for function value."));
   std::cout << "dpsi_dv:              " << dpsi_dv << std::endl;
   std::cout << "func::dpsi_dv(v):     " << func::dpsi_dv(v) << std::endl;
-  Assert(std::abs((dpsi_dv - func::dpsi_dv(v)).norm()) < tol,
-         ExcMessage("No match for first derivative."));
+  Assert(std::abs((dpsi_dv - func::dpsi_dv(v)).norm()) < tol, ExcMessage("No match for first derivative."));
   if (AD::ADNumberTraits<ADNumberType>::n_supported_derivative_levels >= 2)
     {
-      const Tensor<2, dim, ScalarNumberType> d2psi_dv_dv =
-        ad_helper.extract_hessian_component(D2psi, v_dof, v_dof);
+      const Tensor<2, dim, ScalarNumberType> d2psi_dv_dv = ad_helper.extract_hessian_component(D2psi, v_dof, v_dof);
       std::cout << "d2psi_dv_dv:          " << d2psi_dv_dv << std::endl;
-      std::cout << "func::d2psi_dv_dv(v): " << func::d2psi_dv_dv(v)
-                << std::endl;
+      std::cout << "func::d2psi_dv_dv(v): " << func::d2psi_dv_dv(v) << std::endl;
       Assert(std::abs((d2psi_dv_dv - func::d2psi_dv_dv(v)).norm()) < tol,
              ExcMessage("No match for second derivative."));
     }

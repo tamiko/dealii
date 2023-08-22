@@ -99,14 +99,12 @@ main()
     using Type = std::pair<double, double>;
 
     // Create new data instance
-    const Type &val_1 =
-      data.get_or_add_object_with_name<Type>("value", 1.0, 2.0);
+    const Type &val_1 = data.get_or_add_object_with_name<Type>("value", 1.0, 2.0);
     Assert(data.stores_object_with_name("value"), ExcInternalError());
     Assert(val_1 == Type({1.0, 2.0}), ExcInternalError());
 
     // Should not overwrite existing data
-    const Type &val_2 =
-      data.get_or_add_object_with_name<Type>("value", Type(3.0, 4.0));
+    const Type &val_2 = data.get_or_add_object_with_name<Type>("value", Type(3.0, 4.0));
     Assert(data.stores_object_with_name("value"), ExcInternalError());
     Assert(val_2 == Type({1.0, 2.0}), ExcInternalError());
 
@@ -142,28 +140,22 @@ main()
   {
     // Pass Arguments by lvalue reference
     {
-      const double  val_1 = 1.0;
-      const double &val_2 =
-        data.get_or_add_object_with_name<double>("value", val_1);
-      const std::string &str =
-        data.get_or_add_object_with_name<std::string>("empty string");
+      const double       val_1 = 1.0;
+      const double      &val_2 = data.get_or_add_object_with_name<double>("value", val_1);
+      const std::string &str   = data.get_or_add_object_with_name<std::string>("empty string");
     }
 
     // Pass Arguments by rvalue reference
     {
-      double        val_1 = 1.0;
-      const double &val_2 =
-        data.get_or_add_object_with_name<double>("value", std::move(val_1));
-      const std::string &str =
-        data.get_or_add_object_with_name<std::string>("empty string");
+      double             val_1 = 1.0;
+      const double      &val_2 = data.get_or_add_object_with_name<double>("value", std::move(val_1));
+      const std::string &str   = data.get_or_add_object_with_name<std::string>("empty string");
     }
 
     // Pass Arguments ambiguously
     {
-      const double &val_2 =
-        data.get_or_add_object_with_name<double>("value", 1.0);
-      const std::string &str =
-        data.get_or_add_object_with_name<std::string>("empty string");
+      const double      &val_2 = data.get_or_add_object_with_name<double>("value", 1.0);
+      const std::string &str   = data.get_or_add_object_with_name<std::string>("empty string");
     }
   }
 

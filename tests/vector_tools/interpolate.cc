@@ -54,11 +54,9 @@ run(const dealii::Triangulation<dim> &triangulation)
   dof_handler_coarse.distribute_dofs(fe_system_coarse);
 
   Vector           solution_coarse;
-  dealii::IndexSet locally_owned_dofs_coarse =
-    dof_handler_coarse.locally_owned_dofs();
+  dealii::IndexSet locally_owned_dofs_coarse = dof_handler_coarse.locally_owned_dofs();
   dealii::IndexSet ghost_dofs_coarse;
-  dealii::DoFTools::extract_locally_relevant_dofs(dof_handler_coarse,
-                                                  ghost_dofs_coarse);
+  dealii::DoFTools::extract_locally_relevant_dofs(dof_handler_coarse, ghost_dofs_coarse);
   dealii::IndexSet locally_relevant_dofs_coarse = ghost_dofs_coarse;
   ghost_dofs_coarse.subtract_set(locally_owned_dofs_coarse);
 
@@ -68,9 +66,7 @@ run(const dealii::Triangulation<dim> &triangulation)
     }
   else
     {
-      solution_coarse.reinit(locally_owned_dofs_coarse,
-                             ghost_dofs_coarse,
-                             MPI_COMM_WORLD);
+      solution_coarse.reinit(locally_owned_dofs_coarse, ghost_dofs_coarse, MPI_COMM_WORLD);
     }
 
   // Initialize dummy coarse solution.
@@ -92,11 +88,9 @@ run(const dealii::Triangulation<dim> &triangulation)
   dof_handler_fine.distribute_dofs(fe_system_fine);
 
   Vector           solution_fine;
-  dealii::IndexSet locally_owned_dofs_fine =
-    dof_handler_fine.locally_owned_dofs();
+  dealii::IndexSet locally_owned_dofs_fine = dof_handler_fine.locally_owned_dofs();
   dealii::IndexSet ghost_dofs_fine;
-  dealii::DoFTools::extract_locally_relevant_dofs(dof_handler_fine,
-                                                  ghost_dofs_fine);
+  dealii::DoFTools::extract_locally_relevant_dofs(dof_handler_fine, ghost_dofs_fine);
   dealii::IndexSet locally_relevant_dofs_fine = ghost_dofs_fine;
   ghost_dofs_fine.subtract_set(locally_owned_dofs_fine);
 
@@ -106,31 +100,22 @@ run(const dealii::Triangulation<dim> &triangulation)
     }
   else
     {
-      solution_fine.reinit(locally_owned_dofs_fine,
-                           ghost_dofs_fine,
-                           MPI_COMM_WORLD);
+      solution_fine.reinit(locally_owned_dofs_fine, ghost_dofs_fine, MPI_COMM_WORLD);
     }
 
   // Interpolate the solution.
-  dealii::FullMatrix<double> interpolation_matrix(
-    fe_system_fine.dofs_per_cell, fe_system_coarse.dofs_per_cell);
-  fe_system_fine.get_interpolation_matrix(fe_system_coarse,
-                                          interpolation_matrix);
-  dealii::VectorTools::interpolate(dof_handler_coarse,
-                                   dof_handler_fine,
-                                   interpolation_matrix,
-                                   solution_coarse,
-                                   solution_fine);
+  dealii::FullMatrix<double> interpolation_matrix(fe_system_fine.dofs_per_cell, fe_system_coarse.dofs_per_cell);
+  fe_system_fine.get_interpolation_matrix(fe_system_coarse, interpolation_matrix);
+  dealii::VectorTools::interpolate(
+    dof_handler_coarse, dof_handler_fine, interpolation_matrix, solution_coarse, solution_fine);
   solution_fine.update_ghost_values();
 
-  const unsigned int n_dofs_coarse = fe_system_coarse.dofs_per_cell;
-  const unsigned int n_dofs_fine   = fe_system_fine.dofs_per_cell;
-  const std::vector<dealii::Point<dim>> &points =
-    fe_system_fine.get_unit_support_points();
+  const unsigned int                     n_dofs_coarse = fe_system_coarse.dofs_per_cell;
+  const unsigned int                     n_dofs_fine   = fe_system_fine.dofs_per_cell;
+  const std::vector<dealii::Point<dim>> &points        = fe_system_fine.get_unit_support_points();
 
   // Check that interpolated solution matches at quadrature points.
-  std::vector<dealii::types::global_dof_index> dof_indices_coarse(
-    n_dofs_coarse);
+  std::vector<dealii::types::global_dof_index> dof_indices_coarse(n_dofs_coarse);
   std::vector<dealii::types::global_dof_index> dof_indices_fine(n_dofs_fine);
 
   auto cell_coarse = dof_handler_coarse.begin_active();
@@ -153,20 +138,16 @@ run(const dealii::Triangulation<dim> &triangulation)
 
           for (unsigned int idof = 0; idof < n_dofs_coarse; ++idof)
             {
-              const unsigned int axis =
-                fe_system_coarse.system_to_component_index(idof).first;
+              const unsigned int axis = fe_system_coarse.system_to_component_index(idof).first;
               local_solution_coarse[axis] +=
-                solution_coarse[dof_indices_coarse[idof]] *
-                fe_system_coarse.shape_value(idof, points[iquad]);
+                solution_coarse[dof_indices_coarse[idof]] * fe_system_coarse.shape_value(idof, points[iquad]);
             }
 
           for (unsigned int idof = 0; idof < n_dofs_fine; ++idof)
             {
-              const unsigned int axis =
-                fe_system_fine.system_to_component_index(idof).first;
+              const unsigned int axis = fe_system_fine.system_to_component_index(idof).first;
               local_solution_fine[axis] +=
-                solution_fine[dof_indices_fine[idof]] *
-                fe_system_fine.shape_value(idof, points[iquad]);
+                solution_fine[dof_indices_fine[idof]] * fe_system_fine.shape_value(idof, points[iquad]);
             }
 
           dealii::Tensor<1, dim, double> diff = local_solution_fine;
@@ -174,8 +155,7 @@ run(const dealii::Triangulation<dim> &triangulation)
 
           const double diff_norm = diff.norm();
 
-          std::cout << "Coarse solution = " << local_solution_coarse
-                    << ", fine solution = " << local_solution_fine
+          std::cout << "Coarse solution = " << local_solution_coarse << ", fine solution = " << local_solution_fine
                     << ", difference = " << diff_norm << std::endl;
 
           if (diff_norm > 1e-12)
@@ -214,8 +194,7 @@ main(int argc, char *argv[])
 
   // 2D.
   {
-    dealii::parallel::distributed::Triangulation<2> triangulation(
-      MPI_COMM_WORLD);
+    dealii::parallel::distributed::Triangulation<2> triangulation(MPI_COMM_WORLD);
     dealii::GridGenerator::subdivided_hyper_cube(triangulation, n_1d_cells);
 
     dealii::deallog << "2D" << std::endl;
@@ -224,8 +203,7 @@ main(int argc, char *argv[])
 
   // 3D.
   {
-    dealii::parallel::distributed::Triangulation<3> triangulation(
-      MPI_COMM_WORLD);
+    dealii::parallel::distributed::Triangulation<3> triangulation(MPI_COMM_WORLD);
     dealii::GridGenerator::subdivided_hyper_cube(triangulation, n_1d_cells);
 
     dealii::deallog << "3D" << std::endl;

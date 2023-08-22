@@ -50,27 +50,19 @@ test()
 
   dh.distribute_dofs(fe);
 
-  FEFaceValues<dim - 1, dim> fe_face_values(mapping,
-                                            fe,
-                                            QTrapezoid<dim - 2>(),
-                                            update_normal_vectors);
+  FEFaceValues<dim - 1, dim> fe_face_values(mapping, fe, QTrapezoid<dim - 2>(), update_normal_vectors);
 
-  for (typename DoFHandler<dim - 1, dim>::active_cell_iterator cell =
-         dh.begin_active();
-       cell != dh.end();
-       ++cell)
+  for (typename DoFHandler<dim - 1, dim>::active_cell_iterator cell = dh.begin_active(); cell != dh.end(); ++cell)
     {
       deallog << "Face centered at " << cell->center() << std::endl;
 
       for (unsigned int f = 0; f < GeometryInfo<dim - 1>::faces_per_cell; ++f)
         {
-          deallog << "  Edge centered at " << cell->face(f)->center()
-                  << std::endl;
+          deallog << "  Edge centered at " << cell->face(f)->center() << std::endl;
 
           fe_face_values.reinit(cell, f);
           for (unsigned int q = 0; q < fe_face_values.n_quadrature_points; ++q)
-            deallog << "    normal_vector=" << fe_face_values.normal_vector(q)
-                    << std::endl;
+            deallog << "    normal_vector=" << fe_face_values.normal_vector(q) << std::endl;
         }
     }
 }

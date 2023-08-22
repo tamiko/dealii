@@ -112,8 +112,7 @@ namespace Step38
     value(const Point<dim> &p, const unsigned int component = 0) const override;
 
     virtual Tensor<1, dim>
-    gradient(const Point<dim> & p,
-             const unsigned int component = 0) const override;
+    gradient(const Point<dim> &p, const unsigned int component = 0) const override;
   };
 
   template <>
@@ -138,8 +137,7 @@ namespace Step38
   double
   Solution<3>::value(const Point<3> &p, const unsigned int) const
   {
-    return (std::sin(numbers::PI * p(0)) * std::cos(numbers::PI * p(1)) *
-            exp(p(2)));
+    return (std::sin(numbers::PI * p(0)) * std::cos(numbers::PI * p(1)) * exp(p(2)));
   }
 
   template <>
@@ -167,16 +165,14 @@ namespace Step38
 
   template <>
   double
-  RightHandSide<2>::value(const Point<2> &p,
-                          const unsigned int /*component*/) const
+  RightHandSide<2>::value(const Point<2> &p, const unsigned int /*component*/) const
   {
     return (-8. * p(0) * p(1));
   }
 
   template <>
   double
-  RightHandSide<3>::value(const Point<3> &p,
-                          const unsigned int /*component*/) const
+  RightHandSide<3>::value(const Point<3> &p, const unsigned int /*component*/) const
   {
     using numbers::PI;
 
@@ -203,13 +199,11 @@ namespace Step38
     Point<3> normal = p;
     normal /= p.norm();
 
-    return (-trace(hessian) + 2 * (gradient * normal) +
-            (hessian * normal) * normal);
+    return (-trace(hessian) + 2 * (gradient * normal) + (hessian * normal) * normal);
   }
 
   template <int spacedim>
-  LaplaceBeltramiProblem<spacedim>::LaplaceBeltramiProblem(
-    const unsigned degree)
+  LaplaceBeltramiProblem<spacedim>::LaplaceBeltramiProblem(const unsigned degree)
     : dof_handler(triangulation)
     , fe(degree)
 #ifdef USE_SIMPLEX
@@ -232,34 +226,27 @@ namespace Step38
 
 #ifdef USE_SIMPLEX
       Triangulation<dim, spacedim> tria_temp;
-      GridGenerator::extract_boundary_mesh(volume_mesh,
-                                           tria_temp,
-                                           boundary_ids);
+      GridGenerator::extract_boundary_mesh(volume_mesh, tria_temp, boundary_ids);
       tria_temp.set_all_manifold_ids(0);
       tria_temp.set_manifold(0, SphericalManifold<dim, spacedim>());
-      GridGenerator::convert_hypercube_to_simplex_mesh(tria_temp,
-                                                       triangulation);
+      GridGenerator::convert_hypercube_to_simplex_mesh(tria_temp, triangulation);
       for (const auto i : tria_temp.get_manifold_ids())
         if (i != numbers::flat_manifold_id)
           triangulation.set_manifold(i, tria_temp.get_manifold(i));
 
 #else
-      GridGenerator::extract_boundary_mesh(volume_mesh,
-                                           triangulation,
-                                           boundary_ids);
+      GridGenerator::extract_boundary_mesh(volume_mesh, triangulation, boundary_ids);
       triangulation.set_all_manifold_ids(0);
       triangulation.set_manifold(0, SphericalManifold<dim, spacedim>());
 #endif
       triangulation.refine_global(4);
     }
 
-    std::cout << "Surface mesh has " << triangulation.n_active_cells()
-              << " cells." << std::endl;
+    std::cout << "Surface mesh has " << triangulation.n_active_cells() << " cells." << std::endl;
 
     dof_handler.distribute_dofs(fe);
 
-    std::cout << "Surface mesh has " << dof_handler.n_dofs()
-              << " degrees of freedom." << std::endl;
+    std::cout << "Surface mesh has " << dof_handler.n_dofs() << " degrees of freedom." << std::endl;
 
     DynamicSparsityPattern dsp(dof_handler.n_dofs(), dof_handler.n_dofs());
     DoFTools::make_sparsity_pattern(dof_handler, dsp);
@@ -285,9 +272,7 @@ namespace Step38
     FEValues<dim, spacedim> fe_values(mapping,
                                       fe,
                                       quadrature_formula,
-                                      update_values | update_gradients |
-                                        update_quadrature_points |
-                                        update_JxW_values);
+                                      update_values | update_gradients | update_quadrature_points | update_JxW_values);
 
     const unsigned int dofs_per_cell = fe.n_dofs_per_cell();
     const unsigned int n_q_points    = quadrature_formula.size();
@@ -312,40 +297,34 @@ namespace Step38
         for (unsigned int i = 0; i < dofs_per_cell; ++i)
           for (unsigned int j = 0; j < dofs_per_cell; ++j)
             for (unsigned int q_point = 0; q_point < n_q_points; ++q_point)
-              cell_matrix(i, j) += fe_values.shape_grad(i, q_point) *
-                                   fe_values.shape_grad(j, q_point) *
-                                   fe_values.JxW(q_point);
+              cell_matrix(i, j) +=
+                fe_values.shape_grad(i, q_point) * fe_values.shape_grad(j, q_point) * fe_values.JxW(q_point);
 
         for (unsigned int i = 0; i < dofs_per_cell; ++i)
           for (unsigned int q_point = 0; q_point < n_q_points; ++q_point)
-            cell_rhs(i) += fe_values.shape_value(i, q_point) *
-                           rhs_values[q_point] * fe_values.JxW(q_point);
+            cell_rhs(i) += fe_values.shape_value(i, q_point) * rhs_values[q_point] * fe_values.JxW(q_point);
 
         cell->get_dof_indices(local_dof_indices);
         for (unsigned int i = 0; i < dofs_per_cell; ++i)
           {
             for (unsigned int j = 0; j < dofs_per_cell; ++j)
-              system_matrix.add(local_dof_indices[i],
-                                local_dof_indices[j],
-                                cell_matrix(i, j));
+              system_matrix.add(local_dof_indices[i], local_dof_indices[j], cell_matrix(i, j));
 
             system_rhs(local_dof_indices[i]) += cell_rhs(i);
           }
       }
 
     std::map<types::global_dof_index, double> boundary_values;
-    VectorTools::interpolate_boundary_values(
-      mapping, dof_handler, 0, Solution<spacedim>(), boundary_values);
+    VectorTools::interpolate_boundary_values(mapping, dof_handler, 0, Solution<spacedim>(), boundary_values);
 
-    MatrixTools::apply_boundary_values(
-      boundary_values, system_matrix, solution, system_rhs, false);
+    MatrixTools::apply_boundary_values(boundary_values, system_matrix, solution, system_rhs, false);
   }
 
   template <int spacedim>
   void
   LaplaceBeltramiProblem<spacedim>::solve()
   {
-    SolverControl solver_control(solution.size(), 1e-7 * system_rhs.l2_norm());
+    SolverControl            solver_control(solution.size(), 1e-7 * system_rhs.l2_norm());
     SolverCG<Vector<double>> cg(solver_control);
 
     PreconditionSSOR<SparseMatrix<double>> preconditioner;
@@ -360,14 +339,11 @@ namespace Step38
   {
     DataOut<dim, spacedim> data_out;
     data_out.attach_dof_handler(dof_handler);
-    data_out.add_data_vector(solution,
-                             "solution",
-                             DataOut<dim, spacedim>::type_dof_data);
+    data_out.add_data_vector(solution, "solution", DataOut<dim, spacedim>::type_dof_data);
     data_out.build_patches(mapping, mapping.get_degree());
 
-    const std::string filename =
-      "solution-" + std::to_string(spacedim) + "d.vtk";
-    std::ofstream output(filename);
+    const std::string filename = "solution-" + std::to_string(spacedim) + "d.vtk";
+    std::ofstream     output(filename);
     data_out.write_vtk(output);
   }
 
@@ -384,15 +360,12 @@ namespace Step38
 #ifdef USE_SIMPLEX
                                       QGaussSimplex<dim>(fe.degree + 1),
 #else
-                                      QGauss<dim>(2 * fe.degree +
-                                                  1), // This also works on
-                                                      // triangular meshes
+                                      QGauss<dim>(2 * fe.degree + 1), // This also works on
+                                                                      // triangular meshes
 #endif
                                       VectorTools::H1_norm);
 
-    double h1_error = VectorTools::compute_global_error(triangulation,
-                                                        difference_per_cell,
-                                                        VectorTools::H1_norm);
+    double h1_error = VectorTools::compute_global_error(triangulation, difference_per_cell, VectorTools::H1_norm);
     std::cout << "H1 error = " << h1_error << std::endl;
   }
 
@@ -420,27 +393,19 @@ main()
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
 

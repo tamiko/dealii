@@ -54,10 +54,8 @@ test()
   DoFHandler<dim> dof_handler(triangulation);
   dof_handler.distribute_dofs(fe_collection);
 
-  deallog << "   Number of active cells:       "
-          << triangulation.n_active_cells() << std::endl
-          << "   Number of degrees of freedom: " << dof_handler.n_dofs()
-          << std::endl;
+  deallog << "   Number of active cells:       " << triangulation.n_active_cells() << std::endl
+          << "   Number of degrees of freedom: " << dof_handler.n_dofs() << std::endl;
 
 
   hp::QCollection<dim> quadrature_collection;
@@ -67,9 +65,7 @@ test()
   // cell. When we later ask for the location of the quadrature point,
   // it better be the midpoint of that cell
   const auto        cell1 = dof_handler.begin_active();
-  hp::FEValues<dim> hp_fe_values1(fe_collection,
-                                  quadrature_collection,
-                                  update_quadrature_points);
+  hp::FEValues<dim> hp_fe_values1(fe_collection, quadrature_collection, update_quadrature_points);
   hp_fe_values1.reinit(cell1);
 
   // Now make a copy of the object and initialize it for the second cell
@@ -80,11 +76,11 @@ test()
   // Output the quadrature points computed by the two objects. They
   // ought to correspond to the cell centers of the first and second
   // cell.
-  deallog << hp_fe_values1.get_present_fe_values().get_quadrature_points()[0]
-          << " should be at " << cell1->center() << std::endl;
+  deallog << hp_fe_values1.get_present_fe_values().get_quadrature_points()[0] << " should be at " << cell1->center()
+          << std::endl;
 
-  deallog << hp_fe_values2.get_present_fe_values().get_quadrature_points()[0]
-          << " should be at " << cell2->center() << std::endl;
+  deallog << hp_fe_values2.get_present_fe_values().get_quadrature_points()[0] << " should be at " << cell2->center()
+          << std::endl;
 }
 
 

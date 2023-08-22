@@ -42,8 +42,7 @@ test_function(const std::string &original_text,
               const char         delimiter,
               const std::string &result)
 {
-  std::vector<std::string> res_vec =
-    Utilities::break_text_into_lines(original_text, width, delimiter);
+  std::vector<std::string> res_vec = Utilities::break_text_into_lines(original_text, width, delimiter);
 
   std::vector<std::string> should_be_vec = split_string(result);
 
@@ -52,8 +51,7 @@ test_function(const std::string &original_text,
   for (unsigned int i = 0; i < res_vec.size(); ++i)
     {
       if (res_vec[i] != should_be_vec[i])
-        std::cout << "'" << res_vec[i] << "!=" << should_be_vec[i] << "'"
-                  << std::endl;
+        std::cout << "'" << res_vec[i] << "!=" << should_be_vec[i] << "'" << std::endl;
       Assert(res_vec[i] == should_be_vec[i], ExcInternalError());
     }
 }
@@ -71,10 +69,7 @@ test()
 
   test_function("new\nline", 80, ' ', "new|line");
   test_function("new\n\nline\n", 80, ' ', "new||line|");
-  test_function("combining whitespace\nand new line",
-                10,
-                ' ',
-                "combining|whitespace|and new|line");
+  test_function("combining whitespace\nand new line", 10, ' ', "combining|whitespace|and new|line");
 
 
   deallog << "OK" << std::endl;

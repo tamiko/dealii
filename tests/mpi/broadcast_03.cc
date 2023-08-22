@@ -83,9 +83,8 @@ main(int argc, char *argv[])
   Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
   MPILogInitAll                    log;
 
-  const unsigned int root = 0;
-  const bool         on_root =
-    (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == root);
+  const unsigned int root    = 0;
+  const bool         on_root = (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == root);
 
   // Test broadcast with int, double, and std::complex data
   // types. Only provide the right value on the root, and some other
@@ -93,6 +92,5 @@ main(int argc, char *argv[])
   // the output.
   check(on_root ? 23 : 12);
   check(on_root ? 14.32 : std::numeric_limits<double>::max());
-  check(on_root ? std::complex<double>(1., 2.) :
-                  std::complex<double>(1., 222222.));
+  check(on_root ? std::complex<double>(1., 2.) : std::complex<double>(1., 222222.));
 }

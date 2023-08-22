@@ -41,8 +41,7 @@ dim_test()
       for (const unsigned int f : GeometryInfo<dim>::face_indices())
         {
           if (cell->face(f)->at_boundary())
-            deallog << "half_hyper_shell<" << dim << ">:: cell "
-                    << cell->index() << ", face " << f << ", id "
+            deallog << "half_hyper_shell<" << dim << ">:: cell " << cell->index() << ", face " << f << ", id "
                     << cell->face(f)->boundary_id() << std::endl;
         }
     }

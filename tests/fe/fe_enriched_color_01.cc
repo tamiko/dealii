@@ -71,8 +71,7 @@ test()
 
   // Construct vector of predicates for 2 and 3 dimensions
   Assert(dim == 2 || dim == 3, ExcDimensionMismatch2(dim, 2, 3));
-  using predicate_function = std::function<bool(
-    const typename Triangulation<dim>::active_cell_iterator &)>;
+  using predicate_function = std::function<bool(const typename Triangulation<dim>::active_cell_iterator &)>;
   std::vector<predicate_function> predicates;
   predicates.resize(5);
   if (dim == 2)
@@ -99,8 +98,9 @@ test()
     for (int j = 0; j < 5; ++j)
       {
         deallog << i << ':' << j << '='
-                << ColorEnriched::internal::find_connection_between_subdomains(
-                     dof_handler, predicates[i], predicates[j])
+                << ColorEnriched::internal::find_connection_between_subdomains(dof_handler,
+                                                                               predicates[i],
+                                                                               predicates[j])
                 << std::endl;
       }
 }
@@ -118,28 +118,20 @@ main()
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     };
   return 0;

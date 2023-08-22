@@ -30,23 +30,18 @@ test()
   const auto n_proc  = Utilities::MPI::n_mpi_processes(comm);
 
   const auto     total_size = 17;
-  const IndexSet index_set =
-    Utilities::MPI::create_evenly_distributed_partitioning(comm, total_size);
+  const IndexSet index_set  = Utilities::MPI::create_evenly_distributed_partitioning(comm, total_size);
 
   std::vector<IndexSet> vec(n_proc);
   for (unsigned int i_proc = 0; i_proc < n_proc; ++i_proc)
     {
-      vec[i_proc] =
-        Utilities::create_evenly_distributed_partitioning(i_proc,
-                                                          n_proc,
-                                                          total_size);
+      vec[i_proc] = Utilities::create_evenly_distributed_partitioning(i_proc, n_proc, total_size);
     }
   // correct number:
   AssertThrow(index_set == vec[my_proc], ExcInternalError());
 
   // ascending one-to-one
-  AssertThrow(vec[my_proc].is_ascending_and_one_to_one(comm),
-              ExcInternalError());
+  AssertThrow(vec[my_proc].is_ascending_and_one_to_one(comm), ExcInternalError());
 
   // same size:
   const auto size = vec[0].size();
@@ -58,8 +53,7 @@ test()
   for (unsigned int i = 1; i < vec.size(); ++i)
     {
       auto local_size_2 = vec[i].n_elements();
-      AssertThrow(std::abs((int)local_size_1 - (int)local_size_2) <= 1,
-                  ExcInternalError());
+      AssertThrow(std::abs((int)local_size_1 - (int)local_size_2) <= 1, ExcInternalError());
     }
 
   // 1:1

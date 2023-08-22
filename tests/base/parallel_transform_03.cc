@@ -42,13 +42,7 @@ main()
   // set a=x+y-z, which happens to be
   // zero
   parallel::transform(
-    x.begin(),
-    x.end(),
-    y.begin(),
-    z.begin(),
-    a.begin(),
-    [](double i, double j, double k) { return i + j - k; },
-    10);
+    x.begin(), x.end(), y.begin(), z.begin(), a.begin(), [](double i, double j, double k) { return i + j - k; }, 10);
 
   AssertThrow(a.l2_norm() == 0, ExcInternalError());
 

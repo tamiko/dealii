@@ -93,9 +93,7 @@ public:
    * If @p transpose is <code>true</code>, $R^Tx=y$ is solved instead.
    */
   void
-  solve(Vector<Number> &      x,
-        const Vector<Number> &y,
-        const bool            transpose = false) const;
+  solve(Vector<Number> &x, const Vector<Number> &y, const bool transpose = false) const;
 
   /**
    * Set $y = Qx$. The size of $x$ should be consistent with the
@@ -136,9 +134,7 @@ public:
    */
   boost::signals2::connection
   connect_givens_slot(
-    const std::function<void(const unsigned int           i,
-                             const unsigned int           j,
-                             const std::array<Number, 3> &csr)> &slot);
+    const std::function<void(const unsigned int i, const unsigned int j, const std::array<Number, 3> &csr)> &slot);
 
 protected:
   /**
@@ -173,9 +169,7 @@ protected:
    * Signal used to retrieve a notification
    * when Givens rotations are performed in the `(i,j)`-plane.
    */
-  boost::signals2::signal<void(const unsigned int i,
-                               const unsigned int j,
-                               const std::array<Number, 3> &)>
+  boost::signals2::signal<void(const unsigned int i, const unsigned int j, const std::array<Number, 3> &)>
     givens_signal;
 };
 
@@ -405,9 +399,7 @@ public:
    */
   boost::signals2::connection
   connect_append_column_slot(
-    const std::function<bool(const Vector<Number> &u,
-                             const Number &        rho2,
-                             const Number &        col_norm_sqr)> &slot);
+    const std::function<bool(const Vector<Number> &u, const Number &rho2, const Number &col_norm_sqr)> &slot);
 
 private:
   /**
@@ -424,10 +416,7 @@ private:
    * The function should return <code>true</code> if the new column is
    * linearly independent.
    */
-  boost::signals2::signal<bool(const Vector<Number> &u,
-                               const Number &        rho,
-                               const Number &        col_norm_sqr)>
-    column_signal;
+  boost::signals2::signal<bool(const Vector<Number> &u, const Number &rho, const Number &col_norm_sqr)> column_signal;
 };
 
 // -------------------  inline and template functions ----------------
@@ -448,9 +437,9 @@ namespace internal
               const char            trans,
               const char            diag,
               const types::blas_int n,
-              const Number *        a,
+              const Number         *a,
               const types::blas_int lda,
-              Number *              x,
+              Number               *x,
               const types::blas_int incx);
 
     template <typename Number>
@@ -460,11 +449,11 @@ namespace internal
                const char            diag,
                const types::blas_int n,
                const types::blas_int nrhs,
-               const Number *        a,
+               const Number         *a,
                const types::blas_int lda,
-               Number *              b,
+               Number               *b,
                const types::blas_int ldb,
-               types::blas_int *     info);
+               types::blas_int      *info);
   } // namespace QRImplementation
 } // namespace internal
 
@@ -499,14 +488,10 @@ BaseQR<VectorType>::get_R() const
 
 template <typename VectorType>
 void
-BaseQR<VectorType>::solve(Vector<Number> &      x,
-                          const Vector<Number> &y,
-                          const bool            transpose) const
+BaseQR<VectorType>::solve(Vector<Number> &x, const Vector<Number> &y, const bool transpose) const
 {
-  Assert(x.size() == this->current_size,
-         ExcDimensionMismatch(x.size(), this->current_size));
-  Assert(y.size() == this->current_size,
-         ExcDimensionMismatch(y.size(), this->current_size));
+  Assert(x.size() == this->current_size, ExcDimensionMismatch(x.size(), this->current_size));
+  Assert(y.size() == this->current_size, ExcDimensionMismatch(y.size(), this->current_size));
 
   // copy if the two vectors are not the same
   if (&x != &y)
@@ -517,27 +502,17 @@ BaseQR<VectorType>::solve(Vector<Number> &      x,
   const int N     = this->current_size;
   const int n_rhs = 1;
   int       info  = 0;
-  internal::QRImplementation::call_trtrs('U',
-                                         transpose ? 'T' : 'N',
-                                         'N',
-                                         N,
-                                         n_rhs,
-                                         &this->R(0, 0),
-                                         lda,
-                                         &x(0),
-                                         ldb,
-                                         &info);
+  internal::QRImplementation::call_trtrs(
+    'U', transpose ? 'T' : 'N', 'N', N, n_rhs, &this->R(0, 0), lda, &x(0), ldb, &info);
 }
 
 
 
 template <typename VectorType>
 void
-BaseQR<VectorType>::multiply_with_cols(VectorType &          y,
-                                       const Vector<Number> &x) const
+BaseQR<VectorType>::multiply_with_cols(VectorType &y, const Vector<Number> &x) const
 {
-  Assert(x.size() == this->current_size,
-         ExcDimensionMismatch(x.size(), this->current_size));
+  Assert(x.size() == this->current_size, ExcDimensionMismatch(x.size(), this->current_size));
 
   y = 0.;
   for (unsigned int j = 0; j < this->current_size; ++j)
@@ -548,11 +523,9 @@ BaseQR<VectorType>::multiply_with_cols(VectorType &          y,
 
 template <typename VectorType>
 void
-BaseQR<VectorType>::multiply_with_colsT(Vector<Number> &  y,
-                                        const VectorType &x) const
+BaseQR<VectorType>::multiply_with_colsT(Vector<Number> &y, const VectorType &x) const
 {
-  Assert(y.size() == this->current_size,
-         ExcDimensionMismatch(y.size(), this->current_size));
+  Assert(y.size() == this->current_size, ExcDimensionMismatch(y.size(), this->current_size));
 
   for (unsigned int j = 0; j < this->current_size; ++j)
     y[j] = (*this->columns[j]) * x;
@@ -563,9 +536,7 @@ BaseQR<VectorType>::multiply_with_colsT(Vector<Number> &  y,
 template <typename VectorType>
 boost::signals2::connection
 BaseQR<VectorType>::connect_givens_slot(
-  const std::function<void(const unsigned int i,
-                           const unsigned int j,
-                           const std::array<Number, 3> &)> &slot)
+  const std::function<void(const unsigned int i, const unsigned int j, const std::array<Number, 3> &)> &slot)
 {
   return givens_signal.connect(slot);
 }
@@ -575,9 +546,7 @@ BaseQR<VectorType>::connect_givens_slot(
 template <typename VectorType>
 boost::signals2::connection
 ImplicitQR<VectorType>::connect_append_column_slot(
-  const std::function<bool(const Vector<Number> &u,
-                           const Number &        rho,
-                           const Number &        col_norm_sqr)> &slot)
+  const std::function<bool(const Vector<Number> &u, const Number &rho, const Number &col_norm_sqr)> &slot)
 {
   return column_signal.connect(slot);
 }
@@ -614,16 +583,14 @@ ImplicitQR<VectorType>::append_column(const VectorType &column)
       const int N     = this->current_size;
       const int n_rhs = 1;
       int       info  = 0;
-      internal::QRImplementation::call_trtrs(
-        'U', 'T', 'N', N, n_rhs, &this->R(0, 0), lda, &u(0), ldb, &info);
+      internal::QRImplementation::call_trtrs('U', 'T', 'N', N, n_rhs, &this->R(0, 0), lda, &u(0), ldb, &info);
 
       // finally get the diagonal element:
       // rho2 = |column|^2 - |u|^2
       const Number column_norm_sqr = column.norm_sqr();
       const Number rho2            = column_norm_sqr - u.norm_sqr();
       const bool   linearly_independent =
-        column_signal.empty() ? rho2 > 0 :
-                                  column_signal(u, rho2, column_norm_sqr).get();
+        column_signal.empty() ? rho2 > 0 : column_signal(u, rho2, column_norm_sqr).get();
 
       // bail out if it turns out to be linearly dependent
       if (!linearly_independent)
@@ -647,14 +614,12 @@ ImplicitQR<VectorType>::append_column(const VectorType &column)
 
 template <typename VectorType>
 void
-ImplicitQR<VectorType>::apply_givens_rotation(const unsigned int i,
-                                              const unsigned int k)
+ImplicitQR<VectorType>::apply_givens_rotation(const unsigned int i, const unsigned int k)
 {
   AssertIndexRange(i, k);
   AssertIndexRange(k, this->current_size);
   const std::array<Number, 3> csr =
-    dealii::Utilities::LinearAlgebra::givens_rotation<Number>(this->R(i, k),
-                                                              this->R(k, k));
+    dealii::Utilities::LinearAlgebra::givens_rotation<Number>(this->R(i, k), this->R(k, k));
 
   // first, set k'th column:
   this->R(i, k) = csr[2];
@@ -698,8 +663,7 @@ ImplicitQR<VectorType>::remove_column(const unsigned int k)
 
 template <typename VectorType>
 void
-ImplicitQR<VectorType>::multiply_with_Q(VectorType &          y,
-                                        const Vector<Number> &x) const
+ImplicitQR<VectorType>::multiply_with_Q(VectorType &y, const Vector<Number> &x) const
 {
   // A = QR
   // A R^{-1} = Q
@@ -712,8 +676,7 @@ ImplicitQR<VectorType>::multiply_with_Q(VectorType &          y,
 
 template <typename VectorType>
 void
-ImplicitQR<VectorType>::multiply_with_QT(Vector<Number> &  y,
-                                         const VectorType &x) const
+ImplicitQR<VectorType>::multiply_with_QT(Vector<Number> &y, const VectorType &x) const
 {
   // A = QR
   // A^T = R^T Q^T
@@ -726,8 +689,7 @@ ImplicitQR<VectorType>::multiply_with_QT(Vector<Number> &  y,
 
 template <typename VectorType>
 void
-ImplicitQR<VectorType>::multiply_with_A(VectorType &          y,
-                                        const Vector<Number> &x) const
+ImplicitQR<VectorType>::multiply_with_A(VectorType &y, const Vector<Number> &x) const
 {
   BaseQR<VectorType>::multiply_with_cols(y, x);
 }
@@ -736,8 +698,7 @@ ImplicitQR<VectorType>::multiply_with_A(VectorType &          y,
 
 template <typename VectorType>
 void
-ImplicitQR<VectorType>::multiply_with_AT(Vector<Number> &  y,
-                                         const VectorType &x) const
+ImplicitQR<VectorType>::multiply_with_AT(Vector<Number> &y, const VectorType &x) const
 {
   BaseQR<VectorType>::multiply_with_colsT(y, x);
 }
@@ -771,8 +732,7 @@ QR<VectorType>::append_column(const VectorType &column)
 
   this->R(this->current_size, this->current_size) = last_col.l2_norm();
 
-  Assert(this->R(this->current_size, this->current_size) > 0.,
-         ExcDivideByZero());
+  Assert(this->R(this->current_size, this->current_size) > 0., ExcDivideByZero());
   last_col *= 1. / this->R(this->current_size, this->current_size);
 
   ++this->current_size;
@@ -783,14 +743,12 @@ QR<VectorType>::append_column(const VectorType &column)
 
 template <typename VectorType>
 void
-QR<VectorType>::apply_givens_rotation(const unsigned int i,
-                                      const unsigned int k)
+QR<VectorType>::apply_givens_rotation(const unsigned int i, const unsigned int k)
 {
   AssertIndexRange(i, k);
   AssertIndexRange(k, this->current_size);
   const std::array<Number, 3> csr =
-    dealii::Utilities::LinearAlgebra::givens_rotation<Number>(this->R(i, k),
-                                                              this->R(k, k));
+    dealii::Utilities::LinearAlgebra::givens_rotation<Number>(this->R(i, k), this->R(k, k));
 
   // first, set k'th column:
   this->R(i, k) = csr[2];
@@ -824,8 +782,7 @@ void
 QR<VectorType>::remove_column(const unsigned int k)
 {
   AssertIndexRange(k, this->current_size);
-  Assert(this->current_size > 0,
-         ExcMessage("Can not remove a column if QR is empty"));
+  Assert(this->current_size > 0, ExcMessage("Can not remove a column if QR is empty"));
   // apply a sequence of Givens rotations
   // see section 6.5 "Updating matrix factorizations" in Golub 2013, Matrix
   // computations
@@ -887,8 +844,7 @@ QR<VectorType>::multiply_with_A(VectorType &y, const Vector<Number> &x) const
   const int      N    = this->current_size;
   const int      lda  = N;
   const int      incx = 1;
-  internal::QRImplementation::call_trmv(
-    'U', 'N', 'N', N, &this->R(0, 0), lda, &x1[0], incx);
+  internal::QRImplementation::call_trmv('U', 'N', 'N', N, &this->R(0, 0), lda, &x1[0], incx);
 
   multiply_with_Q(y, x1);
 }
@@ -904,8 +860,7 @@ QR<VectorType>::multiply_with_AT(Vector<Number> &y, const VectorType &x) const
   const int N    = this->current_size;
   const int lda  = N;
   const int incx = 1;
-  internal::QRImplementation::call_trmv(
-    'U', 'T', 'N', N, &this->R(0, 0), lda, &y[0], incx);
+  internal::QRImplementation::call_trmv('U', 'T', 'N', N, &this->R(0, 0), lda, &y[0], incx);
 }
 
 #endif // no DOXYGEN

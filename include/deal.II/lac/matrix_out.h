@@ -137,9 +137,7 @@ public:
    */
   template <class Matrix>
   void
-  build_patches(const Matrix &     matrix,
-                const std::string &name,
-                const Options      options = Options(false, 1, false));
+  build_patches(const Matrix &matrix, const std::string &name, const Options options = Options(false, 1, false));
 
 private:
   /**
@@ -183,10 +181,7 @@ private:
    */
   template <class Matrix>
   static double
-  get_gridpoint_value(const Matrix &  matrix,
-                      const size_type i,
-                      const size_type j,
-                      const Options & options);
+  get_gridpoint_value(const Matrix &matrix, const size_type i, const size_type j, const Options &options);
 };
 
 
@@ -266,9 +261,7 @@ namespace internal
      */
     template <class Matrix>
     double
-    get_element(const Matrix &                matrix,
-                const types::global_dof_index i,
-                const types::global_dof_index j)
+    get_element(const Matrix &matrix, const types::global_dof_index i, const types::global_dof_index j)
     {
       return matrix(i, j);
     }
@@ -279,10 +272,7 @@ namespace internal
 
 template <class Matrix>
 inline double
-MatrixOut::get_gridpoint_value(const Matrix &  matrix,
-                               const size_type i,
-                               const size_type j,
-                               const Options & options)
+MatrixOut::get_gridpoint_value(const Matrix &matrix, const size_type i, const size_type j, const Options &options)
 {
   // special case if block size is
   // one since we then don't need all
@@ -290,8 +280,7 @@ MatrixOut::get_gridpoint_value(const Matrix &  matrix,
   if (options.block_size == 1)
     {
       if (options.show_absolute_values == true)
-        return std::fabs(
-          internal::MatrixOutImplementation::get_element(matrix, i, j));
+        return std::fabs(internal::MatrixOutImplementation::get_element(matrix, i, j));
       else
         return internal::MatrixOutImplementation::get_element(matrix, i, j);
     }
@@ -301,19 +290,15 @@ MatrixOut::get_gridpoint_value(const Matrix &  matrix,
   double    average    = 0;
   size_type n_elements = 0;
   for (size_type row = i * options.block_size;
-       row <
-       std::min(size_type(matrix.m()), size_type((i + 1) * options.block_size));
+       row < std::min(size_type(matrix.m()), size_type((i + 1) * options.block_size));
        ++row)
     for (size_type col = j * options.block_size;
-         col < std::min(size_type(matrix.m()),
-                        size_type((j + 1) * options.block_size));
+         col < std::min(size_type(matrix.m()), size_type((j + 1) * options.block_size));
          ++col, ++n_elements)
       if (options.show_absolute_values == true)
-        average += std::fabs(
-          internal::MatrixOutImplementation::get_element(matrix, row, col));
+        average += std::fabs(internal::MatrixOutImplementation::get_element(matrix, row, col));
       else
-        average +=
-          internal::MatrixOutImplementation::get_element(matrix, row, col);
+        average += internal::MatrixOutImplementation::get_element(matrix, row, col);
   average /= n_elements;
   return average;
 }
@@ -322,14 +307,10 @@ MatrixOut::get_gridpoint_value(const Matrix &  matrix,
 
 template <class Matrix>
 void
-MatrixOut::build_patches(const Matrix &     matrix,
-                         const std::string &name,
-                         const Options      options)
+MatrixOut::build_patches(const Matrix &matrix, const std::string &name, const Options options)
 {
-  size_type gridpoints_x = (matrix.n() / options.block_size +
-                            (matrix.n() % options.block_size != 0 ? 1 : 0)),
-            gridpoints_y = (matrix.m() / options.block_size +
-                            (matrix.m() % options.block_size != 0 ? 1 : 0));
+  size_type gridpoints_x = (matrix.n() / options.block_size + (matrix.n() % options.block_size != 0 ? 1 : 0)),
+            gridpoints_y = (matrix.m() / options.block_size + (matrix.m() % options.block_size != 0 ? 1 : 0));
 
   // If continuous, the number of
   // plotted patches is matrix size-1
@@ -379,25 +360,17 @@ MatrixOut::build_patches(const Matrix &     matrix,
         patches[index].data.reinit(1, 4);
         if (options.discontinuous)
           {
-            patches[index].data(0, 0) =
-              get_gridpoint_value(matrix, i, j, options);
-            patches[index].data(0, 1) =
-              get_gridpoint_value(matrix, i, j, options);
-            patches[index].data(0, 2) =
-              get_gridpoint_value(matrix, i, j, options);
-            patches[index].data(0, 3) =
-              get_gridpoint_value(matrix, i, j, options);
+            patches[index].data(0, 0) = get_gridpoint_value(matrix, i, j, options);
+            patches[index].data(0, 1) = get_gridpoint_value(matrix, i, j, options);
+            patches[index].data(0, 2) = get_gridpoint_value(matrix, i, j, options);
+            patches[index].data(0, 3) = get_gridpoint_value(matrix, i, j, options);
           }
         else
           {
-            patches[index].data(0, 0) =
-              get_gridpoint_value(matrix, i, j, options);
-            patches[index].data(0, 1) =
-              get_gridpoint_value(matrix, i + 1, j, options);
-            patches[index].data(0, 2) =
-              get_gridpoint_value(matrix, i, j + 1, options);
-            patches[index].data(0, 3) =
-              get_gridpoint_value(matrix, i + 1, j + 1, options);
+            patches[index].data(0, 0) = get_gridpoint_value(matrix, i, j, options);
+            patches[index].data(0, 1) = get_gridpoint_value(matrix, i + 1, j, options);
+            patches[index].data(0, 2) = get_gridpoint_value(matrix, i, j + 1, options);
+            patches[index].data(0, 3) = get_gridpoint_value(matrix, i + 1, j + 1, options);
           }
       };
 

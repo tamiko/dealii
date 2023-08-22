@@ -33,24 +33,18 @@ test()
   GridGenerator::hyper_cube(tria);
   tria.refine_global(2);
 
-  for (Triangulation<2>::vertex_iterator vertex_it = tria.begin_vertex();
-       vertex_it != tria.end_vertex();
-       ++vertex_it)
+  for (Triangulation<2>::vertex_iterator vertex_it = tria.begin_vertex(); vertex_it != tria.end_vertex(); ++vertex_it)
     deallog << vertex_it->center() << std::endl;
   deallog << std::endl;
 
-  for (Triangulation<2>::active_cell_iterator cell = tria.begin_active();
-       cell != tria.end();
-       ++cell)
+  for (Triangulation<2>::active_cell_iterator cell = tria.begin_active(); cell != tria.end(); ++cell)
     {
       for (unsigned int i = 0; i < 4; ++i)
         deallog << cell->vertex_iterator(i)->center() << std::endl;
       deallog << std::endl;
     }
 
-  for (Triangulation<2>::active_cell_iterator cell = tria.begin_active();
-       cell != tria.end();
-       ++cell)
+  for (Triangulation<2>::active_cell_iterator cell = tria.begin_active(); cell != tria.end(); ++cell)
     for (unsigned int i = 0; i < 4; ++i)
       {
         for (unsigned int j = 0; j < 2; ++j)

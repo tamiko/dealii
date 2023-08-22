@@ -51,9 +51,7 @@ ones()
 
 template <int dim>
 void
-test(const Triangulation<dim> &tr,
-     const FiniteElement<dim> &fe,
-     const double              tolerance)
+test(const Triangulation<dim> &tr, const FiniteElement<dim> &fe, const double tolerance)
 {
   DoFHandler<dim> dof(tr);
   dof.distribute_dofs(fe);
@@ -63,16 +61,11 @@ test(const Triangulation<dim> &tr,
   deallog << "FE=" << fe.get_name() << std::endl;
 
   const QGauss<dim> quadrature(4);
-  FEValues<dim>     fe_values(fe,
-                          quadrature,
-                          update_hessians | update_quadrature_points |
-                            update_JxW_values);
+  FEValues<dim>     fe_values(fe, quadrature, update_hessians | update_quadrature_points | update_JxW_values);
 
   const QGauss<dim - 1> face_quadrature(4);
-  FEFaceValues<dim>     fe_face_values(fe,
-                                   face_quadrature,
-                                   update_gradients | update_quadrature_points |
-                                     update_normal_vectors | update_JxW_values);
+  FEFaceValues<dim>     fe_face_values(
+    fe, face_quadrature, update_gradients | update_quadrature_points | update_normal_vectors | update_JxW_values);
 
   for (const auto &cell : dof.active_cell_iterators())
     {
@@ -95,8 +88,7 @@ test(const Triangulation<dim> &tr,
               Tensor<2, dim> bulk_integral;
               for (const auto q : fe_values.quadrature_point_indices())
                 {
-                  bulk_integral += fe_values[single_component].hessian(i, q) *
-                                   fe_values.JxW(q);
+                  bulk_integral += fe_values[single_component].hessian(i, q) * fe_values.JxW(q);
                 }
 
               Tensor<2, dim> boundary_integral;
@@ -105,13 +97,10 @@ test(const Triangulation<dim> &tr,
                   fe_face_values.reinit(cell, face);
                   for (const auto q : fe_face_values.quadrature_point_indices())
                     {
-                      Tensor<1, dim> gradient =
-                        fe_face_values[single_component].gradient(i, q);
+                      Tensor<1, dim> gradient = fe_face_values[single_component].gradient(i, q);
                       Tensor<2, dim> gradient_normal_outer_prod =
-                        outer_product(gradient,
-                                      fe_face_values.normal_vector(q));
-                      boundary_integral +=
-                        gradient_normal_outer_prod * fe_face_values.JxW(q);
+                        outer_product(gradient, fe_face_values.normal_vector(q));
+                      boundary_integral += gradient_normal_outer_prod * fe_face_values.JxW(q);
                     }
                 }
 
@@ -121,12 +110,10 @@ test(const Triangulation<dim> &tr,
                   deallog << "Failed:" << std::endl;
                   deallog << ss.str() << std::endl;
                   deallog << "    bulk integral=" << bulk_integral << std::endl;
-                  deallog << "boundary integral=" << boundary_integral
+                  deallog << "boundary integral=" << boundary_integral << std::endl;
+                  deallog << "Error! difference between bulk and surface integrals is greater than " << tolerance
+                          << "!\n\n"
                           << std::endl;
-                  deallog
-                    << "Error! difference between bulk and surface integrals is greater than "
-                    << tolerance << "!\n\n"
-                    << std::endl;
                   cell_ok = false;
                 }
 
@@ -134,8 +121,7 @@ test(const Triangulation<dim> &tr,
             }
         }
 
-      deallog << (cell_ok ? "OK: cell bulk and boundary integrals match...\n" :
-                            "Failed divergence test...\n")
+      deallog << (cell_ok ? "OK: cell bulk and boundary integrals match...\n" : "Failed divergence test...\n")
               << std::endl;
     }
 }

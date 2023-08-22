@@ -71,13 +71,9 @@ VaryingCoefficient(const Point<dim> &p)
 }
 
 
-template <int dim,
-          int fe_degree,
-          typename Number,
-          typename VectorType,
-          int n_q_points_1d>
+template <int dim, int fe_degree, typename Number, typename VectorType, int n_q_points_1d>
 void
-do_test(const DoFHandler<dim> &          dof,
+do_test(const DoFHandler<dim>           &dof,
         const AffineConstraints<Number> &constraints,
         const unsigned int               n_locally_owned_cells,
         const bool                       constant_coefficient = true,
@@ -85,22 +81,18 @@ do_test(const DoFHandler<dim> &          dof,
 {
   deallog << "Testing " << dof.get_fe().get_name() << std::endl;
 
-  MappingQ<dim>                         mapping(fe_degree);
-  CUDAWrappers::MatrixFree<dim, Number> mf_data;
-  typename CUDAWrappers::MatrixFree<dim, Number>::AdditionalData
-    additional_data;
-  additional_data.mapping_update_flags = update_values | update_gradients |
-                                         update_JxW_values |
-                                         update_quadrature_points;
+  MappingQ<dim>                                                  mapping(fe_degree);
+  CUDAWrappers::MatrixFree<dim, Number>                          mf_data;
+  typename CUDAWrappers::MatrixFree<dim, Number>::AdditionalData additional_data;
+  additional_data.mapping_update_flags =
+    update_values | update_gradients | update_JxW_values | update_quadrature_points;
   additional_data.use_coloring = coloring;
   const QGauss<1> quad(n_q_points_1d);
   mf_data.reinit(mapping, dof, constraints, quad, additional_data);
 
-  const unsigned int n_dofs = dof.n_dofs();
+  const unsigned int                                                n_dofs = dof.n_dofs();
   MatrixFreeTest<dim, fe_degree, Number, VectorType, n_q_points_1d> mf(
-    mf_data,
-    n_locally_owned_cells * std::pow(n_q_points_1d, dim),
-    constant_coefficient);
+    mf_data, n_locally_owned_cells * std::pow(n_q_points_1d, dim), constant_coefficient);
   Vector<Number>                         in_host(n_dofs), out_host(n_dofs);
   LinearAlgebra::ReadWriteVector<Number> in(n_dofs), out(n_dofs);
   VectorType                             in_device(n_dofs);
@@ -133,17 +125,15 @@ do_test(const DoFHandler<dim> &          dof,
     FEValues<dim> fe_values(mapping,
                             dof.get_fe(),
                             quadrature_formula,
-                            update_values | update_gradients |
-                              update_quadrature_points | update_JxW_values);
+                            update_values | update_gradients | update_quadrature_points | update_JxW_values);
 
     const unsigned int dofs_per_cell = dof.get_fe().dofs_per_cell;
     const unsigned int n_q_points    = quadrature_formula.size();
 
-    FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
+    FullMatrix<double>                   cell_matrix(dofs_per_cell, dofs_per_cell);
     std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
 
-    typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(),
-                                                   endc = dof.end();
+    typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(), endc = dof.end();
     for (; cell != endc; ++cell)
       {
         cell_matrix = 0;
@@ -151,26 +141,19 @@ do_test(const DoFHandler<dim> &          dof,
 
         for (unsigned int q_point = 0; q_point < n_q_points; ++q_point)
           {
-            const auto coef =
-              constant_coefficient ?
-                ConstantCoefficient<dim>(fe_values.quadrature_point(q_point)) :
-                VaryingCoefficient<dim>(fe_values.quadrature_point(q_point));
+            const auto coef = constant_coefficient ? ConstantCoefficient<dim>(fe_values.quadrature_point(q_point)) :
+                                                     VaryingCoefficient<dim>(fe_values.quadrature_point(q_point));
             for (unsigned int i = 0; i < dofs_per_cell; ++i)
               {
                 for (unsigned int j = 0; j < dofs_per_cell; ++j)
-                  cell_matrix(i, j) +=
-                    ((fe_values.shape_grad(i, q_point) *
-                        fe_values.shape_grad(j, q_point) +
-                      coef * fe_values.shape_value(i, q_point) *
-                        fe_values.shape_value(j, q_point)) *
-                     fe_values.JxW(q_point));
+                  cell_matrix(i, j) += ((fe_values.shape_grad(i, q_point) * fe_values.shape_grad(j, q_point) +
+                                         coef * fe_values.shape_value(i, q_point) * fe_values.shape_value(j, q_point)) *
+                                        fe_values.JxW(q_point));
               }
           }
 
         cell->get_dof_indices(local_dof_indices);
-        constraints.distribute_local_to_global(cell_matrix,
-                                               local_dof_indices,
-                                               sparse_matrix);
+        constraints.distribute_local_to_global(cell_matrix, local_dof_indices, sparse_matrix);
       }
   }
   for (unsigned i = 0; i < n_dofs; ++i)

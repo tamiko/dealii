@@ -49,8 +49,7 @@ test()
   GridGenerator::subdivided_hyper_rectangle(triangulation,
                                             repetitions,
                                             Point<dim>(),
-                                            (dim == 2 ? Point<dim>(2, 1) :
-                                                        Point<dim>(2, 1, 1)));
+                                            (dim == 2 ? Point<dim>(2, 1) : Point<dim>(2, 1, 1)));
   triangulation.begin_active()->set_refine_flag();
   triangulation.execute_coarsening_and_refinement();
   triangulation.begin_active(1)->set_refine_flag();
@@ -61,10 +60,7 @@ test()
   dof_handler.distribute_dofs(fe);
 
   AffineConstraints<double> cm;
-  DoFTools::make_periodicity_constraints(
-    dof_handler.begin(0)->face(0),
-    (std::next(dof_handler.begin(0)))->face(1),
-    cm);
+  DoFTools::make_periodicity_constraints(dof_handler.begin(0)->face(0), (std::next(dof_handler.begin(0)))->face(1), cm);
   cm.print(deallog.get_file_stream());
 }
 

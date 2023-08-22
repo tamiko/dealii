@@ -37,27 +37,22 @@ test()
 
   // pick out a particular cell
   const typename Triangulation<dim>::cell_iterator coarse_cell(&tria, 0, 5);
-  const auto cell = coarse_cell->child(0)->child(5)->child(7);
+  const auto                                       cell = coarse_cell->child(0)->child(5)->child(7);
 
-  std::vector<Point<dim>> real_points{
-    Point<3>(-0.0489699, -0.859053, -0.0489699)};
+  std::vector<Point<dim>> real_points{Point<3>(-0.0489699, -0.859053, -0.0489699)};
   std::vector<Point<dim>> unit_points(real_points.size());
 
   for (unsigned int degree = 1; degree < 4; ++degree)
     {
       MappingQ<dim> mapping(degree);
-      mapping.transform_points_real_to_unit_cell(cell,
-                                                 real_points,
-                                                 unit_points);
+      mapping.transform_points_real_to_unit_cell(cell, real_points, unit_points);
 
-      deallog << "Transform on cell with center: " << cell->center(true)
-              << " with mapping degree " << degree << std::endl;
-      deallog << "Combined transform " << real_points[0] << " gives "
-              << unit_points[0] << std::endl;
+      deallog << "Transform on cell with center: " << cell->center(true) << " with mapping degree " << degree
+              << std::endl;
+      deallog << "Combined transform " << real_points[0] << " gives " << unit_points[0] << std::endl;
 
       deallog << "Classic transform  " << real_points[0] << " gives "
-              << mapping.transform_real_to_unit_cell(cell, real_points[0])
-              << std::endl;
+              << mapping.transform_real_to_unit_cell(cell, real_points[0]) << std::endl;
     }
 
   deallog << "OK" << std::endl;

@@ -61,10 +61,8 @@ test()
     std::fill(v.begin(), v.end(), 42.0);
     const std::array<double, 10> &v2 = v;
     const auto                    a  = make_array_view(v2.begin(), v2.end());
-    static_assert(is_const_reference<decltype(*a.begin())>(),
-                  "type needs to be const");
-    static_assert(is_const_reference<decltype(*a.end())>(),
-                  "type needs to be const");
+    static_assert(is_const_reference<decltype(*a.begin())>(), "type needs to be const");
+    static_assert(is_const_reference<decltype(*a.end())>(), "type needs to be const");
 
     v[5] = 10;
     AssertThrow(a[5] == 10, ExcInternalError());
@@ -76,14 +74,10 @@ test()
     std::fill(v.begin(), v.end(), 42.0);
     auto a = make_array_view(v.cbegin() + 2, v.cend());
     // a needs to be ArrayView<const double>
-    static_assert(!std::is_const_v<decltype(a)>,
-                  "a should not be const (but has const value)");
-    static_assert(std::is_const_v<decltype(a)::value_type>,
-                  "a::value_type needs to be const");
-    static_assert(is_const_reference<decltype(*a.begin())>(),
-                  "type needs to be const");
-    static_assert(is_const_reference<decltype(*a.end())>(),
-                  "type needs to be const");
+    static_assert(!std::is_const_v<decltype(a)>, "a should not be const (but has const value)");
+    static_assert(std::is_const_v<decltype(a)::value_type>, "a::value_type needs to be const");
+    static_assert(is_const_reference<decltype(*a.begin())>(), "type needs to be const");
+    static_assert(is_const_reference<decltype(*a.end())>(), "type needs to be const");
     v[2] = 10.0;
     AssertThrow(a[0] == v[2], ExcInternalError());
   }
@@ -100,14 +94,10 @@ test()
     // the type checking in that case
 #if BOOST_VERSION >= 106200
     // a needs to be const ArrayView<const double>
-    static_assert(std::is_const_v<decltype(a)>,
-                  "a should not be const (but has const value)");
-    static_assert(std::is_const_v<decltype(a)::value_type>,
-                  "a::value_type needs to be const");
-    static_assert(is_const_reference<decltype(*a.begin())>(),
-                  "type needs to be const");
-    static_assert(is_const_reference<decltype(*a.end())>(),
-                  "type needs to be const");
+    static_assert(std::is_const_v<decltype(a)>, "a should not be const (but has const value)");
+    static_assert(std::is_const_v<decltype(a)::value_type>, "a::value_type needs to be const");
+    static_assert(is_const_reference<decltype(*a.begin())>(), "type needs to be const");
+    static_assert(is_const_reference<decltype(*a.end())>(), "type needs to be const");
 #endif
     v[2] = 10.0;
     AssertThrow(a[0] == v[2], ExcInternalError());
@@ -125,12 +115,8 @@ test()
       // just output the expected error message in release mode
       // to make CTest happy
 #ifndef DEBUG
-    deallog
-      << "ExcMessage(\"The beginning of the array view needs to be before the end.\")"
-      << std::endl;
-    deallog
-      << "ExcMessage(\"The beginning of the array view needs to be before the end.\")"
-      << std::endl;
+    deallog << "ExcMessage(\"The beginning of the array view needs to be before the end.\")" << std::endl;
+    deallog << "ExcMessage(\"The beginning of the array view needs to be before the end.\")" << std::endl;
 #endif
   }
 

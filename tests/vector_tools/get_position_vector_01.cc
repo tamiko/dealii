@@ -53,11 +53,8 @@ test()
 
   // set up base high-order mapping
   Vector<double> euler_vector_base(dof_handler_dim.n_dofs());
-  VectorTools::get_position_vector(MappingQ<dim, spacedim>(4),
-                                   dof_handler_dim,
-                                   euler_vector_base);
-  MappingFEField<dim, spacedim> mapping_base(dof_handler_dim,
-                                             euler_vector_base);
+  VectorTools::get_position_vector(MappingQ<dim, spacedim>(4), dof_handler_dim, euler_vector_base);
+  MappingFEField<dim, spacedim> mapping_base(dof_handler_dim, euler_vector_base);
 
   // clear manifold
   tria.reset_all_manifolds();
@@ -70,10 +67,9 @@ test()
     data_out.set_flags(flags);
     data_out.attach_dof_handler(dof_handler);
 
-    data_out.build_patches(
-      MappingQ<dim, spacedim>(4),
-      fe_degree + 1,
-      DataOut<dim, spacedim>::CurvedCellRegion::curved_inner_cells);
+    data_out.build_patches(MappingQ<dim, spacedim>(4),
+                           fe_degree + 1,
+                           DataOut<dim, spacedim>::CurvedCellRegion::curved_inner_cells);
 
 #if false
     std::ofstream output("test.0.vtk");
@@ -87,9 +83,7 @@ test()
   // with the triangulation without manifolds and the high-order base mapping
   {
     Vector<double> euler_vector(dof_handler_dim.n_dofs());
-    VectorTools::get_position_vector(mapping_base,
-                                     dof_handler_dim,
-                                     euler_vector);
+    VectorTools::get_position_vector(mapping_base, dof_handler_dim, euler_vector);
     MappingFEField<dim, spacedim> mapping(dof_handler_dim, euler_vector);
     DataOutBase::VtkFlags         flags;
 
@@ -97,10 +91,7 @@ test()
     data_out.set_flags(flags);
     data_out.attach_dof_handler(dof_handler);
 
-    data_out.build_patches(
-      mapping,
-      fe_degree + 1,
-      DataOut<dim, spacedim>::CurvedCellRegion::curved_inner_cells);
+    data_out.build_patches(mapping, fe_degree + 1, DataOut<dim, spacedim>::CurvedCellRegion::curved_inner_cells);
 
 #if false
     std::ofstream output("test.1.vtk");

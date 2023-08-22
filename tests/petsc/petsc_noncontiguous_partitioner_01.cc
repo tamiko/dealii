@@ -50,8 +50,7 @@ test(const MPI_Comm comm)
 
   src[0] = Utilities::MPI::this_mpi_process(comm) * 100 + 1;
 
-  petscsf.export_to_ghosted_array(ArrayView<const double>(src.data(),
-                                                          src.size()),
+  petscsf.export_to_ghosted_array(ArrayView<const double>(src.data(), src.size()),
                                   ArrayView<double>(dst.data(), dst.size()));
 
   for (size_t i = 0; i < src.size(); ++i)

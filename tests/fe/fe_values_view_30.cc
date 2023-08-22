@@ -100,8 +100,7 @@ VectorFunction<3>::value(const Point<3> &p, const unsigned int component) const
 
 template <int dim>
 void
-VectorFunction<dim>::vector_value(const Point<dim> &p,
-                                  Vector<double> &  values) const
+VectorFunction<dim>::vector_value(const Point<dim> &p, Vector<double> &values) const
 {
   for (int i = 0; i < dim; ++i)
     values(i) = value(p, i);
@@ -121,25 +120,20 @@ test(const Triangulation<dim> &tr, const FiniteElement<dim> &fe)
   MappingQ<dim> mapping(1);
 
   const QGauss<dim> quadrature(fe.degree + 2);
-  FEValues<dim>     fe_values(mapping,
-                          fe,
-                          quadrature,
-                          update_values | update_gradients |
-                            update_3rd_derivatives);
+  FEValues<dim>     fe_values(mapping, fe, quadrature, update_values | update_gradients | update_3rd_derivatives);
 
   AffineConstraints<double> constraints;
   DoFTools::make_hanging_node_constraints(dof_handler, constraints);
   constraints.close();
 
   Vector<double> function_vals(dof_handler.n_dofs());
-  VectorTools::project(
-    mapping, dof_handler, constraints, quadrature, fe_function, function_vals);
+  VectorTools::project(mapping, dof_handler, constraints, quadrature, fe_function, function_vals);
 
   fe_values.reinit(dof_handler.begin_active());
 
-  std::vector<Tensor<4, dim>> selected_vector_values(quadrature.size());
-  std::vector<std::vector<Tensor<3, dim>>> vector_values(
-    quadrature.size(), std::vector<Tensor<3, dim>>(fe.n_components()));
+  std::vector<Tensor<4, dim>>              selected_vector_values(quadrature.size());
+  std::vector<std::vector<Tensor<3, dim>>> vector_values(quadrature.size(),
+                                                         std::vector<Tensor<3, dim>>(fe.n_components()));
 
   fe_values.get_function_third_derivatives(function_vals, vector_values);
 
@@ -151,8 +145,7 @@ test(const Triangulation<dim> &tr, const FiniteElement<dim> &fe)
     if (c + dim <= fe.n_components())
       {
         FEValuesExtractors::Vector vector_components(c);
-        fe_values[vector_components].get_function_third_derivatives(
-          function_vals, selected_vector_values);
+        fe_values[vector_components].get_function_third_derivatives(function_vals, selected_vector_values);
         deallog << "component=" << c << std::endl;
 
         for (const auto q : fe_values.quadrature_point_indices())
@@ -161,13 +154,11 @@ test(const Triangulation<dim> &tr, const FiniteElement<dim> &fe)
               for (unsigned int e = 0; e < dim; ++e)
                 for (unsigned int f = 0; f < dim; ++f)
                   for (unsigned int g = 0; g < dim; ++g)
-                    deallog
-                      << selected_vector_values[q][d][e][f][g]
-                      << (e < dim - 1 && f < dim - 1 && g < dim - 1 ? ", " :
-                                                                      "; ");
+                    deallog << selected_vector_values[q][d][e][f][g]
+                            << (e < dim - 1 && f < dim - 1 && g < dim - 1 ? ", " : "; ");
               deallog << std::endl;
-              Assert((selected_vector_values[q][d] - vector_values[q][c + d])
-                         .norm() <= 1e-12 * selected_vector_values[q][d].norm(),
+              Assert((selected_vector_values[q][d] - vector_values[q][c + d]).norm() <=
+                       1e-12 * selected_vector_values[q][d].norm(),
                      ExcInternalError());
             }
       }

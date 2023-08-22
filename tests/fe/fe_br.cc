@@ -52,9 +52,7 @@ ones()
 
 template <int dim>
 void
-test(const Triangulation<dim> &tr,
-     const FiniteElement<dim> &fe,
-     const double              tolerance)
+test(const Triangulation<dim> &tr, const FiniteElement<dim> &fe, const double tolerance)
 {
   DoFHandler<dim> dof(tr);
   dof.distribute_dofs(fe);
@@ -64,14 +62,9 @@ test(const Triangulation<dim> &tr,
   deallog << "FE=" << fe.get_name() << std::endl;
 
   const QGauss<dim> quadrature(4);
-  FEValues<dim>     fe_values(fe,
-                          quadrature,
-                          update_gradients | update_quadrature_points |
-                            update_JxW_values);
+  FEValues<dim>     fe_values(fe, quadrature, update_gradients | update_quadrature_points | update_JxW_values);
 
-  for (typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active();
-       cell != dof.end();
-       ++cell)
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(); cell != dof.end(); ++cell)
     {
       fe_values.reinit(cell);
 
@@ -95,8 +88,7 @@ test(const Triangulation<dim> &tr,
               Tensor<1, dim> bulk_integral;
               for (const auto q : fe_values.quadrature_point_indices())
                 {
-                  bulk_integral += fe_values[single_component].gradient(i, q) *
-                                   fe_values.JxW(q);
+                  bulk_integral += fe_values[single_component].gradient(i, q) * fe_values.JxW(q);
                 }
 
               deallog << "    bulk integral=" << bulk_integral << std::endl;

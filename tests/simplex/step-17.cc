@@ -142,8 +142,7 @@ namespace Step17
       point_1(0) = 0.5;
       point_2(0) = -0.5;
 
-      if (((p - point_1).norm_square() < 0.2 * 0.2) ||
-          ((p - point_2).norm_square() < 0.2 * 0.2))
+      if (((p - point_1).norm_square() < 0.2 * 0.2) || ((p - point_2).norm_square() < 0.2 * 0.2))
         values(0) = 1;
       else
         values(0) = 0;
@@ -155,13 +154,11 @@ namespace Step17
     }
 
     virtual void
-    vector_value_list(const std::vector<Point<dim>> &points,
-                      std::vector<Vector<double>> &  value_list) const override
+    vector_value_list(const std::vector<Point<dim>> &points, std::vector<Vector<double>> &value_list) const override
     {
       const unsigned int n_points = points.size();
 
-      Assert(value_list.size() == n_points,
-             ExcDimensionMismatch(value_list.size(), n_points));
+      Assert(value_list.size() == n_points, ExcDimensionMismatch(value_list.size(), n_points));
 
       for (unsigned int p = 0; p < n_points; ++p)
         RightHandSide<dim>::vector_value(points[p], value_list[p]);
@@ -195,25 +192,16 @@ namespace Step17
     DoFRenumbering::subdomain_wise(dof_handler);
 
     hanging_node_constraints.clear();
-    DoFTools::make_hanging_node_constraints(dof_handler,
-                                            hanging_node_constraints);
+    DoFTools::make_hanging_node_constraints(dof_handler, hanging_node_constraints);
     hanging_node_constraints.close();
 
     DynamicSparsityPattern dsp(dof_handler.n_dofs(), dof_handler.n_dofs());
-    DoFTools::make_sparsity_pattern(dof_handler,
-                                    dsp,
-                                    hanging_node_constraints,
-                                    false);
+    DoFTools::make_sparsity_pattern(dof_handler, dsp, hanging_node_constraints, false);
 
-    const std::vector<IndexSet> locally_owned_dofs_per_proc =
-      DoFTools::locally_owned_dofs_per_subdomain(dof_handler);
-    const IndexSet locally_owned_dofs =
-      locally_owned_dofs_per_proc[this_mpi_process];
+    const std::vector<IndexSet> locally_owned_dofs_per_proc = DoFTools::locally_owned_dofs_per_subdomain(dof_handler);
+    const IndexSet              locally_owned_dofs          = locally_owned_dofs_per_proc[this_mpi_process];
 
-    system_matrix.reinit(locally_owned_dofs,
-                         locally_owned_dofs,
-                         dsp,
-                         mpi_communicator);
+    system_matrix.reinit(locally_owned_dofs, locally_owned_dofs, dsp, mpi_communicator);
 
     solution.reinit(locally_owned_dofs, mpi_communicator);
     system_rhs.reinit(locally_owned_dofs, mpi_communicator);
@@ -227,8 +215,7 @@ namespace Step17
     FEValues<dim>      fe_values(mapping,
                             fe,
                             quadrature_formula,
-                            update_values | update_gradients |
-                              update_quadrature_points | update_JxW_values);
+                            update_values | update_gradients | update_quadrature_points | update_JxW_values);
 
     const unsigned int dofs_per_cell = fe.n_dofs_per_cell();
     const unsigned int n_q_points    = quadrature_formula.size();
@@ -259,53 +246,40 @@ namespace Step17
 
           for (unsigned int i = 0; i < dofs_per_cell; ++i)
             {
-              const unsigned int component_i =
-                fe.system_to_component_index(i).first;
+              const unsigned int component_i = fe.system_to_component_index(i).first;
 
               for (unsigned int j = 0; j < dofs_per_cell; ++j)
                 {
-                  const unsigned int component_j =
-                    fe.system_to_component_index(j).first;
+                  const unsigned int component_j = fe.system_to_component_index(j).first;
 
-                  for (unsigned int q_point = 0; q_point < n_q_points;
-                       ++q_point)
+                  for (unsigned int q_point = 0; q_point < n_q_points; ++q_point)
                     {
                       cell_matrix(i, j) +=
                         ((fe_values.shape_grad(i, q_point)[component_i] *
-                          fe_values.shape_grad(j, q_point)[component_j] *
-                          lambda_values[q_point]) +
+                          fe_values.shape_grad(j, q_point)[component_j] * lambda_values[q_point]) +
                          (fe_values.shape_grad(i, q_point)[component_j] *
-                          fe_values.shape_grad(j, q_point)[component_i] *
-                          mu_values[q_point]) +
+                          fe_values.shape_grad(j, q_point)[component_i] * mu_values[q_point]) +
                          ((component_i == component_j) ?
-                            (fe_values.shape_grad(i, q_point) *
-                             fe_values.shape_grad(j, q_point) *
-                             mu_values[q_point]) :
+                            (fe_values.shape_grad(i, q_point) * fe_values.shape_grad(j, q_point) * mu_values[q_point]) :
                             0)) *
                         fe_values.JxW(q_point);
                     }
                 }
             }
 
-          right_hand_side.vector_value_list(fe_values.get_quadrature_points(),
-                                            rhs_values);
+          right_hand_side.vector_value_list(fe_values.get_quadrature_points(), rhs_values);
           for (unsigned int i = 0; i < dofs_per_cell; ++i)
             {
-              const unsigned int component_i =
-                fe.system_to_component_index(i).first;
+              const unsigned int component_i = fe.system_to_component_index(i).first;
 
               for (unsigned int q_point = 0; q_point < n_q_points; ++q_point)
-                cell_rhs(i) += fe_values.shape_value(i, q_point) *
-                               rhs_values[q_point](component_i) *
-                               fe_values.JxW(q_point);
+                cell_rhs(i) +=
+                  fe_values.shape_value(i, q_point) * rhs_values[q_point](component_i) * fe_values.JxW(q_point);
             }
 
           cell->get_dof_indices(local_dof_indices);
-          hanging_node_constraints.distribute_local_to_global(cell_matrix,
-                                                              cell_rhs,
-                                                              local_dof_indices,
-                                                              system_matrix,
-                                                              system_rhs);
+          hanging_node_constraints.distribute_local_to_global(
+            cell_matrix, cell_rhs, local_dof_indices, system_matrix, system_rhs);
         }
 
     system_matrix.compress(VectorOperation::add);
@@ -313,32 +287,26 @@ namespace Step17
 
     std::map<types::global_dof_index, PetscScalar> boundary_values;
     VectorTools::interpolate_boundary_values(
-      mapping,
-      dof_handler,
-      0,
-      Functions::ZeroFunction<dim, PetscScalar>(dim),
-      boundary_values);
-    MatrixTools::apply_boundary_values(
-      boundary_values, system_matrix, solution, system_rhs, false);
+      mapping, dof_handler, 0, Functions::ZeroFunction<dim, PetscScalar>(dim), boundary_values);
+    MatrixTools::apply_boundary_values(boundary_values, system_matrix, solution, system_rhs, false);
   }
 
   template <int dim>
   unsigned int
   ElasticProblem<dim>::solve()
   {
-    SolverControl solver_control(solution.size(), 1e-8 * system_rhs.l2_norm());
+    SolverControl           solver_control(solution.size(), 1e-8 * system_rhs.l2_norm());
     PETScWrappers::SolverCG cg(solver_control);
 
     // PreconditionBlockJacobi depends on the processor count
     PETScWrappers::PreconditionBlockJacobi preconditioner(system_matrix);
-    const unsigned int lower = n_mpi_processes == 1 ? 8 : 26;
-    const unsigned int upper = n_mpi_processes == 1 ? 12 : 30;
+    const unsigned int                     lower = n_mpi_processes == 1 ? 8 : 26;
+    const unsigned int                     upper = n_mpi_processes == 1 ? 12 : 30;
 
-    check_solver_within_range(
-      cg.solve(system_matrix, solution, system_rhs, preconditioner),
-      solver_control.last_step(),
-      lower,
-      upper);
+    check_solver_within_range(cg.solve(system_matrix, solution, system_rhs, preconditioner),
+                              solver_control.last_step(),
+                              lower,
+                              upper);
 
 
     Vector<PetscScalar> localized_solution(solution);
@@ -385,8 +353,7 @@ namespace Step17
         std::vector<unsigned int> partition_int(triangulation.n_active_cells());
         GridTools::get_subdomain_association(triangulation, partition_int);
 
-        const Vector<double> partitioning(partition_int.begin(),
-                                          partition_int.end());
+        const Vector<double> partitioning(partition_int.begin(), partition_int.end());
 
         data_out.add_data_vector(partitioning, "partitioning");
 
@@ -421,24 +388,21 @@ namespace Step17
       }
 
 #ifdef HEX
-    GridGenerator::subdivided_hyper_rectangle(
-      triangulation, std::vector<unsigned int>(dim, n_subdivisions), a, b);
+    GridGenerator::subdivided_hyper_rectangle(triangulation, std::vector<unsigned int>(dim, n_subdivisions), a, b);
 #else
-    GridGenerator::subdivided_hyper_rectangle_with_simplices(
-      triangulation, std::vector<unsigned int>(dim, n_subdivisions), a, b);
+    GridGenerator::subdivided_hyper_rectangle_with_simplices(triangulation,
+                                                             std::vector<unsigned int>(dim, n_subdivisions),
+                                                             a,
+                                                             b);
 #endif
 
-    deallog << "   Number of active cells:       "
-            << triangulation.n_active_cells() << std::endl;
+    deallog << "   Number of active cells:       " << triangulation.n_active_cells() << std::endl;
 
     setup_system();
 
-    deallog << "   Number of degrees of freedom: " << dof_handler.n_dofs()
-            << " (by partition:";
+    deallog << "   Number of degrees of freedom: " << dof_handler.n_dofs() << " (by partition:";
     for (unsigned int p = 0; p < n_mpi_processes; ++p)
-      deallog << (p == 0 ? ' ' : '+')
-              << (DoFTools::count_dofs_with_subdomain_association(dof_handler,
-                                                                  p));
+      deallog << (p == 0 ? ' ' : '+') << (DoFTools::count_dofs_with_subdomain_association(dof_handler, p));
     deallog << ')' << std::endl;
 
     assemble_system();
@@ -464,28 +428,20 @@ main(int argc, char **argv)
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
 

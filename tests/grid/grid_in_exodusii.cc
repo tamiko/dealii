@@ -27,15 +27,13 @@ using namespace dealii;
 
 template <int dim, int spacedim = dim>
 void
-read_and_print(const std::string &filename,
-               const bool         read_as_manifolds = false)
+read_and_print(const std::string &filename, const bool read_as_manifolds = false)
 {
   Triangulation<dim, spacedim> tria;
   GridIn<dim, spacedim>        gi;
   gi.attach_triangulation(tria);
-  const typename GridIn<dim, spacedim>::ExodusIIData exodus_data =
-    gi.read_exodusii(filename, read_as_manifolds);
-  const auto &boundary_id_to_sideset_ids = exodus_data.id_to_sideset_ids;
+  const typename GridIn<dim, spacedim>::ExodusIIData exodus_data = gi.read_exodusii(filename, read_as_manifolds);
+  const auto                                        &boundary_id_to_sideset_ids = exodus_data.id_to_sideset_ids;
 
   for (unsigned int i = 0; i < boundary_id_to_sideset_ids.size(); ++i)
     {
@@ -63,8 +61,7 @@ read_and_print(const std::string &filename,
   deallog << "Number of cells: " << tria.n_cells() << std::endl;
 
   for (const auto &cell : tria.active_cell_iterators())
-    deallog << "cell " << cell->index()
-            << " type = " << cell->reference_cell().to_string()
+    deallog << "cell " << cell->index() << " type = " << cell->reference_cell().to_string()
             << " volume = " << cell->measure() << std::endl;
 
   GridOut go;

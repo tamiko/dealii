@@ -125,16 +125,13 @@ public:
    *   a cell whose children will get coarsened into.
    */
   CellDataTransfer(
-    const Triangulation<dim, spacedim> &triangulation,
-    const std::function<std::vector<value_type>(
-      const typename Triangulation<dim, spacedim>::cell_iterator &parent,
-      const value_type parent_value)>   refinement_strategy =
+    const Triangulation<dim, spacedim>                                         &triangulation,
+    const std::function<std::vector<value_type>(const typename Triangulation<dim, spacedim>::cell_iterator &parent,
+                                                const value_type parent_value)> refinement_strategy =
       &AdaptationStrategies::Refinement::preserve<dim, spacedim, value_type>,
-    const std::function<value_type(
-      const typename Triangulation<dim, spacedim>::cell_iterator &parent,
-      const std::vector<value_type> &children_values)> coarsening_strategy =
-      &AdaptationStrategies::Coarsening::
-        check_equality<dim, spacedim, value_type>);
+    const std::function<value_type(const typename Triangulation<dim, spacedim>::cell_iterator &parent,
+                                   const std::vector<value_type> &children_values)> coarsening_strategy =
+      &AdaptationStrategies::Coarsening::check_equality<dim, spacedim, value_type>);
 
   /**
    * Prepare the current object for coarsening and refinement.
@@ -160,51 +157,43 @@ private:
   /**
    * Pointer to the triangulation to work with.
    */
-  SmartPointer<const Triangulation<dim, spacedim>,
-               CellDataTransfer<dim, spacedim, VectorType>>
-    triangulation;
+  SmartPointer<const Triangulation<dim, spacedim>, CellDataTransfer<dim, spacedim, VectorType>> triangulation;
 
   /**
    * %Function deciding how data will be stored on refined cells from its parent
    * cell.
    */
-  const std::function<std::vector<value_type>(
-    const typename Triangulation<dim, spacedim>::cell_iterator &parent,
-    const value_type                                            parent_value)>
+  const std::function<std::vector<value_type>(const typename Triangulation<dim, spacedim>::cell_iterator &parent,
+                                              const value_type                                            parent_value)>
     refinement_strategy;
 
   /**
    * %Function deciding on how to process data from children to be stored on the
    * parent cell.
    */
-  const std::function<value_type(
-    const typename Triangulation<dim, spacedim>::cell_iterator &parent,
-    const std::vector<value_type> &children_indices)>
+  const std::function<value_type(const typename Triangulation<dim, spacedim>::cell_iterator &parent,
+                                 const std::vector<value_type>                              &children_indices)>
     coarsening_strategy;
 
   /**
    * Container to temporarily store the iterator and active cell index
    * of cells that persist.
    */
-  std::map<const typename Triangulation<dim, spacedim>::cell_iterator,
-           const unsigned int>
+  std::map<const typename Triangulation<dim, spacedim>::cell_iterator, const unsigned int>
     persisting_cells_active_index;
 
   /**
    * Container to temporarily store the iterator and active cell index
    * of cells that will be refined.
    */
-  std::map<const typename Triangulation<dim, spacedim>::cell_iterator,
-           const unsigned int>
-    refined_cells_active_index;
+  std::map<const typename Triangulation<dim, spacedim>::cell_iterator, const unsigned int> refined_cells_active_index;
 
   /**
    * Container to temporarily store the iterator of parent cells that will
    * remain after coarsening along with the active cell indices of the
    * corresponding children cells.
    */
-  std::map<const typename Triangulation<dim, spacedim>::cell_iterator,
-           const std::set<unsigned int>>
+  std::map<const typename Triangulation<dim, spacedim>::cell_iterator, const std::set<unsigned int>>
     coarsened_cells_active_index;
 
   /**

@@ -58,10 +58,7 @@ test()
   unsigned int myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
 
   parallel::distributed::Triangulation<2, 3> tr(MPI_COMM_WORLD);
-  GridGenerator::subdivided_hyper_rectangle(tr,
-                                            std::vector<unsigned int>{{2, 2}},
-                                            Point<2>(),
-                                            Point<2>(2, 2));
+  GridGenerator::subdivided_hyper_rectangle(tr, std::vector<unsigned int>{{2, 2}}, Point<2>(), Point<2>(2, 2));
 
   hp::FECollection<2, 3> fe;
   fe.push_back(FE_Q<2, 3>(1));
@@ -76,12 +73,10 @@ test()
       // have strictly increasing, contiguous groups of DoF indices.
       if (test == 1)
         {
-          IndexSet locally_owned_dofs = dof_handler.locally_owned_dofs();
-          std::vector<types::global_dof_index> new_numbers(
-            locally_owned_dofs.n_elements());
+          IndexSet                             locally_owned_dofs = dof_handler.locally_owned_dofs();
+          std::vector<types::global_dof_index> new_numbers(locally_owned_dofs.n_elements());
           for (auto i : locally_owned_dofs)
-            new_numbers[locally_owned_dofs.index_within_set(i)] =
-              dof_handler.n_dofs() - i - 1;
+            new_numbers[locally_owned_dofs.index_within_set(i)] = dof_handler.n_dofs() - i - 1;
           dof_handler.renumber_dofs(new_numbers);
         }
 
@@ -92,12 +87,10 @@ test()
       DoFRenumbering::hierarchical(dof_handler);
 
       // output DoF indices
-      deallog << (test == 0 ? "Without " : "With ")
-              << "prior reordering:" << std::endl;
-      const unsigned int                   dofs_per_cell = fe[0].dofs_per_cell;
-      std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
-      DoFHandler<2, 3>::active_cell_iterator cell = dof_handler.begin_active(),
-                                             endc = dof_handler.end();
+      deallog << (test == 0 ? "Without " : "With ") << "prior reordering:" << std::endl;
+      const unsigned int                     dofs_per_cell = fe[0].dofs_per_cell;
+      std::vector<types::global_dof_index>   local_dof_indices(dofs_per_cell);
+      DoFHandler<2, 3>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
       for (; cell != endc; ++cell)
         if (cell->subdomain_id() == tr.locally_owned_subdomain())
           {

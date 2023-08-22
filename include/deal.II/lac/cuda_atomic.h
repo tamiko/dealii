@@ -39,9 +39,7 @@ namespace LinearAlgebra
       do
         {
           assumed = old;
-          old     = atomicCAS(address_as_int,
-                          assumed,
-                          atomicMax(address_as_int, __float_as_int(val)));
+          old     = atomicCAS(address_as_int, assumed, atomicMax(address_as_int, __float_as_int(val)));
         }
       while (assumed != old);
 
@@ -58,17 +56,14 @@ namespace LinearAlgebra
     inline __device__ double
     atomicMax_wrapper(double *address, double val)
     {
-      unsigned long long int *address_as_ull =
-        reinterpret_cast<unsigned long long int *>(address);
-      unsigned long long int old = *address_as_ull, assumed;
+      unsigned long long int *address_as_ull = reinterpret_cast<unsigned long long int *>(address);
+      unsigned long long int  old            = *address_as_ull, assumed;
       do
         {
           assumed = old;
           old     = atomicCAS(address_as_ull,
                           assumed,
-                          atomicMax(address_as_ull,
-                                    static_cast<unsigned long long int>(
-                                      __double_as_longlong(val))));
+                          atomicMax(address_as_ull, static_cast<unsigned long long int>(__double_as_longlong(val))));
         }
       while (assumed != old);
 

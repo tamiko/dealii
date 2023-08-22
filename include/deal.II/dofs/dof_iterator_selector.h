@@ -70,17 +70,13 @@ namespace internal
       using line_iterator        = TriaIterator<CellAccessor>;
       using active_line_iterator = TriaActiveIterator<CellAccessor>;
 
-      using raw_quad_iterator =
-        TriaRawIterator<DoFInvalidAccessor<2, 1, spacedim>>;
-      using quad_iterator = TriaIterator<DoFInvalidAccessor<2, 1, spacedim>>;
-      using active_quad_iterator =
-        TriaActiveIterator<DoFInvalidAccessor<2, 1, spacedim>>;
+      using raw_quad_iterator    = TriaRawIterator<DoFInvalidAccessor<2, 1, spacedim>>;
+      using quad_iterator        = TriaIterator<DoFInvalidAccessor<2, 1, spacedim>>;
+      using active_quad_iterator = TriaActiveIterator<DoFInvalidAccessor<2, 1, spacedim>>;
 
-      using raw_hex_iterator =
-        TriaRawIterator<DoFInvalidAccessor<3, 1, spacedim>>;
-      using hex_iterator = TriaIterator<DoFInvalidAccessor<3, 1, spacedim>>;
-      using active_hex_iterator =
-        TriaActiveIterator<DoFInvalidAccessor<3, 1, spacedim>>;
+      using raw_hex_iterator    = TriaRawIterator<DoFInvalidAccessor<3, 1, spacedim>>;
+      using hex_iterator        = TriaIterator<DoFInvalidAccessor<3, 1, spacedim>>;
+      using active_hex_iterator = TriaActiveIterator<DoFInvalidAccessor<3, 1, spacedim>>;
 
       using raw_cell_iterator    = raw_line_iterator;
       using cell_iterator        = line_iterator;
@@ -116,11 +112,9 @@ namespace internal
       using quad_iterator        = TriaIterator<CellAccessor>;
       using active_quad_iterator = TriaActiveIterator<CellAccessor>;
 
-      using raw_hex_iterator =
-        TriaRawIterator<DoFInvalidAccessor<3, 2, spacedim>>;
-      using hex_iterator = TriaIterator<DoFInvalidAccessor<3, 2, spacedim>>;
-      using active_hex_iterator =
-        TriaActiveIterator<DoFInvalidAccessor<3, 2, spacedim>>;
+      using raw_hex_iterator    = TriaRawIterator<DoFInvalidAccessor<3, 2, spacedim>>;
+      using hex_iterator        = TriaIterator<DoFInvalidAccessor<3, 2, spacedim>>;
+      using active_hex_iterator = TriaActiveIterator<DoFInvalidAccessor<3, 2, spacedim>>;
 
       using raw_cell_iterator    = raw_quad_iterator;
       using cell_iterator        = quad_iterator;
@@ -148,12 +142,9 @@ namespace internal
       using CellAccessor = dealii::DoFCellAccessor<3, spacedim, lda>;
       using FaceAccessor = dealii::DoFAccessor<2, 3, spacedim, lda>;
 
-      using raw_line_iterator =
-        TriaRawIterator<dealii::DoFAccessor<1, 3, spacedim, lda>>;
-      using line_iterator =
-        TriaIterator<dealii::DoFAccessor<1, 3, spacedim, lda>>;
-      using active_line_iterator =
-        TriaActiveIterator<dealii::DoFAccessor<1, 3, spacedim, lda>>;
+      using raw_line_iterator    = TriaRawIterator<dealii::DoFAccessor<1, 3, spacedim, lda>>;
+      using line_iterator        = TriaIterator<dealii::DoFAccessor<1, 3, spacedim, lda>>;
+      using active_line_iterator = TriaActiveIterator<dealii::DoFAccessor<1, 3, spacedim, lda>>;
 
       using raw_quad_iterator    = TriaRawIterator<FaceAccessor>;
       using quad_iterator        = TriaIterator<FaceAccessor>;

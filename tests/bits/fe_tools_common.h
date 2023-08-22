@@ -79,15 +79,12 @@ template <typename VectorType>
 void
 output_vector(const VectorType &v)
 {
-  deallog << v.l1_norm() << ' ' << v.l2_norm() << ' ' << v.linfty_norm()
-          << std::endl;
+  deallog << v.l1_norm() << ' ' << v.l2_norm() << ' ' << v.linfty_norm() << std::endl;
 
   // write out at most 20 equispaced
   // elements of the vector
-  for (unsigned int i = 0; i < v.size();
-       i +=
-       std::max(static_cast<typename VectorType::size_type>(1),
-                static_cast<typename VectorType::size_type>(v.size() / 20)))
+  for (unsigned int i = 0; i < v.size(); i += std::max(static_cast<typename VectorType::size_type>(1),
+                                                       static_cast<typename VectorType::size_type>(v.size() / 20)))
     deallog << v(i) << ' ';
   deallog << std::endl;
 }
@@ -124,9 +121,7 @@ make_dof_handler(const Triangulation<dim> &tria, const FiniteElement<dim> &fe)
 
 template <int dim>
 void
-check(const FiniteElement<dim> &fe1,
-      const FiniteElement<dim> &fe2,
-      const std::string &       name)
+check(const FiniteElement<dim> &fe1, const FiniteElement<dim> &fe2, const std::string &name)
 {
   deallog << "Checking " << name << " in " << dim << "d:" << std::endl;
 
@@ -277,27 +272,19 @@ main()
     }
   catch (std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

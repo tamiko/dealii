@@ -38,8 +38,7 @@ unguarded(MPI_Comm comm)
           unsigned int value;
           MPI_Recv(&value, 1, MPI_UNSIGNED, MPI_ANY_SOURCE, tag, comm, &status);
 
-          AssertThrow(received_from.count(status.MPI_SOURCE) == 0,
-                      ExcMessage("oh no!"));
+          AssertThrow(received_from.count(status.MPI_SOURCE) == 0, ExcMessage("oh no!"));
           received_from.insert(status.MPI_SOURCE);
         }
     }
@@ -80,8 +79,7 @@ test2(MPI_Comm comm)
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   mpi_initlog();
 

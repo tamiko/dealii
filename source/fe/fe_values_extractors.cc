@@ -39,8 +39,7 @@ namespace FEValuesExtractors
   std::string
   Tensor<rank>::get_name() const
   {
-    return "Tensor<" + Utilities::int_to_string(rank) + ">(" +
-           Utilities::int_to_string(first_tensor_component) + ")";
+    return "Tensor<" + Utilities::int_to_string(rank) + ">(" + Utilities::int_to_string(first_tensor_component) + ")";
   }
 
 

@@ -55,11 +55,9 @@ namespace python
       eliminate_refined_inner_islands    = 0x100,
       eliminate_refined_boundary_islands = 0x200,
       do_not_produce_unrefined_islands   = 0x400,
-      smoothing_on_refinement =
-        (limit_level_difference_at_vertices | eliminate_unrefined_islands),
+      smoothing_on_refinement            = (limit_level_difference_at_vertices | eliminate_unrefined_islands),
       smoothing_on_coarsening =
-        (eliminate_refined_inner_islands | eliminate_refined_boundary_islands |
-         do_not_produce_unrefined_islands),
+        (eliminate_refined_inner_islands | eliminate_refined_boundary_islands | do_not_produce_unrefined_islands),
       maximum_smoothing = 0xffff ^ allow_anisotropic_smoothing
     };
 
@@ -100,8 +98,7 @@ namespace python
      * each of the latter being a list of 1<<dim vertex indices.
      */
     void
-    create_triangulation(const boost::python::list &vertices,
-                         const boost::python::list &cells_vertices);
+    create_triangulation(const boost::python::list &vertices, const boost::python::list &cells_vertices);
 
     /**
      * Return the number of active cells.
@@ -118,9 +115,7 @@ namespace python
     /*! @copydoc GridGenerator::hyper_cube
      */
     void
-    generate_hyper_cube(const double left     = 0.,
-                        const double right    = 1.,
-                        const bool   colorize = false);
+    generate_hyper_cube(const double left = 0., const double right = 1., const bool colorize = false);
 
     /*! @copydoc GridGenerator::simplex
      */
@@ -130,23 +125,19 @@ namespace python
     /*! @copydoc GridGenerator::subdivided_hyper_cube
      */
     void
-    generate_subdivided_hyper_cube(const unsigned int repetitions,
-                                   const double       left  = 0.,
-                                   const double       right = 1.);
+    generate_subdivided_hyper_cube(const unsigned int repetitions, const double left = 0., const double right = 1.);
 
     /*! @copydoc GridGenerator::hyper_rectangle
      */
     void
-    generate_hyper_rectangle(PointWrapper &p1,
-                             PointWrapper &p2,
-                             const bool    colorize = false);
+    generate_hyper_rectangle(PointWrapper &p1, PointWrapper &p2, const bool colorize = false);
 
     /*! @copydoc GridGenerator::subdivided_hyper_rectangle
      */
     void
     generate_subdivided_hyper_rectangle(boost::python::list &repetitions,
-                                        PointWrapper &       p1,
-                                        PointWrapper &       p2,
+                                        PointWrapper        &p1,
+                                        PointWrapper        &p2,
                                         const bool           colorize = false);
 
     /**
@@ -159,9 +150,9 @@ namespace python
      */
     void
     generate_subdivided_steps_hyper_rectangle(boost::python::list &step_sizes,
-                                              PointWrapper &       p1,
-                                              PointWrapper &       p2,
-                                              const bool colorize = false);
+                                              PointWrapper        &p1,
+                                              PointWrapper        &p2,
+                                              const bool           colorize = false);
 
     /**
      * Like the previous function, but with the following twist: the @p
@@ -172,21 +163,19 @@ namespace python
      * there.
      */
     void
-    generate_subdivided_material_hyper_rectangle(
-      boost::python::list &spacing,
-      PointWrapper &       p,
-      boost::python::list &material_id,
-      const bool           colorize = false);
+    generate_subdivided_material_hyper_rectangle(boost::python::list &spacing,
+                                                 PointWrapper        &p,
+                                                 boost::python::list &material_id,
+                                                 const bool           colorize = false);
 
     /*! @copydoc GridGenerator::hyper_cube_with_cylindrical_hole
      */
     void
-    generate_hyper_cube_with_cylindrical_hole(
-      const double       inner_radius = .25,
-      const double       outer_radius = .5,
-      const double       L            = .5,
-      const unsigned int repetitions  = 1,
-      const bool         colorize     = false);
+    generate_hyper_cube_with_cylindrical_hole(const double       inner_radius = .25,
+                                              const double       outer_radius = .5,
+                                              const double       L            = .5,
+                                              const unsigned int repetitions  = 1,
+                                              const bool         colorize     = false);
 
     /*! @copydoc GridGenerator::cheese
      */
@@ -196,27 +185,24 @@ namespace python
     /*! @copydoc GridGenerator::general_cell
      */
     void
-    generate_general_cell(boost::python::list &vertices,
-                          const bool           colorize = false);
+    generate_general_cell(boost::python::list &vertices, const bool colorize = false);
 
     /*! @copydoc GridGenerator::parallelogram
      */
     void
-    generate_parallelogram(boost::python::list &corners,
-                           const bool           colorize = false);
+    generate_parallelogram(boost::python::list &corners, const bool colorize = false);
 
     /*! @copydoc GridGenerator::parallelepiped
      */
     void
-    generate_parallelepiped(boost::python::list &corners,
-                            const bool           colorize = false);
+    generate_parallelepiped(boost::python::list &corners, const bool colorize = false);
 
     /*! @copydoc GridGenerator::subdivided_parallelepiped
      */
     void
-    generate_fixed_subdivided_parallelepiped(const unsigned int n_subdivisions,
+    generate_fixed_subdivided_parallelepiped(const unsigned int   n_subdivisions,
                                              boost::python::list &corners,
-                                             const bool colorize = false);
+                                             const bool           colorize = false);
 
     /**
      * A subdivided parallelepided, i.e., the same as above, but where the
@@ -224,10 +210,9 @@ namespace python
      * Colorizing is done according to hyper_rectangle().
      */
     void
-    generate_varying_subdivided_parallelepiped(
-      boost::python::list &n_subdivisions,
-      boost::python::list &corners,
-      const bool           colorize = false);
+    generate_varying_subdivided_parallelepiped(boost::python::list &n_subdivisions,
+                                               boost::python::list &corners,
+                                               const bool           colorize = false);
 
     /*! @copydoc GridGenerator::enclosed_hyper_cube
      */
@@ -260,7 +245,7 @@ namespace python
     /*! @copydoc GridGenerator::hyper_shell
      */
     void
-    generate_hyper_shell(PointWrapper & center,
+    generate_hyper_shell(PointWrapper  &center,
                          const double   inner_radius,
                          const double   outer_radius,
                          const unsigned n_cells  = 0,
@@ -280,14 +265,13 @@ namespace python
      */
     void
     merge_triangulations(boost::python::list &triangulations,
-                         const double duplicated_vertex_tolerance = 1.0e-12,
-                         const bool   copy_manifold_ids           = false);
+                         const double         duplicated_vertex_tolerance = 1.0e-12,
+                         const bool           copy_manifold_ids           = false);
 
     /*! @copydoc GridGenerator::replicate_triangulation
      */
     void
-    replicate_triangulation(TriangulationWrapper &tria_in,
-                            boost::python::list & extents);
+    replicate_triangulation(TriangulationWrapper &tria_in, boost::python::list &extents);
 
     /*! @copydoc GridGenerator::flatten_triangulation
      */
@@ -297,9 +281,7 @@ namespace python
     /*! @copydoc GridGenerator::extrude_triangulation
      */
     void
-    extrude_triangulation(const unsigned int    n_slices,
-                          const double          height,
-                          TriangulationWrapper &tria_out);
+    extrude_triangulation(const unsigned int n_slices, const double height, TriangulationWrapper &tria_out);
 
     /*! @copydoc GridTools::distort_random
      */
@@ -319,8 +301,7 @@ namespace python
     /*! @copydoc GridTools::find_active_cell_around_point
      */
     CellAccessorWrapper
-    find_active_cell_around_point(PointWrapper &  p,
-                                  MappingQWrapper mapping = MappingQWrapper());
+    find_active_cell_around_point(PointWrapper &p, MappingQWrapper mapping = MappingQWrapper());
 
     /*! @copydoc GridTools::find_cells_adjacent_to_vertex
      */
@@ -384,8 +365,7 @@ namespace python
     /*! @copydoc GridTools::compute_aspect_ratio_of_cells
      */
     boost::python::list
-    compute_aspect_ratio_of_cells(const MappingQWrapper &  mapping,
-                                  const QuadratureWrapper &quadrature);
+    compute_aspect_ratio_of_cells(const MappingQWrapper &mapping, const QuadratureWrapper &quadrature);
 
     /**
      * Write mesh to the output file @filename according to the given data

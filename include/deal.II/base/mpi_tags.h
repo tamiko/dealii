@@ -133,8 +133,7 @@ namespace Utilities
 
           /// NoncontiguousPartitioner::update_values
           noncontiguous_partitioner_update_ghost_values_start,
-          noncontiguous_partitioner_update_ghost_values_end =
-            noncontiguous_partitioner_update_ghost_values_start + 10,
+          noncontiguous_partitioner_update_ghost_values_end = noncontiguous_partitioner_update_ghost_values_start + 10,
 
           // Utilities::MPI::compute_union
           compute_union,

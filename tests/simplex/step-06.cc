@@ -152,10 +152,7 @@ Step6<dim>::setup_system()
 
   constraints.clear();
   DoFTools::make_hanging_node_constraints(dof_handler, constraints);
-  VectorTools::interpolate_boundary_values(dof_handler,
-                                           0,
-                                           Functions::ZeroFunction<dim>(),
-                                           constraints);
+  VectorTools::interpolate_boundary_values(dof_handler, 0, Functions::ZeroFunction<dim>(), constraints);
   constraints.close();
 
   DynamicSparsityPattern dsp(dof_handler.n_dofs());
@@ -183,8 +180,7 @@ Step6<dim>::assemble_system()
   FEValues<dim>  fe_values(mapping,
                           fe,
                           quadrature_formula,
-                          update_values | update_gradients |
-                            update_quadrature_points | update_JxW_values);
+                          update_values | update_gradients | update_quadrature_points | update_JxW_values);
 
   const unsigned int dofs_per_cell = fe.n_dofs_per_cell();
 
@@ -202,25 +198,22 @@ Step6<dim>::assemble_system()
 
       for (const unsigned int q_index : fe_values.quadrature_point_indices())
         {
-          const double current_coefficient =
-            coefficient(fe_values.quadrature_point(q_index));
+          const double current_coefficient = coefficient(fe_values.quadrature_point(q_index));
           for (const unsigned int i : fe_values.dof_indices())
             {
               for (const unsigned int j : fe_values.dof_indices())
-                cell_matrix(i, j) +=
-                  (current_coefficient *              // a(x_q)
-                   fe_values.shape_grad(i, q_index) * // grad phi_i(x_q)
-                   fe_values.shape_grad(j, q_index) * // grad phi_j(x_q)
-                   fe_values.JxW(q_index));           // dx
-              cell_rhs(i) += (1.0 *                   // f(x)
-                              fe_values.shape_value(i, q_index) * // phi_i(x_q)
-                              fe_values.JxW(q_index));            // dx
+                cell_matrix(i, j) += (current_coefficient *              // a(x_q)
+                                      fe_values.shape_grad(i, q_index) * // grad phi_i(x_q)
+                                      fe_values.shape_grad(j, q_index) * // grad phi_j(x_q)
+                                      fe_values.JxW(q_index));           // dx
+              cell_rhs(i) += (1.0 *                                      // f(x)
+                              fe_values.shape_value(i, q_index) *        // phi_i(x_q)
+                              fe_values.JxW(q_index));                   // dx
             }
         }
 
       cell->get_dof_indices(local_dof_indices);
-      constraints.distribute_local_to_global(
-        cell_matrix, cell_rhs, local_dof_indices, system_matrix, system_rhs);
+      constraints.distribute_local_to_global(cell_matrix, cell_rhs, local_dof_indices, system_matrix, system_rhs);
     }
 }
 
@@ -330,8 +323,7 @@ Step6<dim>::run()
                 face->set_manifold_id(numbers::flat_manifold_id);
             }
 
-          GridGenerator::convert_hypercube_to_simplex_mesh(tria_quad,
-                                                           triangulation);
+          GridGenerator::convert_hypercube_to_simplex_mesh(tria_quad, triangulation);
 #else
           GridGenerator::hyper_ball(triangulation);
 #endif
@@ -341,13 +333,11 @@ Step6<dim>::run()
       else
         refine_grid();
 
-      deallog << "   Number of active cells:       "
-              << triangulation.n_active_cells() << std::endl;
+      deallog << "   Number of active cells:       " << triangulation.n_active_cells() << std::endl;
 
       setup_system();
 
-      deallog << "   Number of degrees of freedom: " << dof_handler.n_dofs()
-              << std::endl;
+      deallog << "   Number of degrees of freedom: " << dof_handler.n_dofs() << std::endl;
 
       assemble_system();
       solve();
@@ -371,27 +361,19 @@ main()
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
   return 0;

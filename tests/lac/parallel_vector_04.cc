@@ -48,8 +48,7 @@ test()
   local_relevant = local_owned;
   local_relevant.add_range(1, 2);
 
-  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> v(
-    local_owned, local_relevant, MPI_COMM_WORLD);
+  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> v(local_owned, local_relevant, MPI_COMM_WORLD);
 
   // set local values and check them
   LinearAlgebra::ReadWriteVector<double> rw_vector(local_owned);
@@ -69,61 +68,48 @@ test()
   if (myid > 0)
     {
       unsigned int local_index = partitioner->global_to_local(1);
-      double *     values_dev  = v.get_values();
-      Kokkos::deep_copy(
-        Kokkos::View<double, MemorySpace::Default::kokkos_space>(values_dev +
-                                                                 local_index),
-        7);
+      double      *values_dev  = v.get_values();
+      Kokkos::deep_copy(Kokkos::View<double, MemorySpace::Default::kokkos_space>(values_dev + local_index), 7);
     }
 
-  unsigned int allocated_size = local_relevant.n_elements();
-  Kokkos::View<double *, MemorySpace::Default::kokkos_space> v_device(
-    v.get_values(), allocated_size);
-  Kokkos::View<double *, Kokkos::HostSpace> v_host("v_host", allocated_size);
+  unsigned int                                               allocated_size = local_relevant.n_elements();
+  Kokkos::View<double *, MemorySpace::Default::kokkos_space> v_device(v.get_values(), allocated_size);
+  Kokkos::View<double *, Kokkos::HostSpace>                  v_host("v_host", allocated_size);
   Kokkos::deep_copy(v_host, v_device);
 
-  AssertThrow(v_host[partitioner->global_to_local(myid * 2)] == myid * 4.0,
-              ExcInternalError());
-  AssertThrow(v_host[partitioner->global_to_local(myid * 2 + 1)] ==
-                myid * 4.0 + 2.0,
-              ExcInternalError());
+  AssertThrow(v_host[partitioner->global_to_local(myid * 2)] == myid * 4.0, ExcInternalError());
+  AssertThrow(v_host[partitioner->global_to_local(myid * 2 + 1)] == myid * 4.0 + 2.0, ExcInternalError());
 
   if (myid > 0)
-    AssertThrow(v_host[partitioner->global_to_local(1)] == 7.0,
-                ExcInternalError());
+    AssertThrow(v_host[partitioner->global_to_local(1)] == 7.0, ExcInternalError());
 
   // reset to zero
   v = 0;
 
   Kokkos::deep_copy(v_host, v_device);
-  AssertThrow(v_host[partitioner->global_to_local(myid * 2)] == 0.,
-              ExcInternalError());
-  AssertThrow(v_host[partitioner->global_to_local(myid * 2 + 1)] == 0.,
-              ExcInternalError());
+  AssertThrow(v_host[partitioner->global_to_local(myid * 2)] == 0., ExcInternalError());
+  AssertThrow(v_host[partitioner->global_to_local(myid * 2 + 1)] == 0., ExcInternalError());
 
   // check that everything remains zero also
   // after compress
   v.compress(VectorOperation::add);
 
   Kokkos::deep_copy(v_host, v_device);
-  AssertThrow(v_host[partitioner->global_to_local(myid * 2)] == 0.,
-              ExcInternalError());
-  AssertThrow(v_host[partitioner->global_to_local(myid * 2 + 1)] == 0.,
-              ExcInternalError());
+  AssertThrow(v_host[partitioner->global_to_local(myid * 2)] == 0., ExcInternalError());
+  AssertThrow(v_host[partitioner->global_to_local(myid * 2 + 1)] == 0., ExcInternalError());
 
   // set element 1 on owning process to
   // something nonzero
   if (myid == 0)
     {
       unsigned int local_index = partitioner->global_to_local(1);
-      double *     values_dev  = v.get_values();
+      double      *values_dev  = v.get_values();
       Kokkos::deep_copy(Kokkos::subview(v_device, local_index), 2);
     }
   if (myid > 0)
     {
       Kokkos::deep_copy(v_host, v_device);
-      AssertThrow(v_host[partitioner->global_to_local(1)] == 0.,
-                  ExcInternalError());
+      AssertThrow(v_host[partitioner->global_to_local(1)] == 0., ExcInternalError());
     }
 
   // check that all processors get the correct
@@ -132,13 +118,11 @@ test()
   v.update_ghost_values();
 
   Kokkos::deep_copy(v_host, v_device);
-  AssertThrow(v_host[partitioner->global_to_local(1)] == 2.,
-              ExcInternalError());
+  AssertThrow(v_host[partitioner->global_to_local(1)] == 2., ExcInternalError());
 
   v = 0;
   Kokkos::deep_copy(v_host, v_device);
-  AssertThrow(v_host[partitioner->global_to_local(1)] == 0.,
-              ExcInternalError());
+  AssertThrow(v_host[partitioner->global_to_local(1)] == 0., ExcInternalError());
 
   if (myid == 0)
     deallog << "OK" << std::endl;
@@ -149,8 +133,7 @@ test()
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   unsigned int myid = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
   deallog.push(Utilities::int_to_string(myid));

@@ -46,11 +46,9 @@ create_solver()
     ydot[1] = -kappa * kappa * y[0];
   };
 
-  ode->output_step =
-    [&](const double t, const VectorType &sol, const unsigned int step_number) {
-      deallog << std::setprecision(16) << t << ' ' << sol[0] << ' ' << sol[1]
-              << std::endl;
-    };
+  ode->output_step = [&](const double t, const VectorType &sol, const unsigned int step_number) {
+    deallog << std::setprecision(16) << t << ' ' << sol[0] << ' ' << sol[1] << std::endl;
+  };
   return ode;
 }
 

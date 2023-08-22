@@ -70,8 +70,8 @@ namespace VectorTools
     void
     transform(const typename FiniteElementData<dim>::Conformity conformity,
               const unsigned int                                offset,
-              const FEValuesType &fe_values_jacobians,
-              T3 &                function_values)
+              const FEValuesType                               &fe_values_jacobians,
+              T3                                               &function_values)
     {
       switch (conformity)
         {
@@ -83,21 +83,14 @@ namespace VectorTools
 
             for (unsigned int i = 0; i < function_values.size(); ++i)
               {
-                const auto &jacobians =
-                  fe_values_jacobians.get_present_fe_values().get_jacobians();
+                const auto &jacobians = fe_values_jacobians.get_present_fe_values().get_jacobians();
 
-                const ArrayView<typename T3::value_type::value_type> source(
-                  &function_values[i][0] + offset, dim);
+                const ArrayView<typename T3::value_type::value_type> source(&function_values[i][0] + offset, dim);
 
-                Tensor<1,
-                       dim,
-                       typename ProductType<typename T3::value_type::value_type,
-                                            double>::type>
-                  destination;
+                Tensor<1, dim, typename ProductType<typename T3::value_type::value_type, double>::type> destination;
 
                 // value[m] <- sum jacobian_transpose[m][n] * old_value[n]:
-                TensorAccessors::contract<1, 2, 1, dim>(
-                  destination, jacobians[i].transpose(), source);
+                TensorAccessors::contract<1, 2, 1, dim>(destination, jacobians[i].transpose(), source);
 
                 // now copy things back into the input=output vector
                 for (unsigned int d = 0; d < dim; ++d)
@@ -113,25 +106,15 @@ namespace VectorTools
 
             for (unsigned int i = 0; i < function_values.size(); ++i)
               {
-                const auto &jacobians =
-                  fe_values_jacobians.get_present_fe_values().get_jacobians();
-                const auto &inverse_jacobians =
-                  fe_values_jacobians.get_present_fe_values()
-                    .get_inverse_jacobians();
+                const auto &jacobians         = fe_values_jacobians.get_present_fe_values().get_jacobians();
+                const auto &inverse_jacobians = fe_values_jacobians.get_present_fe_values().get_inverse_jacobians();
 
-                const ArrayView<typename T3::value_type::value_type> source(
-                  &function_values[i][0] + offset, dim);
+                const ArrayView<typename T3::value_type::value_type> source(&function_values[i][0] + offset, dim);
 
-                Tensor<1,
-                       dim,
-                       typename ProductType<typename T3::value_type::value_type,
-                                            double>::type>
-                  destination;
+                Tensor<1, dim, typename ProductType<typename T3::value_type::value_type, double>::type> destination;
 
                 // value[m] <- sum inverse_jacobians[m][n] * old_value[n]:
-                TensorAccessors::contract<1, 2, 1, dim>(destination,
-                                                        inverse_jacobians[i],
-                                                        source);
+                TensorAccessors::contract<1, 2, 1, dim>(destination, inverse_jacobians[i], source);
                 destination *= jacobians[i].determinant();
 
                 // now copy things back into the input=output vector
@@ -172,11 +155,10 @@ namespace VectorTools
     unsigned int
     apply_transform(const FiniteElement<dim, spacedim> &fe,
                     const unsigned int                  offset,
-                    const FEValuesType &                fe_values_jacobians,
-                    T3 &                                function_values)
+                    const FEValuesType                 &fe_values_jacobians,
+                    T3                                 &function_values)
     {
-      if (const auto *system =
-            dynamic_cast<const FESystem<dim, spacedim> *>(&fe))
+      if (const auto *system = dynamic_cast<const FESystem<dim, spacedim> *>(&fe))
         {
           // In case of an FESystem transform every (vector) component
           // separately:
@@ -189,20 +171,14 @@ namespace VectorTools
                 {
                   // recursively call apply_transform to make sure to
                   // correctly handle nested FE systems.
-                  current_offset = apply_transform(base_fe,
-                                                   current_offset,
-                                                   fe_values_jacobians,
-                                                   function_values);
+                  current_offset = apply_transform(base_fe, current_offset, fe_values_jacobians, function_values);
                 }
             }
           return current_offset;
         }
       else
         {
-          transform<dim, spacedim>(fe.conforming_space,
-                                   offset,
-                                   fe_values_jacobians,
-                                   function_values);
+          transform<dim, spacedim>(fe.conforming_space, offset, fe_values_jacobians, function_values);
           return (offset + fe.n_components());
         }
     }
@@ -215,24 +191,20 @@ namespace VectorTools
     // A given cell is skipped if function(cell) == nullptr
     template <int dim, int spacedim, typename VectorType, typename T>
     DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
-    void interpolate(
-      const hp::MappingCollection<dim, spacedim> &mapping_collection,
-      const DoFHandler<dim, spacedim> &           dof_handler,
-      T &                                         function,
-      VectorType &                                vec,
-      const ComponentMask &                       component_mask)
+    void interpolate(const hp::MappingCollection<dim, spacedim> &mapping_collection,
+                     const DoFHandler<dim, spacedim>            &dof_handler,
+                     T                                          &function,
+                     VectorType                                 &vec,
+                     const ComponentMask                        &component_mask)
     {
-      Assert(component_mask.represents_n_components(
-               dof_handler.get_fe_collection().n_components()),
-             ExcMessage(
-               "The number of components in the mask has to be either "
-               "zero or equal to the number of components in the finite "
-               "element."));
+      Assert(component_mask.represents_n_components(dof_handler.get_fe_collection().n_components()),
+             ExcMessage("The number of components in the mask has to be either "
+                        "zero or equal to the number of components in the finite "
+                        "element."));
 
       AssertDimension(vec.size(), dof_handler.n_dofs());
 
-      Assert(component_mask.n_selected_components(
-               dof_handler.get_fe_collection().n_components()) > 0,
+      Assert(component_mask.n_selected_components(dof_handler.get_fe_collection().n_components()) > 0,
              ComponentMask::ExcNoComponentSelected());
 
       //
@@ -270,8 +242,7 @@ namespace VectorTools
 
       using number = typename VectorType::value_type;
 
-      const hp::FECollection<dim, spacedim> &fe(
-        dof_handler.get_fe_collection());
+      const hp::FECollection<dim, spacedim> &fe(dof_handler.get_fe_collection());
 
       std::vector<types::global_dof_index> dofs_on_cell(fe.max_dofs_per_cell());
 
@@ -315,9 +286,7 @@ namespace VectorTools
       hp::FEValues<dim, spacedim> fe_values(mapping_collection,
                                             fe,
                                             support_quadrature,
-                                            update_quadrature_points |
-                                              update_jacobians |
-                                              update_inverse_jacobians);
+                                            update_quadrature_points | update_jacobians | update_inverse_jacobians);
 
       //
       // Now loop over all locally owned, active cells.
@@ -356,14 +325,12 @@ namespace VectorTools
           auto &dof_values      = fe_dof_values[fe_index];
 
           const auto n_components = fe[fe_index].n_components();
-          function_values.resize(generalized_support_points.size(),
-                                 Vector<number>(n_components));
+          function_values.resize(generalized_support_points.size(), Vector<number>(n_components));
           dof_values.resize(n_dofs);
 
           // Get all function values:
           AssertDimension(n_components, function(cell)->n_components);
-          function(cell)->vector_value_list(generalized_support_points,
-                                            function_values);
+          function(cell)->vector_value_list(generalized_support_points, function_values);
 
           {
             // Before we can average, we have to transform all function values
@@ -372,30 +339,26 @@ namespace VectorTools
             // complicated because we have to apply said transformation for
             // every base element.
 
-            const unsigned int offset =
-              apply_transform(fe[fe_index],
-                              /* starting_offset = */ 0,
-                              fe_values,
-                              function_values);
+            const unsigned int offset = apply_transform(fe[fe_index],
+                                                        /* starting_offset = */ 0,
+                                                        fe_values,
+                                                        function_values);
             (void)offset;
             Assert(offset == n_components, ExcInternalError());
           }
 
-          FETools::convert_generalized_support_point_values_to_dof_values(
-            fe[fe_index], function_values, dof_values);
+          FETools::convert_generalized_support_point_values_to_dof_values(fe[fe_index], function_values, dof_values);
 
           for (unsigned int i = 0; i < n_dofs; ++i)
             {
-              const auto &nonzero_components =
-                fe[fe_index].get_nonzero_components(i);
+              const auto &nonzero_components = fe[fe_index].get_nonzero_components(i);
 
               // Figure out whether the component mask applies. We assume
               // that we are allowed to set degrees of freedom if at least
               // one of the components (of the dof) is selected.
               bool selected = false;
               for (unsigned int c = 0; c < nonzero_components.size(); ++c)
-                selected =
-                  selected || (nonzero_components[c] && component_mask[c]);
+                selected = selected || (nonzero_components[c] && component_mask[c]);
 
               if (selected)
                 {
@@ -403,13 +366,10 @@ namespace VectorTools
                   // make sure that all selected base elements are indeed
                   // interpolatory
 
-                  if (const auto fe_system =
-                        dynamic_cast<const FESystem<dim> *>(&fe[fe_index]))
+                  if (const auto fe_system = dynamic_cast<const FESystem<dim> *>(&fe[fe_index]))
                     {
-                      const auto index =
-                        fe_system->system_to_base_index(i).first.first;
-                      Assert(fe_system->base_element(index)
-                               .has_generalized_support_points(),
+                      const auto index = fe_system->system_to_base_index(i).first.first;
+                      Assert(fe_system->base_element(index).has_generalized_support_points(),
                              ExcMessage("The component mask supplied to "
                                         "VectorTools::interpolate selects a "
                                         "non-interpolatory element."));
@@ -417,12 +377,10 @@ namespace VectorTools
 #endif
 
                   // Add local values to the global vectors
-                  ::dealii::internal::ElementAccess<VectorType>::add(
-                    dof_values[i], dofs_on_cell[i], interpolation);
-                  ::dealii::internal::ElementAccess<VectorType>::add(
-                    typename VectorType::value_type(1.0),
-                    dofs_on_cell[i],
-                    weights);
+                  ::dealii::internal::ElementAccess<VectorType>::add(dof_values[i], dofs_on_cell[i], interpolation);
+                  ::dealii::internal::ElementAccess<VectorType>::add(typename VectorType::value_type(1.0),
+                                                                     dofs_on_cell[i],
+                                                                     weights);
                 }
               else
                 {
@@ -431,15 +389,11 @@ namespace VectorTools
                   // available
                   if (locally_owned_dofs.is_element(dofs_on_cell[i]))
                     {
-                      const auto value =
-                        ::dealii::internal::ElementAccess<VectorType>::get(
-                          vec, dofs_on_cell[i]);
-                      ::dealii::internal::ElementAccess<VectorType>::add(
-                        value, dofs_on_cell[i], interpolation);
-                      ::dealii::internal::ElementAccess<VectorType>::add(
-                        typename VectorType::value_type(1.0),
-                        dofs_on_cell[i],
-                        weights);
+                      const auto value = ::dealii::internal::ElementAccess<VectorType>::get(vec, dofs_on_cell[i]);
+                      ::dealii::internal::ElementAccess<VectorType>::add(value, dofs_on_cell[i], interpolation);
+                      ::dealii::internal::ElementAccess<VectorType>::add(typename VectorType::value_type(1.0),
+                                                                         dofs_on_cell[i],
+                                                                         weights);
                     }
                 }
             }
@@ -450,20 +404,15 @@ namespace VectorTools
 
       for (const auto i : interpolation.locally_owned_elements())
         {
-          const auto weight =
-            ::dealii::internal::ElementAccess<VectorType>::get(weights, i);
+          const auto weight = ::dealii::internal::ElementAccess<VectorType>::get(weights, i);
 
           // See if we touched this DoF at all. If so, set the average
           // of the value we computed in the output vector. Otherwise,
           // don't touch the value at all.
           if (weight != number(0))
             {
-              const auto value =
-                ::dealii::internal::ElementAccess<VectorType>::get(
-                  interpolation, i);
-              ::dealii::internal::ElementAccess<VectorType>::set(value / weight,
-                                                                 i,
-                                                                 vec);
+              const auto value = ::dealii::internal::ElementAccess<VectorType>::get(interpolation, i);
+              ::dealii::internal::ElementAccess<VectorType>::set(value / weight, i, vec);
             }
         }
       vec.compress(VectorOperation::insert);
@@ -475,76 +424,58 @@ namespace VectorTools
 
   template <int dim, int spacedim, typename VectorType>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
-  void interpolate(
-    const hp::MappingCollection<dim, spacedim> &               mapping,
-    const DoFHandler<dim, spacedim> &                          dof_handler,
-    const Function<spacedim, typename VectorType::value_type> &function,
-    VectorType &                                               vec,
-    const ComponentMask &                                      component_mask)
+  void interpolate(const hp::MappingCollection<dim, spacedim>                &mapping,
+                   const DoFHandler<dim, spacedim>                           &dof_handler,
+                   const Function<spacedim, typename VectorType::value_type> &function,
+                   VectorType                                                &vec,
+                   const ComponentMask                                       &component_mask)
   {
-    AssertDimension(dof_handler.get_fe_collection().n_components(),
-                    function.n_components);
+    AssertDimension(dof_handler.get_fe_collection().n_components(), function.n_components);
 
     // Create a small lambda capture wrapping function and call the
     // internal implementation
-    const auto function_map =
-      [&function](
-        const typename DoFHandler<dim, spacedim>::active_cell_iterator &)
-      -> const Function<spacedim, typename VectorType::value_type> * {
-      return &function;
-    };
+    const auto function_map = [&function](const typename DoFHandler<dim, spacedim>::active_cell_iterator &)
+      -> const Function<spacedim, typename VectorType::value_type> * { return &function; };
 
-    internal::interpolate(
-      mapping, dof_handler, function_map, vec, component_mask);
+    internal::interpolate(mapping, dof_handler, function_map, vec, component_mask);
   }
 
 
 
   template <int dim, int spacedim, typename VectorType>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
-  void interpolate(
-    const Mapping<dim, spacedim> &                             mapping,
-    const DoFHandler<dim, spacedim> &                          dof_handler,
-    const Function<spacedim, typename VectorType::value_type> &function,
-    VectorType &                                               vec,
-    const ComponentMask &                                      component_mask)
+  void interpolate(const Mapping<dim, spacedim>                              &mapping,
+                   const DoFHandler<dim, spacedim>                           &dof_handler,
+                   const Function<spacedim, typename VectorType::value_type> &function,
+                   VectorType                                                &vec,
+                   const ComponentMask                                       &component_mask)
   {
-    interpolate(hp::MappingCollection<dim, spacedim>(mapping),
-                dof_handler,
-                function,
-                vec,
-                component_mask);
+    interpolate(hp::MappingCollection<dim, spacedim>(mapping), dof_handler, function, vec, component_mask);
   }
 
 
 
   template <int dim, int spacedim, typename VectorType>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
-  void interpolate(
-    const DoFHandler<dim, spacedim> &                          dof,
-    const Function<spacedim, typename VectorType::value_type> &function,
-    VectorType &                                               vec,
-    const ComponentMask &                                      component_mask)
+  void interpolate(const DoFHandler<dim, spacedim>                           &dof,
+                   const Function<spacedim, typename VectorType::value_type> &function,
+                   VectorType                                                &vec,
+                   const ComponentMask                                       &component_mask)
   {
-    AssertDimension(dof.get_fe_collection().n_components(),
-                    function.n_components);
-    interpolate(get_default_linear_mapping(dof.get_triangulation()),
-                dof,
-                function,
-                vec,
-                component_mask);
+    AssertDimension(dof.get_fe_collection().n_components(), function.n_components);
+    interpolate(get_default_linear_mapping(dof.get_triangulation()), dof, function, vec, component_mask);
   }
 
 
 
   template <int dim, class InVector, class OutVector, int spacedim>
-  DEAL_II_CXX20_REQUIRES(concepts::is_dealii_vector_type<InVector> &&
-                           concepts::is_writable_dealii_vector_type<OutVector>)
+  DEAL_II_CXX20_REQUIRES(
+    concepts::is_dealii_vector_type<InVector> &&concepts::is_writable_dealii_vector_type<OutVector>)
   void interpolate(const DoFHandler<dim, spacedim> &dof_1,
                    const DoFHandler<dim, spacedim> &dof_2,
-                   const FullMatrix<double> &       transfer,
-                   const InVector &                 data_1,
-                   OutVector &                      data_2)
+                   const FullMatrix<double>        &transfer,
+                   const InVector                  &data_1,
+                   OutVector                       &data_2)
   {
     using number = typename OutVector::value_type;
     Vector<number> cell_data_1(dof_1.get_fe().n_dofs_per_cell());
@@ -557,14 +488,11 @@ namespace VectorTools
     OutVector touch_count;
     touch_count.reinit(data_2);
 
-    std::vector<types::global_dof_index> local_dof_indices(
-      dof_2.get_fe().n_dofs_per_cell());
+    std::vector<types::global_dof_index> local_dof_indices(dof_2.get_fe().n_dofs_per_cell());
 
-    typename DoFHandler<dim, spacedim>::active_cell_iterator cell_1 =
-      dof_1.begin_active();
-    typename DoFHandler<dim, spacedim>::active_cell_iterator cell_2 =
-      dof_2.begin_active();
-    const typename DoFHandler<dim, spacedim>::cell_iterator end_1 = dof_1.end();
+    typename DoFHandler<dim, spacedim>::active_cell_iterator cell_1 = dof_1.begin_active();
+    typename DoFHandler<dim, spacedim>::active_cell_iterator cell_2 = dof_2.begin_active();
+    const typename DoFHandler<dim, spacedim>::cell_iterator  end_1  = dof_1.end();
 
     for (; cell_1 != end_1; ++cell_1, ++cell_2)
       {
@@ -581,12 +509,12 @@ namespace VectorTools
             // Distribute cell vector.
             for (unsigned int j = 0; j < dof_2.get_fe().n_dofs_per_cell(); ++j)
               {
-                ::dealii::internal::ElementAccess<OutVector>::add(
-                  cell_data_2(j), local_dof_indices[j], data_2);
+                ::dealii::internal::ElementAccess<OutVector>::add(cell_data_2(j), local_dof_indices[j], data_2);
 
                 // Count cells that share each dof.
-                ::dealii::internal::ElementAccess<OutVector>::add(
-                  static_cast<number>(1), local_dof_indices[j], touch_count);
+                ::dealii::internal::ElementAccess<OutVector>::add(static_cast<number>(1),
+                                                                  local_dof_indices[j],
+                                                                  touch_count);
               }
           }
       }
@@ -599,14 +527,11 @@ namespace VectorTools
     // each entry of the output vector only at locally owned elements.
     for (const auto i : data_2.locally_owned_elements())
       {
-        const number touch_count_i =
-          ::dealii::internal::ElementAccess<OutVector>::get(touch_count, i);
+        const number touch_count_i = ::dealii::internal::ElementAccess<OutVector>::get(touch_count, i);
 
         Assert(touch_count_i != static_cast<number>(0), ExcInternalError());
 
-        const number value =
-          ::dealii::internal::ElementAccess<OutVector>::get(data_2, i) /
-          touch_count_i;
+        const number value = ::dealii::internal::ElementAccess<OutVector>::get(data_2, i) / touch_count_i;
 
         ::dealii::internal::ElementAccess<OutVector>::set(value, i, data_2);
       }
@@ -619,77 +544,60 @@ namespace VectorTools
 
   template <int dim, int spacedim, typename VectorType>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
-  void get_position_vector(const DoFHandler<dim, spacedim> &dh,
-                           VectorType &                     vector,
-                           const ComponentMask &            mask)
+  void get_position_vector(const DoFHandler<dim, spacedim> &dh, VectorType &vector, const ComponentMask &mask)
   {
     const FiniteElement<dim, spacedim> &fe = dh.get_fe();
-    get_position_vector(
-      *fe.reference_cell().template get_default_mapping<dim, spacedim>(
-        fe.degree),
-      dh,
-      vector,
-      mask);
+    get_position_vector(*fe.reference_cell().template get_default_mapping<dim, spacedim>(fe.degree), dh, vector, mask);
   }
 
 
 
   template <int dim, int spacedim, typename VectorType>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
-  void get_position_vector(const Mapping<dim, spacedim> &   map_q,
+  void get_position_vector(const Mapping<dim, spacedim>    &map_q,
                            const DoFHandler<dim, spacedim> &dh,
-                           VectorType &                     vector,
-                           const ComponentMask &            mask)
+                           VectorType                      &vector,
+                           const ComponentMask             &mask)
   {
     AssertDimension(vector.size(), dh.n_dofs());
     const FiniteElement<dim, spacedim> &fe = dh.get_fe();
 
     // Construct default fe_mask;
-    const ComponentMask fe_mask(
-      mask.size() ? mask :
-                    ComponentMask(fe.get_nonzero_components(0).size(), true));
+    const ComponentMask fe_mask(mask.size() ? mask : ComponentMask(fe.get_nonzero_components(0).size(), true));
 
     AssertDimension(fe_mask.size(), fe.get_nonzero_components(0).size());
 
-    std::vector<unsigned int> fe_to_real(fe_mask.size(),
-                                         numbers::invalid_unsigned_int);
+    std::vector<unsigned int> fe_to_real(fe_mask.size(), numbers::invalid_unsigned_int);
     unsigned int              size = 0;
     for (unsigned int i = 0; i < fe_mask.size(); ++i)
       {
         if (fe_mask[i])
           fe_to_real[i] = size++;
       }
-    Assert(
-      size == spacedim,
-      ExcMessage(
-        "The Component Mask you provided is invalid. It has to select exactly spacedim entries."));
+    Assert(size == spacedim,
+           ExcMessage("The Component Mask you provided is invalid. It has to select exactly spacedim entries."));
 
 
     if (fe.has_support_points())
       {
         const Quadrature<dim> quad(fe.get_unit_support_points());
 
-        FEValues<dim, spacedim> fe_v(map_q, fe, quad, update_quadrature_points);
+        FEValues<dim, spacedim>              fe_v(map_q, fe, quad, update_quadrature_points);
         std::vector<types::global_dof_index> dofs(fe.n_dofs_per_cell());
 
-        AssertDimension(fe.n_dofs_per_cell(),
-                        fe.get_unit_support_points().size());
-        Assert(fe.is_primitive(),
-               ExcMessage("FE is not Primitive! This won't work."));
+        AssertDimension(fe.n_dofs_per_cell(), fe.get_unit_support_points().size());
+        Assert(fe.is_primitive(), ExcMessage("FE is not Primitive! This won't work."));
 
-        for (const auto &cell :
-             dh.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+        for (const auto &cell : dh.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
           {
             fe_v.reinit(cell);
             cell->get_dof_indices(dofs);
-            const std::vector<Point<spacedim>> &points =
-              fe_v.get_quadrature_points();
+            const std::vector<Point<spacedim>> &points = fe_v.get_quadrature_points();
             for (unsigned int q = 0; q < points.size(); ++q)
               {
                 const unsigned int comp = fe.system_to_component_index(q).first;
                 if (fe_mask[comp])
-                  ::dealii::internal::ElementAccess<VectorType>::set(
-                    points[q][fe_to_real[comp]], dofs[q], vector);
+                  ::dealii::internal::ElementAccess<VectorType>::set(points[q][fe_to_real[comp]], dofs[q], vector);
               }
           }
       }
@@ -701,8 +609,7 @@ namespace VectorTools
         // Once we have this, interpolate with the given finite element
         // to get a Mapping which is interpolatory at the support points
         // of FE_Q(fe.degree())
-        const FESystem<dim, spacedim> *fe_system =
-          dynamic_cast<const FESystem<dim, spacedim> *>(&fe);
+        const FESystem<dim, spacedim> *fe_system = dynamic_cast<const FESystem<dim, spacedim> *>(&fe);
         Assert(fe_system, ExcNotImplemented());
         unsigned int degree = numbers::invalid_unsigned_int;
 
@@ -710,13 +617,10 @@ namespace VectorTools
         for (unsigned int i = 0; i < fe_mask.size(); ++i)
           if (fe_mask[i])
             {
-              const unsigned int base_i =
-                fe_system->component_to_base_index(i).first;
-              Assert(degree == numbers::invalid_unsigned_int ||
-                       degree == fe_system->base_element(base_i).degree,
+              const unsigned int base_i = fe_system->component_to_base_index(i).first;
+              Assert(degree == numbers::invalid_unsigned_int || degree == fe_system->base_element(base_i).degree,
                      ExcNotImplemented());
-              Assert(fe_system->base_element(base_i).is_primitive(),
-                     ExcNotImplemented());
+              Assert(fe_system->base_element(base_i).is_primitive(), ExcNotImplemented());
               degree = fe_system->base_element(base_i).degree;
             }
 
@@ -731,8 +635,7 @@ namespace VectorTools
         const ComponentMask maskq(spacedim, true);
         get_position_vector(map_q, dhq, eulerq);
 
-        FullMatrix<double>             transfer(fe.n_dofs_per_cell(),
-                                    feq.n_dofs_per_cell());
+        FullMatrix<double>             transfer(fe.n_dofs_per_cell(), feq.n_dofs_per_cell());
         FullMatrix<double>             local_transfer(feq.n_dofs_per_cell());
         const std::vector<Point<dim>> &points = feq.get_unit_support_points();
 
@@ -768,8 +671,7 @@ namespace VectorTools
         // and check that this is the case. If not, we bail out, not
         // knowing what to do in this case.
 
-        std::vector<unsigned int> fe_to_feq(fe.n_dofs_per_cell(),
-                                            numbers::invalid_unsigned_int);
+        std::vector<unsigned int> fe_to_feq(fe.n_dofs_per_cell(), numbers::invalid_unsigned_int);
         unsigned int              index = 0;
         for (unsigned int i = 0; i < fe.n_dofs_per_cell(); ++i)
           if (fe_mask[fe.system_to_component_index(i).first])
@@ -785,10 +687,8 @@ namespace VectorTools
             if (fe_mask[comp_j])
               for (unsigned int i = 0; i < points.size(); ++i)
                 {
-                  if (fe_to_real[comp_j] ==
-                      feq.system_to_component_index(i).first)
-                    local_transfer(i, fe_to_feq[j]) =
-                      fe.shape_value(j, points[i]);
+                  if (fe_to_real[comp_j] == feq.system_to_component_index(i).first)
+                    local_transfer(i, fe_to_feq[j]) = fe.shape_value(j, points[i]);
                 }
           }
 
@@ -811,19 +711,15 @@ namespace VectorTools
   template <int dim, int spacedim, typename VectorType>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
   void interpolate_based_on_material_id(
-    const Mapping<dim, spacedim> &   mapping,
-    const DoFHandler<dim, spacedim> &dof_handler,
-    const std::map<types::material_id,
-                   const Function<spacedim, typename VectorType::value_type> *>
-      &                  functions,
-    VectorType &         vec,
-    const ComponentMask &component_mask)
+    const Mapping<dim, spacedim>                                                                    &mapping,
+    const DoFHandler<dim, spacedim>                                                                 &dof_handler,
+    const std::map<types::material_id, const Function<spacedim, typename VectorType::value_type> *> &functions,
+    VectorType                                                                                      &vec,
+    const ComponentMask                                                                             &component_mask)
   {
     // Create a small lambda capture wrapping the function map and call the
     // internal implementation
-    const auto function_map =
-      [&functions](
-        const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell)
+    const auto function_map = [&functions](const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell)
       -> const Function<spacedim, typename VectorType::value_type> * {
       const auto function = functions.find(cell->material_id());
       if (function != functions.end())
@@ -832,11 +728,8 @@ namespace VectorTools
         return nullptr;
     };
 
-    internal::interpolate(hp::MappingCollection<dim, spacedim>(mapping),
-                          dof_handler,
-                          function_map,
-                          vec,
-                          component_mask);
+    internal::interpolate(
+      hp::MappingCollection<dim, spacedim>(mapping), dof_handler, function_map, vec, component_mask);
   }
 
   namespace internal
@@ -864,9 +757,9 @@ namespace VectorTools
   template <int dim, int spacedim, typename VectorType>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
   void interpolate_to_different_mesh(const DoFHandler<dim, spacedim> &dof1,
-                                     const VectorType &               u1,
+                                     const VectorType                &u1,
                                      const DoFHandler<dim, spacedim> &dof2,
-                                     VectorType &                     u2)
+                                     VectorType                      &u2)
   {
     Assert(GridTools::have_same_coarse_mesh(dof1, dof2),
            ExcMessage("The two DoF handlers must represent triangulations that "
@@ -885,12 +778,11 @@ namespace VectorTools
 
   template <int dim, int spacedim, typename VectorType>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
-  void interpolate_to_different_mesh(
-    const DoFHandler<dim, spacedim> &                         dof1,
-    const VectorType &                                        u1,
-    const DoFHandler<dim, spacedim> &                         dof2,
-    const AffineConstraints<typename VectorType::value_type> &constraints,
-    VectorType &                                              u2)
+  void interpolate_to_different_mesh(const DoFHandler<dim, spacedim>                          &dof1,
+                                     const VectorType                                         &u1,
+                                     const DoFHandler<dim, spacedim>                          &dof2,
+                                     const AffineConstraints<typename VectorType::value_type> &constraints,
+                                     VectorType                                               &u2)
   {
     Assert(GridTools::have_same_coarse_mesh(dof1, dof2),
            ExcMessage("The two DoF handlers must represent triangulations that "
@@ -906,19 +798,17 @@ namespace VectorTools
 
   template <int dim, int spacedim, typename VectorType>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<VectorType>)
-  void interpolate_to_different_mesh(
-    const InterGridMap<DoFHandler<dim, spacedim>> &           intergridmap,
-    const VectorType &                                        u1,
-    const AffineConstraints<typename VectorType::value_type> &constraints,
-    VectorType &                                              u2)
+  void interpolate_to_different_mesh(const InterGridMap<DoFHandler<dim, spacedim>>            &intergridmap,
+                                     const VectorType                                         &u1,
+                                     const AffineConstraints<typename VectorType::value_type> &constraints,
+                                     VectorType                                               &u2)
   {
     const DoFHandler<dim, spacedim> &dof1 = intergridmap.get_source_grid();
     const DoFHandler<dim, spacedim> &dof2 = intergridmap.get_destination_grid();
     (void)dof2;
 
     Assert(dof1.get_fe_collection() == dof2.get_fe_collection(),
-           ExcMessage(
-             "The FECollections of both DoFHandler objects must match"));
+           ExcMessage("The FECollections of both DoFHandler objects must match"));
     AssertDimension(u1.size(), dof1.n_dofs());
     AssertDimension(u2.size(), dof2.n_dofs());
 
@@ -933,13 +823,12 @@ namespace VectorTools
     // Therefore, loop over all cells
     // (active and inactive) of the source
     // grid ..
-    typename DoFHandler<dim, spacedim>::cell_iterator cell1 = dof1.begin();
+    typename DoFHandler<dim, spacedim>::cell_iterator       cell1 = dof1.begin();
     const typename DoFHandler<dim, spacedim>::cell_iterator endc1 = dof1.end();
 
     for (; cell1 != endc1; ++cell1)
       {
-        const typename DoFHandler<dim, spacedim>::cell_iterator cell2 =
-          intergridmap[cell1];
+        const typename DoFHandler<dim, spacedim>::cell_iterator cell2 = intergridmap[cell1];
 
         // .. and skip if source and destination
         // cells are not on the same level ..
@@ -949,11 +838,8 @@ namespace VectorTools
         if (!cell1->is_active() && !cell2->is_active())
           continue;
 
-        Assert(
-          internal::is_locally_owned(cell1) ==
-            internal::is_locally_owned(cell2),
-          ExcMessage(
-            "The two Triangulations are required to have the same parallel partitioning."));
+        Assert(internal::is_locally_owned(cell1) == internal::is_locally_owned(cell2),
+               ExcMessage("The two Triangulations are required to have the same parallel partitioning."));
 
         // Skip foreign cells.
         if (cell1->is_active() && !cell1->is_locally_owned())
@@ -966,22 +852,14 @@ namespace VectorTools
         if (cell1->is_active())
           {
             cache.reinit(cell1->get_fe().n_dofs_per_cell());
-            cell1->get_interpolated_dof_values(u1,
-                                               cache,
-                                               cell1->active_fe_index());
-            cell2->set_dof_values_by_interpolation(cache,
-                                                   u2,
-                                                   cell1->active_fe_index());
+            cell1->get_interpolated_dof_values(u1, cache, cell1->active_fe_index());
+            cell2->set_dof_values_by_interpolation(cache, u2, cell1->active_fe_index());
           }
         else
           {
             cache.reinit(cell2->get_fe().n_dofs_per_cell());
-            cell1->get_interpolated_dof_values(u1,
-                                               cache,
-                                               cell2->active_fe_index());
-            cell2->set_dof_values_by_interpolation(cache,
-                                                   u2,
-                                                   cell2->active_fe_index());
+            cell1->get_interpolated_dof_values(u1, cache, cell2->active_fe_index());
+            cell2->set_dof_values_by_interpolation(cache, u2, cell2->active_fe_index());
           }
       }
 

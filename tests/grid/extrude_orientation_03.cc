@@ -32,37 +32,25 @@ test()
   Triangulation<2> tr;
   GridGenerator::hyper_ball(tr);
 
-  for (Triangulation<2>::active_cell_iterator c = tr.begin_active();
-       c != tr.end();
-       ++c)
+  for (Triangulation<2>::active_cell_iterator c = tr.begin_active(); c != tr.end(); ++c)
     {
-      deallog << "2d cell " << c
-              << " has the following face orientations:" << std::endl;
+      deallog << "2d cell " << c << " has the following face orientations:" << std::endl;
       for (const unsigned int l : GeometryInfo<2>::face_indices())
-        deallog << "    " << (c->face_orientation(l) ? "true" : "false")
-                << std::endl;
+        deallog << "    " << (c->face_orientation(l) ? "true" : "false") << std::endl;
     }
 
   Triangulation<3>    tr3;
   std::vector<double> slice_points = {0, 0.1, 0.5};
   GridGenerator::extrude_triangulation(tr, slice_points, tr3);
 
-  for (Triangulation<3>::active_cell_iterator c = tr3.begin_active();
-       c != tr3.end();
-       ++c)
+  for (Triangulation<3>::active_cell_iterator c = tr3.begin_active(); c != tr3.end(); ++c)
     {
-      deallog
-        << "3d cell " << c
-        << " has the following face orientation/flips and edge orientations:"
-        << std::endl;
+      deallog << "3d cell " << c << " has the following face orientation/flips and edge orientations:" << std::endl;
       for (const unsigned int f : GeometryInfo<3>::face_indices())
-        deallog << "    face=" << f
-                << (c->face_orientation(f) ? " -> true" : " -> false")
+        deallog << "    face=" << f << (c->face_orientation(f) ? " -> true" : " -> false")
                 << (c->face_flip(f) ? "/true" : "/false") << std::endl;
       for (unsigned int e = 0; e < GeometryInfo<3>::lines_per_cell; ++e)
-        deallog << "    edge=" << e
-                << (c->line_orientation(e) ? " -> true" : " -> false")
-                << std::endl;
+        deallog << "    edge=" << e << (c->line_orientation(e) ? " -> true" : " -> false") << std::endl;
     }
 }
 

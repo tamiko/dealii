@@ -97,17 +97,10 @@ test()
     for (auto a1 : values)
       {
         const auto res = LineMinimization::line_search<double>(
-          func,
-          fg0.first,
-          fg0.second,
-          LineMinimization::poly_fit<double>,
-          a1,
-          0.1,
-          0.001);
+          func, fg0.first, fg0.second, LineMinimization::poly_fit<double>, a1, 0.1, 0.001);
 
         const auto fgi = func(res.first);
-        deallog << res.second << ' ' << res.first << ' ' << fgi.second
-                << std::endl;
+        deallog << res.second << ' ' << res.first << ' ' << fgi.second << std::endl;
       }
   }
 
@@ -125,23 +118,15 @@ test()
     for (auto a1 : values)
       {
         const auto res = LineMinimization::line_search<double>(
-          func,
-          fg0.first,
-          fg0.second,
-          LineMinimization::poly_fit<double>,
-          a1,
-          0.100001,
-          0.1);
+          func, fg0.first, fg0.second, LineMinimization::poly_fit<double>, a1, 0.100001, 0.1);
 
         const auto fgi = func(res.first);
-        deallog << res.second << ' ' << res.first << ' ' << fgi.second
-                << std::endl;
+        deallog << res.second << ' ' << res.first << ' ' << fgi.second << std::endl;
       }
   }
 
   {
-    const std::vector<std::pair<double, double>> params = {
-      {{0.001, 0.001}, {0.01, 0.001}, {0.001, 0.01}}};
+    const std::vector<std::pair<double, double>> params = {{{0.001, 0.001}, {0.01, 0.001}, {0.001, 0.01}}};
 
     unsigned int ind = 4;
     for (auto p : params)
@@ -154,11 +139,8 @@ test()
         const double gb2 = std::sqrt(1. + b2 * b2) - b2;
 
         auto func = [&](const double x) {
-          const double f = gb1 * std::sqrt(std::pow(1. - x, 2) + b2 * b2) +
-                           gb2 * std::sqrt(x * x + b1 * b1);
-          const double g =
-            gb2 * x / sqrt(x * x + b1 * b1) -
-            gb1 * (1. - x) / std::sqrt(std::pow(1 - x, 2) + b2 * b2);
+          const double f = gb1 * std::sqrt(std::pow(1. - x, 2) + b2 * b2) + gb2 * std::sqrt(x * x + b1 * b1);
+          const double g = gb2 * x / sqrt(x * x + b1 * b1) - gb1 * (1. - x) / std::sqrt(std::pow(1 - x, 2) + b2 * b2);
           return std::make_pair(f, g);
         };
 
@@ -167,17 +149,10 @@ test()
         for (auto a1 : values)
           {
             const auto res = LineMinimization::line_search<double>(
-              func,
-              fg0.first,
-              fg0.second,
-              LineMinimization::poly_fit<double>,
-              a1,
-              0.00100001,
-              0.001);
+              func, fg0.first, fg0.second, LineMinimization::poly_fit<double>, a1, 0.00100001, 0.001);
 
             const auto fgi = func(res.first);
-            deallog << res.second << ' ' << res.first << ' ' << fgi.second
-                    << std::endl;
+            deallog << res.second << ' ' << res.first << ' ' << fgi.second << std::endl;
           }
       }
   }

@@ -34,10 +34,9 @@
 
 template <int dim, int spacedim>
 void
-create_regular_particle_distribution(
-  Particles::ParticleHandler<dim, spacedim> &particle_handler,
-  const Triangulation<dim, spacedim> &       tr,
-  const unsigned int                         particles_per_direction = 3)
+create_regular_particle_distribution(Particles::ParticleHandler<dim, spacedim> &particle_handler,
+                                     const Triangulation<dim, spacedim>        &tr,
+                                     const unsigned int                         particles_per_direction = 3)
 {
   for (unsigned int i = 0; i < particles_per_direction; ++i)
     for (unsigned int j = 0; j < particles_per_direction; ++j)
@@ -46,44 +45,32 @@ create_regular_particle_distribution(
         Point<dim>      reference_position;
         unsigned int    id = i * particles_per_direction + j;
 
-        position[0] = static_cast<double>(i) /
-                      static_cast<double>(particles_per_direction - 1);
-        position[1] = static_cast<double>(j) /
-                      static_cast<double>(particles_per_direction - 1);
+        position[0] = static_cast<double>(i) / static_cast<double>(particles_per_direction - 1);
+        position[1] = static_cast<double>(j) / static_cast<double>(particles_per_direction - 1);
 
         if (dim > 2)
           for (unsigned int k = 0; k < particles_per_direction; ++k)
             {
-              position[2] = static_cast<double>(j) /
-                            static_cast<double>(particles_per_direction - 1);
-              id = i * particles_per_direction * particles_per_direction +
-                   j * particles_per_direction + k;
-              Particles::Particle<dim, spacedim> particle(position,
-                                                          reference_position,
-                                                          id);
+              position[2] = static_cast<double>(j) / static_cast<double>(particles_per_direction - 1);
+              id          = i * particles_per_direction * particles_per_direction + j * particles_per_direction + k;
+              Particles::Particle<dim, spacedim> particle(position, reference_position, id);
 
               typename Triangulation<dim, spacedim>::active_cell_iterator cell =
-                GridTools::find_active_cell_around_point(
-                  tr, particle.get_location());
+                GridTools::find_active_cell_around_point(tr, particle.get_location());
 
-              Particles::ParticleIterator<dim, spacedim> pit =
-                particle_handler.insert_particle(particle, cell);
+              Particles::ParticleIterator<dim, spacedim> pit = particle_handler.insert_particle(particle, cell);
 
               for (unsigned int i = 0; i < spacedim; ++i)
                 pit->get_properties()[i] = pit->get_location()[i];
             }
         else
           {
-            Particles::Particle<dim, spacedim> particle(position,
-                                                        reference_position,
-                                                        id);
+            Particles::Particle<dim, spacedim> particle(position, reference_position, id);
 
             typename Triangulation<dim, spacedim>::active_cell_iterator cell =
-              GridTools::find_active_cell_around_point(tr,
-                                                       particle.get_location());
+              GridTools::find_active_cell_around_point(tr, particle.get_location());
 
-            Particles::ParticleIterator<dim, spacedim> pit =
-              particle_handler.insert_particle(particle, cell);
+            Particles::ParticleIterator<dim, spacedim> pit = particle_handler.insert_particle(particle, cell);
 
             for (unsigned int i = 0; i < spacedim; ++i)
               pit->get_properties()[i] = pit->get_location()[i];
@@ -103,27 +90,21 @@ test()
     MappingQ<dim, spacedim> mapping(1);
 
     // Create a particle handler using two manually created particles
-    Particles::ParticleHandler<dim, spacedim> particle_handler(tr,
-                                                               mapping,
-                                                               spacedim);
+    Particles::ParticleHandler<dim, spacedim> particle_handler(tr, mapping, spacedim);
 
     create_regular_particle_distribution(particle_handler, tr, 2);
 
-    std::vector<std::string> data_names;
-    std::vector<DataComponentInterpretation::DataComponentInterpretation>
-      data_interpretations;
+    std::vector<std::string>                                              data_names;
+    std::vector<DataComponentInterpretation::DataComponentInterpretation> data_interpretations;
 
     for (unsigned int i = 0; i < spacedim; ++i)
       {
         data_names.emplace_back("property_coord_" + std::to_string(i));
-        data_interpretations.emplace_back(
-          DataComponentInterpretation::component_is_scalar);
+        data_interpretations.emplace_back(DataComponentInterpretation::component_is_scalar);
       }
 
     Particles::DataOut<dim, spacedim> particle_output;
-    particle_output.build_patches(particle_handler,
-                                  data_names,
-                                  data_interpretations);
+    particle_output.build_patches(particle_handler, data_names, data_interpretations);
     particle_output.write_gnuplot(deallog.get_file_stream());
   }
 

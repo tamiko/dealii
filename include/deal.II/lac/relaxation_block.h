@@ -84,14 +84,13 @@ public:
     /**
      * Constructor.
      */
-    AdditionalData(
-      const double relaxation      = 1.,
-      const bool   invert_diagonal = true,
-      const bool   same_diagonal   = false,
-      const typename PreconditionBlockBase<InverseNumberType>::Inversion
-        inversion = PreconditionBlockBase<InverseNumberType>::gauss_jordan,
-      const double threshold         = 0.,
-      VectorType * temp_ghost_vector = nullptr);
+    AdditionalData(const double                                                       relaxation      = 1.,
+                   const bool                                                         invert_diagonal = true,
+                   const bool                                                         same_diagonal   = false,
+                   const typename PreconditionBlockBase<InverseNumberType>::Inversion inversion =
+                     PreconditionBlockBase<InverseNumberType>::gauss_jordan,
+                   const double threshold         = 0.,
+                   VectorType  *temp_ghost_vector = nullptr);
 
     /**
      * The mapping from indices to blocks. Each row of this pattern enumerates
@@ -236,10 +235,7 @@ protected:
    * @p prev after this.
    */
   void
-  do_step(VectorType &      dst,
-          const VectorType &prev,
-          const VectorType &src,
-          const bool        backward) const;
+  do_step(VectorType &dst, const VectorType &prev, const VectorType &src, const bool backward) const;
 
   /**
    * Pointer to the matrix. Make sure that the matrix exists as long as this
@@ -247,16 +243,12 @@ protected:
    * inverse matrices should not be stored) until the last call of the
    * preconditioning @p vmult function of the derived classes.
    */
-  SmartPointer<const MatrixType,
-               RelaxationBlock<MatrixType, InverseNumberType, VectorType>>
-    A;
+  SmartPointer<const MatrixType, RelaxationBlock<MatrixType, InverseNumberType, VectorType>> A;
 
   /**
    * Control information.
    */
-  SmartPointer<const AdditionalData,
-               RelaxationBlock<MatrixType, InverseNumberType, VectorType>>
-    additional_data;
+  SmartPointer<const AdditionalData, RelaxationBlock<MatrixType, InverseNumberType, VectorType>> additional_data;
 
 private:
   /**
@@ -283,9 +275,8 @@ private:
 template <typename MatrixType,
           typename InverseNumberType = typename MatrixType::value_type,
           typename VectorType        = Vector<double>>
-class RelaxationBlockJacobi
-  : public virtual Subscriptor,
-    protected RelaxationBlock<MatrixType, InverseNumberType, VectorType>
+class RelaxationBlockJacobi : public virtual Subscriptor,
+                              protected RelaxationBlock<MatrixType, InverseNumberType, VectorType>
 {
 public:
   /**
@@ -301,8 +292,7 @@ public:
   /**
    * Make type publicly available.
    */
-  using typename RelaxationBlock<MatrixType, InverseNumberType, VectorType>::
-    AdditionalData;
+  using typename RelaxationBlock<MatrixType, InverseNumberType, VectorType>::AdditionalData;
 
   /**
    * Make initialization function publicly available.
@@ -325,8 +315,7 @@ public:
   /**
    * Make function of base class public again.
    */
-  using RelaxationBlock<MatrixType, InverseNumberType, VectorType>::
-    inverse_householder;
+  using RelaxationBlock<MatrixType, InverseNumberType, VectorType>::inverse_householder;
   /**
    * Make function of base class public again.
    */
@@ -379,9 +368,8 @@ public:
 template <typename MatrixType,
           typename InverseNumberType = typename MatrixType::value_type,
           typename VectorType        = Vector<double>>
-class RelaxationBlockSOR
-  : public virtual Subscriptor,
-    protected RelaxationBlock<MatrixType, InverseNumberType, VectorType>
+class RelaxationBlockSOR : public virtual Subscriptor,
+                           protected RelaxationBlock<MatrixType, InverseNumberType, VectorType>
 {
 public:
   /**
@@ -397,8 +385,7 @@ public:
   /**
    * Make type publicly available.
    */
-  using typename RelaxationBlock<MatrixType, InverseNumberType, VectorType>::
-    AdditionalData;
+  using typename RelaxationBlock<MatrixType, InverseNumberType, VectorType>::AdditionalData;
 
   /**
    * Make initialization function publicly available.
@@ -421,8 +408,7 @@ public:
   /**
    * Make function of base class public again.
    */
-  using RelaxationBlock<MatrixType, InverseNumberType, VectorType>::
-    inverse_householder;
+  using RelaxationBlock<MatrixType, InverseNumberType, VectorType>::inverse_householder;
   /**
    * Make function of base class public again.
    */
@@ -475,9 +461,8 @@ public:
 template <typename MatrixType,
           typename InverseNumberType = typename MatrixType::value_type,
           typename VectorType        = Vector<double>>
-class RelaxationBlockSSOR
-  : public virtual Subscriptor,
-    protected RelaxationBlock<MatrixType, InverseNumberType, VectorType>
+class RelaxationBlockSSOR : public virtual Subscriptor,
+                            protected RelaxationBlock<MatrixType, InverseNumberType, VectorType>
 {
 public:
   /**
@@ -488,8 +473,7 @@ public:
   /**
    * Make type publicly available.
    */
-  using typename RelaxationBlock<MatrixType, InverseNumberType, VectorType>::
-    AdditionalData;
+  using typename RelaxationBlock<MatrixType, InverseNumberType, VectorType>::AdditionalData;
 
   /**
    * Make initialization function publicly available.
@@ -512,8 +496,7 @@ public:
   /**
    * Make function of base class public again.
    */
-  using RelaxationBlock<MatrixType, InverseNumberType, VectorType>::
-    inverse_householder;
+  using RelaxationBlock<MatrixType, InverseNumberType, VectorType>::inverse_householder;
   /**
    * Make function of base class public again.
    */

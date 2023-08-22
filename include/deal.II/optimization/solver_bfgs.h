@@ -72,8 +72,7 @@ public:
     /**
      * Constructor.
      */
-    explicit AdditionalData(const unsigned int max_history_size = 5,
-                            const bool         debug_output     = false);
+    explicit AdditionalData(const unsigned int max_history_size = 5, const bool debug_output = false);
 
     /**
      * Maximum history size.
@@ -90,8 +89,7 @@ public:
   /**
    * Constructor.
    */
-  explicit SolverBFGS(SolverControl &       residual_control,
-                      const AdditionalData &data = AdditionalData());
+  explicit SolverBFGS(SolverControl &residual_control, const AdditionalData &data = AdditionalData());
 
   /**
    * Solve the unconstrained minimization problem
@@ -107,9 +105,7 @@ public:
    * $f(\mathbf x)$.
    */
   void
-  solve(
-    const std::function<Number(const VectorType &x, VectorType &g)> &compute,
-    VectorType &                                                     x);
+  solve(const std::function<Number(const VectorType &x, VectorType &g)> &compute, VectorType &x);
 
   /**
    * Connect a slot to perform a custom line-search.
@@ -121,9 +117,7 @@ public:
    */
   boost::signals2::connection
   connect_line_search_slot(
-    const std::function<
-      Number(Number &f, VectorType &x, VectorType &g, const VectorType &p)>
-      &slot);
+    const std::function<Number(Number &f, VectorType &x, VectorType &g, const VectorType &p)> &slot);
 
   /**
    * Connect a slot to perform a custom preconditioning.
@@ -153,9 +147,8 @@ public:
    */
   boost::signals2::connection
   connect_preconditioner_slot(
-    const std::function<void(VectorType &                         g,
-                             const FiniteSizeHistory<VectorType> &s,
-                             const FiniteSizeHistory<VectorType> &y)> &slot);
+    const std::function<
+      void(VectorType &g, const FiniteSizeHistory<VectorType> &s, const FiniteSizeHistory<VectorType> &y)> &slot);
 
 
 protected:
@@ -167,16 +160,13 @@ protected:
   /**
    * Signal used to perform line search.
    */
-  boost::signals2::signal<
-    Number(Number &f, VectorType &x, VectorType &g, const VectorType &p)>
-    line_search_signal;
+  boost::signals2::signal<Number(Number &f, VectorType &x, VectorType &g, const VectorType &p)> line_search_signal;
 
   /**
    * Signal used to perform preconditioning.
    */
-  boost::signals2::signal<void(VectorType &                         g,
-                               const FiniteSizeHistory<VectorType> &s,
-                               const FiniteSizeHistory<VectorType> &y)>
+  boost::signals2::signal<
+    void(VectorType &g, const FiniteSizeHistory<VectorType> &s, const FiniteSizeHistory<VectorType> &y)>
     preconditioner_signal;
 };
 
@@ -185,9 +175,7 @@ protected:
 #ifndef DOXYGEN
 
 template <typename VectorType>
-SolverBFGS<VectorType>::AdditionalData::AdditionalData(
-  const unsigned int max_history_size_,
-  const bool         debug_output_)
+SolverBFGS<VectorType>::AdditionalData::AdditionalData(const unsigned int max_history_size_, const bool debug_output_)
   : max_history_size(max_history_size_)
   , debug_output(debug_output_)
 {}
@@ -195,8 +183,7 @@ SolverBFGS<VectorType>::AdditionalData::AdditionalData(
 
 
 template <typename VectorType>
-SolverBFGS<VectorType>::SolverBFGS(SolverControl &       solver_control,
-                                   const AdditionalData &data)
+SolverBFGS<VectorType>::SolverBFGS(SolverControl &solver_control, const AdditionalData &data)
   : SolverBase<VectorType>(solver_control)
   , additional_data(data)
 {}
@@ -206,11 +193,9 @@ SolverBFGS<VectorType>::SolverBFGS(SolverControl &       solver_control,
 template <typename VectorType>
 boost::signals2::connection
 SolverBFGS<VectorType>::connect_line_search_slot(
-  const std::function<
-    Number(Number &f, VectorType &x, VectorType &g, const VectorType &p)> &slot)
+  const std::function<Number(Number &f, VectorType &x, VectorType &g, const VectorType &p)> &slot)
 {
-  Assert(line_search_signal.empty(),
-         ExcMessage("One should not attach more than one line search signal."));
+  Assert(line_search_signal.empty(), ExcMessage("One should not attach more than one line search signal."));
   return line_search_signal.connect(slot);
 }
 
@@ -219,13 +204,10 @@ SolverBFGS<VectorType>::connect_line_search_slot(
 template <typename VectorType>
 boost::signals2::connection
 SolverBFGS<VectorType>::connect_preconditioner_slot(
-  const std::function<void(VectorType &                         g,
-                           const FiniteSizeHistory<VectorType> &s,
-                           const FiniteSizeHistory<VectorType> &y)> &slot)
+  const std::function<
+    void(VectorType &g, const FiniteSizeHistory<VectorType> &s, const FiniteSizeHistory<VectorType> &y)> &slot)
 {
-  Assert(preconditioner_signal.empty(),
-         ExcMessage(
-           "One should not attach more than one preconditioner signal."));
+  Assert(preconditioner_signal.empty(), ExcMessage("One should not attach more than one preconditioner signal."));
   return preconditioner_signal.connect(slot);
 }
 
@@ -234,9 +216,8 @@ SolverBFGS<VectorType>::connect_preconditioner_slot(
 template <typename VectorType>
 void
 SolverBFGS<VectorType>::solve(
-  const std::function<typename VectorType::value_type(const VectorType &x,
-                                                      VectorType &f)> &compute,
-  VectorType &                                                         x)
+  const std::function<typename VectorType::value_type(const VectorType &x, VectorType &f)> &compute,
+  VectorType                                                                               &x)
 {
   // Also see scipy Fortran implementation
   // https://github.com/scipy/scipy/blob/master/scipy/optimize/lbfgsb_src/lbfgsb.f
@@ -252,55 +233,43 @@ SolverBFGS<VectorType>::solve(
   if (line_search_signal.empty())
     {
       x0.reinit(x);
-      const auto default_line_min =
-        [&](Number &f, VectorType &x, VectorType &g, const VectorType &p) {
-          const Number f0 = f;
-          const Number g0 = g * p;
-          Assert(g0 < 0,
-                 ExcMessage(
-                   "Function does not decrease along the current direction"));
+      const auto default_line_min = [&](Number &f, VectorType &x, VectorType &g, const VectorType &p) {
+        const Number f0 = f;
+        const Number g0 = g * p;
+        Assert(g0 < 0, ExcMessage("Function does not decrease along the current direction"));
 
-          // save current solution value (to be used in line_search):
-          x0 = x;
+        // save current solution value (to be used in line_search):
+        x0 = x;
 
-          // see scipy implementation
-          // https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.line_search.html#scipy.optimize.line_search
-          // and Eq. 2.6.8 in Fletcher 2013, Practical methods of optimization
-          Number df = f_prev - f;
-          Assert(first_step || df >= 0.,
-                 ExcMessage("Function value is not decreasing"));
-          df = std::max(df, 100. * std::numeric_limits<Number>::epsilon());
-          // guess a reasonable first step:
-          const Number a1 =
-            (first_step ? 1. : std::min(1., -1.01 * 2. * df / g0));
-          Assert(a1 > 0., ExcInternalError());
-          f_prev = f;
+        // see scipy implementation
+        // https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.line_search.html#scipy.optimize.line_search
+        // and Eq. 2.6.8 in Fletcher 2013, Practical methods of optimization
+        Number df = f_prev - f;
+        Assert(first_step || df >= 0., ExcMessage("Function value is not decreasing"));
+        df = std::max(df, 100. * std::numeric_limits<Number>::epsilon());
+        // guess a reasonable first step:
+        const Number a1 = (first_step ? 1. : std::min(1., -1.01 * 2. * df / g0));
+        Assert(a1 > 0., ExcInternalError());
+        f_prev = f;
 
-          // 1d line-search function
-          const auto line_func =
-            [&](const Number &x_line) -> std::pair<Number, Number> {
-            x = x0;
-            x.add(x_line, p);
-            f                   = compute(x, g);
-            const Number g_line = g * p;
-            return std::make_pair(f, g_line);
-          };
-
-          // loose line search:
-          const auto res = LineMinimization::line_search<Number>(
-            line_func,
-            f0,
-            g0,
-            LineMinimization::poly_fit<Number>,
-            a1,
-            0.9,
-            0.001);
-
-          if (first_step)
-            first_step = false;
-
-          return res.first;
+        // 1d line-search function
+        const auto line_func = [&](const Number &x_line) -> std::pair<Number, Number> {
+          x = x0;
+          x.add(x_line, p);
+          f                   = compute(x, g);
+          const Number g_line = g * p;
+          return std::make_pair(f, g_line);
         };
+
+        // loose line search:
+        const auto res =
+          LineMinimization::line_search<Number>(line_func, f0, g0, LineMinimization::poly_fit<Number>, a1, 0.9, 0.001);
+
+        if (first_step)
+          first_step = false;
+
+        return res.first;
+      };
       this->connect_line_search_slot(default_line_min);
     }
 
@@ -335,8 +304,7 @@ SolverBFGS<VectorType>::solve(
   while (conv == SolverControl::iterate)
     {
       if (additional_data.debug_output)
-        deallog << "Iteration " << k << " history " << m << std::endl
-                << "f=" << f << std::endl;
+        deallog << "Iteration " << k << " history " << m << std::endl << "f=" << f << std::endl;
 
       // 1. Two loop recursion to calculate p = - H*g
       c1.resize(m);
@@ -363,8 +331,7 @@ SolverBFGS<VectorType>::solve(
       // 2. Line search
       s_k                = x;
       y_k                = g;
-      const Number alpha = line_search_signal(f, x, g, p)
-                             .get(); // <-- signals return boost::optional
+      const Number alpha = line_search_signal(f, x, g, p).get(); // <-- signals return boost::optional
       s_k.sadd(-1, 1, x);
       y_k.sadd(-1, 1, g);
 
@@ -398,8 +365,7 @@ SolverBFGS<VectorType>::solve(
     }
 
   // In the case of failure: throw exception.
-  AssertThrow(conv == SolverControl::success,
-              SolverControl::NoConvergence(k, g.l2_norm()));
+  AssertThrow(conv == SolverControl::success, SolverControl::NoConvergence(k, g.l2_norm()));
 }
 
 #endif

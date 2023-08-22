@@ -28,8 +28,7 @@
 
 namespace LA
 {
-#if defined(DEAL_II_WITH_PETSC) && \
-  (!defined(DEAL_II_TRILINOS_WITH_NOX) || defined(FORCE_USE_OF_PETSC))
+#if defined(DEAL_II_WITH_PETSC) && (!defined(DEAL_II_TRILINOS_WITH_NOX) || defined(FORCE_USE_OF_PETSC))
   using namespace dealii::LinearAlgebraPETSc;
 #  define USE_PETSC_LA
 #elif defined(DEAL_II_TRILINOS_WITH_NOX)
@@ -97,14 +96,11 @@ namespace MPI_nonlinear_solver_selector_test
     void
     setup_system(const bool initial_step);
     void
-    solve(const LA::MPI::Vector &rhs,
-          LA::MPI::Vector &      solution,
-          const double           tolerance);
+    solve(const LA::MPI::Vector &rhs, LA::MPI::Vector &solution, const double tolerance);
     void
     compute_and_factorize_jacobian(const LA::MPI::Vector &evaluation_point);
     void
-    compute_residual(const LA::MPI::Vector &evaluation_point,
-                     LA::MPI::Vector &      residual);
+    compute_residual(const LA::MPI::Vector &evaluation_point, LA::MPI::Vector &residual);
 
     MPI_Comm mpi_communicator;
 
@@ -129,9 +125,8 @@ namespace MPI_nonlinear_solver_selector_test
   MinimalSurfaceProblem<dim>::MinimalSurfaceProblem()
     : mpi_communicator(MPI_COMM_WORLD)
     , triangulation(mpi_communicator,
-                    typename Triangulation<dim>::MeshSmoothing(
-                      Triangulation<dim>::smoothing_on_refinement |
-                      Triangulation<dim>::smoothing_on_coarsening))
+                    typename Triangulation<dim>::MeshSmoothing(Triangulation<dim>::smoothing_on_refinement |
+                                                               Triangulation<dim>::smoothing_on_coarsening))
     , dof_handler(triangulation)
     , fe(1)
   {}
@@ -149,8 +144,7 @@ namespace MPI_nonlinear_solver_selector_test
 
   template <int dim>
   double
-  BoundaryValues<dim>::value(const Point<dim> &p,
-                             const unsigned int /*component*/) const
+  BoundaryValues<dim>::value(const Point<dim> &p, const unsigned int /*component*/) const
   {
     return std::sin(2 * numbers::PI * (p[0] + p[1]));
   };
@@ -164,27 +158,22 @@ namespace MPI_nonlinear_solver_selector_test
       {
         dof_handler.distribute_dofs(fe);
 
-        locally_owned_dofs = dof_handler.locally_owned_dofs();
-        locally_relevant_dofs =
-          DoFTools::extract_locally_relevant_dofs(dof_handler);
+        locally_owned_dofs    = dof_handler.locally_owned_dofs();
+        locally_relevant_dofs = DoFTools::extract_locally_relevant_dofs(dof_handler);
 
         current_solution.reinit(locally_owned_dofs, mpi_communicator);
 
         {
           nonzero_constraints.clear();
           nonzero_constraints.reinit(locally_relevant_dofs);
-          DoFTools::make_hanging_node_constraints(dof_handler,
-                                                  nonzero_constraints);
+          DoFTools::make_hanging_node_constraints(dof_handler, nonzero_constraints);
 
           nonzero_constraints.close();
 
           nonzero_constraints.distribute(current_solution);
 
           std::map<types::global_dof_index, double> boundary_values;
-          VectorTools::interpolate_boundary_values(dof_handler,
-                                                   0,
-                                                   BoundaryValues<dim>(),
-                                                   boundary_values);
+          VectorTools::interpolate_boundary_values(dof_handler, 0, BoundaryValues<dim>(), boundary_values);
 
           for (const auto &boundary_value : boundary_values)
             current_solution(boundary_value.first) = boundary_value.second;
@@ -195,10 +184,8 @@ namespace MPI_nonlinear_solver_selector_test
         {
           zero_constraints.clear();
           zero_constraints.reinit(locally_relevant_dofs);
-          DoFTools::make_hanging_node_constraints(dof_handler,
-                                                  zero_constraints);
-          VectorTools::interpolate_boundary_values(
-            dof_handler, 0, Functions::ZeroFunction<dim>(), zero_constraints);
+          DoFTools::make_hanging_node_constraints(dof_handler, zero_constraints);
+          VectorTools::interpolate_boundary_values(dof_handler, 0, Functions::ZeroFunction<dim>(), zero_constraints);
         }
         zero_constraints.close();
       }
@@ -212,23 +199,17 @@ namespace MPI_nonlinear_solver_selector_test
                                                mpi_communicator,
                                                locally_relevant_dofs);
 
-    jacobian_matrix.reinit(locally_owned_dofs,
-                           locally_owned_dofs,
-                           dsp,
-                           mpi_communicator);
+    jacobian_matrix.reinit(locally_owned_dofs, locally_owned_dofs, dsp, mpi_communicator);
   }
 
 
 
   template <int dim>
   void
-  MinimalSurfaceProblem<dim>::compute_and_factorize_jacobian(
-    const LA::MPI::Vector &evaluation_point)
+  MinimalSurfaceProblem<dim>::compute_and_factorize_jacobian(const LA::MPI::Vector &evaluation_point)
   {
     LA::MPI::Vector evaluation_point_1;
-    evaluation_point_1.reinit(locally_owned_dofs,
-                              locally_relevant_dofs,
-                              mpi_communicator);
+    evaluation_point_1.reinit(locally_owned_dofs, locally_relevant_dofs, mpi_communicator);
     evaluation_point_1 = evaluation_point;
 
     {
@@ -238,10 +219,7 @@ namespace MPI_nonlinear_solver_selector_test
 
       jacobian_matrix = 0;
 
-      FEValues<dim> fe_values(fe,
-                              quadrature_formula,
-                              update_gradients | update_quadrature_points |
-                                update_JxW_values);
+      FEValues<dim> fe_values(fe, quadrature_formula, update_gradients | update_quadrature_points | update_JxW_values);
 
       const unsigned int dofs_per_cell = fe.n_dofs_per_cell();
       const unsigned int n_q_points    = quadrature_formula.size();
@@ -260,44 +238,36 @@ namespace MPI_nonlinear_solver_selector_test
 
               fe_values.reinit(cell);
 
-              fe_values.get_function_gradients(evaluation_point_1,
-                                               evaluation_point_gradients);
+              fe_values.get_function_gradients(evaluation_point_1, evaluation_point_gradients);
 
               for (unsigned int q = 0; q < n_q_points; ++q)
                 {
                   const double coeff =
-                    1.0 / std::sqrt(1 + evaluation_point_gradients[q] *
-                                          evaluation_point_gradients[q]);
+                    1.0 / std::sqrt(1 + evaluation_point_gradients[q] * evaluation_point_gradients[q]);
 
                   for (unsigned int i = 0; i < dofs_per_cell; ++i)
                     {
                       for (unsigned int j = 0; j < dofs_per_cell; ++j)
                         {
-                          cell_matrix(i, j) +=
-                            (((fe_values.shape_grad(i, q) // ((\nabla \phi_i
-                               * coeff                    //   * a_n
-                               *
-                               fe_values.shape_grad(j, q)) //   * \nabla \phi_j)
-                              -                            //  -
-                              (fe_values.shape_grad(i, q)  //  (\nabla \phi_i
-                               * coeff * coeff * coeff     //   * a_n^3
-                               *
-                               (fe_values.shape_grad(j, q) //   * (\nabla \phi_j
-                                *
-                                evaluation_point_gradients[q]) //      * \nabla
-                                                               //      u_n)
-                               * evaluation_point_gradients[q])) //   * \nabla
-                                                                 //   u_n)))
-                             * fe_values.JxW(q));                // * dx
+                          cell_matrix(i, j) += (((fe_values.shape_grad(i, q)          // ((\nabla \phi_i
+                                                  * coeff                             //   * a_n
+                                                  * fe_values.shape_grad(j, q))       //   * \nabla \phi_j)
+                                                 -                                    //  -
+                                                 (fe_values.shape_grad(i, q)          //  (\nabla \phi_i
+                                                  * coeff * coeff * coeff             //   * a_n^3
+                                                  * (fe_values.shape_grad(j, q)       //   * (\nabla \phi_j
+                                                     * evaluation_point_gradients[q]) //      * \nabla
+                                                                                      //      u_n)
+                                                  * evaluation_point_gradients[q]))   //   * \nabla
+                                                                                      //   u_n)))
+                                                * fe_values.JxW(q));                  // * dx
                         }
                     }
                 }
 
               cell->get_dof_indices(local_dof_indices);
 
-              zero_constraints.distribute_local_to_global(cell_matrix,
-                                                          local_dof_indices,
-                                                          jacobian_matrix);
+              zero_constraints.distribute_local_to_global(cell_matrix, local_dof_indices, jacobian_matrix);
             }
         }
     }
@@ -311,24 +281,17 @@ namespace MPI_nonlinear_solver_selector_test
 
   template <int dim>
   void
-  MinimalSurfaceProblem<dim>::compute_residual(
-    const LA::MPI::Vector &evaluation_point,
-    LA::MPI::Vector &      residual)
+  MinimalSurfaceProblem<dim>::compute_residual(const LA::MPI::Vector &evaluation_point, LA::MPI::Vector &residual)
   {
     deallog << "  Computing residual vector..." << std::flush;
     residual = 0.;
 
     LA::MPI::Vector evaluation_point_1;
-    evaluation_point_1.reinit(locally_owned_dofs,
-                              locally_relevant_dofs,
-                              mpi_communicator);
+    evaluation_point_1.reinit(locally_owned_dofs, locally_relevant_dofs, mpi_communicator);
     evaluation_point_1 = evaluation_point;
 
     const QGauss<dim> quadrature_formula(fe.degree + 1);
-    FEValues<dim>     fe_values(fe,
-                            quadrature_formula,
-                            update_gradients | update_quadrature_points |
-                              update_JxW_values);
+    FEValues<dim> fe_values(fe, quadrature_formula, update_gradients | update_quadrature_points | update_JxW_values);
 
     const unsigned int dofs_per_cell = fe.n_dofs_per_cell();
     const unsigned int n_q_points    = quadrature_formula.size();
@@ -345,29 +308,23 @@ namespace MPI_nonlinear_solver_selector_test
             cell_residual = 0.;
             fe_values.reinit(cell);
 
-            fe_values.get_function_gradients(evaluation_point_1,
-                                             evaluation_point_gradients);
+            fe_values.get_function_gradients(evaluation_point_1, evaluation_point_gradients);
 
 
             for (unsigned int q = 0; q < n_q_points; ++q)
               {
-                const double coeff =
-                  1.0 / std::sqrt(1 + evaluation_point_gradients[q] *
-                                        evaluation_point_gradients[q]);
+                const double coeff = 1.0 / std::sqrt(1 + evaluation_point_gradients[q] * evaluation_point_gradients[q]);
 
                 for (unsigned int i = 0; i < dofs_per_cell; ++i)
-                  cell_residual(i) =
-                    (fe_values.shape_grad(i, q)      // \nabla \phi_i
-                     * coeff                         // * a_n
-                     * evaluation_point_gradients[q] // * \nabla u_n
-                     * fe_values.JxW(q));            // * dx
+                  cell_residual(i) = (fe_values.shape_grad(i, q)      // \nabla \phi_i
+                                      * coeff                         // * a_n
+                                      * evaluation_point_gradients[q] // * \nabla u_n
+                                      * fe_values.JxW(q));            // * dx
               }
 
             cell->get_dof_indices(local_dof_indices);
 
-            zero_constraints.distribute_local_to_global(cell_residual,
-                                                        local_dof_indices,
-                                                        residual);
+            zero_constraints.distribute_local_to_global(cell_residual, local_dof_indices, residual);
           }
       }
 
@@ -381,9 +338,7 @@ namespace MPI_nonlinear_solver_selector_test
 
   template <int dim>
   void
-  MinimalSurfaceProblem<dim>::solve(const LA::MPI::Vector &rhs,
-                                    LA::MPI::Vector &      solution,
-                                    const double /*tolerance*/)
+  MinimalSurfaceProblem<dim>::solve(const LA::MPI::Vector &rhs, LA::MPI::Vector &solution, const double /*tolerance*/)
   {
     deallog << "  Solving linear system" << std::endl;
 
@@ -406,11 +361,10 @@ namespace MPI_nonlinear_solver_selector_test
 #endif
     preconditioner.initialize(jacobian_matrix, data);
 
-    check_solver_within_range(
-      solver.solve(jacobian_matrix, solution, rhs, preconditioner),
-      solver_control.last_step(),
-      0,
-      10);
+    check_solver_within_range(solver.solve(jacobian_matrix, solution, rhs, preconditioner),
+                              solver_control.last_step(),
+                              0,
+                              10);
 
     zero_constraints.distribute(solution);
   }
@@ -425,8 +379,7 @@ namespace MPI_nonlinear_solver_selector_test
 #else
             << "Trilinos"
 #endif
-            << " on " << Utilities::MPI::n_mpi_processes(mpi_communicator)
-            << " MPI rank(s)..." << std::endl;
+            << " on " << Utilities::MPI::n_mpi_processes(mpi_communicator) << " MPI rank(s)..." << std::endl;
 
     GridGenerator::hyper_ball(triangulation);
     triangulation.refine_global(4);
@@ -436,8 +389,7 @@ namespace MPI_nonlinear_solver_selector_test
     setup_system(initial_step);
 
     const double target_tolerance = 1e-3;
-    deallog << "  Target_tolerance: " << target_tolerance << std::endl
-            << std::endl;
+    deallog << "  Target_tolerance: " << target_tolerance << std::endl << std::endl;
 
     typename NLSolve::AdditionalData additional_data;
     additional_data.function_tolerance = target_tolerance;
@@ -445,12 +397,9 @@ namespace MPI_nonlinear_solver_selector_test
 
     NLSolve nonlinear_solver(additional_data, mpi_communicator);
 
-    nonlinear_solver.reinit_vector = [&](LA::MPI::Vector &x) {
-      x.reinit(locally_owned_dofs, mpi_communicator);
-    };
+    nonlinear_solver.reinit_vector = [&](LA::MPI::Vector &x) { x.reinit(locally_owned_dofs, mpi_communicator); };
 
-    nonlinear_solver.residual = [&](const LA::MPI::Vector &evaluation_point,
-                                    LA::MPI::Vector &      residual) {
+    nonlinear_solver.residual = [&](const LA::MPI::Vector &evaluation_point, LA::MPI::Vector &residual) {
       compute_residual(evaluation_point, residual);
     };
 
@@ -458,11 +407,8 @@ namespace MPI_nonlinear_solver_selector_test
       compute_and_factorize_jacobian(current_u);
     };
 
-    nonlinear_solver.solve_with_jacobian = [&](const LA::MPI::Vector &rhs,
-                                               LA::MPI::Vector &      dst,
-                                               const double tolerance) {
-      solve(rhs, dst, tolerance);
-    };
+    nonlinear_solver.solve_with_jacobian =
+      [&](const LA::MPI::Vector &rhs, LA::MPI::Vector &dst, const double tolerance) { solve(rhs, dst, tolerance); };
 
     nonlinear_solver.solve(current_solution);
 

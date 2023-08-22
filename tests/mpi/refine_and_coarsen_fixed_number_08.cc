@@ -32,16 +32,17 @@
 template <int dim>
 void
 verify(parallel::distributed::Triangulation<dim> &tr,
-       const Vector<float> &                      criteria,
+       const Vector<float>                       &criteria,
        const float                                refinement_fraction,
        const float                                coarsening_fraction)
 {
-  parallel::distributed::GridRefinement::refine_and_coarsen_fixed_number(
-    tr, criteria, refinement_fraction, coarsening_fraction);
+  parallel::distributed::GridRefinement::refine_and_coarsen_fixed_number(tr,
+                                                                         criteria,
+                                                                         refinement_fraction,
+                                                                         coarsening_fraction);
 
   unsigned int n_refine_flags = 0, n_coarsen_flags = 0;
-  for (const auto &cell :
-       tr.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : tr.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     {
       if (cell->refine_flag_set())
         {
@@ -55,15 +56,13 @@ verify(parallel::distributed::Triangulation<dim> &tr,
         }
     }
 
-  const unsigned int n_global_refine_flags =
-                       Utilities::MPI::sum(n_refine_flags, MPI_COMM_WORLD),
-                     n_global_coarsen_flags =
-                       Utilities::MPI::sum(n_coarsen_flags, MPI_COMM_WORLD);
+  const unsigned int n_global_refine_flags  = Utilities::MPI::sum(n_refine_flags, MPI_COMM_WORLD),
+                     n_global_coarsen_flags = Utilities::MPI::sum(n_coarsen_flags, MPI_COMM_WORLD);
 
-  deallog << "  refinement_fraction:" << refinement_fraction
-          << " coarsening_fraction:" << coarsening_fraction << std::endl
-          << "    n_refine_flags:" << n_global_refine_flags
-          << " n_coarsen_flags:" << n_global_coarsen_flags << std::endl;
+  deallog << "  refinement_fraction:" << refinement_fraction << " coarsening_fraction:" << coarsening_fraction
+          << std::endl
+          << "    n_refine_flags:" << n_global_refine_flags << " n_coarsen_flags:" << n_global_coarsen_flags
+          << std::endl;
 }
 
 

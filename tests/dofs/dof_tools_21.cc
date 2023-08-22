@@ -55,9 +55,7 @@ check_this(const DoFHandler<dim, spacedim> &dof_handler)
 
   // Apply periodic boundary conditions only in the one direction where
   // we can match the (locally refined) faces:
-  DoFTools::make_periodicity_constraints(dof_handler.begin(0)->face(0),
-                                         dof_handler.begin(0)->face(1),
-                                         cm);
+  DoFTools::make_periodicity_constraints(dof_handler.begin(0)->face(0), dof_handler.begin(0)->face(1), cm);
   cm.close();
 
   deallog << cm.n_constraints() << std::endl;

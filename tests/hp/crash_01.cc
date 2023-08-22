@@ -46,9 +46,7 @@ test()
   dof_handler.distribute_dofs(fe_collection);
 
   tria.refine_global(1);
-  for (typename DoFHandler<dim>::active_cell_iterator cell =
-         dof_handler.begin_active();
-       cell != dof_handler.end();
+  for (typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(); cell != dof_handler.end();
        ++cell)
     cell->set_active_fe_index(0);
 }

@@ -29,9 +29,7 @@ template <int dim>
 class GradingManifold : public ChartManifold<dim>
 {
 public:
-  GradingManifold(const Point<dim> center,
-                  const double     grading,
-                  const double     epsilon)
+  GradingManifold(const Point<dim> center, const double grading, const double epsilon)
     : center(center)
     , grading(grading)
     , epsilon(epsilon)
@@ -43,8 +41,7 @@ public:
   {
     auto point = polar_manifold.pull_back(space_point);
     Assert(point[0] >= 0., ExcInternalError());
-    point[0] = std::pow(point[0] + epsilon, 1. / grading) -
-               std::pow(epsilon, 1. / grading) + 1.e-14;
+    point[0]               = std::pow(point[0] + epsilon, 1. / grading) - std::pow(epsilon, 1. / grading) + 1.e-14;
     const auto chart_point = polar_manifold.push_forward(point);
     return chart_point;
   }
@@ -53,8 +50,7 @@ public:
   push_forward(const Point<dim> &chart_point) const final override
   {
     auto point = polar_manifold.pull_back(chart_point);
-    point[0]   = std::pow(point[0] + std::pow(epsilon, 1. / grading), grading) -
-               epsilon + 1.e-14;
+    point[0]   = std::pow(point[0] + std::pow(epsilon, 1. / grading), grading) - epsilon + 1.e-14;
     Assert(point[0] >= 0., ExcInternalError());
     return polar_manifold.push_forward(point);
   }
@@ -142,16 +138,13 @@ main()
    * different error message.
    */
 
-  std::vector<Point<2>> points{Point<2>{-0.1271, -0.0177875},
-                               Point<2>{-0.1271, -0.015564}};
+  std::vector<Point<2>> points{Point<2>{-0.1271, -0.0177875}, Point<2>{-0.1271, -0.015564}};
   ArrayView<Point<2>>   points_view{points.data(), 2};
 
   std::vector<double> weights{0.5, 0.5};
   ArrayView<double>   weights_view{weights.data(), 2};
 
-  deallog << triangulation.get_manifold(3).get_new_point(points_view,
-                                                         weights_view)
-          << std::endl;
+  deallog << triangulation.get_manifold(3).get_new_point(points_view, weights_view) << std::endl;
 
   return 0;
 }

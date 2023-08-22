@@ -101,11 +101,9 @@ namespace Step8
 
   template <int dim>
   void
-  right_hand_side(const std::vector<Point<dim>> &points,
-                  std::vector<Tensor<1, dim>> &  values)
+  right_hand_side(const std::vector<Point<dim>> &points, std::vector<Tensor<1, dim>> &values)
   {
-    Assert(values.size() == points.size(),
-           ExcDimensionMismatch(values.size(), points.size()));
+    Assert(values.size() == points.size(), ExcDimensionMismatch(values.size(), points.size()));
     Assert(dim >= 2, ExcNotImplemented());
 
     Point<dim> point_1, point_2;
@@ -151,8 +149,7 @@ namespace Step8
   {
     dof_handler.distribute_dofs(fe);
     hanging_node_constraints.clear();
-    DoFTools::make_hanging_node_constraints(dof_handler,
-                                            hanging_node_constraints);
+    DoFTools::make_hanging_node_constraints(dof_handler, hanging_node_constraints);
     hanging_node_constraints.close();
 
     DynamicSparsityPattern dsp(dof_handler.n_dofs(), dof_handler.n_dofs());
@@ -178,8 +175,7 @@ namespace Step8
 
     FEValues<dim> fe_values(fe,
                             quadrature_formula,
-                            update_values | update_gradients |
-                              update_quadrature_points | update_JxW_values);
+                            update_values | update_gradients | update_quadrature_points | update_JxW_values);
 
     const unsigned int dofs_per_cell = fe.dofs_per_cell;
     const unsigned int n_q_points    = quadrature_formula.size();
@@ -196,9 +192,7 @@ namespace Step8
 
     std::vector<Tensor<1, dim>> rhs_values(n_q_points);
 
-    typename DoFHandler<dim>::active_cell_iterator cell =
-                                                     dof_handler.begin_active(),
-                                                   endc = dof_handler.end();
+    typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
     for (; cell != endc; ++cell)
       {
         cell_matrix = 0;
@@ -212,27 +206,21 @@ namespace Step8
 
         for (unsigned int i = 0; i < dofs_per_cell; ++i)
           {
-            const unsigned int component_i =
-              fe.system_to_component_index(i).first;
+            const unsigned int component_i = fe.system_to_component_index(i).first;
 
             for (unsigned int j = 0; j < dofs_per_cell; ++j)
               {
-                const unsigned int component_j =
-                  fe.system_to_component_index(j).first;
+                const unsigned int component_j = fe.system_to_component_index(j).first;
 
                 for (unsigned int q_point = 0; q_point < n_q_points; ++q_point)
                   {
                     cell_matrix(i, j) +=
-                      ((fe_values.shape_grad(i, q_point)[component_i] *
-                        fe_values.shape_grad(j, q_point)[component_j] *
+                      ((fe_values.shape_grad(i, q_point)[component_i] * fe_values.shape_grad(j, q_point)[component_j] *
                         lambda_values[q_point]) +
-                       (fe_values.shape_grad(i, q_point)[component_j] *
-                        fe_values.shape_grad(j, q_point)[component_i] *
+                       (fe_values.shape_grad(i, q_point)[component_j] * fe_values.shape_grad(j, q_point)[component_i] *
                         mu_values[q_point]) +
                        ((component_i == component_j) ?
-                          (fe_values.shape_grad(i, q_point) *
-                           fe_values.shape_grad(j, q_point) *
-                           mu_values[q_point]) :
+                          (fe_values.shape_grad(i, q_point) * fe_values.shape_grad(j, q_point) * mu_values[q_point]) :
                           0)) *
                       fe_values.JxW(q_point);
                   }
@@ -241,22 +229,18 @@ namespace Step8
 
         for (unsigned int i = 0; i < dofs_per_cell; ++i)
           {
-            const unsigned int component_i =
-              fe.system_to_component_index(i).first;
+            const unsigned int component_i = fe.system_to_component_index(i).first;
 
             for (unsigned int q_point = 0; q_point < n_q_points; ++q_point)
-              cell_rhs(i) += fe_values.shape_value(i, q_point) *
-                             rhs_values[q_point][component_i] *
-                             fe_values.JxW(q_point);
+              cell_rhs(i) +=
+                fe_values.shape_value(i, q_point) * rhs_values[q_point][component_i] * fe_values.JxW(q_point);
           }
 
         cell->get_dof_indices(local_dof_indices);
         for (unsigned int i = 0; i < dofs_per_cell; ++i)
           {
             for (unsigned int j = 0; j < dofs_per_cell; ++j)
-              system_matrix.add(local_dof_indices[i],
-                                local_dof_indices[j],
-                                cell_matrix(i, j));
+              system_matrix.add(local_dof_indices[i], local_dof_indices[j], cell_matrix(i, j));
 
             system_rhs(local_dof_indices[i]) += cell_rhs(i);
           }
@@ -266,14 +250,8 @@ namespace Step8
     hanging_node_constraints.condense(system_rhs);
 
     std::map<types::global_dof_index, double> boundary_values;
-    VectorTools::interpolate_boundary_values(dof_handler,
-                                             0,
-                                             Functions::ZeroFunction<dim>(dim),
-                                             boundary_values);
-    MatrixTools::apply_boundary_values(boundary_values,
-                                       system_matrix,
-                                       solution,
-                                       system_rhs);
+    VectorTools::interpolate_boundary_values(dof_handler, 0, Functions::ZeroFunction<dim>(dim), boundary_values);
+    MatrixTools::apply_boundary_values(boundary_values, system_matrix, solution, system_rhs);
   }
 
 
@@ -301,17 +279,13 @@ namespace Step8
   {
     Vector<float> estimated_error_per_cell(triangulation.n_active_cells());
 
-    KellyErrorEstimator<dim>::estimate(
-      dof_handler,
-      QGauss<dim - 1>(2),
-      std::map<types::boundary_id, const Function<dim> *>(),
-      solution,
-      estimated_error_per_cell);
+    KellyErrorEstimator<dim>::estimate(dof_handler,
+                                       QGauss<dim - 1>(2),
+                                       std::map<types::boundary_id, const Function<dim> *>(),
+                                       solution,
+                                       estimated_error_per_cell);
 
-    GridRefinement::refine_and_coarsen_fixed_number(triangulation,
-                                                    estimated_error_per_cell,
-                                                    0.3,
-                                                    0.03);
+    GridRefinement::refine_and_coarsen_fixed_number(triangulation, estimated_error_per_cell, 0.3, 0.03);
 
     triangulation.execute_coarsening_and_refinement();
   }
@@ -327,25 +301,18 @@ namespace Step8
     {}
 
     virtual void
-    evaluate_vector_field(
-      const DataPostprocessorInputs::Vector<dim> &input_data,
-      std::vector<Vector<double>> &               computed_quantities) const
+    evaluate_vector_field(const DataPostprocessorInputs::Vector<dim> &input_data,
+                          std::vector<Vector<double>>                &computed_quantities) const
     {
-      AssertDimension(input_data.solution_gradients.size(),
-                      computed_quantities.size());
+      AssertDimension(input_data.solution_gradients.size(), computed_quantities.size());
 
       for (unsigned int p = 0; p < input_data.solution_gradients.size(); ++p)
         {
-          AssertDimension(computed_quantities[p].size(),
-                          (Tensor<2, dim>::n_independent_components));
+          AssertDimension(computed_quantities[p].size(), (Tensor<2, dim>::n_independent_components));
           for (unsigned int d = 0; d < dim; ++d)
             for (unsigned int e = 0; e < dim; ++e)
-              computed_quantities[p]
-                                 [Tensor<2, dim>::component_to_unrolled_index(
-                                   TableIndices<2>(d, e))] =
-                                   (input_data.solution_gradients[p][d][e] +
-                                    input_data.solution_gradients[p][e][d]) /
-                                   2;
+              computed_quantities[p][Tensor<2, dim>::component_to_unrolled_index(TableIndices<2>(d, e))] =
+                (input_data.solution_gradients[p][d][e] + input_data.solution_gradients[p][e][d]) / 2;
         }
     }
   };
@@ -363,17 +330,15 @@ namespace Step8
     StrainPostprocessor<dim> grad_u;
 
     DataOutBase::VtkFlags vtk_flags;
-    vtk_flags.compression_level =
-      DataOutBase::CompressionLevel::best_compression;
+    vtk_flags.compression_level = DataOutBase::CompressionLevel::best_compression;
 
     DataOut<dim> data_out;
     data_out.attach_dof_handler(dof_handler);
 
 
 
-    std::vector<DataComponentInterpretation::DataComponentInterpretation>
-      data_component_interpretation(
-        dim, DataComponentInterpretation::component_is_part_of_vector);
+    std::vector<DataComponentInterpretation::DataComponentInterpretation> data_component_interpretation(
+      dim, DataComponentInterpretation::component_is_part_of_vector);
     data_out.add_data_vector(solution,
                              std::vector<std::string>(dim, "displacement"),
                              DataOut<dim>::type_dof_data,
@@ -402,13 +367,11 @@ namespace Step8
         else
           refine_grid();
 
-        deallog << "   Number of active cells:       "
-                << triangulation.n_active_cells() << std::endl;
+        deallog << "   Number of active cells:       " << triangulation.n_active_cells() << std::endl;
 
         setup_system();
 
-        deallog << "   Number of degrees of freedom: " << dof_handler.n_dofs()
-                << std::endl;
+        deallog << "   Number of degrees of freedom: " << dof_handler.n_dofs() << std::endl;
 
         assemble_system();
         solve();

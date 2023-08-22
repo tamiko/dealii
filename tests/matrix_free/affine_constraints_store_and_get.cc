@@ -54,11 +54,7 @@ main()
   {
     typename MatrixFree<dim, double>::AdditionalData additional_data_double;
     MatrixFree<dim, double>                          matrix_free_double;
-    matrix_free_double.reinit(MappingQ1<dim>{},
-                              dof_handler,
-                              double_ac,
-                              quadrature,
-                              additional_data_double);
+    matrix_free_double.reinit(MappingQ1<dim>{}, dof_handler, double_ac, quadrature, additional_data_double);
 
     if (&matrix_free_double.get_affine_constraints() == &double_ac)
       deallog << "OK" << std::endl;
@@ -67,11 +63,7 @@ main()
   {
     typename MatrixFree<dim, float>::AdditionalData additional_data_float;
     MatrixFree<dim, float>                          matrix_free_float;
-    matrix_free_float.reinit(MappingQ1<dim>{},
-                             dof_handler,
-                             double_ac,
-                             quadrature,
-                             additional_data_float);
+    matrix_free_float.reinit(MappingQ1<dim>{}, dof_handler, double_ac, quadrature, additional_data_float);
 
     try
       {

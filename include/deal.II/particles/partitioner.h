@@ -71,8 +71,7 @@ namespace Particles
        * domain, organized by the subdomain_id. These
        * particles are equivalent to the ghost entries in distributed vectors.
        */
-      std::map<types::subdomain_id, std::vector<particle_iterator>>
-        ghost_particles_by_domain;
+      std::map<types::subdomain_id, std::vector<particle_iterator>> ghost_particles_by_domain;
 
       /**
        * Vector of size (neighbors.size()+1) used to store the start and the

@@ -93,11 +93,10 @@ test()
   if (myid == 0)
     deallog << "numproc=" << numproc << std::endl;
 
-  parallel::distributed::Triangulation<dim> triangulation(
-    MPI_COMM_WORLD,
-    typename Triangulation<dim>::MeshSmoothing(
-      Triangulation<dim>::smoothing_on_refinement |
-      Triangulation<dim>::smoothing_on_coarsening));
+  parallel::distributed::Triangulation<dim> triangulation(MPI_COMM_WORLD,
+                                                          typename Triangulation<dim>::MeshSmoothing(
+                                                            Triangulation<dim>::smoothing_on_refinement |
+                                                            Triangulation<dim>::smoothing_on_coarsening));
   GridGenerator::hyper_cube(triangulation, -1, 1);
   triangulation.refine_global(2);
 
@@ -110,23 +109,17 @@ test()
   DoFTools::extract_locally_relevant_dofs(dof_handler, locally_relevant_dofs);
 
   TrilinosWrappers::MPI::Vector x(locally_owned_dofs, MPI_COMM_WORLD);
-  TrilinosWrappers::MPI::Vector x_relevant(locally_owned_dofs,
-                                           locally_relevant_dofs,
-                                           MPI_COMM_WORLD);
+  TrilinosWrappers::MPI::Vector x_relevant(locally_owned_dofs, locally_relevant_dofs, MPI_COMM_WORLD);
 
   VectorTools::interpolate(dof_handler, Displacement<dim>(), x);
   x_relevant = x;
 
-  MappingQEulerian<dim, TrilinosWrappers::MPI::Vector> euler(2,
-                                                             dof_handler,
-                                                             x_relevant);
+  MappingQEulerian<dim, TrilinosWrappers::MPI::Vector> euler(2, dof_handler, x_relevant);
 
   // now the actual test
-  std::map<unsigned int, Point<dim>> active_vertices =
-    GridTools::extract_used_vertices(triangulation, euler);
+  std::map<unsigned int, Point<dim>> active_vertices = GridTools::extract_used_vertices(triangulation, euler);
 
-  for (auto point = active_vertices.begin(); point != active_vertices.end();
-       ++point)
+  for (auto point = active_vertices.begin(); point != active_vertices.end(); ++point)
     deallog << point->second << ' ';
 
   deallog << std::endl << "Ok." << std::endl;

@@ -57,12 +57,10 @@ TestMaxwellCurl(Triangulation<dim> &tr)
   FESystem<dim>     fe(FE_Q<dim>(element_order), dim);
   FEValues<dim>     fe_values(fe,
                           QGauss<dim>(quadrature_order),
-                          update_values | update_JxW_values | update_gradients |
-                            update_quadrature_points);
+                          update_values | update_JxW_values | update_gradients | update_quadrature_points);
   FEFaceValues<dim> fe_face_values(fe,
                                    QGauss<dim - 1>(quadrature_order),
-                                   update_values | update_JxW_values |
-                                     update_gradients | update_normal_vectors |
+                                   update_values | update_JxW_values | update_gradients | update_normal_vectors |
                                      update_quadrature_points);
 
   dof_handler.distribute_dofs(fe);
@@ -92,8 +90,7 @@ TestMaxwellCurl(Triangulation<dim> &tr)
   for (const unsigned int face : GeometryInfo<dim>::face_indices())
     {
       fe_face_values.reinit(cell, face);
-      nitsche_curl_matrix<dim>(
-        nitsche_curl_check, fe_face_values, face, 1., 1.);
+      nitsche_curl_matrix<dim>(nitsche_curl_check, fe_face_values, face, 1., 1.);
     }
 
   deallog << "nitsche_curl_matrix" << std::endl;

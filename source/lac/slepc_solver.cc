@@ -43,9 +43,7 @@ namespace SLEPcWrappers
 
     // hand over the absolute tolerance and the maximum number of
     // iteration steps to the SLEPc convergence criterion.
-    ierr = EPSSetTolerances(eps,
-                            this->solver_control.tolerance(),
-                            this->solver_control.max_steps());
+    ierr = EPSSetTolerances(eps, this->solver_control.tolerance(), this->solver_control.max_steps());
     AssertThrow(ierr == 0, ExcSLEPcError(ierr));
 
     // default values:
@@ -84,8 +82,7 @@ namespace SLEPcWrappers
 
 
   void
-  SolverBase::set_matrices(const PETScWrappers::MatrixBase &A,
-                           const PETScWrappers::MatrixBase &B)
+  SolverBase::set_matrices(const PETScWrappers::MatrixBase &A, const PETScWrappers::MatrixBase &B)
   {
     // generalized eigenspectrum problem
     const PetscErrorCode ierr = EPSSetOperators(eps, A, B);
@@ -95,8 +92,7 @@ namespace SLEPcWrappers
 
 
   void
-  SolverBase::set_transformation(
-    SLEPcWrappers::TransformationBase &transformation)
+  SolverBase::set_transformation(SLEPcWrappers::TransformationBase &transformation)
   {
     // set transformation type if any
     // STSetShift is called inside
@@ -111,8 +107,7 @@ namespace SLEPcWrappers
     // (b) use EPS_TARGET_MAGNITUDE. The former, however, needs to be
     // applied to the 'eps' object and not the spectral transformation.
     if (SLEPcWrappers::TransformationShiftInvert *sinv =
-          dynamic_cast<SLEPcWrappers::TransformationShiftInvert *>(
-            &transformation))
+          dynamic_cast<SLEPcWrappers::TransformationShiftInvert *>(&transformation))
       {
         ierr = EPSSetTarget(eps, sinv->additional_data.shift_parameter);
         AssertThrow(ierr == 0, SolverBase::ExcSLEPcError(ierr));
@@ -157,8 +152,7 @@ namespace SLEPcWrappers
   SolverBase::solve(const unsigned int n_eigenpairs, unsigned int *n_converged)
   {
     // set number of eigenvectors to compute
-    PetscErrorCode ierr =
-      EPSSetDimensions(eps, n_eigenpairs, PETSC_DECIDE, PETSC_DECIDE);
+    PetscErrorCode ierr = EPSSetDimensions(eps, n_eigenpairs, PETSC_DECIDE, PETSC_DECIDE);
     AssertThrow(ierr == 0, ExcSLEPcError(ierr));
 
     // set the solve options to the eigenvalue problem solver context
@@ -238,8 +232,7 @@ namespace SLEPcWrappers
         }
 
       // check the solver state
-      const SolverControl::State state =
-        solver_control.check(n_iterations, residual_norm);
+      const SolverControl::State state = solver_control.check(n_iterations, residual_norm);
 
       // get the solver state according to SLEPc
       get_solver_state(state);
@@ -257,13 +250,10 @@ namespace SLEPcWrappers
 
 
   void
-  SolverBase::get_eigenpair(const unsigned int         index,
-                            PetscScalar &              eigenvalues,
-                            PETScWrappers::VectorBase &eigenvectors)
+  SolverBase::get_eigenpair(const unsigned int index, PetscScalar &eigenvalues, PETScWrappers::VectorBase &eigenvectors)
   {
     // get converged eigenpair
-    const PetscErrorCode ierr =
-      EPSGetEigenpair(eps, index, &eigenvalues, nullptr, eigenvectors, nullptr);
+    const PetscErrorCode ierr = EPSGetEigenpair(eps, index, &eigenvalues, nullptr, eigenvectors, nullptr);
     AssertThrow(ierr == 0, ExcSLEPcError(ierr));
   }
 
@@ -271,26 +261,20 @@ namespace SLEPcWrappers
 
   void
   SolverBase::get_eigenpair(const unsigned int         index,
-                            double &                   real_eigenvalues,
-                            double &                   imag_eigenvalues,
+                            double                    &real_eigenvalues,
+                            double                    &imag_eigenvalues,
                             PETScWrappers::VectorBase &real_eigenvectors,
                             PETScWrappers::VectorBase &imag_eigenvectors)
   {
 #  ifndef PETSC_USE_COMPLEX
     // get converged eigenpair
-    const PetscErrorCode ierr = EPSGetEigenpair(eps,
-                                                index,
-                                                &real_eigenvalues,
-                                                &imag_eigenvalues,
-                                                real_eigenvectors,
-                                                imag_eigenvectors);
+    const PetscErrorCode ierr =
+      EPSGetEigenpair(eps, index, &real_eigenvalues, &imag_eigenvalues, real_eigenvectors, imag_eigenvectors);
     AssertThrow(ierr == 0, ExcSLEPcError(ierr));
 #  else
-    Assert(
-      (false),
-      ExcMessage(
-        "Your PETSc/SLEPc installation was configured with scalar-type complex "
-        "but this function is not defined for complex types."));
+    Assert((false),
+           ExcMessage("Your PETSc/SLEPc installation was configured with scalar-type complex "
+                      "but this function is not defined for complex types."));
 
     // Cast to void to silence compiler warnings
     (void)index;
@@ -340,13 +324,12 @@ namespace SLEPcWrappers
 
 
   int
-  SolverBase::convergence_test(
-    EPS /*eps             */,
-    PetscScalar /*real_eigenvalue */,
-    PetscScalar /*imag_eigenvalue */,
-    PetscReal /*residual norm associated to the eigenpair   */,
-    PetscReal * /*(output) computed error estimate */,
-    void * /*solver_control_x*/)
+  SolverBase::convergence_test(EPS /*eps             */,
+                               PetscScalar /*real_eigenvalue */,
+                               PetscScalar /*imag_eigenvalue */,
+                               PetscReal /*residual norm associated to the eigenpair   */,
+                               PetscReal * /*(output) computed error estimate */,
+                               void * /*solver_control_x*/)
   {
     // If the error estimate returned by the convergence test function is less
     // than the tolerance, then the eigenvalue is accepted as converged.
@@ -359,30 +342,24 @@ namespace SLEPcWrappers
 
 
   /* ---------------------- SolverKrylovSchur ------------------------ */
-  SolverKrylovSchur::SolverKrylovSchur(SolverControl &       cn,
-                                       const MPI_Comm        mpi_communicator,
-                                       const AdditionalData &data)
+  SolverKrylovSchur::SolverKrylovSchur(SolverControl &cn, const MPI_Comm mpi_communicator, const AdditionalData &data)
     : SolverBase(cn, mpi_communicator)
     , additional_data(data)
   {
-    const PetscErrorCode ierr =
-      EPSSetType(eps, const_cast<char *>(EPSKRYLOVSCHUR));
+    const PetscErrorCode ierr = EPSSetType(eps, const_cast<char *>(EPSKRYLOVSCHUR));
     AssertThrow(ierr == 0, ExcSLEPcError(ierr));
   }
 
 
 
   /* ---------------------- SolverArnoldi ------------------------ */
-  SolverArnoldi::AdditionalData::AdditionalData(
-    const bool delayed_reorthogonalization)
+  SolverArnoldi::AdditionalData::AdditionalData(const bool delayed_reorthogonalization)
     : delayed_reorthogonalization(delayed_reorthogonalization)
   {}
 
 
 
-  SolverArnoldi::SolverArnoldi(SolverControl &       cn,
-                               const MPI_Comm        mpi_communicator,
-                               const AdditionalData &data)
+  SolverArnoldi::SolverArnoldi(SolverControl &cn, const MPI_Comm mpi_communicator, const AdditionalData &data)
     : SolverBase(cn, mpi_communicator)
     , additional_data(data)
   {
@@ -407,9 +384,7 @@ namespace SLEPcWrappers
 
 
 
-  SolverLanczos::SolverLanczos(SolverControl &       cn,
-                               const MPI_Comm        mpi_communicator,
-                               const AdditionalData &data)
+  SolverLanczos::SolverLanczos(SolverControl &cn, const MPI_Comm mpi_communicator, const AdditionalData &data)
     : SolverBase(cn, mpi_communicator)
     , additional_data(data)
   {
@@ -423,9 +398,7 @@ namespace SLEPcWrappers
 
 
   /* ----------------------- Power ------------------------- */
-  SolverPower::SolverPower(SolverControl &       cn,
-                           const MPI_Comm        mpi_communicator,
-                           const AdditionalData &data)
+  SolverPower::SolverPower(SolverControl &cn, const MPI_Comm mpi_communicator, const AdditionalData &data)
     : SolverBase(cn, mpi_communicator)
     , additional_data(data)
   {
@@ -436,17 +409,15 @@ namespace SLEPcWrappers
 
 
   /* ---------------- Generalized Davidson ----------------- */
-  SolverGeneralizedDavidson::AdditionalData::AdditionalData(
-    bool double_expansion)
+  SolverGeneralizedDavidson::AdditionalData::AdditionalData(bool double_expansion)
     : double_expansion(double_expansion)
   {}
 
 
 
-  SolverGeneralizedDavidson::SolverGeneralizedDavidson(
-    SolverControl &       cn,
-    const MPI_Comm        mpi_communicator,
-    const AdditionalData &data)
+  SolverGeneralizedDavidson::SolverGeneralizedDavidson(SolverControl        &cn,
+                                                       const MPI_Comm        mpi_communicator,
+                                                       const AdditionalData &data)
     : SolverBase(cn, mpi_communicator)
     , additional_data(data)
   {
@@ -463,8 +434,8 @@ namespace SLEPcWrappers
 
 
   /* ------------------ Jacobi Davidson -------------------- */
-  SolverJacobiDavidson::SolverJacobiDavidson(SolverControl &cn,
-                                             const MPI_Comm mpi_communicator,
+  SolverJacobiDavidson::SolverJacobiDavidson(SolverControl        &cn,
+                                             const MPI_Comm        mpi_communicator,
                                              const AdditionalData &data)
     : SolverBase(cn, mpi_communicator)
     , additional_data(data)
@@ -476,9 +447,7 @@ namespace SLEPcWrappers
 
 
   /* ---------------------- LAPACK ------------------------- */
-  SolverLAPACK::SolverLAPACK(SolverControl &       cn,
-                             const MPI_Comm        mpi_communicator,
-                             const AdditionalData &data)
+  SolverLAPACK::SolverLAPACK(SolverControl &cn, const MPI_Comm mpi_communicator, const AdditionalData &data)
     : SolverBase(cn, mpi_communicator)
     , additional_data(data)
   {
@@ -488,11 +457,9 @@ namespace SLEPcWrappers
     const PetscErrorCode ierr = EPSSetType(eps, const_cast<char *>(EPSLAPACK));
     AssertThrow(ierr == 0, ExcSLEPcError(ierr));
 #  else
-    Assert(
-      (false),
-      ExcMessage(
-        "Your PETSc/SLEPc installation was not configured with BLAS/LAPACK "
-        "but this is needed to use the LAPACK solver."));
+    Assert((false),
+           ExcMessage("Your PETSc/SLEPc installation was not configured with BLAS/LAPACK "
+                      "but this is needed to use the LAPACK solver."));
 #  endif
   }
 } // namespace SLEPcWrappers

@@ -45,14 +45,11 @@ test()
   Assert(tria1.n_levels() == tria2.n_levels(), ExcInternalError());
 
   typename Triangulation<dim, dim>::active_cell_iterator cell1, cell2;
-  for (cell1 = tria1.begin_active(), cell2 = tria2.begin_active();
-       cell1 != tria1.end();
-       ++cell1, ++cell2)
+  for (cell1 = tria1.begin_active(), cell2 = tria2.begin_active(); cell1 != tria1.end(); ++cell1, ++cell2)
     {
       for (unsigned int f = 0; f < cell1->n_faces(); ++f)
         if (cell1->face(f)->at_boundary())
-          Assert(cell1->face(f)->boundary_id() == cell2->face(f)->boundary_id(),
-                 ExcInternalError());
+          Assert(cell1->face(f)->boundary_id() == cell2->face(f)->boundary_id(), ExcInternalError());
       Assert(cell1->manifold_id() == cell2->manifold_id(), ExcInternalError());
 
       if (cell1->is_locally_owned())
@@ -60,22 +57,17 @@ test()
           if (myid == 0)
             {
               deallog << "triangulation::cell     " << cell1
-                      << ": locally owned, subdomain_id = "
-                      << cell1->subdomain_id() << std::endl;
+                      << ": locally owned, subdomain_id = " << cell1->subdomain_id() << std::endl;
               deallog << "new_triangulation::cell " << cell2
-                      << ": locally owned, subdomain_id = "
-                      << cell2->subdomain_id() << std::endl;
+                      << ": locally owned, subdomain_id = " << cell2->subdomain_id() << std::endl;
             };
 
           Assert(cell2->is_locally_owned(), ExcInternalError());
-          Assert(cell1->subdomain_id() == cell2->subdomain_id(),
-                 ExcInternalError());
+          Assert(cell1->subdomain_id() == cell2->subdomain_id(), ExcInternalError());
 
           for (const unsigned int vertex : GeometryInfo<dim>::vertex_indices())
             {
-              Assert(cell1->vertex(vertex).distance(cell2->vertex(vertex)) <
-                       1.e-14,
-                     ExcInternalError());
+              Assert(cell1->vertex(vertex).distance(cell2->vertex(vertex)) < 1.e-14, ExcInternalError());
 
               if (myid == 0)
                 deallog << "  vertices " << vertex << " coincide" << std::endl;
@@ -85,11 +77,9 @@ test()
         {
           if (myid == 0)
             {
-              deallog << "triangulation::cell     " << cell1
-                      << ": ghost, subdomain_id = " << cell1->subdomain_id()
+              deallog << "triangulation::cell     " << cell1 << ": ghost, subdomain_id = " << cell1->subdomain_id()
                       << std::endl;
-              deallog << "new_triangulation::cell " << cell2
-                      << ": ghost, subdomain_id = " << cell2->subdomain_id()
+              deallog << "new_triangulation::cell " << cell2 << ": ghost, subdomain_id = " << cell2->subdomain_id()
                       << std::endl;
             };
 
@@ -99,10 +89,8 @@ test()
         {
           if (myid == 0)
             {
-              deallog << "triangulation::cell     " << cell1 << ": artificial"
-                      << std::endl;
-              deallog << "new_triangulation::cell " << cell2 << ": artificial"
-                      << std::endl;
+              deallog << "triangulation::cell     " << cell1 << ": artificial" << std::endl;
+              deallog << "new_triangulation::cell " << cell2 << ": artificial" << std::endl;
             };
 
           Assert(cell2->is_artificial(), ExcInternalError());

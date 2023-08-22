@@ -54,7 +54,7 @@ public:
   {}
 
   void
-  vmult(LinearAlgebra::distributed::BlockVector<Number> &      dst,
+  vmult(LinearAlgebra::distributed::BlockVector<Number>       &dst,
         const LinearAlgebra::distributed::BlockVector<Number> &src) const
   {
     data.cell_loop(&MatrixFreeBlock::local_apply, this, dst, src, true);
@@ -62,10 +62,10 @@ public:
 
 private:
   void
-  local_apply(const MatrixFree<dim, Number> &                        data,
-              LinearAlgebra::distributed::BlockVector<Number> &      dst,
+  local_apply(const MatrixFree<dim, Number>                         &data,
+              LinearAlgebra::distributed::BlockVector<Number>       &dst,
               const LinearAlgebra::distributed::BlockVector<Number> &src,
-              const std::pair<unsigned int, unsigned int> &cell_range) const
+              const std::pair<unsigned int, unsigned int>           &cell_range) const
   {
     AssertDimension(src.n_blocks(), dst.n_blocks());
     FEEvaluation<dim, fe_degree, fe_degree + 1, 1, Number> phi(data);
@@ -75,17 +75,13 @@ private:
         phi.reinit(cell);
         for (unsigned int block = 0; block < src.n_blocks(); ++block)
           {
-            phi.gather_evaluate(src.block(block),
-                                EvaluationFlags::values |
-                                  EvaluationFlags::gradients);
+            phi.gather_evaluate(src.block(block), EvaluationFlags::values | EvaluationFlags::gradients);
             for (unsigned int q = 0; q < phi.n_q_points; ++q)
               {
                 phi.submit_value(Number(10) * phi.get_value(q), q);
                 phi.submit_gradient(phi.get_gradient(q), q);
               }
-            phi.integrate_scatter(EvaluationFlags::values |
-                                    EvaluationFlags::gradients,
-                                  dst.block(block));
+            phi.integrate_scatter(EvaluationFlags::values | EvaluationFlags::gradients, dst.block(block));
           }
       }
   }
@@ -104,8 +100,7 @@ test()
   parallel::distributed::Triangulation<dim> tria(MPI_COMM_WORLD);
   GridGenerator::hyper_cube(tria);
   tria.refine_global(1);
-  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(),
-                                                    endc = tria.end();
+  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
   for (; cell != endc; ++cell)
     if (cell->is_locally_owned())
       if (cell->center().norm() < 0.2)
@@ -139,10 +134,7 @@ test()
 
   AffineConstraints<double> constraints(relevant_set);
   DoFTools::make_hanging_node_constraints(dof, constraints);
-  VectorTools::interpolate_boundary_values(dof,
-                                           0,
-                                           Functions::ZeroFunction<dim>(),
-                                           constraints);
+  VectorTools::interpolate_boundary_values(dof, 0, Functions::ZeroFunction<dim>(), constraints);
   constraints.close();
 
   deallog << "Testing " << dof.get_fe().get_name() << std::endl;
@@ -151,25 +143,18 @@ test()
   {
     const QGauss<1>                                  quad(fe_degree + 1);
     typename MatrixFree<dim, number>::AdditionalData data;
-    data.tasks_parallel_scheme = MatrixFree<dim, number>::AdditionalData::none;
+    data.tasks_parallel_scheme             = MatrixFree<dim, number>::AdditionalData::none;
     data.overlap_communication_computation = false;
     mf_data.reinit(MappingQ1<dim>{}, dof, constraints, quad, data);
   }
 
-  MatrixFreeTest<dim,
-                 fe_degree,
-                 number,
-                 LinearAlgebra::distributed::Vector<number>>
-                                          mf_ref(mf_data);
-  MatrixFreeBlock<dim, fe_degree, number> mf(mf_data);
+  MatrixFreeTest<dim, fe_degree, number, LinearAlgebra::distributed::Vector<number>> mf_ref(mf_data);
+  MatrixFreeBlock<dim, fe_degree, number>                                            mf(mf_data);
 
   // make sure that the value we set here at least includes some case where we
   // need to go to the alternative case of calling the full
   // update_ghost_values()
-  Assert(
-    LinearAlgebra::distributed::BlockVector<number>::communication_block_size <
-      80,
-    ExcInternalError());
+  Assert(LinearAlgebra::distributed::BlockVector<number>::communication_block_size < 80, ExcInternalError());
   for (unsigned int n_blocks = 5; n_blocks < 81; n_blocks *= 2)
     {
       LinearAlgebra::distributed::BlockVector<number> in, out, ref;
@@ -187,8 +172,7 @@ test()
       // matrix-vector product for reference
       for (unsigned int block = 0; block < n_blocks; ++block)
         {
-          for (unsigned int i = 0; i < in.block(block).locally_owned_size();
-               ++i)
+          for (unsigned int i = 0; i < in.block(block).locally_owned_size(); ++i)
             {
               const unsigned int glob_index = owned_set.nth_index_in_set(i);
               if (constraints.is_constrained(glob_index))
@@ -226,8 +210,7 @@ test()
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   mpi_initlog();
   deallog << std::setprecision(4);

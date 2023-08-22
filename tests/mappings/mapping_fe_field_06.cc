@@ -45,8 +45,7 @@ test()
   parallel::distributed::Triangulation<dim, spacedim> tria(
     MPI_COMM_WORLD,
     Triangulation<dim, spacedim>::limit_level_difference_at_vertices,
-    parallel::distributed::Triangulation<dim, spacedim>::
-      construct_multigrid_hierarchy);
+    parallel::distributed::Triangulation<dim, spacedim>::construct_multigrid_hierarchy);
   GridGenerator::hyper_ball(tria);
 
   tria.refine_global(2);
@@ -61,25 +60,20 @@ test()
   dh.distribute_mg_dofs();
 
   deallog << "dim, spacedim: " << dim << ", " << spacedim << std::endl
-          << "cells: " << tria.n_active_cells() << ", dofs: " << dh.n_dofs()
-          << std::endl;
+          << "cells: " << tria.n_active_cells() << ", dofs: " << dh.n_dofs() << std::endl;
 
   // Create a Mapping
-  std::vector<LinearAlgebra::distributed::Vector<double>> level_vectors(
-    tria.n_global_levels());
-  MappingQ<dim, spacedim> mapping_ref(fe.degree);
-  FEValues<dim>           fe_values_setup(mapping_ref,
+  std::vector<LinearAlgebra::distributed::Vector<double>> level_vectors(tria.n_global_levels());
+  MappingQ<dim, spacedim>                                 mapping_ref(fe.degree);
+  FEValues<dim>                                           fe_values_setup(mapping_ref,
                                 dh.get_fe(),
-                                Quadrature<dim>(
-                                  dh.get_fe().get_unit_support_points()),
+                                Quadrature<dim>(dh.get_fe().get_unit_support_points()),
                                 update_quadrature_points);
   for (unsigned int level = 0; level < tria.n_global_levels(); ++level)
     {
       IndexSet relevant_dofs;
       DoFTools::extract_locally_relevant_level_dofs(dh, level, relevant_dofs);
-      level_vectors[level].reinit(dh.locally_owned_mg_dofs(level),
-                                  relevant_dofs,
-                                  tria.get_communicator());
+      level_vectors[level].reinit(dh.locally_owned_mg_dofs(level), relevant_dofs, tria.get_communicator());
       std::vector<types::global_dof_index> dof_indices(fe.dofs_per_cell);
       for (const auto &cell : dh.mg_cell_iterators_on_level(level))
         if (cell->level_subdomain_id() != numbers::artificial_subdomain_id)
@@ -88,28 +82,19 @@ test()
             cell->get_active_or_mg_dof_indices(dof_indices);
             for (unsigned int i = 0; i < fe.dofs_per_cell; ++i)
               {
-                const unsigned int coordinate_direction =
-                  fe.system_to_component_index(i).first;
-                const Point<dim> point = fe_values_setup.quadrature_point(i);
-                level_vectors[level](dof_indices[i]) =
-                  point[coordinate_direction];
+                const unsigned int coordinate_direction = fe.system_to_component_index(i).first;
+                const Point<dim>   point                = fe_values_setup.quadrature_point(i);
+                level_vectors[level](dof_indices[i])    = point[coordinate_direction];
               }
           }
       level_vectors[level].update_ghost_values();
     }
 
-  MappingFEField<dim, spacedim, LinearAlgebra::distributed::Vector<double>>
-    mapping(dh, level_vectors);
+  MappingFEField<dim, spacedim, LinearAlgebra::distributed::Vector<double>> mapping(dh, level_vectors);
 
   QGauss<dim>   quad(1);
-  FEValues<dim> fe_values_ref(mapping_ref,
-                              fe,
-                              quad,
-                              update_jacobians | update_quadrature_points);
-  FEValues<dim> fe_values(mapping,
-                          fe,
-                          quad,
-                          update_jacobians | update_quadrature_points);
+  FEValues<dim> fe_values_ref(mapping_ref, fe, quad, update_jacobians | update_quadrature_points);
+  FEValues<dim> fe_values(mapping, fe, quad, update_jacobians | update_quadrature_points);
 
   for (const auto &cell : tria.cell_iterators())
     if (cell->level_subdomain_id() != numbers::artificial_subdomain_id)
@@ -117,16 +102,12 @@ test()
         fe_values_ref.reinit(cell);
         fe_values.reinit(cell);
 
-        if (fe_values_ref.quadrature_point(0).distance(
-              fe_values.quadrature_point(0)) > 1e-12)
-          deallog << "Mapped point should be "
-                  << fe_values_ref.quadrature_point(0) << " and is "
+        if (fe_values_ref.quadrature_point(0).distance(fe_values.quadrature_point(0)) > 1e-12)
+          deallog << "Mapped point should be " << fe_values_ref.quadrature_point(0) << " and is "
                   << fe_values.quadrature_point(0) << std::endl;
-        Tensor<2, dim> jac_ref = fe_values_ref.jacobian(0),
-                       jac     = fe_values.jacobian(0);
+        Tensor<2, dim> jac_ref = fe_values_ref.jacobian(0), jac = fe_values.jacobian(0);
         if ((jac_ref - jac).norm() > 1e-12)
-          deallog << "Jacobian should be " << jac_ref << " and is " << jac
-                  << std::endl;
+          deallog << "Jacobian should be " << jac_ref << " and is " << jac << std::endl;
       }
 
   // shift the Euler vectors and check whether the result is still correct
@@ -142,16 +123,12 @@ test()
         Point<dim> shift;
         for (unsigned int d = 0; d < dim; ++d)
           shift[d] = 1.1;
-        if ((fe_values_ref.quadrature_point(0) + shift)
-              .distance(fe_values.quadrature_point(0)) > 1e-12)
-          deallog << "Mapped point should be "
-                  << fe_values_ref.quadrature_point(0) + shift << " and is "
+        if ((fe_values_ref.quadrature_point(0) + shift).distance(fe_values.quadrature_point(0)) > 1e-12)
+          deallog << "Mapped point should be " << fe_values_ref.quadrature_point(0) + shift << " and is "
                   << fe_values.quadrature_point(0) << std::endl;
-        Tensor<2, dim> jac_ref = fe_values_ref.jacobian(0),
-                       jac     = fe_values.jacobian(0);
+        Tensor<2, dim> jac_ref = fe_values_ref.jacobian(0), jac = fe_values.jacobian(0);
         if ((jac_ref - jac).norm() > 1e-12)
-          deallog << "Jacobian should be " << jac_ref << " and is " << jac
-                  << std::endl;
+          deallog << "Jacobian should be " << jac_ref << " and is " << jac << std::endl;
       }
   deallog << "OK" << std::endl;
 }
@@ -159,9 +136,7 @@ test()
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_init(argc,
-                                            argv,
-                                            testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_init(argc, argv, testing_max_num_threads());
   MPILogInitAll                    log;
   test<2, 2>();
   test<3, 3>();

@@ -32,9 +32,7 @@ namespace Polynomials
 
       // Signed ints are used here to protect against underflow errors
       const int loop_control_1 = static_cast<int>(regularity + 1 - curr_index);
-      const int loop_control_2 = (side == 1) ?
-                                   static_cast<int>(curr_index + 1) :
-                                   static_cast<int>(regularity + 2);
+      const int loop_control_2 = (side == 1) ? static_cast<int>(curr_index + 1) : static_cast<int>(regularity + 2);
 
       std::vector<double> poly_coeffs(2 * regularity + 2, 0.0);
 
@@ -52,8 +50,7 @@ namespace Polynomials
 
                   for (int k = 0; k < j + 1; ++k)
                     {
-                      poly_coeffs[regularity + i + k + 1] +=
-                        binomial_1 * inv_binomial * binomial_2;
+                      poly_coeffs[regularity + i + k + 1] += binomial_1 * inv_binomial * binomial_2;
                       binomial_2 *= k - j;
                       binomial_2 /= k + 1;
                     }
@@ -97,8 +94,7 @@ namespace Polynomials
 
 
 
-  PolynomialsHermite::PolynomialsHermite(const unsigned int regularity,
-                                         const unsigned int index)
+  PolynomialsHermite::PolynomialsHermite(const unsigned int regularity, const unsigned int index)
     : Polynomial<double>(hermite_poly_coeffs(regularity, index))
     , degree(2 * regularity + 1)
     , regularity(regularity)

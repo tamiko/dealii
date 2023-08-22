@@ -66,15 +66,13 @@ main(int argc, char *argv[])
   SE::RCP<const SE::Symbol> t_21 = SE::symbol("t_21");
   SE::RCP<const SE::Symbol> t_22 = SE::symbol("t_22");
 
-  SE::vec_basic v = {
-    t_11, t_12, s, t_02, v_0, v_1, v_2, t_10, t_00, t_01, t_20, t_21, t_22};
+  SE::vec_basic v = {t_11, t_12, s, t_02, v_0, v_1, v_2, t_10, t_00, t_01, t_20, t_21, t_22};
 
-  SE::RCP<const SE::Basic> h =
-    SE::parse("2.*s**2.2*(v_0**2 + v_1**2 + v_2**2)**3*"
-              "(-1.*t_20*(1.*t_01*t_12 - 1.*t_02*t_11) "
-              "+ 1.*t_21*(1.*t_00*t_12 - 1.*t_02*t_10) "
-              "- 1.*t_22*(1.*t_00*t_11 - 1.*t_01*t_10))"
-              "*(1.*t_21*t_12 - 1.*t_22*t_11)");
+  SE::RCP<const SE::Basic> h = SE::parse("2.*s**2.2*(v_0**2 + v_1**2 + v_2**2)**3*"
+                                         "(-1.*t_20*(1.*t_01*t_12 - 1.*t_02*t_11) "
+                                         "+ 1.*t_21*(1.*t_00*t_12 - 1.*t_02*t_10) "
+                                         "- 1.*t_22*(1.*t_00*t_11 - 1.*t_01*t_10))"
+                                         "*(1.*t_21*t_12 - 1.*t_22*t_11)");
 
   SE::map_basic_basic dict;
   std::vector<double> vals(v.size());
@@ -94,13 +92,11 @@ main(int argc, char *argv[])
     {
       res += SE::eval_double(*h->subs(dict));
     }
-  auto         t2 = std::chrono::high_resolution_clock::now();
-  const double diff_symm_subs =
-    std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
-  std::cout
-    << "Subs " << n_runs << " calls                  :"
-    << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count()
-    << " us" << std::endl;
+  auto         t2             = std::chrono::high_resolution_clock::now();
+  const double diff_symm_subs = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+  std::cout << "Subs " << n_runs
+            << " calls                  :" << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count()
+            << " us" << std::endl;
 
   deallog << "Value (subs): " << res << std::endl;
 
@@ -109,33 +105,25 @@ main(int argc, char *argv[])
   t1 = std::chrono::high_resolution_clock::now();
   SE::LambdaRealDoubleVisitor l;
   l.init(v, *h);
-  t2 = std::chrono::high_resolution_clock::now();
-  const double diff_lambda_real_double_setup =
-    std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
-  std::cout
-    << "LambdaDoubleVisitor setup-time   :"
-    << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count()
-    << " us" << std::endl;
+  t2                                         = std::chrono::high_resolution_clock::now();
+  const double diff_lambda_real_double_setup = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+  std::cout << "LambdaDoubleVisitor setup-time   :"
+            << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() << " us" << std::endl;
 
   t1 = std::chrono::high_resolution_clock::now();
   for (unsigned j = 0; j < n_runs; ++j)
     {
       res1 += l.call(vals);
     }
-  t2 = std::chrono::high_resolution_clock::now();
-  const double diff_lambda_real_double_call =
-    std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
-  std::cout
-    << "LambdaDoubleVisitor run-time     :"
-    << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count()
-    << " us" << std::endl;
+  t2                                        = std::chrono::high_resolution_clock::now();
+  const double diff_lambda_real_double_call = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+  std::cout << "LambdaDoubleVisitor run-time     :"
+            << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() << " us" << std::endl;
 
   deallog << "Value (lambda): " << res1 << std::endl;
 
   std::cout << "Timing ratio (subs/lambda_double): "
-            << (diff_symm_subs) /
-                 (diff_lambda_real_double_setup + diff_lambda_real_double_call)
-            << std::endl;
+            << (diff_symm_subs) / (diff_lambda_real_double_setup + diff_lambda_real_double_call) << std::endl;
 
 #ifdef HAVE_SYMENGINE_LLVM
   // Optimisation via LLVM JIT optimiser
@@ -144,10 +132,8 @@ main(int argc, char *argv[])
   SE::LLVMDoubleVisitor l2;
   l2.init(v, *h);
   t2 = std::chrono::high_resolution_clock::now();
-  std::cout
-    << "LLVMDoubleVisitor setup-time     :"
-    << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count()
-    << " us" << std::endl;
+  std::cout << "LLVMDoubleVisitor setup-time     :"
+            << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() << " us" << std::endl;
 
   t1 = std::chrono::high_resolution_clock::now();
   for (unsigned j = 0; j < n_runs; ++j)
@@ -155,10 +141,9 @@ main(int argc, char *argv[])
       res2 += l2.call(vals);
     }
   t2 = std::chrono::high_resolution_clock::now();
-  std::cout
-    << "LLVMDoubleVisitor run-time       :"
-    << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count()
-    << " us : Value: " << res2 << std::endl;
+  std::cout << "LLVMDoubleVisitor run-time       :"
+            << std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count() << " us : Value: " << res2
+            << std::endl;
 
   deallog << "Value (llvm): " << res2 << std::endl;
 #endif

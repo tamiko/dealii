@@ -46,10 +46,7 @@
 
 
 
-template <int dim,
-          int fe_degree,
-          typename Number,
-          typename VectorType = Vector<Number>>
+template <int dim, int fe_degree, typename Number, typename VectorType = Vector<Number>>
 class MatrixFreeTest
 {
 public:
@@ -60,24 +57,20 @@ public:
   vmult(VectorType &dst, const VectorType &src) const
   {
     dst = 0;
-    data.cell_loop(
-      &MatrixFreeTest<dim, fe_degree, Number, VectorType>::local_operation,
-      this,
-      dst,
-      src);
+    data.cell_loop(&MatrixFreeTest<dim, fe_degree, Number, VectorType>::local_operation, this, dst, src);
   };
 
 private:
   const MatrixFree<dim, Number> &data;
 
   void
-  local_operation(const MatrixFree<dim, Number> &              data,
-                  VectorType &                                 out,
-                  const VectorType &                           in,
+  local_operation(const MatrixFree<dim, Number>               &data,
+                  VectorType                                  &out,
+                  const VectorType                            &in,
                   const std::pair<unsigned int, unsigned int> &cell_range) const
   {
     FEEvaluation<dim, fe_degree, fe_degree + 1, 1, Number> fe_eval(data);
-    const unsigned int n_q_points = fe_eval.n_q_points;
+    const unsigned int                                     n_q_points = fe_eval.n_q_points;
 
     Tensor<1, dim, VectorizedArray<Number>> ones;
     for (unsigned int d = 0; d < dim; ++d)
@@ -87,14 +80,12 @@ private:
       {
         fe_eval.reinit(cell);
         fe_eval.read_dof_values(in);
-        fe_eval.evaluate(EvaluationFlags::values | EvaluationFlags::gradients |
-                         EvaluationFlags::hessians);
+        fe_eval.evaluate(EvaluationFlags::values | EvaluationFlags::gradients | EvaluationFlags::hessians);
         for (unsigned int q = 0; q < n_q_points; ++q)
           {
             fe_eval.submit_value(Number(10) * fe_eval.get_value(q), q);
             fe_eval.submit_gradient(fe_eval.get_gradient(q) +
-                                      make_vectorized_array<Number>(3.2221) *
-                                        (fe_eval.get_hessian(q) * ones),
+                                      make_vectorized_array<Number>(3.2221) * (fe_eval.get_hessian(q) * ones),
                                     q);
           }
         fe_eval.integrate(EvaluationFlags::values | EvaluationFlags::gradients);
@@ -107,7 +98,7 @@ private:
 
 template <int dim, int fe_degree, typename number>
 void
-do_test(const DoFHandler<dim> &          dof,
+do_test(const DoFHandler<dim>           &dof,
         const AffineConstraints<double> &constraints,
         const unsigned int               parallel_option = 0)
 {
@@ -120,16 +111,13 @@ do_test(const DoFHandler<dim> &          dof,
     const QGauss<1>                                  quad(fe_degree + 1);
     typename MatrixFree<dim, number>::AdditionalData data;
     if (parallel_option == 1)
-      data.tasks_parallel_scheme =
-        MatrixFree<dim, number>::AdditionalData::partition_color;
+      data.tasks_parallel_scheme = MatrixFree<dim, number>::AdditionalData::partition_color;
     else if (parallel_option == 2)
-      data.tasks_parallel_scheme =
-        MatrixFree<dim, number>::AdditionalData::color;
+      data.tasks_parallel_scheme = MatrixFree<dim, number>::AdditionalData::color;
     else
       {
         Assert(parallel_option == 0, ExcInternalError());
-        data.tasks_parallel_scheme =
-          MatrixFree<dim, number>::AdditionalData::partition_partition;
+        data.tasks_parallel_scheme = MatrixFree<dim, number>::AdditionalData::partition_partition;
       }
     data.tasks_block_size = 7;
     data.mapping_update_flags |= update_hessians;
@@ -168,21 +156,19 @@ do_test(const DoFHandler<dim> &          dof,
 
     FEValues<dim> fe_values(dof.get_fe(),
                             quadrature_formula,
-                            update_values | update_gradients |
-                              update_JxW_values | update_hessians);
+                            update_values | update_gradients | update_JxW_values | update_hessians);
 
     const unsigned int dofs_per_cell = dof.get_fe().dofs_per_cell;
     const unsigned int n_q_points    = quadrature_formula.size();
 
-    FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
+    FullMatrix<double>                   cell_matrix(dofs_per_cell, dofs_per_cell);
     std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
 
     Tensor<1, dim> ones;
     for (unsigned int d = 0; d < dim; ++d)
       ones[d] = 1.;
 
-    typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(),
-                                                   endc = dof.end();
+    typename DoFHandler<dim>::active_cell_iterator cell = dof.begin_active(), endc = dof.end();
     for (; cell != endc; ++cell)
       {
         cell_matrix = 0;
@@ -194,17 +180,13 @@ do_test(const DoFHandler<dim> &          dof,
               for (unsigned int j = 0; j < dofs_per_cell; ++j)
                 cell_matrix(i, j) +=
                   ((fe_values.shape_grad(i, q_point) *
-                      (fe_values.shape_grad(j, q_point) +
-                       3.2221 * (fe_values.shape_hessian(j, q_point) * ones)) +
-                    10. * fe_values.shape_value(i, q_point) *
-                      fe_values.shape_value(j, q_point)) *
+                      (fe_values.shape_grad(j, q_point) + 3.2221 * (fe_values.shape_hessian(j, q_point) * ones)) +
+                    10. * fe_values.shape_value(i, q_point) * fe_values.shape_value(j, q_point)) *
                    fe_values.JxW(q_point));
             }
 
         cell->get_dof_indices(local_dof_indices);
-        constraints.distribute_local_to_global(cell_matrix,
-                                               local_dof_indices,
-                                               sparse_matrix);
+        constraints.distribute_local_to_global(cell_matrix, local_dof_indices, sparse_matrix);
       }
   }
 
@@ -228,8 +210,7 @@ test()
   tria.begin(tria.n_levels() - 1)->set_refine_flag();
   tria.last()->set_refine_flag();
   tria.execute_coarsening_and_refinement();
-  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(),
-                                                    endc = tria.end();
+  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
   for (; cell != endc; ++cell)
     if (cell->center().norm() < 1e-8)
       cell->set_refine_flag();
@@ -240,10 +221,7 @@ test()
   dof.distribute_dofs(fe);
   AffineConstraints<double> constraints;
   DoFTools::make_hanging_node_constraints(dof, constraints);
-  VectorTools::interpolate_boundary_values(dof,
-                                           0,
-                                           Functions::ZeroFunction<dim>(),
-                                           constraints);
+  VectorTools::interpolate_boundary_values(dof, 0, Functions::ZeroFunction<dim>(), constraints);
   constraints.close();
 
   do_test<dim, fe_degree, double>(dof, constraints);

@@ -90,13 +90,11 @@ template <typename MeshType>
 MPI_Comm
 get_mpi_comm(const MeshType &mesh)
 {
-  const auto *tria_parallel = dynamic_cast<
-    const parallel::TriangulationBase<MeshType::dimension,
-                                      MeshType::space_dimension> *>(
-    &(mesh.get_triangulation()));
+  const auto *tria_parallel =
+    dynamic_cast<const parallel::TriangulationBase<MeshType::dimension, MeshType::space_dimension> *>(
+      &(mesh.get_triangulation()));
 
-  return tria_parallel != nullptr ? tria_parallel->get_communicator() :
-                                    MPI_COMM_SELF;
+  return tria_parallel != nullptr ? tria_parallel->get_communicator() : MPI_COMM_SELF;
 }
 
 template <int dim, int spacedim>
@@ -107,10 +105,9 @@ create_partitioner(const DoFHandler<dim, spacedim> &dof_handler)
 
   DoFTools::extract_locally_relevant_dofs(dof_handler, locally_relevant_dofs);
 
-  return std::make_shared<const Utilities::MPI::Partitioner>(
-    dof_handler.locally_owned_dofs(),
-    locally_relevant_dofs,
-    get_mpi_comm(dof_handler));
+  return std::make_shared<const Utilities::MPI::Partitioner>(dof_handler.locally_owned_dofs(),
+                                                             locally_relevant_dofs,
+                                                             get_mpi_comm(dof_handler));
 }
 
 namespace dealii
@@ -120,14 +117,13 @@ namespace dealii
     template <int dim, int spacedim, typename VectorType>
     void
     get_position_vector(const DoFHandler<dim, spacedim> &dof_handler_dim,
-                        VectorType &                  euler_coordinates_vector,
-                        const Mapping<dim, spacedim> &mapping)
+                        VectorType                      &euler_coordinates_vector,
+                        const Mapping<dim, spacedim>    &mapping)
     {
-      FEValues<dim, spacedim> fe_eval(
-        mapping,
-        dof_handler_dim.get_fe(),
-        Quadrature<dim>(dof_handler_dim.get_fe().get_unit_support_points()),
-        update_quadrature_points);
+      FEValues<dim, spacedim> fe_eval(mapping,
+                                      dof_handler_dim.get_fe(),
+                                      Quadrature<dim>(dof_handler_dim.get_fe().get_unit_support_points()),
+                                      update_quadrature_points);
 
       Vector<double> temp;
 
@@ -144,8 +140,7 @@ namespace dealii
             {
               const auto point = fe_eval.quadrature_point(q);
 
-              const unsigned int comp =
-                dof_handler_dim.get_fe().system_to_component_index(q).first;
+              const unsigned int comp = dof_handler_dim.get_fe().system_to_component_index(q).first;
 
               temp[q] = point[comp];
             }
@@ -162,17 +157,16 @@ namespace dealii
 
 template <int dim, int spacedim, typename VectorType>
 void
-compute_force_vector_sharp_interface(
-  const Triangulation<dim, spacedim> &surface_mesh,
-  const Mapping<dim, spacedim> &      surface_mapping,
-  const Quadrature<dim> &             surface_quadrature,
-  const Mapping<spacedim> &           mapping,
-  const DoFHandler<spacedim> &        dof_handler,
-  const DoFHandler<spacedim> &        dof_handler_dim,
-  const double                        surface_tension,
-  const VectorType &                  normal_solution,
-  const VectorType &                  curvature_solution,
-  VectorType &                        force_vector)
+compute_force_vector_sharp_interface(const Triangulation<dim, spacedim> &surface_mesh,
+                                     const Mapping<dim, spacedim>       &surface_mapping,
+                                     const Quadrature<dim>              &surface_quadrature,
+                                     const Mapping<spacedim>            &mapping,
+                                     const DoFHandler<spacedim>         &dof_handler,
+                                     const DoFHandler<spacedim>         &dof_handler_dim,
+                                     const double                        surface_tension,
+                                     const VectorType                   &normal_solution,
+                                     const VectorType                   &curvature_solution,
+                                     VectorType                         &force_vector)
 {
   using T = double;
 
@@ -181,10 +175,7 @@ compute_force_vector_sharp_interface(
 
     FE_Nothing<dim, spacedim> dummy;
 
-    FEValues<dim, spacedim> fe_eval(surface_mapping,
-                                    dummy,
-                                    surface_quadrature,
-                                    update_quadrature_points);
+    FEValues<dim, spacedim> fe_eval(surface_mapping, dummy, surface_quadrature, update_quadrature_points);
 
     for (const auto &cell : surface_mesh.active_cell_iterators())
       {
@@ -208,10 +199,7 @@ compute_force_vector_sharp_interface(
 
     FE_Nothing<dim, spacedim> dummy;
 
-    FEValues<dim, spacedim> fe_eval(surface_mapping,
-                                    dummy,
-                                    surface_quadrature,
-                                    update_JxW_values);
+    FEValues<dim, spacedim> fe_eval(surface_mapping, dummy, surface_quadrature, update_JxW_values);
 
     for (const auto &cell : surface_mesh.active_cell_iterators())
       {
@@ -230,15 +218,9 @@ compute_force_vector_sharp_interface(
   const auto fu = [&](const auto &values, const auto &cell_data) {
     AffineConstraints<double> constraints; // TODO: use the right ones
 
-    FEPointEvaluation<1, spacedim>        phi_curvature(mapping,
-                                                 dof_handler.get_fe(),
-                                                 update_values);
-    FEPointEvaluation<spacedim, spacedim> phi_normal(mapping,
-                                                     dof_handler_dim.get_fe(),
-                                                     update_values);
-    FEPointEvaluation<spacedim, spacedim> phi_force(mapping,
-                                                    dof_handler_dim.get_fe(),
-                                                    update_values);
+    FEPointEvaluation<1, spacedim>        phi_curvature(mapping, dof_handler.get_fe(), update_values);
+    FEPointEvaluation<spacedim, spacedim> phi_normal(mapping, dof_handler_dim.get_fe(), update_values);
+    FEPointEvaluation<spacedim, spacedim> phi_force(mapping, dof_handler_dim.get_fe(), update_values);
 
     std::vector<double>                  buffer;
     std::vector<double>                  buffer_dim;
@@ -247,28 +229,23 @@ compute_force_vector_sharp_interface(
 
     for (unsigned int i = 0; i < cell_data.cells.size(); ++i)
       {
-        typename DoFHandler<spacedim>::active_cell_iterator cell = {
-          &eval.get_triangulation(),
-          cell_data.cells[i].first,
-          cell_data.cells[i].second,
-          &dof_handler};
+        typename DoFHandler<spacedim>::active_cell_iterator cell = {&eval.get_triangulation(),
+                                                                    cell_data.cells[i].first,
+                                                                    cell_data.cells[i].second,
+                                                                    &dof_handler};
 
-        typename DoFHandler<spacedim>::active_cell_iterator cell_dim = {
-          &eval.get_triangulation(),
-          cell_data.cells[i].first,
-          cell_data.cells[i].second,
-          &dof_handler_dim};
+        typename DoFHandler<spacedim>::active_cell_iterator cell_dim = {&eval.get_triangulation(),
+                                                                        cell_data.cells[i].first,
+                                                                        cell_data.cells[i].second,
+                                                                        &dof_handler_dim};
 
-        const ArrayView<const Point<spacedim>> unit_points(
-          cell_data.reference_point_values.data() +
-            cell_data.reference_point_ptrs[i],
-          cell_data.reference_point_ptrs[i + 1] -
-            cell_data.reference_point_ptrs[i]);
+        const ArrayView<const Point<spacedim>> unit_points(cell_data.reference_point_values.data() +
+                                                             cell_data.reference_point_ptrs[i],
+                                                           cell_data.reference_point_ptrs[i + 1] -
+                                                             cell_data.reference_point_ptrs[i]);
 
-        const ArrayView<const T> JxW(values.data() +
-                                       cell_data.reference_point_ptrs[i],
-                                     cell_data.reference_point_ptrs[i + 1] -
-                                       cell_data.reference_point_ptrs[i]);
+        const ArrayView<const T> JxW(values.data() + cell_data.reference_point_ptrs[i],
+                                     cell_data.reference_point_ptrs[i + 1] - cell_data.reference_point_ptrs[i]);
 
         // gather_evaluate curvature
         {
@@ -277,14 +254,10 @@ compute_force_vector_sharp_interface(
 
           cell->get_dof_indices(local_dof_indices);
 
-          constraints.get_dof_values(curvature_solution,
-                                     local_dof_indices.begin(),
-                                     buffer.begin(),
-                                     buffer.end());
+          constraints.get_dof_values(curvature_solution, local_dof_indices.begin(), buffer.begin(), buffer.end());
 
           phi_curvature.reinit(cell, unit_points);
-          phi_curvature.evaluate(make_array_view(buffer),
-                                 EvaluationFlags::values);
+          phi_curvature.evaluate(make_array_view(buffer), EvaluationFlags::values);
         }
 
         // gather_evaluate normal
@@ -300,24 +273,19 @@ compute_force_vector_sharp_interface(
                                      buffer_dim.end());
 
           phi_normal.reinit(cell_dim, unit_points);
-          phi_normal.evaluate(make_array_view(buffer_dim),
-                              EvaluationFlags::values);
+          phi_normal.evaluate(make_array_view(buffer_dim), EvaluationFlags::values);
         }
 
         // perform operation on quadrature points
         phi_force.reinit(cell_dim, unit_points);
         for (unsigned int q = 0; q < unit_points.size(); ++q)
-          phi_force.submit_value(surface_tension * phi_normal.get_value(q) *
-                                   phi_curvature.get_value(q) * JxW[q],
-                                 q);
+          phi_force.submit_value(surface_tension * phi_normal.get_value(q) * phi_curvature.get_value(q) * JxW[q], q);
 
         // integrate_scatter force
         {
           phi_force.test_and_sum(buffer_dim, EvaluationFlags::values);
 
-          constraints.distribute_local_to_global(buffer_dim,
-                                                 local_dof_indices_dim,
-                                                 force_vector);
+          constraints.distribute_local_to_global(buffer_dim, local_dof_indices_dim, force_vector);
         }
       }
   };
@@ -364,17 +332,14 @@ test()
 
   // Set up MappingFEField
   Vector<double> euler_vector(dof_handler_dim.n_dofs());
-  VectorTools::get_position_vector(dof_handler_dim,
-                                   euler_vector,
-                                   MappingQ<dim, spacedim>(mapping_degree));
+  VectorTools::get_position_vector(dof_handler_dim, euler_vector, MappingQ<dim, spacedim>(mapping_degree));
   MappingFEField<dim, spacedim> mapping(dof_handler_dim, euler_vector);
 
 
 #if false
   const unsigned int background_n_global_refinements = 6;
 #else
-  const unsigned int background_n_global_refinements =
-    Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD) == 1 ? 40 : 80;
+  const unsigned int background_n_global_refinements = Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD) == 1 ? 40 : 80;
 #endif
   const unsigned int background_fe_degree = 2;
 
@@ -386,16 +351,12 @@ test()
 #if false
   GridGenerator::hyper_cube(background_tria, -1.0, +1.0);
 #else
-  GridGenerator::subdivided_hyper_cube(background_tria,
-                                       background_n_global_refinements,
-                                       -2.5,
-                                       2.5);
+  GridGenerator::subdivided_hyper_cube(background_tria, background_n_global_refinements, -2.5, 2.5);
 #endif
   if (background_n_global_refinements < 20)
     background_tria.refine_global(background_n_global_refinements);
 
-  FESystem<spacedim>   background_fe_dim(FE_Q<spacedim>{background_fe_degree},
-                                       spacedim);
+  FESystem<spacedim>   background_fe_dim(FE_Q<spacedim>{background_fe_degree}, spacedim);
   DoFHandler<spacedim> background_dof_handler_dim(background_tria);
   background_dof_handler_dim.distribute_dofs(background_fe_dim);
 
@@ -405,20 +366,13 @@ test()
 
   MappingQ1<spacedim> background_mapping;
 
-  VectorType force_vector_sharp_interface(
-    create_partitioner(background_dof_handler_dim));
+  VectorType force_vector_sharp_interface(create_partitioner(background_dof_handler_dim));
   VectorType normal_vector(create_partitioner(background_dof_handler_dim));
   VectorType curvature_vector(create_partitioner(background_dof_handler));
 
-  VectorTools::interpolate(background_mapping,
-                           background_dof_handler_dim,
-                           NormalFunction<spacedim>(),
-                           normal_vector);
+  VectorTools::interpolate(background_mapping, background_dof_handler_dim, NormalFunction<spacedim>(), normal_vector);
 
-  VectorTools::interpolate(background_mapping,
-                           background_dof_handler,
-                           CurvatureFunction<spacedim>(),
-                           curvature_vector);
+  VectorTools::interpolate(background_mapping, background_dof_handler, CurvatureFunction<spacedim>(), curvature_vector);
 
   normal_vector.update_ghost_values();
   curvature_vector.update_ghost_values();
@@ -427,8 +381,7 @@ test()
   if (false)
     {
       GridOut().write_mesh_per_processor_as_vtu(tria, "grid_surface");
-      GridOut().write_mesh_per_processor_as_vtu(background_tria,
-                                                "grid_background");
+      GridOut().write_mesh_per_processor_as_vtu(background_tria, "grid_background");
     }
 
   compute_force_vector_sharp_interface(tria,
@@ -454,14 +407,8 @@ test()
       data_out.set_flags(flags);
       data_out.attach_dof_handler(dof_handler);
 
-      data_out.build_patches(
-        mapping,
-        fe_degree + 1,
-        DataOut<dim, spacedim>::CurvedCellRegion::curved_inner_cells);
-      data_out.write_vtu_with_pvtu_record("./",
-                                          "data_surface",
-                                          0,
-                                          MPI_COMM_WORLD);
+      data_out.build_patches(mapping, fe_degree + 1, DataOut<dim, spacedim>::CurvedCellRegion::curved_inner_cells);
+      data_out.write_vtu_with_pvtu_record("./", "data_surface", 0, MPI_COMM_WORLD);
     }
 
   if (false)
@@ -471,21 +418,12 @@ test()
 
       DataOut<spacedim> data_out;
       data_out.set_flags(flags);
-      data_out.add_data_vector(background_dof_handler,
-                               curvature_vector,
-                               "curvature");
-      data_out.add_data_vector(background_dof_handler_dim,
-                               normal_vector,
-                               "normal");
-      data_out.add_data_vector(background_dof_handler_dim,
-                               force_vector_sharp_interface,
-                               "force");
+      data_out.add_data_vector(background_dof_handler, curvature_vector, "curvature");
+      data_out.add_data_vector(background_dof_handler_dim, normal_vector, "normal");
+      data_out.add_data_vector(background_dof_handler_dim, force_vector_sharp_interface, "force");
 
       data_out.build_patches(background_mapping, background_fe_degree + 1);
-      data_out.write_vtu_with_pvtu_record("./",
-                                          "data_background",
-                                          0,
-                                          MPI_COMM_WORLD);
+      data_out.write_vtu_with_pvtu_record("./", "data_background", 0, MPI_COMM_WORLD);
     }
 
   force_vector_sharp_interface.print(deallog.get_file_stream());

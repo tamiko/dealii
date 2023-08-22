@@ -41,10 +41,7 @@
 
 
 
-template <int dim,
-          int fe_degree,
-          typename Number,
-          typename VectorType = Vector<Number>>
+template <int dim, int fe_degree, typename Number, typename VectorType = Vector<Number>>
 class MatrixFreeTest
 {
 public:
@@ -52,14 +49,13 @@ public:
     : data(data_in){};
 
   void
-  local_mass_operator(
-    const MatrixFree<dim, Number> &              data,
-    VectorType &                                 dst,
-    const VectorType &                           src,
-    const std::pair<unsigned int, unsigned int> &cell_range) const
+  local_mass_operator(const MatrixFree<dim, Number>               &data,
+                      VectorType                                  &dst,
+                      const VectorType                            &src,
+                      const std::pair<unsigned int, unsigned int> &cell_range) const
   {
     FEEvaluation<dim, fe_degree, fe_degree + 1, 1, Number> fe_eval(data);
-    const unsigned int n_q_points = fe_eval.n_q_points;
+    const unsigned int                                     n_q_points = fe_eval.n_q_points;
 
     for (unsigned int cell = cell_range.first; cell < cell_range.second; ++cell)
       {
@@ -74,15 +70,13 @@ public:
   }
 
   void
-  local_inverse_mass_operator(
-    const MatrixFree<dim, Number> &              data,
-    VectorType &                                 dst,
-    const VectorType &                           src,
-    const std::pair<unsigned int, unsigned int> &cell_range) const
+  local_inverse_mass_operator(const MatrixFree<dim, Number>               &data,
+                              VectorType                                  &dst,
+                              const VectorType                            &src,
+                              const std::pair<unsigned int, unsigned int> &cell_range) const
   {
-    FEEvaluation<dim, fe_degree, fe_degree + 1, 1, Number> fe_eval(data);
-    MatrixFreeOperators::CellwiseInverseMassMatrix<dim, fe_degree, 1, Number>
-      mass_inv(fe_eval);
+    FEEvaluation<dim, fe_degree, fe_degree + 1, 1, Number>                    fe_eval(data);
+    MatrixFreeOperators::CellwiseInverseMassMatrix<dim, fe_degree, 1, Number> mass_inv(fe_eval);
 
     for (unsigned int cell = cell_range.first; cell < cell_range.second; ++cell)
       {
@@ -96,21 +90,13 @@ public:
   void
   vmult(VectorType &dst, const VectorType &src) const
   {
-    data.cell_loop(
-      &MatrixFreeTest<dim, fe_degree, Number, VectorType>::local_mass_operator,
-      this,
-      dst,
-      src);
+    data.cell_loop(&MatrixFreeTest<dim, fe_degree, Number, VectorType>::local_mass_operator, this, dst, src);
   };
 
   void
   apply_inverse(VectorType &dst, const VectorType &src) const
   {
-    data.cell_loop(&MatrixFreeTest<dim, fe_degree, Number, VectorType>::
-                     local_inverse_mass_operator,
-                   this,
-                   dst,
-                   src);
+    data.cell_loop(&MatrixFreeTest<dim, fe_degree, Number, VectorType>::local_inverse_mass_operator, this, dst, src);
   };
 
 private:
@@ -130,17 +116,15 @@ do_test(const DoFHandler<dim> &dof)
   {
     const QGauss<1>                                  quad(fe_degree + 1);
     typename MatrixFree<dim, number>::AdditionalData data;
-    data.tasks_parallel_scheme =
-      MatrixFree<dim, number>::AdditionalData::partition_color;
-    data.tasks_block_size = 3;
+    data.tasks_parallel_scheme = MatrixFree<dim, number>::AdditionalData::partition_color;
+    data.tasks_block_size      = 3;
     AffineConstraints<double> constraints;
 
     mf_data.reinit(mapping, dof, constraints, quad, data);
   }
 
   MatrixFreeTest<dim, fe_degree, number> mf(mf_data);
-  Vector<number> in(dof.n_dofs()), inverse(dof.n_dofs()),
-    reference(dof.n_dofs());
+  Vector<number>                         in(dof.n_dofs()), inverse(dof.n_dofs()), reference(dof.n_dofs());
 
   for (unsigned int i = 0; i < dof.n_dofs(); ++i)
     {
@@ -169,8 +153,7 @@ test()
   const SphericalManifold<dim> manifold;
   Triangulation<dim>           tria;
   GridGenerator::hyper_ball(tria);
-  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(),
-                                                    endc = tria.end();
+  typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
   for (; cell != endc; ++cell)
     for (const unsigned int f : GeometryInfo<dim>::face_indices())
       if (cell->at_boundary(f))

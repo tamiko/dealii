@@ -29,19 +29,14 @@
 // between the two incoming elements and write it to deallog.
 template <int dim>
 void
-create_and_print_face_interpolation_matrix(
-  const FiniteElement<dim> &fe_destination,
-  const FiniteElement<dim> &fe_source)
+create_and_print_face_interpolation_matrix(const FiniteElement<dim> &fe_destination,
+                                           const FiniteElement<dim> &fe_source)
 {
-  deallog << fe_source.get_name() << " to " << fe_destination.get_name()
-          << std::endl;
-  FullMatrix<double> interpolation_matrix(fe_destination.n_dofs_per_face(),
-                                          fe_source.n_dofs_per_face());
+  deallog << fe_source.get_name() << " to " << fe_destination.get_name() << std::endl;
+  FullMatrix<double> interpolation_matrix(fe_destination.n_dofs_per_face(), fe_source.n_dofs_per_face());
   const unsigned int face_index = 0;
 
-  fe_source.get_face_interpolation_matrix(fe_destination,
-                                          interpolation_matrix,
-                                          face_index);
+  fe_source.get_face_interpolation_matrix(fe_destination, interpolation_matrix, face_index);
 
   interpolation_matrix.print(deallog);
   deallog << std::endl;
@@ -59,8 +54,7 @@ run_test()
       const FE_Q<dim>         fe_q(order);
       const FE_Bernstein<dim> fe_bernstein(order);
       create_and_print_face_interpolation_matrix<dim>(fe_q, fe_bernstein);
-      create_and_print_face_interpolation_matrix<dim>(fe_bernstein,
-                                                      fe_bernstein);
+      create_and_print_face_interpolation_matrix<dim>(fe_bernstein, fe_bernstein);
     }
 }
 

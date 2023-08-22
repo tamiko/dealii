@@ -28,20 +28,18 @@ namespace Utilities
 {
   namespace MPI
   {
-    NoncontiguousPartitioner::NoncontiguousPartitioner(
-      const IndexSet &indexset_has,
-      const IndexSet &indexset_want,
-      const MPI_Comm  communicator)
+    NoncontiguousPartitioner::NoncontiguousPartitioner(const IndexSet &indexset_has,
+                                                       const IndexSet &indexset_want,
+                                                       const MPI_Comm  communicator)
     {
       this->reinit(indexset_has, indexset_want, communicator);
     }
 
 
 
-    NoncontiguousPartitioner::NoncontiguousPartitioner(
-      const std::vector<types::global_dof_index> &indices_has,
-      const std::vector<types::global_dof_index> &indices_want,
-      const MPI_Comm                              communicator)
+    NoncontiguousPartitioner::NoncontiguousPartitioner(const std::vector<types::global_dof_index> &indices_has,
+                                                       const std::vector<types::global_dof_index> &indices_want,
+                                                       const MPI_Comm                              communicator)
     {
       this->reinit(indices_has, indices_want, communicator);
     }
@@ -67,14 +65,10 @@ namespace Utilities
     types::global_dof_index
     NoncontiguousPartitioner::memory_consumption()
     {
-      return MemoryConsumption::memory_consumption(send_ranks) +
-             MemoryConsumption::memory_consumption(send_ptr) +
-             MemoryConsumption::memory_consumption(send_indices) +
-             MemoryConsumption::memory_consumption(recv_ranks) +
-             MemoryConsumption::memory_consumption(recv_ptr) +
-             MemoryConsumption::memory_consumption(recv_indices) +
-             MemoryConsumption::memory_consumption(buffers) +
-             MemoryConsumption::memory_consumption(requests);
+      return MemoryConsumption::memory_consumption(send_ranks) + MemoryConsumption::memory_consumption(send_ptr) +
+             MemoryConsumption::memory_consumption(send_indices) + MemoryConsumption::memory_consumption(recv_ranks) +
+             MemoryConsumption::memory_consumption(recv_ptr) + MemoryConsumption::memory_consumption(recv_indices) +
+             MemoryConsumption::memory_consumption(buffers) + MemoryConsumption::memory_consumption(requests);
     }
 
 
@@ -105,22 +99,15 @@ namespace Utilities
       requests.clear();
 
       // set up communication pattern
-      std::vector<unsigned int> owning_ranks_of_ghosts(
-        indexset_want.n_elements());
+      std::vector<unsigned int> owning_ranks_of_ghosts(indexset_want.n_elements());
 
       // set up dictionary
-      Utilities::MPI::internal::ComputeIndexOwner::ConsensusAlgorithmsPayload
-        process(indexset_has,
-                indexset_want,
-                communicator,
-                owning_ranks_of_ghosts,
-                true);
+      Utilities::MPI::internal::ComputeIndexOwner::ConsensusAlgorithmsPayload process(
+        indexset_has, indexset_want, communicator, owning_ranks_of_ghosts, true);
 
-      Utilities::MPI::ConsensusAlgorithms::Selector<
-        std::vector<
-          std::pair<types::global_dof_index, types::global_dof_index>>,
-        std::vector<unsigned int>>
-        consensus_algorithm;
+      Utilities::MPI::ConsensusAlgorithms::
+        Selector<std::vector<std::pair<types::global_dof_index, types::global_dof_index>>, std::vector<unsigned int>>
+          consensus_algorithm;
       consensus_algorithm.run(process, communicator);
 
       // set up map of processes from where this rank will receive values
@@ -130,8 +117,7 @@ namespace Utilities
         for (const auto &owner : owning_ranks_of_ghosts)
           recv_map[owner] = std::vector<types::global_dof_index>();
 
-        for (types::global_dof_index i = 0; i < owning_ranks_of_ghosts.size();
-             i++)
+        for (types::global_dof_index i = 0; i < owning_ranks_of_ghosts.size(); i++)
           recv_map[owning_ranks_of_ghosts[i]].push_back(i);
 
         recv_ptr.push_back(recv_indices.size() /*=0*/);
@@ -165,10 +151,9 @@ namespace Utilities
 
 
     void
-    NoncontiguousPartitioner::reinit(
-      const std::vector<types::global_dof_index> &indices_has,
-      const std::vector<types::global_dof_index> &indices_want,
-      const MPI_Comm                              communicator)
+    NoncontiguousPartitioner::reinit(const std::vector<types::global_dof_index> &indices_has,
+                                     const std::vector<types::global_dof_index> &indices_want,
+                                     const MPI_Comm                              communicator)
     {
       // step 0) clean vectors from numbers::invalid_dof_index (indicating
       //         padding)
@@ -188,31 +173,20 @@ namespace Utilities
 
       // step 0) determine "number of degrees of freedom" needed for IndexSet
       const types::global_dof_index local_n_dofs_has =
-        indices_has_clean.empty() ?
-          0 :
-          (*std::max_element(indices_has_clean.begin(),
-                             indices_has_clean.end()) +
-           1);
+        indices_has_clean.empty() ? 0 : (*std::max_element(indices_has_clean.begin(), indices_has_clean.end()) + 1);
 
       const types::global_dof_index local_n_dofs_want =
-        indices_want_clean.empty() ?
-          0 :
-          (*std::max_element(indices_want_clean.begin(),
-                             indices_want_clean.end()) +
-           1);
+        indices_want_clean.empty() ? 0 : (*std::max_element(indices_want_clean.begin(), indices_want_clean.end()) + 1);
 
       const types::global_dof_index n_dofs =
-        Utilities::MPI::max(std::max(local_n_dofs_has, local_n_dofs_want),
-                            communicator);
+        Utilities::MPI::max(std::max(local_n_dofs_has, local_n_dofs_want), communicator);
 
       // step 1) convert vectors to indexsets (sorted!)
       IndexSet index_set_has(n_dofs);
-      index_set_has.add_indices(indices_has_clean.begin(),
-                                indices_has_clean.end());
+      index_set_has.add_indices(indices_has_clean.begin(), indices_has_clean.end());
 
       IndexSet index_set_want(n_dofs);
-      index_set_want.add_indices(indices_want_clean.begin(),
-                                 indices_want_clean.end());
+      index_set_want.add_indices(indices_want_clean.begin(), indices_want_clean.end());
 
       // step 2) set up internal data structures with indexset
       this->reinit(index_set_has, index_set_want, communicator);
@@ -220,8 +194,7 @@ namespace Utilities
       // step 3) fix inner data structures so that it is sorted as
       //         in the original vector
       {
-        std::vector<types::global_dof_index> temp_map_send(
-          index_set_has.n_elements());
+        std::vector<types::global_dof_index> temp_map_send(index_set_has.n_elements());
 
         for (types::global_dof_index i = 0; i < indices_has.size(); ++i)
           if (indices_has[i] != numbers::invalid_dof_index)
@@ -232,8 +205,7 @@ namespace Utilities
       }
 
       {
-        std::vector<types::global_dof_index> temp_map_recv(
-          index_set_want.n_elements());
+        std::vector<types::global_dof_index> temp_map_recv(index_set_want.n_elements());
 
         for (types::global_dof_index i = 0; i < indices_want.size(); ++i)
           if (indices_want[i] != numbers::invalid_dof_index)

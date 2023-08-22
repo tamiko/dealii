@@ -185,7 +185,7 @@ public:
    */
   FE_Enriched(const FiniteElement<dim, spacedim> &fe_base,
               const FiniteElement<dim, spacedim> &fe_enriched,
-              const Function<spacedim> *          enrichment_function);
+              const Function<spacedim>           *enrichment_function);
 
   /**
    * Constructor which only wraps the base FE @p fe_base.
@@ -246,12 +246,10 @@ public:
    * @note When using different enrichment functions on disjoint domains, no
    * checks are done by this class that the domains are actually disjoint.
    */
-  FE_Enriched(
-    const FiniteElement<dim, spacedim> *                     fe_base,
-    const std::vector<const FiniteElement<dim, spacedim> *> &fe_enriched,
-    const std::vector<std::vector<std::function<const Function<spacedim> *(
-      const typename Triangulation<dim, spacedim>::cell_iterator &)>>>
-      &functions);
+  FE_Enriched(const FiniteElement<dim, spacedim>                      *fe_base,
+              const std::vector<const FiniteElement<dim, spacedim> *> &fe_enriched,
+              const std::vector<std::vector<std::function<
+                const Function<spacedim> *(const typename Triangulation<dim, spacedim>::cell_iterator &)>>> &functions);
 
 private:
   /**
@@ -260,12 +258,10 @@ private:
    * <code>multiplicities[0]=1</code>, which is a logical requirement for this
    * finite element.
    */
-  FE_Enriched(
-    const std::vector<const FiniteElement<dim, spacedim> *> &fes,
-    const std::vector<unsigned int> &                        multiplicities,
-    const std::vector<std::vector<std::function<const Function<spacedim> *(
-      const typename Triangulation<dim, spacedim>::cell_iterator &)>>>
-      &functions);
+  FE_Enriched(const std::vector<const FiniteElement<dim, spacedim> *> &fes,
+              const std::vector<unsigned int>                         &multiplicities,
+              const std::vector<std::vector<std::function<
+                const Function<spacedim> *(const typename Triangulation<dim, spacedim>::cell_iterator &)>>> &functions);
 
 public:
   virtual std::unique_ptr<FiniteElement<dim, spacedim>>
@@ -314,8 +310,7 @@ public:
   virtual const FullMatrix<double> &
   get_restriction_matrix(
     const unsigned int         child,
-    const RefinementCase<dim> &refinement_case =
-      RefinementCase<dim>::isotropic_refinement) const override;
+    const RefinementCase<dim> &refinement_case = RefinementCase<dim>::isotropic_refinement) const override;
 
   /**
    * Embedding matrix between grids.
@@ -326,8 +321,7 @@ public:
   virtual const FullMatrix<double> &
   get_prolongation_matrix(
     const unsigned int         child,
-    const RefinementCase<dim> &refinement_case =
-      RefinementCase<dim>::isotropic_refinement) const override;
+    const RefinementCase<dim> &refinement_case = RefinementCase<dim>::isotropic_refinement) const override;
 
   /** @} */
 
@@ -359,8 +353,8 @@ public:
    */
   virtual void
   get_face_interpolation_matrix(const FiniteElement<dim, spacedim> &source,
-                                FullMatrix<double> &                matrix,
-                                const unsigned int face_no = 0) const override;
+                                FullMatrix<double>                 &matrix,
+                                const unsigned int                  face_no = 0) const override;
 
   /**
    * Return the matrix interpolating from a face of one element to the
@@ -375,11 +369,10 @@ public:
    * will get propagated out from this element.
    */
   virtual void
-  get_subface_interpolation_matrix(
-    const FiniteElement<dim, spacedim> &source,
-    const unsigned int                  subface,
-    FullMatrix<double> &                matrix,
-    const unsigned int                  face_no = 0) const override;
+  get_subface_interpolation_matrix(const FiniteElement<dim, spacedim> &source,
+                                   const unsigned int                  subface,
+                                   FullMatrix<double>                 &matrix,
+                                   const unsigned int                  face_no = 0) const override;
 
   /**
    * If, on a vertex, several finite elements are active, the hp-code first
@@ -397,31 +390,28 @@ public:
    * second is the corresponding index of the other finite element.
    */
   virtual std::vector<std::pair<unsigned int, unsigned int>>
-  hp_vertex_dof_identities(
-    const FiniteElement<dim, spacedim> &fe_other) const override;
+  hp_vertex_dof_identities(const FiniteElement<dim, spacedim> &fe_other) const override;
 
   /**
    * Same as hp_vertex_dof_indices(), except that the function treats degrees
    * of freedom on lines.
    */
   virtual std::vector<std::pair<unsigned int, unsigned int>>
-  hp_line_dof_identities(
-    const FiniteElement<dim, spacedim> &fe_other) const override;
+  hp_line_dof_identities(const FiniteElement<dim, spacedim> &fe_other) const override;
 
   /**
    * Same as hp_vertex_dof_indices(), except that the function treats degrees
    * of freedom on quads.
    */
   virtual std::vector<std::pair<unsigned int, unsigned int>>
-  hp_quad_dof_identities(const FiniteElement<dim, spacedim> &fe_other,
-                         const unsigned int face_no = 0) const override;
+  hp_quad_dof_identities(const FiniteElement<dim, spacedim> &fe_other, const unsigned int face_no = 0) const override;
 
   /**
    * @copydoc FiniteElement::compare_for_domination()
    */
   virtual FiniteElementDomination::Domination
   compare_for_domination(const FiniteElement<dim, spacedim> &fe_other,
-                         const unsigned int codim = 0) const override final;
+                         const unsigned int                  codim = 0) const override final;
 
   /** @} */
 
@@ -429,8 +419,8 @@ public:
   /**
    * Return enrichment functions
    */
-  std::vector<std::vector<std::function<const Function<spacedim> *(
-    const typename Triangulation<dim, spacedim>::cell_iterator &)>>>
+  std::vector<std::vector<
+    std::function<const Function<spacedim> *(const typename Triangulation<dim, spacedim>::cell_iterator &)>>>
   get_enrichments() const;
 
   /**
@@ -469,8 +459,7 @@ protected:
      * to it (i.e. they don't retain ownership), we store the cast result in a
      * std::unique_ptr to indicate that InternalData owns the object.
      */
-    InternalData(std::unique_ptr<typename FESystem<dim, spacedim>::InternalData>
-                   fesystem_data);
+    InternalData(std::unique_ptr<typename FESystem<dim, spacedim>::InternalData> fesystem_data);
 
     /**
      * Give read-access to the pointer to a @p InternalData of the @p
@@ -491,8 +480,7 @@ protected:
      * Aggregate FESystem's internal data. It is used every time
      * we call FESystem's fill_fe_values() and alike.
      */
-    std::unique_ptr<typename FESystem<dim, spacedim>::InternalData>
-      fesystem_data;
+    std::unique_ptr<typename FESystem<dim, spacedim>::InternalData> fesystem_data;
 
     /**
      * For each FE used in enrichment (base number <code>i</code>) and each
@@ -518,8 +506,7 @@ protected:
    * @p base_no_mult_local_enriched_dofs[i][j] contains the associated local
    * DoFs on the FE_Enriched finite element.
    */
-  std::vector<std::vector<std::vector<unsigned int>>>
-    base_no_mult_local_enriched_dofs;
+  std::vector<std::vector<std::vector<unsigned int>>> base_no_mult_local_enriched_dofs;
 
   /**
    * Enrichment functions.
@@ -528,8 +515,8 @@ protected:
    * corresponds to the number of enrichment functions associated with a single
    * FiniteElement.
    */
-  const std::vector<std::vector<std::function<const Function<spacedim> *(
-    const typename Triangulation<dim, spacedim>::cell_iterator &)>>>
+  const std::vector<std::vector<
+    std::function<const Function<spacedim> *(const typename Triangulation<dim, spacedim>::cell_iterator &)>>>
     enrichments;
 
   /**
@@ -555,10 +542,9 @@ protected:
    */
   template <int dim_1>
   std::unique_ptr<typename FiniteElement<dim, spacedim>::InternalDataBase>
-  setup_data(
-    std::unique_ptr<typename FESystem<dim, spacedim>::InternalData> fes_data,
-    const UpdateFlags                                               flags,
-    const Quadrature<dim_1> &quadrature) const;
+  setup_data(std::unique_ptr<typename FESystem<dim, spacedim>::InternalData> fes_data,
+             const UpdateFlags                                               flags,
+             const Quadrature<dim_1>                                        &quadrature) const;
 
   /**
    * Prepare internal data structures and fill in values independent of the
@@ -566,82 +552,64 @@ protected:
    * (FEValues) then has to assume ownership (which includes destruction when it
    * is no more needed).
    */
-  virtual std::unique_ptr<
-    typename FiniteElement<dim, spacedim>::InternalDataBase>
+  virtual std::unique_ptr<typename FiniteElement<dim, spacedim>::InternalDataBase>
   get_data(
-    const UpdateFlags             flags,
-    const Mapping<dim, spacedim> &mapping,
-    const Quadrature<dim> &       quadrature,
-    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim,
-                                                                       spacedim>
-      &output_data) const override;
+    const UpdateFlags                                                                  flags,
+    const Mapping<dim, spacedim>                                                      &mapping,
+    const Quadrature<dim>                                                             &quadrature,
+    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> &output_data) const override;
 
   using FiniteElement<dim, spacedim>::get_face_data;
 
-  virtual std::unique_ptr<
-    typename FiniteElement<dim, spacedim>::InternalDataBase>
+  virtual std::unique_ptr<typename FiniteElement<dim, spacedim>::InternalDataBase>
   get_face_data(
-    const UpdateFlags               update_flags,
-    const Mapping<dim, spacedim> &  mapping,
-    const hp::QCollection<dim - 1> &quadrature,
-    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim,
-                                                                       spacedim>
-      &output_data) const override;
+    const UpdateFlags                                                                  update_flags,
+    const Mapping<dim, spacedim>                                                      &mapping,
+    const hp::QCollection<dim - 1>                                                    &quadrature,
+    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> &output_data) const override;
 
-  virtual std::unique_ptr<
-    typename FiniteElement<dim, spacedim>::InternalDataBase>
+  virtual std::unique_ptr<typename FiniteElement<dim, spacedim>::InternalDataBase>
   get_subface_data(
-    const UpdateFlags             update_flags,
-    const Mapping<dim, spacedim> &mapping,
-    const Quadrature<dim - 1> &   quadrature,
-    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim,
-                                                                       spacedim>
-      &output_data) const override;
+    const UpdateFlags                                                                  update_flags,
+    const Mapping<dim, spacedim>                                                      &mapping,
+    const Quadrature<dim - 1>                                                         &quadrature,
+    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> &output_data) const override;
 
   virtual void
   fill_fe_values(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const CellSimilarity::Similarity                            cell_similarity,
-    const Quadrature<dim> &                                     quadrature,
-    const Mapping<dim, spacedim> &                              mapping,
-    const typename Mapping<dim, spacedim>::InternalDataBase &mapping_internal,
-    const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &                                                            mapping_data,
-    const typename FiniteElement<dim, spacedim>::InternalDataBase &fe_internal,
-    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim,
-                                                                       spacedim>
-      &output_data) const override;
+    const typename Triangulation<dim, spacedim>::cell_iterator                        &cell,
+    const CellSimilarity::Similarity                                                   cell_similarity,
+    const Quadrature<dim>                                                             &quadrature,
+    const Mapping<dim, spacedim>                                                      &mapping,
+    const typename Mapping<dim, spacedim>::InternalDataBase                           &mapping_internal,
+    const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>         &mapping_data,
+    const typename FiniteElement<dim, spacedim>::InternalDataBase                     &fe_internal,
+    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> &output_data) const override;
 
   using FiniteElement<dim, spacedim>::fill_fe_face_values;
 
   virtual void
   fill_fe_face_values(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const unsigned int                                          face_no,
-    const hp::QCollection<dim - 1> &                            quadrature,
-    const Mapping<dim, spacedim> &                              mapping,
-    const typename Mapping<dim, spacedim>::InternalDataBase &mapping_internal,
-    const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &                                                            mapping_data,
-    const typename FiniteElement<dim, spacedim>::InternalDataBase &fe_internal,
-    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim,
-                                                                       spacedim>
-      &output_data) const override;
+    const typename Triangulation<dim, spacedim>::cell_iterator                        &cell,
+    const unsigned int                                                                 face_no,
+    const hp::QCollection<dim - 1>                                                    &quadrature,
+    const Mapping<dim, spacedim>                                                      &mapping,
+    const typename Mapping<dim, spacedim>::InternalDataBase                           &mapping_internal,
+    const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>         &mapping_data,
+    const typename FiniteElement<dim, spacedim>::InternalDataBase                     &fe_internal,
+    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> &output_data) const override;
 
   virtual void
   fill_fe_subface_values(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const unsigned int                                          face_no,
-    const unsigned int                                          sub_no,
-    const Quadrature<dim - 1> &                                 quadrature,
-    const Mapping<dim, spacedim> &                              mapping,
-    const typename Mapping<dim, spacedim>::InternalDataBase &mapping_internal,
-    const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &                                                            mapping_data,
-    const typename FiniteElement<dim, spacedim>::InternalDataBase &fe_internal,
-    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim,
-                                                                       spacedim>
-      &output_data) const override;
+    const typename Triangulation<dim, spacedim>::cell_iterator                        &cell,
+    const unsigned int                                                                 face_no,
+    const unsigned int                                                                 sub_no,
+    const Quadrature<dim - 1>                                                         &quadrature,
+    const Mapping<dim, spacedim>                                                      &mapping,
+    const typename Mapping<dim, spacedim>::InternalDataBase                           &mapping_internal,
+    const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>         &mapping_data,
+    const typename FiniteElement<dim, spacedim>::InternalDataBase                     &fe_internal,
+    dealii::internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> &output_data) const override;
 
 private:
   /**
@@ -650,7 +618,7 @@ private:
    */
   void
   initialize(const std::vector<const FiniteElement<dim, spacedim> *> &fes,
-             const std::vector<unsigned int> &multiplicities);
+             const std::vector<unsigned int>                         &multiplicities);
 
   /**
    * The underlying FESystem object.
@@ -664,14 +632,11 @@ private:
    */
   template <int dim_1>
   void
-  multiply_by_enrichment(
-    const Quadrature<dim_1> &quadrature,
-    const InternalData &     fe_data,
-    const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &                                                         mapping_data,
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim>
-      &output_data) const;
+  multiply_by_enrichment(const Quadrature<dim_1>                                                   &quadrature,
+                         const InternalData                                                        &fe_data,
+                         const internal::FEValuesImplementation::MappingRelatedData<dim, spacedim> &mapping_data,
+                         const typename Triangulation<dim, spacedim>::cell_iterator                &cell,
+                         internal::FEValuesImplementation::FiniteElementRelatedData<dim, spacedim> &output_data) const;
 };
 
 
@@ -696,8 +661,7 @@ namespace ColorEnriched
    * ColorEnriched::Helper class.
    */
   template <int dim, int spacedim = dim>
-  using predicate_function = std::function<bool(
-    const typename Triangulation<dim, spacedim>::cell_iterator &)>;
+  using predicate_function = std::function<bool(const typename Triangulation<dim, spacedim>::cell_iterator &)>;
 
 #ifndef DOXYGEN
   namespace internal
@@ -750,10 +714,9 @@ namespace ColorEnriched
      */
     template <int dim, int spacedim>
     bool
-    find_connection_between_subdomains(
-      const DoFHandler<dim, spacedim> &        dof_handler,
-      const predicate_function<dim, spacedim> &predicate_1,
-      const predicate_function<dim, spacedim> &predicate_2);
+    find_connection_between_subdomains(const DoFHandler<dim, spacedim>         &dof_handler,
+                                       const predicate_function<dim, spacedim> &predicate_1,
+                                       const predicate_function<dim, spacedim> &predicate_2);
 
     /**
      * Assign colors to subdomains using Graph coloring algorithm where each
@@ -769,10 +732,9 @@ namespace ColorEnriched
      */
     template <int dim, int spacedim>
     unsigned int
-    color_predicates(
-      const DoFHandler<dim, spacedim> &                     dof_handler,
-      const std::vector<predicate_function<dim, spacedim>> &predicates,
-      std::vector<unsigned int> &                           predicate_colors);
+    color_predicates(const DoFHandler<dim, spacedim>                      &dof_handler,
+                     const std::vector<predicate_function<dim, spacedim>> &predicates,
+                     std::vector<unsigned int>                            &predicate_colors);
 
     /**
      * Used to construct data members @p cellwise_color_predicate_map and
@@ -817,12 +779,11 @@ namespace ColorEnriched
     template <int dim, int spacedim>
     void
     set_cellwise_color_set_and_fe_index(
-      DoFHandler<dim, spacedim> &                           dof_handler,
-      const std::vector<predicate_function<dim, spacedim>> &predicates,
-      const std::vector<unsigned int> &                     predicate_colors,
-      std::map<unsigned int, std::map<unsigned int, unsigned int>>
-        &                                  cellwise_color_predicate_map,
-      std::vector<std::set<unsigned int>> &fe_sets);
+      DoFHandler<dim, spacedim>                                    &dof_handler,
+      const std::vector<predicate_function<dim, spacedim>>         &predicates,
+      const std::vector<unsigned int>                              &predicate_colors,
+      std::map<unsigned int, std::map<unsigned int, unsigned int>> &cellwise_color_predicate_map,
+      std::vector<std::set<unsigned int>>                          &fe_sets);
 
     /**
      * A function that returns a vector of enrichment functions corresponding
@@ -850,12 +811,11 @@ namespace ColorEnriched
     template <int dim, int spacedim>
     void
     make_colorwise_enrichment_functions(
-      const unsigned int                                      n_colors,
-      const std::vector<std::shared_ptr<Function<spacedim>>> &enrichments,
-      const std::map<unsigned int, std::map<unsigned int, unsigned int>>
-        &cellwise_color_predicate_map,
-      std::vector<std::function<const Function<spacedim> *(
-        const typename Triangulation<dim, spacedim>::cell_iterator &)>>
+      const unsigned int                                                  n_colors,
+      const std::vector<std::shared_ptr<Function<spacedim>>>             &enrichments,
+      const std::map<unsigned int, std::map<unsigned int, unsigned int>> &cellwise_color_predicate_map,
+      std::vector<
+        std::function<const Function<spacedim> *(const typename Triangulation<dim, spacedim>::cell_iterator &)>>
         &color_enrichments);
 
 
@@ -876,17 +836,15 @@ namespace ColorEnriched
     template <int dim, int spacedim>
     void
     make_fe_collection_from_colored_enrichments(
-      const unsigned int n_colors,
-      const std::vector<std::set<unsigned int>>
-        &fe_sets, // total list of color sets possible
-      const std::vector<std::function<const Function<spacedim> *(
-        const typename Triangulation<dim, spacedim>::cell_iterator &)>>
-        &color_enrichments, // color wise enrichment functions
-      const FiniteElement<dim, spacedim> &fe_base, // basic FE element
-      const FiniteElement<dim, spacedim>
-        &fe_enriched, // FE multiplied by enrichment function
-      const FE_Nothing<dim, spacedim> &fe_nothing,
-      hp::FECollection<dim, spacedim> &fe_collection);
+      const unsigned int                         n_colors,
+      const std::vector<std::set<unsigned int>> &fe_sets, // total list of color sets possible
+      const std::vector<
+        std::function<const Function<spacedim> *(const typename Triangulation<dim, spacedim>::cell_iterator &)>>
+                                         &color_enrichments, // color wise enrichment functions
+      const FiniteElement<dim, spacedim> &fe_base,           // basic FE element
+      const FiniteElement<dim, spacedim> &fe_enriched,       // FE multiplied by enrichment function
+      const FE_Nothing<dim, spacedim>    &fe_nothing,
+      hp::FECollection<dim, spacedim>    &fe_collection);
   }    // namespace internal
 #endif // DOXYGEN
 
@@ -1071,9 +1029,9 @@ namespace ColorEnriched
      * belongs to a sub-domain with index (i).
      * @param enrichments std::vector of enrichment functions
      */
-    Helper(const FiniteElement<dim, spacedim> &                    fe_base,
-           const FiniteElement<dim, spacedim> &                    fe_enriched,
-           const std::vector<predicate_function<dim, spacedim>> &  predicates,
+    Helper(const FiniteElement<dim, spacedim>                     &fe_base,
+           const FiniteElement<dim, spacedim>                     &fe_enriched,
+           const std::vector<predicate_function<dim, spacedim>>   &predicates,
            const std::vector<std::shared_ptr<Function<spacedim>>> &enrichments);
 
     /**
@@ -1137,8 +1095,8 @@ namespace ColorEnriched
      * which returns an enrichment function
      * for a cell in Triangulation<dim,spacedim>.
      */
-    using cell_iterator_function = std::function<const Function<spacedim> *(
-      const typename Triangulation<dim, spacedim>::cell_iterator &)>;
+    using cell_iterator_function =
+      std::function<const Function<spacedim> *(const typename Triangulation<dim, spacedim>::cell_iterator &)>;
 
     /**
      * std::vector of functions that take in a cell
@@ -1168,8 +1126,7 @@ namespace ColorEnriched
      * a cell with a map that in turn associates colors of active predicates in
      * the cell with corresponding predicate ids.
      */
-    std::map<unsigned int, std::map<unsigned int, unsigned int>>
-      cellwise_color_predicate_map;
+    std::map<unsigned int, std::map<unsigned int, unsigned int>> cellwise_color_predicate_map;
 
     /**
      * A vector of different possible color sets for a given set of

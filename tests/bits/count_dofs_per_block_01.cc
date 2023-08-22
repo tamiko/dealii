@@ -75,14 +75,12 @@ check()
 
   // no grouping
   {
-    const std::vector<types::global_dof_index> dpc =
-      DoFTools::count_dofs_per_fe_component(dof_handler);
+    const std::vector<types::global_dof_index> dpc = DoFTools::count_dofs_per_fe_component(dof_handler);
     print(dpc);
   }
 
   {
-    const std::vector<types::global_dof_index> dpc =
-      DoFTools::count_dofs_per_fe_block(dof_handler);
+    const std::vector<types::global_dof_index> dpc = DoFTools::count_dofs_per_fe_block(dof_handler);
     print(dpc);
   }
 
@@ -91,18 +89,16 @@ check()
   // components
   {
     std::vector<unsigned int> group(dim + 1, 0);
-    group[dim] = 1;
-    const std::vector<types::global_dof_index> dpc =
-      DoFTools::count_dofs_per_fe_component(dof_handler, false, group);
+    group[dim]                                     = 1;
+    const std::vector<types::global_dof_index> dpc = DoFTools::count_dofs_per_fe_component(dof_handler, false, group);
     Assert(dpc.size() == 2, ExcInternalError());
     print(dpc);
   }
 
   {
     std::vector<unsigned int> group(dim + 1, 0);
-    group[dim] = 1;
-    const std::vector<types::global_dof_index> dpc =
-      DoFTools::count_dofs_per_fe_block(dof_handler, group);
+    group[dim]                                     = 1;
+    const std::vector<types::global_dof_index> dpc = DoFTools::count_dofs_per_fe_block(dof_handler, group);
     Assert(dpc.size() == 2, ExcInternalError());
     print(dpc);
   }
@@ -111,18 +107,16 @@ check()
   // components
   {
     std::vector<unsigned int> group(dim + 1, 2 * dim);
-    group[dim] = 0;
-    const std::vector<types::global_dof_index> dpc =
-      DoFTools::count_dofs_per_fe_component(dof_handler, false, group);
+    group[dim]                                     = 0;
+    const std::vector<types::global_dof_index> dpc = DoFTools::count_dofs_per_fe_component(dof_handler, false, group);
     Assert(dpc.size() == 2 * dim + 1, ExcInternalError());
     print(dpc);
   }
 
   {
     std::vector<unsigned int> group(dim + 1, 2 * dim);
-    group[dim] = 0;
-    const std::vector<types::global_dof_index> dpc =
-      DoFTools::count_dofs_per_fe_block(dof_handler, group);
+    group[dim]                                     = 0;
+    const std::vector<types::global_dof_index> dpc = DoFTools::count_dofs_per_fe_block(dof_handler, group);
     Assert(dpc.size() == 2 * dim + 1, ExcInternalError());
     print(dpc);
   }

@@ -43,7 +43,7 @@
 
 #include "../tests.h"
 
-//#define DEBUG_OUTPUT_VTK
+// #define DEBUG_OUTPUT_VTK
 
 template <int dim>
 class TestFunction : public Function<dim>
@@ -74,8 +74,7 @@ template <int dim>
 parallel::distributed::Triangulation<dim> *
 make_tria()
 {
-  parallel::distributed::Triangulation<dim> *tria =
-    new parallel::distributed::Triangulation<dim>(MPI_COMM_WORLD);
+  parallel::distributed::Triangulation<dim> *tria = new parallel::distributed::Triangulation<dim>(MPI_COMM_WORLD);
   typename parallel::distributed::Triangulation<dim>::active_cell_iterator cell;
   GridGenerator::hyper_cube(*tria, 0., 1.);
   tria->refine_global(2);
@@ -96,8 +95,7 @@ make_tria()
 
 template <int dim>
 DoFHandler<dim> *
-make_dof_handler(const parallel::distributed::Triangulation<dim> &tria,
-                 const FiniteElement<dim> &                       fe)
+make_dof_handler(const parallel::distributed::Triangulation<dim> &tria, const FiniteElement<dim> &fe)
 {
   DoFHandler<dim> *dof_handler = new DoFHandler<dim>(tria);
   dof_handler->distribute_dofs(fe);
@@ -109,9 +107,7 @@ make_dof_handler(const parallel::distributed::Triangulation<dim> &tria,
 // output some indicators for a given vector
 template <unsigned int dim, typename VectorType>
 void
-output_vector(const VectorType &     v,
-              const std::string &    output_name,
-              const DoFHandler<dim> &dof_handler)
+output_vector(const VectorType &v, const std::string &output_name, const DoFHandler<dim> &dof_handler)
 {
   DataOut<dim> data_out;
   data_out.attach_dof_handler(dof_handler);
@@ -121,9 +117,7 @@ output_vector(const VectorType &     v,
   data_out.build_patches(degree);
 
   const std::string filename =
-    (output_name + "." +
-     Utilities::int_to_string(Utilities::MPI::this_mpi_process(MPI_COMM_WORLD),
-                              1));
+    (output_name + "." + Utilities::int_to_string(Utilities::MPI::this_mpi_process(MPI_COMM_WORLD), 1));
   std::ofstream output(filename + ".vtu");
   data_out.write_vtu(output);
 }
@@ -143,9 +137,7 @@ build_ghosted(const IndexSet &owned_indices, const IndexSet &ghosted_indices)
 {
   std::vector<IndexSet> owned_indices_vector(1, owned_indices);
   std::vector<IndexSet> ghosted_indices_vector(1, ghosted_indices);
-  return VectorType(owned_indices_vector,
-                    ghosted_indices_vector,
-                    MPI_COMM_WORLD);
+  return VectorType(owned_indices_vector, ghosted_indices_vector, MPI_COMM_WORLD);
 }
 
 
@@ -175,8 +167,7 @@ check_this(const FiniteElement<dim> &fe1, const FiniteElement<dim> &fe2)
 
   // only check if both elements have support points.
   // otherwise, interpolation doesn't really work
-  if ((fe1.get_unit_support_points().size() == 0) ||
-      (fe2.get_unit_support_points().size() == 0))
+  if ((fe1.get_unit_support_points().size() == 0) || (fe2.get_unit_support_points().size() == 0))
     return;
   //  likewise for non-primitive elements
   if (!fe1.is_primitive() || !fe2.is_primitive())
@@ -188,8 +179,7 @@ check_this(const FiniteElement<dim> &fe1, const FiniteElement<dim> &fe2)
   if (!fe2.isotropic_restriction_is_implemented())
     return;
 
-  std::unique_ptr<parallel::distributed::Triangulation<dim>> tria(
-    make_tria<dim>());
+  std::unique_ptr<parallel::distributed::Triangulation<dim>> tria(make_tria<dim>());
 
   std::unique_ptr<DoFHandler<dim>> dof1(make_dof_handler(*tria, fe1));
   std::unique_ptr<DoFHandler<dim>> dof2(make_dof_handler(*tria, fe2));
@@ -207,15 +197,11 @@ check_this(const FiniteElement<dim> &fe1, const FiniteElement<dim> &fe2)
   IndexSet locally_relevant_dofs2;
   DoFTools::extract_locally_relevant_dofs(*dof2, locally_relevant_dofs2);
 
-  VectorType in_ghosted =
-    build_ghosted<VectorType>(locally_owned_dofs1, locally_relevant_dofs1);
-  VectorType in_distributed =
-    build_distributed<VectorType>(locally_owned_dofs1);
-  VectorType out_distributed =
-    build_distributed<VectorType>(locally_owned_dofs2);
-  VectorType out_ghosted =
-    build_ghosted<VectorType>(locally_owned_dofs2, locally_relevant_dofs2);
-  VectorType out_reference = build_distributed<VectorType>(locally_owned_dofs2);
+  VectorType in_ghosted      = build_ghosted<VectorType>(locally_owned_dofs1, locally_relevant_dofs1);
+  VectorType in_distributed  = build_distributed<VectorType>(locally_owned_dofs1);
+  VectorType out_distributed = build_distributed<VectorType>(locally_owned_dofs2);
+  VectorType out_ghosted     = build_ghosted<VectorType>(locally_owned_dofs2, locally_relevant_dofs2);
+  VectorType out_reference   = build_distributed<VectorType>(locally_owned_dofs2);
 
   // Choose some reference function of sufficiently high polynomial degree.
   TestFunction<dim> function(std::max(fe1.degree, fe2.degree));
@@ -224,22 +210,14 @@ check_this(const FiniteElement<dim> &fe1, const FiniteElement<dim> &fe2)
   in_ghosted = in_distributed;
 
   Vector<double> difference_before;
-  VectorTools::integrate_difference(*dof1,
-                                    in_ghosted,
-                                    function,
-                                    difference_before,
-                                    QGauss<dim>(fe1.degree + 2),
-                                    VectorTools::L2_norm);
+  VectorTools::integrate_difference(
+    *dof1, in_ghosted, function, difference_before, QGauss<dim>(fe1.degree + 2), VectorTools::L2_norm);
   const double local_error_before  = difference_before.l2_norm();
-  const double global_error_before = std::sqrt(
-    Utilities::MPI::sum(std::pow(local_error_before, 2.), MPI_COMM_WORLD));
+  const double global_error_before = std::sqrt(Utilities::MPI::sum(std::pow(local_error_before, 2.), MPI_COMM_WORLD));
 
 #ifdef DEBUG_OUTPUT_VTK
-  output_vector<dim, VectorType>(in_ghosted,
-                                 Utilities::int_to_string(fe1.degree, 1) +
-                                   Utilities::int_to_string(dim, 1) +
-                                   std::string("in"),
-                                 *dof1);
+  output_vector<dim, VectorType>(
+    in_ghosted, Utilities::int_to_string(fe1.degree, 1) + Utilities::int_to_string(dim, 1) + std::string("in"), *dof1);
 #endif
   {
     const double l1_norm     = in_distributed.l1_norm();
@@ -254,8 +232,7 @@ check_this(const FiniteElement<dim> &fe1, const FiniteElement<dim> &fe2)
   out_ghosted = out_distributed;
 #ifdef DEBUG_OUTPUT_VTK
   output_vector<dim, VectorType>(out_ghosted,
-                                 Utilities::int_to_string(fe2.degree, 1) +
-                                   Utilities::int_to_string(dim, 1) +
+                                 Utilities::int_to_string(fe2.degree, 1) + Utilities::int_to_string(dim, 1) +
                                    std::string("out"),
                                  *dof2);
 #endif
@@ -269,15 +246,10 @@ check_this(const FiniteElement<dim> &fe1, const FiniteElement<dim> &fe2)
   }
 
   Vector<double> difference_after;
-  VectorTools::integrate_difference(*dof2,
-                                    out_ghosted,
-                                    function,
-                                    difference_after,
-                                    QGauss<dim>(fe2.degree + 2),
-                                    VectorTools::L2_norm);
+  VectorTools::integrate_difference(
+    *dof2, out_ghosted, function, difference_after, QGauss<dim>(fe2.degree + 2), VectorTools::L2_norm);
   const double local_error_after  = difference_after.l2_norm();
-  const double global_error_after = std::sqrt(
-    Utilities::MPI::sum(std::pow(local_error_after, 2.), MPI_COMM_WORLD));
+  const double global_error_after = std::sqrt(Utilities::MPI::sum(std::pow(local_error_after, 2.), MPI_COMM_WORLD));
 
   if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
     {
@@ -306,8 +278,7 @@ check_this_dealii(const FiniteElement<dim> &fe1, const FiniteElement<dim> &fe2)
 
   // only check if both elements have support points.
   // otherwise, interpolation doesn't really work
-  if ((fe1.get_unit_support_points().size() == 0) ||
-      (fe2.get_unit_support_points().size() == 0))
+  if ((fe1.get_unit_support_points().size() == 0) || (fe2.get_unit_support_points().size() == 0))
     return;
   //  likewise for non-primitive elements
   if (!fe1.is_primitive() || !fe2.is_primitive())
@@ -319,8 +290,7 @@ check_this_dealii(const FiniteElement<dim> &fe1, const FiniteElement<dim> &fe2)
   if (!fe2.isotropic_restriction_is_implemented())
     return;
 
-  std::unique_ptr<parallel::distributed::Triangulation<dim>> tria(
-    make_tria<dim>());
+  std::unique_ptr<parallel::distributed::Triangulation<dim>> tria(make_tria<dim>());
 
   std::unique_ptr<DoFHandler<dim>> dof1(make_dof_handler(*tria, fe1));
   std::unique_ptr<DoFHandler<dim>> dof2(make_dof_handler(*tria, fe2));
@@ -338,12 +308,9 @@ check_this_dealii(const FiniteElement<dim> &fe1, const FiniteElement<dim> &fe2)
   IndexSet locally_relevant_dofs2;
   DoFTools::extract_locally_relevant_dofs(*dof2, locally_relevant_dofs2);
 
-  VectorType in_ghosted =
-    build_ghosted<VectorType>(locally_owned_dofs1, locally_relevant_dofs1);
-  VectorType out_ghosted =
-    build_ghosted<VectorType>(locally_owned_dofs2, locally_relevant_dofs2);
-  VectorType out_reference =
-    build_ghosted<VectorType>(locally_owned_dofs2, locally_relevant_dofs2);
+  VectorType in_ghosted    = build_ghosted<VectorType>(locally_owned_dofs1, locally_relevant_dofs1);
+  VectorType out_ghosted   = build_ghosted<VectorType>(locally_owned_dofs2, locally_relevant_dofs2);
+  VectorType out_reference = build_ghosted<VectorType>(locally_owned_dofs2, locally_relevant_dofs2);
 
   // Choose some reference function of sufficiently high polynomial degree.
   TestFunction<dim> function(std::max(fe1.degree, fe2.degree));
@@ -355,21 +322,13 @@ check_this_dealii(const FiniteElement<dim> &fe1, const FiniteElement<dim> &fe2)
   out_reference.update_ghost_values();
 
   Vector<double> difference_before;
-  VectorTools::integrate_difference(*dof1,
-                                    in_ghosted,
-                                    function,
-                                    difference_before,
-                                    QGauss<dim>(fe1.degree + 2),
-                                    VectorTools::L2_norm);
+  VectorTools::integrate_difference(
+    *dof1, in_ghosted, function, difference_before, QGauss<dim>(fe1.degree + 2), VectorTools::L2_norm);
   const double local_error_before  = difference_before.l2_norm();
-  const double global_error_before = std::sqrt(
-    Utilities::MPI::sum(std::pow(local_error_before, 2.), MPI_COMM_WORLD));
+  const double global_error_before = std::sqrt(Utilities::MPI::sum(std::pow(local_error_before, 2.), MPI_COMM_WORLD));
 #ifdef DEBUG_OUTPUT_VTK
-  output_vector<dim, VectorType>(in_ghosted,
-                                 Utilities::int_to_string(fe1.degree, 1) +
-                                   Utilities::int_to_string(dim, 1) +
-                                   std::string("in"),
-                                 *dof1);
+  output_vector<dim, VectorType>(
+    in_ghosted, Utilities::int_to_string(fe1.degree, 1) + Utilities::int_to_string(dim, 1) + std::string("in"), *dof1);
 #endif
   {
     const double l1_norm     = in_ghosted.l1_norm();
@@ -384,8 +343,7 @@ check_this_dealii(const FiniteElement<dim> &fe1, const FiniteElement<dim> &fe2)
   out_ghosted.update_ghost_values();
 #ifdef DEBUG_OUTPUT_VTK
   output_vector<dim, VectorType>(out_ghosted,
-                                 Utilities::int_to_string(fe2.degree, 1) +
-                                   Utilities::int_to_string(dim, 1) +
+                                 Utilities::int_to_string(fe2.degree, 1) + Utilities::int_to_string(dim, 1) +
                                    std::string("out"),
                                  *dof2);
 #endif
@@ -398,15 +356,10 @@ check_this_dealii(const FiniteElement<dim> &fe1, const FiniteElement<dim> &fe2)
   }
 
   Vector<double> difference_after;
-  VectorTools::integrate_difference(*dof2,
-                                    out_ghosted,
-                                    function,
-                                    difference_after,
-                                    QGauss<dim>(fe2.degree + 2),
-                                    VectorTools::L2_norm);
+  VectorTools::integrate_difference(
+    *dof2, out_ghosted, function, difference_after, QGauss<dim>(fe2.degree + 2), VectorTools::L2_norm);
   const double local_error_after  = difference_after.l2_norm();
-  const double global_error_after = std::sqrt(
-    Utilities::MPI::sum(std::pow(local_error_after, 2.), MPI_COMM_WORLD));
+  const double global_error_after = std::sqrt(Utilities::MPI::sum(std::pow(local_error_after, 2.), MPI_COMM_WORLD));
 
   if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
     {

@@ -44,8 +44,7 @@
 
 
 void
-test_applies(std::string                              description,
-             const PackagedOperation<Vector<double>> &expr)
+test_applies(std::string description, const PackagedOperation<Vector<double>> &expr)
 {
   // test apply
   Vector<double> tmp = expr;

@@ -46,12 +46,9 @@ test()
   for (const auto &it_tria : triangulation.active_cell_iterators())
     {
       const auto it_dh = it_tria->as_dof_handler_iterator(dof_handler);
-      Assert(it_tria->level() == it_dh->level(),
-             ExcMessage("Iterator conversion failed: Level."));
-      Assert(it_tria->index() == it_dh->index(),
-             ExcMessage("Iterator conversion failed: Index."));
-      Assert(it_tria->id() == it_dh->id(),
-             ExcMessage("Iterator conversion failed: Id."));
+      Assert(it_tria->level() == it_dh->level(), ExcMessage("Iterator conversion failed: Level."));
+      Assert(it_tria->index() == it_dh->index(), ExcMessage("Iterator conversion failed: Index."));
+      Assert(it_tria->id() == it_dh->id(), ExcMessage("Iterator conversion failed: Id."));
 
       // Check that some basic features work (i.e. that we have the right
       // accessor type)

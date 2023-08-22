@@ -65,10 +65,7 @@ test()
 
   QGaussSimplex<dim> quadrature_formula(1);
 
-  FEValues<dim> fe_values(mapping,
-                          fe,
-                          quadrature_formula,
-                          update_values | update_gradients);
+  FEValues<dim> fe_values(mapping, fe, quadrature_formula, update_values | update_gradients);
 
   for (const auto &cell : dof_handler.active_cell_iterators())
     {

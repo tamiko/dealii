@@ -78,10 +78,7 @@ test(const unsigned int mapping_degree)
   // VectorTools::get_position_vector(euler_dof_handler, euler_vector);
 
   MappingFE<dim> mapping_interpolation(FE_SimplexP<dim>(1));
-  VectorTools::interpolate(mapping_interpolation,
-                           euler_dof_handler,
-                           Solution<dim>(),
-                           euler_vector);
+  VectorTools::interpolate(mapping_interpolation, euler_dof_handler, Solution<dim>(), euler_vector);
 
   MappingFEField<dim> mapping(euler_dof_handler, euler_vector);
 

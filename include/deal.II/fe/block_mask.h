@@ -84,8 +84,7 @@ public:
    * Deprecated constructor allowing implicit conversion.
    */
   template <typename = void>
-  DEAL_II_DEPRECATED_EARLY_WITH_COMMENT(
-    "Implicit conversions from std::vector<bool> to BlockMask are deprecated!")
+  DEAL_II_DEPRECATED_EARLY_WITH_COMMENT("Implicit conversions from std::vector<bool> to BlockMask are deprecated!")
   BlockMask(const std::vector<bool> &block_mask);
 
   /**
@@ -162,8 +161,7 @@ public:
    * be omitted and the result of size() is taken.
    */
   unsigned int
-  n_selected_blocks(const unsigned int overall_number_of_blocks =
-                      numbers::invalid_unsigned_int) const;
+  n_selected_blocks(const unsigned int overall_number_of_blocks = numbers::invalid_unsigned_int) const;
 
   /**
    * Return the index of the first selected block. The argument is there for
@@ -172,8 +170,7 @@ public:
    * The function throws an exception if no block is selected at all.
    */
   unsigned int
-  first_selected_block(const unsigned int overall_number_of_blocks =
-                         numbers::invalid_unsigned_int) const;
+  first_selected_block(const unsigned int overall_number_of_blocks = numbers::invalid_unsigned_int) const;
 
   /**
    * Return true if this mask represents a default constructed mask that
@@ -305,9 +302,7 @@ BlockMask::n_selected_blocks(const unsigned int n) const
   else
     {
       AssertDimension(real_n, block_mask.size());
-      return std::count_if(block_mask.begin(),
-                           block_mask.end(),
-                           [](const bool selected) { return selected; });
+      return std::count_if(block_mask.begin(), block_mask.end(), [](const bool selected) { return selected; });
     }
 }
 

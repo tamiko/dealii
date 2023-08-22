@@ -34,8 +34,7 @@ DEAL_II_NAMESPACE_OPEN
 namespace Algorithms
 {
   template <typename VectorType>
-  Newton<VectorType>::Newton(OperatorBase &residual,
-                             OperatorBase &inverse_derivative)
+  Newton<VectorType>::Newton(OperatorBase &residual, OperatorBase &inverse_derivative)
     : residual(&residual)
     , inverse_derivative(&inverse_derivative)
     , assemble_now(false)
@@ -159,8 +158,8 @@ namespace Algorithms
           }
         catch (SolverControl::NoConvergence &e)
           {
-            deallog << "Inner iteration failed after " << e.last_step
-                    << " steps with residual " << e.last_residual << std::endl;
+            deallog << "Inner iteration failed after " << e.last_step << " steps with residual " << e.last_residual
+                    << std::endl;
           }
 
         if (debug_vectors)
@@ -192,8 +191,7 @@ namespace Algorithms
                 break;
               }
             if (control.log_history())
-              deallog << "Trying step size: 1/" << (1 << step_size)
-                      << " since residual was " << resnorm << std::endl;
+              deallog << "Trying step size: 1/" << (1 << step_size) << " since residual was " << resnorm << std::endl;
             u.add(1. / (1 << step_size), *Du);
             (*residual)(out1, src1);
             resnorm = res->l2_norm();
@@ -202,9 +200,7 @@ namespace Algorithms
 
     // in case of failure: throw exception
     if (control.last_check() != SolverControl::success)
-      AssertThrow(false,
-                  SolverControl::NoConvergence(control.last_step(),
-                                               control.last_value()));
+      AssertThrow(false, SolverControl::NoConvergence(control.last_step(), control.last_value()));
     // otherwise exit as normal
   }
 } // namespace Algorithms

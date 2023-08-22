@@ -45,18 +45,16 @@ check()
 
   for (const auto &cell : out_tria.active_cell_iterators())
     {
-      deallog << "cell=" << cell << ", material_id=" << cell->material_id()
-              << ", manifold_id=" << cell->manifold_id() << std::endl;
+      deallog << "cell=" << cell << ", material_id=" << cell->material_id() << ", manifold_id=" << cell->manifold_id()
+              << std::endl;
       for (const auto &face : cell->face_iterators())
         {
-          deallog << "  face=" << face
-                  << ", boundary_id=" << face->boundary_id()
+          deallog << "  face=" << face << ", boundary_id=" << face->boundary_id()
                   << ", manifold_id=" << face->manifold_id() << std::endl;
           for (unsigned int l = 0; l < face->n_lines(); ++l)
             {
               const auto edge = face->line(l);
-              deallog << "    edge=" << edge
-                      << ", boundary_id=" << edge->boundary_id()
+              deallog << "    edge=" << edge << ", boundary_id=" << edge->boundary_id()
                       << ", manifold_id=" << edge->manifold_id() << std::endl;
             }
         }

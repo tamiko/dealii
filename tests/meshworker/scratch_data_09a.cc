@@ -34,10 +34,7 @@
 #include "../tests.h"
 
 
-template <int dim,
-          int spacedim        = dim,
-          typename NumberType = double,
-          typename ExtractorType>
+template <int dim, int spacedim = dim, typename NumberType = double, typename ExtractorType>
 void
 run(const ExtractorType &extractor)
 {
@@ -55,32 +52,20 @@ run(const ExtractorType &extractor)
   dof_handler.distribute_dofs(fe);
 
   Vector<double> solution(dof_handler.n_dofs());
-  VectorTools::interpolate(dof_handler,
-                           Functions::CosineFunction<spacedim>(
-                             fe.n_components()),
-                           solution);
+  VectorTools::interpolate(dof_handler, Functions::CosineFunction<spacedim>(fe.n_components()), solution);
 
-  const UpdateFlags update_flags =
-    update_values | update_gradients | update_hessians | update_3rd_derivatives;
-  MeshWorker::ScratchData<dim, spacedim> scratch_data(fe,
-                                                      qf_cell,
-                                                      update_flags);
+  const UpdateFlags update_flags = update_values | update_gradients | update_hessians | update_3rd_derivatives;
+  MeshWorker::ScratchData<dim, spacedim> scratch_data(fe, qf_cell, update_flags);
 
   const auto cell = dof_handler.begin_active();
   scratch_data.reinit(cell);
   scratch_data.extract_local_dof_values("solution", solution);
 
-  deallog << "Value: " << scratch_data.get_values("solution", extractor)[0]
-          << std::endl;
-  deallog << "Gradient: "
-          << scratch_data.get_gradients("solution", extractor)[0] << std::endl;
-  deallog << "Hessian: " << scratch_data.get_hessians("solution", extractor)[0]
-          << std::endl;
-  deallog << "Laplacian: "
-          << scratch_data.get_laplacians("solution", extractor)[0] << std::endl;
-  deallog << "Third derivative: "
-          << scratch_data.get_third_derivatives("solution", extractor)[0]
-          << std::endl;
+  deallog << "Value: " << scratch_data.get_values("solution", extractor)[0] << std::endl;
+  deallog << "Gradient: " << scratch_data.get_gradients("solution", extractor)[0] << std::endl;
+  deallog << "Hessian: " << scratch_data.get_hessians("solution", extractor)[0] << std::endl;
+  deallog << "Laplacian: " << scratch_data.get_laplacians("solution", extractor)[0] << std::endl;
+  deallog << "Third derivative: " << scratch_data.get_third_derivatives("solution", extractor)[0] << std::endl;
 
   deallog << "OK" << std::endl;
 }
@@ -90,8 +75,7 @@ int
 main(int argc, char *argv[])
 {
   initlog();
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   FEValuesExtractors::Scalar extractor(0);
 

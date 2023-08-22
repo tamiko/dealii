@@ -47,21 +47,16 @@ test()
 
     Particles::ParticleHandler<dim, spacedim> particle_handler(tr, mapping);
 
-    std::vector<Point<dim>> particle_reference_locations =
-      QGauss<dim>(3).get_points();
+    std::vector<Point<dim>> particle_reference_locations = QGauss<dim>(3).get_points();
 
-    Particles::Generators::regular_reference_locations(
-      tr, particle_reference_locations, particle_handler, mapping);
+    Particles::Generators::regular_reference_locations(tr, particle_reference_locations, particle_handler, mapping);
 
-    deallog << "Particle number: " << particle_handler.n_global_particles()
-            << std::endl;
+    deallog << "Particle number: " << particle_handler.n_global_particles() << std::endl;
 
     for (const auto &particle : particle_handler)
       {
-        deallog << "Particle location: " << particle.get_location()
-                << std::endl;
-        deallog << "Particle reference location: "
-                << particle.get_reference_location() << std::endl;
+        deallog << "Particle location: " << particle.get_location() << std::endl;
+        deallog << "Particle reference location: " << particle.get_reference_location() << std::endl;
       }
   }
 

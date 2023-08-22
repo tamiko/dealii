@@ -54,18 +54,14 @@ test()
 
   MatrixFree<dim>                          mf_data;
   typename MatrixFree<dim>::AdditionalData data;
-  data.tasks_parallel_scheme = MatrixFree<dim>::AdditionalData::none;
-  data.mapping_update_flags_inner_faces =
-    (update_gradients | update_JxW_values);
-  data.mapping_update_flags_boundary_faces =
-    (update_gradients | update_JxW_values);
+  data.tasks_parallel_scheme               = MatrixFree<dim>::AdditionalData::none;
+  data.mapping_update_flags_inner_faces    = (update_gradients | update_JxW_values);
+  data.mapping_update_flags_boundary_faces = (update_gradients | update_JxW_values);
 
   mf_data.reinit(mapping, dof, constraints, QGauss<1>(2), data);
   for (unsigned int i = 0; i < mf_data.n_boundary_face_batches(); ++i)
-    deallog << "Face "
-            << static_cast<unsigned int>(
-                 mf_data.get_face_info(i).interior_face_no)
-            << " boundary id " << mf_data.get_boundary_id(i) << std::endl;
+    deallog << "Face " << static_cast<unsigned int>(mf_data.get_face_info(i).interior_face_no) << " boundary id "
+            << mf_data.get_boundary_id(i) << std::endl;
 }
 
 

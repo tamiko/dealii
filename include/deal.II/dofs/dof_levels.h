@@ -84,8 +84,7 @@ namespace internal
        * next dofs_per_cell indices are for the current cell.
        */
       const types::global_dof_index *
-      get_cell_cache_start(const unsigned int obj_index,
-                           const unsigned int dofs_per_cell) const;
+      get_cell_cache_start(const unsigned int obj_index, const unsigned int dofs_per_cell) const;
 
       /**
        * Determine an estimate for the memory consumption (in bytes) of this
@@ -108,12 +107,9 @@ namespace internal
 
     template <int dim>
     inline const types::global_dof_index *
-    DoFLevel<dim>::get_cell_cache_start(const unsigned int obj_index,
-                                        const unsigned int dofs_per_cell) const
+    DoFLevel<dim>::get_cell_cache_start(const unsigned int obj_index, const unsigned int dofs_per_cell) const
     {
-      Assert(obj_index * dofs_per_cell + dofs_per_cell <=
-               cell_dof_indices_cache.size(),
-             ExcInternalError());
+      Assert(obj_index * dofs_per_cell + dofs_per_cell <= cell_dof_indices_cache.size(), ExcInternalError());
 
       return cell_dof_indices_cache.data() + (obj_index * dofs_per_cell);
     }

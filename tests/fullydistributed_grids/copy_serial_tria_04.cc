@@ -42,29 +42,22 @@ test(const int n_refinements, const int n_subdivisions, MPI_Comm comm)
   const double right = 1;
 
   auto add_periodicy = [&](dealii::Triangulation<dim> &tria) {
-    std::vector<
-      GridTools::PeriodicFacePair<typename Triangulation<dim>::cell_iterator>>
-         periodic_faces;
-    auto cell = tria.begin();
-    auto endc = tria.end();
+    std::vector<GridTools::PeriodicFacePair<typename Triangulation<dim>::cell_iterator>> periodic_faces;
+    auto                                                                                 cell = tria.begin();
+    auto                                                                                 endc = tria.end();
     for (; cell != endc; ++cell)
       for (const unsigned int face_number : GeometryInfo<dim>::face_indices())
         if (std::fabs(cell->face(face_number)->center()(0) - left) < 1e-12)
           cell->face(face_number)->set_all_boundary_ids(1);
-        else if (std::fabs(cell->face(face_number)->center()(0) - right) <
-                 1e-12)
+        else if (std::fabs(cell->face(face_number)->center()(0) - right) < 1e-12)
           cell->face(face_number)->set_all_boundary_ids(2);
-        else if (dim >= 2 &&
-                 std::fabs(cell->face(face_number)->center()(1) - left) < 1e-12)
+        else if (dim >= 2 && std::fabs(cell->face(face_number)->center()(1) - left) < 1e-12)
           cell->face(face_number)->set_all_boundary_ids(3);
-        else if (dim >= 2 && std::fabs(cell->face(face_number)->center()(1) -
-                                       right) < 1e-12)
+        else if (dim >= 2 && std::fabs(cell->face(face_number)->center()(1) - right) < 1e-12)
           cell->face(face_number)->set_all_boundary_ids(4);
-        else if (dim >= 3 &&
-                 std::fabs(cell->face(face_number)->center()(2) - left) < 1e-12)
+        else if (dim >= 3 && std::fabs(cell->face(face_number)->center()(2) - left) < 1e-12)
           cell->face(face_number)->set_all_boundary_ids(5);
-        else if (dim >= 3 && std::fabs(cell->face(face_number)->center()(2) -
-                                       right) < 1e-12)
+        else if (dim >= 3 && std::fabs(cell->face(face_number)->center()(2) - right) < 1e-12)
           cell->face(face_number)->set_all_boundary_ids(6);
 
     if (dim >= 1)
@@ -84,16 +77,13 @@ test(const int n_refinements, const int n_subdivisions, MPI_Comm comm)
   add_periodicy(basetria);
   basetria.refine_global(n_refinements);
 
-  GridTools::partition_triangulation_zorder(
-    Utilities::MPI::n_mpi_processes(comm), basetria);
+  GridTools::partition_triangulation_zorder(Utilities::MPI::n_mpi_processes(comm), basetria);
 
   // create instance of pft
   parallel::fullydistributed::Triangulation<dim> tria_pft(comm);
 
   // extract relevant information form serial triangulation
-  auto construction_data =
-    TriangulationDescription::Utilities::create_description_from_triangulation(
-      basetria, comm);
+  auto construction_data = TriangulationDescription::Utilities::create_description_from_triangulation(basetria, comm);
 
   // actually create triangulation
   tria_pft.create_triangulation(construction_data);

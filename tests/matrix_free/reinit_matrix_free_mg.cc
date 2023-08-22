@@ -54,8 +54,7 @@ do_test(const unsigned int n_refinements)
   dof_handler.distribute_dofs(fe);
   dof_handler.distribute_mg_dofs();
 
-  deallog << "Number of degrees of freedom: " << dof_handler.n_dofs()
-          << std::endl;
+  deallog << "Number of degrees of freedom: " << dof_handler.n_dofs() << std::endl;
 
   AffineConstraints<double> constraints;
   constraints.close();

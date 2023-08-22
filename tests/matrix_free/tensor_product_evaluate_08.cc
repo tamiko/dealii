@@ -45,12 +45,11 @@ test(const unsigned int degree)
         if (i0 + i1 + i2 == derivative_order)
           exponents.push_back(std::array<int, 3>{{i0, i1, i2}});
 
-  deallog << "Evaluate derivative " << derivative_order << " in " << dim
-          << "d with polynomial degree " << degree << std::endl;
+  deallog << "Evaluate derivative " << derivative_order << " in " << dim << "d with polynomial degree " << degree
+          << std::endl;
 
   const std::vector<Polynomials::Polynomial<double>> polynomials =
-    Polynomials::generate_complete_Lagrange_basis(
-      QGaussLobatto<1>(degree + 1).get_points());
+    Polynomials::generate_complete_Lagrange_basis(QGaussLobatto<1>(degree + 1).get_points());
 
   Point<dim> p;
   for (unsigned int d = 0; d < dim; ++d)
@@ -72,12 +71,10 @@ test(const unsigned int degree)
         deallog << exponent[d] << (d == dim - 1 ? "" : " ");
       deallog << "]: ";
       const auto derivative =
-        internal::evaluate_tensor_product_higher_derivatives<derivative_order>(
-          polynomials, function_values, p);
+        internal::evaluate_tensor_product_higher_derivatives<derivative_order>(polynomials, function_values, p);
 
       for (unsigned int d = 0; d < derivative.dimension; ++d)
-        deallog << (std::abs(derivative[d]) < 1e-11 ? 0. : derivative[d])
-                << " ";
+        deallog << (std::abs(derivative[d]) < 1e-11 ? 0. : derivative[d]) << " ";
       deallog << std::endl;
     }
   deallog << std::endl;

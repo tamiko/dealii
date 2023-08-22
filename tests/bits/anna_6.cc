@@ -120,11 +120,9 @@ BoundaryFunction<dim>::BoundaryFunction()
 
 template <int dim>
 inline void
-BoundaryFunction<dim>::vector_value(const Point<dim> &,
-                                    Vector<double> &values) const
+BoundaryFunction<dim>::vector_value(const Point<dim> &, Vector<double> &values) const
 {
-  Assert(values.size() == dim + 1,
-         ExcDimensionMismatch(values.size(), dim + 1));
+  Assert(values.size() == dim + 1, ExcDimensionMismatch(values.size(), dim + 1));
 
   values      = 0;
   values(dim) = 1.;
@@ -154,8 +152,7 @@ void
 ImposeBC<dim>::get_ready()
 {
   dof_handler.distribute_dofs(fe);
-  const std::vector<types::global_dof_index> dofs_per_comp =
-    DoFTools::count_dofs_per_fe_component(dof_handler);
+  const std::vector<types::global_dof_index> dofs_per_comp = DoFTools::count_dofs_per_fe_component(dof_handler);
 
   // For an FESystem with Nedelec-elements as
   // first component and bilinear elements as
@@ -181,10 +178,7 @@ ImposeBC<dim>::test_extract_boundary_DoFs()
   bc_component_select.set(2, false);
 
   const std::set<types::boundary_id> boundary_ids = {0};
-  const IndexSet                     ned_boundary_dofs =
-    DoFTools::extract_boundary_dofs(dof_handler,
-                                    bc_component_select,
-                                    boundary_ids);
+  const IndexSet ned_boundary_dofs = DoFTools::extract_boundary_dofs(dof_handler, bc_component_select, boundary_ids);
 
 
   for (unsigned int i = 0; i < dof_handler.n_dofs(); ++i)
@@ -206,11 +200,8 @@ ImposeBC<dim>::test_interpolate_BC()
   // on the scalar variable
   bc_component_select.set(dim, true);
 
-  VectorTools::interpolate_boundary_values(dof_handler,
-                                           0,
-                                           BoundaryFunction<dim>(),
-                                           boundary_values,
-                                           bc_component_select);
+  VectorTools::interpolate_boundary_values(
+    dof_handler, 0, BoundaryFunction<dim>(), boundary_values, bc_component_select);
 
 
 
@@ -218,10 +209,7 @@ ImposeBC<dim>::test_interpolate_BC()
   // (the pressure is assumed to be set to 1
   // on the boundary)
   const std::set<types::boundary_id> boundary_ids = {0};
-  const IndexSet                     p_boundary_dofs =
-    DoFTools::extract_boundary_dofs(dof_handler,
-                                    bc_component_select,
-                                    boundary_ids);
+  const IndexSet p_boundary_dofs = DoFTools::extract_boundary_dofs(dof_handler, bc_component_select, boundary_ids);
   for (unsigned int i = 0; i < dof_handler.n_dofs(); ++i)
     {
       // error: pressure boundary DoF
@@ -234,8 +222,7 @@ ImposeBC<dim>::test_interpolate_BC()
       // wrongly been set to some
       // value
       AssertThrow((p_boundary_dofs.is_element(i) && boundary_values[i] == 1.) ||
-                    (!(p_boundary_dofs.is_element(i)) &&
-                     boundary_values[i] != 1.),
+                    (!(p_boundary_dofs.is_element(i)) && boundary_values[i] != 1.),
                   ExcInternalError());
 
       deallog << boundary_values[i] << ' ';
@@ -254,17 +241,13 @@ ImposeBC<dim>::run()
   triangulation.begin_active()->set_refine_flag();
   triangulation.execute_coarsening_and_refinement();
 
-  deallog << "   Number of active cells:       "
-          << triangulation.n_active_cells() << std::endl;
+  deallog << "   Number of active cells:       " << triangulation.n_active_cells() << std::endl;
 
   get_ready();
 
-  deallog << "  Total number of degrees of freedom: " << dof_handler.n_dofs()
-          << std::endl
-          << "   Number of degrees of freedom for the field variable U: "
-          << n_u_dofs << std::endl
-          << "   Number of degrees of freedom for the pressure variable p: "
-          << n_p_dofs << std::endl;
+  deallog << "  Total number of degrees of freedom: " << dof_handler.n_dofs() << std::endl
+          << "   Number of degrees of freedom for the field variable U: " << n_u_dofs << std::endl
+          << "   Number of degrees of freedom for the pressure variable p: " << n_p_dofs << std::endl;
 
   test_extract_boundary_DoFs();
   test_interpolate_BC();
@@ -284,28 +267,20 @@ main()
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 

@@ -23,116 +23,59 @@ DEAL_II_NAMESPACE_OPEN
 namespace python
 {
   // Macro to enable default arguments
-  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_hyper_cube_overloads,
-                                         generate_hyper_cube,
-                                         0,
-                                         3)
-  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(
-    generate_subdivided_hyper_cube_overloads,
-    generate_subdivided_hyper_cube,
-    1,
-    3)
-  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_hyper_rectangle_overloads,
-                                         generate_hyper_rectangle,
+  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_hyper_cube_overloads, generate_hyper_cube, 0, 3)
+  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_subdivided_hyper_cube_overloads, generate_subdivided_hyper_cube, 1, 3)
+  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_hyper_rectangle_overloads, generate_hyper_rectangle, 2, 3)
+  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_subdivided_hyper_rectangle_overloads,
+                                         generate_subdivided_hyper_rectangle,
+                                         3,
+                                         4)
+  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_subdivided_steps_hyper_rectangle_overloads,
+                                         generate_subdivided_steps_hyper_rectangle,
+                                         3,
+                                         4)
+  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_subdivided_material_hyper_rectangle_overloads,
+                                         generate_subdivided_material_hyper_rectangle,
+                                         3,
+                                         4)
+  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_general_cell_overloads, generate_general_cell, 1, 2)
+  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_parallelogram_overloads, generate_parallelogram, 1, 2)
+  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_parallelepiped_overloads, generate_parallelepiped, 1, 2)
+  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_fixed_subdivided_parallelepiped_overloads,
+                                         generate_fixed_subdivided_parallelepiped,
                                          2,
                                          3)
-  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(
-    generate_subdivided_hyper_rectangle_overloads,
-    generate_subdivided_hyper_rectangle,
-    3,
-    4)
-  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(
-    generate_subdivided_steps_hyper_rectangle_overloads,
-    generate_subdivided_steps_hyper_rectangle,
-    3,
-    4)
-  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(
-    generate_subdivided_material_hyper_rectangle_overloads,
-    generate_subdivided_material_hyper_rectangle,
-    3,
-    4)
-  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_general_cell_overloads,
-                                         generate_general_cell,
-                                         1,
-                                         2)
-  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_parallelogram_overloads,
-                                         generate_parallelogram,
-                                         1,
-                                         2)
-  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_parallelepiped_overloads,
-                                         generate_parallelepiped,
-                                         1,
-                                         2)
-  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(
-    generate_fixed_subdivided_parallelepiped_overloads,
-    generate_fixed_subdivided_parallelepiped,
-    2,
-    3)
-  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(
-    generate_varying_subdivided_parallelepiped_overloads,
-    generate_varying_subdivided_parallelepiped,
-    2,
-    3)
-  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_enclosed_hyper_cube_overloads,
-                                         generate_enclosed_hyper_cube,
-                                         0,
-                                         4)
-  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(
-    generate_hyper_cube_with_cylindrical_hole_overloads,
-    generate_hyper_cube_with_cylindrical_hole,
-    0,
-    5)
-  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_hyper_ball_overloads,
-                                         generate_hyper_ball,
-                                         1,
-                                         2)
-  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_hyper_sphere_overloads,
-                                         generate_hyper_sphere,
-                                         1,
-                                         2)
-  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_quarter_hyper_ball_overloads,
-                                         generate_quarter_hyper_ball,
-                                         1,
-                                         2)
-  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_half_hyper_ball_overloads,
-                                         generate_half_hyper_ball,
-                                         1,
-                                         2)
-  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_hyper_shell_overloads,
-                                         generate_hyper_shell,
-                                         3,
-                                         5)
-  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(distort_random_overloads,
-                                         distort_random,
-                                         1,
-                                         2)
-  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(
-    find_active_cell_around_point_overloads,
-    find_active_cell_around_point,
-    1,
-    2)
-  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(merge_triangulations_overloads,
-                                         merge_triangulations,
-                                         1,
+  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_varying_subdivided_parallelepiped_overloads,
+                                         generate_varying_subdivided_parallelepiped,
+                                         2,
                                          3)
+  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_enclosed_hyper_cube_overloads, generate_enclosed_hyper_cube, 0, 4)
+  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_hyper_cube_with_cylindrical_hole_overloads,
+                                         generate_hyper_cube_with_cylindrical_hole,
+                                         0,
+                                         5)
+  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_hyper_ball_overloads, generate_hyper_ball, 1, 2)
+  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_hyper_sphere_overloads, generate_hyper_sphere, 1, 2)
+  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_quarter_hyper_ball_overloads, generate_quarter_hyper_ball, 1, 2)
+  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_half_hyper_ball_overloads, generate_half_hyper_ball, 1, 2)
+  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(generate_hyper_shell_overloads, generate_hyper_shell, 3, 5)
+  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(distort_random_overloads, distort_random, 1, 2)
+  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(find_active_cell_around_point_overloads, find_active_cell_around_point, 1, 2)
+  BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(merge_triangulations_overloads, merge_triangulations, 1, 3)
 
-  const char n_active_cells_docstring[] =
-    "Return the number of active cells.                                     \n";
+  const char n_active_cells_docstring[] = "Return the number of active cells.                                     \n";
 
 
 
-  const char n_cells_docstring[] =
-    "Return the number of cells.                                            \n";
+  const char n_cells_docstring[] = "Return the number of cells.                                            \n";
 
 
 
-  const char dim_docstring[] =
-    "Return the dimension of the Triangulation                              \n";
+  const char dim_docstring[] = "Return the dimension of the Triangulation                              \n";
 
 
 
-  const char spacedim_docstring[] =
-    "Return the space dimension of the Triangulation.                       \n";
+  const char spacedim_docstring[] = "Return the space dimension of the Triangulation.                       \n";
 
 
 
@@ -148,8 +91,7 @@ namespace python
 
 
 
-  const char generate_simplex_docstring[] =
-    "Generate a simplex with (dim+1) vertices and mesh cells.               \n";
+  const char generate_simplex_docstring[] = "Generate a simplex with (dim+1) vertices and mesh cells.               \n";
 
 
 
@@ -192,13 +134,12 @@ namespace python
 
 
 
-  const char generate_cheese_docstring[] =
-    "Rectangular domain with rectangular pattern of holes. The domain itself\n"
-    "is rectangular, very much as if it had been generated by               \n"
-    "subdivided_hyper_rectangle(). The argument holes specifies how many    \n"
-    "square holes the domain should have in each coordinate direction. The  \n"
-    "total number of mesh cells in that direction is then this number plus  \n"
-    "one. The number of holes in one direction must be at least one.        \n";
+  const char generate_cheese_docstring[] = "Rectangular domain with rectangular pattern of holes. The domain itself\n"
+                                           "is rectangular, very much as if it had been generated by               \n"
+                                           "subdivided_hyper_rectangle(). The argument holes specifies how many    \n"
+                                           "square holes the domain should have in each coordinate direction. The  \n"
+                                           "total number of mesh cells in that direction is then this number plus  \n"
+                                           "one. The number of holes in one direction must be at least one.        \n";
 
 
 
@@ -318,13 +259,11 @@ namespace python
 
 
 
-  const char shift_docstring[] =
-    "Shift every vertex of the Triangulation by the given shift vector.     \n";
+  const char shift_docstring[] = "Shift every vertex of the Triangulation by the given shift vector.     \n";
 
 
 
-  const char scale_docstring[] =
-    "Scale triangulation by a given scaling factor.                         \n";
+  const char scale_docstring[] = "Scale triangulation by a given scaling factor.                         \n";
 
 
 
@@ -334,12 +273,11 @@ namespace python
 
 
 
-  const char extrude_docstring[] =
-    "Take a 2d Triangulation that is being extruded in z direction by       \n"
-    "the total height of height using n_slices slices (minimum is 2).       \n"
-    "The boundary indicators of the faces of input are going to be          \n"
-    "assigned to the corresponding side walls in z direction. The           \n"
-    "bottom and top get the next two free boundary indicators.              \n";
+  const char extrude_docstring[] = "Take a 2d Triangulation that is being extruded in z direction by       \n"
+                                   "the total height of height using n_slices slices (minimum is 2).       \n"
+                                   "The boundary indicators of the faces of input are going to be          \n"
+                                   "assigned to the corresponding side walls in z direction. The           \n"
+                                   "bottom and top get the next two free boundary indicators.              \n";
 
 
 
@@ -363,24 +301,21 @@ namespace python
 
 
 
-  const char replicate_docstring[] =
-    "Replicate a given triangulation in multiple coordinate axes.          \n"
-    "This function creates a new Triangulation equal to a dim-dimensional  \n"
-    "array of copies of input.                                             \n";
+  const char replicate_docstring[] = "Replicate a given triangulation in multiple coordinate axes.          \n"
+                                     "This function creates a new Triangulation equal to a dim-dimensional  \n"
+                                     "array of copies of input.                                             \n";
 
 
 
-  const char distort_random_docstring[] =
-    "Distort the given triangulation by randomly moving around all the      \n"
-    "vertices of the grid. The direction of movement of each vertex is      \n"
-    "random, while the length of the shift vector has a value of factor     \n"
-    "times the minimal length of the active edges adjacent to this vertex.  \n"
-    "Note that factor should obviously be well below 0.5.                   \n";
+  const char distort_random_docstring[] = "Distort the given triangulation by randomly moving around all the      \n"
+                                          "vertices of the grid. The direction of movement of each vertex is      \n"
+                                          "random, while the length of the shift vector has a value of factor     \n"
+                                          "times the minimal length of the active edges adjacent to this vertex.  \n"
+                                          "Note that factor should obviously be well below 0.5.                   \n";
 
 
 
-  const char refine_global_docstring[] =
-    "Refine all the cells times time.                                       \n";
+  const char refine_global_docstring[] = "Refine all the cells times time.                                       \n";
 
 
 
@@ -389,61 +324,53 @@ namespace python
 
 
 
-  const char active_cells_docstring[] =
-    "Return the list of active cell accessors of the Triangulation.         \n";
+  const char active_cells_docstring[] = "Return the list of active cell accessors of the Triangulation.         \n";
 
 
 
-  const char cells_docstring[] =
-    "Return the list of cell accessors of the Triangulation.                \n";
+  const char cells_docstring[] = "Return the list of cell accessors of the Triangulation.                \n";
 
 
 
-  const char write_docstring[] =
-    "Write the mesh to the output file according to the given data format.  \n"
-    "The possible formats are:                                              \n"
-    "  - none                                                               \n"
-    "  - dx                                                                 \n"
-    "  - gnuplot                                                            \n"
-    "  - eps                                                                \n"
-    "  - ucd                                                                \n"
-    "  - xfig                                                               \n"
-    "  - msh                                                                \n"
-    "  - svg                                                                \n"
-    "  - mathgl                                                             \n"
-    "  - vtk                                                                \n"
-    "  - vtu                                                                \n";
+  const char write_docstring[] = "Write the mesh to the output file according to the given data format.  \n"
+                                 "The possible formats are:                                              \n"
+                                 "  - none                                                               \n"
+                                 "  - dx                                                                 \n"
+                                 "  - gnuplot                                                            \n"
+                                 "  - eps                                                                \n"
+                                 "  - ucd                                                                \n"
+                                 "  - xfig                                                               \n"
+                                 "  - msh                                                                \n"
+                                 "  - svg                                                                \n"
+                                 "  - mathgl                                                             \n"
+                                 "  - vtk                                                                \n"
+                                 "  - vtu                                                                \n";
 
 
 
-  const char read_docstring[] =
-    "Read a mesh from the file according to the given data format.          \n"
-    "The possible formats are:                                              \n"
-    "  - msh                                                                \n"
-    "  - vtk                                                                \n";
+  const char read_docstring[] = "Read a mesh from the file according to the given data format.          \n"
+                                "The possible formats are:                                              \n"
+                                "  - msh                                                                \n"
+                                "  - vtk                                                                \n";
 
 
 
-  const char save_docstring[] =
-    "Write the Triangulation to a file.                                     \n";
+  const char save_docstring[] = "Write the Triangulation to a file.                                     \n";
 
 
 
-  const char load_docstring[] =
-    "Load the Triangulation from a file.                                    \n";
+  const char load_docstring[] = "Load the Triangulation from a file.                                    \n";
 
 
 
-  const char set_manifold_docstring[] =
-    "Assign a manifold object to a certain part of the triangulation.       \n"
-    "The manifold_object is not copied and MUST persist until the           \n"
-    "triangulation is destroyed.                                            \n";
+  const char set_manifold_docstring[] = "Assign a manifold object to a certain part of the triangulation.       \n"
+                                        "The manifold_object is not copied and MUST persist until the           \n"
+                                        "triangulation is destroyed.                                            \n";
 
 
 
-  const char reset_manifold_docstring[] =
-    "Reset those parts of the triangulation with the given manifold_number  \n"
-    "to use a FlatManifold object.                                          \n";
+  const char reset_manifold_docstring[] = "Reset those parts of the triangulation with the given manifold_number  \n"
+                                          "to use a FlatManifold object.                                          \n";
 
 
 
@@ -457,9 +384,8 @@ namespace python
 
 
 
-  const char transform_docstring[] =
-    "Transform the vertices of the given triangulation by applying the      \n"
-    "function object provided as first argument to all its vertices.        \n";
+  const char transform_docstring[] = "Transform the vertices of the given triangulation by applying the      \n"
+                                     "function object provided as first argument to all its vertices.        \n";
 
 
 
@@ -501,36 +427,22 @@ namespace python
   {
     boost::python::class_<TriangulationWrapper>(
       "Triangulation",
-      boost::python::init<const std::string &,
-                          boost::python::optional<const int, const bool>>(
-        boost::python::args("dim",
-                            "mesh_smoothing",
-                            "check_for_distorted_cells")))
-      .def(boost::python::init<const std::string &,
-                               const std::string &,
-                               boost::python::optional<const int, const bool>>(
-        boost::python::args(
-          "dim", "spacedim", "mesh_smoothing", "check_for_distorted_cells")))
+      boost::python::init<const std::string &, boost::python::optional<const int, const bool>>(
+        boost::python::args("dim", "mesh_smoothing", "check_for_distorted_cells")))
+      .def(
+        boost::python::init<const std::string &, const std::string &, boost::python::optional<const int, const bool>>(
+          boost::python::args("dim", "spacedim", "mesh_smoothing", "check_for_distorted_cells")))
       .def("n_active_cells",
            &TriangulationWrapper::n_active_cells,
            n_active_cells_docstring,
            boost::python::args("self"))
-      .def("dim",
-           &TriangulationWrapper::get_dim,
-           dim_docstring,
-           boost::python::args("self"))
-      .def("spacedim",
-           &TriangulationWrapper::get_spacedim,
-           spacedim_docstring,
-           boost::python::args("self"))
+      .def("dim", &TriangulationWrapper::get_dim, dim_docstring, boost::python::args("self"))
+      .def("spacedim", &TriangulationWrapper::get_spacedim, spacedim_docstring, boost::python::args("self"))
       .def("n_active_cells",
            &TriangulationWrapper::n_active_cells,
            n_active_cells_docstring,
            boost::python::args("self"))
-      .def("n_cells",
-           &TriangulationWrapper::n_cells,
-           n_cells_docstring,
-           boost::python::args("self"))
+      .def("n_cells", &TriangulationWrapper::n_cells, n_cells_docstring, boost::python::args("self"))
       .def("minimal_cell_diameter",
            &TriangulationWrapper::minimal_cell_diameter,
            minimal_cell_diameter_docstring,
@@ -545,23 +457,20 @@ namespace python
            boost::python::args("self", "vertices", "cells_vertices"))
       .def("generate_hyper_cube",
            &TriangulationWrapper::generate_hyper_cube,
-           generate_hyper_cube_overloads(
-             boost::python::args("self", "left", "right", "colorize"),
-             generate_hyper_cube_docstring))
+           generate_hyper_cube_overloads(boost::python::args("self", "left", "right", "colorize"),
+                                         generate_hyper_cube_docstring))
       .def("generate_simplex",
            &TriangulationWrapper::generate_simplex,
            generate_simplex_docstring,
            boost::python::args("self", "vertices"))
       .def("generate_subdivided_hyper_cube",
            &TriangulationWrapper::generate_subdivided_hyper_cube,
-           generate_subdivided_hyper_cube_overloads(
-             boost::python::args("self", "repetitions", "left", "right"),
-             generate_subdivided_hyper_cube_docstring))
+           generate_subdivided_hyper_cube_overloads(boost::python::args("self", "repetitions", "left", "right"),
+                                                    generate_subdivided_hyper_cube_docstring))
       .def("generate_hyper_rectangle",
            &TriangulationWrapper::generate_hyper_rectangle,
-           generate_hyper_rectangle_overloads(
-             boost::python::args("self", "p1", "p2", "colorize"),
-             generate_hyper_rectangle_docstring))
+           generate_hyper_rectangle_overloads(boost::python::args("self", "p1", "p2", "colorize"),
+                                              generate_hyper_rectangle_docstring))
       .def("generate_subdivided_hyper_rectangle",
            &TriangulationWrapper::generate_subdivided_hyper_rectangle,
            generate_subdivided_hyper_rectangle_overloads(
@@ -575,18 +484,12 @@ namespace python
       .def("generate_subdivided_material_hyper_rectangle",
            &TriangulationWrapper::generate_subdivided_material_hyper_rectangle,
            generate_subdivided_material_hyper_rectangle_overloads(
-             boost::python::args(
-               "self", "spacing", "p", "material_id", "colorize"),
+             boost::python::args("self", "spacing", "p", "material_id", "colorize"),
              generate_subdivided_material_hyper_rectangle_docstring))
       .def("generate_hyper_cube_with_cylindrical_hole",
            &TriangulationWrapper::generate_hyper_cube_with_cylindrical_hole,
            generate_hyper_cube_with_cylindrical_hole_overloads(
-             boost::python::args("self",
-                                 "inner_radius",
-                                 "outer_radius",
-                                 "L",
-                                 "repetitions",
-                                 "colorize"),
+             boost::python::args("self", "inner_radius", "outer_radius", "L", "repetitions", "colorize"),
              generate_hyper_cube_with_cylindrical_hole_docstring))
       .def("generate_cheese",
            &TriangulationWrapper::generate_cheese,
@@ -594,79 +497,57 @@ namespace python
            boost::python::args("self", "holes"))
       .def("generate_general_cell",
            &TriangulationWrapper::generate_general_cell,
-           generate_general_cell_overloads(
-             boost::python::args("self", "vertices", "colorize"),
-             generate_general_cell_docstring))
+           generate_general_cell_overloads(boost::python::args("self", "vertices", "colorize"),
+                                           generate_general_cell_docstring))
       .def("generate_parallelogram",
            &TriangulationWrapper::generate_parallelogram,
-           generate_parallelogram_overloads(
-             boost::python::args("self", "corners", "colorize"),
-             generate_parallelogram_docstring))
+           generate_parallelogram_overloads(boost::python::args("self", "corners", "colorize"),
+                                            generate_parallelogram_docstring))
       .def("generate_parallelepiped",
            &TriangulationWrapper::generate_parallelepiped,
-           generate_parallelepiped_overloads(
-             boost::python::args("self", "corners", "colorize"),
-             generate_parallelepiped_docstring))
-      .def(
-        "generate_fixed_subdivided_parallelepiped",
-        &TriangulationWrapper::generate_fixed_subdivided_parallelepiped,
-        generate_fixed_subdivided_parallelepiped_overloads(
-          boost::python::args("self", "n_subdivisions", "corners", "colorize"),
-          generate_fixed_subdivided_parallelepiped_docstring))
-      .def(
-        "generate_varying_subdivided_parallelepiped",
-        &TriangulationWrapper::generate_varying_subdivided_parallelepiped,
-        generate_varying_subdivided_parallelepiped_overloads(
-          boost::python::args("self", "n_subdivisions", "corners", "colorize"),
-          generate_varying_subdivided_parallelepiped_docstring))
-      .def(
-        "generate_enclosed_hyper_cube",
-        &TriangulationWrapper::generate_enclosed_hyper_cube,
-        generate_enclosed_hyper_cube_overloads(
-          boost::python::args("self", "left", "right", "thickness", "colorize"),
-          generate_enclosed_hyper_cube_docstring))
+           generate_parallelepiped_overloads(boost::python::args("self", "corners", "colorize"),
+                                             generate_parallelepiped_docstring))
+      .def("generate_fixed_subdivided_parallelepiped",
+           &TriangulationWrapper::generate_fixed_subdivided_parallelepiped,
+           generate_fixed_subdivided_parallelepiped_overloads(
+             boost::python::args("self", "n_subdivisions", "corners", "colorize"),
+             generate_fixed_subdivided_parallelepiped_docstring))
+      .def("generate_varying_subdivided_parallelepiped",
+           &TriangulationWrapper::generate_varying_subdivided_parallelepiped,
+           generate_varying_subdivided_parallelepiped_overloads(
+             boost::python::args("self", "n_subdivisions", "corners", "colorize"),
+             generate_varying_subdivided_parallelepiped_docstring))
+      .def("generate_enclosed_hyper_cube",
+           &TriangulationWrapper::generate_enclosed_hyper_cube,
+           generate_enclosed_hyper_cube_overloads(boost::python::args("self", "left", "right", "thickness", "colorize"),
+                                                  generate_enclosed_hyper_cube_docstring))
       .def("generate_hyper_ball",
            &TriangulationWrapper::generate_hyper_ball,
-           generate_hyper_ball_overloads(
-             boost::python::args("self", "center", "radius"),
-             generate_hyper_ball_docstring))
+           generate_hyper_ball_overloads(boost::python::args("self", "center", "radius"),
+                                         generate_hyper_ball_docstring))
       .def("generate_hyper_sphere",
            &TriangulationWrapper::generate_hyper_sphere,
-           generate_hyper_sphere_overloads(
-             boost::python::args("self", "center", "radius"),
-             generate_hyper_sphere_docstring))
+           generate_hyper_sphere_overloads(boost::python::args("self", "center", "radius"),
+                                           generate_hyper_sphere_docstring))
       .def("generate_quarter_hyper_ball",
            &TriangulationWrapper::generate_quarter_hyper_ball,
-           generate_quarter_hyper_ball_overloads(
-             boost::python::args("self", "center", "radius"),
-             generate_quarter_hyper_ball_docstring))
+           generate_quarter_hyper_ball_overloads(boost::python::args("self", "center", "radius"),
+                                                 generate_quarter_hyper_ball_docstring))
       .def("generate_half_hyper_ball",
            &TriangulationWrapper::generate_half_hyper_ball,
-           generate_half_hyper_ball_overloads(
-             boost::python::args("self", "center", "radius"),
-             generate_half_hyper_ball_docstring))
+           generate_half_hyper_ball_overloads(boost::python::args("self", "center", "radius"),
+                                              generate_half_hyper_ball_docstring))
       .def("generate_hyper_shell",
            &TriangulationWrapper::generate_hyper_shell,
-           generate_hyper_shell_overloads(boost::python::args("self",
-                                                              "center",
-                                                              "inner_radius",
-                                                              "outer_radius",
-                                                              "n_cells",
-                                                              "colorize"),
-                                          generate_hyper_shell_docstring))
-      .def("shift",
-           &TriangulationWrapper::shift,
-           shift_docstring,
-           boost::python::args("self", "shift"))
-      .def("scale",
-           &TriangulationWrapper::scale,
-           scale_docstring,
-           boost::python::args("self", "scaling_factor"))
+           generate_hyper_shell_overloads(
+             boost::python::args("self", "center", "inner_radius", "outer_radius", "n_cells", "colorize"),
+             generate_hyper_shell_docstring))
+      .def("shift", &TriangulationWrapper::shift, shift_docstring, boost::python::args("self", "shift"))
+      .def("scale", &TriangulationWrapper::scale, scale_docstring, boost::python::args("self", "scaling_factor"))
       .def("merge_triangulations",
            &TriangulationWrapper::merge_triangulations,
            merge_triangulations_overloads(
-             boost::python::args(
-               "self", "triangulations", "vertex_tolerance", "copy_manifolds"),
+             boost::python::args("self", "triangulations", "vertex_tolerance", "copy_manifolds"),
              merge_triangulations_docstring))
       .def("extrude_triangulation",
            &TriangulationWrapper::extrude_triangulation,
@@ -682,9 +563,7 @@ namespace python
            boost::python::args("self", "tria_in", "extents"))
       .def("distort_random",
            &TriangulationWrapper::distort_random,
-           distort_random_overloads(
-             boost::python::args("self", "factor", "keep_boundary"),
-             distort_random_docstring))
+           distort_random_overloads(boost::python::args("self", "factor", "keep_boundary"), distort_random_docstring))
       .def("transform",
            &TriangulationWrapper::transform,
            transform_docstring,
@@ -695,9 +574,8 @@ namespace python
            boost::python::args("self", "tria_out"))
       .def("find_active_cell_around_point",
            &TriangulationWrapper::find_active_cell_around_point,
-           find_active_cell_around_point_overloads(
-             boost::python::args("self", "point", "mapping"),
-             find_active_cell_around_point_docstring))
+           find_active_cell_around_point_overloads(boost::python::args("self", "point", "mapping"),
+                                                   find_active_cell_around_point_docstring))
       .def("find_cells_adjacent_to_vertex",
            &TriangulationWrapper::find_cells_adjacent_to_vertex,
            find_cells_adjacent_to_vertex_docstring,
@@ -714,30 +592,12 @@ namespace python
            &TriangulationWrapper::execute_coarsening_and_refinement,
            execute_coarsening_and_refinement_docstring,
            boost::python::args("self"))
-      .def("active_cells",
-           &TriangulationWrapper::active_cells,
-           active_cells_docstring,
-           boost::python::args("self"))
-      .def("cells",
-           &TriangulationWrapper::cells,
-           cells_docstring,
-           boost::python::args("self"))
-      .def("write",
-           &TriangulationWrapper::write,
-           write_docstring,
-           boost::python::args("self", "filename", "format"))
-      .def("read",
-           &TriangulationWrapper::read,
-           read_docstring,
-           boost::python::args("self", "filename", "format"))
-      .def("save",
-           &TriangulationWrapper::save,
-           save_docstring,
-           boost::python::args("self", "filename"))
-      .def("load",
-           &TriangulationWrapper::load,
-           load_docstring,
-           boost::python::args("self", "filename"))
+      .def("active_cells", &TriangulationWrapper::active_cells, active_cells_docstring, boost::python::args("self"))
+      .def("cells", &TriangulationWrapper::cells, cells_docstring, boost::python::args("self"))
+      .def("write", &TriangulationWrapper::write, write_docstring, boost::python::args("self", "filename", "format"))
+      .def("read", &TriangulationWrapper::read, read_docstring, boost::python::args("self", "filename", "format"))
+      .def("save", &TriangulationWrapper::save, save_docstring, boost::python::args("self", "filename"))
+      .def("load", &TriangulationWrapper::load, load_docstring, boost::python::args("self", "filename"))
       .def("set_manifold",
            &TriangulationWrapper::set_manifold,
            set_manifold_docstring,
@@ -757,24 +617,16 @@ namespace python
 
     boost::python::enum_<TriangulationWrapper::MeshSmoothing>("MeshSmoothing")
       .value("none", TriangulationWrapper::none)
-      .value("limit_level_difference_at_vertices",
-             TriangulationWrapper::limit_level_difference_at_vertices)
-      .value("eliminate_unrefined_islands",
-             TriangulationWrapper::eliminate_unrefined_islands)
+      .value("limit_level_difference_at_vertices", TriangulationWrapper::limit_level_difference_at_vertices)
+      .value("eliminate_unrefined_islands", TriangulationWrapper::eliminate_unrefined_islands)
       .value("patch_level_1", TriangulationWrapper::patch_level_1)
       .value("coarsest_level_1", TriangulationWrapper::coarsest_level_1)
-      .value("allow_anisotropic_smoothing",
-             TriangulationWrapper::allow_anisotropic_smoothing)
-      .value("eliminate_refined_inner_islands",
-             TriangulationWrapper::eliminate_refined_inner_islands)
-      .value("eliminate_refined_boundary_islands",
-             TriangulationWrapper::eliminate_refined_boundary_islands)
-      .value("do_not_produce_unrefined_islands",
-             TriangulationWrapper::do_not_produce_unrefined_islands)
-      .value("smoothing_on_refinement",
-             TriangulationWrapper::smoothing_on_refinement)
-      .value("smoothing_on_coarsening",
-             TriangulationWrapper::smoothing_on_coarsening)
+      .value("allow_anisotropic_smoothing", TriangulationWrapper::allow_anisotropic_smoothing)
+      .value("eliminate_refined_inner_islands", TriangulationWrapper::eliminate_refined_inner_islands)
+      .value("eliminate_refined_boundary_islands", TriangulationWrapper::eliminate_refined_boundary_islands)
+      .value("do_not_produce_unrefined_islands", TriangulationWrapper::do_not_produce_unrefined_islands)
+      .value("smoothing_on_refinement", TriangulationWrapper::smoothing_on_refinement)
+      .value("smoothing_on_coarsening", TriangulationWrapper::smoothing_on_coarsening)
       .value("maximum_smoothing", TriangulationWrapper::maximum_smoothing);
   }
 } // namespace python

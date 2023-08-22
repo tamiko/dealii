@@ -42,10 +42,7 @@ check(DataOutBase::VtkFlags flags, std::ostream &out)
   names[4] = "i";
 
   std::vector<
-    std::tuple<unsigned int,
-               unsigned int,
-               std::string,
-               DataComponentInterpretation::DataComponentInterpretation>>
+    std::tuple<unsigned int, unsigned int, std::string, DataComponentInterpretation::DataComponentInterpretation>>
     vectors;
   DataOutBase::write_pvtu_record(out, {"abc.vtu"}, names, vectors, flags);
 }

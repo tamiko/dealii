@@ -64,20 +64,16 @@ do_test()
 
   using VectorType = LinearAlgebra::distributed::Vector<double>;
   VectorType global_dof_vector;
-  global_dof_vector.reinit(dof_handler.locally_owned_dofs(),
-                           locally_relevant_dofs,
-                           MPI_COMM_WORLD);
+  global_dof_vector.reinit(dof_handler.locally_owned_dofs(), locally_relevant_dofs, MPI_COMM_WORLD);
 
   QGauss<dim> quadrature(3);
 
-  FunctionParser<dim> function(dim == 2 ? "y;-x;x*x+y*y" :
-                                          "y;-x;0;x*x+y*y+z*z");
+  FunctionParser<dim> function(dim == 2 ? "y;-x;x*x+y*y" : "y;-x;0;x*x+y*y+z*z");
 
   AffineConstraints<double> constraints;
   DoFTools::make_hanging_node_constraints(dof_handler, constraints);
   constraints.close();
-  VectorTools::project(
-    dof_handler, constraints, quadrature, function, global_dof_vector);
+  VectorTools::project(dof_handler, constraints, quadrature, function, global_dof_vector);
   /*  VectorTools::interpolate(dof_handler,
                            Functions::SquareFunction<dim>(),
                            global_dof_vector);
@@ -87,52 +83,39 @@ do_test()
 
   std::vector<std::string> names(dim, "vec");
   names.emplace_back("my_scalar");
-  std::vector<DataComponentInterpretation::DataComponentInterpretation>
-    interpretation(dim,
-                   DataComponentInterpretation::component_is_part_of_vector);
+  std::vector<DataComponentInterpretation::DataComponentInterpretation> interpretation(
+    dim, DataComponentInterpretation::component_is_part_of_vector);
   interpretation.emplace_back(DataComponentInterpretation::component_is_scalar);
 
   {
     DataOut<dim> data_out;
     data_out.attach_dof_handler(dof_handler);
-    data_out.add_data_vector(dof_handler,
-                             global_dof_vector,
-                             names,
-                             interpretation);
+    data_out.add_data_vector(dof_handler, global_dof_vector, names, interpretation);
     data_out.build_patches(0);
     data_out.write_gnuplot(deallog.get_file_stream());
     data_out.write_vtu_in_parallel("base.vtu", MPI_COMM_WORLD);
   }
 
   {
-    MGLevelObject<VectorType>         dof_vector(0,
-                                         triangulation.n_global_levels() - 1);
+    MGLevelObject<VectorType>         dof_vector(0, triangulation.n_global_levels() - 1);
     MGTransferMatrixFree<dim, double> transfer;
 
     transfer.build(dof_handler);
     transfer.interpolate_to_mg(dof_handler, dof_vector, global_dof_vector);
 
-    for (unsigned int level = 0; level < triangulation.n_global_levels();
-         ++level)
+    for (unsigned int level = 0; level < triangulation.n_global_levels(); ++level)
       {
         deallog << "* level " << level << std::endl;
         DataOut<dim> data_out;
-        data_out.set_cell_selection(
-          [level](const typename Triangulation<dim>::cell_iterator &cell) {
-            return (cell->level() == static_cast<int>(level) &&
-                    cell->is_locally_owned_on_level());
-          });
+        data_out.set_cell_selection([level](const typename Triangulation<dim>::cell_iterator &cell) {
+          return (cell->level() == static_cast<int>(level) && cell->is_locally_owned_on_level());
+        });
         data_out.attach_triangulation(triangulation);
         data_out.add_mg_data_vector(dof_handler, dof_vector, "data");
-        data_out.add_mg_data_vector(dof_handler,
-                                    dof_vector,
-                                    names,
-                                    interpretation);
+        data_out.add_mg_data_vector(dof_handler, dof_vector, names, interpretation);
         data_out.build_patches(0);
         data_out.write_gnuplot(deallog.get_file_stream());
-        data_out.write_vtu_in_parallel(std::string("level") +
-                                         Utilities::to_string(level) + ".vtu",
-                                       MPI_COMM_WORLD);
+        data_out.write_vtu_in_parallel(std::string("level") + Utilities::to_string(level) + ".vtu", MPI_COMM_WORLD);
       }
   }
 }

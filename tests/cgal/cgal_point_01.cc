@@ -33,7 +33,7 @@ main()
   // Test conversion from deal.II Point to CGAL Point
   {
     const Point<3> dealii_point(1.0, 2.0, 3.0);
-    const auto cgal_point = dealii_point_to_cgal_point<CGALPoint>(dealii_point);
+    const auto     cgal_point = dealii_point_to_cgal_point<CGALPoint>(dealii_point);
     deallog << "CGAL Point: " << cgal_point << std::endl;
   }
 

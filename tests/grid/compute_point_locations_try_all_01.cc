@@ -73,13 +73,12 @@ test_compute_pt_loc(unsigned int n_points)
   // Initializing the cache
   GridTools::Cache<dim, dim> cache(tria);
 
-  auto cell_qpoint_map =
-    GridTools::compute_point_locations_try_all(cache, points);
-  const auto &cells   = std::get<0>(cell_qpoint_map);
-  const auto &qpoints = std::get<1>(cell_qpoint_map);
-  const auto &maps    = std::get<2>(cell_qpoint_map);
-  const auto &other_p = std::get<3>(cell_qpoint_map);
-  size_t      n_cells = cells.size();
+  auto        cell_qpoint_map = GridTools::compute_point_locations_try_all(cache, points);
+  const auto &cells           = std::get<0>(cell_qpoint_map);
+  const auto &qpoints         = std::get<1>(cell_qpoint_map);
+  const auto &maps            = std::get<2>(cell_qpoint_map);
+  const auto &other_p         = std::get<3>(cell_qpoint_map);
+  size_t      n_cells         = cells.size();
 
   deallog << "Points found in " << n_cells << " cells" << std::endl;
 
@@ -101,10 +100,8 @@ test_compute_pt_loc(unsigned int n_points)
         {
           // Check if points are the same as real points
           if (real_quad[q].distance(points[local_map[q]]) > 1e-10)
-            deallog << "Error on cell : " << cell << " at local point " << i
-                    << ", corresponding to real point " << points[local_map[q]]
-                    << ", that got transformed to " << real_quad[q]
-                    << " instead." << std::endl;
+            deallog << "Error on cell : " << cell << " at local point " << i << ", corresponding to real point "
+                    << points[local_map[q]] << ", that got transformed to " << real_quad[q] << " instead." << std::endl;
           else
             ++checked_points;
         }
@@ -119,12 +116,9 @@ test_compute_pt_loc(unsigned int n_points)
     deallog << "All points where processed correctly" << std::endl;
   else
     {
-      deallog << "Error: some points where not processed correctly"
-              << std::endl;
-      deallog << "Points found inside the mesh: " << checked_points
-              << std::endl;
-      deallog << "Discarded points: " << points.size() - checked_points
-              << std::endl;
+      deallog << "Error: some points where not processed correctly" << std::endl;
+      deallog << "Points found inside the mesh: " << checked_points << std::endl;
+      deallog << "Discarded points: " << points.size() - checked_points << std::endl;
       deallog << "Points outside the mesh: " << other_p.size() << std::endl;
       deallog << "Total points processed: " << points.size() << std::endl;
     }

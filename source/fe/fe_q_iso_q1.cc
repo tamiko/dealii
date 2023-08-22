@@ -34,13 +34,8 @@ template <int dim, int spacedim>
 FE_Q_iso_Q1<dim, spacedim>::FE_Q_iso_Q1(const unsigned int subdivisions)
   : FE_Q_Base<dim, spacedim>(
       TensorProductPolynomials<dim, Polynomials::PiecewisePolynomial<double>>(
-        Polynomials::generate_complete_Lagrange_basis_on_subdivisions(
-          subdivisions,
-          1)),
-      FiniteElementData<dim>(this->get_dpo_vector(subdivisions),
-                             1,
-                             subdivisions,
-                             FiniteElementData<dim>::H1),
+        Polynomials::generate_complete_Lagrange_basis_on_subdivisions(subdivisions, 1)),
+      FiniteElementData<dim>(this->get_dpo_vector(subdivisions), 1, subdivisions, FiniteElementData<dim>::H1),
       std::vector<bool>(1, false))
 {
   Assert(subdivisions > 0,
@@ -56,17 +51,14 @@ FE_Q_iso_Q1<dim, spacedim>::FE_Q_iso_Q1(const unsigned int subdivisions)
 
 
 template <int dim, int spacedim>
-FE_Q_iso_Q1<dim, spacedim>::FE_Q_iso_Q1(
-  const std::vector<Point<1>> &support_points)
-  : FE_Q_Base<dim, spacedim>(
-      TensorProductPolynomials<dim, Polynomials::PiecewisePolynomial<double>>(
-        Polynomials::generate_complete_linear_basis_on_subdivisions(
-          support_points)),
-      FiniteElementData<dim>(this->get_dpo_vector(support_points.size() - 1),
-                             1,
-                             support_points.size() - 1,
-                             FiniteElementData<dim>::H1),
-      std::vector<bool>(1, false))
+FE_Q_iso_Q1<dim, spacedim>::FE_Q_iso_Q1(const std::vector<Point<1>> &support_points)
+  : FE_Q_Base<dim, spacedim>(TensorProductPolynomials<dim, Polynomials::PiecewisePolynomial<double>>(
+                               Polynomials::generate_complete_linear_basis_on_subdivisions(support_points)),
+                             FiniteElementData<dim>(this->get_dpo_vector(support_points.size() - 1),
+                                                    1,
+                                                    support_points.size() - 1,
+                                                    FiniteElementData<dim>::H1),
+                             std::vector<bool>(1, false))
 {
   Assert(support_points.size() > 1,
          ExcMessage("This element can only be used with a positive number of "
@@ -86,8 +78,7 @@ FE_Q_iso_Q1<dim, spacedim>::get_name() const
   // kept in sync
 
   std::ostringstream namebuf;
-  namebuf << "FE_Q_iso_Q1<" << Utilities::dim_string(dim, spacedim) << ">("
-          << this->degree << ")";
+  namebuf << "FE_Q_iso_Q1<" << Utilities::dim_string(dim, spacedim) << ">(" << this->degree << ")";
   return namebuf.str();
 }
 
@@ -95,13 +86,11 @@ FE_Q_iso_Q1<dim, spacedim>::get_name() const
 
 template <int dim, int spacedim>
 void
-FE_Q_iso_Q1<dim, spacedim>::
-  convert_generalized_support_point_values_to_dof_values(
-    const std::vector<Vector<double>> &support_point_values,
-    std::vector<double> &              nodal_values) const
+FE_Q_iso_Q1<dim, spacedim>::convert_generalized_support_point_values_to_dof_values(
+  const std::vector<Vector<double>> &support_point_values,
+  std::vector<double>               &nodal_values) const
 {
-  AssertDimension(support_point_values.size(),
-                  this->get_unit_support_points().size());
+  AssertDimension(support_point_values.size(), this->get_unit_support_points().size());
   AssertDimension(support_point_values.size(), nodal_values.size());
   AssertDimension(this->n_dofs_per_cell(), nodal_values.size());
 
@@ -126,9 +115,8 @@ FE_Q_iso_Q1<dim, spacedim>::clone() const
 
 template <int dim, int spacedim>
 FiniteElementDomination::Domination
-FE_Q_iso_Q1<dim, spacedim>::compare_for_domination(
-  const FiniteElement<dim, spacedim> &fe_other,
-  const unsigned int                  codim) const
+FE_Q_iso_Q1<dim, spacedim>::compare_for_domination(const FiniteElement<dim, spacedim> &fe_other,
+                                                   const unsigned int                  codim) const
 {
   Assert(codim <= dim, ExcImpossibleInDim(dim));
   (void)codim;
@@ -145,25 +133,21 @@ FE_Q_iso_Q1<dim, spacedim>::compare_for_domination(
   // (if fe_other is not derived from FE_DGQ)
   // & cell domination
   // ----------------------------------------
-  if (const FE_Q_iso_Q1<dim, spacedim> *fe_q_iso_q1_other =
-        dynamic_cast<const FE_Q_iso_Q1<dim, spacedim> *>(&fe_other))
+  if (const FE_Q_iso_Q1<dim, spacedim> *fe_q_iso_q1_other = dynamic_cast<const FE_Q_iso_Q1<dim, spacedim> *>(&fe_other))
     {
       // different behavior as in FE_Q: as FE_Q_iso_Q1(2) is not a subspace of
       // FE_Q_iso_Q1(3), need that the element degrees are multiples of each
       // other
-      if (this->degree < fe_q_iso_q1_other->degree &&
-          fe_q_iso_q1_other->degree % this->degree == 0)
+      if (this->degree < fe_q_iso_q1_other->degree && fe_q_iso_q1_other->degree % this->degree == 0)
         return FiniteElementDomination::this_element_dominates;
       else if (this->degree == fe_q_iso_q1_other->degree)
         return FiniteElementDomination::either_element_can_dominate;
-      else if (this->degree > fe_q_iso_q1_other->degree &&
-               this->degree % fe_q_iso_q1_other->degree == 0)
+      else if (this->degree > fe_q_iso_q1_other->degree && this->degree % fe_q_iso_q1_other->degree == 0)
         return FiniteElementDomination::other_element_dominates;
       else
         return FiniteElementDomination::neither_element_dominates;
     }
-  else if (const FE_Nothing<dim> *fe_nothing =
-             dynamic_cast<const FE_Nothing<dim> *>(&fe_other))
+  else if (const FE_Nothing<dim> *fe_nothing = dynamic_cast<const FE_Nothing<dim> *>(&fe_other))
     {
       if (fe_nothing->is_dominating())
         return FiniteElementDomination::other_element_dominates;

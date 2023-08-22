@@ -46,14 +46,11 @@ check(std::ostream &log, unsigned cell_order)
   Vector<double> vec(dof_handler.n_dofs());
   MappingQ<dim>  mapping(cell_order);
 
-  VectorTools::interpolate(mapping,
-                           dof_handler,
-                           Functions::SquareFunction<dim>(),
-                           vec);
+  VectorTools::interpolate(mapping, dof_handler, Functions::SquareFunction<dim>(), vec);
 
   DataOutBase::VtkFlags flags;
   flags.write_higher_order_cells = true;
-  flags.compression_level = DataOutBase::CompressionLevel::best_compression;
+  flags.compression_level        = DataOutBase::CompressionLevel::best_compression;
 
   DataOut<dim> data_out;
   data_out.set_flags(flags);

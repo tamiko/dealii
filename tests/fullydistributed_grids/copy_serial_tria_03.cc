@@ -40,14 +40,12 @@ void
 test(int n_refinements, const int n_subdivisions, MPI_Comm comm)
 {
   // create serial triangulation
-  Triangulation<dim> basetria(
-    Triangulation<dim>::limit_level_difference_at_vertices);
+  Triangulation<dim> basetria(Triangulation<dim>::limit_level_difference_at_vertices);
 
 
   const Point<dim> center(1, 0);
   const double     inner_radius = 0.5, outer_radius = 1.0;
-  GridGenerator::hyper_shell(
-    basetria, center, inner_radius, outer_radius, n_subdivisions);
+  GridGenerator::hyper_shell(basetria, center, inner_radius, outer_radius, n_subdivisions);
   // basetria.reset_all_manifolds ();
   for (int step = 0; step < n_refinements; ++step)
     {
@@ -56,8 +54,7 @@ test(int n_refinements, const int n_subdivisions, MPI_Comm comm)
           // if(cell->is_locally_owned ())
           for (const unsigned int v : GeometryInfo<2>::vertex_indices())
             {
-              const double distance_from_center =
-                center.distance(cell->vertex(v));
+              const double distance_from_center = center.distance(cell->vertex(v));
               if (std::fabs(distance_from_center - inner_radius) < 1e-10)
                 {
                   cell->set_refine_flag();
@@ -68,8 +65,7 @@ test(int n_refinements, const int n_subdivisions, MPI_Comm comm)
       basetria.execute_coarsening_and_refinement();
     }
 
-  GridTools::partition_triangulation_zorder(
-    Utilities::MPI::n_mpi_processes(comm), basetria);
+  GridTools::partition_triangulation_zorder(Utilities::MPI::n_mpi_processes(comm), basetria);
   // if(n_refinements!=0)
   GridTools::partition_multigrid_levels(basetria);
 
@@ -79,11 +75,8 @@ test(int n_refinements, const int n_subdivisions, MPI_Comm comm)
   tria_pft.set_manifold(0, SphericalManifold<dim>(center));
 
   // extract relevant information form pdt
-  auto construction_data =
-    TriangulationDescription::Utilities::create_description_from_triangulation(
-      basetria,
-      comm,
-      TriangulationDescription::Settings::construct_multigrid_hierarchy);
+  auto construction_data = TriangulationDescription::Utilities::create_description_from_triangulation(
+    basetria, comm, TriangulationDescription::Settings::construct_multigrid_hierarchy);
 
   // actually create triangulation
   tria_pft.create_triangulation(construction_data);

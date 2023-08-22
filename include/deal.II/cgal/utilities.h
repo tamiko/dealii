@@ -140,10 +140,9 @@ namespace CGALWrappers
    */
   template <typename C3t3>
   void
-  cgal_surface_mesh_to_cgal_triangulation(
-    CGAL::Surface_mesh<typename C3t3::Point::Point> &surface_mesh,
-    C3t3 &                                           triangulation,
-    const AdditionalData<3> &data = AdditionalData<3>{});
+  cgal_surface_mesh_to_cgal_triangulation(CGAL::Surface_mesh<typename C3t3::Point::Point> &surface_mesh,
+                                          C3t3                                            &triangulation,
+                                          const AdditionalData<3>                         &data = AdditionalData<3>{});
 
   /**
    * Given two triangulated surface meshes that bound two volumes, execute a
@@ -190,11 +189,10 @@ namespace CGALWrappers
    */
   template <typename CGALPointType>
   void
-  compute_boolean_operation(
-    const CGAL::Surface_mesh<CGALPointType> &surface_mesh_1,
-    const CGAL::Surface_mesh<CGALPointType> &surface_mesh_2,
-    const BooleanOperation &                 boolean_operation,
-    CGAL::Surface_mesh<CGALPointType> &      output_surface_mesh);
+  compute_boolean_operation(const CGAL::Surface_mesh<CGALPointType> &surface_mesh_1,
+                            const CGAL::Surface_mesh<CGALPointType> &surface_mesh_2,
+                            const BooleanOperation                  &boolean_operation,
+                            CGAL::Surface_mesh<CGALPointType>       &output_surface_mesh);
 
   /**
    * Given a CGAL Triangulation describing a polyhedral region, create
@@ -209,8 +207,7 @@ namespace CGALWrappers
    */
   template <typename CGALTriangulationType>
   dealii::Quadrature<CGALTriangulationType::Point::Ambient_dimension::value>
-  compute_quadrature(const CGALTriangulationType &tria,
-                     const unsigned int           degree);
+  compute_quadrature(const CGALTriangulationType &tria, const unsigned int degree);
 
   /**
    * Compute a Quadrature formula over the polygonal/polyhedral region described
@@ -233,13 +230,11 @@ namespace CGALWrappers
     const typename dealii::Triangulation<dim0, spacedim>::cell_iterator &cell0,
     const typename dealii::Triangulation<dim1, spacedim>::cell_iterator &cell1,
     const unsigned int                                                   degree,
-    const BooleanOperation &       bool_op,
-    const Mapping<dim0, spacedim> &mapping0 =
-      (ReferenceCells::get_hypercube<dim0>()
-         .template get_default_linear_mapping<dim0, spacedim>()),
+    const BooleanOperation                                              &bool_op,
+    const Mapping<dim0, spacedim>                                       &mapping0 =
+      (ReferenceCells::get_hypercube<dim0>().template get_default_linear_mapping<dim0, spacedim>()),
     const Mapping<dim1, spacedim> &mapping1 =
-      (ReferenceCells::get_hypercube<dim1>()
-         .template get_default_linear_mapping<dim1, spacedim>()));
+      (ReferenceCells::get_hypercube<dim1>().template get_default_linear_mapping<dim1, spacedim>()));
 
   /**
    * A specialization of the function above when the BooleanOperation is an
@@ -258,12 +253,11 @@ namespace CGALWrappers
    */
   template <int dim0, int dim1, int spacedim>
   dealii::Quadrature<spacedim>
-  compute_quadrature_on_intersection(
-    const typename dealii::Triangulation<dim0, spacedim>::cell_iterator &cell0,
-    const typename dealii::Triangulation<dim1, spacedim>::cell_iterator &cell1,
-    const unsigned int                                                   degree,
-    const Mapping<dim0, spacedim> &mapping0,
-    const Mapping<dim1, spacedim> &mapping1);
+  compute_quadrature_on_intersection(const typename dealii::Triangulation<dim0, spacedim>::cell_iterator &cell0,
+                                     const typename dealii::Triangulation<dim1, spacedim>::cell_iterator &cell1,
+                                     const unsigned int                                                   degree,
+                                     const Mapping<dim0, spacedim>                                       &mapping0,
+                                     const Mapping<dim1, spacedim>                                       &mapping1);
 
   /**
    * Remesh a CGAL::Surface_mesh.
@@ -295,8 +289,7 @@ namespace CGALWrappers
    */
   template <typename CGALPointType>
   void
-  remesh_surface(CGAL::Surface_mesh<CGALPointType> &surface_mesh,
-                 const AdditionalData<3> &          data = AdditionalData<3>{});
+  remesh_surface(CGAL::Surface_mesh<CGALPointType> &surface_mesh, const AdditionalData<3> &data = AdditionalData<3>{});
 } // namespace CGALWrappers
 
 #  ifndef DOXYGEN
@@ -305,63 +298,45 @@ namespace CGALWrappers
 {
   template <typename C3t3>
   void
-  cgal_surface_mesh_to_cgal_triangulation(
-    CGAL::Surface_mesh<typename C3t3::Point::Point> &surface_mesh,
-    C3t3 &                                           triangulation,
-    const AdditionalData<3> &                        data)
+  cgal_surface_mesh_to_cgal_triangulation(CGAL::Surface_mesh<typename C3t3::Point::Point> &surface_mesh,
+                                          C3t3                                            &triangulation,
+                                          const AdditionalData<3>                         &data)
   {
     using CGALPointType = typename C3t3::Point::Point;
-    Assert(CGAL::is_closed(surface_mesh),
-           ExcMessage("The surface mesh must be closed."));
+    Assert(CGAL::is_closed(surface_mesh), ExcMessage("The surface mesh must be closed."));
 
-    using K           = typename CGAL::Kernel_traits<CGALPointType>::Kernel;
-    using Mesh_domain = CGAL::Polyhedral_mesh_domain_with_features_3<
-      K,
-      CGAL::Surface_mesh<CGALPointType>>;
-    using Tr = typename CGAL::
-      Mesh_triangulation_3<Mesh_domain, CGAL::Default, ConcurrencyTag>::type;
+    using K             = typename CGAL::Kernel_traits<CGALPointType>::Kernel;
+    using Mesh_domain   = CGAL::Polyhedral_mesh_domain_with_features_3<K, CGAL::Surface_mesh<CGALPointType>>;
+    using Tr            = typename CGAL::Mesh_triangulation_3<Mesh_domain, CGAL::Default, ConcurrencyTag>::type;
     using Mesh_criteria = CGAL::Mesh_criteria_3<Tr>;
 
     CGAL::Polygon_mesh_processing::triangulate_faces(surface_mesh);
     Mesh_domain domain(surface_mesh);
     domain.detect_features();
-    Mesh_criteria criteria(CGAL::parameters::facet_size  = data.facet_size,
-                           CGAL::parameters::facet_angle = data.facet_angle,
-                           CGAL::parameters::facet_distance =
-                             data.facet_distance,
-                           CGAL::parameters::cell_radius_edge_ratio =
-                             data.cell_radius_edge_ratio,
-                           CGAL::parameters::cell_size = data.cell_size);
+    Mesh_criteria criteria(CGAL::parameters::facet_size             = data.facet_size,
+                           CGAL::parameters::facet_angle            = data.facet_angle,
+                           CGAL::parameters::facet_distance         = data.facet_distance,
+                           CGAL::parameters::cell_radius_edge_ratio = data.cell_radius_edge_ratio,
+                           CGAL::parameters::cell_size              = data.cell_size);
     // Mesh generation
-    triangulation = CGAL::make_mesh_3<C3t3>(domain,
-                                            criteria,
-                                            CGAL::parameters::no_perturb(),
-                                            CGAL::parameters::no_exude());
+    triangulation =
+      CGAL::make_mesh_3<C3t3>(domain, criteria, CGAL::parameters::no_perturb(), CGAL::parameters::no_exude());
   }
 
 
 
   template <typename CGALPointType>
   void
-  compute_boolean_operation(
-    const CGAL::Surface_mesh<CGALPointType> &surface_mesh_1,
-    const CGAL::Surface_mesh<CGALPointType> &surface_mesh_2,
-    const BooleanOperation &                 boolean_operation,
-    CGAL::Surface_mesh<CGALPointType> &      output_surface_mesh)
+  compute_boolean_operation(const CGAL::Surface_mesh<CGALPointType> &surface_mesh_1,
+                            const CGAL::Surface_mesh<CGALPointType> &surface_mesh_2,
+                            const BooleanOperation                  &boolean_operation,
+                            CGAL::Surface_mesh<CGALPointType>       &output_surface_mesh)
   {
-    Assert(output_surface_mesh.is_empty(),
-           ExcMessage(
-             "output_surface_mesh must be empty upon calling this function"));
-    Assert(CGAL::is_closed(surface_mesh_1),
-           ExcMessage(
-             "The input surface_mesh_1 must be a closed surface mesh."));
-    Assert(CGAL::is_closed(surface_mesh_2),
-           ExcMessage(
-             "The input surface_mesh_2 must be a closed surface mesh."));
-    Assert(CGAL::is_triangle_mesh(surface_mesh_1),
-           ExcMessage("The first CGAL mesh must be triangulated."));
-    Assert(CGAL::is_triangle_mesh(surface_mesh_2),
-           ExcMessage("The second CGAL mesh must be triangulated."));
+    Assert(output_surface_mesh.is_empty(), ExcMessage("output_surface_mesh must be empty upon calling this function"));
+    Assert(CGAL::is_closed(surface_mesh_1), ExcMessage("The input surface_mesh_1 must be a closed surface mesh."));
+    Assert(CGAL::is_closed(surface_mesh_2), ExcMessage("The input surface_mesh_2 must be a closed surface mesh."));
+    Assert(CGAL::is_triangle_mesh(surface_mesh_1), ExcMessage("The first CGAL mesh must be triangulated."));
+    Assert(CGAL::is_triangle_mesh(surface_mesh_2), ExcMessage("The second CGAL mesh must be triangulated."));
 
     bool res      = false;
     auto surf_1   = surface_mesh_1;
@@ -370,19 +345,13 @@ namespace CGALWrappers
     switch (boolean_operation)
       {
         case BooleanOperation::compute_union:
-          res = PMP::corefine_and_compute_union(surf_1,
-                                                surf_2,
-                                                output_surface_mesh);
+          res = PMP::corefine_and_compute_union(surf_1, surf_2, output_surface_mesh);
           break;
         case BooleanOperation::compute_intersection:
-          res = PMP::corefine_and_compute_intersection(surf_1,
-                                                       surf_2,
-                                                       output_surface_mesh);
+          res = PMP::corefine_and_compute_intersection(surf_1, surf_2, output_surface_mesh);
           break;
         case BooleanOperation::compute_difference:
-          res = PMP::corefine_and_compute_difference(surf_1,
-                                                     surf_2,
-                                                     output_surface_mesh);
+          res = PMP::corefine_and_compute_difference(surf_1, surf_2, output_surface_mesh);
           break;
         case BooleanOperation::compute_corefinement:
           PMP::corefine(surf_1,
@@ -395,35 +364,28 @@ namespace CGALWrappers
           break;
       }
     (void)res;
-    Assert(res,
-           ExcMessage("The boolean operation was not successfully computed."));
+    Assert(res, ExcMessage("The boolean operation was not successfully computed."));
   }
 
 
 
   template <typename CGALTriangulationType>
   dealii::Quadrature<CGALTriangulationType::Point::Ambient_dimension::value>
-  compute_quadrature(const CGALTriangulationType &tria,
-                     const unsigned int           degree)
+  compute_quadrature(const CGALTriangulationType &tria, const unsigned int degree)
   {
     Assert(tria.is_valid(), ExcMessage("The triangulation is not valid."));
-    Assert(CGALTriangulationType::Point::Ambient_dimension::value == 3,
-           ExcNotImplemented());
-    Assert(degree > 0,
-           ExcMessage("The degree of the Quadrature formula is not positive."));
+    Assert(CGALTriangulationType::Point::Ambient_dimension::value == 3, ExcNotImplemented());
+    Assert(degree > 0, ExcMessage("The degree of the Quadrature formula is not positive."));
 
-    constexpr int spacedim =
-      CGALTriangulationType::Point::Ambient_dimension::value;
-    std::vector<std::array<dealii::Point<spacedim>, spacedim + 1>>
-      vec_of_simplices; // tets
+    constexpr int spacedim = CGALTriangulationType::Point::Ambient_dimension::value;
+    std::vector<std::array<dealii::Point<spacedim>, spacedim + 1>> vec_of_simplices; // tets
 
     std::array<dealii::Point<spacedim>, spacedim + 1> simplex;
     for (const auto &f : tria.finite_cell_handles())
       {
         for (unsigned int i = 0; i < (spacedim + 1); ++i)
           {
-            simplex[i] =
-              cgal_point_to_dealii_point<spacedim>(f->vertex(i)->point());
+            simplex[i] = cgal_point_to_dealii_point<spacedim>(f->vertex(i)->point());
           }
 
         vec_of_simplices.push_back(simplex);
@@ -436,36 +398,32 @@ namespace CGALWrappers
 
   template <int dim0, int dim1, int spacedim>
   dealii::Quadrature<spacedim>
-  compute_quadrature_on_boolean_operation(
-    const typename dealii::Triangulation<dim0, spacedim>::cell_iterator &cell0,
-    const typename dealii::Triangulation<dim1, spacedim>::cell_iterator &cell1,
-    const unsigned int                                                   degree,
-    const BooleanOperation &       bool_op,
-    const Mapping<dim0, spacedim> &mapping0,
-    const Mapping<dim1, spacedim> &mapping1)
+  compute_quadrature_on_boolean_operation(const typename dealii::Triangulation<dim0, spacedim>::cell_iterator &cell0,
+                                          const typename dealii::Triangulation<dim1, spacedim>::cell_iterator &cell1,
+                                          const unsigned int                                                   degree,
+                                          const BooleanOperation                                              &bool_op,
+                                          const Mapping<dim0, spacedim>                                       &mapping0,
+                                          const Mapping<dim1, spacedim>                                       &mapping1)
   {
-    Assert(dim0 == 3 && dim1 == 3 && spacedim == 3,
-           ExcNotImplemented("2d geometries are not yet supported."));
+    Assert(dim0 == 3 && dim1 == 3 && spacedim == 3, ExcNotImplemented("2d geometries are not yet supported."));
     if (dim1 > dim0)
       {
-        return compute_quadrature_on_boolean_operation(
-          cell1,
-          cell0,
-          degree,
-          bool_op,
-          mapping1,
-          mapping0); // This function works for dim1<=dim0, so swap them if this
-                     // is not the case.
+        return compute_quadrature_on_boolean_operation(cell1,
+                                                       cell0,
+                                                       degree,
+                                                       bool_op,
+                                                       mapping1,
+                                                       mapping0); // This function works for dim1<=dim0, so swap them if
+                                                                  // this is not the case.
       }
     if (bool_op == BooleanOperation::compute_intersection)
       {
-        return compute_quadrature_on_intersection(
-          cell0, cell1, degree, mapping0, mapping1);
+        return compute_quadrature_on_intersection(cell0, cell1, degree, mapping0, mapping1);
       }
     else
       {
-        using K         = CGAL::Exact_predicates_inexact_constructions_kernel;
-        using CGALPoint = CGAL::Point_3<K>;
+        using K                 = CGAL::Exact_predicates_inexact_constructions_kernel;
+        using CGALPoint         = CGAL::Point_3<K>;
         using CGALTriangulation = CGAL::Triangulation_3<K>;
         CGAL::Surface_mesh<CGALPoint> surface_1, surface_2, out_surface;
         dealii_cell_to_cgal_surface_mesh(cell0, mapping0, surface_1);
@@ -473,8 +431,7 @@ namespace CGALWrappers
         // They have to be triangle meshes
         CGAL::Polygon_mesh_processing::triangulate_faces(surface_1);
         CGAL::Polygon_mesh_processing::triangulate_faces(surface_2);
-        Assert(CGAL::is_triangle_mesh(surface_1) &&
-                 CGAL::is_triangle_mesh(surface_2),
+        Assert(CGAL::is_triangle_mesh(surface_1) && CGAL::is_triangle_mesh(surface_2),
                ExcMessage("The surface must be a triangle mesh."));
         compute_boolean_operation(surface_1, surface_2, bool_op, out_surface);
 
@@ -488,17 +445,15 @@ namespace CGALWrappers
 
   template <int dim0, int dim1, int spacedim>
   dealii::Quadrature<spacedim>
-  compute_quadrature_on_intersection(
-    const typename dealii::Triangulation<dim0, spacedim>::cell_iterator &cell0,
-    const typename dealii::Triangulation<dim1, spacedim>::cell_iterator &cell1,
-    const unsigned int                                                   degree,
-    const Mapping<dim0, spacedim> &mapping0,
-    const Mapping<dim1, spacedim> &mapping1)
+  compute_quadrature_on_intersection(const typename dealii::Triangulation<dim0, spacedim>::cell_iterator &cell0,
+                                     const typename dealii::Triangulation<dim1, spacedim>::cell_iterator &cell1,
+                                     const unsigned int                                                   degree,
+                                     const Mapping<dim0, spacedim>                                       &mapping0,
+                                     const Mapping<dim1, spacedim>                                       &mapping1)
   {
-    Assert(dim0 == 3 && dim1 == 3 && spacedim == 3,
-           ExcNotImplemented("2d geometries are not yet supported."));
-    using K         = CGAL::Exact_predicates_inexact_constructions_kernel;
-    using CGALPoint = CGAL::Point_3<K>;
+    Assert(dim0 == 3 && dim1 == 3 && spacedim == 3, ExcNotImplemented("2d geometries are not yet supported."));
+    using K                 = CGAL::Exact_predicates_inexact_constructions_kernel;
+    using CGALPoint         = CGAL::Point_3<K>;
     using CGALTriangulation = CGAL::Triangulation_3<K>;
 
     CGAL::Surface_mesh<CGALPoint> surface_1, surface_2, out_surface;
@@ -508,15 +463,10 @@ namespace CGALWrappers
     CGAL::Polygon_mesh_processing::triangulate_faces(surface_1);
     CGAL::Polygon_mesh_processing::triangulate_faces(surface_2);
 
-    compute_boolean_operation(surface_1,
-                              surface_2,
-                              BooleanOperation::compute_intersection,
-                              out_surface);
+    compute_boolean_operation(surface_1, surface_2, BooleanOperation::compute_intersection, out_surface);
     CGAL::Surface_mesh<CGALPoint> dummy;
     CGALTriangulation             tr;
-    CGAL::convex_hull_3(out_surface.points().begin(),
-                        out_surface.points().end(),
-                        dummy);
+    CGAL::convex_hull_3(out_surface.points().begin(), out_surface.points().end(), dummy);
     tr.insert(dummy.points().begin(), dummy.points().end());
     return compute_quadrature(tr, degree);
   }
@@ -525,19 +475,15 @@ namespace CGALWrappers
 
   template <typename CGALPointType>
   void
-  remesh_surface(CGAL::Surface_mesh<CGALPointType> &cgal_mesh,
-                 const AdditionalData<3> &          data)
+  remesh_surface(CGAL::Surface_mesh<CGALPointType> &cgal_mesh, const AdditionalData<3> &data)
   {
     using K           = CGAL::Exact_predicates_inexact_constructions_kernel;
     using Mesh_domain = CGAL::Polyhedral_mesh_domain_with_features_3<K>;
     // Polyhedron type
     using Polyhedron = CGAL::Mesh_polyhedron_3<K>::type;
     // Triangulation
-    using Tr = CGAL::Mesh_triangulation_3<Mesh_domain>::type;
-    using C3t3 =
-      CGAL::Mesh_complex_3_in_triangulation_3<Tr,
-                                              Mesh_domain::Corner_index,
-                                              Mesh_domain::Curve_index>;
+    using Tr   = CGAL::Mesh_triangulation_3<Mesh_domain>::type;
+    using C3t3 = CGAL::Mesh_complex_3_in_triangulation_3<Tr, Mesh_domain::Corner_index, Mesh_domain::Curve_index>;
     // Criteria
     using Mesh_criteria = CGAL::Mesh_criteria_3<Tr>;
 
@@ -555,39 +501,30 @@ namespace CGALWrappers
 
     // Mesh criteria
     const double default_value_edge_size = std::numeric_limits<double>::max();
-    if (data.edge_size > 0 &&
-        std::abs(data.edge_size - default_value_edge_size) > 1e-12)
+    if (data.edge_size > 0 && std::abs(data.edge_size - default_value_edge_size) > 1e-12)
       {
-        Mesh_criteria criteria(CGAL::parameters::edge_size   = data.edge_size,
-                               CGAL::parameters::facet_size  = data.facet_size,
-                               CGAL::parameters::facet_angle = data.facet_angle,
-                               CGAL::parameters::facet_distance =
-                                 data.facet_distance,
-                               CGAL::parameters::cell_radius_edge_ratio =
-                                 data.cell_radius_edge_ratio,
-                               CGAL::parameters::cell_size = data.cell_size);
+        Mesh_criteria criteria(CGAL::parameters::edge_size              = data.edge_size,
+                               CGAL::parameters::facet_size             = data.facet_size,
+                               CGAL::parameters::facet_angle            = data.facet_angle,
+                               CGAL::parameters::facet_distance         = data.facet_distance,
+                               CGAL::parameters::cell_radius_edge_ratio = data.cell_radius_edge_ratio,
+                               CGAL::parameters::cell_size              = data.cell_size);
         // Mesh generation
-        C3t3 c3t3 = CGAL::make_mesh_3<C3t3>(domain,
-                                            criteria,
-                                            CGAL::parameters::no_perturb(),
-                                            CGAL::parameters::no_exude());
+        C3t3 c3t3 =
+          CGAL::make_mesh_3<C3t3>(domain, criteria, CGAL::parameters::no_perturb(), CGAL::parameters::no_exude());
         cgal_mesh.clear();
         CGAL::facets_in_complex_3_to_triangle_mesh(c3t3, cgal_mesh);
       }
     else if (std::abs(data.edge_size - default_value_edge_size) <= 1e-12)
       {
-        Mesh_criteria criteria(CGAL::parameters::facet_size  = data.facet_size,
-                               CGAL::parameters::facet_angle = data.facet_angle,
-                               CGAL::parameters::facet_distance =
-                                 data.facet_distance,
-                               CGAL::parameters::cell_radius_edge_ratio =
-                                 data.cell_radius_edge_ratio,
-                               CGAL::parameters::cell_size = data.cell_size);
+        Mesh_criteria criteria(CGAL::parameters::facet_size             = data.facet_size,
+                               CGAL::parameters::facet_angle            = data.facet_angle,
+                               CGAL::parameters::facet_distance         = data.facet_distance,
+                               CGAL::parameters::cell_radius_edge_ratio = data.cell_radius_edge_ratio,
+                               CGAL::parameters::cell_size              = data.cell_size);
         // Mesh generation
-        C3t3 c3t3 = CGAL::make_mesh_3<C3t3>(domain,
-                                            criteria,
-                                            CGAL::parameters::no_perturb(),
-                                            CGAL::parameters::no_exude());
+        C3t3 c3t3 =
+          CGAL::make_mesh_3<C3t3>(domain, criteria, CGAL::parameters::no_perturb(), CGAL::parameters::no_exude());
         cgal_mesh.clear();
         CGAL::facets_in_complex_3_to_triangle_mesh(c3t3, cgal_mesh);
       }
@@ -607,11 +544,9 @@ namespace CGALWrappers
    */
   template <int spacedim>
   void
-  resort_dealii_vertices_to_cgal_order(const unsigned int            structdim,
-                                       std::vector<Point<spacedim>> &vertices)
+  resort_dealii_vertices_to_cgal_order(const unsigned int structdim, std::vector<Point<spacedim>> &vertices)
   {
-    if (ReferenceCell::n_vertices_to_type(structdim, vertices.size()) ==
-        ReferenceCells::Quadrilateral)
+    if (ReferenceCell::n_vertices_to_type(structdim, vertices.size()) == ReferenceCells::Quadrilateral)
       std::swap(vertices[2], vertices[3]);
   }
 
@@ -626,9 +561,8 @@ namespace CGALWrappers
    */
   template <int dim, int spacedim>
   std::vector<Point<spacedim>>
-  get_vertices_in_cgal_order(
-    const typename dealii::Triangulation<dim, spacedim>::cell_iterator &cell,
-    const Mapping<dim, spacedim> &                                      mapping)
+  get_vertices_in_cgal_order(const typename dealii::Triangulation<dim, spacedim>::cell_iterator &cell,
+                             const Mapping<dim, spacedim>                                       &mapping)
   {
     // Elements have to be rectangular or simplices
     const unsigned int n_vertices = cell->n_vertices();
@@ -637,9 +571,7 @@ namespace CGALWrappers
            ExcNotImplemented());
 
     std::vector<Point<spacedim>> ordered_vertices(n_vertices);
-    std::copy_n(mapping.get_vertices(cell).begin(),
-                n_vertices,
-                ordered_vertices.begin());
+    std::copy_n(mapping.get_vertices(cell).begin(), n_vertices, ordered_vertices.begin());
 
     resort_dealii_vertices_to_cgal_order(dim, ordered_vertices);
 
@@ -658,22 +590,18 @@ namespace CGALWrappers
    */
   template <int dim, int spacedim>
   std::vector<Point<spacedim>>
-  get_vertices_in_cgal_order(
-    const typename dealii::Triangulation<dim, spacedim>::cell_iterator &cell,
-    const unsigned int                                                  face_no,
-    const Mapping<dim, spacedim> &                                      mapping)
+  get_vertices_in_cgal_order(const typename dealii::Triangulation<dim, spacedim>::cell_iterator &cell,
+                             const unsigned int                                                  face_no,
+                             const Mapping<dim, spacedim>                                       &mapping)
   {
     // Elements have to be rectangular or simplices
     const unsigned int n_vertices = cell->face(face_no)->n_vertices();
-    Assert(
-      (n_vertices == ReferenceCells::get_hypercube<dim - 1>().n_vertices()) ||
-        (n_vertices == ReferenceCells::get_simplex<dim - 1>().n_vertices()),
-      ExcNotImplemented());
+    Assert((n_vertices == ReferenceCells::get_hypercube<dim - 1>().n_vertices()) ||
+             (n_vertices == ReferenceCells::get_simplex<dim - 1>().n_vertices()),
+           ExcNotImplemented());
 
     std::vector<Point<spacedim>> ordered_vertices(n_vertices);
-    std::copy_n(mapping.get_vertices(cell, face_no).begin(),
-                n_vertices,
-                ordered_vertices.begin());
+    std::copy_n(mapping.get_vertices(cell, face_no).begin(), n_vertices, ordered_vertices.begin());
 
     resort_dealii_vertices_to_cgal_order(dim - 1, ordered_vertices);
 

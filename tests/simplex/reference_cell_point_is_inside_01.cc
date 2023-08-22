@@ -35,23 +35,18 @@ test(const ReferenceCell &reference_cell)
     for (double y = -0.1; y <= (dim > 1 ? 1.1 : -0.1); y += 0.1)
       for (double z = -0.1; z <= (dim > 2 ? 1.1 : -0.1); z += 0.1)
         {
-          Point<dim> p =
-            (dim == 1 ? Point<dim>(x) :
-                        (dim == 2 ? Point<dim>(x, y) : Point<dim>(x, y, z)));
+          Point<dim> p = (dim == 1 ? Point<dim>(x) : (dim == 2 ? Point<dim>(x, y) : Point<dim>(x, y, z)));
 
           deallog << p << ' ' << reference_cell.contains_point(p) << std::endl;
         }
 
   // Make sure that all vertices are inside:
   for (unsigned int v = 0; v < reference_cell.n_vertices(); ++v)
-    Assert(reference_cell.contains_point(reference_cell.vertex<dim>(v)),
-           ExcInternalError());
+    Assert(reference_cell.contains_point(reference_cell.vertex<dim>(v)), ExcInternalError());
 
   // Make sure that all vertices are outside with a negative tolerance:
   for (unsigned int v = 0; v < reference_cell.n_vertices(); ++v)
-    Assert(reference_cell.contains_point(reference_cell.vertex<dim>(v),
-                                         -1e-12) == false,
-           ExcInternalError());
+    Assert(reference_cell.contains_point(reference_cell.vertex<dim>(v), -1e-12) == false, ExcInternalError());
 }
 
 

@@ -25,14 +25,12 @@ DEAL_II_NAMESPACE_OPEN
 namespace GridTools
 {
   template <int dim, int spacedim>
-  Cache<dim, spacedim>::Cache(const Triangulation<dim, spacedim> &tria,
-                              const Mapping<dim, spacedim> &      mapping)
+  Cache<dim, spacedim>::Cache(const Triangulation<dim, spacedim> &tria, const Mapping<dim, spacedim> &mapping)
     : update_flags(update_all)
     , tria(&tria)
     , mapping(&mapping)
   {
-    tria_signal =
-      tria.signals.any_change.connect([&]() { mark_for_update(update_all); });
+    tria_signal = tria.signals.any_change.connect([&]() { mark_for_update(update_all); });
   }
 
   template <int dim, int spacedim>
@@ -56,8 +54,7 @@ namespace GridTools
 
 
   template <int dim, int spacedim>
-  const std::vector<
-    std::set<typename Triangulation<dim, spacedim>::active_cell_iterator>> &
+  const std::vector<std::set<typename Triangulation<dim, spacedim>::active_cell_iterator>> &
   Cache<dim, spacedim>::get_vertex_to_cell_map() const
   {
     if (update_flags & update_vertex_to_cell_map)
@@ -76,9 +73,8 @@ namespace GridTools
   {
     if (update_flags & update_vertex_to_cell_centers_directions)
       {
-        vertex_to_cell_centers = GridTools::vertex_to_cell_centers_directions(
-          *tria, get_vertex_to_cell_map());
-        update_flags = update_flags & ~update_vertex_to_cell_centers_directions;
+        vertex_to_cell_centers = GridTools::vertex_to_cell_centers_directions(*tria, get_vertex_to_cell_map());
+        update_flags           = update_flags & ~update_vertex_to_cell_centers_directions;
       }
     return vertex_to_cell_centers;
   }
@@ -105,10 +101,9 @@ namespace GridTools
   {
     if (update_flags & update_used_vertices_rtree)
       {
-        const auto &used_vertices = get_used_vertices();
-        std::vector<std::pair<Point<spacedim>, unsigned int>> vertices(
-          used_vertices.size());
-        unsigned int i = 0;
+        const auto                                           &used_vertices = get_used_vertices();
+        std::vector<std::pair<Point<spacedim>, unsigned int>> vertices(used_vertices.size());
+        unsigned int                                          i = 0;
         for (const auto &it : used_vertices)
           vertices[i++] = std::make_pair(it.second, it.first);
         used_vertices_rtree = pack_rtree(vertices);
@@ -120,23 +115,19 @@ namespace GridTools
 
 
   template <int dim, int spacedim>
-  const RTree<
-    std::pair<BoundingBox<spacedim>,
-              typename Triangulation<dim, spacedim>::active_cell_iterator>> &
+  const RTree<std::pair<BoundingBox<spacedim>, typename Triangulation<dim, spacedim>::active_cell_iterator>> &
   Cache<dim, spacedim>::get_cell_bounding_boxes_rtree() const
   {
     if (update_flags & update_cell_bounding_boxes_rtree)
       {
-        std::vector<std::pair<
-          BoundingBox<spacedim>,
-          typename Triangulation<dim, spacedim>::active_cell_iterator>>
+        std::vector<std::pair<BoundingBox<spacedim>, typename Triangulation<dim, spacedim>::active_cell_iterator>>
           boxes;
         boxes.reserve(tria->n_active_cells());
         for (const auto &cell : tria->active_cell_iterators())
           boxes.emplace_back(mapping->get_bounding_box(cell), cell);
 
         cell_bounding_boxes_rtree = pack_rtree(boxes);
-        update_flags = update_flags & ~update_cell_bounding_boxes_rtree;
+        update_flags              = update_flags & ~update_cell_bounding_boxes_rtree;
       }
     return cell_bounding_boxes_rtree;
   }
@@ -144,30 +135,23 @@ namespace GridTools
 
 
   template <int dim, int spacedim>
-  const RTree<
-    std::pair<BoundingBox<spacedim>,
-              typename Triangulation<dim, spacedim>::active_cell_iterator>> &
+  const RTree<std::pair<BoundingBox<spacedim>, typename Triangulation<dim, spacedim>::active_cell_iterator>> &
   Cache<dim, spacedim>::get_locally_owned_cell_bounding_boxes_rtree() const
   {
     if (update_flags & update_locally_owned_cell_bounding_boxes_rtree)
       {
-        std::vector<std::pair<
-          BoundingBox<spacedim>,
-          typename Triangulation<dim, spacedim>::active_cell_iterator>>
+        std::vector<std::pair<BoundingBox<spacedim>, typename Triangulation<dim, spacedim>::active_cell_iterator>>
           boxes;
         if (const parallel::TriangulationBase<dim, spacedim> *parallel_tria =
-              dynamic_cast<const parallel::TriangulationBase<dim, spacedim> *>(
-                &*tria))
+              dynamic_cast<const parallel::TriangulationBase<dim, spacedim> *>(&*tria))
           boxes.reserve(parallel_tria->n_locally_owned_active_cells());
         else
           boxes.reserve(tria->n_active_cells());
-        for (const auto &cell : tria->active_cell_iterators() |
-                                  IteratorFilters::LocallyOwnedCell())
+        for (const auto &cell : tria->active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
           boxes.emplace_back(mapping->get_bounding_box(cell), cell);
 
         locally_owned_cell_bounding_boxes_rtree = pack_rtree(boxes);
-        update_flags =
-          update_flags & ~update_locally_owned_cell_bounding_boxes_rtree;
+        update_flags                            = update_flags & ~update_locally_owned_cell_bounding_boxes_rtree;
       }
     return locally_owned_cell_bounding_boxes_rtree;
   }
@@ -178,24 +162,17 @@ namespace GridTools
   const RTree<std::pair<BoundingBox<spacedim>, unsigned int>> &
   Cache<dim, spacedim>::get_covering_rtree(const unsigned int level) const
   {
-    if (update_flags & update_covering_rtree ||
-        covering_rtree.find(level) == covering_rtree.end())
+    if (update_flags & update_covering_rtree || covering_rtree.find(level) == covering_rtree.end())
       {
-        const auto boxes =
-          extract_rtree_level(get_locally_owned_cell_bounding_boxes_rtree(),
-                              level);
+        const auto boxes = extract_rtree_level(get_locally_owned_cell_bounding_boxes_rtree(), level);
 
-        if (const auto tria_mpi =
-              dynamic_cast<const parallel::TriangulationBase<dim, spacedim> *>(
-                &(*tria)))
+        if (const auto tria_mpi = dynamic_cast<const parallel::TriangulationBase<dim, spacedim> *>(&(*tria)))
           {
-            covering_rtree[level] = GridTools::build_global_description_tree(
-              boxes, tria_mpi->get_communicator());
+            covering_rtree[level] = GridTools::build_global_description_tree(boxes, tria_mpi->get_communicator());
           }
         else
           {
-            covering_rtree[level] =
-              GridTools::build_global_description_tree(boxes, MPI_COMM_SELF);
+            covering_rtree[level] = GridTools::build_global_description_tree(boxes, MPI_COMM_SELF);
           }
         update_flags = update_flags & ~update_covering_rtree;
       }
@@ -215,8 +192,7 @@ namespace GridTools
           {
             if (cell->is_ghost())
               for (const unsigned int v : cell->vertex_indices())
-                vertex_to_neighbor_subdomain[cell->vertex_index(v)].insert(
-                  cell->subdomain_id());
+                vertex_to_neighbor_subdomain[cell->vertex_index(v)].insert(cell->subdomain_id());
           }
         update_flags = update_flags & ~update_vertex_to_neighbor_subdomain;
       }
@@ -229,8 +205,7 @@ namespace GridTools
   {
     if (update_flags & update_vertex_with_ghost_neighbors)
       {
-        vertices_with_ghost_neighbors =
-          GridTools::compute_vertices_with_ghost_neighbors(*tria);
+        vertices_with_ghost_neighbors = GridTools::compute_vertices_with_ghost_neighbors(*tria);
 
         update_flags = update_flags & ~update_vertex_with_ghost_neighbors;
       }

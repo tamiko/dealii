@@ -32,19 +32,16 @@ test()
   deallog << "dim = " << dim << std::endl;
   Triangulation<dim> tr;
   GridGenerator::hyper_cube_slit(tr, -1, 1, true);
-  typename Triangulation<dim>::active_cell_iterator cell = tr.begin_active(),
-                                                    endc = tr.end();
+  typename Triangulation<dim>::active_cell_iterator cell = tr.begin_active(), endc = tr.end();
   for (; cell != endc; ++cell)
     {
       deallog << "cell:" << std::endl;
 
       for (const unsigned int face : GeometryInfo<dim>::face_indices())
         {
-          if (cell->face(face)->at_boundary() &&
-              cell->face(face)->boundary_id() != 0)
+          if (cell->face(face)->at_boundary() && cell->face(face)->boundary_id() != 0)
             deallog << "boundary id = " << (int)cell->face(face)->boundary_id()
-                    << " center = " << cell->face(face)->center()
-                    << " faceidx = " << face << std::endl;
+                    << " center = " << cell->face(face)->center() << " faceidx = " << face << std::endl;
         }
     }
 }

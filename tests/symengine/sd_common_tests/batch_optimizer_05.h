@@ -32,10 +32,7 @@
 using namespace dealii;
 namespace SD = Differentiation::SD;
 
-template <int dim,
-          typename NumberType,
-          enum SD::OptimizerType     opt_method,
-          enum SD::OptimizationFlags opt_flags>
+template <int dim, typename NumberType, enum SD::OptimizerType opt_method, enum SD::OptimizationFlags opt_flags>
 void
 test_serialization(const int n_runs, TimerOutput &timer)
 {
@@ -53,10 +50,9 @@ test_serialization(const int n_runs, TimerOutput &timer)
   const SD_symm_tensor_t z(SD::make_symmetric_tensor_of_symbols<2, dim>("z"));
 
   timer.enter_subsection("Value calculation");
-  const SD_number_t symb_s =
-    a + NumberType(2.0) * std::pow(x, determinant(y)) +
-    a * determinant(y) * std::log((z * z) / determinant(y)) +
-    std::sin((z * symmetrize(y)) / a);
+  const SD_number_t symb_s = a + NumberType(2.0) * std::pow(x, determinant(y)) +
+                             a * determinant(y) * std::log((z * z) / determinant(y)) +
+                             std::sin((z * symmetrize(y)) / a);
   std::cout << "symb_s: " << symb_s << std::endl;
   timer.leave_subsection("Value calculation");
 
@@ -69,11 +65,8 @@ test_serialization(const int n_runs, TimerOutput &timer)
 
   SD::types::substitution_map sub_vals;
   SD::add_to_substitution_map(sub_vals, SD::make_substitution_map(x, 2.5));
-  SD::add_to_substitution_map(
-    sub_vals, SD::make_substitution_map(y, make_tensor<dim>(NumberType(2.2))));
-  SD::add_to_substitution_map(
-    sub_vals,
-    SD::make_substitution_map(z, make_symm_tensor<dim>(NumberType(3.7))));
+  SD::add_to_substitution_map(sub_vals, SD::make_substitution_map(y, make_tensor<dim>(NumberType(2.2))));
+  SD::add_to_substitution_map(sub_vals, SD::make_substitution_map(z, make_symm_tensor<dim>(NumberType(3.7))));
 
   deallog.push("Optimisation + substitution");
   {
@@ -82,9 +75,7 @@ test_serialization(const int n_runs, TimerOutput &timer)
     timer.enter_subsection("Optimisation");
     SD::BatchOptimizer<NumberType> optimizer(opt_method, opt_flags);
     optimizer.register_symbols(sub_vals); // Independent symbols
-    optimizer.register_functions(symb_s,
-                                 symb_ds_dx,
-                                 symb_ds_dy,
+    optimizer.register_functions(symb_s, symb_ds_dx, symb_ds_dy,
                                  symb_ds_dz); // Dependent symbolic expressions
     optimizer.optimize();
     timer.leave_subsection("Optimisation");
@@ -94,35 +85,29 @@ test_serialization(const int n_runs, TimerOutput &timer)
       {
         optimizer.substitute(sub_vals);
 
-        const NumberType val_s     = optimizer.evaluate(symb_s);
-        const NumberType val_ds_dx = optimizer.evaluate(symb_ds_dx);
-        const Tensor<2, dim, NumberType> val_ds_dy =
-          optimizer.evaluate(symb_ds_dy);
-        const SymmetricTensor<2, dim, NumberType> val_ds_dz =
-          optimizer.evaluate(symb_ds_dz);
+        const NumberType                          val_s     = optimizer.evaluate(symb_s);
+        const NumberType                          val_ds_dx = optimizer.evaluate(symb_ds_dx);
+        const Tensor<2, dim, NumberType>          val_ds_dy = optimizer.evaluate(symb_ds_dy);
+        const SymmetricTensor<2, dim, NumberType> val_ds_dz = optimizer.evaluate(symb_ds_dz);
 
         if (i == 0)
           {
             std::cout << "evaluation: "
-                      << "  s: " << val_s << "  ds_dx: " << val_ds_dx
-                      << "  ds_dy: " << val_ds_dy << "  ds_dz: " << val_ds_dz
-                      << std::endl;
+                      << "  s: " << val_s << "  ds_dx: " << val_ds_dx << "  ds_dy: " << val_ds_dy
+                      << "  ds_dz: " << val_ds_dz << std::endl;
           }
       }
     timer.leave_subsection("Optimised substitution");
 
     timer.enter_subsection("Serialization");
     {
-      const NumberType val_s     = optimizer.evaluate(symb_s);
-      const NumberType val_ds_dx = optimizer.evaluate(symb_ds_dx);
-      const Tensor<2, dim, NumberType> val_ds_dy =
-        optimizer.evaluate(symb_ds_dy);
-      const SymmetricTensor<2, dim, NumberType> val_ds_dz =
-        optimizer.evaluate(symb_ds_dz);
+      const NumberType                          val_s     = optimizer.evaluate(symb_s);
+      const NumberType                          val_ds_dx = optimizer.evaluate(symb_ds_dx);
+      const Tensor<2, dim, NumberType>          val_ds_dy = optimizer.evaluate(symb_ds_dy);
+      const SymmetricTensor<2, dim, NumberType> val_ds_dz = optimizer.evaluate(symb_ds_dz);
 
       std::cout << "Evaluation (pre-serialization): "
-                << "  s: " << val_s << "  ds_dx: " << val_ds_dx
-                << "  ds_dy: " << val_ds_dy << "  ds_dz: " << val_ds_dz
+                << "  s: " << val_s << "  ds_dx: " << val_ds_dx << "  ds_dy: " << val_ds_dy << "  ds_dz: " << val_ds_dz
                 << std::endl;
 
       // The result is not stable and depends on standard library, number
@@ -137,18 +122,12 @@ test_serialization(const int n_runs, TimerOutput &timer)
           const Tensor<2, dim, NumberType> blessed_val_ds_dy(
             {{4021.22068318, -2721.50003932}, {-2073.13387957, 2076.40954282}});
           const SymmetricTensor<2, dim, NumberType> blessed_val_ds_dz =
-            symmetrize(
-              Tensor<2, dim, NumberType>({{1.67425190103, 1.97851016739},
-                                          {1.97851016739, 2.69685737073}}));
+            symmetrize(Tensor<2, dim, NumberType>({{1.67425190103, 1.97851016739}, {1.97851016739, 2.69685737073}}));
 
-          AssertThrow(std::abs(val_s - blessed_val_s) < tol,
-                      ExcMessage("No match for function value."));
-          AssertThrow(std::abs(val_ds_dx - blessed_val_ds_dx) < tol,
-                      ExcMessage("No match for first derivative."));
-          AssertThrow((val_ds_dy - blessed_val_ds_dy).norm() < tol,
-                      ExcMessage("No match for first derivative."));
-          AssertThrow((val_ds_dz - blessed_val_ds_dz).norm() < tol,
-                      ExcMessage("No match for first derivative."));
+          AssertThrow(std::abs(val_s - blessed_val_s) < tol, ExcMessage("No match for function value."));
+          AssertThrow(std::abs(val_ds_dx - blessed_val_ds_dx) < tol, ExcMessage("No match for first derivative."));
+          AssertThrow((val_ds_dy - blessed_val_ds_dy).norm() < tol, ExcMessage("No match for first derivative."));
+          AssertThrow((val_ds_dz - blessed_val_ds_dz).norm() < tol, ExcMessage("No match for first derivative."));
         }
       else
         {
@@ -171,40 +150,28 @@ test_serialization(const int n_runs, TimerOutput &timer)
       std::cout << "Checking deserialisation..." << std::endl;
       {
         // Check that the original settings persist.
-        Assert(new_optimizer.optimization_method() ==
-                 optimizer.optimization_method(),
-               ExcInternalError());
-        Assert(new_optimizer.optimization_flags() ==
-                 optimizer.optimization_flags(),
-               ExcInternalError());
+        Assert(new_optimizer.optimization_method() == optimizer.optimization_method(), ExcInternalError());
+        Assert(new_optimizer.optimization_flags() == optimizer.optimization_flags(), ExcInternalError());
 
         // Check that new optimizer still produces correct results
         // directly from evaluation
-        const NumberType new_val_s     = new_optimizer.evaluate(symb_s);
-        const NumberType new_val_ds_dx = new_optimizer.evaluate(symb_ds_dx);
-        const Tensor<2, dim, NumberType> new_val_ds_dy =
-          new_optimizer.evaluate(symb_ds_dy);
-        const SymmetricTensor<2, dim, NumberType> new_val_ds_dz =
-          new_optimizer.evaluate(symb_ds_dz);
+        const NumberType                          new_val_s     = new_optimizer.evaluate(symb_s);
+        const NumberType                          new_val_ds_dx = new_optimizer.evaluate(symb_ds_dx);
+        const Tensor<2, dim, NumberType>          new_val_ds_dy = new_optimizer.evaluate(symb_ds_dy);
+        const SymmetricTensor<2, dim, NumberType> new_val_ds_dz = new_optimizer.evaluate(symb_ds_dz);
 
         std::cout << "Evaluation (post-serialization): "
-                  << "  s: " << new_val_s << "  ds_dx: " << new_val_ds_dx
-                  << "  ds_dy: " << new_val_ds_dy
+                  << "  s: " << new_val_s << "  ds_dx: " << new_val_ds_dx << "  ds_dy: " << new_val_ds_dy
                   << "  ds_dz: " << new_val_ds_dz << std::endl;
 
         constexpr double tol = 1e-9;
-        AssertThrow(std::abs(new_val_s - val_s) < tol,
-                    ExcMessage(
-                      "Problem with optimizer function: Serialization"));
+        AssertThrow(std::abs(new_val_s - val_s) < tol, ExcMessage("Problem with optimizer function: Serialization"));
         AssertThrow(std::abs(new_val_ds_dx - val_ds_dx) < tol,
-                    ExcMessage(
-                      "Problem with optimizer function: Serialization"));
+                    ExcMessage("Problem with optimizer function: Serialization"));
         AssertThrow((new_val_ds_dy - val_ds_dy).norm() < tol,
-                    ExcMessage(
-                      "Problem with optimizer function: Serialization"));
+                    ExcMessage("Problem with optimizer function: Serialization"));
         AssertThrow((new_val_ds_dz - val_ds_dz).norm() < tol,
-                    ExcMessage(
-                      "Problem with optimizer function: Serialization"));
+                    ExcMessage("Problem with optimizer function: Serialization"));
       }
 
       // Check that new optimizer still produces correct results
@@ -213,26 +180,19 @@ test_serialization(const int n_runs, TimerOutput &timer)
       {
         new_optimizer.substitute(sub_vals);
 
-        const NumberType new_val_s     = new_optimizer.evaluate(symb_s);
-        const NumberType new_val_ds_dx = new_optimizer.evaluate(symb_ds_dx);
-        const Tensor<2, dim, NumberType> new_val_ds_dy =
-          new_optimizer.evaluate(symb_ds_dy);
-        const SymmetricTensor<2, dim, NumberType> new_val_ds_dz =
-          new_optimizer.evaluate(symb_ds_dz);
+        const NumberType                          new_val_s     = new_optimizer.evaluate(symb_s);
+        const NumberType                          new_val_ds_dx = new_optimizer.evaluate(symb_ds_dx);
+        const Tensor<2, dim, NumberType>          new_val_ds_dy = new_optimizer.evaluate(symb_ds_dy);
+        const SymmetricTensor<2, dim, NumberType> new_val_ds_dz = new_optimizer.evaluate(symb_ds_dz);
 
         constexpr double tol = 1e-9;
-        AssertThrow(std::abs(new_val_s - val_s) < tol,
-                    ExcMessage(
-                      "Problem with optimizer function: Serialization"));
+        AssertThrow(std::abs(new_val_s - val_s) < tol, ExcMessage("Problem with optimizer function: Serialization"));
         AssertThrow(std::abs(new_val_ds_dx - val_ds_dx) < tol,
-                    ExcMessage(
-                      "Problem with optimizer function: Serialization"));
+                    ExcMessage("Problem with optimizer function: Serialization"));
         AssertThrow((new_val_ds_dy - val_ds_dy).norm() < tol,
-                    ExcMessage(
-                      "Problem with optimizer function: Serialization"));
+                    ExcMessage("Problem with optimizer function: Serialization"));
         AssertThrow((new_val_ds_dz - val_ds_dz).norm() < tol,
-                    ExcMessage(
-                      "Problem with optimizer function: Serialization"));
+                    ExcMessage("Problem with optimizer function: Serialization"));
       }
     }
     timer.leave_subsection("Serialization");
@@ -243,9 +203,7 @@ test_serialization(const int n_runs, TimerOutput &timer)
 }
 
 
-template <int                        dim,
-          enum SD::OptimizerType     opt_method,
-          enum SD::OptimizationFlags opt_flags>
+template <int dim, enum SD::OptimizerType opt_method, enum SD::OptimizationFlags opt_flags>
 void
 run_tests(const int n_runs = 1)
 {
@@ -273,13 +231,11 @@ run_tests(const int n_runs = 1)
     if (opt_method != SD::OptimizerType::llvm)
       {
         deallog.push("Complex float");
-        test_serialization<dim, std::complex<float>, opt_method, opt_flags>(
-          n_runs, timer);
+        test_serialization<dim, std::complex<float>, opt_method, opt_flags>(n_runs, timer);
         deallog.pop();
 
         deallog.push("Complex double");
-        test_serialization<dim, std::complex<double>, opt_method, opt_flags>(
-          n_runs, timer);
+        test_serialization<dim, std::complex<double>, opt_method, opt_flags>(n_runs, timer);
         deallog.pop();
       }
   }

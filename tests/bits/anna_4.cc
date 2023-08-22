@@ -66,8 +66,7 @@ VectorBoundaryValues<dim>::VectorBoundaryValues()
 
 template <int dim>
 inline void
-VectorBoundaryValues<dim>::vector_value(const Point<dim> &p,
-                                        Vector<double> &  values) const
+VectorBoundaryValues<dim>::vector_value(const Point<dim> &p, Vector<double> &values) const
 {
   Assert(values.size() == 2, ExcDimensionMismatch(values.size(), 2));
 
@@ -115,8 +114,7 @@ FindBug<dim>::make_grid_and_dofs()
   GridGenerator::hyper_cube(triangulation);
   triangulation.refine_global(1);
 
-  deallog << "Number of active cells: " << triangulation.n_active_cells()
-          << std::endl;
+  deallog << "Number of active cells: " << triangulation.n_active_cells() << std::endl;
 
   deallog << "Total number of cells: " << triangulation.n_cells() << std::endl;
 
@@ -124,8 +122,7 @@ FindBug<dim>::make_grid_and_dofs()
   dof_handler.distribute_dofs(fe);
 
 
-  deallog << "Number of degrees of freedom: " << dof_handler.n_dofs()
-          << std::endl;
+  deallog << "Number of degrees of freedom: " << dof_handler.n_dofs() << std::endl;
 
   solution.reinit(dof_handler.n_dofs());
 }
@@ -182,19 +179,15 @@ FindBug<dim>::dirichlet_conditions()
 
 
   // Here comes the crucial call....
-  VectorTools::interpolate_boundary_values(dof_handler,
-                                           0,
-                                           Functions::ZeroFunction<dim>(2),
-                                           dirichlet_dofs,
-                                           component_mask);
+  VectorTools::interpolate_boundary_values(
+    dof_handler, 0, Functions::ZeroFunction<dim>(2), dirichlet_dofs, component_mask);
 
 
   const std::set<types::boundary_id> boundary_ids = {0};
 
   // get a list of those boundary DoFs which
   // we want to be fixed:
-  const IndexSet fixed_dofs =
-    DoFTools::extract_boundary_dofs(dof_handler, component_mask, boundary_ids);
+  const IndexSet fixed_dofs = DoFTools::extract_boundary_dofs(dof_handler, component_mask, boundary_ids);
 
   // (Primitive) Check if the DoFs
   // where adjusted correctly (note
@@ -218,11 +211,7 @@ FindBug<dim>::dirichlet_conditions()
   // so also check a more complicated
   // boundary value function
   dirichlet_dofs.clear();
-  VectorTools::interpolate_boundary_values(dof_handler,
-                                           0,
-                                           VectorBoundaryValues<dim>(),
-                                           dirichlet_dofs,
-                                           component_mask);
+  VectorTools::interpolate_boundary_values(dof_handler, 0, VectorBoundaryValues<dim>(), dirichlet_dofs, component_mask);
   for (const types::global_dof_index dof : fixed_dofs)
     deallog << dof << ' ' << dirichlet_dofs[dof] << std::endl;
 }

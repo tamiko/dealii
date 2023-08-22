@@ -48,25 +48,21 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS)
         const std::vector<unsigned int> &);
 
       template void
-      block_wise<deal_II_dimension, deal_II_space_dimension>(
-        DoFHandler<deal_II_dimension, deal_II_space_dimension> &);
+      block_wise<deal_II_dimension, deal_II_space_dimension>(DoFHandler<deal_II_dimension, deal_II_space_dimension> &);
 
       template void
       subdomain_wise<deal_II_dimension, deal_II_space_dimension>(
         DoFHandler<deal_II_dimension, deal_II_space_dimension> &);
 
       template void
-      compute_subdomain_wise(
-        std::vector<types::global_dof_index> &new_dof_indices,
-        const DoFHandler<deal_II_dimension, deal_II_space_dimension>
-          &dof_handler);
+      compute_subdomain_wise(std::vector<types::global_dof_index>                         &new_dof_indices,
+                             const DoFHandler<deal_II_dimension, deal_II_space_dimension> &dof_handler);
 
       template void
       hierarchical(DoFHandler<deal_II_dimension, deal_II_space_dimension> &);
 
       template void
-      support_point_wise(
-        DoFHandler<deal_II_dimension, deal_II_space_dimension> &);
+      support_point_wise(DoFHandler<deal_II_dimension, deal_II_space_dimension> &);
 
     \}
 #endif
@@ -115,87 +111,67 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS)
       // non-boost functions:
 
       template void
-      component_wise(DoFHandler<deal_II_dimension> &,
-                     unsigned int,
-                     const std::vector<unsigned int> &);
+      component_wise(DoFHandler<deal_II_dimension> &, unsigned int, const std::vector<unsigned int> &);
 
       template void
-      block_wise<deal_II_dimension>(DoFHandler<deal_II_dimension> &,
-                                    unsigned int);
+      block_wise<deal_II_dimension>(DoFHandler<deal_II_dimension> &, unsigned int);
 
       template void
-      cell_wise<deal_II_dimension>(
-        DoFHandler<deal_II_dimension> &,
-        const std::vector<DoFHandler<deal_II_dimension>::active_cell_iterator>
-          &);
+      cell_wise<deal_II_dimension>(DoFHandler<deal_II_dimension> &,
+                                   const std::vector<DoFHandler<deal_II_dimension>::active_cell_iterator> &);
 
       template void
-      compute_cell_wise<deal_II_dimension>(
-        std::vector<types::global_dof_index> &,
-        std::vector<types::global_dof_index> &,
-        const DoFHandler<deal_II_dimension> &,
-        const std::vector<DoFHandler<deal_II_dimension>::active_cell_iterator>
-          &);
+      compute_cell_wise<deal_II_dimension>(std::vector<types::global_dof_index> &,
+                                           std::vector<types::global_dof_index> &,
+                                           const DoFHandler<deal_II_dimension> &,
+                                           const std::vector<DoFHandler<deal_II_dimension>::active_cell_iterator> &);
 
       template void
-      cell_wise<deal_II_dimension>(
-        DoFHandler<deal_II_dimension> &,
-        unsigned int,
-        const std::vector<DoFHandler<deal_II_dimension>::level_cell_iterator>
-          &);
+      cell_wise<deal_II_dimension>(DoFHandler<deal_II_dimension> &,
+                                   unsigned int,
+                                   const std::vector<DoFHandler<deal_II_dimension>::level_cell_iterator> &);
 
       template void
-      compute_cell_wise<deal_II_dimension>(
-        std::vector<types::global_dof_index> &,
-        std::vector<types::global_dof_index> &,
-        const DoFHandler<deal_II_dimension> &,
-        unsigned int,
-        const std::vector<DoFHandler<deal_II_dimension>::level_cell_iterator>
-          &);
+      compute_cell_wise<deal_II_dimension>(std::vector<types::global_dof_index> &,
+                                           std::vector<types::global_dof_index> &,
+                                           const DoFHandler<deal_II_dimension> &,
+                                           unsigned int,
+                                           const std::vector<DoFHandler<deal_II_dimension>::level_cell_iterator> &);
 
       template void
-      compute_downstream<deal_II_dimension>(
-        std::vector<types::global_dof_index> &,
-        std::vector<types::global_dof_index> &,
-        const DoFHandler<deal_II_dimension> &,
-        const Tensor<1, DoFHandler<deal_II_dimension>::space_dimension> &,
-        const bool);
+      compute_downstream<deal_II_dimension>(std::vector<types::global_dof_index> &,
+                                            std::vector<types::global_dof_index> &,
+                                            const DoFHandler<deal_II_dimension> &,
+                                            const Tensor<1, DoFHandler<deal_II_dimension>::space_dimension> &,
+                                            const bool);
 
       template void
-      clockwise_dg<deal_II_dimension>(DoFHandler<deal_II_dimension> &,
-                                      const Point<deal_II_dimension> &,
-                                      bool);
+      clockwise_dg<deal_II_dimension>(DoFHandler<deal_II_dimension> &, const Point<deal_II_dimension> &, bool);
 
       template void
-      compute_clockwise_dg<deal_II_dimension>(
-        std::vector<types::global_dof_index> &,
-        const DoFHandler<deal_II_dimension> &,
-        const Point<deal_II_dimension> &,
-        const bool);
+      compute_clockwise_dg<deal_II_dimension>(std::vector<types::global_dof_index> &,
+                                              const DoFHandler<deal_II_dimension> &,
+                                              const Point<deal_II_dimension> &,
+                                              const bool);
 
       // Renumbering for DoFHandler
 
 
       template void
-      downstream(
-        DoFHandler<deal_II_dimension> &,
-        const Tensor<1, DoFHandler<deal_II_dimension>::space_dimension> &,
-        const bool);
+      downstream(DoFHandler<deal_II_dimension> &,
+                 const Tensor<1, DoFHandler<deal_II_dimension>::space_dimension> &,
+                 const bool);
 
       // MG
 
       template void
-      downstream(
-        DoFHandler<deal_II_dimension> &,
-        const unsigned int,
-        const Tensor<1, DoFHandler<deal_II_dimension>::space_dimension> &,
-        const bool);
+      downstream(DoFHandler<deal_II_dimension> &,
+                 const unsigned int,
+                 const Tensor<1, DoFHandler<deal_II_dimension>::space_dimension> &,
+                 const bool);
 
       template void
-      clockwise_dg(DoFHandler<deal_II_dimension> &,
-                   const unsigned int,
-                   const Point<deal_II_dimension> &,
-                   bool);
+      clockwise_dg(DoFHandler<deal_II_dimension> &, const unsigned int, const Point<deal_II_dimension> &, bool);
 
       // Generic numbering schemes
 
@@ -203,12 +179,10 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS)
       random<deal_II_dimension>(DoFHandler<deal_II_dimension> &);
 
       template void
-      compute_random<deal_II_dimension>(std::vector<types::global_dof_index> &,
-                                        const DoFHandler<deal_II_dimension> &);
+      compute_random<deal_II_dimension>(std::vector<types::global_dof_index> &, const DoFHandler<deal_II_dimension> &);
 
       template void
-      random<deal_II_dimension>(DoFHandler<deal_II_dimension> &,
-                                const unsigned int);
+      random<deal_II_dimension>(DoFHandler<deal_II_dimension> &, const unsigned int);
 
       template void
       compute_random<deal_II_dimension>(std::vector<types::global_dof_index> &,
@@ -216,29 +190,24 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS)
                                         const unsigned int);
 
       template void
-      sort_selected_dofs_back<deal_II_dimension>(
-        DoFHandler<deal_II_dimension> &,
-        const std::vector<bool> &);
+      sort_selected_dofs_back<deal_II_dimension>(DoFHandler<deal_II_dimension> &, const std::vector<bool> &);
 
       template void
-      compute_sort_selected_dofs_back<deal_II_dimension>(
-        std::vector<types::global_dof_index> &,
-        const DoFHandler<deal_II_dimension> &,
-        const std::vector<bool> &);
+      compute_sort_selected_dofs_back<deal_II_dimension>(std::vector<types::global_dof_index> &,
+                                                         const DoFHandler<deal_II_dimension> &,
+                                                         const std::vector<bool> &);
 
       template void
-      Cuthill_McKee<deal_II_dimension>(
-        DoFHandler<deal_II_dimension> &,
-        const unsigned int,
-        const bool,
-        const std::vector<types::global_dof_index> &);
+      Cuthill_McKee<deal_II_dimension>(DoFHandler<deal_II_dimension> &,
+                                       const unsigned int,
+                                       const bool,
+                                       const std::vector<types::global_dof_index> &);
     \}
 #endif
   }
 
 
-for (deal_II_dimension : DIMENSIONS;
-     deal_II_scalar_vectorized : REAL_SCALARS_VECTORIZED)
+for (deal_II_dimension : DIMENSIONS; deal_II_scalar_vectorized : REAL_SCALARS_VECTORIZED)
   {
     namespace DoFRenumbering
     \{
@@ -248,9 +217,7 @@ for (deal_II_dimension : DIMENSIONS;
                                 deal_II_scalar_vectorized::value_type,
                                 deal_II_scalar_vectorized>(
         DoFHandler<deal_II_dimension, deal_II_dimension> &,
-        const MatrixFree<deal_II_dimension,
-                         deal_II_scalar_vectorized::value_type,
-                         deal_II_scalar_vectorized> &);
+        const MatrixFree<deal_II_dimension, deal_II_scalar_vectorized::value_type, deal_II_scalar_vectorized> &);
 
       template std::vector<types::global_dof_index>
       compute_matrix_free_data_locality<deal_II_dimension,
@@ -258,42 +225,35 @@ for (deal_II_dimension : DIMENSIONS;
                                         deal_II_scalar_vectorized::value_type,
                                         deal_II_scalar_vectorized>(
         const DoFHandler<deal_II_dimension, deal_II_dimension> &,
-        const MatrixFree<deal_II_dimension,
-                         deal_II_scalar_vectorized::value_type,
-                         deal_II_scalar_vectorized> &);
+        const MatrixFree<deal_II_dimension, deal_II_scalar_vectorized::value_type, deal_II_scalar_vectorized> &);
 
       template void
-      matrix_free_data_locality<
-        deal_II_dimension,
-        deal_II_dimension,
-        deal_II_scalar_vectorized::value_type,
-        MatrixFree<deal_II_dimension,
-                   deal_II_scalar_vectorized::value_type,
-                   deal_II_scalar_vectorized>::AdditionalData>(
+      matrix_free_data_locality<deal_II_dimension,
+                                deal_II_dimension,
+                                deal_II_scalar_vectorized::value_type,
+                                MatrixFree<deal_II_dimension,
+                                           deal_II_scalar_vectorized::value_type,
+                                           deal_II_scalar_vectorized>::AdditionalData>(
         DoFHandler<deal_II_dimension, deal_II_dimension> &,
         const AffineConstraints<deal_II_scalar_vectorized::value_type> &,
-        const MatrixFree<deal_II_dimension,
-                         deal_II_scalar_vectorized::value_type,
-                         deal_II_scalar_vectorized>::AdditionalData &);
+        const MatrixFree<deal_II_dimension, deal_II_scalar_vectorized::value_type, deal_II_scalar_vectorized>::
+          AdditionalData &);
 
       template std::vector<types::global_dof_index>
-      compute_matrix_free_data_locality<
-        deal_II_dimension,
-        deal_II_dimension,
-        deal_II_scalar_vectorized::value_type,
-        MatrixFree<deal_II_dimension,
-                   deal_II_scalar_vectorized::value_type,
-                   deal_II_scalar_vectorized>::AdditionalData>(
+      compute_matrix_free_data_locality<deal_II_dimension,
+                                        deal_II_dimension,
+                                        deal_II_scalar_vectorized::value_type,
+                                        MatrixFree<deal_II_dimension,
+                                                   deal_II_scalar_vectorized::value_type,
+                                                   deal_II_scalar_vectorized>::AdditionalData>(
         const DoFHandler<deal_II_dimension, deal_II_dimension> &,
         const AffineConstraints<deal_II_scalar_vectorized::value_type> &,
-        const MatrixFree<deal_II_dimension,
-                         deal_II_scalar_vectorized::value_type,
-                         deal_II_scalar_vectorized>::AdditionalData &);
+        const MatrixFree<deal_II_dimension, deal_II_scalar_vectorized::value_type, deal_II_scalar_vectorized>::
+          AdditionalData &);
     \}
   }
 
-for (deal_II_dimension : DIMENSIONS;
-     deal_II_float_vectorized : FLOAT_VECTORIZED)
+for (deal_II_dimension : DIMENSIONS; deal_II_float_vectorized : FLOAT_VECTORIZED)
   {
     namespace DoFRenumbering
     \{
@@ -302,27 +262,21 @@ for (deal_II_dimension : DIMENSIONS;
         deal_II_dimension,
         deal_II_dimension,
         double,
-        MatrixFree<deal_II_dimension,
-                   deal_II_float_vectorized::value_type,
-                   deal_II_float_vectorized>::AdditionalData>(
+        MatrixFree<deal_II_dimension, deal_II_float_vectorized::value_type, deal_II_float_vectorized>::AdditionalData>(
         DoFHandler<deal_II_dimension, deal_II_dimension> &,
         const AffineConstraints<double> &,
-        const MatrixFree<deal_II_dimension,
-                         deal_II_float_vectorized::value_type,
-                         deal_II_float_vectorized>::AdditionalData &);
+        const MatrixFree<deal_II_dimension, deal_II_float_vectorized::value_type, deal_II_float_vectorized>::
+          AdditionalData &);
 
       template std::vector<types::global_dof_index>
       compute_matrix_free_data_locality<
         deal_II_dimension,
         deal_II_dimension,
         double,
-        MatrixFree<deal_II_dimension,
-                   deal_II_float_vectorized::value_type,
-                   deal_II_float_vectorized>::AdditionalData>(
+        MatrixFree<deal_II_dimension, deal_II_float_vectorized::value_type, deal_II_float_vectorized>::AdditionalData>(
         const DoFHandler<deal_II_dimension, deal_II_dimension> &,
         const AffineConstraints<double> &,
-        const MatrixFree<deal_II_dimension,
-                         deal_II_float_vectorized::value_type,
-                         deal_II_float_vectorized>::AdditionalData &);
+        const MatrixFree<deal_II_dimension, deal_II_float_vectorized::value_type, deal_II_float_vectorized>::
+          AdditionalData &);
     \}
   }

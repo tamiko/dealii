@@ -28,15 +28,11 @@
 #include "../tests.h"
 
 
-template <int dim,
-          typename number_t,
-          enum Differentiation::AD::NumberTypes ad_number_enum>
+template <int dim, typename number_t, enum Differentiation::AD::NumberTypes ad_number_enum>
 void
 test_tensor()
 {
-  using ad_number_t =
-    typename Differentiation::AD::NumberTraits<number_t,
-                                               ad_number_enum>::ad_type;
+  using ad_number_t  = typename Differentiation::AD::NumberTraits<number_t, ad_number_enum>::ad_type;
   using AD_Tensor    = Tensor<2, dim, ad_number_t>;
   using NonAD_Tensor = Tensor<2, dim, number_t>;
 
@@ -49,15 +45,11 @@ test_tensor()
   Assert(t1.norm() > 0.0, ExcMessage("Cast and copy unsuccessful"));
 }
 
-template <int dim,
-          typename number_t,
-          enum Differentiation::AD::NumberTypes ad_number_enum>
+template <int dim, typename number_t, enum Differentiation::AD::NumberTypes ad_number_enum>
 void
 test_symmetric_tensor()
 {
-  using ad_number_t =
-    typename Differentiation::AD::NumberTraits<number_t,
-                                               ad_number_enum>::ad_type;
+  using ad_number_t    = typename Differentiation::AD::NumberTraits<number_t, ad_number_enum>::ad_type;
   using AD_STensor2    = SymmetricTensor<2, dim, ad_number_t>;
   using AD_STensor4    = SymmetricTensor<4, dim, ad_number_t>;
   using NonAD_STensor2 = SymmetricTensor<2, dim, number_t>;
@@ -90,15 +82,11 @@ main()
 
   // --- Taped ---
   test_tensor<3, double, Differentiation::AD::NumberTypes::adolc_taped>();
-  test_symmetric_tensor<3,
-                        double,
-                        Differentiation::AD::NumberTypes::adolc_taped>();
+  test_symmetric_tensor<3, double, Differentiation::AD::NumberTypes::adolc_taped>();
 
   // --- Tapeless ---
   test_tensor<3, double, Differentiation::AD::NumberTypes::adolc_tapeless>();
-  test_symmetric_tensor<3,
-                        double,
-                        Differentiation::AD::NumberTypes::adolc_tapeless>();
+  test_symmetric_tensor<3, double, Differentiation::AD::NumberTypes::adolc_tapeless>();
 
   deallog << "OK" << std::endl;
 }

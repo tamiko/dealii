@@ -49,22 +49,18 @@ main()
       SparseMatrix<double> A(structure);
       testproblem.five_point(A);
 
-      using Chebyshev = PreconditionChebyshev<SparseMatrix<double>,
-                                              Vector<double>,
-                                              SparseILU<double>>;
+      using Chebyshev = PreconditionChebyshev<SparseMatrix<double>, Vector<double>, SparseILU<double>>;
       Chebyshev                 cheby;
       Chebyshev::AdditionalData cheby_data;
       cheby_data.preconditioner.reset(new SparseILU<double>());
       cheby_data.preconditioner->initialize(A);
-      cheby_data.degree          = 11;
-      cheby_data.smoothing_range = 40;
-      cheby_data.eigenvalue_algorithm =
-        Chebyshev::AdditionalData::EigenvalueAlgorithm::power_iteration;
+      cheby_data.degree               = 11;
+      cheby_data.smoothing_range      = 40;
+      cheby_data.eigenvalue_algorithm = Chebyshev::AdditionalData::EigenvalueAlgorithm::power_iteration;
       cheby.initialize(A, cheby_data);
 
       Chebyshev cheby_4;
-      cheby_data.polynomial_type =
-        Chebyshev::AdditionalData::PolynomialType::fourth_kind;
+      cheby_data.polynomial_type = Chebyshev::AdditionalData::PolynomialType::fourth_kind;
       cheby_4.initialize(A, cheby_data);
 
       Vector<double> v(dim);
@@ -90,8 +86,8 @@ main()
           const double cheby_4_residual = tmp2.l2_norm();
 
           deallog << "Residual step i=" << i << ":  "
-                  << " ilu=" << ilu_residual << ", cheby=" << cheby_residual
-                  << ", 4th-kind cheby=" << cheby_4_residual << std::endl;
+                  << " ilu=" << ilu_residual << ", cheby=" << cheby_residual << ", 4th-kind cheby=" << cheby_4_residual
+                  << std::endl;
         }
     }
 

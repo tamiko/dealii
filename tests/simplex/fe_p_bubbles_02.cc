@@ -48,18 +48,13 @@ compute_nodal_quadrature(const FiniteElement<dim, spacedim> &fe)
 
   const ReferenceCell type = fe.reference_cell();
 
-  const Quadrature<dim> q_gauss =
-    type.get_gauss_type_quadrature<dim>(fe.tensor_degree() + 1);
+  const Quadrature<dim>        q_gauss = type.get_gauss_type_quadrature<dim>(fe.tensor_degree() + 1);
   Triangulation<dim, spacedim> tria;
   GridGenerator::reference_cell(tria, type);
-  const Mapping<dim, spacedim> &mapping =
-    type.template get_default_linear_mapping<dim, spacedim>();
+  const Mapping<dim, spacedim> &mapping = type.template get_default_linear_mapping<dim, spacedim>();
 
   auto                    cell = tria.begin_active();
-  FEValues<dim, spacedim> fe_values(mapping,
-                                    fe,
-                                    q_gauss,
-                                    update_values | update_JxW_values);
+  FEValues<dim, spacedim> fe_values(mapping, fe, q_gauss, update_values | update_JxW_values);
   fe_values.reinit(cell);
 
   std::vector<Point<dim>> nodal_quad_points = fe.get_unit_support_points();
@@ -86,13 +81,11 @@ test_interpolate()
 
   const unsigned int                        n_refinements = 7 - dim;
   std::vector<Triangulation<dim, spacedim>> trias;
-  for (unsigned int refinement_n = 0; refinement_n < n_refinements;
-       ++refinement_n)
+  for (unsigned int refinement_n = 0; refinement_n < n_refinements; ++refinement_n)
     {
       Triangulation<dim, spacedim> tria;
       Triangulation<dim, spacedim> tria_hypercube;
-      GridGenerator::subdivided_hyper_cube(tria_hypercube,
-                                           std::pow(2, refinement_n));
+      GridGenerator::subdivided_hyper_cube(tria_hypercube, std::pow(2, refinement_n));
       if (dim == spacedim)
         GridTools::distort_random(0.2, tria_hypercube);
       GridGenerator::convert_hypercube_to_simplex_mesh(tria_hypercube, tria);
@@ -104,8 +97,7 @@ test_interpolate()
     {
       deallog << "degree = " << degree << std::endl;
       double old_error = -1.0;
-      for (unsigned int refinement_n = 0; refinement_n < n_refinements - degree;
-           ++refinement_n)
+      for (unsigned int refinement_n = 0; refinement_n < n_refinements - degree; ++refinement_n)
         {
           const Triangulation<dim, spacedim> &tria = trias[refinement_n];
           deallog << "number of cells = " << tria.n_active_cells() << std::endl;
@@ -117,20 +109,15 @@ test_interpolate()
           dh.distribute_dofs(fe);
           deallog << "number of dofs = " << dh.n_dofs() << std::endl;
 
-          const Mapping<dim, spacedim> &map =
-            type.template get_default_linear_mapping<dim, spacedim>();
+          const Mapping<dim, spacedim> &map = type.template get_default_linear_mapping<dim, spacedim>();
 
           Vector<double> solution(dh.n_dofs());
           VectorTools::interpolate(map, dh, func, solution);
 
           QGaussSimplex<dim> error_quad(4);
           Vector<double>     out_l2(tria.n_active_cells());
-          VectorTools::integrate_difference(
-            map, dh, solution, func, out_l2, error_quad, VectorTools::L2_norm);
-          const double new_error =
-            VectorTools::compute_global_error(tria,
-                                              out_l2,
-                                              VectorTools::L2_norm);
+          VectorTools::integrate_difference(map, dh, solution, func, out_l2, error_quad, VectorTools::L2_norm);
+          const double new_error = VectorTools::compute_global_error(tria, out_l2, VectorTools::L2_norm);
           deallog << "error = " << new_error << std::endl;
           if (old_error != -1.0)
             deallog << "ratio = " << old_error / new_error << std::endl;
@@ -150,13 +137,11 @@ test_lumped_project()
 
   const unsigned int                        n_refinements = 7 - dim;
   std::vector<Triangulation<dim, spacedim>> trias;
-  for (unsigned int refinement_n = 0; refinement_n < n_refinements;
-       ++refinement_n)
+  for (unsigned int refinement_n = 0; refinement_n < n_refinements; ++refinement_n)
     {
       Triangulation<dim, spacedim> tria;
       Triangulation<dim, spacedim> tria_hypercube;
-      GridGenerator::subdivided_hyper_cube(tria_hypercube,
-                                           std::pow(2, refinement_n));
+      GridGenerator::subdivided_hyper_cube(tria_hypercube, std::pow(2, refinement_n));
       if (dim == spacedim)
         GridTools::distort_random(0.2, tria_hypercube);
       GridGenerator::convert_hypercube_to_simplex_mesh(tria_hypercube, tria);
@@ -169,8 +154,7 @@ test_lumped_project()
     {
       deallog << "degree = " << degree << std::endl;
       double old_error = -1.0;
-      for (unsigned int refinement_n = 0; refinement_n < n_refinements;
-           ++refinement_n)
+      for (unsigned int refinement_n = 0; refinement_n < n_refinements; ++refinement_n)
         {
           const Triangulation<dim, spacedim> &tria = trias[refinement_n];
           deallog << "number of cells = " << tria.n_active_cells() << std::endl;
@@ -182,24 +166,18 @@ test_lumped_project()
           dh.distribute_dofs(fe);
           deallog << "number of dofs = " << dh.n_dofs() << std::endl;
           const Quadrature<dim> nodal_quad = compute_nodal_quadrature(fe);
-          const Quadrature<dim> cell_quad  = QGaussSimplex<dim>(
-            std::max<unsigned int>(fe.tensor_degree() + 1, 2));
+          const Quadrature<dim> cell_quad  = QGaussSimplex<dim>(std::max<unsigned int>(fe.tensor_degree() + 1, 2));
 
           Vector<double> lumped_mass(dh.n_dofs());
           Vector<double> consistent_rhs(dh.n_dofs());
 
-          const Mapping<dim, spacedim> &map =
-            type.template get_default_linear_mapping<dim, spacedim>();
+          const Mapping<dim, spacedim> &map = type.template get_default_linear_mapping<dim, spacedim>();
 
-          FEValues<dim> lumped_fev(map,
-                                   fe,
-                                   nodal_quad,
-                                   update_values | update_JxW_values);
+          FEValues<dim> lumped_fev(map, fe, nodal_quad, update_values | update_JxW_values);
           FEValues<dim> consistent_fev(map,
                                        fe,
                                        cell_quad,
-                                       update_quadrature_points |
-                                         update_values | update_JxW_values);
+                                       update_quadrature_points | update_values | update_JxW_values);
 
           std::vector<types::global_dof_index> dofs(fe.dofs_per_cell);
           for (const auto &cell : dh.active_cell_iterators())
@@ -213,19 +191,15 @@ test_lumped_project()
                   for (unsigned int i = 0; i < fe.dofs_per_cell; ++i)
                     {
                       const double v = lumped_fev.shape_value(i, q);
-                      Assert(std::abs(v - double(i == q)) < 1e-14,
-                             ExcInternalError());
-                      lumped_mass[dofs[i]] +=
-                        lumped_fev.shape_value(i, q) * lumped_fev.JxW(q);
+                      Assert(std::abs(v - double(i == q)) < 1e-14, ExcInternalError());
+                      lumped_mass[dofs[i]] += lumped_fev.shape_value(i, q) * lumped_fev.JxW(q);
                     }
                 }
 
               for (unsigned int q = 0; q < cell_quad.size(); ++q)
                 for (unsigned int i = 0; i < fe.dofs_per_cell; ++i)
-                  consistent_rhs[dofs[i]] +=
-                    consistent_fev.shape_value(i, q) *
-                    func.value(consistent_fev.quadrature_point(q)) *
-                    consistent_fev.JxW(q);
+                  consistent_rhs[dofs[i]] += consistent_fev.shape_value(i, q) *
+                                             func.value(consistent_fev.quadrature_point(q)) * consistent_fev.JxW(q);
             }
 
           Vector<double> solution(dh.n_dofs());
@@ -234,13 +208,9 @@ test_lumped_project()
 
           QGaussSimplex<dim> error_quad(4);
           Vector<double>     out_l2(tria.n_active_cells());
-          VectorTools::integrate_difference(
-            map, dh, solution, func, out_l2, error_quad, VectorTools::L2_norm);
+          VectorTools::integrate_difference(map, dh, solution, func, out_l2, error_quad, VectorTools::L2_norm);
 
-          const auto new_error =
-            VectorTools::compute_global_error(tria,
-                                              out_l2,
-                                              VectorTools::L2_norm);
+          const auto new_error = VectorTools::compute_global_error(tria, out_l2, VectorTools::L2_norm);
           deallog << "error = " << new_error << std::endl;
           if (old_error != -1.0)
             deallog << "ratio = " << old_error / new_error << std::endl;

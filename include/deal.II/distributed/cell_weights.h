@@ -110,9 +110,8 @@ namespace parallel
      * weight or, in other words, the additional computational load associated
      * with it.
      */
-    using WeightingFunction = std::function<
-      unsigned int(const typename DoFHandler<dim, spacedim>::cell_iterator &,
-                   const FiniteElement<dim, spacedim> &)>;
+    using WeightingFunction = std::function<unsigned int(const typename DoFHandler<dim, spacedim>::cell_iterator &,
+                                                         const FiniteElement<dim, spacedim> &)>;
 
     /**
      * Constructor.
@@ -129,8 +128,7 @@ namespace parallel
      * @param[in] weighting_function The function that determines each
      *    cell's weight during load balancing.
      */
-    CellWeights(const DoFHandler<dim, spacedim> &dof_handler,
-                const WeightingFunction &        weighting_function);
+    CellWeights(const DoFHandler<dim, spacedim> &dof_handler, const WeightingFunction &weighting_function);
 
     /**
      * Destructor.
@@ -146,8 +144,7 @@ namespace parallel
      * Disconnects the function previously connected to the weighting signal.
      */
     void
-    reinit(const DoFHandler<dim, spacedim> &dof_handler,
-           const WeightingFunction &        weighting_function);
+    reinit(const DoFHandler<dim, spacedim> &dof_handler, const WeightingFunction &weighting_function);
 
     /**
      * Converts a @p weighting_function to a different type that qualifies as
@@ -157,11 +154,9 @@ namespace parallel
      * This function does <b>not</b> connect the converted function to the
      * Triangulation associated with the @p dof_handler.
      */
-    static std::function<unsigned int(
-      const typename dealii::Triangulation<dim, spacedim>::cell_iterator &cell,
-      const CellStatus status)>
-    make_weighting_callback(const DoFHandler<dim, spacedim> &dof_handler,
-                            const WeightingFunction &weighting_function);
+    static std::function<unsigned int(const typename dealii::Triangulation<dim, spacedim>::cell_iterator &cell,
+                                      const CellStatus                                                    status)>
+    make_weighting_callback(const DoFHandler<dim, spacedim> &dof_handler, const WeightingFunction &weighting_function);
 
     /**
      * @name Selection of weighting functions
@@ -217,12 +212,11 @@ namespace parallel
      * initialized yet.
      */
     static unsigned int
-    weighting_callback(
-      const typename dealii::Triangulation<dim, spacedim>::cell_iterator &cell,
-      const CellStatus                                  status,
-      const DoFHandler<dim, spacedim> &                 dof_handler,
-      const parallel::TriangulationBase<dim, spacedim> &triangulation,
-      const WeightingFunction &                         weighting_function);
+    weighting_callback(const typename dealii::Triangulation<dim, spacedim>::cell_iterator &cell,
+                       const CellStatus                                                    status,
+                       const DoFHandler<dim, spacedim>                                    &dof_handler,
+                       const parallel::TriangulationBase<dim, spacedim>                   &triangulation,
+                       const WeightingFunction                                            &weighting_function);
   };
 } // namespace parallel
 

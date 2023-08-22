@@ -46,13 +46,9 @@ main(int argc, char **argv)
   {
     Solver solver;
 
-    solver.energy = [&](const VectorType &X, real_type &v) -> void {
-      v = X.norm_sqr();
-    };
+    solver.energy = [&](const VectorType &X, real_type &v) -> void { v = X.norm_sqr(); };
 
-    solver.residual = [&](const VectorType &X, VectorType &F) -> void {
-      F.equ(2, X);
-    };
+    solver.residual = [&](const VectorType &X, VectorType &F) -> void { F.equ(2, X); };
 
     auto       commsize = Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
     auto       commrank = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);

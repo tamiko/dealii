@@ -45,9 +45,7 @@ test()
 
   NonMatching::MappingInfo<dim>::AdditionalData additional_data;
   additional_data.use_global_weights = true;
-  NonMatching::MappingInfo<dim> mapping_info(mapping,
-                                             update_JxW_values,
-                                             additional_data);
+  NonMatching::MappingInfo<dim> mapping_info(mapping, update_JxW_values, additional_data);
 
   deallog << "Check JxW faces..." << std::endl;
   {
@@ -62,15 +60,14 @@ test()
         for (auto f : cell->face_indices())
           {
             dealii::QGauss<dim - 1> face_quadrature(degree + 1);
-            std::vector<double> weights(face_quadrature.get_weights().size());
+            std::vector<double>     weights(face_quadrature.get_weights().size());
             for (auto &w : weights)
               {
                 w = JxW;
                 JxW += 1.0;
               }
 
-            quad.emplace_back(
-              Quadrature<dim - 1>(face_quadrature.get_points(), weights));
+            quad.emplace_back(Quadrature<dim - 1>(face_quadrature.get_points(), weights));
           }
         quad_vec.push_back(quad);
       }
@@ -78,8 +75,7 @@ test()
     // 2) reinit mapping info
     mapping_info.reinit_faces(tria.active_cell_iterators(), quad_vec);
 
-    FEPointEvaluation<n_components, dim, spacedim, Number> fe_point_eval(
-      mapping_info, fe);
+    FEPointEvaluation<n_components, dim, spacedim, Number> fe_point_eval(mapping_info, fe);
 
     // 3) print JxW
     for (const auto &cell : tria.active_cell_iterators())
@@ -110,14 +106,12 @@ test()
             JxW += 1.0;
           }
 
-        quad_vec.emplace_back(
-          Quadrature<dim>(cell_quadrature.get_points(), weights));
+        quad_vec.emplace_back(Quadrature<dim>(cell_quadrature.get_points(), weights));
       }
 
     // 2) reinit mapping info
     mapping_info.reinit_cells(tria.active_cell_iterators(), quad_vec);
-    FEPointEvaluation<n_components, dim, spacedim, Number> fe_point_eval(
-      mapping_info, fe);
+    FEPointEvaluation<n_components, dim, spacedim, Number> fe_point_eval(mapping_info, fe);
 
     // 3) print JxW
     for (const auto &cell : tria.active_cell_iterators())

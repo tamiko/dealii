@@ -43,8 +43,7 @@ test(const MPI_Comm comm)
 
   // test function for set
   {
-    const auto result = Utilities::MPI::compute_set_union(
-      std::set<unsigned int>(vector.begin(), vector.end()), comm);
+    const auto result = Utilities::MPI::compute_set_union(std::set<unsigned int>(vector.begin(), vector.end()), comm);
 
     for (auto i : result)
       deallog << i << ' ';

@@ -37,19 +37,13 @@
 
 template <int dim>
 void
-output(const Triangulation<dim> &tr,
-       const std::string &       filename,
-       const bool                view_levels,
-       const bool                include_artificial)
+output(const Triangulation<dim> &tr, const std::string &filename, const bool view_levels, const bool include_artificial)
 {
   GridOut           out;
   GridOutFlags::Vtu vtu_flags;
   vtu_flags.compression_level = DataOutBase::CompressionLevel::best_compression;
   out.set_flags(vtu_flags);
-  out.write_mesh_per_processor_as_vtu(tr,
-                                      filename,
-                                      view_levels,
-                                      include_artificial);
+  out.write_mesh_per_processor_as_vtu(tr, filename, view_levels, include_artificial);
 
   // copy the .pvtu and .vtu files
   // into the logstream
@@ -76,11 +70,10 @@ test()
     deallog << "hyper_cube" << std::endl;
 
 
-  parallel::shared::Triangulation<dim> triangulation(
-    MPI_COMM_WORLD,
-    ::Triangulation<dim>::none,
-    true,
-    parallel::shared::Triangulation<dim>::Settings::partition_zorder);
+  parallel::shared::Triangulation<dim> triangulation(MPI_COMM_WORLD,
+                                                     ::Triangulation<dim>::none,
+                                                     true,
+                                                     parallel::shared::Triangulation<dim>::Settings::partition_zorder);
 
   Triangulation<dim> temp;
   GridGenerator::hyper_cube(temp);

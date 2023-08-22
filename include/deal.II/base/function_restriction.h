@@ -66,12 +66,10 @@ namespace Functions
     value(const Point<dim> &point, const unsigned int component) const override;
 
     Tensor<1, dim>
-    gradient(const Point<dim> & point,
-             const unsigned int component) const override;
+    gradient(const Point<dim> &point, const unsigned int component) const override;
 
     SymmetricTensor<2, dim>
-    hessian(const Point<dim> & point,
-            const unsigned int component) const override;
+    hessian(const Point<dim> &point, const unsigned int component) const override;
 
   private:
     // The higher-dimensional function that has been restricted.
@@ -118,16 +116,13 @@ namespace Functions
      * A pointer to the incoming function is stored internally, so the function
      * must have a longer lifetime than the created restriction.
      */
-    PointRestriction(const Function<dim + 1> &function,
-                     const unsigned int       open_direction,
-                     const Point<dim> &       point);
+    PointRestriction(const Function<dim + 1> &function, const unsigned int open_direction, const Point<dim> &point);
 
     double
     value(const Point<1> &point, const unsigned int component) const override;
 
     Tensor<1, 1>
-    gradient(const Point<1> &   point,
-             const unsigned int component) const override;
+    gradient(const Point<1> &point, const unsigned int component) const override;
 
     SymmetricTensor<2, 1>
     hessian(const Point<1> &point, const unsigned int component) const override;
@@ -164,7 +159,7 @@ namespace internal
    */
   template <int dim>
   Point<dim + 1>
-  create_higher_dim_point(const Point<dim> & point,
+  create_higher_dim_point(const Point<dim>  &point,
                           const unsigned int component_in_dim_plus_1,
                           const double       coordinate_value);
 } // namespace internal

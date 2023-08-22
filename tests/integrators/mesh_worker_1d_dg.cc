@@ -70,16 +70,14 @@ namespace Advection
     setup_system();
 
     void
-    integrate_cell_term(MeshWorker::DoFInfo<dim> &        dinfo,
-                        MeshWorker::IntegrationInfo<dim> &info);
+    integrate_cell_term(MeshWorker::DoFInfo<dim> &dinfo, MeshWorker::IntegrationInfo<dim> &info);
 
     void
-    integrate_boundary_term(MeshWorker::DoFInfo<dim> &        dinfo,
-                            MeshWorker::IntegrationInfo<dim> &info);
+    integrate_boundary_term(MeshWorker::DoFInfo<dim> &dinfo, MeshWorker::IntegrationInfo<dim> &info);
 
     void
-    integrate_face_term(MeshWorker::DoFInfo<dim> &        dinfo1,
-                        MeshWorker::DoFInfo<dim> &        dinfo2,
+    integrate_face_term(MeshWorker::DoFInfo<dim>         &dinfo1,
+                        MeshWorker::DoFInfo<dim>         &dinfo2,
                         MeshWorker::IntegrationInfo<dim> &info1,
                         MeshWorker::IntegrationInfo<dim> &info2);
 
@@ -143,8 +141,7 @@ namespace Advection
     std::vector<unsigned int> subdivisions(1);
     subdivisions[0] = n_cells_x;
 
-    GridGenerator::subdivided_hyper_rectangle(
-      triangulation, subdivisions, LowerLeft, UpperRight, true);
+    GridGenerator::subdivided_hyper_rectangle(triangulation, subdivisions, LowerLeft, UpperRight, true);
 
   } // create_grid()
 
@@ -166,8 +163,7 @@ namespace Advection
     subdivisions[0] = n_cells_x;
     subdivisions[1] = n_cells_y;
 
-    GridGenerator::subdivided_hyper_rectangle(
-      triangulation, subdivisions, LowerLeft, UpperRight, true);
+    GridGenerator::subdivided_hyper_rectangle(triangulation, subdivisions, LowerLeft, UpperRight, true);
 
   } // create_grid()
 
@@ -190,8 +186,7 @@ namespace Advection
     subdivisions[1] = n_cells_y;
     subdivisions[2] = n_cells_z;
 
-    GridGenerator::subdivided_hyper_rectangle(
-      triangulation, subdivisions, LowerLeft, UpperRight, true);
+    GridGenerator::subdivided_hyper_rectangle(triangulation, subdivisions, LowerLeft, UpperRight, true);
 
   } // create_grid()
 
@@ -210,21 +205,16 @@ namespace Advection
 
   template <int dim>
   void
-  AdvectionProblem<dim>::assemble_rhs(Vector<double> &solution,
-                                      Vector<double> &residual)
+  AdvectionProblem<dim>::assemble_rhs(Vector<double> &solution, Vector<double> &residual)
   {
-    const auto n_gauss_points =
-      static_cast<unsigned int>(std::ceil(((2.0 * fe.degree) + 1) / 2));
+    const auto n_gauss_points = static_cast<unsigned int>(std::ceil(((2.0 * fe.degree) + 1) / 2));
 
     MeshWorker::IntegrationInfoBox<dim> info_box;
 
-    info_box.initialize_gauss_quadrature(n_gauss_points,
-                                         n_gauss_points,
-                                         n_gauss_points);
+    info_box.initialize_gauss_quadrature(n_gauss_points, n_gauss_points, n_gauss_points);
 
     info_box.initialize_update_flags();
-    UpdateFlags update_flags =
-      update_quadrature_points | update_values | update_gradients;
+    UpdateFlags update_flags = update_quadrature_points | update_values | update_gradients;
 
     info_box.add_update_flags(update_flags, true, true, true, true);
 
@@ -251,22 +241,13 @@ namespace Advection
     lctrl.cells_first = true;
     lctrl.own_faces   = MeshWorker::LoopControl::one;
 
-    MeshWorker::loop<dim,
-                     dim,
-                     MeshWorker::DoFInfo<dim>,
-                     MeshWorker::IntegrationInfoBox<dim>>(
+    MeshWorker::loop<dim, dim, MeshWorker::DoFInfo<dim>, MeshWorker::IntegrationInfoBox<dim>>(
       dof_handler.begin_active(),
       dof_handler.end(),
       dof_info,
       info_box,
-      std::bind(&AdvectionProblem<dim>::integrate_cell_term,
-                this,
-                std::placeholders::_1,
-                std::placeholders::_2),
-      std::bind(&AdvectionProblem<dim>::integrate_boundary_term,
-                this,
-                std::placeholders::_1,
-                std::placeholders::_2),
+      std::bind(&AdvectionProblem<dim>::integrate_cell_term, this, std::placeholders::_1, std::placeholders::_2),
+      std::bind(&AdvectionProblem<dim>::integrate_boundary_term, this, std::placeholders::_1, std::placeholders::_2),
       std::bind(&AdvectionProblem<dim>::integrate_face_term,
                 this,
                 std::placeholders::_1,
@@ -280,9 +261,7 @@ namespace Advection
 
   template <int dim>
   void
-  AdvectionProblem<dim>::integrate_cell_term(
-    MeshWorker::DoFInfo<dim> &        dinfo,
-    MeshWorker::IntegrationInfo<dim> &info)
+  AdvectionProblem<dim>::integrate_cell_term(MeshWorker::DoFInfo<dim> &dinfo, MeshWorker::IntegrationInfo<dim> &info)
   {
     const FEValuesBase<dim> &fe_v = info.fe_values();
 
@@ -302,15 +281,11 @@ namespace Advection
       {
         for (unsigned int i = 0; i < dofs_per_cell; ++i)
           {
-            cell_rhs(i) -= wavespeed *
-                           (u[q_point] * fe_v[upos].gradient(i, q_point)[0]) *
-                           fe_v.JxW(q_point);
+            cell_rhs(i) -= wavespeed * (u[q_point] * fe_v[upos].gradient(i, q_point)[0]) * fe_v.JxW(q_point);
 
             for (unsigned int j = 0; j < dofs_per_cell; ++j)
               {
-                cell_matrix(i, j) += fe_v[upos].value(i, q_point) *
-                                     fe_v[upos].value(j, q_point) *
-                                     fe_v.JxW(q_point);
+                cell_matrix(i, j) += fe_v[upos].value(i, q_point) * fe_v[upos].value(j, q_point) * fe_v.JxW(q_point);
               }
           } // i
       }     // q_point
@@ -319,9 +294,8 @@ namespace Advection
 
   template <int dim>
   void
-  AdvectionProblem<dim>::integrate_boundary_term(
-    MeshWorker::DoFInfo<dim> &        dinfo,
-    MeshWorker::IntegrationInfo<dim> &info)
+  AdvectionProblem<dim>::integrate_boundary_term(MeshWorker::DoFInfo<dim>         &dinfo,
+                                                 MeshWorker::IntegrationInfo<dim> &info)
   {
     const unsigned int boundary_id = dinfo.face->boundary_id();
 
@@ -343,8 +317,7 @@ namespace Advection
       {
         for (unsigned int i = 0; i < dofs_per_cell; ++i)
           {
-            cell_rhs(i) += wavespeed * boundary_flux *
-                           fe_v[upos].value(i, q_point) * fe_v.JxW(q_point);
+            cell_rhs(i) += wavespeed * boundary_flux * fe_v[upos].value(i, q_point) * fe_v.JxW(q_point);
 
           } // i
       }     // q_point
@@ -353,11 +326,10 @@ namespace Advection
 
   template <int dim>
   void
-  AdvectionProblem<dim>::integrate_face_term(
-    MeshWorker::DoFInfo<dim> &        dinfo1,
-    MeshWorker::DoFInfo<dim> &        dinfo2,
-    MeshWorker::IntegrationInfo<dim> &info1,
-    MeshWorker::IntegrationInfo<dim> &info2)
+  AdvectionProblem<dim>::integrate_face_term(MeshWorker::DoFInfo<dim>         &dinfo1,
+                                             MeshWorker::DoFInfo<dim>         &dinfo2,
+                                             MeshWorker::IntegrationInfo<dim> &info1,
+                                             MeshWorker::IntegrationInfo<dim> &info2)
   {
     const FEValuesBase<dim> &fe_v_1 = info1.fe_values();
     const FEValuesBase<dim> &fe_v_2 = info2.fe_values();
@@ -382,13 +354,9 @@ namespace Advection
 
         for (unsigned int i = 0; i < dofs_per_cell; ++i)
           {
-            cell_vector_1(i) += wavespeed * flux *
-                                fe_v_1[upos].value(i, q_point) *
-                                fe_v_1.JxW(q_point);
+            cell_vector_1(i) += wavespeed * flux * fe_v_1[upos].value(i, q_point) * fe_v_1.JxW(q_point);
 
-            cell_vector_2(i) -= wavespeed * flux *
-                                fe_v_2[upos].value(i, q_point) *
-                                fe_v_1.JxW(q_point);
+            cell_vector_2(i) -= wavespeed * flux * fe_v_2[upos].value(i, q_point) * fe_v_1.JxW(q_point);
 
           } // i
       }     // q_point
@@ -405,13 +373,10 @@ namespace Advection
 
     std::vector<std::string> solution_names(1, "u");
 
-    std::vector<DataComponentInterpretation::DataComponentInterpretation>
-      interpretation(1, DataComponentInterpretation::component_is_scalar);
+    std::vector<DataComponentInterpretation::DataComponentInterpretation> interpretation(
+      1, DataComponentInterpretation::component_is_scalar);
 
-    data_out.add_data_vector(solution,
-                             solution_names,
-                             DataOut<dim>::type_dof_data,
-                             interpretation);
+    data_out.add_data_vector(solution, solution_names, DataOut<dim>::type_dof_data, interpretation);
 
     data_out.build_patches(fe.degree);
     data_out.write_gnuplot(deallog.get_file_stream());
@@ -429,11 +394,9 @@ namespace Advection
     // Setup the system
     setup_system();
 
-    deallog << "\tNumber of active cells:       "
-            << triangulation.n_active_cells() << std::endl;
+    deallog << "\tNumber of active cells:       " << triangulation.n_active_cells() << std::endl;
 
-    deallog << "\tNumber of degrees of freedom: " << dof_handler.n_dofs()
-            << std::endl;
+    deallog << "\tNumber of degrees of freedom: " << dof_handler.n_dofs() << std::endl;
 
     const double       delta_t = 0.005;
     const unsigned int n_dt    = 10;

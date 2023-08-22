@@ -39,8 +39,7 @@ test1()
         {
           tria.refine_global(2);
           deallog << dim << "d, "
-                  << "hypercube diameter, " << i * 2
-                  << " refinements: " << GridTools::diameter(tria) << std::endl;
+                  << "hypercube diameter, " << i * 2 << " refinements: " << GridTools::diameter(tria) << std::endl;
         }
     }
 }

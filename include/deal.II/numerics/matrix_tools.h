@@ -319,12 +319,11 @@ namespace MatrixTools
    */
   template <typename number>
   void
-  apply_boundary_values(
-    const std::map<types::global_dof_index, number> &boundary_values,
-    SparseMatrix<number> &                           matrix,
-    Vector<number> &                                 solution,
-    Vector<number> &                                 right_hand_side,
-    const bool                                       eliminate_columns = true);
+  apply_boundary_values(const std::map<types::global_dof_index, number> &boundary_values,
+                        SparseMatrix<number>                            &matrix,
+                        Vector<number>                                  &solution,
+                        Vector<number>                                  &right_hand_side,
+                        const bool                                       eliminate_columns = true);
 
   /**
    * Apply Dirichlet boundary conditions to the system matrix and vectors as
@@ -333,12 +332,11 @@ namespace MatrixTools
    */
   template <typename number>
   void
-  apply_boundary_values(
-    const std::map<types::global_dof_index, number> &boundary_values,
-    BlockSparseMatrix<number> &                      matrix,
-    BlockVector<number> &                            solution,
-    BlockVector<number> &                            right_hand_side,
-    const bool                                       eliminate_columns = true);
+  apply_boundary_values(const std::map<types::global_dof_index, number> &boundary_values,
+                        BlockSparseMatrix<number>                       &matrix,
+                        BlockVector<number>                             &solution,
+                        BlockVector<number>                             &right_hand_side,
+                        const bool                                       eliminate_columns = true);
 
 #ifdef DEAL_II_WITH_PETSC
   /**
@@ -349,23 +347,21 @@ namespace MatrixTools
    * This function is used in step-17 and step-18.
    */
   void
-  apply_boundary_values(
-    const std::map<types::global_dof_index, PetscScalar> &boundary_values,
-    PETScWrappers::MatrixBase &                           matrix,
-    PETScWrappers::VectorBase &                           solution,
-    PETScWrappers::VectorBase &                           right_hand_side,
-    const bool eliminate_columns = true);
+  apply_boundary_values(const std::map<types::global_dof_index, PetscScalar> &boundary_values,
+                        PETScWrappers::MatrixBase                            &matrix,
+                        PETScWrappers::VectorBase                            &solution,
+                        PETScWrappers::VectorBase                            &right_hand_side,
+                        const bool                                            eliminate_columns = true);
 
   /**
    * Same as above but for the parallel BlockSparseMatrix.
    */
   void
-  apply_boundary_values(
-    const std::map<types::global_dof_index, PetscScalar> &boundary_values,
-    PETScWrappers::MPI::BlockSparseMatrix &               matrix,
-    PETScWrappers::MPI::BlockVector &                     solution,
-    PETScWrappers::MPI::BlockVector &                     right_hand_side,
-    const bool eliminate_columns = true);
+  apply_boundary_values(const std::map<types::global_dof_index, PetscScalar> &boundary_values,
+                        PETScWrappers::MPI::BlockSparseMatrix                &matrix,
+                        PETScWrappers::MPI::BlockVector                      &solution,
+                        PETScWrappers::MPI::BlockVector                      &right_hand_side,
+                        const bool                                            eliminate_columns = true);
 
 #endif
 
@@ -404,24 +400,22 @@ namespace MatrixTools
    * rows.
    */
   void
-  apply_boundary_values(
-    const std::map<types::global_dof_index, TrilinosScalar> &boundary_values,
-    TrilinosWrappers::SparseMatrix &                         matrix,
-    TrilinosWrappers::MPI::Vector &                          solution,
-    TrilinosWrappers::MPI::Vector &                          right_hand_side,
-    const bool eliminate_columns = true);
+  apply_boundary_values(const std::map<types::global_dof_index, TrilinosScalar> &boundary_values,
+                        TrilinosWrappers::SparseMatrix                          &matrix,
+                        TrilinosWrappers::MPI::Vector                           &solution,
+                        TrilinosWrappers::MPI::Vector                           &right_hand_side,
+                        const bool                                               eliminate_columns = true);
 
   /**
    * This function does the same as the one above, except now working on block
    * structures.
    */
   void
-  apply_boundary_values(
-    const std::map<types::global_dof_index, TrilinosScalar> &boundary_values,
-    TrilinosWrappers::BlockSparseMatrix &                    matrix,
-    TrilinosWrappers::MPI::BlockVector &                     solution,
-    TrilinosWrappers::MPI::BlockVector &                     right_hand_side,
-    const bool eliminate_columns = true);
+  apply_boundary_values(const std::map<types::global_dof_index, TrilinosScalar> &boundary_values,
+                        TrilinosWrappers::BlockSparseMatrix                     &matrix,
+                        TrilinosWrappers::MPI::BlockVector                      &solution,
+                        TrilinosWrappers::MPI::BlockVector                      &right_hand_side,
+                        const bool                                               eliminate_columns = true);
 #endif
 
   /**
@@ -444,12 +438,11 @@ namespace MatrixTools
    */
   template <typename number>
   void
-  local_apply_boundary_values(
-    const std::map<types::global_dof_index, number> &boundary_values,
-    const std::vector<types::global_dof_index> &     local_dof_indices,
-    FullMatrix<number> &                             local_matrix,
-    Vector<number> &                                 local_rhs,
-    const bool                                       eliminate_columns);
+  local_apply_boundary_values(const std::map<types::global_dof_index, number> &boundary_values,
+                              const std::vector<types::global_dof_index>      &local_dof_indices,
+                              FullMatrix<number>                              &local_matrix,
+                              Vector<number>                                  &local_rhs,
+                              const bool                                       eliminate_columns);
 
   /**
    * Exception

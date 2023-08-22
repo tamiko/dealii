@@ -111,8 +111,7 @@ BubbleFunction<dim>::gradient(const Point<dim> &p, const unsigned int) const
       for (unsigned int j = 0; j < dim; ++j)
         value *= (1 - p(j) * p(j));
       // and multiply with grad(x_i^{r-1})
-      grad[m_direction] +=
-        value * (m_degree - 1) * std::pow(p(m_direction), m_degree - 2);
+      grad[m_direction] += value * (m_degree - 1) * std::pow(p(m_direction), m_degree - 2);
     }
 
   return grad;
@@ -175,8 +174,7 @@ void
 Step3<dim>::setup_system()
 {
   dof_handler.distribute_dofs(*fe);
-  std::cout << "Number of degrees of freedom: " << dof_handler.n_dofs()
-            << std::endl;
+  std::cout << "Number of degrees of freedom: " << dof_handler.n_dofs() << std::endl;
 
   DynamicSparsityPattern c_sparsity(dof_handler.n_dofs());
   DoFTools::make_sparsity_pattern(dof_handler, c_sparsity);
@@ -198,8 +196,7 @@ Step3<dim>::assemble_system(unsigned int i)
   QGauss<dim>   quadrature_formula(m_degree + 1);
   FEValues<dim> fe_values(*fe,
                           quadrature_formula,
-                          update_values | update_gradients | update_JxW_values |
-                            update_quadrature_points);
+                          update_values | update_gradients | update_JxW_values | update_quadrature_points);
 
   const unsigned int dofs_per_cell = fe->dofs_per_cell;
   const unsigned int n_q_points    = quadrature_formula.size();
@@ -211,9 +208,7 @@ Step3<dim>::assemble_system(unsigned int i)
 
   BubbleFunction<dim> bubble_function(m_degree - 1, i);
 
-  typename DoFHandler<dim>::active_cell_iterator cell =
-                                                   dof_handler.begin_active(),
-                                                 endc = dof_handler.end();
+  typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
   for (; cell != endc; ++cell)
     {
       fe_values.reinit(cell);
@@ -226,21 +221,16 @@ Step3<dim>::assemble_system(unsigned int i)
           {
             for (unsigned int j = 0; j < dofs_per_cell; ++j)
               cell_matrix(i, j) +=
-                (fe_values.shape_value(i, q_point) *
-                 fe_values.shape_value(j, q_point) * fe_values.JxW(q_point));
-            cell_rhs(i) +=
-              (fe_values.shape_value(i, q_point) *
-               bubble_function.value(fe_values.quadrature_point(q_point)) *
-               fe_values.JxW(q_point));
+                (fe_values.shape_value(i, q_point) * fe_values.shape_value(j, q_point) * fe_values.JxW(q_point));
+            cell_rhs(i) += (fe_values.shape_value(i, q_point) *
+                            bubble_function.value(fe_values.quadrature_point(q_point)) * fe_values.JxW(q_point));
           }
 
       cell->get_dof_indices(local_dof_indices);
 
       for (unsigned int i = 0; i < dofs_per_cell; ++i)
         for (unsigned int j = 0; j < dofs_per_cell; ++j)
-          system_matrix.add(local_dof_indices[i],
-                            local_dof_indices[j],
-                            cell_matrix(i, j));
+          system_matrix.add(local_dof_indices[i], local_dof_indices[j], cell_matrix(i, j));
 
       for (unsigned int i = 0; i < dofs_per_cell; ++i)
         system_rhs(local_dof_indices[i]) += cell_rhs(i);
@@ -272,8 +262,7 @@ Step3<dim>::output_results(unsigned int i) const
 
 
 
-  std::ofstream output(
-    (fe->get_name() + "." + Utilities::int_to_string(i, 1) + ".vtk").c_str());
+  std::ofstream output((fe->get_name() + "." + Utilities::int_to_string(i, 1) + ".vtk").c_str());
   data_out.write_vtk(output);
 #endif
 

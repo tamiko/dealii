@@ -39,8 +39,7 @@ void
 test(int n_refinements, const int n_subdivisions, MPI_Comm comm)
 {
   // create serial triangulation
-  Triangulation<dim> basetria(
-    Triangulation<dim>::limit_level_difference_at_vertices);
+  Triangulation<dim> basetria(Triangulation<dim>::limit_level_difference_at_vertices);
   GridGenerator::subdivided_hyper_cube(basetria, n_subdivisions);
   basetria.refine_global(n_refinements);
 

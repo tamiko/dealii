@@ -70,20 +70,16 @@ namespace Differentiation
                            const Expression &expression_if_false)
     {
       Assert(SE::is_a_Boolean(condition.get_value()),
-             ExcMessage(
-               "The conditional expression must return a boolean type."));
+             ExcMessage("The conditional expression must return a boolean type."));
 
-      const SE::RCP<const SE::Boolean> condition_rcp =
-        SE::rcp_static_cast<const SE::Boolean>(condition.get_RCP());
+      const SE::RCP<const SE::Boolean> condition_rcp = SE::rcp_static_cast<const SE::Boolean>(condition.get_RCP());
       expression =
-        SE::piecewise({{expression_if_true.get_RCP(), condition_rcp},
-                       {expression_if_false.get_RCP(), SE::boolTrue}});
+        SE::piecewise({{expression_if_true.get_RCP(), condition_rcp}, {expression_if_false.get_RCP(), SE::boolTrue}});
     }
 
 
-    Expression::Expression(const std::vector<std::pair<Expression, Expression>>
-                             &               condition_expression,
-                           const Expression &expression_otherwise)
+    Expression::Expression(const std::vector<std::pair<Expression, Expression>> &condition_expression,
+                           const Expression                                     &expression_otherwise)
     {
       SE::PiecewiseVec piecewise_function;
       piecewise_function.reserve(condition_expression.size() + 1);
@@ -92,30 +88,25 @@ namespace Differentiation
       for (const auto &entry : condition_expression)
         {
           Assert(SE::is_a_Boolean(entry.first.get_value()),
-                 ExcMessage(
-                   "The conditional expression must return a boolean type."));
+                 ExcMessage("The conditional expression must return a boolean type."));
           piecewise_function.push_back(
-            {entry.second.get_RCP(),
-             SE::rcp_static_cast<const SE::Boolean>(entry.first.get_RCP())});
+            {entry.second.get_RCP(), SE::rcp_static_cast<const SE::Boolean>(entry.first.get_RCP())});
         }
 
       // Add default value
-      piecewise_function.push_back(
-        {expression_otherwise.get_RCP(), SE::boolTrue});
+      piecewise_function.push_back({expression_otherwise.get_RCP(), SE::boolTrue});
 
       // Initialize
       expression = SE::piecewise(std::move(piecewise_function));
     }
 
 
-    Expression::Expression(const std::vector<std::pair<Expression, Expression>>
-                             &condition_expression)
+    Expression::Expression(const std::vector<std::pair<Expression, Expression>> &condition_expression)
     {
       // Use the other constructor with a fatal termination point
       // ensuring that an error is thrown if none of the conditions
       // are met.
-      *this = Expression(condition_expression,
-                         Expression(numbers::signaling_nan<double>()));
+      *this = Expression(condition_expression, Expression(numbers::signaling_nan<double>()));
     }
 
 
@@ -124,16 +115,15 @@ namespace Differentiation
     {}
 
 
-    Expression::Expression(const std::string &str,
-                           const bool         parse_as_expression)
+    Expression::Expression(const std::string &str, const bool parse_as_expression)
     {
       try
         {
-          expression = (parse_as_expression ?
-                          SE::parse(str) // The string is a symbolic "name"
-                          :
-                          SE::rcp_static_cast<const SE::Basic>(SE::symbol(
-                            str))); // The string is a symbolic "expression"
+          expression =
+            (parse_as_expression ?
+               SE::parse(str) // The string is a symbolic "name"
+               :
+               SE::rcp_static_cast<const SE::Basic>(SE::symbol(str))); // The string is a symbolic "expression"
         }
       catch (...)
         {
@@ -142,11 +132,8 @@ namespace Differentiation
     }
 
 
-    Expression::Expression(const std::string &         symbol_func,
-                           const types::symbol_vector &arguments)
-      : expression(SE::function_symbol(
-          symbol_func,
-          Utilities::convert_expression_vector_to_basic_vector(arguments)))
+    Expression::Expression(const std::string &symbol_func, const types::symbol_vector &arguments)
+      : expression(SE::function_symbol(symbol_func, Utilities::convert_expression_vector_to_basic_vector(arguments)))
     {}
 
 
@@ -241,16 +228,14 @@ namespace Differentiation
 
 
     Expression
-    Expression::differentiate(
-      const SymEngine::RCP<const SymEngine::Symbol> &symbol) const
+    Expression::differentiate(const SymEngine::RCP<const SymEngine::Symbol> &symbol) const
     {
       return Expression(SE::diff(get_RCP(), symbol));
     }
 
 
     Expression
-    Expression::differentiate(
-      const SymEngine::RCP<const SymEngine::Basic> &symbol) const
+    Expression::differentiate(const SymEngine::RCP<const SymEngine::Basic> &symbol) const
     {
       // Potential symbol
       return Expression(SE::sdiff(get_RCP(), symbol));
@@ -283,29 +268,24 @@ namespace Differentiation
 
 
     Expression
-    Expression::substitute(
-      const SymEngine::map_basic_basic &substitution_values) const
+    Expression::substitute(const SymEngine::map_basic_basic &substitution_values) const
     {
       return Expression(get_expression().subs(substitution_values));
     }
 
 
     Expression
-    Expression::substitute(
-      const types::substitution_map &substitution_values) const
+    Expression::substitute(const types::substitution_map &substitution_values) const
     {
-      return substitute(
-        Utilities::convert_expression_map_to_basic_map(substitution_values));
+      return substitute(Utilities::convert_expression_map_to_basic_map(substitution_values));
     }
 
 
     Expression
-    Expression::substitute(const Expression &symbol,
-                           const Expression &value) const
+    Expression::substitute(const Expression &symbol, const Expression &value) const
     {
       Assert(SE::is_a<SE::Symbol>(symbol.get_value()),
-             ExcMessage(
-               "Substitution with a number that does not represent a symbol."));
+             ExcMessage("Substitution with a number that does not represent a symbol."));
 
       types::substitution_map sub_vals;
       sub_vals[symbol] = value;
@@ -438,11 +418,9 @@ namespace Differentiation
     Expression
     operator!(const Expression &expression)
     {
-      Assert(SE::is_a_Boolean(expression.get_value()),
-             ExcMessage("The expression must return a boolean type."));
+      Assert(SE::is_a_Boolean(expression.get_value()), ExcMessage("The expression must return a boolean type."));
 
-      const SE::RCP<const SE::Boolean> expression_rcp =
-        SE::rcp_static_cast<const SE::Boolean>(expression.get_RCP());
+      const SE::RCP<const SE::Boolean> expression_rcp = SE::rcp_static_cast<const SE::Boolean>(expression.get_RCP());
 
       return Expression(SE::logical_not(expression_rcp));
     }
@@ -451,15 +429,11 @@ namespace Differentiation
     Expression
     operator&(const Expression &lhs, const Expression &rhs)
     {
-      Assert(SE::is_a_Boolean(lhs.get_value()),
-             ExcMessage("The lhs expression must return a boolean type."));
-      Assert(SE::is_a_Boolean(rhs.get_value()),
-             ExcMessage("The rhs expression must return a boolean type."));
+      Assert(SE::is_a_Boolean(lhs.get_value()), ExcMessage("The lhs expression must return a boolean type."));
+      Assert(SE::is_a_Boolean(rhs.get_value()), ExcMessage("The rhs expression must return a boolean type."));
 
-      const SE::RCP<const SE::Boolean> lhs_rcp =
-        SE::rcp_static_cast<const SE::Boolean>(lhs.get_RCP());
-      const SE::RCP<const SE::Boolean> rhs_rcp =
-        SE::rcp_static_cast<const SE::Boolean>(rhs.get_RCP());
+      const SE::RCP<const SE::Boolean> lhs_rcp = SE::rcp_static_cast<const SE::Boolean>(lhs.get_RCP());
+      const SE::RCP<const SE::Boolean> rhs_rcp = SE::rcp_static_cast<const SE::Boolean>(rhs.get_RCP());
 
       return Expression(SE::logical_and({lhs_rcp, rhs_rcp}));
     }
@@ -468,15 +442,11 @@ namespace Differentiation
     Expression
     operator|(const Expression &lhs, const Expression &rhs)
     {
-      Assert(SE::is_a_Boolean(lhs.get_value()),
-             ExcMessage("The lhs expression must return a boolean type."));
-      Assert(SE::is_a_Boolean(rhs.get_value()),
-             ExcMessage("The rhs expression must return a boolean type."));
+      Assert(SE::is_a_Boolean(lhs.get_value()), ExcMessage("The lhs expression must return a boolean type."));
+      Assert(SE::is_a_Boolean(rhs.get_value()), ExcMessage("The rhs expression must return a boolean type."));
 
-      const SE::RCP<const SE::Boolean> lhs_rcp =
-        SE::rcp_static_cast<const SE::Boolean>(lhs.get_RCP());
-      const SE::RCP<const SE::Boolean> rhs_rcp =
-        SE::rcp_static_cast<const SE::Boolean>(rhs.get_RCP());
+      const SE::RCP<const SE::Boolean> lhs_rcp = SE::rcp_static_cast<const SE::Boolean>(lhs.get_RCP());
+      const SE::RCP<const SE::Boolean> rhs_rcp = SE::rcp_static_cast<const SE::Boolean>(rhs.get_RCP());
 
       return Expression(SE::logical_or({lhs_rcp, rhs_rcp}));
     }
@@ -485,15 +455,11 @@ namespace Differentiation
     Expression
     operator^(const Expression &lhs, const Expression &rhs)
     {
-      Assert(SE::is_a_Boolean(lhs.get_value()),
-             ExcMessage("The lhs expression must return a boolean type."));
-      Assert(SE::is_a_Boolean(rhs.get_value()),
-             ExcMessage("The rhs expression must return a boolean type."));
+      Assert(SE::is_a_Boolean(lhs.get_value()), ExcMessage("The lhs expression must return a boolean type."));
+      Assert(SE::is_a_Boolean(rhs.get_value()), ExcMessage("The rhs expression must return a boolean type."));
 
-      const SE::RCP<const SE::Boolean> lhs_rcp =
-        SE::rcp_static_cast<const SE::Boolean>(lhs.get_RCP());
-      const SE::RCP<const SE::Boolean> rhs_rcp =
-        SE::rcp_static_cast<const SE::Boolean>(rhs.get_RCP());
+      const SE::RCP<const SE::Boolean> lhs_rcp = SE::rcp_static_cast<const SE::Boolean>(lhs.get_RCP());
+      const SE::RCP<const SE::Boolean> rhs_rcp = SE::rcp_static_cast<const SE::Boolean>(rhs.get_RCP());
 
       return Expression(SE::logical_xor({lhs_rcp, rhs_rcp}));
     }

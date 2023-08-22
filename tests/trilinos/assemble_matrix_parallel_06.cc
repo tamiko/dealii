@@ -67,10 +67,7 @@ namespace Assembly
     struct Data
     {
       Data(const FiniteElement<dim> &fe, const Quadrature<dim> &quadrature)
-        : fe_values(fe,
-                    quadrature,
-                    update_values | update_gradients |
-                      update_quadrature_points | update_JxW_values)
+        : fe_values(fe, quadrature, update_values | update_gradients | update_quadrature_points | update_JxW_values)
       {}
 
       Data(const Data &data)
@@ -126,18 +123,14 @@ private:
   postprocess();
 
   void
-  local_assemble(
-    const FilteredIterator<typename DoFHandler<dim>::active_cell_iterator>
-      &                           cell,
-    Assembly::Scratch::Data<dim> &scratch,
-    Assembly::Copy::Data &        data);
+  local_assemble(const FilteredIterator<typename DoFHandler<dim>::active_cell_iterator> &cell,
+                 Assembly::Scratch::Data<dim>                                           &scratch,
+                 Assembly::Copy::Data                                                   &data);
   void
   copy_local_to_global(const Assembly::Copy::Data &data);
 
   std::vector<types::global_dof_index>
-  get_conflict_indices(
-    FilteredIterator<typename DoFHandler<dim>::active_cell_iterator> const
-      &cell) const;
+  get_conflict_indices(const FilteredIterator<typename DoFHandler<dim>::active_cell_iterator> &cell) const;
 
   parallel::distributed::Triangulation<dim> triangulation;
 
@@ -153,9 +146,7 @@ private:
   TrilinosWrappers::MPI::BlockVector reference_rhs;
   TrilinosWrappers::MPI::BlockVector test_rhs;
 
-  std::vector<std::vector<
-    FilteredIterator<typename DoFHandler<dim>::active_cell_iterator>>>
-    graph;
+  std::vector<std::vector<FilteredIterator<typename DoFHandler<dim>::active_cell_iterator>>> graph;
 };
 
 
@@ -175,8 +166,7 @@ public:
 
 template <int dim>
 double
-BoundaryValues<dim>::value(const Point<dim> &p,
-                           const unsigned int /*component*/) const
+BoundaryValues<dim>::value(const Point<dim> &p, const unsigned int /*component*/) const
 {
   double sum = 0;
   for (unsigned int d = 0; d < dim; ++d)
@@ -200,8 +190,7 @@ public:
 
 template <int dim>
 double
-RightHandSide<dim>::value(const Point<dim> &p,
-                          const unsigned int /*component*/) const
+RightHandSide<dim>::value(const Point<dim> &p, const unsigned int /*component*/) const
 {
   double product = 1;
   for (unsigned int d = 0; d < dim; ++d)
@@ -230,11 +219,9 @@ LaplaceProblem<dim>::~LaplaceProblem()
 template <int dim>
 std::vector<types::global_dof_index>
 LaplaceProblem<dim>::get_conflict_indices(
-  FilteredIterator<typename DoFHandler<dim>::active_cell_iterator> const &cell)
-  const
+  const FilteredIterator<typename DoFHandler<dim>::active_cell_iterator> &cell) const
 {
-  std::vector<types::global_dof_index> local_dof_indices(
-    cell->get_fe().dofs_per_cell);
+  std::vector<types::global_dof_index> local_dof_indices(cell->get_fe().dofs_per_cell);
   cell->get_dof_indices(local_dof_indices);
 
   constraints.resolve_indices(local_dof_indices);
@@ -260,40 +247,29 @@ LaplaceProblem<dim>::setup_system()
   // having added the hanging node constraints in order to be consistent and
   // skip dofs that are already constrained (i.e., are hanging nodes on the
   // boundary in 3D). In contrast to step-27, we choose a sine function.
-  VectorTools::interpolate_boundary_values(dof_handler,
-                                           0,
-                                           BoundaryValues<dim>(),
-                                           constraints);
+  VectorTools::interpolate_boundary_values(dof_handler, 0, BoundaryValues<dim>(), constraints);
   constraints.close();
 
-  using CellFilter =
-    FilteredIterator<typename DoFHandler<dim>::active_cell_iterator>;
-  CellFilter begin(IteratorFilters::LocallyOwnedCell(),
-                   dof_handler.begin_active());
+  using CellFilter = FilteredIterator<typename DoFHandler<dim>::active_cell_iterator>;
+  CellFilter begin(IteratorFilters::LocallyOwnedCell(), dof_handler.begin_active());
   CellFilter end(IteratorFilters::LocallyOwnedCell(), dof_handler.end());
   graph = GraphColoring::make_graph_coloring(
     begin,
     end,
     static_cast<std::function<std::vector<types::global_dof_index>(
-      FilteredIterator<typename DoFHandler<dim>::active_cell_iterator> const
-        &)>>(std::bind(&LaplaceProblem<dim>::get_conflict_indices,
-                       this,
-                       std::placeholders::_1)));
+      const FilteredIterator<typename DoFHandler<dim>::active_cell_iterator> &)>>(
+      std::bind(&LaplaceProblem<dim>::get_conflict_indices, this, std::placeholders::_1)));
 
   TrilinosWrappers::BlockSparsityPattern csp(2, 2);
   std::vector<IndexSet>                  locally_owned(2), relevant_set(2);
-  IndexSet locally_owned_total = dof_handler.locally_owned_dofs(),
-           relevant_total;
+  IndexSet                               locally_owned_total = dof_handler.locally_owned_dofs(), relevant_total;
   DoFTools::extract_locally_relevant_dofs(dof_handler, relevant_total);
 
-  const std::vector<types::global_dof_index> dofs_per_block =
-    DoFTools::count_dofs_per_fe_block(dof_handler, blocks);
-  locally_owned[0] = locally_owned_total.get_view(0, dofs_per_block[0]);
-  locally_owned[1] =
-    locally_owned_total.get_view(dofs_per_block[0], dof_handler.n_dofs());
-  relevant_set[0] = relevant_total.get_view(0, dofs_per_block[0]);
-  relevant_set[1] =
-    relevant_total.get_view(dofs_per_block[0], dof_handler.n_dofs());
+  const std::vector<types::global_dof_index> dofs_per_block = DoFTools::count_dofs_per_fe_block(dof_handler, blocks);
+  locally_owned[0]                                          = locally_owned_total.get_view(0, dofs_per_block[0]);
+  locally_owned[1] = locally_owned_total.get_view(dofs_per_block[0], dof_handler.n_dofs());
+  relevant_set[0]  = relevant_total.get_view(0, dofs_per_block[0]);
+  relevant_set[1]  = relevant_total.get_view(dofs_per_block[0], dof_handler.n_dofs());
 
   {
     csp.reinit(locally_owned, locally_owned, MPI_COMM_WORLD);
@@ -314,10 +290,9 @@ LaplaceProblem<dim>::setup_system()
 
 template <int dim>
 void
-LaplaceProblem<dim>::local_assemble(
-  const FilteredIterator<typename DoFHandler<dim>::active_cell_iterator> &cell,
-  Assembly::Scratch::Data<dim> &scratch,
-  Assembly::Copy::Data &        data)
+LaplaceProblem<dim>::local_assemble(const FilteredIterator<typename DoFHandler<dim>::active_cell_iterator> &cell,
+                                    Assembly::Scratch::Data<dim>                                           &scratch,
+                                    Assembly::Copy::Data                                                   &data)
 {
   const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
 
@@ -335,20 +310,16 @@ LaplaceProblem<dim>::local_assemble(
 
   // this does not make a lot of sense physically but it serves the purpose of
   // the test well
-  for (unsigned int q_point = 0; q_point < fe_values.n_quadrature_points;
-       ++q_point)
+  for (unsigned int q_point = 0; q_point < fe_values.n_quadrature_points; ++q_point)
     {
-      const double rhs_value =
-        rhs_function.value(fe_values.quadrature_point(q_point), 0);
+      const double rhs_value = rhs_function.value(fe_values.quadrature_point(q_point), 0);
       for (unsigned int i = 0; i < dofs_per_cell; ++i)
         {
           for (unsigned int j = 0; j < dofs_per_cell; ++j)
             data.local_matrix(i, j) +=
-              (fe_values.shape_grad(i, q_point) *
-               fe_values.shape_grad(j, q_point) * fe_values.JxW(q_point));
+              (fe_values.shape_grad(i, q_point) * fe_values.shape_grad(j, q_point) * fe_values.JxW(q_point));
 
-          data.local_rhs(i) += (fe_values.shape_value(i, q_point) * rhs_value *
-                                fe_values.JxW(q_point));
+          data.local_rhs(i) += (fe_values.shape_value(i, q_point) * rhs_value * fe_values.JxW(q_point));
         }
     }
 
@@ -363,17 +334,11 @@ void
 LaplaceProblem<dim>::copy_local_to_global(const Assembly::Copy::Data &data)
 {
   if (data.assemble_reference)
-    constraints.distribute_local_to_global(data.local_matrix,
-                                           data.local_rhs,
-                                           data.local_dof_indices,
-                                           reference_matrix,
-                                           reference_rhs);
+    constraints.distribute_local_to_global(
+      data.local_matrix, data.local_rhs, data.local_dof_indices, reference_matrix, reference_rhs);
   else
-    constraints.distribute_local_to_global(data.local_matrix,
-                                           data.local_rhs,
-                                           data.local_dof_indices,
-                                           test_matrix,
-                                           test_rhs);
+    constraints.distribute_local_to_global(
+      data.local_matrix, data.local_rhs, data.local_dof_indices, test_matrix, test_rhs);
 }
 
 
@@ -389,8 +354,7 @@ LaplaceProblem<dim>::assemble_reference()
   Assembly::Scratch::Data<dim> assembly_data(fe, quadrature);
 
   for (unsigned int color = 0; color < graph.size(); ++color)
-    for (typename std::vector<FilteredIterator<
-           typename DoFHandler<dim>::active_cell_iterator>>::const_iterator p =
+    for (typename std::vector<FilteredIterator<typename DoFHandler<dim>::active_cell_iterator>>::const_iterator p =
            graph[color].begin();
          p != graph[color].end();
          ++p)
@@ -417,9 +381,7 @@ LaplaceProblem<dim>::assemble_test()
                             std::placeholders::_1,
                             std::placeholders::_2,
                             std::placeholders::_3),
-                  std::bind(&LaplaceProblem<dim>::copy_local_to_global,
-                            this,
-                            std::placeholders::_1),
+                  std::bind(&LaplaceProblem<dim>::copy_local_to_global, this, std::placeholders::_1),
                   Assembly::Scratch::Data<dim>(fe, quadrature),
                   Assembly::Copy::Data(false),
                   2 * MultithreadInfo::n_threads(),
@@ -433,8 +395,7 @@ LaplaceProblem<dim>::assemble_test()
   double frobenius_norm = 0;
   for (unsigned int i = 0; i < 2; ++i)
     for (unsigned int j = 0; j < 2; ++j)
-      frobenius_norm += numbers::NumberTraits<double>::abs_square(
-        test_matrix.block(i, j).frobenius_norm());
+      frobenius_norm += numbers::NumberTraits<double>::abs_square(test_matrix.block(i, j).frobenius_norm());
   deallog << "error in matrix: " << std::sqrt(frobenius_norm) << std::endl;
   test_rhs.add(-1., reference_rhs);
   deallog << "error in vector: " << test_rhs.l2_norm() << std::endl;
@@ -450,10 +411,7 @@ LaplaceProblem<dim>::postprocess()
   for (unsigned int i = 0; i < estimated_error_per_cell.size(); ++i)
     estimated_error_per_cell(i) = i;
 
-  GridRefinement::refine_and_coarsen_fixed_number(triangulation,
-                                                  estimated_error_per_cell,
-                                                  0.3,
-                                                  0.03);
+  GridRefinement::refine_and_coarsen_fixed_number(triangulation, estimated_error_per_cell, 0.3, 0.03);
   triangulation.execute_coarsening_and_refinement();
 }
 
@@ -467,8 +425,7 @@ LaplaceProblem<dim>::run()
     {
       if (cycle == 0)
         {
-          GridGenerator::hyper_shell(
-            triangulation, Point<dim>(), 0.5, 1., (dim == 3) ? 96 : 12, false);
+          GridGenerator::hyper_shell(triangulation, Point<dim>(), 0.5, 1., (dim == 3) ? 96 : 12, false);
 #ifdef DEBUG
           triangulation.refine_global(3);
 #else
@@ -491,8 +448,7 @@ LaplaceProblem<dim>::run()
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
   mpi_initlog();
   deallog << std::setprecision(2);
 

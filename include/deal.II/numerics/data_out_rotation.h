@@ -37,18 +37,15 @@ namespace internal
      * documentation of the WorkStream class.
      */
     template <int dim, int spacedim>
-    struct ParallelData
-      : public internal::DataOutImplementation::ParallelDataBase<dim, spacedim>
+    struct ParallelData : public internal::DataOutImplementation::ParallelDataBase<dim, spacedim>
     {
-      ParallelData(const unsigned int               n_datasets,
-                   const unsigned int               n_subdivisions,
-                   const unsigned int               n_patches_per_circle,
-                   const std::vector<unsigned int> &n_postprocessor_outputs,
-                   const Mapping<dim, spacedim> &   mapping,
-                   const std::vector<
-                     std::shared_ptr<dealii::hp::FECollection<dim, spacedim>>>
-                     &               finite_elements,
-                   const UpdateFlags update_flags);
+      ParallelData(const unsigned int                                                           n_datasets,
+                   const unsigned int                                                           n_subdivisions,
+                   const unsigned int                                                           n_patches_per_circle,
+                   const std::vector<unsigned int>                                             &n_postprocessor_outputs,
+                   const Mapping<dim, spacedim>                                                &mapping,
+                   const std::vector<std::shared_ptr<dealii::hp::FECollection<dim, spacedim>>> &finite_elements,
+                   const UpdateFlags                                                            update_flags);
 
       const unsigned int n_patches_per_circle;
 
@@ -112,8 +109,7 @@ namespace internal
  * @ingroup output
  */
 template <int dim, int spacedim = dim>
-class DataOutRotation
-  : public DataOut_DoFData<dim, dim + 1, spacedim, spacedim + 1>
+class DataOutRotation : public DataOut_DoFData<dim, dim + 1, spacedim, spacedim + 1>
 {
   static_assert(dim == spacedim, "Not implemented for dim != spacedim.");
 
@@ -128,9 +124,7 @@ public:
    * Typedef to the iterator type of the dof handler class under
    * consideration.
    */
-  using cell_iterator =
-    typename DataOut_DoFData<dim, patch_dim, spacedim, patch_spacedim>::
-      cell_iterator;
+  using cell_iterator = typename DataOut_DoFData<dim, patch_dim, spacedim, patch_spacedim>::cell_iterator;
 
   /**
    * This is the central function of this class since it builds the list of
@@ -150,8 +144,7 @@ public:
    * description of this parameter.
    */
   virtual void
-  build_patches(const unsigned int n_patches_per_circle,
-                const unsigned int n_subdivisions = 0);
+  build_patches(const unsigned int n_patches_per_circle, const unsigned int n_subdivisions = 0);
 
   /**
    * Return the first cell which we want output for. The default
@@ -196,10 +189,9 @@ private:
    * invocation in WorkStream, and put the results into the last argument.
    */
   void
-  build_one_patch(
-    const cell_iterator *                                                 cell,
-    internal::DataOutRotationImplementation::ParallelData<dim, spacedim> &data,
-    std::vector<DataOutBase::Patch<patch_dim, patch_spacedim>> &my_patches);
+  build_one_patch(const cell_iterator                                                  *cell,
+                  internal::DataOutRotationImplementation::ParallelData<dim, spacedim> &data,
+                  std::vector<DataOutBase::Patch<patch_dim, patch_spacedim>>           &my_patches);
 };
 
 

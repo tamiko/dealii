@@ -67,9 +67,7 @@ main()
   FirstClass  f;
   SecondClass s;
   std::string output_name = "used_parameter_acceptor_05.xml";
-  ParameterAcceptor::initialize(
-    SOURCE_DIR "/parameter_acceptor_parameters/parameter_acceptor_05.prm",
-    output_name);
+  ParameterAcceptor::initialize(SOURCE_DIR "/parameter_acceptor_parameters/parameter_acceptor_05.prm", output_name);
   ParameterAcceptor::prm.log_parameters(deallog);
   std::ifstream file(output_name);
 

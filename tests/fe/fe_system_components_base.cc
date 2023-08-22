@@ -56,27 +56,19 @@ test(const bool renumber = false)
 
   const unsigned int n_dofs = dof_handler.n_dofs();
 
-  std::cout
-    << " * | DoF    | Component  | Base element | Shape function within base | Multiplicity |"
-    << std::endl
-    << " * | :----: | :--------: | :----------: | :------------------------: | :----------: |"
-    << std::endl;
+  std::cout << " * | DoF    | Component  | Base element | Shape function within base | Multiplicity |" << std::endl
+            << " * | :----: | :--------: | :----------: | :------------------------: | :----------: |" << std::endl;
 
   for (unsigned int i = 0; i < n_dofs; ++i)
     {
-      const unsigned int component =
-        fe_basis.system_to_component_index(i).first;
-      const unsigned int within_base =
-        fe_basis.system_to_component_index(i).second;
-      const unsigned int base = fe_basis.system_to_base_index(i).first.first;
-      const unsigned int multiplicity =
-        fe_basis.system_to_base_index(i).first.second;
-      const unsigned int within_base_ =
-        fe_basis.system_to_base_index(i).second; // same as above
-      std::cout << std::setfill(' ') << " * | " << std::setw(6) << i << " | "
-                << std::setw(10) << component << " | " << std::setw(12) << base
-                << " | " << std::setw(26) << within_base << " | "
-                << std::setw(12) << multiplicity << " |" << std::endl;
+      const unsigned int component    = fe_basis.system_to_component_index(i).first;
+      const unsigned int within_base  = fe_basis.system_to_component_index(i).second;
+      const unsigned int base         = fe_basis.system_to_base_index(i).first.first;
+      const unsigned int multiplicity = fe_basis.system_to_base_index(i).first.second;
+      const unsigned int within_base_ = fe_basis.system_to_base_index(i).second; // same as above
+      std::cout << std::setfill(' ') << " * | " << std::setw(6) << i << " | " << std::setw(10) << component << " | "
+                << std::setw(12) << base << " | " << std::setw(26) << within_base << " | " << std::setw(12)
+                << multiplicity << " |" << std::endl;
     }
 
   // print grid and DoFs for visual inspection
@@ -84,18 +76,14 @@ test(const bool renumber = false)
     {
       std::map<types::global_dof_index, Point<dim>> support_points;
       MappingQ1<dim>                                mapping;
-      DoFTools::map_dofs_to_support_points(mapping,
-                                           dof_handler,
-                                           support_points);
+      DoFTools::map_dofs_to_support_points(mapping, dof_handler, support_points);
 
-      const std::string filename = "grid" + Utilities::int_to_string(dim) +
-                                   Utilities::int_to_string(renumber) + ".gp";
-      std::ofstream f(filename);
+      const std::string filename = "grid" + Utilities::int_to_string(dim) + Utilities::int_to_string(renumber) + ".gp";
+      std::ofstream     f(filename);
 
-      f << "set terminal png size 420,440 enhanced font \"Helvetica,16\""
+      f << "set terminal png size 420,440 enhanced font \"Helvetica,16\"" << std::endl
+        << "set output \"grid" << Utilities::int_to_string(dim) << Utilities::int_to_string(renumber) << ".png\""
         << std::endl
-        << "set output \"grid" << Utilities::int_to_string(dim)
-        << Utilities::int_to_string(renumber) << ".png\"" << std::endl
         << "set size square" << std::endl
         << "set view equal xy" << std::endl
         << "unset xtics" << std::endl
@@ -103,8 +91,7 @@ test(const bool renumber = false)
         << "unset border" << std::endl
         << "set xrange [0: 1.05]" << std::endl
         << "set yrange [0: 1.05]" << std::endl
-        << "plot '-' using 1:2 with lines notitle, '-' with labels point pt 2 offset 0.5,0.5 notitle"
-        << std::endl;
+        << "plot '-' using 1:2 with lines notitle, '-' with labels point pt 2 offset 0.5,0.5 notitle" << std::endl;
       GridOut().write_gnuplot(triangulation, f);
       f << 'e' << std::endl;
 

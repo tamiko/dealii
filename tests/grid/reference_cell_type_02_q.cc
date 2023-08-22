@@ -50,11 +50,9 @@ test(const ReferenceCell &reference_cell)
 
   deallog << "ReferenceCell: " << reference_cell.to_string() << std::endl;
   deallog << "  computed volume = " << volume << std::endl;
-  deallog << "  self-reported volume = " << reference_cell.volume()
-          << std::endl;
+  deallog << "  self-reported volume = " << reference_cell.volume() << std::endl;
 
-  Assert(std::fabs(volume - reference_cell.volume()) < 1e-12,
-         ExcInternalError());
+  Assert(std::fabs(volume - reference_cell.volume()) < 1e-12, ExcInternalError());
 }
 
 int

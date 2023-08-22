@@ -48,16 +48,14 @@ void
 test()
 {
   // setup triangulation
-  parallel::distributed::Triangulation<dim> triangulation(
-    MPI_COMM_WORLD,
-    typename Triangulation<dim>::MeshSmoothing(
-      Triangulation<dim>::smoothing_on_refinement |
-      Triangulation<dim>::smoothing_on_coarsening));
-  GridGenerator::hyper_rectangle(
-    triangulation,
-    (dim == 3 ? Point<dim>(0.0, 0.0, 0.0) : Point<dim>(0.0, 0.0)),
-    (dim == 3 ? Point<dim>(1.0, 1.0, 1.0) : Point<dim>(1.0, 1.0)),
-    true);
+  parallel::distributed::Triangulation<dim> triangulation(MPI_COMM_WORLD,
+                                                          typename Triangulation<dim>::MeshSmoothing(
+                                                            Triangulation<dim>::smoothing_on_refinement |
+                                                            Triangulation<dim>::smoothing_on_coarsening));
+  GridGenerator::hyper_rectangle(triangulation,
+                                 (dim == 3 ? Point<dim>(0.0, 0.0, 0.0) : Point<dim>(0.0, 0.0)),
+                                 (dim == 3 ? Point<dim>(1.0, 1.0, 1.0) : Point<dim>(1.0, 1.0)),
+                                 true);
   triangulation.refine_global(3);
 
   // Refine all the cells with y < 0.5 twice
@@ -82,8 +80,7 @@ test()
   DoFHandler<dim> dof_handler(triangulation);
 
   // Assign void_fe to all the cells with x < 0.5
-  for (const auto &cell : dof_handler.active_cell_iterators() |
-                            IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : dof_handler.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     {
       if (cell->center()(0) < 0.5)
         cell->set_active_fe_index(0);
@@ -99,8 +96,7 @@ test()
 
   AffineConstraints<double> hanging_node_constraints;
   hanging_node_constraints.reinit(locally_relevant_dofs);
-  DoFTools::make_hanging_node_constraints(dof_handler,
-                                          hanging_node_constraints);
+  DoFTools::make_hanging_node_constraints(dof_handler, hanging_node_constraints);
 
   deallog << "OK" << std::endl;
 }

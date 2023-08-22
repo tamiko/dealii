@@ -47,8 +47,7 @@ ForcingFunction<dim>::value(const Point<dim> &point, const unsigned int) const
   const double x = point[0];
   const double y = point[1];
 
-  return -exp(-alpha * (point - center).norm_square()) * 4 * alpha *
-         (alpha * (point - center).norm_square() - 1);
+  return -exp(-alpha * (point - center).norm_square()) * 4 * alpha * (alpha * (point - center).norm_square() - 1);
 }
 
 template <int dim>
@@ -120,11 +119,7 @@ Problem4<dim>::Problem4(const Function<dim> &force_function,
                         const Function<dim> &boundary_conditions,
                         const unsigned int   n_cycles,
                         const std::string    output_name)
-  : Laplace<dim>(force_function,
-                 exact_solution,
-                 boundary_conditions,
-                 n_cycles,
-                 output_name)
+  : Laplace<dim>(force_function, exact_solution, boundary_conditions, n_cycles, output_name)
 {
   for (unsigned int p = 1; p <= n_cycles; ++p)
     {
@@ -141,8 +136,8 @@ Problem4<dim>::Problem4(const Function<dim> &force_function,
 
   // after the FECollection has been generated, create a corresponding legendre
   // series expansion object
-  legendre = std::make_unique<FESeries::Legendre<dim>>(
-    SmoothnessEstimator::Legendre::default_fe_series(Laplace<dim>::fe));
+  legendre =
+    std::make_unique<FESeries::Legendre<dim>>(SmoothnessEstimator::Legendre::default_fe_series(Laplace<dim>::fe));
 }
 
 
@@ -151,21 +146,18 @@ template <int dim>
 void
 Problem4<dim>::substitute_h_for_p()
 {
-  Vector<float> smoothness_indicators(
-    Laplace<dim>::triangulation.n_active_cells());
-  SmoothnessEstimator::Legendre::coefficient_decay_per_direction(
-    *legendre,
-    Laplace<dim>::dof_handler,
-    Laplace<dim>::solution,
-    smoothness_indicators);
+  Vector<float> smoothness_indicators(Laplace<dim>::triangulation.n_active_cells());
+  SmoothnessEstimator::Legendre::coefficient_decay_per_direction(*legendre,
+                                                                 Laplace<dim>::dof_handler,
+                                                                 Laplace<dim>::solution,
+                                                                 smoothness_indicators);
 
-  hp::Refinement::p_adaptivity_from_absolute_threshold(
-    Laplace<dim>::dof_handler,
-    smoothness_indicators,
-    static_cast<float>(1.),
-    static_cast<float>(0.),
-    std::greater<float>(),
-    std::less<float>());
+  hp::Refinement::p_adaptivity_from_absolute_threshold(Laplace<dim>::dof_handler,
+                                                       smoothness_indicators,
+                                                       static_cast<float>(1.),
+                                                       static_cast<float>(0.),
+                                                       std::greater<float>(),
+                                                       std::less<float>());
   hp::Refinement::choose_p_over_h(Laplace<dim>::dof_handler);
 }
 
@@ -179,11 +171,8 @@ Problem4<dim>::setup_geometry()
   number_elements[0] = 16;
   number_elements[1] = 16;
 
-  GridGenerator::subdivided_hyper_rectangle(Laplace<dim>::triangulation,
-                                            number_elements,
-                                            Point<dim>(0, 0),
-                                            Point<dim>(1, 1),
-                                            false);
+  GridGenerator::subdivided_hyper_rectangle(
+    Laplace<dim>::triangulation, number_elements, Point<dim>(0, 0), Point<dim>(1, 1), false);
 }
 
 
@@ -192,23 +181,21 @@ template <int dim>
 void
 Problem4<dim>::estimate_error()
 {
-  KellyErrorEstimator<dim>::estimate(
-    Laplace<dim>::dof_handler,
-    quadrature_face,
-    std::map<types::boundary_id, const Function<dim> *>(),
-    Laplace<dim>::solution,
-    Laplace<dim>::estimated_error_per_cell);
+  KellyErrorEstimator<dim>::estimate(Laplace<dim>::dof_handler,
+                                     quadrature_face,
+                                     std::map<types::boundary_id, const Function<dim> *>(),
+                                     Laplace<dim>::solution,
+                                     Laplace<dim>::estimated_error_per_cell);
 }
 
 template <int dim>
 void
 Problem4<dim>::mark_h_cells()
 {
-  GridRefinement::refine_and_coarsen_fixed_number(
-    Laplace<dim>::triangulation,
-    Laplace<dim>::estimated_error_per_cell,
-    0.2,
-    0.0);
+  GridRefinement::refine_and_coarsen_fixed_number(Laplace<dim>::triangulation,
+                                                  Laplace<dim>::estimated_error_per_cell,
+                                                  0.2,
+                                                  0.0);
 }
 
 int

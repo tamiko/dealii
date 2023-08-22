@@ -21,7 +21,6 @@
 
 #include <deal.II/lac/petsc_block_vector.h>
 
-DEAL_II_WARNING(
-  "This file is deprecated. Use deal.II/lac/petsc_block_vector.h instead!")
+DEAL_II_WARNING("This file is deprecated. Use deal.II/lac/petsc_block_vector.h instead!")
 
 #endif

@@ -42,8 +42,7 @@ namespace LinearAlgebra
   namespace distributed
   {
     template <typename Number>
-    BlockVector<Number>::BlockVector(const size_type n_blocks,
-                                     const size_type block_size)
+    BlockVector<Number>::BlockVector(const size_type n_blocks, const size_type block_size)
     {
       reinit(n_blocks, block_size);
     }
@@ -67,8 +66,7 @@ namespace LinearAlgebra
 
 
     template <typename Number>
-    BlockVector<Number>::BlockVector(const std::vector<IndexSet> &local_ranges,
-                                     const MPI_Comm               communicator)
+    BlockVector<Number>::BlockVector(const std::vector<IndexSet> &local_ranges, const MPI_Comm communicator)
     {
       reinit(local_ranges, communicator);
     }
@@ -77,9 +75,8 @@ namespace LinearAlgebra
 
     template <typename Number>
     BlockVector<Number>::BlockVector(
-      const std::vector<std::shared_ptr<const Utilities::MPI::Partitioner>>
-        &             partitioners,
-      const MPI_Comm &comm_sm)
+      const std::vector<std::shared_ptr<const Utilities::MPI::Partitioner>> &partitioners,
+      const MPI_Comm                                                        &comm_sm)
     {
       reinit(partitioners, comm_sm);
     }
@@ -113,9 +110,7 @@ namespace LinearAlgebra
 
     template <typename Number>
     void
-    BlockVector<Number>::reinit(const size_type n_bl,
-                                const size_type bl_sz,
-                                const bool      omit_zeroing_entries)
+    BlockVector<Number>::reinit(const size_type n_bl, const size_type bl_sz, const bool omit_zeroing_entries)
     {
       std::vector<size_type> n(n_bl, bl_sz);
       reinit(n, omit_zeroing_entries);
@@ -124,8 +119,7 @@ namespace LinearAlgebra
 
     template <typename Number>
     void
-    BlockVector<Number>::reinit(const std::vector<size_type> &block_sizes,
-                                const bool omit_zeroing_entries)
+    BlockVector<Number>::reinit(const std::vector<size_type> &block_sizes, const bool omit_zeroing_entries)
     {
       this->block_indices.reinit(block_sizes);
 
@@ -141,8 +135,7 @@ namespace LinearAlgebra
     template <typename Number>
     template <typename Number2>
     void
-    BlockVector<Number>::reinit(const BlockVector<Number2> &v,
-                                const bool omit_zeroing_entries)
+    BlockVector<Number>::reinit(const BlockVector<Number2> &v, const bool omit_zeroing_entries)
     {
       if (this->n_blocks() != v.n_blocks())
         this->block_indices = v.get_block_indices();
@@ -170,9 +163,7 @@ namespace LinearAlgebra
       // initialize each block
       this->components.resize(this->n_blocks());
       for (unsigned int i = 0; i < this->n_blocks(); ++i)
-        this->components[i].reinit(local_ranges[i],
-                                   ghost_indices[i],
-                                   communicator);
+        this->components[i].reinit(local_ranges[i], ghost_indices[i], communicator);
 
       // update block_indices content
       this->collect_sizes();
@@ -182,8 +173,7 @@ namespace LinearAlgebra
 
     template <typename Number>
     void
-    BlockVector<Number>::reinit(const std::vector<IndexSet> &local_ranges,
-                                const MPI_Comm               communicator)
+    BlockVector<Number>::reinit(const std::vector<IndexSet> &local_ranges, const MPI_Comm communicator)
     {
       // update the number of blocks
       this->block_indices.reinit(local_ranges.size(), 0);
@@ -201,10 +191,8 @@ namespace LinearAlgebra
 
     template <typename Number>
     void
-    BlockVector<Number>::reinit(
-      const std::vector<std::shared_ptr<const Utilities::MPI::Partitioner>>
-        &             partitioners,
-      const MPI_Comm &comm_sm)
+    BlockVector<Number>::reinit(const std::vector<std::shared_ptr<const Utilities::MPI::Partitioner>> &partitioners,
+                                const MPI_Comm                                                        &comm_sm)
     {
       // update the number of blocks
       this->block_indices.reinit(partitioners.size(), 0);
@@ -222,11 +210,9 @@ namespace LinearAlgebra
 
     template <typename Number>
     void
-    BlockVector<Number>::reinit(
-      const std::vector<std::shared_ptr<const Utilities::MPI::Partitioner>>
-        &partitioners,
-      const bool /*make_ghosted*/,
-      const MPI_Comm &comm_sm)
+    BlockVector<Number>::reinit(const std::vector<std::shared_ptr<const Utilities::MPI::Partitioner>> &partitioners,
+                                const bool /*make_ghosted*/,
+                                const MPI_Comm &comm_sm)
     {
       reinit(partitioners, comm_sm);
     }
@@ -293,8 +279,7 @@ namespace LinearAlgebra
     template <typename Number>
     template <typename Number2>
     void
-    BlockVector<Number>::copy_locally_owned_data_from(
-      const BlockVector<Number2> &v)
+    BlockVector<Number>::copy_locally_owned_data_from(const BlockVector<Number2> &v)
     {
       AssertDimension(this->n_blocks(), v.n_blocks());
 
@@ -310,9 +295,7 @@ namespace LinearAlgebra
     {
       template <typename PETSC_Number, typename Number>
       void
-      copy_petsc_vector(const PETSC_Number *petsc_start_ptr,
-                        const PETSC_Number *petsc_end_ptr,
-                        Number *            ptr)
+      copy_petsc_vector(const PETSC_Number *petsc_start_ptr, const PETSC_Number *petsc_end_ptr, Number *ptr)
       {
         std::copy(petsc_start_ptr, petsc_end_ptr, ptr);
       }
@@ -321,7 +304,7 @@ namespace LinearAlgebra
       void
       copy_petsc_vector(const std::complex<PETSC_Number> *petsc_start_ptr,
                         const std::complex<PETSC_Number> *petsc_end_ptr,
-                        std::complex<Number> *            ptr)
+                        std::complex<Number>             *ptr)
       {
         std::copy(petsc_start_ptr, petsc_end_ptr, ptr);
       }
@@ -340,8 +323,7 @@ namespace LinearAlgebra
 
     template <typename Number>
     BlockVector<Number> &
-    BlockVector<Number>::operator=(
-      const PETScWrappers::MPI::BlockVector &petsc_vec)
+    BlockVector<Number>::operator=(const PETScWrappers::MPI::BlockVector &petsc_vec)
     {
       AssertDimension(this->n_blocks(), petsc_vec.n_blocks());
       for (unsigned int i = 0; i < this->n_blocks(); ++i)
@@ -351,31 +333,23 @@ namespace LinearAlgebra
           // does not support overlapping (ghosted) PETSc vectors, which we need
           // for backward compatibility.
 
-          Assert(petsc_vec.block(i).locally_owned_elements() ==
-                   this->block(i).locally_owned_elements(),
+          Assert(petsc_vec.block(i).locally_owned_elements() == this->block(i).locally_owned_elements(),
                  StandardExceptions::ExcInvalidState());
 
           // get a representation of the vector and copy it
           const PetscScalar *start_ptr;
-          PetscErrorCode     ierr =
-            VecGetArrayRead(static_cast<const Vec &>(petsc_vec.block(i)),
-                            &start_ptr);
+          PetscErrorCode     ierr = VecGetArrayRead(static_cast<const Vec &>(petsc_vec.block(i)), &start_ptr);
           AssertThrow(ierr == 0, ExcPETScError(ierr));
 
           const size_type vec_size = this->block(i).locally_owned_size();
-          petsc_helpers::copy_petsc_vector(start_ptr,
-                                           start_ptr + vec_size,
-                                           this->block(i).begin());
+          petsc_helpers::copy_petsc_vector(start_ptr, start_ptr + vec_size, this->block(i).begin());
 
           // restore the representation of the vector
-          ierr =
-            VecRestoreArrayRead(static_cast<const Vec &>(petsc_vec.block(i)),
-                                &start_ptr);
+          ierr = VecRestoreArrayRead(static_cast<const Vec &>(petsc_vec.block(i)), &start_ptr);
           AssertThrow(ierr == 0, ExcPETScError(ierr));
 
           // spread ghost values between processes?
-          if (this->block(i).vector_is_ghosted ||
-              petsc_vec.block(i).has_ghost_elements())
+          if (this->block(i).vector_is_ghosted || petsc_vec.block(i).has_ghost_elements())
             this->block(i).update_ghost_values();
         }
 
@@ -390,8 +364,7 @@ namespace LinearAlgebra
 
     template <typename Number>
     BlockVector<Number> &
-    BlockVector<Number>::operator=(
-      const TrilinosWrappers::MPI::BlockVector &trilinos_vec)
+    BlockVector<Number>::operator=(const TrilinosWrappers::MPI::BlockVector &trilinos_vec)
     {
       AssertDimension(this->n_blocks(), trilinos_vec.n_blocks());
       for (unsigned int i = 0; i < this->n_blocks(); ++i)
@@ -400,12 +373,10 @@ namespace LinearAlgebra
           IndexSet    combined_set = partitioner->locally_owned_range();
           combined_set.add_indices(partitioner->ghost_indices());
           ReadWriteVector<Number> rw_vector(combined_set);
-          rw_vector.import_elements(trilinos_vec.block(i),
-                                    VectorOperation::insert);
+          rw_vector.import_elements(trilinos_vec.block(i), VectorOperation::insert);
           this->block(i).import_elements(rw_vector, VectorOperation::insert);
 
-          if (this->block(i).has_ghost_elements() ||
-              trilinos_vec.block(i).has_ghost_elements())
+          if (this->block(i).has_ghost_elements() || trilinos_vec.block(i).has_ghost_elements())
             this->block(i).update_ghost_values();
         }
 
@@ -420,14 +391,11 @@ namespace LinearAlgebra
     void
     BlockVector<Number>::compress(VectorOperation::values operation)
     {
-      const unsigned int n_chunks =
-        (this->n_blocks() + communication_block_size - 1) /
-        communication_block_size;
+      const unsigned int n_chunks = (this->n_blocks() + communication_block_size - 1) / communication_block_size;
       for (unsigned int c = 0; c < n_chunks; ++c)
         {
           const unsigned int start = c * communication_block_size;
-          const unsigned int end =
-            std::min(start + communication_block_size, this->n_blocks());
+          const unsigned int end   = std::min(start + communication_block_size, this->n_blocks());
 
           // start all requests for all blocks before finishing the transfers as
           // this saves repeated synchronizations. In order to avoid conflict
@@ -448,14 +416,11 @@ namespace LinearAlgebra
     void
     BlockVector<Number>::update_ghost_values() const
     {
-      const unsigned int n_chunks =
-        (this->n_blocks() + communication_block_size - 1) /
-        communication_block_size;
+      const unsigned int n_chunks = (this->n_blocks() + communication_block_size - 1) / communication_block_size;
       for (unsigned int c = 0; c < n_chunks; ++c)
         {
           const unsigned int start = c * communication_block_size;
-          const unsigned int end =
-            std::min(start + communication_block_size, this->n_blocks());
+          const unsigned int end   = std::min(start + communication_block_size, this->n_blocks());
 
           // In order to avoid conflict with possible other ongoing
           // communication requests (from LA::distributed::Vector that supports
@@ -595,10 +560,7 @@ namespace LinearAlgebra
 
     template <typename Number>
     void
-    BlockVector<Number>::add(const Number               a,
-                             const BlockVector<Number> &v,
-                             const Number               b,
-                             const BlockVector<Number> &w)
+    BlockVector<Number>::add(const Number a, const BlockVector<Number> &v, const Number b, const BlockVector<Number> &w)
     {
       AssertDimension(this->n_blocks(), v.n_blocks());
       AssertDimension(this->n_blocks(), w.n_blocks());
@@ -611,9 +573,7 @@ namespace LinearAlgebra
 
     template <typename Number>
     void
-    BlockVector<Number>::sadd(const Number               x,
-                              const Number               a,
-                              const BlockVector<Number> &v)
+    BlockVector<Number>::sadd(const Number x, const Number a, const BlockVector<Number> &v)
     {
       AssertDimension(this->n_blocks(), v.n_blocks());
       for (unsigned int block = 0; block < this->n_blocks(); ++block)
@@ -636,8 +596,7 @@ namespace LinearAlgebra
     template <typename Number>
     template <typename OtherNumber>
     void
-    BlockVector<Number>::add(const std::vector<size_type> &       indices,
-                             const ::dealii::Vector<OtherNumber> &values)
+    BlockVector<Number>::add(const std::vector<size_type> &indices, const ::dealii::Vector<OtherNumber> &values)
     {
       for (size_type i = 0; i < indices.size(); ++i)
         (*this)(indices[i]) += values[i];
@@ -647,8 +606,7 @@ namespace LinearAlgebra
 
     template <typename Number>
     void
-    BlockVector<Number>::add(const std::vector<size_type> &indices,
-                             const std::vector<Number> &   values)
+    BlockVector<Number>::add(const std::vector<size_type> &indices, const std::vector<Number> &values)
     {
       for (size_type i = 0; i < indices.size(); ++i)
         (*this)(indices[i]) += values[i];
@@ -665,13 +623,10 @@ namespace LinearAlgebra
       // use int instead of bool
       int local_result = -1;
       for (unsigned int i = 0; i < this->n_blocks(); ++i)
-        local_result =
-          std::max(local_result,
-                   (this->block(i).linfty_norm_local() == 0) ? -1 : 0);
+        local_result = std::max(local_result, (this->block(i).linfty_norm_local() == 0) ? -1 : 0);
 
       if (this->block(0).partitioner->n_mpi_processes() > 1)
-        return -Utilities::MPI::max(
-          local_result, this->block(0).partitioner->get_mpi_communicator());
+        return -Utilities::MPI::max(local_result, this->block(0).partitioner->get_mpi_communicator());
       else
         return local_result != 0;
     }
@@ -690,8 +645,7 @@ namespace LinearAlgebra
         local_result += this->block(i).inner_product_local(v.block(i));
 
       if (this->block(0).partitioner->n_mpi_processes() > 1)
-        return Utilities::MPI::sum(
-          local_result, this->block(0).partitioner->get_mpi_communicator());
+        return Utilities::MPI::sum(local_result, this->block(0).partitioner->get_mpi_communicator());
       else
         return local_result;
     }
@@ -706,14 +660,11 @@ namespace LinearAlgebra
 
       Number local_result = Number();
       for (unsigned int i = 0; i < this->n_blocks(); ++i)
-        local_result += this->block(i).mean_value_local() *
-                        static_cast<real_type>(
-                          this->block(i).partitioner->locally_owned_size());
+        local_result +=
+          this->block(i).mean_value_local() * static_cast<real_type>(this->block(i).partitioner->locally_owned_size());
 
       if (this->block(0).partitioner->n_mpi_processes() > 1)
-        return Utilities::MPI::sum(
-                 local_result,
-                 this->block(0).partitioner->get_mpi_communicator()) /
+        return Utilities::MPI::sum(local_result, this->block(0).partitioner->get_mpi_communicator()) /
                static_cast<real_type>(this->size());
       else
         return local_result / static_cast<real_type>(this->size());
@@ -732,8 +683,7 @@ namespace LinearAlgebra
         local_result += this->block(i).l1_norm_local();
 
       if (this->block(0).partitioner->n_mpi_processes() > 1)
-        return Utilities::MPI::sum(
-          local_result, this->block(0).partitioner->get_mpi_communicator());
+        return Utilities::MPI::sum(local_result, this->block(0).partitioner->get_mpi_communicator());
       else
         return local_result;
     }
@@ -751,8 +701,7 @@ namespace LinearAlgebra
         local_result += this->block(i).norm_sqr_local();
 
       if (this->block(0).partitioner->n_mpi_processes() > 1)
-        return Utilities::MPI::sum(
-          local_result, this->block(0).partitioner->get_mpi_communicator());
+        return Utilities::MPI::sum(local_result, this->block(0).partitioner->get_mpi_communicator());
       else
         return local_result;
     }
@@ -779,9 +728,7 @@ namespace LinearAlgebra
         local_result += std::pow(this->block(i).lp_norm_local(p), p);
 
       if (this->block(0).partitioner->n_mpi_processes() > 1)
-        return std::pow(Utilities::MPI::sum(
-                          local_result,
-                          this->block(0).partitioner->get_mpi_communicator()),
+        return std::pow(Utilities::MPI::sum(local_result, this->block(0).partitioner->get_mpi_communicator()),
                         static_cast<real_type>(1.0 / p));
       else
         return std::pow(local_result, static_cast<real_type>(1.0 / p));
@@ -797,12 +744,10 @@ namespace LinearAlgebra
 
       real_type local_result = real_type();
       for (unsigned int i = 0; i < this->n_blocks(); ++i)
-        local_result =
-          std::max(local_result, this->block(i).linfty_norm_local());
+        local_result = std::max(local_result, this->block(i).linfty_norm_local());
 
       if (this->block(0).partitioner->n_mpi_processes() > 1)
-        return Utilities::MPI::max(
-          local_result, this->block(0).partitioner->get_mpi_communicator());
+        return Utilities::MPI::max(local_result, this->block(0).partitioner->get_mpi_communicator());
       else
         return local_result;
     }
@@ -811,21 +756,17 @@ namespace LinearAlgebra
 
     template <typename Number>
     inline Number
-    BlockVector<Number>::add_and_dot(const Number               a,
-                                     const BlockVector<Number> &v,
-                                     const BlockVector<Number> &w)
+    BlockVector<Number>::add_and_dot(const Number a, const BlockVector<Number> &v, const BlockVector<Number> &w)
     {
       AssertDimension(this->n_blocks(), v.n_blocks());
       AssertDimension(this->n_blocks(), w.n_blocks());
 
       Number local_result = Number();
       for (unsigned int i = 0; i < this->n_blocks(); ++i)
-        local_result +=
-          this->block(i).add_and_dot_local(a, v.block(i), w.block(i));
+        local_result += this->block(i).add_and_dot_local(a, v.block(i), w.block(i));
 
       if (this->block(0).partitioner->n_mpi_processes() > 1)
-        return Utilities::MPI::sum(
-          local_result, this->block(0).partitioner->get_mpi_communicator());
+        return Utilities::MPI::sum(local_result, this->block(0).partitioner->get_mpi_communicator());
       else
         return local_result;
     }
@@ -836,8 +777,7 @@ namespace LinearAlgebra
     inline void
     BlockVector<Number>::swap(BlockVector<Number> &v)
     {
-      Assert(this->n_blocks() == v.n_blocks(),
-             ExcDimensionMismatch(this->n_blocks(), v.n_blocks()));
+      Assert(this->n_blocks() == v.n_blocks(), ExcDimensionMismatch(this->n_blocks(), v.n_blocks()));
 
       for (size_type i = 0; i < this->n_blocks(); ++i)
         dealii::swap(this->components[i], v.components[i]);
@@ -857,10 +797,9 @@ namespace LinearAlgebra
 
     template <typename Number>
     inline void
-    BlockVector<Number>::import_elements(
-      const LinearAlgebra::ReadWriteVector<Number> &,
-      const VectorOperation::values,
-      const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase> &)
+    BlockVector<Number>::import_elements(const LinearAlgebra::ReadWriteVector<Number> &,
+                                         const VectorOperation::values,
+                                         const std::shared_ptr<const Utilities::MPI::CommunicationPatternBase> &)
     {
       AssertThrow(false, ExcNotImplemented());
     }
@@ -888,7 +827,7 @@ namespace LinearAlgebra
 
     template <typename Number>
     void
-    BlockVector<Number>::print(std::ostream &     out,
+    BlockVector<Number>::print(std::ostream      &out,
                                const unsigned int precision,
                                const bool         scientific,
                                const bool         across) const
@@ -932,9 +871,9 @@ namespace LinearAlgebra
     template <typename Number>
     template <typename FullMatrixType>
     void
-    BlockVector<Number>::multivector_inner_product(FullMatrixType &matrix,
+    BlockVector<Number>::multivector_inner_product(FullMatrixType            &matrix,
                                                    const BlockVector<Number> &V,
-                                                   const bool symmetric) const
+                                                   const bool                 symmetric) const
     {
       const unsigned int m = this->n_blocks();
       const unsigned int n = V.n_blocks();
@@ -972,9 +911,7 @@ namespace LinearAlgebra
               matrix(i, j) = this->block(i).inner_product_local(V.block(j));
         }
 
-      Utilities::MPI::sum(matrix,
-                          this->block(0).get_mpi_communicator(),
-                          matrix);
+      Utilities::MPI::sum(matrix, this->block(0).get_mpi_communicator(), matrix);
     }
 
 
@@ -982,10 +919,9 @@ namespace LinearAlgebra
     template <typename Number>
     template <typename FullMatrixType>
     Number
-    BlockVector<Number>::multivector_inner_product_with_metric(
-      const FullMatrixType &     matrix,
-      const BlockVector<Number> &V,
-      const bool                 symmetric) const
+    BlockVector<Number>::multivector_inner_product_with_metric(const FullMatrixType      &matrix,
+                                                               const BlockVector<Number> &V,
+                                                               const bool                 symmetric) const
     {
       Number res = Number(0.);
 
@@ -1008,19 +944,16 @@ namespace LinearAlgebra
 
           for (unsigned int i = 0; i < m; ++i)
             {
-              res +=
-                matrix(i, i) * this->block(i).inner_product_local(V.block(i));
+              res += matrix(i, i) * this->block(i).inner_product_local(V.block(i));
               for (unsigned int j = i + 1; j < n; ++j)
-                res += 2. * matrix(i, j) *
-                       this->block(i).inner_product_local(V.block(j));
+                res += 2. * matrix(i, j) * this->block(i).inner_product_local(V.block(j));
             }
         }
       else
         {
           for (unsigned int i = 0; i < m; ++i)
             for (unsigned int j = 0; j < n; ++j)
-              res +=
-                matrix(i, j) * this->block(i).inner_product_local(V.block(j));
+              res += matrix(i, j) * this->block(i).inner_product_local(V.block(j));
         }
 
       return Utilities::MPI::sum(res, this->block(0).get_mpi_communicator());
@@ -1031,7 +964,7 @@ namespace LinearAlgebra
     template <typename Number>
     template <typename FullMatrixType>
     void
-    BlockVector<Number>::mmult(BlockVector<Number> & V,
+    BlockVector<Number>::mmult(BlockVector<Number>  &V,
                                const FullMatrixType &matrix,
                                const Number          s,
                                const Number          b) const
@@ -1064,9 +997,7 @@ namespace LinearAlgebra
       if (V.block(0).vector_is_ghosted)
         {
           for (unsigned int i = 0; i < n; ++i)
-            Assert(V.block(i).vector_is_ghosted,
-                   ExcMessage(
-                     "All blocks should be either in ghosted state or not."));
+            Assert(V.block(i).vector_is_ghosted, ExcMessage("All blocks should be either in ghosted state or not."));
 
           V.update_ghost_values();
         }

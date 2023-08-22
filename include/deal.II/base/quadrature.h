@@ -186,8 +186,7 @@ public:
    * (which should really be in the unit cell) and the corresponding weights.
    * You will want to have the weights sum up to one, but this is not checked.
    */
-  Quadrature(const std::vector<Point<dim>> &points,
-             const std::vector<double> &    weights);
+  Quadrature(const std::vector<Point<dim>> &points, const std::vector<double> &weights);
 
   /**
    * Construct a quadrature formula from given vectors of quadrature points
@@ -241,8 +240,7 @@ public:
    * arguments.
    */
   void
-  initialize(const std::vector<Point<dim>> &points,
-             const std::vector<double> &    weights);
+  initialize(const std::vector<Point<dim>> &points, const std::vector<double> &weights);
 
   /**
    * Number of quadrature points.
@@ -323,9 +321,7 @@ public:
    * readability of this page.
    */
 #ifndef DOXYGEN
-  typename std::conditional<dim == 1,
-                            std::array<Quadrature<1>, dim>,
-                            const std::array<Quadrature<1>, dim> &>::type
+  typename std::conditional<dim == 1, std::array<Quadrature<1>, dim>, const std::array<Quadrature<1>, dim> &>::type
 #else
   const std::array<Quadrature<1>, dim> &
 #endif
@@ -387,9 +383,7 @@ public:
   /**
    * Constructor for a three-dimensional formula.
    */
-  QAnisotropic(const Quadrature<1> &qx,
-               const Quadrature<1> &qy,
-               const Quadrature<1> &qz);
+  QAnisotropic(const Quadrature<1> &qx, const Quadrature<1> &qy, const Quadrature<1> &qz);
 };
 
 
@@ -439,8 +433,7 @@ public:
    *
    * @note We require that `intervals.front() == 0` and `interval.back() == 1`.
    */
-  QIterated(const Quadrature<1> &        base_quadrature,
-            const std::vector<Point<1>> &intervals);
+  QIterated(const Quadrature<1> &base_quadrature, const std::vector<Point<1>> &intervals);
 
   /**
    * Exception
@@ -543,8 +536,7 @@ Quadrature<dim>::serialize(Archive &ar, const unsigned int)
 template <>
 Quadrature<0>::Quadrature(const unsigned int);
 template <>
-Quadrature<0>::Quadrature(const Quadrature<0>::SubQuadrature &,
-                          const Quadrature<1> &);
+Quadrature<0>::Quadrature(const Quadrature<0>::SubQuadrature &, const Quadrature<1> &);
 template <>
 Quadrature<0>::Quadrature(const Quadrature<1> &);
 template <>
@@ -557,8 +549,7 @@ template <>
 Quadrature<1>::Quadrature(const Quadrature<0> &);
 
 template <>
-QIterated<1>::QIterated(const Quadrature<1> &base_quadrature,
-                        const unsigned int   n_copies);
+QIterated<1>::QIterated(const Quadrature<1> &base_quadrature, const unsigned int n_copies);
 
 #endif // DOXYGEN
 DEAL_II_NAMESPACE_CLOSE

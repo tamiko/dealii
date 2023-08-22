@@ -46,7 +46,7 @@ test()
   tria.execute_coarsening_and_refinement();
 
   // find face index on unrefined cell to neighboring cells
-  const auto & unrefined_cell = tria.begin_active(0);
+  const auto  &unrefined_cell = tria.begin_active(0);
   unsigned int unrefined_f    = numbers::invalid_unsigned_int;
   for (unsigned int f = 0; f < unrefined_cell->n_faces(); ++f)
     if (!unrefined_cell->face(f)->at_boundary())
@@ -57,21 +57,17 @@ test()
   for (unsigned int sf = 0; sf < GeometryInfo<dim>::max_children_per_face; ++sf)
     {
       // unrefined vertex on subface
-      const Point<dim> &vertex_unrefined =
-        unrefined_cell->face(unrefined_f)->vertex(sf);
+      const Point<dim> &vertex_unrefined = unrefined_cell->face(unrefined_f)->vertex(sf);
 
       // child on subface [! focus of this particular test !]
-      const auto &neighboring_child =
-        unrefined_cell->neighbor_child_on_subface(unrefined_f, sf);
+      const auto &neighboring_child = unrefined_cell->neighbor_child_on_subface(unrefined_f, sf);
 
       // face of child
       unsigned int neighboring_child_f = numbers::invalid_unsigned_int;
       for (unsigned int f = 0; f < neighboring_child->n_faces(); ++f)
-        if (!neighboring_child->face(f)->at_boundary() &&
-            neighboring_child->neighbor(f) == unrefined_cell)
+        if (!neighboring_child->face(f)->at_boundary() && neighboring_child->neighbor(f) == unrefined_cell)
           neighboring_child_f = f;
-      const auto &neighboring_child_face =
-        neighboring_child->face(neighboring_child_f);
+      const auto &neighboring_child_face = neighboring_child->face(neighboring_child_f);
 
       // find unrefined vertex among child face vertices
       bool vertex_found = false;
@@ -79,9 +75,7 @@ test()
         if (neighboring_child_face->vertex(v) == vertex_unrefined)
           vertex_found = true;
 
-      Assert(vertex_found,
-             ExcMessage(
-               "Wrong assignment of neighboring children to subfaces."));
+      Assert(vertex_found, ExcMessage("Wrong assignment of neighboring children to subfaces."));
     }
 
   deallog << "OK" << std::endl;

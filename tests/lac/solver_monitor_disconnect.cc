@@ -36,9 +36,7 @@
 
 
 SolverControl::State
-monitor_norm(const unsigned int    iteration,
-             const double          check_value,
-             const Vector<double> &current_iterate)
+monitor_norm(const unsigned int iteration, const double check_value, const Vector<double> &current_iterate)
 {
   deallog << "   -- " << iteration << ' ' << check_value << std::endl;
   deallog << "   Norm=" << current_iterate.l2_norm() << std::endl;
@@ -47,9 +45,7 @@ monitor_norm(const unsigned int    iteration,
 
 
 SolverControl::State
-monitor_mean(const unsigned int    iteration,
-             const double          check_value,
-             const Vector<double> &current_iterate)
+monitor_mean(const unsigned int iteration, const double check_value, const Vector<double> &current_iterate)
 {
   deallog << "   Mean=" << current_iterate.mean_value() << std::endl;
   return SolverControl::success;
@@ -57,16 +53,9 @@ monitor_mean(const unsigned int    iteration,
 
 
 
-template <typename SolverType,
-          typename MatrixType,
-          typename VectorType,
-          class PRECONDITION>
+template <typename SolverType, typename MatrixType, typename VectorType, class PRECONDITION>
 void
-check_solve(SolverType &        solver,
-            const MatrixType &  A,
-            VectorType &        u,
-            VectorType &        f,
-            const PRECONDITION &P)
+check_solve(SolverType &solver, const MatrixType &A, VectorType &u, VectorType &f, const PRECONDITION &P)
 {
   u = 0.;
   f = 1.;

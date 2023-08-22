@@ -103,10 +103,8 @@ check()
           std::vector<types::global_dof_index> new_indices;
           if (mgdof.locally_owned_mg_dofs(l).n_elements() > 0)
             {
-              const types::global_dof_index first =
-                mgdof.locally_owned_mg_dofs(l).nth_index_in_set(0);
-              const types::global_dof_index last =
-                first + mgdof.locally_owned_mg_dofs(l).n_elements();
+              const types::global_dof_index first = mgdof.locally_owned_mg_dofs(l).nth_index_in_set(0);
+              const types::global_dof_index last  = first + mgdof.locally_owned_mg_dofs(l).n_elements();
               for (unsigned int i = 0; i < last - first; ++i)
                 new_indices.push_back(last - 1 - i);
             }

@@ -54,16 +54,11 @@ FullMatrix<long double>::TmTmult<long double>(FullMatrix<long double> &,
                                               const FullMatrix<long double> &,
                                               const bool) const;
 template void
-FullMatrix<long double>::vmult<long double>(Vector<long double> &,
-                                            const Vector<long double> &,
-                                            bool) const;
+FullMatrix<long double>::vmult<long double>(Vector<long double> &, const Vector<long double> &, bool) const;
 template void
-FullMatrix<long double>::Tvmult<long double>(Vector<long double> &,
-                                             const Vector<long double> &,
-                                             bool) const;
+FullMatrix<long double>::Tvmult<long double>(Vector<long double> &, const Vector<long double> &, bool) const;
 template void
-FullMatrix<long double>::add<long double>(const long double,
-                                          const FullMatrix<long double> &);
+FullMatrix<long double>::add<long double>(const long double, const FullMatrix<long double> &);
 
 
 // do a few functions that currently don't fit the scheme because they have
@@ -71,8 +66,7 @@ FullMatrix<long double>::add<long double>(const long double,
 // arguments is covered by the default copy constructor and copy operator that
 // is declared separately)
 
-#  define TEMPL_OP_EQ(S1, S2) \
-    template FullMatrix<S1> &FullMatrix<S1>::operator=(const FullMatrix<S2> &)
+#  define TEMPL_OP_EQ(S1, S2) template FullMatrix<S1> &FullMatrix<S1>::operator=(const FullMatrix<S2> &)
 
 TEMPL_OP_EQ(double, float);
 TEMPL_OP_EQ(float, double);

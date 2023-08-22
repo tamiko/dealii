@@ -109,8 +109,7 @@ public:
    * interpreted as the displacement we use in defining the mapping, relative
    * to the location of cells of the underlying triangulation.
    */
-  MappingQ1Eulerian(const DoFHandler<dim, spacedim> &euler_dof_handler,
-                    const VectorType &               euler_vector);
+  MappingQ1Eulerian(const DoFHandler<dim, spacedim> &euler_dof_handler, const VectorType &euler_vector);
 
   /**
    * Return the mapped vertices of the cell. For the current class, this
@@ -118,10 +117,8 @@ public:
    * cell but instead evaluates an externally given displacement field in
    * addition to the geometry of the cell.
    */
-  virtual boost::container::small_vector<Point<spacedim>,
-                                         GeometryInfo<dim>::vertices_per_cell>
-  get_vertices(const typename Triangulation<dim, spacedim>::cell_iterator &cell)
-    const override;
+  virtual boost::container::small_vector<Point<spacedim>, GeometryInfo<dim>::vertices_per_cell>
+  get_vertices(const typename Triangulation<dim, spacedim>::cell_iterator &cell) const override;
 
   /**
    * Return a pointer to a copy of the present object. The caller of this copy
@@ -155,13 +152,11 @@ protected:
    * use any cell similarity for this class.
    */
   virtual CellSimilarity::Similarity
-  fill_fe_values(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-    const CellSimilarity::Similarity                            cell_similarity,
-    const Quadrature<dim> &                                     quadrature,
-    const typename Mapping<dim, spacedim>::InternalDataBase &   internal_data,
-    internal::FEValuesImplementation::MappingRelatedData<dim, spacedim>
-      &output_data) const override;
+  fill_fe_values(const typename Triangulation<dim, spacedim>::cell_iterator          &cell,
+                 const CellSimilarity::Similarity                                     cell_similarity,
+                 const Quadrature<dim>                                               &quadrature,
+                 const typename Mapping<dim, spacedim>::InternalDataBase             &internal_data,
+                 internal::FEValuesImplementation::MappingRelatedData<dim, spacedim> &output_data) const override;
 
   /**
    * Compute the support points of the mapping. For the current class, these
@@ -170,22 +165,17 @@ protected:
    * more information.
    */
   virtual std::vector<Point<spacedim>>
-  compute_mapping_support_points(
-    const typename Triangulation<dim, spacedim>::cell_iterator &cell)
-    const override;
+  compute_mapping_support_points(const typename Triangulation<dim, spacedim>::cell_iterator &cell) const override;
 
   /**
    * Reference to the vector of shifts.
    */
-  SmartPointer<const VectorType, MappingQ1Eulerian<dim, VectorType, spacedim>>
-    euler_transform_vectors;
+  SmartPointer<const VectorType, MappingQ1Eulerian<dim, VectorType, spacedim>> euler_transform_vectors;
 
   /**
    * Pointer to the DoFHandler to which the mapping vector is associated.
    */
-  SmartPointer<const DoFHandler<dim, spacedim>,
-               MappingQ1Eulerian<dim, VectorType, spacedim>>
-    shiftmap_dof_handler;
+  SmartPointer<const DoFHandler<dim, spacedim>, MappingQ1Eulerian<dim, VectorType, spacedim>> shiftmap_dof_handler;
 };
 
 /** @} */

@@ -33,8 +33,7 @@ namespace internal
   {
     template <int dim, int spacedim>
     typename dealii::Triangulation<dim, spacedim>::raw_hex_iterator
-    TriaObjects::next_free_hex(const dealii::Triangulation<dim, spacedim> &tria,
-                               const unsigned int level)
+    TriaObjects::next_free_hex(const dealii::Triangulation<dim, spacedim> &tria, const unsigned int level)
     {
       AssertDimension(this->structdim, 3);
 
@@ -55,24 +54,19 @@ namespace internal
       else
         next_free_pair = pos + 2;
 
-      return
-        typename dealii::Triangulation<dim, spacedim>::raw_hex_iterator(&tria,
-                                                                        level,
-                                                                        pos);
+      return typename dealii::Triangulation<dim, spacedim>::raw_hex_iterator(&tria, level, pos);
     }
 
 
     std::size_t
     TriaObjects::memory_consumption() const
     {
-      return (MemoryConsumption::memory_consumption(cells) +
-              MemoryConsumption::memory_consumption(children) +
-              MemoryConsumption::memory_consumption(used) +
-              MemoryConsumption::memory_consumption(user_flags) +
+      return (MemoryConsumption::memory_consumption(cells) + MemoryConsumption::memory_consumption(children) +
+              MemoryConsumption::memory_consumption(used) + MemoryConsumption::memory_consumption(user_flags) +
               MemoryConsumption::memory_consumption(boundary_or_material_id) +
               MemoryConsumption::memory_consumption(manifold_id) +
-              MemoryConsumption::memory_consumption(refinement_cases) +
-              user_data.capacity() * sizeof(UserData) + sizeof(user_data));
+              MemoryConsumption::memory_consumption(refinement_cases) + user_data.capacity() * sizeof(UserData) +
+              sizeof(user_data));
     }
 
 

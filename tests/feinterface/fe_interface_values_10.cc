@@ -59,21 +59,17 @@ test_jump_function()
   for (const auto &cell : dof_handler.active_cell_iterators())
     {
       cell->get_dof_indices(local_dof_indices);
-      solution(local_dof_indices[0]) =
-        static_cast<double>(cell->active_cell_index());
+      solution(local_dof_indices[0]) = static_cast<double>(cell->active_cell_index());
     }
 
   const QGauss<dim - 1>  face_quadrature(2);
   FEInterfaceValues<dim> fe_iv(fe,
                                face_quadrature,
-                               update_values | update_gradients |
-                                 update_quadrature_points |
-                                 update_3rd_derivatives);
+                               update_values | update_gradients | update_quadrature_points | update_3rd_derivatives);
 
   std::vector<double> qp_jumps_global(face_quadrature.size());
 
-  typename DoFHandler<dim>::active_cell_iterator cell =
-    dof_handler.begin_active();
+  typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active();
   for (; cell != dof_handler.end(); ++cell)
     for (const auto f : cell->face_indices())
       if (!cell->face(f)->at_boundary())
@@ -88,12 +84,10 @@ test_jump_function()
 
             fe_iv.get_jump_in_function_values(solution, qp_jumps_global);
 
-            double exact = cell->active_cell_index() * 1.0 -
-                           cell->neighbor(f)->active_cell_index() * 1.0;
+            double exact = cell->active_cell_index() * 1.0 - cell->neighbor(f)->active_cell_index() * 1.0;
 
             for (unsigned int q = 0; q < face_quadrature.size(); ++q)
-              Assert(std::fabs(qp_jumps_global[q] - exact) < 1e-15,
-                     ExcNotImplemented());
+              Assert(std::fabs(qp_jumps_global[q] - exact) < 1e-15, ExcNotImplemented());
           }
         }
 
@@ -125,16 +119,13 @@ test()
     {
       cell->get_dof_indices(local_dof_indices);
       for (unsigned int i = 0; i < dofs_per_cell; ++i)
-        solution(local_dof_indices[i]) =
-          static_cast<double>(cell->active_cell_index() + 1);
+        solution(local_dof_indices[i]) = static_cast<double>(cell->active_cell_index() + 1);
     }
 
   const QGauss<dim - 1>  face_quadrature(2);
   FEInterfaceValues<dim> fe_iv(fe,
                                face_quadrature,
-                               update_values | update_gradients |
-                                 update_quadrature_points |
-                                 update_3rd_derivatives);
+                               update_values | update_gradients | update_quadrature_points | update_3rd_derivatives);
   const unsigned int     n_face_q_points = face_quadrature.size();
 
   std::vector<double> jump_in_values(n_face_q_points);
@@ -163,8 +154,7 @@ test()
 
   const double tol = 1e-15;
 
-  typename DoFHandler<dim>::active_cell_iterator cell =
-    dof_handler.begin_active();
+  typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active();
   for (; cell != dof_handler.end(); ++cell)
     for (const auto f : cell->face_indices())
       if (!cell->face(f)->at_boundary())
@@ -178,59 +168,37 @@ test()
                          numbers::invalid_unsigned_int);
 
             fe_iv.get_jump_in_function_values(solution, jump_in_values);
-            fe_iv[extractor].get_jump_in_function_values(solution,
-                                                         exact_jump_in_values);
+            fe_iv[extractor].get_jump_in_function_values(solution, exact_jump_in_values);
 
             fe_iv.get_jump_in_function_gradients(solution, jump_in_grads);
-            fe_iv[extractor].get_jump_in_function_gradients(
-              solution, exact_jump_in_grads);
+            fe_iv[extractor].get_jump_in_function_gradients(solution, exact_jump_in_grads);
 
             fe_iv.get_jump_in_function_hessians(solution, jump_in_hessians);
-            fe_iv[extractor].get_jump_in_function_hessians(
-              solution, exact_jump_in_hessians);
+            fe_iv[extractor].get_jump_in_function_hessians(solution, exact_jump_in_hessians);
 
-            fe_iv.get_jump_in_function_third_derivatives(
-              solution, jump_in_3rd_derivatives);
-            fe_iv[extractor].get_jump_in_function_third_derivatives(
-              solution, exact_jump_in_3rd_derivatives);
+            fe_iv.get_jump_in_function_third_derivatives(solution, jump_in_3rd_derivatives);
+            fe_iv[extractor].get_jump_in_function_third_derivatives(solution, exact_jump_in_3rd_derivatives);
 
             fe_iv.get_average_of_function_values(solution, average_of_values);
-            fe_iv[extractor].get_average_of_function_values(
-              solution, exact_average_of_values);
+            fe_iv[extractor].get_average_of_function_values(solution, exact_average_of_values);
 
             fe_iv.get_average_of_function_gradients(solution, average_of_grads);
-            fe_iv[extractor].get_average_of_function_gradients(
-              solution, exact_average_of_grads);
+            fe_iv[extractor].get_average_of_function_gradients(solution, exact_average_of_grads);
 
-            fe_iv.get_average_of_function_hessians(solution,
-                                                   average_of_hessians);
-            fe_iv[extractor].get_average_of_function_hessians(
-              solution, exact_average_of_hessians);
+            fe_iv.get_average_of_function_hessians(solution, average_of_hessians);
+            fe_iv[extractor].get_average_of_function_hessians(solution, exact_average_of_hessians);
 
             for (unsigned int q = 0; q < face_quadrature.size(); ++q)
               {
-                Assert(std::fabs(jump_in_values[q] - exact_jump_in_values[q]) <
-                         tol,
-                       ExcNotImplemented());
-                Assert((jump_in_grads[q] - exact_jump_in_grads[q]).norm() < tol,
-                       ExcNotImplemented());
-                Assert((jump_in_hessians[q] - exact_jump_in_hessians[q])
-                           .norm() < tol,
-                       ExcNotImplemented());
-                Assert((jump_in_3rd_derivatives[q] -
-                        exact_jump_in_3rd_derivatives[q])
-                           .norm() < tol,
+                Assert(std::fabs(jump_in_values[q] - exact_jump_in_values[q]) < tol, ExcNotImplemented());
+                Assert((jump_in_grads[q] - exact_jump_in_grads[q]).norm() < tol, ExcNotImplemented());
+                Assert((jump_in_hessians[q] - exact_jump_in_hessians[q]).norm() < tol, ExcNotImplemented());
+                Assert((jump_in_3rd_derivatives[q] - exact_jump_in_3rd_derivatives[q]).norm() < tol,
                        ExcNotImplemented());
 
-                Assert(std::fabs(average_of_values[q] -
-                                 exact_average_of_values[q]) < tol,
-                       ExcNotImplemented());
-                Assert((average_of_grads[q] - exact_average_of_grads[q])
-                           .norm() < tol,
-                       ExcNotImplemented());
-                Assert((average_of_hessians[q] - exact_average_of_hessians[q])
-                           .norm() < tol,
-                       ExcNotImplemented());
+                Assert(std::fabs(average_of_values[q] - exact_average_of_values[q]) < tol, ExcNotImplemented());
+                Assert((average_of_grads[q] - exact_average_of_grads[q]).norm() < tol, ExcNotImplemented());
+                Assert((average_of_hessians[q] - exact_average_of_hessians[q]).norm() < tol, ExcNotImplemented());
               }
           }
         }

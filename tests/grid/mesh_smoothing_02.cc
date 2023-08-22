@@ -82,12 +82,9 @@ test()
   deallog << "n_active_cells = " << triangulation.n_active_cells() << std::endl;
 
 
-  for (Triangulation<2>::cell_iterator cell = triangulation.begin();
-       cell != triangulation.end();
-       ++cell)
+  for (Triangulation<2>::cell_iterator cell = triangulation.begin(); cell != triangulation.end(); ++cell)
     {
-      deallog << "Cell = " << cell
-              << (cell->is_active() ? " is active " : " is not active ");
+      deallog << "Cell = " << cell << (cell->is_active() ? " is active " : " is not active ");
       if (!cell->is_active())
         {
           deallog << "and has children: ";
@@ -99,22 +96,15 @@ test()
 
   // now flag everything for coarsening
   // again
-  for (Triangulation<2>::active_cell_iterator cell =
-         triangulation.begin_active();
-       cell != triangulation.end();
-       ++cell)
+  for (Triangulation<2>::active_cell_iterator cell = triangulation.begin_active(); cell != triangulation.end(); ++cell)
     cell->set_coarsen_flag();
   triangulation.execute_coarsening_and_refinement();
 
   deallog << "n_active_cells = " << triangulation.n_active_cells() << std::endl;
 
-  for (Triangulation<2>::cell_iterator cell = triangulation.begin();
-       cell != triangulation.end();
-       ++cell)
+  for (Triangulation<2>::cell_iterator cell = triangulation.begin(); cell != triangulation.end(); ++cell)
     {
-      AssertThrow((cell->refine_flag_set() == false) &&
-                    (cell->coarsen_flag_set() == false),
-                  ExcInternalError());
+      AssertThrow((cell->refine_flag_set() == false) && (cell->coarsen_flag_set() == false), ExcInternalError());
       if (!cell->is_active())
         AssertThrow(cell_is_patch_level_1<2>(cell), ExcInternalError());
     }
@@ -137,28 +127,20 @@ main()
     }
   catch (const std::exception &exc)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Exception on processing: " << std::endl
                 << exc.what() << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      std::cerr << std::endl
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+      std::cerr << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       std::cerr << "Unknown exception!" << std::endl
                 << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
+                << "----------------------------------------------------" << std::endl;
       return 1;
     }
 

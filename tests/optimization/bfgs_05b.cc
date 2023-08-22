@@ -71,8 +71,8 @@ test()
 
         if (i < N - 1)
           {
-            res += 100. * dealii::Utilities::fixed_power<2>(x(i + 1) - xi2) +
-                   dealii::Utilities::fixed_power<2>(1. - x(i));
+            res +=
+              100. * dealii::Utilities::fixed_power<2>(x(i + 1) - xi2) + dealii::Utilities::fixed_power<2>(1. - x(i));
 
             g(i) += -400. * x(i) * (x(i + 1) - xi2) - 2. * (1. - x(i));
           }
@@ -94,32 +94,28 @@ test()
     return rosenbrok(x_shifted, g);
   };
 
-  const auto preconditioner = [](VectorType &                         g,
-                                 const FiniteSizeHistory<VectorType> &s,
-                                 const FiniteSizeHistory<VectorType> &y) {
-    if (s.size() > 0)
-      {
-        // default preconditioning using the oldest {s,y} pair, see
-        // lbfgs_recursion() in __bfgsmin.cc of "optim" Octave package.
-        const unsigned int i  = s.size() - 1;
-        const double       yy = y[i] * y[i];
-        const double       sy = s[i] * y[i];
-        Assert(yy > 0 && sy > 0, ExcInternalError());
-        g *= sy / yy;
-      }
-  };
+  const auto preconditioner =
+    [](VectorType &g, const FiniteSizeHistory<VectorType> &s, const FiniteSizeHistory<VectorType> &y) {
+      if (s.size() > 0)
+        {
+          // default preconditioning using the oldest {s,y} pair, see
+          // lbfgs_recursion() in __bfgsmin.cc of "optim" Octave package.
+          const unsigned int i  = s.size() - 1;
+          const double       yy = y[i] * y[i];
+          const double       sy = s[i] * y[i];
+          Assert(yy > 0 && sy > 0, ExcInternalError());
+          g *= sy / yy;
+        }
+    };
 
-  SolverControl solver_control(itmax, gtol, false);
+  SolverControl                                   solver_control(itmax, gtol, false);
   typename SolverBFGS<VectorType>::AdditionalData data(m_max, false);
   SolverBFGS<VectorType>                          solver(solver_control, data);
   solver.connect_preconditioner_slot(preconditioner);
 
   // We will check whether the number of function calls is within a specified
   // range.
-  check_solver_within_range(solver.solve(func, x),
-                            (tot_fun_calls - 1) /*one evaluation above*/,
-                            130,
-                            140);
+  check_solver_within_range(solver.solve(func, x), (tot_fun_calls - 1) /*one evaluation above*/, 130, 140);
 
   deallog << "Limited memory BFGS solution:" << std::endl;
   x.print(deallog.get_file_stream());

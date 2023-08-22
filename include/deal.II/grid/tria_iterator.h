@@ -271,11 +271,10 @@ public:
    * index of the object pointed to. The last parameter is of a type declared
    * by the accessor class.
    */
-  TriaRawIterator(
-    const Triangulation<Accessor::dimension, Accessor::space_dimension> *parent,
-    const int                                                            level,
-    const int                                                            index,
-    const typename AccessorType::AccessorData *local_data = nullptr);
+  TriaRawIterator(const Triangulation<Accessor::dimension, Accessor::space_dimension> *parent,
+                  const int                                                            level,
+                  const int                                                            index,
+                  const typename AccessorType::AccessorData                           *local_data = nullptr);
 
   /**
    * This is a conversion operator (constructor) which takes another iterator
@@ -294,11 +293,9 @@ public:
    * Triangulation from a TriaAccessorBase object, while the additional data
    * is used according to the actual type of Accessor.
    */
-  TriaRawIterator(
-    const TriaAccessorBase<Accessor::structure_dimension,
-                           Accessor::dimension,
-                           Accessor::space_dimension> &tria_accessor,
-    const typename Accessor::AccessorData *            local_data);
+  TriaRawIterator(const TriaAccessorBase<Accessor::structure_dimension, Accessor::dimension, Accessor::space_dimension>
+                                                        &tria_accessor,
+                  const typename Accessor::AccessorData *local_data);
 
   /**
    * Conversion constructor. Same as above with the difference that it
@@ -508,13 +505,10 @@ public:
                  Accessor,
                  << "You tried to dereference a cell iterator for which this "
                  << "is not possible. More information on this iterator: "
-                 << "level=" << arg1.level() << ", index=" << arg1.index()
-                 << ", state="
+                 << "level=" << arg1.level() << ", index=" << arg1.index() << ", state="
                  << (arg1.state() == IteratorState::valid ?
                        "valid" :
-                       (arg1.state() == IteratorState::past_the_end ?
-                          "past_the_end" :
-                          "invalid")));
+                       (arg1.state() == IteratorState::past_the_end ? "past_the_end" : "invalid")));
 
   /**
    * Exception.
@@ -526,9 +520,7 @@ public:
                  << "index=" << arg1.index() << ", state="
                  << (arg1.state() == IteratorState::valid ?
                        "valid" :
-                       (arg1.state() == IteratorState::past_the_end ?
-                          "past_the_end" :
-                          "invalid")));
+                       (arg1.state() == IteratorState::past_the_end ? "past_the_end" : "invalid")));
 
   /**
    * Exception
@@ -605,11 +597,10 @@ public:
    *   (i) a past-the-end iterator; or (ii) it must point to
    *   a used object. All other cases will result in an exception.
    */
-  TriaIterator(
-    const Triangulation<Accessor::dimension, Accessor::space_dimension> *parent,
-    const int                                                            level,
-    const int                                                            index,
-    const typename Accessor::AccessorData *local_data = nullptr);
+  TriaIterator(const Triangulation<Accessor::dimension, Accessor::space_dimension> *parent,
+               const int                                                            level,
+               const int                                                            index,
+               const typename Accessor::AccessorData                               *local_data = nullptr);
 
   /**
    * Construct from an accessor of type OtherAccessor that is convertible to
@@ -635,10 +626,9 @@ public:
    * Triangulation from a TriaAccessorBase object, while the additional data
    * is used according to the actual type of Accessor.
    */
-  TriaIterator(const TriaAccessorBase<Accessor::structure_dimension,
-                                      Accessor::dimension,
-                                      Accessor::space_dimension> &tria_accessor,
-               const typename Accessor::AccessorData *            local_data);
+  TriaIterator(const TriaAccessorBase<Accessor::structure_dimension, Accessor::dimension, Accessor::space_dimension>
+                                                     &tria_accessor,
+               const typename Accessor::AccessorData *local_data);
 
   /**
    * Similar conversion operator to the above one, but does a check whether
@@ -728,12 +718,11 @@ public:
    * by algorithms to enquire about the specifics of the iterators they
    * work on.
    */
-  using iterator_category =
-    typename TriaRawIterator<Accessor>::iterator_category;
-  using value_type      = typename TriaRawIterator<Accessor>::value_type;
-  using pointer         = typename TriaRawIterator<Accessor>::pointer;
-  using reference       = typename TriaRawIterator<Accessor>::reference;
-  using difference_type = typename TriaRawIterator<Accessor>::difference_type;
+  using iterator_category = typename TriaRawIterator<Accessor>::iterator_category;
+  using value_type        = typename TriaRawIterator<Accessor>::value_type;
+  using pointer           = typename TriaRawIterator<Accessor>::pointer;
+  using reference         = typename TriaRawIterator<Accessor>::reference;
+  using difference_type   = typename TriaRawIterator<Accessor>::difference_type;
 
   /**
    * Exception
@@ -797,11 +786,10 @@ public:
    *   (i) a past-the-end iterator; or (ii) it must point to
    *   an active object. All other cases will result in an exception.
    */
-  TriaActiveIterator(
-    const Triangulation<Accessor::dimension, Accessor::space_dimension> *parent,
-    const int                                                            level,
-    const int                                                            index,
-    const typename Accessor::AccessorData *local_data = nullptr);
+  TriaActiveIterator(const Triangulation<Accessor::dimension, Accessor::space_dimension> *parent,
+                     const int                                                            level,
+                     const int                                                            index,
+                     const typename Accessor::AccessorData                               *local_data = nullptr);
 
   /**
    * This is a conversion operator (constructor) which takes another iterator
@@ -821,10 +809,9 @@ public:
    * is used according to the actual type of Accessor.
    */
   TriaActiveIterator(
-    const TriaAccessorBase<Accessor::structure_dimension,
-                           Accessor::dimension,
-                           Accessor::space_dimension> &tria_accessor,
-    const typename Accessor::AccessorData *            local_data);
+    const TriaAccessorBase<Accessor::structure_dimension, Accessor::dimension, Accessor::space_dimension>
+                                          &tria_accessor,
+    const typename Accessor::AccessorData *local_data);
 
   /**
    * Similar conversion operator to the above one, but does a check whether
@@ -962,8 +949,7 @@ inline TriaRawIterator<Accessor>::TriaRawIterator(const OtherAccessor &a)
 
 template <typename Accessor>
 template <typename OtherAccessor>
-inline TriaRawIterator<Accessor>::TriaRawIterator(
-  const TriaRawIterator<OtherAccessor> &i)
+inline TriaRawIterator<Accessor>::TriaRawIterator(const TriaRawIterator<OtherAccessor> &i)
   : accessor(i.accessor)
 {}
 
@@ -971,8 +957,7 @@ inline TriaRawIterator<Accessor>::TriaRawIterator(
 
 template <typename Accessor>
 template <typename OtherAccessor>
-inline TriaRawIterator<Accessor>::TriaRawIterator(
-  const TriaIterator<OtherAccessor> &i)
+inline TriaRawIterator<Accessor>::TriaRawIterator(const TriaIterator<OtherAccessor> &i)
   : accessor(i.accessor)
 {}
 
@@ -980,8 +965,7 @@ inline TriaRawIterator<Accessor>::TriaRawIterator(
 
 template <typename Accessor>
 template <typename OtherAccessor>
-inline TriaRawIterator<Accessor>::TriaRawIterator(
-  const TriaActiveIterator<OtherAccessor> &i)
+inline TriaRawIterator<Accessor>::TriaRawIterator(const TriaActiveIterator<OtherAccessor> &i)
   : accessor(i.accessor)
 {}
 
@@ -991,11 +975,9 @@ template <typename Accessor>
 inline Accessor
 TriaRawIterator<Accessor>::operator*() const
 {
-  Assert(Accessor::structure_dimension != Accessor::dimension ||
-           state() == IteratorState::valid,
+  Assert(Accessor::structure_dimension != Accessor::dimension || state() == IteratorState::valid,
          ExcDereferenceInvalidCell(accessor));
-  Assert(Accessor::structure_dimension == Accessor::dimension ||
-           state() == IteratorState::valid,
+  Assert(Accessor::structure_dimension == Accessor::dimension || state() == IteratorState::valid,
          ExcDereferenceInvalidObject(accessor));
 
   return accessor;
@@ -1041,16 +1023,12 @@ TriaRawIterator<Accessor>::state() const
 
 template <typename Accessor>
 inline bool
-TriaRawIterator<Accessor>::operator<(
-  const TriaRawIterator<Accessor> &other) const
+TriaRawIterator<Accessor>::operator<(const TriaRawIterator<Accessor> &other) const
 {
-  Assert(state() != IteratorState::invalid,
-         ExcDereferenceInvalidObject(accessor));
-  Assert(other.state() != IteratorState::invalid,
-         ExcDereferenceInvalidObject(other.accessor));
+  Assert(state() != IteratorState::invalid, ExcDereferenceInvalidObject(accessor));
+  Assert(other.state() != IteratorState::invalid, ExcDereferenceInvalidObject(other.accessor));
 
-  Assert(&accessor.get_triangulation() == &other.accessor.get_triangulation(),
-         ExcInvalidComparison());
+  Assert(&accessor.get_triangulation() == &other.accessor.get_triangulation(), ExcInvalidComparison());
 
   // Deal with iterators past end
   if (state() == IteratorState::past_the_end)
@@ -1065,8 +1043,7 @@ TriaRawIterator<Accessor>::operator<(
 
 template <typename Accessor>
 inline bool
-TriaRawIterator<Accessor>::operator>(
-  const TriaRawIterator<Accessor> &other) const
+TriaRawIterator<Accessor>::operator>(const TriaRawIterator<Accessor> &other) const
 {
   return (other < *this);
 }
@@ -1121,8 +1098,7 @@ TriaRawIterator<Accessor>::memory_consumption() const
 
 template <typename Accessor>
 template <typename OtherAccessor>
-inline TriaIterator<Accessor>::TriaIterator(
-  const TriaIterator<OtherAccessor> &i)
+inline TriaIterator<Accessor>::TriaIterator(const TriaIterator<OtherAccessor> &i)
   : TriaRawIterator<Accessor>(i.accessor)
 {}
 
@@ -1130,8 +1106,7 @@ inline TriaIterator<Accessor>::TriaIterator(
 
 template <typename Accessor>
 template <typename OtherAccessor>
-inline TriaIterator<Accessor>::TriaIterator(
-  const TriaActiveIterator<OtherAccessor> &i)
+inline TriaIterator<Accessor>::TriaIterator(const TriaActiveIterator<OtherAccessor> &i)
   : TriaRawIterator<Accessor>(i.accessor)
 {}
 
@@ -1139,8 +1114,7 @@ inline TriaIterator<Accessor>::TriaIterator(
 
 template <typename Accessor>
 template <typename OtherAccessor>
-inline TriaIterator<Accessor>::TriaIterator(
-  const TriaRawIterator<OtherAccessor> &i)
+inline TriaIterator<Accessor>::TriaIterator(const TriaRawIterator<OtherAccessor> &i)
   : TriaRawIterator<Accessor>(i.accessor)
 {
 #ifdef DEBUG
@@ -1174,8 +1148,7 @@ TriaIterator<Accessor>::TriaIterator(const OtherAccessor &a)
 
 template <typename Accessor>
 template <typename OtherAccessor>
-inline TriaActiveIterator<Accessor>::TriaActiveIterator(
-  const TriaActiveIterator<OtherAccessor> &i)
+inline TriaActiveIterator<Accessor>::TriaActiveIterator(const TriaActiveIterator<OtherAccessor> &i)
   : TriaIterator<Accessor>(i.accessor)
 {}
 
@@ -1183,8 +1156,7 @@ inline TriaActiveIterator<Accessor>::TriaActiveIterator(
 
 template <typename Accessor>
 template <typename OtherAccessor>
-inline TriaActiveIterator<Accessor>::TriaActiveIterator(
-  const TriaRawIterator<OtherAccessor> &i)
+inline TriaActiveIterator<Accessor>::TriaActiveIterator(const TriaRawIterator<OtherAccessor> &i)
   : TriaIterator<Accessor>(i)
 {
 #ifdef DEBUG
@@ -1195,8 +1167,7 @@ inline TriaActiveIterator<Accessor>::TriaActiveIterator(
   // state==IteratorState::past_the_end, and will then
   // throw the exception!
   if (this->state() != IteratorState::past_the_end)
-    Assert(this->accessor.has_children() == false,
-           ExcAssignmentOfInactiveObject());
+    Assert(this->accessor.has_children() == false, ExcAssignmentOfInactiveObject());
 #endif
 }
 

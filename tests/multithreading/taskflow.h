@@ -18,20 +18,16 @@
 
 namespace taskflow_v1
 {
-  template <typename Worker,
-            typename Copier,
-            typename Iterator,
-            typename ScratchData,
-            typename CopyData>
+  template <typename Worker, typename Copier, typename Iterator, typename ScratchData, typename CopyData>
   void
-  run(const Iterator &                            begin,
+  run(const Iterator                             &begin,
       const std_cxx20::type_identity_t<Iterator> &end,
       Worker                                      worker,
       Copier                                      copier,
-      const ScratchData &                         sample_scratch_data,
-      const CopyData &                            sample_copy_data,
-      const unsigned int queue_length = 2 * MultithreadInfo::n_threads(),
-      const unsigned int chunk_size   = 8)
+      const ScratchData                          &sample_scratch_data,
+      const CopyData                             &sample_copy_data,
+      const unsigned int                          queue_length = 2 * MultithreadInfo::n_threads(),
+      const unsigned int                          chunk_size   = 8)
   {
     if (MultithreadInfo::n_threads() == 1)
       {
@@ -43,11 +39,9 @@ namespace taskflow_v1
           {
             // need to check if the function is not the zero function. To
             // check zero-ness, create a C++ function out of it and check that
-            if (static_cast<const std::function<
-                  void(const Iterator &, ScratchData &, CopyData &)> &>(worker))
+            if (static_cast<const std::function<void(const Iterator &, ScratchData &, CopyData &)> &>(worker))
               worker(i, scratch_data, copy_data);
-            if (static_cast<const std::function<void(const CopyData &)> &>(
-                  copier))
+            if (static_cast<const std::function<void(const CopyData &)> &>(copier))
               copier(copy_data);
           }
 
@@ -70,17 +64,11 @@ namespace taskflow_v1
         copy_datas.emplace_back();
 
         auto worker_task = taskflow
-                             .emplace([it = i,
-                                       idx,
-                                       &sample_scratch_data,
-                                       &copy_datas,
-                                       &sample_copy_data,
-                                       &worker]() {
+                             .emplace([it = i, idx, &sample_scratch_data, &copy_datas, &sample_copy_data, &worker]() {
                                // std::cout << "worker " << idx << std::endl;
                                ScratchData scratch = sample_scratch_data;
-                               auto &      copy    = copy_datas[idx];
-                               copy =
-                                 std::make_unique<CopyData>(sample_copy_data);
+                               auto       &copy    = copy_datas[idx];
+                               copy                = std::make_unique<CopyData>(sample_copy_data);
 
                                worker(it, scratch, *copy.get());
                              })
@@ -110,18 +98,15 @@ namespace taskflow_v1
   }
 
 
-  template <typename MainClass,
-            typename Iterator,
-            typename ScratchData,
-            typename CopyData>
+  template <typename MainClass, typename Iterator, typename ScratchData, typename CopyData>
   void
-  run(const Iterator &                            begin,
+  run(const Iterator                             &begin,
       const std_cxx20::type_identity_t<Iterator> &end,
-      MainClass &                                 main_object,
+      MainClass                                  &main_object,
       void (MainClass::*worker)(const Iterator &, ScratchData &, CopyData &),
       void (MainClass::*copier)(const CopyData &),
       const ScratchData &sample_scratch_data,
-      const CopyData &   sample_copy_data,
+      const CopyData    &sample_copy_data,
       const unsigned int queue_length = 2 * MultithreadInfo::n_threads(),
       const unsigned int chunk_size   = 8)
   {
@@ -129,14 +114,10 @@ namespace taskflow_v1
     run(
       begin,
       end,
-      [&main_object, worker](const Iterator &iterator,
-                             ScratchData &   scratch_data,
-                             CopyData &      copy_data) {
+      [&main_object, worker](const Iterator &iterator, ScratchData &scratch_data, CopyData &copy_data) {
         (main_object.*worker)(iterator, scratch_data, copy_data);
       },
-      [&main_object, copier](const CopyData &copy_data) {
-        (main_object.*copier)(copy_data);
-      },
+      [&main_object, copier](const CopyData &copy_data) { (main_object.*copier)(copy_data); },
       sample_scratch_data,
       sample_copy_data,
       queue_length,

@@ -67,9 +67,7 @@ test(const FiniteElement<dim, spacedim> &fe, const unsigned int n_components)
 
   Vector<double> solution(dof_handler.n_dofs());
 
-  VectorTools::interpolate(dof_handler,
-                           RightHandSideFunction<dim>(n_components),
-                           solution);
+  VectorTools::interpolate(dof_handler, RightHandSideFunction<dim>(n_components), solution);
 
   DataOutFaces<dim> data_out;
 
@@ -80,8 +78,7 @@ test(const FiniteElement<dim, spacedim> &fe, const unsigned int n_components)
 
 #if true
   static unsigned int counter = 0;
-  std::ofstream       output("test." + std::to_string(dim) +
-                       std::to_string(counter++) + ".vtk");
+  std::ofstream       output("test." + std::to_string(dim) + std::to_string(counter++) + ".vtk");
   data_out.write_vtk(output);
 #endif
 

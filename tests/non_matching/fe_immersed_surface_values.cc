@@ -166,14 +166,10 @@ template <int dim>
 void
 Test<dim>::test_n_quadrature_points()
 {
-  FEImmersedSurfaceValues<dim> fe_values(*mapping,
-                                         element,
-                                         quadrature,
-                                         update_default);
+  FEImmersedSurfaceValues<dim> fe_values(*mapping, element, quadrature, update_default);
   fe_values.reinit(triangulation.begin_active());
 
-  deallog << "n_quadrature_points = " << fe_values.n_quadrature_points
-          << std::endl;
+  deallog << "n_quadrature_points = " << fe_values.n_quadrature_points << std::endl;
 }
 
 
@@ -182,20 +178,15 @@ template <int dim>
 void
 Test<dim>::test_get_quadrature()
 {
-  FEImmersedSurfaceValues<dim> fe_values(*mapping,
-                                         element,
-                                         quadrature,
-                                         update_default);
+  FEImmersedSurfaceValues<dim> fe_values(*mapping, element, quadrature, update_default);
   fe_values.reinit(triangulation.begin_active());
 
-  const NonMatching::ImmersedSurfaceQuadrature<dim> &stored_quadrature =
-    fe_values.get_quadrature();
+  const NonMatching::ImmersedSurfaceQuadrature<dim> &stored_quadrature = fe_values.get_quadrature();
 
   for (unsigned int q = 0; q < stored_quadrature.size(); q++)
     {
-      deallog << "(point, weight, normal) = ([" << stored_quadrature.point(q)
-              << "], " << stored_quadrature.weight(q) << ", ["
-              << stored_quadrature.normal_vector(q) << "])" << std::endl;
+      deallog << "(point, weight, normal) = ([" << stored_quadrature.point(q) << "], " << stored_quadrature.weight(q)
+              << ", [" << stored_quadrature.normal_vector(q) << "])" << std::endl;
     }
 }
 
@@ -205,10 +196,7 @@ template <int dim>
 void
 Test<dim>::test_point_mapped_correctly()
 {
-  FEImmersedSurfaceValues<dim> fe_values(*mapping,
-                                         element,
-                                         quadrature,
-                                         update_quadrature_points);
+  FEImmersedSurfaceValues<dim> fe_values(*mapping, element, quadrature, update_quadrature_points);
   fe_values.reinit(triangulation.begin_active());
 
   deallog << "point = " << fe_values.quadrature_point(0) << std::endl;
@@ -220,10 +208,7 @@ template <int dim>
 void
 Test<dim>::test_normal()
 {
-  FEImmersedSurfaceValues<dim> fe_values(*mapping,
-                                         element,
-                                         quadrature,
-                                         update_normal_vectors);
+  FEImmersedSurfaceValues<dim> fe_values(*mapping, element, quadrature, update_normal_vectors);
   fe_values.reinit(triangulation.begin_active());
 
   deallog << "normal = " << fe_values.normal_vector(0) << std::endl;
@@ -235,10 +220,7 @@ template <int dim>
 void
 Test<dim>::test_JxW()
 {
-  FEImmersedSurfaceValues<dim> fe_values(*mapping,
-                                         element,
-                                         quadrature,
-                                         update_JxW_values);
+  FEImmersedSurfaceValues<dim> fe_values(*mapping, element, quadrature, update_JxW_values);
   fe_values.reinit(triangulation.begin_active());
 
   deallog << "JxW = " << fe_values.JxW(0) << std::endl;
@@ -250,22 +232,17 @@ template <int dim>
 void
 Test<dim>::test_shape_surface_grad()
 {
-  FEImmersedSurfaceValues<dim> fe_values(
-    *mapping, element, quadrature, update_gradients | update_normal_vectors);
+  FEImmersedSurfaceValues<dim> fe_values(*mapping, element, quadrature, update_gradients | update_normal_vectors);
   fe_values.reinit(dof_handler.begin_active());
 
   const unsigned int function_index = 0;
   const unsigned int q_index        = 0;
   const unsigned int component      = 0;
 
-  deallog << "shape_surface_grad = "
-          << fe_values.shape_surface_grad(function_index, q_index) << std::endl;
+  deallog << "shape_surface_grad = " << fe_values.shape_surface_grad(function_index, q_index) << std::endl;
 
   deallog << "shape_surface_grad_component = "
-          << fe_values.shape_surface_grad_component(function_index,
-                                                    q_index,
-                                                    component)
-          << std::endl;
+          << fe_values.shape_surface_grad_component(function_index, q_index, component) << std::endl;
 }
 
 
@@ -280,8 +257,7 @@ run_test()
   const unsigned int          polynomial_degree = 1;
   const MappingQ<dim>         mapping_q(polynomial_degree);
 
-  const std::vector<std::string>   mapping_names = {"MappingCartesian",
-                                                  "MappingQ"};
+  const std::vector<std::string>   mapping_names = {"MappingCartesian", "MappingQ"};
   const hp::MappingCollection<dim> mappings(mapping_cartesian, mapping_q);
 
   for (unsigned int i = 0; i < mappings.size(); i++)

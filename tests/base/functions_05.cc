@@ -48,8 +48,7 @@ check2()
   for (unsigned int d = 0; d < dim; ++d)
     q[d] = d;
 
-  ScalarFunctionFromFunctionObject<dim> object(
-    std::bind(&Point<dim>::distance, q, std::placeholders::_1));
+  ScalarFunctionFromFunctionObject<dim> object(std::bind(&Point<dim>::distance, q, std::placeholders::_1));
 
   for (unsigned int i = 0; i < 10; ++i)
     {

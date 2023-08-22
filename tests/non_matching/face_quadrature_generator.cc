@@ -43,8 +43,7 @@
  */
 template <int dim>
 void
-create_and_print_quadratures(const Function<dim> &levelset,
-                             const unsigned int   face_index)
+create_and_print_quadratures(const Function<dim> &levelset, const unsigned int face_index)
 {
   const hp::QCollection<1> quadratures1D(QGauss<1>(2));
   const BoundingBox<dim>   box = create_unit_bounding_box<dim>();
@@ -84,14 +83,13 @@ test_plane_cuts_through_center()
   // For each coordinate direction set up a plane through the center.
   for (int plane_direction = 0; plane_direction < dim; ++plane_direction)
     {
-      const Tensor<1, dim> normal = Point<dim>::unit_vector(plane_direction);
+      const Tensor<1, dim>                        normal = Point<dim>::unit_vector(plane_direction);
       const Functions::SignedDistance::Plane<dim> levelset(center, normal);
 
       // Test all faces that are intersected by the plane.
       for (unsigned int f = 0; f < GeometryInfo<dim>::faces_per_cell; ++f)
         {
-          const int normal_direction =
-            GeometryInfo<dim>::unit_normal_direction[f];
+          const int normal_direction = GeometryInfo<dim>::unit_normal_direction[f];
           if (plane_direction != normal_direction)
             {
               deallog << "plane direction = " << plane_direction << ", ";
@@ -118,9 +116,9 @@ test_1D()
 {
   deallog << "test_1D" << std::endl;
 
-  const int            dim = 1;
-  Point<dim>           center(.5);
-  const Tensor<1, dim> normal = Point<dim>::unit_vector(0);
+  const int                                   dim = 1;
+  Point<dim>                                  center(.5);
+  const Tensor<1, dim>                        normal = Point<dim>::unit_vector(0);
   const Functions::SignedDistance::Plane<dim> levelset(center, normal);
 
   for (unsigned int f = 0; f < GeometryInfo<dim>::faces_per_cell; ++f)

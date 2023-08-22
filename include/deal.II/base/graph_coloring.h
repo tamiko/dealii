@@ -51,16 +51,14 @@ namespace GraphColoring
      * intersection.
      */
     inline bool
-    have_nonempty_intersection(
-      const std::vector<types::global_dof_index> &indices1,
-      const std::vector<types::global_dof_index> &indices2)
+    have_nonempty_intersection(const std::vector<types::global_dof_index> &indices1,
+                               const std::vector<types::global_dof_index> &indices2)
     {
       // we assume that both arrays are sorted, so we can walk
       // them in lockstep and see if we encounter an index that's
       // in both arrays. once we reach the end of either array,
       // we know that there is no intersection
-      std::vector<types::global_dof_index>::const_iterator p = indices1.begin(),
-                                                           q = indices2.begin();
+      std::vector<types::global_dof_index>::const_iterator p = indices1.begin(), q = indices2.begin();
       while ((p != indices1.end()) && (q != indices2.end()))
         {
           if (*p < *q)
@@ -108,22 +106,19 @@ namespace GraphColoring
     template <typename Iterator>
     std::vector<std::vector<Iterator>>
     create_partitioning(
-      const Iterator &                            begin,
-      const std_cxx20::type_identity_t<Iterator> &end,
-      const std::function<std::vector<types::global_dof_index>(
-        const Iterator &)> &                      get_conflict_indices)
+      const Iterator                                                              &begin,
+      const std_cxx20::type_identity_t<Iterator>                                  &end,
+      const std::function<std::vector<types::global_dof_index>(const Iterator &)> &get_conflict_indices)
     {
       // Number of iterators.
       unsigned int n_iterators = 0;
 
       // Create a map from conflict indices to iterators
-      std::unordered_map<types::global_dof_index, std::vector<Iterator>>
-        indices_to_iterators;
+      std::unordered_map<types::global_dof_index, std::vector<Iterator>> indices_to_iterators;
       for (Iterator it = begin; it != end; ++it)
         {
-          const std::vector<types::global_dof_index> conflict_indices =
-            get_conflict_indices(it);
-          const unsigned int n_conflict_indices = conflict_indices.size();
+          const std::vector<types::global_dof_index> conflict_indices   = get_conflict_indices(it);
+          const unsigned int                         n_conflict_indices = conflict_indices.size();
           for (unsigned int i = 0; i < n_conflict_indices; ++i)
             indices_to_iterators[conflict_indices[i]].push_back(it);
           ++n_iterators;
@@ -132,8 +127,7 @@ namespace GraphColoring
       // create the very first zone which contains only the first
       // iterator. then create the other zones. keep track of all the
       // iterators that have already been assigned to a zone
-      std::vector<std::vector<Iterator>> zones(1,
-                                               std::vector<Iterator>(1, begin));
+      std::vector<std::vector<Iterator>> zones(1, std::vector<Iterator>(1, begin));
       std::set<Iterator>                 used_it;
       used_it.insert(begin);
       while (used_it.size() != n_iterators)
@@ -141,21 +135,17 @@ namespace GraphColoring
           // loop over the elements of the previous zone. for each element of
           // the previous zone, get the conflict indices and from there get
           // those iterators that are conflicting with the current element
-          typename std::vector<Iterator>::iterator previous_zone_it(
-            zones.back().begin());
-          typename std::vector<Iterator>::iterator previous_zone_end(
-            zones.back().end());
-          std::vector<Iterator> new_zone;
+          typename std::vector<Iterator>::iterator previous_zone_it(zones.back().begin());
+          typename std::vector<Iterator>::iterator previous_zone_end(zones.back().end());
+          std::vector<Iterator>                    new_zone;
           for (; previous_zone_it != previous_zone_end; ++previous_zone_it)
             {
-              const std::vector<types::global_dof_index> conflict_indices =
-                get_conflict_indices(*previous_zone_it);
+              const std::vector<types::global_dof_index> conflict_indices = get_conflict_indices(*previous_zone_it);
 
               const unsigned int n_conflict_indices(conflict_indices.size());
               for (unsigned int i = 0; i < n_conflict_indices; ++i)
                 {
-                  const std::vector<Iterator> &conflicting_elements =
-                    indices_to_iterators[conflict_indices[i]];
+                  const std::vector<Iterator> &conflicting_elements = indices_to_iterators[conflict_indices[i]];
                   for (unsigned int j = 0; j < conflicting_elements.size(); ++j)
                     {
                       // check that the iterator conflicting with the current
@@ -221,20 +211,18 @@ namespace GraphColoring
     template <typename Iterator>
     void
     make_dsatur_coloring(
-      std::vector<Iterator> &             partition,
-      const std::function<std::vector<types::global_dof_index>(
-        const Iterator &)> &              get_conflict_indices,
-      std::vector<std::vector<Iterator>> &partition_coloring)
+      std::vector<Iterator>                                                       &partition,
+      const std::function<std::vector<types::global_dof_index>(const Iterator &)> &get_conflict_indices,
+      std::vector<std::vector<Iterator>>                                          &partition_coloring)
     {
       partition_coloring.clear();
 
       // Number of zones composing the partitioning.
-      const unsigned int        partition_size(partition.size());
-      std::vector<unsigned int> sorted_vertices(partition_size);
-      std::vector<int>          degrees(partition_size);
-      std::vector<std::vector<types::global_dof_index>> conflict_indices(
-        partition_size);
-      std::vector<std::vector<unsigned int>> graph(partition_size);
+      const unsigned int                                partition_size(partition.size());
+      std::vector<unsigned int>                         sorted_vertices(partition_size);
+      std::vector<int>                                  degrees(partition_size);
+      std::vector<std::vector<types::global_dof_index>> conflict_indices(partition_size);
+      std::vector<std::vector<unsigned int>>            graph(partition_size);
 
       // Get the conflict indices associated to each iterator. The
       // conflict_indices have to be sorted so we can more easily find conflicts
@@ -251,8 +239,7 @@ namespace GraphColoring
         for (unsigned int j = i + 1; j < partition_size; ++j)
           // If the two iterators share indices then we increase the degree of
           // the vertices and create an ''edge'' in the graph.
-          if (have_nonempty_intersection(conflict_indices[i],
-                                         conflict_indices[j]))
+          if (have_nonempty_intersection(conflict_indices[i], conflict_indices[j]))
             {
               ++degrees[i];
               ++degrees[j];
@@ -303,8 +290,7 @@ namespace GraphColoring
           // Add a new color.
           if (new_color)
             {
-              partition_coloring.push_back(
-                std::vector<Iterator>(1, partition[current_vertex]));
+              partition_coloring.push_back(std::vector<Iterator>(1, partition[current_vertex]));
               std::unordered_set<unsigned int> tmp;
               tmp.insert(current_vertex);
               colors_used.push_back(tmp);
@@ -325,13 +311,12 @@ namespace GraphColoring
      */
     template <typename Iterator>
     std::vector<std::vector<Iterator>>
-    gather_colors(
-      const std::vector<std::vector<std::vector<Iterator>>> &partition_coloring)
+    gather_colors(const std::vector<std::vector<std::vector<Iterator>>> &partition_coloring)
     {
       std::vector<std::vector<Iterator>> coloring;
 
       // Count the number of iterators in each color.
-      const unsigned int partition_size(partition_coloring.size());
+      const unsigned int                     partition_size(partition_coloring.size());
       std::vector<std::vector<unsigned int>> colors_counter(partition_size);
       for (unsigned int i = 0; i < partition_size; ++i)
         {
@@ -368,8 +353,7 @@ namespace GraphColoring
                   // Find the color in the current partition with the largest
                   // number of iterators.
                   std::vector<unsigned int>::iterator it;
-                  it = std::max_element(colors_counter[i].begin(),
-                                        colors_counter[i].end());
+                  it = std::max_element(colors_counter[i].begin(), colors_counter[i].end());
                   unsigned int min_iterators(static_cast<unsigned int>(-1));
                   unsigned int pos(0);
                   // Find the color of coloring with the least number of colors
@@ -383,12 +367,9 @@ namespace GraphColoring
                         }
                   colors_counter[i_color][pos] += *it;
                   // Concatenate the current color with the existing coloring.
-                  coloring[pos].insert(
-                    coloring[pos].end(),
-                    partition_coloring[i][it - colors_counter[i].begin()]
-                      .begin(),
-                    partition_coloring[i][it - colors_counter[i].begin()]
-                      .end());
+                  coloring[pos].insert(coloring[pos].end(),
+                                       partition_coloring[i][it - colors_counter[i].begin()].begin(),
+                                       partition_coloring[i][it - colors_counter[i].begin()].end());
                   used_k.insert(pos);
                   // Put the number of iterators to the current color to zero.
                   *it = 0;
@@ -423,8 +404,7 @@ namespace GraphColoring
                       // Find the color in the current partition with the
                       // largest number of iterators.
                       std::vector<unsigned int>::iterator it;
-                      it = std::max_element(colors_counter[i].begin(),
-                                            colors_counter[i].end());
+                      it = std::max_element(colors_counter[i].begin(), colors_counter[i].end());
                       unsigned int min_iterators(static_cast<unsigned int>(-1));
                       unsigned int pos(0);
                       // Find the color of coloring with the least number of
@@ -441,10 +421,8 @@ namespace GraphColoring
                       // coloring.
                       coloring[max_even_n_colors + pos].insert(
                         coloring[max_even_n_colors + pos].end(),
-                        partition_coloring[i][it - colors_counter[i].begin()]
-                          .begin(),
-                        partition_coloring[i][it - colors_counter[i].begin()]
-                          .end());
+                        partition_coloring[i][it - colors_counter[i].begin()].begin(),
+                        partition_coloring[i][it - colors_counter[i].begin()].end());
                       used_k.insert(pos);
                       // Put the number of iterators to the current color to
                       // zero.
@@ -539,24 +517,20 @@ namespace GraphColoring
   template <typename Iterator>
   std::vector<std::vector<Iterator>>
   make_graph_coloring(
-    const Iterator &                                  begin,
-    const std_cxx20::type_identity_t<Iterator> &      end,
-    const std::function<std::vector<types::global_dof_index>(
-      const std_cxx20::type_identity_t<Iterator> &)> &get_conflict_indices)
+    const Iterator                             &begin,
+    const std_cxx20::type_identity_t<Iterator> &end,
+    const std::function<std::vector<types::global_dof_index>(const std_cxx20::type_identity_t<Iterator> &)>
+      &get_conflict_indices)
   {
-    Assert(begin != end,
-           ExcMessage(
-             "GraphColoring is not prepared to deal with empty ranges!"));
+    Assert(begin != end, ExcMessage("GraphColoring is not prepared to deal with empty ranges!"));
 
     // Create the partitioning.
-    std::vector<std::vector<Iterator>> partitioning =
-      internal::create_partitioning(begin, end, get_conflict_indices);
+    std::vector<std::vector<Iterator>> partitioning = internal::create_partitioning(begin, end, get_conflict_indices);
 
     // Color the iterators within each partition.
     // Run the coloring algorithm on each zone in parallel
-    const unsigned int partitioning_size(partitioning.size());
-    std::vector<std::vector<std::vector<Iterator>>> partition_coloring(
-      partitioning_size);
+    const unsigned int                              partitioning_size(partitioning.size());
+    std::vector<std::vector<std::vector<Iterator>>> partition_coloring(partitioning_size);
 
     Threads::TaskGroup<> tasks;
     for (unsigned int i = 0; i < partitioning_size; ++i)
@@ -577,8 +551,7 @@ namespace GraphColoring
    * For further details, refer to SparsityTools::color_sparsity_pattern.
    */
   unsigned int
-  color_sparsity_pattern(const SparsityPattern &    sparsity_pattern,
-                         std::vector<unsigned int> &color_indices);
+  color_sparsity_pattern(const SparsityPattern &sparsity_pattern, std::vector<unsigned int> &color_indices);
 
 } // namespace GraphColoring
 

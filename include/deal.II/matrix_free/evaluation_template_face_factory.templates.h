@@ -31,14 +31,12 @@ namespace internal
 {
   template <int dim, typename Number>
   void
-  FEFaceEvaluationFactory<dim, Number>::evaluate(
-    const unsigned int                     n_components,
-    const EvaluationFlags::EvaluationFlags evaluation_flag,
-    const Number *                         values_dofs,
-    FEEvaluationData<dim, Number, true> &  fe_eval)
+  FEFaceEvaluationFactory<dim, Number>::evaluate(const unsigned int                     n_components,
+                                                 const EvaluationFlags::EvaluationFlags evaluation_flag,
+                                                 const Number                          *values_dofs,
+                                                 FEEvaluationData<dim, Number, true>   &fe_eval)
   {
-    instantiation_helper_run<1,
-                             FEFaceEvaluationImplEvaluateSelector<dim, Number>>(
+    instantiation_helper_run<1, FEFaceEvaluationImplEvaluateSelector<dim, Number>>(
       fe_eval.get_shape_info().data[0].fe_degree,
       fe_eval.get_shape_info().data[0].n_q_points_1d,
       n_components,
@@ -51,15 +49,12 @@ namespace internal
 
   template <int dim, typename Number>
   void
-  FEFaceEvaluationFactory<dim, Number>::integrate(
-    const unsigned int                     n_components,
-    const EvaluationFlags::EvaluationFlags integration_flag,
-    Number *                               values_dofs,
-    FEEvaluationData<dim, Number, true> &  fe_eval)
+  FEFaceEvaluationFactory<dim, Number>::integrate(const unsigned int                     n_components,
+                                                  const EvaluationFlags::EvaluationFlags integration_flag,
+                                                  Number                                *values_dofs,
+                                                  FEEvaluationData<dim, Number, true>   &fe_eval)
   {
-    instantiation_helper_run<
-      1,
-      FEFaceEvaluationImplIntegrateSelector<dim, Number>>(
+    instantiation_helper_run<1, FEFaceEvaluationImplIntegrateSelector<dim, Number>>(
       fe_eval.get_shape_info().data[0].fe_degree,
       fe_eval.get_shape_info().data[0].n_q_points_1d,
       n_components,
@@ -75,15 +70,11 @@ namespace internal
   FEFaceEvaluationGatherFactory<dim, Number, VectorizedArrayType>::evaluate(
     const unsigned int                                n_components,
     const EvaluationFlags::EvaluationFlags            evaluation_flag,
-    const Number *                                    src_ptr,
-    const std::vector<ArrayView<const Number>> *      sm_ptr,
+    const Number                                     *src_ptr,
+    const std::vector<ArrayView<const Number>>       *sm_ptr,
     FEEvaluationData<dim, VectorizedArrayType, true> &fe_eval)
   {
-    instantiation_helper_run<
-      1,
-      FEFaceEvaluationImplGatherEvaluateSelector<dim,
-                                                 Number,
-                                                 VectorizedArrayType>>(
+    instantiation_helper_run<1, FEFaceEvaluationImplGatherEvaluateSelector<dim, Number, VectorizedArrayType>>(
       fe_eval.get_shape_info().data[0].fe_degree,
       fe_eval.get_shape_info().data[0].n_q_points_1d,
       n_components,
@@ -100,15 +91,11 @@ namespace internal
   FEFaceEvaluationGatherFactory<dim, Number, VectorizedArrayType>::integrate(
     const unsigned int                                n_components,
     const EvaluationFlags::EvaluationFlags            integration_flag,
-    Number *                                          dst_ptr,
-    const std::vector<ArrayView<const Number>> *      sm_ptr,
+    Number                                           *dst_ptr,
+    const std::vector<ArrayView<const Number>>       *sm_ptr,
     FEEvaluationData<dim, VectorizedArrayType, true> &fe_eval)
   {
-    instantiation_helper_run<
-      1,
-      FEFaceEvaluationImplIntegrateScatterSelector<dim,
-                                                   Number,
-                                                   VectorizedArrayType>>(
+    instantiation_helper_run<1, FEFaceEvaluationImplIntegrateScatterSelector<dim, Number, VectorizedArrayType>>(
       fe_eval.get_shape_info().data[0].fe_degree,
       fe_eval.get_shape_info().data[0].n_q_points_1d,
       n_components,
@@ -126,12 +113,10 @@ namespace internal
   // outside of deal.II.
   template <int dim, typename Number>
   bool
-  FEFaceEvaluationFactory<dim, Number>::fast_evaluation_supported(
-    const unsigned int given_degree,
-    const unsigned int n_q_points_1d)
+  FEFaceEvaluationFactory<dim, Number>::fast_evaluation_supported(const unsigned int given_degree,
+                                                                  const unsigned int n_q_points_1d)
   {
-    return instantiation_helper_run<1, FastEvaluationSupported>(given_degree,
-                                                                n_q_points_1d);
+    return instantiation_helper_run<1, FastEvaluationSupported>(given_degree, n_q_points_1d);
   }
 } // end of namespace internal
 

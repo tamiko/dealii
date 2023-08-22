@@ -57,9 +57,7 @@ test()
   else
     Assert(false, ExcNotImplemented());
 
-  TrilinosWrappers::SparsityPattern sp(locally_owned,
-                                       locally_owned,
-                                       MPI_COMM_WORLD);
+  TrilinosWrappers::SparsityPattern sp(locally_owned, locally_owned, MPI_COMM_WORLD);
   if (my_id == 0)
     {
       sp.add(0, 0);
@@ -83,15 +81,13 @@ test()
   double l1b = n_procs * 1.2;
 
   A.compress(VectorOperation::add);
-  deallog << "1: " << A.l1_norm() << ' ' << B.l1_norm() << " (should be " << l1a
-          << " 0.0)" << std::endl;
+  deallog << "1: " << A.l1_norm() << ' ' << B.l1_norm() << " (should be " << l1a << " 0.0)" << std::endl;
 
   deallog << "set B=A..." << std::endl;
 
   B.copy_from(A);
 
-  deallog << "2: " << A.l1_norm() << ' ' << B.l1_norm() << " (should be " << l1a
-          << ' ' << l1a << ')' << std::endl;
+  deallog << "2: " << A.l1_norm() << ' ' << B.l1_norm() << " (should be " << l1a << ' ' << l1a << ')' << std::endl;
 
   if (my_id == 0)
     {
@@ -104,8 +100,7 @@ test()
   A = 0;
   A.add(0, 0, -1.2);
   A.compress(VectorOperation::add);
-  deallog << "3: " << A.l1_norm() << ' ' << B.l1_norm() << " (should be " << l1b
-          << ' ' << l1a << ')' << std::endl;
+  deallog << "3: " << A.l1_norm() << ' ' << B.l1_norm() << " (should be " << l1b << ' ' << l1a << ')' << std::endl;
 
   if (my_id == 0)
     {

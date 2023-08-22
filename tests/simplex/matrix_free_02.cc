@@ -61,8 +61,7 @@ public:
   using VectorType       = LinearAlgebra::distributed::Vector<double>;
   using FECellIntegrator = FEEvaluation<dim, -1, 0, 1, double>;
 
-  PoissonOperator(const MatrixFree<dim, double> &matrix_free,
-                  const bool                     do_helmholtz)
+  PoissonOperator(const MatrixFree<dim, double> &matrix_free, const bool do_helmholtz)
     : matrix_free(matrix_free)
     , do_helmholtz(do_helmholtz)
   {}
@@ -103,8 +102,7 @@ public:
     matrix_free.template cell_loop<VectorType, VectorType>(
       [&](const auto &data, auto &dst, const auto &src, const auto range) {
         FECellIntegrator                 phi(matrix_free, range);
-        EvaluationFlags::EvaluationFlags fe_eval_flags =
-          EvaluationFlags::gradients;
+        EvaluationFlags::EvaluationFlags fe_eval_flags = EvaluationFlags::gradients;
         if (do_helmholtz)
           fe_eval_flags |= EvaluationFlags::values;
 
@@ -164,8 +162,7 @@ test(const unsigned version, const unsigned int degree, const bool do_helmholtz)
   DoFHandler<dim> dof_handler(tria);
 
   for (const auto &cell : dof_handler.active_cell_iterators())
-    if (cell->reference_cell() == ReferenceCells::Triangle ||
-        cell->reference_cell() == ReferenceCells::Tetrahedron)
+    if (cell->reference_cell() == ReferenceCells::Triangle || cell->reference_cell() == ReferenceCells::Tetrahedron)
       cell->set_active_fe_index(0);
     else
       cell->set_active_fe_index(1);
@@ -177,10 +174,8 @@ test(const unsigned version, const unsigned int degree, const bool do_helmholtz)
   constraints.close();
 
   const auto solve_and_postprocess =
-    [&](const auto &poisson_operator,
-        auto &      x,
-        auto &      b) -> std::tuple<unsigned int, double, double, double> {
-    ReductionControl reduction_control(1000, 1e-10, 1e-4);
+    [&](const auto &poisson_operator, auto &x, auto &b) -> std::tuple<unsigned int, double, double, double> {
+    ReductionControl                               reduction_control(1000, 1e-10, 1e-4);
     SolverCG<std::remove_reference_t<decltype(x)>> solver(reduction_control);
     solver.solve(poisson_operator, x, b, PreconditionIdentity());
 
@@ -200,21 +195,14 @@ test(const unsigned version, const unsigned int degree, const bool do_helmholtz)
 
     Vector<double> difference(tria.n_active_cells());
 
-    VectorTools::integrate_difference(mappings,
-                                      dof_handler,
-                                      x,
-                                      Functions::ZeroFunction<dim>(),
-                                      difference,
-                                      quads,
-                                      VectorTools::NormType::L2_norm);
+    VectorTools::integrate_difference(
+      mappings, dof_handler, x, Functions::ZeroFunction<dim>(), difference, quads, VectorTools::NormType::L2_norm);
 
     std::tuple<unsigned int, double, double, double> result(
       reduction_control.last_step(),
       reduction_control.last_value(),
       x.linfty_norm(),
-      VectorTools::compute_global_error(tria,
-                                        difference,
-                                        VectorTools::NormType::L2_norm));
+      VectorTools::compute_global_error(tria, difference, VectorTools::NormType::L2_norm));
 
     return result;
   };
@@ -224,8 +212,7 @@ test(const unsigned version, const unsigned int degree, const bool do_helmholtz)
     additional_data.mapping_update_flags = update_gradients | update_values;
 
     MatrixFree<dim, double> matrix_free;
-    matrix_free.reinit(
-      mappings, dof_handler, constraints, quads, additional_data);
+    matrix_free.reinit(mappings, dof_handler, constraints, quads, additional_data);
 
     PoissonOperator<dim> poisson_operator(matrix_free, do_helmholtz);
 
@@ -294,8 +281,7 @@ test(const unsigned version, const unsigned int degree, const bool do_helmholtz)
         local_dof_indices.resize(cell->get_fe().n_dofs_per_cell());
         cell->get_dof_indices(local_dof_indices);
 
-        constraints.distribute_local_to_global(
-          cell_matrix, cell_rhs, local_dof_indices, A, b);
+        constraints.distribute_local_to_global(cell_matrix, cell_rhs, local_dof_indices, A, b);
       }
 
     return solve_and_postprocess(A, x, b);
@@ -303,12 +289,9 @@ test(const unsigned version, const unsigned int degree, const bool do_helmholtz)
 
   const auto compare = [&](const auto result_mf, const auto result_mb) {
     AssertDimension(std::get<0>(result_mf), std::get<0>(result_mb));
-    Assert(std::abs(std::get<1>(result_mf) - std::get<1>(result_mb)) < 1e-6,
-           ExcNotImplemented());
-    Assert(std::abs(std::get<2>(result_mf) - std::get<2>(result_mb)) < 1e-6,
-           ExcNotImplemented());
-    Assert(std::abs(std::get<3>(result_mf) - std::get<3>(result_mb)) < 1e-6,
-           ExcNotImplemented());
+    Assert(std::abs(std::get<1>(result_mf) - std::get<1>(result_mb)) < 1e-6, ExcNotImplemented());
+    Assert(std::abs(std::get<2>(result_mf) - std::get<2>(result_mb)) < 1e-6, ExcNotImplemented());
+    Assert(std::abs(std::get<3>(result_mf) - std::get<3>(result_mb)) < 1e-6, ExcNotImplemented());
 
     deallog << "mesh=";
     if (version == 0)
@@ -329,9 +312,8 @@ test(const unsigned version, const unsigned int degree, const bool do_helmholtz)
       deallog << "Possion  ";
     deallog << " : ";
 
-    deallog << "Convergence step " << std::get<0>(result_mf) << " value "
-            << std::get<1>(result_mf) << " max " << std::get<2>(result_mf)
-            << " norm " << std::get<3>(result_mf) << '.' << std::endl;
+    deallog << "Convergence step " << std::get<0>(result_mf) << " value " << std::get<1>(result_mf) << " max "
+            << std::get<2>(result_mf) << " norm " << std::get<3>(result_mf) << '.' << std::endl;
   };
 
   compare(mf_algo(), mb_algo());

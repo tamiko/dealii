@@ -69,10 +69,8 @@ test(const int testcase)
 
   GridOut().write_gnuplot(tria_3, deallog.get_file_stream());
 
-  deallog << "     Total number of cells        = " << tria_3.n_cells()
-          << std::endl
-          << "     Total number of vertices = " << tria_3.n_used_vertices()
-          << std::endl;
+  deallog << "     Total number of cells        = " << tria_3.n_cells() << std::endl
+          << "     Total number of vertices = " << tria_3.n_used_vertices() << std::endl;
 }
 
 

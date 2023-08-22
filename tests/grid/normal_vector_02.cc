@@ -50,13 +50,10 @@ main()
           boundary.get_normals_at_vertices(face, normals);
           for (unsigned int v = 0; v < GeometryInfo<3>::vertices_per_face; ++v)
             {
-              AssertThrow((boundary.normal_vector(face, face->vertex(v)) -
-                           normals[v] / normals[v].norm())
-                              .norm() < 1e-12,
+              AssertThrow((boundary.normal_vector(face, face->vertex(v)) - normals[v] / normals[v].norm()).norm() <
+                            1e-12,
                           ExcInternalError());
-              deallog << face->vertex(v) << ": "
-                      << boundary.normal_vector(face, face->vertex(v))
-                      << std::endl;
+              deallog << face->vertex(v) << ": " << boundary.normal_vector(face, face->vertex(v)) << std::endl;
             }
         }
 

@@ -44,8 +44,7 @@ void
 test()
 {
   // create similar mesh as step-68
-  parallel::distributed::Triangulation<dim> background_triangulation(
-    MPI_COMM_WORLD);
+  parallel::distributed::Triangulation<dim> background_triangulation(MPI_COMM_WORLD);
 
   GridGenerator::hyper_cube(background_triangulation, 0, 1);
   background_triangulation.refine_global(6 - dim);
@@ -62,51 +61,36 @@ test()
   const double outer_radius = 0.15;
   const double inner_radius = 0.01;
 
-  parallel::distributed::Triangulation<dim> particle_triangulation(
-    MPI_COMM_WORLD);
+  parallel::distributed::Triangulation<dim> particle_triangulation(MPI_COMM_WORLD);
 
-  GridGenerator::hyper_shell(
-    particle_triangulation, center, inner_radius, outer_radius, 6);
+  GridGenerator::hyper_shell(particle_triangulation, center, inner_radius, outer_radius, 6);
   particle_triangulation.refine_global(5 - dim);
 
-  const auto my_bounding_box = GridTools::compute_mesh_predicate_bounding_box(
-    background_triangulation, IteratorFilters::LocallyOwnedCell());
-  const auto global_bounding_boxes =
-    Utilities::MPI::all_gather(MPI_COMM_WORLD, my_bounding_box);
+  const auto my_bounding_box =
+    GridTools::compute_mesh_predicate_bounding_box(background_triangulation, IteratorFilters::LocallyOwnedCell());
+  const auto global_bounding_boxes = Utilities::MPI::all_gather(MPI_COMM_WORLD, my_bounding_box);
 
-  std::vector<std::vector<double>> properties(
-    particle_triangulation.n_locally_owned_active_cells(),
-    std::vector<double>(1, 0.));
-  Particles::Generators::quadrature_points(particle_triangulation,
-                                           QMidpoint<dim>(),
-                                           global_bounding_boxes,
-                                           particle_handler,
-                                           mapping,
-                                           properties);
+  std::vector<std::vector<double>> properties(particle_triangulation.n_locally_owned_active_cells(),
+                                              std::vector<double>(1, 0.));
+  Particles::Generators::quadrature_points(
+    particle_triangulation, QMidpoint<dim>(), global_bounding_boxes, particle_handler, mapping, properties);
 
   for (unsigned int i = 0; i < 2; ++i)
     {
       // Write out some information about the local particles
-      deallog << "Number of global particles: "
-              << particle_handler.n_global_particles() << std::endl;
-      deallog << "Number of locally owned particles: "
-              << particle_handler.n_locally_owned_particles() << std::endl;
-      deallog << "Maximal local particle index: "
-              << particle_handler.get_max_local_particle_index() << std::endl;
+      deallog << "Number of global particles: " << particle_handler.n_global_particles() << std::endl;
+      deallog << "Number of locally owned particles: " << particle_handler.n_locally_owned_particles() << std::endl;
+      deallog << "Maximal local particle index: " << particle_handler.get_max_local_particle_index() << std::endl;
 
-      std::vector<types::particle_index> my_particle_numbers(
-        particle_handler.get_max_local_particle_index(),
-        numbers::invalid_dof_index);
+      std::vector<types::particle_index> my_particle_numbers(particle_handler.get_max_local_particle_index(),
+                                                             numbers::invalid_dof_index);
 
       // set the id numbers for the particles
       unsigned int count = 0;
-      for (auto particle = particle_handler.begin();
-           particle != particle_handler.end();
-           ++particle, ++count)
+      for (auto particle = particle_handler.begin(); particle != particle_handler.end(); ++particle, ++count)
         my_particle_numbers[particle->get_local_index()] = particle->get_id();
 
-      for (auto particle = particle_handler.begin_ghost();
-           particle != particle_handler.end_ghost();
+      for (auto particle = particle_handler.begin_ghost(); particle != particle_handler.end_ghost();
            ++particle, ++count)
         my_particle_numbers[particle->get_local_index()] = particle->get_id();
 

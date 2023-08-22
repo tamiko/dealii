@@ -46,9 +46,7 @@ test(MPI_Comm comm)
   parallel::fullydistributed::Triangulation<dim> tria_pft(comm);
 
   // extract relevant information form serial triangulation
-  auto construction_data =
-    TriangulationDescription::Utilities::create_description_from_triangulation(
-      basetria, comm);
+  auto construction_data = TriangulationDescription::Utilities::create_description_from_triangulation(basetria, comm);
 
   // create some empty levels to imitate empty levels on some MPI processes
   construction_data.cell_infos.resize(basetria.n_levels() + 2);

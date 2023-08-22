@@ -53,9 +53,7 @@ test()
     FESubfaceValues<dim> fe_sub_val(mapping, dummy, quad, update_jacobians);
 
     deallog << dim << "D Jacobians:" << std::endl;
-    typename Triangulation<dim>::active_cell_iterator cell =
-                                                        tria.begin_active(),
-                                                      endc = tria.end();
+    typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
     for (; cell != endc; ++cell)
       for (const unsigned int f : GeometryInfo<dim>::face_indices())
         {
@@ -67,8 +65,7 @@ test()
           deallog << std::endl;
 
           // Also check the Jacobian with FESubfaceValues
-          if (cell->at_boundary(f) == false &&
-              cell->neighbor(f)->level() < cell->level())
+          if (cell->at_boundary(f) == false && cell->neighbor(f)->level() < cell->level())
             {
               fe_sub_val.reinit(cell->neighbor(f),
                                 cell->neighbor_face_no(f),
@@ -85,15 +82,10 @@ test()
 
   {
     FEFaceValues<dim>    fe_val(mapping, dummy, quad, update_inverse_jacobians);
-    FESubfaceValues<dim> fe_sub_val(mapping,
-                                    dummy,
-                                    quad,
-                                    update_inverse_jacobians);
+    FESubfaceValues<dim> fe_sub_val(mapping, dummy, quad, update_inverse_jacobians);
 
     deallog << dim << "D inverse Jacobians:" << std::endl;
-    typename Triangulation<dim>::active_cell_iterator cell =
-                                                        tria.begin_active(),
-                                                      endc = tria.end();
+    typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
     for (; cell != endc; ++cell)
       for (const unsigned int f : GeometryInfo<dim>::face_indices())
         {
@@ -105,8 +97,7 @@ test()
           deallog << std::endl;
 
           // Also check the inverse Jacobian with FESubfaceValues
-          if (cell->at_boundary(f) == false &&
-              cell->neighbor(f)->level() < cell->level())
+          if (cell->at_boundary(f) == false && cell->neighbor(f)->level() < cell->level())
             {
               fe_sub_val.reinit(cell->neighbor(f),
                                 cell->neighbor_face_no(f),
@@ -123,15 +114,10 @@ test()
 
   {
     FEFaceValues<dim>    fe_val(mapping, dummy, quad, update_jacobian_grads);
-    FESubfaceValues<dim> fe_sub_val(mapping,
-                                    dummy,
-                                    quad,
-                                    update_jacobian_grads);
+    FESubfaceValues<dim> fe_sub_val(mapping, dummy, quad, update_jacobian_grads);
 
     deallog << dim << "D Jacobian gradients:" << std::endl;
-    typename Triangulation<dim>::active_cell_iterator cell =
-                                                        tria.begin_active(),
-                                                      endc = tria.end();
+    typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
     for (; cell != endc; ++cell)
       for (const unsigned int f : GeometryInfo<dim>::face_indices())
         {
@@ -144,8 +130,7 @@ test()
           deallog << std::endl;
 
           // Also check the Jacobian with FESubfaceValues
-          if (cell->at_boundary(f) == false &&
-              cell->neighbor(f)->level() < cell->level())
+          if (cell->at_boundary(f) == false && cell->neighbor(f)->level() < cell->level())
             {
               fe_sub_val.reinit(cell->neighbor(f),
                                 cell->neighbor_face_no(f),
@@ -162,19 +147,11 @@ test()
   }
 
   {
-    FEFaceValues<dim>    fe_val(mapping,
-                             dummy,
-                             quad,
-                             update_jacobian_pushed_forward_grads);
-    FESubfaceValues<dim> fe_sub_val(mapping,
-                                    dummy,
-                                    quad,
-                                    update_jacobian_pushed_forward_grads);
+    FEFaceValues<dim>    fe_val(mapping, dummy, quad, update_jacobian_pushed_forward_grads);
+    FESubfaceValues<dim> fe_sub_val(mapping, dummy, quad, update_jacobian_pushed_forward_grads);
 
     deallog << dim << "D Jacobian pushed forward gradients:" << std::endl;
-    typename Triangulation<dim>::active_cell_iterator cell =
-                                                        tria.begin_active(),
-                                                      endc = tria.end();
+    typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
     for (; cell != endc; ++cell)
       for (const unsigned int f : GeometryInfo<dim>::face_indices())
         {
@@ -183,13 +160,11 @@ test()
           for (unsigned int d = 0; d < dim; ++d)
             for (unsigned int e = 0; e < dim; ++e)
               for (unsigned int f = 0; f < dim; ++f)
-                deallog << fe_val.jacobian_pushed_forward_grad(0)[d][e][f]
-                        << ' ';
+                deallog << fe_val.jacobian_pushed_forward_grad(0)[d][e][f] << ' ';
           deallog << std::endl;
 
           // Also check the Jacobian with FESubfaceValues
-          if (cell->at_boundary(f) == false &&
-              cell->neighbor(f)->level() < cell->level())
+          if (cell->at_boundary(f) == false && cell->neighbor(f)->level() < cell->level())
             {
               fe_sub_val.reinit(cell->neighbor(f),
                                 cell->neighbor_face_no(f),
@@ -198,9 +173,7 @@ test()
               for (unsigned int d = 0; d < dim; ++d)
                 for (unsigned int e = 0; e < dim; ++e)
                   for (unsigned int f = 0; f < dim; ++f)
-                    deallog
-                      << fe_sub_val.jacobian_pushed_forward_grad(0)[d][e][f]
-                      << ' ';
+                    deallog << fe_sub_val.jacobian_pushed_forward_grad(0)[d][e][f] << ' ';
               deallog << std::endl;
             }
         }
@@ -208,19 +181,11 @@ test()
   }
 
   {
-    FEFaceValues<dim>    fe_val(mapping,
-                             dummy,
-                             quad,
-                             update_jacobian_2nd_derivatives);
-    FESubfaceValues<dim> fe_sub_val(mapping,
-                                    dummy,
-                                    quad,
-                                    update_jacobian_2nd_derivatives);
+    FEFaceValues<dim>    fe_val(mapping, dummy, quad, update_jacobian_2nd_derivatives);
+    FESubfaceValues<dim> fe_sub_val(mapping, dummy, quad, update_jacobian_2nd_derivatives);
 
     deallog << dim << "D Jacobian hessians:" << std::endl;
-    typename Triangulation<dim>::active_cell_iterator cell =
-                                                        tria.begin_active(),
-                                                      endc = tria.end();
+    typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
     for (; cell != endc; ++cell)
       for (const unsigned int f : GeometryInfo<dim>::face_indices())
         {
@@ -230,13 +195,11 @@ test()
             for (unsigned int e = 0; e < dim; ++e)
               for (unsigned int f = 0; f < dim; ++f)
                 for (unsigned int g = 0; g < dim; ++g)
-                  deallog << fe_val.jacobian_2nd_derivative(0)[d][e][f][g]
-                          << ' ';
+                  deallog << fe_val.jacobian_2nd_derivative(0)[d][e][f][g] << ' ';
           deallog << std::endl;
 
           // Also check the Jacobian with FESubfaceValues
-          if (cell->at_boundary(f) == false &&
-              cell->neighbor(f)->level() < cell->level())
+          if (cell->at_boundary(f) == false && cell->neighbor(f)->level() < cell->level())
             {
               fe_sub_val.reinit(cell->neighbor(f),
                                 cell->neighbor_face_no(f),
@@ -246,9 +209,7 @@ test()
                 for (unsigned int e = 0; e < dim; ++e)
                   for (unsigned int f = 0; f < dim; ++f)
                     for (unsigned int g = 0; g < dim; ++g)
-                      deallog
-                        << fe_sub_val.jacobian_2nd_derivative(0)[d][e][f][g]
-                        << ' ';
+                      deallog << fe_sub_val.jacobian_2nd_derivative(0)[d][e][f][g] << ' ';
               deallog << std::endl;
             }
         }
@@ -256,17 +217,11 @@ test()
   }
 
   {
-    FEFaceValues<dim>    fe_val(mapping,
-                             dummy,
-                             quad,
-                             update_jacobian_pushed_forward_2nd_derivatives);
-    FESubfaceValues<dim> fe_sub_val(
-      mapping, dummy, quad, update_jacobian_pushed_forward_2nd_derivatives);
+    FEFaceValues<dim>    fe_val(mapping, dummy, quad, update_jacobian_pushed_forward_2nd_derivatives);
+    FESubfaceValues<dim> fe_sub_val(mapping, dummy, quad, update_jacobian_pushed_forward_2nd_derivatives);
 
     deallog << dim << "D Jacobian pushed forward hessians:" << std::endl;
-    typename Triangulation<dim>::active_cell_iterator cell =
-                                                        tria.begin_active(),
-                                                      endc = tria.end();
+    typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
     for (; cell != endc; ++cell)
       for (const unsigned int f : GeometryInfo<dim>::face_indices())
         {
@@ -276,14 +231,11 @@ test()
             for (unsigned int e = 0; e < dim; ++e)
               for (unsigned int f = 0; f < dim; ++f)
                 for (unsigned int g = 0; g < dim; ++g)
-                  deallog << fe_val.jacobian_pushed_forward_2nd_derivative(
-                               0)[d][e][f][g]
-                          << ' ';
+                  deallog << fe_val.jacobian_pushed_forward_2nd_derivative(0)[d][e][f][g] << ' ';
           deallog << std::endl;
 
           // Also check the Jacobian with FESubfaceValues
-          if (cell->at_boundary(f) == false &&
-              cell->neighbor(f)->level() < cell->level())
+          if (cell->at_boundary(f) == false && cell->neighbor(f)->level() < cell->level())
             {
               fe_sub_val.reinit(cell->neighbor(f),
                                 cell->neighbor_face_no(f),
@@ -293,10 +245,7 @@ test()
                 for (unsigned int e = 0; e < dim; ++e)
                   for (unsigned int f = 0; f < dim; ++f)
                     for (unsigned int g = 0; g < dim; ++g)
-                      deallog
-                        << fe_sub_val.jacobian_pushed_forward_2nd_derivative(
-                             0)[d][e][f][g]
-                        << ' ';
+                      deallog << fe_sub_val.jacobian_pushed_forward_2nd_derivative(0)[d][e][f][g] << ' ';
               deallog << std::endl;
             }
         }
@@ -304,19 +253,11 @@ test()
   }
 
   {
-    FEFaceValues<dim>    fe_val(mapping,
-                             dummy,
-                             quad,
-                             update_jacobian_3rd_derivatives);
-    FESubfaceValues<dim> fe_sub_val(mapping,
-                                    dummy,
-                                    quad,
-                                    update_jacobian_3rd_derivatives);
+    FEFaceValues<dim>    fe_val(mapping, dummy, quad, update_jacobian_3rd_derivatives);
+    FESubfaceValues<dim> fe_sub_val(mapping, dummy, quad, update_jacobian_3rd_derivatives);
 
     deallog << dim << "D Jacobian hessian gradients:" << std::endl;
-    typename Triangulation<dim>::active_cell_iterator cell =
-                                                        tria.begin_active(),
-                                                      endc = tria.end();
+    typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
     for (; cell != endc; ++cell)
       for (const unsigned int f : GeometryInfo<dim>::face_indices())
         {
@@ -327,13 +268,11 @@ test()
               for (unsigned int f = 0; f < dim; ++f)
                 for (unsigned int g = 0; g < dim; ++g)
                   for (unsigned int h = 0; h < dim; ++h)
-                    deallog << fe_val.jacobian_3rd_derivative(0)[d][e][f][g][h]
-                            << ' ';
+                    deallog << fe_val.jacobian_3rd_derivative(0)[d][e][f][g][h] << ' ';
           deallog << std::endl;
 
           // Also check the Jacobian with FESubfaceValues
-          if (cell->at_boundary(f) == false &&
-              cell->neighbor(f)->level() < cell->level())
+          if (cell->at_boundary(f) == false && cell->neighbor(f)->level() < cell->level())
             {
               fe_sub_val.reinit(cell->neighbor(f),
                                 cell->neighbor_face_no(f),
@@ -344,9 +283,7 @@ test()
                   for (unsigned int f = 0; f < dim; ++f)
                     for (unsigned int g = 0; g < dim; ++g)
                       for (unsigned int h = 0; h < dim; ++h)
-                        deallog << fe_sub_val.jacobian_3rd_derivative(
-                                     0)[d][e][f][g][h]
-                                << ' ';
+                        deallog << fe_sub_val.jacobian_3rd_derivative(0)[d][e][f][g][h] << ' ';
               deallog << std::endl;
             }
         }
@@ -354,18 +291,11 @@ test()
   }
 
   {
-    FEFaceValues<dim>    fe_val(mapping,
-                             dummy,
-                             quad,
-                             update_jacobian_pushed_forward_3rd_derivatives);
-    FESubfaceValues<dim> fe_sub_val(
-      mapping, dummy, quad, update_jacobian_pushed_forward_3rd_derivatives);
+    FEFaceValues<dim>    fe_val(mapping, dummy, quad, update_jacobian_pushed_forward_3rd_derivatives);
+    FESubfaceValues<dim> fe_sub_val(mapping, dummy, quad, update_jacobian_pushed_forward_3rd_derivatives);
 
-    deallog << dim
-            << "D Jacobian pushed forward hessian gradients:" << std::endl;
-    typename Triangulation<dim>::active_cell_iterator cell =
-                                                        tria.begin_active(),
-                                                      endc = tria.end();
+    deallog << dim << "D Jacobian pushed forward hessian gradients:" << std::endl;
+    typename Triangulation<dim>::active_cell_iterator cell = tria.begin_active(), endc = tria.end();
     for (; cell != endc; ++cell)
       for (const unsigned int f : GeometryInfo<dim>::face_indices())
         {
@@ -376,14 +306,11 @@ test()
               for (unsigned int f = 0; f < dim; ++f)
                 for (unsigned int g = 0; g < dim; ++g)
                   for (unsigned int h = 0; h < dim; ++h)
-                    deallog << fe_val.jacobian_pushed_forward_3rd_derivative(
-                                 0)[d][e][f][g][h]
-                            << ' ';
+                    deallog << fe_val.jacobian_pushed_forward_3rd_derivative(0)[d][e][f][g][h] << ' ';
           deallog << std::endl;
 
           // Also check the Jacobian with FESubfaceValues
-          if (cell->at_boundary(f) == false &&
-              cell->neighbor(f)->level() < cell->level())
+          if (cell->at_boundary(f) == false && cell->neighbor(f)->level() < cell->level())
             {
               fe_sub_val.reinit(cell->neighbor(f),
                                 cell->neighbor_face_no(f),
@@ -394,10 +321,7 @@ test()
                   for (unsigned int f = 0; f < dim; ++f)
                     for (unsigned int g = 0; g < dim; ++g)
                       for (unsigned int h = 0; h < dim; ++h)
-                        deallog
-                          << fe_sub_val.jacobian_pushed_forward_3rd_derivative(
-                               0)[d][e][f][g][h]
-                          << ' ';
+                        deallog << fe_sub_val.jacobian_pushed_forward_3rd_derivative(0)[d][e][f][g][h] << ' ';
               deallog << std::endl;
             }
         }

@@ -42,10 +42,8 @@ plot(const PolynomialsBDM<dim> &poly)
       if (k % (poly.degree() + 4) == 0)
         deallog << "BDM" << poly.degree() - 1 << '<' << dim << '>' << std::endl;
 
-      deallog << "BDM" << poly.degree() - 1 << '<' << dim << '>' << '\t'
-              << quadrature.point(k);
-      poly.evaluate(
-        quadrature.point(k), values, grads, grads2, thirds, fourths);
+      deallog << "BDM" << poly.degree() - 1 << '<' << dim << '>' << '\t' << quadrature.point(k);
+      poly.evaluate(quadrature.point(k), values, grads, grads2, thirds, fourths);
 
       for (unsigned int i = 0; i < poly.n(); ++i)
         for (unsigned int d = 0; d < dim; ++d)

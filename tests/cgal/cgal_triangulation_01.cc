@@ -39,8 +39,7 @@ test()
   GridGenerator::hyper_cube(tria);
   CGALTriangulation tr;
   add_points_to_cgal_triangulation(tria.get_vertices(), tr);
-  deallog << "dim " << dim << ", spacedim " << spacedim << std::endl
-          << tr << std::endl;
+  deallog << "dim " << dim << ", spacedim " << spacedim << std::endl << tr << std::endl;
 }
 
 int

@@ -70,8 +70,7 @@ test(const unsigned int degree)
       for (unsigned int j = 0; j < dofs_per_cell; ++j)
         for (unsigned int d = 0; d < dim; ++d)
           mass_matrix(i, j) +=
-            (fe.shape_value_component(i, q_point, d) *
-             fe.shape_value_component(j, q_point, d) * fe.JxW(q_point));
+            (fe.shape_value_component(i, q_point, d) * fe.shape_value_component(j, q_point, d) * fe.JxW(q_point));
   for (unsigned int i = 0; i < dofs_per_cell; ++i)
     for (unsigned int j = 0; j < dofs_per_cell; ++j)
       if (std::fabs(mass_matrix(i, j)) < 1e-14)
@@ -87,8 +86,8 @@ test(const unsigned int degree)
     tmp1(i) = random_value<double>();
   cg.solve(mass_matrix, tmp2, tmp1, PreconditionIdentity());
 
-  deallog << "Degree=" << degree << ": " << solver_control.last_step()
-          << " iterations to obtain convergence." << std::endl;
+  deallog << "Degree=" << degree << ": " << solver_control.last_step() << " iterations to obtain convergence."
+          << std::endl;
 }
 
 

@@ -18,9 +18,7 @@
 
 #include "compute_diagonal_util.h"
 
-template <int dim,
-          typename Number              = double,
-          typename VectorizedArrayType = VectorizedArray<Number>>
+template <int dim, typename Number = double, typename VectorizedArrayType = VectorizedArray<Number>>
 void
 test()
 {
@@ -32,8 +30,7 @@ test()
 
   tria.refine_global();
   for (auto &cell : tria.active_cell_iterators())
-    if (cell->is_active() && cell->is_locally_owned() &&
-        cell->center()[0] < 0.0)
+    if (cell->is_active() && cell->is_locally_owned() && cell->center()[0] < 0.0)
       cell->set_refine_flag();
   tria.execute_coarsening_and_refinement();
 
@@ -53,13 +50,11 @@ test()
   AffineConstraints<Number> constraint;
   DoFTools::make_hanging_node_constraints(dof_handler, constraint);
 
-  VectorTools::interpolate_boundary_values(
-    dof_handler, 0, Functions::ZeroFunction<dim>(n_components), constraint);
+  VectorTools::interpolate_boundary_values(dof_handler, 0, Functions::ZeroFunction<dim>(n_components), constraint);
 
   constraint.close();
 
-  typename MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData
-    additional_data;
+  typename MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData additional_data;
   additional_data.mapping_update_flags = update_values | update_gradients;
 
   MappingQ<dim> mapping(1);
@@ -70,10 +65,7 @@ test()
 
 
   Test<dim, -1, 0, n_components, Number, VectorizedArrayType> test(
-    matrix_free,
-    constraint,
-    [](FEEvaluation<dim, -1, 0, n_components, Number, VectorizedArrayType>
-         &phi) {
+    matrix_free, constraint, [](FEEvaluation<dim, -1, 0, n_components, Number, VectorizedArrayType> &phi) {
       phi.evaluate(EvaluationFlags::gradients);
       for (unsigned int q = 0; q < phi.n_q_points; ++q)
         phi.submit_gradient(phi.get_gradient(q), q);

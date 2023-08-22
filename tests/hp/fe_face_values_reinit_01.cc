@@ -67,8 +67,7 @@ test()
         {
           hp_fe_face_values.reinit(cell, face);
 
-          for (const auto &p : hp_fe_face_values.get_present_fe_values()
-                                 .get_quadrature_points())
+          for (const auto &p : hp_fe_face_values.get_present_fe_values().get_quadrature_points())
             deallog << p << ' ';
           deallog << std::endl;
         }
@@ -81,8 +80,7 @@ test()
         {
           hp_fe_face_values.reinit(cell, face);
 
-          for (const auto &p : hp_fe_face_values.get_present_fe_values()
-                                 .get_quadrature_points())
+          for (const auto &p : hp_fe_face_values.get_present_fe_values().get_quadrature_points())
             deallog << p << ' ';
           deallog << std::endl;
         }
@@ -95,8 +93,7 @@ test()
         {
           hp_fe_face_values.reinit(cell, face);
 
-          for (const auto &p : hp_fe_face_values.get_present_fe_values()
-                                 .get_quadrature_points())
+          for (const auto &p : hp_fe_face_values.get_present_fe_values().get_quadrature_points())
             deallog << p << ' ';
           deallog << std::endl;
         }
@@ -109,8 +106,7 @@ test()
         {
           hp_fe_face_values.reinit(cell, face);
 
-          for (const auto &p : hp_fe_face_values.get_present_fe_values()
-                                 .get_quadrature_points())
+          for (const auto &p : hp_fe_face_values.get_present_fe_values().get_quadrature_points())
             deallog << p << ' ';
           deallog << std::endl;
         }

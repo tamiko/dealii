@@ -55,17 +55,13 @@ test()
 
   // create an empty sparsity pattern
   TrilinosWrappers::SparsityPattern sparsity;
-  sparsity.reinit(system_partitioning,
-                  system_partitioning,
-                  system_relevant_set,
-                  MPI_COMM_WORLD);
+  sparsity.reinit(system_partitioning, system_partitioning, system_relevant_set, MPI_COMM_WORLD);
   DoFTools::make_sparsity_pattern(dof_handler,
                                   coupling,
                                   sparsity,
                                   AffineConstraints<double>(),
                                   false,
-                                  Utilities::MPI::this_mpi_process(
-                                    MPI_COMM_WORLD));
+                                  Utilities::MPI::this_mpi_process(MPI_COMM_WORLD));
   sparsity.compress();
 
   // attach a sparse matrix to it
@@ -93,28 +89,20 @@ main(int argc, char **argv)
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

@@ -39,9 +39,7 @@
 #include "../tests.h"
 
 
-template <int dim,
-          typename Number              = double,
-          typename VectorizedArrayType = VectorizedArray<Number>>
+template <int dim, typename Number = double, typename VectorizedArrayType = VectorizedArray<Number>>
 class Test
 {
 public:
@@ -64,8 +62,7 @@ public:
 
     AffineConstraints<Number> constraint;
 
-    typename MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData
-      additional_data;
+    typename MatrixFree<dim, Number, VectorizedArrayType>::AdditionalData additional_data;
     additional_data.mapping_update_flags                = update_values;
     additional_data.mapping_update_flags_inner_faces    = update_values;
     additional_data.mapping_update_flags_boundary_faces = update_values;
@@ -95,8 +92,7 @@ private:
     cell_ids.resize(n_cells);
 
     for (unsigned int cell = 0; cell < n_cells; ++cell)
-      for (auto lane = 0u; lane < data.n_active_entries_per_cell_batch(cell);
-           lane++)
+      for (auto lane = 0u; lane < data.n_active_entries_per_cell_batch(cell); lane++)
         cell_ids[cell][lane] = data.get_cell_iterator(cell, lane)->id();
   }
 
@@ -112,13 +108,11 @@ private:
 
     for (auto cell = pair.first; cell < pair.second; ++cell)
       {
-        for (auto lane = 0u; lane < data.n_active_entries_per_cell_batch(cell);
-             lane++)
+        for (auto lane = 0u; lane < data.n_active_entries_per_cell_batch(cell); lane++)
           {
             fe_eval.reinit(cell);
             const auto cell_data = fe_eval.read_cell_data(cell_ids);
-            Assert(cell_data[lane] == data.get_cell_iterator(cell, lane)->id(),
-                   ExcInternalError());
+            Assert(cell_data[lane] == data.get_cell_iterator(cell, lane)->id(), ExcInternalError());
             // deallog << "c " << cell_data[lane] << std::endl;
 
             for (const unsigned int face : GeometryInfo<dim>::face_indices())
@@ -127,23 +121,18 @@ private:
                 fe_eval_p.reinit(cell, face);
 
                 const auto cell_data_m = fe_eval_m.read_cell_data(cell_ids);
-                Assert(cell_data_m[lane] ==
-                         data.get_cell_iterator(cell, lane)->id(),
-                       ExcInternalError());
+                Assert(cell_data_m[lane] == data.get_cell_iterator(cell, lane)->id(), ExcInternalError());
                 // deallog << 'm' << cell_data_m[lane] << std::endl;
 
-                const auto bids =
-                  data.get_faces_by_cells_boundary_id(cell, face);
+                const auto bids = data.get_faces_by_cells_boundary_id(cell, face);
 
                 if (bids[lane] != numbers::invalid_unsigned_int)
                   continue;
 
                 const auto cell_data_p = fe_eval_p.read_cell_data(cell_ids);
 
-                Assert(
-                  cell_data_p[lane] ==
-                    data.get_cell_iterator(cell, lane)->neighbor(face)->id(),
-                  ExcInternalError());
+                Assert(cell_data_p[lane] == data.get_cell_iterator(cell, lane)->neighbor(face)->id(),
+                       ExcInternalError());
                 // deallog << "p " << cell_data_p[lane] << std::endl;
               }
           }

@@ -54,33 +54,28 @@ namespace Step48
   class SineGordonOperation
   {
   public:
-    SineGordonOperation(const MatrixFree<dim, double> &data_in,
-                        const double                   time_step);
+    SineGordonOperation(const MatrixFree<dim, double> &data_in, const double time_step);
 
     void
-    apply(LinearAlgebra::distributed::Vector<double> &                     dst,
-          const std::vector<LinearAlgebra::distributed::Vector<double> *> &src)
-      const;
+    apply(LinearAlgebra::distributed::Vector<double>                      &dst,
+          const std::vector<LinearAlgebra::distributed::Vector<double> *> &src) const;
 
   private:
-    const MatrixFree<dim, double> &            data;
+    const MatrixFree<dim, double>             &data;
     const VectorizedArray<double>              delta_t_sqr;
     LinearAlgebra::distributed::Vector<double> inv_mass_matrix;
 
     void
-    local_apply(
-      const MatrixFree<dim, double> &                                  data,
-      LinearAlgebra::distributed::Vector<double> &                     dst,
-      const std::vector<LinearAlgebra::distributed::Vector<double> *> &src,
-      const std::pair<unsigned int, unsigned int> &cell_range) const;
+    local_apply(const MatrixFree<dim, double>                                   &data,
+                LinearAlgebra::distributed::Vector<double>                      &dst,
+                const std::vector<LinearAlgebra::distributed::Vector<double> *> &src,
+                const std::pair<unsigned int, unsigned int>                     &cell_range) const;
   };
 
 
 
   template <int dim>
-  SineGordonOperation<dim>::SineGordonOperation(
-    const MatrixFree<dim, double> &data_in,
-    const double                   time_step)
+  SineGordonOperation<dim>::SineGordonOperation(const MatrixFree<dim, double> &data_in, const double time_step)
     : data(data_in)
     , delta_t_sqr(make_vectorized_array(time_step * time_step))
   {
@@ -103,8 +98,7 @@ namespace Step48
     inv_mass_matrix.compress(VectorOperation::add);
     for (unsigned int k = 0; k < inv_mass_matrix.locally_owned_size(); ++k)
       if (inv_mass_matrix.local_element(k) > 1e-15)
-        inv_mass_matrix.local_element(k) =
-          1. / inv_mass_matrix.local_element(k);
+        inv_mass_matrix.local_element(k) = 1. / inv_mass_matrix.local_element(k);
       else
         inv_mass_matrix.local_element(k) = 0;
   }
@@ -113,11 +107,10 @@ namespace Step48
 
   template <int dim>
   void
-  SineGordonOperation<dim>::local_apply(
-    const MatrixFree<dim> &                                          data,
-    LinearAlgebra::distributed::Vector<double> &                     dst,
-    const std::vector<LinearAlgebra::distributed::Vector<double> *> &src,
-    const std::pair<unsigned int, unsigned int> &cell_range) const
+  SineGordonOperation<dim>::local_apply(const MatrixFree<dim>                                           &data,
+                                        LinearAlgebra::distributed::Vector<double>                      &dst,
+                                        const std::vector<LinearAlgebra::distributed::Vector<double> *> &src,
+                                        const std::pair<unsigned int, unsigned int> &cell_range) const
   {
     AssertDimension(src.size(), 2);
     FEEvaluation<dim, -1> current(data), old(data);
@@ -139,12 +132,9 @@ namespace Step48
             const VectorizedArray<double> old_value     = old.get_value(q);
 
             const VectorizedArray<double> submit_value =
-              2. * current_value - old_value -
-              delta_t_sqr * std::sin(current_value);
-            const VectorizedArray<double> simple_value =
-              2. * current_value - old_value;
-            const VectorizedArray<double> sin_value =
-              delta_t_sqr * std::sin(current_value);
+              2. * current_value - old_value - delta_t_sqr * std::sin(current_value);
+            const VectorizedArray<double> simple_value = 2. * current_value - old_value;
+            const VectorizedArray<double> sin_value    = delta_t_sqr * std::sin(current_value);
             current.submit_value(simple_value - sin_value, q);
             current.submit_gradient(-delta_t_sqr * current.get_gradient(q), q);
 
@@ -153,8 +143,7 @@ namespace Step48
             // width)
             if (q == 0)
               for (unsigned int v = 0; v < VectorizedArray<double>::size(); ++v)
-                deallog << submit_value[v] << " = " << simple_value[v] << " - "
-                        << sin_value[v] << std::endl;
+                deallog << submit_value[v] << " = " << simple_value[v] << " - " << sin_value[v] << std::endl;
           }
 
         current.integrate(EvaluationFlags::values | EvaluationFlags::gradients);
@@ -166,9 +155,8 @@ namespace Step48
 
   template <int dim>
   void
-  SineGordonOperation<dim>::apply(
-    LinearAlgebra::distributed::Vector<double> &                     dst,
-    const std::vector<LinearAlgebra::distributed::Vector<double> *> &src) const
+  SineGordonOperation<dim>::apply(LinearAlgebra::distributed::Vector<double>                      &dst,
+                                  const std::vector<LinearAlgebra::distributed::Vector<double> *> &src) const
   {
     dst = 0;
     data.cell_loop(&SineGordonOperation<dim>::local_apply, this, dst, src);
@@ -190,11 +178,9 @@ namespace Step48
 
   template <int dim>
   double
-  ExactSolution<dim>::value(const Point<dim> &p,
-                            const unsigned int /* component */) const
+  ExactSolution<dim>::value(const Point<dim> &p, const unsigned int /* component */) const
   {
-    return std::exp(-p.distance(Point<2>(0.03, -0.2)) *
-                    p.distance(Point<2>(0.03, -0.2)) * 0.1);
+    return std::exp(-p.distance(Point<2>(0.03, -0.2)) * p.distance(Point<2>(0.03, -0.2)) * 0.1);
   }
 
 
@@ -221,8 +207,7 @@ namespace Step48
 
     MatrixFree<dim, double> matrix_free_data;
 
-    LinearAlgebra::distributed::Vector<double> solution, old_solution,
-      old_old_solution;
+    LinearAlgebra::distributed::Vector<double> solution, old_solution, old_old_solution;
 
     const unsigned int n_global_refinements;
     double             time, time_step;
@@ -252,13 +237,11 @@ namespace Step48
     GridGenerator::hyper_cube(triangulation, -15, 15);
     triangulation.refine_global(n_global_refinements);
 
-    deallog << "   Number of global active cells: "
-            << triangulation.n_active_cells() << std::endl;
+    deallog << "   Number of global active cells: " << triangulation.n_active_cells() << std::endl;
 
     dof_handler.distribute_dofs(fe);
 
-    deallog << "   Number of degrees of freedom: " << dof_handler.n_dofs()
-            << std::endl;
+    deallog << "   Number of degrees of freedom: " << dof_handler.n_dofs() << std::endl;
 
 
     DoFTools::extract_locally_relevant_dofs(dof_handler, locally_relevant_dofs);
@@ -266,11 +249,9 @@ namespace Step48
 
     QGaussLobatto<1>                         quadrature(fe_degree + 1);
     typename MatrixFree<dim>::AdditionalData additional_data;
-    additional_data.tasks_parallel_scheme =
-      MatrixFree<dim>::AdditionalData::none;
+    additional_data.tasks_parallel_scheme = MatrixFree<dim>::AdditionalData::none;
 
-    matrix_free_data.reinit(
-      MappingQ1<dim>{}, dof_handler, constraints, quadrature, additional_data);
+    matrix_free_data.reinit(MappingQ1<dim>{}, dof_handler, constraints, quadrature, additional_data);
 
     matrix_free_data.initialize_dof_vector(solution);
     old_solution.reinit(solution);
@@ -296,8 +277,7 @@ namespace Step48
     const double solution_norm = norm_per_cell.norm_sqr();
 
     deallog << "   Time: " << std::setw(6) << std::setprecision(3) << time
-            << ", solution norm: " << std::setprecision(9) << std::setw(13)
-            << solution_norm << std::endl;
+            << ", solution norm: " << std::setprecision(9) << std::setw(13) << solution_norm << std::endl;
   }
 
 
@@ -308,25 +288,17 @@ namespace Step48
   {
     make_grid_and_dofs();
 
-    const double min_cell_diameter =
-      triangulation.last()->diameter() / std::sqrt(dim);
-    time_step = cfl_number * min_cell_diameter;
-    time_step = (final_time - time) / (int((final_time - time) / time_step));
-    deallog << "   Time step size: " << time_step
-            << ", finest cell: " << min_cell_diameter << std::endl
-            << std::endl;
+    const double min_cell_diameter = triangulation.last()->diameter() / std::sqrt(dim);
+    time_step                      = cfl_number * min_cell_diameter;
+    time_step                      = (final_time - time) / (int((final_time - time) / time_step));
+    deallog << "   Time step size: " << time_step << ", finest cell: " << min_cell_diameter << std::endl << std::endl;
 
 
-    VectorTools::interpolate(dof_handler,
-                             ExactSolution<dim>(1, time),
-                             solution);
-    VectorTools::interpolate(dof_handler,
-                             ExactSolution<dim>(1, time - time_step),
-                             old_solution);
+    VectorTools::interpolate(dof_handler, ExactSolution<dim>(1, time), solution);
+    VectorTools::interpolate(dof_handler, ExactSolution<dim>(1, time - time_step), old_solution);
     output_norm();
 
-    std::vector<LinearAlgebra::distributed::Vector<double> *>
-      previous_solutions;
+    std::vector<LinearAlgebra::distributed::Vector<double> *> previous_solutions;
     previous_solutions.push_back(&old_solution);
     previous_solutions.push_back(&old_old_solution);
 
@@ -334,8 +306,7 @@ namespace Step48
 
     unsigned int timestep_number = 1;
 
-    for (time += time_step; time <= final_time;
-         time += time_step, ++timestep_number)
+    for (time += time_step; time <= final_time; time += time_step, ++timestep_number)
       {
         old_old_solution.swap(old_solution);
         old_solution.swap(solution);
@@ -344,9 +315,7 @@ namespace Step48
         output_norm();
       }
 
-    deallog << std::endl
-            << "   Performed " << timestep_number << " time steps." << std::endl
-            << std::endl;
+    deallog << std::endl << "   Performed " << timestep_number << " time steps." << std::endl << std::endl;
   }
 } // namespace Step48
 

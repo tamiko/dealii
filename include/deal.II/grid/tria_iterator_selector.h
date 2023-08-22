@@ -77,25 +77,17 @@ namespace internal
     template <int spacedim>
     struct Iterators<1, spacedim>
     {
-      using raw_line_iterator =
-        TriaRawIterator<dealii::CellAccessor<1, spacedim>>;
-      using line_iterator = TriaIterator<dealii::CellAccessor<1, spacedim>>;
-      using active_line_iterator =
-        TriaActiveIterator<dealii::CellAccessor<1, spacedim>>;
+      using raw_line_iterator    = TriaRawIterator<dealii::CellAccessor<1, spacedim>>;
+      using line_iterator        = TriaIterator<dealii::CellAccessor<1, spacedim>>;
+      using active_line_iterator = TriaActiveIterator<dealii::CellAccessor<1, spacedim>>;
 
-      using raw_quad_iterator =
-        TriaRawIterator<dealii::InvalidAccessor<2, 1, spacedim>>;
-      using quad_iterator =
-        TriaIterator<dealii::InvalidAccessor<2, 1, spacedim>>;
-      using active_quad_iterator =
-        TriaActiveIterator<dealii::InvalidAccessor<2, 1, spacedim>>;
+      using raw_quad_iterator    = TriaRawIterator<dealii::InvalidAccessor<2, 1, spacedim>>;
+      using quad_iterator        = TriaIterator<dealii::InvalidAccessor<2, 1, spacedim>>;
+      using active_quad_iterator = TriaActiveIterator<dealii::InvalidAccessor<2, 1, spacedim>>;
 
-      using raw_hex_iterator =
-        TriaRawIterator<dealii::InvalidAccessor<3, 1, spacedim>>;
-      using hex_iterator =
-        TriaIterator<dealii::InvalidAccessor<3, 1, spacedim>>;
-      using active_hex_iterator =
-        TriaActiveIterator<dealii::InvalidAccessor<3, 1, spacedim>>;
+      using raw_hex_iterator    = TriaRawIterator<dealii::InvalidAccessor<3, 1, spacedim>>;
+      using hex_iterator        = TriaIterator<dealii::InvalidAccessor<3, 1, spacedim>>;
+      using active_hex_iterator = TriaActiveIterator<dealii::InvalidAccessor<3, 1, spacedim>>;
     };
 
 
@@ -137,24 +129,17 @@ namespace internal
     template <int spacedim>
     struct Iterators<2, spacedim>
     {
-      using raw_line_iterator =
-        TriaRawIterator<dealii::TriaAccessor<1, 2, spacedim>>;
-      using line_iterator = TriaIterator<dealii::TriaAccessor<1, 2, spacedim>>;
-      using active_line_iterator =
-        TriaActiveIterator<dealii::TriaAccessor<1, 2, spacedim>>;
+      using raw_line_iterator    = TriaRawIterator<dealii::TriaAccessor<1, 2, spacedim>>;
+      using line_iterator        = TriaIterator<dealii::TriaAccessor<1, 2, spacedim>>;
+      using active_line_iterator = TriaActiveIterator<dealii::TriaAccessor<1, 2, spacedim>>;
 
-      using raw_quad_iterator =
-        TriaRawIterator<dealii::CellAccessor<2, spacedim>>;
-      using quad_iterator = TriaIterator<dealii::CellAccessor<2, spacedim>>;
-      using active_quad_iterator =
-        TriaActiveIterator<dealii::CellAccessor<2, spacedim>>;
+      using raw_quad_iterator    = TriaRawIterator<dealii::CellAccessor<2, spacedim>>;
+      using quad_iterator        = TriaIterator<dealii::CellAccessor<2, spacedim>>;
+      using active_quad_iterator = TriaActiveIterator<dealii::CellAccessor<2, spacedim>>;
 
-      using raw_hex_iterator =
-        TriaRawIterator<dealii::InvalidAccessor<3, 2, spacedim>>;
-      using hex_iterator =
-        TriaIterator<dealii::InvalidAccessor<3, 2, spacedim>>;
-      using active_hex_iterator =
-        TriaActiveIterator<dealii::InvalidAccessor<3, 2, spacedim>>;
+      using raw_hex_iterator    = TriaRawIterator<dealii::InvalidAccessor<3, 2, spacedim>>;
+      using hex_iterator        = TriaIterator<dealii::InvalidAccessor<3, 2, spacedim>>;
+      using active_hex_iterator = TriaActiveIterator<dealii::InvalidAccessor<3, 2, spacedim>>;
     };
 
 
@@ -180,23 +165,17 @@ namespace internal
     template <int spacedim>
     struct Iterators<3, spacedim>
     {
-      using raw_line_iterator =
-        TriaRawIterator<dealii::TriaAccessor<1, 3, spacedim>>;
-      using line_iterator = TriaIterator<dealii::TriaAccessor<1, 3, spacedim>>;
-      using active_line_iterator =
-        TriaActiveIterator<dealii::TriaAccessor<1, 3, spacedim>>;
+      using raw_line_iterator    = TriaRawIterator<dealii::TriaAccessor<1, 3, spacedim>>;
+      using line_iterator        = TriaIterator<dealii::TriaAccessor<1, 3, spacedim>>;
+      using active_line_iterator = TriaActiveIterator<dealii::TriaAccessor<1, 3, spacedim>>;
 
-      using raw_quad_iterator =
-        TriaRawIterator<dealii::TriaAccessor<2, 3, spacedim>>;
-      using quad_iterator = TriaIterator<dealii::TriaAccessor<2, 3, spacedim>>;
-      using active_quad_iterator =
-        TriaActiveIterator<dealii::TriaAccessor<2, 3, spacedim>>;
+      using raw_quad_iterator    = TriaRawIterator<dealii::TriaAccessor<2, 3, spacedim>>;
+      using quad_iterator        = TriaIterator<dealii::TriaAccessor<2, 3, spacedim>>;
+      using active_quad_iterator = TriaActiveIterator<dealii::TriaAccessor<2, 3, spacedim>>;
 
-      using raw_hex_iterator =
-        TriaRawIterator<dealii::CellAccessor<3, spacedim>>;
-      using hex_iterator = TriaIterator<dealii::CellAccessor<3, spacedim>>;
-      using active_hex_iterator =
-        TriaActiveIterator<dealii::CellAccessor<3, spacedim>>;
+      using raw_hex_iterator    = TriaRawIterator<dealii::CellAccessor<3, spacedim>>;
+      using hex_iterator        = TriaIterator<dealii::CellAccessor<3, spacedim>>;
+      using active_hex_iterator = TriaActiveIterator<dealii::CellAccessor<3, spacedim>>;
     };
 
   } // namespace TriangulationImplementation

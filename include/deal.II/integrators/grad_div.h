@@ -49,9 +49,7 @@ namespace LocalIntegrators
      */
     template <int dim>
     void
-    cell_matrix(FullMatrix<double> &     M,
-                const FEValuesBase<dim> &fe,
-                double                   factor = 1.)
+    cell_matrix(FullMatrix<double> &M, const FEValuesBase<dim> &fe, double factor = 1.)
     {
       const unsigned int n_dofs = fe.dofs_per_cell;
 
@@ -65,10 +63,8 @@ namespace LocalIntegrators
           for (unsigned int i = 0; i < n_dofs; ++i)
             for (unsigned int j = 0; j < n_dofs; ++j)
               {
-                const double divu =
-                  fe[FEValuesExtractors::Vector(0)].divergence(j, k);
-                const double divv =
-                  fe[FEValuesExtractors::Vector(0)].divergence(i, k);
+                const double divu = fe[FEValuesExtractors::Vector(0)].divergence(j, k);
+                const double divv = fe[FEValuesExtractors::Vector(0)].divergence(i, k);
 
                 M(i, j) += dx * divu * divv;
               }
@@ -83,10 +79,10 @@ namespace LocalIntegrators
      */
     template <int dim, typename number>
     void
-    cell_residual(Vector<number> &                                    result,
-                  const FEValuesBase<dim> &                           fetest,
+    cell_residual(Vector<number>                                     &result,
+                  const FEValuesBase<dim>                            &fetest,
                   const ArrayView<const std::vector<Tensor<1, dim>>> &input,
-                  const double factor = 1.)
+                  const double                                        factor = 1.)
     {
       const unsigned int n_dofs = fetest.dofs_per_cell;
 
@@ -98,9 +94,8 @@ namespace LocalIntegrators
           const double dx = factor * fetest.JxW(k);
           for (unsigned int i = 0; i < n_dofs; ++i)
             {
-              const double divv =
-                fetest[FEValuesExtractors::Vector(0)].divergence(i, k);
-              double du = 0.;
+              const double divv = fetest[FEValuesExtractors::Vector(0)].divergence(i, k);
+              double       du   = 0.;
               for (unsigned int d = 0; d < dim; ++d)
                 du += input[d][k][d];
 
@@ -119,10 +114,7 @@ namespace LocalIntegrators
      */
     template <int dim>
     inline void
-    nitsche_matrix(FullMatrix<double> &     M,
-                   const FEValuesBase<dim> &fe,
-                   double                   penalty,
-                   double                   factor = 1.)
+    nitsche_matrix(FullMatrix<double> &M, const FEValuesBase<dim> &fe, double penalty, double factor = 1.)
     {
       const unsigned int n_dofs = fe.dofs_per_cell;
 
@@ -137,11 +129,9 @@ namespace LocalIntegrators
           for (unsigned int i = 0; i < n_dofs; ++i)
             for (unsigned int j = 0; j < n_dofs; ++j)
               {
-                const double divu =
-                  fe[FEValuesExtractors::Vector(0)].divergence(j, k);
-                const double divv =
-                  fe[FEValuesExtractors::Vector(0)].divergence(i, k);
-                double un = 0., vn = 0.;
+                const double divu = fe[FEValuesExtractors::Vector(0)].divergence(j, k);
+                const double divv = fe[FEValuesExtractors::Vector(0)].divergence(i, k);
+                double       un = 0., vn = 0.;
                 for (unsigned int d = 0; d < dim; ++d)
                   {
                     un += fe.shape_value_component(j, k, d) * n[d];
@@ -171,17 +161,16 @@ namespace LocalIntegrators
      */
     template <int dim>
     void
-    nitsche_residual(Vector<double> &                                    result,
-                     const FEValuesBase<dim> &                           fe,
-                     const ArrayView<const std::vector<double>> &        input,
+    nitsche_residual(Vector<double>                                     &result,
+                     const FEValuesBase<dim>                            &fe,
+                     const ArrayView<const std::vector<double>>         &input,
                      const ArrayView<const std::vector<Tensor<1, dim>>> &Dinput,
-                     const ArrayView<const std::vector<double>> &        data,
-                     double penalty,
-                     double factor = 1.)
+                     const ArrayView<const std::vector<double>>         &data,
+                     double                                              penalty,
+                     double                                              factor = 1.)
     {
       const unsigned int n_dofs = fe.dofs_per_cell;
-      AssertDimension(fe.get_fe().n_components(), dim)
-        AssertVectorVectorDimension(input, dim, fe.n_quadrature_points);
+      AssertDimension(fe.get_fe().n_components(), dim) AssertVectorVectorDimension(input, dim, fe.n_quadrature_points);
       AssertVectorVectorDimension(Dinput, dim, fe.n_quadrature_points);
       AssertVectorVectorDimension(data, dim, fe.n_quadrature_points);
 
@@ -200,14 +189,12 @@ namespace LocalIntegrators
 
           for (unsigned int i = 0; i < n_dofs; ++i)
             {
-              double       vn = 0.;
-              const double divv =
-                fe[FEValuesExtractors::Vector(0)].divergence(i, k);
+              double       vn   = 0.;
+              const double divv = fe[FEValuesExtractors::Vector(0)].divergence(i, k);
               for (unsigned int d = 0; d < dim; ++d)
                 vn += fe.shape_value_component(i, k, d) * n[d];
 
-              result(i) +=
-                dx * (2. * penalty * umgn * vn - divv * umgn - divu * vn);
+              result(i) += dx * (2. * penalty * umgn * vn - divv * umgn - divu * vn);
             }
         }
     }
@@ -219,10 +206,10 @@ namespace LocalIntegrators
 
     template <int dim>
     void
-    ip_matrix(FullMatrix<double> &     M11,
-              FullMatrix<double> &     M12,
-              FullMatrix<double> &     M21,
-              FullMatrix<double> &     M22,
+    ip_matrix(FullMatrix<double>      &M11,
+              FullMatrix<double>      &M12,
+              FullMatrix<double>      &M21,
+              FullMatrix<double>      &M22,
               const FEValuesBase<dim> &fe1,
               const FEValuesBase<dim> &fe2,
               double                   penalty,
@@ -250,18 +237,14 @@ namespace LocalIntegrators
           for (unsigned int i = 0; i < n_dofs; ++i)
             for (unsigned int j = 0; j < n_dofs; ++j)
               {
-                double       uni = 0.;
-                double       une = 0.;
-                double       vni = 0.;
-                double       vne = 0.;
-                const double divui =
-                  fe1[FEValuesExtractors::Vector(0)].divergence(j, k);
-                const double divue =
-                  fe2[FEValuesExtractors::Vector(0)].divergence(j, k);
-                const double divvi =
-                  fe1[FEValuesExtractors::Vector(0)].divergence(i, k);
-                const double divve =
-                  fe2[FEValuesExtractors::Vector(0)].divergence(i, k);
+                double       uni   = 0.;
+                double       une   = 0.;
+                double       vni   = 0.;
+                double       vne   = 0.;
+                const double divui = fe1[FEValuesExtractors::Vector(0)].divergence(j, k);
+                const double divue = fe2[FEValuesExtractors::Vector(0)].divergence(j, k);
+                const double divvi = fe1[FEValuesExtractors::Vector(0)].divergence(i, k);
+                const double divve = fe2[FEValuesExtractors::Vector(0)].divergence(i, k);
 
                 for (unsigned int d = 0; d < dim; ++d)
                   {
@@ -270,18 +253,10 @@ namespace LocalIntegrators
                     vni += fe1.shape_value_component(i, k, d) * n[d];
                     vne += fe2.shape_value_component(i, k, d) * n[d];
                   }
-                M11(i, j) +=
-                  dx * (-.5 * fi * divvi * uni - .5 * fi * divui * vni +
-                        f * penalty * uni * vni);
-                M12(i, j) +=
-                  dx * (.5 * fi * divvi * une - .5 * fe * divue * vni -
-                        f * penalty * vni * une);
-                M21(i, j) +=
-                  dx * (-.5 * fe * divve * uni + .5 * fi * divui * vne -
-                        f * penalty * uni * vne);
-                M22(i, j) +=
-                  dx * (.5 * fe * divve * une + .5 * fe * divue * vne +
-                        f * penalty * une * vne);
+                M11(i, j) += dx * (-.5 * fi * divvi * uni - .5 * fi * divui * vni + f * penalty * uni * vni);
+                M12(i, j) += dx * (.5 * fi * divvi * une - .5 * fe * divue * vni - f * penalty * vni * une);
+                M21(i, j) += dx * (-.5 * fe * divve * uni + .5 * fi * divui * vne - f * penalty * uni * vne);
+                M22(i, j) += dx * (.5 * fe * divve * une + .5 * fe * divue * vne + f * penalty * une * vne);
               }
         }
     }
@@ -299,17 +274,17 @@ namespace LocalIntegrators
      */
     template <int dim>
     void
-    ip_residual(Vector<double> &                                    result1,
-                Vector<double> &                                    result2,
-                const FEValuesBase<dim> &                           fe1,
-                const FEValuesBase<dim> &                           fe2,
-                const ArrayView<const std::vector<double>> &        input1,
+    ip_residual(Vector<double>                                     &result1,
+                Vector<double>                                     &result2,
+                const FEValuesBase<dim>                            &fe1,
+                const FEValuesBase<dim>                            &fe2,
+                const ArrayView<const std::vector<double>>         &input1,
                 const ArrayView<const std::vector<Tensor<1, dim>>> &Dinput1,
-                const ArrayView<const std::vector<double>> &        input2,
+                const ArrayView<const std::vector<double>>         &input2,
                 const ArrayView<const std::vector<Tensor<1, dim>>> &Dinput2,
                 double                                              pen,
-                double int_factor = 1.,
-                double ext_factor = -1.)
+                double                                              int_factor = 1.,
+                double                                              ext_factor = -1.)
     {
       const unsigned int n1 = fe1.dofs_per_cell;
 
@@ -342,26 +317,20 @@ namespace LocalIntegrators
 
           for (unsigned int i = 0; i < n1; ++i)
             {
-              double       vni = 0.;
-              double       vne = 0.;
-              const double divvi =
-                fe1[FEValuesExtractors::Vector(0)].divergence(i, k);
-              const double divve =
-                fe2[FEValuesExtractors::Vector(0)].divergence(i, k);
+              double       vni   = 0.;
+              double       vne   = 0.;
+              const double divvi = fe1[FEValuesExtractors::Vector(0)].divergence(i, k);
+              const double divve = fe2[FEValuesExtractors::Vector(0)].divergence(i, k);
               for (unsigned int d = 0; d < dim; ++d)
                 {
                   vni += fe1.shape_value_component(i, k, d) * n[d];
                   vne += fe2.shape_value_component(i, k, d) * n[d];
                 }
 
-              result1(i) += dx * (-.5 * fi * divvi * uni -
-                                  .5 * fi * divui * vni + penalty * uni * vni);
-              result1(i) += dx * (.5 * fi * divvi * une -
-                                  .5 * fe * divue * vni - penalty * vni * une);
-              result2(i) += dx * (-.5 * fe * divve * uni +
-                                  .5 * fi * divui * vne - penalty * uni * vne);
-              result2(i) += dx * (.5 * fe * divve * une +
-                                  .5 * fe * divue * vne + penalty * une * vne);
+              result1(i) += dx * (-.5 * fi * divvi * uni - .5 * fi * divui * vni + penalty * uni * vni);
+              result1(i) += dx * (.5 * fi * divvi * une - .5 * fe * divue * vni - penalty * vni * une);
+              result2(i) += dx * (-.5 * fe * divve * uni + .5 * fi * divui * vne - penalty * uni * vne);
+              result2(i) += dx * (.5 * fe * divve * une + .5 * fe * divue * vne + penalty * une * vne);
             }
         }
     }

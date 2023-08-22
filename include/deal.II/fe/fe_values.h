@@ -73,9 +73,9 @@ public:
    * Constructor. Gets cell independent data from mapping and finite element
    * objects, matching the quadrature rule and update flags.
    */
-  FEValues(const Mapping<dim, spacedim> &      mapping,
+  FEValues(const Mapping<dim, spacedim>       &mapping,
            const FiniteElement<dim, spacedim> &fe,
-           const Quadrature<dim> &             quadrature,
+           const Quadrature<dim>              &quadrature,
            const UpdateFlags                   update_flags);
 
   /**
@@ -84,9 +84,9 @@ public:
    * @note We require, in contrast to FEFaceValues, that the number of quadrature
    *   rules in the collection is one.
    */
-  FEValues(const Mapping<dim, spacedim> &      mapping,
+  FEValues(const Mapping<dim, spacedim>       &mapping,
            const FiniteElement<dim, spacedim> &fe,
-           const hp::QCollection<dim> &        quadrature,
+           const hp::QCollection<dim>         &quadrature,
            const UpdateFlags                   update_flags);
 
   /**
@@ -94,9 +94,7 @@ public:
    * it makes the object use a $Q_1$ mapping (i.e., an object of type
    * MappingQ(1)) implicitly.
    */
-  FEValues(const FiniteElement<dim, spacedim> &fe,
-           const Quadrature<dim> &             quadrature,
-           const UpdateFlags                   update_flags);
+  FEValues(const FiniteElement<dim, spacedim> &fe, const Quadrature<dim> &quadrature, const UpdateFlags update_flags);
 
   /**
    * Like the function above, but taking a collection of quadrature rules.
@@ -105,7 +103,7 @@ public:
    *   rules in the collection is one.
    */
   FEValues(const FiniteElement<dim, spacedim> &fe,
-           const hp::QCollection<dim> &        quadrature,
+           const hp::QCollection<dim>         &quadrature,
            const UpdateFlags                   update_flags);
 
   /**
@@ -116,8 +114,7 @@ public:
    */
   template <bool level_dof_access>
   void
-  reinit(
-    const TriaIterator<DoFCellAccessor<dim, spacedim, level_dof_access>> &cell);
+  reinit(const TriaIterator<DoFCellAccessor<dim, spacedim, level_dof_access>> &cell);
 
   /**
    * Reinitialize the gradients, Jacobi determinants, etc for the given cell
@@ -221,9 +218,9 @@ public:
    */
   FEFaceValuesBase(const unsigned int                  dofs_per_cell,
                    const UpdateFlags                   update_flags,
-                   const Mapping<dim, spacedim> &      mapping,
+                   const Mapping<dim, spacedim>       &mapping,
                    const FiniteElement<dim, spacedim> &fe,
-                   const Quadrature<dim - 1> &         quadrature);
+                   const Quadrature<dim - 1>          &quadrature);
 
   /**
    * Like the function above, but taking a collection of quadrature rules. This
@@ -233,9 +230,9 @@ public:
    */
   FEFaceValuesBase(const unsigned int                  dofs_per_cell,
                    const UpdateFlags                   update_flags,
-                   const Mapping<dim, spacedim> &      mapping,
+                   const Mapping<dim, spacedim>       &mapping,
                    const FiniteElement<dim, spacedim> &fe,
-                   const hp::QCollection<dim - 1> &    quadrature);
+                   const hp::QCollection<dim - 1>     &quadrature);
 
   /**
    * Boundary form of the transformation of the cell at the <tt>q_point</tt>th
@@ -340,9 +337,9 @@ public:
    * Constructor. Gets cell independent data from mapping and finite element
    * objects, matching the quadrature rule and update flags.
    */
-  FEFaceValues(const Mapping<dim, spacedim> &      mapping,
+  FEFaceValues(const Mapping<dim, spacedim>       &mapping,
                const FiniteElement<dim, spacedim> &fe,
-               const Quadrature<dim - 1> &         quadrature,
+               const Quadrature<dim - 1>          &quadrature,
                const UpdateFlags                   update_flags);
 
   /**
@@ -351,9 +348,9 @@ public:
    * the collection only contains a single face quadrature, this quadrature
    * rule is use on all faces.
    */
-  FEFaceValues(const Mapping<dim, spacedim> &      mapping,
+  FEFaceValues(const Mapping<dim, spacedim>       &mapping,
                const FiniteElement<dim, spacedim> &fe,
-               const hp::QCollection<dim - 1> &    quadrature,
+               const hp::QCollection<dim - 1>     &quadrature,
                const UpdateFlags                   update_flags);
 
   /**
@@ -362,7 +359,7 @@ public:
    * MappingQ(1)) implicitly.
    */
   FEFaceValues(const FiniteElement<dim, spacedim> &fe,
-               const Quadrature<dim - 1> &         quadrature,
+               const Quadrature<dim - 1>          &quadrature,
                const UpdateFlags                   update_flags);
 
   /**
@@ -372,7 +369,7 @@ public:
    * rule is use on all faces.
    */
   FEFaceValues(const FiniteElement<dim, spacedim> &fe,
-               const hp::QCollection<dim - 1> &    quadrature,
+               const hp::QCollection<dim - 1>     &quadrature,
                const UpdateFlags                   update_flags);
 
   /**
@@ -381,9 +378,7 @@ public:
    */
   template <bool level_dof_access>
   void
-  reinit(
-    const TriaIterator<DoFCellAccessor<dim, spacedim, level_dof_access>> &cell,
-    const unsigned int face_no);
+  reinit(const TriaIterator<DoFCellAccessor<dim, spacedim, level_dof_access>> &cell, const unsigned int face_no);
 
   /**
    * Reinitialize the gradients, Jacobi determinants, etc for face @p face
@@ -393,9 +388,8 @@ public:
    */
   template <bool level_dof_access>
   void
-  reinit(
-    const TriaIterator<DoFCellAccessor<dim, spacedim, level_dof_access>> &cell,
-    const typename Triangulation<dim, spacedim>::face_iterator &          face);
+  reinit(const TriaIterator<DoFCellAccessor<dim, spacedim, level_dof_access>> &cell,
+         const typename Triangulation<dim, spacedim>::face_iterator           &face);
 
   /**
    * Reinitialize the gradients, Jacobi determinants, etc for the given face
@@ -411,8 +405,7 @@ public:
    * type objects.
    */
   void
-  reinit(const typename Triangulation<dim, spacedim>::cell_iterator &cell,
-         const unsigned int                                          face_no);
+  reinit(const typename Triangulation<dim, spacedim>::cell_iterator &cell, const unsigned int face_no);
 
   /*
    * Reinitialize the gradients, Jacobi determinants, etc for the given face
@@ -508,9 +501,9 @@ public:
    * Constructor. Gets cell independent data from mapping and finite element
    * objects, matching the quadrature rule and update flags.
    */
-  FESubfaceValues(const Mapping<dim, spacedim> &      mapping,
+  FESubfaceValues(const Mapping<dim, spacedim>       &mapping,
                   const FiniteElement<dim, spacedim> &fe,
-                  const Quadrature<dim - 1> &         face_quadrature,
+                  const Quadrature<dim - 1>          &face_quadrature,
                   const UpdateFlags                   update_flags);
 
   /**
@@ -519,9 +512,9 @@ public:
    * @note We require, in contrast to FEFaceValues, that the number of quadrature
    *   rules in the collection is one.
    */
-  FESubfaceValues(const Mapping<dim, spacedim> &      mapping,
+  FESubfaceValues(const Mapping<dim, spacedim>       &mapping,
                   const FiniteElement<dim, spacedim> &fe,
-                  const hp::QCollection<dim - 1> &    face_quadrature,
+                  const hp::QCollection<dim - 1>     &face_quadrature,
                   const UpdateFlags                   update_flags);
 
   /**
@@ -530,7 +523,7 @@ public:
    * MappingQ(1)) implicitly.
    */
   FESubfaceValues(const FiniteElement<dim, spacedim> &fe,
-                  const Quadrature<dim - 1> &         face_quadrature,
+                  const Quadrature<dim - 1>          &face_quadrature,
                   const UpdateFlags                   update_flags);
 
   /**
@@ -540,7 +533,7 @@ public:
    *   rules in the collection is one.
    */
   FESubfaceValues(const FiniteElement<dim, spacedim> &fe,
-                  const hp::QCollection<dim - 1> &    face_quadrature,
+                  const hp::QCollection<dim - 1>     &face_quadrature,
                   const UpdateFlags                   update_flags);
 
   /**
@@ -551,10 +544,9 @@ public:
    */
   template <bool level_dof_access>
   void
-  reinit(
-    const TriaIterator<DoFCellAccessor<dim, spacedim, level_dof_access>> &cell,
-    const unsigned int face_no,
-    const unsigned int subface_no);
+  reinit(const TriaIterator<DoFCellAccessor<dim, spacedim, level_dof_access>> &cell,
+         const unsigned int                                                    face_no,
+         const unsigned int                                                    subface_no);
 
   /**
    * Alternative reinitialization function that takes, as arguments, iterators
@@ -562,10 +554,9 @@ public:
    */
   template <bool level_dof_access>
   void
-  reinit(
-    const TriaIterator<DoFCellAccessor<dim, spacedim, level_dof_access>> &cell,
-    const typename Triangulation<dim, spacedim>::face_iterator &          face,
-    const typename Triangulation<dim, spacedim>::face_iterator &subface);
+  reinit(const TriaIterator<DoFCellAccessor<dim, spacedim, level_dof_access>> &cell,
+         const typename Triangulation<dim, spacedim>::face_iterator           &face,
+         const typename Triangulation<dim, spacedim>::face_iterator           &subface);
 
   /**
    * Reinitialize the gradients, Jacobi determinants, etc for the given
@@ -583,7 +574,7 @@ public:
   void
   reinit(const typename Triangulation<dim, spacedim>::cell_iterator &cell,
          const unsigned int                                          face_no,
-         const unsigned int subface_no);
+         const unsigned int                                          subface_no);
 
   /**
    * Reinitialize the gradients, Jacobi determinants, etc for the given
@@ -735,8 +726,7 @@ FEFaceValuesBase<dim, spacedim>::boundary_form(const unsigned int q_point) const
 {
   AssertIndexRange(q_point, this->mapping_output.boundary_forms.size());
   Assert(this->update_flags & update_boundary_forms,
-         (typename FEValuesBase<dim, spacedim>::ExcAccessToUninitializedField(
-           "update_boundary_forms")));
+         (typename FEValuesBase<dim, spacedim>::ExcAccessToUninitializedField("update_boundary_forms")));
 
   return this->mapping_output.boundary_forms[q_point];
 }

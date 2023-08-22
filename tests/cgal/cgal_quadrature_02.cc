@@ -40,11 +40,10 @@ void
 test()
 {
   using namespace ReferenceCells;
-  std::vector<std::pair<ReferenceCell, ReferenceCell>> ref_pairs = {
-    {Hexahedron, Pyramid},
-    {Hexahedron, Tetrahedron},
-    {Tetrahedron, Pyramid},
-    {Pyramid, Pyramid}};
+  std::vector<std::pair<ReferenceCell, ReferenceCell>> ref_pairs = {{Hexahedron, Pyramid},
+                                                                    {Hexahedron, Tetrahedron},
+                                                                    {Tetrahedron, Pyramid},
+                                                                    {Pyramid, Pyramid}};
 
   constexpr int  degree  = 3;
   constexpr auto bool_op = BooleanOperation::compute_intersection;
@@ -68,13 +67,10 @@ test()
           cell1->vertex(i) += Point<3>(0.1, 0.1, 0.1);
         }
 
-      auto test_quad = compute_quadrature_on_boolean_operation<3, 3, 3>(
-        cell0, cell1, degree, bool_op, *mapping0, *mapping1);
+      auto test_quad =
+        compute_quadrature_on_boolean_operation<3, 3, 3>(cell0, cell1, degree, bool_op, *mapping0, *mapping1);
       deallog << "Volume of poly with Quadrature: " << std::setprecision(12)
-              << std::accumulate(test_quad.get_weights().begin(),
-                                 test_quad.get_weights().end(),
-                                 0.)
-              << std::endl;
+              << std::accumulate(test_quad.get_weights().begin(), test_quad.get_weights().end(), 0.) << std::endl;
     }
 }
 

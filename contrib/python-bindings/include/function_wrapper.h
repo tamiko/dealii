@@ -30,8 +30,7 @@ namespace python
   class FunctionWrapper : public Function<dim, double>
   {
   public:
-    FunctionWrapper(boost::python::object &python_function,
-                    unsigned               n_components)
+    FunctionWrapper(boost::python::object &python_function, unsigned n_components)
       : Function<dim, double>(n_components)
       , python_function(python_function)
     {}
@@ -49,8 +48,7 @@ namespace python
       for (int d = 0; d < dim; ++d)
         p_list_in.append(p[d]);
 
-      boost::python::list p_list_out =
-        boost::python::extract<boost::python::list>(python_function(p_list_in));
+      boost::python::list p_list_out = boost::python::extract<boost::python::list>(python_function(p_list_in));
 
       for (size_t i = 0; i < this->n_components; ++i)
         values[i] = boost::python::extract<double>(p_list_out[i]);

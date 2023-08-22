@@ -61,8 +61,7 @@ SE::RCP<const SE::Number>
 make_symengine_rcp(const std::complex<NumberType> &val)
 {
   // Build complex from two SymEngine numbers
-  return SE::Complex::from_two_nums(*make_symengine_rcp(val.real()),
-                                    *make_symengine_rcp(val.imag()));
+  return SE::Complex::from_two_nums(*make_symengine_rcp(val.real()), *make_symengine_rcp(val.imag()));
 }
 
 template <typename NumberType>

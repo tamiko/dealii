@@ -58,9 +58,8 @@ test()
   local_relevant.add_range(1, 2);
 
   // create vector
-  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> v(
-    local_owned, local_relevant, MPI_COMM_WORLD);
-  const auto &partitioner = v.get_partitioner();
+  LinearAlgebra::distributed::Vector<double, MemorySpace::Default> v(local_owned, local_relevant, MPI_COMM_WORLD);
+  const auto                                                      &partitioner = v.get_partitioner();
 
   // the read write vector additionally has ghost elements
   IndexSet                               read_write_owned(numproc * 2);
@@ -73,9 +72,7 @@ test()
   v.update_ghost_values();
 
   deallog << myid << ":"
-          << "ghost entry after max: "
-          << print_value(v.get_values(), partitioner->global_to_local(1))
-          << std::endl;
+          << "ghost entry after max: " << print_value(v.get_values(), partitioner->global_to_local(1)) << std::endl;
 
   if (myid == 0)
     read_write_vector(1) = -1.0;
@@ -84,9 +81,7 @@ test()
   v.update_ghost_values();
 
   deallog << myid << ":"
-          << "ghost entry after min: "
-          << print_value(v.get_values(), partitioner->global_to_local(1))
-          << std::endl;
+          << "ghost entry after min: " << print_value(v.get_values(), partitioner->global_to_local(1)) << std::endl;
 
 
   if (myid == 0)
@@ -98,8 +93,7 @@ test()
 int
 main(int argc, char **argv)
 {
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(
-    argc, argv, testing_max_num_threads());
+  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, testing_max_num_threads());
 
   MPILogInitAll log;
 

@@ -40,16 +40,15 @@ public:
    * Constructor.
    */
   FE_WedgePoly(const unsigned int                                degree,
-               const internal::GenericDoFsPerObject &            dpos,
+               const internal::GenericDoFsPerObject             &dpos,
                const typename FiniteElementData<dim>::Conformity conformity);
 
   /**
    * @copydoc dealii::FiniteElement::convert_generalized_support_point_values_to_dof_values()
    */
   virtual void
-  convert_generalized_support_point_values_to_dof_values(
-    const std::vector<Vector<double>> &support_point_values,
-    std::vector<double> &              nodal_values) const override;
+  convert_generalized_support_point_values_to_dof_values(const std::vector<Vector<double>> &support_point_values,
+                                                         std::vector<double> &nodal_values) const override;
 };
 
 /**
@@ -91,29 +90,25 @@ public:
    * @copydoc dealii::FiniteElement::compare_for_domination()
    */
   FiniteElementDomination::Domination
-  compare_for_domination(const FiniteElement<dim, spacedim> &fe_other,
-                         const unsigned int codim) const override;
+  compare_for_domination(const FiniteElement<dim, spacedim> &fe_other, const unsigned int codim) const override;
 
   /**
    * @copydoc dealii::FiniteElement::hp_vertex_dof_identities()
    */
   std::vector<std::pair<unsigned int, unsigned int>>
-  hp_vertex_dof_identities(
-    const FiniteElement<dim, spacedim> &fe_other) const override;
+  hp_vertex_dof_identities(const FiniteElement<dim, spacedim> &fe_other) const override;
 
   /**
    * @copydoc dealii::FiniteElement::hp_line_dof_identities()
    */
   std::vector<std::pair<unsigned int, unsigned int>>
-  hp_line_dof_identities(
-    const FiniteElement<dim, spacedim> &fe_other) const override;
+  hp_line_dof_identities(const FiniteElement<dim, spacedim> &fe_other) const override;
 
   /**
    * @copydoc dealii::FiniteElement::hp_quad_dof_identities()
    */
   std::vector<std::pair<unsigned int, unsigned int>>
-  hp_quad_dof_identities(const FiniteElement<dim, spacedim> &fe_other,
-                         const unsigned int face_no = 0) const override;
+  hp_quad_dof_identities(const FiniteElement<dim, spacedim> &fe_other, const unsigned int face_no = 0) const override;
 };
 
 /**

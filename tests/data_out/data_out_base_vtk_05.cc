@@ -46,10 +46,7 @@ check(std::ostream &log, unsigned cell_order)
   Vector<double> vec(dof_handler.n_dofs());
   MappingQ<dim>  mapping(cell_order);
 
-  VectorTools::interpolate(mapping,
-                           dof_handler,
-                           Functions::SquareFunction<dim>(),
-                           vec);
+  VectorTools::interpolate(mapping, dof_handler, Functions::SquareFunction<dim>(), vec);
 
   DataOutBase::VtkFlags flags;
   flags.write_higher_order_cells = true;

@@ -61,20 +61,13 @@ public:
 
   void
   local_apply(const MatrixFree<dim, Number, VectorizedArrayType> &data,
-              VectorType &                                        dst,
-              const VectorType &                                  src,
-              const std::pair<unsigned int, unsigned int> &cell_range) const
+              VectorType                                         &dst,
+              const VectorType                                   &src,
+              const std::pair<unsigned int, unsigned int>        &cell_range) const
   {
     using vector_t = VectorizedArrayType;
-    FEEvaluation<dim,
-                 degree_p + 1,
-                 degree_p + 2,
-                 dim,
-                 Number,
-                 VectorizedArrayType>
-      velocity(data, 0);
-    FEEvaluation<dim, degree_p, degree_p + 2, 1, Number, VectorizedArrayType>
-      pressure(data, 1);
+    FEEvaluation<dim, degree_p + 1, degree_p + 2, dim, Number, VectorizedArrayType> velocity(data, 0);
+    FEEvaluation<dim, degree_p, degree_p + 2, 1, Number, VectorizedArrayType>       pressure(data, 1);
 
     for (unsigned int cell = cell_range.first; cell < cell_range.second; ++cell)
       {
@@ -113,10 +106,7 @@ public:
     AssertDimension(dst.size(), dim + 1);
     for (unsigned int d = 0; d < dim + 1; ++d)
       dst[d] = 0;
-    data.cell_loop(&MatrixFreeTest<dim, degree_p, VectorType>::local_apply,
-                   this,
-                   dst,
-                   src);
+    data.cell_loop(&MatrixFreeTest<dim, degree_p, VectorType>::local_apply, this, dst, src);
   };
 
 private:
@@ -162,8 +152,7 @@ test()
 
   constraints.close();
 
-  const std::vector<types::global_dof_index> dofs_per_block =
-    DoFTools::count_dofs_per_fe_component(dof_handler);
+  const std::vector<types::global_dof_index> dofs_per_block = DoFTools::count_dofs_per_fe_component(dof_handler);
 
   // std::cout << "   Number of active cells: "
   //          << triangulation.n_active_cells()
@@ -211,10 +200,7 @@ test()
   {
     QGauss<dim> quadrature_formula(fe_degree + 2);
 
-    FEValues<dim> fe_values(fe,
-                            quadrature_formula,
-                            update_values | update_JxW_values |
-                              update_gradients);
+    FEValues<dim> fe_values(fe, quadrature_formula, update_values | update_JxW_values | update_gradients);
 
     const unsigned int dofs_per_cell = fe.dofs_per_cell;
     const unsigned int n_q_points    = quadrature_formula.size();
@@ -230,9 +216,7 @@ test()
     std::vector<double>         div_phi_u(dofs_per_cell);
     std::vector<double>         phi_p(dofs_per_cell);
 
-    typename DoFHandler<dim>::active_cell_iterator cell =
-                                                     dof_handler.begin_active(),
-                                                   endc = dof_handler.end();
+    typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(), endc = dof_handler.end();
     for (; cell != endc; ++cell)
       {
         fe_values.reinit(cell);
@@ -251,10 +235,9 @@ test()
               {
                 for (unsigned int j = 0; j <= i; ++j)
                   {
-                    local_matrix(i, j) +=
-                      (scalar_product(phi_grad_u[i], phi_grad_u[j]) -
-                       div_phi_u[i] * phi_p[j] - phi_p[i] * div_phi_u[j]) *
-                      fe_values.JxW(q);
+                    local_matrix(i, j) += (scalar_product(phi_grad_u[i], phi_grad_u[j]) - div_phi_u[i] * phi_p[j] -
+                                           phi_p[i] * div_phi_u[j]) *
+                                          fe_values.JxW(q);
                   }
               }
           }
@@ -263,9 +246,7 @@ test()
             local_matrix(i, j) = local_matrix(j, i);
 
         cell->get_dof_indices(local_dof_indices);
-        constraints.distribute_local_to_global(local_matrix,
-                                               local_dof_indices,
-                                               system_matrix);
+        constraints.distribute_local_to_global(local_matrix, local_dof_indices, system_matrix);
       }
   }
 
@@ -293,8 +274,7 @@ test()
                    dofs,
                    constraints,
                    quad,
-                   typename MatrixFreeType::AdditionalData(
-                     MatrixFreeType::AdditionalData::none));
+                   typename MatrixFreeType::AdditionalData(MatrixFreeType::AdditionalData::none));
   }
 
   system_matrix.vmult(solution, system_rhs);
@@ -309,9 +289,7 @@ test()
     for (unsigned int j = 0; j < system_rhs.block(i).size(); ++j)
       error += std::fabs(solution.block(i)(j) - vec2[i](j));
   double relative = solution.block(0).l1_norm();
-  deallog << "  Verification fe degree " << fe_degree << ": "
-          << error / relative << std::endl
-          << std::endl;
+  deallog << "  Verification fe degree " << fe_degree << ": " << error / relative << std::endl << std::endl;
 }
 
 

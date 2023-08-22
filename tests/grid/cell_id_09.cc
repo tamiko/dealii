@@ -40,9 +40,7 @@ test(const unsigned int n_global_refinements)
       const auto coarse_cell_id = cell_id.get_coarse_cell_id();
       const auto child_indices  = cell_id.get_child_indices();
 
-      CellId copy_id(coarse_cell_id,
-                     child_indices.size(),
-                     child_indices.data());
+      CellId copy_id(coarse_cell_id, child_indices.size(), child_indices.data());
 
       AssertThrow(cell_id == copy_id, ExcInternalError());
     }

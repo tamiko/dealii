@@ -47,14 +47,12 @@ test()
       bdsp.add(row, col);
 
   bdsp.compress();
-  deallog << "nonzeros BlockSparsityPattern: " << bdsp.n_nonzero_elements()
-          << std::endl;
+  deallog << "nonzeros BlockSparsityPattern: " << bdsp.n_nonzero_elements() << std::endl;
 
   // create block sparse matrix
   TrilinosWrappers::BlockSparseMatrix tbsm;
   tbsm.reinit(bdsp);
-  deallog << "nonzeros BlockSparseMatrix: " << tbsm.n_nonzero_elements()
-          << std::endl;
+  deallog << "nonzeros BlockSparseMatrix: " << tbsm.n_nonzero_elements() << std::endl;
 }
 
 

@@ -44,14 +44,10 @@ main()
 
   prm.set("Boundary conditions", "0:x*x*x,y*y*y,z*z*z*t;1:0,x*y,t");
 
-  deallog << "After ParameterHandler::set =========================="
-          << std::endl
-          << std::endl;
+  deallog << "After ParameterHandler::set ==========================" << std::endl << std::endl;
   prm.log_parameters(deallog);
 
-  deallog << "Actual variables            =========================="
-          << std::endl
-          << std::endl;
+  deallog << "Actual variables            ==========================" << std::endl << std::endl;
 
   deallog << Convert<T>::to_string(a) << std::endl;
 }

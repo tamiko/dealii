@@ -51,38 +51,29 @@ test()
 
     std::vector<double> properties = {0.15, 0.45, 0.75};
 
-    Particles::Particle<dim, spacedim> particle(position,
-                                                reference_position,
-                                                index);
+    Particles::Particle<dim, spacedim> particle(position, reference_position, index);
     particle.set_property_pool(pool);
-    particle.set_properties(
-      ArrayView<double>(&properties[0], properties.size()));
+    particle.set_properties(ArrayView<double>(&properties[0], properties.size()));
 
     deallog << "Particle location: " << particle.get_location() << std::endl
-            << "Particle reference location: "
-            << particle.get_reference_location() << std::endl
+            << "Particle reference location: " << particle.get_reference_location() << std::endl
             << "Particle index: " << particle.get_id() << std::endl
             << "Particle properties: "
-            << std::vector<double>(particle.get_properties().begin(),
-                                   particle.get_properties().end())
-            << std::endl;
+            << std::vector<double>(particle.get_properties().begin(), particle.get_properties().end()) << std::endl;
 
     std::vector<char> data(particle.serialized_size_in_bytes());
-    void *            write_pointer = static_cast<void *>(&data.front());
+    void             *write_pointer = static_cast<void *>(&data.front());
 
     write_pointer = particle.write_particle_data_to_memory(write_pointer);
 
-    const void *read_pointer = static_cast<const void *>(&data.front());
+    const void                              *read_pointer = static_cast<const void *>(&data.front());
     const Particles::Particle<dim, spacedim> new_particle(read_pointer, &pool);
 
-    deallog << "Copy particle location: " << new_particle.get_location()
-            << std::endl
-            << "Copy particle reference location: "
-            << new_particle.get_reference_location() << std::endl
+    deallog << "Copy particle location: " << new_particle.get_location() << std::endl
+            << "Copy particle reference location: " << new_particle.get_reference_location() << std::endl
             << "Copy particle index: " << new_particle.get_id() << std::endl
             << "Copy particle properties: "
-            << std::vector<double>(new_particle.get_properties().begin(),
-                                   new_particle.get_properties().end())
+            << std::vector<double>(new_particle.get_properties().begin(), new_particle.get_properties().end())
             << std::endl;
   }
 

@@ -91,32 +91,30 @@ void
 generate_grid(Triangulation<3> &triangulation)
 {
   Point<3>              vertices_1[] = {Point<3>(-1., -1., -3.),
-                           Point<3>(+1., -1., -3.),
-                           Point<3>(-1., +1., -3.),
-                           Point<3>(+1., +1., -3.),
-                           Point<3>(-1., -1., -1.),
-                           Point<3>(+1., -1., -1.),
-                           Point<3>(-1., +1., -1.),
-                           Point<3>(+1., +1., -1.),
-                           Point<3>(-1., -1., +1.),
-                           Point<3>(+1., -1., +1.),
-                           Point<3>(-1., +1., +1.),
-                           Point<3>(+1., +1., +1.),
-                           Point<3>(-1., -1., +3.),
-                           Point<3>(+1., -1., +3.),
-                           Point<3>(-1., +1., +3.),
-                           Point<3>(+1., +1., +3.)};
+                                        Point<3>(+1., -1., -3.),
+                                        Point<3>(-1., +1., -3.),
+                                        Point<3>(+1., +1., -3.),
+                                        Point<3>(-1., -1., -1.),
+                                        Point<3>(+1., -1., -1.),
+                                        Point<3>(-1., +1., -1.),
+                                        Point<3>(+1., +1., -1.),
+                                        Point<3>(-1., -1., +1.),
+                                        Point<3>(+1., -1., +1.),
+                                        Point<3>(-1., +1., +1.),
+                                        Point<3>(+1., +1., +1.),
+                                        Point<3>(-1., -1., +3.),
+                                        Point<3>(+1., -1., +3.),
+                                        Point<3>(-1., +1., +3.),
+                                        Point<3>(+1., +1., +3.)};
   std::vector<Point<3>> vertices(&vertices_1[0], &vertices_1[16]);
 
   std::vector<CellData<3>> cells(2, CellData<3>());
 
   /* cell 0 */
-  int cell_vertices_0[GeometryInfo<3>::vertices_per_cell] = {
-    0, 1, 2, 3, 4, 5, 6, 7};
+  int cell_vertices_0[GeometryInfo<3>::vertices_per_cell] = {0, 1, 2, 3, 4, 5, 6, 7};
 
   /* cell 1 */
-  int cell_vertices_1[GeometryInfo<3>::vertices_per_cell] = {
-    8, 9, 10, 11, 12, 13, 14, 15};
+  int cell_vertices_1[GeometryInfo<3>::vertices_per_cell] = {8, 9, 10, 11, 12, 13, 14, 15};
 
   for (const unsigned int j : GeometryInfo<3>::vertex_indices())
     {
@@ -155,9 +153,7 @@ generate_grid(Triangulation<3> &triangulation)
  */
 template <typename FaceIterator>
 void
-print_match(const FaceIterator &  face_1,
-            const FaceIterator &  face_2,
-            const std::bitset<3> &orientation)
+print_match(const FaceIterator &face_1, const FaceIterator &face_2, const std::bitset<3> &orientation)
 {
   static const int dim = FaceIterator::AccessorType::dimension;
 
@@ -171,8 +167,8 @@ print_match(const FaceIterator &  face_1,
     deallog << " :: " << face_2->vertex(j);
   deallog << std::endl;
 
-  deallog << "orientation: " << orientation[0] << "  flip: " << orientation[1]
-          << "  rotation: " << orientation[2] << std::endl
+  deallog << "orientation: " << orientation[0] << "  flip: " << orientation[1] << "  rotation: " << orientation[2]
+          << std::endl
           << std::endl;
 }
 
@@ -192,13 +188,10 @@ main()
   using CellIterator2 = Triangulation<2>::cell_iterator;
   using FaceVector2   = std::vector<GridTools::PeriodicFacePair<CellIterator2>>;
   FaceVector2 test2;
-  GridTools::collect_periodic_faces(
-    triangulation2, 42, 1, test2, dealii::Tensor<1, 2>());
+  GridTools::collect_periodic_faces(triangulation2, 42, 1, test2, dealii::Tensor<1, 2>());
 
   for (FaceVector2::iterator it = test2.begin(); it != test2.end(); ++it)
-    print_match(it->cell[0]->face(it->face_idx[0]),
-                it->cell[1]->face(it->face_idx[1]),
-                it->orientation);
+    print_match(it->cell[0]->face(it->face_idx[0]), it->cell[1]->face(it->face_idx[1]), it->orientation);
 
   deallog << "Test for 3D: Hypercube" << std::endl << std::endl;
 
@@ -211,13 +204,10 @@ main()
   using CellIterator3 = Triangulation<3>::cell_iterator;
   using FaceVector3   = std::vector<GridTools::PeriodicFacePair<CellIterator3>>;
   FaceVector3 test3;
-  GridTools::collect_periodic_faces(
-    triangulation3, 42, 2, test3, dealii::Tensor<1, 3>());
+  GridTools::collect_periodic_faces(triangulation3, 42, 2, test3, dealii::Tensor<1, 3>());
 
   for (FaceVector3::iterator it = test3.begin(); it != test3.end(); ++it)
-    print_match(it->cell[0]->face(it->face_idx[0]),
-                it->cell[1]->face(it->face_idx[1]),
-                it->orientation);
+    print_match(it->cell[0]->face(it->face_idx[0]), it->cell[1]->face(it->face_idx[1]), it->orientation);
 
   return 0;
 }

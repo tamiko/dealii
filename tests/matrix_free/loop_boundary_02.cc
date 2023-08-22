@@ -48,23 +48,14 @@ do_test(const unsigned int n_refine)
   dof_handler.distribute_dofs(fe);
 
   AffineConstraints<double> constraints;
-  VectorTools::interpolate_boundary_values(dof_handler,
-                                           0,
-                                           Functions::ZeroFunction<dim>(),
-                                           constraints);
+  VectorTools::interpolate_boundary_values(dof_handler, 0, Functions::ZeroFunction<dim>(), constraints);
   constraints.close();
 
   MatrixFree<dim>                          matrix_free;
   typename MatrixFree<dim>::AdditionalData add_data;
-  add_data.mapping_update_flags = update_values | update_gradients |
-                                  update_JxW_values | update_quadrature_points;
-  add_data.mapping_update_flags_boundary_faces =
-    update_values | update_JxW_values | update_quadrature_points;
-  matrix_free.reinit(MappingQ1<dim>{},
-                     dof_handler,
-                     constraints,
-                     QGauss<1>(fe.degree + 1),
-                     add_data);
+  add_data.mapping_update_flags = update_values | update_gradients | update_JxW_values | update_quadrature_points;
+  add_data.mapping_update_flags_boundary_faces = update_values | update_JxW_values | update_quadrature_points;
+  matrix_free.reinit(MappingQ1<dim>{}, dof_handler, constraints, QGauss<1>(fe.degree + 1), add_data);
 
   LinearAlgebra::distributed::Vector<double> in, test;
   matrix_free.initialize_dof_vector(in);
@@ -76,10 +67,10 @@ do_test(const unsigned int n_refine)
                      LinearAlgebra::distributed::Vector<double> &,
                      const LinearAlgebra::distributed::Vector<double> &,
                      const std::pair<unsigned int, unsigned int> &)>
-    cell_func = [](const MatrixFree<dim> &                           data,
-                   LinearAlgebra::distributed::Vector<double> &      out,
+    cell_func = [](const MatrixFree<dim>                            &data,
+                   LinearAlgebra::distributed::Vector<double>       &out,
                    const LinearAlgebra::distributed::Vector<double> &in,
-                   const std::pair<unsigned int, unsigned int> &range) -> void {
+                   const std::pair<unsigned int, unsigned int>      &range) -> void {
     FEEvaluation<dim, fe_degree> eval(data);
 
     for (unsigned int cell = range.first; cell < range.second; ++cell)
@@ -92,9 +83,7 @@ do_test(const unsigned int n_refine)
             eval.submit_gradient(eval.get_gradient(q), q);
             eval.submit_value(eval.quadrature_point(q).square(), q);
           }
-        eval.integrate_scatter(EvaluationFlags::values |
-                                 EvaluationFlags::gradients,
-                               out);
+        eval.integrate_scatter(EvaluationFlags::values | EvaluationFlags::gradients, out);
       }
   };
 
@@ -102,11 +91,10 @@ do_test(const unsigned int n_refine)
                      LinearAlgebra::distributed::Vector<double> &,
                      const LinearAlgebra::distributed::Vector<double> &,
                      const std::pair<unsigned int, unsigned int> &)>
-    boundary_func =
-      [](const MatrixFree<dim> &                           data,
-         LinearAlgebra::distributed::Vector<double> &      out,
-         const LinearAlgebra::distributed::Vector<double> &in,
-         const std::pair<unsigned int, unsigned int> &     range) -> void {
+    boundary_func = [](const MatrixFree<dim>                            &data,
+                       LinearAlgebra::distributed::Vector<double>       &out,
+                       const LinearAlgebra::distributed::Vector<double> &in,
+                       const std::pair<unsigned int, unsigned int>      &range) -> void {
     FEFaceEvaluation<dim, fe_degree> eval(data, true);
 
     for (unsigned int face = range.first; face < range.second; ++face)
@@ -116,9 +104,7 @@ do_test(const unsigned int n_refine)
         eval.evaluate(EvaluationFlags::values);
         for (unsigned int q = 0; q < eval.n_q_points; ++q)
           {
-            eval.submit_value(eval.quadrature_point(q).square() -
-                                6. * eval.get_value(q),
-                              q);
+            eval.submit_value(eval.quadrature_point(q).square() - 6. * eval.get_value(q), q);
           }
         eval.integrate_scatter(EvaluationFlags::values, out);
       }

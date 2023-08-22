@@ -31,11 +31,10 @@ test()
   using Number              = double;
   using VectorizedArrayType = VectorizedArray<Number>;
 
-  parallel::shared::Triangulation<dim> tria(
-    MPI_COMM_WORLD,
-    ::Triangulation<dim>::none,
-    true,
-    parallel::shared::Triangulation<dim>::partition_custom_signal);
+  parallel::shared::Triangulation<dim> tria(MPI_COMM_WORLD,
+                                            ::Triangulation<dim>::none,
+                                            true,
+                                            parallel::shared::Triangulation<dim>::partition_custom_signal);
 
   tria.signals.create.connect([&]() {
     for (const auto &cell : tria.active_cell_iterators())

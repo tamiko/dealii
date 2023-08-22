@@ -58,14 +58,12 @@ check()
   Triangulation<dim> triangulation;
   GridGenerator::cylinder(triangulation);
 
-  GridTools::transform((Point<dim>(*)(const Point<dim> &)) & rotate_to_z<dim>,
-                       triangulation);
+  GridTools::transform((Point<dim>(*)(const Point<dim> &)) & rotate_to_z<dim>, triangulation);
 
   set_manifold(triangulation);
   triangulation.refine_global(2);
 
-  for (typename Triangulation<dim>::active_cell_iterator cell =
-         triangulation.begin_active();
+  for (typename Triangulation<dim>::active_cell_iterator cell = triangulation.begin_active();
        cell != triangulation.end();
        ++cell)
     for (const unsigned int i : GeometryInfo<dim>::vertex_indices())

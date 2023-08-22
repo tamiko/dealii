@@ -36,10 +36,9 @@ test(const unsigned int n_refinements, const unsigned int fe_degree_fine)
   const unsigned int min_level = 0;
   const unsigned int max_level = n_refinements;
 
-  MGLevelObject<AffineConstraints<Number>> constraints(min_level, max_level);
-  MGLevelObject<MGTwoLevelTransfer<dim, VectorType>> transfers(min_level,
-                                                               max_level);
-  MGLevelObject<Operator<dim, Number>> operators(min_level, max_level);
+  MGLevelObject<AffineConstraints<Number>>           constraints(min_level, max_level);
+  MGLevelObject<MGTwoLevelTransfer<dim, VectorType>> transfers(min_level, max_level);
+  MGLevelObject<Operator<dim, Number>>               operators(min_level, max_level);
 
   std::unique_ptr<FiniteElement<dim>> fe;
   std::unique_ptr<Quadrature<dim>>    quad;
@@ -57,8 +56,7 @@ test(const unsigned int n_refinements, const unsigned int fe_degree_fine)
   const std::set<types::boundary_id> dirichlet_boundary = {0};
   MGConstrainedDoFs                  mg_constrained_dofs;
   mg_constrained_dofs.initialize(dof_handler);
-  mg_constrained_dofs.make_zero_boundary_constraints(dof_handler,
-                                                     dirichlet_boundary);
+  mg_constrained_dofs.make_zero_boundary_constraints(dof_handler, dirichlet_boundary);
 
   // set up levels
   for (auto l = min_level; l <= max_level; ++l)
@@ -68,9 +66,7 @@ test(const unsigned int n_refinements, const unsigned int fe_degree_fine)
 
       // set up constraints
       IndexSet relevant_dofs;
-      DoFTools::extract_locally_relevant_level_dofs(dof_handler,
-                                                    l,
-                                                    relevant_dofs);
+      DoFTools::extract_locally_relevant_level_dofs(dof_handler, l, relevant_dofs);
       constraint.reinit(relevant_dofs);
       constraint.add_lines(mg_constrained_dofs.get_boundary_indices(l));
       constraint.close();
@@ -83,12 +79,11 @@ test(const unsigned int n_refinements, const unsigned int fe_degree_fine)
 
   // set up transfer operator
   for (unsigned int l = min_level; l < max_level; ++l)
-    transfers[l + 1].reinit_geometric_transfer(
-      dof_handler, dof_handler, constraints[l + 1], constraints[l], l + 1, l);
+    transfers[l + 1].reinit_geometric_transfer(dof_handler, dof_handler, constraints[l + 1], constraints[l], l + 1, l);
 
-  MGTransferGlobalCoarsening<dim, VectorType> transfer(
-    transfers,
-    [&](const auto l, auto &vec) { operators[l].initialize_dof_vector(vec); });
+  MGTransferGlobalCoarsening<dim, VectorType> transfer(transfers, [&](const auto l, auto &vec) {
+    operators[l].initialize_dof_vector(vec);
+  });
 
   GMGParameters mg_data; // TODO
 
@@ -98,22 +93,13 @@ test(const unsigned int n_refinements, const unsigned int fe_degree_fine)
 
   operators[max_level].rhs(src);
 
-  ReductionControl solver_control(
-    mg_data.maxiter, mg_data.abstol, mg_data.reltol, false, false);
+  ReductionControl solver_control(mg_data.maxiter, mg_data.abstol, mg_data.reltol, false, false);
 
-  mg_solve(solver_control,
-           dst,
-           src,
-           mg_data,
-           dof_handler,
-           operators[max_level],
-           operators,
-           transfer);
+  mg_solve(solver_control, dst, src, mg_data, dof_handler, operators[max_level], operators, transfer);
 
   constraints[max_level].distribute(dst);
 
-  deallog << dim << ' ' << fe_degree_fine << ' ' << n_refinements << ' '
-          << solver_control.last_step() << std::endl;
+  deallog << dim << ' ' << fe_degree_fine << ' ' << n_refinements << ' ' << solver_control.last_step() << std::endl;
 
   return;
 
@@ -128,14 +114,10 @@ test(const unsigned int n_refinements, const unsigned int fe_degree_fine)
       DataOut<dim> data_out;
 
       data_out.attach_dof_handler(dof_handler);
-      data_out.add_data_vector(
-        results[l],
-        "solution",
-        DataOut_DoFData<dim, dim>::DataVectorType::type_dof_data);
+      data_out.add_data_vector(results[l], "solution", DataOut_DoFData<dim, dim>::DataVectorType::type_dof_data);
       data_out.build_patches(*mapping, 2);
 
-      std::ofstream output("test." + std::to_string(dim) + "." +
-                           std::to_string(counter) + "." + std::to_string(l) +
+      std::ofstream output("test." + std::to_string(dim) + "." + std::to_string(counter) + "." + std::to_string(l) +
                            ".vtk");
       data_out.write_vtk(output);
     }

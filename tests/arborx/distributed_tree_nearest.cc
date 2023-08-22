@@ -49,9 +49,7 @@ test_bounding_box_2d()
       for (unsigned int j = 0; j < n_points_1d - 1; ++j)
         {
           unsigned int point_index = j + i * n_points_1d;
-          bounding_boxes.push_back(
-            std::make_pair(points[point_index],
-                           points[point_index + n_points_1d + 1]));
+          bounding_boxes.push_back(std::make_pair(points[point_index], points[point_index + n_points_1d + 1]));
         }
     }
 
@@ -64,13 +62,11 @@ test_bounding_box_2d()
   query_bounding_boxes.emplace_back(std::make_pair(point_a, point_b));
   query_bounding_boxes.emplace_back(std::make_pair(point_c, point_d));
 
-  ArborXWrappers::DistributedTree             distributed_tree(MPI_COMM_WORLD,
-                                                   bounding_boxes);
-  ArborXWrappers::BoundingBoxNearestPredicate bb_nearest(query_bounding_boxes,
-                                                         1);
-  auto indices_ranks_offsets = distributed_tree.query(bb_nearest);
-  auto indices_ranks         = indices_ranks_offsets.first;
-  auto offsets               = indices_ranks_offsets.second;
+  ArborXWrappers::DistributedTree             distributed_tree(MPI_COMM_WORLD, bounding_boxes);
+  ArborXWrappers::BoundingBoxNearestPredicate bb_nearest(query_bounding_boxes, 1);
+  auto                                        indices_ranks_offsets = distributed_tree.query(bb_nearest);
+  auto                                        indices_ranks         = indices_ranks_offsets.first;
+  auto                                        offsets               = indices_ranks_offsets.second;
 
   std::vector<int> indices_ref = {0, 15};
   std::vector<int> offsets_ref = {0, 1, 2};
@@ -85,8 +81,7 @@ test_bounding_box_2d()
           bool found = false;
           for (int k = offsets[i]; k < offsets[i + 1]; ++k)
             {
-              if ((indices_ranks[j].first == indices_ref[k]) &&
-                  (indices_ranks[j].second == (rank + 1) % n_procs))
+              if ((indices_ranks[j].first == indices_ref[k]) && (indices_ranks[j].second == (rank + 1) % n_procs))
                 {
                   found = true;
                   break;
@@ -128,12 +123,11 @@ test_point_2d()
   query_bounding_boxes.emplace_back(std::make_pair(point_a, point_b));
   query_bounding_boxes.emplace_back(std::make_pair(point_c, point_d));
 
-  ArborXWrappers::DistributedTree distributed_tree(MPI_COMM_WORLD, points);
-  ArborXWrappers::BoundingBoxNearestPredicate bb_nearest(query_bounding_boxes,
-                                                         1);
-  auto indices_ranks_offsets = distributed_tree.query(bb_nearest);
-  auto indices_ranks         = indices_ranks_offsets.first;
-  auto offsets               = indices_ranks_offsets.second;
+  ArborXWrappers::DistributedTree             distributed_tree(MPI_COMM_WORLD, points);
+  ArborXWrappers::BoundingBoxNearestPredicate bb_nearest(query_bounding_boxes, 1);
+  auto                                        indices_ranks_offsets = distributed_tree.query(bb_nearest);
+  auto                                        indices_ranks         = indices_ranks_offsets.first;
+  auto                                        offsets               = indices_ranks_offsets.second;
 
   std::vector<int> indices_ref = {6, 12};
   std::vector<int> offsets_ref = {0, 1, 2};
@@ -148,8 +142,7 @@ test_point_2d()
           bool found = false;
           for (int k = offsets[i]; k < offsets[i + 1]; ++k)
             {
-              if ((indices_ranks[j].first == indices_ref[k]) &&
-                  (indices_ranks[j].second == (rank + 1) % n_procs))
+              if ((indices_ranks[j].first == indices_ref[k]) && (indices_ranks[j].second == (rank + 1) % n_procs))
                 {
                   found = true;
                   break;
@@ -192,40 +185,27 @@ test_bounding_box_3d()
         {
           for (unsigned int k = 0; k < n_points_1d - 1; ++k)
             {
-              unsigned int point_index =
-                k + j * n_points_1d + i * n_points_1d * n_points_1d;
+              unsigned int point_index = k + j * n_points_1d + i * n_points_1d * n_points_1d;
               bounding_boxes.push_back(
-                std::make_pair(points[point_index],
-                               points[point_index + n_points_1d * n_points_1d +
-                                      n_points_1d + 1]));
+                std::make_pair(points[point_index], points[point_index + n_points_1d * n_points_1d + n_points_1d + 1]));
             }
         }
     }
 
-  Point<3> point_a(-1.0 + offset_query,
-                   -1.0 + offset_query,
-                   -1.0 + offset_query);
-  Point<3> point_b(-0.5 + offset_query,
-                   -0.5 + offset_query,
-                   -0.5 + offset_query);
-  Point<3> point_c(10.2 + offset_query,
-                   10.2 + offset_query,
-                   10.2 + offset_query);
-  Point<3> point_d(10.6 + offset_query,
-                   10.6 + offset_query,
-                   10.6 + offset_query);
+  Point<3> point_a(-1.0 + offset_query, -1.0 + offset_query, -1.0 + offset_query);
+  Point<3> point_b(-0.5 + offset_query, -0.5 + offset_query, -0.5 + offset_query);
+  Point<3> point_c(10.2 + offset_query, 10.2 + offset_query, 10.2 + offset_query);
+  Point<3> point_d(10.6 + offset_query, 10.6 + offset_query, 10.6 + offset_query);
 
   std::vector<BoundingBox<3>> query_bounding_boxes;
   query_bounding_boxes.emplace_back(std::make_pair(point_a, point_b));
   query_bounding_boxes.emplace_back(std::make_pair(point_c, point_d));
 
-  ArborXWrappers::DistributedTree             distributed_tree(MPI_COMM_WORLD,
-                                                   bounding_boxes);
-  ArborXWrappers::BoundingBoxNearestPredicate bb_nearest(query_bounding_boxes,
-                                                         1);
-  auto indices_ranks_offsets = distributed_tree.query(bb_nearest);
-  auto indices_ranks         = indices_ranks_offsets.first;
-  auto offsets               = indices_ranks_offsets.second;
+  ArborXWrappers::DistributedTree             distributed_tree(MPI_COMM_WORLD, bounding_boxes);
+  ArborXWrappers::BoundingBoxNearestPredicate bb_nearest(query_bounding_boxes, 1);
+  auto                                        indices_ranks_offsets = distributed_tree.query(bb_nearest);
+  auto                                        indices_ranks         = indices_ranks_offsets.first;
+  auto                                        offsets               = indices_ranks_offsets.second;
 
   std::vector<int> indices_ref = {0, 63};
   std::vector<int> offsets_ref = {0, 1, 2};
@@ -240,8 +220,7 @@ test_bounding_box_3d()
           bool found = false;
           for (int k = offsets[i]; k < offsets[i + 1]; ++k)
             {
-              if ((indices_ranks[j].first == indices_ref[k]) &&
-                  (indices_ranks[j].second == (rank + 1) % n_procs))
+              if ((indices_ranks[j].first == indices_ref[k]) && (indices_ranks[j].second == (rank + 1) % n_procs))
                 {
                   found = true;
                   break;
@@ -285,12 +264,11 @@ test_point_3d()
   query_bounding_boxes.emplace_back(std::make_pair(point_a, point_b));
   query_bounding_boxes.emplace_back(std::make_pair(point_c, point_d));
 
-  ArborXWrappers::DistributedTree distributed_tree(MPI_COMM_WORLD, points);
-  ArborXWrappers::BoundingBoxNearestPredicate bb_nearest(query_bounding_boxes,
-                                                         1);
-  auto indices_ranks_offsets = distributed_tree.query(bb_nearest);
-  auto indices_ranks         = indices_ranks_offsets.first;
-  auto offsets               = indices_ranks_offsets.second;
+  ArborXWrappers::DistributedTree             distributed_tree(MPI_COMM_WORLD, points);
+  ArborXWrappers::BoundingBoxNearestPredicate bb_nearest(query_bounding_boxes, 1);
+  auto                                        indices_ranks_offsets = distributed_tree.query(bb_nearest);
+  auto                                        indices_ranks         = indices_ranks_offsets.first;
+  auto                                        offsets               = indices_ranks_offsets.second;
 
   std::vector<int> indices_ref = {31, 62};
   std::vector<int> offsets_ref = {0, 1, 2};
@@ -305,8 +283,7 @@ test_point_3d()
           bool found = false;
           for (int k = offsets[i]; k < offsets[i + 1]; ++k)
             {
-              if ((indices_ranks[j].first == indices_ref[k]) &&
-                  (indices_ranks[j].second == (rank + 1) % n_procs))
+              if ((indices_ranks[j].first == indices_ref[k]) && (indices_ranks[j].second == (rank + 1) % n_procs))
                 {
                   found = true;
                   break;

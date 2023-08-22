@@ -54,7 +54,7 @@ namespace DoFTools
   template <int dim, int spacedim, typename number>
   void
   make_sparsity_pattern(const DoFHandler<dim, spacedim> &dof,
-                        SparsityPatternBase &            sparsity,
+                        SparsityPatternBase             &sparsity,
                         const AffineConstraints<number> &constraints,
                         const bool                       keep_constrained_dofs,
                         const types::subdomain_id        subdomain_id)
@@ -62,24 +62,20 @@ namespace DoFTools
     const types::global_dof_index n_dofs = dof.n_dofs();
     (void)n_dofs;
 
-    Assert(sparsity.n_rows() == n_dofs,
-           ExcDimensionMismatch(sparsity.n_rows(), n_dofs));
-    Assert(sparsity.n_cols() == n_dofs,
-           ExcDimensionMismatch(sparsity.n_cols(), n_dofs));
+    Assert(sparsity.n_rows() == n_dofs, ExcDimensionMismatch(sparsity.n_rows(), n_dofs));
+    Assert(sparsity.n_cols() == n_dofs, ExcDimensionMismatch(sparsity.n_cols(), n_dofs));
 
     // If we have a distributed Triangulation only allow locally_owned
     // subdomain. Not setting a subdomain is also okay, because we skip
     // ghost cells in the loop below.
-    if (const auto *triangulation = dynamic_cast<
-          const parallel::DistributedTriangulationBase<dim, spacedim> *>(
-          &dof.get_triangulation()))
+    if (const auto *triangulation =
+          dynamic_cast<const parallel::DistributedTriangulationBase<dim, spacedim> *>(&dof.get_triangulation()))
       {
         Assert((subdomain_id == numbers::invalid_subdomain_id) ||
                  (subdomain_id == triangulation->locally_owned_subdomain()),
-               ExcMessage(
-                 "For distributed Triangulation objects and associated "
-                 "DoFHandler objects, asking for any subdomain other than the "
-                 "locally owned one does not make sense."));
+               ExcMessage("For distributed Triangulation objects and associated "
+                          "DoFHandler objects, asking for any subdomain other than the "
+                          "locally owned one does not make sense."));
       }
 
     std::vector<types::global_dof_index> dofs_on_this_cell;
@@ -89,8 +85,7 @@ namespace DoFTools
     // type, we only have to do the work if the current cell is owned by
     // the calling processor. Otherwise, just continue.
     for (const auto &cell : dof.active_cell_iterators())
-      if (((subdomain_id == numbers::invalid_subdomain_id) ||
-           (subdomain_id == cell->subdomain_id())) &&
+      if (((subdomain_id == numbers::invalid_subdomain_id) || (subdomain_id == cell->subdomain_id())) &&
           cell->is_locally_owned())
         {
           const unsigned int dofs_per_cell = cell->get_fe().n_dofs_per_cell();
@@ -100,9 +95,7 @@ namespace DoFTools
           // make sparsity pattern for this cell. if no constraints pattern
           // was given, then the following call acts as if simply no
           // constraints existed
-          constraints.add_entries_local_to_global(dofs_on_this_cell,
-                                                  sparsity,
-                                                  keep_constrained_dofs);
+          constraints.add_entries_local_to_global(dofs_on_this_cell, sparsity, keep_constrained_dofs);
         }
   }
 
@@ -111,8 +104,8 @@ namespace DoFTools
   template <int dim, int spacedim, typename number>
   void
   make_sparsity_pattern(const DoFHandler<dim, spacedim> &dof,
-                        const Table<2, Coupling> &       couplings,
-                        SparsityPatternBase &            sparsity,
+                        const Table<2, Coupling>        &couplings,
+                        SparsityPatternBase             &sparsity,
                         const AffineConstraints<number> &constraints,
                         const bool                       keep_constrained_dofs,
                         const types::subdomain_id        subdomain_id)
@@ -120,34 +113,27 @@ namespace DoFTools
     const types::global_dof_index n_dofs = dof.n_dofs();
     (void)n_dofs;
 
-    Assert(sparsity.n_rows() == n_dofs,
-           ExcDimensionMismatch(sparsity.n_rows(), n_dofs));
-    Assert(sparsity.n_cols() == n_dofs,
-           ExcDimensionMismatch(sparsity.n_cols(), n_dofs));
+    Assert(sparsity.n_rows() == n_dofs, ExcDimensionMismatch(sparsity.n_rows(), n_dofs));
+    Assert(sparsity.n_cols() == n_dofs, ExcDimensionMismatch(sparsity.n_cols(), n_dofs));
     Assert(couplings.n_rows() == dof.get_fe(0).n_components(),
-           ExcDimensionMismatch(couplings.n_rows(),
-                                dof.get_fe(0).n_components()));
+           ExcDimensionMismatch(couplings.n_rows(), dof.get_fe(0).n_components()));
     Assert(couplings.n_cols() == dof.get_fe(0).n_components(),
-           ExcDimensionMismatch(couplings.n_cols(),
-                                dof.get_fe(0).n_components()));
+           ExcDimensionMismatch(couplings.n_cols(), dof.get_fe(0).n_components()));
 
     // If we have a distributed Triangulation only allow locally_owned
     // subdomain. Not setting a subdomain is also okay, because we skip
     // ghost cells in the loop below.
-    if (const auto *triangulation = dynamic_cast<
-          const parallel::DistributedTriangulationBase<dim, spacedim> *>(
-          &dof.get_triangulation()))
+    if (const auto *triangulation =
+          dynamic_cast<const parallel::DistributedTriangulationBase<dim, spacedim> *>(&dof.get_triangulation()))
       {
         Assert((subdomain_id == numbers::invalid_subdomain_id) ||
                  (subdomain_id == triangulation->locally_owned_subdomain()),
-               ExcMessage(
-                 "For distributed Triangulation objects and associated "
-                 "DoFHandler objects, asking for any subdomain other than the "
-                 "locally owned one does not make sense."));
+               ExcMessage("For distributed Triangulation objects and associated "
+                          "DoFHandler objects, asking for any subdomain other than the "
+                          "locally owned one does not make sense."));
       }
 
-    const hp::FECollection<dim, spacedim> &fe_collection =
-      dof.get_fe_collection();
+    const hp::FECollection<dim, spacedim> &fe_collection = dof.get_fe_collection();
 
     const std::vector<Table<2, Coupling>> dof_mask //(fe_collection.size())
       = dof_couplings_from_component_couplings(fe_collection, couplings);
@@ -158,8 +144,7 @@ namespace DoFTools
     for (unsigned int f = 0; f < fe_collection.size(); ++f)
       {
         bool_dof_mask[f].reinit(
-          TableIndices<2>(fe_collection[f].n_dofs_per_cell(),
-                          fe_collection[f].n_dofs_per_cell()));
+          TableIndices<2>(fe_collection[f].n_dofs_per_cell(), fe_collection[f].n_dofs_per_cell()));
         bool_dof_mask[f].fill(false);
         for (unsigned int i = 0; i < fe_collection[f].n_dofs_per_cell(); ++i)
           for (unsigned int j = 0; j < fe_collection[f].n_dofs_per_cell(); ++j)
@@ -167,20 +152,17 @@ namespace DoFTools
               bool_dof_mask[f](i, j) = true;
       }
 
-    std::vector<types::global_dof_index> dofs_on_this_cell(
-      fe_collection.max_dofs_per_cell());
+    std::vector<types::global_dof_index> dofs_on_this_cell(fe_collection.max_dofs_per_cell());
 
     // In case we work with a distributed sparsity pattern of Trilinos
     // type, we only have to do the work if the current cell is owned by
     // the calling processor. Otherwise, just continue.
     for (const auto &cell : dof.active_cell_iterators())
-      if (((subdomain_id == numbers::invalid_subdomain_id) ||
-           (subdomain_id == cell->subdomain_id())) &&
+      if (((subdomain_id == numbers::invalid_subdomain_id) || (subdomain_id == cell->subdomain_id())) &&
           cell->is_locally_owned())
         {
-          const types::fe_index fe_index = cell->active_fe_index();
-          const unsigned int    dofs_per_cell =
-            fe_collection[fe_index].n_dofs_per_cell();
+          const types::fe_index fe_index      = cell->active_fe_index();
+          const unsigned int    dofs_per_cell = fe_collection[fe_index].n_dofs_per_cell();
 
           dofs_on_this_cell.resize(dofs_per_cell);
           cell->get_dof_indices(dofs_on_this_cell);
@@ -202,27 +184,23 @@ namespace DoFTools
   void
   make_sparsity_pattern(const DoFHandler<dim, spacedim> &dof_row,
                         const DoFHandler<dim, spacedim> &dof_col,
-                        SparsityPatternBase &            sparsity)
+                        SparsityPatternBase             &sparsity)
   {
     const types::global_dof_index n_dofs_row = dof_row.n_dofs();
     const types::global_dof_index n_dofs_col = dof_col.n_dofs();
     (void)n_dofs_row;
     (void)n_dofs_col;
 
-    Assert(sparsity.n_rows() == n_dofs_row,
-           ExcDimensionMismatch(sparsity.n_rows(), n_dofs_row));
-    Assert(sparsity.n_cols() == n_dofs_col,
-           ExcDimensionMismatch(sparsity.n_cols(), n_dofs_col));
+    Assert(sparsity.n_rows() == n_dofs_row, ExcDimensionMismatch(sparsity.n_rows(), n_dofs_row));
+    Assert(sparsity.n_cols() == n_dofs_col, ExcDimensionMismatch(sparsity.n_cols(), n_dofs_col));
 
     // It doesn't make sense to assemble sparsity patterns when the
     // Triangulations are both parallel (i.e., different cells are assigned to
     // different processors) and unequal: no processor will be responsible for
     // assembling coupling terms between dofs on a cell owned by one processor
     // and dofs on a cell owned by a different processor.
-    if (dynamic_cast<const parallel::TriangulationBase<dim, spacedim> *>(
-          &dof_row.get_triangulation()) != nullptr ||
-        dynamic_cast<const parallel::TriangulationBase<dim, spacedim> *>(
-          &dof_col.get_triangulation()) != nullptr)
+    if (dynamic_cast<const parallel::TriangulationBase<dim, spacedim> *>(&dof_row.get_triangulation()) != nullptr ||
+        dynamic_cast<const parallel::TriangulationBase<dim, spacedim> *>(&dof_col.get_triangulation()) != nullptr)
       {
         Assert(&dof_row.get_triangulation() == &dof_col.get_triangulation(),
                ExcMessage("This function can only be used with with parallel "
@@ -231,33 +209,25 @@ namespace DoFTools
 
     // TODO: Looks like wasteful memory management here
 
-    using cell_iterator = typename DoFHandler<dim, spacedim>::cell_iterator;
-    std::list<std::pair<cell_iterator, cell_iterator>> cell_list =
-      GridTools::get_finest_common_cells(dof_row, dof_col);
+    using cell_iterator                                          = typename DoFHandler<dim, spacedim>::cell_iterator;
+    std::list<std::pair<cell_iterator, cell_iterator>> cell_list = GridTools::get_finest_common_cells(dof_row, dof_col);
 
 #ifdef DEAL_II_WITH_MPI
     // get_finest_common_cells returns all cells (locally owned and otherwise)
     // for shared::Tria, but we don't want to assemble on cells that are not
     // locally owned so remove them
-    if (dynamic_cast<const parallel::shared::Triangulation<dim, spacedim> *>(
-          &dof_row.get_triangulation()) != nullptr ||
-        dynamic_cast<const parallel::shared::Triangulation<dim, spacedim> *>(
-          &dof_col.get_triangulation()) != nullptr)
+    if (dynamic_cast<const parallel::shared::Triangulation<dim, spacedim> *>(&dof_row.get_triangulation()) != nullptr ||
+        dynamic_cast<const parallel::shared::Triangulation<dim, spacedim> *>(&dof_col.get_triangulation()) != nullptr)
       {
-        const types::subdomain_id this_subdomain_id =
-          dof_row.get_triangulation().locally_owned_subdomain();
-        Assert(this_subdomain_id ==
-                 dof_col.get_triangulation().locally_owned_subdomain(),
-               ExcInternalError());
-        cell_list.erase(
-          std::remove_if(
-            cell_list.begin(),
-            cell_list.end(),
-            [=](const std::pair<cell_iterator, cell_iterator> &pair) {
-              return pair.first->subdomain_id() != this_subdomain_id ||
-                     pair.second->subdomain_id() != this_subdomain_id;
-            }),
-          cell_list.end());
+        const types::subdomain_id this_subdomain_id = dof_row.get_triangulation().locally_owned_subdomain();
+        Assert(this_subdomain_id == dof_col.get_triangulation().locally_owned_subdomain(), ExcInternalError());
+        cell_list.erase(std::remove_if(cell_list.begin(),
+                                       cell_list.end(),
+                                       [=](const std::pair<cell_iterator, cell_iterator> &pair) {
+                                         return pair.first->subdomain_id() != this_subdomain_id ||
+                                                pair.second->subdomain_id() != this_subdomain_id;
+                                       }),
+                        cell_list.end());
       }
 #endif
 
@@ -268,70 +238,47 @@ namespace DoFTools
 
         if (cell_row->is_active() && cell_col->is_active())
           {
-            const unsigned int dofs_per_cell_row =
-              cell_row->get_fe().n_dofs_per_cell();
-            const unsigned int dofs_per_cell_col =
-              cell_col->get_fe().n_dofs_per_cell();
-            std::vector<types::global_dof_index> local_dof_indices_row(
-              dofs_per_cell_row);
-            std::vector<types::global_dof_index> local_dof_indices_col(
-              dofs_per_cell_col);
+            const unsigned int                   dofs_per_cell_row = cell_row->get_fe().n_dofs_per_cell();
+            const unsigned int                   dofs_per_cell_col = cell_col->get_fe().n_dofs_per_cell();
+            std::vector<types::global_dof_index> local_dof_indices_row(dofs_per_cell_row);
+            std::vector<types::global_dof_index> local_dof_indices_col(dofs_per_cell_col);
             cell_row->get_dof_indices(local_dof_indices_row);
             cell_col->get_dof_indices(local_dof_indices_col);
             for (const auto &dof : local_dof_indices_row)
-              sparsity.add_row_entries(dof,
-                                       make_array_view(local_dof_indices_col));
+              sparsity.add_row_entries(dof, make_array_view(local_dof_indices_col));
           }
         else if (cell_row->has_children())
           {
-            const std::vector<
-              typename DoFHandler<dim, spacedim>::active_cell_iterator>
-              child_cells =
-                GridTools::get_active_child_cells<DoFHandler<dim, spacedim>>(
-                  cell_row);
+            const std::vector<typename DoFHandler<dim, spacedim>::active_cell_iterator> child_cells =
+              GridTools::get_active_child_cells<DoFHandler<dim, spacedim>>(cell_row);
             for (unsigned int i = 0; i < child_cells.size(); ++i)
               {
-                const typename DoFHandler<dim, spacedim>::cell_iterator
-                                   cell_row_child = child_cells[i];
-                const unsigned int dofs_per_cell_row =
-                  cell_row_child->get_fe().n_dofs_per_cell();
-                const unsigned int dofs_per_cell_col =
-                  cell_col->get_fe().n_dofs_per_cell();
-                std::vector<types::global_dof_index> local_dof_indices_row(
-                  dofs_per_cell_row);
-                std::vector<types::global_dof_index> local_dof_indices_col(
-                  dofs_per_cell_col);
+                const typename DoFHandler<dim, spacedim>::cell_iterator cell_row_child = child_cells[i];
+                const unsigned int                   dofs_per_cell_row = cell_row_child->get_fe().n_dofs_per_cell();
+                const unsigned int                   dofs_per_cell_col = cell_col->get_fe().n_dofs_per_cell();
+                std::vector<types::global_dof_index> local_dof_indices_row(dofs_per_cell_row);
+                std::vector<types::global_dof_index> local_dof_indices_col(dofs_per_cell_col);
                 cell_row_child->get_dof_indices(local_dof_indices_row);
                 cell_col->get_dof_indices(local_dof_indices_col);
                 for (const auto &dof : local_dof_indices_row)
-                  sparsity.add_row_entries(
-                    dof, make_array_view(local_dof_indices_col));
+                  sparsity.add_row_entries(dof, make_array_view(local_dof_indices_col));
               }
           }
         else
           {
-            std::vector<
-              typename DoFHandler<dim, spacedim>::active_cell_iterator>
-              child_cells =
-                GridTools::get_active_child_cells<DoFHandler<dim, spacedim>>(
-                  cell_col);
+            std::vector<typename DoFHandler<dim, spacedim>::active_cell_iterator> child_cells =
+              GridTools::get_active_child_cells<DoFHandler<dim, spacedim>>(cell_col);
             for (unsigned int i = 0; i < child_cells.size(); ++i)
               {
-                const typename DoFHandler<dim, spacedim>::active_cell_iterator
-                                   cell_col_child = child_cells[i];
-                const unsigned int dofs_per_cell_row =
-                  cell_row->get_fe().n_dofs_per_cell();
-                const unsigned int dofs_per_cell_col =
-                  cell_col_child->get_fe().n_dofs_per_cell();
-                std::vector<types::global_dof_index> local_dof_indices_row(
-                  dofs_per_cell_row);
-                std::vector<types::global_dof_index> local_dof_indices_col(
-                  dofs_per_cell_col);
+                const typename DoFHandler<dim, spacedim>::active_cell_iterator cell_col_child = child_cells[i];
+                const unsigned int                   dofs_per_cell_row = cell_row->get_fe().n_dofs_per_cell();
+                const unsigned int                   dofs_per_cell_col = cell_col_child->get_fe().n_dofs_per_cell();
+                std::vector<types::global_dof_index> local_dof_indices_row(dofs_per_cell_row);
+                std::vector<types::global_dof_index> local_dof_indices_col(dofs_per_cell_col);
                 cell_row->get_dof_indices(local_dof_indices_row);
                 cell_col_child->get_dof_indices(local_dof_indices_col);
                 for (const auto &dof : local_dof_indices_row)
-                  sparsity.add_row_entries(
-                    dof, make_array_view(local_dof_indices_col));
+                  sparsity.add_row_entries(dof, make_array_view(local_dof_indices_col));
               }
           }
       }
@@ -341,23 +288,18 @@ namespace DoFTools
 
   template <int dim, int spacedim>
   void
-  make_boundary_sparsity_pattern(
-    const DoFHandler<dim, spacedim> &           dof,
-    const std::vector<types::global_dof_index> &dof_to_boundary_mapping,
-    SparsityPatternBase &                       sparsity)
+  make_boundary_sparsity_pattern(const DoFHandler<dim, spacedim>            &dof,
+                                 const std::vector<types::global_dof_index> &dof_to_boundary_mapping,
+                                 SparsityPatternBase                        &sparsity)
   {
     if (dim == 1)
       {
         // there are only 2 boundary indicators in 1d, so it is no
         // performance problem to call the other function
-        std::map<types::boundary_id, const Function<spacedim, double> *>
-          boundary_ids;
+        std::map<types::boundary_id, const Function<spacedim, double> *> boundary_ids;
         boundary_ids[0] = nullptr;
         boundary_ids[1] = nullptr;
-        make_boundary_sparsity_pattern<dim, spacedim>(dof,
-                                                      boundary_ids,
-                                                      dof_to_boundary_mapping,
-                                                      sparsity);
+        make_boundary_sparsity_pattern<dim, spacedim>(dof, boundary_ids, dof_to_boundary_mapping, sparsity);
         return;
       }
 
@@ -391,11 +333,9 @@ namespace DoFTools
       for (const unsigned int f : cell->face_indices())
         if (cell->at_boundary(f))
           {
-            const unsigned int dofs_per_face =
-              cell->get_fe().n_dofs_per_face(f);
+            const unsigned int dofs_per_face = cell->get_fe().n_dofs_per_face(f);
             dofs_on_this_face.resize(dofs_per_face);
-            cell->face(f)->get_dof_indices(dofs_on_this_face,
-                                           cell->active_fe_index());
+            cell->face(f)->get_dof_indices(dofs_on_this_face, cell->active_fe_index());
 
             // make sparsity pattern for this cell
             cols.clear();
@@ -406,9 +346,7 @@ namespace DoFTools
             // path
             std::sort(cols.begin(), cols.end());
             for (const auto &dof : dofs_on_this_face)
-              sparsity.add_row_entries(dof_to_boundary_mapping[dof],
-                                       make_array_view(cols),
-                                       true);
+              sparsity.add_row_entries(dof_to_boundary_mapping[dof], make_array_view(cols), true);
           }
   }
 
@@ -416,12 +354,10 @@ namespace DoFTools
 
   template <int dim, int spacedim, typename number>
   void
-  make_boundary_sparsity_pattern(
-    const DoFHandler<dim, spacedim> &dof,
-    const std::map<types::boundary_id, const Function<spacedim, number> *>
-      &                                         boundary_ids,
-    const std::vector<types::global_dof_index> &dof_to_boundary_mapping,
-    SparsityPatternBase &                       sparsity)
+  make_boundary_sparsity_pattern(const DoFHandler<dim, spacedim>                                        &dof,
+                                 const std::map<types::boundary_id, const Function<spacedim, number> *> &boundary_ids,
+                                 const std::vector<types::global_dof_index> &dof_to_boundary_mapping,
+                                 SparsityPatternBase                        &sparsity)
   {
     if (dim == 1)
       {
@@ -434,28 +370,22 @@ namespace DoFTools
 
             // find active cell at that boundary: first go to left/right,
             // then to children
-            typename DoFHandler<dim, spacedim>::level_cell_iterator cell =
-              dof.begin(0);
+            typename DoFHandler<dim, spacedim>::level_cell_iterator cell = dof.begin(0);
             while (!cell->at_boundary(direction))
               cell = cell->neighbor(direction);
             while (!cell->is_active())
               cell = cell->child(direction);
 
-            const unsigned int dofs_per_vertex =
-              cell->get_fe().n_dofs_per_vertex();
-            std::vector<types::global_dof_index> boundary_dof_boundary_indices(
-              dofs_per_vertex);
+            const unsigned int                   dofs_per_vertex = cell->get_fe().n_dofs_per_vertex();
+            std::vector<types::global_dof_index> boundary_dof_boundary_indices(dofs_per_vertex);
 
             // next get boundary mapped dof indices of boundary dofs
             for (unsigned int i = 0; i < dofs_per_vertex; ++i)
-              boundary_dof_boundary_indices[i] =
-                dof_to_boundary_mapping[cell->vertex_dof_index(direction, i)];
+              boundary_dof_boundary_indices[i] = dof_to_boundary_mapping[cell->vertex_dof_index(direction, i)];
 
-            std::sort(boundary_dof_boundary_indices.begin(),
-                      boundary_dof_boundary_indices.end());
+            std::sort(boundary_dof_boundary_indices.begin(), boundary_dof_boundary_indices.end());
             for (const auto &dof : boundary_dof_boundary_indices)
-              sparsity.add_row_entries(
-                dof, make_array_view(boundary_dof_boundary_indices), true);
+              sparsity.add_row_entries(dof, make_array_view(boundary_dof_boundary_indices), true);
           }
         return;
       }
@@ -464,15 +394,12 @@ namespace DoFTools
     (void)n_dofs;
 
     AssertDimension(dof_to_boundary_mapping.size(), n_dofs);
-    Assert(boundary_ids.find(numbers::internal_face_boundary_id) ==
-             boundary_ids.end(),
+    Assert(boundary_ids.find(numbers::internal_face_boundary_id) == boundary_ids.end(),
            (typename DoFHandler<dim, spacedim>::ExcInvalidBoundaryIndicator()));
     Assert(sparsity.n_rows() == dof.n_boundary_dofs(boundary_ids),
-           ExcDimensionMismatch(sparsity.n_rows(),
-                                dof.n_boundary_dofs(boundary_ids)));
+           ExcDimensionMismatch(sparsity.n_rows(), dof.n_boundary_dofs(boundary_ids)));
     Assert(sparsity.n_cols() == dof.n_boundary_dofs(boundary_ids),
-           ExcDimensionMismatch(sparsity.n_cols(),
-                                dof.n_boundary_dofs(boundary_ids)));
+           ExcDimensionMismatch(sparsity.n_cols(), dof.n_boundary_dofs(boundary_ids)));
 #ifdef DEBUG
     if (sparsity.n_rows() != 0)
       {
@@ -490,14 +417,11 @@ namespace DoFTools
 
     for (const auto &cell : dof.active_cell_iterators())
       for (const unsigned int f : cell->face_indices())
-        if (boundary_ids.find(cell->face(f)->boundary_id()) !=
-            boundary_ids.end())
+        if (boundary_ids.find(cell->face(f)->boundary_id()) != boundary_ids.end())
           {
-            const unsigned int dofs_per_face =
-              cell->get_fe().n_dofs_per_face(f);
+            const unsigned int dofs_per_face = cell->get_fe().n_dofs_per_face(f);
             dofs_on_this_face.resize(dofs_per_face);
-            cell->face(f)->get_dof_indices(dofs_on_this_face,
-                                           cell->active_fe_index());
+            cell->face(f)->get_dof_indices(dofs_on_this_face, cell->active_fe_index());
 
             // make sparsity pattern for this cell
             cols.clear();
@@ -507,9 +431,7 @@ namespace DoFTools
             // Like the other one: sort once.
             std::sort(cols.begin(), cols.end());
             for (const auto &dof : dofs_on_this_face)
-              sparsity.add_row_entries(dof_to_boundary_mapping[dof],
-                                       make_array_view(cols),
-                                       true);
+              sparsity.add_row_entries(dof_to_boundary_mapping[dof], make_array_view(cols), true);
           }
   }
 
@@ -518,10 +440,10 @@ namespace DoFTools
   template <int dim, int spacedim, typename number>
   void
   make_flux_sparsity_pattern(const DoFHandler<dim, spacedim> &dof,
-                             SparsityPatternBase &            sparsity,
+                             SparsityPatternBase             &sparsity,
                              const AffineConstraints<number> &constraints,
-                             const bool                keep_constrained_dofs,
-                             const types::subdomain_id subdomain_id)
+                             const bool                       keep_constrained_dofs,
+                             const types::subdomain_id        subdomain_id)
 
   // TODO: QA: reduce the indentation level of this method..., Maier 2012
 
@@ -535,16 +457,14 @@ namespace DoFTools
     // If we have a distributed Triangulation only allow locally_owned
     // subdomain. Not setting a subdomain is also okay, because we skip
     // ghost cells in the loop below.
-    if (const auto *triangulation = dynamic_cast<
-          const parallel::DistributedTriangulationBase<dim, spacedim> *>(
-          &dof.get_triangulation()))
+    if (const auto *triangulation =
+          dynamic_cast<const parallel::DistributedTriangulationBase<dim, spacedim> *>(&dof.get_triangulation()))
       {
         Assert((subdomain_id == numbers::invalid_subdomain_id) ||
                  (subdomain_id == triangulation->locally_owned_subdomain()),
-               ExcMessage(
-                 "For distributed Triangulation objects and associated "
-                 "DoFHandler objects, asking for any subdomain other than the "
-                 "locally owned one does not make sense."));
+               ExcMessage("For distributed Triangulation objects and associated "
+                          "DoFHandler objects, asking for any subdomain other than the "
+                          "locally owned one does not make sense."));
       }
 
     std::vector<types::global_dof_index> dofs_on_this_cell;
@@ -561,31 +481,26 @@ namespace DoFTools
     // type, we only have to do the work if the current cell is owned by
     // the calling processor. Otherwise, just continue.
     for (const auto &cell : dof.active_cell_iterators())
-      if (((subdomain_id == numbers::invalid_subdomain_id) ||
-           (subdomain_id == cell->subdomain_id())) &&
+      if (((subdomain_id == numbers::invalid_subdomain_id) || (subdomain_id == cell->subdomain_id())) &&
           cell->is_locally_owned())
         {
-          const unsigned int n_dofs_on_this_cell =
-            cell->get_fe().n_dofs_per_cell();
+          const unsigned int n_dofs_on_this_cell = cell->get_fe().n_dofs_per_cell();
           dofs_on_this_cell.resize(n_dofs_on_this_cell);
           cell->get_dof_indices(dofs_on_this_cell);
 
           // make sparsity pattern for this cell. if no constraints pattern
           // was given, then the following call acts as if simply no
           // constraints existed
-          constraints.add_entries_local_to_global(dofs_on_this_cell,
-                                                  sparsity,
-                                                  keep_constrained_dofs);
+          constraints.add_entries_local_to_global(dofs_on_this_cell, sparsity, keep_constrained_dofs);
 
           for (const unsigned int face : cell->face_indices())
             {
-              typename DoFHandler<dim, spacedim>::face_iterator cell_face =
-                cell->face(face);
-              const bool periodic_neighbor = cell->has_periodic_neighbor(face);
+              typename DoFHandler<dim, spacedim>::face_iterator cell_face         = cell->face(face);
+              const bool                                        periodic_neighbor = cell->has_periodic_neighbor(face);
               if (!cell->at_boundary(face) || periodic_neighbor)
                 {
-                  typename DoFHandler<dim, spacedim>::level_cell_iterator
-                    neighbor = cell->neighbor_or_periodic_neighbor(face);
+                  typename DoFHandler<dim, spacedim>::level_cell_iterator neighbor =
+                    cell->neighbor_or_periodic_neighbor(face);
 
                   // in 1d, we do not need to worry whether the neighbor
                   // might have children and then loop over those children.
@@ -597,84 +512,67 @@ namespace DoFTools
 
                   if (neighbor->has_children())
                     {
-                      for (unsigned int sub_nr = 0;
-                           sub_nr != cell_face->n_active_descendants();
-                           ++sub_nr)
+                      for (unsigned int sub_nr = 0; sub_nr != cell_face->n_active_descendants(); ++sub_nr)
                         {
-                          const typename DoFHandler<dim, spacedim>::
-                            level_cell_iterator sub_neighbor =
-                              periodic_neighbor ?
-                                cell->periodic_neighbor_child_on_subface(
-                                  face, sub_nr) :
-                                cell->neighbor_child_on_subface(face, sub_nr);
+                          const typename DoFHandler<dim, spacedim>::level_cell_iterator sub_neighbor =
+                            periodic_neighbor ? cell->periodic_neighbor_child_on_subface(face, sub_nr) :
+                                                cell->neighbor_child_on_subface(face, sub_nr);
 
-                          const unsigned int n_dofs_on_neighbor =
-                            sub_neighbor->get_fe().n_dofs_per_cell();
+                          const unsigned int n_dofs_on_neighbor = sub_neighbor->get_fe().n_dofs_per_cell();
                           dofs_on_other_cell.resize(n_dofs_on_neighbor);
                           sub_neighbor->get_dof_indices(dofs_on_other_cell);
 
-                          constraints.add_entries_local_to_global(
-                            dofs_on_this_cell,
-                            dofs_on_other_cell,
-                            sparsity,
-                            keep_constrained_dofs);
-                          constraints.add_entries_local_to_global(
-                            dofs_on_other_cell,
-                            dofs_on_this_cell,
-                            sparsity,
-                            keep_constrained_dofs);
+                          constraints.add_entries_local_to_global(dofs_on_this_cell,
+                                                                  dofs_on_other_cell,
+                                                                  sparsity,
+                                                                  keep_constrained_dofs);
+                          constraints.add_entries_local_to_global(dofs_on_other_cell,
+                                                                  dofs_on_this_cell,
+                                                                  sparsity,
+                                                                  keep_constrained_dofs);
                           // only need to add this when the neighbor is not
                           // owned by the current processor, otherwise we add
                           // the entries for the neighbor there
-                          if (sub_neighbor->subdomain_id() !=
-                              cell->subdomain_id())
-                            constraints.add_entries_local_to_global(
-                              dofs_on_other_cell,
-                              sparsity,
-                              keep_constrained_dofs);
+                          if (sub_neighbor->subdomain_id() != cell->subdomain_id())
+                            constraints.add_entries_local_to_global(dofs_on_other_cell,
+                                                                    sparsity,
+                                                                    keep_constrained_dofs);
                         }
                     }
                   else
                     {
                       // Refinement edges are taken care of by coarser
                       // cells
-                      if ((!periodic_neighbor &&
-                           cell->neighbor_is_coarser(face)) ||
-                          (periodic_neighbor &&
-                           cell->periodic_neighbor_is_coarser(face)))
+                      if ((!periodic_neighbor && cell->neighbor_is_coarser(face)) ||
+                          (periodic_neighbor && cell->periodic_neighbor_is_coarser(face)))
                         if (neighbor->subdomain_id() == cell->subdomain_id())
                           continue;
 
-                      const unsigned int n_dofs_on_neighbor =
-                        neighbor->get_fe().n_dofs_per_cell();
+                      const unsigned int n_dofs_on_neighbor = neighbor->get_fe().n_dofs_per_cell();
                       dofs_on_other_cell.resize(n_dofs_on_neighbor);
 
                       neighbor->get_dof_indices(dofs_on_other_cell);
 
-                      constraints.add_entries_local_to_global(
-                        dofs_on_this_cell,
-                        dofs_on_other_cell,
-                        sparsity,
-                        keep_constrained_dofs);
+                      constraints.add_entries_local_to_global(dofs_on_this_cell,
+                                                              dofs_on_other_cell,
+                                                              sparsity,
+                                                              keep_constrained_dofs);
 
                       // only need to add these in case the neighbor cell
                       // is not locally owned - otherwise, we touch each
                       // face twice and hence put the indices the other way
                       // around
-                      if (!cell->neighbor_or_periodic_neighbor(face)
-                             ->is_active() ||
+                      if (!cell->neighbor_or_periodic_neighbor(face)->is_active() ||
                           (neighbor->subdomain_id() != cell->subdomain_id()))
                         {
-                          constraints.add_entries_local_to_global(
-                            dofs_on_other_cell,
-                            dofs_on_this_cell,
-                            sparsity,
-                            keep_constrained_dofs);
+                          constraints.add_entries_local_to_global(dofs_on_other_cell,
+                                                                  dofs_on_this_cell,
+                                                                  sparsity,
+                                                                  keep_constrained_dofs);
                           if (neighbor->subdomain_id() != cell->subdomain_id())
-                            constraints.add_entries_local_to_global(
-                              dofs_on_other_cell,
-                              sparsity,
-                              keep_constrained_dofs);
+                            constraints.add_entries_local_to_global(dofs_on_other_cell,
+                                                                    sparsity,
+                                                                    keep_constrained_dofs);
                         }
                     }
                 }
@@ -686,8 +584,7 @@ namespace DoFTools
 
   template <int dim, int spacedim>
   void
-  make_flux_sparsity_pattern(const DoFHandler<dim, spacedim> &dof,
-                             SparsityPatternBase &            sparsity)
+  make_flux_sparsity_pattern(const DoFHandler<dim, spacedim> &dof, SparsityPatternBase &sparsity)
   {
     AffineConstraints<double> dummy;
     make_flux_sparsity_pattern(dof, sparsity, dummy);
@@ -695,16 +592,13 @@ namespace DoFTools
 
   template <int dim, int spacedim>
   Table<2, Coupling>
-  dof_couplings_from_component_couplings(
-    const FiniteElement<dim, spacedim> &fe,
-    const Table<2, Coupling> &          component_couplings)
+  dof_couplings_from_component_couplings(const FiniteElement<dim, spacedim> &fe,
+                                         const Table<2, Coupling>           &component_couplings)
   {
     Assert(component_couplings.n_rows() == fe.n_components(),
-           ExcDimensionMismatch(component_couplings.n_rows(),
-                                fe.n_components()));
+           ExcDimensionMismatch(component_couplings.n_rows(), fe.n_components()));
     Assert(component_couplings.n_cols() == fe.n_components(),
-           ExcDimensionMismatch(component_couplings.n_cols(),
-                                fe.n_components()));
+           ExcDimensionMismatch(component_couplings.n_cols(), fe.n_components()));
 
     const unsigned int n_dofs = fe.n_dofs_per_cell();
 
@@ -712,18 +606,14 @@ namespace DoFTools
 
     for (unsigned int i = 0; i < n_dofs; ++i)
       {
-        const unsigned int ii =
-          (fe.is_primitive(i) ?
-             fe.system_to_component_index(i).first :
-             fe.get_nonzero_components(i).first_selected_component());
+        const unsigned int ii = (fe.is_primitive(i) ? fe.system_to_component_index(i).first :
+                                                      fe.get_nonzero_components(i).first_selected_component());
         Assert(ii < fe.n_components(), ExcInternalError());
 
         for (unsigned int j = 0; j < n_dofs; ++j)
           {
-            const unsigned int jj =
-              (fe.is_primitive(j) ?
-                 fe.system_to_component_index(j).first :
-                 fe.get_nonzero_components(j).first_selected_component());
+            const unsigned int jj = (fe.is_primitive(j) ? fe.system_to_component_index(j).first :
+                                                          fe.get_nonzero_components(j).first_selected_component());
             Assert(jj < fe.n_components(), ExcInternalError());
 
             dof_couplings(i, j) = component_couplings(ii, jj);
@@ -736,14 +626,12 @@ namespace DoFTools
 
   template <int dim, int spacedim>
   std::vector<Table<2, Coupling>>
-  dof_couplings_from_component_couplings(
-    const hp::FECollection<dim, spacedim> &fe,
-    const Table<2, Coupling> &             component_couplings)
+  dof_couplings_from_component_couplings(const hp::FECollection<dim, spacedim> &fe,
+                                         const Table<2, Coupling>              &component_couplings)
   {
     std::vector<Table<2, Coupling>> return_value(fe.size());
     for (unsigned int i = 0; i < fe.size(); ++i)
-      return_value[i] =
-        dof_couplings_from_component_couplings(fe[i], component_couplings);
+      return_value[i] = dof_couplings_from_component_couplings(fe[i], component_couplings);
 
     return return_value;
   }
@@ -760,46 +648,36 @@ namespace DoFTools
       void
       make_flux_sparsity_pattern(
         const DoFHandler<dim, spacedim> &dof,
-        SparsityPatternBase &            sparsity,
+        SparsityPatternBase             &sparsity,
         const AffineConstraints<number> &constraints,
         const bool                       keep_constrained_dofs,
-        const Table<2, Coupling> &       int_mask,
-        const Table<2, Coupling> &       flux_mask,
+        const Table<2, Coupling>        &int_mask,
+        const Table<2, Coupling>        &flux_mask,
         const types::subdomain_id        subdomain_id,
-        const std::function<
-          bool(const typename DoFHandler<dim, spacedim>::active_cell_iterator &,
-               const unsigned int)> &face_has_flux_coupling)
+        const std::function<bool(const typename DoFHandler<dim, spacedim>::active_cell_iterator &, const unsigned int)>
+          &face_has_flux_coupling)
       {
-        std::vector<types::global_dof_index> rows;
-        std::vector<std::pair<SparsityPatternBase::size_type,
-                              SparsityPatternBase::size_type>>
-          cell_entries;
+        std::vector<types::global_dof_index>                                                   rows;
+        std::vector<std::pair<SparsityPatternBase::size_type, SparsityPatternBase::size_type>> cell_entries;
 
         if (dof.has_hp_capabilities() == false)
           {
             const FiniteElement<dim, spacedim> &fe = dof.get_fe();
 
-            std::vector<types::global_dof_index> dofs_on_this_cell(
-              fe.n_dofs_per_cell());
-            std::vector<types::global_dof_index> dofs_on_other_cell(
-              fe.n_dofs_per_cell());
+            std::vector<types::global_dof_index> dofs_on_this_cell(fe.n_dofs_per_cell());
+            std::vector<types::global_dof_index> dofs_on_other_cell(fe.n_dofs_per_cell());
 
-            const Table<2, Coupling>
-              int_dof_mask =
-                dof_couplings_from_component_couplings(fe, int_mask),
-              flux_dof_mask =
-                dof_couplings_from_component_couplings(fe, flux_mask);
+            const Table<2, Coupling> int_dof_mask  = dof_couplings_from_component_couplings(fe, int_mask),
+                                     flux_dof_mask = dof_couplings_from_component_couplings(fe, flux_mask);
 
-            Table<2, bool> support_on_face(fe.n_dofs_per_cell(),
-                                           GeometryInfo<dim>::faces_per_cell);
+            Table<2, bool> support_on_face(fe.n_dofs_per_cell(), GeometryInfo<dim>::faces_per_cell);
             for (unsigned int i = 0; i < fe.n_dofs_per_cell(); ++i)
               for (const unsigned int f : GeometryInfo<dim>::face_indices())
                 support_on_face(i, f) = fe.has_support_on_face(i, f);
 
             // Convert the int_dof_mask to bool_int_dof_mask so we can pass it
             // to constraints.add_entries_local_to_global()
-            Table<2, bool> bool_int_dof_mask(fe.n_dofs_per_cell(),
-                                             fe.n_dofs_per_cell());
+            Table<2, bool> bool_int_dof_mask(fe.n_dofs_per_cell(), fe.n_dofs_per_cell());
             bool_int_dof_mask.fill(false);
             for (unsigned int i = 0; i < fe.n_dofs_per_cell(); ++i)
               for (unsigned int j = 0; j < fe.n_dofs_per_cell(); ++j)
@@ -807,8 +685,7 @@ namespace DoFTools
                   bool_int_dof_mask(i, j) = true;
 
             for (const auto &cell : dof.active_cell_iterators())
-              if (((subdomain_id == numbers::invalid_subdomain_id) ||
-                   (subdomain_id == cell->subdomain_id())) &&
+              if (((subdomain_id == numbers::invalid_subdomain_id) || (subdomain_id == cell->subdomain_id())) &&
                   cell->is_locally_owned())
                 {
                   cell->get_dof_indices(dofs_on_this_cell);
@@ -820,31 +697,22 @@ namespace DoFTools
                   // Loop over all interior neighbors
                   for (const unsigned int face_n : cell->face_indices())
                     {
-                      const typename DoFHandler<dim, spacedim>::face_iterator
-                        cell_face = cell->face(face_n);
+                      const typename DoFHandler<dim, spacedim>::face_iterator cell_face = cell->face(face_n);
 
-                      const bool periodic_neighbor =
-                        cell->has_periodic_neighbor(face_n);
+                      const bool periodic_neighbor = cell->has_periodic_neighbor(face_n);
 
                       if (cell->at_boundary(face_n) && (!periodic_neighbor))
                         {
-                          for (unsigned int i = 0; i < fe.n_dofs_per_cell();
-                               ++i)
+                          for (unsigned int i = 0; i < fe.n_dofs_per_cell(); ++i)
                             {
-                              const bool i_non_zero_i =
-                                support_on_face(i, face_n);
-                              for (unsigned int j = 0; j < fe.n_dofs_per_cell();
-                                   ++j)
+                              const bool i_non_zero_i = support_on_face(i, face_n);
+                              for (unsigned int j = 0; j < fe.n_dofs_per_cell(); ++j)
                                 {
-                                  const bool j_non_zero_i =
-                                    support_on_face(j, face_n);
+                                  const bool j_non_zero_i = support_on_face(j, face_n);
 
                                   if (flux_dof_mask(i, j) == always ||
-                                      (flux_dof_mask(i, j) == nonzero &&
-                                       i_non_zero_i && j_non_zero_i))
-                                    cell_entries.emplace_back(
-                                      dofs_on_this_cell[i],
-                                      dofs_on_this_cell[j]);
+                                      (flux_dof_mask(i, j) == nonzero && i_non_zero_i && j_non_zero_i))
+                                    cell_entries.emplace_back(dofs_on_this_cell[i], dofs_on_this_cell[j]);
                                 }
                             }
                           sparsity.add_entries(make_array_view(cell_entries));
@@ -852,18 +720,14 @@ namespace DoFTools
                         }
                       else
                         {
-                          typename DoFHandler<dim,
-                                              spacedim>::level_cell_iterator
-                            neighbor =
-                              cell->neighbor_or_periodic_neighbor(face_n);
+                          typename DoFHandler<dim, spacedim>::level_cell_iterator neighbor =
+                            cell->neighbor_or_periodic_neighbor(face_n);
                           // If the cells are on the same level (and both are
                           // active, locally-owned cells) then only add to the
                           // sparsity pattern if the current cell is 'greater'
                           // in the total ordering.
-                          if (neighbor->level() == cell->level() &&
-                              neighbor->index() > cell->index() &&
-                              neighbor->is_active() &&
-                              neighbor->is_locally_owned())
+                          if (neighbor->level() == cell->level() && neighbor->index() > cell->index() &&
+                              neighbor->is_active() && neighbor->is_locally_owned())
                             continue;
                           // If we are more refined then the neighbor, then we
                           // will automatically find the active neighbor cell
@@ -878,10 +742,8 @@ namespace DoFTools
                           // Like above, do not use this optimization if the
                           // neighbor is not locally owned.
                           if (neighbor->level() != cell->level() &&
-                              ((!periodic_neighbor &&
-                                !cell->neighbor_is_coarser(face_n)) ||
-                               (periodic_neighbor &&
-                                !cell->periodic_neighbor_is_coarser(face_n))) &&
+                              ((!periodic_neighbor && !cell->neighbor_is_coarser(face_n)) ||
+                               (periodic_neighbor && !cell->periodic_neighbor_is_coarser(face_n))) &&
                               neighbor->is_locally_owned())
                             continue; // (the neighbor is finer)
 
@@ -889,10 +751,9 @@ namespace DoFTools
                             continue;
 
 
-                          const unsigned int neighbor_face_n =
-                            periodic_neighbor ?
-                              cell->periodic_neighbor_face_no(face_n) :
-                              cell->neighbor_face_no(face_n);
+                          const unsigned int neighbor_face_n = periodic_neighbor ?
+                                                                 cell->periodic_neighbor_face_no(face_n) :
+                                                                 cell->neighbor_face_no(face_n);
 
 
                           // In 1d, go straight to the cell behind this
@@ -907,207 +768,116 @@ namespace DoFTools
 
                           if (neighbor->has_children())
                             {
-                              for (unsigned int sub_nr = 0;
-                                   sub_nr != cell_face->n_children();
-                                   ++sub_nr)
+                              for (unsigned int sub_nr = 0; sub_nr != cell_face->n_children(); ++sub_nr)
                                 {
-                                  const typename DoFHandler<dim, spacedim>::
-                                    level_cell_iterator sub_neighbor =
-                                      periodic_neighbor ?
-                                        cell
-                                          ->periodic_neighbor_child_on_subface(
-                                            face_n, sub_nr) :
-                                        cell->neighbor_child_on_subface(face_n,
-                                                                        sub_nr);
+                                  const typename DoFHandler<dim, spacedim>::level_cell_iterator sub_neighbor =
+                                    periodic_neighbor ? cell->periodic_neighbor_child_on_subface(face_n, sub_nr) :
+                                                        cell->neighbor_child_on_subface(face_n, sub_nr);
 
-                                  sub_neighbor->get_dof_indices(
-                                    dofs_on_other_cell);
-                                  for (unsigned int i = 0;
-                                       i < fe.n_dofs_per_cell();
-                                       ++i)
+                                  sub_neighbor->get_dof_indices(dofs_on_other_cell);
+                                  for (unsigned int i = 0; i < fe.n_dofs_per_cell(); ++i)
                                     {
-                                      const bool i_non_zero_i =
-                                        support_on_face(i, face_n);
-                                      const bool i_non_zero_e =
-                                        support_on_face(i, neighbor_face_n);
-                                      for (unsigned int j = 0;
-                                           j < fe.n_dofs_per_cell();
-                                           ++j)
+                                      const bool i_non_zero_i = support_on_face(i, face_n);
+                                      const bool i_non_zero_e = support_on_face(i, neighbor_face_n);
+                                      for (unsigned int j = 0; j < fe.n_dofs_per_cell(); ++j)
                                         {
-                                          const bool j_non_zero_i =
-                                            support_on_face(j, face_n);
-                                          const bool j_non_zero_e =
-                                            support_on_face(j, neighbor_face_n);
+                                          const bool j_non_zero_i = support_on_face(j, face_n);
+                                          const bool j_non_zero_e = support_on_face(j, neighbor_face_n);
 
                                           if (flux_dof_mask(i, j) == always)
                                             {
-                                              cell_entries.emplace_back(
-                                                dofs_on_this_cell[i],
-                                                dofs_on_other_cell[j]);
-                                              cell_entries.emplace_back(
-                                                dofs_on_other_cell[i],
-                                                dofs_on_this_cell[j]);
-                                              cell_entries.emplace_back(
-                                                dofs_on_this_cell[i],
-                                                dofs_on_this_cell[j]);
-                                              cell_entries.emplace_back(
-                                                dofs_on_other_cell[i],
-                                                dofs_on_other_cell[j]);
+                                              cell_entries.emplace_back(dofs_on_this_cell[i], dofs_on_other_cell[j]);
+                                              cell_entries.emplace_back(dofs_on_other_cell[i], dofs_on_this_cell[j]);
+                                              cell_entries.emplace_back(dofs_on_this_cell[i], dofs_on_this_cell[j]);
+                                              cell_entries.emplace_back(dofs_on_other_cell[i], dofs_on_other_cell[j]);
                                             }
-                                          else if (flux_dof_mask(i, j) ==
-                                                   nonzero)
+                                          else if (flux_dof_mask(i, j) == nonzero)
                                             {
                                               if (i_non_zero_i && j_non_zero_e)
-                                                cell_entries.emplace_back(
-                                                  dofs_on_this_cell[i],
-                                                  dofs_on_other_cell[j]);
+                                                cell_entries.emplace_back(dofs_on_this_cell[i], dofs_on_other_cell[j]);
                                               if (i_non_zero_e && j_non_zero_i)
-                                                cell_entries.emplace_back(
-                                                  dofs_on_other_cell[i],
-                                                  dofs_on_this_cell[j]);
+                                                cell_entries.emplace_back(dofs_on_other_cell[i], dofs_on_this_cell[j]);
                                               if (i_non_zero_i && j_non_zero_i)
-                                                cell_entries.emplace_back(
-                                                  dofs_on_this_cell[i],
-                                                  dofs_on_this_cell[j]);
+                                                cell_entries.emplace_back(dofs_on_this_cell[i], dofs_on_this_cell[j]);
                                               if (i_non_zero_e && j_non_zero_e)
-                                                cell_entries.emplace_back(
-                                                  dofs_on_other_cell[i],
-                                                  dofs_on_other_cell[j]);
+                                                cell_entries.emplace_back(dofs_on_other_cell[i], dofs_on_other_cell[j]);
                                             }
 
                                           if (flux_dof_mask(j, i) == always)
                                             {
-                                              cell_entries.emplace_back(
-                                                dofs_on_this_cell[j],
-                                                dofs_on_other_cell[i]);
-                                              cell_entries.emplace_back(
-                                                dofs_on_other_cell[j],
-                                                dofs_on_this_cell[i]);
-                                              cell_entries.emplace_back(
-                                                dofs_on_this_cell[j],
-                                                dofs_on_this_cell[i]);
-                                              cell_entries.emplace_back(
-                                                dofs_on_other_cell[j],
-                                                dofs_on_other_cell[i]);
+                                              cell_entries.emplace_back(dofs_on_this_cell[j], dofs_on_other_cell[i]);
+                                              cell_entries.emplace_back(dofs_on_other_cell[j], dofs_on_this_cell[i]);
+                                              cell_entries.emplace_back(dofs_on_this_cell[j], dofs_on_this_cell[i]);
+                                              cell_entries.emplace_back(dofs_on_other_cell[j], dofs_on_other_cell[i]);
                                             }
-                                          else if (flux_dof_mask(j, i) ==
-                                                   nonzero)
+                                          else if (flux_dof_mask(j, i) == nonzero)
                                             {
                                               if (j_non_zero_i && i_non_zero_e)
-                                                cell_entries.emplace_back(
-                                                  dofs_on_this_cell[j],
-                                                  dofs_on_other_cell[i]);
+                                                cell_entries.emplace_back(dofs_on_this_cell[j], dofs_on_other_cell[i]);
                                               if (j_non_zero_e && i_non_zero_i)
-                                                cell_entries.emplace_back(
-                                                  dofs_on_other_cell[j],
-                                                  dofs_on_this_cell[i]);
+                                                cell_entries.emplace_back(dofs_on_other_cell[j], dofs_on_this_cell[i]);
                                               if (j_non_zero_i && i_non_zero_i)
-                                                cell_entries.emplace_back(
-                                                  dofs_on_this_cell[j],
-                                                  dofs_on_this_cell[i]);
+                                                cell_entries.emplace_back(dofs_on_this_cell[j], dofs_on_this_cell[i]);
                                               if (j_non_zero_e && i_non_zero_e)
-                                                cell_entries.emplace_back(
-                                                  dofs_on_other_cell[j],
-                                                  dofs_on_other_cell[i]);
+                                                cell_entries.emplace_back(dofs_on_other_cell[j], dofs_on_other_cell[i]);
                                             }
                                         }
                                     }
                                 }
-                              sparsity.add_entries(
-                                make_array_view(cell_entries));
+                              sparsity.add_entries(make_array_view(cell_entries));
                               cell_entries.clear();
                             }
                           else
                             {
                               neighbor->get_dof_indices(dofs_on_other_cell);
-                              for (unsigned int i = 0; i < fe.n_dofs_per_cell();
-                                   ++i)
+                              for (unsigned int i = 0; i < fe.n_dofs_per_cell(); ++i)
                                 {
-                                  const bool i_non_zero_i =
-                                    support_on_face(i, face_n);
-                                  const bool i_non_zero_e =
-                                    support_on_face(i, neighbor_face_n);
-                                  for (unsigned int j = 0;
-                                       j < fe.n_dofs_per_cell();
-                                       ++j)
+                                  const bool i_non_zero_i = support_on_face(i, face_n);
+                                  const bool i_non_zero_e = support_on_face(i, neighbor_face_n);
+                                  for (unsigned int j = 0; j < fe.n_dofs_per_cell(); ++j)
                                     {
-                                      const bool j_non_zero_i =
-                                        support_on_face(j, face_n);
-                                      const bool j_non_zero_e =
-                                        support_on_face(j, neighbor_face_n);
+                                      const bool j_non_zero_i = support_on_face(j, face_n);
+                                      const bool j_non_zero_e = support_on_face(j, neighbor_face_n);
                                       if (flux_dof_mask(i, j) == always)
                                         {
-                                          cell_entries.emplace_back(
-                                            dofs_on_this_cell[i],
-                                            dofs_on_other_cell[j]);
-                                          cell_entries.emplace_back(
-                                            dofs_on_other_cell[i],
-                                            dofs_on_this_cell[j]);
-                                          cell_entries.emplace_back(
-                                            dofs_on_this_cell[i],
-                                            dofs_on_this_cell[j]);
-                                          cell_entries.emplace_back(
-                                            dofs_on_other_cell[i],
-                                            dofs_on_other_cell[j]);
+                                          cell_entries.emplace_back(dofs_on_this_cell[i], dofs_on_other_cell[j]);
+                                          cell_entries.emplace_back(dofs_on_other_cell[i], dofs_on_this_cell[j]);
+                                          cell_entries.emplace_back(dofs_on_this_cell[i], dofs_on_this_cell[j]);
+                                          cell_entries.emplace_back(dofs_on_other_cell[i], dofs_on_other_cell[j]);
                                         }
                                       if (flux_dof_mask(i, j) == nonzero)
                                         {
                                           if (i_non_zero_i && j_non_zero_e)
-                                            cell_entries.emplace_back(
-                                              dofs_on_this_cell[i],
-                                              dofs_on_other_cell[j]);
+                                            cell_entries.emplace_back(dofs_on_this_cell[i], dofs_on_other_cell[j]);
                                           if (i_non_zero_e && j_non_zero_i)
-                                            cell_entries.emplace_back(
-                                              dofs_on_other_cell[i],
-                                              dofs_on_this_cell[j]);
+                                            cell_entries.emplace_back(dofs_on_other_cell[i], dofs_on_this_cell[j]);
                                           if (i_non_zero_i && j_non_zero_i)
-                                            cell_entries.emplace_back(
-                                              dofs_on_this_cell[i],
-                                              dofs_on_this_cell[j]);
+                                            cell_entries.emplace_back(dofs_on_this_cell[i], dofs_on_this_cell[j]);
                                           if (i_non_zero_e && j_non_zero_e)
-                                            cell_entries.emplace_back(
-                                              dofs_on_other_cell[i],
-                                              dofs_on_other_cell[j]);
+                                            cell_entries.emplace_back(dofs_on_other_cell[i], dofs_on_other_cell[j]);
                                         }
 
                                       if (flux_dof_mask(j, i) == always)
                                         {
-                                          cell_entries.emplace_back(
-                                            dofs_on_this_cell[j],
-                                            dofs_on_other_cell[i]);
-                                          cell_entries.emplace_back(
-                                            dofs_on_other_cell[j],
-                                            dofs_on_this_cell[i]);
-                                          cell_entries.emplace_back(
-                                            dofs_on_this_cell[j],
-                                            dofs_on_this_cell[i]);
-                                          cell_entries.emplace_back(
-                                            dofs_on_other_cell[j],
-                                            dofs_on_other_cell[i]);
+                                          cell_entries.emplace_back(dofs_on_this_cell[j], dofs_on_other_cell[i]);
+                                          cell_entries.emplace_back(dofs_on_other_cell[j], dofs_on_this_cell[i]);
+                                          cell_entries.emplace_back(dofs_on_this_cell[j], dofs_on_this_cell[i]);
+                                          cell_entries.emplace_back(dofs_on_other_cell[j], dofs_on_other_cell[i]);
                                         }
                                       if (flux_dof_mask(j, i) == nonzero)
                                         {
                                           if (j_non_zero_i && i_non_zero_e)
-                                            cell_entries.emplace_back(
-                                              dofs_on_this_cell[j],
-                                              dofs_on_other_cell[i]);
+                                            cell_entries.emplace_back(dofs_on_this_cell[j], dofs_on_other_cell[i]);
                                           if (j_non_zero_e && i_non_zero_i)
-                                            cell_entries.emplace_back(
-                                              dofs_on_other_cell[j],
-                                              dofs_on_this_cell[i]);
+                                            cell_entries.emplace_back(dofs_on_other_cell[j], dofs_on_this_cell[i]);
                                           if (j_non_zero_i && i_non_zero_i)
-                                            cell_entries.emplace_back(
-                                              dofs_on_this_cell[j],
-                                              dofs_on_this_cell[i]);
+                                            cell_entries.emplace_back(dofs_on_this_cell[j], dofs_on_this_cell[i]);
                                           if (j_non_zero_e && i_non_zero_e)
-                                            cell_entries.emplace_back(
-                                              dofs_on_other_cell[j],
-                                              dofs_on_other_cell[i]);
+                                            cell_entries.emplace_back(dofs_on_other_cell[j], dofs_on_other_cell[i]);
                                         }
                                     }
                                 }
-                              sparsity.add_entries(
-                                make_array_view(cell_entries));
+                              sparsity.add_entries(make_array_view(cell_entries));
                               cell_entries.clear();
                             }
                         }
@@ -1123,13 +893,10 @@ namespace DoFTools
             // consequently, the implementation here is simpler and probably
             // less efficient but at least readable...
 
-            const dealii::hp::FECollection<dim, spacedim> &fe =
-              dof.get_fe_collection();
+            const dealii::hp::FECollection<dim, spacedim> &fe = dof.get_fe_collection();
 
-            std::vector<types::global_dof_index> dofs_on_this_cell(
-              dof.get_fe_collection().max_dofs_per_cell());
-            std::vector<types::global_dof_index> dofs_on_other_cell(
-              dof.get_fe_collection().max_dofs_per_cell());
+            std::vector<types::global_dof_index> dofs_on_this_cell(dof.get_fe_collection().max_dofs_per_cell());
+            std::vector<types::global_dof_index> dofs_on_other_cell(dof.get_fe_collection().max_dofs_per_cell());
 
             const unsigned int n_components = fe.n_components();
             AssertDimension(int_mask.size(0), n_components);
@@ -1154,9 +921,7 @@ namespace DoFTools
             std::vector<Table<2, bool>> bool_int_and_flux_dof_mask(fe.size());
             for (unsigned int f = 0; f < fe.size(); ++f)
               {
-                bool_int_and_flux_dof_mask[f].reinit(
-                  TableIndices<2>(fe[f].n_dofs_per_cell(),
-                                  fe[f].n_dofs_per_cell()));
+                bool_int_and_flux_dof_mask[f].reinit(TableIndices<2>(fe[f].n_dofs_per_cell(), fe[f].n_dofs_per_cell()));
                 bool_int_and_flux_dof_mask[f].fill(false);
                 for (unsigned int i = 0; i < fe[f].n_dofs_per_cell(); ++i)
                   for (unsigned int j = 0; j < fe[f].n_dofs_per_cell(); ++j)
@@ -1166,8 +931,7 @@ namespace DoFTools
 
 
             for (const auto &cell : dof.active_cell_iterators())
-              if (((subdomain_id == numbers::invalid_subdomain_id) ||
-                   (subdomain_id == cell->subdomain_id())) &&
+              if (((subdomain_id == numbers::invalid_subdomain_id) || (subdomain_id == cell->subdomain_id())) &&
                   cell->is_locally_owned())
                 {
                   dofs_on_this_cell.resize(cell->get_fe().n_dofs_per_cell());
@@ -1176,36 +940,29 @@ namespace DoFTools
                   // make sparsity pattern for this cell also taking into
                   // account the couplings due to face contributions on the same
                   // cell
-                  constraints.add_entries_local_to_global(
-                    dofs_on_this_cell,
-                    sparsity,
-                    keep_constrained_dofs,
-                    bool_int_and_flux_dof_mask[cell->active_fe_index()]);
+                  constraints.add_entries_local_to_global(dofs_on_this_cell,
+                                                          sparsity,
+                                                          keep_constrained_dofs,
+                                                          bool_int_and_flux_dof_mask[cell->active_fe_index()]);
 
                   // Loop over interior faces
                   for (const unsigned int face : cell->face_indices())
                     {
-                      const typename DoFHandler<dim, spacedim>::face_iterator
-                        cell_face = cell->face(face);
+                      const typename DoFHandler<dim, spacedim>::face_iterator cell_face = cell->face(face);
 
-                      const bool periodic_neighbor =
-                        cell->has_periodic_neighbor(face);
+                      const bool periodic_neighbor = cell->has_periodic_neighbor(face);
 
                       if ((!cell->at_boundary(face)) || periodic_neighbor)
                         {
-                          typename DoFHandler<dim,
-                                              spacedim>::level_cell_iterator
-                            neighbor =
-                              cell->neighbor_or_periodic_neighbor(face);
+                          typename DoFHandler<dim, spacedim>::level_cell_iterator neighbor =
+                            cell->neighbor_or_periodic_neighbor(face);
 
                           // Like the non-hp-case: If the cells are on the same
                           // level (and both are active, locally-owned cells)
                           // then only add to the sparsity pattern if the
                           // current cell is 'greater' in the total ordering.
-                          if (neighbor->level() == cell->level() &&
-                              neighbor->index() > cell->index() &&
-                              neighbor->is_active() &&
-                              neighbor->is_locally_owned())
+                          if (neighbor->level() == cell->level() && neighbor->index() > cell->index() &&
+                              neighbor->is_active() && neighbor->is_locally_owned())
                             continue;
                           // Again, like the non-hp-case: If we are more refined
                           // then the neighbor, then we will automatically find
@@ -1220,10 +977,8 @@ namespace DoFTools
                           // Like above, do not use this optimization if the
                           // neighbor is not locally owned.
                           if (neighbor->level() != cell->level() &&
-                              ((!periodic_neighbor &&
-                                !cell->neighbor_is_coarser(face)) ||
-                               (periodic_neighbor &&
-                                !cell->periodic_neighbor_is_coarser(face))) &&
+                              ((!periodic_neighbor && !cell->neighbor_is_coarser(face)) ||
+                               (periodic_neighbor && !cell->periodic_neighbor_is_coarser(face))) &&
                               neighbor->is_locally_owned())
                             continue; // (the neighbor is finer)
 
@@ -1243,72 +998,42 @@ namespace DoFTools
 
                           if (neighbor->has_children())
                             {
-                              for (unsigned int sub_nr = 0;
-                                   sub_nr != cell_face->n_children();
-                                   ++sub_nr)
+                              for (unsigned int sub_nr = 0; sub_nr != cell_face->n_children(); ++sub_nr)
                                 {
-                                  const typename DoFHandler<dim, spacedim>::
-                                    level_cell_iterator sub_neighbor =
-                                      periodic_neighbor ?
-                                        cell
-                                          ->periodic_neighbor_child_on_subface(
-                                            face, sub_nr) :
-                                        cell->neighbor_child_on_subface(face,
-                                                                        sub_nr);
+                                  const typename DoFHandler<dim, spacedim>::level_cell_iterator sub_neighbor =
+                                    periodic_neighbor ? cell->periodic_neighbor_child_on_subface(face, sub_nr) :
+                                                        cell->neighbor_child_on_subface(face, sub_nr);
 
-                                  dofs_on_other_cell.resize(
-                                    sub_neighbor->get_fe().n_dofs_per_cell());
-                                  sub_neighbor->get_dof_indices(
-                                    dofs_on_other_cell);
-                                  for (unsigned int i = 0;
-                                       i < cell->get_fe().n_dofs_per_cell();
-                                       ++i)
+                                  dofs_on_other_cell.resize(sub_neighbor->get_fe().n_dofs_per_cell());
+                                  sub_neighbor->get_dof_indices(dofs_on_other_cell);
+                                  for (unsigned int i = 0; i < cell->get_fe().n_dofs_per_cell(); ++i)
                                     {
                                       const unsigned int ii =
                                         (cell->get_fe().is_primitive(i) ?
-                                           cell->get_fe()
-                                             .system_to_component_index(i)
-                                             .first :
-                                           cell->get_fe()
-                                             .get_nonzero_components(i)
-                                             .first_selected_component());
+                                           cell->get_fe().system_to_component_index(i).first :
+                                           cell->get_fe().get_nonzero_components(i).first_selected_component());
 
-                                      Assert(ii < cell->get_fe().n_components(),
-                                             ExcInternalError());
+                                      Assert(ii < cell->get_fe().n_components(), ExcInternalError());
 
-                                      for (unsigned int j = 0;
-                                           j < sub_neighbor->get_fe()
-                                                 .n_dofs_per_cell();
-                                           ++j)
+                                      for (unsigned int j = 0; j < sub_neighbor->get_fe().n_dofs_per_cell(); ++j)
                                         {
                                           const unsigned int jj =
-                                            (sub_neighbor->get_fe()
-                                                 .is_primitive(j) ?
-                                               sub_neighbor->get_fe()
-                                                 .system_to_component_index(j)
-                                                 .first :
+                                            (sub_neighbor->get_fe().is_primitive(j) ?
+                                               sub_neighbor->get_fe().system_to_component_index(j).first :
                                                sub_neighbor->get_fe()
                                                  .get_nonzero_components(j)
                                                  .first_selected_component());
 
-                                          Assert(jj < sub_neighbor->get_fe()
-                                                        .n_components(),
-                                                 ExcInternalError());
+                                          Assert(jj < sub_neighbor->get_fe().n_components(), ExcInternalError());
 
-                                          if ((flux_mask(ii, jj) == always) ||
-                                              (flux_mask(ii, jj) == nonzero))
+                                          if ((flux_mask(ii, jj) == always) || (flux_mask(ii, jj) == nonzero))
                                             {
-                                              cell_entries.emplace_back(
-                                                dofs_on_this_cell[i],
-                                                dofs_on_other_cell[j]);
+                                              cell_entries.emplace_back(dofs_on_this_cell[i], dofs_on_other_cell[j]);
                                             }
 
-                                          if ((flux_mask(jj, ii) == always) ||
-                                              (flux_mask(jj, ii) == nonzero))
+                                          if ((flux_mask(jj, ii) == always) || (flux_mask(jj, ii) == nonzero))
                                             {
-                                              cell_entries.emplace_back(
-                                                dofs_on_other_cell[j],
-                                                dofs_on_this_cell[i]);
+                                              cell_entries.emplace_back(dofs_on_other_cell[j], dofs_on_this_cell[i]);
                                             }
                                         }
                                     }
@@ -1316,56 +1041,34 @@ namespace DoFTools
                             }
                           else
                             {
-                              dofs_on_other_cell.resize(
-                                neighbor->get_fe().n_dofs_per_cell());
+                              dofs_on_other_cell.resize(neighbor->get_fe().n_dofs_per_cell());
                               neighbor->get_dof_indices(dofs_on_other_cell);
-                              for (unsigned int i = 0;
-                                   i < cell->get_fe().n_dofs_per_cell();
-                                   ++i)
+                              for (unsigned int i = 0; i < cell->get_fe().n_dofs_per_cell(); ++i)
                                 {
                                   const unsigned int ii =
                                     (cell->get_fe().is_primitive(i) ?
-                                       cell->get_fe()
-                                         .system_to_component_index(i)
-                                         .first :
-                                       cell->get_fe()
-                                         .get_nonzero_components(i)
-                                         .first_selected_component());
+                                       cell->get_fe().system_to_component_index(i).first :
+                                       cell->get_fe().get_nonzero_components(i).first_selected_component());
 
-                                  Assert(ii < cell->get_fe().n_components(),
-                                         ExcInternalError());
+                                  Assert(ii < cell->get_fe().n_components(), ExcInternalError());
 
-                                  for (unsigned int j = 0;
-                                       j < neighbor->get_fe().n_dofs_per_cell();
-                                       ++j)
+                                  for (unsigned int j = 0; j < neighbor->get_fe().n_dofs_per_cell(); ++j)
                                     {
                                       const unsigned int jj =
                                         (neighbor->get_fe().is_primitive(j) ?
-                                           neighbor->get_fe()
-                                             .system_to_component_index(j)
-                                             .first :
-                                           neighbor->get_fe()
-                                             .get_nonzero_components(j)
-                                             .first_selected_component());
+                                           neighbor->get_fe().system_to_component_index(j).first :
+                                           neighbor->get_fe().get_nonzero_components(j).first_selected_component());
 
-                                      Assert(
-                                        jj < neighbor->get_fe().n_components(),
-                                        ExcInternalError());
+                                      Assert(jj < neighbor->get_fe().n_components(), ExcInternalError());
 
-                                      if ((flux_mask(ii, jj) == always) ||
-                                          (flux_mask(ii, jj) == nonzero))
+                                      if ((flux_mask(ii, jj) == always) || (flux_mask(ii, jj) == nonzero))
                                         {
-                                          cell_entries.emplace_back(
-                                            dofs_on_this_cell[i],
-                                            dofs_on_other_cell[j]);
+                                          cell_entries.emplace_back(dofs_on_this_cell[i], dofs_on_other_cell[j]);
                                         }
 
-                                      if ((flux_mask(jj, ii) == always) ||
-                                          (flux_mask(jj, ii) == nonzero))
+                                      if ((flux_mask(jj, ii) == always) || (flux_mask(jj, ii) == nonzero))
                                         {
-                                          cell_entries.emplace_back(
-                                            dofs_on_other_cell[j],
-                                            dofs_on_this_cell[i]);
+                                          cell_entries.emplace_back(dofs_on_other_cell[j], dofs_on_this_cell[i]);
                                         }
                                     }
                                 }
@@ -1386,9 +1089,9 @@ namespace DoFTools
   template <int dim, int spacedim>
   void
   make_flux_sparsity_pattern(const DoFHandler<dim, spacedim> &dof,
-                             SparsityPatternBase &            sparsity,
-                             const Table<2, Coupling> &       int_mask,
-                             const Table<2, Coupling> &       flux_mask,
+                             SparsityPatternBase             &sparsity,
+                             const Table<2, Coupling>        &int_mask,
+                             const Table<2, Coupling>        &flux_mask,
                              const types::subdomain_id        subdomain_id)
   {
     AffineConstraints<double> dummy;
@@ -1409,17 +1112,15 @@ namespace DoFTools
 
   template <int dim, int spacedim, typename number>
   void
-  make_flux_sparsity_pattern(
-    const DoFHandler<dim, spacedim> &dof,
-    SparsityPatternBase &            sparsity,
-    const AffineConstraints<number> &constraints,
-    const bool                       keep_constrained_dofs,
-    const Table<2, Coupling> &       int_mask,
-    const Table<2, Coupling> &       flux_mask,
-    const types::subdomain_id        subdomain_id,
-    const std::function<
-      bool(const typename DoFHandler<dim, spacedim>::active_cell_iterator &,
-           const unsigned int)> &face_has_flux_coupling)
+  make_flux_sparsity_pattern(const DoFHandler<dim, spacedim>               &dof,
+                             SparsityPatternBase                           &sparsity,
+                             const AffineConstraints<number>               &constraints,
+                             const bool                                     keep_constrained_dofs,
+                             const Table<2, Coupling>                      &int_mask,
+                             const Table<2, Coupling>                      &flux_mask,
+                             const types::subdomain_id                      subdomain_id,
+                             const std::function<bool(const typename DoFHandler<dim, spacedim>::active_cell_iterator &,
+                                                      const unsigned int)> &face_has_flux_coupling)
   {
     // do the error checking and frame code here, and then pass on to more
     // specialized functions in the internal namespace
@@ -1428,48 +1129,32 @@ namespace DoFTools
     const unsigned int n_comp = dof.get_fe(0).n_components();
     (void)n_comp;
 
-    Assert(sparsity.n_rows() == n_dofs,
-           ExcDimensionMismatch(sparsity.n_rows(), n_dofs));
-    Assert(sparsity.n_cols() == n_dofs,
-           ExcDimensionMismatch(sparsity.n_cols(), n_dofs));
-    Assert(int_mask.n_rows() == n_comp,
-           ExcDimensionMismatch(int_mask.n_rows(), n_comp));
-    Assert(int_mask.n_cols() == n_comp,
-           ExcDimensionMismatch(int_mask.n_cols(), n_comp));
-    Assert(flux_mask.n_rows() == n_comp,
-           ExcDimensionMismatch(flux_mask.n_rows(), n_comp));
-    Assert(flux_mask.n_cols() == n_comp,
-           ExcDimensionMismatch(flux_mask.n_cols(), n_comp));
+    Assert(sparsity.n_rows() == n_dofs, ExcDimensionMismatch(sparsity.n_rows(), n_dofs));
+    Assert(sparsity.n_cols() == n_dofs, ExcDimensionMismatch(sparsity.n_cols(), n_dofs));
+    Assert(int_mask.n_rows() == n_comp, ExcDimensionMismatch(int_mask.n_rows(), n_comp));
+    Assert(int_mask.n_cols() == n_comp, ExcDimensionMismatch(int_mask.n_cols(), n_comp));
+    Assert(flux_mask.n_rows() == n_comp, ExcDimensionMismatch(flux_mask.n_rows(), n_comp));
+    Assert(flux_mask.n_cols() == n_comp, ExcDimensionMismatch(flux_mask.n_cols(), n_comp));
 
     // If we have a distributed Triangulation only allow locally_owned
     // subdomain. Not setting a subdomain is also okay, because we skip
     // ghost cells in the loop below.
-    if (const auto *triangulation = dynamic_cast<
-          const parallel::DistributedTriangulationBase<dim, spacedim> *>(
-          &dof.get_triangulation()))
+    if (const auto *triangulation =
+          dynamic_cast<const parallel::DistributedTriangulationBase<dim, spacedim> *>(&dof.get_triangulation()))
       {
         Assert((subdomain_id == numbers::invalid_subdomain_id) ||
                  (subdomain_id == triangulation->locally_owned_subdomain()),
-               ExcMessage(
-                 "For distributed Triangulation objects and associated "
-                 "DoFHandler objects, asking for any subdomain other than the "
-                 "locally owned one does not make sense."));
+               ExcMessage("For distributed Triangulation objects and associated "
+                          "DoFHandler objects, asking for any subdomain other than the "
+                          "locally owned one does not make sense."));
       }
 
-    Assert(
-      face_has_flux_coupling,
-      ExcMessage(
-        "The function which specifies if a flux coupling occurs over a given "
-        "face is empty."));
+    Assert(face_has_flux_coupling,
+           ExcMessage("The function which specifies if a flux coupling occurs over a given "
+                      "face is empty."));
 
-    internal::make_flux_sparsity_pattern(dof,
-                                         sparsity,
-                                         constraints,
-                                         keep_constrained_dofs,
-                                         int_mask,
-                                         flux_mask,
-                                         subdomain_id,
-                                         face_has_flux_coupling);
+    internal::make_flux_sparsity_pattern(
+      dof, sparsity, constraints, keep_constrained_dofs, int_mask, flux_mask, subdomain_id, face_has_flux_coupling);
   }
 
 } // end of namespace DoFTools

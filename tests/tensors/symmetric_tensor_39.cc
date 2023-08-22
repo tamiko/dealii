@@ -55,11 +55,10 @@ main()
     for (unsigned int j = 0; j < dim; ++j)
       for (unsigned int k = 0; k < dim; ++k)
         for (unsigned int l = 0; l < dim; ++l)
-          I[i][j][k][l] = ((i == k && j == l && i == l && j == k) ?
-                             make_vectorized_array(1.0) :
-                             ((i == k && j == l) || (i == l && j == k) ?
-                                make_vectorized_array(0.5) :
-                                make_vectorized_array(0.0)));
+          I[i][j][k][l] =
+            ((i == k && j == l && i == l && j == k) ?
+               make_vectorized_array(1.0) :
+               ((i == k && j == l) || (i == l && j == k) ? make_vectorized_array(0.5) : make_vectorized_array(0.0)));
 
   fill_tensor(A);
 

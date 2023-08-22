@@ -41,10 +41,7 @@
 
 
 
-template <int dim,
-          int fe_degree,
-          typename Number,
-          typename VectorType = Vector<Number>>
+template <int dim, int fe_degree, typename Number, typename VectorType = Vector<Number>>
 class MatrixFreeTest
 {
 public:
@@ -52,7 +49,7 @@ public:
     : data(data_in)
   {
     FEEvaluation<dim, fe_degree, fe_degree + 1, dim, Number> fe_eval(data);
-    const unsigned int n_q_points = fe_eval.n_q_points;
+    const unsigned int                                       n_q_points = fe_eval.n_q_points;
 
     dyadic_coefficients.resize(n_q_points);
     inverse_dyadic_coefficients.resize(n_q_points);
@@ -60,14 +57,13 @@ public:
   };
 
   void
-  local_mass_operator(
-    const MatrixFree<dim, Number> &              data,
-    VectorType &                                 dst,
-    const VectorType &                           src,
-    const std::pair<unsigned int, unsigned int> &cell_range) const
+  local_mass_operator(const MatrixFree<dim, Number>               &data,
+                      VectorType                                  &dst,
+                      const VectorType                            &src,
+                      const std::pair<unsigned int, unsigned int> &cell_range) const
   {
     FEEvaluation<dim, fe_degree, fe_degree + 1, dim, Number> fe_eval(data);
-    const unsigned int n_q_points = fe_eval.n_q_points;
+    const unsigned int                                       n_q_points = fe_eval.n_q_points;
 
     for (unsigned int cell = cell_range.first; cell < cell_range.second; ++cell)
       {
@@ -76,8 +72,7 @@ public:
         fe_eval.evaluate(EvaluationFlags::values);
         for (unsigned int q = 0; q < n_q_points; ++q)
           {
-            const auto value_flux =
-              dyadic_coefficients[q] * fe_eval.get_value(q);
+            const auto value_flux = dyadic_coefficients[q] * fe_eval.get_value(q);
             fe_eval.submit_value(value_flux, q);
           }
         fe_eval.integrate(EvaluationFlags::values);
@@ -86,30 +81,24 @@ public:
   }
 
   void
-  local_inverse_mass_operator(
-    const MatrixFree<dim, Number> &              data,
-    VectorType &                                 dst,
-    const VectorType &                           src,
-    const std::pair<unsigned int, unsigned int> &cell_range) const
+  local_inverse_mass_operator(const MatrixFree<dim, Number>               &data,
+                              VectorType                                  &dst,
+                              const VectorType                            &src,
+                              const std::pair<unsigned int, unsigned int> &cell_range) const
   {
-    FEEvaluation<dim, fe_degree, fe_degree + 1, dim, Number> fe_eval(data);
-    MatrixFreeOperators::CellwiseInverseMassMatrix<dim, fe_degree, dim, Number>
-                                           mass_inv(fe_eval);
-    const unsigned int                     n_q_points = fe_eval.n_q_points;
-    AlignedVector<VectorizedArray<Number>> inverse_JxW_values(n_q_points);
-    AlignedVector<Tensor<2, dim, VectorizedArray<Number>>>
-      inverse_coefficients_with_JxW(n_q_points);
+    FEEvaluation<dim, fe_degree, fe_degree + 1, dim, Number>                    fe_eval(data);
+    MatrixFreeOperators::CellwiseInverseMassMatrix<dim, fe_degree, dim, Number> mass_inv(fe_eval);
+    const unsigned int                                                          n_q_points = fe_eval.n_q_points;
+    AlignedVector<VectorizedArray<Number>>                                      inverse_JxW_values(n_q_points);
+    AlignedVector<Tensor<2, dim, VectorizedArray<Number>>> inverse_coefficients_with_JxW(n_q_points);
     for (unsigned int cell = cell_range.first; cell < cell_range.second; ++cell)
       {
         fe_eval.reinit(cell);
         mass_inv.fill_inverse_JxW_values(inverse_JxW_values);
         for (unsigned int q = 0; q < inverse_JxW_values.size(); ++q)
-          inverse_coefficients_with_JxW[q] =
-            inverse_JxW_values[q] * inverse_dyadic_coefficients[q];
+          inverse_coefficients_with_JxW[q] = inverse_JxW_values[q] * inverse_dyadic_coefficients[q];
         fe_eval.read_dof_values(src);
-        mass_inv.apply(inverse_coefficients_with_JxW,
-                       fe_eval.begin_dof_values(),
-                       fe_eval.begin_dof_values());
+        mass_inv.apply(inverse_coefficients_with_JxW, fe_eval.begin_dof_values(), fe_eval.begin_dof_values());
         fe_eval.distribute_local_to_global(dst);
       }
   }
@@ -118,22 +107,14 @@ public:
   vmult(VectorType &dst, const VectorType &src) const
   {
     dst = 0;
-    data.cell_loop(
-      &MatrixFreeTest<dim, fe_degree, Number, VectorType>::local_mass_operator,
-      this,
-      dst,
-      src);
+    data.cell_loop(&MatrixFreeTest<dim, fe_degree, Number, VectorType>::local_mass_operator, this, dst, src);
   };
 
   void
   apply_inverse(VectorType &dst, const VectorType &src) const
   {
     dst = 0;
-    data.cell_loop(&MatrixFreeTest<dim, fe_degree, Number, VectorType>::
-                     local_inverse_mass_operator,
-                   this,
-                   dst,
-                   src);
+    data.cell_loop(&MatrixFreeTest<dim, fe_degree, Number, VectorType>::local_inverse_mass_operator, this, dst, src);
   };
 
 private:
@@ -146,8 +127,7 @@ private:
           {
             for (unsigned int d2 = 0; d2 < dim; ++d2)
               {
-                dyadic_coefficients[q][d1][d2] =
-                  make_vectorized_array(random_value<Number>(1.0e-2, 1.0e-1));
+                dyadic_coefficients[q][d1][d2] = make_vectorized_array(random_value<Number>(1.0e-2, 1.0e-1));
                 // make diagonal dominant because inverse is needed
                 if (d1 == d2)
                   dyadic_coefficients[q][d1][d2] += 5.0;
@@ -158,9 +138,8 @@ private:
   }
 
   AlignedVector<Tensor<2, dim, VectorizedArray<Number>>> dyadic_coefficients;
-  AlignedVector<Tensor<2, dim, VectorizedArray<Number>>>
-                                 inverse_dyadic_coefficients;
-  const MatrixFree<dim, Number> &data;
+  AlignedVector<Tensor<2, dim, VectorizedArray<Number>>> inverse_dyadic_coefficients;
+  const MatrixFree<dim, Number>                         &data;
 };
 
 
@@ -175,17 +154,15 @@ do_test(const DoFHandler<dim> &dof)
   {
     const QGauss<1>                                  quad(fe_degree + 1);
     typename MatrixFree<dim, number>::AdditionalData data;
-    data.tasks_parallel_scheme =
-      MatrixFree<dim, number>::AdditionalData::partition_color;
-    data.tasks_block_size = 3;
+    data.tasks_parallel_scheme = MatrixFree<dim, number>::AdditionalData::partition_color;
+    data.tasks_block_size      = 3;
     AffineConstraints<double> constraints;
 
     mf_data.reinit(MappingQ1<dim>{}, dof, constraints, quad, data);
   }
 
   MatrixFreeTest<dim, fe_degree, number> mf(mf_data);
-  Vector<number> in(dof.n_dofs()), inverse(dof.n_dofs()),
-    reference(dof.n_dofs());
+  Vector<number>                         in(dof.n_dofs()), inverse(dof.n_dofs()), reference(dof.n_dofs());
 
   for (unsigned int i = 0; i < dof.n_dofs(); ++i)
     {

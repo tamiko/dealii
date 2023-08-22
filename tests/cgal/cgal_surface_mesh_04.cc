@@ -68,13 +68,11 @@ test()
     {
       auto name = info_pair.first;
       auto args = info_pair.second;
-      deallog << "dim = " << dim << ", spacedim = " << spacedim
-              << " name: " << name << std::endl;
+      deallog << "dim = " << dim << ", spacedim = " << spacedim << " name: " << name << std::endl;
       GridGenerator::generate_from_name_and_arguments(tria_in, name, args);
       tria_in.refine_global(2);
       dealii_tria_to_cgal_surface_mesh(tria_in, surface_mesh);
-      Assert(surface_mesh.is_valid(),
-             ExcMessage("The CGAL surface mesh is not valid."));
+      Assert(surface_mesh.is_valid(), ExcMessage("The CGAL surface mesh is not valid."));
 
       // Now back to the original dealii tria.
       cgal_surface_mesh_to_dealii_triangulation(surface_mesh, tria_out);

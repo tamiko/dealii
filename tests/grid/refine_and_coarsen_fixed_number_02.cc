@@ -45,11 +45,10 @@ main(int argc, const char *argv[])
 
   deallog << "n_active_cells: " << tria.n_active_cells() << std::endl;
 
-  GridRefinement::refine_and_coarsen_fixed_number(
-    tria,
-    indicator,
-    0.6,
-    1. - 0.6 + std::numeric_limits<double>::epsilon() * 5);
+  GridRefinement::refine_and_coarsen_fixed_number(tria,
+                                                  indicator,
+                                                  0.6,
+                                                  1. - 0.6 + std::numeric_limits<double>::epsilon() * 5);
   tria.execute_coarsening_and_refinement();
 
   deallog << "n_active_cells: " << tria.n_active_cells() << std::endl;
@@ -60,11 +59,10 @@ main(int argc, const char *argv[])
       indicator[i] = i;
     }
 
-  GridRefinement::refine_and_coarsen_fixed_number(
-    tria,
-    indicator,
-    0.4,
-    1. - 0.4 + std::numeric_limits<double>::epsilon() * 5);
+  GridRefinement::refine_and_coarsen_fixed_number(tria,
+                                                  indicator,
+                                                  0.4,
+                                                  1. - 0.4 + std::numeric_limits<double>::epsilon() * 5);
   tria.execute_coarsening_and_refinement();
 
   deallog << "n_active_cells: " << tria.n_active_cells() << std::endl;

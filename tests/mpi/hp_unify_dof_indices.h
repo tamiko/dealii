@@ -37,8 +37,7 @@ log_dof_diagnostics(const DoFHandler<dim, spacedim> &dof_handler)
           Assert(false, ExcInternalError());
         deallog << std::endl;
 
-        std::vector<types::global_dof_index> dof_indices(
-          cell->get_fe().dofs_per_cell);
+        std::vector<types::global_dof_index> dof_indices(cell->get_fe().dofs_per_cell);
         cell->get_dof_indices(dof_indices);
         deallog << " ";
         for (auto i : dof_indices)
@@ -51,8 +50,7 @@ log_dof_diagnostics(const DoFHandler<dim, spacedim> &dof_handler)
   dof_handler.locally_owned_dofs().print(deallog);
 
   // number of dof indices that are locally owned
-  deallog << "n_locally_owned_dofs: " << dof_handler.n_locally_owned_dofs()
-          << std::endl;
+  deallog << "n_locally_owned_dofs: " << dof_handler.n_locally_owned_dofs() << std::endl;
 
   // number of all dof indices
   deallog << "n_global_dofs: " << dof_handler.n_dofs() << std::endl;

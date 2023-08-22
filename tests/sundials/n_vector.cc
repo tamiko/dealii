@@ -46,26 +46,21 @@ static SUNContext global_nvector_context;
 // anonymous namespace groups helper functions for testing
 namespace
 {
-  DeclExceptionMsg(NVectorTestError,
-                   "The internal N_Vector implementation didn't pass a test.");
+  DeclExceptionMsg(NVectorTestError, "The internal N_Vector implementation didn't pass a test.");
 
 
   IndexSet
   create_parallel_index_set()
   {
-    const unsigned int current_process =
-      Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
-    const unsigned int n_processes =
-      Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
+    const unsigned int current_process = Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
+    const unsigned int n_processes     = Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
     // give the zeroth process 2 dofs, the first 4, etc
     const types::global_dof_index n_local_dofs = 2 * (1 + current_process);
-    const types::global_dof_index begin_dof =
-      (current_process * (current_process + 1));
-    const types::global_dof_index end_dof = begin_dof + n_local_dofs;
+    const types::global_dof_index begin_dof    = (current_process * (current_process + 1));
+    const types::global_dof_index end_dof      = begin_dof + n_local_dofs;
 
-    const types::global_dof_index n_global_dofs =
-      ((n_processes - 1) * (n_processes)) + 2 * n_processes;
-    IndexSet local_dofs(n_global_dofs);
+    const types::global_dof_index n_global_dofs = ((n_processes - 1) * (n_processes)) + 2 * n_processes;
+    IndexSet                      local_dofs(n_global_dofs);
     local_dofs.add_range(begin_dof, end_dof);
     local_dofs.compress();
     AssertDimension(local_dofs.n_elements(), n_local_dofs);
@@ -107,9 +102,8 @@ namespace
   LinearAlgebra::distributed::Vector<double>
   create_test_vector(const double value)
   {
-    IndexSet local_dofs = create_parallel_index_set();
-    LinearAlgebra::distributed::Vector<double> vector(local_dofs,
-                                                      MPI_COMM_WORLD);
+    IndexSet                                   local_dofs = create_parallel_index_set();
+    LinearAlgebra::distributed::Vector<double> vector(local_dofs, MPI_COMM_WORLD);
     vector = value;
     return vector;
   }
@@ -118,14 +112,10 @@ namespace
   LinearAlgebra::distributed::BlockVector<double>
   create_test_vector(const double value)
   {
-    const unsigned n_processes =
-      Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
-    const unsigned block_size =
-      ((n_processes - 1) * (n_processes)) / 2 + n_processes;
-    const auto partitioning =
-      create_parallel_index_set().split_by_block({block_size, block_size});
-    LinearAlgebra::distributed::BlockVector<double> vector(partitioning,
-                                                           MPI_COMM_WORLD);
+    const unsigned n_processes  = Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
+    const unsigned block_size   = ((n_processes - 1) * (n_processes)) / 2 + n_processes;
+    const auto     partitioning = create_parallel_index_set().split_by_block({block_size, block_size});
+    LinearAlgebra::distributed::BlockVector<double> vector(partitioning, MPI_COMM_WORLD);
     vector = value;
     return vector;
   }
@@ -146,12 +136,9 @@ namespace
   TrilinosWrappers::MPI::BlockVector
   create_test_vector(const double value)
   {
-    const unsigned n_processes =
-      Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
-    const unsigned block_size =
-      ((n_processes - 1) * (n_processes)) / 2 + n_processes;
-    const auto partitioning =
-      create_parallel_index_set().split_by_block({block_size, block_size});
+    const unsigned n_processes  = Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
+    const unsigned block_size   = ((n_processes - 1) * (n_processes)) / 2 + n_processes;
+    const auto     partitioning = create_parallel_index_set().split_by_block({block_size, block_size});
     TrilinosWrappers::MPI::BlockVector vector(partitioning, MPI_COMM_WORLD);
     vector = value;
     return vector;
@@ -174,12 +161,9 @@ namespace
   PETScWrappers::MPI::BlockVector
   create_test_vector(const double value)
   {
-    const unsigned n_processes =
-      Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
-    const unsigned block_size =
-      ((n_processes - 1) * (n_processes)) / 2 + n_processes;
-    const auto partitioning =
-      create_parallel_index_set().split_by_block({block_size, block_size});
+    const unsigned                  n_processes  = Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD);
+    const unsigned                  block_size   = ((n_processes - 1) * (n_processes)) / 2 + n_processes;
+    const auto                      partitioning = create_parallel_index_set().split_by_block({block_size, block_size});
     PETScWrappers::MPI::BlockVector vector(partitioning, MPI_COMM_WORLD);
     vector = value;
     return vector;
@@ -195,15 +179,11 @@ namespace
     if (elements_a.size() != elements_b.size())
       return false;
 
-    const auto is_equal = [&](const IndexSet::size_type idxa,
-                              const IndexSet::size_type idxb) {
+    const auto is_equal = [&](const IndexSet::size_type idxa, const IndexSet::size_type idxb) {
       return std::fabs(a[idxa] - b[idxb]) < 1e-15;
     };
 
-    return std::equal(elements_a.begin(),
-                      elements_a.end(),
-                      elements_b.begin(),
-                      is_equal);
+    return std::equal(elements_a.begin(), elements_a.end(), elements_b.begin(), is_equal);
   }
 } // namespace
 
@@ -238,8 +218,7 @@ test_nvector_view_unwrap()
   Assert(vector_unwrapped == &vector, NVectorTestError());
 
   // unwrap non-const as const
-  const auto *const_vector_unwrapped =
-    unwrap_nvector_const<VectorType>(n_vector);
+  const auto *const_vector_unwrapped = unwrap_nvector_const<VectorType>(n_vector);
   Assert(const_vector_unwrapped == &vector, NVectorTestError());
 
   // unwrap const vector as const
@@ -255,9 +234,7 @@ test_nvector_view_unwrap()
   catch (const ExcMessage &e)
     {
       const std::string msg(e.what());
-      Assert(msg.find(
-               "Tried to access a constant vector content as non-const.") !=
-               std::string::npos,
+      Assert(msg.find("Tried to access a constant vector content as non-const.") != std::string::npos,
              NVectorTestError());
     }
 
@@ -313,7 +290,7 @@ test_destroy()
 {
   GrowingVectorMemory<VectorType>                   mem;
   typename GrowingVectorMemory<VectorType>::Pointer vector(mem);
-  auto n_vector = make_nvector_view(*vector
+  auto                                              n_vector = make_nvector_view(*vector
 #if DEAL_II_SUNDIALS_VERSION_GTE(6, 0, 0)
                                     ,
                                     global_nvector_context
@@ -346,8 +323,7 @@ test_destroy()
 
 
 
-template <typename VectorType,
-          std::enable_if_t<is_serial_vector<VectorType>::value, int> = 0>
+template <typename VectorType, std::enable_if_t<is_serial_vector<VectorType>::value, int> = 0>
 void
 test_get_communicator()
 {
@@ -366,8 +342,7 @@ test_get_communicator()
 
 
 
-template <typename VectorType,
-          std::enable_if_t<!is_serial_vector<VectorType>::value, int> = 0>
+template <typename VectorType, std::enable_if_t<!is_serial_vector<VectorType>::value, int> = 0>
 void
 test_get_communicator()
 {
@@ -405,8 +380,7 @@ test_length()
                                     global_nvector_context
 #endif
   );
-  Assert(N_VGetLength(n_vector) == static_cast<int>(vector.size()),
-         NVectorTestError());
+  Assert(N_VGetLength(n_vector) == static_cast<int>(vector.size()), NVectorTestError());
 
   deallog << "test_length OK" << std::endl;
 }
@@ -999,7 +973,7 @@ main(int argc, char **argv)
   MPILogInitAll                    log_all;
 #if DEAL_II_SUNDIALS_VERSION_GTE(6, 0, 0)
   MPI_Comm  communicator = MPI_COMM_WORLD;
-  const int ierr = SUNContext_Create(&communicator, &global_nvector_context);
+  const int ierr         = SUNContext_Create(&communicator, &global_nvector_context);
   AssertThrow(ierr == 0, ExcMessage("unable to create SUNContext object"));
 #endif
 
@@ -1007,19 +981,15 @@ main(int argc, char **argv)
 
   run_all_tests<Vector<double>>("Vector<double>");
   run_all_tests<BlockVector<double>>("BlockVector<double>");
-  run_all_tests<LinearAlgebra::distributed::Vector<double>>(
-    "LinearAlgebra::distributed::Vector<double>");
-  run_all_tests<LinearAlgebra::distributed::BlockVector<double>>(
-    "LinearAlgebra::distributed::BlockVector<double>");
+  run_all_tests<LinearAlgebra::distributed::Vector<double>>("LinearAlgebra::distributed::Vector<double>");
+  run_all_tests<LinearAlgebra::distributed::BlockVector<double>>("LinearAlgebra::distributed::BlockVector<double>");
 #ifdef DEAL_II_WITH_TRILINOS
   run_all_tests<TrilinosWrappers::MPI::Vector>("TrilinosWrappers::MPI::Vector");
-  run_all_tests<TrilinosWrappers::MPI::BlockVector>(
-    "TrilinosWrappers::MPI::BlockVector");
+  run_all_tests<TrilinosWrappers::MPI::BlockVector>("TrilinosWrappers::MPI::BlockVector");
 #endif
 #ifdef DEAL_II_WITH_PETSC
   run_all_tests<PETScWrappers::MPI::Vector>("PETScWrappers::MPI::Vector");
-  run_all_tests<PETScWrappers::MPI::BlockVector>(
-    "PETScWrappers::MPI::BlockVector");
+  run_all_tests<PETScWrappers::MPI::BlockVector>("PETScWrappers::MPI::BlockVector");
   // although the memory would be cleared in ~MPI_InitFinalize it needs to be
   // done manually to satisfy the PETSc memory check inside ~MPILogInitAll,
   // which is invoked first

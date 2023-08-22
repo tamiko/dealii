@@ -62,8 +62,7 @@ private:
    * all quadrature points.
    */
   void
-  print_quadrature_point_difference_on_both_sides(
-    const dealii::FEInterfaceValues<dim> &fe_interface_values);
+  print_quadrature_point_difference_on_both_sides(const dealii::FEInterfaceValues<dim> &fe_interface_values);
 
   hp::FECollection<dim> fe_collection;
   DoFHandler<dim>       dof_handler;
@@ -102,8 +101,7 @@ Test<dim>::setup_discrete_level_set()
       plane_normal[i]          = 1;
     }
 
-  const Functions::SignedDistance::Plane<dim> analytical_levelset(
-    point_on_zero_contour, plane_normal);
+  const Functions::SignedDistance::Plane<dim> analytical_levelset(point_on_zero_contour, plane_normal);
 
   VectorTools::interpolate(dof_handler, analytical_levelset, level_set);
 }
@@ -112,15 +110,12 @@ Test<dim>::setup_discrete_level_set()
 
 template <int dim>
 void
-Test<dim>::print_quadrature_point_difference_on_both_sides(
-  const dealii::FEInterfaceValues<dim> &fe_interface_values)
+Test<dim>::print_quadrature_point_difference_on_both_sides(const dealii::FEInterfaceValues<dim> &fe_interface_values)
 {
   for (const unsigned int q : fe_interface_values.quadrature_point_indices())
     {
-      const Point<dim> &point_on_side_0 =
-        fe_interface_values.get_fe_face_values(0).quadrature_point(q);
-      const Point<dim> &point_on_side_1 =
-        fe_interface_values.get_fe_face_values(1).quadrature_point(q);
+      const Point<dim> &point_on_side_0 = fe_interface_values.get_fe_face_values(0).quadrature_point(q);
+      const Point<dim> &point_on_side_1 = fe_interface_values.get_fe_face_values(1).quadrature_point(q);
 
       deallog << point_on_side_0.distance(point_on_side_1) << std::endl;
     }
@@ -139,12 +134,8 @@ Test<dim>::run()
   region_update_flags.inside  = update_quadrature_points;
   region_update_flags.outside = update_quadrature_points;
 
-  NonMatching::FEInterfaceValues<dim> fe_values(fe_collection,
-                                                quadrature_1D,
-                                                region_update_flags,
-                                                mesh_classifier,
-                                                dof_handler,
-                                                level_set);
+  NonMatching::FEInterfaceValues<dim> fe_values(
+    fe_collection, quadrature_1D, region_update_flags, mesh_classifier, dof_handler, level_set);
 
   const auto cell = dof_handler.begin_active();
 
@@ -153,23 +144,16 @@ Test<dim>::run()
   for (const unsigned int face : cell->face_indices())
     if (!cell->face(face)->at_boundary())
       {
-        const unsigned int invalid_subface =
-          dealii::numbers::invalid_unsigned_int;
+        const unsigned int invalid_subface = dealii::numbers::invalid_unsigned_int;
 
-        fe_values.reinit(cell,
-                         face,
-                         invalid_subface,
-                         cell->neighbor(face),
-                         cell->neighbor_of_neighbor(face),
-                         invalid_subface);
+        fe_values.reinit(
+          cell, face, invalid_subface, cell->neighbor(face), cell->neighbor_of_neighbor(face), invalid_subface);
 
         Assert(fe_values.get_inside_fe_values(), ExcInternalError());
         Assert(fe_values.get_outside_fe_values(), ExcInternalError());
 
-        print_quadrature_point_difference_on_both_sides(
-          *fe_values.get_inside_fe_values());
-        print_quadrature_point_difference_on_both_sides(
-          *fe_values.get_outside_fe_values());
+        print_quadrature_point_difference_on_both_sides(*fe_values.get_inside_fe_values());
+        print_quadrature_point_difference_on_both_sides(*fe_values.get_outside_fe_values());
       }
 }
 
@@ -195,11 +179,8 @@ main()
       const bool manipulate_left_cube = bits[3];
 
       Triangulation<dim> triangulation;
-      GridGenerator::non_standard_orientation_mesh(triangulation,
-                                                   face_orientation,
-                                                   face_flip,
-                                                   face_rotation,
-                                                   manipulate_left_cube);
+      GridGenerator::non_standard_orientation_mesh(
+        triangulation, face_orientation, face_flip, face_rotation, manipulate_left_cube);
       Test<dim> test(triangulation);
       test.run();
     }

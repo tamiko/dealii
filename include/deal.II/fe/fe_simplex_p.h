@@ -40,12 +40,11 @@ public:
   /**
    * Constructor.
    */
-  FE_SimplexPoly(
-    const BarycentricPolynomials<dim>              polynomials,
-    const FiniteElementData<dim> &                 fe_data,
-    const std::vector<Point<dim>> &                unit_support_points,
-    const std::vector<std::vector<Point<dim - 1>>> unit_face_support_points,
-    const FullMatrix<double> &                     interface_constraints);
+  FE_SimplexPoly(const BarycentricPolynomials<dim>              polynomials,
+                 const FiniteElementData<dim>                  &fe_data,
+                 const std::vector<Point<dim>>                 &unit_support_points,
+                 const std::vector<std::vector<Point<dim - 1>>> unit_face_support_points,
+                 const FullMatrix<double>                      &interface_constraints);
 
   /**
    * Return a list of constant modes of the element. For this element, the
@@ -62,8 +61,7 @@ public:
   virtual const FullMatrix<double> &
   get_prolongation_matrix(
     const unsigned int         child,
-    const RefinementCase<dim> &refinement_case =
-      RefinementCase<dim>::isotropic_refinement) const override;
+    const RefinementCase<dim> &refinement_case = RefinementCase<dim>::isotropic_refinement) const override;
 
   /**
    * @copydoc dealii::FiniteElement::get_restriction_matrix()
@@ -73,26 +71,24 @@ public:
   virtual const FullMatrix<double> &
   get_restriction_matrix(
     const unsigned int         child,
-    const RefinementCase<dim> &refinement_case =
-      RefinementCase<dim>::isotropic_refinement) const override;
+    const RefinementCase<dim> &refinement_case = RefinementCase<dim>::isotropic_refinement) const override;
 
   /**
    * @copydoc dealii::FiniteElement::get_face_interpolation_matrix()
    */
   void
   get_face_interpolation_matrix(const FiniteElement<dim, spacedim> &source_fe,
-                                FullMatrix<double> &interpolation_matrix,
-                                const unsigned int  face_no) const override;
+                                FullMatrix<double>                 &interpolation_matrix,
+                                const unsigned int                  face_no) const override;
 
   /**
    * @copydoc dealii::FiniteElement::get_subface_interpolation_matrix()
    */
   void
-  get_subface_interpolation_matrix(
-    const FiniteElement<dim, spacedim> &x_source_fe,
-    const unsigned int                  subface,
-    FullMatrix<double> &                interpolation_matrix,
-    const unsigned int                  face_no) const override;
+  get_subface_interpolation_matrix(const FiniteElement<dim, spacedim> &x_source_fe,
+                                   const unsigned int                  subface,
+                                   FullMatrix<double>                 &interpolation_matrix,
+                                   const unsigned int                  face_no) const override;
 
   /**
    * @copydoc dealii::FiniteElement::hp_constraints_are_implemented()
@@ -104,9 +100,8 @@ public:
    * @copydoc dealii::FiniteElement::convert_generalized_support_point_values_to_dof_values()
    */
   virtual void
-  convert_generalized_support_point_values_to_dof_values(
-    const std::vector<Vector<double>> &support_point_values,
-    std::vector<double> &              nodal_values) const override;
+  convert_generalized_support_point_values_to_dof_values(const std::vector<Vector<double>> &support_point_values,
+                                                         std::vector<double> &nodal_values) const override;
 
 protected:
   /**
@@ -152,22 +147,19 @@ public:
    * @copydoc dealii::FiniteElement::compare_for_domination()
    */
   FiniteElementDomination::Domination
-  compare_for_domination(const FiniteElement<dim, spacedim> &fe_other,
-                         const unsigned int codim) const override;
+  compare_for_domination(const FiniteElement<dim, spacedim> &fe_other, const unsigned int codim) const override;
 
   /**
    * @copydoc dealii::FiniteElement::hp_vertex_dof_identities()
    */
   std::vector<std::pair<unsigned int, unsigned int>>
-  hp_vertex_dof_identities(
-    const FiniteElement<dim, spacedim> &fe_other) const override;
+  hp_vertex_dof_identities(const FiniteElement<dim, spacedim> &fe_other) const override;
 
   /**
    * @copydoc dealii::FiniteElement::hp_line_dof_identities()
    */
   std::vector<std::pair<unsigned int, unsigned int>>
-  hp_line_dof_identities(
-    const FiniteElement<dim, spacedim> &fe_other) const override;
+  hp_line_dof_identities(const FiniteElement<dim, spacedim> &fe_other) const override;
 };
 
 
@@ -208,22 +200,19 @@ public:
    * @copydoc dealii::FiniteElement::compare_for_domination()
    */
   FiniteElementDomination::Domination
-  compare_for_domination(const FiniteElement<dim, spacedim> &fe_other,
-                         const unsigned int codim) const override;
+  compare_for_domination(const FiniteElement<dim, spacedim> &fe_other, const unsigned int codim) const override;
 
   /**
    * @copydoc dealii::FiniteElement::hp_vertex_dof_identities()
    */
   std::vector<std::pair<unsigned int, unsigned int>>
-  hp_vertex_dof_identities(
-    const FiniteElement<dim, spacedim> &fe_other) const override;
+  hp_vertex_dof_identities(const FiniteElement<dim, spacedim> &fe_other) const override;
 
   /**
    * @copydoc dealii::FiniteElement::hp_line_dof_identities()
    */
   std::vector<std::pair<unsigned int, unsigned int>>
-  hp_line_dof_identities(
-    const FiniteElement<dim, spacedim> &fe_other) const override;
+  hp_line_dof_identities(const FiniteElement<dim, spacedim> &fe_other) const override;
 };
 
 DEAL_II_NAMESPACE_CLOSE

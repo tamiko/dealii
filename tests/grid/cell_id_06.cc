@@ -34,14 +34,12 @@ main()
 
   deallog << std::boolalpha;
 
-  for (const auto &pair :
-       std::vector<std::pair<CellId, CellId>>{
-         {id0, id0}, // same cell (expected: false, false)
-         {id0, id1}, // same level (false, false)
-         {id0, id2}, // child (true, true)
-         {id0, id3}, // grand child (false, true)
-         {id0, id4}} // cell with different coarse-cell id (false, false)
+  for (const auto &pair : std::vector<std::pair<CellId, CellId>>{{id0, id0}, // same cell (expected: false, false)
+                                                                 {id0, id1}, // same level (false, false)
+                                                                 {id0, id2}, // child (true, true)
+                                                                 {id0, id3}, // grand child (false, true)
+                                                                 {id0, id4}}
+       // cell with different coarse-cell id (false, false)
   )
-    deallog << pair.first.is_parent_of(pair.second) << ' '
-            << pair.first.is_ancestor_of(pair.second) << std::endl;
+    deallog << pair.first.is_parent_of(pair.second) << ' ' << pair.first.is_ancestor_of(pair.second) << std::endl;
 }

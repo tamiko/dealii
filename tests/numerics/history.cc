@@ -25,8 +25,7 @@ test()
 {
   const unsigned int        max_size = 3;
   FiniteSizeHistory<double> storage(max_size);
-  deallog << "size:     " << storage.size() << std::endl
-          << "max_size: " << storage.max_size() << std::endl;
+  deallog << "size:     " << storage.size() << std::endl << "max_size: " << storage.max_size() << std::endl;
 
   for (unsigned int i = 0; i < 2; ++i)
     storage.add(0.1 * (i + 1));

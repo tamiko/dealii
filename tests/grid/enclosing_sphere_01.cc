@@ -165,8 +165,7 @@ create_triangulation(const unsigned int case_no, Triangulation<3> &tria)
           v6 += Point<3>(-0.2, 0.2, 0.2); // v7 was (1.,3.,3.)
           const Point<3> &v0 = tria.begin_active()->vertex(0);
           const Point<3> &v7 = tria.begin_active()->vertex(7);
-          AssertThrow(v1.distance(v6) < v0.distance(v7),
-                      ExcMessage("Vertices not moved as drawn above"));
+          AssertThrow(v1.distance(v6) < v0.distance(v7), ExcMessage("Vertices not moved as drawn above"));
           break;
         }
       default:
@@ -183,13 +182,11 @@ test()
   for (unsigned int case_no = 0; case_no < 4; ++case_no)
     {
       create_triangulation(case_no, tria);
-      const std::pair<Point<dim>, double> smallest_sphere =
-        tria.begin_active()->enclosing_ball();
-      const double &    radius = smallest_sphere.second;
-      const Point<dim> &center = smallest_sphere.first;
+      const std::pair<Point<dim>, double> smallest_sphere = tria.begin_active()->enclosing_ball();
+      const double                       &radius          = smallest_sphere.second;
+      const Point<dim>                   &center          = smallest_sphere.first;
 
-      deallog << "dim" << dim << ":case" << case_no << ":diameter=" << radius
-              << ":center=" << center << std::endl;
+      deallog << "dim" << dim << ":case" << case_no << ":diameter=" << radius << ":center=" << center << std::endl;
 
       // Check that all the vertices are within the sphere
       // (sphere with thickness 100. *std::numeric_limits<double>::epsilon())

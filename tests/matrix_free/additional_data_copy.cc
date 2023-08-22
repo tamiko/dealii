@@ -26,25 +26,16 @@ template <typename T>
 bool
 operator==(const T &lhs, const T &rhs)
 {
-  return lhs.tasks_parallel_scheme == rhs.tasks_parallel_scheme &&
-         lhs.tasks_block_size == rhs.tasks_block_size &&
+  return lhs.tasks_parallel_scheme == rhs.tasks_parallel_scheme && lhs.tasks_block_size == rhs.tasks_block_size &&
          lhs.mapping_update_flags == rhs.mapping_update_flags &&
-         lhs.mapping_update_flags_boundary_faces ==
-           rhs.mapping_update_flags_boundary_faces &&
-         lhs.mapping_update_flags_inner_faces ==
-           rhs.mapping_update_flags_inner_faces &&
-         lhs.mapping_update_flags_faces_by_cells ==
-           rhs.mapping_update_flags_faces_by_cells &&
-         lhs.mg_level == rhs.mg_level &&
-         lhs.store_plain_indices == rhs.store_plain_indices &&
-         lhs.initialize_indices == rhs.initialize_indices &&
-         lhs.initialize_mapping == rhs.initialize_mapping &&
-         lhs.overlap_communication_computation ==
-           rhs.overlap_communication_computation &&
-         lhs.hold_all_faces_to_owned_cells ==
-           rhs.hold_all_faces_to_owned_cells &&
-         lhs.cell_vectorization_categories_strict ==
-           rhs.cell_vectorization_categories_strict &&
+         lhs.mapping_update_flags_boundary_faces == rhs.mapping_update_flags_boundary_faces &&
+         lhs.mapping_update_flags_inner_faces == rhs.mapping_update_flags_inner_faces &&
+         lhs.mapping_update_flags_faces_by_cells == rhs.mapping_update_flags_faces_by_cells &&
+         lhs.mg_level == rhs.mg_level && lhs.store_plain_indices == rhs.store_plain_indices &&
+         lhs.initialize_indices == rhs.initialize_indices && lhs.initialize_mapping == rhs.initialize_mapping &&
+         lhs.overlap_communication_computation == rhs.overlap_communication_computation &&
+         lhs.hold_all_faces_to_owned_cells == rhs.hold_all_faces_to_owned_cells &&
+         lhs.cell_vectorization_categories_strict == rhs.cell_vectorization_categories_strict &&
          lhs.cell_vectorization_category == rhs.cell_vectorization_category;
 }
 
@@ -53,13 +44,12 @@ main()
 {
   initlog();
 
-  using AD =
-    typename MatrixFree<2, double, VectorizedArray<double>>::AdditionalData;
+  using AD = typename MatrixFree<2, double, VectorizedArray<double>>::AdditionalData;
 
   AD ad;
-  ad.tasks_parallel_scheme = AD::TasksParallelScheme::partition_color;
-  ad.tasks_block_size      = 100;
-  ad.mapping_update_flags  = update_values;
+  ad.tasks_parallel_scheme                = AD::TasksParallelScheme::partition_color;
+  ad.tasks_block_size                     = 100;
+  ad.mapping_update_flags                 = update_values;
   ad.mapping_update_flags_boundary_faces  = update_values;
   ad.mapping_update_flags_inner_faces     = update_values;
   ad.mapping_update_flags_faces_by_cells  = update_values;

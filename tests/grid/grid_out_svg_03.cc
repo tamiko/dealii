@@ -34,8 +34,7 @@ create_grid()
 
   Point<2> center(0., 0.);
 
-  GridGenerator::half_hyper_shell(
-    triangulation, Point<2>(), inner_radius, outer_radius, 0, true);
+  GridGenerator::half_hyper_shell(triangulation, Point<2>(), inner_radius, outer_radius, 0, true);
 
   Triangulation<2>::active_cell_iterator
 

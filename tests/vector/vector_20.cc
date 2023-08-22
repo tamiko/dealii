@@ -43,8 +43,7 @@ test(Vector<double> &v)
 
   // check that the entries are ok
   for (unsigned int i = 0; i < v.size(); ++i)
-    AssertThrow(((pattern[i] == true) && (v(i) == i * 5. / 4.)) ||
-                  ((pattern[i] == false) && (v(i) == 0)),
+    AssertThrow(((pattern[i] == true) && (v(i) == i * 5. / 4.)) || ((pattern[i] == false) && (v(i) == 0)),
                 ExcInternalError());
 
   deallog << "OK" << std::endl;
@@ -64,28 +63,20 @@ main()
     }
   catch (const std::exception &exc)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Exception on processing: " << std::endl
               << exc.what() << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
 
       return 1;
     }
   catch (...)
     {
-      deallog << std::endl
-              << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+      deallog << std::endl << std::endl << "----------------------------------------------------" << std::endl;
       deallog << "Unknown exception!" << std::endl
               << "Aborting!" << std::endl
-              << "----------------------------------------------------"
-              << std::endl;
+              << "----------------------------------------------------" << std::endl;
       return 1;
     };
 }

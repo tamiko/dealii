@@ -45,9 +45,7 @@ test(const char *filename)
   deallog << "  " << tria.n_active_quads() << " active faces" << std::endl;
 
   unsigned int misoriented_faces = 0;
-  for (Triangulation<3>::active_cell_iterator cell = tria.begin_active();
-       cell != tria.end();
-       ++cell)
+  for (Triangulation<3>::active_cell_iterator cell = tria.begin_active(); cell != tria.end(); ++cell)
     for (const unsigned int f : GeometryInfo<3>::face_indices())
       if (cell->face_orientation(f) == false)
         {
@@ -60,9 +58,7 @@ test(const char *filename)
           // face is misoriented,
           // then there must be a
           // neighbor over there
-          AssertThrow(cell->neighbor(f)->face_orientation(
-                        cell->neighbor_of_neighbor(f)) == true,
-                      ExcInternalError());
+          AssertThrow(cell->neighbor(f)->face_orientation(cell->neighbor_of_neighbor(f)) == true, ExcInternalError());
         }
   deallog << "  " << misoriented_faces << " misoriented faces" << std::endl;
 }

@@ -93,8 +93,8 @@ test()
 
         if (i < N - 1)
           {
-            res += 100. * dealii::Utilities::fixed_power<2>(x(i + 1) - xi2) +
-                   dealii::Utilities::fixed_power<2>(1. - x(i));
+            res +=
+              100. * dealii::Utilities::fixed_power<2>(x(i + 1) - xi2) + dealii::Utilities::fixed_power<2>(1. - x(i));
 
             g(i) += -400. * x(i) * (x(i + 1) - xi2) - 2. * (1. - x(i));
           }
@@ -124,10 +124,7 @@ test()
   const unsigned int print_n_iterations     = 5;
   unsigned int       iteration              = 0;
   unsigned int       line_search_iterations = 0;
-  const auto         line_min               = [&](number &          f,
-                            VectorType &      x,
-                            VectorType &      g,
-                            const VectorType &p) {
+  const auto         line_min               = [&](number &f, VectorType &x, VectorType &g, const VectorType &p) {
     if (iteration <= print_n_iterations)
       out << "------------------------------------------------" << std::endl
           << "Line search " << iteration << std::endl
@@ -146,7 +143,7 @@ test()
     // and Eq. 2.6.8 in Fletcher 2013, Practical methods of optimization
     double df = f_prev - f;
     Assert(first_step || df >= 0., ExcInternalError());
-    df = std::max(df, 100. * std::numeric_limits<double>::epsilon());
+    df              = std::max(df, 100. * std::numeric_limits<double>::epsilon());
     const double a1 = (first_step ? 1. : std::min(1., -1.01 * 2. * df / g0));
     Assert(a1 > 0., ExcInternalError());
     f_prev = f;
@@ -162,16 +159,13 @@ test()
       return std::make_pair(f_line, g_line);
     };
 
-    const auto res =
-      line_search<double>(line_func, f0, g0, poly_fit<double>, a1, 0.9, 0.001);
+    const auto res = line_search<double>(line_func, f0, g0, poly_fit<double>, a1, 0.9, 0.001);
 
     line_search_iterations += res.second;
 
     if (iteration <= print_n_iterations)
       {
-        out << "function value: " << f0 << "  stepsize: " << res.first
-            << std::endl
-            << std::endl;
+        out << "function value: " << f0 << "  stepsize: " << res.first << std::endl << std::endl;
 
         // change:
         dx = p;
@@ -179,8 +173,7 @@ test()
 
         const std::string s = "        ";
         for (unsigned int i = 0; i < N; ++i)
-          out << s << std::setw(9) << x0(i) << s << std::setw(9) << g_old(i)
-              << s << std::setw(9) << dx(i) << std::endl;
+          out << s << std::setw(9) << x0(i) << s << std::setw(9) << g_old(i) << s << std::setw(9) << dx(i) << std::endl;
       }
 
     if (first_step)
@@ -190,22 +183,21 @@ test()
     return res.first;
   };
 
-  const auto preconditioner = [](VectorType &                         g,
-                                 const FiniteSizeHistory<VectorType> &s,
-                                 const FiniteSizeHistory<VectorType> &y) {
-    if (s.size() > 0)
-      {
-        // default preconditioning using the oldest {s,y} pair, see
-        // lbfgs_recursion() in __bfgsmin.cc of "optim" Octave package.
-        const unsigned int i  = s.size() - 1;
-        const double       yy = y[i] * y[i];
-        const double       sy = s[i] * y[i];
-        Assert(yy > 0 && sy > 0, ExcInternalError());
-        g *= sy / yy;
-      }
-  };
+  const auto preconditioner =
+    [](VectorType &g, const FiniteSizeHistory<VectorType> &s, const FiniteSizeHistory<VectorType> &y) {
+      if (s.size() > 0)
+        {
+          // default preconditioning using the oldest {s,y} pair, see
+          // lbfgs_recursion() in __bfgsmin.cc of "optim" Octave package.
+          const unsigned int i  = s.size() - 1;
+          const double       yy = y[i] * y[i];
+          const double       sy = s[i] * y[i];
+          Assert(yy > 0 && sy > 0, ExcInternalError());
+          g *= sy / yy;
+        }
+    };
 
-  SolverControl solver_control(itmax, gtol, false);
+  SolverControl                                   solver_control(itmax, gtol, false);
   typename SolverBFGS<VectorType>::AdditionalData data(m_max, false);
   SolverBFGS<VectorType>                          solver(solver_control, data);
   solver.connect_line_search_slot(line_min);
@@ -213,10 +205,7 @@ test()
 
   // We will check whether the number of function calls is within a specified
   // range.
-  check_solver_within_range(solver.solve(func, x),
-                            (tot_fun_calls - 1) /*one evaluation above*/,
-                            130,
-                            140);
+  check_solver_within_range(solver.solve(func, x), (tot_fun_calls - 1) /*one evaluation above*/, 130, 140);
 
   Assert(tot_fun_calls == line_search_iterations + 1, ExcInternalError());
 

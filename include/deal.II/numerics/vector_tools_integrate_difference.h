@@ -146,14 +146,14 @@ namespace VectorTools
    */
   template <int dim, typename Number, class OutVector, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<OutVector>)
-  void integrate_difference(const Mapping<dim, spacedim> &    mapping,
-                            const DoFHandler<dim, spacedim> & dof,
-                            const ReadVector<Number> &        fe_function,
+  void integrate_difference(const Mapping<dim, spacedim>     &mapping,
+                            const DoFHandler<dim, spacedim>  &dof,
+                            const ReadVector<Number>         &fe_function,
                             const Function<spacedim, Number> &exact_solution,
-                            OutVector &                       difference,
-                            const Quadrature<dim> &           q,
-                            const NormType &                  norm,
-                            const Function<spacedim, double> *weight = nullptr,
+                            OutVector                        &difference,
+                            const Quadrature<dim>            &q,
+                            const NormType                   &norm,
+                            const Function<spacedim, double> *weight   = nullptr,
                             const double                      exponent = 2.);
 
   /**
@@ -165,13 +165,13 @@ namespace VectorTools
    */
   template <int dim, typename Number, class OutVector, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<OutVector>)
-  void integrate_difference(const DoFHandler<dim, spacedim> & dof,
-                            const ReadVector<Number> &        fe_function,
+  void integrate_difference(const DoFHandler<dim, spacedim>  &dof,
+                            const ReadVector<Number>         &fe_function,
                             const Function<spacedim, Number> &exact_solution,
-                            OutVector &                       difference,
-                            const Quadrature<dim> &           q,
-                            const NormType &                  norm,
-                            const Function<spacedim, double> *weight = nullptr,
+                            OutVector                        &difference,
+                            const Quadrature<dim>            &q,
+                            const NormType                   &norm,
+                            const Function<spacedim, double> *weight   = nullptr,
                             const double                      exponent = 2.);
 
   /**
@@ -183,14 +183,14 @@ namespace VectorTools
   template <int dim, typename Number, class OutVector, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<OutVector>)
   void integrate_difference(const hp::MappingCollection<dim, spacedim> &mapping,
-                            const DoFHandler<dim, spacedim> &           dof,
-                            const ReadVector<Number> &        fe_function,
-                            const Function<spacedim, Number> &exact_solution,
-                            OutVector &                       difference,
-                            const hp::QCollection<dim> &      q,
-                            const NormType &                  norm,
-                            const Function<spacedim, double> *weight = nullptr,
-                            const double                      exponent = 2.);
+                            const DoFHandler<dim, spacedim>            &dof,
+                            const ReadVector<Number>                   &fe_function,
+                            const Function<spacedim, Number>           &exact_solution,
+                            OutVector                                  &difference,
+                            const hp::QCollection<dim>                 &q,
+                            const NormType                             &norm,
+                            const Function<spacedim, double>           *weight   = nullptr,
+                            const double                                exponent = 2.);
 
   /**
    * Call the integrate_difference() function, see above, with
@@ -201,13 +201,13 @@ namespace VectorTools
    */
   template <int dim, typename Number, class OutVector, int spacedim>
   DEAL_II_CXX20_REQUIRES(concepts::is_writable_dealii_vector_type<OutVector>)
-  void integrate_difference(const DoFHandler<dim, spacedim> & dof,
-                            const ReadVector<Number> &        fe_function,
+  void integrate_difference(const DoFHandler<dim, spacedim>  &dof,
+                            const ReadVector<Number>         &fe_function,
                             const Function<spacedim, Number> &exact_solution,
-                            OutVector &                       difference,
-                            const hp::QCollection<dim> &      q,
-                            const NormType &                  norm,
-                            const Function<spacedim, double> *weight = nullptr,
+                            OutVector                        &difference,
+                            const hp::QCollection<dim>       &q,
+                            const NormType                   &norm,
+                            const Function<spacedim, double> *weight   = nullptr,
                             const double                      exponent = 2.);
 
   /**
@@ -240,9 +240,9 @@ namespace VectorTools
   template <int dim, int spacedim, class InVector>
   DEAL_II_CXX20_REQUIRES(concepts::is_dealii_vector_type<InVector>)
   double compute_global_error(const Triangulation<dim, spacedim> &tria,
-                              const InVector &cellwise_error,
-                              const NormType &norm,
-                              const double    exponent = 2.);
+                              const InVector                     &cellwise_error,
+                              const NormType                     &norm,
+                              const double                        exponent = 2.);
 
   /** @} */
 } // namespace VectorTools

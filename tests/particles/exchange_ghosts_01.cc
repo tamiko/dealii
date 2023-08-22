@@ -54,15 +54,13 @@ test()
       for (unsigned int i = 0; i < dim; ++i)
         position(i) = 0.525;
 
-    Particles::Particle<dim, spacedim> particle(
-      position,
-      reference_position,
-      Utilities::MPI::this_mpi_process(tr.get_communicator()));
+    Particles::Particle<dim, spacedim> particle(position,
+                                                reference_position,
+                                                Utilities::MPI::this_mpi_process(tr.get_communicator()));
 
     // We give a local random cell hint to check that sorting and
     // transferring ghost particles works.
-    typename Triangulation<dim, spacedim>::active_cell_iterator cell =
-      tr.begin_active();
+    typename Triangulation<dim, spacedim>::active_cell_iterator cell = tr.begin_active();
     while (!cell->is_locally_owned())
       ++cell;
 
@@ -70,17 +68,12 @@ test()
 
     particle_handler.sort_particles_into_subdomains_and_cells();
 
-    deallog << "Before ghost exchange: "
-            << particle_handler.n_locally_owned_particles()
-            << " locally owned particles on process "
-            << Utilities::MPI::this_mpi_process(tr.get_communicator())
+    deallog << "Before ghost exchange: " << particle_handler.n_locally_owned_particles()
+            << " locally owned particles on process " << Utilities::MPI::this_mpi_process(tr.get_communicator())
             << std::endl;
 
-    deallog << "Before ghost exchange: "
-            << particle_handler.get_property_pool().n_registered_slots()
-            << " stored particles on process "
-            << Utilities::MPI::this_mpi_process(tr.get_communicator())
-            << std::endl;
+    deallog << "Before ghost exchange: " << particle_handler.get_property_pool().n_registered_slots()
+            << " stored particles on process " << Utilities::MPI::this_mpi_process(tr.get_communicator()) << std::endl;
 
     particle_handler.exchange_ghost_particles();
 
@@ -90,17 +83,12 @@ test()
     // this does not happen again.
     particle_handler.update_cached_numbers();
 
-    deallog << "After ghost exchange: "
-            << particle_handler.n_locally_owned_particles()
-            << " locally owned particles on process "
-            << Utilities::MPI::this_mpi_process(tr.get_communicator())
+    deallog << "After ghost exchange: " << particle_handler.n_locally_owned_particles()
+            << " locally owned particles on process " << Utilities::MPI::this_mpi_process(tr.get_communicator())
             << std::endl;
 
-    deallog << "After ghost exchange: "
-            << particle_handler.get_property_pool().n_registered_slots()
-            << " stored particles on process "
-            << Utilities::MPI::this_mpi_process(tr.get_communicator())
-            << std::endl;
+    deallog << "After ghost exchange: " << particle_handler.get_property_pool().n_registered_slots()
+            << " stored particles on process " << Utilities::MPI::this_mpi_process(tr.get_communicator()) << std::endl;
   }
 
   deallog << "OK" << std::endl;

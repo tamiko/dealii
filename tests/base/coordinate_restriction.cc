@@ -78,17 +78,14 @@ namespace
     const TestFunction<dim> function;
     const double            coordinate_value = 0;
 
-    const Functions::CoordinateRestriction<dim - 1> restriction(
-      function, restricted_direction, coordinate_value);
+    const Functions::CoordinateRestriction<dim - 1> restriction(function, restricted_direction, coordinate_value);
 
     const Point<dim - 1> point;
     const unsigned int   component = 0;
 
     deallog << "value = " << restriction.value(point, component) << std::endl;
-    deallog << "gradient = " << restriction.gradient(point, component)
-            << std::endl;
-    deallog << "Hessian = " << restriction.hessian(point, component)
-            << std::endl;
+    deallog << "gradient = " << restriction.gradient(point, component) << std::endl;
+    deallog << "Hessian = " << restriction.hessian(point, component) << std::endl;
 
     deallog << std::endl;
   }

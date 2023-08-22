@@ -33,15 +33,11 @@ check()
     {
       const unsigned int size = 17 + test * 1101;
 
-      std::shared_ptr<::dealii::parallel::internal::TBBPartitioner>
-        thread_loop_partitioner;
-      thread_loop_partitioner.reset(
-        new ::dealii::parallel::internal::TBBPartitioner());
+      std::shared_ptr<::dealii::parallel::internal::TBBPartitioner> thread_loop_partitioner;
+      thread_loop_partitioner.reset(new ::dealii::parallel::internal::TBBPartitioner());
 
       Number *val;
-      Utilities::System::posix_memalign((void **)&val,
-                                        64,
-                                        sizeof(Number) * size);
+      Utilities::System::posix_memalign((void **)&val, 64, sizeof(Number) * size);
 
       const Number                                   s = numbers::PI;
       internal::VectorOperations::Vector_set<Number> setter(s, val);
@@ -53,10 +49,7 @@ check()
         {
           const unsigned int begin = i * chunk_size;
           const unsigned int end   = std::min((i + 1) * chunk_size, size);
-          internal::VectorOperations::parallel_for(setter,
-                                                   begin,
-                                                   end,
-                                                   thread_loop_partitioner);
+          internal::VectorOperations::parallel_for(setter, begin, end, thread_loop_partitioner);
         }
 
       // check values:

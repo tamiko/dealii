@@ -40,9 +40,7 @@ test()
 {
   // ------ setup ------
   MPI_Comm                             mpi_communicator(MPI_COMM_WORLD);
-  parallel::shared::Triangulation<dim> tria(mpi_communicator,
-                                            ::Triangulation<dim>::none,
-                                            true);
+  parallel::shared::Triangulation<dim> tria(mpi_communicator, ::Triangulation<dim>::none, true);
 
   GridGenerator::subdivided_hyper_cube(tria, 2);
   tria.refine_global(1);
@@ -63,25 +61,20 @@ test()
   // ----- gather -----
   // store parent id of all locally owned cells
   Vector<PetscScalar> cell_ids_pre(tria.n_active_cells());
-  for (const auto &cell :
-       tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+  for (const auto &cell : tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
     {
-      const std::string  parent_cellid = cell->parent()->id().to_string();
-      const unsigned int parent_coarse_cell_id =
-        static_cast<unsigned int>(std::stoul(parent_cellid));
-      cell_ids_pre(cell->active_cell_index()) = parent_coarse_cell_id;
+      const std::string  parent_cellid         = cell->parent()->id().to_string();
+      const unsigned int parent_coarse_cell_id = static_cast<unsigned int>(std::stoul(parent_cellid));
+      cell_ids_pre(cell->active_cell_index())  = parent_coarse_cell_id;
     }
 
   // distribute local vector (as presented in step-18)
-  PETScWrappers::MPI::Vector distributed_cell_ids_pre(
-    mpi_communicator,
-    tria.n_active_cells(),
-    tria.n_locally_owned_active_cells());
+  PETScWrappers::MPI::Vector distributed_cell_ids_pre(mpi_communicator,
+                                                      tria.n_active_cells(),
+                                                      tria.n_locally_owned_active_cells());
 
-  for (const auto &cell :
-       tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
-    distributed_cell_ids_pre(cell->active_cell_index()) =
-      cell_ids_pre(cell->active_cell_index());
+  for (const auto &cell : tria.active_cell_iterators() | IteratorFilters::LocallyOwnedCell())
+    distributed_cell_ids_pre(cell->active_cell_index()) = cell_ids_pre(cell->active_cell_index());
   distributed_cell_ids_pre.compress(VectorOperation::insert);
 
   cell_ids_pre = distributed_cell_ids_pre;
@@ -89,8 +82,7 @@ test()
   // output initial situation
   for (const auto &cell : tria.active_cell_iterators())
     {
-      deallog << "cellid=" << cell->id() << " parentid="
-              << std::real(cell_ids_pre(cell->active_cell_index()));
+      deallog << "cellid=" << cell->id() << " parentid=" << std::real(cell_ids_pre(cell->active_cell_index()));
       if (cell->coarsen_flag_set())
         deallog << " coarsening";
       else if (cell->refine_flag_set())
@@ -111,8 +103,8 @@ test()
   // ------ verify ------
   // check if all children adopted the correct id
   for (auto &cell : tria.active_cell_iterators())
-    deallog << "cellid=" << cell->id() << " parentid="
-            << std::real(cell_ids_post(cell->active_cell_index())) << std::endl;
+    deallog << "cellid=" << cell->id() << " parentid=" << std::real(cell_ids_post(cell->active_cell_index()))
+            << std::endl;
 
   deallog << "OK" << std::endl;
 }

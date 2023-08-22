@@ -52,10 +52,7 @@ test()
   GridGenerator::hyper_cube(tr, -1.0, 1.0);
   tr.refine_global(8 - 2 * dim);
 
-  for (typename Triangulation<dim>::active_cell_iterator cell =
-         tr.begin_active();
-       cell != tr.end();
-       ++cell)
+  for (typename Triangulation<dim>::active_cell_iterator cell = tr.begin_active(); cell != tr.end(); ++cell)
     if (!cell->is_ghost() && !cell->is_artificial())
       if (cell->center().norm() < 0.3)
         {
@@ -77,41 +74,29 @@ test()
       if (level < tr.n_levels())
         {
           n_dofs      = dofh.n_dofs(level);
-          renumbering = std::vector<types::global_dof_index>(
-            dofh.locally_owned_mg_dofs(level).n_elements());
+          renumbering = std::vector<types::global_dof_index>(dofh.locally_owned_mg_dofs(level).n_elements());
           DoFRenumbering::compute_Cuthill_McKee(
-            renumbering,
-            dofh,
-            false,
-            false,
-            std::vector<types::global_dof_index>(),
-            level);
+            renumbering, dofh, false, false, std::vector<types::global_dof_index>(), level);
         }
       else
         {
           n_dofs      = dofh.n_dofs();
-          renumbering = std::vector<types::global_dof_index>(
-            dofh.locally_owned_dofs().n_elements());
+          renumbering = std::vector<types::global_dof_index>(dofh.locally_owned_dofs().n_elements());
           DoFRenumbering::compute_Cuthill_McKee(renumbering, dofh);
         }
 
       // send everything to processor 0 for output
       std::vector<types::global_dof_index> complete_renumbering(n_dofs);
-      std::copy(renumbering.begin(),
-                renumbering.end(),
-                complete_renumbering.begin());
+      std::copy(renumbering.begin(), renumbering.end(), complete_renumbering.begin());
       unsigned int          offset = renumbering.size();
       std::vector<IndexSet> dofs_per_proc;
       if (level < tr.n_levels())
         {
-          dofs_per_proc =
-            Utilities::MPI::all_gather(MPI_COMM_WORLD,
-                                       dofh.locally_owned_mg_dofs(level));
+          dofs_per_proc = Utilities::MPI::all_gather(MPI_COMM_WORLD, dofh.locally_owned_mg_dofs(level));
         }
       else
         {
-          dofs_per_proc = Utilities::MPI::all_gather(MPI_COMM_WORLD,
-                                                     dofh.locally_owned_dofs());
+          dofs_per_proc = Utilities::MPI::all_gather(MPI_COMM_WORLD, dofh.locally_owned_dofs());
         }
 
       for (unsigned int i = 1; i < nprocs; ++i)
@@ -119,16 +104,14 @@ test()
           if (myid == i)
             MPI_Send(&renumbering[0],
                      renumbering.size(),
-                     Utilities::MPI::mpi_type_id_for_type<decltype(
-                       complete_renumbering[0])>,
+                     Utilities::MPI::mpi_type_id_for_type<decltype(complete_renumbering[0])>,
                      0,
                      i,
                      MPI_COMM_WORLD);
           else if (myid == 0)
             MPI_Recv(&complete_renumbering[offset],
                      dofs_per_proc[i].n_elements(),
-                     Utilities::MPI::mpi_type_id_for_type<decltype(
-                       complete_renumbering[0])>,
+                     Utilities::MPI::mpi_type_id_for_type<decltype(complete_renumbering[0])>,
                      i,
                      i,
                      MPI_COMM_WORLD,

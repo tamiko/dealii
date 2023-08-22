@@ -68,20 +68,14 @@ check(const unsigned int refinement_1, const unsigned int refinement_2)
   dof_handler_1.distribute_dofs(fe_collection);
   dof_handler_2.distribute_dofs(fe_collection);
 
-  Vector<double> u_1(dof_handler_1.n_dofs()), u_2(dof_handler_2.n_dofs()),
-    u_1_back(dof_handler_1.n_dofs()), d(dof_handler_1.n_dofs());
+  Vector<double> u_1(dof_handler_1.n_dofs()), u_2(dof_handler_2.n_dofs()), u_1_back(dof_handler_1.n_dofs()),
+    d(dof_handler_1.n_dofs());
   for (unsigned int i1 = 0; i1 < u_1.size(); ++i1)
     u_1[i1] = 2. * rand() / RAND_MAX - 1.;
 
-  VectorTools::interpolate_to_different_mesh(dof_handler_1,
-                                             u_1,
-                                             dof_handler_2,
-                                             u_2);
+  VectorTools::interpolate_to_different_mesh(dof_handler_1, u_1, dof_handler_2, u_2);
 
-  VectorTools::interpolate_to_different_mesh(dof_handler_2,
-                                             u_2,
-                                             dof_handler_1,
-                                             u_1_back);
+  VectorTools::interpolate_to_different_mesh(dof_handler_2, u_2, dof_handler_1, u_1_back);
 
   d = u_1;
   d.sadd(-1.0, u_1_back);
@@ -97,37 +91,31 @@ main(int argc, char **argv)
 
   Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
 
-  deallog
-    << "### 2D-Case, first cell unrefined, second cell refined once###\n\n";
+  deallog << "### 2D-Case, first cell unrefined, second cell refined once###\n\n";
   check<2>(0, 1);
   deallog << std::endl;
 
-  deallog
-    << "### 2D-Case, first cell refined once, second cell refined three times###\n\n";
+  deallog << "### 2D-Case, first cell refined once, second cell refined three times###\n\n";
   check<2>(1, 3);
   deallog << std::endl;
 
   // this should still be an identity operation although interpolation is from
   // fine to coarse mesh because second mesh uses quadratic elements
-  deallog
-    << "### 2D-Case, first cell refined twice, second cell refined once###\n\n";
+  deallog << "### 2D-Case, first cell refined twice, second cell refined once###\n\n";
   check<2>(2, 1);
   deallog << std::endl;
 
-  deallog
-    << "### 3D-Case, first cell unrefined, second cell refined once###\n\n";
+  deallog << "### 3D-Case, first cell unrefined, second cell refined once###\n\n";
   check<3>(0, 1);
   deallog << std::endl;
 
-  deallog
-    << "### 3D-Case, first cell refined once, second cell refined three times###\n\n";
+  deallog << "### 3D-Case, first cell refined once, second cell refined three times###\n\n";
   check<3>(1, 3);
   deallog << std::endl;
 
   // this should still be an identity operation although interpolation is from
   // fine to coarse mesh because second mesh uses quadratic elements
-  deallog
-    << "### 3D-Case, first cell refined twice, second cell refined once###\n\n";
+  deallog << "### 3D-Case, first cell refined twice, second cell refined once###\n\n";
   check<3>(2, 1);
   deallog << std::endl;
 }

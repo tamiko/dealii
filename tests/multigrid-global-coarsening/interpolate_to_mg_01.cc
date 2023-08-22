@@ -69,8 +69,7 @@ test()
 
   GridGenerator::hyper_cube(tria, -1., 1., true);
 
-  std::vector<GridTools::PeriodicFacePair<TriaIterator<CellAccessor<dim, dim>>>>
-    tria_matched_pairs;
+  std::vector<GridTools::PeriodicFacePair<TriaIterator<CellAccessor<dim, dim>>>> tria_matched_pairs;
   GridTools::collect_periodic_faces(tria, 0, 1, 0, tria_matched_pairs);
   tria.add_periodicity(tria_matched_pairs);
   tria.refine_global(2);
@@ -87,21 +86,16 @@ test()
   constraints.reinit(locally_relevant_dofs);
   DoFTools::make_hanging_node_constraints(dof_handler, constraints);
 
-  std::vector<
-    GridTools::PeriodicFacePair<typename DoFHandler<dim>::cell_iterator>>
-    dof_matched_pairs;
+  std::vector<GridTools::PeriodicFacePair<typename DoFHandler<dim>::cell_iterator>> dof_matched_pairs;
   GridTools::collect_periodic_faces(dof_handler, 0, 1, 0, dof_matched_pairs);
-  DoFTools::make_periodicity_constraints<dim, dim>(dof_matched_pairs,
-                                                   constraints);
+  DoFTools::make_periodicity_constraints<dim, dim>(dof_matched_pairs, constraints);
   constraints.close();
 
-  LinearAlgebra::distributed::Vector<double> qsol(
-    dof_handler.locally_owned_dofs(), locally_relevant_dofs, MPI_COMM_WORLD);
+  LinearAlgebra::distributed::Vector<double> qsol(dof_handler.locally_owned_dofs(),
+                                                  locally_relevant_dofs,
+                                                  MPI_COMM_WORLD);
 
-  VectorTools::interpolate(MappingQ1<dim>(),
-                           dof_handler,
-                           RightHandSideFunction<dim>(1),
-                           qsol);
+  VectorTools::interpolate(MappingQ1<dim>(), dof_handler, RightHandSideFunction<dim>(1), qsol);
 
   MGLevelObject<LinearAlgebra::distributed::Vector<double>> mg_qsol;
   MGConstrainedDoFs                                         mg_constrained_dofs;

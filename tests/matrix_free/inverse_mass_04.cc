@@ -59,13 +59,11 @@ test()
   AffineConstraints<double>                dummy;
   typename MatrixFree<dim>::AdditionalData additional_data;
   additional_data.mapping_update_flags |= update_quadrature_points;
-  matrix_free.reinit(
-    MappingQ1<dim>{}, dof, dummy, QGauss<1>(degree + 1), additional_data);
+  matrix_free.reinit(MappingQ1<dim>{}, dof, dummy, QGauss<1>(degree + 1), additional_data);
 
-  FEEvaluation<dim, degree> fe_eval(matrix_free);
-  FEEvaluation<dim, degree> fe_eval_default(matrix_free);
-  MatrixFreeOperators::CellwiseInverseMassMatrix<dim, degree> inverse_mass(
-    fe_eval);
+  FEEvaluation<dim, degree>                                   fe_eval(matrix_free);
+  FEEvaluation<dim, degree>                                   fe_eval_default(matrix_free);
+  MatrixFreeOperators::CellwiseInverseMassMatrix<dim, degree> inverse_mass(fe_eval);
 
   fe_eval.reinit(0);
   fe_eval_default.reinit(0);
@@ -77,12 +75,9 @@ test()
         p[d] = fe_eval.quadrature_point(q)[d][0];
       fe_eval.begin_values()[q] = function.value(p);
     }
-  inverse_mass.transform_from_q_points_to_basis(1,
-                                                fe_eval.begin_values(),
-                                                fe_eval.begin_dof_values());
+  inverse_mass.transform_from_q_points_to_basis(1, fe_eval.begin_values(), fe_eval.begin_dof_values());
   for (unsigned int q = 0; q < fe_eval.dofs_per_cell; ++q)
-    deallog << "Value reference / actual: "
-            << fe_eval_default.begin_dof_values()[q][0] << " / "
+    deallog << "Value reference / actual: " << fe_eval_default.begin_dof_values()[q][0] << " / "
             << fe_eval.begin_dof_values()[q][0] << std::endl;
 
   deallog << std::endl;

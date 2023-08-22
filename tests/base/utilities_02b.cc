@@ -25,8 +25,7 @@ template <typename VectorizedArrayType>
 void
 do_test(const VectorizedArrayType array)
 {
-  deallog << "  test " << VectorizedArrayType::size() << " array elements"
-          << std::endl;
+  deallog << "  test " << VectorizedArrayType::size() << " array elements" << std::endl;
 
   auto exponentiated_array = Utilities::fixed_power<3>(array);
 

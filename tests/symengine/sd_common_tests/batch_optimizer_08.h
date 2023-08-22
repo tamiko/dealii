@@ -23,10 +23,7 @@
 using namespace dealii;
 namespace SD = Differentiation::SD;
 
-template <int dim,
-          typename NumberType,
-          enum SD::OptimizerType     opt_method,
-          enum SD::OptimizationFlags opt_flags>
+template <int dim, typename NumberType, enum SD::OptimizerType opt_method, enum SD::OptimizationFlags opt_flags>
 void
 test_copy()
 {
@@ -40,8 +37,7 @@ test_copy()
 
   // Substitution map
   SD::types::substitution_map sub_vals =
-    SD::make_substitution_map(std::make_pair(x, NumberType(10.0)),
-                              std::make_pair(y, NumberType(2.0)));
+    SD::make_substitution_map(std::make_pair(x, NumberType(10.0)), std::make_pair(y, NumberType(2.0)));
 
   // Optimize
   SD::BatchOptimizer<NumberType> optimizer(opt_method, opt_flags);
@@ -69,9 +65,7 @@ test_copy()
     const SD_number_t f1 = x1 * y1;
     const SD_number_t g1 = x1 / y1;
 
-    SD::add_to_substitution_map(sub_vals,
-                                std::make_pair(x1, NumberType(20.0)),
-                                std::make_pair(y1, NumberType(3.0)));
+    SD::add_to_substitution_map(sub_vals, std::make_pair(x1, NumberType(20.0)), std::make_pair(y1, NumberType(3.0)));
 
     // Optimizer
     SD::BatchOptimizer<NumberType> new_optimizer;
@@ -94,8 +88,7 @@ test_copy()
     // Perform copy
     deallog << "After copy" << std::endl;
     new_optimizer.copy_from(optimizer);
-    Assert(new_optimizer.optimized() == false,
-           ExcMessage("Expected new optimizer to be unoptimized."));
+    Assert(new_optimizer.optimized() == false, ExcMessage("Expected new optimizer to be unoptimized."));
 
     // Extract
     const NumberType val_f = new_optimizer.extract(f, optimizer.evaluate());
@@ -111,9 +104,7 @@ test_copy()
 }
 
 
-template <int                        dim,
-          enum SD::OptimizerType     opt_method,
-          enum SD::OptimizationFlags opt_flags>
+template <int dim, enum SD::OptimizerType opt_method, enum SD::OptimizationFlags opt_flags>
 void
 run_tests()
 {

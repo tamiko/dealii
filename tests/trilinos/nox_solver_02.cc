@@ -49,12 +49,12 @@ main(int argc, char **argv)
   const double       rel_tolerance     = 1e-5;
   const double       lin_rel_tolerance = 1e-3;
 
-  TrilinosWrappers::NOXSolver<VectorType>::AdditionalData additional_data(
-    n_max_iterations, abs_tolerance, rel_tolerance);
+  TrilinosWrappers::NOXSolver<VectorType>::AdditionalData additional_data(n_max_iterations,
+                                                                          abs_tolerance,
+                                                                          rel_tolerance);
 
   // set up parameters
-  Teuchos::RCP<Teuchos::ParameterList> non_linear_parameters =
-    Teuchos::rcp(new Teuchos::ParameterList);
+  Teuchos::RCP<Teuchos::ParameterList> non_linear_parameters = Teuchos::rcp(new Teuchos::ParameterList);
 
   non_linear_parameters->set("Nonlinear Solver", "Line Search Based");
   non_linear_parameters->sublist("Printing").set("Output Information", 15);
@@ -67,8 +67,7 @@ main(int argc, char **argv)
 
 
   // set up solver
-  TrilinosWrappers::NOXSolver<VectorType> solver(additional_data,
-                                                 non_linear_parameters);
+  TrilinosWrappers::NOXSolver<VectorType> solver(additional_data, non_linear_parameters);
 
   // ... helper functions
   double J = 0.0;

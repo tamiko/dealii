@@ -52,8 +52,7 @@ check(const FiniteElement<dim> &fe_scalar)
   GridGenerator::hyper_cube(tr);
   tr.refine_global(2);
 
-  Triangulation<dim> trcoarse(
-    Triangulation<dim>::limit_level_difference_at_vertices);
+  Triangulation<dim> trcoarse(Triangulation<dim>::limit_level_difference_at_vertices);
   GridGenerator::hyper_cube(trcoarse);
   DoFHandler<dim> dofcoarse(trcoarse);
   dofcoarse.distribute_dofs(fe);
@@ -62,9 +61,7 @@ check(const FiniteElement<dim> &fe_scalar)
     exponents_monomial[d] = 1;
   LinearAlgebra::distributed::Vector<double> vrefcoarse;
   vrefcoarse.reinit(dofcoarse.n_dofs());
-  VectorTools::interpolate(dofcoarse,
-                           Functions::Monomial<dim>(exponents_monomial, dim),
-                           vrefcoarse);
+  VectorTools::interpolate(dofcoarse, Functions::Monomial<dim>(exponents_monomial, dim), vrefcoarse);
 
   deallog << "no. cells: " << tr.n_global_active_cells() << std::endl;
 
@@ -80,14 +77,11 @@ check(const FiniteElement<dim> &fe_scalar)
   LinearAlgebra::distributed::Vector<Number> vref;
   AssertDimension(mgdof.n_dofs(tr.n_global_levels() - 1), mgdof.n_dofs());
   vrefdouble.reinit(mgdof.n_dofs());
-  VectorTools::interpolate(mgdof,
-                           Functions::Monomial<dim>(exponents_monomial, dim),
-                           vrefdouble);
+  VectorTools::interpolate(mgdof, Functions::Monomial<dim>(exponents_monomial, dim), vrefdouble);
 
   vref.reinit(mgdof.n_dofs());
   vref = vrefdouble;
-  std::vector<LinearAlgebra::distributed::Vector<Number>> vec(
-    tr.n_global_levels());
+  std::vector<LinearAlgebra::distributed::Vector<Number>> vec(tr.n_global_levels());
   for (unsigned int level = 0; level < tr.n_global_levels(); ++level)
     vec[level].reinit(mgdof.n_dofs(level));
   vec.back() = vref;
@@ -98,9 +92,7 @@ check(const FiniteElement<dim> &fe_scalar)
     transfer.prolongate(level, vec[level], vec[level - 1]);
   vec.back() -= vref;
   const Number tolerance = 1000. * std::numeric_limits<Number>::epsilon();
-  deallog << "Error after prolongation: "
-          << filter_out_small_numbers(vec.back().linfty_norm(), tolerance)
-          << std::endl;
+  deallog << "Error after prolongation: " << filter_out_small_numbers(vec.back().linfty_norm(), tolerance) << std::endl;
 
   // unfortunately, no completely trivial expression of what should happen
   // during restriction

@@ -44,9 +44,7 @@ test_register_multiple_dep_vars()
   using ADNumberType = typename ADHelper::ad_type;
 
   std::cout << "*** Test variables: Scalar + Scalar (coupled), "
-            << (AD::ADNumberTraits<ADNumberType>::is_taped == true ? "Taped" :
-                                                                     "Tapeless")
-            << std::endl;
+            << (AD::ADNumberTraits<ADNumberType>::is_taped == true ? "Taped" : "Tapeless") << std::endl;
 
   try
     {
@@ -63,9 +61,7 @@ test_register_multiple_dep_vars()
       // Configure tape
       const int  tape_no = 1;
       const bool is_recording =
-        ad_helper.start_recording_operations(tape_no /*material_id*/,
-                                             true /*overwrite_tape*/,
-                                             true /*keep*/);
+        ad_helper.start_recording_operations(tape_no /*material_id*/, true /*overwrite_tape*/, true /*keep*/);
 
       ad_helper.register_independent_variable(s1, s1_dof);
       ad_helper.register_independent_variable(s2, s2_dof);
@@ -106,18 +102,10 @@ main()
 #endif
 
   const unsigned int dim = 2;
-  AssertThrow(
-    (test_register_multiple_dep_vars<dim,
-                                     double,
-                                     AD::NumberTypes::adolc_taped>() ==
-     expected_result),
-    ExcInternalError());
-  AssertThrow(
-    (test_register_multiple_dep_vars<dim,
-                                     double,
-                                     AD::NumberTypes::adolc_tapeless>() ==
-     expected_result),
-    ExcInternalError());
+  AssertThrow((test_register_multiple_dep_vars<dim, double, AD::NumberTypes::adolc_taped>() == expected_result),
+              ExcInternalError());
+  AssertThrow((test_register_multiple_dep_vars<dim, double, AD::NumberTypes::adolc_tapeless>() == expected_result),
+              ExcInternalError());
 
   deallog << "OK" << std::endl;
 }

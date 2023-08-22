@@ -43,16 +43,13 @@ test(int n_refinements, MPI_Comm comm)
   GridGenerator::hyper_L(basetria);
   basetria.refine_global(n_refinements);
 
-  GridTools::partition_triangulation_zorder(
-    Utilities::MPI::n_mpi_processes(comm), basetria);
+  GridTools::partition_triangulation_zorder(Utilities::MPI::n_mpi_processes(comm), basetria);
 
   // create instance of pft
   parallel::fullydistributed::Triangulation<dim> tria_pft(comm);
 
   // extract relevant information form serial triangulation
-  auto construction_data =
-    TriangulationDescription::Utilities::create_description_from_triangulation(
-      basetria, comm);
+  auto construction_data = TriangulationDescription::Utilities::create_description_from_triangulation(basetria, comm);
 
   // actually create triangulation
   tria_pft.create_triangulation(construction_data);

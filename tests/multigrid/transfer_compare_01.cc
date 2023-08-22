@@ -46,11 +46,10 @@
 
 template <int dim, typename number, int spacedim>
 void
-reinit_vector_by_blocks(
-  const dealii::DoFHandler<dim, spacedim> &          mg_dof,
-  MGLevelObject<dealii::Vector<number>> &            v,
-  const unsigned int                                 selected_block,
-  std::vector<std::vector<types::global_dof_index>> &ndofs)
+reinit_vector_by_blocks(const dealii::DoFHandler<dim, spacedim>           &mg_dof,
+                        MGLevelObject<dealii::Vector<number>>             &v,
+                        const unsigned int                                 selected_block,
+                        std::vector<std::vector<types::global_dof_index>> &ndofs)
 {
   const unsigned int n_blocks = mg_dof.get_fe().n_blocks();
   Assert(selected_block < n_blocks, ExcIndexRange(selected_block, 0, n_blocks));
@@ -60,9 +59,8 @@ reinit_vector_by_blocks(
 
   if (ndofs.size() == 0)
     {
-      std::vector<std::vector<types::global_dof_index>> new_dofs(
-        mg_dof.get_triangulation().n_levels(),
-        std::vector<types::global_dof_index>(selected.size()));
+      std::vector<std::vector<types::global_dof_index>> new_dofs(mg_dof.get_triangulation().n_levels(),
+                                                                 std::vector<types::global_dof_index>(selected.size()));
       std::swap(ndofs, new_dofs);
       MGTools::count_dofs_per_block(mg_dof, ndofs);
     }
@@ -76,22 +74,19 @@ reinit_vector_by_blocks(
 
 template <int dim, typename number, int spacedim>
 void
-reinit_vector_by_blocks(
-  const dealii::DoFHandler<dim, spacedim> &          mg_dof,
-  MGLevelObject<BlockVector<number>> &               v,
-  const std::vector<bool> &                          sel,
-  std::vector<std::vector<types::global_dof_index>> &ndofs)
+reinit_vector_by_blocks(const dealii::DoFHandler<dim, spacedim>           &mg_dof,
+                        MGLevelObject<BlockVector<number>>                &v,
+                        const std::vector<bool>                           &sel,
+                        std::vector<std::vector<types::global_dof_index>> &ndofs)
 {
   std::vector<bool> selected = sel;
   // Compute the number of blocks needed
-  const unsigned int n_selected =
-    std::accumulate(selected.begin(), selected.end(), 0U);
+  const unsigned int n_selected = std::accumulate(selected.begin(), selected.end(), 0U);
 
   if (ndofs.size() == 0)
     {
-      std::vector<std::vector<types::global_dof_index>> new_dofs(
-        mg_dof.get_triangulation().n_levels(),
-        std::vector<types::global_dof_index>(selected.size()));
+      std::vector<std::vector<types::global_dof_index>> new_dofs(mg_dof.get_triangulation().n_levels(),
+                                                                 std::vector<types::global_dof_index>(selected.size()));
       std::swap(ndofs, new_dofs);
       MGTools::count_dofs_per_block(mg_dof, ndofs);
     }
@@ -100,8 +95,7 @@ reinit_vector_by_blocks(
     {
       v[level].reinit(n_selected, 0);
       unsigned int k = 0;
-      for (unsigned int i = 0; i < selected.size() && (k < v[level].n_blocks());
-           ++i)
+      for (unsigned int i = 0; i < selected.size() && (k < v[level].n_blocks()); ++i)
         {
           if (selected[i])
             {
@@ -143,11 +137,9 @@ check_block(const FiniteElement<dim> &fe)
     }
 
   // Store sizes
-  const std::vector<types::global_dof_index> ndofs =
-    DoFTools::count_dofs_per_fe_block(mgdof);
-  std::vector<std::vector<types::global_dof_index>> mg_ndofs(
-    mgdof.get_triangulation().n_levels(),
-    std::vector<types::global_dof_index>(fe.n_blocks()));
+  const std::vector<types::global_dof_index>        ndofs = DoFTools::count_dofs_per_fe_block(mgdof);
+  std::vector<std::vector<types::global_dof_index>> mg_ndofs(mgdof.get_triangulation().n_levels(),
+                                                             std::vector<types::global_dof_index>(fe.n_blocks()));
   MGTools::count_dofs_per_block(mgdof, mg_ndofs);
 
   MGTransferPrebuilt<BlockVector<double>> transfer;
@@ -177,8 +169,7 @@ check_block(const FiniteElement<dim> &fe)
   v2.add(-1., u2);
   // These outputs are just the
   // number of dofs on each level
-  deallog << "Prolongate " << v0.l2_norm() << ' ' << v1.l2_norm() << ' '
-          << v2.l2_norm() << std::endl;
+  deallog << "Prolongate " << v0.l2_norm() << ' ' << v1.l2_norm() << ' ' << v2.l2_norm() << std::endl;
 
   v0 = 1.;
   transfer_select.prolongate(1, v1.block(0), v0.block(0));
@@ -186,8 +177,8 @@ check_block(const FiniteElement<dim> &fe)
   v0.add(-1., u0);
   v1.add(-1., u1);
   v2.add(-1., u2);
-  deallog << "Select     " << v0.block(0).l2_norm() << ' '
-          << v1.block(0).l2_norm() << ' ' << v2.block(0).l2_norm() << std::endl;
+  deallog << "Select     " << v0.block(0).l2_norm() << ' ' << v1.block(0).l2_norm() << ' ' << v2.block(0).l2_norm()
+          << std::endl;
 
   v2 = u2;
   u1 = 0.;
@@ -208,8 +199,7 @@ check_block(const FiniteElement<dim> &fe)
   transfer_select.restrict_and_add(1, v0.block(0), v1.block(0));
   v0.add(-1., u0);
   v1.add(-1., u1);
-  deallog << "Select   " << v0.block(0).l2_norm() << ' '
-          << v1.block(0).l2_norm() << std::endl;
+  deallog << "Select   " << v0.block(0).l2_norm() << ' ' << v1.block(0).l2_norm() << std::endl;
 
 
   // Check copy to mg and back

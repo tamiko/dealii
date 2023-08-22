@@ -55,7 +55,7 @@ test(const unsigned int fes_size, const unsigned int max_difference)
     fes.push_back(FE_Q<dim>(1));
 
   const unsigned int contains_fe_index = 0;
-  const auto         sequence = fes.get_hierarchy_sequence(contains_fe_index);
+  const auto         sequence          = fes.get_hierarchy_sequence(contains_fe_index);
 
   // set up line grid
   // - refine leftmost column of cells consecutively
@@ -72,8 +72,7 @@ test(const unsigned int fes_size, const unsigned int max_difference)
 
   parallel::distributed::Triangulation<dim> tria(MPI_COMM_WORLD);
   TestGrids::hyper_line(tria, 2);
-  const unsigned int n_refinements =
-    divide_and_ceil(sequence.size() - 1, max_difference);
+  const unsigned int n_refinements = divide_and_ceil(sequence.size() - 1, max_difference);
   for (unsigned int i = 0; i < n_refinements; ++i)
     {
       for (const auto &cell : tria.active_cell_iterators())
@@ -93,12 +92,8 @@ test(const unsigned int fes_size, const unsigned int max_difference)
   bool fe_indices_changed = false;
   tria.signals.post_p4est_refinement.connect(
     [&]() {
-      const parallel::distributed::TemporarilyMatchRefineFlags<dim>
-        refine_modifier(tria);
-      fe_indices_changed =
-        hp::Refinement::limit_p_level_difference(dofh,
-                                                 max_difference,
-                                                 contains_fe_index);
+      const parallel::distributed::TemporarilyMatchRefineFlags<dim> refine_modifier(tria);
+      fe_indices_changed = hp::Refinement::limit_p_level_difference(dofh, max_difference, contains_fe_index);
     },
     boost::signals2::at_front);
 
@@ -112,10 +107,8 @@ test(const unsigned int fes_size, const unsigned int max_difference)
     for (const auto &cell : dofh.cell_iterators_on_level(l))
       if (cell->is_active() && cell->is_locally_owned())
         {
-          const unsigned int expected_level = std::max(
-            0, static_cast<int>(sequence.size() - 1 - l * max_difference));
-          Assert(cell->active_fe_index() == sequence[expected_level],
-                 ExcInternalError());
+          const unsigned int expected_level = std::max(0, static_cast<int>(sequence.size() - 1 - l * max_difference));
+          Assert(cell->active_fe_index() == sequence[expected_level], ExcInternalError());
         }
 #endif
 

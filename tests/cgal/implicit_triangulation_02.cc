@@ -32,8 +32,7 @@ public:
   virtual double
   value(const Point<3> &p, const unsigned int component = 0) const override
   {
-    return std::pow(1 - std::sqrt(p[0] * p[0] + p[1] * p[1]), 2) + p[2] * p[2] -
-           .25;
+    return std::pow(1 - std::sqrt(p[0] * p[0] + p[1] * p[1]), 2) + p[2] * p[2] - .25;
   }
 };
 
@@ -48,8 +47,7 @@ main()
   data.angular_bound  = 30.;
   data.radius_bound   = .1;
   data.distance_bound = .1;
-  GridGenerator::implicit_function(
-    tria, implicit_function, data, Point<3>(1, 0, 0), 10.);
+  GridGenerator::implicit_function(tria, implicit_function, data, Point<3>(1, 0, 0), 10.);
   {
     GridOut       go;
     std::ofstream of("tria.vtk");

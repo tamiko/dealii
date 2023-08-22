@@ -43,8 +43,7 @@ compute_bounding_boxes(Triangulation<dim> &tria)
   for (const auto &cell : tria.active_cell_iterators())
     {
       const auto cell_bb = cell->bounding_box();
-      deallog << "Center : " << cell_bb.center()
-              << " , volume : " << cell_bb.volume() << std::endl;
+      deallog << "Center : " << cell_bb.center() << " , volume : " << cell_bb.volume() << std::endl;
     }
 }
 

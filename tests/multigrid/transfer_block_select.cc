@@ -44,11 +44,10 @@
 
 template <int dim, typename number, int spacedim>
 void
-reinit_vector_by_blocks(
-  const dealii::DoFHandler<dim, spacedim> &          mg_dof,
-  MGLevelObject<dealii::Vector<number>> &            v,
-  const unsigned int                                 selected_block,
-  std::vector<std::vector<types::global_dof_index>> &ndofs)
+reinit_vector_by_blocks(const dealii::DoFHandler<dim, spacedim>           &mg_dof,
+                        MGLevelObject<dealii::Vector<number>>             &v,
+                        const unsigned int                                 selected_block,
+                        std::vector<std::vector<types::global_dof_index>> &ndofs)
 {
   const unsigned int n_blocks = mg_dof.get_fe().n_blocks();
   Assert(selected_block < n_blocks, ExcIndexRange(selected_block, 0, n_blocks));
@@ -58,9 +57,8 @@ reinit_vector_by_blocks(
 
   if (ndofs.size() == 0)
     {
-      std::vector<std::vector<types::global_dof_index>> new_dofs(
-        mg_dof.get_triangulation().n_levels(),
-        std::vector<types::global_dof_index>(selected.size()));
+      std::vector<std::vector<types::global_dof_index>> new_dofs(mg_dof.get_triangulation().n_levels(),
+                                                                 std::vector<types::global_dof_index>(selected.size()));
       std::swap(ndofs, new_dofs);
       MGTools::count_dofs_per_block(mg_dof, ndofs);
     }
@@ -86,14 +84,12 @@ check_select(const FiniteElement<dim> &fe, unsigned int selected)
   mgdof.distribute_dofs(fe);
   mgdof.distribute_mg_dofs();
   DoFRenumbering::component_wise(mgdof);
-  const std::vector<types::global_dof_index> ndofs =
-    DoFTools::count_dofs_per_fe_block(mgdof);
+  const std::vector<types::global_dof_index> ndofs = DoFTools::count_dofs_per_fe_block(mgdof);
 
   for (unsigned int l = 0; l < tr.n_levels(); ++l)
     DoFRenumbering::component_wise(mgdof, l);
-  std::vector<std::vector<types::global_dof_index>> mg_ndofs(
-    mgdof.get_triangulation().n_levels(),
-    std::vector<types::global_dof_index>(fe.n_blocks()));
+  std::vector<std::vector<types::global_dof_index>> mg_ndofs(mgdof.get_triangulation().n_levels(),
+                                                             std::vector<types::global_dof_index>(fe.n_blocks()));
   MGTools::count_dofs_per_block(mgdof, mg_ndofs);
 
   deallog << "Global  dofs:";
@@ -132,8 +128,7 @@ check_select(const FiniteElement<dim> &fe, unsigned int selected)
   u[0] = 0.;
   transfer.restrict_and_add(2, u[1], u[2]);
   transfer.restrict_and_add(1, u[0], u[1]);
-  deallog << "u1\t" << (int)(u[1] * u[1] + .5) << std::endl
-          << "u0\t" << (int)(u[0] * u[0] + .5) << std::endl;
+  deallog << "u1\t" << (int)(u[1] * u[1] + .5) << std::endl << "u0\t" << (int)(u[0] * u[0] + .5) << std::endl;
 
   // Check copy to mg and back
   // Fill a global std::vector by counting

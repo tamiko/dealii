@@ -48,8 +48,7 @@ test()
 
   tria.refine_global(1);
 
-  out << "set view equal xyz" << std::endl
-      << "splot '-' with lines, '-' with vectors " << std::endl;
+  out << "set view equal xyz" << std::endl << "splot '-' with lines, '-' with vectors " << std::endl;
   GridOut().write_gnuplot(tria, out);
   out << 'e' << std::endl;
 

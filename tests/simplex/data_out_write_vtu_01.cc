@@ -68,10 +68,7 @@ test(const FiniteElement<dim, spacedim> &fe, const unsigned int n_components)
 
   MappingFE<dim> mapping(FE_SimplexP<dim>(1));
 
-  VectorTools::interpolate(mapping,
-                           dof_handler,
-                           RightHandSideFunction<dim>(n_components),
-                           solution);
+  VectorTools::interpolate(mapping, dof_handler, RightHandSideFunction<dim>(n_components), solution);
 
   DataOutBase::VtkFlags vtk_flags;
   vtk_flags.compression_level = DataOutBase::CompressionLevel::best_compression;
@@ -100,20 +97,12 @@ main()
     const unsigned int dim = 2;
     test<dim>(FE_SimplexP<dim>(2) /*=degree*/, 1);
     test<dim>(FESystem<dim>(FE_SimplexP<dim>(2 /*=degree*/), dim), dim);
-    test<dim>(FESystem<dim>(FE_SimplexP<dim>(2 /*=degree*/),
-                            dim,
-                            FE_SimplexP<dim>(1 /*=degree*/),
-                            1),
-              dim + 1);
+    test<dim>(FESystem<dim>(FE_SimplexP<dim>(2 /*=degree*/), dim, FE_SimplexP<dim>(1 /*=degree*/), 1), dim + 1);
   }
   {
     const unsigned int dim = 3;
     test<dim>(FE_SimplexP<dim>(2) /*=degree*/, 1);
     test<dim>(FESystem<dim>(FE_SimplexP<dim>(2 /*=degree*/), dim), dim);
-    test<dim>(FESystem<dim>(FE_SimplexP<dim>(2 /*=degree*/),
-                            dim,
-                            FE_SimplexP<dim>(1 /*=degree*/),
-                            1),
-              dim + 1);
+    test<dim>(FESystem<dim>(FE_SimplexP<dim>(2 /*=degree*/), dim, FE_SimplexP<dim>(1 /*=degree*/), 1), dim + 1);
   }
 }

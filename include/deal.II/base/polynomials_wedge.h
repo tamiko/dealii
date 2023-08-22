@@ -41,25 +41,24 @@ namespace internal
    * to access the right shape function within the triangle and within
    * the line.
    */
-  static const constexpr dealii::ndarray<unsigned int, 18, 2> wedge_table_2{
-    {{{0, 0}},
-     {{1, 0}},
-     {{2, 0}},
-     {{0, 1}},
-     {{1, 1}},
-     {{2, 1}},
-     {{3, 0}},
-     {{4, 0}},
-     {{5, 0}},
-     {{3, 1}},
-     {{4, 1}},
-     {{5, 1}},
-     {{0, 2}},
-     {{1, 2}},
-     {{2, 2}},
-     {{3, 2}},
-     {{4, 2}},
-     {{5, 2}}}};
+  static const constexpr dealii::ndarray<unsigned int, 18, 2> wedge_table_2{{{{0, 0}},
+                                                                             {{1, 0}},
+                                                                             {{2, 0}},
+                                                                             {{0, 1}},
+                                                                             {{1, 1}},
+                                                                             {{2, 1}},
+                                                                             {{3, 0}},
+                                                                             {{4, 0}},
+                                                                             {{5, 0}},
+                                                                             {{3, 1}},
+                                                                             {{4, 1}},
+                                                                             {{5, 1}},
+                                                                             {{0, 2}},
+                                                                             {{1, 2}},
+                                                                             {{2, 2}},
+                                                                             {{3, 2}},
+                                                                             {{4, 2}},
+                                                                             {{5, 2}}}};
 } // namespace internal
 
 
@@ -95,8 +94,8 @@ public:
    * @note Currently, only the vectors @p values and @p grads are filled.
    */
   void
-  evaluate(const Point<dim> &           unit_point,
-           std::vector<double> &        values,
+  evaluate(const Point<dim>            &unit_point,
+           std::vector<double>         &values,
            std::vector<Tensor<1, dim>> &grads,
            std::vector<Tensor<2, dim>> &grad_grads,
            std::vector<Tensor<3, dim>> &third_derivatives,
@@ -115,8 +114,7 @@ public:
   compute_derivative(const unsigned int i, const Point<dim> &p) const;
 
   Tensor<1, dim>
-  compute_1st_derivative(const unsigned int i,
-                         const Point<dim> & p) const override;
+  compute_1st_derivative(const unsigned int i, const Point<dim> &p) const override;
 
   /**
    * @copydoc ScalarPolynomialsBase::compute_2nd_derivative()
@@ -124,8 +122,7 @@ public:
    * @note Not implemented yet.
    */
   Tensor<2, dim>
-  compute_2nd_derivative(const unsigned int i,
-                         const Point<dim> & p) const override;
+  compute_2nd_derivative(const unsigned int i, const Point<dim> &p) const override;
 
   /**
    * @copydoc ScalarPolynomialsBase::compute_3rd_derivative()
@@ -133,8 +130,7 @@ public:
    * @note Not implemented yet.
    */
   Tensor<3, dim>
-  compute_3rd_derivative(const unsigned int i,
-                         const Point<dim> & p) const override;
+  compute_3rd_derivative(const unsigned int i, const Point<dim> &p) const override;
 
   /**
    * @copydoc ScalarPolynomialsBase::compute_4th_derivative()
@@ -142,8 +138,7 @@ public:
    * @note Not implemented yet.
    */
   Tensor<4, dim>
-  compute_4th_derivative(const unsigned int i,
-                         const Point<dim> & p) const override;
+  compute_4th_derivative(const unsigned int i, const Point<dim> &p) const override;
 
   /**
    * @copydoc ScalarPolynomialsBase::compute_grad()
@@ -184,9 +179,7 @@ private:
 template <int dim>
 template <int order>
 Tensor<order, dim>
-ScalarLagrangePolynomialWedge<dim>::compute_derivative(
-  const unsigned int i,
-  const Point<dim> & p) const
+ScalarLagrangePolynomialWedge<dim>::compute_derivative(const unsigned int i, const Point<dim> &p) const
 {
   Tensor<order, dim> der;
 

@@ -47,22 +47,17 @@ test(const unsigned int degree)
 
   std::vector<double> coefficients(fe.dofs_per_cell);
   for (unsigned int i = 0; i < fe.dofs_per_cell; ++i)
-    coefficients[i] = fe.get_unit_support_points()[i] *
-                      (matrix * fe.get_unit_support_points()[i]);
+    coefficients[i] = fe.get_unit_support_points()[i] * (matrix * fe.get_unit_support_points()[i]);
 
   const std::vector<Polynomials::Polynomial<double>> polynomials =
-    Polynomials::generate_complete_Lagrange_basis(
-      QGaussLobatto<1>(degree + 1).get_points());
+    Polynomials::generate_complete_Lagrange_basis(QGaussLobatto<1>(degree + 1).get_points());
 
-  const std::vector<unsigned int> renumbering =
-    FETools::lexicographic_to_hierarchic_numbering<dim>(degree);
+  const std::vector<unsigned int> renumbering = FETools::lexicographic_to_hierarchic_numbering<dim>(degree);
 
   const std::vector<Point<dim>> evaluation_points =
-    dim == 3 ? QGauss<dim>(2).get_points() :
-               QIterated<dim>(QTrapezoid<1>(), 3).get_points();
+    dim == 3 ? QGauss<dim>(2).get_points() : QIterated<dim>(QTrapezoid<1>(), 3).get_points();
 
-  deallog << "Evaluate in " << dim << "d with polynomial degree " << degree
-          << std::endl;
+  deallog << "Evaluate in " << dim << "d with polynomial degree " << degree << std::endl;
   for (const auto &p : evaluation_points)
     {
       Point<dim, VectorizedArray<double>> p_vec;
@@ -70,10 +65,7 @@ test(const unsigned int degree)
         for (unsigned int d = 0; d < dim; ++d)
           p_vec[d][v] = p[d] + 0.01 * v;
 
-      const auto hess = internal::evaluate_tensor_product_hessian(polynomials,
-                                                                  coefficients,
-                                                                  p_vec,
-                                                                  renumbering);
+      const auto hess = internal::evaluate_tensor_product_hessian(polynomials, coefficients, p_vec, renumbering);
 
       double error = 0;
       for (unsigned int v = 0; v < VectorizedArray<double>::size(); ++v)

@@ -44,21 +44,16 @@ extract(const AnyData &data)
   deallog << data.name(0) << '\t' << data.entry<int>(0) << std::endl;
   deallog << data.name(1) << '\t' << data.entry<double>(1) << std::endl;
   deallog << data.name(2) << '\t' << *data.entry<double *>(2) << std::endl;
-  deallog << data.name(3) << '\t' << *data.entry<const double *>(3)
-          << std::endl;
+  deallog << data.name(3) << '\t' << *data.entry<const double *>(3) << std::endl;
 
   // From here on keep after deprecation
   int           i1 = data.entry<int>(" i  7");
   const int     i2 = data.entry<const int>(" i  7");
   double        d  = data.entry<double>(" d  17.");
-  double *      p2 = data.entry<double *>(" d* 17.");
+  double       *p2 = data.entry<double *>(" d* 17.");
   const double *p3 = data.entry<const double *>("cd* 17.");
 
-  deallog << i1 << std::endl
-          << i2 << std::endl
-          << d << std::endl
-          << *p2 << std::endl
-          << *p3 << std::endl;
+  deallog << i1 << std::endl << i2 << std::endl << d << std::endl << *p2 << std::endl << *p3 << std::endl;
 
   deallog << *data.try_read<double>(" d  17.") << std::endl;
 

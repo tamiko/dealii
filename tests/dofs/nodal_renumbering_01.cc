@@ -81,28 +81,17 @@ test(DoFHandler<2> &dof_handler, const hp::MappingCollection<2> &mappings)
   deallog << "new case with locally owned dofs = ";
   local_dofs.print(deallog);
   deallog << std::endl;
-  const IndexSet relevant_dofs =
-    DoFTools::extract_locally_relevant_dofs(dof_handler);
-  LinearAlgebra::distributed::Vector<double> position(local_dofs,
-                                                      relevant_dofs,
-                                                      comm);
-  LinearAlgebra::distributed::Vector<double> solution1(local_dofs,
-                                                       relevant_dofs,
-                                                       comm);
-  LinearAlgebra::distributed::Vector<double> solution2(local_dofs,
-                                                       relevant_dofs,
-                                                       comm);
+  const IndexSet                             relevant_dofs = DoFTools::extract_locally_relevant_dofs(dof_handler);
+  LinearAlgebra::distributed::Vector<double> position(local_dofs, relevant_dofs, comm);
+  LinearAlgebra::distributed::Vector<double> solution1(local_dofs, relevant_dofs, comm);
+  LinearAlgebra::distributed::Vector<double> solution2(local_dofs, relevant_dofs, comm);
 
-  const unsigned int n_components =
-    dof_handler.get_fe_collection().n_components();
+  const unsigned int n_components = dof_handler.get_fe_collection().n_components();
   // It doesn't make sense to treat position as a vector of coordinates unless
   // we have enough components
   if (n_components == 2)
     {
-      VectorTools::interpolate(mappings,
-                               dof_handler,
-                               Functions::IdentityFunction<2>(),
-                               position);
+      VectorTools::interpolate(mappings, dof_handler, Functions::IdentityFunction<2>(), position);
 
       Test test(n_components);
       VectorTools::interpolate(mappings, dof_handler, test, solution1);
@@ -110,9 +99,7 @@ test(DoFHandler<2> &dof_handler, const hp::MappingCollection<2> &mappings)
       // Verify that we get the same results when we interpolate either manually
       // or by reading off position data and evaluating the interpolated
       // function
-      for (unsigned int node_n = 0;
-           node_n < position.locally_owned_size() / n_components;
-           ++node_n)
+      for (unsigned int node_n = 0; node_n < position.locally_owned_size() / n_components; ++node_n)
         {
           const auto i0 = node_n * n_components;
           const auto i1 = node_n * n_components + 1;
@@ -147,17 +134,14 @@ main(int argc, char **argv)
 
   // Test with p::s::T, mixed FE, multiple components
   {
-    parallel::shared::Triangulation<2> tria(
-      comm,
-      dealii::Triangulation<2>::none,
-      true,
-      parallel::shared::Triangulation<2>::partition_zorder);
+    parallel::shared::Triangulation<2> tria(comm,
+                                            dealii::Triangulation<2>::none,
+                                            true,
+                                            parallel::shared::Triangulation<2>::partition_zorder);
     GridGenerator::cube_and_pyramid(tria);
 
-    hp::FECollection<2>      fe(FESystem<2>(FE_Q<2>(1), 2),
-                           FESystem<2>(FE_SimplexP<2>(1), 2));
-    hp::MappingCollection<2> mappings(MappingQ<2>(1),
-                                      MappingFE<2>(FE_SimplexP<2>(1)));
+    hp::FECollection<2>      fe(FESystem<2>(FE_Q<2>(1), 2), FESystem<2>(FE_SimplexP<2>(1), 2));
+    hp::MappingCollection<2> mappings(MappingQ<2>(1), MappingFE<2>(FE_SimplexP<2>(1)));
     DoFHandler<2>            dof_handler(tria);
     for (const auto &cell : dof_handler.active_cell_iterators())
       {
@@ -176,11 +160,10 @@ main(int argc, char **argv)
 
   // Try discontinuous elements
   {
-    parallel::shared::Triangulation<2> tria(
-      comm,
-      dealii::Triangulation<2>::none,
-      true,
-      parallel::shared::Triangulation<2>::partition_zorder);
+    parallel::shared::Triangulation<2> tria(comm,
+                                            dealii::Triangulation<2>::none,
+                                            true,
+                                            parallel::shared::Triangulation<2>::partition_zorder);
     GridGenerator::hyper_ball(tria);
 
     hp::FECollection<2>      fe(FESystem<2>(FE_DGQ<2>(4), 2));
@@ -204,12 +187,8 @@ main(int argc, char **argv)
         cell->set_refine_flag();
     tria.execute_coarsening_and_refinement();
 
-    hp::FECollection<2>      fe(FESystem<2>(FE_Q<2>(2), 2),
-                           FESystem<2>(FE_Q<2>(4), 2),
-                           FESystem<2>(FE_Nothing<2>(), 2));
-    hp::MappingCollection<2> mappings(MappingQ<2>(1),
-                                      MappingQ<2>(1),
-                                      MappingQ<2>(1));
+    hp::FECollection<2> fe(FESystem<2>(FE_Q<2>(2), 2), FESystem<2>(FE_Q<2>(4), 2), FESystem<2>(FE_Nothing<2>(), 2));
+    hp::MappingCollection<2> mappings(MappingQ<2>(1), MappingQ<2>(1), MappingQ<2>(1));
     DoFHandler<2>            dof_handler(tria);
     for (const auto &cell : dof_handler.active_cell_iterators())
       if (cell->is_locally_owned())
@@ -221,16 +200,14 @@ main(int argc, char **argv)
 
   // Test with a scalar FE
   {
-    parallel::shared::Triangulation<2> tria(
-      comm,
-      dealii::Triangulation<2>::none,
-      true,
-      parallel::shared::Triangulation<2>::partition_zorder);
+    parallel::shared::Triangulation<2> tria(comm,
+                                            dealii::Triangulation<2>::none,
+                                            true,
+                                            parallel::shared::Triangulation<2>::partition_zorder);
     GridGenerator::cube_and_pyramid(tria);
 
     hp::FECollection<2>      fe(FE_Q<2>(1), FE_SimplexP<2>(1));
-    hp::MappingCollection<2> mappings(MappingQ<2>(1),
-                                      MappingFE<2>(FE_SimplexP<2>(1)));
+    hp::MappingCollection<2> mappings(MappingQ<2>(1), MappingFE<2>(FE_SimplexP<2>(1)));
     DoFHandler<2>            dof_handler(tria);
     for (const auto &cell : dof_handler.active_cell_iterators())
       {
@@ -249,11 +226,10 @@ main(int argc, char **argv)
 
   // Test with another scalar FE
   {
-    parallel::shared::Triangulation<2> tria(
-      comm,
-      dealii::Triangulation<2>::none,
-      true,
-      parallel::shared::Triangulation<2>::partition_zorder);
+    parallel::shared::Triangulation<2> tria(comm,
+                                            dealii::Triangulation<2>::none,
+                                            true,
+                                            parallel::shared::Triangulation<2>::partition_zorder);
     GridGenerator::hyper_cube(tria);
     tria.refine_global(2);
 
@@ -304,8 +280,7 @@ main(int argc, char **argv)
       }
     catch (const ExceptionBase &exc)
       {
-        deallog << "FE_NedelecSZ nodal renumbering failed successfully."
-                << std::endl;
+        deallog << "FE_NedelecSZ nodal renumbering failed successfully." << std::endl;
       }
   }
 
@@ -327,8 +302,7 @@ main(int argc, char **argv)
       }
     catch (const ExceptionBase &exc)
       {
-        deallog << "FE_NedelecSZ nodal renumbering failed successfully."
-                << std::endl;
+        deallog << "FE_NedelecSZ nodal renumbering failed successfully." << std::endl;
       }
   }
 }
