@@ -65,11 +65,29 @@ namespace Threads
     {}
 
     /**
-     * Copy operators. As discussed in this class's documentation, no state
+     * Move constructor. As discussed in this class's documentation, no state
+     * is copied from the object given as argument.
+     */
+    Mutex(Mutex &&) noexcept
+      : std::mutex()
+    {}
+
+    /**
+     * Copy assignment. As discussed in this class's documentation, no state
      * is copied from the object given as argument.
      */
     Mutex &
     operator=(const Mutex &)
+    {
+      return *this;
+    }
+
+    /**
+     * Move assignment. As discussed in this class's documentation, no state
+     * is copied from the object given as argument.
+     */
+    Mutex &
+    operator=(Mutex &&) noexcept
     {
       return *this;
     }
