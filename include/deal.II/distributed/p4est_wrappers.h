@@ -458,6 +458,7 @@ namespace internal
       static void (&vtk_write_file)(types<3>::forest *p8est,
                                     p8est_geometry_t *,
                                     const char *baseName);
+
       static types<3>::ghost *(&ghost_new)(types<3>::forest      *p4est,
                                            types<3>::balance_type btype);
 
