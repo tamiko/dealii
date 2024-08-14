@@ -2710,6 +2710,27 @@ namespace internal
                                       *dof_handler,
                                       /*check_validity=*/true);
 
+        // FIXME begin: refactor into own function
+        IndexSet my_locally_owned_new_virtual_dofs(dof_handler->n_dofs());
+        {
+          const auto &old_virtual_dofs =
+            dof_handler->locally_owned_virtual_dofs();
+          std::vector<dealii::types::global_dof_index> new_numbers_sorted(
+            old_virtual_dofs.n_elements());
+
+          std::transform(std::begin(old_virtual_dofs),
+                         std::end(old_virtual_dofs),
+                         std::begin(new_numbers_sorted),
+                         [&](const auto &it) { return new_numbers[it]; });
+
+          std::sort(new_numbers_sorted.begin(), new_numbers_sorted.end());
+
+          my_locally_owned_new_virtual_dofs.add_indices(
+            new_numbers_sorted.begin(), new_numbers_sorted.end());
+          my_locally_owned_new_virtual_dofs.compress();
+        }
+        // FIXME end
+
         // return a sequential, complete index set. take into account that the
         // number of DoF indices may in fact be smaller than there were before
         // if some previously separately numbered dofs have been identified.
@@ -2721,8 +2742,17 @@ namespace internal
         if (new_numbers.empty())
           return NumberCache();
         else
-          return NumberCache(
-            *std::max_element(new_numbers.begin(), new_numbers.end()) + 1);
+          {
+            const auto n_total_dofs =
+              *std::max_element(new_numbers.begin(), new_numbers.end()) + 1;
+
+            // return a sequential, complete index set
+            NumberCache number_cache(n_total_dofs);
+            number_cache.locally_owned_virtual_dofs =
+              my_locally_owned_new_virtual_dofs;
+
+            return number_cache;
+          }
       }
 
 
@@ -4137,11 +4167,39 @@ namespace internal
           communicate_dof_indices_on_marked_cells(*dof_handler, cell_marked);
         }
 
+        // FIXME begin: refactor into own function
+        IndexSet my_locally_owned_new_virtual_dofs(dof_handler->n_dofs());
+        {
+          const auto &old_virtual_dofs =
+            dof_handler->locally_owned_virtual_dofs();
+          std::vector<dealii::types::global_dof_index> new_numbers_sorted(
+            old_virtual_dofs.n_elements());
+
+          std::transform(std::begin(old_virtual_dofs),
+                         std::end(old_virtual_dofs),
+                         std::begin(new_numbers_sorted),
+                         [&](const auto &it) {
+                           const auto local_index =
+                             owned_dofs.index_within_set(it);
+                           return new_numbers[local_index];
+                         });
+
+          std::sort(new_numbers_sorted.begin(), new_numbers_sorted.end());
+
+          my_locally_owned_new_virtual_dofs.add_indices(
+            new_numbers_sorted.begin(), new_numbers_sorted.end());
+          my_locally_owned_new_virtual_dofs.compress();
+        }
+        // FIXME end
+
         NumberCache number_cache;
         number_cache.locally_owned_dofs = my_locally_owned_new_dof_indices;
         number_cache.n_global_dofs      = dof_handler->n_dofs();
         number_cache.n_locally_owned_dofs =
           number_cache.locally_owned_dofs.n_elements();
+        number_cache.locally_owned_virtual_dofs =
+          my_locally_owned_new_virtual_dofs;
+
         return number_cache;
 #endif
       }
