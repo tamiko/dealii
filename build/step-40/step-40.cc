@@ -116,6 +116,7 @@ namespace Step40
           << std::endl;
 
     DoFRenumbering::Cuthill_McKee(dof_handler);
+    DoFRenumbering::component_wise(dof_handler);
 
     locally_owned_dofs = dof_handler.locally_owned_dofs();
     const auto &locally_virtual = dof_handler.locally_owned_virtual_dofs();
