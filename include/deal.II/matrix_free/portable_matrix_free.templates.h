@@ -18,8 +18,6 @@
 
 #include <deal.II/base/config.h>
 
-#include <deal.II/base/cuda.h>
-#include <deal.II/base/cuda_size.h>
 #include <deal.II/base/graph_coloring.h>
 #include <deal.II/base/memory_space.h>
 
@@ -29,8 +27,8 @@
 #include <deal.II/fe/fe_values.h>
 #include <deal.II/fe/mapping_q1.h>
 
-#include <deal.II/matrix_free/cuda_hanging_nodes_internal.h>
-#include <deal.II/matrix_free/cuda_matrix_free.h>
+#include <deal.II/matrix_free/portable_hanging_nodes_internal.h>
+#include <deal.II/matrix_free/portable_matrix_free.h>
 #include <deal.II/matrix_free/shape_info.h>
 
 #include <Kokkos_Core.hpp>
@@ -82,6 +80,8 @@ namespace Portable
       const std::vector<unsigned int>     &lexicographic_inv;
       std::vector<types::global_dof_index> lexicographic_dof_indices;
       const unsigned int                   fe_degree;
+      const unsigned int                   n_components;
+      const unsigned int                   scalar_dofs_per_cell;
       const unsigned int                   dofs_per_cell;
       const unsigned int                   q_points_per_cell;
       const UpdateFlags                   &update_flags;
@@ -109,6 +109,8 @@ namespace Portable
                     update_values | update_gradients | update_JxW_values)
       , lexicographic_inv(shape_info.lexicographic_numbering)
       , fe_degree(data->fe_degree)
+      , n_components(data->n_components)
+      , scalar_dofs_per_cell(data->scalar_dofs_per_cell)
       , dofs_per_cell(data->dofs_per_cell)
       , q_points_per_cell(data->q_points_per_cell)
       , update_flags(update_flags)
@@ -126,7 +128,7 @@ namespace Portable
     void
     ReinitHelper<dim, Number>::resize(const unsigned int n_colors)
     {
-      // We need at least three colors when we are using CUDA-aware MPI and
+      // We need at least three colors when we are using device-aware MPI and
       // overlapping the communication
       data->n_cells.resize(std::max(n_colors, 3U), 0);
       data->local_to_global.resize(n_colors);
@@ -180,7 +182,7 @@ namespace Portable
             Kokkos::view_alloc("JxW_" + std::to_string(color),
                                Kokkos::WithoutInitializing),
             n_cells,
-            dofs_per_cell);
+            scalar_dofs_per_cell);
 
       if (update_flags & update_gradients)
         data->inv_jacobian[color] =
@@ -188,7 +190,7 @@ namespace Portable
             Kokkos::view_alloc("inv_jacobian_" + std::to_string(color),
                                Kokkos::WithoutInitializing),
             n_cells,
-            dofs_per_cell);
+            scalar_dofs_per_cell);
 
       // Initialize to zero, i.e., unconstrained cell
       data->constraint_mask[color] =
@@ -325,28 +327,6 @@ namespace Portable
       }
     };
 
-#ifdef DEAL_II_WITH_CUDA
-    template <>
-    struct VectorLocalSize<LinearAlgebra::CUDAWrappers::Vector<double>>
-    {
-      static unsigned int
-      get(const LinearAlgebra::CUDAWrappers::Vector<double> &vec)
-      {
-        return vec.size();
-      }
-    };
-
-    template <>
-    struct VectorLocalSize<LinearAlgebra::CUDAWrappers::Vector<float>>
-    {
-      static unsigned int
-      get(const LinearAlgebra::CUDAWrappers::Vector<float> &vec)
-      {
-        return vec.size();
-      }
-    };
-#endif
-
 
 
     template <int dim, typename Number, typename Functor>
@@ -354,13 +334,13 @@ namespace Portable
     {
       using TeamHandle = Kokkos::TeamPolicy<
         MemorySpace::Default::kokkos_space::execution_space>::member_type;
-      using SharedView1D =
-        Kokkos::View<Number *,
+      using SharedViewValues =
+        Kokkos::View<Number **,
                      MemorySpace::Default::kokkos_space::execution_space::
                        scratch_memory_space,
                      Kokkos::MemoryTraits<Kokkos::Unmanaged>>;
-      using SharedView2D =
-        Kokkos::View<Number *[dim],
+      using SharedViewGradients =
+        Kokkos::View<Number ***,
                      MemorySpace::Default::kokkos_space::execution_space::
                        scratch_memory_space,
                      Kokkos::MemoryTraits<Kokkos::Unmanaged>>;
@@ -386,8 +366,11 @@ namespace Portable
       size_t
       team_shmem_size(int /*team_size*/) const
       {
-        return SharedView1D::shmem_size(Functor::n_local_dofs) +
-               SharedView2D::shmem_size(Functor::n_local_dofs);
+        return SharedViewValues::shmem_size(Functor::n_local_dofs,
+                                            gpu_data.n_components) +
+               SharedViewGradients::shmem_size(Functor::n_local_dofs,
+                                               dim,
+                                               gpu_data.n_components);
       }
 
 
@@ -396,8 +379,13 @@ namespace Portable
       operator()(const TeamHandle &team_member) const
       {
         // Get the scratch memory
-        SharedView1D values(team_member.team_shmem(), Functor::n_local_dofs);
-        SharedView2D gradients(team_member.team_shmem(), Functor::n_local_dofs);
+        SharedViewValues    values(team_member.team_shmem(),
+                                Functor::n_local_dofs,
+                                gpu_data.n_components);
+        SharedViewGradients gradients(team_member.team_shmem(),
+                                      Functor::n_local_dofs,
+                                      dim,
+                                      gpu_data.n_components);
 
         SharedData<dim, Number> shared_data(team_member, values, gradients);
         func(team_member.league_rank(), &gpu_data, &shared_data, src, dst);
@@ -504,6 +492,7 @@ namespace Portable
     data_copy.co_shape_gradients = co_shape_gradients;
     data_copy.constraint_weights = constraint_weights;
     data_copy.n_cells            = n_cells[color];
+    data_copy.n_components       = n_components;
     data_copy.padding_length     = padding_length;
     data_copy.row_start          = row_start[color];
     data_copy.use_coloring       = use_coloring;
@@ -573,17 +562,6 @@ namespace Portable
           dst_ptr[constr_dofs[dof]] = val;
       });
   }
-
-
-#ifdef DEAL_II_WITH_CUDA
-  template <int dim, typename Number>
-  void
-  MatrixFree<dim, Number>::initialize_dof_vector(
-    LinearAlgebra::CUDAWrappers::Vector<Number> &vec) const
-  {
-    vec.reinit(n_dofs);
-  }
-#endif
 
 
 
@@ -716,8 +694,10 @@ namespace Portable
     padding_length = 1 << static_cast<unsigned int>(
                        std::ceil(dim * std::log2(fe_degree + 1.)));
 
-    dofs_per_cell     = fe.n_dofs_per_cell();
-    q_points_per_cell = Utilities::fixed_power<dim>(n_q_points_1d);
+    dofs_per_cell        = fe.n_dofs_per_cell();
+    n_components         = fe.n_components();
+    scalar_dofs_per_cell = dofs_per_cell / n_components;
+    q_points_per_cell    = Utilities::fixed_power<dim>(n_q_points_1d);
 
     ::dealii::internal::MatrixFreeFunctions::ShapeInfo<Number> shape_info(quad,
                                                                           fe);
@@ -1023,7 +1003,7 @@ namespace Portable
                   apply_kernel);
 
                 // We need a synchronization point because we don't want
-                // CUDA-aware MPI to start the MPI communication until the
+                // device-aware MPI to start the MPI communication until the
                 // kernel is done.
                 Kokkos::fence();
               }
@@ -1131,18 +1111,6 @@ namespace Portable
       }
   }
 
-#ifdef DEAL_II_WITH_CUDA
-  template <int dim, typename Number>
-  template <typename Functor>
-  void
-  MatrixFree<dim, Number>::distributed_cell_loop(
-    const Functor &,
-    const LinearAlgebra::CUDAWrappers::Vector<Number> &,
-    LinearAlgebra::CUDAWrappers::Vector<Number> &) const
-  {
-    DEAL_II_ASSERT_UNREACHABLE();
-  }
-#endif
 } // namespace Portable
 
 DEAL_II_NAMESPACE_CLOSE

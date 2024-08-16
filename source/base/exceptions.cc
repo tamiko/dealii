@@ -517,9 +517,11 @@ namespace deal_II_exceptions
         }
 #endif
 
-      // Let's abort the program here. On the host, we need to call std::abort,
-      // on devices we need to do something different. Kokkos::abort() does
-      // the right thing in all circumstances.
+        // Let's abort the program here. On the host, we need to call
+        // std::abort, on devices we need to do something different.
+        // Kokkos::abort() does the right thing in all circumstances.
+
+#if KOKKOS_VERSION < 30200
       if constexpr (std::is_same_v<Kokkos::DefaultExecutionSpace,
                                    Kokkos::DefaultHostExecutionSpace>)
         {
@@ -529,6 +531,7 @@ namespace deal_II_exceptions
           std::abort();
         }
       else
+#endif
         {
           Kokkos::abort(
             "Abort() was called during dealing with an assertion or exception.");
@@ -550,97 +553,6 @@ namespace deal_II_exceptions
           deallog << exc.what() << std::endl;
         }
     }
-
-
-
-#ifdef DEAL_II_WITH_CUDA
-    std::string
-    get_cusparse_error_string(const cusparseStatus_t error_code)
-    {
-      switch (error_code)
-        {
-          case CUSPARSE_STATUS_NOT_INITIALIZED:
-            {
-              return "The cuSPARSE library was not initialized";
-            }
-          case CUSPARSE_STATUS_ALLOC_FAILED:
-            {
-              return "Resource allocation failed inside the cuSPARSE library";
-            }
-          case CUSPARSE_STATUS_INVALID_VALUE:
-            {
-              return "An unsupported value of parameter was passed to the function";
-            }
-          case CUSPARSE_STATUS_ARCH_MISMATCH:
-            {
-              return "The function requires a feature absent from the device architecture";
-            }
-          case CUSPARSE_STATUS_MAPPING_ERROR:
-            {
-              return "An access to GPU memory space failed";
-            }
-          case CUSPARSE_STATUS_EXECUTION_FAILED:
-            {
-              return "The GPU program failed to execute";
-            }
-          case CUSPARSE_STATUS_INTERNAL_ERROR:
-            {
-              return "An internal cuSPARSE operation failed";
-            }
-          case CUSPARSE_STATUS_MATRIX_TYPE_NOT_SUPPORTED:
-            {
-              return "The matrix type is not supported by this function";
-            }
-          default:
-            {
-              return "Unknown error";
-            }
-        }
-    }
-
-
-
-    std::string
-    get_cusolver_error_string(cusolverStatus_t error_code)
-    {
-      std::string message;
-      switch (error_code)
-        {
-          case CUSOLVER_STATUS_NOT_INITIALIZED:
-            {
-              return "The cuSolver library was not initialized";
-            }
-          case CUSOLVER_STATUS_ALLOC_FAILED:
-            {
-              return "Resource allocation failed inside the cuSolver library";
-            }
-          case CUSOLVER_STATUS_INVALID_VALUE:
-            {
-              return "An unsupported value of a parameter was passed to the function";
-            }
-          case CUSOLVER_STATUS_ARCH_MISMATCH:
-            {
-              return "The function requires a feature absent from the device architecture";
-            }
-          case CUSOLVER_STATUS_EXECUTION_FAILED:
-            {
-              return "The GPU program failed to execute";
-            }
-          case CUSOLVER_STATUS_INTERNAL_ERROR:
-            {
-              return "An internal cuSolver operation failed";
-            }
-          case CUSOLVER_STATUS_MATRIX_TYPE_NOT_SUPPORTED:
-            {
-              return "The matrix type is not supported by this function";
-            }
-          default:
-            {
-              return "Unknown error";
-            }
-        }
-    }
-#endif
 
   } /*namespace internals*/
 } /*namespace deal_II_exceptions*/

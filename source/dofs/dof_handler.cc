@@ -2313,6 +2313,16 @@ void DoFHandler<dim, spacedim>::distribute_mg_dofs()
 
 template <int dim, int spacedim>
 DEAL_II_CXX20_REQUIRES((concepts::is_valid_dim_spacedim<dim, spacedim>))
+void DoFHandler<dim, spacedim>::distribute_virtual_dofs(
+  const types::global_dof_index virtual_dofs)
+{
+  this->number_cache = this->policy->distribute_virtual_dofs(virtual_dofs);
+}
+
+
+
+template <int dim, int spacedim>
+DEAL_II_CXX20_REQUIRES((concepts::is_valid_dim_spacedim<dim, spacedim>))
 void DoFHandler<dim, spacedim>::initialize_local_block_info()
 {
   AssertThrow(hp_capability_enabled == false, ExcNotImplementedWithHP());
@@ -2408,11 +2418,10 @@ void DoFHandler<dim, spacedim>::renumber_dofs(
       // [0...n_dofs()) into itself but only globally, not on each processor
       if (this->n_locally_owned_dofs() == this->n_dofs())
         {
-          std::vector<types::global_dof_index> tmp(new_numbers);
+          auto tmp = new_numbers;
           std::sort(tmp.begin(), tmp.end());
-          std::vector<types::global_dof_index>::const_iterator p = tmp.begin();
-          types::global_dof_index                              i = 0;
-          for (; p != tmp.end(); ++p, ++i)
+          types::global_dof_index i = 0;
+          for (auto p = tmp.begin(); p != tmp.end(); ++p, ++i)
             Assert(*p == i, ExcNewNumbersNotConsecutive(i));
         }
       else

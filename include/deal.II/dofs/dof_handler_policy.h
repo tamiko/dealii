@@ -84,13 +84,21 @@ namespace internal
         distribute_mg_dofs() const = 0;
 
         /**
+         * FIXME: documentation
+         */
+        virtual NumberCache
+        distribute_virtual_dofs(
+          const types::global_dof_index virtual_dofs) const = 0;
+
+        /**
          * Renumber degrees of freedom as specified by the first argument.
          *
          * Return an updated NumberCache for the DoFHandler after renumbering.
          */
         virtual NumberCache
         renumber_dofs(
-          const std::vector<types::global_dof_index> &new_numbers) const = 0;
+          const std::vector<types::global_dof_index> &new_numbers,
+          const types::global_dof_index &n_locally_owned_dofs) const = 0;
 
         /**
          * Renumber multilevel degrees of freedom on one level of a multigrid
@@ -130,10 +138,15 @@ namespace internal
         virtual std::vector<NumberCache>
         distribute_mg_dofs() const override;
 
+        virtual NumberCache
+        distribute_virtual_dofs(
+          const types::global_dof_index virtual_dofs) const override;
+
         // documentation is inherited
         virtual NumberCache
-        renumber_dofs(const std::vector<types::global_dof_index> &new_numbers)
-          const override;
+        renumber_dofs(
+          const std::vector<types::global_dof_index> &new_numbers,
+          const types::global_dof_index &n_locally_owned_dofs) const override;
 
         // documentation is inherited
         virtual NumberCache
@@ -183,6 +196,13 @@ namespace internal
         distribute_mg_dofs() const override;
 
         /**
+         * This function is not yet implemented.
+         */
+        virtual NumberCache
+        distribute_virtual_dofs(
+          const types::global_dof_index virtual_dofs) const override;
+
+        /**
          * Renumber degrees of freedom as specified by the first argument.
          *
          * The input argument @p new_numbers may either have as many entries
@@ -192,8 +212,9 @@ namespace internal
          * parallel::distributed case.
          */
         virtual NumberCache
-        renumber_dofs(const std::vector<types::global_dof_index> &new_numbers)
-          const override;
+        renumber_dofs(
+          const std::vector<types::global_dof_index> &new_numbers,
+          const types::global_dof_index &n_locally_owned_dofs) const override;
 
         // documentation is inherited
         virtual NumberCache
@@ -234,8 +255,14 @@ namespace internal
 
         // documentation is inherited
         virtual NumberCache
-        renumber_dofs(const std::vector<types::global_dof_index> &new_numbers)
-          const override;
+        distribute_virtual_dofs(
+          const types::global_dof_index virtual_dofs) const override;
+
+        // documentation is inherited
+        virtual NumberCache
+        renumber_dofs(
+          const std::vector<types::global_dof_index> &new_numbers,
+          const types::global_dof_index &n_locally_owned_dofs) const override;
 
         // documentation is inherited
         virtual NumberCache

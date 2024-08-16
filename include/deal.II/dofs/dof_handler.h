@@ -706,6 +706,16 @@ public:
   distribute_mg_dofs();
 
   /**
+   * FIXME: documentation
+   *
+   * Distribute virtual degrees of freedom. [...]
+   *
+   * @pre The locally owned index set must be contiguous.
+   */
+  void
+  distribute_virtual_dofs(const dealii::types::global_dof_index virtual_dofs);
+
+  /**
    * Returns whether this DoFHandler has hp-capabilities.
    */
   bool
@@ -1186,6 +1196,14 @@ public:
    */
   const IndexSet &
   locally_owned_dofs() const;
+
+  /**
+   * FIXME: documentation
+   *
+   * Return an IndexSet describing the subset of locally owned virtual DoFs.
+   */
+  const IndexSet &
+  locally_owned_virtual_dofs() const;
 
   /**
    * Return an IndexSet describing the set of locally owned DoFs used for the
@@ -1850,6 +1868,15 @@ DEAL_II_CXX20_REQUIRES((concepts::is_valid_dim_spacedim<dim, spacedim>))
 const IndexSet &DoFHandler<dim, spacedim>::locally_owned_dofs() const
 {
   return number_cache.locally_owned_dofs;
+}
+
+
+
+template <int dim, int spacedim>
+DEAL_II_CXX20_REQUIRES((concepts::is_valid_dim_spacedim<dim, spacedim>))
+const IndexSet &DoFHandler<dim, spacedim>::locally_owned_virtual_dofs() const
+{
+  return number_cache.locally_owned_virtual_dofs;
 }
 
 

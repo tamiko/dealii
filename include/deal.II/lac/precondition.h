@@ -17,7 +17,6 @@
 
 #include <deal.II/base/config.h>
 
-#include <deal.II/base/cuda_size.h>
 #include <deal.II/base/memory_space.h>
 #include <deal.II/base/mutex.h>
 #include <deal.II/base/parallel.h>
@@ -3579,7 +3578,7 @@ namespace internal
           temp_vector1.reinit(rhs, true);
           temp_vector2.reinit(rhs, true);
 
-          // 1) compute rediduum (including operator application)
+          // 1) compute residual (including operator application)
           matrix.vmult(
             temp_vector1,
             solution,
