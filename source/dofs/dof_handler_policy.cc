@@ -2649,8 +2649,7 @@ namespace internal
 
       template <int dim, int spacedim>
       NumberCache
-      Sequential<dim, spacedim>::distribute_dofs(
-        const types::global_dof_index n_virtual_dofs) const
+      Sequential<dim, spacedim>::distribute_dofs() const
       {
         const types::global_dof_index n_initial_dofs =
           Implementation::distribute_dofs(numbers::invalid_subdomain_id,
@@ -2661,7 +2660,34 @@ namespace internal
                                             n_initial_dofs,
                                             /*check_validity=*/true);
 
+        return NumberCache(n_dofs);
+      }
+
+
+
+      template <int dim, int spacedim>
+      NumberCache
+      Sequential<dim, spacedim>::distribute_virtual_dofs(
+        const types::global_dof_index n_virtual_dofs) const
+      {
+        const auto &old_locally_owned_dofs =
+          dof_handler->locally_owned_dofs();
+
+        Assert(old_locally_owned_dofs.is_contiguous(),
+               ExcMessage(
+                 "Virtual degrees of freedom can only be distributed when the "
+                 "locally owned index range is contiguous."));
+
+        const auto &old_locally_owned_virtual_dofs =
+          dof_handler->locally_owned_virtual_dofs();
+
+        Assert(old_locally_owned_virtual_dofs.n_elements() == 0,
+               ExcMessage(
+                 "Can distribute virtual degrees of freedom only once after "
+                 "distribute_dofs()"));
+
         // return a sequential, complete index set
+        const auto n_dofs = old_locally_owned_dofs.size();
         NumberCache number_cache(n_dofs + n_virtual_dofs);
 
         number_cache.locally_owned_virtual_dofs =
@@ -2703,50 +2729,45 @@ namespace internal
       template <int dim, int spacedim>
       NumberCache
       Sequential<dim, spacedim>::renumber_dofs(
-        const std::vector<types::global_dof_index> &new_numbers) const
+        const std::vector<types::global_dof_index> &new_numbers,
+        const dealii::types::global_dof_index      &n_total_dofs) const
       {
+        AssertDimension(new_numbers.size(), dof_handler->n_dofs());
+
         Implementation::renumber_dofs(new_numbers,
                                       IndexSet(0),
                                       *dof_handler,
                                       /*check_validity=*/true);
 
-        // FIXME begin: refactor into own function
-        IndexSet my_locally_owned_new_virtual_dofs(dof_handler->n_dofs());
-        {
-          const auto &old_virtual_dofs =
-            dof_handler->locally_owned_virtual_dofs();
-          std::vector<dealii::types::global_dof_index> new_numbers_sorted(
-            old_virtual_dofs.n_elements());
-
-          std::transform(std::begin(old_virtual_dofs),
-                         std::end(old_virtual_dofs),
-                         std::begin(new_numbers_sorted),
-                         [&](const auto &it) { return new_numbers[it]; });
-
-          std::sort(new_numbers_sorted.begin(), new_numbers_sorted.end());
-
-          my_locally_owned_new_virtual_dofs.add_indices(
-            new_numbers_sorted.begin(), new_numbers_sorted.end());
-          my_locally_owned_new_virtual_dofs.compress();
-        }
-        // FIXME end
-
-        // return a sequential, complete index set. take into account that the
-        // number of DoF indices may in fact be smaller than there were before
-        // if some previously separately numbered dofs have been identified.
-        // this is, for example, what we do when the DoFHandler has hp-
-        // capabilities enabled: it first enumerates all DoFs on cells
-        // independently, and then unifies some located at vertices or faces;
-        // this leaves us with fewer DoFs than there were before, so use the
-        // largest index as the one to determine the size of the index space
         if (new_numbers.empty())
           return NumberCache();
         else
           {
-            const auto n_total_dofs =
-              *std::max_element(new_numbers.begin(), new_numbers.end()) + 1;
+#ifdef DEBUG
+            const auto largest_index =
+              *std::max_element(new_numbers.begin(), new_numbers.end());
+            Assert(largest_index < n_total_dofs, ExcInternalError());
+#endif
+
+            const auto &old_virtual_dofs =
+              dof_handler->locally_owned_virtual_dofs();
+            std::vector<dealii::types::global_dof_index> new_virtual_sorted(
+              old_virtual_dofs.n_elements());
+
+            std::transform(std::begin(old_virtual_dofs),
+                           std::end(old_virtual_dofs),
+                           std::begin(new_virtual_sorted),
+                           [&](const auto &it) { return new_numbers[it]; });
+
+            std::sort(new_virtual_sorted.begin(), new_virtual_sorted.end());
+
+            IndexSet my_locally_owned_new_virtual_dofs(n_total_dofs);
+            my_locally_owned_new_virtual_dofs.add_indices(
+              new_virtual_sorted.begin(), new_virtual_sorted.end());
+            my_locally_owned_new_virtual_dofs.compress();
 
             // return a sequential, complete index set
+
             NumberCache number_cache(n_total_dofs);
             number_cache.locally_owned_virtual_dofs =
               my_locally_owned_new_virtual_dofs;
@@ -2920,11 +2941,8 @@ namespace internal
 
       template <int dim, int spacedim>
       NumberCache
-      ParallelShared<dim, spacedim>::distribute_dofs(
-        const types::global_dof_index virtual_dofs [[maybe_unused]]) const
+      ParallelShared<dim, spacedim>::distribute_dofs() const
       {
-        Assert(virtual_dofs == 0, ExcNotImplemented());
-
         const dealii::parallel::shared::Triangulation<dim, spacedim> *tr =
           (dynamic_cast<
             const dealii::parallel::shared::Triangulation<dim, spacedim> *>(
@@ -3062,6 +3080,18 @@ namespace internal
         return NumberCache(
           locally_owned_dofs_per_processor,
           this->dof_handler->get_triangulation().locally_owned_subdomain());
+      }
+
+
+
+      template <int dim, int spacedim>
+      NumberCache
+      ParallelShared<dim, spacedim>::distribute_virtual_dofs(
+        const types::global_dof_index virtual_dofs) const
+      {
+        // FIXME: implement me
+        AssertThrow(virtual_dofs == 0, ExcNotImplemented());
+        return NumberCache();
       }
 
 
@@ -3644,8 +3674,7 @@ namespace internal
 
       template <int dim, int spacedim>
       NumberCache
-      ParallelDistributed<dim, spacedim>::distribute_dofs(
-        const types::global_dof_index n_locally_virtual [[maybe_unused]]) const
+      ParallelDistributed<dim, spacedim>::distribute_dofs() const
       {
 #ifndef DEAL_II_WITH_MPI
         DEAL_II_NOT_IMPLEMENTED();
@@ -3741,13 +3770,9 @@ namespace internal
           Utilities::MPI::partial_and_total_sum(
             n_locally_owned_dofs, triangulation->get_communicator());
 
-        const auto [my_shift_virtual, n_global_virtual] =
-          Utilities::MPI::partial_and_total_sum(
-            n_locally_virtual, triangulation->get_communicator());
-
         // make dof indices globally consecutive
         Implementation::enumerate_dof_indices_for_renumbering(
-          renumbering, all_constrained_indices, my_shift + my_shift_virtual);
+          renumbering, all_constrained_indices, my_shift);
 
         // now re-enumerate all dofs to this shifted and condensed
         // numbering form.  we renumber some dofs as invalid, so
@@ -3757,26 +3782,17 @@ namespace internal
                                       *dof_handler,
                                       /*check_validity=*/false);
 
-
         NumberCache number_cache;
-        number_cache.n_global_dofs = n_global_dofs + n_global_virtual;
-        number_cache.n_locally_owned_dofs =
-          n_locally_owned_dofs + n_locally_virtual;
+        number_cache.n_global_dofs = n_global_dofs;
+        number_cache.n_locally_owned_dofs = n_locally_owned_dofs;
 
-        number_cache.locally_owned_dofs =
-          IndexSet(n_global_dofs + n_global_virtual);
+        number_cache.locally_owned_dofs = IndexSet(n_global_dofs);
         number_cache.locally_owned_dofs.add_range( //
-          my_shift + my_shift_virtual,
-          my_shift + my_shift_virtual + n_locally_owned_dofs +
-            n_locally_virtual);
+          my_shift,
+          my_shift + n_locally_owned_dofs);
         number_cache.locally_owned_dofs.compress();
 
-        number_cache.locally_owned_virtual_dofs =
-          IndexSet(n_global_dofs + n_global_virtual);
-        number_cache.locally_owned_virtual_dofs.add_range(
-          my_shift + my_shift_virtual + n_locally_owned_dofs,
-          my_shift + my_shift_virtual + n_locally_owned_dofs +
-            n_locally_virtual);
+        number_cache.locally_owned_virtual_dofs = IndexSet(n_global_dofs);
         number_cache.locally_owned_virtual_dofs.compress();
 
 
@@ -3864,6 +3880,70 @@ namespace internal
 #  endif // DEBUG
         return number_cache;
 #endif   // DEAL_II_WITH_MPI
+      }
+
+
+
+      template <int dim, int spacedim>
+      NumberCache
+      ParallelDistributed<dim, spacedim>::distribute_virtual_dofs(
+        const types::global_dof_index virtual_dofs) const
+      {
+        const auto &old_locally_owned_dofs =
+          dof_handler->locally_owned_dofs();
+
+        Assert(old_locally_owned_dofs.is_contiguous(),
+               ExcMessage(
+                 "Virtual degrees of freedom can only be distributed when the "
+                 "locally owned index range is contiguous."));
+
+        const auto &old_locally_owned_virtual_dofs =
+          dof_handler->locally_owned_virtual_dofs();
+
+        Assert(old_locally_owned_virtual_dofs.n_elements() == 0,
+               ExcMessage(
+                 "Can distribute virtual degrees of freedom only once after "
+                 "distribute_dofs()"));
+
+        dealii::parallel::DistributedTriangulationBase<dim, spacedim>
+          *triangulation =
+            (dynamic_cast<
+              dealii::parallel::DistributedTriangulationBase<dim, spacedim> *>(
+              const_cast<dealii::Triangulation<dim, spacedim> *>(
+                &dof_handler->get_triangulation())));
+        Assert(triangulation != nullptr, ExcInternalError());
+
+        //
+        // Renumber degrees of freedom by adding a global shift to the
+        // locally owned index range:
+        //
+
+        const auto [my_shift, n_global_virtual_dofs] =
+          Utilities::MPI::partial_and_total_sum(
+            virtual_dofs, triangulation->get_communicator());
+
+        std::vector<dealii::types::global_dof_index> renumbering(
+          old_locally_owned_dofs.n_elements());
+        std::generate(renumbering.begin(),
+                      renumbering.end(),
+                      [my_shift = my_shift,
+                       n        = *old_locally_owned_dofs.begin()]() mutable {
+                        return my_shift + n++;
+                      });
+
+        NumberCache number_cache = this->renumber_dofs(renumbering);
+
+        return number_cache;
+
+#if 0
+        // FIXME resume here
+        number_cache.locally_owned_virtual_dofs =
+        number_cache.locally_owned_virtual_dofs.add_range(
+          my_shift + my_shift_virtual + n_locally_owned_dofs,
+          my_shift + my_shift_virtual + n_locally_owned_dofs +
+            n_locally_virtual);
+        number_cache.locally_owned_virtual_dofs.compress();
+#endif
       }
 
 
@@ -4047,10 +4127,9 @@ namespace internal
       template <int dim, int spacedim>
       NumberCache
       ParallelDistributed<dim, spacedim>::renumber_dofs(
-        const std::vector<dealii::types::global_dof_index> &new_numbers) const
+        const std::vector<dealii::types::global_dof_index> &new_numbers,
+        const dealii::types::global_dof_index &n_locally_owned_dofs) const
       {
-        (void)new_numbers;
-
         Assert(new_numbers.size() == dof_handler->n_locally_owned_dofs(),
                ExcInternalError());
 
@@ -4072,12 +4151,13 @@ namespace internal
         // ranks changed, in which case we do not need to find a new index
         // set.
         const IndexSet &owned_dofs = dof_handler->locally_owned_dofs();
-        const bool      locally_owned_set_changes =
+        bool            locally_owned_set_changes =
           std::any_of(new_numbers.cbegin(),
                       new_numbers.cend(),
                       [&owned_dofs](const types::global_dof_index i) {
                         return owned_dofs.is_element(i) == false;
-                      });
+                      }) ||
+          true;
 
         IndexSet my_locally_owned_new_dof_indices = owned_dofs;
         if (locally_owned_set_changes && owned_dofs.n_elements() > 0)

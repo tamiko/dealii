@@ -2133,10 +2133,9 @@ std::size_t DoFHandler<dim, spacedim>::memory_consumption() const
 template <int dim, int spacedim>
 DEAL_II_CXX20_REQUIRES((concepts::is_valid_dim_spacedim<dim, spacedim>))
 void DoFHandler<dim, spacedim>::distribute_dofs(
-  const FiniteElement<dim, spacedim>    &fe,
-  const dealii::types::global_dof_index &virtual_dofs)
+  const FiniteElement<dim, spacedim> &fe)
 {
-  this->distribute_dofs(hp::FECollection<dim, spacedim>(fe), virtual_dofs);
+  this->distribute_dofs(hp::FECollection<dim, spacedim>(fe));
 }
 
 
@@ -2144,8 +2143,7 @@ void DoFHandler<dim, spacedim>::distribute_dofs(
 template <int dim, int spacedim>
 DEAL_II_CXX20_REQUIRES((concepts::is_valid_dim_spacedim<dim, spacedim>))
 void DoFHandler<dim, spacedim>::distribute_dofs(
-  const hp::FECollection<dim, spacedim> &ff,
-  const dealii::types::global_dof_index &virtual_dofs)
+  const hp::FECollection<dim, spacedim> &ff)
 {
   Assert(this->tria != nullptr,
          ExcMessage(
@@ -2256,7 +2254,7 @@ void DoFHandler<dim, spacedim>::distribute_dofs(
   }
 
   // hand the actual work over to the policy
-  this->number_cache = this->policy->distribute_dofs(virtual_dofs);
+  this->number_cache = this->policy->distribute_dofs();
 
   // do some housekeeping: compress indices
   // if(hp_capability_enabled)
@@ -2309,6 +2307,16 @@ void DoFHandler<dim, spacedim>::distribute_mg_dofs()
   if (dynamic_cast<const parallel::TriangulationBase<dim, spacedim> *>(
         &*this->tria) == nullptr)
     this->block_info_object.initialize(*this, true, false);
+}
+
+
+
+template <int dim, int spacedim>
+DEAL_II_CXX20_REQUIRES((concepts::is_valid_dim_spacedim<dim, spacedim>))
+void DoFHandler<dim, spacedim>::distribute_virtual_dofs(
+  const types::global_dof_index virtual_dofs)
+{
+  this->number_cache = this->policy->distribute_virtual_dofs(virtual_dofs);
 }
 
 
@@ -2410,11 +2418,10 @@ void DoFHandler<dim, spacedim>::renumber_dofs(
       // [0...n_dofs()) into itself but only globally, not on each processor
       if (this->n_locally_owned_dofs() == this->n_dofs())
         {
-          std::vector<types::global_dof_index> tmp(new_numbers);
+          auto tmp = new_numbers;
           std::sort(tmp.begin(), tmp.end());
-          std::vector<types::global_dof_index>::const_iterator p = tmp.begin();
-          types::global_dof_index                              i = 0;
-          for (; p != tmp.end(); ++p, ++i)
+          types::global_dof_index i = 0;
+          for (auto p = tmp.begin(); p != tmp.end(); ++p, ++i)
             Assert(*p == i, ExcNewNumbersNotConsecutive(i));
         }
       else

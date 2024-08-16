@@ -689,15 +689,13 @@ public:
    * function set_fe().
    */
   void
-  distribute_dofs(const FiniteElement<dim, spacedim>    &fe,
-                  const dealii::types::global_dof_index &virtual_dofs = 0);
+  distribute_dofs(const FiniteElement<dim, spacedim> &fe);
 
   /**
    * Same as above but taking an hp::FECollection object.
    */
   void
-  distribute_dofs(const hp::FECollection<dim, spacedim> &fe,
-                  const dealii::types::global_dof_index &virtual_dofs = 0);
+  distribute_dofs(const hp::FECollection<dim, spacedim> &fe);
 
   /**
    * Distribute level degrees of freedom on each level for geometric
@@ -706,6 +704,16 @@ public:
    */
   void
   distribute_mg_dofs();
+
+  /**
+   * FIXME: documentation
+   *
+   * Distribute virtual degrees of freedom. [...]
+   *
+   * @pre The locally owned index set must be contiguous.
+   */
+  void
+  distribute_virtual_dofs(const dealii::types::global_dof_index virtual_dofs);
 
   /**
    * Returns whether this DoFHandler has hp-capabilities.
@@ -1190,6 +1198,8 @@ public:
   locally_owned_dofs() const;
 
   /**
+   * FIXME: documentation
+   *
    * Return an IndexSet describing the subset of locally owned virtual DoFs.
    */
   const IndexSet &
